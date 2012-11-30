@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
@@ -22,6 +23,7 @@ import java.util.List;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import org.json.*;
 
 public class MainActivity extends Activity {
 
@@ -30,6 +32,7 @@ public class MainActivity extends Activity {
 
     private String email;
     private String passwd;
+    private Boolean loginOK = false;
 
     /** Called when the activity is first created. */
     @Override
@@ -58,7 +61,15 @@ public class MainActivity extends Activity {
         }
     }
 
+    private void startFilesActivity(String sessionid) {
+        Intent intent = new Intent(this, FilesActivity.class);
+
+        intent.putExtra("sessionid", sessionid);
+        startActivity(intent);
+    }
+
     private class LoginTask extends AsyncTask<String, Void, String> {
+
         @Override
         protected String doInBackground(String... params) {              
             if (params.length != 2)
@@ -70,10 +81,23 @@ public class MainActivity extends Activity {
                 return "Unable to retrieve web page. URL may be invalid.";
             }
         }
+
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
-            statusView.setText(result);
+            if (loginOK) {
+                // showFilesActivity();
+                JSONObject obj = Utils.parseJsonObjectInArray0(result);
+                try {
+                    String sessionid = obj.getString("sessionid");
+                    statusView.setText(sessionid);
+                    startFilesActivity(sessionid);
+                } catch (JSONException e) {
+                    statusView.setText("get sessionid failed");
+                }
+            } else {
+                statusView.setText(result);
+            }
         }
 
         private String doLogin(String username, String passwd) throws IOException {
@@ -104,6 +128,7 @@ public class MainActivity extends Activity {
                 
                 // Convert the InputStream into a string
                 String contentAsString = readIt(is, len);
+                loginOK = true;
                 return contentAsString;
                 
                 // Makes sure that the InputStream is closed after the app is

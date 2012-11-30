@@ -8,6 +8,7 @@ import java.util.List;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.io.*;
+import org.json.*;
 
 class Utils {
     
@@ -44,6 +45,15 @@ class Utils {
         os.close();
         
         conn.connect();
+    }
+
+    public static JSONObject parseJsonObjectInArray0(String json) {
+        try {
+            JSONArray array = (JSONArray) new JSONTokener(json).nextValue();
+            return array.getJSONObject(0);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 }
