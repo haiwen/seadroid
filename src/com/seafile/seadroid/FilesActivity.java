@@ -5,37 +5,24 @@ import android.os.Bundle;
 import android.os.Build;
 import android.os.AsyncTask;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.Gravity;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.ProgressBar;
 import android.widget.ListView;
 import android.widget.ArrayAdapter;
-import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.io.Reader;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
 
 public class FilesActivity extends ListActivity {
 
-    private String sid;
 
     private ArrayList<String> libraries = new ArrayList<String>();
     private ArrayAdapter<String> adapter;
+    
+    private String server;
+    private SeafConnection sc;
+    
+    List<SeafRepo> repos = null;
 
     /** Called when the activity is first created. */
     @Override
@@ -44,7 +31,9 @@ public class FilesActivity extends ListActivity {
 
         // Get the message from the intent
         Intent intent = getIntent();
-
+        server = intent.getStringExtra("server");
+        sc = SeafConnection.getSeafConnection(server);
+        
         // // Create the text view
         // TextView textView = new TextView(this);
         // textView.setTextSize(40);
@@ -68,16 +57,22 @@ public class FilesActivity extends ListActivity {
         // Do something when a list item is clicked
     }
 
-    private class LoadTask extends AsyncTask<Void, Void, String> {
+    private class LoadTask extends AsyncTask<Void, Void, List<SeafRepo> > {
 
         @Override
-        protected String doInBackground(Void... params) {
-            return "";
+        protected List<SeafRepo> doInBackground(Void... params) {
+            List<SeafRepo> repos = sc.getRepos();
+            return repos;
         }
 
         // onPostExecute displays the results of the AsyncTask.
         @Override
-        protected void onPostExecute(String result) {
+        protected void onPostExecute(List<SeafRepo> rs) {
+            adapter.clear();
+            repos = rs;
+            for (SeafRepo repo : repos) {
+                adapter.add(repo.name);
+            }
         }
 
     }

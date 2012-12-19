@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.util.Log;
@@ -144,6 +145,7 @@ public class SeafConnection {
         try {
             HttpURLConnection conn = preparePost("api2/auth-token/", false);
 
+            Log.d(DEBUG_TAG, "Login to " + server + "api2/auth-token/");
             List<NameValuePair> params = new ArrayList<NameValuePair>();
             params.add(new BasicNameValuePair("username", username));
             params.add(new BasicNameValuePair("password", passwd));
@@ -177,7 +179,7 @@ public class SeafConnection {
         }
     }
     
-    public boolean ping() {
+    public boolean authPing() {
         InputStream is = null;
         try {
             
@@ -208,6 +210,71 @@ public class SeafConnection {
             }
         }
     }
+    
+    public boolean ping() {
+        InputStream is = null;
+        try {     
+            HttpURLConnection conn = prepareGet("api2/ping/");
+            conn.connect();
+            int response = conn.getResponseCode();
+            if (response != 200)
+                return false;
+            
+            is = conn.getInputStream();
+            String result = readIt(is);
+            if (result.equals("\"pong\""))
+                return true;
+            else
+                return false;
+        } catch (Exception e) {
+            Log.d(DEBUG_TAG, e.getMessage());
+            return false;
+        } finally {
+            try {
+                if (is != null) {
+                    is.close();
+                }
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+    }
+    
+    
+    public List<SeafRepo> getRepos() {
+        InputStream is = null;
+        try {
+            HttpURLConnection conn = prepareGet("api2/repos/");
+            conn.connect();
+            int response = conn.getResponseCode();
+            if (response != 200)
+                return null;
+            
+            is = conn.getInputStream();
+            String result = readIt(is);
+            JSONArray array = Utils.parseJsonArray(result);
+            ArrayList<SeafRepo> repos = new ArrayList<SeafRepo>();
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject obj = array.getJSONObject(i);
+                SeafRepo repo = SeafRepo.fromJson(obj);
+                repos.add(repo);
+            }
+            return repos;
+        } catch (Exception e) {
+            Log.d(DEBUG_TAG, e.getMessage());
+            return null;
+        } finally {
+            try {
+                if (is != null) {
+                    is.close();
+                }
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+    }
+    
+    
     
     private String readIt(InputStream stream) throws IOException,
             UnsupportedEncodingException {

@@ -58,6 +58,7 @@ public class MainActivity extends Activity {
 
     private void startFilesActivity() {
         Intent intent = new Intent(this, FilesActivity.class);
+        intent.putExtra("server", SEAHUB_URL);
         startActivity(intent);
     }
 
@@ -84,11 +85,11 @@ public class MainActivity extends Activity {
 
         private String doLogin(String username, String passwd) {   
             SeafConnection sc = SeafConnection.getSeafConnection(SEAHUB_URL);
+            //if (sc.ping() == false)
+            //    return "ping failed";
+            
             if (sc.doLogin(username, passwd) == false)
                 return "Login failed";
-            
-            if (sc.ping() == false)
-                return "ping failed";
             
             return "Success";
         }

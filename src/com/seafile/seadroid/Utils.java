@@ -16,5 +16,9 @@ class Utils {
     public static JSONObject parseJsonObject(String json) throws JSONException {
     	return (JSONObject) new JSONTokener(json).nextValue();
     }
+    
+    public static JSONArray parseJsonArray(String json) throws JSONException {
+        return (JSONArray) new JSONTokener(json).nextValue();
+    }
 
 }
