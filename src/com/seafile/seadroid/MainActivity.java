@@ -4,35 +4,27 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.os.AsyncTask;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
 
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.io.Reader;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-import org.json.*;
 
 public class MainActivity extends Activity {
 
+    private static final String DEBUG_TAG = "MainActivity";
+
     private static final String SEAHUB_URL = "http://gonggeng.org/seahub/";
+    
     private TextView statusView;
+    private Button loginButton;
 
     private String email;
     private String passwd;
-    private Boolean loginOK = false;
 
     /** Called when the activity is first created. */
     @Override
@@ -41,6 +33,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.main);
         
         statusView = (TextView) findViewById(R.id.status_view);
+        loginButton = (Button) findViewById(R.id.login_button);
     }
 
     /** Called when the user clicks the Login button */
@@ -54,17 +47,17 @@ public class MainActivity extends Activity {
         ConnectivityManager connMgr = (ConnectivityManager) 
             getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
         if (networkInfo != null && networkInfo.isConnected()) {
+            loginButton.setEnabled(false);
             new LoginTask().execute(email, passwd);
         } else {
             statusView.setText("No network connection available.");
         }
     }
 
-    private void startFilesActivity(String sessionid) {
+    private void startFilesActivity() {
         Intent intent = new Intent(this, FilesActivity.class);
-
-        intent.putExtra("sessionid", sessionid);
         startActivity(intent);
     }
 
@@ -75,80 +68,30 @@ public class MainActivity extends Activity {
             if (params.length != 2)
                 return "Error number of parameter";
 
-            try {
-                return doLogin(params[0], params[1]);
-            } catch (IOException e) {
-                return "Unable to retrieve web page. URL may be invalid.";
-            }
+            return doLogin(params[0], params[1]);
         }
 
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
-            if (loginOK) {
-                // showFilesActivity();
-                JSONObject obj = Utils.parseJsonObjectInArray0(result);
-                try {
-                    String sessionid = obj.getString("sessionid");
-                    statusView.setText(sessionid);
-                    startFilesActivity(sessionid);
-                } catch (JSONException e) {
-                    statusView.setText("get sessionid failed");
-                }
+            if (result.equals("Success")) {
+                startFilesActivity();
             } else {
                 statusView.setText(result);
             }
+            loginButton.setEnabled(true);
         }
 
-        private String doLogin(String username, String passwd) throws IOException {
-            InputStream is = null;
-            // Only display the first 500 characters of the retrieved
-            // web page content.
-            int len = 500;
-        
-            try {
-                URL url = new URL(SEAHUB_URL + "api/login/");
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setReadTimeout(10000 /* milliseconds */);
-                conn.setConnectTimeout(15000 /* milliseconds */);
-
-                List<NameValuePair> params = new ArrayList<NameValuePair>();
-                params.add(new BasicNameValuePair("username", username));
-                params.add(new BasicNameValuePair("password", passwd));
-
-                try {
-                    Utils.doPost(conn, params);
-                } catch (IOException e) {
-                    return e.getMessage();
-                }
-
-                // Starts the query
-                int response = conn.getResponseCode();
-                is = conn.getInputStream();
-                
-                // Convert the InputStream into a string
-                String contentAsString = readIt(is, len);
-                loginOK = true;
-                return contentAsString;
-                
-                // Makes sure that the InputStream is closed after the app is
-                // finished using it.
-            } finally {
-                if (is != null) {
-                    is.close();
-                } 
-            }
+        private String doLogin(String username, String passwd) {   
+            SeafConnection sc = SeafConnection.getSeafConnection(SEAHUB_URL);
+            if (sc.doLogin(username, passwd) == false)
+                return "Login failed";
+            
+            if (sc.ping() == false)
+                return "ping failed";
+            
+            return "Success";
         }
-
-        public String readIt(InputStream stream, int len) throws IOException,
-            UnsupportedEncodingException {
-            Reader reader = null;
-            reader = new InputStreamReader(stream, "UTF-8");        
-            char[] buffer = new char[len];
-            reader.read(buffer);
-            return new String(buffer);
-        }
-
     }
 
 }
