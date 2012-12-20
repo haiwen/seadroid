@@ -278,7 +278,8 @@ public class SeafConnection {
     public List<SeafDirent> getDirents(String repo_id, String path) {
         InputStream is = null;
         try {
-            HttpURLConnection conn = prepareGet("api2/repos/" + repo_id + "/dirents/" + "?p=" + path);
+            String encPath = URLEncoder.encode(path, "UTF-8");
+            HttpURLConnection conn = prepareGet("api2/repos/" + repo_id + "/dirents/" + "?p=" + encPath);
             conn.connect();
             int response = conn.getResponseCode();
             if (response != 200) {

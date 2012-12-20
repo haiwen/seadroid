@@ -1,6 +1,5 @@
 package com.seafile.seadroid;
 
-import android.app.ListActivity;
 import android.os.Bundle;
 import android.os.Build;
 import android.os.AsyncTask;
@@ -12,9 +11,11 @@ import android.content.Intent;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.actionbarsherlock.app.SherlockListActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 
-
-public class FilesActivity extends ListActivity {
+public class FilesActivity extends SherlockListActivity {
 
     private static final String DEBUG_TAG = "FilesActivity";
 
@@ -48,6 +49,30 @@ public class FilesActivity extends ListActivity {
         public boolean inRepo() {
             return currentRepo != null;
         }
+        
+        public SeafRepo getCurrentRepo() {
+            return currentRepo;
+        }
+        
+        public SeafDirent getDirent(int position) {
+            return currentDirents.get(position);
+        }
+        
+        public boolean isDir(int position) {
+            return currentDirents.get(position).isDir();
+        }
+        
+        public String getPathAtPosition(int position) {
+            return currentPath + "/" + currentDirents.get(position).name;
+        }
+        
+        public boolean isRootDir() {
+            return currentPath.equals("/");
+        }
+        
+        public String getParentPath() {
+            return currentPath.substring(0, currentPath.lastIndexOf("/"));
+        }
     }
     
     
@@ -63,6 +88,8 @@ public class FilesActivity extends ListActivity {
         sc = SeafConnection.getSeafConnection(server);
         navContext = new NavContext();
         
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        
         // // Create the text view
         // TextView textView = new TextView(this);
         // textView.setTextSize(40);
@@ -70,27 +97,64 @@ public class FilesActivity extends ListActivity {
         // // Set the text view as the activity layout
         // setContentView(textView);
 
-
         // We need to use a different list item layout for devices older than Honeycomb
         int layout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
             android.R.layout.simple_list_item_activated_1 : android.R.layout.simple_list_item_1;
         adapter = new ArrayAdapter<String>(this, layout, libraries);
         setListAdapter(adapter);
             
-        new LoadTask().execute();
+        navToReposView();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return true;
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                navUp();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override 
     public void onListItemClick(ListView l, View v, int position, long id) {
         Log.d(DEBUG_TAG, "click pos " + position + " id " + id);
         
         if (navContext.inRepo()) {
-            
+            if (navContext.isDir(position)) {
+                navToDirectory(navContext.getCurrentRepo(),
+                        navContext.getPathAtPosition(position));
+            }
         } else {
-            getListView().setEnabled(false);
             SeafRepo repo = repos.get(position);
-            new LoadDirTask().execute(repo.id, "/");
+            navToDirectory(repo, "/");
+        }
+    }
+    
+    private void navToReposView() {
+        getListView().setEnabled(false);
+        new LoadTask().execute();
+    }
+
+    private void navToDirectory(SeafRepo repo, String path) {
+        getListView().setEnabled(false);
+        navContext.currentRepo = repo;
+        navContext.currentPath = path;
+        new LoadDirTask().execute(repo.id, path);
+    }
+    
+    private void navUp() {
+        if (navContext.inRepo()) {
+            if (navContext.isRootDir()) {
+                navToReposView();
+            } else {
+                navToDirectory(navContext.currentRepo, navContext.getParentPath());
+            }
         }
     }
 
@@ -108,9 +172,12 @@ public class FilesActivity extends ListActivity {
             adapter.clear();
             repos = rs;
             navContext.clear();
-            for (SeafRepo repo : repos) {
-                adapter.add(repo.name);
+            if (repos != null) {
+                for (SeafRepo repo : repos) {
+                    adapter.add(repo.name);
+                }
             }
+            getListView().setEnabled(true);
         }
 
     }
@@ -124,9 +191,9 @@ public class FilesActivity extends ListActivity {
                 return null;
             }
             
-            String repo_id = params[0];
+            String repoID = params[0];
             String path = params[1];
-            List<SeafDirent> dirents = sc.getDirents(repo_id, path);
+            List<SeafDirent> dirents = sc.getDirents(repoID, path);
             return dirents;
         }
 

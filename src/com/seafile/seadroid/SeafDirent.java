@@ -24,11 +24,11 @@ public class SeafDirent {
             dirent.id = obj.getString("id");
             dirent.name = obj.getString("name");
             String type = obj.getString("type");
-            if (type.equals("file"))
+            if (type.equals("file")) {
                 dirent.type = DirentType.FILE;
-            else
+                dirent.size = obj.getLong("size");
+            } else
                 dirent.type = DirentType.DIR;
-            dirent.size = obj.getLong("size");
             return dirent;
         } catch (JSONException e) {
             Log.d("SeafDirent", e.getMessage());
