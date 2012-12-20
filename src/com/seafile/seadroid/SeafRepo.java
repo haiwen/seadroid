@@ -11,17 +11,17 @@ import org.json.JSONObject;
  */
 public class SeafRepo {
 
-    String id;     // repo id
-    String name;
-    String description;
-    String owner;
-    Date mtime;    // the last modification time
+    public String id;     // repo id
+    public String name;
+    public String description;
+    public String owner;
+    public Date mtime;    // the last modification time
     
-    boolean passwordNeed;
-    boolean encrypted;
+    public boolean passwordNeed;
+    public boolean encrypted;
     
-    long    size;
-    String  root; // the id of root directory; 
+    public long    size;
+    public String  root; // the id of root directory; 
 
     static SeafRepo fromJson(JSONObject obj) {
         SeafRepo repo = new SeafRepo();

@@ -257,7 +257,8 @@ public class SeafConnection {
             for (int i = 0; i < array.length(); i++) {
                 JSONObject obj = array.getJSONObject(i);
                 SeafRepo repo = SeafRepo.fromJson(obj);
-                repos.add(repo);
+                if (repo != null)
+                    repos.add(repo);
             }
             return repos;
         } catch (Exception e) {
@@ -274,7 +275,41 @@ public class SeafConnection {
         }
     }
     
-    
+    public List<SeafDirent> getDirents(String repo_id, String path) {
+        InputStream is = null;
+        try {
+            HttpURLConnection conn = prepareGet("api2/repos/" + repo_id + "/dirents/" + "?p=" + path);
+            conn.connect();
+            int response = conn.getResponseCode();
+            if (response != 200) {
+                Log.d(DEBUG_TAG, "Wrong response " + response);
+                return null;
+            }
+            
+            is = conn.getInputStream();
+            String result = readIt(is);
+            JSONArray array = Utils.parseJsonArray(result);
+            ArrayList<SeafDirent> dirents = new ArrayList<SeafDirent>();
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject obj = array.getJSONObject(i);
+                SeafDirent de = SeafDirent.fromJson(obj);
+                if (de != null)
+                    dirents.add(de);
+            }
+            return dirents;
+        } catch (Exception e) {
+            Log.d(DEBUG_TAG, e.getMessage());
+            return null;
+        } finally {
+            try {
+                if (is != null) {
+                    is.close();
+                }
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+    }
     
     private String readIt(InputStream stream) throws IOException,
             UnsupportedEncodingException {
@@ -290,5 +325,5 @@ public class SeafConnection {
         }
         return responseStrBuilder.toString();
     }
-	
+
 }
