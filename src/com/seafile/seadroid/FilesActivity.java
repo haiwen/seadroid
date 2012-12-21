@@ -7,8 +7,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.ArrayAdapter;
+import android.widget.Toast;
+import android.content.Context;
 import android.content.Intent;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import com.actionbarsherlock.app.SherlockListActivity;
@@ -73,8 +76,11 @@ public class FilesActivity extends SherlockListActivity {
         public String getParentPath() {
             return currentPath.substring(0, currentPath.lastIndexOf("/"));
         }
+
+        public String getObjectIDAtPosition(int position) {
+            return currentDirents.get(position).id;
+        }
     }
-    
     
 
     /** Called when the activity is first created. */
@@ -102,7 +108,7 @@ public class FilesActivity extends SherlockListActivity {
             android.R.layout.simple_list_item_activated_1 : android.R.layout.simple_list_item_1;
         adapter = new ArrayAdapter<String>(this, layout, libraries);
         setListAdapter(adapter);
-            
+        
         navToReposView();
     }
 
@@ -129,6 +135,10 @@ public class FilesActivity extends SherlockListActivity {
             if (navContext.isDir(position)) {
                 navToDirectory(navContext.getCurrentRepo(),
                         navContext.getPathAtPosition(position));
+            } else {
+                showFile(navContext.getCurrentRepo(), 
+                        navContext.getPathAtPosition(position),
+                        navContext.getObjectIDAtPosition(position));
             }
         } else {
             SeafRepo repo = repos.get(position);
@@ -156,6 +166,11 @@ public class FilesActivity extends SherlockListActivity {
                 navToDirectory(navContext.currentRepo, navContext.getParentPath());
             }
         }
+    }
+    
+    private void showFile(SeafRepo repo, String path, String oid) {
+        getListView().setEnabled(false);
+        new LoadFileTask().execute(repo.id, path, oid);
     }
 
     private class LoadTask extends AsyncTask<Void, Void, List<SeafRepo> > {
@@ -209,6 +224,40 @@ public class FilesActivity extends SherlockListActivity {
                 }
             }
             
+            getListView().setEnabled(true);
+        }
+
+    }
+    
+    private class LoadFileTask extends AsyncTask<String, Void, File> {
+
+        @Override
+        protected File doInBackground(String... params) {
+            if (params.length != 3) {
+                Log.d(DEBUG_TAG, "Wrong params to LoadDirTask");
+                return null;
+            }
+            
+            String repoID = params[0];
+            String path = params[1];
+            String oid = params[2];
+            File file = sc.getFile(repoID, path, oid);
+            return file;
+        }
+
+        // onPostExecute displays the results of the AsyncTask.
+        @Override
+        protected void onPostExecute(File file) {
+            Context context = getApplicationContext();
+            CharSequence text;
+            if (file != null) {
+                text = file.getName();
+            } else {
+                text = "Failed to load file";
+            }
+
+            Toast toast = Toast.makeText(context, text, Toast.LENGTH_SHORT);
+            toast.show();
             getListView().setEnabled(true);
         }
 

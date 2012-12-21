@@ -1,6 +1,8 @@
 package com.seafile.seadroid;
 
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -21,6 +23,8 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.content.Context;
+import android.os.Environment;
 import android.util.Log;
 
 /**
@@ -79,6 +83,16 @@ public class SeafConnection {
     
     private HttpURLConnection prepareGet(String apiPath) throws IOException {
         return prepareGet(apiPath, true);
+    }
+    
+    private HttpURLConnection prepareFileGet(String urlString)
+            throws IOException {
+        URL url = new URL(urlString);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setConnectTimeout(15000);
+        conn.setRequestMethod("GET");
+        conn.setDoInput(true);
+        return conn;
     }
     
     private  HttpURLConnection preparePost(String apiPath, boolean withToken)
@@ -275,11 +289,11 @@ public class SeafConnection {
         }
     }
     
-    public List<SeafDirent> getDirents(String repo_id, String path) {
+    public List<SeafDirent> getDirents(String repoID, String path) {
         InputStream is = null;
         try {
             String encPath = URLEncoder.encode(path, "UTF-8");
-            HttpURLConnection conn = prepareGet("api2/repos/" + repo_id + "/dirents/" + "?p=" + encPath);
+            HttpURLConnection conn = prepareGet("api2/repos/" + repoID + "/dirents/" + "?p=" + encPath);
             conn.connect();
             int response = conn.getResponseCode();
             if (response != 200) {
@@ -312,6 +326,95 @@ public class SeafConnection {
         }
     }
     
+    private String getDownloadLink(String repoID, String path) {
+        InputStream is = null;
+        try {
+            String encPath = URLEncoder.encode(path, "UTF-8");
+            HttpURLConnection conn = prepareGet("api2/repos/" + repoID + "/filepath/" + "?p=" 
+                    + encPath + "&op=download");
+            conn.connect();
+            int response = conn.getResponseCode();
+            if (response != 200) {
+                Log.d(DEBUG_TAG, "Wrong response " + response);
+                return null;
+            }
+            
+            is = conn.getInputStream();
+            String result = readIt(is);
+            // should return "\"http://gonggeng.org:8082/...\"" or "\"https://gonggeng.org:8082/...\"
+            if (result.startsWith("\"http")) {
+                return result.substring(1, result.length()-1);
+            } else
+                return null;
+        } catch (Exception e) {
+            Log.d(DEBUG_TAG, e.getMessage());
+            return null;
+        } finally {
+            try {
+                if (is != null) {
+                    is.close();
+                }
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+    }
+    
+    private String constructCacheFilename(String path, String oid) {
+        String filename = path.substring(path.lastIndexOf("/") + 1);
+        String purename = filename.substring(0, filename.lastIndexOf('.'));
+        String suffix = filename.substring(filename.lastIndexOf('.') + 1);
+        return purename + "-" + oid.substring(0, 8) + "." + suffix;
+    }
+    
+    public File getFile(String repoID, String path, String oid) {
+        String dlink = getDownloadLink(repoID, path);
+        if (dlink == null)
+            return null;
+        
+        String filename = constructCacheFilename(path, oid);
+        
+        Context context = SeadroidApplication.getAppContext();
+        File file = new File(context.getExternalFilesDir(null), filename);
+        
+        InputStream is = null;
+        OutputStream os = null;
+        try {
+            HttpURLConnection conn = prepareFileGet(dlink);
+            conn.connect();
+            int response = conn.getResponseCode();
+            if (response != 200) {
+                Log.d(DEBUG_TAG, "Wrong response " + response + " to url " + dlink);
+                return null;
+            }
+            
+            Log.d(DEBUG_TAG, "write to " + file.getAbsolutePath());
+            
+            is = conn.getInputStream();
+            os = new FileOutputStream(file);
+            byte[] data = new byte[1024];
+            while (true) {
+                int len = is.read(data, 0, 1024);
+                if (len == -1)
+                    break;
+                os.write(data, 0, len);
+            }
+            return file;
+        } catch (Exception e) {
+            Log.d(DEBUG_TAG, e.getMessage());
+            return null;
+        } finally {
+            try {
+                if (is != null)
+                    is.close();
+                if (os != null)
+                    os.close();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+    }
+    
     private String readIt(InputStream stream) throws IOException,
             UnsupportedEncodingException {
         Reader reader = new InputStreamReader(stream, "UTF-8");
@@ -327,4 +430,5 @@ public class SeafConnection {
         return responseStrBuilder.toString();
     }
 
+    
 }
