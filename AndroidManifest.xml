@@ -15,7 +15,7 @@
         android:label="@string/app_name"
         android:icon="@drawable/ic_launcher">
 
-        <activity android:name="MainActivity"
+        <activity android:name="com.seafile.seadroid.StartActivity"
                   android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,7 +23,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".FilesActivity"
+        <activity android:name=".BrowserActivity"
                   android:label="@string/app_name"
                   android:theme="@style/Theme.Sherlock">
         </activity>

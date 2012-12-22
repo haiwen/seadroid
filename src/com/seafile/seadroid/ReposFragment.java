@@ -7,30 +7,32 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.ArrayAdapter;
-import android.widget.Toast;
-import android.content.Context;
-import android.content.Intent;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import com.actionbarsherlock.app.SherlockListActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
+import com.actionbarsherlock.app.SherlockListFragment;
 
-public class FilesActivity extends SherlockListActivity {
+
+public class ReposFragment extends SherlockListFragment {
 
     private static final String DEBUG_TAG = "FilesActivity";
 
     private ArrayList<String> libraries = new ArrayList<String>();
     private ArrayAdapter<String> adapter;
+    boolean mDualPane;
     
     private String server;
     private SeafConnection sc;
     
     List<SeafRepo> repos = null;
     NavContext navContext;
+    
+    BrowserActivity activity = null;
+    
+    public interface OnFileSelectedListener {
+        public void onFileSelected(SeafRepo repo, String path);
+    }
     
     public class NavContext {
         
@@ -82,56 +84,39 @@ public class FilesActivity extends SherlockListActivity {
             return currentDirents.get(position).id;
         }
     }
+
     
-
-    /** Called when the activity is first created. */
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        super.onCreate(savedInstanceState);
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
-        // Get the message from the intent
-        Intent intent = getIntent();
-        server = intent.getStringExtra("server");
+        int layout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
+                android.R.layout.simple_list_item_activated_1 : android.R.layout.simple_list_item_1;
+        adapter = new ArrayAdapter<String>(getActivity(), layout, libraries);
+        setListAdapter(adapter);
+
+        // Check to see if we have a frame in which to embed the details
+        // fragment directly in the containing UI.
+        View detailsFrame = getActivity().findViewById(R.id.file_fragment);
+        mDualPane = detailsFrame != null && detailsFrame.getVisibility() == View.VISIBLE;
+        if (mDualPane) {
+            // In dual-pane mode, the list view highlights the selected item.
+            getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+            // Make sure our UI is in the correct state.
+            //showDetails(mCurCheckPosition);
+        }
+        
+        activity = (BrowserActivity) getActivity();
+        server = activity.getServer();
         sc = SeafConnection.getSeafConnection(server);
         navContext = new NavContext();
-        
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        
-        // // Create the text view
-        // TextView textView = new TextView(this);
-        // textView.setTextSize(40);
-
-        // // Set the text view as the activity layout
-        // setContentView(textView);
-
-        // We need to use a different list item layout for devices older than Honeycomb
-        int layout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
-            android.R.layout.simple_list_item_activated_1 : android.R.layout.simple_list_item_1;
-        adapter = new ArrayAdapter<String>(this, layout, libraries);
-        setListAdapter(adapter);
         
         navToReposView();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        return true;
-    }
-    
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                navUp();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
     @Override 
     public void onListItemClick(ListView l, View v, int position, long id) {
-        Log.d(DEBUG_TAG, "click pos " + position + " id " + id);
+        //Log.d(DEBUG_TAG, "click pos " + position + " id " + id);
         
         if (navContext.inRepo()) {
             if (navContext.isDir(position)) {
@@ -147,22 +132,23 @@ public class FilesActivity extends SherlockListActivity {
             navToDirectory(repo, "/");
         }
     }
+
     
-    private void navToReposView() {
-        setSupportProgressBarIndeterminateVisibility(Boolean.TRUE); 
+    public void navToReposView() {
+        activity.setRefreshing();
         getListView().setEnabled(false);
         new LoadTask().execute();
     }
 
-    private void navToDirectory(SeafRepo repo, String path) {
-        setSupportProgressBarIndeterminateVisibility(Boolean.TRUE);
+    public void navToDirectory(SeafRepo repo, String path) {
+        activity.setRefreshing();
         getListView().setEnabled(false);
         navContext.currentRepo = repo;
         navContext.currentPath = path;
         new LoadDirTask().execute(repo.id, path);
     }
     
-    private void navUp() {
+    public void navUp() {
         if (navContext.inRepo()) {
             if (navContext.isRootDir()) {
                 navToReposView();
@@ -173,7 +159,7 @@ public class FilesActivity extends SherlockListActivity {
     }
     
     private void showFile(SeafRepo repo, String path, String oid) {
-        setSupportProgressBarIndeterminateVisibility(Boolean.TRUE);
+        activity.setRefreshing();
         getListView().setEnabled(false);
         new LoadFileTask().execute(repo.id, path, oid);
     }
@@ -198,7 +184,7 @@ public class FilesActivity extends SherlockListActivity {
                 }
             }
             getListView().setEnabled(true);
-            setSupportProgressBarIndeterminateVisibility(Boolean.FALSE); 
+            activity.unsetRefreshing();
         }
 
     }
@@ -229,7 +215,7 @@ public class FilesActivity extends SherlockListActivity {
                     adapter.add(dirent.name);
                 }
             }
-            setSupportProgressBarIndeterminateVisibility(Boolean.FALSE);
+            activity.unsetRefreshing();
             getListView().setEnabled(true);
         }
 
@@ -254,20 +240,18 @@ public class FilesActivity extends SherlockListActivity {
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(File file) {
-            Context context = getApplicationContext();
             CharSequence text;
             if (file != null) {
                 text = file.getName();
             } else {
                 text = "Failed to load file";
             }
-
-            Toast toast = Toast.makeText(context, text, Toast.LENGTH_SHORT);
-            toast.show();
-            setSupportProgressBarIndeterminateVisibility(Boolean.FALSE);
+            activity.showToast(text);
+            activity.unsetRefreshing();
             getListView().setEnabled(true);
         }
 
     }
 
 }
+

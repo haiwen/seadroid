@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">Seafile</string>
     <string name="app_url">http://github.com/haiwen/seafile</string>
+    <string name="server_hint">Server URL</string>
     <string name="email_hint">Email</string>
     <string name="passwd_hint">Password</string>
 </resources>

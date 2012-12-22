@@ -14,23 +14,20 @@ import android.net.NetworkInfo;
 import android.util.Log;
 
 
-public class MainActivity extends Activity {
+public class StartActivity extends Activity {
 
-    private static final String DEBUG_TAG = "MainActivity";
-
-    private static final String SEAHUB_URL = "http://gonggeng.org/seahub/";
+    private static final String DEBUG_TAG = "StartActivity";
     
     private TextView statusView;
     private Button loginButton;
 
-    private String email;
-    private String passwd;
+    private String serverURL;  // like "http://cloud.seafile.com"
 
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+        setContentView(R.layout.start);
         
         statusView = (TextView) findViewById(R.id.status_view);
         loginButton = (Button) findViewById(R.id.login_button);
@@ -38,11 +35,14 @@ public class MainActivity extends Activity {
 
     /** Called when the user clicks the Login button */
     public void login(View view) {
+        EditText serverText = (EditText) findViewById(R.id.server_url);
+        serverURL = serverText.getText().toString();
+        
         EditText emailText = (EditText) findViewById(R.id.email_address);
-        email = emailText.getText().toString();
+        String email = emailText.getText().toString();
 
         EditText passwdText = (EditText) findViewById(R.id.password);
-        passwd = passwdText.getText().toString();
+        String passwd = passwdText.getText().toString();
 
         ConnectivityManager connMgr = (ConnectivityManager) 
             getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -50,15 +50,15 @@ public class MainActivity extends Activity {
 
         if (networkInfo != null && networkInfo.isConnected()) {
             loginButton.setEnabled(false);
-            new LoginTask().execute(email, passwd);
+            new LoginTask().execute(serverURL, email, passwd);
         } else {
             statusView.setText("No network connection available.");
         }
     }
 
     private void startFilesActivity() {
-        Intent intent = new Intent(this, FilesActivity.class);
-        intent.putExtra("server", SEAHUB_URL);
+        Intent intent = new Intent(this, BrowserActivity.class);
+        intent.putExtra("server", serverURL);
         startActivity(intent);
     }
 
@@ -66,10 +66,10 @@ public class MainActivity extends Activity {
 
         @Override
         protected String doInBackground(String... params) {              
-            if (params.length != 2)
+            if (params.length != 3)
                 return "Error number of parameter";
 
-            return doLogin(params[0], params[1]);
+            return doLogin(params[0], params[1], params[2]);
         }
 
         // onPostExecute displays the results of the AsyncTask.
@@ -83,8 +83,8 @@ public class MainActivity extends Activity {
             loginButton.setEnabled(true);
         }
 
-        private String doLogin(String username, String passwd) {   
-            SeafConnection sc = SeafConnection.getSeafConnection(SEAHUB_URL);
+        private String doLogin(String serverURL, String username, String passwd) {   
+            SeafConnection sc = SeafConnection.getSeafConnection(serverURL);
             //if (sc.ping() == false)
             //    return "ping failed";
             
