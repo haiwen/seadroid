@@ -50,7 +50,7 @@ public class MainActivity extends Activity {
 
         if (networkInfo != null && networkInfo.isConnected()) {
             loginButton.setEnabled(false);
-            new LoginTask().execute("freeplant@163.com", "test");
+            new LoginTask().execute(email, passwd);
         } else {
             statusView.setText("No network connection available.");
         }

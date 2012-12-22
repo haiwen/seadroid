@@ -17,6 +17,7 @@ import java.util.List;
 import com.actionbarsherlock.app.SherlockListActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.Window;
 
 public class FilesActivity extends SherlockListActivity {
 
@@ -86,6 +87,7 @@ public class FilesActivity extends SherlockListActivity {
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
 
         // Get the message from the intent
@@ -147,11 +149,13 @@ public class FilesActivity extends SherlockListActivity {
     }
     
     private void navToReposView() {
+        setSupportProgressBarIndeterminateVisibility(Boolean.TRUE); 
         getListView().setEnabled(false);
         new LoadTask().execute();
     }
 
     private void navToDirectory(SeafRepo repo, String path) {
+        setSupportProgressBarIndeterminateVisibility(Boolean.TRUE);
         getListView().setEnabled(false);
         navContext.currentRepo = repo;
         navContext.currentPath = path;
@@ -169,6 +173,7 @@ public class FilesActivity extends SherlockListActivity {
     }
     
     private void showFile(SeafRepo repo, String path, String oid) {
+        setSupportProgressBarIndeterminateVisibility(Boolean.TRUE);
         getListView().setEnabled(false);
         new LoadFileTask().execute(repo.id, path, oid);
     }
@@ -193,6 +198,7 @@ public class FilesActivity extends SherlockListActivity {
                 }
             }
             getListView().setEnabled(true);
+            setSupportProgressBarIndeterminateVisibility(Boolean.FALSE); 
         }
 
     }
@@ -223,7 +229,7 @@ public class FilesActivity extends SherlockListActivity {
                     adapter.add(dirent.name);
                 }
             }
-            
+            setSupportProgressBarIndeterminateVisibility(Boolean.FALSE);
             getListView().setEnabled(true);
         }
 
@@ -258,6 +264,7 @@ public class FilesActivity extends SherlockListActivity {
 
             Toast toast = Toast.makeText(context, text, Toast.LENGTH_SHORT);
             toast.show();
+            setSupportProgressBarIndeterminateVisibility(Boolean.FALSE);
             getListView().setEnabled(true);
         }
 
