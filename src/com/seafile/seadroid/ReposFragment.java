@@ -92,12 +92,14 @@ public class ReposFragment extends SherlockListFragment {
     public void navToReposView() {
         getMyActivity().setRefreshing();
         getListView().setEnabled(false);
+        getMyActivity().disableUpButton();
         new LoadTask().execute();
     }
 
     public void navToDirectory(String repoID, String path) {
         getMyActivity().setRefreshing();
         getListView().setEnabled(false);
+        getMyActivity().enableUpButton();
         getNavContext().currentRepo = repoID;
         getNavContext().currentPath = path;
         new LoadDirTask().execute(repoID, path);

@@ -17,10 +17,10 @@ public class BrowserActivity extends SherlockFragmentActivity
         implements ReposFragment.OnFileSelectedListener, OnBackStackChangedListener {
     
     private String server;
-    
-    ReposFragment reposFragmgent = null;
     NavContext navContext = null;
     
+    private boolean twoPaneMode = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
@@ -35,7 +35,8 @@ public class BrowserActivity extends SherlockFragmentActivity
         navContext = new NavContext();
         
         if (findViewById(R.id.fragment_container) != null) {
-            // we are in one-pane layout
+            twoPaneMode = false;
+            // in one-pane layout, we have dynamic create fragments
             
             // if we're being restored from a previous state,
             // then we don't need to do anything and should return or else
@@ -44,14 +45,17 @@ public class BrowserActivity extends SherlockFragmentActivity
                 return;
             }
 
-            reposFragmgent = new ReposFragment();
+            ReposFragment reposFragmgent = new ReposFragment();
             // In case this activity was started with special instructions from an Intent,
             // pass the Intent's extras to the fragment as arguments
             reposFragmgent.setArguments(getIntent().getExtras());
             
             // Add the fragment to the 'fragment_container' FrameLayout
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, reposFragmgent).commit();
+                    .add(R.id.fragment_container, reposFragmgent, "repos_fragment").commit();
+        } else {
+            twoPaneMode = true;
+            // in two pane mode, the fragments will be loaded from xml file.
         }
     }
     
@@ -64,29 +68,35 @@ public class BrowserActivity extends SherlockFragmentActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                reposFragmgent.navUp();
+                if (twoPaneMode) {
+                    ReposFragment reposFragment = (ReposFragment)
+                            getSupportFragmentManager().findFragmentById(R.id.repos_fragment);
+                    reposFragment.navUp();
+                    return true;
+                }
+                
+                ReposFragment reposFragment = (ReposFragment)
+                    getSupportFragmentManager().findFragmentByTag("repos_fragment");
+                if (reposFragment != null && reposFragment.isVisible()) {
+                    reposFragment.navUp();
+                    return true;
+                } else {
+                    getSupportFragmentManager().popBackStack();
+                }
+               
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
     
     public void onFileSelected(String repoID, String path, String objectID) {
-        // The user selected the headline of an article from the HeadlinesFragment
-
-        // Capture the article fragment from the activity layout
         FileFragment fileFrag = (FileFragment)
                 getSupportFragmentManager().findFragmentById(R.id.file_fragment);
 
         if (fileFrag != null) {
-            // If file frag is available, we're in two-pane layout...
-
-            // Call a method in the ArticleFragment to update its content
+            // we're in two-pane layout
             fileFrag.updateFileView(repoID, path, objectID);
-
         } else {
-            // If the frag is not available, we're in the one-pane layout and must swap frags...
-
-            // Create fragment and give it an argument for the selected article
             FileFragment newFragment = new FileFragment();
             Bundle args = new Bundle();
             args.putString("repoID", repoID);
@@ -116,6 +126,14 @@ public class BrowserActivity extends SherlockFragmentActivity
         Context context = getApplicationContext();
         Toast toast = Toast.makeText(context, msg, Toast.LENGTH_SHORT);
         toast.show();
+    }
+    
+    public void enableUpButton() {
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+    
+    public void disableUpButton() {
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     }
 
     public String getServer() {
