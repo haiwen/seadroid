@@ -172,7 +172,7 @@ public class SeafConnection {
             }
 
             is = conn.getInputStream();
-            String contentAsString = readIt(is);
+            String contentAsString = Utils.readIt(is);
             JSONObject obj = Utils.parseJsonObject(contentAsString);
             token = obj.getString("token");
             loginOK = true;
@@ -206,7 +206,7 @@ public class SeafConnection {
                 return false;
             
             is = conn.getInputStream();
-            String result = readIt(is);
+            String result = Utils.readIt(is);
             if (result.equals("\"pong\""))
                 return true;
             else
@@ -235,7 +235,7 @@ public class SeafConnection {
                 return false;
             
             is = conn.getInputStream();
-            String result = readIt(is);
+            String result = Utils.readIt(is);
             if (result.equals("\"pong\""))
                 return true;
             else
@@ -265,7 +265,7 @@ public class SeafConnection {
                 return null;
             
             is = conn.getInputStream();
-            String result = readIt(is);
+            String result = Utils.readIt(is);
             JSONArray array = Utils.parseJsonArray(result);
             ArrayList<SeafRepo> repos = new ArrayList<SeafRepo>();
             for (int i = 0; i < array.length(); i++) {
@@ -276,7 +276,7 @@ public class SeafConnection {
             }
             return repos;
         } catch (Exception e) {
-            Log.d(DEBUG_TAG, e.getMessage());
+            //Log.d(DEBUG_TAG, e.getMessage());
             return null;
         } finally {
             try {
@@ -302,7 +302,7 @@ public class SeafConnection {
             }
             
             is = conn.getInputStream();
-            String result = readIt(is);
+            String result = Utils.readIt(is);
             JSONArray array = Utils.parseJsonArray(result);
             ArrayList<SeafDirent> dirents = new ArrayList<SeafDirent>();
             for (int i = 0; i < array.length(); i++) {
@@ -340,7 +340,7 @@ public class SeafConnection {
             }
             
             is = conn.getInputStream();
-            String result = readIt(is);
+            String result = Utils.readIt(is);
             // should return "\"http://gonggeng.org:8082/...\"" or "\"https://gonggeng.org:8082/...\"
             if (result.startsWith("\"http")) {
                 return result.substring(1, result.length()-1);
@@ -415,20 +415,7 @@ public class SeafConnection {
         }
     }
     
-    private String readIt(InputStream stream) throws IOException,
-            UnsupportedEncodingException {
-        Reader reader = new InputStreamReader(stream, "UTF-8");
-        char[] buffer = new char[1024];
-        StringBuilder responseStrBuilder = new StringBuilder();
-
-        while (true) {
-            int len = reader.read(buffer, 0, 1024);
-            if (len == -1)
-                break;
-            responseStrBuilder.append(buffer, 0, len);
-        }
-        return responseStrBuilder.toString();
-    }
+    
 
     
 }

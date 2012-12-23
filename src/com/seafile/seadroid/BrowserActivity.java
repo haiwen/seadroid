@@ -3,6 +3,7 @@ package com.seafile.seadroid;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
 import android.widget.Toast;
 
@@ -11,12 +12,14 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 
+
 public class BrowserActivity extends SherlockFragmentActivity 
-        implements ReposFragment.OnFileSelectedListener {
+        implements ReposFragment.OnFileSelectedListener, OnBackStackChangedListener {
     
     private String server;
     
     ReposFragment reposFragmgent = null;
+    NavContext navContext = null;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +31,8 @@ public class BrowserActivity extends SherlockFragmentActivity
         super.onCreate(savedInstanceState);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setContentView(R.layout.seadroid_main);
+        getSupportFragmentManager().addOnBackStackChangedListener(this);
+        navContext = new NavContext();
         
         if (findViewById(R.id.fragment_container) != null) {
             // we are in one-pane layout
@@ -65,7 +70,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         return super.onOptionsItemSelected(item);
     }
     
-    public void onFileSelected(SeafRepo repo, String path) {
+    public void onFileSelected(String repoID, String path, String objectID) {
         // The user selected the headline of an article from the HeadlinesFragment
 
         // Capture the article fragment from the activity layout
@@ -76,16 +81,19 @@ public class BrowserActivity extends SherlockFragmentActivity
             // If file frag is available, we're in two-pane layout...
 
             // Call a method in the ArticleFragment to update its content
-            fileFrag.updateFileView(repo, path);
+            fileFrag.updateFileView(repoID, path, objectID);
 
         } else {
             // If the frag is not available, we're in the one-pane layout and must swap frags...
 
             // Create fragment and give it an argument for the selected article
             FileFragment newFragment = new FileFragment();
-            //Bundle args = new Bundle();
-            //args.putInt(ArticleFragment.ARG_POSITION, position);
-            //newFragment.setArguments(args);
+            Bundle args = new Bundle();
+            args.putString("repoID", repoID);
+            args.putString("path", path);
+            args.putString("objectID", objectID);
+            
+            newFragment.setArguments(args);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
             // Replace whatever is in the fragment_container view with this fragment,
@@ -112,6 +120,14 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     public String getServer() {
         return server;
+    }
+
+    @Override
+    public void onBackStackChanged() {    
+    }
+    
+    public NavContext getNavContext() {
+        return navContext;
     }
     
 }

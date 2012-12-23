@@ -8,7 +8,6 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.ArrayAdapter;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -16,75 +15,27 @@ import com.actionbarsherlock.app.SherlockListFragment;
 
 public class ReposFragment extends SherlockListFragment {
 
-    private static final String DEBUG_TAG = "FilesActivity";
+    private static final String DEBUG_TAG = "ReposFragment";
 
     private ArrayList<String> libraries = new ArrayList<String>();
     private ArrayAdapter<String> adapter;
     boolean mDualPane;
     
-    private String server;
-    private SeafConnection sc;
+    private BrowserActivity getMyActivity() {
+        return (BrowserActivity) getActivity();
+    }
     
-    List<SeafRepo> repos = null;
-    NavContext navContext;
+    private SeafConnection getConnection() {
+        return SeafConnection.getSeafConnection(getMyActivity().getServer());
+    }
     
-    BrowserActivity activity = null;
+    private NavContext getNavContext() {
+        return getMyActivity().getNavContext();
+    }
     
     public interface OnFileSelectedListener {
-        public void onFileSelected(SeafRepo repo, String path);
+        public void onFileSelected(String repoID, String path, String objectID);
     }
-    
-    public class NavContext {
-        
-        SeafRepo currentRepo;
-        List<SeafDirent> currentDirents;
-        String currentPath;
-        
-        public NavContext() {
-            currentRepo = null;
-            currentDirents = null;
-            currentPath = null;
-        }
-     
-        public void clear() {
-            currentRepo = null;
-            currentDirents = null;
-            currentPath = null;
-        }
-        
-        public boolean inRepo() {
-            return currentRepo != null;
-        }
-        
-        public SeafRepo getCurrentRepo() {
-            return currentRepo;
-        }
-        
-        public SeafDirent getDirent(int position) {
-            return currentDirents.get(position);
-        }
-        
-        public boolean isDir(int position) {
-            return currentDirents.get(position).isDir();
-        }
-        
-        public String getPathAtPosition(int position) {
-            return currentPath + "/" + currentDirents.get(position).name;
-        }
-        
-        public boolean isRootDir() {
-            return currentPath.equals("/");
-        }
-        
-        public String getParentPath() {
-            return currentPath.substring(0, currentPath.lastIndexOf("/"));
-        }
-
-        public String getObjectIDAtPosition(int position) {
-            return currentDirents.get(position).id;
-        }
-    }
-
     
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -106,69 +57,69 @@ public class ReposFragment extends SherlockListFragment {
             //showDetails(mCurCheckPosition);
         }
         
-        activity = (BrowserActivity) getActivity();
-        server = activity.getServer();
-        sc = SeafConnection.getSeafConnection(server);
-        navContext = new NavContext();
-        
-        navToReposView();
+        Log.d(DEBUG_TAG, "onActivityCreated");
+        NavContext navContext = getNavContext();
+        if (navContext.inRepo())
+            navToDirectory(navContext.currentRepo, navContext.currentPath);
+        else
+            navToReposView();
+    }
+    
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
     }
 
     @Override 
     public void onListItemClick(ListView l, View v, int position, long id) {
         //Log.d(DEBUG_TAG, "click pos " + position + " id " + id);
         
-        if (navContext.inRepo()) {
-            if (navContext.isDir(position)) {
-                navToDirectory(navContext.getCurrentRepo(),
-                        navContext.getPathAtPosition(position));
+        if (getNavContext().inRepo()) {
+            if (getNavContext().isDir(position)) {
+                navToDirectory(getNavContext().getCurrentRepo(),
+                        getNavContext().getPathAtPosition(position));
             } else {
-                showFile(navContext.getCurrentRepo(), 
-                        navContext.getPathAtPosition(position),
-                        navContext.getObjectIDAtPosition(position));
+                getMyActivity().onFileSelected(getNavContext().getCurrentRepo(), 
+                        getNavContext().getPathAtPosition(position),
+                        getNavContext().getObjectIDAtPosition(position));
             }
         } else {
-            SeafRepo repo = repos.get(position);
-            navToDirectory(repo, "/");
+            navToDirectory(getNavContext().getRepoAtPosition(position), "/");
         }
     }
 
     
     public void navToReposView() {
-        activity.setRefreshing();
+        getMyActivity().setRefreshing();
         getListView().setEnabled(false);
         new LoadTask().execute();
     }
 
-    public void navToDirectory(SeafRepo repo, String path) {
-        activity.setRefreshing();
+    public void navToDirectory(String repoID, String path) {
+        getMyActivity().setRefreshing();
         getListView().setEnabled(false);
-        navContext.currentRepo = repo;
-        navContext.currentPath = path;
-        new LoadDirTask().execute(repo.id, path);
+        getNavContext().currentRepo = repoID;
+        getNavContext().currentPath = path;
+        new LoadDirTask().execute(repoID, path);
     }
     
     public void navUp() {
-        if (navContext.inRepo()) {
-            if (navContext.isRootDir()) {
+        if (getNavContext().inRepo()) {
+            if (getNavContext().isRootDir()) {
                 navToReposView();
             } else {
-                navToDirectory(navContext.currentRepo, navContext.getParentPath());
+                navToDirectory(getNavContext().currentRepo, getNavContext().getParentPath());
             }
         }
     }
     
-    private void showFile(SeafRepo repo, String path, String oid) {
-        activity.setRefreshing();
-        getListView().setEnabled(false);
-        new LoadFileTask().execute(repo.id, path, oid);
-    }
+    
 
     private class LoadTask extends AsyncTask<Void, Void, List<SeafRepo> > {
 
         @Override
         protected List<SeafRepo> doInBackground(Void... params) {
-            List<SeafRepo> repos = sc.getRepos();
+            List<SeafRepo> repos = getConnection().getRepos();
             return repos;
         }
 
@@ -176,15 +127,16 @@ public class ReposFragment extends SherlockListFragment {
         @Override
         protected void onPostExecute(List<SeafRepo> rs) {
             adapter.clear();
-            repos = rs;
-            navContext.clear();
-            if (repos != null) {
-                for (SeafRepo repo : repos) {
+            getNavContext().clear();
+            getNavContext().repos = rs;
+            
+            if (rs != null) {
+                for (SeafRepo repo : rs) {
                     adapter.add(repo.name);
                 }
             }
             getListView().setEnabled(true);
-            activity.unsetRefreshing();
+            getMyActivity().unsetRefreshing();
         }
 
     }
@@ -200,7 +152,7 @@ public class ReposFragment extends SherlockListFragment {
             
             String repoID = params[0];
             String path = params[1];
-            List<SeafDirent> dirents = sc.getDirents(repoID, path);
+            List<SeafDirent> dirents = getConnection().getDirents(repoID, path);
             return dirents;
         }
 
@@ -210,48 +162,18 @@ public class ReposFragment extends SherlockListFragment {
             adapter.clear();
             
             if (dirents != null) {
-                navContext.currentDirents = dirents;
-                for (SeafDirent dirent : navContext.currentDirents) {
+                getNavContext().currentDirents = dirents;
+                for (SeafDirent dirent : dirents) {
                     adapter.add(dirent.name);
                 }
             }
-            activity.unsetRefreshing();
+            getMyActivity().unsetRefreshing();
             getListView().setEnabled(true);
         }
 
     }
     
-    private class LoadFileTask extends AsyncTask<String, Void, File> {
-
-        @Override
-        protected File doInBackground(String... params) {
-            if (params.length != 3) {
-                Log.d(DEBUG_TAG, "Wrong params to LoadDirTask");
-                return null;
-            }
-            
-            String repoID = params[0];
-            String path = params[1];
-            String oid = params[2];
-            File file = sc.getFile(repoID, path, oid);
-            return file;
-        }
-
-        // onPostExecute displays the results of the AsyncTask.
-        @Override
-        protected void onPostExecute(File file) {
-            CharSequence text;
-            if (file != null) {
-                text = file.getName();
-            } else {
-                text = "Failed to load file";
-            }
-            activity.showToast(text);
-            activity.unsetRefreshing();
-            getListView().setEnabled(true);
-        }
-
-    }
+    
 
 }
 
