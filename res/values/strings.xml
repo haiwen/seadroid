@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Seafile</string>
-    <string name="app_url">http://github.com/haiwen/seafile</string>
-    <string name="server_hint">Server URL</string>
+    <string name="app_url">http://seafile.com</string>
+    <string name="server_hint">Server, like cloud.seafile.com</string>
     <string name="email_hint">Email</string>
     <string name="passwd_hint">Password</string>
 </resources>

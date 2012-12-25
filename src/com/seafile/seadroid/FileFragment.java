@@ -36,7 +36,7 @@ public class FileFragment extends SherlockFragment {
     }
     
     private SeafConnection getConnection() {
-        return SeafConnection.getSeafConnection(getMyActivity().getServer());
+        return SeafConnection.getSeafConnection(getMyActivity().getAccount());
     }
     
     @Override

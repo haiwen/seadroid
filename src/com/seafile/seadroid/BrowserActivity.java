@@ -16,7 +16,7 @@ import com.actionbarsherlock.view.Window;
 public class BrowserActivity extends SherlockFragmentActivity 
         implements ReposFragment.OnFileSelectedListener, OnBackStackChangedListener {
     
-    private String server;
+    private Account account;
     NavContext navContext = null;
     
     private boolean twoPaneMode = false;
@@ -26,7 +26,9 @@ public class BrowserActivity extends SherlockFragmentActivity
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         // Get the message from the intent
         Intent intent = getIntent();
-        server = intent.getStringExtra("server");
+        String server = intent.getStringExtra("server");
+        String email = intent.getStringExtra("email");
+        account = new Account(server, email);
         
         super.onCreate(savedInstanceState);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -136,8 +138,8 @@ public class BrowserActivity extends SherlockFragmentActivity
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     }
 
-    public String getServer() {
-        return server;
+    public Account getAccount() {
+        return account;
     }
 
     @Override

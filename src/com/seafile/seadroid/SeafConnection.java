@@ -24,7 +24,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.os.Environment;
 import android.util.Log;
 
 /**
@@ -35,40 +34,36 @@ public class SeafConnection {
     
     private static final String DEBUG_TAG = "SeafConnection";
     
-    private static Hashtable<String, SeafConnection> seafConnections
-        = new Hashtable<String, SeafConnection>();
+    private static Hashtable<Account, SeafConnection> seafConnections
+        = new Hashtable<Account, SeafConnection>();
     
-    public static synchronized SeafConnection getSeafConnection(String server) {
-        SeafConnection sc = seafConnections.get(server);
+    public static synchronized SeafConnection getSeafConnection(Account act) {
+        SeafConnection sc = seafConnections.get(act);
         if (sc == null) {
-            sc = new SeafConnection(server);
-            seafConnections.put(server, sc);
+            sc = new SeafConnection(act);
+            seafConnections.put(act, sc);
             return sc;
         }
         return sc;
     }
+
+    private Account account;
     
-    // The full URL of the server, like 'http://gonggeng.org/seahub/'
-    private String server;
-    
-    private boolean loginOK = false;
-    private String token = null;
-    
-    private SeafConnection(String server) {
-        if (!server.endsWith("/"))
-            this.server = server + "/";
-        else
-            this.server = server;
-    }
-    
-    public boolean isLogin() {
-        return loginOK;
+    private SeafConnection(Account act) {
+        account = new Account(act.server, act.email);
     }
 	
+    public void setToken(String token) {
+        this.account.token = token;
+    }
+    
+    public Account getAccount() {
+        return account;
+    }
     
     private HttpURLConnection prepareGet(String apiPath, boolean withToken)
             throws IOException {
-        URL url = new URL(server + apiPath);
+        URL url = new URL(account.server + apiPath);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setReadTimeout(10000);
         conn.setConnectTimeout(15000);
@@ -76,7 +71,7 @@ public class SeafConnection {
         conn.setRequestMethod("GET");
         conn.setDoInput(true);
         if (withToken)
-            conn.addRequestProperty("Authorization", "Token " + token);
+            conn.addRequestProperty("Authorization", "Token " + account.token);
         
         return conn;
     }
@@ -97,7 +92,7 @@ public class SeafConnection {
     
     private  HttpURLConnection preparePost(String apiPath, boolean withToken)
             throws IOException {
-        URL url = new URL(server + apiPath);
+        URL url = new URL(account.server + apiPath);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setReadTimeout(10000 /* milliseconds */);
         conn.setConnectTimeout(15000 /* milliseconds */);
@@ -106,7 +101,7 @@ public class SeafConnection {
         conn.setDoInput(true);
         conn.setDoOutput(true);
         if (withToken)
-            conn.addRequestProperty("Authorization", "Token " + token);
+            conn.addRequestProperty("Authorization", "Token " + account.token);
         return conn;
     }
     
@@ -148,34 +143,30 @@ public class SeafConnection {
     
     /**
      * Login into the server
-     * @param username
      * @param passwd
      * @return true if login success, false otherwise
      * @throws IOException
      */
-    public boolean doLogin(String username, String passwd) {
+    public boolean doLogin(String passwd) {
         InputStream is = null;
 
         try {
             HttpURLConnection conn = preparePost("api2/auth-token/", false);
 
-            Log.d(DEBUG_TAG, "Login to " + server + "api2/auth-token/");
+            Log.d(DEBUG_TAG, "Login to " + account.server + "api2/auth-token/");
             List<NameValuePair> params = new ArrayList<NameValuePair>();
-            params.add(new BasicNameValuePair("username", username));
+            params.add(new BasicNameValuePair("username", account.email));
             params.add(new BasicNameValuePair("password", passwd));
             doPost(conn, params);
 
             if (conn.getResponseCode() != 200) {
-                loginOK = false;
-                token = null;
                 return false;
             }
 
             is = conn.getInputStream();
             String contentAsString = Utils.readIt(is);
             JSONObject obj = Utils.parseJsonObject(contentAsString);
-            token = obj.getString("token");
-            loginOK = true;
+            account.token = obj.getString("token");
             return true;
         } catch (Exception e) {
             Log.d(DEBUG_TAG, e.getMessage());

@@ -26,7 +26,7 @@ public class ReposFragment extends SherlockListFragment {
     }
     
     private SeafConnection getConnection() {
-        return SeafConnection.getSeafConnection(getMyActivity().getServer());
+        return SeafConnection.getSeafConnection(getMyActivity().getAccount());
     }
     
     private NavContext getNavContext() {
