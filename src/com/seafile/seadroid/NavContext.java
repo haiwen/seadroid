@@ -4,10 +4,16 @@ import java.util.List;
 
 public class NavContext {
 
+    // for repos fragment
     List<SeafRepo> repos = null;
     String currentRepo;
     List<SeafDirent> currentDirents;
     String currentPath;
+    
+    // for file fragment
+    String currentFilePath;
+    SeafDirent currentDirent;
+    int position;
     
     public NavContext() {
         repos = null;
@@ -44,7 +50,10 @@ public class NavContext {
     }
     
     public String getPathAtPosition(int position) {
-        return currentPath + "/" + currentDirents.get(position).name;
+        if (isRootDir())
+            return currentPath + currentDirents.get(position).name;
+        else
+            return currentPath + "/" + currentDirents.get(position).name;
     }
     
     public boolean isRootDir() {

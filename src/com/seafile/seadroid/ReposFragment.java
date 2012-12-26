@@ -17,8 +17,7 @@ public class ReposFragment extends SherlockListFragment {
 
     private static final String DEBUG_TAG = "ReposFragment";
 
-    private ArrayList<String> libraries = new ArrayList<String>();
-    private ArrayAdapter<String> adapter;
+    private SeafItemAdapter adapter;
     boolean mDualPane;
     
     private BrowserActivity getMyActivity() {
@@ -34,16 +33,14 @@ public class ReposFragment extends SherlockListFragment {
     }
     
     public interface OnFileSelectedListener {
-        public void onFileSelected(String repoID, String path, String objectID);
+        public void onFileSelected(String repoID, String path, SeafDirent dirent);
     }
     
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        int layout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
-                android.R.layout.simple_list_item_activated_1 : android.R.layout.simple_list_item_1;
-        adapter = new ArrayAdapter<String>(getActivity(), layout, libraries);
+        adapter = new SeafItemAdapter(getActivity());
         setListAdapter(adapter);
 
         // Check to see if we have a frame in which to embed the details
@@ -81,7 +78,7 @@ public class ReposFragment extends SherlockListFragment {
             } else {
                 getMyActivity().onFileSelected(getNavContext().getCurrentRepo(), 
                         getNavContext().getPathAtPosition(position),
-                        getNavContext().getObjectIDAtPosition(position));
+                        getNavContext().getDirent(position));
             }
         } else {
             navToDirectory(getNavContext().getRepoAtPosition(position), "/");
@@ -127,17 +124,21 @@ public class ReposFragment extends SherlockListFragment {
 
         // onPostExecute displays the results of the AsyncTask.
         @Override
-        protected void onPostExecute(List<SeafRepo> rs) {
-            adapter.clear();
+        protected void onPostExecute(List<SeafRepo> rs) {   
             getNavContext().clear();
             getNavContext().repos = rs;
-            
+
+            adapter.clear();
             if (rs != null) {
+                Log.d(DEBUG_TAG, "load repos " + rs.size());
                 for (SeafRepo repo : rs) {
-                    adapter.add(repo.name);
+                    adapter.add(repo);
                 }
+            } else {
+                Log.d(DEBUG_TAG, "failed to load repos");
             }
             getListView().setEnabled(true);
+            adapter.notifyChanged();
             getMyActivity().unsetRefreshing();
         }
 
@@ -161,15 +162,19 @@ public class ReposFragment extends SherlockListFragment {
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(List<SeafDirent> dirents) {
-            adapter.clear();
+            if (getMyActivity() == null)
+                // this occurs if user navigation to another activity
+                return;
             
+            adapter.clear();
             if (dirents != null) {
                 getNavContext().currentDirents = dirents;
                 for (SeafDirent dirent : dirents) {
-                    adapter.add(dirent.name);
+                    adapter.add(dirent);
                 }
             }
             getMyActivity().unsetRefreshing();
+            adapter.notifyChanged();
             getListView().setEnabled(true);
         }
 

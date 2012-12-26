@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.text.DecimalFormat;
 
 import org.json.*;
 
@@ -41,5 +42,16 @@ class Utils {
         }
         return responseStrBuilder.toString();
     }
-
+    
+    public static String fileNameFromPath(String path) {
+        return path.substring(path.lastIndexOf("/") + 1);
+    }
+    
+    public static String readableFileSize(long size) {
+        if(size <= 0) return "0";
+        final String[] units = new String[] { "B", "KB", "MB", "GB", "TB" };
+        int digitGroups = (int) (Math.log10(size)/Math.log10(1024));
+        return new DecimalFormat("#,##0.#").format(size/Math.pow(1024, digitGroups)) + " " + units[digitGroups];
+    }
+    
 }

@@ -1,20 +1,17 @@
 package com.seafile.seadroid;
 
-import java.util.Date;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.util.Log;
 
-public class SeafDirent {
+public class SeafDirent implements SeafItem {
 
     public enum DirentType { DIR, FILE };
     
     public String id;
     public DirentType type;
     public String name;
-    public String mime; // like "text/x-c"
     public long size;    // size of file, 0 if type is dir
     
     
@@ -38,6 +35,18 @@ public class SeafDirent {
     
     public boolean isDir() {
         return (type == DirentType.DIR);
+    }
+
+    @Override
+    public String getTitle() {
+        return name;
+    }
+
+    @Override
+    public String getSubtitle() {
+        if (isDir())
+            return "";
+        return Utils.readableFileSize(size);
     }
     
 }

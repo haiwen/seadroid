@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+
+	<ImageView
+	    android:id="@+id/iv_file_icon"
+	    android:layout_width="wrap_content"
+	    android:layout_height="150dp"
+	    android:layout_alignParentTop="true"
+	    android:layout_centerHorizontal="true"
+	    android:layout_marginTop="10dp"
+	    android:scaleType="fitCenter"
+	    android:src="@drawable/image" />
+
+	<TextView
+	    android:id="@+id/tv_file_name"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_below="@+id/iv_file_icon"
+	    android:layout_centerHorizontal="true"
+	    android:lines="1"
+	    android:singleLine="true"
+	    android:text="Seafile.txt"
+	    android:textAppearance="?android:attr/textAppearanceLarge"
+	    android:textColor="@color/light_grey" />
+
+	<TextView
+	    android:id="@+id/tv_file_size"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_below="@+id/tv_file_name"
+	    android:layout_centerHorizontal="true"
+	    android:text="2 KB"
+	    android:textAppearance="?android:attr/textAppearanceMedium"
+	    android:textColor="@color/light_grey" />
+
+	<Button
+		android:layout_height="wrap_content"
+		android:layout_alignParentBottom="true"
+		android:layout_centerHorizontal="true"
+		android:layout_width="fill_parent"
+		android:id="@+id/btn_toggle_open_download_file"
+		android:onClick="onOpenFileClick"
+		android:text="@string/open_file" />
+
+	<Button
+	    android:id="@+id/btn_redownload_file"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_above="@+id/btn_toggle_open_download_file"
+	    android:layout_alignParentLeft="true"
+	    android:layout_alignParentRight="true"
+	    android:onClick="onOpenFileClick"
+	    android:text="@string/redownload_file"
+	    android:visibility="invisible" />
+
+	<Button
+	    android:id="@+id/btn_delete_file"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_above="@+id/btn_redownload_file"
+	    android:layout_alignParentLeft="true"
+	    android:layout_alignParentRight="true"
+	    android:onClick="onOpenFileClick"
+	    android:text="@string/delete_file"
+	    android:visibility="invisible" />
+
+</RelativeLayout>

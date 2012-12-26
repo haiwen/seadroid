@@ -9,7 +9,7 @@ import org.json.JSONObject;
  * SeafRepo: A Seafile library
  * @author plt
  */
-public class SeafRepo {
+public class SeafRepo implements SeafItem {
 
     public String id;     // repo id
     public String name;
@@ -51,6 +51,16 @@ public class SeafRepo {
     
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String getTitle() {
+        return name;
+    }
+
+    @Override
+    public String getSubtitle() {
+        return description;
     }
     
 }

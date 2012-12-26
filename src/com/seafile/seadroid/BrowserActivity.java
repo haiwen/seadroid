@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -91,28 +93,43 @@ public class BrowserActivity extends SherlockFragmentActivity
         return super.onOptionsItemSelected(item);
     }
     
-    public void onFileSelected(String repoID, String path, String objectID) {
+    public void onFileSelected(String repoID, String path, SeafDirent dirent) {
         FileFragment fileFrag = (FileFragment)
                 getSupportFragmentManager().findFragmentById(R.id.file_fragment);
 
         if (fileFrag != null) {
             // we're in two-pane layout
-            fileFrag.updateFileView(repoID, path, objectID);
+            fileFrag.updateFileView(repoID, path, dirent);
         } else {
             FileFragment newFragment = new FileFragment();
             Bundle args = new Bundle();
             args.putString("repoID", repoID);
             args.putString("path", path);
-            args.putString("objectID", objectID);
+            args.putString("objectID", dirent.id);
+            args.putLong("size", dirent.size);
             
             newFragment.setArguments(args);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
             // Replace whatever is in the fragment_container view with this fragment,
             // and add the transaction to the back stack so the user can navigate back
-            transaction.replace(R.id.fragment_container, newFragment);
+            transaction.replace(R.id.fragment_container, newFragment, "file_fragment");
             transaction.addToBackStack(null);
             transaction.commit();
+        }
+    }
+    
+    public void onOpenFileClick(View target) {
+        Button btn = (Button) target;
+        
+        if (twoPaneMode) {
+            return;
+        }
+        
+        FileFragment fileFragment = (FileFragment)
+                getSupportFragmentManager().findFragmentByTag("file_fragment");
+        if (fileFragment != null && fileFragment.isVisible()) {
+            fileFragment.openFile();
         }
     }
     

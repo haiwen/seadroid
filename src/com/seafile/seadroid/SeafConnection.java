@@ -338,7 +338,11 @@ public class SeafConnection {
             } else
                 return null;
         } catch (Exception e) {
-            Log.d(DEBUG_TAG, e.getMessage());
+            String msg = e.getMessage();
+            if (msg != null)
+                Log.d(DEBUG_TAG, msg);
+            else
+                Log.d(DEBUG_TAG, "download error");
             return null;
         } finally {
             try {
@@ -351,22 +355,14 @@ public class SeafConnection {
         }
     }
     
-    private String constructCacheFilename(String path, String oid) {
-        String filename = path.substring(path.lastIndexOf("/") + 1);
-        String purename = filename.substring(0, filename.lastIndexOf('.'));
-        String suffix = filename.substring(filename.lastIndexOf('.') + 1);
-        return purename + "-" + oid.substring(0, 8) + "." + suffix;
-    }
-    
     public File getFile(String repoID, String path, String oid) {
         String dlink = getDownloadLink(repoID, path);
         if (dlink == null)
             return null;
-        
-        String filename = constructCacheFilename(path, oid);
-        
-        Context context = SeadroidApplication.getAppContext();
-        File file = new File(context.getExternalFilesDir(null), filename);
+       
+        File file = DataManager.getFile(path, oid);
+        if (file.exists())
+            return file;
         
         InputStream is = null;
         OutputStream os = null;
@@ -379,10 +375,11 @@ public class SeafConnection {
                 return null;
             }
             
-            Log.d(DEBUG_TAG, "write to " + file.getAbsolutePath());
+            File tmp = DataManager.getTempFile(path, oid);
+            Log.d(DEBUG_TAG, "write to " + tmp.getAbsolutePath());
             
             is = conn.getInputStream();
-            os = new FileOutputStream(file);
+            os = new FileOutputStream(tmp);
             byte[] data = new byte[1024];
             while (true) {
                 int len = is.read(data, 0, 1024);
@@ -390,9 +387,13 @@ public class SeafConnection {
                     break;
                 os.write(data, 0, len);
             }
+            if (tmp.renameTo(file) == false) {
+                Log.d(DEBUG_TAG, "Rename file error");
+                return null;
+            }
             return file;
         } catch (Exception e) {
-            Log.d(DEBUG_TAG, e.getMessage());
+            // Log.d(DEBUG_TAG, e.getMessage());
             return null;
         } finally {
             try {
@@ -405,8 +406,5 @@ public class SeafConnection {
             }
         }
     }
-    
-    
-
     
 }

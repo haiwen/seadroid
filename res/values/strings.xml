@@ -5,4 +5,10 @@
     <string name="server_hint">Server, like cloud.seafile.com</string>
     <string name="email_hint">Email</string>
     <string name="passwd_hint">Password</string>
+    <string name="open_file">Open</string>
+    <string name="download_file">Download</string>
+    <string name="redownload_file">Download again</string>
+    <string name="delete_file">Delete</string>
+    <string name="unknown_file_type">Unknown file type</string>
+    <string name="activity_not_found">Can not find activity to open this file</string>
 </resources>
