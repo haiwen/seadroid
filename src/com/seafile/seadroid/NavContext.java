@@ -5,25 +5,23 @@ import java.util.List;
 public class NavContext {
 
     // for repos fragment
-    List<SeafRepo> repos = null;
-    String currentRepo;
-    List<SeafDirent> currentDirents;
-    String currentPath;
+    String currentRepo = null;
+    List<SeafDirent> currentDirents = null;
+    String currentPath = null;
+    String currentObjectID = null;
     
     // for file fragment
-    String currentFilePath;
-    SeafDirent currentDirent;
-    int position;
+    String currentFilePath = null;
+    SeafDirent currentDirent = null;
+    int position = 0;
     
     public NavContext() {
-        repos = null;
         currentRepo = null;
         currentDirents = null;
         currentPath = null;
     }
  
     public void clear() {
-        repos = null;
         currentRepo = null;
         currentDirents = null;
         currentPath = null;
@@ -33,11 +31,7 @@ public class NavContext {
         return currentRepo != null;
     }
     
-    public String getRepoAtPosition(int position) {
-        return repos.get(position).id;
-    }
-    
-    public String getCurrentRepo() {
+    public String getCurrentRepoID() {
         return currentRepo;
     }
     
@@ -63,9 +57,9 @@ public class NavContext {
     public String getParentPath() {
         return currentPath.substring(0, currentPath.lastIndexOf("/"));
     }
-
-    public String getObjectIDAtPosition(int position) {
-        return currentDirents.get(position).id;
+    
+    public String getCurrentPath() {
+        return currentPath;
     }
-
+    
 }

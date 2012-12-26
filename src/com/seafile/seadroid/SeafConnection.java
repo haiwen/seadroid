@@ -33,28 +33,11 @@ import android.util.Log;
 public class SeafConnection {
     
     private static final String DEBUG_TAG = "SeafConnection";
-    
-    private static Hashtable<Account, SeafConnection> seafConnections
-        = new Hashtable<Account, SeafConnection>();
-    
-    public static synchronized SeafConnection getSeafConnection(Account act) {
-        SeafConnection sc = seafConnections.get(act);
-        if (sc == null) {
-            sc = new SeafConnection(act);
-            seafConnections.put(act, sc);
-            return sc;
-        }
-        return sc;
-    }
 
     private Account account;
     
-    private SeafConnection(Account act) {
-        account = new Account(act.server, act.email);
-    }
-	
-    public void setToken(String token) {
-        this.account.token = token;
+    public SeafConnection(Account act) {
+        account = act;
     }
     
     public Account getAccount() {
@@ -65,7 +48,7 @@ public class SeafConnection {
             throws IOException {
         URL url = new URL(account.server + apiPath);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setReadTimeout(10000);
+        conn.setReadTimeout(30000);
         conn.setConnectTimeout(15000);
     
         conn.setRequestMethod("GET");
@@ -73,6 +56,7 @@ public class SeafConnection {
         if (withToken)
             conn.addRequestProperty("Authorization", "Token " + account.token);
         
+        Log.d(DEBUG_TAG, "get from " + url.getPath());
         return conn;
     }
     
@@ -143,11 +127,10 @@ public class SeafConnection {
     
     /**
      * Login into the server
-     * @param passwd
      * @return true if login success, false otherwise
      * @throws IOException
      */
-    public boolean doLogin(String passwd) {
+    public boolean doLogin() {
         InputStream is = null;
 
         try {
@@ -156,7 +139,7 @@ public class SeafConnection {
             Log.d(DEBUG_TAG, "Login to " + account.server + "api2/auth-token/");
             List<NameValuePair> params = new ArrayList<NameValuePair>();
             params.add(new BasicNameValuePair("username", account.email));
-            params.add(new BasicNameValuePair("password", passwd));
+            params.add(new BasicNameValuePair("password", account.passwd));
             doPost(conn, params);
 
             if (conn.getResponseCode() != 200) {
@@ -246,7 +229,8 @@ public class SeafConnection {
     }
     
     
-    public List<SeafRepo> getRepos() {
+    public String getRepos() {
+        Log.d(DEBUG_TAG, "get repos from server");
         InputStream is = null;
         try {
             HttpURLConnection conn = prepareGet("api2/repos/");
@@ -257,15 +241,7 @@ public class SeafConnection {
             
             is = conn.getInputStream();
             String result = Utils.readIt(is);
-            JSONArray array = Utils.parseJsonArray(result);
-            ArrayList<SeafRepo> repos = new ArrayList<SeafRepo>();
-            for (int i = 0; i < array.length(); i++) {
-                JSONObject obj = array.getJSONObject(i);
-                SeafRepo repo = SeafRepo.fromJson(obj);
-                if (repo != null)
-                    repos.add(repo);
-            }
-            return repos;
+            return result;
         } catch (Exception e) {
             //Log.d(DEBUG_TAG, e.getMessage());
             return null;
@@ -280,7 +256,7 @@ public class SeafConnection {
         }
     }
     
-    public List<SeafDirent> getDirents(String repoID, String path) {
+    public String getDirents(String repoID, String path) {
         InputStream is = null;
         try {
             String encPath = URLEncoder.encode(path, "UTF-8");
@@ -294,17 +270,9 @@ public class SeafConnection {
             
             is = conn.getInputStream();
             String result = Utils.readIt(is);
-            JSONArray array = Utils.parseJsonArray(result);
-            ArrayList<SeafDirent> dirents = new ArrayList<SeafDirent>();
-            for (int i = 0; i < array.length(); i++) {
-                JSONObject obj = array.getJSONObject(i);
-                SeafDirent de = SeafDirent.fromJson(obj);
-                if (de != null)
-                    dirents.add(de);
-            }
-            return dirents;
+            return result;
         } catch (Exception e) {
-            Log.d(DEBUG_TAG, e.getMessage());
+            // Log.d(DEBUG_TAG, e.getMessage());
             return null;
         } finally {
             try {
@@ -360,9 +328,7 @@ public class SeafConnection {
         if (dlink == null)
             return null;
        
-        File file = DataManager.getFile(path, oid);
-        if (file.exists())
-            return file;
+        File file = DataManager.getFileForFileCache(path, oid);
         
         InputStream is = null;
         OutputStream os = null;

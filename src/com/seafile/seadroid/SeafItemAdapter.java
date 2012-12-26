@@ -87,7 +87,7 @@ public class SeafItemAdapter extends BaseAdapter {
                 viewHolder.subtitle.setText("");
                 viewHolder.icon.setImageResource(R.drawable.folder);
             } else {
-                File file = DataManager.getFile(dirent.name, dirent.id);
+                File file = DataManager.getFileForFileCache(dirent.name, dirent.id);
                 if (file.exists())
                     viewHolder.subtitle.setText(item.getSubtitle() + " cached");
                 else

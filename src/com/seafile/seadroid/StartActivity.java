@@ -78,9 +78,7 @@ public class StartActivity extends Activity {
 
         if (networkInfo != null && networkInfo.isConnected()) {
             if (passwd.startsWith("X-Token")) {
-                SeafConnection sc = SeafConnection.getSeafConnection(defaultAccount);
-                sc.setToken(defaultAccount.token);
-                startFilesActivity(sc.getAccount());
+                startFilesActivity(defaultAccount);
                 return;
             }
             
@@ -105,9 +103,10 @@ public class StartActivity extends Activity {
         Intent intent = new Intent(this, BrowserActivity.class);
         intent.putExtra("server", account.server);
         intent.putExtra("email", account.email);
+        intent.putExtra("token", account.token);
         startActivity(intent);
     }
-
+    
     private class LoginTask extends AsyncTask<Void, Void, String> {
         
         Account loginAccount;
@@ -128,10 +127,8 @@ public class StartActivity extends Activity {
         @Override
         protected void onPostExecute(String result) {
             if (result.equals("Success")) {
-                SeafConnection sc = SeafConnection.getSeafConnection(loginAccount);
-                Account account = sc.getAccount(); // this account contains the auth token after login
-                accountManager.saveDefaultAccount(account);
-                startFilesActivity(account);
+                accountManager.saveDefaultAccount(loginAccount);
+                startFilesActivity(loginAccount);
             } else {
                 statusView.setText(result);
             }
@@ -139,13 +136,10 @@ public class StartActivity extends Activity {
         }
 
         private String doLogin() {   
-            SeafConnection sc = SeafConnection.getSeafConnection(loginAccount);
-            //if (sc.ping() == false)
-            //    return "ping failed";
+            SeafConnection sc = new SeafConnection(loginAccount);
             
-            if (sc.doLogin(loginAccount.passwd) == false)
+            if (sc.doLogin() == false)
                 return "Login failed";
-            
             return "Success";
         }
     }

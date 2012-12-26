@@ -24,6 +24,14 @@ public class Account {
         this.passwd = passwd;
     }
     
+    public Account(String server, String email, String passwd, String token) {
+        this.server = server;
+        this.email = email;
+        this.passwd = passwd;
+        this.token = token;
+    }
+
+    
     @Override
     public int hashCode() {
         return server.hashCode() + email.hashCode();

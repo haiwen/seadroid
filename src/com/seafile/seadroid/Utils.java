@@ -1,8 +1,12 @@
 package com.seafile.seadroid;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
@@ -43,6 +47,37 @@ class Utils {
         return responseStrBuilder.toString();
     }
     
+    public static String readFile(File file) {
+        Reader reader = null;
+        try {
+            try {
+                reader = new InputStreamReader(new FileInputStream(file), "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                return null;
+            }
+ 
+            char[] buffer = new char[1024];
+            StringBuilder responseStrBuilder = new StringBuilder();
+
+            while (true) {
+                int len = reader.read(buffer, 0, 1024);
+                if (len == -1)
+                    break;
+                responseStrBuilder.append(buffer, 0, len);
+            }
+            return responseStrBuilder.toString();
+        } catch (IOException e) {
+            return null;
+        } finally {
+            try {
+                if (reader != null)
+                    reader.close();
+            } catch (Exception e) {
+                
+            }
+        }
+    }
+    
     public static String fileNameFromPath(String path) {
         return path.substring(path.lastIndexOf("/") + 1);
     }
@@ -52,6 +87,21 @@ class Utils {
         final String[] units = new String[] { "B", "KB", "MB", "GB", "TB" };
         int digitGroups = (int) (Math.log10(size)/Math.log10(1024));
         return new DecimalFormat("#,##0.#").format(size/Math.pow(1024, digitGroups)) + " " + units[digitGroups];
+    }
+    
+    public static void writeFile(File file, String content) throws IOException {
+        OutputStream os = null;
+        try {
+            os = new FileOutputStream(file);
+            os.write(content.getBytes());
+        } finally {
+            try {
+                if (os != null)
+                    os.close();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
     }
     
 }

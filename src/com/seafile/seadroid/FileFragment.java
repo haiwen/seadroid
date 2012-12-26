@@ -1,10 +1,6 @@
 package com.seafile.seadroid;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -45,8 +41,8 @@ public class FileFragment extends SherlockFragment {
         return (BrowserActivity) getActivity();
     }
     
-    private SeafConnection getConnection() {
-        return SeafConnection.getSeafConnection(getMyActivity().getAccount());
+    private DataManager getDataManager() {
+        return getMyActivity().getDataManager();
     }
     
     @Override
@@ -172,31 +168,20 @@ public class FileFragment extends SherlockFragment {
     }
     
     private void showMarkdown(File file) {
-        InputStream in = null;
-        try {
-            in = new FileInputStream(file);
-            String content = Utils.readIt(in);
-            ScrollView scroller = new ScrollView(getActivity());
-            TextView text = new TextView(getActivity());
-            int padding = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-                    4, getActivity().getResources().getDisplayMetrics());
-            text.setPadding(padding, padding, padding, padding);
-            scroller.addView(text);
-            text.setText(content);
-            rootView.removeAllViews();
-            rootView.addView(scroller);
-        } catch (FileNotFoundException e) {
-            Log.d(DEBUG_TAG, e.getMessage());
-        } catch (IOException e) {
-            Log.d(DEBUG_TAG, e.getMessage());
-        } finally {
-            try {
-                if (in != null) in.close();
-            } catch (IOException e) {
-                // ignore
-            }
-        }
-        
+        String content = Utils.readFile(file);
+        if (content == null)
+            return;
+
+        ScrollView scroller = new ScrollView(getActivity());
+        TextView text = new TextView(getActivity());
+        int padding = (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 4, getActivity().getResources()
+                        .getDisplayMetrics());
+        text.setPadding(padding, padding, padding, padding);
+        scroller.addView(text);
+        text.setText(content);
+        rootView.removeAllViews();
+        rootView.addView(scroller);
     }
 
     private class LoadFileTask extends AsyncTask<String, Void, File> {
@@ -212,12 +197,8 @@ public class FileFragment extends SherlockFragment {
             String path = params[1];
             String oid = params[2];
             Log.d(DEBUG_TAG, "load file " + repoID + ":" + path);
-            File file = DataManager.getFile(path, oid);
-            if (file.exists())
-                return file;
-            
-            file = getConnection().getFile(repoID, path, oid);
-            return file;
+
+            return getDataManager().getFile(repoID, path, oid);
         }
 
         // onPostExecute displays the results of the AsyncTask.

@@ -24,8 +24,8 @@ public class ReposFragment extends SherlockListFragment {
         return (BrowserActivity) getActivity();
     }
     
-    private SeafConnection getConnection() {
-        return SeafConnection.getSeafConnection(getMyActivity().getAccount());
+    private DataManager getDataManager() {
+        return getMyActivity().getDataManager();
     }
     
     private NavContext getNavContext() {
@@ -56,9 +56,10 @@ public class ReposFragment extends SherlockListFragment {
         
         Log.d(DEBUG_TAG, "onActivityCreated");
         NavContext navContext = getNavContext();
-        if (navContext.inRepo())
-            navToDirectory(navContext.currentRepo, navContext.currentPath);
-        else
+        if (navContext.inRepo()) {
+            navToDirectory(navContext.getCurrentRepoID(), navContext.currentPath,
+                    navContext.currentObjectID);
+        } else
             navToReposView();
     }
     
@@ -71,17 +72,22 @@ public class ReposFragment extends SherlockListFragment {
     public void onListItemClick(ListView l, View v, int position, long id) {
         //Log.d(DEBUG_TAG, "click pos " + position + " id " + id);
         
-        if (getNavContext().inRepo()) {
-            if (getNavContext().isDir(position)) {
-                navToDirectory(getNavContext().getCurrentRepo(),
-                        getNavContext().getPathAtPosition(position));
+        NavContext nav = getNavContext();
+        if (nav.inRepo()) {
+            if (nav.isDir(position)) {
+                SeafDirent d = nav.getDirent(position);
+                navToDirectory(nav.getCurrentRepoID(),
+                        nav.getCurrentPath() + "/" + d.name,
+                        d.id);
             } else {
-                getMyActivity().onFileSelected(getNavContext().getCurrentRepo(), 
-                        getNavContext().getPathAtPosition(position),
-                        getNavContext().getDirent(position));
+                SeafDirent d = nav.getDirent(position);
+                getMyActivity().onFileSelected(nav.getCurrentRepoID(), 
+                        nav.getCurrentPath() + "/" + d.name,
+                        d);
             }
         } else {
-            navToDirectory(getNavContext().getRepoAtPosition(position), "/");
+            SeafRepo repo = getDataManager().getCachedRepo(position);
+            navToDirectory(repo.id, "/", repo.root);
         }
     }
 
@@ -90,16 +96,17 @@ public class ReposFragment extends SherlockListFragment {
         getMyActivity().setRefreshing();
         getListView().setEnabled(false);
         getMyActivity().disableUpButton();
+        getNavContext().clear();
         new LoadTask().execute();
     }
 
-    public void navToDirectory(String repoID, String path) {
+    public void navToDirectory(String repoID, String path, String objectID) {
         getMyActivity().setRefreshing();
         getListView().setEnabled(false);
         getMyActivity().enableUpButton();
         getNavContext().currentRepo = repoID;
         getNavContext().currentPath = path;
-        new LoadDirTask().execute(repoID, path);
+        new LoadDirTask().execute(repoID, path, objectID);
     }
     
     public void navUp() {
@@ -107,27 +114,22 @@ public class ReposFragment extends SherlockListFragment {
             if (getNavContext().isRootDir()) {
                 navToReposView();
             } else {
-                navToDirectory(getNavContext().currentRepo, getNavContext().getParentPath());
+                navToDirectory(getNavContext().currentRepo, getNavContext().getParentPath(), null);
             }
         }
     }
-    
-    
 
     private class LoadTask extends AsyncTask<Void, Void, List<SeafRepo> > {
 
         @Override
         protected List<SeafRepo> doInBackground(Void... params) {
-            List<SeafRepo> repos = getConnection().getRepos();
+            List<SeafRepo> repos = getDataManager().getRepos();
             return repos;
         }
 
         // onPostExecute displays the results of the AsyncTask.
         @Override
-        protected void onPostExecute(List<SeafRepo> rs) {   
-            getNavContext().clear();
-            getNavContext().repos = rs;
-
+        protected void onPostExecute(List<SeafRepo> rs) {
             adapter.clear();
             if (rs != null) {
                 Log.d(DEBUG_TAG, "load repos " + rs.size());
@@ -148,14 +150,15 @@ public class ReposFragment extends SherlockListFragment {
 
         @Override
         protected List<SeafDirent> doInBackground(String... params) {
-            if (params.length != 2) {
+            if (params.length != 3) {
                 Log.d(DEBUG_TAG, "Wrong params to LoadDirTask");
                 return null;
             }
             
             String repoID = params[0];
             String path = params[1];
-            List<SeafDirent> dirents = getConnection().getDirents(repoID, path);
+            String objectID = params[2];
+            List<SeafDirent> dirents = getDataManager().getDirents(repoID, path, objectID);
             return dirents;
         }
 

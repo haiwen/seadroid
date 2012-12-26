@@ -20,8 +20,21 @@ public class BrowserActivity extends SherlockFragmentActivity
     
     private Account account;
     NavContext navContext = null;
+    DataManager dataManager = null;
     
     private boolean twoPaneMode = false;
+    
+    public DataManager getDataManager() {
+        return dataManager;
+    }
+
+    public Account getAccount() {
+        return account;
+    }
+    
+    public NavContext getNavContext() {
+        return navContext;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,13 +43,16 @@ public class BrowserActivity extends SherlockFragmentActivity
         Intent intent = getIntent();
         String server = intent.getStringExtra("server");
         String email = intent.getStringExtra("email");
-        account = new Account(server, email);
+        String token = intent.getStringExtra("token");
+        account = new Account(server, email, null, token);
         
         super.onCreate(savedInstanceState);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setContentView(R.layout.seadroid_main);
         getSupportFragmentManager().addOnBackStackChangedListener(this);
+        
         navContext = new NavContext();
+        dataManager = new DataManager(this, account);
         
         if (findViewById(R.id.fragment_container) != null) {
             twoPaneMode = false;
@@ -155,16 +171,29 @@ public class BrowserActivity extends SherlockFragmentActivity
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     }
 
-    public Account getAccount() {
-        return account;
-    }
 
     @Override
     public void onBackStackChanged() {    
     }
     
-    public NavContext getNavContext() {
-        return navContext;
+    @Override
+    public void onBackPressed() {
+        if (twoPaneMode) {
+            super.onBackPressed();
+            return;
+        }
+        
+        ReposFragment reposFragment = (ReposFragment)
+            getSupportFragmentManager().findFragmentByTag("repos_fragment");
+        if (reposFragment != null && reposFragment.isVisible()) {
+            if (navContext.currentRepo == null)
+                super.onBackPressed();
+            else
+                reposFragment.navUp();
+        } else {
+            getSupportFragmentManager().popBackStack();
+        }
     }
+
     
 }
