@@ -27,6 +27,11 @@ public class SeafItemAdapter extends BaseAdapter {
     public int getCount() {
         return items.size();
     }
+    
+    @Override 
+    public boolean isEmpty() {
+        return items.isEmpty();
+    }
 
     public void addEntry(SeafItem entry) {
         items.add(entry);
@@ -60,7 +65,6 @@ public class SeafItemAdapter extends BaseAdapter {
     public void clear() {
         items.clear();
     }
-
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {      

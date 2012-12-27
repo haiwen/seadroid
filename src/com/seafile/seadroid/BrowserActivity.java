@@ -134,21 +134,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             transaction.commit();
         }
     }
-    
-    public void onOpenFileClick(View target) {
-        Button btn = (Button) target;
-        
-        if (twoPaneMode) {
-            return;
-        }
-        
-        FileFragment fileFragment = (FileFragment)
-                getSupportFragmentManager().findFragmentByTag("file_fragment");
-        if (fileFragment != null && fileFragment.isVisible()) {
-            fileFragment.openFile();
-        }
-    }
-    
+
     public void setRefreshing() {
         setSupportProgressBarIndeterminateVisibility(Boolean.TRUE);
     }
@@ -194,6 +180,32 @@ public class BrowserActivity extends SherlockFragmentActivity
             getSupportFragmentManager().popBackStack();
         }
     }
-
+    
+    
+    
+    public void onOpenFileClick(View target) {       
+        if (twoPaneMode) {
+            return;
+        }
+        
+        FileFragment fileFragment = (FileFragment)
+                getSupportFragmentManager().findFragmentByTag("file_fragment");
+        if (fileFragment != null && fileFragment.isVisible()) {
+            fileFragment.openFile();
+        }
+    }
+    
+    public void onRefreshClick(View target) {
+        ReposFragment reposFragment = (ReposFragment)
+                getSupportFragmentManager().findFragmentByTag("repos_fragment");
+        if (reposFragment != null && reposFragment.isVisible()) {
+            if (navContext.inRepo()) {
+                reposFragment.navToDirectory(navContext.getCurrentRepoID(), 
+                        navContext.getCurrentPath(), null);
+            } else {
+                reposFragment.navToReposView();
+            }
+        } 
+    }
     
 }

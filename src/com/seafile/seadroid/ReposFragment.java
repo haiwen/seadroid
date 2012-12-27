@@ -4,7 +4,9 @@ import android.os.Bundle;
 import android.os.Build;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.ArrayAdapter;
 
@@ -19,6 +21,7 @@ public class ReposFragment extends SherlockListFragment {
 
     private SeafItemAdapter adapter;
     boolean mDualPane;
+    View refresh = null;
     
     private BrowserActivity getMyActivity() {
         return (BrowserActivity) getActivity();
@@ -53,6 +56,12 @@ public class ReposFragment extends SherlockListFragment {
             // Make sure our UI is in the correct state.
             //showDetails(mCurCheckPosition);
         }
+        
+        // set refresh button
+        refresh = LayoutInflater.from(getActivity()).inflate(R.layout.refresh, null);
+        getListView().setEmptyView(refresh);
+        ViewGroup root = (ViewGroup) getActivity().findViewById(android.R.id.content);
+        root.addView(refresh);
         
         Log.d(DEBUG_TAG, "onActivityCreated");
         NavContext navContext = getNavContext();
@@ -94,6 +103,7 @@ public class ReposFragment extends SherlockListFragment {
     
     public void navToReposView() {
         getMyActivity().setRefreshing();
+        refresh.setVisibility(View.INVISIBLE);
         getListView().setEnabled(false);
         getMyActivity().disableUpButton();
         getNavContext().clear();
@@ -102,6 +112,7 @@ public class ReposFragment extends SherlockListFragment {
 
     public void navToDirectory(String repoID, String path, String objectID) {
         getMyActivity().setRefreshing();
+        refresh.setVisibility(View.INVISIBLE);
         getListView().setEnabled(false);
         getMyActivity().enableUpButton();
         getNavContext().currentRepo = repoID;
@@ -139,9 +150,10 @@ public class ReposFragment extends SherlockListFragment {
             } else {
                 Log.d(DEBUG_TAG, "failed to load repos");
             }
-            getListView().setEnabled(true);
-            adapter.notifyChanged();
+            refresh.setVisibility(View.VISIBLE);
             getMyActivity().unsetRefreshing();
+            adapter.notifyChanged();
+            getListView().setEnabled(true);
         }
 
     }
@@ -176,6 +188,7 @@ public class ReposFragment extends SherlockListFragment {
                     adapter.add(dirent);
                 }
             }
+            refresh.setVisibility(View.VISIBLE);
             getMyActivity().unsetRefreshing();
             adapter.notifyChanged();
             getListView().setEnabled(true);
