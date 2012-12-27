@@ -2,6 +2,7 @@ package com.seafile.seadroid;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
@@ -56,6 +57,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         
         if (findViewById(R.id.fragment_container) != null) {
             twoPaneMode = false;
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             // in one-pane layout, we have dynamic create fragments
             
             // if we're being restored from a previous state,
