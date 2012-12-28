@@ -23,6 +23,8 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.seafile.seadroid.DataManager.ProgressMonitor;
+
 import android.content.Context;
 import android.util.Log;
 
@@ -323,7 +325,7 @@ public class SeafConnection {
         }
     }
     
-    public File getFile(String repoID, String path, String oid) {
+    public File getFile(String repoID, String path, String oid, ProgressMonitor monitor) {
         String dlink = getDownloadLink(repoID, path);
         if (dlink == null)
             return null;
@@ -346,13 +348,28 @@ public class SeafConnection {
             
             is = conn.getInputStream();
             os = new FileOutputStream(tmp);
+            long nextUpdate = System.currentTimeMillis() + 1000;
+            long total = 0;
             byte[] data = new byte[1024];
             while (true) {
                 int len = is.read(data, 0, 1024);
+                if (Thread.currentThread().isInterrupted())
+                    return null;
+                
                 if (len == -1)
                     break;
                 os.write(data, 0, len);
+                total += len;
+                if (monitor != null)
+                    if (monitor.isCancelled())
+                        return null;
+                    
+                if (System.currentTimeMillis() > nextUpdate) {
+                    if (monitor != null) monitor.onProgressNotify(total);
+                    nextUpdate = System.currentTimeMillis() + 1000;
+                }
             }
+            
             if (tmp.renameTo(file) == false) {
                 Log.d(DEBUG_TAG, "Rename file error");
                 return null;

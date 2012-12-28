@@ -46,26 +46,16 @@
 		android:onClick="onOpenFileClick"
 		android:text="@string/open_file" />
 
+
 	<Button
-	    android:id="@+id/btn_redownload_file"
+	    android:id="@+id/btn_cancel_download"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
 	    android:layout_above="@+id/btn_toggle_open_download_file"
 	    android:layout_alignParentLeft="true"
 	    android:layout_alignParentRight="true"
-	    android:onClick="onOpenFileClick"
-	    android:text="@string/redownload_file"
-	    android:visibility="invisible" />
-
-	<Button
-	    android:id="@+id/btn_delete_file"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:layout_above="@+id/btn_redownload_file"
-	    android:layout_alignParentLeft="true"
-	    android:layout_alignParentRight="true"
-	    android:onClick="onOpenFileClick"
-	    android:text="@string/delete_file"
+	    android:onClick="onCancelDownloadClick"
+	    android:text="@string/cancel_download"
 	    android:visibility="invisible" />
 
 </RelativeLayout>

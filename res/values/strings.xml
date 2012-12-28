@@ -8,7 +8,8 @@
     <string name="open_file">Open</string>
     <string name="download_file">Download</string>
     <string name="redownload_file">Download again</string>
-    <string name="delete_file">Delete</string>
+    <string name="cancel_download">Cancel</string>
+    <string name="delete_file">Cancel</string>
     <string name="unknown_file_type">Unknown file type</string>
     <string name="activity_not_found">Can not find activity to open this file</string>
     <string name="refresh">Refresh</string>

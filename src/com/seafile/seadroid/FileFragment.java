@@ -1,48 +1,61 @@
 package com.seafile.seadroid;
 
 import java.io.File;
+import java.util.ArrayList;
 
+import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.RemoteViews;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.seafile.seadroid.DataManager.ProgressMonitor;
 
 public class FileFragment extends SherlockFragment {
 
     private static final String DEBUG_TAG = "FileFragment";
+    
+    private ArrayList<LoadFileTask> onGoingTasks = new ArrayList<LoadFileTask>();
 
-    String repoID;
-    String path;
-    String objectID;
-    long size;
-    File file;
-    String name;
     ViewGroup rootView = null;
+    BrowserActivity mActivity = null;
     
     private ImageView ivFileIcon;
     private TextView tv_filename;
     private TextView tv_file_size;
     
-    private BrowserActivity getMyActivity() {
-        return (BrowserActivity) getActivity();
+    private DataManager getDataManager() {
+        return mActivity.getDataManager();
     }
     
-    private DataManager getDataManager() {
-        return getMyActivity().getDataManager();
+    private NavContext getNavContext() {
+        return mActivity.getNavContext();
+    }
+    
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        Log.d(DEBUG_TAG, "FileFragment Attached");
+        mActivity = (BrowserActivity)activity;
     }
     
     @Override
@@ -64,45 +77,88 @@ public class FileFragment extends SherlockFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        
+        NavContext navContext = getNavContext();
+        String repoID = navContext.getCurrentFileRepo();
+        String path = navContext.getCurrentFilePath();
+        String objectID = navContext.getCurrentFileID();
+        long size = navContext.getCurrentFileSize();
+        
+        LayoutInflater inflater = (LayoutInflater) getActivity()
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        inflater.inflate(R.layout.file_details, rootView, true);
+
+        ivFileIcon = (ImageView) getActivity().findViewById(R.id.iv_file_icon);
+        tv_filename = (TextView) getActivity().findViewById(R.id.tv_file_name);
+        tv_file_size = (TextView) getActivity().findViewById(R.id.tv_file_size);
+        tv_filename.setText(Utils.fileNameFromPath(path));
+        tv_file_size.setText(Utils.readableFileSize(size));
+
+        for (LoadFileTask task : onGoingTasks) {
+            if (task.getObjectID().equals(objectID)) {
+                Log.d(DEBUG_TAG, "Task is going");
+                switchVisibilityOnDownload();
+            }
+        }
+    }
+    
+    
+    @Override
+    public void onStop() {
+        Log.d(DEBUG_TAG, "FileFragment onStop");
+        super.onStop();
     }
     
     @Override
-    public void onStart() {
-        super.onStart();
-        
-        Bundle args = getArguments();
-        if (args == null)
-            return;
-        
-        repoID = args.getString("repoID");
-        path = args.getString("path");
-        objectID = args.getString("objectID");
-        size = args.getLong("size");
-
-        if (shouldDownloadInstantly(path))
-            downloadFile();
-        else {
-            LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService
-                    (Context.LAYOUT_INFLATER_SERVICE);
-            inflater.inflate(R.layout.file_details, rootView, true);
-                
-            ivFileIcon = (ImageView) getActivity().findViewById(R.id.iv_file_icon);
-            tv_filename = (TextView) getActivity().findViewById(R.id.tv_file_name);
-            tv_file_size = (TextView) getActivity().findViewById(R.id.tv_file_size);
-            tv_filename.setText(Utils.fileNameFromPath(path));
-            tv_file_size.setText(Utils.readableFileSize(size));
-        }
+    public void onDestroyView() {
+        rootView = null;
+        Log.d(DEBUG_TAG, "FileFragment onDestroyView");
+        super.onDestroyView();
+    }
+    
+    
+    @Override
+    public void onDetach() {
+        mActivity = null;
+        Log.d(DEBUG_TAG, "FileFragment detached");
+        super.onDetach();
     }
     
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+    }
 
-        // Save the current article selection in case we need to recreate the fragment
-        outState.putString("repoID", repoID);
-        outState.putString("path", path);
-        outState.putString("objectID", objectID);
-        outState.putLong("size", size);
+    public void updateFileView(String repoID, String path, String objectID, long size) {
+        String suffix = path.substring(path.lastIndexOf('.') + 1);
+        
+        NavContext navContext = mActivity.getNavContext();
+        navContext.setCurrentFileRepo(repoID);
+        navContext.setCurrentFilePath(path);
+        navContext.setCurrentFileID(objectID);
+        navContext.setCurrentFileSize(size);
+        
+        //
+    }
+    
+    public void cancelDownload() {
+        NavContext navContext = mActivity.getNavContext();
+        for (LoadFileTask task : onGoingTasks) {
+            if (task.getObjectID().equals(navContext.getCurrentFileID())) {
+                task.cancel(true);
+                break;
+            }
+        }
+    }
+    
+    public void openFile() {
+        NavContext navContext = getNavContext();
+        String repoID = navContext.getCurrentFileRepo();
+        String path = navContext.getCurrentFilePath();
+        String objectID = navContext.getCurrentFileID();
+        long size = navContext.getCurrentFileSize();
+        
+        downloadFile(repoID, path, objectID, size);
     }
     
     private boolean shouldDownloadInstantly(String path) {
@@ -117,36 +173,32 @@ public class FileFragment extends SherlockFragment {
         return false;
     }
     
-    public void updateFileView(String repoID, String path, SeafDirent dirent) {
-        String suffix = path.substring(path.lastIndexOf('.') + 1);
-        this.repoID = repoID;
-        this.path = path;
-        this.objectID = dirent.id;
-        this.size = dirent.size;
-        
-        if (shouldDownloadInstantly(suffix))
-            downloadFile();
-        else {
-            //
-        }
+    private void switchVisibilityOnDownload() {
+        Button btn = (Button)getActivity().findViewById(R.id.btn_toggle_open_download_file);
+        btn.setVisibility(View.INVISIBLE);
+        Button cancelBtn = (Button)getActivity().findViewById(R.id.btn_cancel_download);
+        cancelBtn.setVisibility(View.VISIBLE);
     }
     
-    private void downloadFile() {
-        getMyActivity().setRefreshing();
-        new LoadFileTask().execute(repoID, path, objectID);
+    private void switchVisibilityOnStop() {
+        Button btn = (Button)getActivity().findViewById(R.id.btn_toggle_open_download_file);
+        btn.setVisibility(View.VISIBLE);
+        Button cancelBtn = (Button)getActivity().findViewById(R.id.btn_cancel_download);
+        cancelBtn.setVisibility(View.INVISIBLE);
     }
     
-    public void openFile() {
-        // login
-        downloadFile();
+    private void downloadFile(String repoID, String path, String objectID, long size) {
+        mActivity.setRefreshing();
+        switchVisibilityOnDownload();
+        new LoadFileTask(repoID, path, objectID, size).execute();
     }
     
     private void showFile(File file) {
-        this.file = file;
-        String suffix = path.substring(path.lastIndexOf('.') + 1);
+        String name = file.getName();
+        String suffix = name.substring(name.lastIndexOf('.') + 1);
         
         if (suffix.length() == 0) {
-            getMyActivity().showToast(getString(R.string.unknown_file_type));
+            mActivity.showToast(getString(R.string.unknown_file_type));
             return;
         }
         
@@ -163,7 +215,7 @@ public class FileFragment extends SherlockFragment {
         try {
             startActivity(open);
         } catch (ActivityNotFoundException e) {
-            getMyActivity().showToast(getString(R.string.activity_not_found));
+            mActivity.showToast(getString(R.string.activity_not_found));
         }
     }
     
@@ -183,28 +235,110 @@ public class FileFragment extends SherlockFragment {
         rootView.removeAllViews();
         rootView.addView(scroller);
     }
+    
+    private static int notificationID = 0;
 
-    private class LoadFileTask extends AsyncTask<String, Void, File> {
+    private class LoadFileTask extends AsyncTask<String, Integer, File> {
 
+        Notification notification;
+        NotificationManager notificationManager;
+        private int showProgressThreshold = 1024 * 100; // 100KB
+        private int myNtID;
+        
+        private String myRepoID;
+        private String myPath;
+        private String myObjectID;
+        private long mySize;
+        
+        public LoadFileTask(String repoID, String path, 
+                String objectID, long size) {
+            this.myRepoID = repoID;
+            this.myPath = path;
+            this.myObjectID = objectID;
+            this.mySize = size;
+            // Log.d(DEBUG_TAG, "stored object is " + myPath + myObjectID);
+            onGoingTasks.add(this);
+        }
+        
+        public String getObjectID() {
+            return myObjectID;
+        }
+        
+        @Override
+        protected void onPreExecute() {
+            if (mySize <= showProgressThreshold)
+                return;
+            myNtID = ++notificationID;
+            notificationManager = (NotificationManager) mActivity.getSystemService(Context.NOTIFICATION_SERVICE);
+            Intent notificationIntent = new Intent(mActivity, BrowserActivity.class);
+            
+            Account account = mActivity.getAccount();
+            notificationIntent.putExtra("server", account.server);
+            notificationIntent.putExtra("email", account.email);
+            notificationIntent.putExtra("token", account.token);
+            notificationIntent.putExtra("repoID", myRepoID);
+            notificationIntent.putExtra("objectID", myObjectID);
+            notificationIntent.putExtra("path", myPath);
+            notificationIntent.putExtra("size", mySize);
+            
+            PendingIntent intent = PendingIntent.getActivity(mActivity, myNtID, notificationIntent, 0);
+
+            notification = new Notification(R.drawable.ic_stat_download, "", System.currentTimeMillis());
+            notification.flags = notification.flags | Notification.FLAG_ONGOING_EVENT;
+            notification.contentView = new RemoteViews(mActivity.getApplicationContext().getPackageName(),
+                    R.layout.download_progress);
+            notification.contentView.setCharSequence(R.id.tv_download_title, "setText",
+                    Utils.fileNameFromPath(myPath));
+            notification.contentIntent = intent; 
+        }
+        
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            int progress = values[0];
+            notification.contentView.setProgressBar(R.id.pb_download_progressbar,
+                    (int)mySize, progress, false);
+            notificationManager.notify(myNtID, notification);
+        }
+
+        class FileLoadMonitor implements ProgressMonitor  {
+            LoadFileTask task;
+            
+            public FileLoadMonitor(LoadFileTask task) {
+                this.task = task;
+            }
+            
+            @Override
+            public void onProgressNotify(long total) {
+                publishProgress((int)total);
+            }
+            
+            @Override
+            public boolean isCancelled() {
+                return task.isCancelled();
+            }
+        }
+        
         @Override
         protected File doInBackground(String... params) {
-            if (params.length != 3) {
+            if (params.length != 0) {
                 Log.d(DEBUG_TAG, "Wrong params to LoadFileTask");
                 return null;
             }
-            
-            String repoID = params[0];
-            String path = params[1];
-            String oid = params[2];
-            Log.d(DEBUG_TAG, "load file " + repoID + ":" + path);
 
-            return getDataManager().getFile(repoID, path, oid);
+            if (mySize <= showProgressThreshold)
+                return getDataManager().getFile(myRepoID, myPath, myObjectID, null);
+            else
+                return getDataManager().getFile(myRepoID, myPath, myObjectID,
+                        new FileLoadMonitor(this));
         }
 
-        // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(File file) {
-            if (getMyActivity() == null)
+            if (mySize > showProgressThreshold)
+                notificationManager.cancel(myNtID);
+            onGoingTasks.remove(this);
+            
+            if (rootView == null)
                 return;
             
             CharSequence text;
@@ -213,10 +347,23 @@ public class FileFragment extends SherlockFragment {
                 showFile(file);
             } else {
                 text = "Failed to load file";
-                getMyActivity().showToast(text);
+                mActivity.showToast(text);
             }
-
-            getMyActivity().unsetRefreshing();
+            mActivity.unsetRefreshing();
+            switchVisibilityOnStop();
+        }
+        
+        @Override
+        protected void onCancelled() {
+            if (mySize > showProgressThreshold)
+                notificationManager.cancel(myNtID);
+            onGoingTasks.remove(this);
+            
+            if (rootView == null)
+                return;
+            
+            mActivity.unsetRefreshing();
+            switchVisibilityOnStop();
         }
 
     }

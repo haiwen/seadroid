@@ -174,12 +174,17 @@ public class DataManager {
         return reposCache;
     }
     
-    public File getFile(String repoID, String path, String oid) {
+    public interface ProgressMonitor {
+        public void onProgressNotify(long total);
+        boolean isCancelled();
+    }
+    
+    public File getFile(String repoID, String path, String oid, ProgressMonitor monitor) {
         String p = getExternalRootDirectory() + "/" + constructFileName(path, oid); 
         File f = new File(p);
         if (f.exists())
             return f;
-        return sc.getFile(repoID, path, oid);
+        return sc.getFile(repoID, path, oid, monitor);
     }
 
     private List<SeafDirent> parseDirents(String json) {
@@ -200,7 +205,9 @@ public class DataManager {
     }
     
     public List<SeafDirent> getDirents(String repoID, 
-            String path, String objectID) {        
+            String path, String objectID) {
+        //Log.d(DEBUG_TAG, "getDirents " + repoID + ":" + path + ", " + objectID);
+        
         if (objectID != null) {
             // put the mapping to cache for later usage.
             pathObjectIDMap.put(repoID + path, objectID);

@@ -6,6 +6,7 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -19,11 +20,15 @@ import com.actionbarsherlock.view.Window;
 public class BrowserActivity extends SherlockFragmentActivity 
         implements ReposFragment.OnFileSelectedListener, OnBackStackChangedListener {
     
+    private static final String DEBUG_TAG = "BrowserActivity";
+    
     private Account account;
     NavContext navContext = null;
     DataManager dataManager = null;
     
     private boolean twoPaneMode = false;
+    ReposFragment reposFragment = null;
+    FileFragment fileFragment = null;
     
     public DataManager getDataManager() {
         return dataManager;
@@ -46,6 +51,13 @@ public class BrowserActivity extends SherlockFragmentActivity
         String email = intent.getStringExtra("email");
         String token = intent.getStringExtra("token");
         account = new Account(server, email, null, token);
+
+        String repoID = intent.getStringExtra("repoID");
+        String path = intent.getStringExtra("path");
+        String objectID = intent.getStringExtra("objectID");
+        long size = intent.getLongExtra("size", 0);
+        Log.d(DEBUG_TAG, "browser activity onCreate " + server + " " + email);
+        Log.d(DEBUG_TAG, "repoID " + repoID + ":" + path + ":" + objectID);
         
         super.onCreate(savedInstanceState);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -67,14 +79,11 @@ public class BrowserActivity extends SherlockFragmentActivity
                 return;
             }
 
-            ReposFragment reposFragmgent = new ReposFragment();
-            // In case this activity was started with special instructions from an Intent,
-            // pass the Intent's extras to the fragment as arguments
-            reposFragmgent.setArguments(getIntent().getExtras());
-            
-            // Add the fragment to the 'fragment_container' FrameLayout
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, reposFragmgent, "repos_fragment").commit();
+            if (repoID != null && path != null && objectID != null) {
+                // call from notification
+                showFileFragment(repoID, path, objectID, size);
+            } else
+                showReposFragment(null, null);
         } else {
             twoPaneMode = true;
             // in two pane mode, the fragments will be loaded from xml file.
@@ -82,60 +91,66 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
     
     @Override
+    protected void onNewIntent(Intent intent) {
+        String server = intent.getStringExtra("server");
+        String email = intent.getStringExtra("email");
+        String token = intent.getStringExtra("token");
+        account = new Account(server, email, null, token);
+
+        String repoID = intent.getStringExtra("repoID");
+        String path = intent.getStringExtra("path");
+        String objectID = intent.getStringExtra("objectID");
+        long size = intent.getLongExtra("size", 0);
+        Log.d(DEBUG_TAG, "browser activity onNewIntent " + server + " " + email);
+        Log.d(DEBUG_TAG, "repoID " + repoID + ":" + path + ":" + objectID);
+        
+        showFileFragment(repoID, path, objectID, size);
+    }
+    
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         return true;
     }
     
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                if (twoPaneMode) {
-                    ReposFragment reposFragment = (ReposFragment)
-                            getSupportFragmentManager().findFragmentById(R.id.repos_fragment);
-                    reposFragment.navUp();
-                    return true;
-                }
-                
-                ReposFragment reposFragment = (ReposFragment)
-                    getSupportFragmentManager().findFragmentByTag("repos_fragment");
-                if (reposFragment != null && reposFragment.isVisible()) {
-                    reposFragment.navUp();
-                    return true;
-                } else {
-                    getSupportFragmentManager().popBackStack();
-                }
-               
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
+    private boolean isShowingReposFramgnet() {
+        return (reposFragment != null && reposFragment.isVisible());
     }
     
-    public void onFileSelected(String repoID, String path, SeafDirent dirent) {
-        FileFragment fileFrag = (FileFragment)
-                getSupportFragmentManager().findFragmentById(R.id.file_fragment);
-
-        if (fileFrag != null) {
-            // we're in two-pane layout
-            fileFrag.updateFileView(repoID, path, dirent);
-        } else {
-            FileFragment newFragment = new FileFragment();
-            Bundle args = new Bundle();
-            args.putString("repoID", repoID);
-            args.putString("path", path);
-            args.putString("objectID", dirent.id);
-            args.putLong("size", dirent.size);
-            
-            newFragment.setArguments(args);
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-
-            // Replace whatever is in the fragment_container view with this fragment,
-            // and add the transaction to the back stack so the user can navigate back
-            transaction.replace(R.id.fragment_container, newFragment, "file_fragment");
-            transaction.addToBackStack(null);
-            transaction.commit();
-        }
+    private void showReposFragment(String repoID, String path) {
+        if (reposFragment == null)
+            reposFragment = new ReposFragment();
+        
+        Log.d(DEBUG_TAG, "showReposFragment");
+        navContext.setCurrentDirRepo(repoID);
+        navContext.setCurrentDir(path);
+        
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, reposFragment, "repos_fragment");
+        transaction.commit();
+        
+        // Add the fragment to the 'fragment_container' FrameLayout
+        //getSupportFragmentManager().beginTransaction()
+        //        .add(R.id.fragment_container, reposFragmgent, "repos_fragment").commit();
     }
+    
+    private void showFileFragment(String repoID, String path,
+            String objectID, long size) {
+        if (fileFragment == null)
+            fileFragment = new FileFragment();
+        
+        navContext.setCurrentFileRepo(repoID);
+        navContext.setCurrentFilePath(path);
+        navContext.setCurrentFileID(objectID);
+        navContext.setCurrentFileSize(size);
+
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+        // Replace whatever is in the fragment_container view with this fragment,
+        // and add the transaction to the back stack so the user can navigate back
+        transaction.replace(R.id.fragment_container, fileFragment, "file_fragment");
+        transaction.commit();
+    }
+    
 
     public void setRefreshing() {
         setSupportProgressBarIndeterminateVisibility(Boolean.TRUE);
@@ -158,10 +173,41 @@ public class BrowserActivity extends SherlockFragmentActivity
     public void disableUpButton() {
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     }
-
+    
+    
+    /***************  Navigation *************/
 
     @Override
-    public void onBackStackChanged() {    
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                if (twoPaneMode) {
+                    ReposFragment reposFragment = (ReposFragment)
+                            getSupportFragmentManager().findFragmentById(R.id.repos_fragment);
+                    reposFragment.navUp();
+                    return true;
+                }
+                
+                if (isShowingReposFramgnet()) {
+                    reposFragment.navUp();
+                    return true;
+                } else {
+                    String repoID = navContext.getCurrentFileRepo();
+                    String parentPath = navContext.getFileParentPath();
+                    showReposFragment(repoID, parentPath);
+                }
+               
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+    
+    // File selected in repos fragment
+    public void onFileSelected(String repoID, String path, SeafDirent dirent) {
+        if (twoPaneMode)
+            return;
+        
+        showFileFragment(repoID, path, dirent.id, dirent.size);
     }
     
     @Override
@@ -171,20 +217,31 @@ public class BrowserActivity extends SherlockFragmentActivity
             return;
         }
         
-        ReposFragment reposFragment = (ReposFragment)
-            getSupportFragmentManager().findFragmentByTag("repos_fragment");
-        if (reposFragment != null && reposFragment.isVisible()) {
-            if (navContext.currentRepo == null)
-                super.onBackPressed();
-            else
-                reposFragment.navUp();
-        } else {
+        if (getSupportFragmentManager().getBackStackEntryCount() != 0)
             getSupportFragmentManager().popBackStack();
+
+        if (isShowingReposFramgnet()) {
+            if (navContext.inRepo())
+                reposFragment.navUp();
+            else
+                // back to StartActivity
+                super.onBackPressed();
+        } else {
+            // in showing FileFragment
+            String repoID = navContext.getCurrentFileRepo();
+            String filePath = navContext.getFileParentPath();
+            showReposFragment(repoID, filePath);
         }
     }
+
+    @Override
+    public void onBackStackChanged() {    
+    }
+
     
+    /************** Button clicks **************/
     
-    
+    // Open file button click in file fragment
     public void onOpenFileClick(View target) {       
         if (twoPaneMode) {
             return;
@@ -197,17 +254,29 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
     }
     
+    public void onCancelDownloadClick(View target) {
+        if (twoPaneMode) {
+            return;
+        }
+        
+        FileFragment fileFragment = (FileFragment)
+                getSupportFragmentManager().findFragmentByTag("file_fragment");
+        if (fileFragment != null && fileFragment.isVisible()) {
+            fileFragment.cancelDownload();
+        }
+    }
+    
     public void onRefreshClick(View target) {
         ReposFragment reposFragment = (ReposFragment)
                 getSupportFragmentManager().findFragmentByTag("repos_fragment");
         if (reposFragment != null && reposFragment.isVisible()) {
             if (navContext.inRepo()) {
-                reposFragment.navToDirectory(navContext.getCurrentRepoID(), 
-                        navContext.getCurrentPath(), null);
+                reposFragment.navToDirectory(navContext.getCurrentDirRepo(), 
+                        navContext.getCurrentDirPath(), null);
             } else {
                 reposFragment.navToReposView();
             }
-        } 
+        }
     }
     
 }
