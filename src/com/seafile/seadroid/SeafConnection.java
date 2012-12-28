@@ -262,7 +262,7 @@ public class SeafConnection {
         InputStream is = null;
         try {
             String encPath = URLEncoder.encode(path, "UTF-8");
-            HttpURLConnection conn = prepareGet("api2/repos/" + repoID + "/dirents/" + "?p=" + encPath);
+            HttpURLConnection conn = prepareGet("api2/repos/" + repoID + "/dir/" + "?p=" + encPath);
             conn.connect();
             int response = conn.getResponseCode();
             if (response != 200) {
@@ -291,7 +291,7 @@ public class SeafConnection {
         InputStream is = null;
         try {
             String encPath = URLEncoder.encode(path, "UTF-8");
-            HttpURLConnection conn = prepareGet("api2/repos/" + repoID + "/filepath/" + "?p=" 
+            HttpURLConnection conn = prepareGet("api2/repos/" + repoID + "/file/" + "?p=" 
                     + encPath + "&op=download");
             conn.connect();
             int response = conn.getResponseCode();

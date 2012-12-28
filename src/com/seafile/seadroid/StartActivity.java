@@ -72,16 +72,16 @@ public class StartActivity extends Activity {
         String email = emailText.getText().toString();
         String passwd = passwdText.getText().toString();
 
+        if (passwd.startsWith("X-Token")) {
+            startFilesActivity(defaultAccount);
+            return;
+        }
+        
         ConnectivityManager connMgr = (ConnectivityManager) 
             getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
         if (networkInfo != null && networkInfo.isConnected()) {
-            if (passwd.startsWith("X-Token")) {
-                startFilesActivity(defaultAccount);
-                return;
-            }
-            
             if (serverURL.length() == 0)
                 return;
             try {

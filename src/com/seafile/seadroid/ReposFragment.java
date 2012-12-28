@@ -2,16 +2,13 @@ package com.seafile.seadroid;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.Build;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-import android.widget.ArrayAdapter;
 
-import java.util.ArrayList;
 import java.util.List;
 import com.actionbarsherlock.app.SherlockListFragment;
 
@@ -136,9 +133,19 @@ public class ReposFragment extends SherlockListFragment {
 
 
     public void navToReposView() {
+        // show cached repos first
+        List<SeafRepo> repos = getDataManager().getReposFromCache();
+        adapter.clear();
+        if (repos != null) {
+            for (SeafRepo repo : repos) {
+                adapter.add(repo);
+            }
+        }
+        adapter.notifyChanged();
+        
+        // load repos in background
         mActivity.setRefreshing();
-        refresh.setVisibility(View.INVISIBLE);
-        getListView().setEnabled(false);
+        // refresh.setVisibility(View.INVISIBLE);
         mActivity.disableUpButton();
         getNavContext().clear();
         new LoadTask().execute();
@@ -180,20 +187,17 @@ public class ReposFragment extends SherlockListFragment {
                 // this occurs if user navigation to another activity
                 return;
             
-            adapter.clear();
             if (rs != null) {
-                Log.d(DEBUG_TAG, "load repos " + rs.size());
+                adapter.clear();
                 for (SeafRepo repo : rs) {
                     adapter.add(repo);
                 }
+                adapter.notifyChanged();
             } else {
                 Log.d(DEBUG_TAG, "failed to load repos");
             }
             
-            refresh.setVisibility(View.VISIBLE);
             mActivity.unsetRefreshing();
-            adapter.notifyChanged();
-            getListView().setEnabled(true);
         }
 
     }

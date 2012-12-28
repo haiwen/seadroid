@@ -146,6 +146,19 @@ public class DataManager {
         return reposCache.get(position);
     }
     
+    public List<SeafRepo> getReposFromCache() {
+        if (reposCache != null)
+            return reposCache;
+        
+        File cache = getFileForReposCache();
+        if (cache.exists()) {
+            String json = Utils.readFile(cache);
+            reposCache = parseRepos(json);
+            return reposCache;
+        }
+        return null;
+    }
+    
     public List<SeafRepo> getRepos() {
         if (!networkOn()) {
             if (reposCache != null)
