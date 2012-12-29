@@ -2,13 +2,18 @@ package com.seafile.seadroid;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.AsyncTask;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.content.Context;
 import android.content.Intent;
@@ -21,15 +26,13 @@ public class StartActivity extends Activity {
 
     private static final String DEBUG_TAG = "StartActivity";
     
-    private TextView statusView;
-    private Button loginButton;
-    private EditText serverText;
-    private EditText emailText;
-    private EditText passwdText;
-    
+    private ListView accountsView;
     
     private AccountManager accountManager;
     private Account defaultAccount;
+    
+    private AccountAdapter adapter;
+    List<Account> accounts;
 
     /** Called when the activity is first created. */
     @Override
@@ -37,66 +40,36 @@ public class StartActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start);
         
-        statusView = (TextView) findViewById(R.id.status_view);
-        loginButton = (Button) findViewById(R.id.login_button);
-        serverText = (EditText) findViewById(R.id.server_url);
-        emailText = (EditText) findViewById(R.id.email_address);
-        passwdText = (EditText) findViewById(R.id.password);
+        accountsView = (ListView) findViewById(R.id.account_list_view);
         
         accountManager = new AccountManager(this);
         defaultAccount = accountManager.getDefaultAccount();
-        if (defaultAccount != null && defaultAccount.token != null) {
-            serverText.setText(defaultAccount.server);
-            emailText.setText(defaultAccount.email);
-            // the context after X-Token is actually not used
-            passwdText.setText("X-Token " + defaultAccount.token.substring(0, 6));
-        }
-    }
-    
-    private String cleanServerURL(String serverURL) throws MalformedURLException {
-        if (!serverURL.startsWith("http://") && !serverURL.startsWith("https://")) {
-            serverURL = "http://" + serverURL;
-        }
+        accounts = accountManager.getAccountList();
         
-        if (!serverURL.endsWith("/")) {
-            serverURL = serverURL + "/";
+        Log.d(DEBUG_TAG, "Load accounts num " + accounts.size());
+        adapter = new AccountAdapter(this);
+        for (Account a : accounts) {
+            adapter.add(a);
         }
-        
-        new URL(serverURL); // will throw MalformedURLException if serverURL not valid
-        return serverURL;
-    }
-
-    /** Called when the user clicks the Login button */
-    public void login(View view) {
-        String serverURL = serverText.getText().toString();
-        String email = emailText.getText().toString();
-        String passwd = passwdText.getText().toString();
-
-        if (passwd.startsWith("X-Token")) {
-            startFilesActivity(defaultAccount);
-            return;
-        }
-        
-        ConnectivityManager connMgr = (ConnectivityManager) 
-            getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-
-        if (networkInfo != null && networkInfo.isConnected()) {
-            if (serverURL.length() == 0)
-                return;
-            try {
-                serverURL = cleanServerURL(serverURL);
-            } catch (MalformedURLException e) {
-                Log.d(DEBUG_TAG, "Invalid URL " + serverURL);
-                return;
+        Button addAccount = new Button(this);
+        addAccount.setText(R.string.add_account);
+        accountsView.addFooterView(addAccount, null, true);
+        accountsView.setFooterDividersEnabled(false);
+        accountsView.setAdapter(adapter);
+        addAccount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View btn) {
+                startAccountDetailActivity();
             }
-            
-            loginButton.setEnabled(false);
-            Account tmpAccount = new Account(serverURL, email, passwd);
-            new LoginTask(tmpAccount).execute();
-        } else {
-            statusView.setText("No network connection available.");
-        }
+        });
+        
+        accountsView.setOnItemClickListener(new OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view, int position,
+                    long id) {
+                Account account = accounts.get(position);
+                startFilesActivity(account);
+            }
+        });
     }
 
     private void startFilesActivity(Account account) {
@@ -107,41 +80,9 @@ public class StartActivity extends Activity {
         startActivity(intent);
     }
     
-    private class LoginTask extends AsyncTask<Void, Void, String> {
-        
-        Account loginAccount;
-        
-        public LoginTask(Account loginAccount) {
-            this.loginAccount = loginAccount;
-        }
-        
-        @Override
-        protected String doInBackground(Void... params) {              
-            if (params.length != 0)
-                return "Error number of parameter";
-
-            return doLogin();
-        }
-
-        // onPostExecute displays the results of the AsyncTask.
-        @Override
-        protected void onPostExecute(String result) {
-            if (result.equals("Success")) {
-                accountManager.saveDefaultAccount(loginAccount);
-                startFilesActivity(loginAccount);
-            } else {
-                statusView.setText(result);
-            }
-            loginButton.setEnabled(true);
-        }
-
-        private String doLogin() {   
-            SeafConnection sc = new SeafConnection(loginAccount);
-            
-            if (sc.doLogin() == false)
-                return "Login failed";
-            return "Success";
-        }
+    private void startAccountDetailActivity() {
+        Intent intent = new Intent(this, AccountDetailActivity.class);
+        startActivity(intent);
     }
 
 }

@@ -1,5 +1,8 @@
 package com.seafile.seadroid;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -58,16 +61,16 @@ public class AccountManager
              null    // The sort order
          );
      
-         if (c.moveToFirst() == false) {
-             c.close();
-             db.close();
-             return null;
-         }
-         
-         Account account = cursorToComment(c);
-         c.close();
-         db.close();
-         return account;
+        if (c.moveToFirst() == false) {
+            c.close();
+            db.close();
+            return null;
+        }
+
+        Account account = cursorToAccount(c);
+        c.close();
+        db.close();
+        return account;
     }
     
     public void saveAccount(Account account) {
@@ -115,7 +118,44 @@ public class AccountManager
         db.close();
     }
     
-    private Account cursorToComment(Cursor cursor) {
+    public List<Account> getAccountList() {
+        List<Account> accounts = new ArrayList<Account>();
+        
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String[] projection = {          
+                AccountDbHelper.COLUMN_SERVER,
+                AccountDbHelper.COLUMN_EMAIL,
+                AccountDbHelper.COLUMN_TOKEN
+        };
+
+        Cursor c = db.query(
+             AccountDbHelper.TABLE_NAME,
+             projection,
+             null,
+             null,                                     
+             null,   // don't group the rows
+             null,   // don't filter by row groups
+             null    // The sort order
+        );
+        
+        c.moveToFirst();
+        while (!c.isAfterLast()) {
+            Account account = cursorToAccount(c);
+            accounts.add(account);
+            c.moveToNext();
+        }
+        
+        c.close();
+        db.close();
+        return accounts;
+    }
+    
+    public  Account getDemoAccout() {
+        return new Account("http://cloud.seafile.com", "demo@seafile.com", "demo", null);
+    }
+    
+    private Account cursorToAccount(Cursor cursor) {
         Account account = new Account();
         account.server = cursor.getString(0);
         account.email = cursor.getString(1);

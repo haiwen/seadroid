@@ -30,6 +30,15 @@ public class Account {
         this.passwd = passwd;
         this.token = token;
     }
+    
+    public String getServerHost() {
+        String s = server.substring(server.indexOf("://") + 3);
+        return s.substring(0, s.indexOf('/'));
+    }
+    
+    public String getEmail() {
+        return email;
+    }
 
     
     @Override

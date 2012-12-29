@@ -2,6 +2,8 @@
 <resources>
     <string name="app_name">Seafile</string>
     <string name="app_url">http://seafile.com</string>
+    <string name="welcome_to_seafile">Welcome to Seafile</string>
+    <string name="select_account">Choose an account to start</string>
     <string name="server_hint">Server, like cloud.seafile.com</string>
     <string name="email_hint">Email</string>
     <string name="passwd_hint">Password</string>
@@ -13,4 +15,6 @@
     <string name="unknown_file_type">Unknown file type</string>
     <string name="activity_not_found">Can not find activity to open this file</string>
     <string name="refresh">Refresh</string>
+    <string name="login">Login</string>
+    <string name="add_account">Add Account</string>
 </resources>
