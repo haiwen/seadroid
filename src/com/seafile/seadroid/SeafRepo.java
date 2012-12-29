@@ -17,11 +17,12 @@ public class SeafRepo implements SeafItem {
     public String owner;
     public Date mtime;    // the last modification time
     
+    public boolean isGroupRepo;
     public boolean passwordNeed;
     public boolean encrypted;
     
     public long    size;
-    public String  root; // the id of root directory; 
+    public String  root; // the id of root directory
 
     static SeafRepo fromJson(JSONObject obj) {
         SeafRepo repo = new SeafRepo();
@@ -35,6 +36,10 @@ public class SeafRepo implements SeafItem {
             repo.encrypted = obj.getBoolean("encrypted");
             repo.root = obj.getString("root");
             repo.size = obj.getLong("size");
+            if (obj.getString("type").equals("grepo")) {
+                repo.isGroupRepo = true;
+            } else
+                repo.isGroupRepo = false;
             return repo;
         } catch (JSONException e) {
             return null;
@@ -61,6 +66,11 @@ public class SeafRepo implements SeafItem {
     @Override
     public String getSubtitle() {
         return description;
+    }
+
+    @Override
+    public int getIcon() {
+        return R.drawable.repo;
     }
     
 }

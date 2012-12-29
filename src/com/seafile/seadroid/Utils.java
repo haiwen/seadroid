@@ -10,6 +10,9 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeMap;
 
 import org.json.*;
 
@@ -102,6 +105,23 @@ class Utils {
                 // ignore
             }
         }
+    }
+    
+    public static String NOGROUP = "$nogroup";
+    
+    public static TreeMap<String, List<SeafRepo>> groupRepos(List<SeafRepo> repos) {
+        TreeMap<String, List<SeafRepo>> map = new TreeMap<String, List<SeafRepo>>();
+        for (SeafRepo repo : repos) {
+            List<SeafRepo> l;
+            String groupName = repo.isGroupRepo ? repo.owner : NOGROUP;
+            l = map.get(groupName);
+            if (l == null) {
+                l = new ArrayList<SeafRepo>();
+                map.put(groupName, l);
+            }
+            l.add(repo);
+        }
+        return map;
     }
     
 }

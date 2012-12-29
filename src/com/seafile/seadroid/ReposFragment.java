@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import java.util.List;
+import java.util.Map;
+
 import com.actionbarsherlock.app.SherlockListFragment;
 
 
@@ -126,21 +128,43 @@ public class ReposFragment extends SherlockListFragment {
                 mActivity.onFileSelected(nav.getCurrentDirRepo(), newPath, d);
             }
         } else {
-            SeafRepo repo = getDataManager().getCachedRepo(position);
+            SeafItem item = adapter.getItem(position);
+            if (!(item instanceof SeafRepo))
+                return;
+            SeafRepo repo = (SeafRepo)item;
             navToDirectory(repo.id, "/", repo.root);
         }
     }
 
 
+    private void addReposToAdapter(List<SeafRepo> repos) {
+        if (repos == null)
+            return;
+        Map<String, List<SeafRepo>> map = Utils.groupRepos(repos);
+        List<SeafRepo> personal = map.get(Utils.NOGROUP);
+        SeafGroup group = new SeafGroup(mActivity.getResources().getString(R.string.personal));
+        adapter.add(group);
+        for (SeafRepo repo : personal) {
+            adapter.add(repo);
+        }
+        
+        for (Map.Entry<String, List<SeafRepo>> entry : map.entrySet()) {
+            String key = entry.getKey();
+            if (!key.equals(Utils.NOGROUP)) {
+                group = new SeafGroup(key);
+                adapter.add(group);
+                for (SeafRepo repo : entry.getValue()) {
+                    adapter.add(repo);
+                }
+            }
+        }
+    }
+    
     public void navToReposView() {
         // show cached repos first
         List<SeafRepo> repos = getDataManager().getReposFromCache();
         adapter.clear();
-        if (repos != null) {
-            for (SeafRepo repo : repos) {
-                adapter.add(repo);
-            }
-        }
+        addReposToAdapter(repos);
         adapter.notifyChanged();
         
         // load repos in background
@@ -187,11 +211,15 @@ public class ReposFragment extends SherlockListFragment {
                 // this occurs if user navigation to another activity
                 return;
             
+            if (getNavContext().inRepo()) {
+                // this occurs if user already navigate into a repo
+                return;
+            }
+            
             if (rs != null) {
+                Log.d(DEBUG_TAG, "Load repos number " + rs.size());
                 adapter.clear();
-                for (SeafRepo repo : rs) {
-                    adapter.add(repo);
-                }
+                addReposToAdapter(rs);
                 adapter.notifyChanged();
             } else {
                 Log.d(DEBUG_TAG, "failed to load repos");

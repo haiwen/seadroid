@@ -48,5 +48,12 @@ public class SeafDirent implements SeafItem {
             return "";
         return Utils.readableFileSize(size);
     }
+
+    @Override
+    public int getIcon() {
+        if (isDir())
+            return R.drawable.folder;
+        return R.drawable.file;
+    }
     
 }

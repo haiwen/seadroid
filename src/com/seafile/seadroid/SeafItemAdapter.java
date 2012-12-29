@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -65,11 +66,38 @@ public class SeafItemAdapter extends BaseAdapter {
     public void clear() {
         items.clear();
     }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {      
+    
+    public boolean areAllItemsSelectable() {
+        return false;
+    }
+    
+    public boolean isEnable(int position) {
+        SeafItem item = items.get(position);
+        return !(item instanceof SeafGroup);
+    }
+    
+    public boolean isClickable(int position) {
+        SeafItem item = items.get(position);
+        return !(item instanceof SeafGroup);
+    }
+    
+    
+    public int getViewTypeCount() {
+        return 2;
+    }
+    
+    public int getItemViewType(int position) {
+        SeafItem item = items.get(position);
+        if (item instanceof SeafGroup)
+            return 0;
+        else
+            return 1;
+    }
+    
+    private View getRepoView(SeafRepo repo, View convertView, ViewGroup parent) {
         View view = convertView;
         Viewholder viewHolder;
+        
         if (convertView == null) {
             view = LayoutInflater.from(context).inflate(R.layout.list_item_entry, null);
             TextView title = (TextView) view.findViewById(R.id.list_item_title);
@@ -80,27 +108,59 @@ public class SeafItemAdapter extends BaseAdapter {
         } else {
             viewHolder = (Viewholder) convertView.getTag();
         }
-        SeafItem item = items.get(position);
-        viewHolder.title.setText(item.getTitle());
-        if (item instanceof SeafRepo) {
-            viewHolder.subtitle.setText(item.getSubtitle());
-            viewHolder.icon.setImageResource(R.drawable.repo);
-        } else {
-            SeafDirent dirent = (SeafDirent)item;
-            if (dirent.isDir()) {
-                viewHolder.subtitle.setText("");
-                viewHolder.icon.setImageResource(R.drawable.folder);
-            } else {
-                File file = DataManager.getFileForFileCache(dirent.name, dirent.id);
-                if (file.exists())
-                    viewHolder.subtitle.setText(item.getSubtitle() + " cached");
-                else
-                    viewHolder.subtitle.setText(item.getSubtitle());
-                viewHolder.icon.setImageResource(R.drawable.file);
-            }
-        }
-
+        
+        viewHolder.title.setText(repo.getTitle());
+        viewHolder.subtitle.setText(repo.getSubtitle());
+        viewHolder.icon.setImageResource(repo.getIcon());
         return view;
+    }
+    
+    private View getGroupView(SeafGroup group) {
+        View view = LayoutInflater.from(context).inflate(R.layout.group_item, null);
+        TextView tv = (TextView) view.findViewById(R.id.textview_groupname);
+        tv.setText(group.getTitle());
+        return view;
+    }
+    
+    private View getDirentView(SeafDirent dirent, View convertView, ViewGroup parent) {
+        View view = convertView;
+        Viewholder viewHolder;
+        
+        if (convertView == null) {
+            view = LayoutInflater.from(context).inflate(R.layout.list_item_entry, null);
+            TextView title = (TextView) view.findViewById(R.id.list_item_title);
+            TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
+            ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
+            viewHolder = new Viewholder(title, subtitle, icon);
+            view.setTag(viewHolder);
+        } else {
+            viewHolder = (Viewholder) convertView.getTag();
+        }
+        
+        viewHolder.title.setText(dirent.getTitle());
+        if (dirent.isDir()) {
+            viewHolder.subtitle.setText("");
+        } else {
+            File file = DataManager.getFileForFileCache(dirent.name, dirent.id);
+            if (file.exists())
+                viewHolder.subtitle.setText(dirent.getSubtitle() + " cached");
+            else
+                viewHolder.subtitle.setText(dirent.getSubtitle());
+        }
+        viewHolder.icon.setImageResource(dirent.getIcon());
+        return view;
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {   
+        SeafItem item = items.get(position);
+        if (item instanceof SeafRepo) {
+            return getRepoView((SeafRepo)item, convertView, parent);
+        } else if (item instanceof SeafGroup) {
+            return getGroupView((SeafGroup)item);
+        } else {
+            return getDirentView((SeafDirent)item, convertView, parent);
+        }
     }
 
 

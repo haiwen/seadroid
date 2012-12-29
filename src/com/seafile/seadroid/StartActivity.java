@@ -1,24 +1,15 @@
 package com.seafile.seadroid;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.AsyncTask;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
-import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.util.Log;
 
 
@@ -29,12 +20,10 @@ public class StartActivity extends Activity {
     private ListView accountsView;
     
     private AccountManager accountManager;
-    private Account defaultAccount;
     
     private AccountAdapter adapter;
     List<Account> accounts;
 
-    /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,7 +32,6 @@ public class StartActivity extends Activity {
         accountsView = (ListView) findViewById(R.id.account_list_view);
         
         accountManager = new AccountManager(this);
-        defaultAccount = accountManager.getDefaultAccount();
 
         Button addAccount = new Button(this);
         addAccount.setText(R.string.add_account);
@@ -67,7 +55,8 @@ public class StartActivity extends Activity {
         
     }
     
-    // Always reload accounts on resume, so that when user add a new account, it will be shown.
+    // Always reload accounts on resume, so that when user add a new account,
+    // it will be shown.
     @Override
     public void onResume() {
         super.onResume();
