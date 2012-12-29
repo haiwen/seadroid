@@ -91,6 +91,7 @@ public class AccountDetailActivity extends Activity {
         intent.putExtra("email", account.email);
         intent.putExtra("token", account.token);
         startActivity(intent);
+        finish(); // so the user will not return to this activity when press 'back'
     }
     
     private class LoginTask extends AsyncTask<Void, Void, String> {

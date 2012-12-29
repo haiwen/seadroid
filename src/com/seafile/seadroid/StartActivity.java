@@ -44,17 +44,12 @@ public class StartActivity extends Activity {
         
         accountManager = new AccountManager(this);
         defaultAccount = accountManager.getDefaultAccount();
-        accounts = accountManager.getAccountList();
-        
-        Log.d(DEBUG_TAG, "Load accounts num " + accounts.size());
-        adapter = new AccountAdapter(this);
-        for (Account a : accounts) {
-            adapter.add(a);
-        }
+
         Button addAccount = new Button(this);
         addAccount.setText(R.string.add_account);
         accountsView.addFooterView(addAccount, null, true);
         accountsView.setFooterDividersEnabled(false);
+        adapter = new AccountAdapter(this);
         accountsView.setAdapter(adapter);
         addAccount.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,7 +57,6 @@ public class StartActivity extends Activity {
                 startAccountDetailActivity();
             }
         });
-        
         accountsView.setOnItemClickListener(new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position,
                     long id) {
@@ -70,6 +64,22 @@ public class StartActivity extends Activity {
                 startFilesActivity(account);
             }
         });
+        
+    }
+    
+    // Always reload accounts on resume, so that when user add a new account, it will be shown.
+    @Override
+    public void onResume() {
+        super.onResume();
+        
+        accounts = accountManager.getAccountList();
+        
+        Log.d(DEBUG_TAG, "Load accounts num " + accounts.size());
+        adapter.clear();
+        for (Account a : accounts) {
+            adapter.add(a);
+        }
+        adapter.notifyChanged();
     }
 
     private void startFilesActivity(Account account) {
