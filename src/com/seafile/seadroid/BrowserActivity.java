@@ -159,6 +159,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
     
     private void showReposFragment() {
+        navContext.inFileView = false;
         Log.d(DEBUG_TAG, "showReposFragment");
         
         if (reposFragment == null) {
@@ -199,7 +200,6 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
     
     private void hideFileFragment() {
-        navContext.inFileView = false;
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.detach(fileFragment);
         transaction.commit();
