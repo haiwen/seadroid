@@ -335,7 +335,10 @@ public class SeafConnection {
         InputStream is = null;
         OutputStream os = null;
         try {
-            HttpURLConnection conn = prepareFileGet(dlink);
+            int i = dlink.lastIndexOf('/');
+            String quoted = dlink.substring(0, i) + "/" + 
+                    URLEncoder.encode(dlink.substring(i+1), "UTF-8");
+            HttpURLConnection conn = prepareFileGet(quoted);
             conn.connect();
             int response = conn.getResponseCode();
             if (response != 200) {

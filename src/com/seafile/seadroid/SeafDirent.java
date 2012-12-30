@@ -4,6 +4,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.util.Log;
+import android.webkit.MimeTypeMap;
 
 public class SeafDirent implements SeafItem {
 
@@ -53,7 +54,14 @@ public class SeafDirent implements SeafItem {
     public int getIcon() {
         if (isDir())
             return R.drawable.folder;
-        return R.drawable.file;
+        
+        String suffix = name.substring(name.lastIndexOf('.') + 1);
+        
+        if (suffix.length() == 0) {
+            return R.drawable.file;
+        }
+        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
+        return Utils.getResIdforMimetype(mime);
     }
     
 }

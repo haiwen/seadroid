@@ -93,6 +93,11 @@ public class FileFragment extends SherlockFragment {
         tv_file_size = (TextView) getActivity().findViewById(R.id.tv_file_size);
         tv_filename.setText(Utils.fileNameFromPath(path));
         tv_file_size.setText(Utils.readableFileSize(size));
+        
+        String suffix = path.substring(path.lastIndexOf('.') + 1);
+        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
+        int id = Utils.getResIdforMimetypeLarge(mime);
+        ivFileIcon.setImageResource(id);
 
         for (LoadFileTask task : onGoingTasks) {
             if (task.getObjectID().equals(objectID)) {
@@ -201,12 +206,7 @@ public class FileFragment extends SherlockFragment {
             mActivity.showToast(getString(R.string.unknown_file_type));
             return;
         }
-        
-        if (suffix.equals("md")) {
-            showMarkdown(file);
-            return;
-        }
-     
+
         String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
         Intent open = new Intent(Intent.ACTION_VIEW, Uri.parse(file.getAbsolutePath()));
         open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -219,6 +219,7 @@ public class FileFragment extends SherlockFragment {
         }
     }
     
+    /*
     private void showMarkdown(File file) {
         String content = Utils.readFile(file);
         if (content == null)
@@ -235,6 +236,7 @@ public class FileFragment extends SherlockFragment {
         rootView.removeAllViews();
         rootView.addView(scroller);
     }
+    */
     
     private static int notificationID = 0;
 

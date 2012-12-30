@@ -124,4 +124,47 @@ class Utils {
         return map;
     }
     
+    
+    public static int getResIdforMimetype(String mimetype) {
+        if (mimetype == null)
+            return R.drawable.file;
+        
+        if (mimetype.contains("application")) {
+            return R.drawable.file_application;
+        } else if (mimetype.contains("image")) {
+            return R.drawable.file_image;
+        } else if (mimetype.contains("text")) {
+            return R.drawable.ic_text;
+        } else if (mimetype.contains("audio")) {
+            return R.drawable.file_audio;
+        } else if (mimetype.contains("video")) {
+            return R.drawable.file_video;
+        } if (mimetype.contains("pdf")) {
+            return R.drawable.file_pdf;
+        } else {
+            return R.drawable.file;
+        }
+    }
+    
+    public static int getResIdforMimetypeLarge(String mimetype) {
+        if (mimetype == null)
+            return R.drawable.file;
+        
+        if (mimetype.contains("application")) {
+            return R.drawable.file_application;
+        } else if (mimetype.contains("image")) {
+            return R.drawable.image;
+        } else if (mimetype.contains("text")) {
+            return R.drawable.text;
+        } else if (mimetype.contains("audio")) {
+            return R.drawable.audio;
+        } else if (mimetype.contains("video")) {
+            return R.drawable.video;
+        } if (mimetype.contains("pdf")) {
+            return R.drawable.file_pdf;
+        } else {
+            return R.drawable.file;
+        }
+    }
+    
 }
