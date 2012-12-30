@@ -50,31 +50,16 @@ public class ReposFragment extends SherlockListFragment {
         adapter = new SeafItemAdapter(getActivity());
         setListAdapter(adapter);
 
-        // Check to see if we have a frame in which to embed the details
-        // fragment directly in the containing UI.
-        View detailsFrame = getActivity().findViewById(R.id.file_fragment);
-        mDualPane = detailsFrame != null && detailsFrame.getVisibility() == View.VISIBLE;
-        if (mDualPane) {
-            // In dual-pane mode, the list view highlights the selected item.
-            getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-            // Make sure our UI is in the correct state.
-            //showDetails(mCurCheckPosition);
-        }
-        
+        getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+ 
         // set refresh button
         refresh = LayoutInflater.from(getActivity()).inflate(R.layout.refresh, null);
         getListView().setEmptyView(refresh);
         ViewGroup root = (ViewGroup) getActivity().findViewById(android.R.id.content);
         root.addView(refresh);
-
-        NavContext navContext = getNavContext();
-        String repoID = navContext.getCurrentDirRepo();
-        String path = navContext.getCurrentDirPath();
-
-        if (repoID != null) {
-            navToDirectory(repoID, path, null);
-        } else
-            navToReposView();
+        
+        // refresh the view (loading data)
+        refreshView();
     }
     
 
@@ -107,6 +92,39 @@ public class ReposFragment extends SherlockListFragment {
         Log.d(DEBUG_TAG, "ReposFragment detached");
         super.onDetach();
     }
+    
+    public void refreshView() {
+        NavContext navContext = getNavContext();
+        if (navContext.inRepo()) {
+            navToDirectory();
+        } else {
+            navToReposView();
+        }
+    }
+    
+    public void navToReposView() {
+        // show cached repos first
+        List<SeafRepo> repos = getDataManager().getReposFromCache();
+        adapter.clear();
+        addReposToAdapter(repos);
+        adapter.notifyChanged();
+        
+        // load repos in background
+        mActivity.setRefreshing();
+        // refresh.setVisibility(View.INVISIBLE);
+        mActivity.disableUpButton();
+        new LoadTask().execute();
+    }
+
+    public void navToDirectory() {
+        NavContext navContext = getNavContext();
+        mActivity.setRefreshing();
+        refresh.setVisibility(View.INVISIBLE);
+        getListView().setEnabled(false);
+        mActivity.enableUpButton();
+        new LoadDirTask().execute(navContext.getRepo(), navContext.getDirPath(),
+                navContext.getDirID());
+    }
 
     @Override 
     public void onListItemClick(ListView l, View v, int position, long id) {
@@ -114,25 +132,27 @@ public class ReposFragment extends SherlockListFragment {
         
         NavContext nav = getNavContext();
         if (nav.inRepo()) {
-            if (nav.isDir(position)) {
-                SeafDirent d = nav.getDirent(position);
-                String currentPath = nav.getCurrentDirPath();
+            SeafDirent dirent = (SeafDirent)adapter.getItem(position);
+            if (dirent.isDir()) {
+                String currentPath = nav.getDirPath();
                 String newPath = currentPath.endsWith("/") ? 
-                        currentPath + d.name : currentPath + "/" + d.name;
-                navToDirectory(nav.getCurrentDirRepo(), newPath, d.id);
+                        currentPath + dirent.name : currentPath + "/" + dirent.name;
+                nav.setDir(newPath, dirent.id);
+                navToDirectory();
             } else {
-                SeafDirent d = nav.getDirent(position);
-                String currentPath = nav.getCurrentDirPath();
+                String currentPath = nav.getDirPath();
                 String newPath = currentPath.endsWith("/") ? 
-                        currentPath + d.name : currentPath + "/" + d.name;
-                mActivity.onFileSelected(nav.getCurrentDirRepo(), newPath, d);
+                        currentPath + dirent.name : currentPath + "/" + dirent.name;
+                mActivity.onFileSelected(nav.getRepo(), newPath, dirent);
             }
         } else {
             SeafItem item = adapter.getItem(position);
             if (!(item instanceof SeafRepo))
                 return;
             SeafRepo repo = (SeafRepo)item;
-            navToDirectory(repo.id, "/", repo.root);
+            nav.setRepo(repo.id);
+            nav.setDir("/", repo.root);
+            navToDirectory();
         }
     }
 
@@ -156,42 +176,6 @@ public class ReposFragment extends SherlockListFragment {
                 for (SeafRepo repo : entry.getValue()) {
                     adapter.add(repo);
                 }
-            }
-        }
-    }
-    
-    public void navToReposView() {
-        // show cached repos first
-        List<SeafRepo> repos = getDataManager().getReposFromCache();
-        adapter.clear();
-        addReposToAdapter(repos);
-        adapter.notifyChanged();
-        
-        // load repos in background
-        mActivity.setRefreshing();
-        // refresh.setVisibility(View.INVISIBLE);
-        mActivity.disableUpButton();
-        getNavContext().clear();
-        new LoadTask().execute();
-    }
-
-    public void navToDirectory(String repoID, String path, String objectID) {
-        mActivity.setRefreshing();
-        refresh.setVisibility(View.INVISIBLE);
-        getListView().setEnabled(false);
-        mActivity.enableUpButton();
-        getNavContext().setCurrentDirRepo(repoID);
-        getNavContext().setCurrentDir(path);
-        new LoadDirTask().execute(repoID, path, objectID);
-    }
-    
-    public void navUp() {
-        if (getNavContext().inRepo()) {
-            if (getNavContext().isRootDir()) {
-                navToReposView();
-            } else {
-                navToDirectory(getNavContext().currentRepo, 
-                        getNavContext().getParentPath(), null);
             }
         }
     }
@@ -255,7 +239,6 @@ public class ReposFragment extends SherlockListFragment {
            
             adapter.clear();
             if (dirents != null) {
-                getNavContext().currentDirents = dirents;
                 for (SeafDirent dirent : dirents) {
                     adapter.add(dirent);
                 }

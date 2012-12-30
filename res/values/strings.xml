@@ -18,4 +18,6 @@
     <string name="login">Login</string>
     <string name="add_account">Add Account</string>
     <string name="personal">Personal</string>
+    <string name="libraries">Libraries</string>
+    <string name="cached">Cached</string>
 </resources>

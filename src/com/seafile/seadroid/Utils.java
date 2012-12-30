@@ -81,6 +81,14 @@ class Utils {
         }
     }
     
+    public static String getParentPath(String path) {
+        String parent = path.substring(0, path.lastIndexOf("/"));
+        if (parent.equals("")) {
+            return "/";
+        } else
+            return parent;
+    }
+    
     public static String fileNameFromPath(String path) {
         return path.substring(path.lastIndexOf("/") + 1);
     }

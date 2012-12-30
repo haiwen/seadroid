@@ -79,10 +79,10 @@ public class FileFragment extends SherlockFragment {
         super.onActivityCreated(savedInstanceState);
         
         NavContext navContext = getNavContext();
-        String repoID = navContext.getCurrentFileRepo();
-        String path = navContext.getCurrentFilePath();
-        String objectID = navContext.getCurrentFileID();
-        long size = navContext.getCurrentFileSize();
+        String repoID = navContext.getRepo();
+        String path = navContext.getFilePath();
+        String objectID = navContext.getFileID();
+        long size = navContext.getFileSize();
         
         LayoutInflater inflater = (LayoutInflater) getActivity()
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -135,21 +135,13 @@ public class FileFragment extends SherlockFragment {
     }
 
     public void updateFileView(String repoID, String path, String objectID, long size) {
-        String suffix = path.substring(path.lastIndexOf('.') + 1);
-        
-        NavContext navContext = mActivity.getNavContext();
-        navContext.setCurrentFileRepo(repoID);
-        navContext.setCurrentFilePath(path);
-        navContext.setCurrentFileID(objectID);
-        navContext.setCurrentFileSize(size);
-        
-        //
+
     }
     
     public void cancelDownload() {
         NavContext navContext = mActivity.getNavContext();
         for (LoadFileTask task : onGoingTasks) {
-            if (task.getObjectID().equals(navContext.getCurrentFileID())) {
+            if (task.getObjectID().equals(navContext.getFileID())) {
                 task.cancel(true);
                 break;
             }
@@ -158,10 +150,10 @@ public class FileFragment extends SherlockFragment {
     
     public void openFile() {
         NavContext navContext = getNavContext();
-        String repoID = navContext.getCurrentFileRepo();
-        String path = navContext.getCurrentFilePath();
-        String objectID = navContext.getCurrentFileID();
-        long size = navContext.getCurrentFileSize();
+        String repoID = navContext.getRepo();
+        String path = navContext.getFilePath();
+        String objectID = navContext.getFileID();
+        long size = navContext.getFileSize();
         
         downloadFile(repoID, path, objectID, size);
     }

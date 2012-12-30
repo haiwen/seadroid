@@ -4,121 +4,71 @@ import java.util.List;
 
 public class NavContext {
 
-    // for repos fragment
-    String currentRepo = null;
-    String currentDirPath = null;
-    List<SeafDirent> currentDirents = null;
+    boolean inFileView;
     
-    // for file fragment
-    private String currentFileRepo = null;
-    private String currentFilePath = null;
-    private String currentFileID = null;
-    private long currentFileSize = 0;
+    String repoID = null;
+    String dirPath = null;
+    String dirID = null;
+    List<SeafDirent> dirents = null;
+
+    private String filePath = null;
+    private String fileID = null;
+    private long fileSize = 0;
     
     public NavContext() {
-        currentRepo = null;
-        currentDirents = null;
-        currentDirPath = null;
+        repoID = null;
+        dirPath = null;
+        dirents = null;
+        inFileView = false;
     }
  
-    public void clear() {
-        currentRepo = null;
-        currentDirents = null;
-        currentDirPath = null;
+    public void setRepo(String repoID) {
+        this.repoID = repoID;
+    }
+    
+    public void setDir(String path, String dirID) {
+        this.dirPath = path;
+        this.dirID = dirID;
+    }
+    
+    public void setFile(String filePath,
+            String fileID, long fileSize) {
+        this.fileID = fileID;
+        this.filePath = filePath;
+        this.fileSize = fileSize;
     }
     
     public boolean inRepo() {
-        return currentRepo != null;
+        return repoID != null;
     }
     
-    public String getCurrentDirRepo() {
-        return currentRepo;
+    public String getRepo() {
+        return repoID;
     }
     
-    public void setCurrentDirRepo(String repoID) {
-        currentRepo = repoID;
+    public boolean isRepoRoot() {
+        return dirPath.equals("/");
     }
     
-    public SeafDirent getDirent(int position) {
-        return currentDirents.get(position);
+    public String getDirPath() {
+        return dirPath;
     }
     
-    public boolean isDir(int position) {
-        return currentDirents.get(position).isDir();
+    public String getDirID() {
+        return dirID;
     }
     
-    public String getPathAtPosition(int position) {
-        if (isRootDir())
-            return currentDirPath + currentDirents.get(position).name;
-        else
-            return currentDirPath + "/" + currentDirents.get(position).name;
+    public String getFilePath() {
+        return filePath;
     }
     
-    public boolean isRootDir() {
-        return currentDirPath.equals("/");
+    public String getFileID() {
+        return fileID;
     }
     
-    public String getParentPath() {
-        String parent = currentDirPath.substring(0, currentDirPath.lastIndexOf("/"));
-        if (parent.equals("")) {
-            return "/";
-        } else
-            return parent;
-    }
-    
-    public String getCurrentDirPath() {
-        return currentDirPath;
-    }
-    
-    public void setCurrentDir(String path) {
-        currentDirPath = path;
-    }
-    
-    
-    public String getCurrentFilePath() {
-        return currentFilePath;
-    }
-    
-    public String getCurrentFileID() {
-        return currentFileID;
-    }
-    
-    public long getCurrentFileSize() {
-        return currentFileSize;
-    }
-    
-    public void clearFileNav() {
-        currentFileRepo = null;
-        currentFilePath = null;
-        currentFileID = null;
-        currentFileSize = 0;
-    }
-    
-    public String getCurrentFileRepo() {
-        return currentFileRepo;
-    }
-    
-    public void setCurrentFileRepo(String repoID) {
-        currentFileRepo = repoID;
-    }
-    
-    public void setCurrentFilePath(String path) {
-        currentFilePath = path;
-    }
-    
-    public void setCurrentFileID(String fileID) {
-        currentFileID = fileID;
-    }
-    
-    public void setCurrentFileSize(long size) {
-        currentFileSize = size;
+    public long getFileSize() {
+        return fileSize;
     }
 
-    public String getFileParentPath() {
-        String parent = currentFilePath.substring(0, currentFilePath.lastIndexOf("/"));
-        if (parent.equals("")) {
-            return "/";
-        } else
-            return parent;
-    }
+
 }
