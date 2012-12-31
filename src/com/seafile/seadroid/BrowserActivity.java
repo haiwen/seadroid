@@ -110,16 +110,26 @@ public class BrowserActivity extends SherlockFragmentActivity
         
         dataManager = new DataManager(this, account);
         navContext = new NavContext();
-        navContext.inFileView = false;
         
         //setContentView(R.layout.seadroid_main);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         getSupportFragmentManager().addOnBackStackChangedListener(this);
         
         ActionBar actionBar = getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         actionBar.setDisplayShowTitleEnabled(false);
+        
+        int cTab = 0;
 
+        if (savedInstanceState != null) {
+            // fragment are saved during screen rotation, so do not need to create a new one
+            reposFragment = (ReposFragment)
+                    getSupportFragmentManager().findFragmentByTag("repos_fragment");
+            cacheFragment = (CacheFragment)
+                    getSupportFragmentManager().findFragmentByTag("cache_fragment");
+            cTab = savedInstanceState.getInt("tab");
+        }
+        
         Tab tab = actionBar.newTab()
                 .setText(R.string.libraries)
                 .setTabListener(new TabListener("libraries"));
@@ -130,11 +140,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             .setTabListener(new TabListener("cache"));
         actionBar.addTab(tab);
 
-        /*
-         * if (repoID != null && path != null && objectID != null) { // call
-         * from notification showFileFragment(repoID, path, objectID, size); }
-         * else showReposFragment(null, null);
-         */
+        actionBar.setSelectedNavigationItem(cTab);
     }
     
     @Override
@@ -160,12 +166,18 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
     
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("tab", getSupportActionBar().getSelectedNavigationIndex());
+    }
+    
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         return true;
     }
     
     private void showReposFragment(FragmentTransaction ft) {
-        Log.d(DEBUG_TAG, "showReposFragment");
+        //Log.d(DEBUG_TAG, "showReposFragment");
         
         if (reposFragment == null) {
             reposFragment = new ReposFragment();
@@ -177,13 +189,13 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
     
     private void hideReposFragment(FragmentTransaction ft) {
-        if (reposFragment.isDetached())
-            return;
+        //Log.d(DEBUG_TAG, "hideReposFragment");
         ft.detach(reposFragment);
     }
     
     
     private void showCacheFragment(FragmentTransaction ft) {
+        //Log.d(DEBUG_TAG, "showCacheFragment");
         if (cacheFragment == null) {
             cacheFragment = new CacheFragment();
             ft.add(android.R.id.content, cacheFragment, "cache_fragment");
@@ -193,8 +205,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
     
     private void hideCacheFragment(FragmentTransaction ft) {
-        if (cacheFragment.isDetached())
-            return;
+        //Log.d(DEBUG_TAG, "hideCacheFragment");
         ft.detach(cacheFragment);
     }
 
@@ -286,9 +297,8 @@ public class BrowserActivity extends SherlockFragmentActivity
                 super.onBackPressed();
         } else if (currentTab.equals("cache")) {
             super.onBackPressed();
-        }
-        super.onBackPressed();
-        return;
+        } else
+            super.onBackPressed();
     }
 
     @Override

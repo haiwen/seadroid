@@ -5,8 +5,6 @@ import java.util.List;
 import com.seafile.seadroid.data.SeafDirent;
 
 public class NavContext {
-
-    boolean inFileView;
     
     String repoID = null;
     String dirPath = null;
@@ -18,7 +16,6 @@ public class NavContext {
         repoID = null;
         dirPath = null;
         dirents = null;
-        inFileView = false;
     }
  
     public void setRepo(String repoID) {

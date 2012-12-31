@@ -15,6 +15,7 @@ import com.seafile.seadroid.BrowserActivity.TabListener;
 import com.seafile.seadroid.account.Account;
 import com.seafile.seadroid.data.DataManager;
 import com.seafile.seadroid.ui.FileFragment;
+import com.seafile.seadroid.ui.ReposFragment;
 
 public class FileActivity extends SherlockFragmentActivity {
     
@@ -50,12 +51,18 @@ public class FileActivity extends SherlockFragmentActivity {
         dataManager = new DataManager(this, account);
         
         //setContentView(R.layout.seadroid_main);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowTitleEnabled(true);
         setSupportProgressBarIndeterminateVisibility(Boolean.FALSE);
         
+        if (savedInstanceState != null) {
+            // fragment are saved during screen rotation, so do not need to create a new one
+            fileFragment = (FileFragment)
+                    getSupportFragmentManager().findFragmentByTag("file_fragment");
+        } else
+            fileFragment = new FileFragment();
         showFileFragment();
     }
     
@@ -83,7 +90,6 @@ public class FileActivity extends SherlockFragmentActivity {
     
     private void showFileFragment() {
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        fileFragment = new FileFragment();
         fileFragment.setDataManager(dataManager);
         fileFragment.setFile(repoID, path, fileID, size);
         ft.add(android.R.id.content, fileFragment, "file_fragment");
