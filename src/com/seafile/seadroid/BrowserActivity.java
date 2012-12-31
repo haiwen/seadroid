@@ -19,6 +19,11 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.actionbarsherlock.app.ActionBar;
+import com.seafile.seadroid.account.Account;
+import com.seafile.seadroid.data.DataManager;
+import com.seafile.seadroid.data.SeafDirent;
+import com.seafile.seadroid.ui.FileFragment;
+import com.seafile.seadroid.ui.ReposFragment;
 
 
 public class BrowserActivity extends SherlockFragmentActivity 

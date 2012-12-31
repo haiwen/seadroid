@@ -1,4 +1,4 @@
-package com.seafile.seadroid;
+package com.seafile.seadroid.account;
 
 public class Account {
     

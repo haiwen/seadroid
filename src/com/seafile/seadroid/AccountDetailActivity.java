@@ -3,6 +3,9 @@ package com.seafile.seadroid;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import com.seafile.seadroid.account.Account;
+import com.seafile.seadroid.account.AccountManager;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.AsyncTask;

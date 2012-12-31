@@ -2,6 +2,8 @@ package com.seafile.seadroid;
 
 import java.util.List;
 
+import com.seafile.seadroid.data.SeafDirent;
+
 public class NavContext {
 
     boolean inFileView;

@@ -2,6 +2,9 @@ package com.seafile.seadroid;
 
 import java.util.List;
 
+import com.seafile.seadroid.account.Account;
+import com.seafile.seadroid.account.AccountManager;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;

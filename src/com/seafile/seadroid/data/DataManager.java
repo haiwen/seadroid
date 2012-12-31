@@ -1,4 +1,4 @@
-package com.seafile.seadroid;
+package com.seafile.seadroid.data;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,6 +9,10 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.seafile.seadroid.SeafConnection;
+import com.seafile.seadroid.Utils;
+import com.seafile.seadroid.account.Account;
 
 import android.content.Context;
 import android.net.ConnectivityManager;

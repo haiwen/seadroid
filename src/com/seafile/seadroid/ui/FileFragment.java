@@ -1,4 +1,4 @@
-package com.seafile.seadroid;
+package com.seafile.seadroid.ui;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -28,7 +28,17 @@ import android.widget.TextView;
 import android.widget.RemoteViews;
 
 import com.actionbarsherlock.app.SherlockFragment;
-import com.seafile.seadroid.DataManager.ProgressMonitor;
+import com.seafile.seadroid.BrowserActivity;
+import com.seafile.seadroid.NavContext;
+import com.seafile.seadroid.R;
+import com.seafile.seadroid.Utils;
+import com.seafile.seadroid.R.drawable;
+import com.seafile.seadroid.R.id;
+import com.seafile.seadroid.R.layout;
+import com.seafile.seadroid.R.string;
+import com.seafile.seadroid.account.Account;
+import com.seafile.seadroid.data.DataManager;
+import com.seafile.seadroid.data.DataManager.ProgressMonitor;
 
 public class FileFragment extends SherlockFragment {
 

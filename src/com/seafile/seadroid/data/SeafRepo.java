@@ -1,9 +1,11 @@
-package com.seafile.seadroid;
+package com.seafile.seadroid.data;
 
 import java.util.Date;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.seafile.seadroid.R;
 
 /**
  * SeafRepo: A Seafile library

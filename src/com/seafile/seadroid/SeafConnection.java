@@ -23,7 +23,9 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.seafile.seadroid.DataManager.ProgressMonitor;
+import com.seafile.seadroid.account.Account;
+import com.seafile.seadroid.data.DataManager;
+import com.seafile.seadroid.data.DataManager.ProgressMonitor;
 
 import android.content.Context;
 import android.util.Log;

@@ -1,4 +1,4 @@
-package com.seafile.seadroid;
+package com.seafile.seadroid.account;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

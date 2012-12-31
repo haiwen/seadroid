@@ -4,6 +4,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.seafile.seadroid.R;
+import com.seafile.seadroid.R.drawable;
+import com.seafile.seadroid.R.id;
+import com.seafile.seadroid.R.layout;
+import com.seafile.seadroid.account.Account;
+
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;

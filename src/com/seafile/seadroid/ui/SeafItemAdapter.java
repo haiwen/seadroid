@@ -1,8 +1,17 @@
-package com.seafile.seadroid;
+package com.seafile.seadroid.ui;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.seafile.seadroid.R;
+import com.seafile.seadroid.R.id;
+import com.seafile.seadroid.R.layout;
+import com.seafile.seadroid.data.DataManager;
+import com.seafile.seadroid.data.SeafDirent;
+import com.seafile.seadroid.data.SeafGroup;
+import com.seafile.seadroid.data.SeafItem;
+import com.seafile.seadroid.data.SeafRepo;
 
 import android.content.Context;
 import android.util.Log;

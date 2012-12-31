@@ -16,7 +16,9 @@ import java.util.TreeMap;
 
 import org.json.*;
 
-class Utils {
+import com.seafile.seadroid.data.SeafRepo;
+
+public class Utils {
 
     public static JSONObject parseJsonObjectInArray0(String json) {
         try {

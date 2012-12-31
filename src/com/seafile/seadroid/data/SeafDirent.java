@@ -1,7 +1,10 @@
-package com.seafile.seadroid;
+package com.seafile.seadroid.data;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.seafile.seadroid.R;
+import com.seafile.seadroid.Utils;
 
 import android.util.Log;
 import android.webkit.MimeTypeMap;

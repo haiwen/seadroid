@@ -1,4 +1,4 @@
-package com.seafile.seadroid;
+package com.seafile.seadroid.ui;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -13,6 +13,17 @@ import java.util.List;
 import java.util.Map;
 
 import com.actionbarsherlock.app.SherlockListFragment;
+import com.seafile.seadroid.BrowserActivity;
+import com.seafile.seadroid.NavContext;
+import com.seafile.seadroid.R;
+import com.seafile.seadroid.Utils;
+import com.seafile.seadroid.R.layout;
+import com.seafile.seadroid.R.string;
+import com.seafile.seadroid.data.DataManager;
+import com.seafile.seadroid.data.SeafDirent;
+import com.seafile.seadroid.data.SeafGroup;
+import com.seafile.seadroid.data.SeafItem;
+import com.seafile.seadroid.data.SeafRepo;
 
 
 public class ReposFragment extends SherlockListFragment {
