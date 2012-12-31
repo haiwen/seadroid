@@ -11,10 +11,14 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.HashMap;
 
 import org.json.*;
+
+import android.webkit.MimeTypeMap;
 
 import com.seafile.seadroid.data.SeafRepo;
 
@@ -139,6 +143,8 @@ public class Utils {
         if (mimetype == null)
             return R.drawable.file;
         
+        if (mimetype.contains("pdf"))
+            return R.drawable.file_pdf;
         if (mimetype.contains("application")) {
             return R.drawable.file_application;
         } else if (mimetype.contains("image")) {
@@ -160,7 +166,9 @@ public class Utils {
         if (mimetype == null)
             return R.drawable.file;
         
-        if (mimetype.contains("application")) {
+        if (mimetype.contains("pdf"))
+            return R.drawable.file_pdf;
+        else if (mimetype.contains("application")) {
             return R.drawable.file_application;
         } else if (mimetype.contains("image")) {
             return R.drawable.image;
@@ -170,11 +178,38 @@ public class Utils {
             return R.drawable.audio;
         } else if (mimetype.contains("video")) {
             return R.drawable.video;
-        } if (mimetype.contains("pdf")) {
-            return R.drawable.file_pdf;
         } else {
             return R.drawable.file;
         }
     }
+    
+    static HashMap<String, Integer> suffixIconMap = null;
+    
+    static private HashMap<String, Integer> getSuffixIconMap() {
+        if (suffixIconMap != null) 
+            return suffixIconMap;
+        
+        suffixIconMap = new HashMap<String, Integer>();
+        suffixIconMap.put("pdf", R.drawable.file_pdf);
+        suffixIconMap.put("doc", R.drawable.file_doc);
+        suffixIconMap.put("docx", R.drawable.file_doc);
+        return suffixIconMap;
+    }
+    
+    public static int getFileIcon(String name) {   
+        String suffix = name.substring(name.lastIndexOf('.') + 1);
+        if (suffix.length() == 0) {
+            return R.drawable.file;
+        }
+        
+        HashMap<String, Integer> map = getSuffixIconMap();
+        Integer i = map.get(suffix);
+        if (i != null)
+            return i;
+        
+        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
+        return getResIdforMimetype(mime);
+    }
+    
     
 }

@@ -13,9 +13,6 @@ public class NavContext {
     String dirID = null;
     List<SeafDirent> dirents = null;
 
-    private String filePath = null;
-    private String fileID = null;
-    private long fileSize = 0;
     
     public NavContext() {
         repoID = null;
@@ -32,13 +29,7 @@ public class NavContext {
         this.dirPath = path;
         this.dirID = dirID;
     }
-    
-    public void setFile(String filePath,
-            String fileID, long fileSize) {
-        this.fileID = fileID;
-        this.filePath = filePath;
-        this.fileSize = fileSize;
-    }
+ 
     
     public boolean inRepo() {
         return repoID != null;
@@ -58,18 +49,6 @@ public class NavContext {
     
     public String getDirID() {
         return dirID;
-    }
-    
-    public String getFilePath() {
-        return filePath;
-    }
-    
-    public String getFileID() {
-        return fileID;
-    }
-    
-    public long getFileSize() {
-        return fileSize;
     }
 
 

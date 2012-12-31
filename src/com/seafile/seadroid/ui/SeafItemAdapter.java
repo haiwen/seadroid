@@ -8,6 +8,7 @@ import com.seafile.seadroid.R;
 import com.seafile.seadroid.R.id;
 import com.seafile.seadroid.R.layout;
 import com.seafile.seadroid.data.DataManager;
+import com.seafile.seadroid.data.SeafCachedFile;
 import com.seafile.seadroid.data.SeafDirent;
 import com.seafile.seadroid.data.SeafGroup;
 import com.seafile.seadroid.data.SeafItem;
@@ -159,6 +160,27 @@ public class SeafItemAdapter extends BaseAdapter {
         viewHolder.icon.setImageResource(dirent.getIcon());
         return view;
     }
+    
+    private View getCacheView(SeafCachedFile item, View convertView, ViewGroup parent) {
+        View view = convertView;
+        Viewholder viewHolder;
+        
+        if (convertView == null) {
+            view = LayoutInflater.from(context).inflate(R.layout.list_item_entry, null);
+            TextView title = (TextView) view.findViewById(R.id.list_item_title);
+            TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
+            ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
+            viewHolder = new Viewholder(title, subtitle, icon);
+            view.setTag(viewHolder);
+        } else {
+            viewHolder = (Viewholder) convertView.getTag();
+        }
+        
+        viewHolder.title.setText(item.getTitle());
+        viewHolder.subtitle.setText(item.getSubtitle());
+        viewHolder.icon.setImageResource(item.getIcon());
+        return view;
+    }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {   
@@ -167,6 +189,8 @@ public class SeafItemAdapter extends BaseAdapter {
             return getRepoView((SeafRepo)item, convertView, parent);
         } else if (item instanceof SeafGroup) {
             return getGroupView((SeafGroup)item);
+        } else if (item instanceof SeafCachedFile) {
+            return getCacheView((SeafCachedFile)item, convertView, parent);
         } else {
             return getDirentView((SeafDirent)item, convertView, parent);
         }

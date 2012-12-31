@@ -1,6 +1,7 @@
 package com.seafile.seadroid.data;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -92,7 +93,7 @@ public class DataManager {
     private SeafConnection sc;
     private Account account;
     private Context context;
-    
+    private CachedFileDbHelper cdbHelper;
     
     HashMap<String, String> pathObjectIDMap = new HashMap<String, String>();
     List<SeafRepo> reposCache = null;
@@ -101,6 +102,7 @@ public class DataManager {
         context = cnt;
         account = act;
         sc = new SeafConnection(act);
+        cdbHelper = new CachedFileDbHelper(context);
     }
 
     public Account getAccount() {
@@ -201,7 +203,9 @@ public class DataManager {
         File f = new File(p);
         if (f.exists())
             return f;
-        return sc.getFile(repoID, path, oid, monitor);
+        f = sc.getFile(repoID, path, oid, monitor);
+        addCachedFile(repoID, path, oid, f);
+        return f;
     }
 
     private List<SeafDirent> parseDirents(String json) {
@@ -257,4 +261,18 @@ public class DataManager {
         return dirents;
     }
     
+    
+    public List<SeafCachedFile> getCachedFiles() {
+        return cdbHelper.getItems();
+    }
+    
+    public void addCachedFile(String repo, String path, String fileID, File file) {
+        SeafCachedFile item = new SeafCachedFile();
+        item.repo = repo;
+        item.path = path;
+        item.fileID = fileID;
+        item.ctime = file.lastModified();
+        cdbHelper.saveItem(item);
+    }
+
 }

@@ -57,14 +57,7 @@ public class SeafDirent implements SeafItem {
     public int getIcon() {
         if (isDir())
             return R.drawable.folder;
-        
-        String suffix = name.substring(name.lastIndexOf('.') + 1);
-        
-        if (suffix.length() == 0) {
-            return R.drawable.file;
-        }
-        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
-        return Utils.getResIdforMimetype(mime);
+        return Utils.getFileIcon(name);
     }
     
 }

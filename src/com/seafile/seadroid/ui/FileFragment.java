@@ -23,19 +23,13 @@ import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.RemoteViews;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.seafile.seadroid.BrowserActivity;
-import com.seafile.seadroid.NavContext;
 import com.seafile.seadroid.R;
 import com.seafile.seadroid.Utils;
-import com.seafile.seadroid.R.drawable;
-import com.seafile.seadroid.R.id;
-import com.seafile.seadroid.R.layout;
-import com.seafile.seadroid.R.string;
 import com.seafile.seadroid.account.Account;
 import com.seafile.seadroid.data.DataManager;
 import com.seafile.seadroid.data.DataManager.ProgressMonitor;
@@ -46,19 +40,34 @@ public class FileFragment extends SherlockFragment {
     
     private ArrayList<LoadFileTask> onGoingTasks = new ArrayList<LoadFileTask>();
 
-    ViewGroup rootView = null;
     BrowserActivity mActivity = null;
     
     private ImageView ivFileIcon;
     private TextView tv_filename;
     private TextView tv_file_size;
     
+    private String repo;
+    private String path;
+    private String fileID;
+    private long size;
+    
     private DataManager getDataManager() {
         return mActivity.getDataManager();
     }
     
-    private NavContext getNavContext() {
-        return mActivity.getNavContext();
+    public void setFile(String repo, String path, String fileID, long size) {
+        this.repo = repo;
+        this.path = path;
+        this.fileID = fileID;
+        this.size = size;
+    }
+    
+    public String getRepo() {
+        return repo;
+    }
+    
+    public String getPath() {
+        return path;
     }
     
     @Override
@@ -72,45 +81,30 @@ public class FileFragment extends SherlockFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, 
         Bundle savedInstanceState) {
 
-        // If activity recreated (such as from screen rotate), restore
-        // the previous article selection set by onSaveInstanceState().
-        // This is primarily necessary when in the two-pane layout.
-        if (savedInstanceState != null) {
-            //
-        }
+        Log.d(DEBUG_TAG, "On Create view ");
+        View view = inflater.inflate(R.layout.file_details, container, false);
 
-        // Inflate the layout for this fragment
-        rootView = new LinearLayout(getActivity());
-        return rootView;
+        ivFileIcon = (ImageView) view.findViewById(R.id.iv_file_icon);
+        tv_filename = (TextView) view.findViewById(R.id.tv_file_name);
+        tv_file_size = (TextView) view.findViewById(R.id.tv_file_size);
+
+        return view;
     }
     
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         
-        NavContext navContext = getNavContext();
-        String repoID = navContext.getRepo();
-        String path = navContext.getFilePath();
-        String objectID = navContext.getFileID();
-        long size = navContext.getFileSize();
-        
-        LayoutInflater inflater = (LayoutInflater) getActivity()
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(R.layout.file_details, rootView, true);
-
-        ivFileIcon = (ImageView) getActivity().findViewById(R.id.iv_file_icon);
-        tv_filename = (TextView) getActivity().findViewById(R.id.tv_file_name);
-        tv_file_size = (TextView) getActivity().findViewById(R.id.tv_file_size);
+        Log.d(DEBUG_TAG, "tv_filename " + tv_filename);
         tv_filename.setText(Utils.fileNameFromPath(path));
         tv_file_size.setText(Utils.readableFileSize(size));
         
-        String suffix = path.substring(path.lastIndexOf('.') + 1);
-        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
-        int id = Utils.getResIdforMimetypeLarge(mime);
+        String name = path.substring(path.lastIndexOf('/') + 1);
+        int id = Utils.getFileIcon(name);
         ivFileIcon.setImageResource(id);
 
         for (LoadFileTask task : onGoingTasks) {
-            if (task.getObjectID().equals(objectID)) {
+            if (task.getFileID().equals(fileID)) {
                 Log.d(DEBUG_TAG, "Task is going");
                 switchVisibilityOnDownload();
             }
@@ -126,7 +120,6 @@ public class FileFragment extends SherlockFragment {
     
     @Override
     public void onDestroyView() {
-        rootView = null;
         Log.d(DEBUG_TAG, "FileFragment onDestroyView");
         super.onDestroyView();
     }
@@ -149,35 +142,16 @@ public class FileFragment extends SherlockFragment {
     }
     
     public void cancelDownload() {
-        NavContext navContext = mActivity.getNavContext();
         for (LoadFileTask task : onGoingTasks) {
-            if (task.getObjectID().equals(navContext.getFileID())) {
+            if (task.getFileID().equals(fileID)) {
                 task.cancel(true);
                 break;
             }
         }
     }
     
-    public void openFile() {
-        NavContext navContext = getNavContext();
-        String repoID = navContext.getRepo();
-        String path = navContext.getFilePath();
-        String objectID = navContext.getFileID();
-        long size = navContext.getFileSize();
-        
-        downloadFile(repoID, path, objectID, size);
-    }
-    
-    private boolean shouldDownloadInstantly(String path) {
-        String suffix = path.substring(path.lastIndexOf('.') + 1);
-        
-        if (suffix == null)
-            return false;
-        if (suffix.length() == 0)
-            return false;
-        if (suffix.equals("md"))
-            return true;
-        return false;
+    public void openFile() {        
+        downloadFile(repo, path, fileID, size);
     }
     
     private void switchVisibilityOnDownload() {
@@ -251,21 +225,21 @@ public class FileFragment extends SherlockFragment {
         
         private String myRepoID;
         private String myPath;
-        private String myObjectID;
+        private String myFileID;
         private long mySize;
         
         public LoadFileTask(String repoID, String path, 
-                String objectID, long size) {
+                String fileID, long size) {
             this.myRepoID = repoID;
             this.myPath = path;
-            this.myObjectID = objectID;
+            this.myFileID = fileID;
             this.mySize = size;
             // Log.d(DEBUG_TAG, "stored object is " + myPath + myObjectID);
             onGoingTasks.add(this);
         }
         
-        public String getObjectID() {
-            return myObjectID;
+        public String getFileID() {
+            return myFileID;
         }
         
         @Override
@@ -281,7 +255,7 @@ public class FileFragment extends SherlockFragment {
             notificationIntent.putExtra("email", account.email);
             notificationIntent.putExtra("token", account.token);
             notificationIntent.putExtra("repoID", myRepoID);
-            notificationIntent.putExtra("objectID", myObjectID);
+            notificationIntent.putExtra("objectID", myFileID);
             notificationIntent.putExtra("path", myPath);
             notificationIntent.putExtra("size", mySize);
             
@@ -330,9 +304,9 @@ public class FileFragment extends SherlockFragment {
             }
 
             if (mySize <= showProgressThreshold)
-                return getDataManager().getFile(myRepoID, myPath, myObjectID, null);
+                return getDataManager().getFile(myRepoID, myPath, myFileID, null);
             else
-                return getDataManager().getFile(myRepoID, myPath, myObjectID,
+                return getDataManager().getFile(myRepoID, myPath, myFileID,
                         new FileLoadMonitor(this));
         }
 
@@ -342,7 +316,7 @@ public class FileFragment extends SherlockFragment {
                 notificationManager.cancel(myNtID);
             onGoingTasks.remove(this);
             
-            if (rootView == null)
+            if (mActivity == null)
                 return;
             
             CharSequence text;
@@ -363,7 +337,7 @@ public class FileFragment extends SherlockFragment {
                 notificationManager.cancel(myNtID);
             onGoingTasks.remove(this);
             
-            if (rootView == null)
+            if (mActivity == null)
                 return;
             
             mActivity.unsetRefreshing();

@@ -113,7 +113,6 @@ public class AccountManager
         // Gets the data repository in write mode
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        // Insert the new row, returning the primary key value of the new row
         db.delete(AccountDbHelper.TABLE_NAME,  "server=? and email=?",
                 new String[] { account.server, account.email });
         db.close();
