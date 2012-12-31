@@ -41,7 +41,6 @@ public class BrowserActivity extends SherlockFragmentActivity
     
     // private boolean twoPaneMode = false;
     ReposFragment reposFragment = null;
-    FileFragment fileFragment = null;
     CacheFragment cacheFragment = null;
     
     private String currentTab;
@@ -183,29 +182,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         ft.detach(reposFragment);
     }
     
-    private void showFileFragment(FragmentTransaction ft,
-            String repo, String path, String fileID, long size) {
-        navContext.inFileView = true;
-
-        if (fileFragment == null) {
-            fileFragment = new FileFragment();
-            fileFragment.setFile(repo, path, fileID, size);
-            ft.add(android.R.id.content, fileFragment, "file_fragment");
-        } else {
-            fileFragment.setFile(repo, path, fileID, size);
-            if (getSupportFragmentManager().findFragmentByTag("file_fragment") != null) {
-                ft.attach(fileFragment);
-            } else {
-                ft.add(android.R.id.content, fileFragment, "file_fragment");
-            }
-        }
-       
-    }
-    
-    private void hideFileFragment(FragmentTransaction ft) {
-        navContext.inFileView = false;
-        ft.detach(fileFragment);
-    }
     
     private void showCacheFragment(FragmentTransaction ft) {
         if (cacheFragment == null) {
@@ -250,48 +226,41 @@ public class BrowserActivity extends SherlockFragmentActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case android.R.id.home:
-                
-                if (!navContext.inFileView) {
-                    if (navContext.isRepoRoot()) {
-                        navContext.setRepo(null);
-                    } else {
-                        String parentPath = Utils.getParentPath(navContext.getDirPath());
-                        navContext.setDir(parentPath, null);
-                    }
-                    reposFragment.refreshView();
-                    return true;
-                } else {
-                    String parentPath = Utils.getParentPath(fileFragment.getPath());
-                    navContext.setRepo(fileFragment.getRepo());
-                    navContext.setDir(parentPath, null);
-                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                    hideFileFragment(ft);
-                    showReposFragment(ft);
-                    ft.commit();
-                }
-               
-                return true;
+        case android.R.id.home:
+            if (navContext.isRepoRoot()) {
+                navContext.setRepo(null);
+            } else {
+                String parentPath = Utils
+                        .getParentPath(navContext.getDirPath());
+                navContext.setDir(parentPath, null);
+            }
+            reposFragment.refreshView();
+
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
     
+    void startFileActivity(String repoID, String path, String fileID, long size) {
+        Intent intent = new Intent(this, FileActivity.class);
+        intent.putExtra("server", account.server);
+        intent.putExtra("email", account.email);
+        intent.putExtra("token", account.token);
+        intent.putExtra("repoID", repoID);
+        intent.putExtra("path", path);
+        intent.putExtra("fileID", fileID);
+        intent.putExtra("size", size);
+        startActivity(intent);
+    }
+    
     // File selected in repos fragment
     public void onFileSelected(String repoID, String path, SeafDirent dirent) {
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        hideReposFragment(ft);
-        showFileFragment(ft, repoID, path, dirent.id, dirent.size);
-        ft.addToBackStack(null);
-        ft.commit();
+        startFileActivity(repoID, path, dirent.id, dirent.size);
     }
     
     @Override
     public void onCachedFileSelected(SeafCachedFile item) {
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        hideCacheFragment(ft);
-        showFileFragment(ft, item.repo, item.path, item.fileID, item.getSize());
-        ft.addToBackStack(null);
-        ft.commit();
+        startFileActivity(item.repo, item.path, item.fileID, item.getSize());
     }
     
     @Override
@@ -301,41 +270,25 @@ public class BrowserActivity extends SherlockFragmentActivity
             return;
         }
         
-        if (!navContext.inFileView) {
-            if (currentTab.equals("libraries")) {
-                if (navContext.inRepo()) {
-                    if (navContext.isRepoRoot()) {
-                        navContext.setRepo(null);
-                    } else {
-                        String parentPath = Utils.getParentPath(navContext.getDirPath());
-                        navContext.setDir(parentPath, null);
-                    }
-                    reposFragment.refreshView();
-                } else
-                    // back to StartActivity
-                    super.onBackPressed();
-            } else if (currentTab.equals("cache")) {
-                super.onBackPressed();
-            }
-            super.onBackPressed();
-            return;
-        }
-        
+
         if (currentTab.equals("libraries")) {
-            String parentPath = Utils.getParentPath(fileFragment.getPath());
-            navContext.setRepo(fileFragment.getRepo());
-            navContext.setDir(parentPath, null);
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            hideFileFragment(ft);
-            showReposFragment(ft);
-            ft.commit();;
+            if (navContext.inRepo()) {
+                if (navContext.isRepoRoot()) {
+                    navContext.setRepo(null);
+                } else {
+                    String parentPath = Utils.getParentPath(navContext
+                            .getDirPath());
+                    navContext.setDir(parentPath, null);
+                }
+                reposFragment.refreshView();
+            } else
+                // back to StartActivity
+                super.onBackPressed();
         } else if (currentTab.equals("cache")) {
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            hideFileFragment(ft);
-            showCacheFragment(ft);
-            ft.commit();
-        } else
             super.onBackPressed();
+        }
+        super.onBackPressed();
+        return;
     }
 
     @Override

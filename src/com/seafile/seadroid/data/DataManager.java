@@ -204,7 +204,8 @@ public class DataManager {
         if (f.exists())
             return f;
         f = sc.getFile(repoID, path, oid, monitor);
-        addCachedFile(repoID, path, oid, f);
+        if (f != null)
+            addCachedFile(repoID, path, oid, f);
         return f;
     }
 

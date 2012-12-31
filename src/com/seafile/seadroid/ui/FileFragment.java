@@ -25,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.seafile.seadroid.BrowserActivity;
@@ -40,7 +41,8 @@ public class FileFragment extends SherlockFragment {
     
     private ArrayList<LoadFileTask> onGoingTasks = new ArrayList<LoadFileTask>();
 
-    BrowserActivity mActivity = null;
+    Activity mActivity = null;
+    private DataManager dataManager;
     
     private ImageView ivFileIcon;
     private TextView tv_filename;
@@ -51,15 +53,15 @@ public class FileFragment extends SherlockFragment {
     private String fileID;
     private long size;
     
-    private DataManager getDataManager() {
-        return mActivity.getDataManager();
-    }
-    
     public void setFile(String repo, String path, String fileID, long size) {
         this.repo = repo;
         this.path = path;
         this.fileID = fileID;
         this.size = size;
+    }
+    
+    public void setDataManager(DataManager manager) {
+        dataManager = manager;
     }
     
     public String getRepo() {
@@ -74,7 +76,7 @@ public class FileFragment extends SherlockFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         Log.d(DEBUG_TAG, "FileFragment Attached");
-        mActivity = (BrowserActivity)activity;
+        mActivity = activity;
     }
     
     @Override
@@ -169,9 +171,14 @@ public class FileFragment extends SherlockFragment {
     }
     
     private void downloadFile(String repoID, String path, String objectID, long size) {
-        mActivity.setRefreshing();
         switchVisibilityOnDownload();
         new LoadFileTask(repoID, path, objectID, size).execute();
+    }
+    
+    private void showToast(CharSequence msg) {
+        Context context = getActivity().getApplicationContext();
+        Toast toast = Toast.makeText(context, msg, Toast.LENGTH_SHORT);
+        toast.show();
     }
     
     private void showFile(File file) {
@@ -179,7 +186,7 @@ public class FileFragment extends SherlockFragment {
         String suffix = name.substring(name.lastIndexOf('.') + 1);
         
         if (suffix.length() == 0) {
-            mActivity.showToast(getString(R.string.unknown_file_type));
+            showToast(getString(R.string.unknown_file_type));
             return;
         }
 
@@ -191,7 +198,7 @@ public class FileFragment extends SherlockFragment {
         try {
             startActivity(open);
         } catch (ActivityNotFoundException e) {
-            mActivity.showToast(getString(R.string.activity_not_found));
+            showToast(getString(R.string.activity_not_found));
         }
     }
     
@@ -250,7 +257,7 @@ public class FileFragment extends SherlockFragment {
             notificationManager = (NotificationManager) mActivity.getSystemService(Context.NOTIFICATION_SERVICE);
             Intent notificationIntent = new Intent(mActivity, BrowserActivity.class);
             
-            Account account = mActivity.getAccount();
+            Account account = dataManager.getAccount();
             notificationIntent.putExtra("server", account.server);
             notificationIntent.putExtra("email", account.email);
             notificationIntent.putExtra("token", account.token);
@@ -304,9 +311,9 @@ public class FileFragment extends SherlockFragment {
             }
 
             if (mySize <= showProgressThreshold)
-                return getDataManager().getFile(myRepoID, myPath, myFileID, null);
+                return dataManager.getFile(myRepoID, myPath, myFileID, null);
             else
-                return getDataManager().getFile(myRepoID, myPath, myFileID,
+                return dataManager.getFile(myRepoID, myPath, myFileID,
                         new FileLoadMonitor(this));
         }
 
@@ -325,9 +332,8 @@ public class FileFragment extends SherlockFragment {
                 showFile(file);
             } else {
                 text = "Failed to load file";
-                mActivity.showToast(text);
+                showToast(text);
             }
-            mActivity.unsetRefreshing();
             switchVisibilityOnStop();
         }
         
@@ -340,7 +346,6 @@ public class FileFragment extends SherlockFragment {
             if (mActivity == null)
                 return;
             
-            mActivity.unsetRefreshing();
             switchVisibilityOnStop();
         }
 

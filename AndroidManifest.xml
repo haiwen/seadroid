@@ -30,6 +30,12 @@
                   android:uiOptions="splitActionBarWhenNarrow">
         </activity>
         
+        <activity android:name=".FileActivity"
+                  android:label="@string/app_name"
+                  android:theme="@style/Theme.Sherlock"
+                  android:uiOptions="splitActionBarWhenNarrow">
+        </activity>
+        
         <activity android:name=".AccountDetailActivity"
                   android:label="@string/app_name">
         </activity>
