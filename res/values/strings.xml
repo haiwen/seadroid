@@ -20,4 +20,6 @@
     <string name="personal">Personal</string>
     <string name="libraries">Libraries</string>
     <string name="cached">Cached</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancel</string>
 </resources>

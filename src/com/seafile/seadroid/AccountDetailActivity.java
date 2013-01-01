@@ -128,9 +128,20 @@ public class AccountDetailActivity extends Activity {
         private String doLogin() {   
             SeafConnection sc = new SeafConnection(loginAccount);
             
-            if (sc.doLogin() == false)
-                return "Login failed";
-            return "Success";
+            try {
+                if (sc.doLogin() == false)
+                    return "Login failed";
+                return "Success";
+            } catch (SeafException e) {
+                switch (e.getCode()) {
+                case 400:
+                    return "Wrong username or password";
+                case 404:
+                    return "Wrong server address";
+                default:
+                    return "Login failed";
+                }
+            }
         }
     }
 

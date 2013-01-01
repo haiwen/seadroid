@@ -16,6 +16,7 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import com.seafile.seadroid.BrowserActivity;
 import com.seafile.seadroid.NavContext;
 import com.seafile.seadroid.R;
+import com.seafile.seadroid.SeafException;
 import com.seafile.seadroid.Utils;
 import com.seafile.seadroid.R.layout;
 import com.seafile.seadroid.R.string;
@@ -24,9 +25,10 @@ import com.seafile.seadroid.data.SeafDirent;
 import com.seafile.seadroid.data.SeafGroup;
 import com.seafile.seadroid.data.SeafItem;
 import com.seafile.seadroid.data.SeafRepo;
+import com.seafile.seadroid.ui.PasswordDialog.PasswordGetListener;
 
 
-public class ReposFragment extends SherlockListFragment {
+public class ReposFragment extends SherlockListFragment implements PasswordGetListener {
 
     private static final String DEBUG_TAG = "ReposFragment";
 
@@ -193,10 +195,16 @@ public class ReposFragment extends SherlockListFragment {
 
     private class LoadTask extends AsyncTask<Void, Void, List<SeafRepo> > {
 
+        SeafException err = null;
+        
         @Override
         protected List<SeafRepo> doInBackground(Void... params) {
-            List<SeafRepo> repos = getDataManager().getRepos();
-            return repos;
+            try {
+                return getDataManager().getRepos();
+            } catch (SeafException e) {
+                err = e;
+                return null;
+            }
         }
 
         // onPostExecute displays the results of the AsyncTask.
@@ -227,6 +235,9 @@ public class ReposFragment extends SherlockListFragment {
     
     private class LoadDirTask extends AsyncTask<String, Void, List<SeafDirent> > {
 
+        SeafException err = null;
+        String myRepoID;
+        
         @Override
         protected List<SeafDirent> doInBackground(String... params) {
             if (params.length != 3) {
@@ -234,11 +245,17 @@ public class ReposFragment extends SherlockListFragment {
                 return null;
             }
             
-            String repoID = params[0];
+            myRepoID = params[0];
             String path = params[1];
             String objectID = params[2];
-            List<SeafDirent> dirents = getDataManager().getDirents(repoID, path, objectID);
-            return dirents;
+            try {
+                return getDataManager().getDirents(myRepoID, path, objectID);
+            } catch (SeafException e) {
+                Log.d(DEBUG_TAG, "catched exception");
+                err = e;
+                return null;
+            }
+            
         }
 
         // onPostExecute displays the results of the AsyncTask.
@@ -258,10 +275,32 @@ public class ReposFragment extends SherlockListFragment {
             mActivity.unsetRefreshing();
             adapter.notifyChanged();
             getListView().setEnabled(true);
+            
+            if (err != null && err.getCode() == 440) {
+                showPasswordDialog();
+            }
+            
         }
 
     }
     
+
+    private void showPasswordDialog() {
+        PasswordDialog dialog = new PasswordDialog();
+        dialog.setPasswordGetListener(this);
+        dialog.show(mActivity.getSupportFragmentManager(), "DialogFragment");
+    }
+
+    @Override
+    public void onPasswordGet(String password) {
+        if (password.length() == 0)
+            return;
+        NavContext navContext = getNavContext();
+        if (navContext.getRepo() == null)
+            return;
+        getDataManager().setPassword(navContext.getRepo(), password);
+        refreshView();
+    }
 
 }
 

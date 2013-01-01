@@ -134,7 +134,7 @@ public class SeafConnection {
      * @return true if login success, false otherwise
      * @throws IOException
      */
-    public boolean doLogin() {
+    public boolean doLogin() throws SeafException {
         InputStream is = null;
 
         try {
@@ -146,15 +146,16 @@ public class SeafConnection {
             params.add(new BasicNameValuePair("password", account.passwd));
             doPost(conn, params);
 
-            if (conn.getResponseCode() != 200) {
-                return false;
-            }
+            if (conn.getResponseCode() != 200)
+                throw new SeafException(conn.getResponseCode(), conn.getResponseMessage());
 
             is = conn.getInputStream();
             String contentAsString = Utils.readIt(is);
             JSONObject obj = Utils.parseJsonObject(contentAsString);
             account.token = obj.getString("token");
             return true;
+        } catch (SeafException e) {
+            throw e;
         } catch (Exception e) {
             Log.d(DEBUG_TAG, e.getMessage());
             return false;
@@ -171,7 +172,7 @@ public class SeafConnection {
         }
     }
     
-    public boolean authPing() {
+    public boolean authPing() throws SeafException {
         InputStream is = null;
         try {
             
@@ -181,7 +182,7 @@ public class SeafConnection {
             conn.connect();
             int response = conn.getResponseCode();
             if (response != 200)
-                return false;
+                throw new SeafException(response, conn.getResponseMessage());
             
             is = conn.getInputStream();
             String result = Utils.readIt(is);
@@ -189,6 +190,8 @@ public class SeafConnection {
                 return true;
             else
                 return false;
+        } catch (SeafException e) {
+            throw e;
         } catch (Exception e) {
             Log.d(DEBUG_TAG, e.getMessage());
             return false;
@@ -203,14 +206,14 @@ public class SeafConnection {
         }
     }
     
-    public boolean ping() {
+    public boolean ping() throws SeafException {
         InputStream is = null;
         try {     
             HttpURLConnection conn = prepareGet("api2/ping/");
             conn.connect();
             int response = conn.getResponseCode();
             if (response != 200)
-                return false;
+                throw new SeafException(response, conn.getResponseMessage());
             
             is = conn.getInputStream();
             String result = Utils.readIt(is);
@@ -218,6 +221,8 @@ public class SeafConnection {
                 return true;
             else
                 return false;
+        } catch (SeafException e) {
+            throw e;
         } catch (Exception e) {
             Log.d(DEBUG_TAG, e.getMessage());
             return false;
@@ -233,7 +238,7 @@ public class SeafConnection {
     }
     
     
-    public String getRepos() {
+    public String getRepos() throws SeafException {
         Log.d(DEBUG_TAG, "get repos from server");
         InputStream is = null;
         try {
@@ -241,11 +246,13 @@ public class SeafConnection {
             conn.connect();
             int response = conn.getResponseCode();
             if (response != 200)
-                return null;
+                throw new SeafException(response, conn.getResponseMessage());
             
             is = conn.getInputStream();
             String result = Utils.readIt(is);
             return result;
+        } catch (SeafException e) {
+            throw e;
         } catch (Exception e) {
             //Log.d(DEBUG_TAG, e.getMessage());
             return null;
@@ -260,7 +267,7 @@ public class SeafConnection {
         }
     }
     
-    public String getDirents(String repoID, String path) {
+    public String getDirents(String repoID, String path) throws SeafException {
         InputStream is = null;
         try {
             String encPath = URLEncoder.encode(path, "UTF-8");
@@ -268,13 +275,14 @@ public class SeafConnection {
             conn.connect();
             int response = conn.getResponseCode();
             if (response != 200) {
-                Log.d(DEBUG_TAG, "Wrong response " + response);
-                return null;
+                throw new SeafException(response, conn.getResponseMessage());
             }
             
             is = conn.getInputStream();
             String result = Utils.readIt(is);
             return result;
+        } catch (SeafException e) {
+            throw e;
         } catch (Exception e) {
             // Log.d(DEBUG_TAG, e.getMessage());
             return null;
@@ -289,7 +297,7 @@ public class SeafConnection {
         }
     }
     
-    private String getDownloadLink(String repoID, String path) {
+    private String getDownloadLink(String repoID, String path) throws SeafException {
         InputStream is = null;
         try {
             String encPath = URLEncoder.encode(path, "UTF-8");
@@ -297,10 +305,8 @@ public class SeafConnection {
                     + encPath + "&op=download");
             conn.connect();
             int response = conn.getResponseCode();
-            if (response != 200) {
-                Log.d(DEBUG_TAG, "Wrong response " + response);
-                return null;
-            }
+            if (response != 200)
+                throw new SeafException(response, conn.getResponseMessage());
             
             is = conn.getInputStream();
             String result = Utils.readIt(is);
@@ -309,6 +315,8 @@ public class SeafConnection {
                 return result.substring(1, result.length()-1);
             } else
                 return null;
+        } catch (SeafException e) {
+            throw e;
         } catch (Exception e) {
             String msg = e.getMessage();
             if (msg != null)
@@ -327,7 +335,8 @@ public class SeafConnection {
         }
     }
     
-    public File getFile(String repoID, String path, String oid, ProgressMonitor monitor) {
+    public File getFile(String repoID, String path, String oid, ProgressMonitor monitor) 
+            throws SeafException {
         String dlink = getDownloadLink(repoID, path);
         if (dlink == null)
             return null;
@@ -343,10 +352,8 @@ public class SeafConnection {
             HttpURLConnection conn = prepareFileGet(quoted);
             conn.connect();
             int response = conn.getResponseCode();
-            if (response != 200) {
-                Log.d(DEBUG_TAG, "Wrong response " + response + " to url " + dlink);
-                return null;
-            }
+            if (response != 200)
+                throw new SeafException(response, conn.getResponseMessage());
             
             File tmp = DataManager.getTempFile(path, oid);
             Log.d(DEBUG_TAG, "write to " + tmp.getAbsolutePath());
@@ -380,6 +387,8 @@ public class SeafConnection {
                 return null;
             }
             return file;
+        } catch (SeafException e) {
+            throw e;
         } catch (Exception e) {
             // Log.d(DEBUG_TAG, e.getMessage());
             return null;
@@ -392,6 +401,26 @@ public class SeafConnection {
             } catch (Exception e) {
                 // ignore
             }
+        }
+    }
+
+    // set password for an encrypted repo
+    public void setPassword(String repoID, String passwd) throws SeafException {
+        try {
+            HttpURLConnection conn = preparePost("api2/repos/" + repoID + "/", true);
+
+            List<NameValuePair> params = new ArrayList<NameValuePair>();
+            params.add(new BasicNameValuePair("password", passwd));
+            doPost(conn, params);
+            if (conn.getResponseCode() != 200) {
+                throw new SeafException(conn.getResponseCode(),
+                        conn.getResponseMessage());
+            }
+        } catch (SeafException e) {
+            throw e;
+        } catch (Exception e) {
+            // Log.d(DEBUG_TAG, e.getMessage());
+            return;
         }
     }
     

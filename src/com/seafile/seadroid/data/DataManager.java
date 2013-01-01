@@ -12,6 +12,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.seafile.seadroid.SeafConnection;
+import com.seafile.seadroid.SeafException;
 import com.seafile.seadroid.Utils;
 import com.seafile.seadroid.account.Account;
 
@@ -165,7 +166,7 @@ public class DataManager {
         return null;
     }
     
-    public List<SeafRepo> getRepos() {
+    public List<SeafRepo> getRepos() throws SeafException {
         if (!networkOn()) {
             if (reposCache != null)
                 return reposCache;
@@ -198,7 +199,8 @@ public class DataManager {
         boolean isCancelled();
     }
     
-    public File getFile(String repoID, String path, String oid, ProgressMonitor monitor) {
+    public File getFile(String repoID, String path, String oid, ProgressMonitor monitor) 
+            throws SeafException {
         String p = getExternalRootDirectory() + "/" + constructFileName(path, oid); 
         File f = new File(p);
         if (f.exists())
@@ -227,7 +229,7 @@ public class DataManager {
     }
     
     public List<SeafDirent> getDirents(String repoID, 
-            String path, String objectID) {
+            String path, String objectID) throws SeafException {
         //Log.d(DEBUG_TAG, "getDirents " + repoID + ":" + path + ", " + objectID);
         
         if (objectID != null) {
@@ -274,6 +276,14 @@ public class DataManager {
         item.fileID = fileID;
         item.ctime = file.lastModified();
         cdbHelper.saveItem(item);
+    }
+
+    public void setPassword(String repoID, String passwd) {
+        try {
+            sc.setPassword(repoID, passwd);
+        } catch (SeafException e) {
+            // ignore
+        }
     }
 
 }

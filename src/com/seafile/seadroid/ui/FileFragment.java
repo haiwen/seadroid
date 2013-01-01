@@ -30,6 +30,7 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.seafile.seadroid.BrowserActivity;
 import com.seafile.seadroid.R;
+import com.seafile.seadroid.SeafException;
 import com.seafile.seadroid.Utils;
 import com.seafile.seadroid.account.Account;
 import com.seafile.seadroid.data.DataManager;
@@ -234,6 +235,7 @@ public class FileFragment extends SherlockFragment {
         private String myPath;
         private String myFileID;
         private long mySize;
+        SeafException err;
         
         public LoadFileTask(String repoID, String path, 
                 String fileID, long size) {
@@ -243,6 +245,7 @@ public class FileFragment extends SherlockFragment {
             this.mySize = size;
             // Log.d(DEBUG_TAG, "stored object is " + myPath + myObjectID);
             onGoingTasks.add(this);
+            err = null;
         }
         
         public String getFileID() {
@@ -310,11 +313,16 @@ public class FileFragment extends SherlockFragment {
                 return null;
             }
 
-            if (mySize <= showProgressThreshold)
-                return dataManager.getFile(myRepoID, myPath, myFileID, null);
-            else
-                return dataManager.getFile(myRepoID, myPath, myFileID,
-                        new FileLoadMonitor(this));
+            try {
+                if (mySize <= showProgressThreshold)
+                    return dataManager.getFile(myRepoID, myPath, myFileID, null);
+                else
+                    return dataManager.getFile(myRepoID, myPath, myFileID,
+                            new FileLoadMonitor(this));
+            } catch (SeafException e) {
+                err = e;
+                return null;
+            }
         }
 
         @Override
@@ -331,8 +339,14 @@ public class FileFragment extends SherlockFragment {
                 text = file.getName();
                 showFile(file);
             } else {
-                text = "Failed to load file";
-                showToast(text);
+                if (err == null) {
+                    text = "Failed to load file";
+                    showToast(text);
+                } else {
+                    if (err.getCode() == 404) {
+                        // TODO
+                    }
+                }
             }
             switchVisibilityOnStop();
         }
