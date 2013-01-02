@@ -277,6 +277,11 @@ public class DataManager {
         item.ctime = file.lastModified();
         cdbHelper.saveItem(item);
     }
+    
+    public void removeCachedFile(SeafCachedFile cf) {
+        cf.file.delete();
+        cdbHelper.deleteItem(cf);
+    }
 
     public void setPassword(String repoID, String passwd) {
         try {

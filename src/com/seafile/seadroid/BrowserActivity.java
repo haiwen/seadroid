@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.ActionBar.Tab;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.actionbarsherlock.app.ActionBar;
@@ -78,7 +79,6 @@ public class BrowserActivity extends SherlockFragmentActivity
             } else if (mTag.equals("cache")) {
                 showCacheFragment(ft);
             }
-           
         }
 
         @Override
@@ -173,6 +173,20 @@ public class BrowserActivity extends SherlockFragmentActivity
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getSupportMenuInflater();
+        inflater.inflate(R.menu.browser_menu, menu);
+        return true;
+    }
+    
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem menuDeleteCache = menu.findItem(R.id.delete_cache);
+        if (currentTab.equals("cache") && cacheFragment.isItemSelected()) {
+            Log.d(DEBUG_TAG, "refreshMenu set visible");
+            menuDeleteCache.setVisible(true);
+        } else
+            menuDeleteCache.setVisible(false);
+        
         return true;
     }
     
@@ -247,6 +261,9 @@ public class BrowserActivity extends SherlockFragmentActivity
             }
             reposFragment.refreshView();
 
+            return true;
+        case R.id.delete_cache:
+            cacheFragment.deleteSelectedCacheItems();
             return true;
         }
         return super.onOptionsItemSelected(item);
