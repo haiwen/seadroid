@@ -270,8 +270,8 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
                 for (SeafDirent dirent : dirents) {
                     adapter.add(dirent);
                 }
-            }
-            refresh.setVisibility(View.VISIBLE);
+            } else
+                refresh.setVisibility(View.VISIBLE);
             mActivity.unsetRefreshing();
             adapter.notifyChanged();
             getListView().setEnabled(true);

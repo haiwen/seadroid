@@ -128,6 +128,14 @@ public class BrowserActivity extends SherlockFragmentActivity
             cacheFragment = (CacheFragment)
                     getSupportFragmentManager().findFragmentByTag("cache_fragment");
             cTab = savedInstanceState.getInt("tab");
+            
+            String repo = savedInstanceState.getString("repo");
+            String path = savedInstanceState.getString("path");
+            String dirID = savedInstanceState.getString("dirID");
+            if (repo != null) {
+                navContext.setRepo(repo);
+                navContext.setDir(path, dirID);
+            }
         }
         
         Tab tab = actionBar.newTab()
@@ -169,6 +177,9 @@ public class BrowserActivity extends SherlockFragmentActivity
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt("tab", getSupportActionBar().getSelectedNavigationIndex());
+        outState.putString("repo", navContext.getRepo());
+        outState.putString("path", navContext.getDirPath());
+        outState.putString("dirID", navContext.getDirID());
     }
     
     @Override
