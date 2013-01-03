@@ -29,6 +29,8 @@ import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.seafile.seadroid.BrowserActivity;
+import com.seafile.seadroid.FileActivity;
+import com.seafile.seadroid.MarkdownActivity;
 import com.seafile.seadroid.R;
 import com.seafile.seadroid.SeafException;
 import com.seafile.seadroid.Utils;
@@ -190,6 +192,11 @@ public class FileFragment extends SherlockFragment {
             showToast(getString(R.string.unknown_file_type));
             return;
         }
+        
+        if (suffix.endsWith("md") || suffix.endsWith("markdown")) {
+            startMarkdownActivity(repo, path, fileID);
+            return;
+        }
 
         String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
         Intent open = new Intent(Intent.ACTION_VIEW, Uri.parse(file.getAbsolutePath()));
@@ -201,6 +208,14 @@ public class FileFragment extends SherlockFragment {
         } catch (ActivityNotFoundException e) {
             showToast(getString(R.string.activity_not_found));
         }
+    }
+    
+    private void startMarkdownActivity(String repoID, String path, String fileID) {
+        Intent intent = new Intent(mActivity, MarkdownActivity.class);
+        intent.putExtra("repoID", repoID);
+        intent.putExtra("path", path);
+        intent.putExtra("fileID", fileID);
+        startActivity(intent);
     }
     
     /*
