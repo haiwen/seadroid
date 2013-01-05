@@ -44,7 +44,7 @@
 		android:layout_width="fill_parent"
 		android:id="@+id/btn_toggle_open_download_file"
 		android:onClick="onOpenFileClick"
-		android:text="@string/open_file" />
+		android:text="@string/download_file" />
 
 
 	<Button

@@ -19,6 +19,7 @@ import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -356,12 +357,16 @@ public class BrowserActivity extends SherlockFragmentActivity
     
     // File selected in repos fragment
     public void onFileSelected(String repoID, String path, SeafDirent dirent) {
-        startFileActivity(repoID, path, dirent.id, dirent.size);
+        File file = DataManager.getFileForFileCache(path, dirent.id);
+        if (file.exists()) {
+            showFile(repoID, path, dirent.id, dirent.size);
+        } else
+            startFileActivity(repoID, path, dirent.id, dirent.size);
     }
     
     @Override
     public void onCachedFileSelected(SeafCachedFile item) {
-        startFileActivity(item.repo, item.path, item.fileID, item.getSize());
+        showFile(item.repo, item.path, item.fileID, item.getSize());
     }
     
     @Override
@@ -418,6 +423,41 @@ public class BrowserActivity extends SherlockFragmentActivity
     
     public void onRefreshClick(View target) {
         reposFragment.refreshView();
+    }
+    
+    private void startMarkdownActivity(String repoID, String path, String fileID) {
+        Intent intent = new Intent(this, MarkdownActivity.class);
+        intent.putExtra("repoID", repoID);
+        intent.putExtra("path", path);
+        intent.putExtra("fileID", fileID);
+        startActivity(intent);
+    }
+    
+    private void showFile(String repoID, String path, String fileID, long size) {
+        File file = DataManager.getFileForFileCache(path, fileID);
+        String name = file.getName();
+        String suffix = name.substring(name.lastIndexOf('.') + 1);
+        
+        if (suffix.length() == 0) {
+            showToast(getString(R.string.unknown_file_type));
+            return;
+        }
+        
+        if (suffix.endsWith("md") || suffix.endsWith("markdown")) {
+            startMarkdownActivity(repoID, path, fileID);
+            return;
+        }
+
+        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
+        Intent open = new Intent(Intent.ACTION_VIEW, Uri.parse(file.getAbsolutePath()));
+        open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        open.setAction(android.content.Intent.ACTION_VIEW);
+        open.setDataAndType((Uri.fromFile(file)), mime);
+        try {
+            startActivity(open);
+        } catch (ActivityNotFoundException e) {
+            showToast(getString(R.string.activity_not_found));
+        }
     }
     
     

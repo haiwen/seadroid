@@ -13,7 +13,7 @@
     <string name="cancel_download">Cancel</string>
     <string name="delete_file">Cancel</string>
     <string name="unknown_file_type">Unknown file type</string>
-    <string name="activity_not_found">Can not find activity to open this file</string>
+    <string name="activity_not_found">Can not find App to open this file</string>
     <string name="refresh">Refresh</string>
     <string name="login">Login</string>
     <string name="add_account">Add Account</string>
