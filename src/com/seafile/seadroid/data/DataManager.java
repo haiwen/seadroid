@@ -294,4 +294,20 @@ public class DataManager {
     public void uploadFile(String repoID, String dir, String filePath) throws SeafException {
         sc.uploadFile(repoID, dir, filePath);
     }
+    
+    public void invalidateCache(String repoID, String dir) {
+        String d = dir;
+        while (true) {
+            String objectID = pathObjectIDMap.get(repoID + d);
+            if (objectID != null) {
+                File cache = getFileForDirentsCache(objectID);
+                if (cache.exists())
+                    cache.delete();
+            }
+            pathObjectIDMap.remove(repoID + d);
+            if (d.equals("/"))
+                break;
+            d = Utils.getParentPath(d);
+        }
+    }
 }

@@ -1,8 +1,11 @@
 package com.seafile.seadroid;
 
+import java.io.File;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -26,6 +29,7 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.actionbarsherlock.app.ActionBar;
+import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.seafile.seadroid.account.Account;
 import com.seafile.seadroid.data.DataManager;
 import com.seafile.seadroid.data.SeafCachedFile;
@@ -234,7 +238,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             cacheFragment.deleteSelectedCacheItems();
             return true;
         case R.id.upload:
-            pickPicture();
+            pickFile();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -309,12 +313,16 @@ public class BrowserActivity extends SherlockFragmentActivity
         startActivity(intent);
     }
     
-    static final int PICK_PICTURE_REQUEST = 1;
+    public static final int PICK_FILE_REQUEST = 1;
     
-    void pickPicture() {
-        Intent intent = new Intent(Intent.ACTION_PICK,
-                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(intent, PICK_PICTURE_REQUEST);
+    void pickFile() {
+        Intent target = FileUtils.createGetContentIntent();
+        Intent intent = Intent.createChooser(target, getString(R.string.choose_file));
+        try {
+            startActivityForResult(intent, PICK_FILE_REQUEST);
+        } catch (ActivityNotFoundException e) {
+            // The reason for the existence of aFileChooser
+        }
     }
     
     private String getImageRealPathFromURI(Uri contentURI) {
@@ -328,12 +336,17 @@ public class BrowserActivity extends SherlockFragmentActivity
     
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d(DEBUG_TAG, "onActivityResult " + requestCode + ", " + resultCode);
-        if (requestCode == PICK_PICTURE_REQUEST) {
+        if (requestCode == PICK_FILE_REQUEST) {
             if (resultCode == RESULT_OK) {
                 Uri uri = data.getData();
-                String path = getImageRealPathFromURI(uri);
-                new UploadTask().execute(navContext.getRepo(), navContext.getDirPath(), path);
+                String path;
+                try {
+                    path = FileUtils.getPath(this, uri);
+                } catch (URISyntaxException e) {
+                    return;
+                }
+                new UploadTask().execute(navContext.getRepo(), 
+                        navContext.getDirPath(), path);
             }
         }
     }
@@ -412,6 +425,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         SeafException err = null;
         String myRepoID;
+        String myDir;
         
         @Override
         protected Void doInBackground(String... params) {
@@ -421,10 +435,10 @@ public class BrowserActivity extends SherlockFragmentActivity
             }
             
             myRepoID = params[0];
-            String dir = params[1];
+            myDir = params[1];
             String filePath = params[2];
             try {
-                dataManager.uploadFile(myRepoID, dir, filePath);
+                dataManager.uploadFile(myRepoID, myDir, filePath);
             } catch (SeafException e) {
                 err = e;
             }
@@ -434,7 +448,11 @@ public class BrowserActivity extends SherlockFragmentActivity
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(Void v) {
-
+            dataManager.invalidateCache(myRepoID, myDir);
+            if (currentTab.equals(LIBRARY_TAB)
+                    && navContext.getRepo().equals(myRepoID)
+                    && navContext.getDirPath().equals(myDir))
+                reposFragment.refreshView();
         }
 
     }

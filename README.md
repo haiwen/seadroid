@@ -1,15 +1,12 @@
 # Seafile Android Client
 
-## Setup
+## Dependencies
 
-Download and setup ActionBarSherlock-4.2.0
+* ActionBarSherlock-4.2.0
+* aFileChooser (https://github.com/iPaulPro/aFileChooser)
 
-If your seadroid project is in /home/user/dev/seadroid, download ActionBarSherlock, and untar it to /home/usr/dev/ActionBarSherlock-4.2.0. Then build the library
+Just download them and add them as library according to <http://developer.android.com/guide/developing/projects/projects-eclipse.html#ReferencingLibraryProject>
 
-    cd /home/user/dev/ActionBarSherlock-4.2.0/library
-    android update project -p . --target android-17
+You may also need to replace the android-support-v4.jar in aFileChooser with the jar in seadroid.
 
-Then build seadroid
 
-    cd /home/user/dev/seadroid
-    ant debug

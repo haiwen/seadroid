@@ -18,8 +18,6 @@ import com.seafile.seadroid.NavContext;
 import com.seafile.seadroid.R;
 import com.seafile.seadroid.SeafException;
 import com.seafile.seadroid.Utils;
-import com.seafile.seadroid.R.layout;
-import com.seafile.seadroid.R.string;
 import com.seafile.seadroid.data.DataManager;
 import com.seafile.seadroid.data.SeafDirent;
 import com.seafile.seadroid.data.SeafGroup;
@@ -107,6 +105,9 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
     }
     
     public void refreshView() {
+        if (mActivity == null)
+            return;
+        
         NavContext navContext = getNavContext();
         if (navContext.inRepo()) {
             navToDirectory();
