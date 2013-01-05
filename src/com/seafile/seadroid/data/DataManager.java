@@ -291,4 +291,7 @@ public class DataManager {
         }
     }
 
+    public void uploadFile(String repoID, String dir, String filePath) throws SeafException {
+        sc.uploadFile(repoID, dir, filePath);
+    }
 }

@@ -1,10 +1,16 @@
 package com.seafile.seadroid;
 
+import java.util.List;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
@@ -24,6 +30,7 @@ import com.seafile.seadroid.account.Account;
 import com.seafile.seadroid.data.DataManager;
 import com.seafile.seadroid.data.SeafCachedFile;
 import com.seafile.seadroid.data.SeafDirent;
+import com.seafile.seadroid.data.SeafRepo;
 import com.seafile.seadroid.ui.CacheFragment;
 import com.seafile.seadroid.ui.CacheFragment.OnCachedFileSelectedListener;
 import com.seafile.seadroid.ui.FileFragment;
@@ -45,6 +52,8 @@ public class BrowserActivity extends SherlockFragmentActivity
     CacheFragment cacheFragment = null;
     
     private String currentTab;
+    private static final String LIBRARY_TAB = "libraries";
+    private static final String CACHE_TAB = "cache";
     
     public DataManager getDataManager() {
         return dataManager;
@@ -74,18 +83,18 @@ public class BrowserActivity extends SherlockFragmentActivity
         @Override
         public void onTabSelected(Tab tab, FragmentTransaction ft) {
             currentTab = mTag;
-            if (mTag.equals("libraries")) {
+            if (mTag.equals(LIBRARY_TAB)) {
                 showReposFragment(ft);
-            } else if (mTag.equals("cache")) {
+            } else if (mTag.equals(CACHE_TAB)) {
                 showCacheFragment(ft);
             }
         }
 
         @Override
         public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-            if (mTag.equals("libraries")) {
+            if (mTag.equals(LIBRARY_TAB)) {
                 hideReposFragment(ft);
-            } else if (mTag.equals("cache")) {
+            } else if (mTag.equals(CACHE_TAB)) {
                 hideCacheFragment(ft);
             }
         }
@@ -140,12 +149,12 @@ public class BrowserActivity extends SherlockFragmentActivity
         
         Tab tab = actionBar.newTab()
                 .setText(R.string.libraries)
-                .setTabListener(new TabListener("libraries"));
+                .setTabListener(new TabListener(LIBRARY_TAB));
         actionBar.addTab(tab);
 
         tab = actionBar.newTab()
             .setText(R.string.cached)
-            .setTabListener(new TabListener("cache"));
+            .setTabListener(new TabListener(CACHE_TAB));
         actionBar.addTab(tab);
 
         actionBar.setSelectedNavigationItem(cTab);
@@ -192,13 +201,43 @@ public class BrowserActivity extends SherlockFragmentActivity
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem menuDeleteCache = menu.findItem(R.id.delete_cache);
-        if (currentTab.equals("cache") && cacheFragment.isItemSelected()) {
+        MenuItem menuUpload = menu.findItem(R.id.upload);
+        if (currentTab.equals(CACHE_TAB) && cacheFragment.isItemSelected()) {
             Log.d(DEBUG_TAG, "refreshMenu set visible");
             menuDeleteCache.setVisible(true);
         } else
             menuDeleteCache.setVisible(false);
         
+        if (currentTab.equals(LIBRARY_TAB) && navContext.inRepo())
+            menuUpload.setVisible(true);
+        else
+            menuUpload.setVisible(false);
+        
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+        case android.R.id.home:
+            if (navContext.isRepoRoot()) {
+                navContext.setRepo(null);
+            } else {
+                String parentPath = Utils
+                        .getParentPath(navContext.getDirPath());
+                navContext.setDir(parentPath, null);
+            }
+            reposFragment.refreshView();
+
+            return true;
+        case R.id.delete_cache:
+            cacheFragment.deleteSelectedCacheItems();
+            return true;
+        case R.id.upload:
+            pickPicture();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
     
     private void showReposFragment(FragmentTransaction ft) {
@@ -256,29 +295,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     }
     
-    
-    /***************  Navigation *************/
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-        case android.R.id.home:
-            if (navContext.isRepoRoot()) {
-                navContext.setRepo(null);
-            } else {
-                String parentPath = Utils
-                        .getParentPath(navContext.getDirPath());
-                navContext.setDir(parentPath, null);
-            }
-            reposFragment.refreshView();
-
-            return true;
-        case R.id.delete_cache:
-            cacheFragment.deleteSelectedCacheItems();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
+    /***********  Start other activity  ***************/
     
     void startFileActivity(String repoID, String path, String fileID, long size) {
         Intent intent = new Intent(this, FileActivity.class);
@@ -291,6 +308,38 @@ public class BrowserActivity extends SherlockFragmentActivity
         intent.putExtra("size", size);
         startActivity(intent);
     }
+    
+    static final int PICK_PICTURE_REQUEST = 1;
+    
+    void pickPicture() {
+        Intent intent = new Intent(Intent.ACTION_PICK,
+                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, PICK_PICTURE_REQUEST);
+    }
+    
+    private String getImageRealPathFromURI(Uri contentURI) {
+        Cursor cursor = getContentResolver().query(contentURI, null, null, null, null);
+        cursor.moveToFirst();
+        int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+        String result = cursor.getString(idx);
+        cursor.close();
+        return result;
+    }
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(DEBUG_TAG, "onActivityResult " + requestCode + ", " + resultCode);
+        if (requestCode == PICK_PICTURE_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                Uri uri = data.getData();
+                String path = getImageRealPathFromURI(uri);
+                new UploadTask().execute(navContext.getRepo(), navContext.getDirPath(), path);
+            }
+        }
+    }
+    
+    /***************  Navigation *************/
+    
     
     // File selected in repos fragment
     public void onFileSelected(String repoID, String path, SeafDirent dirent) {
@@ -358,4 +407,35 @@ public class BrowserActivity extends SherlockFragmentActivity
         reposFragment.refreshView();
     }
     
+    
+    private class UploadTask extends AsyncTask<String, Void, Void > {
+
+        SeafException err = null;
+        String myRepoID;
+        
+        @Override
+        protected Void doInBackground(String... params) {
+            if (params.length != 3) {
+                Log.d(DEBUG_TAG, "Wrong params to LoadDirTask");
+                return null;
+            }
+            
+            myRepoID = params[0];
+            String dir = params[1];
+            String filePath = params[2];
+            try {
+                dataManager.uploadFile(myRepoID, dir, filePath);
+            } catch (SeafException e) {
+                err = e;
+            }
+            return null;
+        }
+
+        // onPostExecute displays the results of the AsyncTask.
+        @Override
+        protected void onPostExecute(Void v) {
+
+        }
+
+    }
 }
