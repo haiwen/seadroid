@@ -39,6 +39,10 @@ public class Account {
     public String getEmail() {
         return email;
     }
+    
+    public String getServer() {
+        return server;
+    }
 
     
     @Override

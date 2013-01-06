@@ -31,6 +31,7 @@ public class AccountDetailActivity extends Activity {
     private EditText passwdText;
     
     private AccountManager accountManager;
+    private Account account = null;
 
     /** Called when the activity is first created. */
     @Override
@@ -45,6 +46,15 @@ public class AccountDetailActivity extends Activity {
         passwdText = (EditText) findViewById(R.id.password);
         
         accountManager = new AccountManager(this);
+        
+        Intent intent = getIntent();
+        String server = intent.getStringExtra("server");
+        String email = intent.getStringExtra("email");
+        if (server != null && email != null) {
+            account = new Account(server, email);
+            serverText.setText(account.getServer());
+            emailText.setText(account.getEmail());
+        }
     }
     
     private String cleanServerURL(String serverURL) throws MalformedURLException {

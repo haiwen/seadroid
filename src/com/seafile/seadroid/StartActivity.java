@@ -10,8 +10,10 @@ import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ListView;
@@ -67,9 +69,12 @@ public class StartActivity extends Activity {
     public void onResume() {
         super.onResume();
         
+        refreshView();
+    }
+    
+    private void refreshView() {
         accounts = accountManager.getAccountList();
-        
-        Log.d(DEBUG_TAG, "Load accounts num " + accounts.size());
+        // Log.d(DEBUG_TAG, "Load accounts num " + accounts.size());
         adapter.clear();
         for (Account a : accounts) {
             adapter.add(a);
@@ -90,6 +95,13 @@ public class StartActivity extends Activity {
         startActivity(intent);
     }
     
+    private void startEditAccountActivity(Account account) {
+        Intent intent = new Intent(this, AccountDetailActivity.class);
+        intent.putExtra("server", account.server);
+        intent.putExtra("email", account.email);
+        startActivity(intent);
+    }
+    
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
             ContextMenuInfo menuInfo) {
@@ -98,5 +110,23 @@ public class StartActivity extends Activity {
         inflater.inflate(R.menu.account_menu, menu);
     }
 
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+        Account account;
+        switch (item.getItemId()) {
+        case R.id.edit:
+            account = adapter.getItem((int)info.id);
+            startEditAccountActivity(account);
+            return true;
+        case R.id.delete:
+            account = adapter.getItem((int)info.id);
+            accountManager.deleteAccount(account);
+            refreshView();
+            return true;
+        default:
+            return super.onContextItemSelected(item);
+        }
+    }
     
 }

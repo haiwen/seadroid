@@ -2,12 +2,12 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:id="@+id/upload"
+    <item android:id="@+id/edit"
         android:visible="true"
         android:title="Edit" />
     
-    <item android:id="@+id/delete_cache"
-        android:visible="false"
+    <item android:id="@+id/delete"
+        android:visible="true"
         android:title="Delete" />
     
 </menu>
