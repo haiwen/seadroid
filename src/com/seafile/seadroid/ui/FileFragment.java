@@ -292,7 +292,11 @@ public class FileFragment extends SherlockFragment {
                     R.layout.download_progress);
             notification.contentView.setCharSequence(R.id.tv_download_title, "setText",
                     Utils.fileNameFromPath(myPath));
-            notification.contentIntent = intent; 
+            notification.contentIntent = intent;
+            
+            notification.contentView.setProgressBar(R.id.pb_download_progressbar,
+                    (int)mySize, 0, false);
+            notificationManager.notify(myNtID, notification);
         }
         
         @Override

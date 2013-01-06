@@ -1,7 +1,6 @@
 package com.seafile.seadroid.data;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -65,9 +64,14 @@ public class DataManager {
     
     static public String constructFileName(String path, String oid) {
         String filename = path.substring(path.lastIndexOf("/") + 1);
-        String purename = filename.substring(0, filename.lastIndexOf('.'));
-        String suffix = filename.substring(filename.lastIndexOf('.') + 1);
-        return purename + "-" + oid.substring(0, 8) + "." + suffix;  
+        if (filename.contains(".")) {
+            String purename = filename.substring(0, filename.lastIndexOf('.'));
+            String suffix = filename.substring(filename.lastIndexOf('.') + 1);
+            return purename + "-" + oid.substring(0, 8) + "." + suffix;  
+        } else {
+            return filename + "-" + oid.substring(0, 8);
+        }
+        
     }
     
     static public File getFileForFileCache(String path, String oid) {
@@ -116,18 +120,6 @@ public class DataManager {
                 filename);
     }
     
-    private boolean networkOn() {
-        ConnectivityManager connMgr = (ConnectivityManager) 
-                context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-
-        if (networkInfo != null && networkInfo.isConnected()) {
-            return true;
-        } else
-            return false;
-    }
-    
-    
     private List<SeafRepo> parseRepos(String json) {
         try {
             JSONArray array = Utils.parseJsonArray(json);
@@ -167,7 +159,7 @@ public class DataManager {
     }
     
     public List<SeafRepo> getRepos() throws SeafException {
-        if (!networkOn()) {
+        if (!Utils.isNetworkOn(context)) {
             if (reposCache != null)
                 return reposCache;
             
@@ -291,8 +283,9 @@ public class DataManager {
         }
     }
 
-    public void uploadFile(String repoID, String dir, String filePath) throws SeafException {
-        sc.uploadFile(repoID, dir, filePath);
+    public void uploadFile(String repoID, String dir, String filePath, 
+            ProgressMonitor monitor) throws SeafException {
+        sc.uploadFile(repoID, dir, filePath, monitor);
     }
     
     public void invalidateCache(String repoID, String dir) {

@@ -4,12 +4,10 @@
 
     <item android:id="@+id/upload"
         android:visible="true"
-        android:title="Upload"
-        android:showAsAction="collapseActionView"/>
+        android:title="Edit" />
     
     <item android:id="@+id/delete_cache"
         android:visible="false"
-        android:title="Delete" 
-        android:showAsAction="ifRoom|withText"/>
+        android:title="Delete" />
     
 </menu>

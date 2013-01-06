@@ -18,6 +18,9 @@ import java.util.HashMap;
 
 import org.json.*;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.webkit.MimeTypeMap;
 
 import com.seafile.seadroid.data.SeafRepo;
@@ -211,5 +214,15 @@ public class Utils {
         return getResIdforMimetype(mime);
     }
     
+    public static boolean isNetworkOn(Context context) {
+        ConnectivityManager connMgr = (ConnectivityManager) 
+                context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+        if (networkInfo != null && networkInfo.isConnected()) {
+            return true;
+        } else
+            return false;
+    }
     
 }

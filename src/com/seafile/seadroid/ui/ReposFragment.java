@@ -119,13 +119,14 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
     public void navToReposView() {
         // show cached repos first
         List<SeafRepo> repos = getDataManager().getReposFromCache();
-        adapter.clear();
-        addReposToAdapter(repos);
-        adapter.notifyChanged();
+        if  (repos != null) {
+            adapter.clear();
+            addReposToAdapter(repos);
+            adapter.notifyChanged();
+        } else
+            mActivity.setRefreshing();
         
         // load repos in background
-        mActivity.setRefreshing();
-        // refresh.setVisibility(View.INVISIBLE);
         mActivity.disableUpButton();
         new LoadTask().execute();
     }
@@ -133,8 +134,9 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
     public void navToDirectory() {
         NavContext navContext = getNavContext();
         mActivity.setRefreshing();
+        adapter.clear();
+        adapter.notifyChanged();
         refresh.setVisibility(View.INVISIBLE);
-        getListView().setEnabled(false);
         mActivity.enableUpButton();
         new LoadDirTask().execute(navContext.getRepo(), navContext.getDirPath(),
                 navContext.getDirID());
@@ -275,7 +277,6 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
                 refresh.setVisibility(View.VISIBLE);
             mActivity.unsetRefreshing();
             adapter.notifyChanged();
-            getListView().setEnabled(true);
             
             if (err != null && err.getCode() == 440) {
                 showPasswordDialog();

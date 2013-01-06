@@ -2,25 +2,24 @@ package com.seafile.seadroid;
 
 import java.io.File;
 import java.net.URISyntaxException;
-import java.util.List;
 
-import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
-import android.widget.Button;
+import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar.Tab;
@@ -36,6 +35,7 @@ import com.seafile.seadroid.data.DataManager;
 import com.seafile.seadroid.data.SeafCachedFile;
 import com.seafile.seadroid.data.SeafDirent;
 import com.seafile.seadroid.data.SeafRepo;
+import com.seafile.seadroid.data.DataManager.ProgressMonitor;
 import com.seafile.seadroid.ui.CacheFragment;
 import com.seafile.seadroid.ui.CacheFragment.OnCachedFileSelectedListener;
 import com.seafile.seadroid.ui.FileFragment;
@@ -214,9 +214,9 @@ public class BrowserActivity extends SherlockFragmentActivity
             menuDeleteCache.setVisible(false);
         
         if (currentTab.equals(LIBRARY_TAB) && navContext.inRepo())
-            menuUpload.setVisible(true);
+            menuUpload.setEnabled(true);
         else
-            menuUpload.setVisible(false);
+            menuUpload.setEnabled(false);
         
         return true;
     }
@@ -339,6 +339,11 @@ public class BrowserActivity extends SherlockFragmentActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PICK_FILE_REQUEST) {
             if (resultCode == RESULT_OK) {
+                if (!Utils.isNetworkOn(this)) {
+                    showToast("Network is not connected");
+                    return;
+                }
+                
                 Uri uri = data.getData();
                 String path;
                 try {
@@ -346,8 +351,8 @@ public class BrowserActivity extends SherlockFragmentActivity
                 } catch (URISyntaxException e) {
                     return;
                 }
-                new UploadTask().execute(navContext.getRepo(), 
-                        navContext.getDirPath(), path);
+                showToast("Uploading " + Utils.fileNameFromPath(path));
+                new UploadTask(navContext.getRepo(), navContext.getDirPath(), path).execute();
             }
         }
     }
@@ -460,40 +465,115 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
     }
     
+    private int notificationID = 0;
+    Notification notification;
+    NotificationManager notificationManager;
     
-    private class UploadTask extends AsyncTask<String, Void, Void > {
+    private class UploadTask extends AsyncTask<Void, Integer, Void> {
 
+        public static final int showProgressThreshold = 50 * 1024;
+        
         SeafException err = null;
         String myRepoID;
         String myDir;
+        String myPath;
+        long mySize;
+        
+        private int myNtID;
+        
+        public UploadTask(String repoID, String dir, String filePath) {
+            this.myRepoID = repoID;
+            this.myDir = dir;
+            this.myPath = filePath;
+            File f = new File(filePath);
+            mySize = f.length();
+            err = null;
+        }
         
         @Override
-        protected Void doInBackground(String... params) {
-            if (params.length != 3) {
-                Log.d(DEBUG_TAG, "Wrong params to LoadDirTask");
-                return null;
-            }
+        protected void onPreExecute() {
+            if (mySize <= showProgressThreshold)
+                return;
+            myNtID = ++notificationID;
+            notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            Intent notificationIntent = new Intent(BrowserActivity.this, BrowserActivity.class);
             
-            myRepoID = params[0];
-            myDir = params[1];
-            String filePath = params[2];
+            Account account = dataManager.getAccount();
+            notificationIntent.putExtra("server", account.server);
+            notificationIntent.putExtra("email", account.email);
+            notificationIntent.putExtra("token", account.token);
+            notificationIntent.putExtra("repoID", myRepoID);
+            notificationIntent.putExtra("path", myDir);
+            
+            PendingIntent intent = PendingIntent.getActivity(BrowserActivity.this, myNtID, notificationIntent, 0);
+
+            notification = new Notification(R.drawable.ic_stat_upload, "", System.currentTimeMillis());
+            notification.flags = notification.flags | Notification.FLAG_ONGOING_EVENT;
+            notification.contentView = new RemoteViews(getApplicationContext().getPackageName(),
+                    R.layout.download_progress);
+            notification.contentView.setCharSequence(R.id.tv_download_title, "setText",
+                    Utils.fileNameFromPath(myPath));
+            notification.contentIntent = intent;
+            
+            notification.contentView.setProgressBar(R.id.pb_download_progressbar,
+                    (int)mySize, 0, false);
+            notificationManager.notify(myNtID, notification);
+        }
+        
+        @Override
+        protected Void doInBackground(Void... params) {
             try {
-                dataManager.uploadFile(myRepoID, myDir, filePath);
+                dataManager.uploadFile(myRepoID, myDir, myPath,  new FileUploadMonitor(this));
             } catch (SeafException e) {
                 err = e;
             }
             return null;
         }
+        
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            int progress = values[0];
+            notification.contentView.setProgressBar(R.id.pb_download_progressbar,
+                    (int)mySize, progress, false);
+            notificationManager.notify(myNtID, notification);
+        }
+
+        class FileUploadMonitor implements ProgressMonitor {
+            UploadTask task;
+            
+            public FileUploadMonitor(UploadTask task) {
+                this.task = task;
+            }
+            
+            @Override
+            public void onProgressNotify(long total) {
+                publishProgress((int)total);
+            }
+            
+            @Override
+            public boolean isCancelled() {
+                return task.isCancelled();
+            }
+        }
 
         // onPostExecute displays the results of the AsyncTask.
         @Override
-        protected void onPostExecute(Void v) {
+        protected void onPostExecute(Void v) {            
+            if (mySize > showProgressThreshold)
+                notificationManager.cancel(myNtID);
+            
+            if (err != null) {
+                showToast("Upload failed");
+                return;
+            }
+            
             dataManager.invalidateCache(myRepoID, myDir);
             if (currentTab.equals(LIBRARY_TAB)
-                    && navContext.getRepo().equals(myRepoID)
-                    && navContext.getDirPath().equals(myDir))
+                    && myRepoID.equals(navContext.getRepo())
+                    && myDir.equals(navContext.getDirPath()))
                 reposFragment.refreshView();
         }
 
+        
     }
 }

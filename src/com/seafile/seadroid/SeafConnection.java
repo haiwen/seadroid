@@ -20,6 +20,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Random;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -469,7 +470,7 @@ public class SeafConnection {
     String twoHyphens = "--";
     String boundary = "----SeafileAndroidBound$_$";
     
-    public void uploadFile(String repoID, String dir, String filePath) throws SeafException {
+    public void uploadFile(String repoID, String dir, String filePath, ProgressMonitor monitor) throws SeafException {
         String uploadLink = getUploadLink(repoID);
         DataOutputStream request = null;
         HttpURLConnection conn = null;
@@ -478,14 +479,12 @@ public class SeafConnection {
             return;
         
         try {
-            URL url = new URL(uploadLink + "?X-Progress-ID=randomID123213");
-            Log.d(DEBUG_TAG, "Upload to " + uploadLink + "?X-Progress-ID=randomID123213");
+            URL url = new URL(uploadLink + "?X-Progress-ID=randomID" + new Random().nextLong());
+            Log.d(DEBUG_TAG, "Upload to " + uploadLink);
 
             conn = (HttpURLConnection) url.openConnection();
             conn.setConnectTimeout(15000);
             conn.setRequestMethod("POST");
-            conn.setDoInput(true);
-            conn.setDoOutput(true);
             //conn.setChunkedStreamingMode(0);
             
             Log.d(DEBUG_TAG, "upload to " + dir);
@@ -513,6 +512,8 @@ public class SeafConnection {
             
             Log.d(DEBUG_TAG, "content length is " + totalLen);
             conn.setFixedLengthStreamingMode(totalLen);
+            conn.setDoInput(true);
+            conn.setDoOutput(true);
             conn.setRequestProperty("Connection", "Keep-Alive");
             conn.setRequestProperty("Cache-Control", "no-cache");
             conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + this.boundary);
@@ -524,12 +525,20 @@ public class SeafConnection {
             request.writeBytes(l3);
             request.writeBytes(l4);
             FileInputStream in = new FileInputStream(file);
+            int total = 0;
+            long nextUpdate = System.currentTimeMillis() + 1000;
             while (true) {
                 byte[] buffer = new byte[4096];
                 int len = in.read(buffer, 0, 4096);
                 if (len == -1)
                     break;
                 request.write(buffer, 0, len);
+                total += len;
+                if (System.currentTimeMillis() > nextUpdate) {
+                    if (monitor != null) monitor.onProgressNotify(total);
+                    nextUpdate = System.currentTimeMillis() + 1000;
+                    request.flush(); // seems to have to call this to prevent buffer in android 2.2
+                }
             }
             request.writeBytes(this.crlf);
             request.writeBytes(end);
@@ -558,6 +567,8 @@ public class SeafConnection {
                 Log.d(DEBUG_TAG, "result is " + result);
             is.close();
         } catch (Exception e) {
+            String msg = e.getMessage();
+            if (msg != null) Log.d(DEBUG_TAG, msg);
             return;
         } finally {
             if (conn != null) conn.disconnect();

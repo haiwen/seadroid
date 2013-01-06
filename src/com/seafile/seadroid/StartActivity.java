@@ -7,6 +7,9 @@ import com.seafile.seadroid.account.AccountManager;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.MenuInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -55,7 +58,7 @@ public class StartActivity extends Activity {
                 startFilesActivity(account);
             }
         });
-        
+        registerForContextMenu(accountsView);
     }
     
     // Always reload accounts on resume, so that when user add a new account,
@@ -86,5 +89,14 @@ public class StartActivity extends Activity {
         Intent intent = new Intent(this, AccountDetailActivity.class);
         startActivity(intent);
     }
+    
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v,
+            ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.account_menu, menu);
+    }
 
+    
 }
