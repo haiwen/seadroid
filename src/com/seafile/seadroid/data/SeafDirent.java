@@ -7,7 +7,6 @@ import com.seafile.seadroid.R;
 import com.seafile.seadroid.Utils;
 
 import android.util.Log;
-import android.webkit.MimeTypeMap;
 
 public class SeafDirent implements SeafItem {
 

@@ -16,7 +16,6 @@ import com.seafile.seadroid.SeafException;
 import com.seafile.seadroid.Utils;
 import com.seafile.seadroid.account.Account;
 
-import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
 

@@ -32,7 +32,6 @@ import com.seafile.seadroid.data.SeafCachedFile;
 import com.seafile.seadroid.data.SeafDirent;
 import com.seafile.seadroid.ui.CacheFragment;
 import com.seafile.seadroid.ui.CacheFragment.OnCachedFileSelectedListener;
-import com.seafile.seadroid.ui.FileFragment;
 import com.seafile.seadroid.ui.PasswordDialog;
 import com.seafile.seadroid.ui.PasswordDialog.PasswordGetListener;
 import com.seafile.seadroid.ui.ReposFragment;
@@ -414,14 +413,6 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     
     /************** Button clicks **************/
-    
-    public void onCancelDownloadClick(View target) {
-        FileFragment fileFragment = (FileFragment)
-                getSupportFragmentManager().findFragmentByTag("file_fragment");
-        if (fileFragment != null && fileFragment.isVisible()) {
-            fileFragment.cancelDownload();
-        }
-    }
     
     public void onRefreshClick(View target) {
         reposFragment.refreshView();
