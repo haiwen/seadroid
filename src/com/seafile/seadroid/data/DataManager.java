@@ -10,14 +10,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.seafile.seadroid.SeadroidApplication;
 import com.seafile.seadroid.SeafConnection;
 import com.seafile.seadroid.SeafException;
 import com.seafile.seadroid.Utils;
 import com.seafile.seadroid.account.Account;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Environment;
 import android.util.Log;
 
@@ -97,17 +96,15 @@ public class DataManager {
 
     private SeafConnection sc;
     private Account account;
-    private Context context;
     private CachedFileDbHelper cdbHelper;
     
     HashMap<String, String> pathObjectIDMap = new HashMap<String, String>();
     List<SeafRepo> reposCache = null;
     
-    public DataManager(Context cnt, Account act) {
-        context = cnt;
+    public DataManager(Account act) {
         account = act;
         sc = new SeafConnection(act);
-        cdbHelper = new CachedFileDbHelper(context);
+        cdbHelper = new CachedFileDbHelper(SeadroidApplication.getAppContext());
     }
 
     public Account getAccount() {
@@ -159,7 +156,7 @@ public class DataManager {
     }
     
     public List<SeafRepo> getRepos() throws SeafException {
-        if (!Utils.isNetworkOn(context)) {
+        if (!Utils.isNetworkOn()) {
             if (reposCache != null)
                 return reposCache;
             

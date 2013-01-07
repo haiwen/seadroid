@@ -3,23 +3,18 @@ package com.seafile.seadroid;
 import java.io.File;
 import java.net.URISyntaxException;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
-import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar.Tab;
@@ -30,27 +25,29 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.actionbarsherlock.app.ActionBar;
 import com.ipaulpro.afilechooser.utils.FileUtils;
+import com.seafile.seadroid.TransferManager.TransferListener;
 import com.seafile.seadroid.account.Account;
 import com.seafile.seadroid.data.DataManager;
 import com.seafile.seadroid.data.SeafCachedFile;
 import com.seafile.seadroid.data.SeafDirent;
-import com.seafile.seadroid.data.SeafRepo;
-import com.seafile.seadroid.data.DataManager.ProgressMonitor;
 import com.seafile.seadroid.ui.CacheFragment;
 import com.seafile.seadroid.ui.CacheFragment.OnCachedFileSelectedListener;
 import com.seafile.seadroid.ui.FileFragment;
+import com.seafile.seadroid.ui.PasswordDialog;
+import com.seafile.seadroid.ui.PasswordDialog.PasswordGetListener;
 import com.seafile.seadroid.ui.ReposFragment;
 
 
 public class BrowserActivity extends SherlockFragmentActivity 
         implements ReposFragment.OnFileSelectedListener, OnBackStackChangedListener, 
-            OnCachedFileSelectedListener {
+            OnCachedFileSelectedListener, TransferListener {
     
     private static final String DEBUG_TAG = "BrowserActivity";
     
     private Account account;
     NavContext navContext = null;
     DataManager dataManager = null;
+    TransferManager transferManager = null;
     
     // private boolean twoPaneMode = false;
     ReposFragment reposFragment = null;
@@ -122,8 +119,10 @@ public class BrowserActivity extends SherlockFragmentActivity
         account = new Account(server, email, null, token);
         Log.d(DEBUG_TAG, "browser activity onCreate " + server + " " + email);
         
-        dataManager = new DataManager(this, account);
+        dataManager = new DataManager(account);
         navContext = new NavContext();
+        transferManager = TransferManager.getTransferManager();
+        transferManager.setListener(this);
         
         //setContentView(R.layout.seadroid_main);
         //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -186,6 +185,12 @@ public class BrowserActivity extends SherlockFragmentActivity
         } else {
             //
         }
+    }
+    
+    @Override
+    protected void onDestroy() {
+        transferManager.unsetListener();
+        super.onDestroy();
     }
     
     @Override
@@ -350,7 +355,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PICK_FILE_REQUEST) {
             if (resultCode == RESULT_OK) {
-                if (!Utils.isNetworkOn(this)) {
+                if (!Utils.isNetworkOn()) {
                     showToast("Network is not connected");
                     return;
                 }
@@ -363,7 +368,8 @@ public class BrowserActivity extends SherlockFragmentActivity
                     return;
                 }
                 showToast("Uploading " + Utils.fileNameFromPath(path));
-                new UploadTask(navContext.getRepo(), navContext.getDirPath(), path).execute();
+                transferManager.addUploadTask(account, navContext.getRepo(),
+                        navContext.getDirPath(), path);
             }
         }
     }
@@ -375,14 +381,16 @@ public class BrowserActivity extends SherlockFragmentActivity
     public void onFileSelected(String repoID, String path, SeafDirent dirent) {
         File file = DataManager.getFileForFileCache(path, dirent.id);
         if (file.exists()) {
-            showFile(repoID, path, dirent.id, dirent.size);
-        } else
-            startFileActivity(repoID, path, dirent.id, dirent.size);
+            showFile(repoID, path, dirent.id);
+        } else {
+            transferManager.addDownloadTask(account, repoID, path, dirent.id, dirent.size);
+            showToast("Downloading " + Utils.fileNameFromPath(path));
+        }
     }
     
     @Override
     public void onCachedFileSelected(SeafCachedFile item) {
-        showFile(item.repo, item.path, item.fileID, item.getSize());
+        showFile(item.repo, item.path, item.fileID);
     }
     
     @Override
@@ -419,16 +427,6 @@ public class BrowserActivity extends SherlockFragmentActivity
     
     /************** Button clicks **************/
     
-    // Open file button click in file fragment
-    public void onOpenFileClick(View target) {       
-
-        FileFragment fileFragment = (FileFragment)
-                getSupportFragmentManager().findFragmentByTag("file_fragment");
-        if (fileFragment != null && fileFragment.isVisible()) {
-            fileFragment.openFile();
-        }
-    }
-    
     public void onCancelDownloadClick(View target) {
         FileFragment fileFragment = (FileFragment)
                 getSupportFragmentManager().findFragmentByTag("file_fragment");
@@ -449,7 +447,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         startActivity(intent);
     }
     
-    private void showFile(String repoID, String path, String fileID, long size) {
+    private void showFile(String repoID, String path, String fileID) {
         File file = DataManager.getFileForFileCache(path, fileID);
         String name = file.getName();
         String suffix = name.substring(name.lastIndexOf('.') + 1);
@@ -475,116 +473,53 @@ public class BrowserActivity extends SherlockFragmentActivity
             showToast(getString(R.string.activity_not_found));
         }
     }
-    
-    private int notificationID = 0;
-    Notification notification;
-    NotificationManager notificationManager;
-    
-    private class UploadTask extends AsyncTask<Void, Integer, Void> {
 
-        public static final int showProgressThreshold = 50 * 1024;
-        
-        SeafException err = null;
-        String myRepoID;
-        String myDir;
-        String myPath;
-        long mySize;
-        
-        private int myNtID;
-        
-        public UploadTask(String repoID, String dir, String filePath) {
-            this.myRepoID = repoID;
-            this.myDir = dir;
-            this.myPath = filePath;
-            File f = new File(filePath);
-            mySize = f.length();
-            err = null;
-        }
-        
-        @Override
-        protected void onPreExecute() {
-            if (mySize <= showProgressThreshold)
-                return;
-            myNtID = ++notificationID;
-            notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            Intent notificationIntent = new Intent(BrowserActivity.this, BrowserActivity.class);
-            
-            Account account = dataManager.getAccount();
-            notificationIntent.putExtra("server", account.server);
-            notificationIntent.putExtra("email", account.email);
-            notificationIntent.putExtra("token", account.token);
-            notificationIntent.putExtra("repoID", myRepoID);
-            notificationIntent.putExtra("path", myDir);
-            
-            PendingIntent intent = PendingIntent.getActivity(BrowserActivity.this, myNtID, notificationIntent, 0);
-
-            notification = new Notification(R.drawable.ic_stat_upload, "", System.currentTimeMillis());
-            notification.flags = notification.flags | Notification.FLAG_ONGOING_EVENT;
-            notification.contentView = new RemoteViews(getApplicationContext().getPackageName(),
-                    R.layout.download_progress);
-            notification.contentView.setCharSequence(R.id.tv_download_title, "setText",
-                    Utils.fileNameFromPath(myPath));
-            notification.contentIntent = intent;
-            
-            notification.contentView.setProgressBar(R.id.pb_download_progressbar,
-                    (int)mySize, 0, false);
-            notificationManager.notify(myNtID, notification);
-        }
-        
-        @Override
-        protected Void doInBackground(Void... params) {
-            try {
-                dataManager.uploadFile(myRepoID, myDir, myPath,  new FileUploadMonitor(this));
-            } catch (SeafException e) {
-                err = e;
-            }
-            return null;
-        }
-        
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-            int progress = values[0];
-            notification.contentView.setProgressBar(R.id.pb_download_progressbar,
-                    (int)mySize, progress, false);
-            notificationManager.notify(myNtID, notification);
-        }
-
-        class FileUploadMonitor implements ProgressMonitor {
-            UploadTask task;
-            
-            public FileUploadMonitor(UploadTask task) {
-                this.task = task;
-            }
-            
-            @Override
-            public void onProgressNotify(long total) {
-                publishProgress((int)total);
-            }
-            
-            @Override
-            public boolean isCancelled() {
-                return task.isCancelled();
-            }
-        }
-
-        // onPostExecute displays the results of the AsyncTask.
-        @Override
-        protected void onPostExecute(Void v) {            
-            if (mySize > showProgressThreshold)
-                notificationManager.cancel(myNtID);
-            
-            if (err != null) {
-                showToast("Upload failed");
-                return;
-            }
-            
-            dataManager.invalidateCache(myRepoID, myDir);
-            if (currentTab.equals(LIBRARY_TAB)
-                    && myRepoID.equals(navContext.getRepo())
-                    && myDir.equals(navContext.getDirPath()))
-                reposFragment.refreshView();
-        }
-
-        
+    @Override
+    public void onFileUploaded(String repoID, String dir, String filePath) {
+        // TODO Auto-generated method stub
+        dataManager.invalidateCache(repoID, dir);
+        if (currentTab.equals(LIBRARY_TAB)
+                && repoID.equals(navContext.getRepo())
+                && dir.equals(navContext.getDirPath()))
+            reposFragment.refreshView();
     }
+
+    @Override
+    public void onFileUploadFailed(String repoID, String dir, String filePath) {
+        showToast("Upload failed " + Utils.fileNameFromPath(filePath));
+    }
+
+    @Override
+    public void onFileDownloaded(String repoID, String path, String fileID) {
+        if (currentTab.equals(LIBRARY_TAB)
+                && repoID.equals(navContext.getRepo())
+                && Utils.getParentPath(path).equals(navContext.getDirPath()))
+            showFile(repoID, path, fileID);
+    }
+
+    @Override
+    public void onFileDownloadFailed(final String repoID, final String path,
+            final String fileID, final long size, SeafException err) {
+        if (err != null && err.getCode() == 440) {
+            if (currentTab.equals(LIBRARY_TAB)
+                    && repoID.equals(navContext.getRepo())
+                    && Utils.getParentPath(path).equals(navContext.getDirPath())) {
+                PasswordDialog dialog = new PasswordDialog();
+                dialog.setPasswordGetListener(new PasswordGetListener() {
+                    @Override
+                    public void onPasswordGet(String password) {
+                        if (password.length() == 0)
+                            return;
+                        dataManager.setPassword(repoID, password);
+                        transferManager.addDownloadTask(account, repoID, path, fileID, size);
+                    }
+                    
+                });
+                dialog.show(getSupportFragmentManager(), "DialogFragment");
+                return;
+            }
+        }
+        showToast("Download failed " + Utils.fileNameFromPath(path));
+    }
+
 }

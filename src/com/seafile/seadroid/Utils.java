@@ -214,9 +214,10 @@ public class Utils {
         return getResIdforMimetype(mime);
     }
     
-    public static boolean isNetworkOn(Context context) {
+    public static boolean isNetworkOn() {
         ConnectivityManager connMgr = (ConnectivityManager) 
-                context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                SeadroidApplication.getAppContext().getSystemService(
+                        Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
         if (networkInfo != null && networkInfo.isConnected()) {

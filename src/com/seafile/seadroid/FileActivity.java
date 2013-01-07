@@ -48,7 +48,7 @@ public class FileActivity extends SherlockFragmentActivity {
         fileID = intent.getStringExtra("fileID");
         size = intent.getLongExtra("size", 0);
         
-        dataManager = new DataManager(this, account);
+        dataManager = new DataManager(account);
         
         //setContentView(R.layout.seadroid_main);
         //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
