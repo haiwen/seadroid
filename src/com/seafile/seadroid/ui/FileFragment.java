@@ -28,23 +28,26 @@ import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.seafile.seadroid.BrowserActivity;
 import com.seafile.seadroid.FileActivity;
 import com.seafile.seadroid.MarkdownActivity;
+import com.seafile.seadroid.NavContext;
 import com.seafile.seadroid.R;
 import com.seafile.seadroid.SeafException;
 import com.seafile.seadroid.Utils;
 import com.seafile.seadroid.account.Account;
 import com.seafile.seadroid.data.DataManager;
 import com.seafile.seadroid.data.DataManager.ProgressMonitor;
+import com.seafile.seadroid.ui.PasswordDialog.PasswordGetListener;
 
-public class FileFragment extends SherlockFragment {
+public class FileFragment extends SherlockFragment implements PasswordGetListener {
 
     private static final String DEBUG_TAG = "FileFragment";
     
     private ArrayList<LoadFileTask> onGoingTasks = new ArrayList<LoadFileTask>();
 
-    Activity mActivity = null;
+    SherlockFragmentActivity mActivity = null;
     private DataManager dataManager;
     
     private ImageView ivFileIcon;
@@ -79,7 +82,7 @@ public class FileFragment extends SherlockFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         Log.d(DEBUG_TAG, "FileFragment Attached");
-        mActivity = activity;
+        mActivity = (SherlockFragmentActivity)activity;
     }
     
     @Override
@@ -362,8 +365,8 @@ public class FileFragment extends SherlockFragment {
                     text = "Failed to load file";
                     showToast(text);
                 } else {
-                    if (err.getCode() == 404) {
-                        // TODO
+                    if (err.getCode() == 440) {
+                        showPasswordDialog();
                     }
                 }
             }
@@ -383,4 +386,21 @@ public class FileFragment extends SherlockFragment {
         }
 
     }
+    
+    private void showPasswordDialog() {
+        PasswordDialog dialog = new PasswordDialog();
+        dialog.setPasswordGetListener(this);
+        dialog.show(mActivity.getSupportFragmentManager(), "DialogFragment");
+    }
+
+    @Override
+    public void onPasswordGet(String password) {
+        if (password.length() == 0)
+            return;
+
+        // TODO: this will block the main thread 
+        dataManager.setPassword(repo, password);
+        downloadFile(repo, path, fileID, size);
+    }
+    
 }

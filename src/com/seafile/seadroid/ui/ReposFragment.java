@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.ListView;
 
 import java.util.List;
@@ -32,8 +33,38 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
 
     private SeafItemAdapter adapter;
     boolean mDualPane;
-    View refresh = null;
     BrowserActivity mActivity = null;
+    
+    public ListView mList;
+    boolean mListShown;
+    View mProgressContainer;
+    View mListContainer;
+
+    public void setListShown(boolean shown, boolean animate) {
+        if (mListShown == shown) {
+            return;
+        }
+        mListShown = shown;
+        if (shown) {
+            if (animate) {
+                mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
+                        mActivity, android.R.anim.fade_out));
+                mListContainer.startAnimation(AnimationUtils.loadAnimation(
+                        mActivity, android.R.anim.fade_in));
+            }
+            mProgressContainer.setVisibility(View.GONE);
+            mListContainer.setVisibility(View.VISIBLE);
+        } else {
+            if (animate) {
+                mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
+                        mActivity, android.R.anim.fade_in));
+                mListContainer.startAnimation(AnimationUtils.loadAnimation(
+                        mActivity, android.R.anim.fade_out));
+            }
+            mProgressContainer.setVisibility(View.VISIBLE);
+            mListContainer.setVisibility(View.INVISIBLE);
+        }
+    }
     
     private DataManager getDataManager() {
         return mActivity.getDataManager();
@@ -55,6 +86,20 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
     }
     
     @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+        int INTERNAL_EMPTY_ID = 0x00ff0001;
+        View root = inflater.inflate(R.layout.repos_fragment, container, false);
+        (root.findViewById(R.id.internalEmpty)).setId(INTERNAL_EMPTY_ID);
+        mList = (ListView) root.findViewById(android.R.id.list);
+        mListContainer =  root.findViewById(R.id.listContainer);
+        mProgressContainer = root.findViewById(R.id.progressContainer);
+        mListShown = true;
+        
+        return root;
+    }
+    
+    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         Log.d(DEBUG_TAG, "ReposFragment onActivityCreated");
@@ -62,12 +107,6 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
         setListAdapter(adapter);
 
         getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
- 
-        // set refresh button
-        refresh = LayoutInflater.from(getActivity()).inflate(R.layout.refresh, null);
-        getListView().setEmptyView(refresh);
-        ViewGroup root = (ViewGroup) getActivity().findViewById(android.R.id.content);
-        root.addView(refresh);
         
         // refresh the view (loading data)
         refreshView();
@@ -114,6 +153,7 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
         } else {
             navToReposView();
         }
+        mActivity.invalidateOptionsMenu();
     }
     
     public void navToReposView() {
@@ -123,8 +163,7 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
             adapter.clear();
             addReposToAdapter(repos);
             adapter.notifyChanged();
-        } else
-            mActivity.setRefreshing();
+        }
         
         // load repos in background
         mActivity.disableUpButton();
@@ -133,10 +172,8 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
 
     public void navToDirectory() {
         NavContext navContext = getNavContext();
-        mActivity.setRefreshing();
-        adapter.clear();
-        adapter.notifyChanged();
-        refresh.setVisibility(View.INVISIBLE);
+        setListShown(false, true);
+        // refresh.setVisibility(View.INVISIBLE);
         mActivity.enableUpButton();
         new LoadDirTask().execute(navContext.getRepo(), navContext.getDirPath(),
                 navContext.getDirID());
@@ -230,8 +267,6 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
             } else {
                 Log.d(DEBUG_TAG, "failed to load repos");
             }
-            
-            mActivity.unsetRefreshing();
         }
 
     }
@@ -273,10 +308,11 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
                 for (SeafDirent dirent : dirents) {
                     adapter.add(dirent);
                 }
-            } else
-                refresh.setVisibility(View.VISIBLE);
-            mActivity.unsetRefreshing();
+            } else {
+                // refresh.setVisibility(View.VISIBLE);
+            }
             adapter.notifyChanged();
+            setListShown(true, true);
             
             if (err != null && err.getCode() == 440) {
                 showPasswordDialog();
@@ -300,6 +336,8 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
         NavContext navContext = getNavContext();
         if (navContext.getRepo() == null)
             return;
+        
+        // TODO: this will block the main thread 
         getDataManager().setPassword(navContext.getRepo(), password);
         refreshView();
     }

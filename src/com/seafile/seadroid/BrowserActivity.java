@@ -132,6 +132,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         ActionBar actionBar = getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         actionBar.setDisplayShowTitleEnabled(false);
+        unsetRefreshing();
         
         int cTab = 0;
 
@@ -207,6 +208,8 @@ public class BrowserActivity extends SherlockFragmentActivity
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem menuDeleteCache = menu.findItem(R.id.delete_cache);
         MenuItem menuUpload = menu.findItem(R.id.upload);
+        MenuItem menuRefresh = menu.findItem(R.id.refresh);
+        
         if (currentTab.equals(CACHE_TAB) && cacheFragment.isItemSelected()) {
             Log.d(DEBUG_TAG, "refreshMenu set visible");
             menuDeleteCache.setVisible(true);
@@ -217,6 +220,11 @@ public class BrowserActivity extends SherlockFragmentActivity
             menuUpload.setEnabled(true);
         else
             menuUpload.setEnabled(false);
+        
+        if (currentTab.equals(LIBRARY_TAB))
+            menuRefresh.setVisible(true);
+        else
+            menuRefresh.setVisible(false);
         
         return true;
     }
@@ -240,6 +248,9 @@ public class BrowserActivity extends SherlockFragmentActivity
             return true;
         case R.id.upload:
             pickFile();
+            return true;
+        case R.id.refresh:
+            reposFragment.refreshView();
             return true;
         }
         return super.onOptionsItemSelected(item);
