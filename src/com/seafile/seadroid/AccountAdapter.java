@@ -1,17 +1,10 @@
 package com.seafile.seadroid;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
-import com.seafile.seadroid.R;
-import com.seafile.seadroid.R.drawable;
-import com.seafile.seadroid.R.id;
-import com.seafile.seadroid.R.layout;
 import com.seafile.seadroid.account.Account;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +12,9 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+/**
+ * Adapter for showing account in a list view.
+ */
 public class AccountAdapter extends BaseAdapter {
 
     private ArrayList<Account> items;
@@ -41,7 +37,6 @@ public class AccountAdapter extends BaseAdapter {
 
     public void addEntry(Account entry) {
         items.add(entry);
-        // Collections.sort(items);
         notifyDataSetChanged();
     }
     
@@ -93,7 +88,6 @@ public class AccountAdapter extends BaseAdapter {
 
         return view;
     }
-
 
     private class Viewholder {
         TextView title, subtitle;

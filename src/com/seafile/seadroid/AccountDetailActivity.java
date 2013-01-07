@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.AsyncTask;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.content.Context;
@@ -22,13 +23,14 @@ import android.util.Log;
 
 public class AccountDetailActivity extends Activity {
 
-    private static final String DEBUG_TAG = "AddAccountActivity";
+    private static final String DEBUG_TAG = "AccountDetailActivity";
     
     private TextView statusView;
     private Button loginButton;
     private EditText serverText;
     private EditText emailText;
     private EditText passwdText;
+    private CheckBox httpsCheckBox;
     
     private AccountManager accountManager;
     private Account account = null;
@@ -41,6 +43,7 @@ public class AccountDetailActivity extends Activity {
         
         statusView = (TextView) findViewById(R.id.status_view);
         loginButton = (Button) findViewById(R.id.login_button);
+        httpsCheckBox = (CheckBox) findViewById(R.id.https_checkbox);
         serverText = (EditText) findViewById(R.id.server_url);
         emailText = (EditText) findViewById(R.id.email_address);
         passwdText = (EditText) findViewById(R.id.password);
@@ -52,15 +55,18 @@ public class AccountDetailActivity extends Activity {
         String email = intent.getStringExtra("email");
         if (server != null && email != null) {
             account = new Account(server, email);
-            serverText.setText(account.getServer());
+            if (account.isHttps())
+                httpsCheckBox.setChecked(true);
+            serverText.setText(account.getServerNoProtocol());
             emailText.setText(account.getEmail());
         }
     }
     
-    private String cleanServerURL(String serverURL) throws MalformedURLException {
-        if (!serverURL.startsWith("http://") && !serverURL.startsWith("https://")) {
+    private String cleanServerURL(String serverURL, boolean isHttps) throws MalformedURLException {
+        if (isHttps)
+            serverURL = "https://" + serverURL;
+        else
             serverURL = "http://" + serverURL;
-        }
         
         if (!serverURL.endsWith("/")) {
             serverURL = serverURL + "/";
@@ -75,17 +81,21 @@ public class AccountDetailActivity extends Activity {
         String serverURL = serverText.getText().toString();
         String email = emailText.getText().toString();
         String passwd = passwdText.getText().toString();
+        boolean isHttps = httpsCheckBox.isChecked();
         
         ConnectivityManager connMgr = (ConnectivityManager) 
             getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
         if (networkInfo != null && networkInfo.isConnected()) {
-            if (serverURL.length() == 0)
+            if (serverURL.length() == 0) {
+                statusView.setText(R.string.err_server_andress_empty);
                 return;
+            }
             try {
-                serverURL = cleanServerURL(serverURL);
+                serverURL = cleanServerURL(serverURL, isHttps);
             } catch (MalformedURLException e) {
+                statusView.setText(R.string.invalid_server_address);
                 Log.d(DEBUG_TAG, "Invalid URL " + serverURL);
                 return;
             }
@@ -94,7 +104,7 @@ public class AccountDetailActivity extends Activity {
             Account tmpAccount = new Account(serverURL, email, passwd);
             new LoginTask(tmpAccount).execute();
         } else {
-            statusView.setText("No network connection available.");
+            statusView.setText(R.string.network_down);
         }
     }
 
@@ -123,7 +133,6 @@ public class AccountDetailActivity extends Activity {
             return doLogin();
         }
 
-        // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
             if (result.equals("Success")) {
@@ -140,16 +149,16 @@ public class AccountDetailActivity extends Activity {
             
             try {
                 if (sc.doLogin() == false)
-                    return "Login failed";
+                    return getString(R.string.err_login_failed);
                 return "Success";
             } catch (SeafException e) {
                 switch (e.getCode()) {
                 case 400:
-                    return "Wrong username or password";
+                    return getString(R.string.err_wrong_user_or_passwd);
                 case 404:
-                    return "Wrong server address";
+                    return getString(R.string.invalid_server_address);
                 default:
-                    return "Login failed";
+                    return getString(R.string.err_login_failed);
                 }
             }
         }

@@ -43,6 +43,14 @@ public class Account {
     public String getServer() {
         return server;
     }
+    
+    public String getServerNoProtocol() {
+        return server.substring(server.indexOf("://") + 3);
+    }
+    
+    public boolean isHttps() {
+        return server.startsWith("https");
+    }
 
     
     @Override

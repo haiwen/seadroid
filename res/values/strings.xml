@@ -20,11 +20,16 @@
     <string name="personal">Personal</string>
     <string name="libraries">Libraries</string>
     <string name="cached">Cached</string>
-    <string name="ok">Ok</string>
+    <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="pick_upload_type">Upload</string>
     <string-array name="pick_upload_array">
         <item>Files</item>
         <item>Photos</item>
     </string-array>
+    <string name="network_down">No network connection</string>
+    <string name="invalid_server_address">Invalid server address</string>
+    <string name="err_server_andress_empty">Server address can not be empty</string>
+    <string name="err_login_failed">Login failed</string>
+    <string name="err_wrong_user_or_passwd">Email or password error</string>
 </resources>
