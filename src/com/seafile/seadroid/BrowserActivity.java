@@ -318,18 +318,6 @@ public class BrowserActivity extends SherlockFragmentActivity
     
     /***********  Start other activity  ***************/
     
-    void startFileActivity(String repoID, String path, String fileID, long size) {
-        Intent intent = new Intent(this, FileActivity.class);
-        intent.putExtra("server", account.server);
-        intent.putExtra("email", account.email);
-        intent.putExtra("token", account.token);
-        intent.putExtra("repoID", repoID);
-        intent.putExtra("path", path);
-        intent.putExtra("fileID", fileID);
-        intent.putExtra("size", size);
-        startActivity(intent);
-    }
-    
     public static final int PICK_FILE_REQUEST = 1;
     
     void pickFile() {
