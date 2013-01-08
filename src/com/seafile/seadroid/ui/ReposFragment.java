@@ -74,6 +74,10 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
         return mActivity.getNavContext();
     }
     
+    public SeafItemAdapter getAdapter() {
+        return adapter;
+    }
+    
     public interface OnFileSelectedListener {
         public void onFileSelected(String repoID, String path, SeafDirent dirent);
     }
@@ -260,12 +264,12 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
             }
             
             if (rs != null) {
-                Log.d(DEBUG_TAG, "Load repos number " + rs.size());
+                //Log.d(DEBUG_TAG, "Load repos number " + rs.size());
                 adapter.clear();
                 addReposToAdapter(rs);
                 adapter.notifyChanged();
             } else {
-                Log.d(DEBUG_TAG, "failed to load repos");
+                //Log.d(DEBUG_TAG, "failed to load repos");
             }
         }
 

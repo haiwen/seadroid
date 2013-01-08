@@ -426,19 +426,19 @@ public class BrowserActivity extends SherlockFragmentActivity
         startActivity(intent);
     }
     
-    private void showFile(String repoID, String path, String fileID) {
+    private boolean showFile(String repoID, String path, String fileID) {
         File file = DataManager.getFileForFileCache(path, fileID);
         String name = file.getName();
         String suffix = name.substring(name.lastIndexOf('.') + 1);
         
         if (suffix.length() == 0) {
             showToast(getString(R.string.unknown_file_type));
-            return;
+            return false;
         }
         
         if (suffix.endsWith("md") || suffix.endsWith("markdown")) {
             startMarkdownActivity(repoID, path, fileID);
-            return;
+            return true;
         }
 
         String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
@@ -448,8 +448,10 @@ public class BrowserActivity extends SherlockFragmentActivity
         open.setDataAndType((Uri.fromFile(file)), mime);
         try {
             startActivity(open);
+            return true;
         } catch (ActivityNotFoundException e) {
             showToast(getString(R.string.activity_not_found));
+            return false;
         }
     }
 
@@ -472,8 +474,10 @@ public class BrowserActivity extends SherlockFragmentActivity
     public void onFileDownloaded(String repoID, String path, String fileID) {
         if (currentTab.equals(LIBRARY_TAB)
                 && repoID.equals(navContext.getRepo())
-                && Utils.getParentPath(path).equals(navContext.getDirPath()))
+                && Utils.getParentPath(path).equals(navContext.getDirPath())) {
+            reposFragment.getAdapter().notifyChanged();
             showFile(repoID, path, fileID);
+        }
     }
 
     @Override

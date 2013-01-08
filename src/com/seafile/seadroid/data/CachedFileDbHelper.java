@@ -11,11 +11,12 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class CachedFileDbHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 2;
     public static final String DATABASE_NAME = "data.db";
 
     public static final String TABLE_NAME = "FileCache";
     
+    public static final String COLUMN_ID = "id";
     public static final String COLUMN_FILEID = "fileid";
     public static final String COLUMN_REPO = "repo";
     public static final String COLUMN_PATH = "path";
@@ -26,9 +27,12 @@ public class CachedFileDbHelper extends SQLiteOpenHelper {
     }
     
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE " + TABLE_NAME + " (" + COLUMN_FILEID + " TEXT, " 
+        String create = "CREATE TABLE " + TABLE_NAME + " ("
+                + COLUMN_ID + " INTEGER PRIMARY KEY, " 
+                + COLUMN_FILEID + " TEXT, " 
                 + COLUMN_PATH + " TEXT, " + COLUMN_REPO + " TEXT, "
-                + COLUMN_CTIME + " INTEGER);");
+                + COLUMN_CTIME + " INTEGER);";
+        db.execSQL(create);
         db.execSQL("CREATE INDEX fileid_index ON " + TABLE_NAME
                 + " (" + COLUMN_FILEID + ");");
         db.execSQL("CREATE INDEX repoid_index ON " + TABLE_NAME
@@ -38,7 +42,7 @@ public class CachedFileDbHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // This database is only a cache for online data, so its upgrade policy is
         // to simply to discard the data and start over
-        db.execSQL("DELETE TABLE " + TABLE_NAME + ";"); 
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME + ";"); 
         onCreate(db);
     }
     
@@ -49,7 +53,8 @@ public class CachedFileDbHelper extends SQLiteOpenHelper {
     public SeafCachedFile getItem(String repoID, String path) {
         SQLiteDatabase db = getReadableDatabase();
 
-        String[] projection = {          
+        String[] projection = {   
+                COLUMN_ID,
                 COLUMN_FILEID,
                 COLUMN_REPO,
                 COLUMN_PATH,
@@ -106,7 +111,11 @@ public class CachedFileDbHelper extends SQLiteOpenHelper {
         // Gets the data repository in write mode
         SQLiteDatabase db = getWritableDatabase();
 
-        db.delete(TABLE_NAME,  COLUMN_REPO + "=? and " + COLUMN_PATH + "=?",
+        if (item.id != -1) {
+            db.delete(TABLE_NAME,  COLUMN_ID + "=?",
+                    new String[] { String.valueOf(item.id) });
+        } else
+            db.delete(TABLE_NAME,  COLUMN_REPO + "=? and " + COLUMN_PATH + "=?",
                 new String[] { item.repo, item.path });
         db.close();
     }
@@ -116,7 +125,8 @@ public class CachedFileDbHelper extends SQLiteOpenHelper {
         
         SQLiteDatabase db = getReadableDatabase();
 
-        String[] projection = {          
+        String[] projection = {
+                COLUMN_ID,
                 COLUMN_FILEID,
                 COLUMN_REPO,
                 COLUMN_PATH,
@@ -147,10 +157,11 @@ public class CachedFileDbHelper extends SQLiteOpenHelper {
     
     private SeafCachedFile cursorToItem(Cursor cursor) {
         SeafCachedFile item = new SeafCachedFile();
-        item.fileID = cursor.getString(0);
-        item.repo = cursor.getString(1);
-        item.path = cursor.getString(2);
-        item.ctime = cursor.getLong(3);
+        item.id = cursor.getInt(0);
+        item.fileID = cursor.getString(1);
+        item.repo = cursor.getString(2);
+        item.path = cursor.getString(3);
+        item.ctime = cursor.getLong(4);
         item.file = DataManager.getFileForFileCache(item.path, item.fileID);
         return item;
     }

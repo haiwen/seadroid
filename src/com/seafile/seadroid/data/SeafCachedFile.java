@@ -6,6 +6,7 @@ import com.seafile.seadroid.Utils;
 
 public class SeafCachedFile implements SeafItem {
     
+    public int id;
     public String fileID;
     public String repo;
     public String path;
@@ -13,6 +14,7 @@ public class SeafCachedFile implements SeafItem {
     File file;
 
     public SeafCachedFile() {
+        id = -1;
     }
     
     @Override

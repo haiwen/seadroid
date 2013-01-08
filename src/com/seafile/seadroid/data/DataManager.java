@@ -118,6 +118,7 @@ public class DataManager {
     
     private List<SeafRepo> parseRepos(String json) {
         try {
+            // may throw ClassCastException
             JSONArray array = Utils.parseJsonArray(json);
             ArrayList<SeafRepo> repos = new ArrayList<SeafRepo>();
             for (int i = 0; i < array.length(); i++) {
@@ -129,6 +130,9 @@ public class DataManager {
             return repos;
         } catch (JSONException e) {
             Log.d(DEBUG_TAG, "repos: parse json error");
+            return null;
+        } catch (Exception e) {
+            // other exception, for example ClassCastException
             return null;
         }
     }
