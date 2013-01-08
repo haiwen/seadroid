@@ -254,6 +254,8 @@ public class BrowserActivity extends SherlockFragmentActivity
             pickFile();
             return true;
         case R.id.refresh:
+            if (navContext.repoID != null)
+                dataManager.invalidateCache(navContext.repoID, navContext.dirPath);
             reposFragment.refreshView();
             return true;
         }
@@ -457,7 +459,6 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     @Override
     public void onFileUploaded(String repoID, String dir, String filePath) {
-        // TODO Auto-generated method stub
         dataManager.invalidateCache(repoID, dir);
         if (currentTab.equals(LIBRARY_TAB)
                 && repoID.equals(navContext.getRepo())

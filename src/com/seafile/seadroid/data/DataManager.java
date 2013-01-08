@@ -206,6 +206,8 @@ public class DataManager {
     private List<SeafDirent> parseDirents(String json) {
         try {
             JSONArray array = Utils.parseJsonArray(json);
+            if (array == null)
+                return null;
 
             ArrayList<SeafDirent> dirents = new ArrayList<SeafDirent>();
             for (int i = 0; i < array.length(); i++) {
@@ -288,7 +290,12 @@ public class DataManager {
         sc.uploadFile(repoID, dir, filePath, monitor);
     }
     
+    /** Remove cached dirents from dir to the root.
+     */
     public void invalidateCache(String repoID, String dir) {
+        if (repoID == null || dir == null)
+            return;
+        
         String d = dir;
         while (true) {
             String objectID = pathObjectIDMap.get(repoID + d);
@@ -303,4 +310,5 @@ public class DataManager {
             d = Utils.getParentPath(d);
         }
     }
+
 }

@@ -7,31 +7,25 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Random;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.seafile.seadroid.account.Account;
 import com.seafile.seadroid.data.DataManager;
 import com.seafile.seadroid.data.DataManager.ProgressMonitor;
 
-import android.content.Context;
 import android.util.Log;
 
 /**
@@ -64,7 +58,7 @@ public class SeafConnection {
         if (withToken)
             conn.addRequestProperty("Authorization", "Token " + account.token);
         
-        Log.d(DEBUG_TAG, "get from " + url.getPath());
+        //Log.d(DEBUG_TAG, "get from " + url.getPath());
         return conn;
     }
     
@@ -121,15 +115,25 @@ public class SeafConnection {
     }
     
     private void doPost(HttpURLConnection conn, List<NameValuePair> params) 
-            throws IOException, ProtocolException, UnsupportedEncodingException {  
-        OutputStream os = conn.getOutputStream();
-        BufferedWriter writer = new BufferedWriter(
-            new OutputStreamWriter(os, "UTF-8"));
-        writer.write(encodePostParams(params));
-        writer.close();
-        os.close();
-        
-        conn.connect();
+            throws IOException, ProtocolException, UnsupportedEncodingException {
+        OutputStream os = null;
+        try {
+            os = conn.getOutputStream();
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
+                    os, "UTF-8"));
+            writer.write(encodePostParams(params));
+            writer.close();
+            os.close();
+
+            conn.connect();
+        } finally {
+            try {
+                if (os != null)
+                    os.close();
+            } catch (Exception e) {
+                // ignore
+            }
+        }
     }
     
     
@@ -156,12 +160,14 @@ public class SeafConnection {
             is = conn.getInputStream();
             String contentAsString = Utils.readIt(is);
             JSONObject obj = Utils.parseJsonObject(contentAsString);
+            if (obj == null)
+                return false;
             account.token = obj.getString("token");
             return true;
         } catch (SeafException e) {
             throw e;
         } catch (Exception e) {
-            Log.d(DEBUG_TAG, e.getMessage());
+            Log.d(DEBUG_TAG, "Other exception in doLogin");
             return false;
         } finally {
             // Makes sure that the InputStream is closed after the app is
@@ -197,7 +203,7 @@ public class SeafConnection {
         } catch (SeafException e) {
             throw e;
         } catch (Exception e) {
-            Log.d(DEBUG_TAG, e.getMessage());
+            Log.d(DEBUG_TAG, "Other exception in authPing");
             return false;
         } finally {
             try {
@@ -228,7 +234,7 @@ public class SeafConnection {
         } catch (SeafException e) {
             throw e;
         } catch (Exception e) {
-            Log.d(DEBUG_TAG, e.getMessage());
+            Log.d(DEBUG_TAG, "Other exception in ping");
             return false;
         } finally {
             try {
@@ -243,7 +249,6 @@ public class SeafConnection {
     
     
     public String getRepos() throws SeafException {
-        Log.d(DEBUG_TAG, "get repos from server");
         InputStream is = null;
         try {
             HttpURLConnection conn = prepareGet("api2/repos/");
@@ -258,7 +263,7 @@ public class SeafConnection {
         } catch (SeafException e) {
             throw e;
         } catch (Exception e) {
-            //Log.d(DEBUG_TAG, e.getMessage());
+            Log.d(DEBUG_TAG, "Exception in getRepos");
             return null;
         } finally {
             try {
@@ -288,7 +293,7 @@ public class SeafConnection {
         } catch (SeafException e) {
             throw e;
         } catch (Exception e) {
-            // Log.d(DEBUG_TAG, e.getMessage());
+            Log.d(DEBUG_TAG, "Exception in getDirents");
             return null;
         } finally {
             try {
@@ -360,7 +365,7 @@ public class SeafConnection {
                 throw new SeafException(response, conn.getResponseMessage());
             
             File tmp = DataManager.getTempFile(path, oid);
-            Log.d(DEBUG_TAG, "write to " + tmp.getAbsolutePath());
+            // Log.d(DEBUG_TAG, "write to " + tmp.getAbsolutePath());
             
             is = conn.getInputStream();
             os = new FileOutputStream(tmp);
@@ -387,14 +392,14 @@ public class SeafConnection {
             }
             
             if (tmp.renameTo(file) == false) {
-                Log.d(DEBUG_TAG, "Rename file error");
+                Log.w(DEBUG_TAG, "Rename file error");
                 return null;
             }
             return file;
         } catch (SeafException e) {
             throw e;
         } catch (Exception e) {
-            // Log.d(DEBUG_TAG, e.getMessage());
+            Log.d(DEBUG_TAG, "Exception in getFile");
             return null;
         } finally {
             try {
@@ -423,7 +428,7 @@ public class SeafConnection {
         } catch (SeafException e) {
             throw e;
         } catch (Exception e) {
-            // Log.d(DEBUG_TAG, e.getMessage());
+            Log.d(DEBUG_TAG, "Exception in setPassword");
             return;
         }
     }
@@ -543,29 +548,13 @@ public class SeafConnection {
             request.writeBytes(this.crlf);
             request.writeBytes(end);
             
-            
-            // write file content
-            /*
-            request.writeBytes(this.twoHyphens + this.boundary + this.crlf);
-            request.writeBytes("Content-Disposition: form-data; name=\"" + this.attachmentName + "\";filename=\"" + this.attachmentFileName + "\"" + this.crlf);
-            request.writeBytes("Content-Type: text/plain" + this.crlf);
-            request.writeBytes(this.crlf);
-            request.writeBytes("string test");
-            request.writeBytes(this.crlf);
-            
-            // end
-            request.writeBytes(this.twoHyphens + this.boundary + this.twoHyphens + this.crlf);
-            */
-            
             Log.d(DEBUG_TAG, "finish");
             request.flush();
             request.close();
             
-            InputStream is = conn.getInputStream();
-            String result = Utils.readIt(is);
-            if (result != null)
-                Log.d(DEBUG_TAG, "result is " + result);
-            is.close();
+            //InputStream is = conn.getInputStream();
+            //String result = Utils.readIt(is);
+            //is.close();
         } catch (Exception e) {
             String msg = e.getMessage();
             if (msg != null) Log.d(DEBUG_TAG, msg);

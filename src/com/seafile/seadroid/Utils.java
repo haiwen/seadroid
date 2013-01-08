@@ -11,7 +11,6 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.HashMap;
@@ -21,29 +20,43 @@ import org.json.*;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import com.seafile.seadroid.data.SeafRepo;
 
 public class Utils {
-
-    public static JSONObject parseJsonObjectInArray0(String json) {
+    
+    public static JSONObject parseJsonObject(String json) {
+        if (json == null) {
+            // the caller should not give null
+            Log.w("Utils", "null in parseJsonObject");
+            return null;
+        }
+        
         try {
-            JSONArray array = (JSONArray) new JSONTokener(json).nextValue();
-            return array.getJSONObject(0);
+            return (JSONObject) new JSONTokener(json).nextValue();
         } catch (Exception e) {
             return null;
         }
     }
     
-    public static JSONObject parseJsonObject(String json) throws JSONException {
-    	return (JSONObject) new JSONTokener(json).nextValue();
+    public static JSONArray parseJsonArray(String json) {
+        if (json == null) {
+         // the caller should not give null
+            Log.w("Utils", "null in parseJsonObject");
+            return null;
+        }
+        
+        try {
+            return (JSONArray) new JSONTokener(json).nextValue();
+        } catch (Exception e) {
+            return null;
+        }
     }
     
-    public static JSONArray parseJsonArray(String json) throws JSONException {
-        return (JSONArray) new JSONTokener(json).nextValue();
-    }
-    
+    /** Read input stream and convert the content to string.
+     */
     public static String readIt(InputStream stream) throws IOException,
             UnsupportedEncodingException {
         Reader reader = new InputStreamReader(stream, "UTF-8");
@@ -63,6 +76,7 @@ public class Utils {
         Reader reader = null;
         try {
             try {
+                // TODO: detect a file's encoding
                 reader = new InputStreamReader(new FileInputStream(file), "UTF-8");
             } catch (UnsupportedEncodingException e) {
                 return null;
@@ -91,6 +105,12 @@ public class Utils {
     }
     
     public static String getParentPath(String path) {
+        if (path == null) {
+            // the caller should not give null
+            Log.w("Utils", "null in getParentPath");
+            return null;
+        }
+        
         String parent = path.substring(0, path.lastIndexOf("/"));
         if (parent.equals("")) {
             return "/";
@@ -99,6 +119,12 @@ public class Utils {
     }
     
     public static String fileNameFromPath(String path) {
+        if (path == null) {
+            // the caller should not give null
+            Log.w("Utils", "null in getParentPath");
+            return null;
+        }
+        
         return path.substring(path.lastIndexOf("/") + 1);
     }
     
