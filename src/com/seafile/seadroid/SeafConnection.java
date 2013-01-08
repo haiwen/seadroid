@@ -484,7 +484,7 @@ public class SeafConnection {
             return;
         
         try {
-            URL url = new URL(uploadLink + "?X-Progress-ID=randomID" + new Random().nextLong());
+            URL url = new URL(uploadLink);
             Log.d(DEBUG_TAG, "Upload to " + uploadLink);
 
             conn = (HttpURLConnection) url.openConnection();

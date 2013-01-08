@@ -240,6 +240,17 @@ public class Utils {
         return getResIdforMimetype(mime);
     }
     
+    public static boolean isImage(String name) {
+        String suffix = name.substring(name.lastIndexOf('.') + 1);
+        if (suffix.length() == 0)
+            return false;
+        
+        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
+        if (mime == null)
+            return false;
+        return mime.contains("image");
+    }
+    
     public static boolean isNetworkOn() {
         ConnectivityManager connMgr = (ConnectivityManager) 
                 SeadroidApplication.getAppContext().getSystemService(
@@ -251,5 +262,7 @@ public class Utils {
         } else
             return false;
     }
+    
+
     
 }

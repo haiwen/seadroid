@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.ListView;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -279,6 +281,7 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
 
         SeafException err = null;
         String myRepoID;
+        String myPath;
         
         @Override
         protected List<SeafDirent> doInBackground(String... params) {
@@ -288,10 +291,10 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
             }
             
             myRepoID = params[0];
-            String path = params[1];
+            myPath = params[1];
             String objectID = params[2];
             try {
-                return getDataManager().getDirents(myRepoID, path, objectID);
+                return getDataManager().getDirents(myRepoID, myPath, objectID);
             } catch (SeafException e) {
                 Log.d(DEBUG_TAG, "catched exception");
                 err = e;
@@ -312,6 +315,7 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
                 for (SeafDirent dirent : dirents) {
                     adapter.add(dirent);
                 }
+                scheduleThumbnailTask(myRepoID, myPath, dirents);
             } else {
                 // refresh.setVisibility(View.VISIBLE);
             }
@@ -344,6 +348,63 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
         // TODO: this will block the main thread 
         getDataManager().setPassword(navContext.getRepo(), password);
         refreshView();
+    }
+    
+
+    private void scheduleThumbnailTask(String repoID, String path,
+            List<SeafDirent> dirents) {
+        ArrayList<SeafDirent> needThumb = new ArrayList<SeafDirent>();
+        for (SeafDirent dirent : dirents) {
+            if (dirent.isDir())
+                continue;
+            if (Utils.isImage(dirent.name)) {
+                File file = DataManager.getFileForFileCache(dirent.name, dirent.id);
+                if (file.exists()) {
+                    if (file.length() > 1000000)
+                        continue;
+                    
+                    File thumb = DataManager.getThumbFile(dirent.name, dirent.id);
+                    if (!thumb.exists())
+                        needThumb.add(dirent);
+                }
+            }
+        }
+        if (needThumb.size() != 0) {
+            new ThumbnailTask(repoID, path, needThumb).execute();
+        }
+    }
+    
+    private class ThumbnailTask extends AsyncTask<Void, Void, Void > {
+
+        SeafException err = null;
+        String myRepoID;
+        String myDir;
+        List<SeafDirent> dirents;
+        
+        public ThumbnailTask(String repoID, String dir, List<SeafDirent> dirents) {
+            this.myRepoID = repoID;
+            this.myDir = dir;
+            this.dirents = dirents;
+        }
+        
+        @Override
+        protected Void doInBackground(Void... params) {
+            for (SeafDirent dirent : dirents) {
+                DataManager.calculateThumbnail(dirent.name, dirent.id);
+            }
+            return null;
+        }
+
+        // onPostExecute displays the results of the AsyncTask.
+        @Override
+        protected void onPostExecute(Void v) {
+            if (mActivity == null)
+                // this occurs if user navigation to another activity
+                return;
+           
+            adapter.notifyChanged();
+        }
+
     }
 
 }

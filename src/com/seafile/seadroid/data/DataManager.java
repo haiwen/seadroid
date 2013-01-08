@@ -1,6 +1,9 @@
 package com.seafile.seadroid.data;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,6 +19,8 @@ import com.seafile.seadroid.SeafException;
 import com.seafile.seadroid.Utils;
 import com.seafile.seadroid.account.Account;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.util.Log;
 
@@ -37,6 +42,19 @@ public class DataManager {
     public static String getExternalTempDirectory() {
         String root = getExternalRootDirectory();
         File tmpDir = new File(root + "/" + "temp");
+        if (tmpDir.exists())
+            return tmpDir.getAbsolutePath();
+        else {
+            if (tmpDir.mkdirs() == false)
+                throw new RuntimeException("Couldn't create external temp directory");
+            else
+                return tmpDir.getAbsolutePath();
+        }
+    }
+    
+    public static String getExternalThumbDirectory() {
+        String root = getExternalRootDirectory();
+        File tmpDir = new File(root + "/" + "thumb");
         if (tmpDir.exists())
             return tmpDir.getAbsolutePath();
         else {
@@ -82,14 +100,41 @@ public class DataManager {
         return new File(p);
     }
     
+    static public File getThumbFile(String path, String oid) {
+        String p = getExternalThumbDirectory() + "/" + constructFileName(path, oid); 
+        return new File(p);
+    }
+    
     // Obtain a cache file for storing a directory with oid
     static public File getFileForDirentsCache(String oid) {
         return new File(getExternalCacheDirectory() + "/" + oid);
     }
-    
-    static public void saveDirentsToCache() {
-        
+      
+    static public void calculateThumbnail(String fileName, String fileID) {
+        try {
+            final int THUMBNAIL_SIZE = 72;
+            
+            File file = getFileForFileCache(fileName, fileID);
+            if (!file.exists())
+                return;
+            if (file.length() > 1000000)
+                return;
+            
+            Bitmap imageBitmap = BitmapFactory.decodeStream(new FileInputStream(file));
+            imageBitmap = Bitmap.createScaledBitmap(imageBitmap, THUMBNAIL_SIZE,
+                    THUMBNAIL_SIZE, false);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+            byte[] byteArray = baos.toByteArray();
+            File thumb = getThumbFile(fileName, fileID);
+            FileOutputStream out = new FileOutputStream(thumb);
+            out.write(byteArray);
+            out.close();
+        } catch (Exception ex) {
+            
+        }
     }
+    
     
     private static final String DEBUG_TAG = "DataManager";
 

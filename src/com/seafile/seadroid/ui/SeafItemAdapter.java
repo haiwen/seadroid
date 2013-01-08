@@ -2,8 +2,11 @@ package com.seafile.seadroid.ui;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.seafile.seadroid.R;
+import com.seafile.seadroid.SeafException;
+import com.seafile.seadroid.Utils;
 import com.seafile.seadroid.data.DataManager;
 import com.seafile.seadroid.data.SeafCachedFile;
 import com.seafile.seadroid.data.SeafDirent;
@@ -12,6 +15,9 @@ import com.seafile.seadroid.data.SeafItem;
 import com.seafile.seadroid.data.SeafRepo;
 
 import android.content.Context;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -145,14 +151,24 @@ public class SeafItemAdapter extends BaseAdapter {
         viewHolder.title.setText(dirent.getTitle());
         if (dirent.isDir()) {
             viewHolder.subtitle.setText("");
+            viewHolder.icon.setImageResource(dirent.getIcon());
         } else {
             File file = DataManager.getFileForFileCache(dirent.name, dirent.id);
-            if (file.exists())
+            if (file.exists()) {
                 viewHolder.subtitle.setText(dirent.getSubtitle() + " cached");
-            else
+                if (Utils.isImage(file.getName())) {
+                    File thumbFile = DataManager.getThumbFile(dirent.name, dirent.id);
+                    if (thumbFile.exists()) {
+                        viewHolder.icon.setImageURI(Uri.fromFile(thumbFile));
+                    } else
+                        viewHolder.icon.setImageResource(dirent.getIcon());
+                } else
+                    viewHolder.icon.setImageResource(dirent.getIcon());
+            } else {
                 viewHolder.subtitle.setText(dirent.getSubtitle());
+                viewHolder.icon.setImageResource(dirent.getIcon());
+            }
         }
-        viewHolder.icon.setImageResource(dirent.getIcon());
         return view;
     }
     
