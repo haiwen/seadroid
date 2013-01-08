@@ -156,7 +156,7 @@ public class SeafItemAdapter extends BaseAdapter {
             File file = DataManager.getFileForFileCache(dirent.name, dirent.id);
             if (file.exists()) {
                 viewHolder.subtitle.setText(dirent.getSubtitle() + " cached");
-                if (Utils.isImage(file.getName())) {
+                if (Utils.isViewableImage(file.getName())) {
                     File thumbFile = DataManager.getThumbFile(dirent.name, dirent.id);
                     if (thumbFile.exists()) {
                         viewHolder.icon.setImageURI(Uri.fromFile(thumbFile));

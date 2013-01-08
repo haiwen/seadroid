@@ -21,7 +21,7 @@ import android.content.Intent;
 import android.util.Log;
 
 
-public class StartActivity extends Activity {
+public class AccountsActivity extends Activity {
 
     private static final String DEBUG_TAG = "StartActivity";
     
@@ -88,6 +88,7 @@ public class StartActivity extends Activity {
         intent.putExtra("email", account.email);
         intent.putExtra("token", account.token);
         startActivity(intent);
+        finish();
     }
     
     private void startAccountDetailActivity() {

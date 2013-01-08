@@ -122,9 +122,7 @@ public class SeafConnection {
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
                     os, "UTF-8"));
             writer.write(encodePostParams(params));
-            writer.close();
-            os.close();
-
+            writer.close(); // must call this to actually write to the output
             conn.connect();
         } finally {
             try {
@@ -418,6 +416,7 @@ public class SeafConnection {
         try {
             HttpURLConnection conn = preparePost("api2/repos/" + repoID + "/", true);
 
+            Log.d(DEBUG_TAG, "passwd is " + passwd + " repo " + repoID);
             List<NameValuePair> params = new ArrayList<NameValuePair>();
             params.add(new BasicNameValuePair("password", passwd));
             doPost(conn, params);
@@ -425,10 +424,13 @@ public class SeafConnection {
                 throw new SeafException(conn.getResponseCode(),
                         conn.getResponseMessage());
             }
+            Log.d(DEBUG_TAG, "Set Password Success");
         } catch (SeafException e) {
+            Log.d(DEBUG_TAG, "Set Password err: " + e.getCode());
             throw e;
         } catch (Exception e) {
-            Log.d(DEBUG_TAG, "Exception in setPassword");
+            Log.d(DEBUG_TAG, "Exception in setPassword ");
+            e.printStackTrace();
             return;
         }
     }

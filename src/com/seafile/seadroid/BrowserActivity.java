@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
@@ -118,6 +119,13 @@ public class BrowserActivity extends SherlockFragmentActivity
         account = new Account(server, email, null, token);
         Log.d(DEBUG_TAG, "browser activity onCreate " + server + " " + email);
         
+        if (server == null) {
+            Intent newIntent = new Intent(this, AccountsActivity.class);
+            startActivity(newIntent);
+            finish();
+            return;
+        }
+        
         dataManager = new DataManager(account);
         navContext = new NavContext();
         transferManager = TransferManager.getTransferManager();
@@ -188,7 +196,8 @@ public class BrowserActivity extends SherlockFragmentActivity
     
     @Override
     protected void onDestroy() {
-        transferManager.unsetListener();
+        if (transferManager != null)
+            transferManager.unsetListener();
         super.onDestroy();
     }
     
@@ -494,8 +503,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                     public void onPasswordGet(String password) {
                         if (password.length() == 0)
                             return;
-                        dataManager.setPassword(repoID, password);
-                        transferManager.addDownloadTask(account, repoID, path, fileID, size);
+                        new SetPasswordTask(repoID, path, fileID, size).execute(password);                        
                     }
                     
                 });
@@ -506,4 +514,36 @@ public class BrowserActivity extends SherlockFragmentActivity
         showToast("Download failed " + Utils.fileNameFromPath(path));
     }
 
+    private class SetPasswordTask extends AsyncTask<String, Void, Void > {
+        
+        String myRepoID;
+        String myPath;
+        String myFileID;
+        long size;
+        
+        public SetPasswordTask(String repoID, String path, String fileID, long size) {
+            this.myRepoID = repoID;
+            this.myPath = path;
+            this.myFileID = fileID;
+            this.size = size;
+        }
+        
+        @Override
+        protected Void doInBackground(String... params) {
+            if (params.length != 1) {
+                Log.d(DEBUG_TAG, "Wrong params to SetPasswordTask");
+                return null;
+            }
+            
+            String password = params[0];
+            getDataManager().setPassword(myRepoID, password);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void v) {
+            transferManager.addDownloadTask(account, myRepoID, myPath, myFileID, size);
+        }
+
+    }
 }

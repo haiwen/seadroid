@@ -296,7 +296,6 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
             try {
                 return getDataManager().getDirents(myRepoID, myPath, objectID);
             } catch (SeafException e) {
-                Log.d(DEBUG_TAG, "catched exception");
                 err = e;
                 return null;
             }
@@ -344,10 +343,32 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
         NavContext navContext = getNavContext();
         if (navContext.getRepo() == null)
             return;
+        new SetPasswordTask().execute(navContext.getRepo(), password);
+    }
+    
+    private class SetPasswordTask extends AsyncTask<String, Void, Void > {
         
-        // TODO: this will block the main thread 
-        getDataManager().setPassword(navContext.getRepo(), password);
-        refreshView();
+        @Override
+        protected Void doInBackground(String... params) {
+            if (params.length != 2) {
+                Log.d(DEBUG_TAG, "Wrong params to SetPasswordTask");
+                return null;
+            }
+            
+            String repoID = params[0];
+            String password = params[1];
+            getDataManager().setPassword(repoID, password);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void v) {
+            if (mActivity == null)
+                // this occurs if user navigation to another activity
+                return;
+            refreshView();
+        }
+
     }
     
 
@@ -357,7 +378,7 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
         for (SeafDirent dirent : dirents) {
             if (dirent.isDir())
                 continue;
-            if (Utils.isImage(dirent.name)) {
+            if (Utils.isViewableImage(dirent.name)) {
                 File file = DataManager.getFileForFileCache(dirent.name, dirent.id);
                 if (file.exists()) {
                     if (file.length() > 1000000)
@@ -376,14 +397,9 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
     
     private class ThumbnailTask extends AsyncTask<Void, Void, Void > {
 
-        SeafException err = null;
-        String myRepoID;
-        String myDir;
         List<SeafDirent> dirents;
         
         public ThumbnailTask(String repoID, String dir, List<SeafDirent> dirents) {
-            this.myRepoID = repoID;
-            this.myDir = dir;
             this.dirents = dirents;
         }
         

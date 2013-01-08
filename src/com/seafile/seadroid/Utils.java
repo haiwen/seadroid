@@ -240,9 +240,12 @@ public class Utils {
         return getResIdforMimetype(mime);
     }
     
-    public static boolean isImage(String name) {
+    public static boolean isViewableImage(String name) {
         String suffix = name.substring(name.lastIndexOf('.') + 1);
         if (suffix.length() == 0)
+            return false;
+        if (suffix.equals("svg"))
+            // don't support svg preview
             return false;
         
         String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
