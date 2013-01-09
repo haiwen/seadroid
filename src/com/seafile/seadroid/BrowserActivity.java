@@ -223,10 +223,9 @@ public class BrowserActivity extends SherlockFragmentActivity
         MenuItem menuUpload = menu.findItem(R.id.upload);
         MenuItem menuRefresh = menu.findItem(R.id.refresh);
         
-        if (currentTab.equals(CACHE_TAB) && cacheFragment.isItemSelected()) {
-            Log.d(DEBUG_TAG, "refreshMenu set visible");
+        if (currentTab.equals(CACHE_TAB) && cacheFragment.isItemSelected())
             menuDeleteCache.setVisible(true);
-        } else
+        else
             menuDeleteCache.setVisible(false);
         
         if (currentTab.equals(LIBRARY_TAB) && navContext.inRepo())
@@ -278,7 +277,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             reposFragment = new ReposFragment();
             ft.add(android.R.id.content, reposFragment, "repos_fragment");
         } else {
-            Log.d(DEBUG_TAG, "Attach reposFragment");
+            //Log.d(DEBUG_TAG, "Attach reposFragment");
             ft.attach(reposFragment);
         }
     }
@@ -471,13 +470,15 @@ public class BrowserActivity extends SherlockFragmentActivity
         dataManager.invalidateCache(repoID, dir);
         if (currentTab.equals(LIBRARY_TAB)
                 && repoID.equals(navContext.getRepo())
-                && dir.equals(navContext.getDirPath()))
+                && dir.equals(navContext.getDirPath())) {
             reposFragment.refreshView();
+            showToast(getString(R.string.uploaded) + Utils.fileNameFromPath(filePath));
+        }
     }
 
     @Override
     public void onFileUploadFailed(String repoID, String dir, String filePath) {
-        showToast("Upload failed " + Utils.fileNameFromPath(filePath));
+        showToast(getString(R.string.upload_failed) + Utils.fileNameFromPath(filePath));
     }
 
     @Override
@@ -511,7 +512,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                 return;
             }
         }
-        showToast("Download failed " + Utils.fileNameFromPath(path));
+        showToast(getString(R.string.download_failed) + Utils.fileNameFromPath(path));
     }
 
     private class SetPasswordTask extends AsyncTask<String, Void, Void > {

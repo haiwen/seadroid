@@ -197,7 +197,7 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
                 String newPath = currentPath.endsWith("/") ? 
                         currentPath + dirent.name : currentPath + "/" + dirent.name;
                 nav.setDir(newPath, dirent.id);
-                navToDirectory();
+                refreshView();
             } else {
                 String currentPath = nav.getDirPath();
                 String newPath = currentPath.endsWith("/") ? 
@@ -211,7 +211,7 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
             SeafRepo repo = (SeafRepo)item;
             nav.setRepo(repo.id);
             nav.setDir("/", repo.root);
-            navToDirectory();
+            refreshView();
         }
     }
 

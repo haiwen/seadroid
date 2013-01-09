@@ -101,7 +101,10 @@ public class DataManager {
     }
     
     static public File getThumbFile(String path, String oid) {
-        String p = getExternalThumbDirectory() + "/" + constructFileName(path, oid); 
+        String filename = path.substring(path.lastIndexOf("/") + 1);
+        String purename = filename.substring(0, filename.lastIndexOf('.'));
+        String p = getExternalThumbDirectory() + "/" + purename + "-" 
+                + oid.substring(0, 8) + ".png"; 
         return new File(p);
     }
     

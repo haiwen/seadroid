@@ -352,11 +352,12 @@ public class SeafConnection {
         
         InputStream is = null;
         OutputStream os = null;
+        HttpURLConnection conn = null;
         try {
             int i = dlink.lastIndexOf('/');
             String quoted = dlink.substring(0, i) + "/" + 
                     URLEncoder.encode(dlink.substring(i+1), "UTF-8");
-            HttpURLConnection conn = prepareFileGet(quoted);
+            conn = prepareFileGet(quoted);
             conn.connect();
             int response = conn.getResponseCode();
             if (response != 200)
@@ -400,14 +401,9 @@ public class SeafConnection {
             Log.d(DEBUG_TAG, "Exception in getFile");
             return null;
         } finally {
-            try {
-                if (is != null)
-                    is.close();
-                if (os != null)
-                    os.close();
-            } catch (Exception e) {
-                // ignore
-            }
+            if (conn != null)
+                conn.disconnect();
+            // do not need to close is and os
         }
     }
 
@@ -416,7 +412,6 @@ public class SeafConnection {
         try {
             HttpURLConnection conn = preparePost("api2/repos/" + repoID + "/", true);
 
-            Log.d(DEBUG_TAG, "passwd is " + passwd + " repo " + repoID);
             List<NameValuePair> params = new ArrayList<NameValuePair>();
             params.add(new BasicNameValuePair("password", passwd));
             doPost(conn, params);
@@ -424,7 +419,6 @@ public class SeafConnection {
                 throw new SeafException(conn.getResponseCode(),
                         conn.getResponseMessage());
             }
-            Log.d(DEBUG_TAG, "Set Password Success");
         } catch (SeafException e) {
             Log.d(DEBUG_TAG, "Set Password err: " + e.getCode());
             throw e;
@@ -494,7 +488,6 @@ public class SeafConnection {
             conn.setRequestMethod("POST");
             //conn.setChunkedStreamingMode(0);
             
-            Log.d(DEBUG_TAG, "upload to " + dir);
             int totalLen = 0;
             
             // write the parent dir
@@ -517,7 +510,6 @@ public class SeafConnection {
             String end = this.twoHyphens + this.boundary + this.twoHyphens + this.crlf;
             totalLen += end.length();
             
-            Log.d(DEBUG_TAG, "content length is " + totalLen);
             conn.setFixedLengthStreamingMode(totalLen);
             conn.setDoInput(true);
             conn.setDoOutput(true);

@@ -1,6 +1,8 @@
 package com.seafile.seadroid.ui;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +17,8 @@ import com.seafile.seadroid.data.SeafItem;
 import com.seafile.seadroid.data.SeafRepo;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -159,7 +163,16 @@ public class SeafItemAdapter extends BaseAdapter {
                 if (Utils.isViewableImage(file.getName())) {
                     File thumbFile = DataManager.getThumbFile(dirent.name, dirent.id);
                     if (thumbFile.exists()) {
-                        viewHolder.icon.setImageURI(Uri.fromFile(thumbFile));
+                        Bitmap imageBitmap;
+                        try {
+                            // setImageURI is not work correctly under high screen density
+                            //viewHolder.icon.setScaleType(ImageView.ScaleType.FIT_XY);
+                            //viewHolder.icon.setImageURI(Uri.fromFile(thumbFile));
+                            imageBitmap = BitmapFactory.decodeStream(new FileInputStream(thumbFile));
+                            viewHolder.icon.setImageBitmap(imageBitmap);
+                        } catch (FileNotFoundException e) {
+                            viewHolder.icon.setImageResource(dirent.getIcon());
+                        }
                     } else
                         viewHolder.icon.setImageResource(dirent.getIcon());
                 } else

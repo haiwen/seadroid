@@ -191,27 +191,6 @@ public class Utils {
         }
     }
     
-    public static int getResIdforMimetypeLarge(String mimetype) {
-        if (mimetype == null)
-            return R.drawable.file;
-        
-        if (mimetype.contains("pdf"))
-            return R.drawable.file_pdf;
-        else if (mimetype.contains("application")) {
-            return R.drawable.file_application;
-        } else if (mimetype.contains("image")) {
-            return R.drawable.image;
-        } else if (mimetype.contains("text")) {
-            return R.drawable.text;
-        } else if (mimetype.contains("audio")) {
-            return R.drawable.audio;
-        } else if (mimetype.contains("video")) {
-            return R.drawable.video;
-        } else {
-            return R.drawable.file;
-        }
-    }
-    
     static HashMap<String, Integer> suffixIconMap = null;
     
     static private HashMap<String, Integer> getSuffixIconMap() {

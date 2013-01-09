@@ -5,7 +5,7 @@
     <item android:id="@+id/upload"
         android:visible="true"
         android:title="Upload"
-        android:showAsAction="collapseActionView"/>
+        android:showAsAction="ifRoom|withText"/>
     
     <item android:id="@+id/delete_cache"
         android:visible="false"
