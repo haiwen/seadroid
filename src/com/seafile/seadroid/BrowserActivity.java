@@ -267,6 +267,10 @@ public class BrowserActivity extends SherlockFragmentActivity
             pickFile();
             return true;
         case R.id.refresh:
+            if (!Utils.isNetworkOn()) {
+                showToast(getString(R.string.network_down));
+                return true;
+            }
             if (navContext.repoID != null)
                 dataManager.invalidateCache(navContext.repoID, navContext.dirPath);
             reposFragment.refreshView();
