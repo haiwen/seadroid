@@ -6,15 +6,12 @@ import java.net.URISyntaxException;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
-import android.provider.MediaStore;
 import android.util.Log;
-import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
@@ -344,17 +341,8 @@ public class BrowserActivity extends SherlockFragmentActivity
         try {
             startActivityForResult(intent, PICK_FILE_REQUEST);
         } catch (ActivityNotFoundException e) {
-            // The reason for the existence of aFileChooser
+            
         }
-    }
-    
-    private String getImageRealPathFromURI(Uri contentURI) {
-        Cursor cursor = getContentResolver().query(contentURI, null, null, null, null);
-        cursor.moveToFirst();
-        int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
-        String result = cursor.getString(idx);
-        cursor.close();
-        return result;
     }
     
     @Override
@@ -373,7 +361,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                 } catch (URISyntaxException e) {
                     return;
                 }
-                showToast("Uploading " + Utils.fileNameFromPath(path));
+                showToast(getString(R.string.upload) + " " + Utils.fileNameFromPath(path));
                 transferManager.addUploadTask(account, navContext.getRepo(),
                         navContext.getDirPath(), path);
             }
@@ -381,7 +369,6 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
     
     /***************  Navigation *************/
-    
     
     // File selected in repos fragment
     public void onFileSelected(String repoID, String path, SeafDirent dirent) {
@@ -405,7 +392,6 @@ public class BrowserActivity extends SherlockFragmentActivity
             getSupportFragmentManager().popBackStack();
             return;
         }
-        
 
         if (currentTab.equals("libraries")) {
             if (navContext.inRepo()) {
@@ -418,7 +404,6 @@ public class BrowserActivity extends SherlockFragmentActivity
                 }
                 reposFragment.refreshView();
             } else
-                // back to StartActivity
                 super.onBackPressed();
         } else if (currentTab.equals("cache")) {
             super.onBackPressed();
@@ -429,13 +414,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     @Override
     public void onBackStackChanged() {    
     }
-
     
-    /************** Button clicks **************/
-    
-    public void onRefreshClick(View target) {
-        reposFragment.refreshView();
-    }
     
     private void startMarkdownActivity(String repoID, String path, String fileID) {
         Intent intent = new Intent(this, MarkdownActivity.class);
