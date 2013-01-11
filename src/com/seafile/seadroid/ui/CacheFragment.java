@@ -92,6 +92,7 @@ public class CacheFragment extends SherlockListFragment
             getDataManager().removeCachedFile(cf);
         }
         adapter.removeSelectedItems();
+        mActivity.invalidateOptionsMenu();
     }
 
 }

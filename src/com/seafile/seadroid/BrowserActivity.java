@@ -223,10 +223,15 @@ public class BrowserActivity extends SherlockFragmentActivity
         MenuItem menuUpload = menu.findItem(R.id.upload);
         MenuItem menuRefresh = menu.findItem(R.id.refresh);
         
-        if (currentTab.equals(CACHE_TAB) && cacheFragment.isItemSelected())
+        if (currentTab.equals(CACHE_TAB)) {
             menuDeleteCache.setVisible(true);
-        else
+            if (cacheFragment.isItemSelected()) {
+                menuDeleteCache.setEnabled(true);
+            } else
+                menuDeleteCache.setEnabled(false);
+        } else {
             menuDeleteCache.setVisible(false);
+        }
         
         if (currentTab.equals(LIBRARY_TAB) && navContext.inRepo())
             menuUpload.setEnabled(true);
@@ -472,13 +477,13 @@ public class BrowserActivity extends SherlockFragmentActivity
                 && repoID.equals(navContext.getRepo())
                 && dir.equals(navContext.getDirPath())) {
             reposFragment.refreshView();
-            showToast(getString(R.string.uploaded) + Utils.fileNameFromPath(filePath));
+            showToast(getString(R.string.uploaded) + " " + Utils.fileNameFromPath(filePath));
         }
     }
 
     @Override
     public void onFileUploadFailed(String repoID, String dir, String filePath) {
-        showToast(getString(R.string.upload_failed) + Utils.fileNameFromPath(filePath));
+        showToast(getString(R.string.upload_failed) + " " + Utils.fileNameFromPath(filePath));
     }
 
     @Override
@@ -487,7 +492,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                 && repoID.equals(navContext.getRepo())
                 && Utils.getParentPath(path).equals(navContext.getDirPath())) {
             reposFragment.getAdapter().notifyChanged();
-            showFile(repoID, path, fileID);
+            //showFile(repoID, path, fileID);
         }
     }
 
@@ -512,7 +517,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                 return;
             }
         }
-        showToast(getString(R.string.download_failed) + Utils.fileNameFromPath(path));
+        showToast(getString(R.string.download_failed) + " " + Utils.fileNameFromPath(path));
     }
 
     private class SetPasswordTask extends AsyncTask<String, Void, Void > {
