@@ -1,7 +1,9 @@
 package com.seafile.seadroid;
 
 public class SeafException extends Exception {
-
+    
+    static public final int OTHER_EXCEPTION = 599; 
+    
     private int code;
     
     public SeafException(int code, String msg) {

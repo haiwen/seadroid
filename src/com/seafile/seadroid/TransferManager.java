@@ -141,10 +141,6 @@ public class TransferManager {
 
         @Override
         protected Void doInBackground(String... params) {
-            if (params.length != 0) {
-                Log.d(DEBUG_TAG, "Wrong params to LoadFileTask");
-                return null;
-            }
 
             try {
                 DataManager dataManager = new DataManager(account);

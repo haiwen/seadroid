@@ -551,8 +551,11 @@ public class SeafConnection {
             //is.close();
         } catch (Exception e) {
             String msg = e.getMessage();
-            if (msg != null) Log.d(DEBUG_TAG, msg);
-            return;
+            if (msg != null)
+                Log.d(DEBUG_TAG, msg);
+            else
+                msg = "";
+            throw new SeafException(SeafException.OTHER_EXCEPTION, msg);
         } finally {
             if (conn != null) conn.disconnect();
         }

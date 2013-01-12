@@ -174,7 +174,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         String server = intent.getStringExtra("server");
         String email = intent.getStringExtra("email");
         String token = intent.getStringExtra("token");
-        account = new Account(server, email, null, token);
 
         String repoID = intent.getStringExtra("repoID");
         String path = intent.getStringExtra("path");
