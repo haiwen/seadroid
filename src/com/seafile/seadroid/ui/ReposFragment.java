@@ -173,7 +173,7 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
         
         // load repos in background
         mActivity.disableUpButton();
-        new LoadTask().execute();
+        new LoadTask(getDataManager()).execute();
     }
 
     public void navToDirectory() {
@@ -181,7 +181,7 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
         setListShown(false, true);
         // refresh.setVisibility(View.INVISIBLE);
         mActivity.enableUpButton();
-        new LoadDirTask().execute(navContext.getRepo(), navContext.getDirPath(),
+        new LoadDirTask(getDataManager()).execute(navContext.getRepo(), navContext.getDirPath(),
                 navContext.getDirID());
     }
 
@@ -242,11 +242,16 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
     private class LoadTask extends AsyncTask<Void, Void, List<SeafRepo> > {
 
         SeafException err = null;
+        DataManager dataManager;
+        
+        public LoadTask(DataManager dataManager) {
+            this.dataManager = dataManager;
+        }
         
         @Override
         protected List<SeafRepo> doInBackground(Void... params) {
             try {
-                return getDataManager().getRepos();
+                return dataManager.getRepos();
             } catch (SeafException e) {
                 err = e;
                 return null;
@@ -283,6 +288,12 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
         String myRepoID;
         String myPath;
         
+        DataManager dataManager;
+        
+        public LoadDirTask(DataManager dataManager) {
+            this.dataManager = dataManager;
+        }
+        
         @Override
         protected List<SeafDirent> doInBackground(String... params) {
             if (params.length != 3) {
@@ -294,7 +305,7 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
             myPath = params[1];
             String objectID = params[2];
             try {
-                return getDataManager().getDirents(myRepoID, myPath, objectID);
+                return dataManager.getDirents(myRepoID, myPath, objectID);
             } catch (SeafException e) {
                 err = e;
                 return null;
@@ -343,10 +354,16 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
         NavContext navContext = getNavContext();
         if (navContext.getRepo() == null)
             return;
-        new SetPasswordTask().execute(navContext.getRepo(), password);
+        new SetPasswordTask(getDataManager()).execute(navContext.getRepo(), password);
     }
     
     private class SetPasswordTask extends AsyncTask<String, Void, Void > {
+        
+        DataManager dataManager;
+        
+        public SetPasswordTask(DataManager dataManager) {
+            this.dataManager = dataManager;
+        }
         
         @Override
         protected Void doInBackground(String... params) {
@@ -357,7 +374,7 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
             
             String repoID = params[0];
             String password = params[1];
-            getDataManager().setPassword(repoID, password);
+            dataManager.setPassword(repoID, password);
             return null;
         }
 

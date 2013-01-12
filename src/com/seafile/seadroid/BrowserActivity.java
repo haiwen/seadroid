@@ -491,7 +491,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                     public void onPasswordGet(String password) {
                         if (password.length() == 0)
                             return;
-                        new SetPasswordTask(repoID, path, fileID, size).execute(password);                        
+                        new SetPasswordTask(dataManager, repoID, path, fileID, size).execute(password);                        
                     }
                     
                 });
@@ -508,8 +508,10 @@ public class BrowserActivity extends SherlockFragmentActivity
         String myPath;
         String myFileID;
         long size;
+        DataManager dataManager;
         
-        public SetPasswordTask(String repoID, String path, String fileID, long size) {
+        public SetPasswordTask(DataManager dataManager, String repoID, String path, String fileID, long size) {
+            this.dataManager = dataManager;
             this.myRepoID = repoID;
             this.myPath = path;
             this.myFileID = fileID;
@@ -524,7 +526,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             }
             
             String password = params[0];
-            getDataManager().setPassword(myRepoID, password);
+            dataManager.setPassword(myRepoID, password);
             return null;
         }
 
