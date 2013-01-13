@@ -168,6 +168,8 @@ public class DataManager {
         try {
             // may throw ClassCastException
             JSONArray array = Utils.parseJsonArray(json);
+            if (array.length() == 0)
+                return null;
             ArrayList<SeafRepo> repos = new ArrayList<SeafRepo>();
             for (int i = 0; i < array.length(); i++) {
                 JSONObject obj = array.getJSONObject(i);

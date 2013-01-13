@@ -221,10 +221,12 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
             return;
         Map<String, List<SeafRepo>> map = Utils.groupRepos(repos);
         List<SeafRepo> personal = map.get(Utils.NOGROUP);
-        SeafGroup group = new SeafGroup(mActivity.getResources().getString(R.string.personal));
-        adapter.add(group);
-        for (SeafRepo repo : personal) {
-            adapter.add(repo);
+        SeafGroup group;
+        if (personal != null) {
+            group = new SeafGroup(mActivity.getResources().getString(R.string.personal));
+            adapter.add(group);
+            for (SeafRepo repo : personal)
+                adapter.add(repo);
         }
         
         for (Map.Entry<String, List<SeafRepo>> entry : map.entrySet()) {
