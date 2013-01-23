@@ -4,13 +4,19 @@ import java.io.File;
 import java.net.URISyntaxException;
 
 import android.content.ActivityNotFoundException;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
@@ -23,7 +29,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.actionbarsherlock.app.ActionBar;
 import com.ipaulpro.afilechooser.utils.FileUtils;
-import com.seafile.seadroid.TransferManager.TransferListener;
+import com.seafile.seadroid.TransferService.TransferBinder;
 import com.seafile.seadroid.account.Account;
 import com.seafile.seadroid.data.DataManager;
 import com.seafile.seadroid.data.SeafCachedFile;
@@ -37,14 +43,14 @@ import com.seafile.seadroid.ui.ReposFragment;
 
 public class BrowserActivity extends SherlockFragmentActivity 
         implements ReposFragment.OnFileSelectedListener, OnBackStackChangedListener, 
-            OnCachedFileSelectedListener, TransferListener {
+            OnCachedFileSelectedListener {
     
     private static final String DEBUG_TAG = "BrowserActivity";
     
     private Account account;
     NavContext navContext = null;
     DataManager dataManager = null;
-    TransferManager transferManager = null;
+    TransferService txService = null;
     
     // private boolean twoPaneMode = false;
     ReposFragment reposFragment = null;
@@ -125,8 +131,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         
         dataManager = new DataManager(account);
         navContext = new NavContext();
-        transferManager = TransferManager.getTransferManager();
-        transferManager.setListener(this);
         
         //setContentView(R.layout.seadroid_main);
         //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -167,6 +171,38 @@ public class BrowserActivity extends SherlockFragmentActivity
         actionBar.addTab(tab);
 
         actionBar.setSelectedNavigationItem(cTab);
+        
+        Intent txIntent = new Intent(this, TransferService.class);
+        startService(txIntent);
+        Log.d(DEBUG_TAG, "start TransferService");
+        
+        IntentFilter filter = new IntentFilter(TransferService.BROADCAST_ACTION);
+        TransferReceiver receiver = new TransferReceiver();
+        LocalBroadcastManager.getInstance(this).registerReceiver(receiver, filter);
+        
+        // bind transfer service
+        Intent bIntent = new Intent(this, TransferService.class);
+        bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
+        Log.d(DEBUG_TAG, "try bind TransferService");
+    }
+    
+    ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            TransferBinder binder = (TransferBinder) service;
+            txService = binder.getService();
+            Log.d(DEBUG_TAG, "bind TransferService");
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            txService = null;
+        }
+    };
+    
+    @Override
+    public void onStart() {
+        super.onStart();
     }
     
     @Override
@@ -191,9 +227,16 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
     
     @Override
+    protected void onStop() {
+        super.onStop();
+    }
+    
+    @Override
     protected void onDestroy() {
-        if (transferManager != null)
-            transferManager.unsetListener();
+        if (txService != null) {
+            unbindService(mConnection);
+            txService = null;
+        }
         super.onDestroy();
     }
     
@@ -361,7 +404,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                     return;
                 }
                 showToast(getString(R.string.upload) + " " + Utils.fileNameFromPath(path));
-                transferManager.addUploadTask(account, navContext.getRepo(),
+                txService.addUploadTask(account, navContext.getRepo(),
                         navContext.getDirPath(), path);
             }
         }
@@ -375,7 +418,8 @@ public class BrowserActivity extends SherlockFragmentActivity
         if (file.exists()) {
             showFile(repoID, path, dirent.id);
         } else {
-            transferManager.addDownloadTask(account, repoID, path, dirent.id, dirent.size);
+            txService.addDownloadTask(account, repoID, path, dirent.id, dirent.size);
+            //transferManager.addDownloadTask(account, repoID, path, dirent.id, dirent.size);
             showToast("Downloading " + Utils.fileNameFromPath(path));
         }
     }
@@ -415,6 +459,8 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
     
     
+    /************  Files ************/
+    
     private void startMarkdownActivity(String repoID, String path, String fileID) {
         Intent intent = new Intent(this, MarkdownActivity.class);
         intent.putExtra("repoID", repoID);
@@ -452,7 +498,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
     }
 
-    @Override
     public void onFileUploaded(String repoID, String dir, String filePath) {
         dataManager.invalidateCache(repoID, dir);
         if (currentTab.equals(LIBRARY_TAB)
@@ -463,12 +508,10 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
     }
 
-    @Override
-    public void onFileUploadFailed(String repoID, String dir, String filePath) {
+    public void onFileUploadFailed(String repoID, String dir, String filePath, SeafException err) {
         showToast(getString(R.string.upload_failed) + " " + Utils.fileNameFromPath(filePath));
     }
 
-    @Override
     public void onFileDownloaded(String repoID, String path, String fileID) {
         if (currentTab.equals(LIBRARY_TAB)
                 && repoID.equals(navContext.getRepo())
@@ -478,7 +521,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
     }
 
-    @Override
     public void onFileDownloadFailed(final String repoID, final String path,
             final String fileID, final long size, SeafException err) {
         if (err != null && err.getCode() == 440) {
@@ -532,8 +574,48 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         @Override
         protected void onPostExecute(Void v) {
-            transferManager.addDownloadTask(account, myRepoID, myPath, myFileID, size);
+            txService.addDownloadTask(account, myRepoID, myPath, myFileID, size);
         }
 
     }
+    
+    // for receive broadcast from TransferService
+    private class TransferReceiver extends BroadcastReceiver {
+        
+        private TransferReceiver() {}
+        
+        public void onReceive(Context context, Intent intent) {
+            String type = intent.getStringExtra("type");
+            if (type.equals("downloaded")) {
+                String repoID = intent.getStringExtra("repoID");
+                String path = intent.getStringExtra("path");
+                String fileID = intent.getStringExtra("fileID");
+                onFileDownloaded(repoID, path, fileID);
+            } else if (type.equals("downloadFailed")) {
+                String repoID = intent.getStringExtra("repoID");
+                String path = intent.getStringExtra("path");
+                String fileID = intent.getStringExtra("fileID");
+                long size = intent.getLongExtra("size", 0);
+                int errCode = intent.getIntExtra("errCode", 0);
+                String errMsg = intent.getStringExtra("errMsg");
+                onFileDownloadFailed(repoID, path, fileID, 
+                        size, new SeafException(errCode, errMsg));
+            } else if (type.equals("uploaded")) {
+                String repoID = intent.getStringExtra("repoID");
+                String dir = intent.getStringExtra("dir");
+                String filePath = intent.getStringExtra("filePath");
+                onFileUploaded(repoID, dir, filePath);
+            } else if (type.equals("uploadFailed")) {
+                String repoID = intent.getStringExtra("repoID");
+                String dir = intent.getStringExtra("dir");
+                String filePath = intent.getStringExtra("filePath");
+                int errCode = intent.getIntExtra("errCode", 0);
+                String errMsg = intent.getStringExtra("errMsg");
+                onFileUploadFailed(repoID, dir, filePath,
+                        new SeafException(errCode, errMsg));
+            }
+        }
+        
+    } // TransferReceiver
+    
 }

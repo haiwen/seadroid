@@ -2,6 +2,8 @@ package com.seafile.seadroid;
 
 public class SeafException extends Exception {
     
+    private static final long serialVersionUID = 1L;
+
     static public final int OTHER_EXCEPTION = 599; 
     
     private int code;

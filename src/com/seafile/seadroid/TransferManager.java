@@ -16,25 +16,21 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+/**
+ * Manages file downloading and uploading.
+ * 
+ * Currently use an AsyncTask for an file.
+ */
 public class TransferManager {
     
     private static final String DEBUG_TAG = "TransferManager";
-    
-    private static TransferManager manager = null;
-    
-    
-    public static TransferManager getTransferManager() {
-        if (manager == null) {
-            manager = new TransferManager();
-        }
-        return manager;
-    }
     
     public interface TransferListener {
         
         public void onFileUploaded(String repoID, String dir, String filePath);
 
-        public void onFileUploadFailed(String repoID, String dir, String filePath);
+        public void onFileUploadFailed(String repoID, String dir, String filePath,
+                SeafException err);
         
         public void onFileDownloaded(String repoID, String path, String fileID);
         
@@ -48,7 +44,7 @@ public class TransferManager {
     private int notificationID;
     TransferListener listener;
     
-    TransferManager() {
+    public TransferManager() {
         notificationID = 0;
         uploadTasks = new ArrayList<UploadTask>();
         downloadTasks = new ArrayList<DownloadTask>();
@@ -176,7 +172,7 @@ public class TransferManager {
                 if (err == null)
                     listener.onFileUploaded(myRepoID, myDir, myPath);
                 else
-                    listener.onFileUploadFailed(myRepoID, myDir, myPath);
+                    listener.onFileUploadFailed(myRepoID, myDir, myPath, err);
             }
         }
         
