@@ -260,9 +260,8 @@ public class SeafConnection {
             return result;
         } catch (SeafException e) {
             throw e;
-        } catch (Exception e) {
-            Log.d(DEBUG_TAG, "Exception in getRepos");
-            return null;
+        } catch (IOException e) {
+            throw SeafException.networkException;
         } finally {
             try {
                 if (is != null) {
@@ -290,9 +289,10 @@ public class SeafConnection {
             return result;
         } catch (SeafException e) {
             throw e;
-        } catch (Exception e) {
-            Log.d(DEBUG_TAG, "Exception in getDirents");
-            return null;
+        } catch (UnsupportedEncodingException e) {
+            throw SeafException.encodingException;
+        } catch (IOException e) {
+            throw SeafException.networkException;
         } finally {
             try {
                 if (is != null) {
@@ -324,13 +324,10 @@ public class SeafConnection {
                 return null;
         } catch (SeafException e) {
             throw e;
-        } catch (Exception e) {
-            String msg = e.getMessage();
-            if (msg != null)
-                Log.d(DEBUG_TAG, msg);
-            else
-                Log.d(DEBUG_TAG, "download error");
-            return null;
+        } catch (UnsupportedEncodingException e) {
+            throw SeafException.encodingException;
+        } catch (IOException e) {
+            throw SeafException.networkException;
         } finally {
             try {
                 if (is != null) {
@@ -397,9 +394,10 @@ public class SeafConnection {
             return file;
         } catch (SeafException e) {
             throw e;
-        } catch (Exception e) {
-            Log.d(DEBUG_TAG, "Exception in getFile");
-            return null;
+        } catch (UnsupportedEncodingException e) {
+            throw SeafException.encodingException;
+        } catch (IOException e) {
+            throw SeafException.networkException;
         } finally {
             if (conn != null)
                 conn.disconnect();

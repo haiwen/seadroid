@@ -67,6 +67,11 @@ public class TransferManager {
     
     public void addDownloadTask(Account account, String repoID, String path, 
             String fileID, long size) {
+        // check duplication
+        for (DownloadTask task : downloadTasks) {
+            if (task.myFileID.equals(fileID))
+                return;
+        }
         DownloadTask task = new DownloadTask(account, repoID, path, fileID, size);
         task.execute();
     }
@@ -284,8 +289,11 @@ public class TransferManager {
             if (listener != null) {
                 if (file != null)
                     listener.onFileDownloaded(myRepoID, myPath, myFileID);
-                else
+                else {
+                    if (err == null)
+                        err = SeafException.unknownException;
                     listener.onFileDownloadFailed(myRepoID, myPath, myFileID, mySize, err);
+                }
             }
         }
         

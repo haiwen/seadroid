@@ -8,6 +8,10 @@ public class SeafException extends Exception {
     
     private int code;
     
+    public static SeafException unknownException = new SeafException(1, "Unknown Error");
+    public static SeafException networkException = new SeafException(2, "Network Error");
+    public static SeafException encodingException = new SeafException(3, "Encoding Error");
+    
     public SeafException(int code, String msg) {
         super(msg);
         this.code = code;
