@@ -36,4 +36,5 @@
     <string name="uploaded">Uploaded</string>
     <string name="upload_failed">Upload failed</string>
     <string name="download_failed">Download failed</string>
+    <string name="trust_https_server">The certification is not issued by a trusted organization, do you want to continue?</string>
 </resources>

@@ -2,11 +2,15 @@ package com.seafile.seadroid;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.cert.CertificateException;
 
 import com.seafile.seadroid.account.Account;
 import com.seafile.seadroid.account.AccountManager;
 
-import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.os.AsyncTask;
 import android.view.View;
@@ -15,13 +19,14 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
 
 
-public class AccountDetailActivity extends Activity {
+public class AccountDetailActivity extends FragmentActivity {
 
     private static final String DEBUG_TAG = "AccountDetailActivity";
     
@@ -120,6 +125,7 @@ public class AccountDetailActivity extends Activity {
     private class LoginTask extends AsyncTask<Void, Void, String> {
         
         Account loginAccount;
+        SeafException err = null;
         
         public LoginTask(Account loginAccount) {
             this.loginAccount = loginAccount;
@@ -142,6 +148,13 @@ public class AccountDetailActivity extends Activity {
                 statusView.setText(result);
             }
             loginButton.setEnabled(true);
+            
+            if (err != null) {
+                if (err == SeafException.sslException) {
+                    TrustServerDialogFragment dialog = new TrustServerDialogFragment(loginAccount);
+                    dialog.show(AccountDetailActivity.this.getSupportFragmentManager(), "DialogFragment");
+                }
+            }
         }
 
         private String doLogin() {   
@@ -152,15 +165,47 @@ public class AccountDetailActivity extends Activity {
                     return getString(R.string.err_login_failed);
                 return "Success";
             } catch (SeafException e) {
+                err = e;
                 switch (e.getCode()) {
                 case 400:
                     return getString(R.string.err_wrong_user_or_passwd);
                 case 404:
                     return getString(R.string.invalid_server_address);
                 default:
-                    return getString(R.string.err_login_failed);
+                    return e.getMessage();
                 }
             }
+        }
+    }
+    
+    private class TrustServerDialogFragment extends DialogFragment {
+        
+        Account account;
+        
+        TrustServerDialogFragment(Account loginAccount) {
+            account = loginAccount;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setMessage(R.string.trust_https_server)
+                   .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                       public void onClick(DialogInterface dialog, int id) {
+                           try {
+                               TrustManagerFactory.addCertificateChain(TrustManagerFactory.getLastCertChain());
+                               new LoginTask(account).execute();
+                           } catch (CertificateException e) {
+                               e.printStackTrace();
+                           }
+                       }
+                   })
+                   .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                       public void onClick(DialogInterface dialog, int id) {
+                           // User cancelled the dialog
+                       }
+                   });
+            return builder.create();
         }
     }
 

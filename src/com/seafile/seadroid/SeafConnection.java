@@ -14,12 +14,23 @@ import java.net.HttpURLConnection;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLException;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.seafile.seadroid.account.Account;
@@ -46,10 +57,28 @@ public class SeafConnection {
         return account;
     }
     
+    private void prepareSSL(HttpURLConnection conn) {
+        if (conn instanceof HttpsURLConnection) {
+            try {
+                HttpsURLConnection sc = (HttpsURLConnection) conn;
+                SSLContext context;
+
+                context = SSLContext.getInstance("TLS");
+                context.init(null, TrustManagerFactory.getTrustManagers(), null);
+                sc.setSSLSocketFactory(context.getSocketFactory());
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            } catch (KeyManagementException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
     private HttpURLConnection prepareGet(String apiPath, boolean withToken)
             throws IOException {
         URL url = new URL(account.server + apiPath);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        prepareSSL(conn);
         conn.setReadTimeout(30000);
         conn.setConnectTimeout(15000);
     
@@ -70,6 +99,7 @@ public class SeafConnection {
             throws IOException {
         URL url = new URL(urlString);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        prepareSSL(conn);
         conn.setConnectTimeout(15000);
         conn.setRequestMethod("GET");
         conn.setDoInput(true);
@@ -80,6 +110,8 @@ public class SeafConnection {
             throws IOException {
         URL url = new URL(account.server + apiPath);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        prepareSSL(conn);
+        
         conn.setReadTimeout(10000 /* milliseconds */);
         conn.setConnectTimeout(15000 /* milliseconds */);
         
@@ -164,9 +196,13 @@ public class SeafConnection {
             return true;
         } catch (SeafException e) {
             throw e;
-        } catch (Exception e) {
-            Log.d(DEBUG_TAG, "Other exception in doLogin");
-            return false;
+        } catch (SSLException e) {
+            throw SeafException.sslException;
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw SeafException.networkException;
+        } catch (JSONException e) {
+            throw SeafException.illFormatException;
         } finally {
             // Makes sure that the InputStream is closed after the app is
             // finished using it.
@@ -482,6 +518,7 @@ public class SeafConnection {
             Log.d(DEBUG_TAG, "Upload to " + uploadLink);
 
             conn = (HttpURLConnection) url.openConnection();
+            prepareSSL(conn);
             conn.setConnectTimeout(15000);
             conn.setRequestMethod("POST");
             //conn.setChunkedStreamingMode(0);
