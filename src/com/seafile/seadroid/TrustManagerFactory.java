@@ -69,6 +69,10 @@ public class TrustManagerFactory {
         return new TrustManager[] { new SecureX509TrustManager() }; 
     }
 
+    public static TrustManager[] getUnsecureTrustManagers() {
+        return new TrustManager[] { new SimpleX509TrustManager() }; 
+    }
+    
     static {
         java.io.InputStream fis = null;
         try {

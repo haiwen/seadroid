@@ -27,6 +27,7 @@ import java.util.List;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLSession;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -57,14 +58,30 @@ public class SeafConnection {
         return account;
     }
     
-    private void prepareSSL(HttpURLConnection conn) {
+    class MyHostnameVerifier implements javax.net.ssl.HostnameVerifier {
+        public boolean verify(String urlHostName, String certHostName){
+            return true;
+        }
+
+        public boolean verify(String urlHost, SSLSession sslSession){
+            return true;
+        }
+    }
+    
+    private void prepareSSL(HttpURLConnection conn, boolean secure) {
         if (conn instanceof HttpsURLConnection) {
             try {
                 HttpsURLConnection sc = (HttpsURLConnection) conn;
                 SSLContext context;
 
                 context = SSLContext.getInstance("TLS");
-                context.init(null, TrustManagerFactory.getTrustManagers(), null);
+                if (secure)
+                    context.init(null, TrustManagerFactory.getTrustManagers(), null);
+                else {
+                    MyHostnameVerifier verifier = new MyHostnameVerifier();
+                    sc.setHostnameVerifier(verifier);
+                    context.init(null, TrustManagerFactory.getUnsecureTrustManagers(), null);
+                }
                 sc.setSSLSocketFactory(context.getSocketFactory());
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
@@ -78,7 +95,7 @@ public class SeafConnection {
             throws IOException {
         URL url = new URL(account.server + apiPath);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        prepareSSL(conn);
+        prepareSSL(conn, true);
         conn.setReadTimeout(30000);
         conn.setConnectTimeout(15000);
     
@@ -99,7 +116,7 @@ public class SeafConnection {
             throws IOException {
         URL url = new URL(urlString);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        prepareSSL(conn);
+        prepareSSL(conn, false);
         conn.setConnectTimeout(15000);
         conn.setRequestMethod("GET");
         conn.setDoInput(true);
@@ -110,7 +127,7 @@ public class SeafConnection {
             throws IOException {
         URL url = new URL(account.server + apiPath);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        prepareSSL(conn);
+        prepareSSL(conn, true);
         
         conn.setReadTimeout(10000 /* milliseconds */);
         conn.setConnectTimeout(15000 /* milliseconds */);
@@ -433,6 +450,7 @@ public class SeafConnection {
         } catch (UnsupportedEncodingException e) {
             throw SeafException.encodingException;
         } catch (IOException e) {
+            e.printStackTrace();
             throw SeafException.networkException;
         } finally {
             if (conn != null)
@@ -518,7 +536,7 @@ public class SeafConnection {
             Log.d(DEBUG_TAG, "Upload to " + uploadLink);
 
             conn = (HttpURLConnection) url.openConnection();
-            prepareSSL(conn);
+            prepareSSL(conn, false);
             conn.setConnectTimeout(15000);
             conn.setRequestMethod("POST");
             //conn.setChunkedStreamingMode(0);
@@ -545,6 +563,7 @@ public class SeafConnection {
             String end = this.twoHyphens + this.boundary + this.twoHyphens + this.crlf;
             totalLen += end.length();
             
+            Log.d(DEBUG_TAG, "Total len is " + totalLen);
             conn.setFixedLengthStreamingMode(totalLen);
             conn.setDoInput(true);
             conn.setDoOutput(true);
@@ -577,14 +596,15 @@ public class SeafConnection {
             request.writeBytes(this.crlf);
             request.writeBytes(end);
             
-            Log.d(DEBUG_TAG, "finish");
             request.flush();
             request.close();
+            Log.d(DEBUG_TAG, "finish write");
             
-            //InputStream is = conn.getInputStream();
-            //String result = Utils.readIt(is);
-            //is.close();
+            // if we use https, only when we read input the data will be sent out
+            InputStream is = conn.getInputStream();
+            is.close();
         } catch (Exception e) {
+            e.printStackTrace();
             String msg = e.getMessage();
             if (msg != null)
                 Log.d(DEBUG_TAG, msg);

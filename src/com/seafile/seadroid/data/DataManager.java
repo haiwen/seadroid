@@ -112,6 +112,9 @@ public class DataManager {
     static public File getFileForDirentsCache(String oid) {
         return new File(getExternalCacheDirectory() + "/" + oid);
     }
+    
+    static public final int MAX_GEN_CACHE_THUMB = 1000000;  // Only generate thumb cache for files less than 1MB
+    static public final int MAX_DIRECT_SHOW_THUMB = 300000;  // directly show thumb 
       
     static public void calculateThumbnail(String fileName, String fileID) {
         try {
@@ -120,7 +123,7 @@ public class DataManager {
             File file = getFileForFileCache(fileName, fileID);
             if (!file.exists())
                 return;
-            if (file.length() > 1000000)
+            if (file.length() > MAX_GEN_CACHE_THUMB)
                 return;
             
             Bitmap imageBitmap = BitmapFactory.decodeStream(new FileInputStream(file));
@@ -135,6 +138,23 @@ public class DataManager {
             out.close();
         } catch (Exception ex) {
             
+        }
+    }
+    
+    static public Bitmap getThumbnail(String fileName, String fileID) {
+        try {
+            final int THUMBNAIL_SIZE = 72;
+            
+            File file = getFileForFileCache(fileName, fileID);
+            if (!file.exists())
+                return null;
+            
+            Bitmap imageBitmap = BitmapFactory.decodeStream(new FileInputStream(file));
+            imageBitmap = Bitmap.createScaledBitmap(imageBitmap, THUMBNAIL_SIZE,
+                    THUMBNAIL_SIZE, false);
+            return imageBitmap;
+        } catch (Exception ex) {
+            return null;
         }
     }
     

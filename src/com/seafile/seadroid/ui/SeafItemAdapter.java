@@ -161,20 +161,28 @@ public class SeafItemAdapter extends BaseAdapter {
             if (file.exists()) {
                 viewHolder.subtitle.setText(dirent.getSubtitle() + " cached");
                 if (Utils.isViewableImage(file.getName())) {
-                    File thumbFile = DataManager.getThumbFile(dirent.name, dirent.id);
-                    if (thumbFile.exists()) {
-                        Bitmap imageBitmap;
-                        try {
-                            // setImageURI is not work correctly under high screen density
-                            //viewHolder.icon.setScaleType(ImageView.ScaleType.FIT_XY);
-                            //viewHolder.icon.setImageURI(Uri.fromFile(thumbFile));
-                            imageBitmap = BitmapFactory.decodeStream(new FileInputStream(thumbFile));
+                    if (file.length() < DataManager.MAX_DIRECT_SHOW_THUMB) {
+                        Bitmap imageBitmap = DataManager.getThumbnail(dirent.name, dirent.id);
+                        if (imageBitmap != null)
                             viewHolder.icon.setImageBitmap(imageBitmap);
-                        } catch (FileNotFoundException e) {
+                        else
                             viewHolder.icon.setImageResource(dirent.getIcon());
-                        }
-                    } else
-                        viewHolder.icon.setImageResource(dirent.getIcon());
+                    } else {
+                        File thumbFile = DataManager.getThumbFile(dirent.name, dirent.id);
+                        if (thumbFile.exists()) {
+                            Bitmap imageBitmap;
+                            try {
+                                // setImageURI is not work correctly under high screen density
+                                //viewHolder.icon.setScaleType(ImageView.ScaleType.FIT_XY);
+                                //viewHolder.icon.setImageURI(Uri.fromFile(thumbFile));
+                                imageBitmap = BitmapFactory.decodeStream(new FileInputStream(thumbFile));
+                                viewHolder.icon.setImageBitmap(imageBitmap);
+                            } catch (FileNotFoundException e) {
+                                viewHolder.icon.setImageResource(dirent.getIcon());
+                            }
+                        } else
+                            viewHolder.icon.setImageResource(dirent.getIcon());
+                    }
                 } else
                     viewHolder.icon.setImageResource(dirent.getIcon());
             } else {
