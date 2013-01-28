@@ -11,6 +11,7 @@ public class SeafCachedFile implements SeafItem {
     public String repo;
     public String path;
     public long ctime;
+    public String accountSignature;
     File file;
 
     public SeafCachedFile() {
@@ -36,5 +37,7 @@ public class SeafCachedFile implements SeafItem {
         return file.length();
     }
     
-    
+    public String getAccountSignature() {
+        return accountSignature;
+    }
 }

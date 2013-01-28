@@ -1,5 +1,7 @@
 package com.seafile.seadroid.account;
 
+import java.security.MessageDigest;
+
 public class Account {
     
     // The full URL of the server, like 'http://gonggeng.org/seahub/' or 'http://gonggeng.org/'
@@ -70,6 +72,10 @@ public class Account {
             return false;
         
         return a.server.equals(this.server) && a.email.equals(this.email);
+    }
+
+    public String getSignature() {
+        return email.substring(0, 4) + " " + hashCode();
     }
 
 }

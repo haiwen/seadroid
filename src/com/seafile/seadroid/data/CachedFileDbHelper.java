@@ -1,7 +1,10 @@
 package com.seafile.seadroid.data;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.seafile.seadroid.account.Account;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -11,7 +14,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class CachedFileDbHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.
-    public static final int DATABASE_VERSION = 2;
+    public static final int DATABASE_VERSION = 3;
     public static final String DATABASE_NAME = "data.db";
 
     public static final String TABLE_NAME = "FileCache";
@@ -21,6 +24,7 @@ public class CachedFileDbHelper extends SQLiteOpenHelper {
     public static final String COLUMN_REPO = "repo";
     public static final String COLUMN_PATH = "path";
     public static final String COLUMN_CTIME = "ctime";
+    public static final String COLUMN_ACCOUNT = "account";
 
     public CachedFileDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -31,17 +35,28 @@ public class CachedFileDbHelper extends SQLiteOpenHelper {
                 + COLUMN_ID + " INTEGER PRIMARY KEY, " 
                 + COLUMN_FILEID + " TEXT, " 
                 + COLUMN_PATH + " TEXT, " + COLUMN_REPO + " TEXT, "
-                + COLUMN_CTIME + " INTEGER);";
+                + COLUMN_CTIME + " INTEGER, "
+                + COLUMN_ACCOUNT + " TEXT);";
         db.execSQL(create);
         db.execSQL("CREATE INDEX fileid_index ON " + TABLE_NAME
                 + " (" + COLUMN_FILEID + ");");
         db.execSQL("CREATE INDEX repoid_index ON " + TABLE_NAME
                 + " (" + COLUMN_REPO + ");");
+        db.execSQL("CREATE INDEX account_index ON " + TABLE_NAME
+                + " (" + COLUMN_ACCOUNT + ");");
     }
     
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // This database is only a cache for online data, so its upgrade policy is
         // to simply to discard the data and start over
+        
+        File dir = new File(DataManager.getExternalRootDirectory());
+        for (File f : dir.listFiles()) {
+            if (f.isFile()) {
+                f.delete();
+            }
+        }
+        
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME + ";"); 
         onCreate(db);
     }
@@ -58,7 +73,8 @@ public class CachedFileDbHelper extends SQLiteOpenHelper {
                 COLUMN_FILEID,
                 COLUMN_REPO,
                 COLUMN_PATH,
-                COLUMN_CTIME
+                COLUMN_CTIME,
+                COLUMN_ACCOUNT
         };
 
         Cursor c = db.query(
@@ -101,6 +117,7 @@ public class CachedFileDbHelper extends SQLiteOpenHelper {
         values.put(COLUMN_REPO, item.repo);
         values.put(COLUMN_PATH, item.path);
         values.put(COLUMN_CTIME, item.ctime);
+        values.put(COLUMN_ACCOUNT, item.accountSignature);
 
         // Insert the new row, returning the primary key value of the new row
         db.insert(TABLE_NAME, null, values);
@@ -120,7 +137,7 @@ public class CachedFileDbHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public List<SeafCachedFile> getItems() {
+    public List<SeafCachedFile> getItems(Account account) {
         List<SeafCachedFile> files = new ArrayList<SeafCachedFile>();
         
         SQLiteDatabase db = getReadableDatabase();
@@ -130,14 +147,15 @@ public class CachedFileDbHelper extends SQLiteOpenHelper {
                 COLUMN_FILEID,
                 COLUMN_REPO,
                 COLUMN_PATH,
-                COLUMN_CTIME
+                COLUMN_CTIME,
+                COLUMN_ACCOUNT
         };
 
         Cursor c = db.query(
              TABLE_NAME,
              projection,
-             null,
-             null,                                     
+             COLUMN_ACCOUNT + "=?",
+             new String[] { account.getSignature() },
              null,   // don't group the rows
              null,   // don't filter by row groups
              null    // The sort order
@@ -162,6 +180,7 @@ public class CachedFileDbHelper extends SQLiteOpenHelper {
         item.repo = cursor.getString(2);
         item.path = cursor.getString(3);
         item.ctime = cursor.getLong(4);
+        item.accountSignature = cursor.getString(5);
         item.file = DataManager.getFileForFileCache(item.path, item.fileID);
         return item;
     }

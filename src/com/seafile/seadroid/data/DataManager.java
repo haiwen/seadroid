@@ -330,7 +330,7 @@ public class DataManager {
     
     
     public List<SeafCachedFile> getCachedFiles() {
-        return cdbHelper.getItems();
+        return cdbHelper.getItems(account);
     }
     
     public void addCachedFile(String repo, String path, String fileID, File file) {
@@ -339,6 +339,7 @@ public class DataManager {
         item.path = path;
         item.fileID = fileID;
         item.ctime = file.lastModified();
+        item.accountSignature = account.getSignature();
         cdbHelper.saveItem(item);
     }
     
