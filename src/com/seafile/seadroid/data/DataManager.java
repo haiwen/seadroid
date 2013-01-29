@@ -114,7 +114,7 @@ public class DataManager {
     }
     
     static public final int MAX_GEN_CACHE_THUMB = 1000000;  // Only generate thumb cache for files less than 1MB
-    static public final int MAX_DIRECT_SHOW_THUMB = 300000;  // directly show thumb 
+    static public final int MAX_DIRECT_SHOW_THUMB = 100000;  // directly show thumb 
       
     static public void calculateThumbnail(String fileName, String fileID) {
         try {
