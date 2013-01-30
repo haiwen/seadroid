@@ -24,7 +24,7 @@
     <string name="cancel">Cancel</string>
     <string name="pick_upload_type">Upload</string>
     <string-array name="pick_upload_array">
-        <item>Files</item>
+        <item>File</item>
         <item>Photos</item>
     </string-array>
     <string name="network_down">No network connection</string>

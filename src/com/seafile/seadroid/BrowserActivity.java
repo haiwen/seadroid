@@ -3,10 +3,13 @@ package com.seafile.seadroid;
 import java.io.File;
 import java.net.URISyntaxException;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -15,6 +18,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -28,6 +32,7 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.actionbarsherlock.app.ActionBar;
+import com.ipaulpro.afilechooser.FileChooserActivity;
 import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.seafile.seadroid.TransferService.TransferBinder;
 import com.seafile.seadroid.account.Account;
@@ -377,14 +382,39 @@ public class BrowserActivity extends SherlockFragmentActivity
     
     public static final int PICK_FILE_REQUEST = 1;
     
-    void pickFile() {
-        Intent target = FileUtils.createGetContentIntent();
-        Intent intent = Intent.createChooser(target, getString(R.string.choose_file));
-        try {
-            startActivityForResult(intent, PICK_FILE_REQUEST);
-        } catch (ActivityNotFoundException e) {
+    public class UploadChoiceDialog extends DialogFragment {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
             
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.pick_upload_type);
+            builder.setItems(R.array.pick_upload_array,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which) {
+                            case 0:
+                                Intent intent = new Intent(BrowserActivity.this, FileChooserActivity.class);
+                                getActivity().startActivityForResult(intent, PICK_FILE_REQUEST);
+                                break;
+                            case 1:
+                                // photos
+                                intent = new Intent(BrowserActivity.this, MultipleImageSelectionActivity.class);
+                                getActivity().startActivityForResult(intent, PICK_FILE_REQUEST);
+                                break;
+                            default:
+                                return;
+                            }
+                        }
+                    });
+
+            return builder.create();
         }
+    }
+    
+    void pickFile() {
+        UploadChoiceDialog dialog = new UploadChoiceDialog();
+        dialog.show(getSupportFragmentManager(), "pickFile");
     }
     
     @Override
@@ -401,6 +431,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                 try {
                     path = FileUtils.getPath(this, uri);
                 } catch (URISyntaxException e) {
+                    e.printStackTrace();
                     return;
                 }
                 showToast(getString(R.string.upload) + " " + Utils.fileNameFromPath(path));
