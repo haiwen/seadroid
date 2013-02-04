@@ -6,19 +6,15 @@
 package com.seafile.seadroid;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,13 +32,9 @@ import android.widget.Toast;
 public class MultipleImageSelectionActivity extends Activity {
 
     public ImageAdapter imageAdapter;
-    private final static int TAKE_IMAGE = 1;
-    private final static int UPLOAD_IMAGES = 2;
     private final static int VIEW_IMAGE = 3;
-    private Uri imageUri;
 
-    public GridView imagegrid;
-    private long lastId;
+    public GridView imageGrid;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -51,57 +43,35 @@ public class MultipleImageSelectionActivity extends Activity {
 
         imageAdapter = new ImageAdapter();
         imageAdapter.initialize();
-        imagegrid = (GridView) findViewById(R.id.PhoneImageGrid);
-        imagegrid.setAdapter(imageAdapter);
+        imageGrid = (GridView) findViewById(R.id.PhoneImageGrid);
+        imageGrid.setAdapter(imageAdapter);
 
         final Button selectBtn = (Button) findViewById(R.id.selectBtn);
         selectBtn.setOnClickListener(new OnClickListener() {
 
             public void onClick(View v) {
                 final int len = imageAdapter.images.size();
-                int cnt = 0;
-                String selectImages = "";
+                ArrayList<String> selected = new ArrayList<String>();
                 for (int i = 0; i < len; i++) {
                     if (imageAdapter.images.get(i).selection) {
-                        cnt++;
-                        selectImages = selectImages
-                                + imageAdapter.images.get(i).id + ",";
+                        selected.add(imageAdapter.images.get(i).path);
                     }
                 }
-                if (cnt == 0) {
+                if (selected.isEmpty()) {
                     Toast.makeText(getApplicationContext(),
                             "Please select at least one image",
                             Toast.LENGTH_LONG).show();
                 } else {
-                    selectImages = selectImages.substring(0,selectImages.lastIndexOf(","));
-                    //
+                    Intent result = new Intent();
+                    result.putExtra("photos", selected);
+                    setResult(Activity.RESULT_OK, result);
+                    finish();
                 }
-
             }
         });
-        final Button captureBtn = (Button) findViewById(R.id.captureBtn);
-        captureBtn.setOnClickListener(new OnClickListener() {
 
-            public void onClick(View v) {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
-                String fileName = "IMG_" + sdf.format(new Date()) + ".jpg";
-                File myDirectory = new File(Environment
-                        .getExternalStorageDirectory() + "/REOAllegiance/");
-                myDirectory.mkdirs();
-                File file = new File(myDirectory, fileName);
-                imageUri = Uri.fromFile(file);
-                Intent intent = new Intent(
-                        android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-                startActivityForResult(intent, TAKE_IMAGE);
-            }
-        });
     }
 
-
-    public void updateUI() {
-        imageAdapter.checkForNewImages();
-    }
 
     public class ImageAdapter extends BaseAdapter {
         private LayoutInflater mInflater;
@@ -113,56 +83,34 @@ public class MultipleImageSelectionActivity extends Activity {
 
         public void initialize() {
             images.clear();
-            final String[] columns = { MediaStore.Images.Thumbnails._ID };
+            final String[] columns = { 
+                    MediaStore.Images.Media._ID, 
+                    MediaStore.Images.Media.BUCKET_DISPLAY_NAME, 
+                    MediaStore.Images.Media.DATA, 
+                    };
             final String orderBy = MediaStore.Images.Media._ID;
-            Cursor imagecursor = managedQuery(
+            Cursor imagecursor = getContentResolver().query(
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns,
                     null, null, orderBy);
-            if(imagecursor != null){
-                int image_column_index = imagecursor
+            if (imagecursor.moveToFirst()) {
+                int id_index = imagecursor
                         .getColumnIndex(MediaStore.Images.Media._ID);
-                int count = imagecursor.getCount();
-                Log.d("Image", "Total " + count);
-                for (int i = 0; i < count; i++) {
-                    Log.d("Image", "count " + i);
-                    imagecursor.moveToPosition(i);
-                    int id = imagecursor.getInt(image_column_index);
-                    ImageItem imageItem = new ImageItem();
-                    imageItem.id = id;
-                    lastId = id;
-                    imageItem.img = MediaStore.Images.Thumbnails.getThumbnail(
-                            getApplicationContext().getContentResolver(), id,
-                            MediaStore.Images.Thumbnails.MICRO_KIND, null);
-                    images.add(imageItem);
-                }
+                int name_index = imagecursor
+                        .getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
+                int data_index = imagecursor
+                        .getColumnIndex(MediaStore.Images.Media.DATA);
+                do {
+                    String path = imagecursor.getString(data_index);
+                    // only show photos taken by cameras
+                    if (path.contains("DCIM")) {
+                        ImageItem imageItem = new ImageItem();
+                        imageItem.id = imagecursor.getInt(id_index);
+                        imageItem.path = path;
+                        images.add(imageItem);
+                    }
+                } while (imagecursor.moveToNext());
                 imagecursor.close();
             }
-            notifyDataSetChanged();
-        }
-
-        public void checkForNewImages(){
-            //Here we'll only check for newer images
-            final String[] columns = { MediaStore.Images.Thumbnails._ID };
-            final String orderBy = MediaStore.Images.Media._ID;
-            Cursor imagecursor = managedQuery(
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns,
-                    MediaStore.Images.Media._ID + " > " + lastId , null, orderBy);
-            int image_column_index = imagecursor
-                    .getColumnIndex(MediaStore.Images.Media._ID);
-            int count = imagecursor.getCount();
-            for (int i = 0; i < count; i++) {
-                imagecursor.moveToPosition(i);
-                int id = imagecursor.getInt(image_column_index);
-                ImageItem imageItem = new ImageItem();
-                imageItem.id = id;
-                lastId = id;
-                imageItem.img = MediaStore.Images.Thumbnails.getThumbnail(
-                        getApplicationContext().getContentResolver(), id,
-                        MediaStore.Images.Thumbnails.MICRO_KIND, null);
-                imageItem.selection = true; //newly added item will be selected by default
-                images.add(imageItem);
-            }
-            imagecursor.close();
             notifyDataSetChanged();
         }
 
@@ -198,7 +146,6 @@ public class MultipleImageSelectionActivity extends Activity {
             holder.checkbox.setOnClickListener(new OnClickListener() {
 
                 public void onClick(View v) {
-                    // TODO Auto-generated method stub
                     CheckBox cb = (CheckBox) v;
                     int id = cb.getId();
                     if (images.get(id).selection) {
@@ -213,13 +160,12 @@ public class MultipleImageSelectionActivity extends Activity {
             holder.imageview.setOnClickListener(new OnClickListener() {
 
                 public void onClick(View v) {
-                    // TODO Auto-generated method stub
                     int id = v.getId();
                     ImageItem item = images.get(id);
                     Intent intent = new Intent();
                     intent.setAction(Intent.ACTION_VIEW);
                     final String[] columns = { MediaStore.Images.Media.DATA };
-                    Cursor imagecursor = managedQuery(
+                    Cursor imagecursor =  getContentResolver().query(
                             MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns,
                             MediaStore.Images.Media._ID + " = " + item.id, null, MediaStore.Images.Media._ID);
                     if (imagecursor != null && imagecursor.getCount() > 0){
@@ -234,7 +180,11 @@ public class MultipleImageSelectionActivity extends Activity {
                     }
                 }
             });
-            holder.imageview.setImageBitmap(item.img);
+            
+            Bitmap img = MediaStore.Images.Thumbnails.getThumbnail(
+                    getApplicationContext().getContentResolver(), item.id,
+                    MediaStore.Images.Thumbnails.MICRO_KIND, null);
+            holder.imageview.setImageBitmap(img);
             holder.checkbox.setChecked(item.selection);
             return convertView;
         }
@@ -248,7 +198,7 @@ public class MultipleImageSelectionActivity extends Activity {
     class ImageItem {
         boolean selection;
         int id;
-        Bitmap img;
+        String path;
     }
 
 }

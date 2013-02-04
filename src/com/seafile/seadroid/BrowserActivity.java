@@ -2,6 +2,7 @@ package com.seafile.seadroid;
 
 import java.io.File;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -381,6 +382,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     /***********  Start other activity  ***************/
     
     public static final int PICK_FILE_REQUEST = 1;
+    public static final int PICK_PHOTOS_REQUEST = 2;
     
     public class UploadChoiceDialog extends DialogFragment {
         @Override
@@ -400,7 +402,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                             case 1:
                                 // photos
                                 intent = new Intent(BrowserActivity.this, MultipleImageSelectionActivity.class);
-                                getActivity().startActivityForResult(intent, PICK_FILE_REQUEST);
+                                getActivity().startActivityForResult(intent, PICK_PHOTOS_REQUEST);
                                 break;
                             default:
                                 return;
@@ -439,6 +441,19 @@ public class BrowserActivity extends SherlockFragmentActivity
                         navContext.getDirPath(), path);
             }
         }
+        
+        if (requestCode == PICK_PHOTOS_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                ArrayList<String> paths = data.getStringArrayListExtra("photos");
+                if (paths == null)
+                    return;
+                for (String path : paths) {
+                    txService.addUploadTask(account, navContext.getRepo(),
+                            navContext.getDirPath(), path);
+                }
+            }
+        }
+        
     }
     
     /***************  Navigation *************/

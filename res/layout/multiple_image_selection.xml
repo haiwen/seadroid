@@ -5,9 +5,6 @@
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
 		android:orientation="horizontal" android:gravity="center"
 		android:layout_alignParentBottom="true">
-		<Button android:id="@+id/captureBtn" android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:text="Capture"
-			android:minWidth="100dip" />
 		<Button android:id="@+id/selectBtn" android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:text="Select"
 			android:minWidth="100dip" />
