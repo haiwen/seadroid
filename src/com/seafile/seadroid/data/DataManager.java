@@ -52,14 +52,14 @@ public class DataManager {
         }
     }
     
-    public static String getExternalThumbDirectory() {
-        String root = getExternalRootDirectory();
+    public static String getThumbDirectory() {
+        String root = SeadroidApplication.getAppContext().getFilesDir().getAbsolutePath();
         File tmpDir = new File(root + "/" + "thumb");
         if (tmpDir.exists())
             return tmpDir.getAbsolutePath();
         else {
             if (tmpDir.mkdirs() == false)
-                throw new RuntimeException("Couldn't create external temp directory");
+                throw new RuntimeException("Couldn't create thumb directory");
             else
                 return tmpDir.getAbsolutePath();
         }
@@ -103,7 +103,7 @@ public class DataManager {
     static public File getThumbFile(String path, String oid) {
         String filename = path.substring(path.lastIndexOf("/") + 1);
         String purename = filename.substring(0, filename.lastIndexOf('.'));
-        String p = getExternalThumbDirectory() + "/" + purename + "-" 
+        String p = getThumbDirectory() + "/" + purename + "-" 
                 + oid.substring(0, 8) + ".png"; 
         return new File(p);
     }
