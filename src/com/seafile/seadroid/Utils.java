@@ -244,7 +244,17 @@ public class Utils {
         } else
             return false;
     }
-    
 
-    
+    public static String pathJoin (String a, String... p) {
+        String path = a;
+        for (String b: p) {
+            if (path.equals("") || path.endsWith("/"))
+                path += b;
+            else
+                path += "/" + b;
+        }
+
+        return path;
+    }
+
 }

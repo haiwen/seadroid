@@ -181,7 +181,7 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
         setListShown(false, true);
         // refresh.setVisibility(View.INVISIBLE);
         mActivity.enableUpButton();
-        new LoadDirTask(getDataManager()).execute(navContext.getRepo(), navContext.getDirPath(),
+        new LoadDirTask(getDataManager()).execute(navContext.getRepoID(), navContext.getDirPath(),
                 navContext.getDirID());
     }
 
@@ -202,14 +202,15 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
                 String currentPath = nav.getDirPath();
                 String newPath = currentPath.endsWith("/") ? 
                         currentPath + dirent.name : currentPath + "/" + dirent.name;
-                mActivity.onFileSelected(nav.getRepo(), newPath, dirent);
+                mActivity.onFileSelected(nav.getRepoID(), newPath, dirent);
             }
         } else {
             SeafItem item = adapter.getItem(position);
             if (!(item instanceof SeafRepo))
                 return;
             SeafRepo repo = (SeafRepo)item;
-            nav.setRepo(repo.id);
+            nav.setRepoID(repo.id);
+            nav.setRepoName(repo.getName());
             nav.setDir("/", repo.root);
             refreshView();
         }
@@ -354,9 +355,9 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
         if (password.length() == 0)
             return;
         NavContext navContext = getNavContext();
-        if (navContext.getRepo() == null)
+        if (navContext.getRepoID() == null)
             return;
-        new SetPasswordTask(getDataManager()).execute(navContext.getRepo(), password);
+        new SetPasswordTask(getDataManager()).execute(navContext.getRepoID(), password);
     }
     
     private class SetPasswordTask extends AsyncTask<String, Void, Void > {

@@ -7,6 +7,7 @@ import com.seafile.seadroid.data.SeafDirent;
 public class NavContext {
     
     String repoID = null;
+    String repoName = null;     // for display
     String dirPath = null;
     String dirID = null;
     List<SeafDirent> dirents = null;
@@ -18,8 +19,12 @@ public class NavContext {
         dirents = null;
     }
  
-    public void setRepo(String repoID) {
+    public void setRepoID(String repoID) {
         this.repoID = repoID;
+    }
+
+    public void setRepoName(String repoName) {
+        this.repoName = repoName;
     }
     
     public void setDir(String path, String dirID) {
@@ -32,8 +37,12 @@ public class NavContext {
         return repoID != null;
     }
     
-    public String getRepo() {
+    public String getRepoID() {
         return repoID;
+    }
+
+    public String getRepoName() {
+        return repoName;
     }
     
     public boolean isRepoRoot() {

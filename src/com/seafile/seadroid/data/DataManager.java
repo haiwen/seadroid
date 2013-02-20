@@ -25,7 +25,7 @@ import android.os.Environment;
 import android.util.Log;
 
 public class DataManager {
-    
+
     public static String getExternalRootDirectory() {
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             File extDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Seafile/");
@@ -38,7 +38,7 @@ public class DataManager {
             throw new RuntimeException("External Storage is currently not available");
         }
     }
-    
+
     public static String getExternalTempDirectory() {
         String root = getExternalRootDirectory();
         File tmpDir = new File(root + "/" + "temp");
@@ -51,7 +51,7 @@ public class DataManager {
                 return tmpDir.getAbsolutePath();
         }
     }
-    
+
     public static String getThumbDirectory() {
         String root = SeadroidApplication.getAppContext().getFilesDir().getAbsolutePath();
         File tmpDir = new File(root + "/" + "thumb");
@@ -64,7 +64,7 @@ public class DataManager {
                 return tmpDir.getAbsolutePath();
         }
     }
-    
+
     public static String getExternalCacheDirectory() {
         String root = getExternalRootDirectory();
         File tmpDir = new File(root + "/" + "cache");
@@ -77,55 +77,55 @@ public class DataManager {
                 return tmpDir.getAbsolutePath();
         }
     }
-    
+
     static public String constructFileName(String path, String oid) {
         String filename = path.substring(path.lastIndexOf("/") + 1);
         if (filename.contains(".")) {
             String purename = filename.substring(0, filename.lastIndexOf('.'));
             String suffix = filename.substring(filename.lastIndexOf('.') + 1);
-            return purename + "-" + oid.substring(0, 8) + "." + suffix;  
+            return purename + "-" + oid.substring(0, 8) + "." + suffix;
         } else {
             return filename + "-" + oid.substring(0, 8);
         }
-        
+
     }
-    
+
     static public File getFileForFileCache(String path, String oid) {
-        String p = getExternalRootDirectory() + "/" + constructFileName(path, oid); 
+        String p = getExternalRootDirectory() + "/" + constructFileName(path, oid);
         return new File(p);
     }
-    
+
     static public File getTempFile(String path, String oid) {
-        String p = getExternalTempDirectory() + "/" + constructFileName(path, oid); 
+        String p = getExternalTempDirectory() + "/" + constructFileName(path, oid);
         return new File(p);
     }
-    
+
     static public File getThumbFile(String path, String oid) {
         String filename = path.substring(path.lastIndexOf("/") + 1);
         String purename = filename.substring(0, filename.lastIndexOf('.'));
-        String p = getThumbDirectory() + "/" + purename + "-" 
-                + oid.substring(0, 8) + ".png"; 
+        String p = getThumbDirectory() + "/" + purename + "-"
+                + oid.substring(0, 8) + ".png";
         return new File(p);
     }
-    
+
     // Obtain a cache file for storing a directory with oid
     static public File getFileForDirentsCache(String oid) {
         return new File(getExternalCacheDirectory() + "/" + oid);
     }
-    
+
     static public final int MAX_GEN_CACHE_THUMB = 1000000;  // Only generate thumb cache for files less than 1MB
-    static public final int MAX_DIRECT_SHOW_THUMB = 100000;  // directly show thumb 
-      
+    static public final int MAX_DIRECT_SHOW_THUMB = 100000;  // directly show thumb
+
     static public void calculateThumbnail(String fileName, String fileID) {
         try {
             final int THUMBNAIL_SIZE = 72;
-            
+
             File file = getFileForFileCache(fileName, fileID);
             if (!file.exists())
                 return;
             if (file.length() > MAX_GEN_CACHE_THUMB)
                 return;
-            
+
             Bitmap imageBitmap = BitmapFactory.decodeStream(new FileInputStream(file));
             imageBitmap = Bitmap.createScaledBitmap(imageBitmap, THUMBNAIL_SIZE,
                     THUMBNAIL_SIZE, false);
@@ -137,18 +137,18 @@ public class DataManager {
             out.write(byteArray);
             out.close();
         } catch (Exception ex) {
-            
+
         }
     }
-    
+
     static public Bitmap getThumbnail(String fileName, String fileID) {
         try {
             final int THUMBNAIL_SIZE = 72;
-            
+
             File file = getFileForFileCache(fileName, fileID);
             if (!file.exists())
                 return null;
-            
+
             Bitmap imageBitmap = BitmapFactory.decodeStream(new FileInputStream(file));
             imageBitmap = Bitmap.createScaledBitmap(imageBitmap, THUMBNAIL_SIZE,
                     THUMBNAIL_SIZE, false);
@@ -157,17 +157,17 @@ public class DataManager {
             return null;
         }
     }
-    
-    
+
+
     private static final String DEBUG_TAG = "DataManager";
 
     private SeafConnection sc;
     private Account account;
     private CachedFileDbHelper cdbHelper;
-    
+
     HashMap<String, String> pathObjectIDMap = new HashMap<String, String>();
     List<SeafRepo> reposCache = null;
-    
+
     public DataManager(Account act) {
         account = act;
         sc = new SeafConnection(act);
@@ -177,13 +177,13 @@ public class DataManager {
     public Account getAccount() {
         return sc.getAccount();
     }
-    
+
     private File getFileForReposCache() {
         String filename = "repos-" + (account.server + account.email).hashCode() + ".dat";
-        return new File(getExternalCacheDirectory() + "/" + 
+        return new File(getExternalCacheDirectory() + "/" +
                 filename);
     }
-    
+
     private List<SeafRepo> parseRepos(String json) {
         try {
             // may throw ClassCastException
@@ -210,15 +210,30 @@ public class DataManager {
     public List<SeafRepo> getCachedRepos() {
         return reposCache;
     }
-    
+
     public SeafRepo getCachedRepo(int position) {
         return reposCache.get(position);
     }
-    
+
+    public SeafRepo getCachedRepoByID(String id) {
+        List<SeafRepo> cachedRepos = getCachedRepos();
+        if (cachedRepos == null) {
+            return null;
+        }
+
+        for (SeafRepo repo: cachedRepos) {
+            if (repo.getID().equals(id)) {
+                return repo;
+            }
+        }
+
+        return null;
+    }
+
     public List<SeafRepo> getReposFromCache() {
         if (reposCache != null)
             return reposCache;
-        
+
         File cache = getFileForReposCache();
         if (cache.exists()) {
             String json = Utils.readFile(cache);
@@ -227,12 +242,12 @@ public class DataManager {
         }
         return null;
     }
-    
+
     public List<SeafRepo> getRepos() throws SeafException {
         if (!Utils.isNetworkOn()) {
             if (reposCache != null)
                 return reposCache;
-            
+
             File cache = getFileForReposCache();
             if (cache.exists()) {
                 String json = Utils.readFile(cache);
@@ -240,30 +255,30 @@ public class DataManager {
                 return reposCache;
             }
         }
-        
+
         String json = sc.getRepos();
         if (json == null)
             return null;
         reposCache = parseRepos(json);
-        
+
         try {
             File cache = getFileForReposCache();
             Utils.writeFile(cache, json);
         } catch (IOException e) {
             // ignore
         }
-        
+
         return reposCache;
     }
-    
+
     public interface ProgressMonitor {
         public void onProgressNotify(long total);
         boolean isCancelled();
     }
-    
-    public File getFile(String repoID, String path, String oid, ProgressMonitor monitor) 
+
+    public File getFile(String repoID, String path, String oid, ProgressMonitor monitor)
             throws SeafException {
-        String p = getExternalRootDirectory() + "/" + constructFileName(path, oid); 
+        String p = getExternalRootDirectory() + "/" + constructFileName(path, oid);
         File f = new File(p);
         if (f.exists())
             return f;
@@ -291,18 +306,18 @@ public class DataManager {
             return null;
         }
     }
-    
-    public List<SeafDirent> getDirents(String repoID, 
+
+    public List<SeafDirent> getDirents(String repoID,
             String path, String objectID) throws SeafException {
         //Log.d(DEBUG_TAG, "getDirents " + repoID + ":" + path + ", " + objectID);
-        
+
         if (objectID != null) {
             // put the mapping to cache for later usage.
             pathObjectIDMap.put(repoID + path, objectID);
         } else {
             objectID = pathObjectIDMap.get(repoID + path);
         }
-        
+
         if (objectID != null) {
             File cache = getFileForDirentsCache(objectID);
             if (cache.exists()) {
@@ -310,12 +325,12 @@ public class DataManager {
                 return parseDirents(json);
             }
         }
-        
+
         String json = sc.getDirents(repoID, path);
         if (json == null)
             return null;
         List<SeafDirent> dirents = parseDirents(json);
-        
+
         if (objectID != null) {
             try {
                 File cache = getFileForDirentsCache(objectID);
@@ -324,15 +339,15 @@ public class DataManager {
                 // ignore
             }
         }
-        
+
         return dirents;
     }
-    
-    
+
+
     public List<SeafCachedFile> getCachedFiles() {
         return cdbHelper.getItems(account);
     }
-    
+
     public void addCachedFile(String repo, String path, String fileID, File file) {
         SeafCachedFile item = new SeafCachedFile();
         item.repo = repo;
@@ -342,7 +357,7 @@ public class DataManager {
         item.accountSignature = account.getSignature();
         cdbHelper.saveItem(item);
     }
-    
+
     public void removeCachedFile(SeafCachedFile cf) {
         cf.file.delete();
         cdbHelper.deleteItem(cf);
@@ -356,17 +371,17 @@ public class DataManager {
         }
     }
 
-    public void uploadFile(String repoID, String dir, String filePath, 
+    public void uploadFile(String repoID, String dir, String filePath,
             ProgressMonitor monitor) throws SeafException {
         sc.uploadFile(repoID, dir, filePath, monitor);
     }
-    
+
     /** Remove cached dirents from dir to the root.
      */
     public void invalidateCache(String repoID, String dir) {
         if (repoID == null || dir == null)
             return;
-        
+
         String d = dir;
         while (true) {
             String objectID = pathObjectIDMap.get(repoID + d);

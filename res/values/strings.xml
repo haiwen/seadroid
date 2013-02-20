@@ -20,6 +20,7 @@
     <string name="personal">Personal</string>
     <string name="libraries">Libraries</string>
     <string name="cached">Cached</string>
+    <string name="upload_tasks">UPLOADS</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="pick_upload_type">Upload</string>
@@ -37,4 +38,10 @@
     <string name="upload_failed">Upload failed</string>
     <string name="download_failed">Download failed</string>
     <string name="trust_https_server">The certification is not issued by a trusted organization, do you want to continue?</string>
+    <string name="upload_to">upload to: </string>
+    <string name="task_cancel">Cancel</string>
+    <string name="task_retry">Retry</string>
+    <string name="task_remove">Remove</string>
+    <string name="task_remove_all_finished">Remove all finished</string>
+
 </resources>
