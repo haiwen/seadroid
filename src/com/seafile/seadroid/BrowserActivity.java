@@ -131,8 +131,10 @@ public class BrowserActivity extends SherlockFragmentActivity
             if (mTag.equals(LIBRARY_TAB)) {
                 showReposFragment(ft);
             } else if (mTag.equals(CACHE_TAB)) {
+                disableUpButton();
                 showCacheFragment(ft);
             } else if (mTag.equals(UPLOAD_TASKS_TAB)) {
+                disableUpButton();
                 showUploadTasksFragment(ft);
             }
         }
