@@ -4,7 +4,8 @@ import android.os.AsyncTask;
 import android.os.Build;
 
 /**
- * AsyncTask that is guaranteed to run concurrently
+ * Make sure an AsyncTask is executed in parallel across different version of
+ * Android
  * @see http://www.jayway.com/2012/11/28/is-androids-asynctask-executing-tasks-serially-or-concurrently/
  */
 public class ConcurrentAsyncTask {
