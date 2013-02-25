@@ -17,10 +17,12 @@ import java.util.Map;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.seafile.seadroid.BrowserActivity;
+import com.seafile.seadroid.ConcurrentAsyncTask;
 import com.seafile.seadroid.NavContext;
 import com.seafile.seadroid.R;
 import com.seafile.seadroid.SeafException;
 import com.seafile.seadroid.Utils;
+import com.seafile.seadroid.ConcurrentAsyncTask;
 import com.seafile.seadroid.data.DataManager;
 import com.seafile.seadroid.data.SeafDirent;
 import com.seafile.seadroid.data.SeafGroup;
@@ -173,7 +175,7 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
         
         // load repos in background
         mActivity.disableUpButton();
-        new LoadTask(getDataManager()).execute();
+        ConcurrentAsyncTask.execute(new LoadTask(getDataManager()));
     }
 
     public void navToDirectory() {
@@ -181,8 +183,8 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
         setListShown(false, true);
         // refresh.setVisibility(View.INVISIBLE);
         mActivity.enableUpButton();
-        new LoadDirTask(getDataManager()).execute(navContext.getRepoID(), navContext.getDirPath(),
-                navContext.getDirID());
+        ConcurrentAsyncTask.execute(new LoadDirTask(getDataManager()),
+            navContext.getRepoID(), navContext.getDirPath(), navContext.getDirID());
     }
 
     @Override 
@@ -357,7 +359,8 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
         NavContext navContext = getNavContext();
         if (navContext.getRepoID() == null)
             return;
-        new SetPasswordTask(getDataManager()).execute(navContext.getRepoID(), password);
+        ConcurrentAsyncTask.execute(new SetPasswordTask(getDataManager()),
+                            navContext.getRepoID(), password);
     }
     
     private class SetPasswordTask extends AsyncTask<String, Void, Void > {
@@ -411,7 +414,7 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
             }
         }
         if (needThumb.size() != 0) {
-            new ThumbnailTask(repoID, path, needThumb).execute();
+            ConcurrentAsyncTask.execute(new ThumbnailTask(repoID, path, needThumb));
         }
     }
     

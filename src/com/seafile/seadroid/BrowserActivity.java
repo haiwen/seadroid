@@ -700,7 +700,8 @@ public class BrowserActivity extends SherlockFragmentActivity
                     public void onPasswordGet(String password) {
                         if (password.length() == 0)
                             return;
-                        new SetPasswordTask(dataManager, repoID, path, fileID, size).execute(password);
+                        ConcurrentAsyncTask.execute(
+                            new SetPasswordTask(dataManager, repoID, path, fileID, size), password);
                     }
 
                 });

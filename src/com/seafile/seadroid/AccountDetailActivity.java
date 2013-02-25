@@ -107,7 +107,7 @@ public class AccountDetailActivity extends FragmentActivity {
             
             loginButton.setEnabled(false);
             Account tmpAccount = new Account(serverURL, email, passwd);
-            new LoginTask(tmpAccount).execute();
+            ConcurrentAsyncTask.execute(new LoginTask(tmpAccount));
         } else {
             statusView.setText(R.string.network_down);
         }
@@ -194,7 +194,7 @@ public class AccountDetailActivity extends FragmentActivity {
                        public void onClick(DialogInterface dialog, int id) {
                            try {
                                TrustManagerFactory.addCertificateChain(TrustManagerFactory.getLastCertChain());
-                               new LoginTask(account).execute();
+                               ConcurrentAsyncTask.execute(new LoginTask(account));
                            } catch (CertificateException e) {
                                e.printStackTrace();
                            }
