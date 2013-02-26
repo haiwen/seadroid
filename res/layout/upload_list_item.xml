@@ -30,7 +30,7 @@
         android:lines="1"
         android:singleLine="true"
         android:textColor="@color/white"
-        android:textSize="20dp" />
+        android:textSize="18dp" />
     <TextView
         android:id="@+id/upload_file_size"
         android:layout_width="wrap_content"
@@ -40,7 +40,7 @@
         android:lines="1"
         android:singleLine="true"
         android:textColor="@color/light_grey"
-        android:textSize="14dp" />
+        android:textSize="12dp" />
     <ProgressBar
         android:id="@+id/upload_file_progress_bar"
         android:layout_width="fill_parent"
@@ -60,6 +60,6 @@
         android:lines="1"
         android:singleLine="true"
         android:textColor="@color/white"
-        android:textSize="14dp" />
+        android:textSize="13dp" />
 
 </RelativeLayout>
