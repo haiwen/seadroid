@@ -8,7 +8,8 @@ public class SeafCachedFile implements SeafItem {
     
     public int id;
     public String fileID;
-    public String repo;
+    public String repoName;
+    public String repoID;
     public String path;
     public long ctime;
     public String accountSignature;

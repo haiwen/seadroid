@@ -56,9 +56,9 @@ public class TransferService extends Service implements TransferListener {
         txManager.addUploadTask(account, repoID, repoName, dir, filePath);
     }
 
-    public void addDownloadTask(Account account, String repoID, String path,
+    public void addDownloadTask(Account account, String repoName, String repoID, String path,
             String fileID, long size) {
-        txManager.addDownloadTask(account, repoID, path, fileID, size);
+        txManager.addDownloadTask(account, repoName, repoID, path, fileID, size);
     }
 
     public UploadTaskInfo getUploadTaskInfo(int taskID) {
@@ -121,7 +121,7 @@ public class TransferService extends Service implements TransferListener {
 
 
     @Override
-    public void onFileDownloadFailed(String repoID, String path, String fileID,
+    public void onFileDownloadFailed(String repoName, String repoID, String path, String fileID,
             long size, SeafException err) {
         Intent localIntent = new Intent(BROADCAST_ACTION).putExtra("type", "downloadFailed")
                 .putExtra("repoID", repoID).putExtra("path", path).putExtra("fileID", fileID)

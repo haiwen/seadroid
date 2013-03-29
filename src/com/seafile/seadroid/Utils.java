@@ -26,35 +26,35 @@ import android.webkit.MimeTypeMap;
 import com.seafile.seadroid.data.SeafRepo;
 
 public class Utils {
-    
+
     public static JSONObject parseJsonObject(String json) {
         if (json == null) {
             // the caller should not give null
             Log.w("Utils", "null in parseJsonObject");
             return null;
         }
-        
+
         try {
             return (JSONObject) new JSONTokener(json).nextValue();
         } catch (Exception e) {
             return null;
         }
     }
-    
+
     public static JSONArray parseJsonArray(String json) {
         if (json == null) {
          // the caller should not give null
             Log.w("Utils", "null in parseJsonObject");
             return null;
         }
-        
+
         try {
             return (JSONArray) new JSONTokener(json).nextValue();
         } catch (Exception e) {
             return null;
         }
     }
-    
+
     /** Read input stream and convert the content to string.
      */
     public static String readIt(InputStream stream) throws IOException,
@@ -71,7 +71,7 @@ public class Utils {
         }
         return responseStrBuilder.toString();
     }
-    
+
     public static String readFile(File file) {
         Reader reader = null;
         try {
@@ -81,7 +81,7 @@ public class Utils {
             } catch (UnsupportedEncodingException e) {
                 return null;
             }
- 
+
             char[] buffer = new char[1024];
             StringBuilder responseStrBuilder = new StringBuilder();
 
@@ -99,42 +99,42 @@ public class Utils {
                 if (reader != null)
                     reader.close();
             } catch (Exception e) {
-                
+
             }
         }
     }
-    
+
     public static String getParentPath(String path) {
         if (path == null) {
             // the caller should not give null
             Log.w("Utils", "null in getParentPath");
             return null;
         }
-        
+
         String parent = path.substring(0, path.lastIndexOf("/"));
         if (parent.equals("")) {
             return "/";
         } else
             return parent;
     }
-    
+
     public static String fileNameFromPath(String path) {
         if (path == null) {
             // the caller should not give null
             Log.w("Utils", "null in getParentPath");
             return null;
         }
-        
+
         return path.substring(path.lastIndexOf("/") + 1);
     }
-    
+
     public static String readableFileSize(long size) {
         if(size <= 0) return "0 KB";
         final String[] units = new String[] { "B", "KB", "MB", "GB", "TB" };
         int digitGroups = (int) (Math.log10(size)/Math.log10(1024));
         return new DecimalFormat("#,##0.#").format(size/Math.pow(1024, digitGroups)) + " " + units[digitGroups];
     }
-    
+
     public static void writeFile(File file, String content) throws IOException {
         OutputStream os = null;
         try {
@@ -149,9 +149,9 @@ public class Utils {
             }
         }
     }
-    
+
     public static String NOGROUP = "$nogroup";
-    
+
     public static TreeMap<String, List<SeafRepo>> groupRepos(List<SeafRepo> repos) {
         TreeMap<String, List<SeafRepo>> map = new TreeMap<String, List<SeafRepo>>();
         for (SeafRepo repo : repos) {
@@ -166,12 +166,12 @@ public class Utils {
         }
         return map;
     }
-    
-    
+
+
     public static int getResIdforMimetype(String mimetype) {
         if (mimetype == null)
             return R.drawable.file;
-        
+
         if (mimetype.contains("pdf"))
             return R.drawable.file_pdf;
         if (mimetype.contains("application")) {
@@ -190,35 +190,35 @@ public class Utils {
             return R.drawable.file;
         }
     }
-    
+
     static HashMap<String, Integer> suffixIconMap = null;
-    
+
     static private HashMap<String, Integer> getSuffixIconMap() {
-        if (suffixIconMap != null) 
+        if (suffixIconMap != null)
             return suffixIconMap;
-        
+
         suffixIconMap = new HashMap<String, Integer>();
         suffixIconMap.put("pdf", R.drawable.file_pdf);
         suffixIconMap.put("doc", R.drawable.file_doc);
         suffixIconMap.put("docx", R.drawable.file_doc);
         return suffixIconMap;
     }
-    
-    public static int getFileIcon(String name) {   
+
+    public static int getFileIcon(String name) {
         String suffix = name.substring(name.lastIndexOf('.') + 1);
         if (suffix.length() == 0) {
             return R.drawable.file;
         }
-        
+
         HashMap<String, Integer> map = getSuffixIconMap();
         Integer i = map.get(suffix);
         if (i != null)
             return i;
-        
+
         String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
         return getResIdforMimetype(mime);
     }
-    
+
     public static boolean isViewableImage(String name) {
         String suffix = name.substring(name.lastIndexOf('.') + 1);
         if (suffix.length() == 0)
@@ -226,15 +226,15 @@ public class Utils {
         if (suffix.equals("svg"))
             // don't support svg preview
             return false;
-        
+
         String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
         if (mime == null)
             return false;
         return mime.contains("image");
     }
-    
+
     public static boolean isNetworkOn() {
-        ConnectivityManager connMgr = (ConnectivityManager) 
+        ConnectivityManager connMgr = (ConnectivityManager)
                 SeadroidApplication.getAppContext().getSystemService(
                         Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
@@ -245,16 +245,25 @@ public class Utils {
             return false;
     }
 
-    public static String pathJoin (String a, String... p) {
-        String path = a;
-        for (String b: p) {
-            if (path.equals("") || path.endsWith("/"))
+    public static String pathJoin (String first, String... rest) {
+        String path = first;
+        for (String b: rest) {
+            if (path.endsWith("/") && b.startsWith("/")) {
+                path = path + b.substring(1);
+            } else if (path.endsWith("/") || b.startsWith("/")) {
                 path += b;
-            else
+            } else {
                 path += "/" + b;
+            }
         }
 
         return path;
     }
 
+    /**
+     * Strip leading and trailing slashes
+     */
+    public static String stripSlashes(String a) {
+        return a.replaceAll("^[/]*|[/]*$", "");
+    }
 }

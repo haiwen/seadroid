@@ -83,7 +83,7 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
     }
     
     public interface OnFileSelectedListener {
-        public void onFileSelected(String repoID, String path, SeafDirent dirent);
+        public void onFileSelected(String repoName, String repoID, String path, SeafDirent dirent);
     }
     
     @Override
@@ -111,7 +111,7 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         Log.d(DEBUG_TAG, "ReposFragment onActivityCreated");
-        adapter = new SeafItemAdapter(getActivity());
+        adapter = new SeafItemAdapter(mActivity);
         setListAdapter(adapter);
 
         getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
@@ -184,7 +184,10 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
         // refresh.setVisibility(View.INVISIBLE);
         mActivity.enableUpButton();
         ConcurrentAsyncTask.execute(new LoadDirTask(getDataManager()),
-            navContext.getRepoID(), navContext.getDirPath(), navContext.getDirID());
+                                    navContext.getRepoName(),
+                                    navContext.getRepoID(),
+                                    navContext.getDirPath(),
+                                    navContext.getDirID());
     }
 
     @Override 
@@ -204,7 +207,7 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
                 String currentPath = nav.getDirPath();
                 String newPath = currentPath.endsWith("/") ? 
                         currentPath + dirent.name : currentPath + "/" + dirent.name;
-                mActivity.onFileSelected(nav.getRepoID(), newPath, dirent);
+                mActivity.onFileSelected(nav.getRepoName(), nav.getRepoID(), newPath, dirent);
             }
         } else {
             SeafItem item = adapter.getItem(position);
@@ -290,6 +293,7 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
     private class LoadDirTask extends AsyncTask<String, Void, List<SeafDirent> > {
 
         SeafException err = null;
+        String myRepoName;
         String myRepoID;
         String myPath;
         
@@ -301,14 +305,15 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
         
         @Override
         protected List<SeafDirent> doInBackground(String... params) {
-            if (params.length != 3) {
+            if (params.length != 4) {
                 Log.d(DEBUG_TAG, "Wrong params to LoadDirTask");
                 return null;
             }
             
-            myRepoID = params[0];
-            myPath = params[1];
-            String objectID = params[2];
+            myRepoName = params[0];
+            myRepoID = params[1];
+            myPath = params[2];
+            String objectID = params[3];
             try {
                 return dataManager.getDirents(myRepoID, myPath, objectID);
             } catch (SeafException e) {
@@ -330,7 +335,7 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
                 for (SeafDirent dirent : dirents) {
                     adapter.add(dirent);
                 }
-                scheduleThumbnailTask(myRepoID, myPath, dirents);
+                scheduleThumbnailTask(myRepoName, myRepoID, myPath, dirents);
             } else {
                 // refresh.setVisibility(View.VISIBLE);
             }
@@ -395,41 +400,49 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
     }
     
 
-    private void scheduleThumbnailTask(String repoID, String path,
-            List<SeafDirent> dirents) {
+    private void scheduleThumbnailTask(String repoName, String repoID,
+                                       String path, List<SeafDirent> dirents) {
         ArrayList<SeafDirent> needThumb = new ArrayList<SeafDirent>();
         for (SeafDirent dirent : dirents) {
             if (dirent.isDir())
                 continue;
             if (Utils.isViewableImage(dirent.name)) {
-                File file = DataManager.getFileForFileCache(dirent.name, dirent.id);
+                String p = Utils.pathJoin(path, dirent.name);
+                File file = mActivity.getDataManager().getLocalRepoFile(repoName, repoID, p);
                 if (file.exists()) {
                     if (file.length() > 1000000)
                         continue;
                     
-                    File thumb = DataManager.getThumbFile(dirent.name, dirent.id);
+                    File thumb = DataManager.getThumbFile(dirent.id);
                     if (!thumb.exists())
                         needThumb.add(dirent);
                 }
             }
         }
         if (needThumb.size() != 0) {
-            ConcurrentAsyncTask.execute(new ThumbnailTask(repoID, path, needThumb));
+            ConcurrentAsyncTask.execute(new ThumbnailTask(repoName, repoID, path, needThumb));
         }
     }
     
     private class ThumbnailTask extends AsyncTask<Void, Void, Void > {
 
         List<SeafDirent> dirents;
+        private String repoName; 
+        private String repoID; 
+        private String dir;
         
-        public ThumbnailTask(String repoID, String dir, List<SeafDirent> dirents) {
+        public ThumbnailTask(String repoName, String repoID, String dir, List<SeafDirent> dirents) {
             this.dirents = dirents;
+            this.repoName = repoName;
+            this.repoID = repoID;
+            this.dir = dir;
         }
         
         @Override
         protected Void doInBackground(Void... params) {
             for (SeafDirent dirent : dirents) {
-                DataManager.calculateThumbnail(dirent.name, dirent.id);
+                String path = Utils.pathJoin(dir, dirent.name);
+                mActivity.getDataManager().calculateThumbnail(repoName, repoID, path, dirent.id);
             }
             return null;
         }

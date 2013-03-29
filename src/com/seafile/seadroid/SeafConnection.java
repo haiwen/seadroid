@@ -392,13 +392,13 @@ public class SeafConnection {
         }
     }
     
-    public File getFile(String repoID, String path, String oid, ProgressMonitor monitor) 
+    public File getFile(String repoID, String path, String localPath, String oid, ProgressMonitor monitor) 
             throws SeafException {
         String dlink = getDownloadLink(repoID, path);
         if (dlink == null)
             return null;
        
-        File file = DataManager.getFileForFileCache(path, oid);
+        File file = new File(localPath);
         
         InputStream is = null;
         OutputStream os = null;

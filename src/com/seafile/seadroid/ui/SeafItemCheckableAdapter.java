@@ -4,14 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.seafile.seadroid.R;
-
-import com.seafile.seadroid.data.DataManager;
-import com.seafile.seadroid.data.SeafCachedFile;
-import com.seafile.seadroid.data.SeafDirent;
-import com.seafile.seadroid.data.SeafItem;
-
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +13,15 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.seafile.seadroid.BrowserActivity;
+import com.seafile.seadroid.NavContext;
+import com.seafile.seadroid.R;
+import com.seafile.seadroid.Utils;
+import com.seafile.seadroid.data.DataManager;
+import com.seafile.seadroid.data.SeafCachedFile;
+import com.seafile.seadroid.data.SeafDirent;
+import com.seafile.seadroid.data.SeafItem;
+
 public class SeafItemCheckableAdapter extends BaseAdapter {
 
     public interface OnCheckedChangeListener {
@@ -28,11 +29,11 @@ public class SeafItemCheckableAdapter extends BaseAdapter {
     }
     
     private ArrayList<SeafItemWrap> items;
-    private Context context;
+    private BrowserActivity mActivity;
     private OnCheckedChangeListener listener = null;
     
-    public SeafItemCheckableAdapter(Context context) {
-        this.context = context;
+    public SeafItemCheckableAdapter(BrowserActivity mActivity) {
+        this.mActivity = mActivity;
         items = new ArrayList<SeafItemWrap>();
     }
     
@@ -121,7 +122,7 @@ public class SeafItemCheckableAdapter extends BaseAdapter {
         Viewholder viewHolder;
         
         if (convertView == null) {
-            view = LayoutInflater.from(context).inflate(R.layout.list_item_entry_check, null);
+            view = LayoutInflater.from(mActivity).inflate(R.layout.list_item_entry_check, null);
             TextView title = (TextView) view.findViewById(R.id.list_item_title);
             TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
             ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
@@ -137,7 +138,12 @@ public class SeafItemCheckableAdapter extends BaseAdapter {
         if (dirent.isDir()) {
             viewHolder.subtitle.setText("");
         } else {
-            File file = DataManager.getFileForFileCache(dirent.name, dirent.id);
+            NavContext nav = mActivity.getNavContext();
+            DataManager dataManager = mActivity.getDataManager();
+            String repoName = nav.getRepoName();
+            String repoID = nav.getRepoID();
+            String filePath = Utils.pathJoin(nav.getDirPath(), dirent.name);
+            File file = dataManager.getLocalRepoFile(repoName, repoID, filePath);
             if (file.exists())
                 viewHolder.subtitle.setText(dirent.getSubtitle() + " cached");
             else
@@ -154,7 +160,7 @@ public class SeafItemCheckableAdapter extends BaseAdapter {
         final Viewholder viewHolder;
         
         if (convertView == null) {
-            view = LayoutInflater.from(context).inflate(R.layout.list_item_entry_check, null);
+            view = LayoutInflater.from(mActivity).inflate(R.layout.list_item_entry_check, null);
             TextView title = (TextView) view.findViewById(R.id.list_item_title);
             TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
             ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);

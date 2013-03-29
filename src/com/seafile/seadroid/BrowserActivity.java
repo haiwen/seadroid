@@ -18,25 +18,25 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
-import com.actionbarsherlock.app.ActionBar;
 import com.ipaulpro.afilechooser.FileChooserActivity;
 import com.ipaulpro.afilechooser.utils.FileUtils;
-import com.seafile.seadroid.TransferService.TransferBinder;
 import com.seafile.seadroid.TransferManager.UploadTaskInfo;
+import com.seafile.seadroid.TransferService.TransferBinder;
 import com.seafile.seadroid.account.Account;
 import com.seafile.seadroid.data.DataManager;
 import com.seafile.seadroid.data.SeafCachedFile;
@@ -492,6 +492,12 @@ public class BrowserActivity extends SherlockFragmentActivity
                                 intent = new Intent(BrowserActivity.this, MultipleImageSelectionActivity.class);
                                 getActivity().startActivityForResult(intent, PICK_PHOTOS_REQUEST);
                                 break;
+                            case 2:
+                                // thirdparty file chooser
+                                Intent target = FileUtils.createGetContentIntent();
+                                intent = Intent.createChooser(target, getString(R.string.choose_file));
+                                getActivity().startActivityForResult(intent, PICK_FILE_REQUEST);
+                                break;
                             default:
                                 return;
                             }
@@ -547,20 +553,21 @@ public class BrowserActivity extends SherlockFragmentActivity
     /***************  Navigation *************/
 
     // File selected in repos fragment
-    public void onFileSelected(String repoID, String path, SeafDirent dirent) {
-        File file = DataManager.getFileForFileCache(path, dirent.id);
+    public void onFileSelected(String repoName, String repoID, String path, SeafDirent dirent) {
+        File file = dataManager.getLocalRepoFile(repoName,  repoID, path);
         if (file.exists()) {
-            showFile(repoID, path, dirent.id);
+            showFile(repoName, repoID, path, dirent.id);
         } else {
-            txService.addDownloadTask(account, repoID, path, dirent.id, dirent.size);
+            txService.addDownloadTask(account, repoName, repoID, path, dirent.id, dirent.size);
             //transferManager.addDownloadTask(account, repoID, path, dirent.id, dirent.size);
             showToast("Downloading " + Utils.fileNameFromPath(path));
         }
+        Log.d(DEBUG_TAG, "" + android.os.Build.VERSION_CODES.JELLY_BEAN);
     }
 
     @Override
     public void onCachedFileSelected(SeafCachedFile item) {
-        showFile(item.repo, item.path, item.fileID);
+        // showFile(item.repo, item.path, item.fileID);
     }
 
     @Override
@@ -595,18 +602,16 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     /************  Files ************/
 
-    private void startMarkdownActivity(String repoID, String path, String fileID) {
+    private void startMarkdownActivity(String path) {
         Intent intent = new Intent(this, MarkdownActivity.class);
-        intent.putExtra("repoID", repoID);
         intent.putExtra("path", path);
-        intent.putExtra("fileID", fileID);
         startActivity(intent);
     }
 
-    private boolean showFile(String repoID, String path, String fileID) {
-        File file = DataManager.getFileForFileCache(path, fileID);
+    private boolean showFile(String repoName, String repoID, String path, String fileID) {
+        File file = dataManager.getLocalRepoFile(repoName, repoID, path);
         String name = file.getName();
-        String suffix = name.substring(name.lastIndexOf('.') + 1);
+        String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
 
         if (suffix.length() == 0) {
             showToast(getString(R.string.unknown_file_type));
@@ -614,7 +619,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
 
         if (suffix.endsWith("md") || suffix.endsWith("markdown")) {
-            startMarkdownActivity(repoID, path, fileID);
+            startMarkdownActivity(file.getPath());
             return true;
         }
 
@@ -690,7 +695,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
     }
 
-    public void onFileDownloadFailed(final String repoID, final String path,
+    public void onFileDownloadFailed(final String repoName, final String repoID, final String path,
             final String fileID, final long size, SeafException err) {
         if (err != null && err.getCode() == 440) {
             if (currentTab.equals(LIBRARY_TAB)
@@ -703,7 +708,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                         if (password.length() == 0)
                             return;
                         ConcurrentAsyncTask.execute(
-                            new SetPasswordTask(dataManager, repoID, path, fileID, size), password);
+                            new SetPasswordTask(dataManager, repoName, repoID, path, fileID, size), password);
                     }
 
                 });
@@ -716,14 +721,16 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     private class SetPasswordTask extends AsyncTask<String, Void, Void> {
 
+        String myRepoName;
         String myRepoID;
         String myPath;
         String myFileID;
         long size;
         DataManager dataManager;
 
-        public SetPasswordTask(DataManager dataManager, String repoID, String path, String fileID, long size) {
+        public SetPasswordTask(DataManager dataManager, String repoName, String repoID, String path, String fileID, long size) {
             this.dataManager = dataManager;
+            this.myRepoName = repoName;
             this.myRepoID = repoID;
             this.myPath = path;
             this.myFileID = fileID;
@@ -744,7 +751,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         @Override
         protected void onPostExecute(Void v) {
-            txService.addDownloadTask(account, myRepoID, myPath, myFileID, size);
+            txService.addDownloadTask(account, myRepoName, myRepoID, myPath, myFileID, size);
         }
 
     }
@@ -762,13 +769,14 @@ public class BrowserActivity extends SherlockFragmentActivity
                 String fileID = intent.getStringExtra("fileID");
                 onFileDownloaded(repoID, path, fileID);
             } else if (type.equals("downloadFailed")) {
+                String repoName = intent.getStringExtra("repoName");
                 String repoID = intent.getStringExtra("repoID");
                 String path = intent.getStringExtra("path");
                 String fileID = intent.getStringExtra("fileID");
                 long size = intent.getLongExtra("size", 0);
                 int errCode = intent.getIntExtra("errCode", 0);
                 String errMsg = intent.getStringExtra("errMsg");
-                onFileDownloadFailed(repoID, path, fileID,
+                onFileDownloadFailed(repoName, repoID, path, fileID,
                         size, new SeafException(errCode, errMsg));
             } else if (type.equals("uploaded")) {
                 int taskID = intent.getIntExtra("taskID", 0);

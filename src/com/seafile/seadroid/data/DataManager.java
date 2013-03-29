@@ -100,11 +100,8 @@ public class DataManager {
         return new File(p);
     }
 
-    static public File getThumbFile(String path, String oid) {
-        String filename = path.substring(path.lastIndexOf("/") + 1);
-        String purename = filename.substring(0, filename.lastIndexOf('.'));
-        String p = getThumbDirectory() + "/" + purename + "-"
-                + oid.substring(0, 8) + ".png";
+    static public File getThumbFile(String oid) {
+        String p = Utils.pathJoin(getThumbDirectory(), oid + ".png");
         return new File(p);
     }
 
@@ -116,11 +113,11 @@ public class DataManager {
     static public final int MAX_GEN_CACHE_THUMB = 1000000;  // Only generate thumb cache for files less than 1MB
     static public final int MAX_DIRECT_SHOW_THUMB = 100000;  // directly show thumb
 
-    static public void calculateThumbnail(String fileName, String fileID) {
+    public void calculateThumbnail(String repoName, String repoID, String path, String oid) {
         try {
             final int THUMBNAIL_SIZE = 72;
 
-            File file = getFileForFileCache(fileName, fileID);
+            File file = getLocalRepoFile(repoName, repoID, path);
             if (!file.exists())
                 return;
             if (file.length() > MAX_GEN_CACHE_THUMB)
@@ -132,7 +129,7 @@ public class DataManager {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
             byte[] byteArray = baos.toByteArray();
-            File thumb = getThumbFile(fileName, fileID);
+            File thumb = getThumbFile(oid);
             FileOutputStream out = new FileOutputStream(thumb);
             out.write(byteArray);
             out.close();
@@ -141,11 +138,14 @@ public class DataManager {
         }
     }
 
-    static public Bitmap getThumbnail(String fileName, String fileID) {
+    /**
+     * Caculate the thumbnail of an image directly when its size is less that
+     * {@link #MAX_DIRECT_SHOW_THUMB}
+     */
+    public Bitmap getThumbnail(File file) {
         try {
             final int THUMBNAIL_SIZE = 72;
 
-            File file = getFileForFileCache(fileName, fileID);
             if (!file.exists())
                 return null;
 
@@ -175,13 +175,69 @@ public class DataManager {
     }
 
     public Account getAccount() {
-        return sc.getAccount();
+        return account;
     }
 
     private File getFileForReposCache() {
         String filename = "repos-" + (account.server + account.email).hashCode() + ".dat";
         return new File(getExternalCacheDirectory() + "/" +
                 filename);
+    }
+
+    /**
+     * The directory structure of Seafile on external storage is like this:
+     *
+     * /sdcard/Seafile
+     *            |__ cache
+     *            |__ temp
+     *            |__ foo@gmail.com (cloud.seafile.com)
+     *                      |__ Photos
+     *                      |__ Musics
+     *                      |__ ...
+     *            |__ foo@mycompany.com (seafile.mycompany.com)
+     *                      |__ Documents
+     *                      |__ Manuals
+     *                      |__ ...
+     *            |__ ...
+     *
+     * In the above directory, the user has used two accounts.
+     *
+     * 1. One account has email "foo@gmail.com" and server
+     * "cloud.seafile.com". Two repos, "Photos" and "Musics", has been
+     * viewed.
+     *
+     * 2. Another one has email "foo@mycompany.com", and server
+     * "seafile.mycompany.com". Two repos, "Documents" and "Manuals", has
+     * been viewed.
+     */
+    private String getAccountDir() {
+        String username = account.getEmail();
+        String server = Utils.stripSlashes(account.getServerNoProtocol());
+        String p = String.format("%s (%s)", username, server);
+        String accountDir = Utils.pathJoin(getExternalRootDirectory(), p);
+
+        return accountDir;
+    }
+
+    private String getRepoDir(String repoName) {
+        String path = Utils.pathJoin(getAccountDir(), repoName);
+        File repoDir = new File(path);
+        if (!repoDir.exists()) {
+            repoDir.mkdirs();
+        }
+        return path;
+    }
+
+    /**
+     * Each repo is places under <server-name>/<user-name>/<repo-name>. When a
+     * file is downloaded, it's placed in its repo, with it full path.
+     * @param repoName
+     * @param repoID
+     * @param path
+     */
+    public File getLocalRepoFile(String repoName, String repoID, String path) {
+        String p = Utils.pathJoin(getRepoDir(repoName), path);
+        return new File(p);
     }
 
     private List<SeafRepo> parseRepos(String json) {
@@ -199,7 +255,7 @@ public class DataManager {
             }
             return repos;
         } catch (JSONException e) {
-            Log.d(DEBUG_TAG, "repos: parse json error");
+            Log.w(DEBUG_TAG, "repos: parse json error");
             return null;
         } catch (Exception e) {
             // other exception, for example ClassCastException
@@ -276,15 +332,15 @@ public class DataManager {
         boolean isCancelled();
     }
 
-    public File getFile(String repoID, String path, String oid, ProgressMonitor monitor)
+    public File getFile(String repoName, String repoID, String path, String oid, ProgressMonitor monitor)
             throws SeafException {
-        String p = getExternalRootDirectory() + "/" + constructFileName(path, oid);
-        File f = new File(p);
-        if (f.exists())
-            return f;
-        f = sc.getFile(repoID, path, oid, monitor);
-        if (f != null)
-            addCachedFile(repoID, path, oid, f);
+        File f = getLocalRepoFile(repoName, repoID, path);
+        if (!f.exists()) {
+            f = sc.getFile(repoID, path, f.getPath(), oid, monitor);
+        }
+        if (f != null) {
+            addCachedFile(repoName, repoID, path, oid, f);
+        }
         return f;
     }
 
@@ -345,17 +401,18 @@ public class DataManager {
 
 
     public List<SeafCachedFile> getCachedFiles() {
-        return cdbHelper.getItems(account);
+        return cdbHelper.getItems(this);
     }
 
-    public void addCachedFile(String repo, String path, String fileID, File file) {
+    public void addCachedFile(String repoName, String repoID, String path, String fileID, File file) {
         SeafCachedFile item = new SeafCachedFile();
-        item.repo = repo;
+        item.repoName = repoName;
+        item.repoID = repoID;
         item.path = path;
         item.fileID = fileID;
         item.ctime = file.lastModified();
         item.accountSignature = account.getSignature();
-        cdbHelper.saveItem(item);
+        cdbHelper.saveItem(item, this);
     }
 
     public void removeCachedFile(SeafCachedFile cf) {
@@ -396,5 +453,4 @@ public class DataManager {
             d = Utils.getParentPath(d);
         }
     }
-
 }

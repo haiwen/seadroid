@@ -39,7 +39,7 @@ public class TransferManager {
         public void onFileUploadFailed(int taskID);
 
         public void onFileDownloaded(String repoID, String path, String fileID);
-        public void onFileDownloadFailed(String repoID, String path, String fileID,
+        public void onFileDownloadFailed(String repoName, String repoID, String path, String fileID,
                 long size, SeafException err);
 
     }
@@ -70,14 +70,14 @@ public class TransferManager {
         task.execute();
     }
 
-    public void addDownloadTask(Account account, String repoID, String path,
+    public void addDownloadTask(Account account, String repoName, String repoID, String path,
             String fileID, long size) {
         // check duplication
         for (DownloadTask task : downloadTasks) {
             if (task.myFileID.equals(fileID))
                 return;
         }
-        DownloadTask task = new DownloadTask(account, repoID, path, fileID, size);
+        DownloadTask task = new DownloadTask(account, repoName, repoID, path, fileID, size);
         task.execute();
     }
 
@@ -273,15 +273,17 @@ public class TransferManager {
         private int myNtID;
 
         Account account;
+        private String myRepoName;
         private String myRepoID;
         private String myPath;
         private String myFileID;
         private long mySize;
         SeafException err;
 
-        public DownloadTask(Account account, String repoID, String path,
+        public DownloadTask(Account account, String repoName, String repoID, String path,
                 String fileID, long size) {
             this.account = account;
+            this.myRepoName = repoName;
             this.myRepoID = repoID;
             this.myPath = path;
             this.myFileID = fileID;
@@ -334,9 +336,9 @@ public class TransferManager {
             try {
                 DataManager dataManager = new DataManager(account);
                 if (mySize <= showProgressThreshold)
-                    return dataManager.getFile(myRepoID, myPath, myFileID, null);
+                    return dataManager.getFile(myRepoName, myRepoID, myPath, myFileID, null);
                 else
-                    return dataManager.getFile(myRepoID, myPath, myFileID,
+                    return dataManager.getFile(myRepoName, myRepoID, myPath, myFileID,
                             new ProgressMonitor() {
 
                                 @Override
@@ -368,7 +370,7 @@ public class TransferManager {
                 else {
                     if (err == null)
                         err = SeafException.unknownException;
-                    listener.onFileDownloadFailed(myRepoID, myPath, myFileID, mySize, err);
+                    listener.onFileDownloadFailed(myRepoName, myRepoID, myPath, myFileID, mySize, err);
                 }
             }
         }

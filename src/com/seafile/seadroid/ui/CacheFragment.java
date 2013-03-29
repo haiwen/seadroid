@@ -39,7 +39,7 @@ public class CacheFragment extends SherlockListFragment
     public void onActivityCreated(Bundle savedInstanceState) {
 
         super.onActivityCreated(savedInstanceState);
-        adapter = new SeafItemCheckableAdapter(getActivity());
+        adapter = new SeafItemCheckableAdapter(mActivity);
         adapter.setOnCheckedChangeListener(this);
         setListAdapter(adapter);
 

@@ -4,10 +4,19 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.List;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.seafile.seadroid.BrowserActivity;
+import com.seafile.seadroid.NavContext;
 import com.seafile.seadroid.R;
-import com.seafile.seadroid.SeafException;
 import com.seafile.seadroid.Utils;
 import com.seafile.seadroid.data.DataManager;
 import com.seafile.seadroid.data.SeafCachedFile;
@@ -16,24 +25,13 @@ import com.seafile.seadroid.data.SeafGroup;
 import com.seafile.seadroid.data.SeafItem;
 import com.seafile.seadroid.data.SeafRepo;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.TextView;
-
 public class SeafItemAdapter extends BaseAdapter {
 
     private ArrayList<SeafItem> items;
-    private Context context;
+    private BrowserActivity mActivity;
     
-    public SeafItemAdapter(Context context) {
-        this.context = context;
+    public SeafItemAdapter(BrowserActivity activity) {
+        this.mActivity = activity;
         items = new ArrayList<SeafItem>();
     }
     
@@ -112,7 +110,7 @@ public class SeafItemAdapter extends BaseAdapter {
         Viewholder viewHolder;
         
         if (convertView == null) {
-            view = LayoutInflater.from(context).inflate(R.layout.list_item_entry, null);
+            view = LayoutInflater.from(mActivity).inflate(R.layout.list_item_entry, null);
             TextView title = (TextView) view.findViewById(R.id.list_item_title);
             TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
             ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
@@ -129,7 +127,7 @@ public class SeafItemAdapter extends BaseAdapter {
     }
     
     private View getGroupView(SeafGroup group) {
-        View view = LayoutInflater.from(context).inflate(R.layout.group_item, null);
+        View view = LayoutInflater.from(mActivity).inflate(R.layout.group_item, null);
         TextView tv = (TextView) view.findViewById(R.id.textview_groupname);
         tv.setText(group.getTitle());
         return view;
@@ -140,7 +138,7 @@ public class SeafItemAdapter extends BaseAdapter {
         Viewholder viewHolder;
         
         if (convertView == null) {
-            view = LayoutInflater.from(context).inflate(R.layout.list_item_entry, null);
+            view = LayoutInflater.from(mActivity).inflate(R.layout.list_item_entry, null);
             TextView title = (TextView) view.findViewById(R.id.list_item_title);
             TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
             ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
@@ -155,18 +153,23 @@ public class SeafItemAdapter extends BaseAdapter {
             viewHolder.subtitle.setText("");
             viewHolder.icon.setImageResource(dirent.getIcon());
         } else {
-            File file = DataManager.getFileForFileCache(dirent.name, dirent.id);
+            NavContext nav = mActivity.getNavContext();
+            DataManager dataManager = mActivity.getDataManager();
+            String repoName = nav.getRepoName();
+            String repoID = nav.getRepoID();
+            String filePath = Utils.pathJoin(nav.getDirPath(), dirent.name);
+            File file = dataManager.getLocalRepoFile(repoName, repoID, filePath);
             if (file.exists()) {
                 viewHolder.subtitle.setText(dirent.getSubtitle() + " cached");
                 if (Utils.isViewableImage(file.getName())) {
                     if (file.length() < DataManager.MAX_DIRECT_SHOW_THUMB) {
-                        Bitmap imageBitmap = DataManager.getThumbnail(dirent.name, dirent.id);
+                        Bitmap imageBitmap = dataManager.getThumbnail(file);
                         if (imageBitmap != null)
                             viewHolder.icon.setImageBitmap(imageBitmap);
                         else
                             viewHolder.icon.setImageResource(dirent.getIcon());
                     } else {
-                        File thumbFile = DataManager.getThumbFile(dirent.name, dirent.id);
+                        File thumbFile = DataManager.getThumbFile(dirent.id);
                         if (thumbFile.exists()) {
                             Bitmap imageBitmap;
                             try {
@@ -196,7 +199,7 @@ public class SeafItemAdapter extends BaseAdapter {
         Viewholder viewHolder;
         
         if (convertView == null) {
-            view = LayoutInflater.from(context).inflate(R.layout.list_item_entry, null);
+            view = LayoutInflater.from(mActivity).inflate(R.layout.list_item_entry, null);
             TextView title = (TextView) view.findViewById(R.id.list_item_title);
             TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
             ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);

@@ -20,9 +20,7 @@ public class MarkdownActivity extends Activity {
 
     private static final String DEBUG_TAG = "MarkdownActivity";
 
-    String repoID;
     String path;
-    String fileID;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -32,14 +30,12 @@ public class MarkdownActivity extends Activity {
         setContentView(markdownView);
         
         Intent intent = getIntent();
-        repoID = intent.getStringExtra("repoID");
         path = intent.getStringExtra("path");
-        fileID = intent.getStringExtra("fileID");
         
-        if (path == null || fileID == null)
+        if (path == null)
             return;
         
-        File file = DataManager.getFileForFileCache(path, fileID);
+        File file = new File(path);
         if (!file.exists())
             return;
         
