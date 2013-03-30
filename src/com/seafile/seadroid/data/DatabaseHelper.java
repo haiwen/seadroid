@@ -116,7 +116,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onUpgrade(db, oldVersion, newVersion);
     }
 
-    public SeafCachedFile getFileCacheItem(String repoID, String path, DataManager dataManager) {
+    public SeafCachedFile getFileCacheItem(String repoName, String repoID,
+                                           String path, DataManager dataManager) {
         SQLiteDatabase db = getReadableDatabase();
 
         String[] projection = {
@@ -132,8 +133,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor c = db.query(
              FILECACHE_TABLE_NAME,
              projection,
-             FILECACHE_COLUMN_REPO_ID + "=? and " + FILECACHE_COLUMN_PATH + "=?",
-             new String[] { repoID, path },
+             FILECACHE_COLUMN_REPO_NAME + "=?  and " + FILECACHE_COLUMN_REPO_ID
+             + "=? and " + FILECACHE_COLUMN_PATH + "=?",
+             new String[] { repoName, repoID, path },
              null,   // don't group the rows
              null,   // don't filter by row groups
              null    // The sort order
@@ -152,7 +154,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void saveFileCacheItem(SeafCachedFile item, DataManager dataManager) {
-        SeafCachedFile old = getFileCacheItem(item.repoID, item.path, dataManager);
+        SeafCachedFile old = getFileCacheItem(item.repoName, item.repoID, item.path, dataManager);
         if (old != null) {
             if (old.fileID.equals(item.fileID))
                 return;

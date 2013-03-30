@@ -494,4 +494,25 @@ public class DataManager {
             d = Utils.getParentPath(d);
         }
     }
+
+    /**
+     * Detect the local cached file has been modified.
+     */
+    public boolean isLocalFileModified(String repoName, String repoID, String path) {
+        SeafCachedFile cachedFile = dbHelper.getFileCacheItem(repoName, repoID, path, this);
+        if (cachedFile == null) {
+            return false;
+        }
+        File localFile = getLocalRepoFile(repoName, repoID, path);
+        if (!localFile.exists()) {
+            // Local file has been deleted, so delete the item in the filecache table
+            dbHelper.deleteFileCacheItem(cachedFile);
+            return false;
+        }
+        if (localFile.lastModified() != cachedFile.ctime) {
+            // Local file has a newer timestamp
+            return true;
+        }
+        return false;
+    }
 }
