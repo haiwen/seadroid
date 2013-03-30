@@ -272,8 +272,13 @@ public class DataManager {
      * @param path
      */
     public File getLocalRepoFile(String repoName, String repoID, String path) {
-        String p = Utils.pathJoin(getRepoDir(repoName, repoID), path);
-        return new File(p);
+        String localPath = Utils.pathJoin(getRepoDir(repoName, repoID), path);
+        File parentDir = new File(Utils.getParentPath(localPath));
+        if (!parentDir.exists()) {
+            parentDir.mkdirs();
+        }
+
+        return new File(localPath);
     }
 
     private List<SeafRepo> parseRepos(String json) {
