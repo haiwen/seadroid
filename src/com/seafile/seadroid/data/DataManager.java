@@ -163,7 +163,7 @@ public class DataManager {
 
     private SeafConnection sc;
     private Account account;
-    private CachedFileDbHelper cdbHelper;
+    private DatabaseHelper dbHelper;
 
     HashMap<String, String> pathObjectIDMap = new HashMap<String, String>();
     List<SeafRepo> reposCache = null;
@@ -171,7 +171,7 @@ public class DataManager {
     public DataManager(Account act) {
         account = act;
         sc = new SeafConnection(act);
-        cdbHelper = new CachedFileDbHelper(SeadroidApplication.getAppContext());
+        dbHelper = new DatabaseHelper(SeadroidApplication.getAppContext());
     }
 
     public Account getAccount() {
@@ -206,7 +206,7 @@ public class DataManager {
      * "cloud.seafile.com". Two repos, "Photos" and "Musics", has been
      * viewed.
      *
-     * 2. Another one has email "foo@mycompany.com", and server
+     * 2. Another account has email "foo@mycompany.com", and server
      * "seafile.mycompany.com". Two repos, "Documents" and "Manuals", has
      * been viewed.
      */
@@ -219,13 +219,49 @@ public class DataManager {
         return accountDir;
     }
 
-    private String getRepoDir(String repoName) {
-        String path = Utils.pathJoin(getAccountDir(), repoName);
-        File repoDir = new File(path);
-        if (!repoDir.exists()) {
-            repoDir.mkdirs();
+    /**
+     * Get the top dir of a repo. If there are multiple repos with same name,
+     * say "ABC", their top dir would be "ABC", "ABC (1)", "ABC (2)", etc. The
+     * mapping (repoName, repoID, dir) is stored in a database table.
+     */
+    private String getRepoDir(String repoName, String repoID) {
+        File repoDir;
+
+        // Check if there is a record in databse
+        String path = dbHelper.getRepoDir(account, repoName, repoID);
+        if (path != null) {
+            // Has record in databse
+            repoDir = new File(path);
+            if (!repoDir.exists()) {
+                repoDir.mkdirs();
+            }
+            return path;
         }
-        return path;
+
+        int i = 0;
+        while (true) {
+            String uniqueRepoName;
+            if (i == 0) {
+                uniqueRepoName = repoName;
+            } else {
+                uniqueRepoName = repoName + " (" + i + ")";
+            }
+            path = Utils.pathJoin(getAccountDir(), uniqueRepoName);
+            repoDir = new File(path);
+            if (!repoDir.exists() &&
+                !dbHelper.repoDirExists(account, uniqueRepoName)) {
+                // This repo dir does not exist yet, we can use it
+                break;
+            }
+            i++;
+        }
+
+        repoDir.mkdirs();
+
+        // Save the new mapping in database
+        dbHelper.saveRepoDirMapping(account, repoName, repoID, path);
+
+        return repoDir.getPath();
     }
 
     /**
@@ -236,7 +272,7 @@ public class DataManager {
      * @param path
      */
     public File getLocalRepoFile(String repoName, String repoID, String path) {
-        String p = Utils.pathJoin(getRepoDir(repoName), path);
+        String p = Utils.pathJoin(getRepoDir(repoName, repoID), path);
         return new File(p);
     }
 
@@ -401,7 +437,7 @@ public class DataManager {
 
 
     public List<SeafCachedFile> getCachedFiles() {
-        return cdbHelper.getItems(this);
+        return dbHelper.getFileCacheItems(this);
     }
 
     public void addCachedFile(String repoName, String repoID, String path, String fileID, File file) {
@@ -412,12 +448,12 @@ public class DataManager {
         item.fileID = fileID;
         item.ctime = file.lastModified();
         item.accountSignature = account.getSignature();
-        cdbHelper.saveItem(item, this);
+        dbHelper.saveFileCacheItem(item, this);
     }
 
     public void removeCachedFile(SeafCachedFile cf) {
         cf.file.delete();
-        cdbHelper.deleteItem(cf);
+        dbHelper.deleteFileCacheItem(cf);
     }
 
     public void setPassword(String repoID, String passwd) {
