@@ -481,10 +481,15 @@ public class SeafConnection {
         }
     }
     
-    private String getUploadLink(String repoID) throws SeafException {
+    // When "overwrite" is true, means update an existing file, else upload a new file
+    private String getUploadLink(String repoID, boolean overwrite) throws SeafException {
         InputStream is = null;
         try {
-            HttpURLConnection conn = prepareGet("api2/repos/" + repoID + "/upload-link/");
+            String url = "api2/repos/" + repoID + "/upload-link/";
+            if (overwrite) {
+                url += "?update=true";
+            }
+            HttpURLConnection conn = prepareGet(url);
             conn.connect();
             int response = conn.getResponseCode();
             if (response != 200)
@@ -523,8 +528,26 @@ public class SeafConnection {
     String twoHyphens = "--";
     String boundary = "----SeafileAndroidBound$_$";
     
-    public void uploadFile(String repoID, String dir, String filePath, ProgressMonitor monitor) throws SeafException {
-        String uploadLink = getUploadLink(repoID);
+    /**
+     * Upload a file to update an existing file
+     */
+    public void updateFile(String repoID, String dir, String filePath, ProgressMonitor monitor)
+                            throws SeafException {
+        String url = getUploadLink(repoID, true);
+        uploadFileCommon(url, repoID, dir, filePath, monitor);
+    }
+    
+    /**
+     * Upload a new file
+     */
+    public void uploadFile(String repoID, String dir, String filePath, ProgressMonitor monitor)
+                            throws SeafException {
+        String url = getUploadLink(repoID, false);
+        uploadFileCommon(url, repoID, dir, filePath, monitor);
+    }
+
+    private void uploadFileCommon(String link, String repoID, String dir,
+                                  String filePath, ProgressMonitor monitor) throws SeafException {
         DataOutputStream request = null;
         HttpURLConnection conn = null;
         File file = new File(filePath);
@@ -532,8 +555,8 @@ public class SeafConnection {
             return;
         
         try {
-            URL url = new URL(uploadLink);
-            Log.d(DEBUG_TAG, "Upload to " + uploadLink);
+            URL url = new URL(link);
+            Log.d(DEBUG_TAG, "Upload to " + link);
 
             conn = (HttpURLConnection) url.openConnection();
             prepareSSL(conn, false);

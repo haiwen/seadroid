@@ -65,8 +65,8 @@ public class TransferManager {
     }
 
     public void addUploadTask(Account account, String repoID, String repoName,
-                              String dir, String filePath) {
-        UploadTask task = new UploadTask(account, repoID, repoName, dir, filePath);
+                              String dir, String filePath, boolean isUpdate) {
+        UploadTask task = new UploadTask(account, repoID, repoName, dir, filePath, isUpdate);
         task.execute();
     }
 
@@ -146,6 +146,7 @@ public class TransferManager {
         private String myDir;   // parent dir
         private String myPath;  // local file path
         private String myFileName; // base file name
+        private boolean isUpdate;  // true if update an existing file
 
         private TaskState myState;
         private int myID;
@@ -157,13 +158,14 @@ public class TransferManager {
         Account account;
 
         public UploadTask(Account account, String repoID, String repoName,
-                          String dir, String filePath) {
+                          String dir, String filePath, boolean isUpdate) {
             this.account = account;
             this.myRepoID = repoID;
             this.myRepoName = repoName;
             this.myDir = dir;
             this.myPath = filePath;
             this.myFileName = Utils.fileNameFromPath(filePath);
+            this.isUpdate = isUpdate;
             File f = new File(filePath);
             mySize = f.length();
 
@@ -196,7 +198,7 @@ public class TransferManager {
                 return;
             }
             uploadTasks.remove(this);
-            addUploadTask(account, myRepoID, myRepoName, myDir, myPath);
+            addUploadTask(account, myRepoID, myRepoName, myDir, myPath, isUpdate);
         }
 
         public void cancelUpload() {
@@ -223,20 +225,22 @@ public class TransferManager {
         protected Void doInBackground(String... params) {
             try {
                 DataManager dataManager = new DataManager(account);
-                dataManager.uploadFile(myRepoID, myDir, myPath,
-                        new ProgressMonitor() {
+                ProgressMonitor monitor = new ProgressMonitor() {
+                    @Override
+                    public void onProgressNotify(long uploaded) {
+                        publishProgress(uploaded);
+                    }
 
-                            @Override
-                            public void onProgressNotify(long uploaded) {
-                                publishProgress(uploaded);
-                            }
-
-                            @Override
-                            public boolean isCancelled() {
-                                return UploadTask.this.isCancelled();
-                            }
-                        }
-                );
+                    @Override
+                    public boolean isCancelled() {
+                        return UploadTask.this.isCancelled();
+                    }
+                };
+                if (isUpdate) {
+                    dataManager.uploadFile(myRepoID, myDir, myPath, monitor);
+                } else {
+                    dataManager.updateFile(myRepoID, myDir, myPath, monitor);
+                }
             } catch (SeafException e) {
                 err = e;
             }

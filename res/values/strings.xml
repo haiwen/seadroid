@@ -11,7 +11,6 @@
     <string name="download_file">Download</string>
     <string name="redownload_file">Download again</string>
     <string name="cancel_download">Cancel</string>
-    <string name="delete_file">Cancel</string>
     <string name="unknown_file_type">Unknown file type</string>
     <string name="activity_not_found">Can not find App to open this file</string>
     <string name="refresh">Refresh</string>
@@ -44,5 +43,8 @@
     <string name="task_retry">Retry</string>
     <string name="task_remove">Remove</string>
     <string name="task_remove_all_finished">Remove all finished</string>
+    <string name="delete">Delete</string>
+    <string name="rename">Rename</string>
+    <string name="update">Update</string>
 
 </resources>

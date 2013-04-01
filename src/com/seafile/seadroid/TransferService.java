@@ -52,8 +52,8 @@ public class TransferService extends Service implements TransferListener {
     }
 
     public void addUploadTask(Account account, String repoID, String repoName, String dir,
-            String filePath) {
-        txManager.addUploadTask(account, repoID, repoName, dir, filePath);
+                              String filePath, boolean isUpdate) {
+        txManager.addUploadTask(account, repoID, repoName, dir, filePath, isUpdate);
     }
 
     public void addDownloadTask(Account account, String repoName, String repoID, String path,

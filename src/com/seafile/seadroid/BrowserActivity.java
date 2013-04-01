@@ -79,21 +79,33 @@ public class BrowserActivity extends SherlockFragmentActivity
         String repoName;
         String targetDir;
         String localFilePath;
+        boolean isUpdate;
 
         public PendingUploadInfo(String repoID, String repoName,
-                                 String targetDir, String localFilePath) {
+                                 String targetDir, String localFilePath,
+                                 boolean isUpdate) {
             this.repoID = repoID;
             this.repoName = repoName;
             this.targetDir = targetDir;
             this.localFilePath = localFilePath;
+            this.isUpdate = isUpdate;
+        }
+    }
+
+    public void addUpdateTask(String repoID, String repoName, String targetDir, String localFilePath) {
+        if (txService != null) {
+            txService.addUploadTask(account, repoID, repoName, targetDir, localFilePath, true);
+        } else {
+            PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, true);
+            pendingUploads.add(info);
         }
     }
 
     private void addUploadTask(String repoID, String repoName, String targetDir, String localFilePath) {
         if (txService != null) {
-            txService.addUploadTask(account, repoID, repoName, targetDir, localFilePath);
+            txService.addUploadTask(account, repoID, repoName, targetDir, localFilePath, false);
         } else {
-            PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath);
+            PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, false);
             pendingUploads.add(info);
         }
     }
@@ -257,7 +269,8 @@ public class BrowserActivity extends SherlockFragmentActivity
 
             for (PendingUploadInfo info : pendingUploads) {
                 txService.addUploadTask(account, info.repoID,
-                    info.repoName, info.targetDir, info.localFilePath);
+                                        info.repoName, info.targetDir,
+                                        info.localFilePath, info.isUpdate);
             }
             pendingUploads.clear();
 

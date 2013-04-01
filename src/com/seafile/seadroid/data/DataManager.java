@@ -265,7 +265,7 @@ public class DataManager {
     }
 
     /**
-     * Each repo is places under <server-name>/<user-name>/<repo-name>. When a
+     * Each repo is places under [account-dir]/[repo-name]. When a
      * file is downloaded, it's placed in its repo, with it full path.
      * @param repoName
      * @param repoID
@@ -474,6 +474,11 @@ public class DataManager {
         sc.uploadFile(repoID, dir, filePath, monitor);
     }
 
+    public void updateFile(String repoID, String dir, String filePath,
+            ProgressMonitor monitor) throws SeafException {
+        sc.updateFile(repoID, dir, filePath, monitor);
+    }
+
     /** Remove cached dirents from dir to the root.
      */
     public void invalidateCache(String repoID, String dir) {
@@ -496,7 +501,7 @@ public class DataManager {
     }
 
     /**
-     * Detect the local cached file has been modified.
+     * Detect the local cached file has been modified
      */
     public boolean isLocalFileModified(String repoName, String repoID, String path) {
         SeafCachedFile cachedFile = dbHelper.getFileCacheItem(repoName, repoID, path, this);
