@@ -481,12 +481,11 @@ public class SeafConnection {
         }
     }
     
-    // When "overwrite" is true, means update an existing file, else upload a new file
-    private String getUploadLink(String repoID, boolean overwrite) throws SeafException {
+    private String getUploadLink(String repoID, boolean isUpdate) throws SeafException {
         InputStream is = null;
         try {
             String url = "api2/repos/" + repoID + "/upload-link/";
-            if (overwrite) {
+            if (isUpdate) {
                 url += "?update=true";
             }
             HttpURLConnection conn = prepareGet(url);
@@ -534,7 +533,7 @@ public class SeafConnection {
     public void updateFile(String repoID, String dir, String filePath, ProgressMonitor monitor)
                             throws SeafException {
         String url = getUploadLink(repoID, true);
-        uploadFileCommon(url, repoID, dir, filePath, monitor);
+        uploadFileCommon(url, repoID, dir, filePath, monitor, true);
     }
     
     /**
@@ -543,11 +542,12 @@ public class SeafConnection {
     public void uploadFile(String repoID, String dir, String filePath, ProgressMonitor monitor)
                             throws SeafException {
         String url = getUploadLink(repoID, false);
-        uploadFileCommon(url, repoID, dir, filePath, monitor);
+        uploadFileCommon(url, repoID, dir, filePath, monitor, false);
     }
 
     private void uploadFileCommon(String link, String repoID, String dir,
-                                  String filePath, ProgressMonitor monitor) throws SeafException {
+                                  String filePath, ProgressMonitor monitor, boolean isUpdate)
+                                    throws SeafException {
         DataOutputStream request = null;
         HttpURLConnection conn = null;
         File file = new File(filePath);
@@ -574,6 +574,18 @@ public class SeafConnection {
             builder.append(dir + this.crlf); // line 4
             byte[] dirParam = builder.toString().getBytes("UTF-8");
             totalLen += dirParam.length;
+
+            byte[] targetFileParam = {};
+            if (isUpdate) {
+                builder = new StringBuilder();
+                builder.append(this.twoHyphens + this.boundary + this.crlf);  // line 1, ------SeafileAndroidBound$_$
+                builder.append("Content-Disposition: form-data; name=\"target_file\"" + this.crlf); // line 2
+                builder.append(this.crlf); // line 3, an empty line
+                String targetFilePath = Utils.pathJoin(dir, file.getName());
+                builder.append(targetFilePath + this.crlf); // line 4
+                targetFileParam = builder.toString().getBytes("UTF-8");
+                totalLen += targetFileParam.length;
+            }
             
             String l1 = this.twoHyphens + this.boundary + this.crlf; // line 1
             byte[] l2 = new String("Content-Disposition: form-data; name=\"file\";filename=\"" 
@@ -596,6 +608,9 @@ public class SeafConnection {
             
             request = new DataOutputStream(conn.getOutputStream());
             request.write(dirParam);
+            if (isUpdate) {
+                request.write(targetFileParam);
+            }
             request.writeBytes(l1);
             request.write(l2);
             request.writeBytes(l3);

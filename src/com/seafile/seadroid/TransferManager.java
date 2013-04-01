@@ -237,9 +237,9 @@ public class TransferManager {
                     }
                 };
                 if (isUpdate) {
-                    dataManager.uploadFile(myRepoID, myDir, myPath, monitor);
-                } else {
                     dataManager.updateFile(myRepoID, myDir, myPath, monitor);
+                } else {
+                    dataManager.uploadFile(myRepoID, myDir, myPath, monitor);
                 }
             } catch (SeafException e) {
                 err = e;
