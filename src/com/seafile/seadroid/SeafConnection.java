@@ -75,13 +75,21 @@ public class SeafConnection {
                 SSLContext context;
 
                 context = SSLContext.getInstance("TLS");
-                if (secure)
-                    context.init(null, TrustManagerFactory.getTrustManagers(), null);
-                else {
-                    MyHostnameVerifier verifier = new MyHostnameVerifier();
-                    sc.setHostnameVerifier(verifier);
-                    context.init(null, TrustManagerFactory.getUnsecureTrustManagers(), null);
-                }
+                // if (secure)
+                //     context.init(null, TrustManagerFactory.getTrustManagers(), null);
+                // else {
+                //     MyHostnameVerifier verifier = new MyHostnameVerifier();
+                //     sc.setHostnameVerifier(verifier);
+                //     context.init(null, TrustManagerFactory.getUnsecureTrustManagers(), null);
+                // }
+
+                /**
+                 * XXX: For convience, all SSL ceritificates are trusted
+                 */
+                MyHostnameVerifier verifier = new MyHostnameVerifier();
+                sc.setHostnameVerifier(verifier);
+                context.init(null, TrustManagerFactory.getUnsecureTrustManagers(), null);
+
                 sc.setSSLSocketFactory(context.getSocketFactory());
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();

@@ -29,14 +29,14 @@ import android.util.Log;
 public class AccountDetailActivity extends FragmentActivity {
 
     private static final String DEBUG_TAG = "AccountDetailActivity";
-    
+
     private TextView statusView;
     private Button loginButton;
     private EditText serverText;
     private EditText emailText;
     private EditText passwdText;
     private CheckBox httpsCheckBox;
-    
+
     private AccountManager accountManager;
     private Account account = null;
 
@@ -45,16 +45,16 @@ public class AccountDetailActivity extends FragmentActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.account_detail);
-        
+
         statusView = (TextView) findViewById(R.id.status_view);
         loginButton = (Button) findViewById(R.id.login_button);
         httpsCheckBox = (CheckBox) findViewById(R.id.https_checkbox);
         serverText = (EditText) findViewById(R.id.server_url);
         emailText = (EditText) findViewById(R.id.email_address);
         passwdText = (EditText) findViewById(R.id.password);
-        
+
         accountManager = new AccountManager(this);
-        
+
         Intent intent = getIntent();
         String server = intent.getStringExtra("server");
         String email = intent.getStringExtra("email");
@@ -66,17 +66,17 @@ public class AccountDetailActivity extends FragmentActivity {
             emailText.setText(account.getEmail());
         }
     }
-    
+
     private String cleanServerURL(String serverURL, boolean isHttps) throws MalformedURLException {
         if (isHttps)
             serverURL = "https://" + serverURL;
         else
             serverURL = "http://" + serverURL;
-        
+
         if (!serverURL.endsWith("/")) {
             serverURL = serverURL + "/";
         }
-        
+
         new URL(serverURL); // will throw MalformedURLException if serverURL not valid
         return serverURL;
     }
@@ -87,8 +87,8 @@ public class AccountDetailActivity extends FragmentActivity {
         String email = emailText.getText().toString();
         String passwd = passwdText.getText().toString();
         boolean isHttps = httpsCheckBox.isChecked();
-        
-        ConnectivityManager connMgr = (ConnectivityManager) 
+
+        ConnectivityManager connMgr = (ConnectivityManager)
             getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
@@ -104,7 +104,7 @@ public class AccountDetailActivity extends FragmentActivity {
                 Log.d(DEBUG_TAG, "Invalid URL " + serverURL);
                 return;
             }
-            
+
             loginButton.setEnabled(false);
             Account tmpAccount = new Account(serverURL, email, passwd);
             ConcurrentAsyncTask.execute(new LoginTask(tmpAccount));
@@ -121,18 +121,18 @@ public class AccountDetailActivity extends FragmentActivity {
         startActivity(intent);
         finish(); // so the user will not return to this activity when press 'back'
     }
-    
+
     private class LoginTask extends AsyncTask<Void, Void, String> {
-        
+
         Account loginAccount;
         SeafException err = null;
-        
+
         public LoginTask(Account loginAccount) {
             this.loginAccount = loginAccount;
         }
-        
+
         @Override
-        protected String doInBackground(Void... params) {              
+        protected String doInBackground(Void... params) {
             if (params.length != 0)
                 return "Error number of parameter";
 
@@ -148,7 +148,7 @@ public class AccountDetailActivity extends FragmentActivity {
                 statusView.setText(result);
             }
             loginButton.setEnabled(true);
-            
+
             if (err != null) {
                 if (err == SeafException.sslException) {
                     TrustServerDialogFragment dialog = new TrustServerDialogFragment(loginAccount);
@@ -157,9 +157,9 @@ public class AccountDetailActivity extends FragmentActivity {
             }
         }
 
-        private String doLogin() {   
+        private String doLogin() {
             SeafConnection sc = new SeafConnection(loginAccount);
-            
+
             try {
                 if (sc.doLogin() == false)
                     return getString(R.string.err_login_failed);
@@ -177,11 +177,11 @@ public class AccountDetailActivity extends FragmentActivity {
             }
         }
     }
-    
+
     private class TrustServerDialogFragment extends DialogFragment {
-        
+
         Account account;
-        
+
         TrustServerDialogFragment(Account loginAccount) {
             account = loginAccount;
         }
