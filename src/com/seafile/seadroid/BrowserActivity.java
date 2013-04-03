@@ -575,14 +575,16 @@ public class BrowserActivity extends SherlockFragmentActivity
      */
     public void onFileSelected(String repoName, String repoID, String path, SeafDirent dirent) {
         SeafCachedFile cf = dataManager.getCachedFile(repoName, repoID, path);
+        // If local file is up to date, show it
         if (cf != null && dirent.id.equals(cf.fileID)) {
             File file = dataManager.getLocalRepoFile(repoName, repoID, path);
             if (file.exists()) {
-                showFile(repoName, repoID, path, dirent.id);
+                showFile(repoName, repoID, path);
                 return;
             }
         }
 
+        // Add a download task
         if (txService.addDownloadTask(account, repoName, repoID, path, dirent.id, dirent.size)) {
             showToast("Downloading " + Utils.fileNameFromPath(path));
         } else {
@@ -592,7 +594,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     @Override
     public void onCachedFileSelected(SeafCachedFile item) {
-        // showFile(item.repo, item.path, item.fileID);
+        showFile(item.repoName, item.repoID, item.path);
     }
 
     @Override
@@ -633,7 +635,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         startActivity(intent);
     }
 
-    private boolean showFile(String repoName, String repoID, String path, String fileID) {
+    private boolean showFile(String repoName, String repoID, String path) {
         File file = dataManager.getLocalRepoFile(repoName, repoID, path);
         String name = file.getName();
         String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();

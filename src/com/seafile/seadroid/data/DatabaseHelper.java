@@ -42,20 +42,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String SQL_CREATE_FILECACHE_TABLE =
         "CREATE TABLE " + FILECACHE_TABLE_NAME + " ("
         + FILECACHE_COLUMN_ID + " INTEGER PRIMARY KEY, "
-        + FILECACHE_COLUMN_FILEID + " TEXT, "
-        + FILECACHE_COLUMN_PATH + " TEXT, "
-        + FILECACHE_COLUMN_REPO_NAME + " TEXT, "
-        + FILECACHE_COLUMN_REPO_ID + " TEXT, "
-        + FILECACHE_COLUMN_CTIME + " INTEGER, "
-        + FILECACHE_COLUMN_ACCOUNT + " TEXT);";
+        + FILECACHE_COLUMN_FILEID + " TEXT NOT NULL, "
+        + FILECACHE_COLUMN_PATH + " TEXT NOT NULL, "
+        + FILECACHE_COLUMN_REPO_NAME + " TEXT NOT NULL, "
+        + FILECACHE_COLUMN_REPO_ID + " TEXT NOT NULL, "
+        + FILECACHE_COLUMN_CTIME + " INTEGER NOT NULL, "
+        + FILECACHE_COLUMN_ACCOUNT + " TEXT NOT NULL);";
 
     private static final String SQL_CREATE_REPODIR_TABLE =
         "CREATE TABLE " + REPODIR_TABLE_NAME + " ("
         + REPODIR_COLUMN_ID + " INTEGER PRIMARY KEY, "
-        + REPODIR_COLUMN_ACCOUNT + " TEXT, "
-        + REPODIR_COLUMN_REPO_NAME + " TEXT, "
-        + REPODIR_COLUMN_REPO_ID + " TEXT, "
-        + REPODIR_COLUMN_REPO_DIR + " TEXT);";
+        + REPODIR_COLUMN_ACCOUNT + " TEXT NOT NULL, "
+        + REPODIR_COLUMN_REPO_NAME + " TEXT NOT NULL, "
+        + REPODIR_COLUMN_REPO_ID + " TEXT NOT NULL, "
+        + REPODIR_COLUMN_REPO_DIR + " TEXT NOT NULL);";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
