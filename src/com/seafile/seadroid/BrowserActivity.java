@@ -583,8 +583,11 @@ public class BrowserActivity extends SherlockFragmentActivity
             }
         }
 
-        txService.addDownloadTask(account, repoName, repoID, path, dirent.id, dirent.size);
-        showToast("Downloading " + Utils.fileNameFromPath(path));
+        if (txService.addDownloadTask(account, repoName, repoID, path, dirent.id, dirent.size)) {
+            showToast("Downloading " + Utils.fileNameFromPath(path));
+        } else {
+            showToast("You are already downloading " + Utils.fileNameFromPath(path));
+        }
     }
 
     @Override

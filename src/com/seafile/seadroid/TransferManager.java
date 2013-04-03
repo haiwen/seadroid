@@ -68,15 +68,21 @@ public class TransferManager {
         task.execute();
     }
 
-    public void addDownloadTask(Account account, String repoName, String repoID, String path,
+    /**
+     * Add a new download task
+     * @return Return false if there is a duplicating task, otherwise return true
+     */
+    public boolean addDownloadTask(Account account, String repoName, String repoID, String path,
             String fileID, long size) {
-        // check duplication
+        // Check duplication
         for (DownloadTask task : downloadTasks) {
-            if (task.myFileID.equals(fileID))
-                return;
+            if (task.myRepoID.equals(repoID) && task.myPath.equals(path)) {
+                return false;
+            }
         }
         DownloadTask task = new DownloadTask(account, repoName, repoID, path, fileID, size);
         task.execute();
+        return true;
     }
 
     private UploadTask getUploadTaskByID(int taskID) {
