@@ -1,9 +1,7 @@
 package com.seafile.seadroid;
 
 import java.io.File;
-import java.util.List;
 
-import com.seafile.seadroid.data.DataManager;
 
 import us.feras.mdv.MarkdownView;
 

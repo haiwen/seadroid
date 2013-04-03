@@ -212,7 +212,7 @@ public class DataManager {
      */
     private String getAccountDir() {
         String username = account.getEmail();
-        String server = Utils.stripSlashes(account.getServerNoProtocol());
+        String server = Utils.stripSlashes(account.getServerHost());
         String p = String.format("%s (%s)", username, server);
         String accountDir = Utils.pathJoin(getExternalRootDirectory(), p);
 
@@ -440,6 +440,10 @@ public class DataManager {
         return dirents;
     }
 
+    public SeafCachedFile getCachedFile(String repoName, String repoID, String path) {
+        SeafCachedFile cf = dbHelper.getFileCacheItem(repoName, repoID, path, this);
+        return cf;
+    }
 
     public List<SeafCachedFile> getCachedFiles() {
         return dbHelper.getFileCacheItems(this);
@@ -474,9 +478,9 @@ public class DataManager {
         sc.uploadFile(repoID, dir, filePath, monitor);
     }
 
-    public void updateFile(String repoID, String dir, String filePath,
+    public String updateFile(String repoID, String dir, String filePath,
             ProgressMonitor monitor) throws SeafException {
-        sc.updateFile(repoID, dir, filePath, monitor);
+        return sc.updateFile(repoID, dir, filePath, monitor);
     }
 
     /** Remove cached dirents from dir to the root.
@@ -504,7 +508,7 @@ public class DataManager {
      * Detect the local cached file has been modified
      */
     public boolean isLocalFileModified(String repoName, String repoID, String path) {
-        SeafCachedFile cachedFile = dbHelper.getFileCacheItem(repoName, repoID, path, this);
+        SeafCachedFile cachedFile = getCachedFile(repoName, repoID, path);
         if (cachedFile == null) {
             return false;
         }

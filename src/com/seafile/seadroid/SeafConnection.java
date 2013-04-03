@@ -45,19 +45,19 @@ import android.util.Log;
  * @author plt
  */
 public class SeafConnection {
-    
+
     private static final String DEBUG_TAG = "SeafConnection";
 
     private Account account;
-    
+
     public SeafConnection(Account act) {
         account = act;
     }
-    
+
     public Account getAccount() {
         return account;
     }
-    
+
     class MyHostnameVerifier implements javax.net.ssl.HostnameVerifier {
         public boolean verify(String urlHostName, String certHostName){
             return true;
@@ -67,7 +67,7 @@ public class SeafConnection {
             return true;
         }
     }
-    
+
     private void prepareSSL(HttpURLConnection conn, boolean secure) {
         if (conn instanceof HttpsURLConnection) {
             try {
@@ -90,7 +90,7 @@ public class SeafConnection {
             }
         }
     }
-    
+
     private HttpURLConnection prepareGet(String apiPath, boolean withToken)
             throws IOException {
         URL url = new URL(account.server + apiPath);
@@ -98,20 +98,20 @@ public class SeafConnection {
         prepareSSL(conn, true);
         conn.setReadTimeout(30000);
         conn.setConnectTimeout(15000);
-    
+
         conn.setRequestMethod("GET");
         conn.setDoInput(true);
         if (withToken)
             conn.addRequestProperty("Authorization", "Token " + account.token);
-        
+
         //Log.d(DEBUG_TAG, "get from " + url.getPath());
         return conn;
     }
-    
+
     private HttpURLConnection prepareGet(String apiPath) throws IOException {
         return prepareGet(apiPath, true);
     }
-    
+
     private HttpURLConnection prepareFileGet(String urlString)
             throws IOException {
         URL url = new URL(urlString);
@@ -122,16 +122,16 @@ public class SeafConnection {
         conn.setDoInput(true);
         return conn;
     }
-    
+
     private  HttpURLConnection preparePost(String apiPath, boolean withToken)
             throws IOException {
         URL url = new URL(account.server + apiPath);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         prepareSSL(conn, true);
-        
+
         conn.setReadTimeout(10000 /* milliseconds */);
         conn.setConnectTimeout(15000 /* milliseconds */);
-        
+
         conn.setRequestMethod("POST");
         conn.setDoInput(true);
         conn.setDoOutput(true);
@@ -139,11 +139,11 @@ public class SeafConnection {
             conn.addRequestProperty("Authorization", "Token " + account.token);
         return conn;
     }
-    
+
     private  HttpURLConnection preparePost(String apiPath) throws IOException {
         return preparePost(apiPath, true);
     }
-    
+
     private String encodePostParams(List<NameValuePair> params)
             throws UnsupportedEncodingException {
         StringBuilder result = new StringBuilder();
@@ -154,7 +154,7 @@ public class SeafConnection {
                 first = false;
             else
                 result.append("&");
-            
+
             result.append(URLEncoder.encode(pair.getName(), "UTF-8"));
             result.append("=");
             result.append(URLEncoder.encode(pair.getValue(), "UTF-8"));
@@ -162,8 +162,8 @@ public class SeafConnection {
 
         return result.toString();
     }
-    
-    private void doPost(HttpURLConnection conn, List<NameValuePair> params) 
+
+    private void doPost(HttpURLConnection conn, List<NameValuePair> params)
             throws IOException, ProtocolException, UnsupportedEncodingException {
         OutputStream os = null;
         try {
@@ -182,8 +182,8 @@ public class SeafConnection {
             }
         }
     }
-    
-    
+
+
     /**
      * Login into the server
      * @return true if login success, false otherwise
@@ -232,19 +232,19 @@ public class SeafConnection {
             }
         }
     }
-    
+
     public boolean authPing() throws SeafException {
         InputStream is = null;
         try {
-            
+
             HttpURLConnection conn = prepareGet("api2/auth/ping/");
-            
+
             // Starts the query
             conn.connect();
             int response = conn.getResponseCode();
             if (response != 200)
                 throw new SeafException(response, conn.getResponseMessage());
-            
+
             is = conn.getInputStream();
             String result = Utils.readIt(is);
             if (result.equals("\"pong\""))
@@ -266,16 +266,16 @@ public class SeafConnection {
             }
         }
     }
-    
+
     public boolean ping() throws SeafException {
         InputStream is = null;
-        try {     
+        try {
             HttpURLConnection conn = prepareGet("api2/ping/");
             conn.connect();
             int response = conn.getResponseCode();
             if (response != 200)
                 throw new SeafException(response, conn.getResponseMessage());
-            
+
             is = conn.getInputStream();
             String result = Utils.readIt(is);
             if (result.equals("\"pong\""))
@@ -297,8 +297,8 @@ public class SeafConnection {
             }
         }
     }
-    
-    
+
+
     public String getRepos() throws SeafException {
         InputStream is = null;
         try {
@@ -307,7 +307,7 @@ public class SeafConnection {
             int response = conn.getResponseCode();
             if (response != 200)
                 throw new SeafException(response, conn.getResponseMessage());
-            
+
             is = conn.getInputStream();
             String result = Utils.readIt(is);
             return result;
@@ -325,7 +325,7 @@ public class SeafConnection {
             }
         }
     }
-    
+
     public String getDirents(String repoID, String path) throws SeafException {
         InputStream is = null;
         try {
@@ -336,7 +336,7 @@ public class SeafConnection {
             if (response != 200) {
                 throw new SeafException(response, conn.getResponseMessage());
             }
-            
+
             is = conn.getInputStream();
             String result = Utils.readIt(is);
             return result;
@@ -356,18 +356,18 @@ public class SeafConnection {
             }
         }
     }
-    
+
     private String getDownloadLink(String repoID, String path) throws SeafException {
         InputStream is = null;
         try {
             String encPath = URLEncoder.encode(path, "UTF-8");
-            HttpURLConnection conn = prepareGet("api2/repos/" + repoID + "/file/" + "?p=" 
+            HttpURLConnection conn = prepareGet("api2/repos/" + repoID + "/file/" + "?p="
                     + encPath + "&op=download");
             conn.connect();
             int response = conn.getResponseCode();
             if (response != 200)
                 throw new SeafException(response, conn.getResponseMessage());
-            
+
             is = conn.getInputStream();
             String result = Utils.readIt(is);
             // should return "\"http://gonggeng.org:8082/...\"" or "\"https://gonggeng.org:8082/...\"
@@ -391,31 +391,31 @@ public class SeafConnection {
             }
         }
     }
-    
-    public File getFile(String repoID, String path, String localPath, String oid, ProgressMonitor monitor) 
+
+    public File getFile(String repoID, String path, String localPath, String oid, ProgressMonitor monitor)
             throws SeafException {
         String dlink = getDownloadLink(repoID, path);
         if (dlink == null)
             return null;
-       
+
         File file = new File(localPath);
-        
+
         InputStream is = null;
         OutputStream os = null;
         HttpURLConnection conn = null;
         try {
             int i = dlink.lastIndexOf('/');
-            String quoted = dlink.substring(0, i) + "/" + 
+            String quoted = dlink.substring(0, i) + "/" +
                     URLEncoder.encode(dlink.substring(i+1), "UTF-8");
             conn = prepareFileGet(quoted);
             conn.connect();
             int response = conn.getResponseCode();
             if (response != 200)
                 throw new SeafException(response, conn.getResponseMessage());
-            
+
             File tmp = DataManager.getTempFile(path, oid);
             // Log.d(DEBUG_TAG, "write to " + tmp.getAbsolutePath());
-            
+
             is = conn.getInputStream();
             os = new FileOutputStream(tmp);
             long nextUpdate = System.currentTimeMillis() + 1000;
@@ -425,7 +425,7 @@ public class SeafConnection {
                 int len = is.read(data, 0, 1024);
                 if (Thread.currentThread().isInterrupted())
                     return null;
-                
+
                 if (len == -1)
                     break;
                 os.write(data, 0, len);
@@ -433,13 +433,13 @@ public class SeafConnection {
                 if (monitor != null)
                     if (monitor.isCancelled())
                         return null;
-                    
+
                 if (System.currentTimeMillis() > nextUpdate) {
                     if (monitor != null) monitor.onProgressNotify(total);
                     nextUpdate = System.currentTimeMillis() + 1000;
                 }
             }
-            
+
             if (tmp.renameTo(file) == false) {
                 Log.w(DEBUG_TAG, "Rename file error");
                 return null;
@@ -480,20 +480,22 @@ public class SeafConnection {
             return;
         }
     }
-    
+
     private String getUploadLink(String repoID, boolean isUpdate) throws SeafException {
         InputStream is = null;
         try {
-            String url = "api2/repos/" + repoID + "/upload-link/";
+            String url;
             if (isUpdate) {
-                url += "?update=true";
+                url = "api2/repos/" + repoID + "/update-link/";
+            } else {
+                url = "api2/repos/" + repoID + "/upload-link/";
             }
             HttpURLConnection conn = prepareGet(url);
             conn.connect();
             int response = conn.getResponseCode();
             if (response != 200)
                 throw new SeafException(response, conn.getResponseMessage());
-            
+
             is = conn.getInputStream();
             String result = Utils.readIt(is);
             // should return "\"http://gonggeng.org:8082/...\"" or "\"https://gonggeng.org:8082/...\"
@@ -521,21 +523,21 @@ public class SeafConnection {
             }
         }
     }
-    
+
     String attachmentName = "file";
     String crlf = "\r\n";
     String twoHyphens = "--";
     String boundary = "----SeafileAndroidBound$_$";
-    
+
     /**
      * Upload a file to update an existing file
      */
-    public void updateFile(String repoID, String dir, String filePath, ProgressMonitor monitor)
-                            throws SeafException {
+    public String updateFile(String repoID, String dir, String filePath, ProgressMonitor monitor)
+                                throws SeafException {
         String url = getUploadLink(repoID, true);
-        uploadFileCommon(url, repoID, dir, filePath, monitor, true);
+        return uploadFileCommon(url, repoID, dir, filePath, monitor, true);
     }
-    
+
     /**
      * Upload a new file
      */
@@ -545,15 +547,15 @@ public class SeafConnection {
         uploadFileCommon(url, repoID, dir, filePath, monitor, false);
     }
 
-    private void uploadFileCommon(String link, String repoID, String dir,
-                                  String filePath, ProgressMonitor monitor, boolean isUpdate)
-                                    throws SeafException {
+    private String uploadFileCommon(String link, String repoID, String dir,
+                                    String filePath, ProgressMonitor monitor, boolean isUpdate)
+                                        throws SeafException {
         DataOutputStream request = null;
         HttpURLConnection conn = null;
         File file = new File(filePath);
         if (!file.exists())
-            return;
-        
+            return null;
+
         try {
             URL url = new URL(link);
             Log.d(DEBUG_TAG, "Upload to " + link);
@@ -563,9 +565,9 @@ public class SeafConnection {
             conn.setConnectTimeout(15000);
             conn.setRequestMethod("POST");
             //conn.setChunkedStreamingMode(0);
-            
+
             int totalLen = 0;
-            
+
             // write the parent dir
             StringBuilder builder = new StringBuilder();
             builder.append(this.twoHyphens + this.boundary + this.crlf);  // line 1, ------SeafileAndroidBound$_$
@@ -586,18 +588,18 @@ public class SeafConnection {
                 targetFileParam = builder.toString().getBytes("UTF-8");
                 totalLen += targetFileParam.length;
             }
-            
+
             String l1 = this.twoHyphens + this.boundary + this.crlf; // line 1
-            byte[] l2 = new String("Content-Disposition: form-data; name=\"file\";filename=\"" 
-                    + file.getName() + "\"" + this.crlf).getBytes("UTF-8"); // line 2, 
+            byte[] l2 = new String("Content-Disposition: form-data; name=\"file\";filename=\""
+                    + file.getName() + "\"" + this.crlf).getBytes("UTF-8"); // line 2,
             String l3 = "Content-Type: text/plain" + this.crlf; // line 3
             String l4 = this.crlf; // line 4
             totalLen += l1.length() + l2.length + l3.length() + l4.length() + file.length() + 2;
-            
-            
+
+
             String end = this.twoHyphens + this.boundary + this.twoHyphens + this.crlf;
             totalLen += end.length();
-            
+
             Log.d(DEBUG_TAG, "Total len is " + totalLen);
             conn.setFixedLengthStreamingMode(totalLen);
             conn.setDoInput(true);
@@ -605,7 +607,7 @@ public class SeafConnection {
             conn.setRequestProperty("Connection", "Keep-Alive");
             conn.setRequestProperty("Cache-Control", "no-cache");
             conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + this.boundary);
-            
+
             request = new DataOutputStream(conn.getOutputStream());
             request.write(dirParam);
             if (isUpdate) {
@@ -633,14 +635,21 @@ public class SeafConnection {
             }
             request.writeBytes(this.crlf);
             request.writeBytes(end);
-            
+
             request.flush();
             request.close();
             Log.d(DEBUG_TAG, "finish write");
-            
+
             // if we use https, only when we read input the data will be sent out
             InputStream is = conn.getInputStream();
-            is.close();
+            if (!isUpdate) {
+                is.close();
+                return null;
+            } else {
+                String new_file_id = Utils.readIt(is);
+                is.close();
+                return new_file_id;
+            }
         } catch (Exception e) {
             e.printStackTrace();
             String msg = e.getMessage();
@@ -653,5 +662,5 @@ public class SeafConnection {
             if (conn != null) conn.disconnect();
         }
     }
-    
+
 }

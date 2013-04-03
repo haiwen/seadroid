@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
 
-import com.seafile.seadroid.TransferManager.TaskState;
-import com.seafile.seadroid.TransferManager.UploadTaskInfo;
 import com.seafile.seadroid.account.Account;
 import com.seafile.seadroid.data.DataManager;
 import com.seafile.seadroid.data.DataManager.ProgressMonitor;
@@ -139,19 +137,20 @@ public class TransferManager {
         }
     }
 
-    private class UploadTask extends AsyncTask<String, Long, Void> {
+    private class UploadTask extends AsyncTask<String, Long, String> {
 
         private String myRepoID;
         private String myRepoName;
         private String myDir;   // parent dir
         private String myPath;  // local file path
-        private String myFileName; // base file name
         private boolean isUpdate;  // true if update an existing file
 
         private TaskState myState;
         private int myID;
         private long myUploaded;
         private long mySize;
+
+        private String newFileID; // Only used in update tasks;
 
         SeafException err;
 
@@ -164,8 +163,9 @@ public class TransferManager {
             this.myRepoName = repoName;
             this.myDir = dir;
             this.myPath = filePath;
-            this.myFileName = Utils.fileNameFromPath(filePath);
             this.isUpdate = isUpdate;
+            this.newFileID = null;
+            
             File f = new File(filePath);
             mySize = f.length();
 
@@ -188,8 +188,8 @@ public class TransferManager {
 
         public UploadTaskInfo getTaskInfo() {
             UploadTaskInfo info = new UploadTaskInfo(myID, myState, myRepoID,
-                                                     myRepoName, myDir, myPath,
-                                                     myUploaded, mySize, err);
+                                                     myRepoName, myDir, myPath, isUpdate,
+                                                     myUploaded, mySize, newFileID, err);
             return info;
         }
 
@@ -222,7 +222,7 @@ public class TransferManager {
         }
 
         @Override
-        protected Void doInBackground(String... params) {
+        protected String doInBackground(String... params) {
             try {
                 DataManager dataManager = new DataManager(account);
                 ProgressMonitor monitor = new ProgressMonitor() {
@@ -237,9 +237,10 @@ public class TransferManager {
                     }
                 };
                 if (isUpdate) {
-                    dataManager.updateFile(myRepoID, myDir, myPath, monitor);
+                    return dataManager.updateFile(myRepoID, myDir, myPath, monitor);
                 } else {
                     dataManager.uploadFile(myRepoID, myDir, myPath, monitor);
+                    return null;
                 }
             } catch (SeafException e) {
                 err = e;
@@ -248,14 +249,14 @@ public class TransferManager {
         }
 
         @Override
-        protected void onPostExecute(Void v) {
+        protected void onPostExecute(String newFileID) {
+            this.newFileID = newFileID;
+            myState = err == null ? TaskState.FINISHED : TaskState.FAILED;
             if (listener != null) {
                 if (err == null) {
-                    myState = TaskState.FINISHED;
                     listener.onFileUploaded(myID);
                 }
                 else {
-                    myState = TaskState.FAILED;
                     listener.onFileUploadFailed(myID);
                 }
             }
@@ -295,10 +296,6 @@ public class TransferManager {
             // Log.d(DEBUG_TAG, "stored object is " + myPath + myObjectID);
             downloadTasks.add(this);
             err = null;
-        }
-
-        public String getFileID() {
-            return myFileID;
         }
 
         @Override
@@ -395,20 +392,26 @@ public class TransferManager {
         public final String repoName;
         public final String parentDir;
         public final String localFilePath;
+        public final boolean isUpdate;
         public final long uploadedSize, totalSize;
+        public final String newFileID; // only used for update tasks
         public final SeafException err;
 
         public UploadTaskInfo(int taskID, TaskState state, String repoID,
-                              String repoName, String parentDir, String localFilePath,
-                              long uploadedSize, long totalSize, SeafException err) {
+                              String repoName, String parentDir,
+                              String localFilePath, boolean isUpdate,
+                              long uploadedSize, long totalSize, String newFileID,
+                              SeafException err) {
             this.taskID = taskID;
             this.state = state;
             this.repoID = repoID;
             this.repoName = repoName;
             this.parentDir = parentDir;
             this.localFilePath = localFilePath;
+            this.isUpdate = isUpdate;
             this.uploadedSize = uploadedSize;
             this.totalSize = totalSize;
+            this.newFileID = newFileID;
             this.err = err;
         }
     }

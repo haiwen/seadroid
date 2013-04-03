@@ -1,7 +1,5 @@
 package com.seafile.seadroid.account;
 
-import java.security.MessageDigest;
-
 public class Account {
     
     // The full URL of the server, like 'http://gonggeng.org/seahub/' or 'http://gonggeng.org/'

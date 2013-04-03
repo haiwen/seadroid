@@ -565,17 +565,26 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     /***************  Navigation *************/
 
-    // File selected in repos fragment
+    /**
+     * When a file is clicked on ReposFragment, only show file if:
+     *
+     * - There is cache
+     * - Cached file id is the same as current file id
+     *
+     * Otherwise, download the file
+     */
     public void onFileSelected(String repoName, String repoID, String path, SeafDirent dirent) {
-        File file = dataManager.getLocalRepoFile(repoName,  repoID, path);
-        if (file.exists()) {
-            showFile(repoName, repoID, path, dirent.id);
-        } else {
-            txService.addDownloadTask(account, repoName, repoID, path, dirent.id, dirent.size);
-            //transferManager.addDownloadTask(account, repoID, path, dirent.id, dirent.size);
-            showToast("Downloading " + Utils.fileNameFromPath(path));
+        SeafCachedFile cf = dataManager.getCachedFile(repoName, repoID, path);
+        if (cf != null && dirent.id.equals(cf.fileID)) {
+            File file = dataManager.getLocalRepoFile(repoName, repoID, path);
+            if (file.exists()) {
+                showFile(repoName, repoID, path, dirent.id);
+                return;
+            }
         }
-        Log.d(DEBUG_TAG, "" + android.os.Build.VERSION_CODES.JELLY_BEAN);
+
+        txService.addDownloadTask(account, repoName, repoID, path, dirent.id, dirent.size);
+        showToast("Downloading " + Utils.fileNameFromPath(path));
     }
 
     @Override
@@ -678,6 +687,13 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         if (uploadTasksFragment != null && uploadTasksFragment.isReady())
             uploadTasksFragment.onTaskFinished(info);
+
+        if (info.isUpdate) {
+            File f = new File(info.localFilePath);
+            String path = Utils.pathJoin(info.parentDir, f.getName());
+            dataManager.addCachedFile(info.repoName, info.repoID, path,
+                                      info.newFileID, f);
+        }
     }
 
     public void onFileUploadCancelled(int taskID) {
