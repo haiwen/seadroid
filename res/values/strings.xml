@@ -35,6 +35,7 @@
     <string name="err_wrong_user_or_passwd">Email or password error</string>
     <string name="upload">Upload</string>
     <string name="uploaded">Uploaded</string>
+    <string name="updated">Updated</string>
     <string name="upload_failed">Upload failed</string>
     <string name="download_failed">Download failed</string>
     <string name="trust_https_server">The certification is not issued by a trusted organization, do you want to continue?</string>

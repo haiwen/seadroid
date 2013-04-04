@@ -686,8 +686,8 @@ public class BrowserActivity extends SherlockFragmentActivity
                 && repoID.equals(navContext.getRepoID())
                 && dir.equals(navContext.getDirPath())) {
             reposFragment.refreshView();
-            showToast(getString(R.string.uploaded) + " "
-                      + Utils.fileNameFromPath(info.localFilePath));
+            String verb = getString(info.isUpdate ? R.string.updated : R.string.uploaded);
+            showToast(verb + " " + Utils.fileNameFromPath(info.localFilePath));
         }
 
         if (uploadTasksFragment != null && uploadTasksFragment.isReady())

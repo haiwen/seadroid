@@ -186,13 +186,19 @@ public class SeafItemAdapter extends BaseAdapter {
                 viewHolder.subtitle.setText(dirent.getSubtitle() + " modified");
                 modified = true;
             } else {
-                viewHolder.subtitle.setText(dirent.getSubtitle() + " cached");
+                SeafCachedFile cf = dataManager.getCachedFile(repoName, repoID, filePath);
+                String subtitle = dirent.getSubtitle();
+                if (dirent.id.equals(cf.fileID)) {
+                    subtitle += " cached";
+                }
+                viewHolder.subtitle.setText(subtitle);
             }
 
             if (Utils.isViewableImage(file.getName())) {
                 setImageThumbNail(file, dirent, dataManager, viewHolder);
             } else
                 viewHolder.icon.setImageResource(dirent.getIcon());
+
         } else {
             viewHolder.subtitle.setText(dirent.getSubtitle());
             viewHolder.icon.setImageResource(dirent.getIcon());

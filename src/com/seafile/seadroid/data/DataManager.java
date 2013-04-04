@@ -376,9 +376,7 @@ public class DataManager {
     public File getFile(String repoName, String repoID, String path, String oid, ProgressMonitor monitor)
             throws SeafException {
         File f = getLocalRepoFile(repoName, repoID, path);
-        if (!f.exists()) {
-            f = sc.getFile(repoID, path, f.getPath(), oid, monitor);
-        }
+        f = sc.getFile(repoID, path, f.getPath(), oid, monitor);
         if (f != null) {
             addCachedFile(repoName, repoID, path, oid, f);
         }

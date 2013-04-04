@@ -153,13 +153,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return item;
     }
 
+    // XXX: Here we can use SQLite3  "INSERT OR REPLACE" for convience
     public void saveFileCacheItem(SeafCachedFile item, DataManager dataManager) {
         SeafCachedFile old = getFileCacheItem(item.repoName, item.repoID, item.path, dataManager);
         if (old != null) {
-            if (old.fileID.equals(item.fileID))
-                return;
-            else
-                deleteFileCacheItem(old);
+            deleteFileCacheItem(old);
         }
 
         // Gets the data repository in write mode
