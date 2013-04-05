@@ -1,5 +1,5 @@
 /**
- * Copy & Modified from 
+ * Copy & Modified from
  *     https://github.com/vikaskanani/Android-Custom-Gallery-And-Instant-Upload
  */
 
@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -33,6 +34,7 @@ public class MultipleImageSelectionActivity extends Activity {
 
     public ImageAdapter imageAdapter;
     private final static int VIEW_IMAGE = 3;
+    private static final String DEBUG_TAG = "MultipleImageSelectionActivity";
 
     public GridView imageGrid;
 
@@ -42,7 +44,6 @@ public class MultipleImageSelectionActivity extends Activity {
         setContentView(R.layout.multiple_image_selection);
 
         imageAdapter = new ImageAdapter();
-        imageAdapter.initialize();
         imageGrid = (GridView) findViewById(R.id.PhoneImageGrid);
         imageGrid.setAdapter(imageAdapter);
 
@@ -70,8 +71,8 @@ public class MultipleImageSelectionActivity extends Activity {
             }
         });
 
+        ConcurrentAsyncTask.execute(new ThumbnailTask(imageAdapter));
     }
-
 
     public class ImageAdapter extends BaseAdapter {
         private LayoutInflater mInflater;
@@ -81,45 +82,12 @@ public class MultipleImageSelectionActivity extends Activity {
             mInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
 
-        public void initialize() {
-            images.clear();
-            final String[] columns = { 
-                    MediaStore.Images.Media._ID, 
-                    MediaStore.Images.Media.BUCKET_DISPLAY_NAME, 
-                    MediaStore.Images.Media.DATA, 
-                    };
-            final String orderBy = MediaStore.Images.Media._ID;
-            Cursor imagecursor = getContentResolver().query(
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns,
-                    null, null, orderBy);
-            if (imagecursor.moveToFirst()) {
-                int id_index = imagecursor
-                        .getColumnIndex(MediaStore.Images.Media._ID);
-                int name_index = imagecursor
-                        .getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
-                int data_index = imagecursor
-                        .getColumnIndex(MediaStore.Images.Media.DATA);
-                do {
-                    String path = imagecursor.getString(data_index);
-                    // only show photos taken by cameras
-                    if (path.contains("DCIM")) {
-                        ImageItem imageItem = new ImageItem();
-                        imageItem.id = imagecursor.getInt(id_index);
-                        imageItem.path = path;
-                        images.add(imageItem);
-                    }
-                } while (imagecursor.moveToNext());
-                imagecursor.close();
-            }
-            notifyDataSetChanged();
-        }
-
         public int getCount() {
             return images.size();
         }
 
-        public Object getItem(int position) {
-            return position;
+        public ImageItem getItem(int position) {
+            return images.get(position);
         }
 
         public long getItemId(int position) {
@@ -157,6 +125,7 @@ public class MultipleImageSelectionActivity extends Activity {
                     }
                 }
             });
+
             holder.imageview.setOnClickListener(new OnClickListener() {
 
                 public void onClick(View v) {
@@ -180,12 +149,10 @@ public class MultipleImageSelectionActivity extends Activity {
                     }
                 }
             });
-            
-            Bitmap img = MediaStore.Images.Thumbnails.getThumbnail(
-                    getApplicationContext().getContentResolver(), item.id,
-                    MediaStore.Images.Thumbnails.MICRO_KIND, null);
-            holder.imageview.setImageBitmap(img);
+
+            holder.imageview.setImageBitmap(item.thumb);
             holder.checkbox.setChecked(item.selection);
+
             return convertView;
         }
     }
@@ -199,7 +166,67 @@ public class MultipleImageSelectionActivity extends Activity {
         boolean selection;
         int id;
         String path;
+        Bitmap thumb;
     }
 
-}
+    private class ThumbnailTask extends AsyncTask<Void, ImageItem, Void> {
+        private ImageAdapter adapter;
 
+        public ThumbnailTask(ImageAdapter adapter) {
+            this.adapter = adapter;
+        }
+
+        @Override
+        protected void onProgressUpdate(ImageItem... values) {
+            ImageItem item = values[0];
+            adapter.images.add(item);
+            adapter.notifyDataSetChanged();
+            Log.d(DEBUG_TAG, "main: get thumbnail of " + item.path);
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            final String[] columns = {
+                MediaStore.Images.Media._ID,
+                MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
+                MediaStore.Images.Media.DATA,
+            };
+
+            final String orderBy = MediaStore.Images.Media._ID;
+
+            Cursor imagecursor = getContentResolver().query(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns,
+                    null, null, orderBy);
+
+            if (imagecursor.moveToFirst()) {
+                int id_index = imagecursor.getColumnIndex(MediaStore.Images.Media._ID);
+                int data_index = imagecursor.getColumnIndex(MediaStore.Images.Media.DATA);
+
+                do {
+                    String path = imagecursor.getString(data_index);
+                    // only show photos taken by cameras
+                    if (!path.contains("DCIM")) {
+                        continue;
+                    }
+
+                    ImageItem item = new ImageItem();
+                    item.id = imagecursor.getInt(id_index);
+                    item.path = path;
+
+                    Bitmap img = MediaStore.Images.Thumbnails.getThumbnail(
+                        getApplicationContext().getContentResolver(), item.id,
+                        MediaStore.Images.Thumbnails.MICRO_KIND, null);
+                    item.thumb = img;
+
+                    publishProgress(item);
+                    Log.d(DEBUG_TAG, "async: finished thumbnail of " + item.path);
+
+                } while (imagecursor.moveToNext());
+            }
+
+            imagecursor.close();
+
+            return null;
+        }
+    }
+}
