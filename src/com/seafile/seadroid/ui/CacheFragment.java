@@ -12,29 +12,30 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import com.seafile.seadroid.BrowserActivity;
 import com.seafile.seadroid.data.*;
 
-public class CacheFragment extends SherlockListFragment 
+public class CacheFragment extends SherlockListFragment
         implements SeafItemCheckableAdapter.OnCheckedChangeListener {
 
+    @SuppressWarnings("unused")
     private static final String DEBUG_TAG = "CachedFragment";
 
     private SeafItemCheckableAdapter adapter;
     View refresh = null;
     BrowserActivity mActivity = null;
-    
+
     private DataManager getDataManager() {
         return mActivity.getDataManager();
     }
-    
+
     public interface OnCachedFileSelectedListener {
         public void onCachedFileSelected(SeafCachedFile item);
     }
-    
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         mActivity = (BrowserActivity)activity;
     }
-    
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
 
@@ -44,11 +45,11 @@ public class CacheFragment extends SherlockListFragment
         setListAdapter(adapter);
 
         getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-        
+
         // refresh the view (loading data)
         refreshView();
     }
-    
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -59,11 +60,11 @@ public class CacheFragment extends SherlockListFragment
         mActivity = null;
         super.onDetach();
     }
-    
+
     public boolean isItemSelected() {
         return adapter.getNumSelected() > 0;
     }
-    
+
     public void refreshView() {
         List<SeafCachedFile> files = getDataManager().getCachedFiles();
         adapter.clear();
@@ -74,8 +75,8 @@ public class CacheFragment extends SherlockListFragment
         mActivity.invalidateOptionsMenu();
     }
 
-    @Override 
-    public void onListItemClick(ListView l, View v, int position, long id) {   
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
         SeafCachedFile cf = (SeafCachedFile)adapter.getItem(position);
         mActivity.onCachedFileSelected(cf);
     }

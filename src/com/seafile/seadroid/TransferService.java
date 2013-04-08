@@ -15,6 +15,7 @@ import android.util.Log;
 
 public class TransferService extends Service implements TransferListener {
 
+    @SuppressWarnings("unused")
     private static final String DEBUG_TAG = "TransferService";
 
     public static final String BROADCAST_ACTION =

@@ -27,6 +27,7 @@ public class UploadTasksAdapter extends BaseAdapter {
     private Map<Integer, Viewholder> mTaskViewMap;
     private Context mContext;
 
+    @SuppressWarnings("unused")
     private static final String DEBUG_TAG = "UploadTasksAdapter";
 
     public UploadTasksAdapter(Context context, List<UploadTaskInfo> infos) {

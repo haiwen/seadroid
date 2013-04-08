@@ -47,5 +47,9 @@
     <string name="delete">Delete</string>
     <string name="rename">Rename</string>
     <string name="update">Update</string>
-
+    <string name="wait">Wait</string>
+    <string name="image_gallery_NoImageView_text">No image Found</string>
+    <string name="pick_photo_video_title">Choose photos/videos to upload</string>
+    <string name="select_upload_items">select items to upload</string>
+    <string name="n_upload_items_selected">%d items selected</string>
 </resources>

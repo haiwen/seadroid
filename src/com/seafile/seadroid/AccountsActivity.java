@@ -23,12 +23,13 @@ import android.util.Log;
 
 public class AccountsActivity extends Activity {
 
+    @SuppressWarnings("unused")
     private static final String DEBUG_TAG = "StartActivity";
-    
+
     private ListView accountsView;
-    
+
     private AccountManager accountManager;
-    
+
     private AccountAdapter adapter;
     List<Account> accounts;
 
@@ -36,9 +37,9 @@ public class AccountsActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start);
-        
+
         accountsView = (ListView) findViewById(R.id.account_list_view);
-        
+
         accountManager = new AccountManager(this);
 
         Button addAccount = new Button(this);
@@ -62,16 +63,16 @@ public class AccountsActivity extends Activity {
         });
         registerForContextMenu(accountsView);
     }
-    
+
     // Always reload accounts on resume, so that when user add a new account,
     // it will be shown.
     @Override
     public void onResume() {
         super.onResume();
-        
+
         refreshView();
     }
-    
+
     private void refreshView() {
         accounts = accountManager.getAccountList();
         // Log.d(DEBUG_TAG, "Load accounts num " + accounts.size());
@@ -90,19 +91,19 @@ public class AccountsActivity extends Activity {
         startActivity(intent);
         finish();
     }
-    
+
     private void startAccountDetailActivity() {
         Intent intent = new Intent(this, AccountDetailActivity.class);
         startActivity(intent);
     }
-    
+
     private void startEditAccountActivity(Account account) {
         Intent intent = new Intent(this, AccountDetailActivity.class);
         intent.putExtra("server", account.server);
         intent.putExtra("email", account.email);
         startActivity(intent);
     }
-    
+
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v,
             ContextMenuInfo menuInfo) {
@@ -129,5 +130,5 @@ public class AccountsActivity extends Activity {
             return super.onContextItemSelected(item);
         }
     }
-    
+
 }

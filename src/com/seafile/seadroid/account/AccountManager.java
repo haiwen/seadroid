@@ -12,10 +12,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 
-public class AccountManager
-{   
+public class AccountManager {
+    @SuppressWarnings("unused")
     private static String DEBUG_TAG = "AccountManager";
-    
+
     AccountDbHelper dbHelper;
     Context context;
 
@@ -27,26 +27,26 @@ public class AccountManager
     public void login() {
 
     }
-    
+
     public void getAccount(String server) {
-        
+
     }
-    
+
     public Account getDefaultAccount() {
         SharedPreferences settings = context.getSharedPreferences("Account", 0);
         String defaultServer = settings.getString("server", "");
         String defaultEmail = settings.getString("email", "");
-        
+
         if (defaultServer.length() == 0 || defaultEmail.length() == 0)
             return null;
-                    
+
         return getAccount(defaultServer, defaultEmail);
     }
-    
+
     public Account getAccount(String server, String email) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        String[] projection = {          
+        String[] projection = {
                 AccountDbHelper.COLUMN_SERVER,
                 AccountDbHelper.COLUMN_EMAIL,
                 AccountDbHelper.COLUMN_TOKEN
@@ -56,12 +56,12 @@ public class AccountManager
              AccountDbHelper.TABLE_NAME,
              projection,
              "server=? and email=?",
-             new String[] { server, email },                                     
+             new String[] { server, email },
              null,   // don't group the rows
              null,   // don't filter by row groups
              null    // The sort order
          );
-     
+
         if (c.moveToFirst() == false) {
             c.close();
             db.close();
@@ -73,7 +73,7 @@ public class AccountManager
         db.close();
         return account;
     }
-    
+
     public void saveAccount(Account account) {
         Account old = getAccount(account.server, account.email);
         if (old != null) {
@@ -82,10 +82,10 @@ public class AccountManager
             else
                 deleteAccount(old);
         }
-        
+
         // Gets the data repository in write mode
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        
+
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
         values.put(AccountDbHelper.COLUMN_SERVER, account.server);
@@ -96,7 +96,7 @@ public class AccountManager
         db.insert(AccountDbHelper.TABLE_NAME, null, values);
         db.close();
     }
-    
+
     public void saveDefaultAccount(Account account) {
         // save to shared preference
         SharedPreferences sharedPref = context.getSharedPreferences("Account", 0);
@@ -104,11 +104,11 @@ public class AccountManager
         editor.putString("server", account.server);
         editor.putString("email", account.email);
         editor.commit();
-        
+
         // save to db
         saveAccount(account);
     }
-    
+
     public void deleteAccount(Account account) {
         // Gets the data repository in write mode
         SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -117,13 +117,13 @@ public class AccountManager
                 new String[] { account.server, account.email });
         db.close();
     }
-    
+
     public List<Account> getAccountList() {
         List<Account> accounts = new ArrayList<Account>();
-        
+
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        String[] projection = {          
+        String[] projection = {
                 AccountDbHelper.COLUMN_SERVER,
                 AccountDbHelper.COLUMN_EMAIL,
                 AccountDbHelper.COLUMN_TOKEN
@@ -133,28 +133,28 @@ public class AccountManager
              AccountDbHelper.TABLE_NAME,
              projection,
              null,
-             null,                                     
+             null,
              null,   // don't group the rows
              null,   // don't filter by row groups
              null    // The sort order
         );
-        
+
         c.moveToFirst();
         while (!c.isAfterLast()) {
             Account account = cursorToAccount(c);
             accounts.add(account);
             c.moveToNext();
         }
-        
+
         c.close();
         db.close();
         return accounts;
     }
-    
+
     public  Account getDemoAccout() {
         return new Account("http://cloud.seafile.com", "demo@seafile.com", "demo", null);
     }
-    
+
     private Account cursorToAccount(Cursor cursor) {
         Account account = new Account();
         account.server = cursor.getString(0);

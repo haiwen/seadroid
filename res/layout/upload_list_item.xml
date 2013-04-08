@@ -37,6 +37,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/upload_file_name"
         android:layout_alignLeft="@id/upload_file_name"
+        android:paddingTop="4dp"
         android:lines="1"
         android:singleLine="true"
         android:textColor="@color/light_grey"

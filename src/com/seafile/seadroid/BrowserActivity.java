@@ -48,6 +48,8 @@ import com.seafile.seadroid.ui.PasswordDialog.PasswordGetListener;
 import com.seafile.seadroid.ui.ReposFragment;
 import com.seafile.seadroid.ui.UploadTasksFragment;
 
+import com.seafile.seadroid.gallery.MultipleImageSelectionActivity;
+
 
 public class BrowserActivity extends SherlockFragmentActivity
         implements ReposFragment.OnFileSelectedListener, OnBackStackChangedListener,

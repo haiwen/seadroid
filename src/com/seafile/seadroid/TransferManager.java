@@ -25,6 +25,7 @@ import android.widget.RemoteViews;
  */
 public class TransferManager {
 
+    @SuppressWarnings("unused")
     private static final String DEBUG_TAG = "TransferManager";
 
     public enum TaskState { INIT, TRANSFERRING, FINISHED, CANCELLED, FAILED }
@@ -171,7 +172,7 @@ public class TransferManager {
             this.myPath = filePath;
             this.isUpdate = isUpdate;
             this.newFileID = null;
-            
+
             File f = new File(filePath);
             mySize = f.length();
 
