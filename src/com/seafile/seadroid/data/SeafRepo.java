@@ -73,7 +73,7 @@ public class SeafRepo implements SeafItem {
     @Override
     public int getIcon() {
         if (encrypted)
-            return R.drawable.repo_green;
+            return R.drawable.repo_encrypted;
         return R.drawable.repo;
     }
     

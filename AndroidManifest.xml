@@ -16,12 +16,13 @@
         android:icon="@drawable/ic_launcher">
 
         <activity android:name="com.seafile.seadroid.AccountsActivity"
+                  android:theme="@style/Theme.Sherlock.Light"
                   android:label="@string/app_name">
         </activity>
 
         <activity android:name=".BrowserActivity"
                   android:label="@string/app_name"
-                  android:theme="@style/Theme.Sherlock"
+                  android:theme="@style/Theme.Sherlock.Light"
                   android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,7 +32,7 @@
         
         <activity android:name=".FileActivity"
                   android:label="@string/app_name"
-                  android:theme="@style/Theme.Sherlock"
+                  android:theme="@style/Theme.Sherlock.Light"
                   android:uiOptions="splitActionBarWhenNarrow">
         </activity>
         
@@ -40,12 +41,13 @@
         </activity>
         
         <activity android:name=".AccountDetailActivity"
+                  android:theme="@style/Theme.Sherlock.Light"
                   android:label="@string/app_name">
         </activity>
         
         <!-- MultipleImageSelectionActivity uses the default theme, instead of
              ActionBarSherlock -->
-        <activity android:name=".gallery.MultipleImageSelectionActivity"
+        <activity android:name="com.seafile.seadroid.gallery.MultipleImageSelectionActivity"
                   android:theme="@android:style/Theme"
                   android:label="@string/app_name">
         </activity>
