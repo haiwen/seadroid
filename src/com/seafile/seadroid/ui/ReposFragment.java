@@ -114,9 +114,6 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
         setListAdapter(adapter);
 
         getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-        
-        // refresh the view (loading data)
-        refreshView();
     }
     
 
@@ -125,22 +122,24 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
         Log.d(DEBUG_TAG, "ReposFragment onStart");
         super.onStart();
     }
+
+    @Override
+    public void onStop() {
+        Log.d(DEBUG_TAG, "ReposFragment onStop");
+        super.onStop();
+    }
     
     @Override
     public void onResume() {
-        Log.d(DEBUG_TAG, "ReposFragment onResume");
         super.onResume();
+        Log.d(DEBUG_TAG, "ReposFragment onResume");
+        // refresh the view (loading data)
+        refreshView();
     }
     
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-    }
-    
-    @Override
-    public void onStop() {
-        Log.d(DEBUG_TAG, "ReposFragment onStop");
-        super.onStop();
     }
     
     @Override
