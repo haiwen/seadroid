@@ -56,7 +56,7 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
     // private MenuItem mSlideShowItem;
     private SharedPreferences mPrefs;
     private long mVideoSizeLimit = Long.MAX_VALUE;
-    private View mFooterOrganizeView;
+    private View mSelectionFooterView;
 
     private BroadcastReceiver mReceiver = null;
 
@@ -91,6 +91,7 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
 
         mNoImagesView = findViewById(R.id.no_images);
         mSelectionStatus = (TextView)findViewById(R.id.upload_selection_status);
+        mSelectionFooterView = findViewById(R.id.selection_footer);
 
         mGvs = (GridViewSpecial) findViewById(R.id.image_grid);
         mGvs.setListener(this);
@@ -133,12 +134,12 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
         for (IImage image : mMultiSelected) {
             selected.add(image.getDataPath());
         }
-        
+
         result.putExtra("photos", selected);
         setResult(RESULT_OK, result);
         finish();
     }
-    
+
     // private void initializeFooterButtons() {
     //     Button deleteButton = (Button) findViewById(R.id.button_delete);
     //     deleteButton.setOnClickListener(new OnClickListener() {
@@ -401,9 +402,12 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
         mGvs.setDrawAdapter(this);
         mGvs.setLoader(mLoader);
         mGvs.start();
-        mNoImagesView.setVisibility(mAllImages.getCount() > 0
-                ? View.GONE
-                : View.VISIBLE);
+
+        if (mAllImages.getCount() > 0) {
+            mNoImagesView.setVisibility(View.GONE);
+        } else {
+            mSelectionFooterView.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -558,16 +562,14 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
         if (!storageAvailable) {
             return ImageManager.getEmptyImageListParam();
         } else {
-            Uri uri = getIntent().getData();
             return ImageManager.getImageListParam(
                     ImageManager.DataLocation.EXTERNAL,
                     mInclusion,
                     mSortAscending
                     ? ImageManager.SORT_ASCENDING
                     : ImageManager.SORT_DESCENDING,
-                    (uri != null)
-                    ? uri.getQueryParameter("bucketId")
-                    : null);
+                    ImageManager.CAMERA_IMAGE_BUCKET_ID);
+
         }
     }
 
@@ -587,9 +589,9 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
         if (!mMultiSelected.add(image)) {
             mMultiSelected.remove(image);
         }
-        
+
         Log.d(TAG, "add/remove: " + image.getDataPath());
-        
+
         updateSelectionStatus();
         mGvs.invalidate();
     }
@@ -814,9 +816,9 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
 
     public void drawDecoration(Canvas canvas, IImage image,
             int xPos, int yPos, int w, int h) {
-        
+
         initializeMultiSelectDrawables();
-        
+
         if (mMultiSelected.contains(image)) {
             Drawable checkBox = mMultiSelectTrue;
             int width = checkBox.getIntrinsicWidth();

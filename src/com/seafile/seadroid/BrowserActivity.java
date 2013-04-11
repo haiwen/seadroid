@@ -485,7 +485,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     /***********  Start other activity  ***************/
 
     public static final int PICK_FILE_REQUEST = 1;
-    public static final int PICK_PHOTOS_REQUEST = 2;
+    public static final int PICK_PHOTOS_VIDEOS_REQUEST = 2;
 
     public class UploadChoiceDialog extends DialogFragment {
         @Override
@@ -505,7 +505,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                             case 1:
                                 // photos
                                 intent = new Intent(BrowserActivity.this, MultipleImageSelectionActivity.class);
-                                getActivity().startActivityForResult(intent, PICK_PHOTOS_REQUEST);
+                                getActivity().startActivityForResult(intent, PICK_PHOTOS_VIDEOS_REQUEST);
                                 break;
                             case 2:
                                 // thirdparty file chooser
@@ -551,7 +551,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             }
         }
 
-        if (requestCode == PICK_PHOTOS_REQUEST) {
+        if (requestCode == PICK_PHOTOS_VIDEOS_REQUEST) {
             if (resultCode == RESULT_OK) {
                 ArrayList<String> paths = data.getStringArrayListExtra("photos");
                 if (paths == null)

@@ -25,7 +25,7 @@
     <string name="pick_upload_type">Upload</string>
     <string-array name="pick_upload_array">
         <item>File</item>
-        <item>Photos</item>
+        <item>Photos/Videos</item>
         <item>Other</item>
     </string-array>
     <string name="network_down">No network connection</string>
