@@ -88,7 +88,7 @@ public class UploadTasksAdapter extends BaseAdapter {
 
     private void updateTaskView(UploadTaskInfo info, Viewholder viewHolder) {
         String stateStr = "";
-        int stateColor = R.color.light_grey;
+        int stateColor = R.color.light_black;
         long total = info.totalSize;
         long uploaded = info.uploadedSize;
         String sizeStr = Utils.readableFileSize(total).toString();
@@ -107,7 +107,7 @@ public class UploadTasksAdapter extends BaseAdapter {
             break;
         case FINISHED:
             stateStr = "Finished";
-            stateColor = Color.WHITE;
+            stateColor = Color.BLACK;
             viewHolder.progressBar.setVisibility(View.INVISIBLE);
             break;
         case CANCELLED:

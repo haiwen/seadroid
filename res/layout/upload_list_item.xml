@@ -19,7 +19,6 @@
         android:layout_toRightOf="@id/upload_file_icon"
         android:lines="1"
         android:singleLine="true"
-        android:textColor="@color/light_grey"
         android:textSize="14dp" />
     <TextView
         android:id="@+id/upload_file_name"
@@ -29,7 +28,7 @@
         android:layout_alignLeft="@id/upload_target_path"
         android:lines="1"
         android:singleLine="true"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:textSize="18dp" />
     <TextView
         android:id="@+id/upload_file_size"
@@ -40,7 +39,6 @@
         android:paddingTop="4dp"
         android:lines="1"
         android:singleLine="true"
-        android:textColor="@color/light_grey"
         android:textSize="12dp" />
     <ProgressBar
         android:id="@+id/upload_file_progress_bar"
@@ -60,7 +58,7 @@
         android:paddingLeft="20dp"
         android:lines="1"
         android:singleLine="true"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:textSize="13dp" />
 
 </RelativeLayout>

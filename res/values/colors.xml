@@ -5,6 +5,7 @@
 	<color name="grey">#6E6E6E</color>
 	<color name="light_grey">#BDBDBD</color>
 	<color name="light_blue">#33B5E5</color>
+	<color name="light_black">#333333</color>
 	<color name="orange">#F57900</color>
 	<color name="transparent">#00000000</color>
 	<color name="half_transparent">#80FFFFFF</color>

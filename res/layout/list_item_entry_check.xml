@@ -33,7 +33,7 @@
         android:lines="1"
         android:singleLine="true"
         android:text="Titel"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:textSize="18sp" />
 
     <TextView
