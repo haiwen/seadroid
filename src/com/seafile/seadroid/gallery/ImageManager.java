@@ -106,9 +106,21 @@ public class ImageManager {
     public static final int SORT_ASCENDING = 1;
     public static final int SORT_DESCENDING = 2;
 
-    public static final String CAMERA_IMAGE_BUCKET_NAME =
+    public static String CAMERA_IMAGE_BUCKET_NAME =
             Environment.getExternalStorageDirectory().toString()
             + "/DCIM/Camera";
+    
+    static {
+        // for old HTC 2.2, The pictures are stored in DCIM/100MEDIA
+        File f = new File(CAMERA_IMAGE_BUCKET_NAME);
+        if (!f.exists()) {
+            f = new File(Environment.getExternalStorageDirectory().toString() + "/DCIM/100MEDIA");
+            if (f.exists()) {
+                CAMERA_IMAGE_BUCKET_NAME = f.getAbsolutePath();
+            }
+        }
+    }
+    
     public static final String CAMERA_IMAGE_BUCKET_ID =
             getBucketId(CAMERA_IMAGE_BUCKET_NAME);
 
