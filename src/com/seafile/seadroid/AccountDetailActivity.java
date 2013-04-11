@@ -58,12 +58,14 @@ public class AccountDetailActivity extends FragmentActivity {
         Intent intent = getIntent();
         String server = intent.getStringExtra("server");
         String email = intent.getStringExtra("email");
-        if (server != null && email != null) {
+        if (server != null) {
+            if (email == null) email = "";
             account = new Account(server, email);
             if (account.isHttps())
                 httpsCheckBox.setChecked(true);
             serverText.setText(account.getServerNoProtocol());
             emailText.setText(account.getEmail());
+            emailText.requestFocus();
         }
     }
 

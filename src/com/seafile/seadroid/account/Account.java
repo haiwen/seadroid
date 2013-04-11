@@ -45,7 +45,10 @@ public class Account {
     }
     
     public String getServerNoProtocol() {
-        return server.substring(server.indexOf("://") + 3);
+        String result = server.substring(server.indexOf("://") + 3);
+        if (result.endsWith("/"))
+            result = result.substring(0, result.length() - 1);
+        return result;
     }
     
     public boolean isHttps() {

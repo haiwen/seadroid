@@ -2,10 +2,15 @@ package com.seafile.seadroid;
 
 import java.util.List;
 
+import com.ipaulpro.afilechooser.FileChooserActivity;
+import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.seafile.seadroid.account.Account;
 import com.seafile.seadroid.account.AccountManager;
+import com.seafile.seadroid.gallery.MultipleImageSelectionActivity;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -17,11 +22,14 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ListView;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 
-public class AccountsActivity extends Activity {
+public class AccountsActivity extends FragmentActivity {
 
     @SuppressWarnings("unused")
     private static final String DEBUG_TAG = "StartActivity";
@@ -51,7 +59,7 @@ public class AccountsActivity extends Activity {
         addAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View btn) {
-                startAccountDetailActivity();
+                new CreateAccountChoiceDialog().show(getSupportFragmentManager(), "Choose a server");
             }
         });
         accountsView.setOnItemClickListener(new OnItemClickListener() {
@@ -131,4 +139,44 @@ public class AccountsActivity extends Activity {
         }
     }
 
+    public static final int PRIVATE_SERVER = 0;
+    public static final int SEACLOUD_CC = 1;
+    public static final int CLOUD_SEAFILE_COM = 3;
+
+    private class CreateAccountChoiceDialog extends DialogFragment {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.choose_server);
+            builder.setItems(R.array.choose_server_array,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent intent;
+                            switch (which) {
+                            case 0:
+                                intent = new Intent(AccountsActivity.this, AccountDetailActivity.class);
+                                startActivity(intent);
+                                break;
+                            case 1:
+                                intent = new Intent(AccountsActivity.this, AccountDetailActivity.class);
+                                intent.putExtra("server", "https://seacloud.cc");
+                                startActivity(intent);
+                                break;
+                            case 2:
+                                intent = new Intent(AccountsActivity.this, AccountDetailActivity.class);
+                                intent.putExtra("server", "https://cloud.seafile.com");
+                                startActivity(intent);
+                                break;
+                            default:
+                                return;
+                            }
+                        }
+                    });
+
+            return builder.create();
+        }
+    }
+    
 }
