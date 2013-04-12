@@ -404,9 +404,13 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
         mGvs.start();
 
         if (mAllImages.getCount() > 0) {
+            mGvs.setVisibility(View.VISIBLE);
+            mSelectionFooterView.setVisibility(View.VISIBLE);
             mNoImagesView.setVisibility(View.GONE);
         } else {
+            mGvs.setVisibility(View.GONE);
             mSelectionFooterView.setVisibility(View.GONE);
+            mNoImagesView.setVisibility(View.VISIBLE);
         }
     }
 

@@ -1,73 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
-
-  <view class="com.seafile.seadroid.gallery.GridViewSpecial"
-        android:id="@+id/image_grid"
-        android:focusable="true"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-  />
+    android:layout_height="match_parent">
 
   <LinearLayout
-      android:id="@+id/selection_footer"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/upload_selection_status"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:text="@string/select_upload_items"
-        android:singleLine="true"
-        android:lines="1"
-        android:textColor="@color/white"
-        android:textSize="18dp"
-        android:padding="5dp"
-    />
+    <view class="com.seafile.seadroid.gallery.GridViewSpecial"
+          android:id="@+id/image_grid"
+          android:focusable="true"
+          android:layout_width="match_parent"
+          android:layout_height="0dp"
+          android:layout_weight="1"
+          />
 
     <LinearLayout
+        android:id="@+id/selection_footer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_horizontal">
+        android:orientation="vertical">
 
-      <Button
-          android:id="@+id/button_cancel_upload"
-          android:layout_width="wrap_content"
+      <TextView
+          android:id="@+id/upload_selection_status"
+          android:layout_width="fill_parent"
           android:layout_height="wrap_content"
-          android:layout_weight="1"
-          android:text="@string/cancel"
-      />
+          android:gravity="center_horizontal"
+          android:text="@string/select_upload_items"
+          android:singleLine="true"
+          android:lines="1"
+          android:textColor="@color/white"
+          android:textSize="18dp"
+          android:padding="5dp"
+          />
 
-      <Button
-          android:id="@+id/button_confirm_upload"
-          android:layout_width="wrap_content"
+      <LinearLayout
+          android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:text="@string/upload"
-          android:layout_weight="1"
-      />
+          android:orientation="horizontal"
+          android:gravity="center_horizontal">
+
+        <Button
+            android:id="@+id/button_cancel_upload"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/cancel"
+            />
+
+        <Button
+            android:id="@+id/button_confirm_upload"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/upload"
+            android:layout_weight="1"
+            />
+      </LinearLayout>
+
     </LinearLayout>
 
   </LinearLayout>
 
-  <RelativeLayout android:id="@+id/no_images"
-                  android:visibility="gone"
-                  android:orientation="vertical"
-                  android:layout_centerInParent="true"
-                  android:layout_width="match_parent"
-                  android:layout_height="match_parent">
+  <LinearLayout android:id="@+id/no_images"
+                android:visibility="gone"
+                android:orientation="vertical"
+                android:layout_centerInParent="true"
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
     <ImageView
-        android:id="@+id/no_pictures_image"
         android:layout_centerInParent="true"
-        android:layout_gravity="center"
         android:background="@drawable/ic_gallery_empty2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -79,11 +84,11 @@
         android:paddingTop="5dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:text="@string/image_gallery_NoImageView_text"
         android:textColor="#FFBEBEBE"
         android:textSize="18dp"
         />
-  </RelativeLayout>
 
-</LinearLayout>
+  </LinearLayout>
+
+</RelativeLayout>
