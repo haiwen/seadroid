@@ -40,9 +40,9 @@ public class SeafItemAdapter extends BaseAdapter {
         items = new ArrayList<SeafItem>();
     }
 
-    private static int ACTION_ID_DELETE = 0;
-    private static int ACTION_ID_RENAME = 1;
-    private static int ACTION_ID_UPDATE = 2;
+    private static final int ACTION_ID_DOWNLOAD = 0;
+    private static final int ACTION_ID_REMOVE_CACHE = 1;
+    private static final int ACTION_ID_UPDATE = 2;
 
     @Override
     public int getCount() {
@@ -179,17 +179,22 @@ public class SeafItemAdapter extends BaseAdapter {
         String filePath = Utils.pathJoin(nav.getDirPath(), dirent.name);
         File file = dataManager.getLocalRepoFile(repoName, repoID, filePath);
         boolean modified = false;
+        boolean cacheExists = false;
 
         if (file.exists()) {
             // Detect if file is modified locally
             if (dataManager.isLocalFileModified(repoName, repoID, filePath)) {
                 viewHolder.subtitle.setText(dirent.getSubtitle() + " modified");
                 modified = true;
+                cacheExists = true;
             } else {
                 SeafCachedFile cf = dataManager.getCachedFile(repoName, repoID, filePath);
                 String subtitle = dirent.getSubtitle();
-                if (dirent.id.equals(cf.fileID)) {
-                    subtitle += " cached";
+                if (cf != null) {
+                    cacheExists = true;
+                    if (dirent.id.equals(cf.fileID)) {
+                        subtitle += " cached";
+                    }
                 }
                 viewHolder.subtitle.setText(subtitle);
             }
@@ -204,7 +209,7 @@ public class SeafItemAdapter extends BaseAdapter {
             viewHolder.icon.setImageResource(dirent.getIcon());
         }
 
-        setFileAction(dirent, viewHolder, position, modified);
+        setFileAction(dirent, viewHolder, position, cacheExists, modified);
     }
 
     private void setImageThumbNail(File file, SeafDirent dirent,
@@ -285,24 +290,27 @@ public class SeafItemAdapter extends BaseAdapter {
         }
     }
 
-    private QuickAction prepareDirentAction(final SeafDirent dirent, boolean modified) {
+    private QuickAction prepareDirentAction(final SeafDirent dirent, boolean cacheExists, boolean modified) {
         final QuickAction mQuickAction = new QuickAction(mActivity);
         Resources resources = mActivity.getResources();
+        ActionItem removeCacheAction, downloadAction, updateAction;
 
-        ActionItem deleteAction = new ActionItem(ACTION_ID_DELETE,
-                                                 resources.getString(R.string.delete),
-                                                 resources.getDrawable(R.drawable.ic_add));
-        ActionItem renameAction = new ActionItem(ACTION_ID_RENAME,
-                                                 resources.getString(R.string.rename),
-                                                 resources.getDrawable(R.drawable.ic_accept));
-
-        mQuickAction.addActionItem(deleteAction);
-        mQuickAction.addActionItem(renameAction);
-
+        if (cacheExists) {
+            removeCacheAction = new ActionItem(ACTION_ID_REMOVE_CACHE,
+                                               resources.getString(R.string.file_action_remove_cache),
+                                               resources.getDrawable(R.drawable.action_remove_cache));
+            mQuickAction.addActionItem(removeCacheAction);
+        } else {
+            downloadAction = new ActionItem(ACTION_ID_DOWNLOAD,
+                                            resources.getString(R.string.file_action_download),
+                                            resources.getDrawable(R.drawable.action_download));
+            mQuickAction.addActionItem(downloadAction);
+        }
+        
         if (modified) {
-            ActionItem updateAction = new ActionItem(ACTION_ID_UPDATE,
-                                                     resources.getString(R.string.update),
-                                                     resources.getDrawable(R.drawable.ic_up));
+            updateAction = new ActionItem(ACTION_ID_UPDATE,
+                                          resources.getString(R.string.file_action_update),
+                                          resources.getDrawable(R.drawable.action_update));
             mQuickAction.addActionItem(updateAction);
         }
 
@@ -310,23 +318,31 @@ public class SeafItemAdapter extends BaseAdapter {
         mQuickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
             @Override
             public void onItemClick(QuickAction quickAction, int pos, int actionId) {
-                if (actionId == ACTION_ID_UPDATE) {
-                    NavContext nav = mActivity.getNavContext();
-                    String repoName = nav.getRepoName();
-                    String repoID = nav.getRepoID();
-                    String dir = nav.getDirPath();
-                    String path = Utils.pathJoin(dir, dirent.name);
-                    String localPath = mActivity.getDataManager().getLocalRepoFile(repoName, repoID, path).getPath();
+                NavContext nav = mActivity.getNavContext();
+                String repoName = nav.getRepoName();
+                String repoID = nav.getRepoID();
+                String dir = nav.getDirPath();
+                String path = Utils.pathJoin(dir, dirent.name);
+                DataManager dataManager = mActivity.getDataManager();
+                String localPath = dataManager.getLocalRepoFile(repoName, repoID, path).getPath();
+                switch (actionId) {
+                case ACTION_ID_DOWNLOAD:
+                    mActivity.onFileSelected(repoName, repoID, path, dirent);
+                    break;
+                case ACTION_ID_UPDATE:
                     mActivity.addUpdateTask(repoID, repoName, dir, localPath);
+                    break;
+                case ACTION_ID_REMOVE_CACHE:
+                    SeafCachedFile cachedFile = dataManager.getCachedFile(repoName, repoID, path);
+                    if (cachedFile != null) {
+                        dataManager.removeCachedFile(cachedFile);
+                        notifyDataSetChanged();
+                    }
+                    break;
                 }
             }
         });
 
-        // mQuickAction.setOnDismissListener(new QuickAction.OnDismissListener() {
-        //     @Override
-        //     public void onDismiss() {
-        //     }
-        // });
 
         // mQuickAction.setAnimStyle(QuickAction.ANIM_GROW_FROM_CENTER);
         mQuickAction.mAnimateTrack(false);
@@ -334,7 +350,8 @@ public class SeafItemAdapter extends BaseAdapter {
     }
 
     private void setFileAction(SeafDirent dirent, Viewholder viewHolder,
-                               int position, final boolean modified) {
+                               int position, final boolean cacheExists, final boolean modified) {
+        
         viewHolder.action.setImageResource(R.drawable.drop_down_button);
         viewHolder.action.setVisibility(View.VISIBLE);
         viewHolder.action.setId(position);
@@ -343,7 +360,7 @@ public class SeafItemAdapter extends BaseAdapter {
             public void onClick(View view) {
                 int position = view.getId();
                 SeafDirent dirent = (SeafDirent)items.get(position);
-                QuickAction mQuickAction = prepareDirentAction(dirent, modified);
+                QuickAction mQuickAction = prepareDirentAction(dirent, cacheExists, modified);
                 mQuickAction.show(view);
             }
         });

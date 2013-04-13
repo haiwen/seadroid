@@ -50,9 +50,9 @@
     <string name="task_retry">Retry</string>
     <string name="task_remove">Remove</string>
     <string name="task_remove_all_finished">Remove all finished</string>
-    <string name="delete">Delete</string>
-    <string name="rename">Rename</string>
-    <string name="update">Update</string>
+    <string name="file_action_download">Download</string>
+    <string name="file_action_remove_cache">Remove Cache</string>
+    <string name="file_action_update">Update</string>
     <string name="wait">Wait</string>
     <string name="image_gallery_NoImageView_text">No image Found</string>
     <string name="pick_photo_video_title">Choose photos/videos to upload</string>
