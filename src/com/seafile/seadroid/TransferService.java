@@ -52,9 +52,9 @@ public class TransferService extends Service implements TransferListener {
         return mBinder;
     }
 
-    public void addUploadTask(Account account, String repoID, String repoName, String dir,
+    public boolean addUploadTask(Account account, String repoID, String repoName, String dir,
                               String filePath, boolean isUpdate) {
-        txManager.addUploadTask(account, repoID, repoName, dir, filePath, isUpdate);
+        return txManager.addUploadTask(account, repoID, repoName, dir, filePath, isUpdate);
     }
 
     public boolean addDownloadTask(Account account, String repoName, String repoID, String path,

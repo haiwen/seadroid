@@ -63,10 +63,21 @@ public class TransferManager {
         listener = null;
     }
 
-    public void addUploadTask(Account account, String repoID, String repoName,
+    /**
+     * Add a new upload task
+     * @return Return false if there is a duplicating task, otherwise return true
+     */
+    public boolean addUploadTask(Account account, String repoID, String repoName,
                               String dir, String filePath, boolean isUpdate) {
+        // Check duplication
+        for (UploadTask task : uploadTasks) {
+            if (task.myRepoID.equals(repoID) && task.myPath.equals(filePath)) {
+                return false;
+            }
+        }
         UploadTask task = new UploadTask(account, repoID, repoName, dir, filePath, isUpdate);
         task.execute();
+        return true;
     }
 
     /**

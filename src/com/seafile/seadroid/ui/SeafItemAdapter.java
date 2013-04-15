@@ -184,7 +184,7 @@ public class SeafItemAdapter extends BaseAdapter {
         if (file.exists()) {
             // Detect if file is modified locally
             if (dataManager.isLocalFileModified(repoName, repoID, filePath)) {
-                viewHolder.subtitle.setText(dirent.getSubtitle() + " modified");
+                viewHolder.subtitle.setText(Utils.readableFileSize(file.length()) + " modified");
                 modified = true;
                 cacheExists = true;
             } else {

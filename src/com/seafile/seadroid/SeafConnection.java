@@ -612,7 +612,8 @@ public class SeafConnection {
             conn.setFixedLengthStreamingMode(totalLen);
             conn.setDoInput(true);
             conn.setDoOutput(true);
-            conn.setRequestProperty("Connection", "Keep-Alive");
+            // disable keep-alive, otherwise read the returned file ID will be failed.
+            conn.setRequestProperty("Connection", "close");
             conn.setRequestProperty("Cache-Control", "no-cache");
             conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + this.boundary);
 
