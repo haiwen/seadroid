@@ -41,8 +41,6 @@ import com.seafile.seadroid.account.Account;
 import com.seafile.seadroid.data.DataManager;
 import com.seafile.seadroid.data.SeafCachedFile;
 import com.seafile.seadroid.data.SeafDirent;
-import com.seafile.seadroid.ui.CacheFragment;
-import com.seafile.seadroid.ui.CacheFragment.OnCachedFileSelectedListener;
 import com.seafile.seadroid.ui.PasswordDialog;
 import com.seafile.seadroid.ui.PasswordDialog.PasswordGetListener;
 import com.seafile.seadroid.ui.ReposFragment;
@@ -52,8 +50,7 @@ import com.seafile.seadroid.gallery.MultipleImageSelectionActivity;
 
 
 public class BrowserActivity extends SherlockFragmentActivity
-        implements ReposFragment.OnFileSelectedListener, OnBackStackChangedListener,
-            OnCachedFileSelectedListener {
+        implements ReposFragment.OnFileSelectedListener, OnBackStackChangedListener {
 
     private static final String DEBUG_TAG = "BrowserActivity";
 
@@ -64,12 +61,10 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     // private boolean twoPaneMode = false;
     ReposFragment reposFragment = null;
-    CacheFragment cacheFragment = null;
     UploadTasksFragment uploadTasksFragment = null;
 
     private String currentTab;
     private static final String LIBRARY_TAB = "libraries";
-    private static final String CACHE_TAB = "cache";
     private static final String UPLOAD_TASKS_TAB = "upload-tasks";
 
     public DataManager getDataManager() {
@@ -144,9 +139,6 @@ public class BrowserActivity extends SherlockFragmentActivity
             currentTab = mTag;
             if (mTag.equals(LIBRARY_TAB)) {
                 showReposFragment(ft);
-            } else if (mTag.equals(CACHE_TAB)) {
-                disableUpButton();
-                showCacheFragment(ft);
             } else if (mTag.equals(UPLOAD_TASKS_TAB)) {
                 disableUpButton();
                 showUploadTasksFragment(ft);
@@ -157,8 +149,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         public void onTabUnselected(Tab tab, FragmentTransaction ft) {
             if (mTag.equals(LIBRARY_TAB)) {
                 hideReposFragment(ft);
-            } else if (mTag.equals(CACHE_TAB)) {
-                hideCacheFragment(ft);
             } else if (mTag.equals(UPLOAD_TASKS_TAB)) {
                 hideUploadTasksFragment(ft);
             }
@@ -207,8 +197,6 @@ public class BrowserActivity extends SherlockFragmentActivity
             // fragment are saved during screen rotation, so do not need to create a new one
             reposFragment = (ReposFragment)
                     getSupportFragmentManager().findFragmentByTag("repos_fragment");
-            cacheFragment = (CacheFragment)
-                    getSupportFragmentManager().findFragmentByTag("cache_fragment");
             uploadTasksFragment = (UploadTasksFragment)
                     getSupportFragmentManager().findFragmentByTag("upload_tasks_fragment");
             cTab = savedInstanceState.getInt("tab");
@@ -230,11 +218,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         actionBar.addTab(tab);
 
         tab = actionBar.newTab()
-            .setText(R.string.cached)
-            .setTabListener(new TabListener(CACHE_TAB));
-        actionBar.addTab(tab);
-
-        tab = actionBar.newTab()
             .setText(R.string.upload_tasks)
             .setTabListener(new TabListener(UPLOAD_TASKS_TAB));
         actionBar.addTab(tab);
@@ -242,8 +225,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         actionBar.setSelectedNavigationItem(cTab);
         if (cTab == 0) {
             currentTab = LIBRARY_TAB;
-        } else if (cTab == 1) {
-            currentTab = CACHE_TAB;
         } else {
             currentTab = UPLOAD_TASKS_TAB;
         }
@@ -349,19 +330,8 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        MenuItem menuDeleteCache = menu.findItem(R.id.delete_cache);
         MenuItem menuUpload = menu.findItem(R.id.upload);
         MenuItem menuRefresh = menu.findItem(R.id.refresh);
-
-        if (currentTab.equals(CACHE_TAB)) {
-            menuDeleteCache.setVisible(true);
-            if (cacheFragment.isItemSelected())
-                menuDeleteCache.setEnabled(true);
-            else
-                menuDeleteCache.setEnabled(false);
-        } else {
-            menuDeleteCache.setVisible(false);
-        }
 
         if (currentTab.equals(LIBRARY_TAB)) {
             menuUpload.setVisible(true);
@@ -394,9 +364,6 @@ public class BrowserActivity extends SherlockFragmentActivity
             }
             reposFragment.refreshView();
 
-            return true;
-        case R.id.delete_cache:
-            cacheFragment.deleteSelectedCacheItems();
             return true;
         case R.id.upload:
             pickFile();
@@ -431,20 +398,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         ft.detach(reposFragment);
     }
 
-    private void showCacheFragment(FragmentTransaction ft) {
-        //Log.d(DEBUG_TAG, "showCacheFragment");
-        if (cacheFragment == null) {
-            cacheFragment = new CacheFragment();
-            ft.add(android.R.id.content, cacheFragment, "cache_fragment");
-        } else {
-            ft.attach(cacheFragment);
-        }
-    }
-
-    private void hideCacheFragment(FragmentTransaction ft) {
-        //Log.d(DEBUG_TAG, "hideCacheFragment");
-        ft.detach(cacheFragment);
-    }
 
     private void showUploadTasksFragment(FragmentTransaction ft) {
         if (uploadTasksFragment == null) {
@@ -594,10 +547,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
     }
 
-    @Override
-    public void onCachedFileSelected(SeafCachedFile item) {
-        showFile(item.repoName, item.repoID, item.path);
-    }
 
     @Override
     public void onBackPressed() {
