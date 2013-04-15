@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.seafile.seadroid.SeadroidApplication;
 import com.seafile.seadroid.account.Account;
 
 import android.content.ContentValues;
@@ -57,7 +58,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         + REPODIR_COLUMN_REPO_ID + " TEXT NOT NULL, "
         + REPODIR_COLUMN_REPO_DIR + " TEXT NOT NULL);";
 
-    public DatabaseHelper(Context context) {
+    // Use only single dbHelper to prevent multi-thread issue and db is closed exception
+    // Reference http://stackoverflow.com/questions/2493331/what-are-the-best-practices-for-sqlite-on-android
+    private static DatabaseHelper dbHelper = null;
+    private SQLiteDatabase database = null;
+    
+    public static DatabaseHelper getDatabaseHelper() {
+        if (dbHelper != null)
+            return dbHelper;
+        dbHelper = new DatabaseHelper(SeadroidApplication.getAppContext());
+        dbHelper.database = dbHelper.getWritableDatabase();
+        return dbHelper;
+    }
+    
+    private DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
@@ -118,8 +132,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public SeafCachedFile getFileCacheItem(String repoName, String repoID,
                                            String path, DataManager dataManager) {
-        SQLiteDatabase db = getReadableDatabase();
-
         String[] projection = {
                 FILECACHE_COLUMN_ID,
                 FILECACHE_COLUMN_FILEID,
@@ -130,7 +142,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 FILECACHE_COLUMN_ACCOUNT
         };
 
-        Cursor c = db.query(
+        Cursor c = database.query(
              FILECACHE_TABLE_NAME,
              projection,
              FILECACHE_COLUMN_REPO_NAME + "=?  and " + FILECACHE_COLUMN_REPO_ID
@@ -143,13 +155,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         if (c.moveToFirst() == false) {
             c.close();
-            db.close();
             return null;
         }
 
         SeafCachedFile item = cursorToFileCacheItem(c, dataManager);
         c.close();
-        db.close();
         return item;
     }
 
@@ -159,9 +169,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (old != null) {
             deleteFileCacheItem(old);
         }
-
-        // Gets the data repository in write mode
-        SQLiteDatabase db = getWritableDatabase();
 
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
@@ -173,27 +180,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(FILECACHE_COLUMN_ACCOUNT, item.accountSignature);
 
         // Insert the new row, returning the primary key value of the new row
-        db.insert(FILECACHE_TABLE_NAME, null, values);
-        db.close();
+        database.insert(FILECACHE_TABLE_NAME, null, values);
     }
 
     public void deleteFileCacheItem(SeafCachedFile item) {
-        // Gets the data repository in write mode
-        SQLiteDatabase db = getWritableDatabase();
-
         if (item.id != -1) {
-            db.delete(FILECACHE_TABLE_NAME,  FILECACHE_COLUMN_ID + "=?",
+            database.delete(FILECACHE_TABLE_NAME,  FILECACHE_COLUMN_ID + "=?",
                     new String[] { String.valueOf(item.id) });
         } else
-            db.delete(FILECACHE_TABLE_NAME,  FILECACHE_COLUMN_REPO_ID + "=? and " + FILECACHE_COLUMN_PATH + "=?",
+            database.delete(FILECACHE_TABLE_NAME,  FILECACHE_COLUMN_REPO_ID + "=? and " + FILECACHE_COLUMN_PATH + "=?",
                 new String[] { item.repoID, item.path });
-        db.close();
     }
 
     public List<SeafCachedFile> getFileCacheItems(DataManager dataManager) {
         List<SeafCachedFile> files = new ArrayList<SeafCachedFile>();
-
-        SQLiteDatabase db = getReadableDatabase();
 
         String[] projection = {
                 FILECACHE_COLUMN_ID,
@@ -205,7 +205,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 FILECACHE_COLUMN_ACCOUNT
         };
 
-        Cursor c = db.query(
+        Cursor c = database.query(
              FILECACHE_TABLE_NAME,
              projection,
              FILECACHE_COLUMN_ACCOUNT + "=?",
@@ -223,7 +223,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
 
         c.close();
-        db.close();
         return files;
     }
 
@@ -244,8 +243,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * Return the directory of a repo on external storage.
      */
     public String getRepoDir(Account account, String repoName, String repoID) {
-        SQLiteDatabase db = getReadableDatabase();
-
         String[] projection = {
             REPODIR_COLUMN_REPO_DIR
         };
@@ -258,7 +255,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String[] selectArgs = { account.getSignature(), repoName, repoID };
 
 
-        Cursor cursor = db.query(
+        Cursor cursor = database.query(
             REPODIR_TABLE_NAME,
             projection,
             selectClause,
@@ -269,13 +266,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         if (cursor.moveToFirst() == false) {
             cursor.close();
-            db.close();
             return null;
         }
 
         String dir = cursor.getString(0);
         cursor.close();
-        db.close();
 
         return dir;
     }
@@ -284,7 +279,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * Tell if a record exists already.
      */
     public boolean repoDirExists(Account account, String repoName) {
-        SQLiteDatabase db = getReadableDatabase();
 
         String[] projection = {
             REPODIR_COLUMN_REPO_DIR
@@ -297,7 +291,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String[] selectArgs = { account.getSignature(), repoName };
 
 
-        Cursor cursor = db.query(
+        Cursor cursor = database.query(
             REPODIR_TABLE_NAME,
             projection,
             selectClause,
@@ -314,7 +308,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
 
         cursor.close();
-        db.close();
 
         return exist;
     }
@@ -330,9 +323,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         Log.d(DEBUG_TAG, log);
 
-        // Gets the data repository in write mode
-        SQLiteDatabase db = getWritableDatabase();
-
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
         values.put(REPODIR_COLUMN_ACCOUNT, account.getSignature());
@@ -340,7 +330,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(REPODIR_COLUMN_REPO_ID, repoID);
         values.put(REPODIR_COLUMN_REPO_DIR, dir);
 
-        db.insert(REPODIR_TABLE_NAME, null, values);
-        db.close();
+        database.insert(REPODIR_TABLE_NAME, null, values);
     }
 }

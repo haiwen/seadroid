@@ -171,7 +171,7 @@ public class DataManager {
     public DataManager(Account act) {
         account = act;
         sc = new SeafConnection(act);
-        dbHelper = new DatabaseHelper(SeadroidApplication.getAppContext());
+        dbHelper = DatabaseHelper.getDatabaseHelper();
     }
 
     public Account getAccount() {
@@ -518,6 +518,7 @@ public class DataManager {
         }
         if (localFile.lastModified() != cachedFile.ctime) {
             // Local file has a newer timestamp
+            //Log.d("timestamp", localFile.lastModified() + " " + cachedFile.ctime + " ");
             return true;
         }
         return false;
