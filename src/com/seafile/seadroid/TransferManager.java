@@ -272,6 +272,7 @@ public class TransferManager {
                     return null;
                 }
             } catch (SeafException e) {
+                Log.d("Upload", "Exception " + e.getCode() + " " + e.getMessage());
                 err = e;
             }
             return null;

@@ -399,10 +399,10 @@ public class SeafConnection {
             }
         }
     }
-
-    public File getFile(String repoID, String path, String localPath, String oid, ProgressMonitor monitor)
+    
+    private File getFileFromLink(String dlink, String path, String localPath, 
+                String oid, ProgressMonitor monitor)
             throws SeafException {
-        String dlink = getDownloadLink(repoID, path);
         if (dlink == null)
             return null;
 
@@ -467,6 +467,18 @@ public class SeafConnection {
         }
     }
 
+    public File getFile(String repoID, String path, String localPath, String oid, ProgressMonitor monitor)
+            throws SeafException {
+        try {
+            String dlink = getDownloadLink(repoID, path);
+            return getFileFromLink(dlink, path, localPath, oid, monitor);
+        } catch (SeafException e) {
+            // do again
+            String dlink = getDownloadLink(repoID, path);
+            return getFileFromLink(dlink, path, localPath, oid, monitor);
+        }
+    }
+
     // set password for an encrypted repo
     public void setPassword(String repoID, String passwd) throws SeafException {
         try {
@@ -501,9 +513,11 @@ public class SeafConnection {
             HttpURLConnection conn = prepareGet(url);
             conn.connect();
             int response = conn.getResponseCode();
-            if (response != 200)
+            if (response != 200) {
+                Log.d("Upload", "Failed to get upload link " + response);
                 throw new SeafException(response, conn.getResponseMessage());
-
+            }
+                
             is = conn.getInputStream();
             String result = Utils.readIt(is);
             // should return "\"http://gonggeng.org:8082/...\"" or "\"https://gonggeng.org:8082/...\"
@@ -511,7 +525,7 @@ public class SeafConnection {
                 // remove the starting and trailing quote
                 return result.substring(1, result.length()-1);
             } else
-                return null;
+                throw SeafException.unknownException;
         } catch (SeafException e) {
             throw e;
         } catch (Exception e) {
@@ -520,7 +534,7 @@ public class SeafConnection {
                 Log.d(DEBUG_TAG, msg);
             else
                 Log.d(DEBUG_TAG, "get upload link error");
-            return null;
+            throw SeafException.unknownException;
         } finally {
             try {
                 if (is != null) {
@@ -542,8 +556,14 @@ public class SeafConnection {
      */
     public String updateFile(String repoID, String dir, String filePath, ProgressMonitor monitor)
                                 throws SeafException {
-        String url = getUploadLink(repoID, true);
-        return uploadFileCommon(url, repoID, dir, filePath, monitor, true);
+        try {
+            String url = getUploadLink(repoID, true);
+            return uploadFileCommon(url, repoID, dir, filePath, monitor, true);
+        } catch (SeafException e) {
+            // do again
+            String url = getUploadLink(repoID, true);
+            return uploadFileCommon(url, repoID, dir, filePath, monitor, true);
+        }
     }
 
     /**
@@ -551,8 +571,14 @@ public class SeafConnection {
      */
     public void uploadFile(String repoID, String dir, String filePath, ProgressMonitor monitor)
                             throws SeafException {
-        String url = getUploadLink(repoID, false);
-        uploadFileCommon(url, repoID, dir, filePath, monitor, false);
+        try {
+            String url = getUploadLink(repoID, false);
+            uploadFileCommon(url, repoID, dir, filePath, monitor, false);
+        } catch (SeafException e) {
+            // do again
+            String url = getUploadLink(repoID, false);
+            uploadFileCommon(url, repoID, dir, filePath, monitor, false);
+        }
     }
 
     private String uploadFileCommon(String link, String repoID, String dir,
@@ -562,7 +588,7 @@ public class SeafConnection {
         HttpURLConnection conn = null;
         File file = new File(filePath);
         if (!file.exists())
-            return null;
+            throw new SeafException(SeafException.OTHER_EXCEPTION, "File not exists");
 
         try {
             URL url = new URL(link);
