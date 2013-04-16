@@ -11,7 +11,6 @@ public class SeafCachedFile implements SeafItem {
     public String repoName;
     public String repoID;
     public String path;
-    public long ctime;
     public String accountSignature;
     File file;
 

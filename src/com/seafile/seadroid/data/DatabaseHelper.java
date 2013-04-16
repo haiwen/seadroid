@@ -28,7 +28,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String FILECACHE_COLUMN_REPO_NAME = "repo_name";
     private static final String FILECACHE_COLUMN_REPO_ID = "repo_id";
     private static final String FILECACHE_COLUMN_PATH = "path";
-    private static final String FILECACHE_COLUMN_CTIME = "ctime";
     private static final String FILECACHE_COLUMN_ACCOUNT = "account";
 
     // RepoDir table
@@ -47,7 +46,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         + FILECACHE_COLUMN_PATH + " TEXT NOT NULL, "
         + FILECACHE_COLUMN_REPO_NAME + " TEXT NOT NULL, "
         + FILECACHE_COLUMN_REPO_ID + " TEXT NOT NULL, "
-        + FILECACHE_COLUMN_CTIME + " INTEGER NOT NULL, "
         + FILECACHE_COLUMN_ACCOUNT + " TEXT NOT NULL);";
 
     private static final String SQL_CREATE_REPODIR_TABLE =
@@ -62,7 +60,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // Reference http://stackoverflow.com/questions/2493331/what-are-the-best-practices-for-sqlite-on-android
     private static DatabaseHelper dbHelper = null;
     private SQLiteDatabase database = null;
-    
+
     public static DatabaseHelper getDatabaseHelper() {
         if (dbHelper != null)
             return dbHelper;
@@ -70,7 +68,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         dbHelper.database = dbHelper.getWritableDatabase();
         return dbHelper;
     }
-    
+
     private DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -138,7 +136,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 FILECACHE_COLUMN_REPO_NAME,
                 FILECACHE_COLUMN_REPO_ID,
                 FILECACHE_COLUMN_PATH,
-                FILECACHE_COLUMN_CTIME,
                 FILECACHE_COLUMN_ACCOUNT
         };
 
@@ -176,7 +173,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(FILECACHE_COLUMN_REPO_NAME, item.repoName);
         values.put(FILECACHE_COLUMN_REPO_ID, item.repoID);
         values.put(FILECACHE_COLUMN_PATH, item.path);
-        values.put(FILECACHE_COLUMN_CTIME, item.ctime);
         values.put(FILECACHE_COLUMN_ACCOUNT, item.accountSignature);
         
         // Insert the new row, returning the primary key value of the new row
@@ -201,7 +197,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 FILECACHE_COLUMN_REPO_NAME,
                 FILECACHE_COLUMN_REPO_ID,
                 FILECACHE_COLUMN_PATH,
-                FILECACHE_COLUMN_CTIME,
                 FILECACHE_COLUMN_ACCOUNT
         };
 
@@ -232,9 +227,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         item.fileID = cursor.getString(1);
         item.repoName = cursor.getString(2);
         item.repoID = cursor.getString(3);
-        item.path = cursor.getString(4); 
-        item.ctime = cursor.getLong(5);
-        item.accountSignature = cursor.getString(6);
+        item.path = cursor.getString(4);
+        item.accountSignature = cursor.getString(5);
         item.file = dataManager.getLocalRepoFile(item.repoName, item.repoID, item.path);
         return item;
     }
