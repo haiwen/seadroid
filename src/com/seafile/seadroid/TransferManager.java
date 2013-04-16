@@ -69,12 +69,22 @@ public class TransferManager {
      */
     public boolean addUploadTask(Account account, String repoID, String repoName,
                               String dir, String filePath, boolean isUpdate) {
-        // Check duplication
-        for (UploadTask task : uploadTasks) {
+        Iterator<UploadTask> iter = uploadTasks.iterator();
+        while (iter.hasNext()) {
+            UploadTask task = iter.next();
             if (task.myRepoID.equals(repoID) && task.myPath.equals(filePath)) {
-                return false;
+                if (task.myState == TaskState.CANCELLED || task.myState == TaskState.FAILED) {
+                    // If there is an duplicate, but it has failed or been
+                    // cancelled, remove it first
+                    iter.remove();
+                    break;
+                } else {
+                    // An duplicate task is uploading/finished
+                    return false;
+                }
             }
         }
+
         UploadTask task = new UploadTask(account, repoID, repoName, dir, filePath, isUpdate);
         task.execute();
         return true;
