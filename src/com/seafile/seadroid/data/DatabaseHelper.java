@@ -130,7 +130,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onUpgrade(db, oldVersion, newVersion);
     }
 
-    public SeafCachedFile getFileCacheItem(String repoName, String repoID,
+    public SeafCachedFile getFileCacheItem(String repoID,
                                            String path, DataManager dataManager) {
         String[] projection = {
                 FILECACHE_COLUMN_ID,
@@ -145,9 +145,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor c = database.query(
              FILECACHE_TABLE_NAME,
              projection,
-             FILECACHE_COLUMN_REPO_NAME + "=?  and " + FILECACHE_COLUMN_REPO_ID
+             FILECACHE_COLUMN_REPO_ID
              + "=? and " + FILECACHE_COLUMN_PATH + "=?",
-             new String[] { repoName, repoID, path },
+             new String[] { repoID, path },
              null,   // don't group the rows
              null,   // don't filter by row groups
              null    // The sort order
@@ -165,7 +165,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // XXX: Here we can use SQLite3  "INSERT OR REPLACE" for convience
     public void saveFileCacheItem(SeafCachedFile item, DataManager dataManager) {
-        SeafCachedFile old = getFileCacheItem(item.repoName, item.repoID, item.path, dataManager);
+        SeafCachedFile old = getFileCacheItem(item.repoID, item.path, dataManager);
         if (old != null) {
             deleteFileCacheItem(old);
         }
@@ -178,7 +178,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(FILECACHE_COLUMN_PATH, item.path);
         values.put(FILECACHE_COLUMN_CTIME, item.ctime);
         values.put(FILECACHE_COLUMN_ACCOUNT, item.accountSignature);
-
+        
         // Insert the new row, returning the primary key value of the new row
         database.insert(FILECACHE_TABLE_NAME, null, values);
     }
@@ -232,7 +232,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         item.fileID = cursor.getString(1);
         item.repoName = cursor.getString(2);
         item.repoID = cursor.getString(3);
-        item.path = cursor.getString(4);
+        item.path = cursor.getString(4); 
         item.ctime = cursor.getLong(5);
         item.accountSignature = cursor.getString(6);
         item.file = dataManager.getLocalRepoFile(item.repoName, item.repoID, item.path);

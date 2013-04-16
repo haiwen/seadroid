@@ -439,7 +439,7 @@ public class DataManager {
     }
 
     public SeafCachedFile getCachedFile(String repoName, String repoID, String path) {
-        SeafCachedFile cf = dbHelper.getFileCacheItem(repoName, repoID, path, this);
+        SeafCachedFile cf = dbHelper.getFileCacheItem(repoID, path, this);
         return cf;
     }
 
@@ -507,9 +507,9 @@ public class DataManager {
      */
     public boolean isLocalFileModified(String repoName, String repoID, String path) {
         SeafCachedFile cachedFile = getCachedFile(repoName, repoID, path);
-        if (cachedFile == null) {
+        if (cachedFile == null)
             return false;
-        }
+
         File localFile = getLocalRepoFile(repoName, repoID, path);
         if (!localFile.exists()) {
             // Local file has been deleted, so delete the item in the filecache table
@@ -518,7 +518,6 @@ public class DataManager {
         }
         if (localFile.lastModified() != cachedFile.ctime) {
             // Local file has a newer timestamp
-            //Log.d("timestamp", localFile.lastModified() + " " + cachedFile.ctime + " ");
             return true;
         }
         return false;
