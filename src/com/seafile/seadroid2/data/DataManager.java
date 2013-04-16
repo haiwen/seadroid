@@ -213,6 +213,8 @@ public class DataManager {
     private String getAccountDir() {
         String username = account.getEmail();
         String server = Utils.stripSlashes(account.getServerHost());
+        // strip port, like :8000 in 192.168.1.116:8000
+        server = server.substring(0, server.indexOf(':'));
         String p = String.format("%s (%s)", username, server);
         String accountDir = Utils.pathJoin(getExternalRootDirectory(), p);
 
@@ -233,7 +235,9 @@ public class DataManager {
             // Has record in databse
             repoDir = new File(path);
             if (!repoDir.exists()) {
-                repoDir.mkdirs();
+                if (repoDir.mkdirs() == false) {
+                    throw new RuntimeException("Could not create repo directory");
+                }
             }
             return path;
         }
@@ -256,7 +260,9 @@ public class DataManager {
             i++;
         }
 
-        repoDir.mkdirs();
+        if (repoDir.mkdirs() == false) {
+            throw new RuntimeException("Could not create repo directory");
+        }
 
         // Save the new mapping in database
         dbHelper.saveRepoDirMapping(account, repoName, repoID, path);
