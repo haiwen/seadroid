@@ -197,7 +197,7 @@ public class SeafConnection {
      * @return true if login success, false otherwise
      * @throws IOException
      */
-    public boolean doLogin() throws SeafException {
+    private boolean realLogin() throws SeafException {
         InputStream is = null;
 
         try {
@@ -209,9 +209,13 @@ public class SeafConnection {
             params.add(new BasicNameValuePair("password", account.passwd));
             doPost(conn, params);
 
-            if (conn.getResponseCode() != 200)
-                throw new SeafException(conn.getResponseCode(), conn.getResponseMessage());
-
+            if (conn.getResponseCode() != 200) {
+                if (conn.getResponseMessage() == null)
+                    throw SeafException.networkException;
+                else
+                    throw new SeafException(conn.getResponseCode(), conn.getResponseMessage());
+            }
+            
             is = conn.getInputStream();
             String contentAsString = Utils.readIt(is);
             JSONObject obj = Utils.parseJsonObject(contentAsString);
@@ -222,6 +226,7 @@ public class SeafConnection {
         } catch (SeafException e) {
             throw e;
         } catch (SSLException e) {
+            //Log.d("test", e.getMessage());
             throw SeafException.sslException;
         } catch (IOException e) {
             e.printStackTrace();
@@ -240,6 +245,15 @@ public class SeafConnection {
             }
         }
     }
+    
+    public boolean doLogin() throws SeafException {
+        try {
+            return realLogin();
+        } catch (Exception e) {
+            // do again
+            return realLogin();
+        }
+    }
 
     public boolean authPing() throws SeafException {
         InputStream is = null;
@@ -250,8 +264,12 @@ public class SeafConnection {
             // Starts the query
             conn.connect();
             int response = conn.getResponseCode();
-            if (response != 200)
-                throw new SeafException(response, conn.getResponseMessage());
+            if (response != 200) {
+                if (conn.getResponseMessage() == null)
+                    throw SeafException.networkException;
+                else
+                    throw new SeafException(response, conn.getResponseMessage());
+            }
 
             is = conn.getInputStream();
             String result = Utils.readIt(is);
@@ -282,8 +300,11 @@ public class SeafConnection {
             conn.connect();
             int response = conn.getResponseCode();
             if (response != 200)
-                throw new SeafException(response, conn.getResponseMessage());
-
+                if (conn.getResponseMessage() == null)
+                    throw SeafException.networkException;
+                else
+                    throw new SeafException(response, conn.getResponseMessage());
+                
             is = conn.getInputStream();
             String result = Utils.readIt(is);
             if (result.equals("\"pong\""))
@@ -314,7 +335,10 @@ public class SeafConnection {
             conn.connect();
             int response = conn.getResponseCode();
             if (response != 200)
-                throw new SeafException(response, conn.getResponseMessage());
+                if (conn.getResponseMessage() == null)
+                    throw SeafException.networkException;
+                else
+                    throw new SeafException(response, conn.getResponseMessage());
 
             is = conn.getInputStream();
             String result = Utils.readIt(is);
@@ -341,9 +365,11 @@ public class SeafConnection {
             HttpURLConnection conn = prepareGet("api2/repos/" + repoID + "/dir/" + "?p=" + encPath);
             conn.connect();
             int response = conn.getResponseCode();
-            if (response != 200) {
-                throw new SeafException(response, conn.getResponseMessage());
-            }
+            if (response != 200)
+                if (conn.getResponseMessage() == null)
+                    throw SeafException.networkException;
+                else
+                    throw new SeafException(response, conn.getResponseMessage());
 
             is = conn.getInputStream();
             String result = Utils.readIt(is);
@@ -374,8 +400,11 @@ public class SeafConnection {
             conn.connect();
             int response = conn.getResponseCode();
             if (response != 200)
-                throw new SeafException(response, conn.getResponseMessage());
-
+                if (conn.getResponseMessage() == null)
+                    throw SeafException.networkException;
+                else
+                    throw new SeafException(response, conn.getResponseMessage());
+               
             is = conn.getInputStream();
             String result = Utils.readIt(is);
             // should return "\"http://gonggeng.org:8082/...\"" or "\"https://gonggeng.org:8082/...\"
@@ -419,8 +448,11 @@ public class SeafConnection {
             conn.connect();
             int response = conn.getResponseCode();
             if (response != 200)
-                throw new SeafException(response, conn.getResponseMessage());
-
+                if (conn.getResponseMessage() == null)
+                    throw SeafException.networkException;
+                else
+                    throw new SeafException(response, conn.getResponseMessage());
+                
             File tmp = DataManager.getTempFile(path, oid);
             // Log.d(DEBUG_TAG, "write to " + tmp.getAbsolutePath());
 
@@ -487,10 +519,11 @@ public class SeafConnection {
             List<NameValuePair> params = new ArrayList<NameValuePair>();
             params.add(new BasicNameValuePair("password", passwd));
             doPost(conn, params);
-            if (conn.getResponseCode() != 200) {
-                throw new SeafException(conn.getResponseCode(),
-                        conn.getResponseMessage());
-            }
+            if (conn.getResponseCode() != 200)
+                if (conn.getResponseMessage() == null)
+                    throw SeafException.networkException;
+                else
+                    throw new SeafException(conn.getResponseCode(), conn.getResponseMessage());
         } catch (SeafException e) {
             Log.d(DEBUG_TAG, "Set Password err: " + e.getCode());
             throw e;
@@ -515,7 +548,10 @@ public class SeafConnection {
             int response = conn.getResponseCode();
             if (response != 200) {
                 Log.d("Upload", "Failed to get upload link " + response);
-                throw new SeafException(response, conn.getResponseMessage());
+                if (conn.getResponseMessage() == null)
+                    throw SeafException.networkException;
+                else
+                    throw new SeafException(conn.getResponseCode(), conn.getResponseMessage());
             }
                 
             is = conn.getInputStream();

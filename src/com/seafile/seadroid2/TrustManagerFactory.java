@@ -149,6 +149,8 @@ public class TrustManagerFactory {
     }
 
     public static void addCertificateChain(X509Certificate[] chain) throws CertificateException {
+        if (chain == null)
+            return;
         try {
             javax.net.ssl.TrustManagerFactory tmf = javax.net.ssl.TrustManagerFactory.getInstance("X509");
             for (X509Certificate element : chain) {

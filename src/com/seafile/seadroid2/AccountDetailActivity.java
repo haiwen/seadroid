@@ -143,20 +143,16 @@ public class AccountDetailActivity extends FragmentActivity {
 
         @Override
         protected void onPostExecute(String result) {
-            if (result.equals("Success")) {
+            if (result != null && result.equals("Success")) {
                 accountManager.saveDefaultAccount(loginAccount);
                 startFilesActivity(loginAccount);
             } else {
-                statusView.setText(result);
+                if (err != null && err == SeafException.sslException) {
+                    statusView.setText("SSL Error or Certification Error. You may try again.");
+                } else
+                    statusView.setText(result);
             }
             loginButton.setEnabled(true);
-
-            if (err != null) {
-                if (err == SeafException.sslException) {
-                    TrustServerDialogFragment dialog = new TrustServerDialogFragment(loginAccount);
-                    dialog.show(AccountDetailActivity.this.getSupportFragmentManager(), "DialogFragment");
-                }
-            }
         }
 
         private String doLogin() {
@@ -180,6 +176,7 @@ public class AccountDetailActivity extends FragmentActivity {
         }
     }
 
+    /*  // no longer used
     private class TrustServerDialogFragment extends DialogFragment {
 
         Account account;
@@ -210,5 +207,5 @@ public class AccountDetailActivity extends FragmentActivity {
             return builder.create();
         }
     }
-
+    */
 }

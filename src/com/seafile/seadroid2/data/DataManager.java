@@ -214,7 +214,8 @@ public class DataManager {
         String username = account.getEmail();
         String server = Utils.stripSlashes(account.getServerHost());
         // strip port, like :8000 in 192.168.1.116:8000
-        server = server.substring(0, server.indexOf(':'));
+        if (server.indexOf(":") != -1)
+            server = server.substring(0, server.indexOf(':'));
         String p = String.format("%s (%s)", username, server);
         String accountDir = Utils.pathJoin(getExternalRootDirectory(), p);
 
