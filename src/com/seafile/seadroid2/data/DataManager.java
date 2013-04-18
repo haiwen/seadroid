@@ -209,16 +209,17 @@ public class DataManager {
      * 2. Another account has email "foo@mycompany.com", and server
      * "seafile.mycompany.com". Two repos, "Documents" and "Manuals", has
      * been viewed.
-     */
+     */    
     private String getAccountDir() {
+        
         String username = account.getEmail();
         String server = Utils.stripSlashes(account.getServerHost());
         // strip port, like :8000 in 192.168.1.116:8000
         if (server.indexOf(":") != -1)
             server = server.substring(0, server.indexOf(':'));
         String p = String.format("%s (%s)", username, server);
+        p = p.replaceAll("[^\\w\\d\\.@\\(\\) ]", "_");
         String accountDir = Utils.pathJoin(getExternalRootDirectory(), p);
-
         return accountDir;
     }
 
@@ -237,7 +238,7 @@ public class DataManager {
             repoDir = new File(path);
             if (!repoDir.exists()) {
                 if (repoDir.mkdirs() == false) {
-                    throw new RuntimeException("Could not create repo directory");
+                    throw new RuntimeException("Could not create library directory " + path);
                 }
             }
             return path;
@@ -262,7 +263,7 @@ public class DataManager {
         }
 
         if (repoDir.mkdirs() == false) {
-            throw new RuntimeException("Could not create repo directory");
+            throw new RuntimeException("Could not create repo directory " + path);
         }
 
         // Save the new mapping in database
