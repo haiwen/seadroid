@@ -24,7 +24,10 @@ import com.actionbarsherlock.view.MenuItem;
  */
 public class MarkdownActivity extends SherlockActivity {
 
+    @SuppressWarnings("unused")
     private static final String DEBUG_TAG = "MarkdownActivity";
+
+    private MarkdownView markdownView;
 
     String path;
 
@@ -32,7 +35,7 @@ public class MarkdownActivity extends SherlockActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start);
-        MarkdownView markdownView = new MarkdownView(this);
+        markdownView = new MarkdownView(this);
         setContentView(markdownView);
 
         Intent intent = getIntent();
@@ -40,12 +43,15 @@ public class MarkdownActivity extends SherlockActivity {
 
         if (path == null)
             return;
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
         File file = new File(path);
         if (!file.exists())
             return;
 
-        Log.d(DEBUG_TAG, "" + file.getAbsolutePath());
         String content = Utils.readFile(file);
         markdownView.loadMarkdown(content);
     }
