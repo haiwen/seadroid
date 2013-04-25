@@ -98,7 +98,12 @@ public class UploadTasksAdapter extends BaseAdapter {
             stateStr = "Waiting";
             break;
         case TRANSFERRING:
-            int percent = (int)(uploaded * 100 / total);
+            int percent;
+            if (total == 0)
+                percent = 0;
+            else
+                percent = (int)(uploaded * 100 / total);
+
             viewHolder.progressBar.setProgress(percent);
             sizeStr = String.format("%s / %s",
                                     Utils.readableFileSize(uploaded),
