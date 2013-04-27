@@ -602,9 +602,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
 
         String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
-        Intent open = new Intent(Intent.ACTION_VIEW, Uri.parse(file.getAbsolutePath()));
-        open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        open.setAction(android.content.Intent.ACTION_VIEW);
+        Intent open = new Intent(Intent.ACTION_VIEW);
         open.setDataAndType((Uri.fromFile(file)), mime);
         try {
             startActivity(open);

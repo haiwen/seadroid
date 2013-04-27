@@ -77,9 +77,7 @@ public class MarkdownActivity extends SherlockActivity {
         PackageManager pm = getPackageManager();
 
         // First try to find an activity who can handle markdown edit
-        Intent editAsMarkDown = new Intent(Intent.ACTION_VIEW, Uri.parse(path));
-        editAsMarkDown.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        editAsMarkDown.setAction(Intent.ACTION_EDIT);
+        Intent editAsMarkDown = new Intent(Intent.ACTION_EDIT);
 
         Uri uri = Uri.fromFile(new File(path));
         String mime = "text/markdown";
@@ -91,8 +89,6 @@ public class MarkdownActivity extends SherlockActivity {
         } else {
             // No activity to handle markdown, take it as text
             Intent editAsText = new Intent(Intent.ACTION_EDIT);
-            editAsText.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            editAsText.setAction(Intent.ACTION_EDIT);
             mime = "text/plain";
             editAsMarkDown.setDataAndType(uri, mime);
 
