@@ -33,7 +33,7 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
     private SeafItemAdapter adapter;
     boolean mDualPane;
     BrowserActivity mActivity = null;
-    
+
     public ListView mList;
     boolean mListShown;
     View mProgressContainer;
@@ -64,30 +64,30 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
             mListContainer.setVisibility(View.INVISIBLE);
         }
     }
-    
+
     private DataManager getDataManager() {
         return mActivity.getDataManager();
     }
-    
+
     private NavContext getNavContext() {
         return mActivity.getNavContext();
     }
-    
+
     public SeafItemAdapter getAdapter() {
         return adapter;
     }
-    
+
     public interface OnFileSelectedListener {
         public void onFileSelected(String repoName, String repoID, String path, SeafDirent dirent);
     }
-    
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         Log.d(DEBUG_TAG, "ReposFragment Attached");
         mActivity = (BrowserActivity)activity;
     }
-    
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
@@ -98,10 +98,10 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
         mListContainer =  root.findViewById(R.id.listContainer);
         mProgressContainer = root.findViewById(R.id.progressContainer);
         mListShown = true;
-        
+
         return root;
     }
-    
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -111,7 +111,7 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
 
         getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
     }
-    
+
 
     @Override
     public void onStart() {
@@ -124,7 +124,7 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
         Log.d(DEBUG_TAG, "ReposFragment onStop");
         super.onStop();
     }
-    
+
     @Override
     public void onResume() {
         super.onResume();
@@ -132,23 +132,23 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
         // refresh the view (loading data)
         refreshView();
     }
-    
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
     }
-    
+
     @Override
     public void onDetach() {
         mActivity = null;
         Log.d(DEBUG_TAG, "ReposFragment detached");
         super.onDetach();
     }
-    
+
     public void refreshView() {
         if (mActivity == null)
             return;
-        
+
         NavContext navContext = getNavContext();
         if (navContext.inRepo()) {
             navToDirectory();
@@ -157,8 +157,9 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
         }
         mActivity.invalidateOptionsMenu();
     }
-    
+
     public void navToReposView() {
+        setListShown(false, true);
         // show cached repos first
         List<SeafRepo> repos = getDataManager().getReposFromCache();
         if  (repos != null) {
@@ -166,7 +167,7 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
             addReposToAdapter(repos);
             adapter.notifyChanged();
         }
-        
+
         // load repos in background
         mActivity.disableUpButton();
         ConcurrentAsyncTask.execute(new LoadTask(getDataManager()));
@@ -184,22 +185,22 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
                                     navContext.getDirID());
     }
 
-    @Override 
+    @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         //Log.d(DEBUG_TAG, "click pos " + position + " id " + id);
-        
+
         NavContext nav = getNavContext();
         if (nav.inRepo()) {
             SeafDirent dirent = (SeafDirent)adapter.getItem(position);
             if (dirent.isDir()) {
                 String currentPath = nav.getDirPath();
-                String newPath = currentPath.endsWith("/") ? 
+                String newPath = currentPath.endsWith("/") ?
                         currentPath + dirent.name : currentPath + "/" + dirent.name;
                 nav.setDir(newPath, dirent.id);
                 refreshView();
             } else {
                 String currentPath = nav.getDirPath();
-                String newPath = currentPath.endsWith("/") ? 
+                String newPath = currentPath.endsWith("/") ?
                         currentPath + dirent.name : currentPath + "/" + dirent.name;
                 mActivity.onFileSelected(nav.getRepoName(), nav.getRepoID(), newPath, dirent);
             }
@@ -228,7 +229,7 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
             for (SeafRepo repo : personal)
                 adapter.add(repo);
         }
-        
+
         for (Map.Entry<String, List<SeafRepo>> entry : map.entrySet()) {
             String key = entry.getKey();
             if (!key.equals(Utils.NOGROUP)) {
@@ -245,11 +246,11 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
 
         SeafException err = null;
         DataManager dataManager;
-        
+
         public LoadTask(DataManager dataManager) {
             this.dataManager = dataManager;
         }
-        
+
         @Override
         protected List<SeafRepo> doInBackground(Void... params) {
             try {
@@ -266,44 +267,45 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
             if (mActivity == null)
                 // this occurs if user navigation to another activity
                 return;
-            
+
             if (getNavContext().inRepo()) {
                 // this occurs if user already navigate into a repo
                 return;
             }
-            
+
             if (rs != null) {
                 //Log.d(DEBUG_TAG, "Load repos number " + rs.size());
                 adapter.clear();
                 addReposToAdapter(rs);
                 adapter.notifyChanged();
+                setListShown(true, false);
             } else {
-                //Log.d(DEBUG_TAG, "failed to load repos");
+                Log.d(DEBUG_TAG, "failed to load repos");
             }
         }
 
     }
-    
+
     private class LoadDirTask extends AsyncTask<String, Void, List<SeafDirent> > {
 
         SeafException err = null;
         String myRepoName;
         String myRepoID;
         String myPath;
-        
+
         DataManager dataManager;
-        
+
         public LoadDirTask(DataManager dataManager) {
             this.dataManager = dataManager;
         }
-        
+
         @Override
         protected List<SeafDirent> doInBackground(String... params) {
             if (params.length != 4) {
                 Log.d(DEBUG_TAG, "Wrong params to LoadDirTask");
                 return null;
             }
-            
+
             myRepoName = params[0];
             myRepoID = params[1];
             myPath = params[2];
@@ -314,7 +316,7 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
                 err = e;
                 return null;
             }
-            
+
         }
 
         // onPostExecute displays the results of the AsyncTask.
@@ -323,7 +325,12 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
             if (mActivity == null)
                 // this occurs if user navigation to another activity
                 return;
-           
+
+            NavContext nav = mActivity.getNavContext();
+            if (!myRepoID.equals(nav.getRepoID()) || !myPath.equals(nav.getDirPath())) {
+                return;
+            }
+
             adapter.clear();
             if (dirents != null) {
                 for (SeafDirent dirent : dirents) {
@@ -335,15 +342,15 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
             }
             adapter.notifyChanged();
             setListShown(true, true);
-            
+
             if (err != null && err.getCode() == 440) {
                 showPasswordDialog();
             }
-            
+
         }
 
     }
-    
+
 
     private void showPasswordDialog() {
         PasswordDialog dialog = new PasswordDialog();
@@ -361,22 +368,22 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
         ConcurrentAsyncTask.execute(new SetPasswordTask(getDataManager()),
                             navContext.getRepoID(), password);
     }
-    
+
     private class SetPasswordTask extends AsyncTask<String, Void, Void > {
-        
+
         DataManager dataManager;
-        
+
         public SetPasswordTask(DataManager dataManager) {
             this.dataManager = dataManager;
         }
-        
+
         @Override
         protected Void doInBackground(String... params) {
             if (params.length != 2) {
                 Log.d(DEBUG_TAG, "Wrong params to SetPasswordTask");
                 return null;
             }
-            
+
             String repoID = params[0];
             String password = params[1];
             dataManager.setPassword(repoID, password);
@@ -392,7 +399,7 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
         }
 
     }
-    
+
 
     private void scheduleThumbnailTask(String repoName, String repoID,
                                        String path, List<SeafDirent> dirents) {
@@ -406,7 +413,7 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
                 if (file.exists()) {
                     if (file.length() > 1000000)
                         continue;
-                    
+
                     File thumb = DataManager.getThumbFile(dirent.id);
                     if (!thumb.exists())
                         needThumb.add(dirent);
@@ -417,21 +424,21 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
             ConcurrentAsyncTask.execute(new ThumbnailTask(repoName, repoID, path, needThumb));
         }
     }
-    
+
     private class ThumbnailTask extends AsyncTask<Void, Void, Void > {
 
         List<SeafDirent> dirents;
-        private String repoName; 
-        private String repoID; 
+        private String repoName;
+        private String repoID;
         private String dir;
-        
+
         public ThumbnailTask(String repoName, String repoID, String dir, List<SeafDirent> dirents) {
             this.dirents = dirents;
             this.repoName = repoName;
             this.repoID = repoID;
             this.dir = dir;
         }
-        
+
         @Override
         protected Void doInBackground(Void... params) {
             for (SeafDirent dirent : dirents) {
@@ -447,7 +454,7 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
             if (mActivity == null)
                 // this occurs if user navigation to another activity
                 return;
-           
+
             adapter.notifyChanged();
         }
 
