@@ -16,6 +16,7 @@ public class SeafDirent implements SeafItem {
     public DirentType type;
     public String name;
     public long size;    // size of file, 0 if type is dir
+    public long mtime;   // last modified timestamp
     
     
     static SeafDirent fromJson(JSONObject obj) {
@@ -23,6 +24,7 @@ public class SeafDirent implements SeafItem {
         try {
             dirent.id = obj.getString("id");
             dirent.name = obj.getString("name");
+            dirent.mtime = obj.getLong("mtime");
             String type = obj.getString("type");
             if (type.equals("file")) {
                 dirent.type = DirentType.FILE;
@@ -47,10 +49,12 @@ public class SeafDirent implements SeafItem {
 
     @Override
     public String getSubtitle() {
+        String timestamp = Utils.translateCommitTime(mtime * 1000);
         if (isDir())
-            return "";
-        return Utils.readableFileSize(size);
+            return timestamp;
+        return Utils.readableFileSize(size) + ", " + timestamp;
     }
+
 
     @Override
     public int getIcon() {

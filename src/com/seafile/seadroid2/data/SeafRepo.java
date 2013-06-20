@@ -60,6 +60,10 @@ public class SeafRepo implements SeafItem {
         return name;
     }
 
+    public String getRootDirID() {
+        return root;
+    }
+
     @Override
     public String getTitle() {
         return name;

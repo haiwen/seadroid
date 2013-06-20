@@ -343,10 +343,13 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
             adapter.notifyChanged();
             setListShown(true, true);
 
-            if (err != null && err.getCode() == 440) {
-                showPasswordDialog();
+            if (err != null) {
+                if (err.getCode() == 440) {
+                    showPasswordDialog();
+                } else if (err.getCode() == 404) {
+                    mActivity.showToast("The directory may be deleted");
+                }
             }
-
         }
 
     }

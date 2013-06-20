@@ -50,6 +50,10 @@ public class Account {
             result = result.substring(0, result.length() - 1);
         return result;
     }
+
+    public String getToken() {
+        return token;
+    }
     
     public boolean isHttps() {
         return server.startsWith("https");

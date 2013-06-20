@@ -10,12 +10,17 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
-import java.util.HashMap;
 
-import org.json.*;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -24,7 +29,6 @@ import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import com.seafile.seadroid2.data.SeafRepo;
-import com.seafile.seadroid2.SeadroidApplication;
 
 public class Utils {
 
@@ -266,5 +270,40 @@ public class Utils {
      */
     public static String stripSlashes(String a) {
         return a.replaceAll("^[/]*|[/]*$", "");
+    }
+
+    /**
+     * Translate commit time to human readable time description
+     */
+    public static String translateCommitTime(long timestampInMillis) {
+        long now = Calendar.getInstance().getTimeInMillis();
+        if (now <= timestampInMillis) {
+            return "Just now";
+        }
+
+        long delta = (now - timestampInMillis) / 1000;
+
+        long secondsPerDay = 24 * 60 * 60;
+
+        long days = delta / secondsPerDay;
+        long seconds = delta % secondsPerDay;
+
+        if (days >= 14) {
+            Date d = new Date(timestampInMillis);
+            SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
+            return fmt.format(d);
+        } else if (days > 0) {
+            return days == 1 ? "1 days ago" : days + " days ago";
+        } else if (seconds >= 60 * 60) {
+            long hours = seconds / 3600;
+            return hours == 1 ? "1 hours ago" : hours + " hours ago";
+        } else if (seconds >= 60) {
+            long minutes = seconds / 60;
+            return minutes == 1 ? "1 minute ago" : minutes + " minutes ago";
+        } else if (seconds > 0) {
+            return seconds == 1 ? "1 second ago" : seconds + " seconds ago";
+        } else {
+            return "Just now";
+        }
     }
 }

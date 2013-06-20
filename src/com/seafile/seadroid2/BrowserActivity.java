@@ -41,12 +41,12 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafCachedFile;
 import com.seafile.seadroid2.data.SeafDirent;
+import com.seafile.seadroid2.gallery.MultipleImageSelectionActivity;
+import com.seafile.seadroid2.ui.ActivitiesFragment;
 import com.seafile.seadroid2.ui.PasswordDialog;
 import com.seafile.seadroid2.ui.PasswordDialog.PasswordGetListener;
 import com.seafile.seadroid2.ui.ReposFragment;
 import com.seafile.seadroid2.ui.UploadTasksFragment;
-
-import com.seafile.seadroid2.gallery.MultipleImageSelectionActivity;
 
 
 public class BrowserActivity extends SherlockFragmentActivity
@@ -62,10 +62,12 @@ public class BrowserActivity extends SherlockFragmentActivity
     // private boolean twoPaneMode = false;
     ReposFragment reposFragment = null;
     UploadTasksFragment uploadTasksFragment = null;
+    ActivitiesFragment activitiesFragment = null;
 
     private String currentTab;
     private static final String LIBRARY_TAB = "libraries";
     private static final String UPLOAD_TASKS_TAB = "upload-tasks";
+    private static final String ACTIVITY_TAB = "activities";
 
     public DataManager getDataManager() {
         return dataManager;
@@ -136,21 +138,28 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         @Override
         public void onTabSelected(Tab tab, FragmentTransaction ft) {
+            Log.d(DEBUG_TAG, mTag + " is selected");
             currentTab = mTag;
             if (mTag.equals(LIBRARY_TAB)) {
                 showReposFragment(ft);
             } else if (mTag.equals(UPLOAD_TASKS_TAB)) {
                 disableUpButton();
                 showUploadTasksFragment(ft);
+            } else if (mTag.equals(ACTIVITY_TAB)) {
+                disableUpButton();
+                showActivitiesFragment(ft);
             }
         }
 
         @Override
         public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+            Log.d(DEBUG_TAG, mTag + " is unselected");
             if (mTag.equals(LIBRARY_TAB)) {
                 hideReposFragment(ft);
             } else if (mTag.equals(UPLOAD_TASKS_TAB)) {
                 hideUploadTasksFragment(ft);
+            } else if (mTag.equals(ACTIVITY_TAB)) {
+                hideActivitiesFragment(ft);
             }
         }
 
@@ -199,6 +208,10 @@ public class BrowserActivity extends SherlockFragmentActivity
                     getSupportFragmentManager().findFragmentByTag("repos_fragment");
             uploadTasksFragment = (UploadTasksFragment)
                     getSupportFragmentManager().findFragmentByTag("upload_tasks_fragment");
+
+            activitiesFragment = (ActivitiesFragment)
+                    getSupportFragmentManager().findFragmentByTag("activities_fragment");
+
             cTab = savedInstanceState.getInt("tab");
 
             String repoID = savedInstanceState.getString("repoID");
@@ -222,11 +235,18 @@ public class BrowserActivity extends SherlockFragmentActivity
             .setTabListener(new TabListener(UPLOAD_TASKS_TAB));
         actionBar.addTab(tab);
 
+        tab = actionBar.newTab()
+            .setText(R.string.activities)
+            .setTabListener(new TabListener(ACTIVITY_TAB));
+        actionBar.addTab(tab);
+
         actionBar.setSelectedNavigationItem(cTab);
         if (cTab == 0) {
             currentTab = LIBRARY_TAB;
-        } else {
+        } else if (cTab == 1) {
             currentTab = UPLOAD_TASKS_TAB;
+        } else {
+            currentTab = ACTIVITY_TAB;
         }
 
         Intent txIntent = new Intent(this, TransferService.class);
@@ -345,8 +365,11 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         if (currentTab.equals(LIBRARY_TAB))
             menuRefresh.setVisible(true);
-        else
+        else if (currentTab.equals(ACTIVITY_TAB)) {
+            menuRefresh.setVisible(true);
+        } else {
             menuRefresh.setVisible(false);
+        }
 
         return true;
     }
@@ -373,9 +396,15 @@ public class BrowserActivity extends SherlockFragmentActivity
                 showToast(getString(R.string.network_down));
                 return true;
             }
-            if (navContext.repoID != null)
-                dataManager.invalidateCache(navContext.repoID, navContext.dirPath);
-            reposFragment.refreshView();
+
+            if (currentTab.equals("repos_fragment")) {
+                if (navContext.repoID != null)
+                    dataManager.invalidateCache(navContext.repoID, navContext.dirPath);
+                reposFragment.refreshView();
+            } else {
+                activitiesFragment.refreshView();
+            }
+
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -398,6 +427,19 @@ public class BrowserActivity extends SherlockFragmentActivity
         ft.detach(reposFragment);
     }
 
+    private void showActivitiesFragment(FragmentTransaction ft) {
+        if (activitiesFragment == null) {
+            activitiesFragment = new ActivitiesFragment();
+            ft.add(android.R.id.content, activitiesFragment, "activities_fragment");
+        } else {
+            //Log.d(DEBUG_TAG, "Attach reposFragment");
+            ft.attach(activitiesFragment);
+        }
+    }
+
+    private void hideActivitiesFragment(FragmentTransaction ft) {
+        ft.detach(activitiesFragment);
+    }
 
     private void showUploadTasksFragment(FragmentTransaction ft) {
         if (uploadTasksFragment == null) {

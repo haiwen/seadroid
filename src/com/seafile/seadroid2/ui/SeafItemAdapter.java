@@ -181,7 +181,7 @@ public class SeafItemAdapter extends BaseAdapter {
             if (cf != null) {
                 cacheExists = true;
                 if (dirent.id.equals(cf.fileID)) {
-                    subtitle += " cached";
+                    subtitle += ", cached";
                 }
             }
             viewHolder.subtitle.setText(subtitle);
