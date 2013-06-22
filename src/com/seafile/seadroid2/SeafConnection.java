@@ -734,4 +734,63 @@ public class SeafConnection {
         }
     }
 
+    public List<String> createNewDir(String repoID,
+                                     String parentDir,
+                                     String dirName) throws SeafException {
+
+        InputStream is = null;
+        HttpURLConnection conn = null;
+        try {
+            String fullPath = Utils.pathJoin(parentDir, dirName);
+            String encPath = URLEncoder.encode(fullPath, "UTF-8");
+            conn = preparePost("api2/repos/" + repoID +
+                               "/dir/" + "?p=" + encPath +
+                               "&reloaddir=true");
+
+            List<NameValuePair> params = new ArrayList<NameValuePair>();
+            params.add(new BasicNameValuePair("operation", "mkdir"));
+            doPost(conn, params);
+
+            int response = conn.getResponseCode();
+            if (response != 200)
+                if (conn.getResponseMessage() == null)
+                    throw SeafException.networkException;
+                else
+                    throw new SeafException(response, conn.getResponseMessage());
+
+            String newDirID = conn.getHeaderField("oid");
+            if (newDirID == null) {
+                return null;
+            }
+
+            is = conn.getInputStream();
+            String content = Utils.readIt(is);
+            if (content == null) {
+                return null;
+            }
+            
+            List<String> ret = new ArrayList<String>();
+            ret.add(newDirID);
+            ret.add(content);
+            return ret;
+
+        } catch (SeafException e) {
+            throw e;
+        } catch (UnsupportedEncodingException e) {
+            throw SeafException.encodingException;
+        } catch (IOException e) {
+            throw SeafException.networkException;
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (Exception e) {
+                }
+            }
+
+            if (conn != null) {
+                conn.disconnect();
+            }
+        }
+    }
 }

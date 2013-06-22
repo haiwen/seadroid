@@ -43,6 +43,7 @@ import com.seafile.seadroid2.data.SeafCachedFile;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.gallery.MultipleImageSelectionActivity;
 import com.seafile.seadroid2.ui.ActivitiesFragment;
+import com.seafile.seadroid2.ui.NewDirDialog;
 import com.seafile.seadroid2.ui.PasswordDialog;
 import com.seafile.seadroid2.ui.PasswordDialog.PasswordGetListener;
 import com.seafile.seadroid2.ui.ReposFragment;
@@ -68,6 +69,10 @@ public class BrowserActivity extends SherlockFragmentActivity
     private static final String LIBRARY_TAB = "libraries";
     private static final String UPLOAD_TASKS_TAB = "upload-tasks";
     private static final String ACTIVITY_TAB = "activities";
+
+    private static final String REPOS_FRAGMENT_TAG = "repos_fragment";
+    private static final String UPLOAD_TASKS_FRAGMENT_TAG = "upload_tasks_fragment";
+    private static final String ACTIVITIES_FRAGMENT_TAG = "activities_fragment";
 
     public DataManager getDataManager() {
         return dataManager;
@@ -217,12 +222,12 @@ public class BrowserActivity extends SherlockFragmentActivity
         if (savedInstanceState != null) {
             // fragment are saved during screen rotation, so do not need to create a new one
             reposFragment = (ReposFragment)
-                    getSupportFragmentManager().findFragmentByTag("repos_fragment");
+                    getSupportFragmentManager().findFragmentByTag(REPOS_FRAGMENT_TAG);
             uploadTasksFragment = (UploadTasksFragment)
-                    getSupportFragmentManager().findFragmentByTag("upload_tasks_fragment");
+                    getSupportFragmentManager().findFragmentByTag(UPLOAD_TASKS_FRAGMENT_TAG);
 
             activitiesFragment = (ActivitiesFragment)
-                    getSupportFragmentManager().findFragmentByTag("activities_fragment");
+                    getSupportFragmentManager().findFragmentByTag(ACTIVITIES_FRAGMENT_TAG);
 
             cTab = savedInstanceState.getInt("tab");
 
@@ -421,17 +426,32 @@ public class BrowserActivity extends SherlockFragmentActivity
                 return true;
             }
 
-            if (currentTab.equals("repos_fragment")) {
+            if (currentTab.equals(LIBRARY_TAB)) {
                 if (navContext.repoID != null)
                     dataManager.invalidateCache(navContext.repoID, navContext.dirPath);
                 reposFragment.refreshView();
-            } else {
+            } else if (currentTab.equals(ACTIVITY_TAB)) {
                 activitiesFragment.refreshView();
             }
 
             return true;
+        case R.id.newdir:
+            showNewDirDialog();
+            return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showNewDirDialog() {
+        NewDirDialog dialog = new NewDirDialog(this);
+        dialog.show(getSupportFragmentManager(), "DialogFragment");
+    }
+
+    public void onNewDirCreated(String dirName) {
+        showToast("Sucessfully created folder " + dirName);
+        if (currentTab.equals(LIBRARY_TAB) && reposFragment != null) {
+            reposFragment.refreshView();
+        }
     }
 
     private void showReposFragment(FragmentTransaction ft) {
@@ -439,7 +459,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         if (reposFragment == null) {
             reposFragment = new ReposFragment();
-            ft.add(android.R.id.content, reposFragment, "repos_fragment");
+            ft.add(android.R.id.content, reposFragment, REPOS_FRAGMENT_TAG);
         } else {
             //Log.d(DEBUG_TAG, "Attach reposFragment");
             ft.attach(reposFragment);
@@ -454,7 +474,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     private void showActivitiesFragment(FragmentTransaction ft) {
         if (activitiesFragment == null) {
             activitiesFragment = new ActivitiesFragment();
-            ft.add(android.R.id.content, activitiesFragment, "activities_fragment");
+            ft.add(android.R.id.content, activitiesFragment, ACTIVITIES_FRAGMENT_TAG);
         } else {
             //Log.d(DEBUG_TAG, "Attach reposFragment");
             ft.attach(activitiesFragment);
@@ -468,7 +488,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     private void showUploadTasksFragment(FragmentTransaction ft) {
         if (uploadTasksFragment == null) {
             uploadTasksFragment = new UploadTasksFragment();
-            ft.add(android.R.id.content, uploadTasksFragment, "upload_tasks_fragment");
+            ft.add(android.R.id.content, uploadTasksFragment, UPLOAD_TASKS_FRAGMENT_TAG);
         } else {
             ft.attach(uploadTasksFragment);
         }
@@ -621,7 +641,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             return;
         }
 
-        if (currentTab.equals("libraries")) {
+        if (currentTab.equals(LIBRARY_TAB)) {
             if (navContext.inRepo()) {
                 if (navContext.isRepoRoot()) {
                     navContext.setRepoID(null);
@@ -633,10 +653,9 @@ public class BrowserActivity extends SherlockFragmentActivity
                 reposFragment.refreshView();
             } else
                 super.onBackPressed();
-        } else if (currentTab.equals("cache")) {
+        } else {
             super.onBackPressed();
-        } else
-            super.onBackPressed();
+        }
     }
 
     @Override

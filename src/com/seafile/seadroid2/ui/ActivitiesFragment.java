@@ -118,6 +118,10 @@ public class ActivitiesFragment extends SherlockFragment {
     }
 
     private void showPageLoading(boolean pageLoading) {
+        if (mActivity == null) {
+            return;
+        }
+
         if (!pageLoading) {
             mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
                                     mActivity, android.R.anim.fade_out));
