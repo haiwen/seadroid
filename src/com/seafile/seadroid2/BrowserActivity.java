@@ -138,6 +138,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         @Override
         public void onTabSelected(Tab tab, FragmentTransaction ft) {
+            disableActionBarTitle();
             Log.d(DEBUG_TAG, mTag + " is selected");
             currentTab = mTag;
             if (mTag.equals(LIBRARY_TAB)) {
@@ -166,6 +167,17 @@ public class BrowserActivity extends SherlockFragmentActivity
         @Override
         public void onTabReselected(Tab tab, FragmentTransaction ft) {
         }
+    }
+
+    public void disableActionBarTitle() {
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+    }
+
+    public void setActionBarTitle(String title, String subtitle) {
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayShowTitleEnabled(true);
+        actionBar.setTitle(title);
+        actionBar.setSubtitle(subtitle);
     }
 
     @Override
@@ -352,23 +364,35 @@ public class BrowserActivity extends SherlockFragmentActivity
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem menuUpload = menu.findItem(R.id.upload);
         MenuItem menuRefresh = menu.findItem(R.id.refresh);
+        MenuItem menuNewDir = menu.findItem(R.id.newdir);
 
         if (currentTab.equals(LIBRARY_TAB)) {
             menuUpload.setVisible(true);
-            if (navContext.inRepo())
+            if (navContext.inRepo()) {
                 menuUpload.setEnabled(true);
+            }
             else
                 menuUpload.setEnabled(false);
         } else {
             menuUpload.setVisible(false);
         }
 
-        if (currentTab.equals(LIBRARY_TAB))
+        if (currentTab.equals(LIBRARY_TAB)) {
             menuRefresh.setVisible(true);
-        else if (currentTab.equals(ACTIVITY_TAB)) {
+        } else if (currentTab.equals(ACTIVITY_TAB)) {
             menuRefresh.setVisible(true);
         } else {
             menuRefresh.setVisible(false);
+        }
+
+        if (currentTab.equals(LIBRARY_TAB)) {
+            if (navContext.inRepo()) {
+                menuNewDir.setVisible(true);
+            } else {
+                menuNewDir.setVisible(false);
+            }
+        } else {
+            menuNewDir.setVisible(false);
         }
 
         return true;

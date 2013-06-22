@@ -183,6 +183,13 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
                                     navContext.getRepoID(),
                                     navContext.getDirPath(),
                                     navContext.getDirID());
+
+        String title = navContext.getRepoName();
+        String path = navContext.getDirPath();
+        if (path != null && path.length() > 0 && path.charAt(0) == '/') {
+            path = path.substring(1, path.length());
+        }
+        mActivity.setActionBarTitle(title, path);
     }
 
     @Override

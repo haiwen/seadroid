@@ -16,5 +16,10 @@
         android:visible="false"
         android:title="Refresh" 
         android:showAsAction="ifRoom|withText"/>
+
+    <item android:id="@+id/newdir"
+        android:visible="false"
+        android:title="Create a new folder" 
+        android:showAsAction="never"/>
     
 </menu>
