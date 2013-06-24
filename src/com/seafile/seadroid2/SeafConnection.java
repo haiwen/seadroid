@@ -15,13 +15,8 @@ import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -34,11 +29,12 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.util.Log;
+
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.DataManager.ProgressMonitor;
-
-import android.util.Log;
+import com.seafile.seadroid2.data.TwoTuple;
 
 /**
  * SeafConnection encapsulates Seafile Web API
@@ -358,7 +354,7 @@ public class SeafConnection {
         }
     }
 
-    public String getDirents(String repoID, String path) throws SeafException {
+    public TwoTuple<String, String> getDirents(String repoID, String path) throws SeafException {
         InputStream is = null;
         try {
             String encPath = URLEncoder.encode(path, "UTF-8");
@@ -372,8 +368,14 @@ public class SeafConnection {
                     throw new SeafException(response, conn.getResponseMessage());
 
             is = conn.getInputStream();
-            String result = Utils.readIt(is);
-            return result;
+            String content = Utils.readIt(is);
+            String dirID = conn.getHeaderField("oid");
+            if (content == null || dirID == null) {
+                throw SeafException.unknownException;
+            }
+
+            return TwoTuple.newInstance(dirID, content);
+
         } catch (SeafException e) {
             throw e;
         } catch (UnsupportedEncodingException e) {

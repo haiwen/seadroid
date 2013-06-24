@@ -56,6 +56,7 @@ public class NewDirDialog extends DialogFragment {
             public void onClick(View view) {
                 String dirName = dirNameText.getText().toString();
 
+                // TODO: show loading and disable  input
                 NavContext nav = mActivity.getNavContext();
                 NewDirTask task = new NewDirTask(nav.getRepoID(),
                                                  nav.getDirPath(),

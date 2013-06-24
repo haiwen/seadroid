@@ -209,9 +209,9 @@ public class DataManager {
      * 2. Another account has email "foo@mycompany.com", and server
      * "seafile.mycompany.com". Two repos, "Documents" and "Manuals", has
      * been viewed.
-     */    
+     */
     private String getAccountDir() {
-        
+
         String username = account.getEmail();
         String server = Utils.stripSlashes(account.getServerHost());
         // strip port, like :8000 in 192.168.1.116:8000
@@ -411,36 +411,36 @@ public class DataManager {
     }
 
     public List<SeafDirent> getDirents(String repoID,
-            String path, String objectID) throws SeafException {
-        //Log.d(DEBUG_TAG, "getDirents " + repoID + ":" + path + ", " + objectID);
+            String path, String dirID) throws SeafException {
 
-        if (objectID != null) {
+        if (dirID != null) {
             // put the mapping to cache for later usage.
-            pathObjectIDMap.put(repoID + path, objectID);
+            saveDirIDToCache(repoID, path, dirID);
         } else {
-            objectID = pathObjectIDMap.get(repoID + path);
+            dirID = readDirIDFromCache(repoID, path);
         }
 
-        if (objectID != null) {
-            File cache = getFileForDirentsCache(objectID);
+        if (dirID != null) {
+            File cache = getFileForDirentsCache(dirID);
             if (cache.exists()) {
                 String json = Utils.readFile(cache);
                 return parseDirents(json);
             }
         }
 
-        String json = sc.getDirents(repoID, path);
-        if (json == null)
-            return null;
-        List<SeafDirent> dirents = parseDirents(json);
+        TwoTuple<String, String> ret = sc.getDirents(repoID, path);
 
-        if (objectID != null) {
-            try {
-                File cache = getFileForDirentsCache(objectID);
-                Utils.writeFile(cache, json);
-            } catch (IOException e) {
-                // ignore
-            }
+        String newDirID = ret.getFirst();
+        String content = ret.getSecond();
+
+        List<SeafDirent> dirents = parseDirents(content);
+
+        try {
+            File cache = getFileForDirentsCache(newDirID);
+            Utils.writeFile(cache, content);
+            saveDirIDToCache(repoID, path, newDirID);
+        } catch (IOException e) {
+            // ignore
         }
 
         return dirents;
@@ -496,17 +496,29 @@ public class DataManager {
 
         String d = dir;
         while (true) {
-            String objectID = pathObjectIDMap.get(repoID + d);
+            String objectID = readDirIDFromCache(repoID, d);
             if (objectID != null) {
                 File cache = getFileForDirentsCache(objectID);
                 if (cache.exists())
                     cache.delete();
             }
-            pathObjectIDMap.remove(repoID + d);
+            removeDirIDFromCache(repoID, d);
             if (d.equals("/"))
                 break;
             d = Utils.getParentPath(d);
         }
+    }
+
+    private void saveDirIDToCache(String repoID, String path, String dirID) {
+        pathObjectIDMap.put(repoID + path, dirID);
+    }
+
+    private String readDirIDFromCache(String repoID, String path) {
+        return pathObjectIDMap.get(repoID + path);
+    }
+
+    private String removeDirIDFromCache(String repoID, String path) {
+        return pathObjectIDMap.remove(repoID + path);
     }
 
     public void createNewDir(String repoID, String parentDir, String dirName) throws SeafException {
@@ -524,6 +536,7 @@ public class DataManager {
         File cache = getFileForDirentsCache(newDirID);
         try {
             Utils.writeFile(cache, response);
+            saveDirIDToCache(repoID, parentDir, newDirID);
         } catch (IOException e) {
         }
     }

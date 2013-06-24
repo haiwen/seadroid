@@ -31,6 +31,10 @@ public class NavContext {
         this.dirPath = path;
         this.dirID = dirID;
     }
+
+    public void setDirID(String dirID) {
+        this.dirID = dirID;
+    }
  
     
     public boolean inRepo() {

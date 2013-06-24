@@ -450,6 +450,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     public void onNewDirCreated(String dirName) {
         showToast("Sucessfully created folder " + dirName);
         if (currentTab.equals(LIBRARY_TAB) && reposFragment != null) {
+            navContext.setDirID(null);
             reposFragment.refreshView();
         }
     }
