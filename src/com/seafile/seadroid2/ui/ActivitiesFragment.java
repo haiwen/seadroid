@@ -15,7 +15,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
+import android.webkit.JavascriptInterface;
+import android.webkit.JsResult;
 import android.webkit.SslErrorHandler;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
@@ -79,7 +82,7 @@ public class ActivitiesFragment extends SherlockFragment {
         if (webView == null) {
             webView = new WebView(mActivity);
             initWebView();
-            loadWebPage();
+            loadActivitiesPage();
         }
 
         mActivity.invalidateOptionsMenu();
@@ -97,24 +100,34 @@ public class ActivitiesFragment extends SherlockFragment {
     }
 
     public void refreshView() {
-        loadWebPage();
+        loadActivitiesPage();
     }
 
     private void initWebView() {
         webView.getSettings().setJavaScriptEnabled(true);
         webView.setWebViewClient(new MyWebViewClient());
+
+        webView.setWebChromeClient(new MyWebChromeClient());
     }
 
-    private void loadWebPage() {
-        Log.d(DEBUG_TAG, "loadWebPage");
+    private void loadActivitiesPage() {
+        showPageLoading(true);
         Account account = mActivity.getAccount();
         String url = account.getServer() + ACTIVITIES_URL;
+
+        webView.addJavascriptInterface(new JSObject(), "token");
+        // load dummy empty html to make "token" object available
+        webView.loadData("", "text/html", null);
+        webView.loadUrl(url, getExtraHeaders());
+    }
+
+    private Map<String, String> getExtraHeaders() {
+        Account account = mActivity.getAccount();
         String token = "Token " + account.getToken();
         Map<String, String> headers = new HashMap<String, String>();
         headers.put("Authorization", token);
 
-        showPageLoading(true);
-        webView.loadUrl(url, headers);
+        return headers;
     }
 
     private void showPageLoading(boolean pageLoading) {
@@ -191,10 +204,13 @@ public class ActivitiesFragment extends SherlockFragment {
 
         @Override
         public boolean shouldOverrideUrlLoading(WebView webView, String url) {
+            Log.d(DEBUG_TAG, "loading url " + url);
             String API_URL_PREFIX= "api://";
             if (!url.startsWith(API_URL_PREFIX)) {
                 return false;
             }
+
+
             String req = url.substring(API_URL_PREFIX.length(), url.length());
 
             Pattern REPO_PATTERN = Pattern.compile("repos/([-a-f0-9]{36})/?");
@@ -221,6 +237,9 @@ public class ActivitiesFragment extends SherlockFragment {
 
         @Override
         public void onPageFinished(WebView webView, String url) {
+            if (url.startsWith("data:text/html")) {
+                return;
+            }
             Log.d(DEBUG_TAG, "onPageFinished " + url);
             showPageLoading(false);
         }
@@ -230,4 +249,22 @@ public class ActivitiesFragment extends SherlockFragment {
         Matcher matcher = pattern.matcher(str);
         return matcher.matches() ? matcher : null;
     }
+
+    private class JSObject {
+        @JavascriptInterface
+        public String toString() {
+            return mActivity.getAccount().getToken();
+        }
+    }
+
+    private class MyWebChromeClient extends WebChromeClient {
+
+        // For debug js
+        @Override
+        public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
+            Log.d(DEBUG_TAG, "alert: " + message);
+            return super.onJsAlert(view, url, message, result);
+        }
+    }
+
 }
