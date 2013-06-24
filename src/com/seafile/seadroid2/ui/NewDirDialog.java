@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -24,6 +25,7 @@ public class NewDirDialog extends DialogFragment {
     private EditText dirNameText;
     private TextView errorText; 
     private BrowserActivity mActivity;
+    private View loading;
 
     public NewDirDialog(BrowserActivity activity) {
         mActivity = activity;
@@ -37,6 +39,7 @@ public class NewDirDialog extends DialogFragment {
         View view = inflater.inflate(R.layout.dialog_new_dir, null);
         dirNameText = (EditText) view.findViewById(R.id.new_dir_name);
         errorText = (TextView) view.findViewById(R.id.error_message);
+        loading = view.findViewById(R.id.loading);
 
         builder.setView(view)
             .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -54,9 +57,17 @@ public class NewDirDialog extends DialogFragment {
         final View.OnClickListener onOKButtonClickedListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String dirName = dirNameText.getText().toString();
+                String dirName = dirNameText.getText().toString().trim();
 
-                // TODO: show loading and disable  input
+                if (dirName.length() == 0) {
+                    String err = mActivity.getResources().getString(R.string.dir_name_empty);
+                    showError(err);
+                    return;
+                }
+
+                // TODO: disable input when requesting
+                hideError();
+                showLoading();
                 NavContext nav = mActivity.getNavContext();
                 NewDirTask task = new NewDirTask(nav.getRepoID(),
                                                  nav.getDirPath(),
@@ -71,8 +82,8 @@ public class NewDirDialog extends DialogFragment {
 
                     @Override
                     public void onFailure(String dirName, String err) {
-                        errorText.setVisibility(View.VISIBLE);
-                        errorText.setText(err);
+                        hideLoading();
+                        showError(err);
                     }
                 });
 
@@ -133,5 +144,30 @@ public class NewDirDialog extends DialogFragment {
                 mListener.onSuccess(dirName);
             }
         }
+    }
+
+    private void showLoading() {
+        loading.startAnimation(AnimationUtils.loadAnimation(
+                                   mActivity, android.R.anim.fade_in));
+        loading.setVisibility(View.VISIBLE);
+    }
+
+    private void hideLoading() {
+        loading.startAnimation(AnimationUtils.loadAnimation(
+                                   mActivity, android.R.anim.fade_out));
+        loading.setVisibility(View.INVISIBLE);
+    }
+
+    private void showError(String error) {
+        errorText.setText(error);
+        errorText.startAnimation(AnimationUtils.loadAnimation(
+                                   mActivity, android.R.anim.fade_in));
+        errorText.setVisibility(View.VISIBLE);
+    }
+
+    private void hideError() {
+        errorText.startAnimation(AnimationUtils.loadAnimation(
+                                   mActivity, android.R.anim.fade_out));
+        errorText.setVisibility(View.GONE);
     }
 }

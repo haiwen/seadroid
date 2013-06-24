@@ -11,12 +11,24 @@
     	android:layout_height="wrap_content"
     	android:inputType="text" />
 
-	<TextView
-    	android:id="@+id/error_message"
+    <FrameLayout
     	android:layout_width="fill_parent"
-    	android:layout_height="wrap_content"
-        android:textColor="@color/red"
-        android:visibility="invisible"
-    	android:inputType="text" />
+    	android:layout_height="wrap_content" >
+      
+        <ProgressBar android:id="@+id/loading"
+            android:layout_width="fill_parent"
+            android:layout_height="30dp"
+            android:gravity="center_horizontal"
+            android:visibility="invisible" />
+
+        <TextView
+            android:id="@+id/error_message"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/red"
+            android:visibility="gone"
+            android:inputType="text" />
+
+    </FrameLayout>
 	
 </LinearLayout>

@@ -59,4 +59,5 @@
     <string name="pick_photo_video_title">Choose photos/videos to upload</string>
     <string name="select_upload_items">select items to upload</string>
     <string name="n_upload_items_selected">%d items selected</string>
+    <string name="dir_name_empty">Please enter the name of the folder</string>
 </resources>
