@@ -1,22 +1,14 @@
 package com.seafile.seadroid2;
 
-import java.util.List;
-
-import com.seafile.seadroid2.data.SeafDirent;
-
 public class NavContext {
     
     String repoID = null;
     String repoName = null;     // for display
     String dirPath = null;
     String dirID = null;
-    List<SeafDirent> dirents = null;
+    String fileName = null;
 
-    
     public NavContext() {
-        repoID = null;
-        dirPath = null;
-        dirents = null;
     }
  
     public void setRepoID(String repoID) {
@@ -30,12 +22,18 @@ public class NavContext {
     public void setDir(String path, String dirID) {
         this.dirPath = path;
         this.dirID = dirID;
+
+        // clear fileName when navigate to another dir
+        this.fileName = null;
     }
 
     public void setDirID(String dirID) {
         this.dirID = dirID;
     }
- 
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
     
     public boolean inRepo() {
         return repoID != null;
@@ -61,5 +59,7 @@ public class NavContext {
         return dirID;
     }
 
-
+    public String getFileName() {
+        return fileName;
+    }
 }

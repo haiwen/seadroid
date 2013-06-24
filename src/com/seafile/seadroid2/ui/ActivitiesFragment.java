@@ -184,6 +184,7 @@ public class ActivitiesFragment extends SherlockFragment {
         nav.setRepoID(repoID);
         nav.setRepoName(repo.getName());
         nav.setDir(Utils.getParentPath(path), null);
+        nav.setFileName(Utils.fileNameFromPath(path));
 
         // switch to LIBRARY TAB
         mActivity.getSupportActionBar().setSelectedNavigationItem(0);

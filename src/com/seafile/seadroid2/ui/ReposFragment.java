@@ -184,6 +184,11 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
                                     navContext.getDirPath(),
                                     navContext.getDirID());
 
+        updateActionBarTitle();
+    }
+
+    private void updateActionBarTitle() {
+        NavContext navContext = getNavContext();
         String title = navContext.getRepoName();
         String path = navContext.getDirPath();
         if (path != null && path.length() > 0 && path.charAt(0) == '/') {
@@ -357,10 +362,35 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
                     mActivity.showToast("The directory may be deleted");
                 }
             }
+
+            if (dirents != null) {
+                String fn = mActivity.getNavContext().getFileName();
+                if (fn != null) {
+                    scrollToFile(dirents, fn);
+                }
+            }
         }
 
     }
 
+    private void scrollToFile(List<SeafDirent> dirents, String fn) {
+        int i = 0, n = dirents.size();
+        int id = -1;
+        while (i < n) {
+            SeafDirent dent = dirents.get(i);
+            if (dent.name.equals(fn)) {
+                id = i;
+                break;
+            }
+            ++i;
+        }
+
+        if (id >= 0) {
+            getListView().smoothScrollToPosition(id);
+        } else {
+            mActivity.showToast("Could not find file " + fn);
+        }
+    }
 
     private void showPasswordDialog() {
         PasswordDialog dialog = new PasswordDialog();
