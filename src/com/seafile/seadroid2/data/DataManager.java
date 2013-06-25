@@ -522,15 +522,15 @@ public class DataManager {
     }
 
     public void createNewDir(String repoID, String parentDir, String dirName) throws SeafException {
-        List<String> ret = sc.createNewDir(repoID, parentDir, dirName);
+        TwoTuple<String, String> ret = sc.createNewDir(repoID, parentDir, dirName);
         if (ret == null) {
             return;
         }
 
         invalidateCache(repoID, parentDir);
 
-        String newDirID = ret.get(0);
-        String response = ret.get(1);
+        String newDirID = ret.getFirst();
+        String response = ret.getSecond();
         // The response is the dirents of the parentDir after creating
         // the new dir. We save it to avoid request it again
         File cache = getFileForDirentsCache(newDirID);
