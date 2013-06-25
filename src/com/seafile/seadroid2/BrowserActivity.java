@@ -443,7 +443,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
 
     private void showNewDirDialog() {
-        NewDirDialog dialog = new NewDirDialog(this);
+        NewDirDialog dialog = new NewDirDialog();
         dialog.show(getSupportFragmentManager(), "DialogFragment");
     }
 

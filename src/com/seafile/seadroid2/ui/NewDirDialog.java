@@ -24,11 +24,14 @@ public class NewDirDialog extends DialogFragment {
 
     private EditText dirNameText;
     private TextView errorText; 
-    private BrowserActivity mActivity;
     private View loading;
+    private Button okButton, cancelButton;
 
-    public NewDirDialog(BrowserActivity activity) {
-        mActivity = activity;
+    public NewDirDialog() {
+    }
+
+    private BrowserActivity getBrowserActivity() {
+        return (BrowserActivity)getActivity();
     }
     
     @Override
@@ -60,30 +63,32 @@ public class NewDirDialog extends DialogFragment {
                 String dirName = dirNameText.getText().toString().trim();
 
                 if (dirName.length() == 0) {
-                    String err = mActivity.getResources().getString(R.string.dir_name_empty);
+                    String err = getBrowserActivity().getResources().getString(R.string.dir_name_empty);
                     showError(err);
                     return;
                 }
 
                 // TODO: disable input when requesting
+                disableInput();
                 hideError();
                 showLoading();
-                NavContext nav = mActivity.getNavContext();
+                NavContext nav = getBrowserActivity().getNavContext();
                 NewDirTask task = new NewDirTask(nav.getRepoID(),
                                                  nav.getDirPath(),
                                                  dirName,
-                                                 mActivity.getDataManager());
+                                                 getBrowserActivity().getDataManager());
                 task.setNewDirEveventListener(new NewDirEventListener() {
                     @Override
                     public void onSuccess(String dirName) {
                         dialog.dismiss();
-                        mActivity.onNewDirCreated(dirName);
+                        getBrowserActivity().onNewDirCreated(dirName);
                     }
 
                     @Override
                     public void onFailure(String dirName, String err) {
                         hideLoading();
                         showError(err);
+                        enableInput();
                     }
                 });
 
@@ -94,8 +99,9 @@ public class NewDirDialog extends DialogFragment {
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface d) {
-                Button btn = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                btn.setOnClickListener(onOKButtonClickedListener);
+                okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                cancelButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+                okButton.setOnClickListener(onOKButtonClickedListener);
             }
         });
 
@@ -148,26 +154,38 @@ public class NewDirDialog extends DialogFragment {
 
     private void showLoading() {
         loading.startAnimation(AnimationUtils.loadAnimation(
-                                   mActivity, android.R.anim.fade_in));
+                                   getBrowserActivity(), android.R.anim.fade_in));
         loading.setVisibility(View.VISIBLE);
     }
 
     private void hideLoading() {
         loading.startAnimation(AnimationUtils.loadAnimation(
-                                   mActivity, android.R.anim.fade_out));
+                                   getBrowserActivity(), android.R.anim.fade_out));
         loading.setVisibility(View.INVISIBLE);
     }
 
     private void showError(String error) {
         errorText.setText(error);
         errorText.startAnimation(AnimationUtils.loadAnimation(
-                                   mActivity, android.R.anim.fade_in));
+                                   getBrowserActivity(), android.R.anim.fade_in));
         errorText.setVisibility(View.VISIBLE);
     }
 
     private void hideError() {
         errorText.startAnimation(AnimationUtils.loadAnimation(
-                                   mActivity, android.R.anim.fade_out));
+                                   getBrowserActivity(), android.R.anim.fade_out));
         errorText.setVisibility(View.GONE);
+    }
+
+    private void disableInput() {
+        dirNameText.setEnabled(false);
+        okButton.setEnabled(false);
+        cancelButton.setEnabled(false);
+    }
+
+    private void enableInput() {
+        dirNameText.setEnabled(true);
+        okButton.setEnabled(true);
+        cancelButton.setEnabled(true);
     }
 }
