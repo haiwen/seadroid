@@ -15,7 +15,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
-import android.webkit.JavascriptInterface;
 import android.webkit.JsResult;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
@@ -37,8 +36,6 @@ public class ActivitiesFragment extends SherlockFragment {
 
     private static final String ACTIVITIES_URL = "api2/html/activity";
 
-    private BrowserActivity mActivity = null;
-
     private WebView webView = null;
     private FrameLayout mWebViewContainer = null;
     private View mProgressContainer;
@@ -47,13 +44,15 @@ public class ActivitiesFragment extends SherlockFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         Log.d(DEBUG_TAG, "ActivitiesFragment Attached");
-        mActivity = (BrowserActivity)activity;
     }
 
     @Override
     public void onDetach() {
-        mActivity = null;
         super.onDetach();
+    }
+
+    private BrowserActivity getBrowserActivity() {
+        return (BrowserActivity)getActivity();
     }
 
     @Override
@@ -80,12 +79,12 @@ public class ActivitiesFragment extends SherlockFragment {
         mProgressContainer = getView().findViewById(R.id.progressContainer);
 
         if (webView == null) {
-            webView = new WebView(mActivity);
+            webView = new WebView(getBrowserActivity());
             initWebView();
             loadActivitiesPage();
         }
 
-        mActivity.invalidateOptionsMenu();
+        getBrowserActivity().invalidateOptionsMenu();
 
         super.onActivityCreated(savedInstanceState);
     }
@@ -112,17 +111,16 @@ public class ActivitiesFragment extends SherlockFragment {
 
     private void loadActivitiesPage() {
         showPageLoading(true);
-        Account account = mActivity.getAccount();
+        Account account = getBrowserActivity().getAccount();
         String url = account.getServer() + ACTIVITIES_URL;
 
-        webView.addJavascriptInterface(new JSObject(), "token");
-        // load dummy empty html to make "token" object available
-        webView.loadData("", "text/html", null);
         webView.loadUrl(url, getExtraHeaders());
+        webView.loadUrl(String.format("javascript:setToken('%s')",
+                                      account.getToken()));
     }
 
     private Map<String, String> getExtraHeaders() {
-        Account account = mActivity.getAccount();
+        Account account = getBrowserActivity().getAccount();
         String token = "Token " + account.getToken();
         Map<String, String> headers = new HashMap<String, String>();
         headers.put("Authorization", token);
@@ -131,22 +129,22 @@ public class ActivitiesFragment extends SherlockFragment {
     }
 
     private void showPageLoading(boolean pageLoading) {
-        if (mActivity == null) {
+        if (getBrowserActivity() == null) {
             return;
         }
 
         if (!pageLoading) {
             mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
-                                    mActivity, android.R.anim.fade_out));
+                                    getBrowserActivity(), android.R.anim.fade_out));
             webView.startAnimation(AnimationUtils.loadAnimation(
-                                mActivity, android.R.anim.fade_in));
+                                getBrowserActivity(), android.R.anim.fade_in));
             mProgressContainer.setVisibility(View.GONE);
             webView.setVisibility(View.VISIBLE);
         } else {
             mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
-                    mActivity, android.R.anim.fade_in));
+                    getBrowserActivity(), android.R.anim.fade_in));
             webView.startAnimation(AnimationUtils.loadAnimation(
-                    mActivity, android.R.anim.fade_out));
+                    getBrowserActivity(), android.R.anim.fade_out));
 
             mProgressContainer.setVisibility(View.VISIBLE);
             webView.setVisibility(View.INVISIBLE);
@@ -154,32 +152,32 @@ public class ActivitiesFragment extends SherlockFragment {
     }
 
     private void viewRepo(String repoID) {
-        SeafRepo repo = mActivity.getDataManager().getCachedRepoByID(repoID);
+        SeafRepo repo = getBrowserActivity().getDataManager().getCachedRepoByID(repoID);
 
         if (repo == null) {
-            mActivity.showToast("Couldn't find this library. It may be deleted");
+            getBrowserActivity().showToast("Couldn't find this library. It may be deleted");
             return;
         }
 
-        NavContext nav = mActivity.getNavContext();
+        NavContext nav = getBrowserActivity().getNavContext();
 
         nav.setRepoID(repoID);
         nav.setRepoName(repo.getName());
         nav.setDir("/", repo.getRootDirID());
 
         // switch to LIBRARY TAB
-        mActivity.getSupportActionBar().setSelectedNavigationItem(0);
+        getBrowserActivity().getSupportActionBar().setSelectedNavigationItem(0);
     }
 
     private void viewFile(String repoID, String path) {
-        SeafRepo repo = mActivity.getDataManager().getCachedRepoByID(repoID);
+        SeafRepo repo = getBrowserActivity().getDataManager().getCachedRepoByID(repoID);
 
         if (repo == null) {
-            mActivity.showToast("Couldn't find this library. It may be deleted");
+            getBrowserActivity().showToast("Couldn't find this library. It may be deleted");
             return;
         }
 
-        NavContext nav = mActivity.getNavContext();
+        NavContext nav = getBrowserActivity().getNavContext();
 
         nav.setRepoID(repoID);
         nav.setRepoName(repo.getName());
@@ -187,14 +185,14 @@ public class ActivitiesFragment extends SherlockFragment {
         nav.setFileName(Utils.fileNameFromPath(path));
 
         // switch to LIBRARY TAB
-        mActivity.getSupportActionBar().setSelectedNavigationItem(0);
+        getBrowserActivity().getSupportActionBar().setSelectedNavigationItem(0);
     }
 
     private class MyWebViewClient extends WebViewClient {
         // Display error messages
         @Override
         public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-            Toast.makeText(mActivity, "Error: " + description, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getBrowserActivity(), "Error: " + description, Toast.LENGTH_SHORT).show();
         }
 
         // Ignore SSL certificate validate
@@ -210,7 +208,6 @@ public class ActivitiesFragment extends SherlockFragment {
             if (!url.startsWith(API_URL_PREFIX)) {
                 return false;
             }
-
 
             String req = url.substring(API_URL_PREFIX.length(), url.length());
 
@@ -238,9 +235,6 @@ public class ActivitiesFragment extends SherlockFragment {
 
         @Override
         public void onPageFinished(WebView webView, String url) {
-            if (url.startsWith("data:text/html")) {
-                return;
-            }
             Log.d(DEBUG_TAG, "onPageFinished " + url);
             showPageLoading(false);
         }
@@ -249,13 +243,6 @@ public class ActivitiesFragment extends SherlockFragment {
     private static Matcher fullMatch(Pattern pattern, String str) {
         Matcher matcher = pattern.matcher(str);
         return matcher.matches() ? matcher : null;
-    }
-
-    private class JSObject {
-        @JavascriptInterface
-        public String toString() {
-            return mActivity.getAccount().getToken();
-        }
     }
 
     private class MyWebChromeClient extends WebChromeClient {
