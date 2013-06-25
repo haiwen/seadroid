@@ -115,8 +115,6 @@ public class ActivitiesFragment extends SherlockFragment {
         String url = account.getServer() + ACTIVITIES_URL;
 
         webView.loadUrl(url, getExtraHeaders());
-        webView.loadUrl(String.format("javascript:setToken('%s')",
-                                      account.getToken()));
     }
 
     private Map<String, String> getExtraHeaders() {
@@ -236,6 +234,11 @@ public class ActivitiesFragment extends SherlockFragment {
         @Override
         public void onPageFinished(WebView webView, String url) {
             Log.d(DEBUG_TAG, "onPageFinished " + url);
+            if (getBrowserActivity() != null) {
+                String js = String.format("javascript:setToken('%s')",
+                                          getBrowserActivity().getAccount().getToken());
+                webView.loadUrl(js);
+            }
             showPageLoading(false);
         }
     }
