@@ -147,12 +147,24 @@ public class SeafConnection {
         }
     }
 
-    public TwoTuple<String, String> getDirents(String repoID, String path) throws SeafException {
+    /**
+     * Get the contents of a directory.
+     * @param repoID
+     * @param path
+     * @param cachedDirID The local cached dirID.
+     * @return A non-null TwoTuple of (dirID, content). If the local cache is up to date, the "content" is null.
+     * @throws SeafException
+     */
+    public TwoTuple<String, String> getDirents(String repoID, String path, String cachedDirID)
+                                        throws SeafException {
         InputStream is = null;
         try {
             String apiPath = String.format("api2/repos/%s/dir/", repoID);
             Map<String, Object> params = new HashMap<String, Object>();
             params.put("p", path);
+            if (cachedDirID != null) {
+                params.put("oid", cachedDirID);
+            }
             HttpRequest req = prepareApiGetRequest(apiPath, params);
             if (req.code() != 200)
                 if (req.message() == null)
@@ -160,11 +172,21 @@ public class SeafConnection {
                 else
                     throw new SeafException(req.code(), req.message());
 
-            byte[] rawBytes = req.bytes();
-            String content = new String(rawBytes, "UTF-8");
             String dirID = req.header("oid");
-            if (content == null || dirID == null) {
+            String content;
+            if (dirID == null) {
                 throw SeafException.unknownException;
+            }
+
+            if (dirID.equals(cachedDirID)) {
+                // local cache is valid
+                content = null;
+            } else {
+                byte[] rawBytes = req.bytes();
+                if (rawBytes == null) {
+                    throw SeafException.unknownException;
+                }
+                content = new String(rawBytes, "UTF-8");
             }
 
             return TwoTuple.newInstance(dirID, content);
@@ -195,11 +217,13 @@ public class SeafConnection {
             params.put("p", path);
             params.put("op", "download");
             HttpRequest req = prepareApiGetRequest(apiPath, params);
-            if (req.code() != 200)
-                if (req.message() == null)
+            if (req.code() != 200) {
+                if (req.message() == null) {
                     throw SeafException.networkException;
-                else
+                } else {
                     throw new SeafException(req.code(), req.message());
+                }
+            }
 
             String result = new String(req.bytes(), "UTF-8");
             String fileID = req.header("oid");
@@ -251,7 +275,7 @@ public class SeafConnection {
                 Long size = Long.parseLong(req.header(HttpRequest.HEADER_CONTENT_LENGTH));
                 monitor.onProgressNotify(size);
             }
-            
+
             File tmp = DataManager.getTempFile(path, oid);
             // Log.d(DEBUG_TAG, "write to " + tmp.getAbsolutePath());
             if (monitor == null) {

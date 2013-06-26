@@ -378,15 +378,10 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
                 String fn = nav.getFileName();
                 if (fn != null) {
                     nav.setFileName(null);
-                    // SeafDirent dent = findDirent(dirents, fn);
-                    // if (dent == null) {
-                    // } else {
-                    //     mActivity.openFile(fn, dent);
-                    // }
+                    mActivity.openFile(fn);
                 }
             }
         }
-
     }
 
     private void showPasswordDialog() {

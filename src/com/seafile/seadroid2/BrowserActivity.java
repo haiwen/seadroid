@@ -691,6 +691,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         if (!navContext.inRepo()) {
             return;
         }
+        // TODO: get the latest file and open it
     }
 
     public void onFileUploadProgress(int taskID) {

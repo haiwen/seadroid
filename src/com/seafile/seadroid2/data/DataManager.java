@@ -421,30 +421,35 @@ public class DataManager {
             dirID = readDirIDFromCache(repoID, path);
         }
 
+        String cachedDirID = null;
+        File cache = getFileForDirentsCache(dirID);
+
         if (dirID != null) {
-            File cache = getFileForDirentsCache(dirID);
             if (cache.exists()) {
-                String json = Utils.readFile(cache);
-                return parseDirents(json);
+                cachedDirID = dirID;
             }
         }
 
-        TwoTuple<String, String> ret = sc.getDirents(repoID, path);
-
+        TwoTuple<String, String> ret = sc.getDirents(repoID, path, cachedDirID);
         String newDirID = ret.getFirst();
-        String content = ret.getSecond();
 
-        List<SeafDirent> dirents = parseDirents(content);
+        if (newDirID.equals(cachedDirID)) {
+            // local cache is valid
+            String json = Utils.readFile(cache);
+            return parseDirents(json);
+        } else {
+            // no cache
+            String content = ret.getSecond();
+            List<SeafDirent> dirents = parseDirents(content);
 
-        try {
-            File cache = getFileForDirentsCache(newDirID);
-            Utils.writeFile(cache, content);
-            saveDirIDToCache(repoID, path, newDirID);
-        } catch (IOException e) {
-            // ignore
+            try {
+                Utils.writeFile(cache, content);
+                saveDirIDToCache(repoID, path, newDirID);
+            } catch (IOException e) {
+                // ignore
+            }
+            return dirents;
         }
-
-        return dirents;
     }
 
     public SeafCachedFile getCachedFile(String repoName, String repoID, String path) {
