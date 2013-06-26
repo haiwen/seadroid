@@ -171,6 +171,7 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
         // load repos in background
         mActivity.disableUpButton();
         ConcurrentAsyncTask.execute(new LoadTask(getDataManager()));
+        updateActionBarTitle();
     }
 
     public void navToDirectory() {
@@ -189,12 +190,18 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
 
     private void updateActionBarTitle() {
         NavContext navContext = getNavContext();
-        String title = navContext.getRepoName();
-        String path = navContext.getDirPath();
-        if (path != null && path.length() > 0 && path.charAt(0) == '/') {
-            path = path.substring(1, path.length());
+        if (!navContext.inRepo()) {
+            mActivity.setActionBarTitle("", "");
+        } else {
+
+            String title = navContext.getRepoName();
+            String dirPath = navContext.getDirPath();
+            if (dirPath.equals("/")) {
+                mActivity.setActionBarTitle(title, "");
+            } else {
+                mActivity.setActionBarTitle(title, Utils.fileNameFromPath(dirPath));
+            }
         }
-        mActivity.setActionBarTitle(title, path);
     }
 
     @Override
