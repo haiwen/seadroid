@@ -34,7 +34,7 @@ import com.seafile.seadroid2.data.SeafRepo;
 public class ActivitiesFragment extends SherlockFragment {
     private static final String DEBUG_TAG = "ActivitiesFragment";
 
-    private static final String ACTIVITIES_URL = "api2/html/activity";
+    private static final String ACTIVITIES_URL = "api2/html/events/";
 
     private WebView webView = null;
     private FrameLayout mWebViewContainer = null;

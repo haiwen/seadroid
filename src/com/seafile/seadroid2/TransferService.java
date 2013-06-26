@@ -57,9 +57,11 @@ public class TransferService extends Service implements TransferListener {
         return txManager.addUploadTask(account, repoID, repoName, dir, filePath, isUpdate);
     }
 
-    public boolean addDownloadTask(Account account, String repoName, String repoID, String path,
-            String fileID, long size) {
-        return txManager.addDownloadTask(account, repoName, repoID, path, fileID, size);
+    public boolean addDownloadTask(Account account,
+                                   String repoName,
+                                   String repoID,
+                                   String path) {
+        return txManager.addDownloadTask(account, repoName, repoID, path);
     }
 
     public UploadTaskInfo getUploadTaskInfo(int taskID) {
@@ -114,18 +116,18 @@ public class TransferService extends Service implements TransferListener {
         LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
     }
     @Override
-    public void onFileDownloaded(String repoID, String path, String fileID) {
+    public void onFileDownloaded(String repoID, String path) {
         Intent localIntent = new Intent(BROADCAST_ACTION).putExtra("type", "downloaded")
-                .putExtra("repoID", repoID).putExtra("path", path).putExtra("fileID", fileID);
+            .putExtra("repoID", repoID).putExtra("path", path);
         LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
     }
 
 
     @Override
-    public void onFileDownloadFailed(String repoName, String repoID, String path, String fileID,
+    public void onFileDownloadFailed(String repoName, String repoID, String path,
             long size, SeafException err) {
         Intent localIntent = new Intent(BROADCAST_ACTION).putExtra("type", "downloadFailed")
-                .putExtra("repoID", repoID).putExtra("path", path).putExtra("fileID", fileID)
+                .putExtra("repoID", repoID).putExtra("path", path)
                 .putExtra("size", size).putExtra("errCode", err.getCode())
                 .putExtra("errMsg", err.getMessage());
         LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);

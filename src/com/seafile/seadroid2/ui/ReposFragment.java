@@ -1,19 +1,19 @@
 package com.seafile.seadroid2.ui;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import android.app.Activity;
-import android.os.Bundle;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.ListView;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.seafile.seadroid2.BrowserActivity;
@@ -22,7 +22,11 @@ import com.seafile.seadroid2.NavContext;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.Utils;
-import com.seafile.seadroid2.data.*;
+import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.SeafDirent;
+import com.seafile.seadroid2.data.SeafGroup;
+import com.seafile.seadroid2.data.SeafItem;
+import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.ui.PasswordDialog.PasswordGetListener;
 
 
@@ -371,32 +375,18 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
             }
 
             if (dirents != null) {
-                String fn = mActivity.getNavContext().getFileName();
+                String fn = nav.getFileName();
                 if (fn != null) {
-                    scrollToFile(dirents, fn);
+                    nav.setFileName(null);
+                    // SeafDirent dent = findDirent(dirents, fn);
+                    // if (dent == null) {
+                    // } else {
+                    //     mActivity.openFile(fn, dent);
+                    // }
                 }
             }
         }
 
-    }
-
-    private void scrollToFile(List<SeafDirent> dirents, String fn) {
-        int i = 0, n = dirents.size();
-        int id = -1;
-        while (i < n) {
-            SeafDirent dent = dirents.get(i);
-            if (dent.name.equals(fn)) {
-                id = i;
-                break;
-            }
-            ++i;
-        }
-
-        if (id >= 0) {
-            getListView().smoothScrollToPosition(id);
-        } else {
-            mActivity.showToast("Could not find file " + fn);
-        }
     }
 
     private void showPasswordDialog() {

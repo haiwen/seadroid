@@ -38,9 +38,9 @@ public class TransferManager {
         public void onFileUploadCancelled(int taskID);
         public void onFileUploadFailed(int taskID);
 
-        public void onFileDownloaded(String repoID, String path, String fileID);
-        public void onFileDownloadFailed(String repoName, String repoID, String path, String fileID,
-                long size, SeafException err);
+        public void onFileDownloaded(String repoID, String path);
+        public void onFileDownloadFailed(String repoName, String repoID, String path,
+                                         long size, SeafException err);
 
     }
 
@@ -96,15 +96,17 @@ public class TransferManager {
      * Add a new download task
      * @return Return false if there is a duplicating task, otherwise return true
      */
-    public boolean addDownloadTask(Account account, String repoName, String repoID, String path,
-            String fileID, long size) {
+    public boolean addDownloadTask(Account account,
+                                   String repoName,
+                                   String repoID,
+                                   String path) {
         // Check duplication
         for (DownloadTask task : downloadTasks) {
             if (task.myRepoID.equals(repoID) && task.myPath.equals(path)) {
                 return false;
             }
         }
-        DownloadTask task = new DownloadTask(account, repoName, repoID, path, fileID, size);
+        DownloadTask task = new DownloadTask(account, repoName, repoID, path);
         task.execute();
         return true;
     }
@@ -302,7 +304,7 @@ public class TransferManager {
         }
     }
 
-    private class DownloadTask extends AsyncTask<String, Integer, File> {
+    private class DownloadTask extends AsyncTask<String, Long, File> {
 
         Notification notification;
         NotificationManager notificationManager;
@@ -313,18 +315,18 @@ public class TransferManager {
         private String myRepoName;
         private String myRepoID;
         private String myPath;
-        private String myFileID;
         private long mySize;
         SeafException err;
 
-        public DownloadTask(Account account, String repoName, String repoID, String path,
-                String fileID, long size) {
+        public DownloadTask(Account account, String repoName, String repoID, String path) {
             this.account = account;
             this.myRepoName = repoName;
             this.myRepoID = repoID;
             this.myPath = path;
-            this.myFileID = fileID;
-            this.mySize = size;
+
+            // The size of the file would be known in the first progress update
+            this.mySize = -1;
+
             // Log.d(DEBUG_TAG, "stored object is " + myPath + myObjectID);
             downloadTasks.add(this);
             err = null;
@@ -332,8 +334,6 @@ public class TransferManager {
 
         @Override
         protected void onPreExecute() {
-            if (mySize <= showProgressThreshold)
-                return;
             myNtID = ++notificationID;
 
             Context context =  SeadroidApplication.getAppContext();
@@ -352,15 +352,23 @@ public class TransferManager {
             notification.contentIntent = intent;
 
             notification.contentView.setProgressBar(R.id.pb_download_progressbar,
-                    (int)mySize, 0, false);
+                    100, 0, false);
             notificationManager.notify(myNtID, notification);
         }
 
+        /**
+         * When downloading a file, we don't know the file size in advance, so
+         * we make use of the first progress update to return the file size.
+         */
         @Override
-        protected void onProgressUpdate(Integer... values) {
-            int progress = values[0];
+        protected void onProgressUpdate(Long... values) {
+            if (mySize == -1) {
+                mySize = values[0];
+                return;
+            }
+            long progress = values[0];
             notification.contentView.setProgressBar(R.id.pb_download_progressbar,
-                    (int)mySize, progress, false);
+                                                    (int)mySize, (int)progress, false);
             notificationManager.notify(myNtID, notification);
         }
 
@@ -368,23 +376,20 @@ public class TransferManager {
         protected File doInBackground(String... params) {
             try {
                 DataManager dataManager = new DataManager(account);
-                if (mySize <= showProgressThreshold)
-                    return dataManager.getFile(myRepoName, myRepoID, myPath, myFileID, null);
-                else
-                    return dataManager.getFile(myRepoName, myRepoID, myPath, myFileID,
-                            new ProgressMonitor() {
+                return dataManager.getFile(myRepoName, myRepoID, myPath,
+                        new ProgressMonitor() {
 
-                                @Override
-                                public void onProgressNotify(long total) {
-                                    publishProgress((int) total);
-                                }
-
-                                @Override
-                                public boolean isCancelled() {
-                                    return DownloadTask.this.isCancelled();
-                                }
+                            @Override
+                            public void onProgressNotify(long total) {
+                                publishProgress(total);
                             }
-                            );
+
+                            @Override
+                            public boolean isCancelled() {
+                                return DownloadTask.this.isCancelled();
+                            }
+                        }
+                        );
             } catch (SeafException e) {
                 err = e;
                 return null;
@@ -399,11 +404,11 @@ public class TransferManager {
 
             if (listener != null) {
                 if (file != null)
-                    listener.onFileDownloaded(myRepoID, myPath, myFileID);
+                    listener.onFileDownloaded(myRepoID, myPath);
                 else {
                     if (err == null)
                         err = SeafException.unknownException;
-                    listener.onFileDownloadFailed(myRepoName, myRepoID, myPath, myFileID, mySize, err);
+                    listener.onFileDownloadFailed(myRepoName, myRepoID, myPath, mySize, err);
                 }
             }
         }

@@ -188,7 +188,7 @@ public class SeafConnection {
         }
     }
 
-    private String getDownloadLink(String repoID, String path) throws SeafException {
+    private TwoTuple<String, String> getDownloadLink(String repoID, String path) throws SeafException {
         try {
             String apiPath = String.format("api2/repos/%s/file/", repoID);
             Map<String, Object> params = new HashMap<String, Object>();
@@ -202,11 +202,15 @@ public class SeafConnection {
                     throw new SeafException(req.code(), req.message());
 
             String result = new String(req.bytes(), "UTF-8");
+            String fileID = req.header("oid");
+
             // should return "\"http://gonggeng.org:8082/...\"" or "\"https://gonggeng.org:8082/...\"
-            if (result.startsWith("\"http")) {
-                return result.substring(1, result.length()-1);
-            } else
-                return null;
+            if (result.startsWith("\"http") && fileID != null) {
+                String url = result.substring(1, result.length() - 1);
+                return TwoTuple.newInstance(url, fileID);
+            } else {
+                throw SeafException.unknownException;
+            }
         } catch (SeafException e) {
             throw e;
         } catch (UnsupportedEncodingException e) {
@@ -240,6 +244,14 @@ public class SeafConnection {
                 }
             }
 
+            if (monitor != null) {
+                if (req.header(HttpRequest.HEADER_CONTENT_LENGTH) == null) {
+                    throw SeafException.illFormatException;
+                }
+                Long size = Long.parseLong(req.header(HttpRequest.HEADER_CONTENT_LENGTH));
+                monitor.onProgressNotify(size);
+            }
+            
             File tmp = DataManager.getTempFile(path, oid);
             // Log.d(DEBUG_TAG, "write to " + tmp.getAbsolutePath());
             if (monitor == null) {
@@ -272,15 +284,32 @@ public class SeafConnection {
         }
     }
 
-    public File getFile(String repoID, String path, String localPath, String oid, ProgressMonitor monitor)
+    public TwoTuple<File, String> getFile(String repoID, String path, String localPath, ProgressMonitor monitor)
             throws SeafException {
         try {
-            String dlink = getDownloadLink(repoID, path);
-            return getFileFromLink(dlink, path, localPath, oid, monitor);
+            TwoTuple<String, String> ret = getDownloadLink(repoID, path);
+            String dlink = ret.getFirst();
+            String fileID = ret.getSecond();
+
+            File file = getFileFromLink(dlink, path, localPath, fileID, monitor);
+            if (file != null) {
+                return TwoTuple.newInstance(file, fileID);
+            } else {
+                throw SeafException.unknownException;
+            }
+
         } catch (SeafException e) {
             // do again
-            String dlink = getDownloadLink(repoID, path);
-            return getFileFromLink(dlink, path, localPath, oid, monitor);
+            TwoTuple<String, String> ret = getDownloadLink(repoID, path);
+            String dlink = ret.getFirst();
+            String fileID = ret.getSecond();
+
+            File file = getFileFromLink(dlink, path, localPath, fileID, monitor);
+            if (file != null) {
+                return TwoTuple.newInstance(file, fileID);
+            } else {
+                throw SeafException.unknownException;
+            }
         }
     }
 

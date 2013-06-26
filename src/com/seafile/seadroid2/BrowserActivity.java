@@ -313,23 +313,6 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     @Override
     protected void onNewIntent(Intent intent) {
-        String server = intent.getStringExtra("server");
-        String email = intent.getStringExtra("email");
-        String token = intent.getStringExtra("token");
-
-        String repoID = intent.getStringExtra("repoID");
-        String path = intent.getStringExtra("path");
-        String objectID = intent.getStringExtra("objectID");
-        long size = intent.getLongExtra("size", 0);
-        Log.d(DEBUG_TAG, "browser activity onNewIntent " + server + " " + email);
-        Log.d(DEBUG_TAG, "repoID " + repoID + ":" + path + ":" + objectID);
-
-
-        if (getSupportActionBar().getSelectedNavigationIndex() != 0) {
-            //
-        } else {
-            //
-        }
     }
 
     @Override
@@ -627,7 +610,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
 
         // Add a download task
-        if (txService.addDownloadTask(account, repoName, repoID, path, dirent.id, dirent.size)) {
+        if (txService.addDownloadTask(account, repoName, repoID, path)) {
             showToast("Downloading " + Utils.fileNameFromPath(path));
         } else {
             showToast("You are already downloading " + Utils.fileNameFromPath(path));
@@ -699,6 +682,17 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
     }
 
+    /**
+     * Open a file in current nav context. If the file is not cached,
+     * blockingly download it, and then open it.
+     * @param fn The name of the file to open
+     */
+    public void openFile(String fn) {
+        if (!navContext.inRepo()) {
+            return;
+        }
+    }
+
     public void onFileUploadProgress(int taskID) {
         if (txService == null) {
             return;
@@ -755,17 +749,16 @@ public class BrowserActivity extends SherlockFragmentActivity
             uploadTasksFragment.onTaskFailed(info);
     }
 
-    public void onFileDownloaded(String repoID, String path, String fileID) {
+    public void onFileDownloaded(String repoID, String path) {
         if (currentTab.equals(LIBRARY_TAB)
                 && repoID.equals(navContext.getRepoID())
                 && Utils.getParentPath(path).equals(navContext.getDirPath())) {
             reposFragment.getAdapter().notifyChanged();
-            //showFile(repoID, path, fileID);
         }
     }
 
     public void onFileDownloadFailed(final String repoName, final String repoID, final String path,
-            final String fileID, final long size, SeafException err) {
+                                     SeafException err) {
         if (err != null && err.getCode() == 440) {
             if (currentTab.equals(LIBRARY_TAB)
                     && repoID.equals(navContext.getRepoID())
@@ -777,7 +770,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                         if (password.length() == 0)
                             return;
                         ConcurrentAsyncTask.execute(
-                            new SetPasswordTask(dataManager, repoName, repoID, path, fileID, size), password);
+                            new SetPasswordTask(dataManager, repoName, repoID, path), password);
                     }
 
                 });
@@ -793,17 +786,13 @@ public class BrowserActivity extends SherlockFragmentActivity
         String myRepoName;
         String myRepoID;
         String myPath;
-        String myFileID;
-        long size;
         DataManager dataManager;
 
-        public SetPasswordTask(DataManager dataManager, String repoName, String repoID, String path, String fileID, long size) {
+        public SetPasswordTask(DataManager dataManager, String repoName, String repoID, String path) {
             this.dataManager = dataManager;
             this.myRepoName = repoName;
             this.myRepoID = repoID;
             this.myPath = path;
-            this.myFileID = fileID;
-            this.size = size;
         }
 
         @Override
@@ -820,7 +809,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         @Override
         protected void onPostExecute(Void v) {
-            txService.addDownloadTask(account, myRepoName, myRepoID, myPath, myFileID, size);
+            txService.addDownloadTask(account, myRepoName, myRepoID, myPath);
         }
 
     }
@@ -835,18 +824,15 @@ public class BrowserActivity extends SherlockFragmentActivity
             if (type.equals("downloaded")) {
                 String repoID = intent.getStringExtra("repoID");
                 String path = intent.getStringExtra("path");
-                String fileID = intent.getStringExtra("fileID");
-                onFileDownloaded(repoID, path, fileID);
+                onFileDownloaded(repoID, path);
             } else if (type.equals("downloadFailed")) {
                 String repoName = intent.getStringExtra("repoName");
                 String repoID = intent.getStringExtra("repoID");
                 String path = intent.getStringExtra("path");
-                String fileID = intent.getStringExtra("fileID");
-                long size = intent.getLongExtra("size", 0);
                 int errCode = intent.getIntExtra("errCode", 0);
                 String errMsg = intent.getStringExtra("errMsg");
-                onFileDownloadFailed(repoName, repoID, path, fileID,
-                        size, new SeafException(errCode, errMsg));
+                onFileDownloadFailed(repoName, repoID, path,
+                                     new SeafException(errCode, errMsg));
             } else if (type.equals("uploaded")) {
                 int taskID = intent.getIntExtra("taskID", 0);
                 onFileUploaded(taskID);

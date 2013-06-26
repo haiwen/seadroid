@@ -381,14 +381,15 @@ public class DataManager {
         boolean isCancelled();
     }
 
-    public File getFile(String repoName, String repoID, String path, String oid, ProgressMonitor monitor)
+    public File getFile(String repoName, String repoID, String path, ProgressMonitor monitor)
             throws SeafException {
-        File f = getLocalRepoFile(repoName, repoID, path);
-        f = sc.getFile(repoID, path, f.getPath(), oid, monitor);
-        if (f != null) {
-            addCachedFile(repoName, repoID, path, oid, f);
-        }
-        return f;
+        File localFile = getLocalRepoFile(repoName, repoID, path);
+        TwoTuple<File, String> ret = sc.getFile(repoID, path, localFile.getPath(), monitor);
+
+        File file = ret.getFirst();
+        String fileID = ret.getSecond();
+        addCachedFile(repoName, repoID, path, fileID, file);
+        return file;
     }
 
     private List<SeafDirent> parseDirents(String json) {
