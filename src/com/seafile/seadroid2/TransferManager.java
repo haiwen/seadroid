@@ -247,6 +247,7 @@ public class TransferManager {
         @Override
         protected void onProgressUpdate(Long... values) {
             long uploaded = values[0];
+            Log.d(DEBUG_TAG, "Uploaded " + uploaded);
             myUploaded = uploaded;
             listener.onFileUploadProgress(myID);
         }
