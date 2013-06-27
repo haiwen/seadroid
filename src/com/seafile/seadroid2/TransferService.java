@@ -149,4 +149,8 @@ public class TransferService extends Service implements TransferListener {
             .putExtra("taskID", taskID);
         LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
     }
+
+    public void cancelDownloadTask(int taskID) {
+        txManager.cancelDownloadTask(taskID);
+    }
 }

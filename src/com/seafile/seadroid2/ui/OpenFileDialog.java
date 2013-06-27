@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.TransferManager.DownloadTaskInfo;
+import com.seafile.seadroid2.TransferService;
 import com.seafile.seadroid2.Utils;
 
 /**
@@ -30,7 +31,8 @@ public class OpenFileDialog extends DialogFragment {
     private TextView fileNameText;
     private ProgressBar progressBar;
 
-    private int taskID;
+    private int taskID = -1;
+    private boolean cancelled = false;
 
     private OnDismissListener dismissListener;
 
@@ -63,6 +65,9 @@ public class OpenFileDialog extends DialogFragment {
     }
 
     public void handleDownloadTaskInfo(DownloadTaskInfo info) {
+        if (cancelled) {
+            return;
+        }
         switch (info.state) {
         case INIT:
             break;
@@ -87,6 +92,19 @@ public class OpenFileDialog extends DialogFragment {
         getBrowserActivity().showFile(localFile);
     }
 
+    private void cancelTask() {
+        if (taskID < 0) {
+            return;
+        }
+
+        TransferService txService = getBrowserActivity().getTransferService();
+        if (txService == null) {
+            return;
+        }
+
+        txService.cancelDownloadTask(taskID);
+    }
+
     private void updateProgress(long fileSize, long finished) {
         progressBar.setIndeterminate(false);
         int percent;
@@ -96,6 +114,20 @@ public class OpenFileDialog extends DialogFragment {
             percent = (int)(finished * 100 / fileSize);
         }
         progressBar.setProgress(percent);
+    }
+
+    /**
+     * Handle screen rotation
+     */
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putString("repoName", repoName);
+        outState.putString("repoID", repoID);
+        outState.putString("path", path);
+        outState.putInt("taskID", taskID);
+        outState.putInt("progress", progressBar.getProgress());
+
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -109,6 +141,18 @@ public class OpenFileDialog extends DialogFragment {
         fileNameText = (TextView)view.findViewById(R.id.file_name);
         progressBar = (ProgressBar)view.findViewById(R.id.progress_bar);
 
+        if (savedInstanceState != null) {
+            repoName = savedInstanceState.getString("repoName");
+            repoID = savedInstanceState.getString("repoID");
+            path = savedInstanceState.getString("path");
+            taskID = savedInstanceState.getInt("taskID");
+            int progress = savedInstanceState.getInt("progress");
+            if (progress > 0) {
+                progressBar.setIndeterminate(false);
+                progressBar.setProgress(progress);
+            }
+        }
+
         String fileName = Utils.fileNameFromPath(path);
         fileIcon.setImageResource(Utils.getFileIcon(fileName));
         fileNameText.setText(fileName);
@@ -117,7 +161,8 @@ public class OpenFileDialog extends DialogFragment {
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                // TODO: cancel the download task
+                cancelled = true;
+                cancelTask();
             }
         });
 

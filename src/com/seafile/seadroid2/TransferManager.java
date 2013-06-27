@@ -2,13 +2,8 @@ package com.seafile.seadroid2;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Iterator;
-
-import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.data.DataManager.ProgressMonitor;
-import com.seafile.seadroid2.SeadroidApplication;
+import java.util.List;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -18,6 +13,10 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.RemoteViews;
+
+import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.DataManager.ProgressMonitor;
 
 /**
  * Manages file downloading and uploading.
@@ -168,6 +167,13 @@ public class TransferManager {
         UploadTask task = getUploadTaskByID(taskID);
         if (task != null) {
             task.cancelUpload();
+        }
+    }
+
+    public void cancelDownloadTask(int taskID) {
+        DownloadTask task = getDownloadTaskByID(taskID);
+        if (task != null) {
+            task.cancelDownload();
         }
     }
 
@@ -459,6 +465,13 @@ public class TransferManager {
             return info;
         }
 
+        public void cancelDownload() {
+            if (myState != TaskState.INIT && myState != TaskState.TRANSFERRING) {
+                return;
+            }
+            myState = TaskState.CANCELLED;
+            super.cancel(true);
+        }
     }
 
     public class UploadTaskInfo {
