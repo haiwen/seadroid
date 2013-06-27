@@ -44,6 +44,7 @@ import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.gallery.MultipleImageSelectionActivity;
 import com.seafile.seadroid2.ui.ActivitiesFragment;
 import com.seafile.seadroid2.ui.NewDirDialog;
+import com.seafile.seadroid2.ui.OpenFileDialog;
 import com.seafile.seadroid2.ui.PasswordDialog;
 import com.seafile.seadroid2.ui.PasswordDialog.PasswordGetListener;
 import com.seafile.seadroid2.ui.ReposFragment;
@@ -599,22 +600,24 @@ public class BrowserActivity extends SherlockFragmentActivity
      * Otherwise, download the file
      */
     public void onFileSelected(String repoName, String repoID, String path, SeafDirent dirent) {
-        SeafCachedFile cf = dataManager.getCachedFile(repoName, repoID, path);
-        // If local file is up to date, show it
-        if (cf != null && dirent.id.equals(cf.fileID)) {
-            File file = dataManager.getLocalRepoFile(repoName, repoID, path);
-            if (file.exists()) {
-                showFile(repoName, repoID, path);
-                return;
-            }
-        }
+        openFile(Utils.fileNameFromPath(path));
+        return;
+        // SeafCachedFile cf = dataManager.getCachedFile(repoName, repoID, path);
+        // // If local file is up to date, show it
+        // if (cf != null && dirent.id.equals(cf.fileID)) {
+        //     File file = dataManager.getLocalRepoFile(repoName, repoID, path);
+        //     if (file.exists()) {
+        //         showFile(repoName, repoID, path);
+        //         return;
+        //     }
+        // }
 
-        // Add a download task
-        if (txService.addDownloadTask(account, repoName, repoID, path)) {
-            showToast("Downloading " + Utils.fileNameFromPath(path));
-        } else {
-            showToast("You are already downloading " + Utils.fileNameFromPath(path));
-        }
+        // // Add a download task
+        // if (txService.addDownloadTask(account, repoName, repoID, path)) {
+        //     showToast("Downloading " + Utils.fileNameFromPath(path));
+        // } else {
+        //     showToast("You are already downloading " + Utils.fileNameFromPath(path));
+        // }
     }
 
 
@@ -682,16 +685,49 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
     }
 
+    public void showFile(File file) {
+        String name = file.getName();
+        String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
+
+        if (suffix.length() == 0) {
+            showToast(getString(R.string.unknown_file_type));
+            return;
+        }
+
+        if (suffix.endsWith("md") || suffix.endsWith("markdown")) {
+            startMarkdownActivity(file.getPath());
+            return;
+        }
+
+        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
+        Intent open = new Intent(Intent.ACTION_VIEW);
+        open.setDataAndType((Uri.fromFile(file)), mime);
+        try {
+            startActivity(open);
+            return;
+        } catch (ActivityNotFoundException e) {
+            showToast(getString(R.string.activity_not_found));
+            return;
+        }
+    }
+
     /**
      * Open a file in current nav context. If the file is not cached,
      * blockingly download it, and then open it.
      * @param fn The name of the file to open
      */
-    public void openFile(String fn) {
+    public void openFile(String fileName) {
         if (!navContext.inRepo()) {
             return;
         }
-        // TODO: get the latest file and open it
+        
+        String repoName = navContext.getRepoName();
+        String repoID = navContext.getRepoID();
+        String dirPath = navContext.getDirPath();
+
+        OpenFileDialog dialog = new OpenFileDialog();
+        dialog.setFileInfo(repoName, repoID, dirPath, fileName);
+        dialog.show(getSupportFragmentManager(), "DialogFragment");
     }
 
     public void onFileUploadProgress(int taskID) {

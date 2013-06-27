@@ -11,14 +11,14 @@ import android.util.Log;
 public class SeafDirent implements SeafItem {
 
     public enum DirentType { DIR, FILE };
-    
+
     public String id;
     public DirentType type;
     public String name;
     public long size;    // size of file, 0 if type is dir
     public long mtime;   // last modified timestamp
-    
-    
+
+
     static SeafDirent fromJson(JSONObject obj) {
         SeafDirent dirent = new SeafDirent();
         try {
@@ -37,7 +37,7 @@ public class SeafDirent implements SeafItem {
             return null;
         }
     }
-    
+
     public boolean isDir() {
         return (type == DirentType.DIR);
     }
@@ -62,5 +62,5 @@ public class SeafDirent implements SeafItem {
             return R.drawable.folder;
         return Utils.getFileIcon(name);
     }
-    
+
 }

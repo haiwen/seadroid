@@ -233,7 +233,7 @@ public class SeafConnection {
                 String url = result.substring(1, result.length() - 1);
                 return TwoTuple.newInstance(url, fileID);
             } else {
-                throw SeafException.unknownException;
+                throw SeafException.illFormatException;
             }
         } catch (SeafException e) {
             throw e;
@@ -308,29 +308,34 @@ public class SeafConnection {
         }
     }
 
-    public TwoTuple<File, String> getFile(String repoID, String path, String localPath, ProgressMonitor monitor)
-            throws SeafException {
+    public TwoTuple<String, File> getFile(String repoID,
+                                          String path,
+                                          String localPath,
+                                          String cachedFileID,
+                                          ProgressMonitor monitor) throws SeafException {
         try {
-            TwoTuple<String, String> ret = getDownloadLink(repoID, path);
-            String dlink = ret.getFirst();
-            String fileID = ret.getSecond();
-
-            File file = getFileFromLink(dlink, path, localPath, fileID, monitor);
-            if (file != null) {
-                return TwoTuple.newInstance(file, fileID);
-            } else {
-                throw SeafException.unknownException;
-            }
-
+            return getFileNoRetry(repoID, path, localPath, cachedFileID, monitor);
         } catch (SeafException e) {
-            // do again
-            TwoTuple<String, String> ret = getDownloadLink(repoID, path);
-            String dlink = ret.getFirst();
-            String fileID = ret.getSecond();
+            return getFileNoRetry(repoID, path, localPath, cachedFileID, monitor);
+        }
+    }
 
+    private TwoTuple<String, File> getFileNoRetry(String repoID,
+                                                  String path,
+                                                  String localPath,
+                                                  String cachedFileID,
+                                                  ProgressMonitor monitor) throws SeafException {
+        TwoTuple<String, String> ret = getDownloadLink(repoID, path);
+        String dlink = ret.getFirst();
+        String fileID = ret.getSecond();
+
+        if (fileID.equals(cachedFileID)) {
+            // cache is valid
+            return TwoTuple.newInstance(fileID, null);
+        } else {
             File file = getFileFromLink(dlink, path, localPath, fileID, monitor);
             if (file != null) {
-                return TwoTuple.newInstance(file, fileID);
+                return TwoTuple.newInstance(fileID, file);
             } else {
                 throw SeafException.unknownException;
             }

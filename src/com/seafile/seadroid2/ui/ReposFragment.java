@@ -375,10 +375,10 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
             }
 
             if (dirents != null) {
-                String fn = nav.getFileName();
-                if (fn != null) {
+                String fileName = nav.getFileName();
+                if (fileName != null) {
                     nav.setFileName(null);
-                    mActivity.openFile(fn);
+                    mActivity.openFile(fileName);
                 }
             }
         }

@@ -27,9 +27,6 @@ public class NewDirDialog extends DialogFragment {
     private View loading;
     private Button okButton, cancelButton;
 
-    public NewDirDialog() {
-    }
-
     private BrowserActivity getBrowserActivity() {
         return (BrowserActivity)getActivity();
     }
