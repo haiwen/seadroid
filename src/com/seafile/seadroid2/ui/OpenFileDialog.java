@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.TransferManager.DownloadTaskInfo;
 import com.seafile.seadroid2.TransferService;
 import com.seafile.seadroid2.Utils;
@@ -77,10 +78,24 @@ public class OpenFileDialog extends DialogFragment {
         case CANCELLED:
             break;
         case FAILED:
+            onTaskFailed(info.err);
             break;
         case FINISHED:
             onTaskFinished();
             break;
+        }
+    }
+
+    private void onTaskFailed(SeafException err) {
+        String fileName = Utils.fileNameFromPath(path);
+        if (err.getCode() == 404) {
+            getDialog().dismiss();
+            getBrowserActivity().showToast("The file \"" + fileName + "\" has been deleted");
+        } else if (err.getCode() == 440) {
+            // TODO: set password and retry
+        } else {
+            getDialog().dismiss();
+            getBrowserActivity().showToast("Failed to download file \"" + fileName);
         }
     }
 
