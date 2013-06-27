@@ -38,9 +38,9 @@ public class TransferManager {
         public void onFileUploadCancelled(int taskID);
         public void onFileUploadFailed(int taskID);
 
-        public void onFileDownloaded(String repoID, String path);
-        public void onFileDownloadFailed(String repoName, String repoID, String path,
-                                         long size, SeafException err);
+        public void onFileDownloadProgress(int taskID);
+        public void onFileDownloaded(int taskID);
+        public void onFileDownloadFailed(int taskID);
 
     }
 
@@ -66,9 +66,8 @@ public class TransferManager {
 
     /**
      * Add a new upload task
-     * @return Return false if there is a duplicating task, otherwise return true
      */
-    public boolean addUploadTask(Account account, String repoID, String repoName,
+    public int addUploadTask(Account account, String repoID, String repoName,
                               String dir, String filePath, boolean isUpdate) {
         Iterator<UploadTask> iter = uploadTasks.iterator();
         while (iter.hasNext()) {
@@ -76,39 +75,49 @@ public class TransferManager {
             if (task.myRepoID.equals(repoID) && task.myPath.equals(filePath)) {
                 if (task.myState == TaskState.CANCELLED || task.myState == TaskState.FAILED
                         || task.myState == TaskState.FINISHED) {
-                    // If there is an duplicate, but it has failed or been
+                    // If there is a duplicate, but it has failed or been
                     // cancelled, remove it first
                     iter.remove();
                     break;
                 } else {
-                    // An duplicate task is uploading
-                    return false;
+                    // A duplicate task is uploading
+                    return task.getTaskID();
                 }
             }
         }
 
         UploadTask task = new UploadTask(account, repoID, repoName, dir, filePath, isUpdate);
         task.execute();
-        return true;
+        return task.getTaskID();
     }
 
     /**
      * Add a new download task
-     * @return Return false if there is a duplicating task, otherwise return true
      */
-    public boolean addDownloadTask(Account account,
-                                   String repoName,
-                                   String repoID,
-                                   String path) {
-        // Check duplication
-        for (DownloadTask task : downloadTasks) {
+    public int addDownloadTask(Account account,
+                               String repoName,
+                               String repoID,
+                               String path) {
+        Iterator<DownloadTask> iter = downloadTasks.iterator();
+        while (iter.hasNext()) {
+            DownloadTask task = iter.next();
             if (task.myRepoID.equals(repoID) && task.myPath.equals(path)) {
-                return false;
+                if (task.myState == TaskState.CANCELLED || task.myState == TaskState.FAILED
+                        || task.myState == TaskState.FINISHED) {
+                    // If there is a duplicate, but it has failed or been
+                    // cancelled, remove it first
+                    iter.remove();
+                    break;
+                } else {
+                    // A duplicate task is downloading
+                    return task.getTaskID();
+                }
             }
         }
+
         DownloadTask task = new DownloadTask(account, repoName, repoID, path);
         task.execute();
-        return true;
+        return task.getTaskID();
     }
 
     private UploadTask getUploadTaskByID(int taskID) {
@@ -167,6 +176,24 @@ public class TransferManager {
         if (task != null) {
             task.retryUpload();
         }
+    }
+
+    private DownloadTask getDownloadTaskByID(int taskID) {
+        for (DownloadTask task : downloadTasks) {
+            if (task.getTaskID() == taskID) {
+                return task;
+            }
+        }
+        return null;
+    }
+
+    public DownloadTaskInfo getDownloadTaskInfo (int taskID) {
+        DownloadTask task = getDownloadTaskByID(taskID);
+        if (task != null) {
+            return task.getTaskInfo();
+        }
+
+        return null;
     }
 
     private class UploadTask extends AsyncTask<String, Long, String> {
@@ -308,14 +335,14 @@ public class TransferManager {
 
         Notification notification;
         NotificationManager notificationManager;
-        private int showProgressThreshold = 1024 * 100; // 100KB
-        private int myNtID;
+        private int taskID;
 
         Account account;
         private String myRepoName;
         private String myRepoID;
         private String myPath;
-        private long mySize;
+        private long mySize, finished;
+        private TaskState myState;
         SeafException err;
 
         public DownloadTask(Account account, String repoName, String repoID, String path) {
@@ -323,6 +350,7 @@ public class TransferManager {
             this.myRepoName = repoName;
             this.myRepoID = repoID;
             this.myPath = path;
+            myState = TaskState.INIT;
 
             // The size of the file would be known in the first progress update
             this.mySize = -1;
@@ -334,14 +362,14 @@ public class TransferManager {
 
         @Override
         protected void onPreExecute() {
-            myNtID = ++notificationID;
+            taskID = ++notificationID;
 
             Context context =  SeadroidApplication.getAppContext();
             notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             Intent notificationIntent = new Intent(context,
                     BrowserActivity.class);
 
-            PendingIntent intent = PendingIntent.getActivity(context, myNtID, notificationIntent, 0);
+            PendingIntent intent = PendingIntent.getActivity(context, taskID, notificationIntent, 0);
 
             notification = new Notification(R.drawable.ic_stat_download, "", System.currentTimeMillis());
             notification.flags = notification.flags | Notification.FLAG_ONGOING_EVENT;
@@ -353,7 +381,7 @@ public class TransferManager {
 
             notification.contentView.setProgressBar(R.id.pb_download_progressbar,
                     100, 0, false);
-            notificationManager.notify(myNtID, notification);
+            notificationManager.notify(taskID, notification);
         }
 
         /**
@@ -364,12 +392,14 @@ public class TransferManager {
         protected void onProgressUpdate(Long... values) {
             if (mySize == -1) {
                 mySize = values[0];
+                myState = TaskState.TRANSFERRING;
                 return;
             }
-            long progress = values[0];
+            finished = values[0];
             notification.contentView.setProgressBar(R.id.pb_download_progressbar,
-                                                    (int)mySize, (int)progress, false);
-            notificationManager.notify(myNtID, notification);
+                                                    (int)mySize, (int)finished, false);
+            notificationManager.notify(taskID, notification);
+            listener.onFileDownloadProgress(taskID);
         }
 
         @Override
@@ -398,26 +428,35 @@ public class TransferManager {
 
         @Override
         protected void onPostExecute(File file) {
-            if (mySize > showProgressThreshold)
-                notificationManager.cancel(myNtID);
-            downloadTasks.remove(this);
+            notificationManager.cancel(taskID);
 
             if (listener != null) {
-                if (file != null)
-                    listener.onFileDownloaded(myRepoID, myPath);
-                else {
+                if (file != null) {
+                    myState = TaskState.FINISHED;
+                    listener.onFileDownloaded(taskID);
+                } else {
+                    myState = TaskState.FAILED;
                     if (err == null)
                         err = SeafException.unknownException;
-                    listener.onFileDownloadFailed(myRepoName, myRepoID, myPath, mySize, err);
+                    listener.onFileDownloadFailed(taskID);
                 }
             }
         }
 
         @Override
         protected void onCancelled() {
-            if (mySize > showProgressThreshold)
-                notificationManager.cancel(myNtID);
-            downloadTasks.remove(this);
+            myState = TaskState.CANCELLED;
+            notificationManager.cancel(taskID);
+        }
+
+        public int getTaskID() {
+            return taskID;
+        }
+
+        public DownloadTaskInfo getTaskInfo() {
+            DownloadTaskInfo info = new DownloadTaskInfo(taskID, myState, myRepoID,
+                                                         myRepoName, myPath, mySize, finished, err);
+            return info;
         }
 
     }
@@ -449,6 +488,30 @@ public class TransferManager {
             this.uploadedSize = uploadedSize;
             this.totalSize = totalSize;
             this.newFileID = newFileID;
+            this.err = err;
+        }
+    }
+
+    public class DownloadTaskInfo {
+        public final int taskID;
+        public final TaskState state;
+        public final String repoID;
+        public final String repoName;
+        public final String path;
+        public final long fileSize, finished;
+        public final SeafException err;
+
+        public DownloadTaskInfo(int taskID, TaskState state, String repoID,
+                                String repoName, String path,
+                                long fileSize, long finished,
+                                SeafException err) {
+            this.taskID = taskID;
+            this.state = state;
+            this.repoID = repoID;
+            this.repoName = repoName;
+            this.path = path;
+            this.fileSize = fileSize;
+            this.finished = finished;
             this.err = err;
         }
     }

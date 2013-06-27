@@ -314,7 +314,7 @@ public class SeafItemAdapter extends BaseAdapter {
                 String localPath = dataManager.getLocalRepoFile(repoName, repoID, path).getPath();
                 switch (actionId) {
                 case ACTION_ID_DOWNLOAD:
-                    mActivity.onFileSelected(repoName, repoID, path, dirent);
+                    mActivity.onFileSelected(dirent.name);
                     break;
                 case ACTION_ID_UPDATE:
                     mActivity.addUpdateTask(repoID, repoName, dir, localPath);

@@ -5,7 +5,6 @@ import java.io.File;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
@@ -15,12 +14,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.seafile.seadroid2.BrowserActivity;
-import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.TransferManager.DownloadTaskInfo;
 import com.seafile.seadroid2.Utils;
-import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.data.DataManager.ProgressMonitor;
 
 /**
  * Check and download the latest version of a file and open it
@@ -28,52 +24,78 @@ import com.seafile.seadroid2.data.DataManager.ProgressMonitor;
 public class OpenFileDialog extends DialogFragment {
     private String repoName;
     private String repoID;
-    private String dirPath;
-    private String fileName;
+    private String path;
 
     private ImageView fileIcon;
     private TextView fileNameText;
-    private ProgressBar progessBar;
+    private ProgressBar progressBar;
 
-    private long fileSize;
-    private long finished;
-    private LoadFileTask fileTask;
+    private int taskID;
+
+    private OnDismissListener dismissListener;
+
+    public interface OnDismissListener {
+        void onDismiss();
+    }
 
     private BrowserActivity getBrowserActivity() {
         return (BrowserActivity)getActivity();
     }
 
-    public void setFileInfo(String repoName, String repoID, String dirPath, String fileName) {
+    public void init(String repoName, String repoID, String path, OnDismissListener listener) {
         this.repoName = repoName;
         this.repoID = repoID;
-        this.dirPath = dirPath;
-        this.fileName = fileName;
+        this.path = path;
 
-        // The size of the file would be known in the first progress update
-        this.fileSize = -1;
+        this.dismissListener = listener;
     }
 
     // Get the lastest version of the file
     private void loadFile() {
-        String fullPath = Utils.pathJoin(dirPath, fileName);
-        fileTask = new LoadFileTask(repoName, repoID, fullPath);
-        ConcurrentAsyncTask.execute(fileTask);
+        BrowserActivity mActivity = getBrowserActivity();
+
+        taskID = mActivity.getTransferService().addDownloadTask(mActivity.getAccount(),
+                                                                repoName, repoID, path);
     }
 
-    public void onProgressUpdate(long value) {
-        if (fileSize == -1) {
-            fileSize = value;
-            progessBar.setProgress(0);
-        } else {
-            finished = value;
-            int percent;
-            if (fileSize == 0) {
-                percent = 100;
-            } else {
-                percent = (int)(finished * 100 / fileSize);
-            }
-            progessBar.setProgress(percent);
+    public int getTaskID() {
+        return taskID;
+    }
+
+    public void handleDownloadTaskInfo(DownloadTaskInfo info) {
+        switch (info.state) {
+        case INIT:
+            break;
+        case TRANSFERRING:
+            updateProgress(info.fileSize, info.finished);
+            break;
+        case CANCELLED:
+            break;
+        case FAILED:
+            break;
+        case FINISHED:
+            onTaskFinished();
+            break;
         }
+    }
+
+    private void onTaskFinished() {
+        getDialog().dismiss();
+
+        File localFile = getBrowserActivity().getDataManager().getLocalRepoFile(repoName, repoID, path);
+
+        getBrowserActivity().showFile(localFile);
+    }
+
+    private void updateProgress(long fileSize, long finished) {
+        progressBar.setIndeterminate(false);
+        int percent;
+        if (fileSize == 0) {
+            percent = 100;
+        } else {
+            percent = (int)(finished * 100 / fileSize);
+        }
+        progressBar.setProgress(percent);
     }
 
     @Override
@@ -85,8 +107,9 @@ public class OpenFileDialog extends DialogFragment {
 
         fileIcon = (ImageView)view.findViewById(R.id.file_icon);
         fileNameText = (TextView)view.findViewById(R.id.file_name);
-        progessBar = (ProgressBar)view.findViewById(R.id.progress_bar);
+        progressBar = (ProgressBar)view.findViewById(R.id.progress_bar);
 
+        String fileName = Utils.fileNameFromPath(path);
         fileIcon.setImageResource(Utils.getFileIcon(fileName));
         fileNameText.setText(fileName);
 
@@ -94,9 +117,7 @@ public class OpenFileDialog extends DialogFragment {
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                if (fileTask != null) {
-                    fileTask.cancel(true);
-                }
+                // TODO: cancel the download task
             }
         });
 
@@ -109,62 +130,15 @@ public class OpenFileDialog extends DialogFragment {
             }
         });
 
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface d) {
+                if (dismissListener != null) {
+                    dismissListener.onDismiss();
+                }
+            }
+        });
+
         return dialog;
-    }
-
-    private class LoadFileTask extends AsyncTask<Void, Long, File> {
-        private String repoName;
-        private String repoID;
-        private String path;
-        private SeafException err;
-
-        public LoadFileTask(String repoName, String repoID, String path) {
-            this.repoName = repoName;
-            this.repoID = repoID;
-            this.path = path;
-        }
-
-        @Override
-        protected File doInBackground(Void...params) {
-            ProgressMonitor monitor = new ProgressMonitor() {
-                @Override
-                public void onProgressNotify(long value) {
-                    onProgressUpdate(value);
-                }
-
-                @Override
-                public boolean isCancelled() {
-                    return LoadFileTask.this.isCancelled();
-                }
-            };
-
-            try {
-                return getBrowserActivity().getDataManager().getFile(repoName, repoID, path, monitor);
-            } catch (SeafException e) {
-                e.printStackTrace();
-                err = e;
-                return null;
-            }
-        }
-
-        @Override
-        public void onProgressUpdate(Long...values) {
-            OpenFileDialog.this.onProgressUpdate(values[0]);
-        }
-
-        @Override
-        public void onPostExecute(File file) {
-            BrowserActivity mActivity = getBrowserActivity();
-            if (mActivity == null) {
-                return;
-            }
-
-            if (err != null) {
-                mActivity.showToast("error: " + err);
-            } else {
-                getDialog().dismiss();
-                mActivity.showFile(file);
-            }
-        }
     }
 }

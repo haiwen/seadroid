@@ -35,12 +35,11 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.ipaulpro.afilechooser.FileChooserActivity;
 import com.ipaulpro.afilechooser.utils.FileUtils;
+import com.seafile.seadroid2.TransferManager.DownloadTaskInfo;
 import com.seafile.seadroid2.TransferManager.UploadTaskInfo;
 import com.seafile.seadroid2.TransferService.TransferBinder;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.data.SeafCachedFile;
-import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.gallery.MultipleImageSelectionActivity;
 import com.seafile.seadroid2.ui.ActivitiesFragment;
 import com.seafile.seadroid2.ui.NewDirDialog;
@@ -66,6 +65,8 @@ public class BrowserActivity extends SherlockFragmentActivity
     UploadTasksFragment uploadTasksFragment = null;
     ActivitiesFragment activitiesFragment = null;
 
+    OpenFileDialog openFileDialog = null;
+
     private String currentTab;
     private static final String LIBRARY_TAB = "libraries";
     private static final String UPLOAD_TASKS_TAB = "upload-tasks";
@@ -74,6 +75,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     private static final String REPOS_FRAGMENT_TAG = "repos_fragment";
     private static final String UPLOAD_TASKS_FRAGMENT_TAG = "upload_tasks_fragment";
     private static final String ACTIVITIES_FRAGMENT_TAG = "activities_fragment";
+    private static final String OPEN_FILE_DIALOG_FRAGMENT_TAG = "openfile_fragment";
 
     public DataManager getDataManager() {
         return dataManager;
@@ -229,6 +231,9 @@ public class BrowserActivity extends SherlockFragmentActivity
 
             activitiesFragment = (ActivitiesFragment)
                     getSupportFragmentManager().findFragmentByTag(ACTIVITIES_FRAGMENT_TAG);
+
+            openFileDialog = (OpenFileDialog)
+                    getSupportFragmentManager().findFragmentByTag(OPEN_FILE_DIALOG_FRAGMENT_TAG);
 
             cTab = savedInstanceState.getInt("tab");
 
@@ -599,27 +604,10 @@ public class BrowserActivity extends SherlockFragmentActivity
      *
      * Otherwise, download the file
      */
-    public void onFileSelected(String repoName, String repoID, String path, SeafDirent dirent) {
-        openFile(Utils.fileNameFromPath(path));
+    public void onFileSelected(String fileName) {
+        openFile(fileName);
         return;
-        // SeafCachedFile cf = dataManager.getCachedFile(repoName, repoID, path);
-        // // If local file is up to date, show it
-        // if (cf != null && dirent.id.equals(cf.fileID)) {
-        //     File file = dataManager.getLocalRepoFile(repoName, repoID, path);
-        //     if (file.exists()) {
-        //         showFile(repoName, repoID, path);
-        //         return;
-        //     }
-        // }
-
-        // // Add a download task
-        // if (txService.addDownloadTask(account, repoName, repoID, path)) {
-        //     showToast("Downloading " + Utils.fileNameFromPath(path));
-        // } else {
-        //     showToast("You are already downloading " + Utils.fileNameFromPath(path));
-        // }
     }
-
 
     @Override
     public void onBackPressed() {
@@ -658,33 +646,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         startActivity(intent);
     }
 
-    private boolean showFile(String repoName, String repoID, String path) {
-        File file = dataManager.getLocalRepoFile(repoName, repoID, path);
-        String name = file.getName();
-        String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
-
-        if (suffix.length() == 0) {
-            showToast(getString(R.string.unknown_file_type));
-            return false;
-        }
-
-        if (suffix.endsWith("md") || suffix.endsWith("markdown")) {
-            startMarkdownActivity(file.getPath());
-            return true;
-        }
-
-        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
-        Intent open = new Intent(Intent.ACTION_VIEW);
-        open.setDataAndType((Uri.fromFile(file)), mime);
-        try {
-            startActivity(open);
-            return true;
-        } catch (ActivityNotFoundException e) {
-            showToast(getString(R.string.activity_not_found));
-            return false;
-        }
-    }
-
     public void showFile(File file) {
         String name = file.getName();
         String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
@@ -720,14 +681,21 @@ public class BrowserActivity extends SherlockFragmentActivity
         if (!navContext.inRepo()) {
             return;
         }
-        
+
         String repoName = navContext.getRepoName();
         String repoID = navContext.getRepoID();
         String dirPath = navContext.getDirPath();
 
-        OpenFileDialog dialog = new OpenFileDialog();
-        dialog.setFileInfo(repoName, repoID, dirPath, fileName);
-        dialog.show(getSupportFragmentManager(), "DialogFragment");
+        String fullPath = Utils.pathJoin(dirPath, fileName);
+
+        openFileDialog = new OpenFileDialog();
+        openFileDialog.init(repoName, repoID, fullPath, new OpenFileDialog.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                openFileDialog = null;
+            }
+        });
+        openFileDialog.show(getSupportFragmentManager(), OPEN_FILE_DIALOG_FRAGMENT_TAG);
     }
 
     public void onFileUploadProgress(int taskID) {
@@ -786,16 +754,56 @@ public class BrowserActivity extends SherlockFragmentActivity
             uploadTasksFragment.onTaskFailed(info);
     }
 
-    public void onFileDownloaded(String repoID, String path) {
-        if (currentTab.equals(LIBRARY_TAB)
-                && repoID.equals(navContext.getRepoID())
-                && Utils.getParentPath(path).equals(navContext.getDirPath())) {
-            reposFragment.getAdapter().notifyChanged();
+    public void onFileDownloadProgress(int taskID) {
+        if (txService == null) {
+            return;
+        }
+
+        DownloadTaskInfo info = txService.getDownloadTaskInfo(taskID);
+        if (openFileDialog != null) {
+            if (openFileDialog.getTaskID() == taskID) {
+                openFileDialog.handleDownloadTaskInfo(info);
+            }
         }
     }
 
-    public void onFileDownloadFailed(final String repoName, final String repoID, final String path,
-                                     SeafException err) {
+    public void onFileDownloaded(int taskID) {
+        if (txService == null) {
+            return;
+        }
+
+        DownloadTaskInfo info = txService.getDownloadTaskInfo(taskID);
+        if (openFileDialog != null) {
+            if (openFileDialog.getTaskID() == taskID) {
+                openFileDialog.handleDownloadTaskInfo(info);
+            }
+
+        } else {
+            if (currentTab.equals(LIBRARY_TAB)
+                && info.repoID.equals(navContext.getRepoID())
+                && Utils.getParentPath(info.path).equals(navContext.getDirPath())) {
+                reposFragment.getAdapter().notifyChanged();
+            }
+        }
+    }
+
+    // final String repoName, final String repoID, final String path,
+    public void onFileDownloadFailed(int taskID) {
+        if (txService == null) {
+            return;
+        }
+
+        DownloadTaskInfo info = txService.getDownloadTaskInfo(taskID);
+        if (openFileDialog != null && taskID == openFileDialog.getTaskID()) {
+            openFileDialog.handleDownloadTaskInfo(info);
+            return;
+        }
+
+        SeafException err = info.err;
+        final String repoName = info.repoName;
+        final String repoID = info.repoID;
+        final String path = info.path;
+
         if (err != null && err.getCode() == 440) {
             if (currentTab.equals(LIBRARY_TAB)
                     && repoID.equals(navContext.getRepoID())
@@ -858,25 +866,27 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         public void onReceive(Context context, Intent intent) {
             String type = intent.getStringExtra("type");
-            if (type.equals("downloaded")) {
-                String repoID = intent.getStringExtra("repoID");
-                String path = intent.getStringExtra("path");
-                onFileDownloaded(repoID, path);
-            } else if (type.equals("downloadFailed")) {
-                String repoName = intent.getStringExtra("repoName");
-                String repoID = intent.getStringExtra("repoID");
-                String path = intent.getStringExtra("path");
-                int errCode = intent.getIntExtra("errCode", 0);
-                String errMsg = intent.getStringExtra("errMsg");
-                onFileDownloadFailed(repoName, repoID, path,
-                                     new SeafException(errCode, errMsg));
-            } else if (type.equals("uploaded")) {
+            if (type.equals(TransferService.BROADCAST_FILE_DOWNLOAD_PROGRESS)) {
+                int taskID = intent.getIntExtra("taskID", 0);
+                onFileDownloadProgress(taskID);
+
+            } else if (type.equals(TransferService.BROADCAST_FILE_DOWNLOAD_SUCCESS)) {
+                int taskID = intent.getIntExtra("taskID", 0);
+                onFileDownloaded(taskID);
+
+            } else if (type.equals(TransferService.BROADCAST_FILE_DOWNLOAD_FAILED)) {
+                int taskID = intent.getIntExtra("taskID", 0);
+                onFileDownloadFailed(taskID);
+
+            } else if (type.equals(TransferService.BROADCAST_FILE_UPLOAD_SUCCESS)) {
                 int taskID = intent.getIntExtra("taskID", 0);
                 onFileUploaded(taskID);
-            } else if (type.equals("uploadFailed")) {
+
+            } else if (type.equals(TransferService.BROADCAST_FILE_UPLOAD_FAILED)) {
                 int taskID = intent.getIntExtra("taskID", 0);
                 onFileUploadFailed(taskID);
-            } else if (type.equals("uploadProgress")) {
+
+            } else if (type.equals(TransferService.BROADCAST_FILE_UPLOAD_PROGRESS)) {
                 int taskID = intent.getIntExtra("taskID", 0);
                 onFileUploadProgress(taskID);
             }

@@ -157,7 +157,6 @@ public class SeafConnection {
      */
     public TwoTuple<String, String> getDirents(String repoID, String path, String cachedDirID)
                                         throws SeafException {
-        InputStream is = null;
         try {
             String apiPath = String.format("api2/repos/%s/dir/", repoID);
             Map<String, Object> params = new HashMap<String, Object>();
@@ -180,8 +179,12 @@ public class SeafConnection {
 
             if (dirID.equals(cachedDirID)) {
                 // local cache is valid
+                Log.d(DEBUG_TAG, String.format("dir %s is cached", path));
                 content = null;
             } else {
+                Log.d(DEBUG_TAG,
+                      String.format("dir %s will be downloaded from server, latest %s, local cache %s",
+                                    path, dirID, cachedDirID != null ? cachedDirID : "null"));
                 byte[] rawBytes = req.bytes();
                 if (rawBytes == null) {
                     throw SeafException.unknownException;
@@ -199,14 +202,6 @@ public class SeafConnection {
             throw SeafException.networkException;
         } catch (IOException e) {
             throw SeafException.networkException;
-        } finally {
-            try {
-                if (is != null) {
-                    is.close();
-                }
-            } catch (Exception e) {
-                // ignore
-            }
         }
     }
 
@@ -301,38 +296,40 @@ public class SeafConnection {
         } catch (HttpRequestException e) {
             if (e.getCause() instanceof MonitorCancelledException) {
                 Log.d(DEBUG_TAG, "download is cancelled");
-                return null;
+                throw SeafException.userCancelledException;
             } else {
                 throw SeafException.networkException;
             }
         }
     }
 
+    /**
+     * Get the latest version of the file from server
+     * @param repoID
+     * @param path
+     * @param localPath
+     * @param cachedDirID The file id of the local cached version
+     * @param monitor
+     * @return A two tuple of (fileID, file). If the local cached version is up to date, the returned file is null.
+     */
     public TwoTuple<String, File> getFile(String repoID,
                                           String path,
                                           String localPath,
                                           String cachedFileID,
                                           ProgressMonitor monitor) throws SeafException {
-        try {
-            return getFileNoRetry(repoID, path, localPath, cachedFileID, monitor);
-        } catch (SeafException e) {
-            return getFileNoRetry(repoID, path, localPath, cachedFileID, monitor);
-        }
-    }
-
-    private TwoTuple<String, File> getFileNoRetry(String repoID,
-                                                  String path,
-                                                  String localPath,
-                                                  String cachedFileID,
-                                                  ProgressMonitor monitor) throws SeafException {
         TwoTuple<String, String> ret = getDownloadLink(repoID, path);
         String dlink = ret.getFirst();
         String fileID = ret.getSecond();
 
         if (fileID.equals(cachedFileID)) {
             // cache is valid
+            Log.d(DEBUG_TAG, String.format("file %s is cached", path));
             return TwoTuple.newInstance(fileID, null);
         } else {
+            Log.d(DEBUG_TAG,
+                  String.format("file %s will be downloaded from server, latest %s, local cache %s",
+                                path, fileID, cachedFileID != null ? cachedFileID : "null"));
+            
             File file = getFileFromLink(dlink, path, localPath, fileID, monitor);
             if (file != null) {
                 return TwoTuple.newInstance(fileID, file);
@@ -553,7 +550,7 @@ public class SeafConnection {
         } catch (HttpRequestException e) {
             if (e.getCause() instanceof MonitorCancelledException) {
                 Log.d(DEBUG_TAG, "upload is cancelled");
-                return null;
+                throw SeafException.userCancelledException;
             } else {
                 throw SeafException.networkException;
             }
@@ -626,8 +623,6 @@ public class SeafConnection {
             int read = src.read(buffer);
             if (read != -1) {
                 bytesRead += read;
-                Log.d(DEBUG_TAG,
-                      String.format("read %d bytes, accu %d bytes", read, bytesRead));
             }
 
             checkMonitor();

@@ -12,7 +12,8 @@ public class SeafException extends Exception {
     public static SeafException networkException = new SeafException(2, "Network Error");
     public static SeafException encodingException = new SeafException(3, "Encoding Error");
     public static SeafException illFormatException = new SeafException(4, "Ill-formatted Response");
-    public static SeafException sslException = new SeafException(4, "not trusted SSL server");
+    public static SeafException sslException = new SeafException(5, "not trusted SSL server");
+    public static SeafException userCancelledException = new SeafException(6, "operation canclled by user");
     
     public SeafException(int code, String msg) {
         super(msg);

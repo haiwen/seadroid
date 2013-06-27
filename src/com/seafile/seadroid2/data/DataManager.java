@@ -429,25 +429,24 @@ public class DataManager {
     public List<SeafDirent> getDirents(String repoID,
             String path, String dirID) throws SeafException {
 
-        if (dirID != null) {
-            // put the mapping to cache for later usage.
-            saveDirIDToCache(repoID, path, dirID);
-        } else {
-            dirID = readDirIDFromCache(repoID, path);
+        File cache;
+        String cachedDirID = readDirIDFromCache(repoID, path);
+        if (cachedDirID == null) {
+            cachedDirID = dirID;
         }
 
-        String cachedDirID = null;
-        File cache = getFileForDirentsCache(dirID);
-
-        if (dirID != null) {
-            if (cache.exists()) {
-                cachedDirID = dirID;
+        if (cachedDirID != null) {
+            cache = getFileForDirentsCache(cachedDirID);
+            if (!cache.exists()) {
+                cachedDirID = null;
             }
         }
 
         TwoTuple<String, String> ret = sc.getDirents(repoID, path, cachedDirID);
         String newDirID = ret.getFirst();
 
+        saveDirIDToCache(repoID, path, newDirID);
+        cache = getFileForDirentsCache(newDirID);
         if (newDirID.equals(cachedDirID)) {
             // local cache is valid
             String json = Utils.readFile(cache);
@@ -459,7 +458,6 @@ public class DataManager {
 
             try {
                 Utils.writeFile(cache, content);
-                saveDirIDToCache(repoID, path, newDirID);
             } catch (IOException e) {
                 // ignore
             }

@@ -2,16 +2,16 @@ package com.seafile.seadroid2;
 
 import java.util.List;
 
-import com.seafile.seadroid2.TransferManager.TransferListener;
-import com.seafile.seadroid2.TransferManager.UploadTaskInfo;
-import com.seafile.seadroid2.account.Account;
-
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
+
+import com.seafile.seadroid2.TransferManager.DownloadTaskInfo;
+import com.seafile.seadroid2.TransferManager.TransferListener;
+import com.seafile.seadroid2.TransferManager.UploadTaskInfo;
+import com.seafile.seadroid2.account.Account;
 
 public class TransferService extends Service implements TransferListener {
 
@@ -23,6 +23,15 @@ public class TransferService extends Service implements TransferListener {
 
     private final IBinder mBinder = new TransferBinder();
     private TransferManager txManager;
+
+    public static final String BROADCAST_FILE_DOWNLOAD_SUCCESS = "downloaded";
+    public static final String BROADCAST_FILE_DOWNLOAD_FAILED = "downloadFailed";
+    public static final String BROADCAST_FILE_DOWNLOAD_PROGRESS = "downloadProgress";
+
+    public static final String BROADCAST_FILE_UPLOAD_SUCCESS = "uploaded";
+    public static final String BROADCAST_FILE_UPLOAD_FAILED = "uploadFailed";
+    public static final String BROADCAST_FILE_UPLOAD_PROGRESS = "uploadProgress";
+    public static final String BROADCAST_FILE_UPLOAD_CANCELLED = "uploadCancelled";
 
     @Override
     public void onCreate() {
@@ -52,15 +61,15 @@ public class TransferService extends Service implements TransferListener {
         return mBinder;
     }
 
-    public boolean addUploadTask(Account account, String repoID, String repoName, String dir,
+    public int addUploadTask(Account account, String repoID, String repoName, String dir,
                               String filePath, boolean isUpdate) {
         return txManager.addUploadTask(account, repoID, repoName, dir, filePath, isUpdate);
     }
 
-    public boolean addDownloadTask(Account account,
-                                   String repoName,
-                                   String repoID,
-                                   String path) {
+    public int addDownloadTask(Account account,
+                               String repoName,
+                               String repoID,
+                               String path) {
         return txManager.addDownloadTask(account, repoName, repoID, path);
     }
 
@@ -88,49 +97,56 @@ public class TransferService extends Service implements TransferListener {
         txManager.retryUploadTask(taskID);
     }
 
+    public DownloadTaskInfo getDownloadTaskInfo(int taskID) {
+        return txManager.getDownloadTaskInfo(taskID);
+    }
+
     @Override
     public void onFileUploadProgress(int taskID) {
-        Intent localIntent = new Intent(BROADCAST_ACTION).putExtra("type", "uploadProgress")
+        Intent localIntent = new Intent(BROADCAST_ACTION).putExtra("type", BROADCAST_FILE_UPLOAD_PROGRESS)
             .putExtra("taskID", taskID);
         LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
     }
 
     @Override
     public void onFileUploaded(int taskID) {
-        Intent localIntent = new Intent(BROADCAST_ACTION).putExtra("type", "uploaded")
+        Intent localIntent = new Intent(BROADCAST_ACTION).putExtra("type", BROADCAST_FILE_UPLOAD_SUCCESS)
             .putExtra("taskID", taskID);
         LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
     }
 
     @Override
     public void onFileUploadCancelled(int taskID) {
-        Intent localIntent = new Intent(BROADCAST_ACTION).putExtra("type", "uploadCancelled")
+        Intent localIntent = new Intent(BROADCAST_ACTION).putExtra("type", BROADCAST_FILE_UPLOAD_CANCELLED)
             .putExtra("taskID", taskID);
         LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
     }
 
     @Override
     public void onFileUploadFailed(int taskID) {
-        Intent localIntent = new Intent(BROADCAST_ACTION).putExtra("type", "uploadFailed")
+        Intent localIntent = new Intent(BROADCAST_ACTION).putExtra("type", BROADCAST_FILE_UPLOAD_FAILED)
             .putExtra("taskID", taskID);
         LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
     }
+
     @Override
-    public void onFileDownloaded(String repoID, String path) {
-        Intent localIntent = new Intent(BROADCAST_ACTION).putExtra("type", "downloaded")
-            .putExtra("repoID", repoID).putExtra("path", path);
+    public void onFileDownloadProgress(int taskID) {
+        Intent localIntent = new Intent(BROADCAST_ACTION).putExtra("type", BROADCAST_FILE_DOWNLOAD_PROGRESS)
+            .putExtra("taskID", taskID);
         LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
     }
 
-
     @Override
-    public void onFileDownloadFailed(String repoName, String repoID, String path,
-            long size, SeafException err) {
-        Intent localIntent = new Intent(BROADCAST_ACTION).putExtra("type", "downloadFailed")
-                .putExtra("repoID", repoID).putExtra("path", path)
-                .putExtra("size", size).putExtra("errCode", err.getCode())
-                .putExtra("errMsg", err.getMessage());
+    public void onFileDownloaded(int taskID) {
+        Intent localIntent = new Intent(BROADCAST_ACTION).putExtra("type", BROADCAST_FILE_DOWNLOAD_SUCCESS)
+            .putExtra("taskID", taskID);
         LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
     }
 
+    @Override
+    public void onFileDownloadFailed(int taskID) {
+        Intent localIntent = new Intent(BROADCAST_ACTION).putExtra("type", BROADCAST_FILE_DOWNLOAD_FAILED)
+            .putExtra("taskID", taskID);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
+    }
 }

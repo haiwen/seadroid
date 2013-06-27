@@ -82,7 +82,7 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
     }
 
     public interface OnFileSelectedListener {
-        public void onFileSelected(String repoName, String repoID, String path, SeafDirent dirent);
+        public void onFileSelected(String fileName);
     }
 
     @Override
@@ -222,10 +222,7 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
                 nav.setDir(newPath, dirent.id);
                 refreshView();
             } else {
-                String currentPath = nav.getDirPath();
-                String newPath = currentPath.endsWith("/") ?
-                        currentPath + dirent.name : currentPath + "/" + dirent.name;
-                mActivity.onFileSelected(nav.getRepoName(), nav.getRepoID(), newPath, dirent);
+                mActivity.onFileSelected(dirent.name);
             }
         } else {
             SeafItem item = adapter.getItem(position);
