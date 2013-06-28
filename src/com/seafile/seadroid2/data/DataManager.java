@@ -489,12 +489,8 @@ public class DataManager {
         dbHelper.deleteFileCacheItem(cf);
     }
 
-    public void setPassword(String repoID, String passwd) {
-        try {
-            sc.setPassword(repoID, passwd);
-        } catch (SeafException e) {
-            // ignore
-        }
+    public void setPassword(String repoID, String passwd) throws SeafException {
+        sc.setPassword(repoID, passwd);
     }
 
     public void uploadFile(String repoID, String dir, String filePath,

@@ -15,7 +15,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.DialogFragment;
@@ -45,8 +44,8 @@ import com.seafile.seadroid2.ui.ActivitiesFragment;
 import com.seafile.seadroid2.ui.NewDirDialog;
 import com.seafile.seadroid2.ui.OpenFileDialog;
 import com.seafile.seadroid2.ui.PasswordDialog;
-import com.seafile.seadroid2.ui.PasswordDialog.PasswordGetListener;
 import com.seafile.seadroid2.ui.ReposFragment;
+import com.seafile.seadroid2.ui.TaskDialog;
 import com.seafile.seadroid2.ui.UploadTasksFragment;
 
 
@@ -182,10 +181,12 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
 
     public void setActionBarTitle(String title, String subtitle) {
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setTitle(title);
-        actionBar.setSubtitle(subtitle);
+        // TODO: Before we find a way to make the actionbar title and tabs
+        // always appear in different lines, we do not set the titles.
+
+        // ActionBar actionBar = getSupportActionBar();
+        // actionBar.setDisplayShowTitleEnabled(true);
+        // actionBar.setTitle(title); actionBar.setSubtitle(subtitle);
     }
 
     @Override
@@ -432,16 +433,17 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
 
     private void showNewDirDialog() {
-        NewDirDialog dialog = new NewDirDialog();
+        final NewDirDialog dialog = new NewDirDialog();
         dialog.show(getSupportFragmentManager(), "DialogFragment");
-    }
-
-    public void onNewDirCreated(String dirName) {
-        showToast("Sucessfully created folder " + dirName);
-        if (currentTab.equals(LIBRARY_TAB) && reposFragment != null) {
-            navContext.setDirID(null);
-            reposFragment.refreshView();
-        }
+        dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
+            @Override
+            public void onTaskSuccess() {
+                showToast("Sucessfully created folder " + dialog.getNewDirName());
+                if (currentTab.equals(LIBRARY_TAB) && reposFragment != null) {
+                    reposFragment.refreshView();
+                }
+            }
+        });
     }
 
     private void showReposFragment(FragmentTransaction ft) {
@@ -760,10 +762,8 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
 
         DownloadTaskInfo info = txService.getDownloadTaskInfo(taskID);
-        if (openFileDialog != null) {
-            if (openFileDialog.getTaskID() == taskID) {
+        if (openFileDialog != null && openFileDialog.getTaskID() == taskID) {
                 openFileDialog.handleDownloadTaskInfo(info);
-            }
         }
     }
 
@@ -773,11 +773,8 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
 
         DownloadTaskInfo info = txService.getDownloadTaskInfo(taskID);
-        if (openFileDialog != null) {
-            if (openFileDialog.getTaskID() == taskID) {
-                openFileDialog.handleDownloadTaskInfo(info);
-            }
-
+        if (openFileDialog != null && openFileDialog.getTaskID() == taskID) {
+            openFileDialog.handleDownloadTaskInfo(info);
         } else {
             if (currentTab.equals(LIBRARY_TAB)
                 && info.repoID.equals(navContext.getRepoID())
@@ -787,14 +784,13 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
     }
 
-    // final String repoName, final String repoID, final String path,
     public void onFileDownloadFailed(int taskID) {
         if (txService == null) {
             return;
         }
 
         DownloadTaskInfo info = txService.getDownloadTaskInfo(taskID);
-        if (openFileDialog != null && taskID == openFileDialog.getTaskID()) {
+        if (openFileDialog != null && openFileDialog.getTaskID() == taskID) {
             openFileDialog.handleDownloadTaskInfo(info);
             return;
         }
@@ -806,57 +802,22 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         if (err != null && err.getCode() == 440) {
             if (currentTab.equals(LIBRARY_TAB)
-                    && repoID.equals(navContext.getRepoID())
-                    && Utils.getParentPath(path).equals(navContext.getDirPath())) {
+                && repoID.equals(navContext.getRepoID())
+                && Utils.getParentPath(path).equals(navContext.getDirPath())) {
                 PasswordDialog dialog = new PasswordDialog();
-                dialog.setPasswordGetListener(new PasswordGetListener() {
+                dialog.setRepo(repoName, repoID);
+                dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
                     @Override
-                    public void onPasswordGet(String password) {
-                        if (password.length() == 0)
-                            return;
-                        ConcurrentAsyncTask.execute(
-                            new SetPasswordTask(dataManager, repoName, repoID, path), password);
+                    public void onTaskSuccess() {
+                        txService.addDownloadTask(account, repoName, repoID, path);
                     }
-
                 });
                 dialog.show(getSupportFragmentManager(), "DialogFragment");
                 return;
             }
         }
+
         showToast(getString(R.string.download_failed) + " " + Utils.fileNameFromPath(path));
-    }
-
-    private class SetPasswordTask extends AsyncTask<String, Void, Void> {
-
-        String myRepoName;
-        String myRepoID;
-        String myPath;
-        DataManager dataManager;
-
-        public SetPasswordTask(DataManager dataManager, String repoName, String repoID, String path) {
-            this.dataManager = dataManager;
-            this.myRepoName = repoName;
-            this.myRepoID = repoID;
-            this.myPath = path;
-        }
-
-        @Override
-        protected Void doInBackground(String... params) {
-            if (params.length != 1) {
-                Log.d(DEBUG_TAG, "Wrong params to SetPasswordTask");
-                return null;
-            }
-
-            String password = params[0];
-            dataManager.setPassword(myRepoID, password);
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void v) {
-            txService.addDownloadTask(account, myRepoName, myRepoID, myPath);
-        }
-
     }
 
     // for receive broadcast from TransferService
@@ -893,6 +854,4 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
 
     } // TransferReceiver
-
-
 }

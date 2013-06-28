@@ -2,16 +2,13 @@ package com.seafile.seadroid2;
 
 import java.util.List;
 
-import com.ipaulpro.afilechooser.FileChooserActivity;
-import com.ipaulpro.afilechooser.utils.FileUtils;
-import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.AccountManager;
-import com.seafile.seadroid2.gallery.MultipleImageSelectionActivity;
-
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuInflater;
@@ -22,11 +19,9 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ListView;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentActivity;
-import android.util.Log;
+
+import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.AccountManager;
 
 
 public class AccountsActivity extends FragmentActivity {

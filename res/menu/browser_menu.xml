@@ -6,20 +6,20 @@
         android:visible="true"
         android:title="Upload"
         android:showAsAction="ifRoom|withText"/>
-    
+
     <item android:id="@+id/delete_cache"
         android:visible="false"
-        android:title="Delete" 
+        android:title="Delete"
         android:showAsAction="ifRoom|withText"/>
-    
+
     <item android:id="@+id/refresh"
         android:visible="false"
-        android:title="Refresh" 
+        android:title="Refresh"
         android:showAsAction="ifRoom|withText"/>
 
     <item android:id="@+id/newdir"
         android:visible="false"
-        android:title="Create a new folder" 
+        android:title="New Folder"
         android:showAsAction="never"/>
-    
+
 </menu>

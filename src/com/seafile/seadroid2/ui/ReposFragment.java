@@ -27,10 +27,9 @@ import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafGroup;
 import com.seafile.seadroid2.data.SeafItem;
 import com.seafile.seadroid2.data.SeafRepo;
-import com.seafile.seadroid2.ui.PasswordDialog.PasswordGetListener;
 
 
-public class ReposFragment extends SherlockListFragment implements PasswordGetListener {
+public class ReposFragment extends SherlockListFragment {
 
     private static final String DEBUG_TAG = "ReposFragment";
 
@@ -263,7 +262,6 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
     }
 
     private class LoadTask extends AsyncTask<Void, Void, List<SeafRepo> > {
-
         SeafException err = null;
         DataManager dataManager;
 
@@ -383,52 +381,19 @@ public class ReposFragment extends SherlockListFragment implements PasswordGetLi
 
     private void showPasswordDialog() {
         PasswordDialog dialog = new PasswordDialog();
-        dialog.setPasswordGetListener(this);
+        NavContext nav = mActivity.getNavContext();
+        String repoName = nav.getRepoName();
+        String repoID = nav.getRepoID();
+
+        dialog.setRepo(repoName, repoID);
+        dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
+            @Override
+            public void onTaskSuccess() {
+                refreshView();
+            }
+        });
         dialog.show(mActivity.getSupportFragmentManager(), "DialogFragment");
     }
-
-    @Override
-    public void onPasswordGet(String password) {
-        if (password.length() == 0)
-            return;
-        NavContext navContext = getNavContext();
-        if (navContext.getRepoID() == null)
-            return;
-        ConcurrentAsyncTask.execute(new SetPasswordTask(getDataManager()),
-                            navContext.getRepoID(), password);
-    }
-
-    private class SetPasswordTask extends AsyncTask<String, Void, Void > {
-
-        DataManager dataManager;
-
-        public SetPasswordTask(DataManager dataManager) {
-            this.dataManager = dataManager;
-        }
-
-        @Override
-        protected Void doInBackground(String... params) {
-            if (params.length != 2) {
-                Log.d(DEBUG_TAG, "Wrong params to SetPasswordTask");
-                return null;
-            }
-
-            String repoID = params[0];
-            String password = params[1];
-            dataManager.setPassword(repoID, password);
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void v) {
-            if (mActivity == null)
-                // this occurs if user navigation to another activity
-                return;
-            refreshView();
-        }
-
-    }
-
 
     private void scheduleThumbnailTask(String repoName, String repoID,
                                        String path, List<SeafDirent> dirents) {

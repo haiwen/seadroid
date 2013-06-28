@@ -60,4 +60,6 @@
     <string name="select_upload_items">select items to upload</string>
     <string name="n_upload_items_selected">%d items selected</string>
     <string name="dir_name_empty">Please enter the name of the folder</string>
+    <string name="password_empty">Please enter the password</string>
+    <string name="wrong_password">wrong password</string>
 </resources>

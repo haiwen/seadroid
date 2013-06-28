@@ -1,10 +1,11 @@
 package com.seafile.seadroid2.gallery;
 
-import android.app.Activity;
-import android.app.AlertDialog;
+import java.io.Closeable;
+import java.io.FileDescriptor;
+import java.io.IOException;
+
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -17,12 +18,6 @@ import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.animation.Animation;
-import android.view.animation.TranslateAnimation;
-
-import java.io.Closeable;
-import java.io.FileDescriptor;
-import java.io.IOException;
 
 /**
  * Collection of utility functions used in this package.
