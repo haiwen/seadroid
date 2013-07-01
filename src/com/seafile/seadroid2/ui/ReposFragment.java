@@ -365,7 +365,7 @@ public class ReposFragment extends SherlockListFragment {
                 if (err.getCode() == 440) {
                     showPasswordDialog();
                 } else if (err.getCode() == 404) {
-                    mActivity.showToast("The directory may be deleted");
+                    mActivity.showToast(String.format("The folder \"%s\" has been deleted", myPath));
                 }
             }
 
@@ -373,10 +373,34 @@ public class ReposFragment extends SherlockListFragment {
                 String fileName = nav.getFileName();
                 if (fileName != null) {
                     nav.setFileName(null);
-                    mActivity.openFile(fileName);
+                    SeafDirent dent = findDirent(dirents, fileName);
+                    if (dent == null) {
+                        mActivity.showToast(String.format("\"%s\" has been deleted", fileName));
+                    } else {
+                        if (dent.type == SeafDirent.DirentType.FILE) {
+                            mActivity.openFile(fileName);
+                        } else {
+                            nav.setDir(Utils.pathJoin(nav.getDirPath(), fileName), dent.id);
+                            refreshView();
+                        }
+                    }
                 }
             }
         }
+    }
+
+    private SeafDirent findDirent(List<SeafDirent> dirents, String fileName) {
+        if (dirents == null) {
+            return null;
+        }
+
+        for (SeafDirent dent : dirents) {
+            if (dent.name.equals(fileName)) {
+                return dent;
+            }
+        }
+
+        return null;
     }
 
     private void showPasswordDialog() {
