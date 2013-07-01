@@ -35,6 +35,9 @@ public abstract class TaskDialog extends DialogFragment {
         }
     }
 
+    private static final String STATE_ERROR_TEXT = "task_dialog.error_text";
+    private static final String TASK_STATE_SAVED = "task_dialog.task_saved";
+
     // The AsyncTask instance
     private Task task;
 
@@ -59,10 +62,10 @@ public abstract class TaskDialog extends DialogFragment {
     /**
      * Create the content area of the dialog
      * @param inflater
+     * @param savedInstanceState The saved dialog state. Most of the time subclasses don't need to make use of it, since the state of UI widgets is restored by the base class. 
      * @return The created view
      */
     protected abstract View onCreateDialogContentView(LayoutInflater inflater,
-
                                                       Bundle savedInstanceState);
     /**
      * Return the content area view of the dialog
@@ -89,6 +92,24 @@ public abstract class TaskDialog extends DialogFragment {
      * Create the AsyncTask
      */
     protected abstract Task prepareTask();
+
+    protected Task getTask() {
+        return task;
+    }
+
+    /**
+     * Save the state of the background task so that we can restore the task
+     * when recreating this dialog. For example, when screen rotation
+     * @param outState
+     */
+    protected abstract void onSaveTaskState(Bundle outState);
+
+    /**
+     * Recreate the background task when this dialog is recreated.
+     * @param savedInstanceState
+     * @return The background task if it should be restored. Or null to indicate that you don't want to recreate the task.
+     */
+    protected abstract Task onRestoreTaskState(Bundle savedInstanceState);
 
     /**
      * Check if the user input is valid. It is called when the "OK" button is
@@ -122,14 +143,19 @@ public abstract class TaskDialog extends DialogFragment {
     public void onSaveInstanceState(Bundle outState) {
         // TODO: save state of error text
         onSaveDialogContentState(outState);
+        if (task != null && task.getStatus() != AsyncTask.Status.FINISHED) {
+            outState.putBoolean(TASK_STATE_SAVED, true);
+            onSaveTaskState(outState);
+            task.cancel(true);
+        }
 
-        outState.putString("task_dialog_error_text", errorText.getText().toString());
+        outState.putString(STATE_ERROR_TEXT, errorText.getText().toString());
 
         super.onSaveInstanceState(outState);
     }
 
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
+    public Dialog onCreateDialog(final Bundle savedInstanceState) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -142,7 +168,7 @@ public abstract class TaskDialog extends DialogFragment {
         loading = (ProgressBar)view.findViewById(R.id.loading);
 
         if (savedInstanceState != null) {
-            String error = savedInstanceState.getString("task_dialog_error_text");
+            String error = savedInstanceState.getString(STATE_ERROR_TEXT);
             if (error != null && error.length() > 0) {
                 errorText.setText(error);
                 errorText.setVisibility(View.VISIBLE);
@@ -178,14 +204,8 @@ public abstract class TaskDialog extends DialogFragment {
                     return;
                 }
 
-                disableInput();
-                hideError();
-                showLoading();
-
                 task = prepareTask();
-                task.setTaskDialog(TaskDialog.this);
-
-                ConcurrentAsyncTask.execute(task);
+                executeTask();
             }
         };
 
@@ -195,12 +215,29 @@ public abstract class TaskDialog extends DialogFragment {
                 okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
                 cancelButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
                 okButton.setOnClickListener(onOKButtonClickedListener);
+                if (savedInstanceState != null) {
+                    dialog.onRestoreInstanceState(savedInstanceState);
+                    restoreTask(savedInstanceState);
+                }
             }
         });
 
         onDialogCreated(dialog);
 
         return dialog;
+    }
+
+    private void restoreTask(Bundle savedInstanceState) {
+        // Restore the AsyncTask and execute it
+        boolean taskSaved = savedInstanceState.getBoolean(TASK_STATE_SAVED);
+        if (!taskSaved) {
+            return;
+        }
+
+        task = onRestoreTaskState(savedInstanceState);
+        if (task != null) {
+            executeTask();
+        }
     }
 
     protected void showLoading() {
@@ -234,6 +271,14 @@ public abstract class TaskDialog extends DialogFragment {
 
     protected void enableInput() {
         okButton.setEnabled(true);
+    }
+
+    private void executeTask() {
+        disableInput();
+        hideError();
+        showLoading();
+        task.setTaskDialog(this);
+        ConcurrentAsyncTask.execute(task);
     }
 
     public static abstract class Task extends AsyncTask<Void, Long, Void> {

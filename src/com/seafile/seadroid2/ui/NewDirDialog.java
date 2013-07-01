@@ -35,6 +35,7 @@ class NewDirTask extends TaskDialog.Task {
 }
 
 public class NewDirDialog extends TaskDialog {
+
     private EditText dirNameText;
 
     public String getNewDirName() {
@@ -45,9 +46,6 @@ public class NewDirDialog extends TaskDialog {
     protected View onCreateDialogContentView(LayoutInflater inflater, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_new_dir, null);
         dirNameText = (EditText) view.findViewById(R.id.new_dir_name);
-
-        if (savedInstanceState != null) {
-        }
 
         return view;
     }
@@ -86,5 +84,18 @@ public class NewDirDialog extends TaskDialog {
         NewDirTask task = new NewDirTask(nav.getRepoID(), nav.getDirPath(), dirName,
                                          getBrowserActivity().getDataManager());
         return task;
+    }
+
+    @Override
+    protected void onSaveTaskState(Bundle outState) {
+    }
+
+    /**
+     * We don't want the task to be recreated, because at the moment the task
+     * was cancelled, the server may have already created the new dir.
+     */
+    @Override
+    protected TaskDialog.Task onRestoreTaskState(Bundle outState) {
+        return null;
     }
 }

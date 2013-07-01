@@ -365,7 +365,7 @@ public class ReposFragment extends SherlockListFragment {
                 if (err.getCode() == 440) {
                     showPasswordDialog();
                 } else if (err.getCode() == 404) {
-                    mActivity.showToast(String.format("The folder \"%s\" has been deleted", myPath));
+                    mActivity.showToast(String.format("The folder \"%s\" was deleted", myPath));
                 }
             }
 
@@ -375,7 +375,7 @@ public class ReposFragment extends SherlockListFragment {
                     nav.setFileName(null);
                     SeafDirent dent = findDirent(dirents, fileName);
                     if (dent == null) {
-                        mActivity.showToast(String.format("\"%s\" has been deleted", fileName));
+                        mActivity.showToast(String.format("\"%s\" was deleted", fileName));
                     } else {
                         if (dent.type == SeafDirent.DirentType.FILE) {
                             mActivity.openFile(fileName);
