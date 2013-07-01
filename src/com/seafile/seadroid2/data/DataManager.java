@@ -321,7 +321,7 @@ public class DataManager {
     }
 
     public SeafRepo getCachedRepoByID(String id) {
-        List<SeafRepo> cachedRepos = getCachedRepos();
+        List<SeafRepo> cachedRepos = getReposFromCache();
         if (cachedRepos == null) {
             return null;
         }

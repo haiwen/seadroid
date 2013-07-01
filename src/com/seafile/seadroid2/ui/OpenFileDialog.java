@@ -29,7 +29,7 @@ public class OpenFileDialog extends DialogFragment {
     private String path;
 
     private ImageView fileIcon;
-    private TextView fileNameText;
+    private TextView fileNameText, fileSizeText;
     private ProgressBar progressBar;
 
     private int taskID = -1;
@@ -45,6 +45,7 @@ public class OpenFileDialog extends DialogFragment {
         return (BrowserActivity)getActivity();
     }
 
+
     public void init(String repoName, String repoID, String path, OnDismissListener listener) {
         this.repoName = repoName;
         this.repoID = repoID;
@@ -54,7 +55,7 @@ public class OpenFileDialog extends DialogFragment {
     }
 
     // Get the lastest version of the file
-    private void loadFile() {
+    private void startDownloadFile() {
         BrowserActivity mActivity = getBrowserActivity();
 
         taskID = mActivity.getTransferService().addDownloadTask(mActivity.getAccount(),
@@ -86,6 +87,25 @@ public class OpenFileDialog extends DialogFragment {
         }
     }
 
+    private TaskDialog.TaskDialogListener getPasswordDialogListener() {
+        return new TaskDialog.TaskDialogListener() {
+            @Override
+            public void onTaskSuccess() {
+                startDownloadFile();
+            }
+
+            @Override
+            public void onTaskCancelled() {
+                getDialog().dismiss();
+            }
+        };
+    }
+
+    private void handlePassword() {
+        getBrowserActivity().showPasswordDialog(repoName, repoID,
+                                                getPasswordDialogListener());
+    }
+
     private void onTaskFailed(SeafException err) {
         String fileName = Utils.fileNameFromPath(path);
         if (err.getCode() == 404) {
@@ -93,6 +113,7 @@ public class OpenFileDialog extends DialogFragment {
             getBrowserActivity().showToast("The file \"" + fileName + "\" has been deleted");
         } else if (err.getCode() == 440) {
             // TODO: set password and retry
+            handlePassword();
         } else {
             getDialog().dismiss();
             getBrowserActivity().showToast("Failed to download file \"" + fileName);
@@ -129,6 +150,10 @@ public class OpenFileDialog extends DialogFragment {
             percent = (int)(finished * 100 / fileSize);
         }
         progressBar.setProgress(percent);
+
+        String txt = Utils.readableFileSize(finished) + " / " + Utils.readableFileSize(fileSize);
+
+        fileSizeText.setText(txt);
     }
 
     /**
@@ -154,6 +179,7 @@ public class OpenFileDialog extends DialogFragment {
 
         fileIcon = (ImageView)view.findViewById(R.id.file_icon);
         fileNameText = (TextView)view.findViewById(R.id.file_name);
+        fileSizeText = (TextView)view.findViewById(R.id.file_size);
         progressBar = (ProgressBar)view.findViewById(R.id.progress_bar);
 
         if (savedInstanceState != null) {
@@ -183,12 +209,9 @@ public class OpenFileDialog extends DialogFragment {
 
         Dialog dialog = builder.create();
 
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface d) {
-                loadFile();
-            }
-        });
+        if (taskID == -1) {
+            startDownloadFile();
+        }
 
         dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override

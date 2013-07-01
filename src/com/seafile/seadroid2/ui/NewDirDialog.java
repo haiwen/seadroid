@@ -34,8 +34,12 @@ class NewDirTask extends TaskDialog.Task {
     }
 }
 
-public class NewDirDialog extends TaskDialog<NewDirTask> {
+public class NewDirDialog extends TaskDialog {
     private EditText dirNameText;
+
+    public String getNewDirName() {
+        return dirNameText.getText().toString().trim();
+    }
 
     @Override
     protected View onCreateDialogContentView(LayoutInflater inflater, Bundle savedInstanceState) {
@@ -59,7 +63,7 @@ public class NewDirDialog extends TaskDialog<NewDirTask> {
     }
 
     @Override
-    protected void saveDialogState(Bundle outState) {
+    protected void onSaveDialogContentState(Bundle outState) {
     }
 
     @Override
@@ -72,10 +76,6 @@ public class NewDirDialog extends TaskDialog<NewDirTask> {
     protected void enableInput() {
         super.enableInput();
         dirNameText.setEnabled(true);
-    }
-
-    public String getNewDirName() {
-        return dirNameText.getText().toString().trim();
     }
 
     @Override

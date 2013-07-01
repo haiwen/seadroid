@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui;
 
+import android.app.Dialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,7 +32,7 @@ class SetPasswordTask extends TaskDialog.Task {
     }
 }
 
-public class PasswordDialog extends TaskDialog<SetPasswordTask> {
+public class PasswordDialog extends TaskDialog {
     private EditText passwordText;
     private String repoID, repoName;
 
@@ -40,15 +41,29 @@ public class PasswordDialog extends TaskDialog<SetPasswordTask> {
         this.repoID = repoID;
     }
 
+    public PasswordDialog() {
+    }
+
     @Override
     protected View onCreateDialogContentView(LayoutInflater inflater, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_password, null);
         passwordText = (EditText) view.findViewById(R.id.password);
 
         if (savedInstanceState != null) {
+            repoName = savedInstanceState.getString("repoName");
         }
 
         return view;
+    }
+
+    @Override
+    protected void onDialogCreated(Dialog dialog) {
+        dialog.setTitle(String.format("Provide the password for library \"%s\"", repoName));
+    }
+
+    @Override
+    protected void onSaveDialogContentState(Bundle outState) {
+        outState.putString("repoName", repoName);
     }
 
     @Override
@@ -59,10 +74,6 @@ public class PasswordDialog extends TaskDialog<SetPasswordTask> {
             String err = getBrowserActivity().getResources().getString(R.string.password_empty);
             throw new Exception(err);
         }
-    }
-
-    @Override
-    protected void saveDialogState(Bundle outState) {
     }
 
     @Override

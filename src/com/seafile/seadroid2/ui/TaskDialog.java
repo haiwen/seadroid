@@ -20,18 +20,12 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 
 
-interface TaskStateListener {
-    void onTaskSuccess();
-    void onTaskFailed(SeafException e);
-}
-
 /**
  * Basic class for dialog which get input from user and carries out some
  * operation in the background.
  * @param K
  */
-public abstract class TaskDialog<K extends TaskDialog.Task>
-                        extends DialogFragment implements TaskStateListener {
+public abstract class TaskDialog extends DialogFragment {
     public static abstract class TaskDialogListener {
         public void onTaskSuccess() {
         }
@@ -42,7 +36,7 @@ public abstract class TaskDialog<K extends TaskDialog.Task>
     }
 
     // The AsyncTask instance
-    private K task;
+    private Task task;
 
     // The error message
     private TextView errorText;
@@ -63,31 +57,13 @@ public abstract class TaskDialog<K extends TaskDialog.Task>
     }
 
     /**
-     * Save the content you are interested
-     * @param outState
-     */
-    protected abstract void saveDialogState(Bundle outState);
-
-    /**
      * Create the content area of the dialog
      * @param inflater
      * @return The created view
      */
     protected abstract View onCreateDialogContentView(LayoutInflater inflater,
+
                                                       Bundle savedInstanceState);
-
-    /**
-     * Create the AsyncTask
-     */
-    protected abstract K prepareTask();
-
-    /**
-     * Call when the "OK" button is clicked
-     * @throws Exception with the error message if there is error in user input
-     */
-    protected void onValidateUserInput() throws Exception {
-    }
-
     /**
      * Return the content area view of the dialog
      */
@@ -95,7 +71,33 @@ public abstract class TaskDialog<K extends TaskDialog.Task>
         return contentView;
     }
 
-    @Override
+    /**
+     * This hook method is called right after the dialog is built.
+     * @prarm dialog
+     */
+    protected void onDialogCreated(Dialog dialog) {
+    }
+
+    /**
+     * Save the content you are interested
+     * @param outState
+     */
+    protected void onSaveDialogContentState(Bundle outState) {
+    }
+
+    /**
+     * Create the AsyncTask
+     */
+    protected abstract Task prepareTask();
+
+    /**
+     * Check if the user input is valid. It is called when the "OK" button is
+     * clicked.
+     * @throws Exception with the error message if there is error in user input
+     */
+    protected void onValidateUserInput() throws Exception {
+    }
+
     public void onTaskSuccess() {
         getDialog().dismiss();
         if (mListener != null) {
@@ -103,7 +105,6 @@ public abstract class TaskDialog<K extends TaskDialog.Task>
         }
     }
 
-    @Override
     public void onTaskFailed(SeafException e) {
         hideLoading();
         showError(e.getMessage());
@@ -120,7 +121,9 @@ public abstract class TaskDialog<K extends TaskDialog.Task>
     @Override
     public void onSaveInstanceState(Bundle outState) {
         // TODO: save state of error text
-        saveDialogState(outState);
+        onSaveDialogContentState(outState);
+
+        outState.putString("task_dialog_error_text", errorText.getText().toString());
 
         super.onSaveInstanceState(outState);
     }
@@ -131,21 +134,27 @@ public abstract class TaskDialog<K extends TaskDialog.Task>
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         LinearLayout view = (LinearLayout)inflater.inflate(R.layout.task_dialog, null);
-        contentView = onCreateDialogContentView(inflater, savedInstanceState);
 
+        contentView = onCreateDialogContentView(inflater, savedInstanceState);
         view.addView(contentView, 0);
 
         errorText = (TextView)view.findViewById(R.id.error_message);
         loading = (ProgressBar)view.findViewById(R.id.loading);
 
-        builder.setView(view);
+        if (savedInstanceState != null) {
+            String error = savedInstanceState.getString("task_dialog_error_text");
+            if (error != null && error.length() > 0) {
+                errorText.setText(error);
+                errorText.setVisibility(View.VISIBLE);
+            }
+        }
 
+        builder.setView(view);
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
             }
         });
-
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -174,7 +183,7 @@ public abstract class TaskDialog<K extends TaskDialog.Task>
                 showLoading();
 
                 task = prepareTask();
-                task.setTaskStateLisenter(TaskDialog.this);
+                task.setTaskDialog(TaskDialog.this);
 
                 ConcurrentAsyncTask.execute(task);
             }
@@ -188,6 +197,8 @@ public abstract class TaskDialog<K extends TaskDialog.Task>
                 okButton.setOnClickListener(onOKButtonClickedListener);
             }
         });
+
+        onDialogCreated(dialog);
 
         return dialog;
     }
@@ -227,12 +238,16 @@ public abstract class TaskDialog<K extends TaskDialog.Task>
 
     public static abstract class Task extends AsyncTask<Void, Long, Void> {
         private SeafException err;
-        private TaskStateListener mListener;
+        private TaskDialog dlg;
 
-        public void setTaskStateLisenter(TaskStateListener listener) {
-            mListener = listener;
+        public void setTaskDialog(TaskDialog dlg) {
+            this.dlg = dlg;
         }
 
+        /**
+         * Subclass should call this method to set the exception
+         * @param e The exception raised during {@link runTask()}
+         */
         protected void setTaskException(SeafException e) {
             err = e;
         }
@@ -241,6 +256,9 @@ public abstract class TaskDialog<K extends TaskDialog.Task>
             return err;
         }
 
+        /**
+         * Carries out the background task.
+         */
         protected abstract void runTask();
 
         @Override
@@ -252,9 +270,9 @@ public abstract class TaskDialog<K extends TaskDialog.Task>
         @Override
         public void onPostExecute(Void result) {
             if (err != null) {
-                mListener.onTaskFailed(err);
+                dlg.onTaskFailed(err);
             } else {
-                mListener.onTaskSuccess();
+                dlg.onTaskSuccess();
             }
         }
     }

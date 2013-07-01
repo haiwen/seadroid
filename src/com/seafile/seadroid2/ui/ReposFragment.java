@@ -380,19 +380,16 @@ public class ReposFragment extends SherlockListFragment {
     }
 
     private void showPasswordDialog() {
-        PasswordDialog dialog = new PasswordDialog();
         NavContext nav = mActivity.getNavContext();
         String repoName = nav.getRepoName();
         String repoID = nav.getRepoID();
 
-        dialog.setRepo(repoName, repoID);
-        dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
+        mActivity.showPasswordDialog(repoName, repoID, new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
                 refreshView();
             }
         });
-        dialog.show(mActivity.getSupportFragmentManager(), "DialogFragment");
     }
 
     private void scheduleThumbnailTask(String repoName, String repoID,

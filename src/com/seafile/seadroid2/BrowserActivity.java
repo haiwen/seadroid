@@ -71,10 +71,11 @@ public class BrowserActivity extends SherlockFragmentActivity
     private static final String UPLOAD_TASKS_TAB = "upload-tasks";
     private static final String ACTIVITY_TAB = "activities";
 
-    private static final String REPOS_FRAGMENT_TAG = "repos_fragment";
-    private static final String UPLOAD_TASKS_FRAGMENT_TAG = "upload_tasks_fragment";
-    private static final String ACTIVITIES_FRAGMENT_TAG = "activities_fragment";
-    private static final String OPEN_FILE_DIALOG_FRAGMENT_TAG = "openfile_fragment";
+    public static final String REPOS_FRAGMENT_TAG = "repos_fragment";
+    public static final String UPLOAD_TASKS_FRAGMENT_TAG = "upload_tasks_fragment";
+    public static final String ACTIVITIES_FRAGMENT_TAG = "activities_fragment";
+    public static final String OPEN_FILE_DIALOG_FRAGMENT_TAG = "openfile_fragment";
+    public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "password_fragment";
 
     public DataManager getDataManager() {
         return dataManager;
@@ -333,6 +334,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             unbindService(mConnection);
             txService = null;
         }
+
         super.onDestroy();
     }
 
@@ -784,6 +786,15 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
     }
 
+    public PasswordDialog showPasswordDialog(String repoName, String repoID,
+                                             TaskDialog.TaskDialogListener listener) {
+        PasswordDialog passwordDialog = new PasswordDialog();
+        passwordDialog.setRepo(repoName, repoID);
+        passwordDialog.setTaskDialogLisenter(listener);
+        passwordDialog.show(getSupportFragmentManager(), PASSWORD_DIALOG_FRAGMENT_TAG);
+        return passwordDialog;
+    }
+
     public void onFileDownloadFailed(int taskID) {
         if (txService == null) {
             return;
@@ -804,15 +815,12 @@ public class BrowserActivity extends SherlockFragmentActivity
             if (currentTab.equals(LIBRARY_TAB)
                 && repoID.equals(navContext.getRepoID())
                 && Utils.getParentPath(path).equals(navContext.getDirPath())) {
-                PasswordDialog dialog = new PasswordDialog();
-                dialog.setRepo(repoName, repoID);
-                dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
+                showPasswordDialog(repoName, repoID, new TaskDialog.TaskDialogListener() {
                     @Override
                     public void onTaskSuccess() {
                         txService.addDownloadTask(account, repoName, repoID, path);
                     }
                 });
-                dialog.show(getSupportFragmentManager(), "DialogFragment");
                 return;
             }
         }
