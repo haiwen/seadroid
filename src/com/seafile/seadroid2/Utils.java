@@ -210,7 +210,7 @@ public class Utils {
     }
 
     public static int getFileIcon(String name) {
-        String suffix = name.substring(name.lastIndexOf('.') + 1);
+        String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
         if (suffix.length() == 0) {
             return R.drawable.file;
         }
@@ -225,7 +225,7 @@ public class Utils {
     }
 
     public static boolean isViewableImage(String name) {
-        String suffix = name.substring(name.lastIndexOf('.') + 1);
+        String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
         if (suffix.length() == 0)
             return false;
         if (suffix.equals("svg"))
