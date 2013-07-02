@@ -18,11 +18,11 @@ public class SeafRepo implements SeafItem {
     public String description;
     public String owner;
     public Date mtime;    // the last modification time
-    
+
     public boolean isGroupRepo;
-    public boolean passwordNeed;
     public boolean encrypted;
-    
+    public String permission;
+
     public long    size;
     public String  root; // the id of root directory
 
@@ -33,6 +33,7 @@ public class SeafRepo implements SeafItem {
             repo.name = obj.getString("name");
             repo.description = obj.getString("desc");
             repo.owner = obj.getString("owner");
+            repo.permission = obj.getString("permission");
             long mt = obj.getLong("mtime");
             repo.mtime = new Date(mt);
             repo.encrypted = obj.getBoolean("encrypted");
@@ -47,15 +48,15 @@ public class SeafRepo implements SeafItem {
             return null;
         }
     }
-    
+
     public SeafRepo() {
-        
+
     }
-    
+
     public String getID() {
         return id;
     }
-    
+
     public String getName() {
         return name;
     }
@@ -80,5 +81,5 @@ public class SeafRepo implements SeafItem {
             return R.drawable.repo_encrypted;
         return R.drawable.repo;
     }
-    
+
 }

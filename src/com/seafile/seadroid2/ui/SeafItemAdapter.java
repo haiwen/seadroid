@@ -287,11 +287,13 @@ public class SeafItemAdapter extends BaseAdapter {
                                                resources.getString(R.string.file_action_remove_cache),
                                                resources.getDrawable(R.drawable.action_remove_cache));
             mQuickAction.addActionItem(removeCacheAction);
-
-            updateAction = new ActionItem(ACTION_ID_UPDATE,
-                                          resources.getString(R.string.file_action_update),
-                                          resources.getDrawable(R.drawable.action_update));
-            mQuickAction.addActionItem(updateAction);
+            
+            if (mActivity.hasRepoWritePermission()) {
+                updateAction = new ActionItem(ACTION_ID_UPDATE,
+                                              resources.getString(R.string.file_action_update),
+                                              resources.getDrawable(R.drawable.action_update));
+                mQuickAction.addActionItem(updateAction);
+            }
 
         } else {
             downloadAction = new ActionItem(ACTION_ID_DOWNLOAD,

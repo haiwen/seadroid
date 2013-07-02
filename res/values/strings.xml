@@ -62,4 +62,5 @@
     <string name="dir_name_empty">Please enter the name of the folder</string>
     <string name="password_empty">Please enter the password</string>
     <string name="wrong_password">wrong password</string>
+    <string name="repo_read_only">This library is read-only</string>
 </resources>

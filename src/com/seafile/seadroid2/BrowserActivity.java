@@ -39,6 +39,7 @@ import com.seafile.seadroid2.TransferManager.UploadTaskInfo;
 import com.seafile.seadroid2.TransferService.TransferBinder;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.gallery.MultipleImageSelectionActivity;
 import com.seafile.seadroid2.ui.ActivitiesFragment;
 import com.seafile.seadroid2.ui.NewDirDialog;
@@ -378,7 +379,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         if (currentTab.equals(LIBRARY_TAB)) {
             menuUpload.setVisible(true);
-            if (navContext.inRepo()) {
+            if (navContext.inRepo() && hasRepoWritePermission()) {
                 menuUpload.setEnabled(true);
             }
             else
@@ -396,7 +397,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
 
         if (currentTab.equals(LIBRARY_TAB)) {
-            if (navContext.inRepo()) {
+            if (navContext.inRepo() && hasRepoWritePermission()) {
                 menuNewDir.setVisible(true);
             } else {
                 menuNewDir.setVisible(false);
@@ -448,6 +449,11 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
 
     private void showNewDirDialog() {
+        if (!hasRepoWritePermission()) {
+            showToast(getString(R.string.repo_read_only));
+            return;
+        }
+
         final NewDirDialog dialog = new NewDirDialog();
         dialog.show(getSupportFragmentManager(), "DialogFragment");
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
@@ -569,7 +575,24 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
     }
 
+    public boolean hasRepoWritePermission() {
+        SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
+        if (repo == null) {
+            return false;
+        }
+
+        if (repo.permission.indexOf('w') == -1) {
+            return false;
+        }
+        return true;
+    }
+
     void pickFile() {
+        if (!hasRepoWritePermission()) {
+            showToast(getString(R.string.repo_read_only));
+            return;
+        }
+
         UploadChoiceDialog dialog = new UploadChoiceDialog();
         dialog.show(getSupportFragmentManager(), "pickFile");
     }

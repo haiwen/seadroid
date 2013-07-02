@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui;
 
+import android.app.Dialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,6 +49,11 @@ public class NewDirDialog extends TaskDialog {
         dirNameText = (EditText) view.findViewById(R.id.new_dir_name);
 
         return view;
+    }
+
+    @Override
+    protected void onDialogCreated(Dialog dialog) {
+        dialog.setTitle("Create a new folder");
     }
 
     @Override
