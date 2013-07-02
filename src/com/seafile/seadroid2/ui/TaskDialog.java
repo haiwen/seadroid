@@ -141,7 +141,6 @@ public abstract class TaskDialog extends DialogFragment {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        // TODO: save state of error text
         onSaveDialogContentState(outState);
         if (task != null && task.getStatus() != AsyncTask.Status.FINISHED) {
             outState.putBoolean(TASK_STATE_SAVED, true);

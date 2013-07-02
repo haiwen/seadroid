@@ -205,6 +205,8 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         if (server == null) {
             Intent newIntent = new Intent(this, AccountsActivity.class);
+            newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(newIntent);
             finish();
             return;
@@ -316,20 +318,30 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     @Override
     public void onStart() {
+        Log.d(DEBUG_TAG, "onStart");
+        super.onStart();
+    }
+
+    @Override
+    public void onRestart() {
+        Log.d(DEBUG_TAG, "onRestart");
         super.onStart();
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
+        Log.d(DEBUG_TAG, "onNewIntent");
     }
 
     @Override
     protected void onStop() {
+        Log.d(DEBUG_TAG, "onStop");
         super.onStop();
     }
 
     @Override
     protected void onDestroy() {
+        Log.d(DEBUG_TAG, "onDestroy is called");
         if (txService != null) {
             unbindService(mConnection);
             txService = null;
@@ -340,6 +352,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
+        Log.d(DEBUG_TAG, "onSaveInstanceState");
         super.onSaveInstanceState(outState);
         outState.putInt("tab", getSupportActionBar().getSelectedNavigationIndex());
         if (navContext.getRepoID() != null) {

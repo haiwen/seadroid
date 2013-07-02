@@ -112,7 +112,6 @@ public class OpenFileDialog extends DialogFragment {
             getDialog().dismiss();
             getBrowserActivity().showToast("The file \"" + fileName + "\" has been deleted");
         } else if (err.getCode() == 440) {
-            // TODO: set password and retry
             handlePassword();
         } else {
             getDialog().dismiss();
