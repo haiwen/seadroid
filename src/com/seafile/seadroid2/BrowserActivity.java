@@ -428,7 +428,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             return true;
         case R.id.refresh:
             if (!Utils.isNetworkOn()) {
-                showToast(getString(R.string.network_down));
+                showToast(R.string.network_down);
                 return true;
             }
 
@@ -450,7 +450,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     private void showNewDirDialog() {
         if (!hasRepoWritePermission()) {
-            showToast(getString(R.string.repo_read_only));
+            showToast(R.string.repo_read_only);
             return;
         }
 
@@ -526,6 +526,10 @@ public class BrowserActivity extends SherlockFragmentActivity
         toast.show();
     }
 
+    public void showToast(int id) {
+        showToast(getString(id));
+    }
+
     public void enableUpButton() {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
@@ -589,7 +593,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     void pickFile() {
         if (!hasRepoWritePermission()) {
-            showToast(getString(R.string.repo_read_only));
+            showToast(R.string.repo_read_only);
             return;
         }
 
@@ -691,7 +695,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
 
         if (suffix.length() == 0) {
-            showToast(getString(R.string.unknown_file_type));
+            showToast(R.string.unknown_file_type);
             return;
         }
 
@@ -707,7 +711,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             startActivity(open);
             return;
         } catch (ActivityNotFoundException e) {
-            showToast(getString(R.string.activity_not_found));
+            showToast(R.string.activity_not_found);
             return;
         }
     }

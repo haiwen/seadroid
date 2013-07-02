@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.seafile.seadroid2.BrowserActivity;
@@ -34,35 +35,28 @@ public class ReposFragment extends SherlockListFragment {
     private static final String DEBUG_TAG = "ReposFragment";
 
     private SeafItemAdapter adapter;
-    boolean mDualPane;
-    BrowserActivity mActivity = null;
+    private BrowserActivity mActivity = null;
 
-    public ListView mList;
-    boolean mListShown;
-    View mProgressContainer;
-    View mListContainer;
+    private ListView mList;
+    private TextView mEmptyView;
+    private View mProgressContainer;
+    private View mListContainer;
 
-    public void setListShown(boolean shown, boolean animate) {
-        if (mListShown == shown) {
-            return;
-        }
-        mListShown = shown;
-        if (shown) {
-            if (animate) {
-                mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
+    private void showLoading(boolean show) {
+        if (show) {
+            mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
                         mActivity, android.R.anim.fade_out));
                 mListContainer.startAnimation(AnimationUtils.loadAnimation(
                         mActivity, android.R.anim.fade_in));
-            }
+
             mProgressContainer.setVisibility(View.GONE);
             mListContainer.setVisibility(View.VISIBLE);
         } else {
-            if (animate) {
-                mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
-                        mActivity, android.R.anim.fade_in));
-                mListContainer.startAnimation(AnimationUtils.loadAnimation(
-                        mActivity, android.R.anim.fade_out));
-            }
+            mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
+                    mActivity, android.R.anim.fade_in));
+            mListContainer.startAnimation(AnimationUtils.loadAnimation(
+                    mActivity, android.R.anim.fade_out));
+
             mProgressContainer.setVisibility(View.VISIBLE);
             mListContainer.setVisibility(View.INVISIBLE);
         }
@@ -94,13 +88,11 @@ public class ReposFragment extends SherlockListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        int INTERNAL_EMPTY_ID = 0x00ff0001;
         View root = inflater.inflate(R.layout.repos_fragment, container, false);
-        (root.findViewById(R.id.internalEmpty)).setId(INTERNAL_EMPTY_ID);
         mList = (ListView) root.findViewById(android.R.id.list);
+        mEmptyView = (TextView) root.findViewById(android.R.id.empty);
         mListContainer =  root.findViewById(R.id.listContainer);
         mProgressContainer = root.findViewById(R.id.progressContainer);
-        mListShown = true;
 
         return root;
     }
@@ -162,7 +154,7 @@ public class ReposFragment extends SherlockListFragment {
     }
 
     public void navToReposView() {
-        setListShown(false, true);
+        showLoading(false);
         // show cached repos first
         List<SeafRepo> repos = getDataManager().getReposFromCache();
         if  (repos != null) {
@@ -179,7 +171,7 @@ public class ReposFragment extends SherlockListFragment {
 
     public void navToDirectory() {
         NavContext navContext = getNavContext();
-        setListShown(false, true);
+        showLoading(false);
         // refresh.setVisibility(View.INVISIBLE);
         mActivity.enableUpButton();
         ConcurrentAsyncTask.execute(new LoadDirTask(getDataManager()),
@@ -291,12 +283,17 @@ public class ReposFragment extends SherlockListFragment {
                 return;
             }
 
+            if (err != null) {
+                Log.d(DEBUG_TAG, "failed to load repos: " + err.getMessage());
+                return;
+            }
+
             if (rs != null) {
                 //Log.d(DEBUG_TAG, "Load repos number " + rs.size());
                 adapter.clear();
                 addReposToAdapter(rs);
                 adapter.notifyChanged();
-                setListShown(true, false);
+                showLoading(true);
             } else {
                 Log.d(DEBUG_TAG, "failed to load repos");
             }
@@ -349,41 +346,55 @@ public class ReposFragment extends SherlockListFragment {
                 return;
             }
 
-            adapter.clear();
-            if (dirents != null) {
-                for (SeafDirent dirent : dirents) {
-                    adapter.add(dirent);
-                }
-                scheduleThumbnailTask(myRepoName, myRepoID, myPath, dirents);
-            } else {
-                // refresh.setVisibility(View.VISIBLE);
-            }
-            adapter.notifyChanged();
-            setListShown(true, true);
-
             if (err != null) {
                 if (err.getCode() == 440) {
                     showPasswordDialog();
                 } else if (err.getCode() == 404) {
                     mActivity.showToast(String.format("The folder \"%s\" was deleted", myPath));
+                } else {
+                    mActivity.showToast(R.string.error_when_load_dir);
+                    Log.i(DEBUG_TAG,
+                          String.format("failed to load dir %s: %s", myPath, err.getMessage()));
                 }
+                return;
             }
 
-            if (dirents != null) {
+            if (dirents == null) {
+                mActivity.showToast(R.string.error_when_load_dir);
+                return;
+            }
+
+            adapter.clear();
+            if (dirents.size() > 0) {
+                for (SeafDirent dirent : dirents) {
+                    adapter.add(dirent);
+                }
+                scheduleThumbnailTask(myRepoName, myRepoID, myPath, dirents);
+                adapter.notifyChanged();
+                mList.setVisibility(View.VISIBLE);
+                mEmptyView.setVisibility(View.GONE);
+            } else {
+                // Directory is empty
+                mList.setVisibility(View.GONE);
+                mEmptyView.setVisibility(View.VISIBLE);
+            }
+
+            showLoading(true);
+
+            if (dirents != null && nav.getFileName() != null) {
                 String fileName = nav.getFileName();
-                if (fileName != null) {
-                    nav.setFileName(null);
-                    SeafDirent dent = findDirent(dirents, fileName);
-                    if (dent == null) {
-                        mActivity.showToast(String.format("\"%s\" was deleted", fileName));
-                    } else {
-                        if (dent.type == SeafDirent.DirentType.FILE) {
-                            mActivity.openFile(fileName);
-                        } else {
-                            nav.setDir(Utils.pathJoin(nav.getDirPath(), fileName), dent.id);
-                            refreshView();
-                        }
-                    }
+                nav.setFileName(null);
+                SeafDirent dent = findDirent(dirents, fileName);
+                if (dent == null) {
+                    mActivity.showToast(String.format("\"%s\" was deleted", fileName));
+                    return;
+                }
+
+                if (dent.type == SeafDirent.DirentType.FILE) {
+                    mActivity.openFile(fileName);
+                } else {
+                    nav.setDir(Utils.pathJoin(nav.getDirPath(), fileName), dent.id);
+                    refreshView();
                 }
             }
         }
