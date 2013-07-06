@@ -54,6 +54,7 @@
     <string name="file_action_download">Download</string>
     <string name="file_action_remove_cache">Remove Cache</string>
     <string name="file_action_update">Update</string>
+    <string name="file_action_share">Share</string>
     <string name="wait">Wait</string>
     <string name="image_gallery_NoImageView_text">No image Found</string>
     <string name="pick_photo_video_title">Choose photos/videos to upload</string>
@@ -62,7 +63,20 @@
     <string name="dir_name_empty">Please enter the name of the folder</string>
     <string name="password_empty">Please enter the password</string>
     <string name="wrong_password">wrong password</string>
-    <string name="repo_read_only">This library is read-only</string>
+    <string name="library_read_only">This library is read-only</string>
     <string name="error_when_load_dir">Internal error</string>
     <string name="dir_empty">This folder is empty</string>
+    <string name="no_app_available">No app can be found</string>
+    <string name="add_to_seafile">Add to Seafile</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancel</string>
+    <string name="no_account">Please setup an account in Seafile first</string>
+    <string name="no_library">You have no library yet</string>
+    <string name="choose_an_account">Choose an account</string>
+    <string name="choose_a_library">Choose a library</string>
+    <string name="choose_a_folder">Choose a folder</string>
+    <string name="load_accounts_fail">Failed to load seafile accounts</string>
+    <string name="load_libraries_fail">Failed to load libraries</string>
+    <string name="load_dir_fail">Failed to load contents of this folder</string>
+    <string name="not_supported_share">This type of share is not supported</string>
 </resources>

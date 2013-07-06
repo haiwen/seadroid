@@ -29,45 +29,56 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
+
         <activity android:name="com.seafile.seadroid2.FileActivity"
                   android:label="@string/app_name"
                   android:theme="@style/Theme.Sherlock.Light"
                   android:uiOptions="splitActionBarWhenNarrow">
         </activity>
-        
+
         <activity android:name="com.seafile.seadroid2.MarkdownActivity"
                   android:theme="@style/Theme.Sherlock.Light"
                   android:label="@string/app_name">
         </activity>
-        
+
         <activity android:name="com.seafile.seadroid2.AccountDetailActivity"
                   android:theme="@style/Theme.Sherlock.Light"
                   android:label="@string/app_name">
         </activity>
-        
+
         <!-- MultipleImageSelectionActivity uses the default theme, instead of
              ActionBarSherlock -->
         <activity android:name="com.seafile.seadroid2.gallery.MultipleImageSelectionActivity"
                   android:theme="@android:style/Theme"
                   android:label="@string/app_name">
         </activity>
-        
+
+        <activity android:name="com.seafile.seadroid2.ShareToSeafileActivity"
+                  android:theme="@style/Theme.Sherlock.Light"
+                  android:excludeFromRecents="true"
+                  android:label="@string/add_to_seafile">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="*/*" />
+            </intent-filter>
+        </activity>
+
         <service android:name="com.seafile.seadroid2.TransferService"></service>
-        
+
         <activity
-    		android:name="com.ipaulpro.afilechooser.FileChooserActivity"
-    		android:icon="@drawable/ic_chooser"
-    		android:label="@string/choose_file" >
-        	<intent-filter>
-            	<action android:name="android.intent.action.GET_CONTENT" />
+            android:name="com.ipaulpro.afilechooser.FileChooserActivity"
+            android:icon="@drawable/ic_chooser"
+            android:label="@string/choose_file" >
+            <intent-filter>
+                <action android:name="android.intent.action.GET_CONTENT" />
 
-            	<category android:name="android.intent.category.DEFAULT" />
-            	<category android:name="android.intent.category.OPENABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.OPENABLE" />
 
-            	<data android:mimeType="*/*" />
-        	</intent-filter>
-    	</activity>
+                <data android:mimeType="*/*" />
+            </intent-filter>
+        </activity>
 
     </application>
 </manifest>

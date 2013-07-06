@@ -1,7 +1,5 @@
 package com.seafile.seadroid2.ui;
 
-import java.io.File;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -23,7 +21,7 @@ import com.seafile.seadroid2.Utils;
 /**
  * Check and download the latest version of a file and open it
  */
-public class OpenFileDialog extends DialogFragment {
+public class FetchFileDialog extends DialogFragment {
     private String repoName;
     private String repoID;
     private String path;
@@ -35,23 +33,24 @@ public class OpenFileDialog extends DialogFragment {
     private int taskID = -1;
     private boolean cancelled = false;
 
-    private OnDismissListener dismissListener;
+    private FetchFileListener mListener;
 
-    public interface OnDismissListener {
+    public interface FetchFileListener {
         void onDismiss();
+        void onSuccess();
+        void onFailure(SeafException e);
     }
 
     private BrowserActivity getBrowserActivity() {
         return (BrowserActivity)getActivity();
     }
 
-
-    public void init(String repoName, String repoID, String path, OnDismissListener listener) {
+    public void init(String repoName, String repoID, String path, FetchFileListener listener) {
         this.repoName = repoName;
         this.repoID = repoID;
         this.path = path;
 
-        this.dismissListener = listener;
+        this.mListener = listener;
     }
 
     // Get the lastest version of the file
@@ -116,15 +115,17 @@ public class OpenFileDialog extends DialogFragment {
         } else {
             getDialog().dismiss();
             getBrowserActivity().showToast("Failed to download file \"" + fileName);
+            if (mListener != null) {
+                mListener.onFailure(err);
+            }
         }
     }
 
-    private void onTaskFinished() {
+    protected void onTaskFinished() {
         getDialog().dismiss();
-
-        File localFile = getBrowserActivity().getDataManager().getLocalRepoFile(repoName, repoID, path);
-
-        getBrowserActivity().showFile(localFile);
+        if (mListener != null) {
+            mListener.onSuccess();
+        }
     }
 
     private void cancelTask() {
@@ -215,8 +216,8 @@ public class OpenFileDialog extends DialogFragment {
         dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface d) {
-                if (dismissListener != null) {
-                    dismissListener.onDismiss();
+                if (mListener != null) {
+                    mListener.onDismiss();
                 }
             }
         });

@@ -3,6 +3,7 @@ package com.seafile.seadroid2;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.List;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -14,6 +15,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -42,8 +45,8 @@ import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.gallery.MultipleImageSelectionActivity;
 import com.seafile.seadroid2.ui.ActivitiesFragment;
+import com.seafile.seadroid2.ui.FetchFileDialog;
 import com.seafile.seadroid2.ui.NewDirDialog;
-import com.seafile.seadroid2.ui.OpenFileDialog;
 import com.seafile.seadroid2.ui.PasswordDialog;
 import com.seafile.seadroid2.ui.ReposFragment;
 import com.seafile.seadroid2.ui.TaskDialog;
@@ -65,7 +68,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     UploadTasksFragment uploadTasksFragment = null;
     ActivitiesFragment activitiesFragment = null;
 
-    OpenFileDialog openFileDialog = null;
+    FetchFileDialog fetchFileDialog = null;
 
     private String currentTab;
     private static final String LIBRARY_TAB = "libraries";
@@ -237,7 +240,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             activitiesFragment = (ActivitiesFragment)
                     getSupportFragmentManager().findFragmentByTag(ACTIVITIES_FRAGMENT_TAG);
 
-            openFileDialog = (OpenFileDialog)
+            fetchFileDialog = (FetchFileDialog)
                     getSupportFragmentManager().findFragmentByTag(OPEN_FILE_DIALOG_FRAGMENT_TAG);
 
             cTab = savedInstanceState.getInt("tab");
@@ -450,7 +453,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     private void showNewDirDialog() {
         if (!hasRepoWritePermission()) {
-            showToast(R.string.repo_read_only);
+            showToast(R.string.library_read_only);
             return;
         }
 
@@ -593,7 +596,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     void pickFile() {
         if (!hasRepoWritePermission()) {
-            showToast(R.string.repo_read_only);
+            showToast(R.string.library_read_only);
             return;
         }
 
@@ -726,23 +729,84 @@ public class BrowserActivity extends SherlockFragmentActivity
             return;
         }
 
-        String repoName = navContext.getRepoName();
-        String repoID = navContext.getRepoID();
-        String dirPath = navContext.getDirPath();
+        final String repoName = navContext.getRepoName();
+        final String repoID = navContext.getRepoID();
+        final String dirPath = navContext.getDirPath();
 
-        String fullPath = Utils.pathJoin(dirPath, fileName);
+        final String fullPath = Utils.pathJoin(dirPath, fileName);
 
-        openFileDialog = new OpenFileDialog();
-        openFileDialog.init(repoName, repoID, fullPath, new OpenFileDialog.OnDismissListener() {
+        fetchFileDialog = new FetchFileDialog();
+        fetchFileDialog.init(repoName, repoID, fullPath,
+            new FetchFileDialog.FetchFileListener() {
             @Override
             public void onDismiss() {
-                openFileDialog = null;
+                fetchFileDialog = null;
+            }
+
+            @Override
+            public void onSuccess() {
+                File localFile = dataManager.getLocalRepoFile(repoName, repoID, fullPath);
+                showFile(localFile);
+            }
+
+            @Override
+            public void onFailure(SeafException err) {
             }
         });
-        openFileDialog.show(getSupportFragmentManager(), OPEN_FILE_DIALOG_FRAGMENT_TAG);
+        fetchFileDialog.show(getSupportFragmentManager(), OPEN_FILE_DIALOG_FRAGMENT_TAG);
     }
 
-    public void onFileUploadProgress(int taskID) {
+    /**
+     * Share a file. Generating a file share link and send the link to someone
+     * through some app.
+     * @param fileName The name of the file to share in the current navcontext
+     */
+    public void shareFile(String fileName) {
+        String repoID = navContext.getRepoID();
+        String dirPath = navContext.getDirPath();
+        Log.d(DEBUG_TAG, "sharing file: " + fileName);
+        chooseShareApp();
+    }
+
+    private void chooseShareApp() {
+        PackageManager pm = getPackageManager();
+
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, "dummy text");
+        sendIntent.setType("text/plain");
+
+        List<ResolveInfo> infos = pm.queryIntentActivities(sendIntent, 0);
+        if (infos.isEmpty()) {
+            showToast(R.string.no_app_available);
+            return;
+        }
+
+        for (ResolveInfo info: infos) {
+            Log.d(DEBUG_TAG, info.toString());
+        }
+    }
+
+    /**
+     * Share a file
+     */
+    public void shareDir(String dirName) {
+        String repoID = navContext.getRepoID();
+        String dirPath = navContext.getDirPath();
+        Log.d(DEBUG_TAG, "sharing dir: " + dirName);
+    }
+
+    /**
+     * Export a file. Download the latest version of the file and send it to
+     * someone through some app.
+     * @param fileName
+     */
+    public void exportFile(String fileName) {
+        String repoID = navContext.getRepoID();
+        String dirPath = navContext.getDirPath();
+    }
+
+    private void onFileUploadProgress(int taskID) {
         if (txService == null) {
             return;
         }
@@ -751,7 +815,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             uploadTasksFragment.onTaskProgressUpdate(info);
     }
 
-    public void onFileUploaded(int taskID) {
+    private void onFileUploaded(int taskID) {
         if (txService == null) {
             return;
         }
@@ -779,7 +843,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
     }
 
-    public void onFileUploadCancelled(int taskID) {
+    private void onFileUploadCancelled(int taskID) {
         if (txService == null) {
             return;
         }
@@ -788,7 +852,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             uploadTasksFragment.onTaskCancelled(info);
     }
 
-    public void onFileUploadFailed(int taskID) {
+    private void onFileUploadFailed(int taskID) {
         if (txService == null) {
             return;
         }
@@ -798,25 +862,25 @@ public class BrowserActivity extends SherlockFragmentActivity
             uploadTasksFragment.onTaskFailed(info);
     }
 
-    public void onFileDownloadProgress(int taskID) {
+    private void onFileDownloadProgress(int taskID) {
         if (txService == null) {
             return;
         }
 
         DownloadTaskInfo info = txService.getDownloadTaskInfo(taskID);
-        if (openFileDialog != null && openFileDialog.getTaskID() == taskID) {
-                openFileDialog.handleDownloadTaskInfo(info);
+        if (fetchFileDialog != null && fetchFileDialog.getTaskID() == taskID) {
+                fetchFileDialog.handleDownloadTaskInfo(info);
         }
     }
 
-    public void onFileDownloaded(int taskID) {
+    private void onFileDownloaded(int taskID) {
         if (txService == null) {
             return;
         }
 
         DownloadTaskInfo info = txService.getDownloadTaskInfo(taskID);
-        if (openFileDialog != null && openFileDialog.getTaskID() == taskID) {
-            openFileDialog.handleDownloadTaskInfo(info);
+        if (fetchFileDialog != null && fetchFileDialog.getTaskID() == taskID) {
+            fetchFileDialog.handleDownloadTaskInfo(info);
         } else {
             if (currentTab.equals(LIBRARY_TAB)
                 && info.repoID.equals(navContext.getRepoID())
@@ -826,23 +890,14 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
     }
 
-    public PasswordDialog showPasswordDialog(String repoName, String repoID,
-                                             TaskDialog.TaskDialogListener listener) {
-        PasswordDialog passwordDialog = new PasswordDialog();
-        passwordDialog.setRepo(repoName, repoID);
-        passwordDialog.setTaskDialogLisenter(listener);
-        passwordDialog.show(getSupportFragmentManager(), PASSWORD_DIALOG_FRAGMENT_TAG);
-        return passwordDialog;
-    }
-
-    public void onFileDownloadFailed(int taskID) {
+    private void onFileDownloadFailed(int taskID) {
         if (txService == null) {
             return;
         }
 
         DownloadTaskInfo info = txService.getDownloadTaskInfo(taskID);
-        if (openFileDialog != null && openFileDialog.getTaskID() == taskID) {
-            openFileDialog.handleDownloadTaskInfo(info);
+        if (fetchFileDialog != null && fetchFileDialog.getTaskID() == taskID) {
+            fetchFileDialog.handleDownloadTaskInfo(info);
             return;
         }
 
@@ -866,6 +921,15 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
 
         showToast(getString(R.string.download_failed) + " " + Utils.fileNameFromPath(path));
+    }
+
+    public PasswordDialog showPasswordDialog(String repoName, String repoID,
+                                             TaskDialog.TaskDialogListener listener) {
+        PasswordDialog passwordDialog = new PasswordDialog();
+        passwordDialog.setRepo(repoName, repoID);
+        passwordDialog.setTaskDialogLisenter(listener);
+        passwordDialog.show(getSupportFragmentManager(), PASSWORD_DIALOG_FRAGMENT_TAG);
+        return passwordDialog;
     }
 
     // for receive broadcast from TransferService

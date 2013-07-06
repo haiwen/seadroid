@@ -23,7 +23,12 @@ import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.NavContext;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.Utils;
-import com.seafile.seadroid2.data.*;
+import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.SeafCachedFile;
+import com.seafile.seadroid2.data.SeafDirent;
+import com.seafile.seadroid2.data.SeafGroup;
+import com.seafile.seadroid2.data.SeafItem;
+import com.seafile.seadroid2.data.SeafRepo;
 
 public class SeafItemAdapter extends BaseAdapter {
 
@@ -38,6 +43,7 @@ public class SeafItemAdapter extends BaseAdapter {
     private static final int ACTION_ID_DOWNLOAD = 0;
     private static final int ACTION_ID_REMOVE_CACHE = 1;
     private static final int ACTION_ID_UPDATE = 2;
+    private static final int ACTION_ID_SHARE = 3;
 
     @Override
     public int getCount() {
@@ -159,6 +165,7 @@ public class SeafItemAdapter extends BaseAdapter {
             viewHolder.subtitle.setText("");
             viewHolder.icon.setImageResource(dirent.getIcon());
             viewHolder.action.setVisibility(View.INVISIBLE);
+            // setDirAction(dirent, viewHolder, position);
         } else {
             setFileView(dirent, viewHolder, position);
         }
@@ -263,7 +270,6 @@ public class SeafItemAdapter extends BaseAdapter {
         }
     }
 
-
     private class Viewholder {
         TextView title, subtitle;
         ImageView icon, action;
@@ -277,17 +283,50 @@ public class SeafItemAdapter extends BaseAdapter {
         }
     }
 
-    private QuickAction prepareDirentAction(final SeafDirent dirent, boolean cacheExists) {
+    private void setFileAction(SeafDirent dirent, Viewholder viewHolder,
+                               final int position, final boolean cacheExists) {
+
+        viewHolder.action.setImageResource(R.drawable.drop_down_button);
+        viewHolder.action.setVisibility(View.VISIBLE);
+        viewHolder.action.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SeafDirent dirent = (SeafDirent)items.get(position);
+                QuickAction mQuickAction = prepareFileAction(dirent, cacheExists);
+                mQuickAction.show(view);
+            }
+        });
+    }
+
+    private void setDirAction(SeafDirent dirent, Viewholder viewHolder, final int position) {
+        viewHolder.action.setImageResource(R.drawable.drop_down_button);
+        viewHolder.action.setVisibility(View.VISIBLE);
+        viewHolder.action.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SeafDirent dirent = (SeafDirent)items.get(position);
+                QuickAction mQuickAction = prepareDirAction(dirent);
+                mQuickAction.show(view);
+            }
+        });
+    }
+
+    private QuickAction prepareFileAction(final SeafDirent dirent, boolean cacheExists) {
         final QuickAction mQuickAction = new QuickAction(mActivity);
         Resources resources = mActivity.getResources();
-        ActionItem removeCacheAction, downloadAction, updateAction;
+        ActionItem removeCacheAction, downloadAction, updateAction, shareAction;
+
+        // shareAction = new ActionItem(ACTION_ID_SHARE,
+        //                              resources.getString(R.string.file_action_share),
+        //                              resources.getDrawable(R.drawable.action_share));
+        // mQuickAction.addActionItem(shareAction);
 
         if (cacheExists) {
             removeCacheAction = new ActionItem(ACTION_ID_REMOVE_CACHE,
                                                resources.getString(R.string.file_action_remove_cache),
                                                resources.getDrawable(R.drawable.action_remove_cache));
             mQuickAction.addActionItem(removeCacheAction);
-            
+
             if (mActivity.hasRepoWritePermission()) {
                 updateAction = new ActionItem(ACTION_ID_UPDATE,
                                               resources.getString(R.string.file_action_update),
@@ -315,6 +354,9 @@ public class SeafItemAdapter extends BaseAdapter {
                 DataManager dataManager = mActivity.getDataManager();
                 String localPath = dataManager.getLocalRepoFile(repoName, repoID, path).getPath();
                 switch (actionId) {
+                case ACTION_ID_SHARE:
+                    mActivity.shareFile(dirent.name);
+                    break;
                 case ACTION_ID_DOWNLOAD:
                     mActivity.onFileSelected(dirent.name);
                     break;
@@ -338,21 +380,29 @@ public class SeafItemAdapter extends BaseAdapter {
         return mQuickAction;
     }
 
-    private void setFileAction(SeafDirent dirent, Viewholder viewHolder,
-                               int position, final boolean cacheExists) {
+    private QuickAction prepareDirAction(final SeafDirent dirent) {
+        final QuickAction mQuickAction = new QuickAction(mActivity);
+        Resources resources = mActivity.getResources();
+        ActionItem shareAction;
+        shareAction = new ActionItem(ACTION_ID_SHARE,
+                                     resources.getString(R.string.file_action_share),
+                                     resources.getDrawable(R.drawable.action_share));
+        mQuickAction.addActionItem(shareAction);
 
-        viewHolder.action.setImageResource(R.drawable.drop_down_button);
-        viewHolder.action.setVisibility(View.VISIBLE);
-        viewHolder.action.setId(position);
-        viewHolder.action.setOnClickListener(new OnClickListener() {
+        //setup the action item click listener
+        mQuickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
             @Override
-            public void onClick(View view) {
-                int position = view.getId();
-                SeafDirent dirent = (SeafDirent)items.get(position);
-                QuickAction mQuickAction = prepareDirentAction(dirent, cacheExists);
-                mQuickAction.show(view);
+            public void onItemClick(QuickAction quickAction, int pos, int actionId) {
+                switch (actionId) {
+                case ACTION_ID_SHARE:
+                    mActivity.shareDir(dirent.name);
+                    break;
+                }
             }
         });
+
+        mQuickAction.mAnimateTrack(false);
+        return mQuickAction;
     }
 }
 

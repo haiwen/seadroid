@@ -107,7 +107,6 @@ public class ReposFragment extends SherlockListFragment {
         getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
     }
 
-
     @Override
     public void onStart() {
         Log.d(DEBUG_TAG, "ReposFragment onStart");
