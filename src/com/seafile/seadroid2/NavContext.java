@@ -48,7 +48,7 @@ public class NavContext {
     }
     
     public boolean isRepoRoot() {
-        return dirPath.equals("/");
+        return "/".equals(dirPath);
     }
     
     public String getDirPath() {

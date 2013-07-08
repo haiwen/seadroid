@@ -22,4 +22,9 @@
         android:title="New Folder"
         android:showAsAction="never"/>
 
+    <item android:id="@+id/newfile"
+        android:visible="false"
+        android:title="New File"
+        android:showAsAction="never"/>
+
 </menu>

@@ -22,6 +22,8 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockListActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.TransferService.TransferBinder;
 import com.seafile.seadroid2.account.Account;
@@ -62,7 +64,7 @@ public class ShareToSeafileActivity extends SherlockListActivity {
     private static final int STEP_CHOOSE_ACCOUNT = 1;
     private static final int STEP_CHOOSE_REPO = 2;
     private static final int STEP_CHOOSE_DIR = 3;
-    private static int mStep = 1;
+    private int mStep = 1;
 
     private ServiceConnection mConnection;
 
@@ -185,13 +187,57 @@ public class ShareToSeafileActivity extends SherlockListActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getSupportMenuInflater();
+        inflater.inflate(R.menu.share_to_seafile_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem menuRefresh = menu.findItem(R.id.refresh);
+        menuRefresh.setVisible(true);
+        menuRefresh.setEnabled(true);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
         case android.R.id.home:
             stepBack();
-            break;
+            return true;
+        case R.id.refresh:
+            refreshList();
+            return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void refreshList() {
+        switch (mStep) {
+        case STEP_CHOOSE_ACCOUNT:
+            if (mLoadAccountsTask != null && mLoadAccountsTask.getStatus() != AsyncTask.Status.FINISHED) {
+                return;
+            } else {
+                chooseAccount(false);
+                break;
+            }
+        case STEP_CHOOSE_REPO:
+            if (mLoadReposTask != null && mLoadReposTask.getStatus() != AsyncTask.Status.FINISHED) {
+                return;
+            } else {
+                chooseRepo();
+                break;
+            }
+        case STEP_CHOOSE_DIR:
+            if (mLoadDirTask != null && mLoadDirTask.getStatus() != AsyncTask.Status.FINISHED) {
+                return;
+            } else {
+                chooseDir();
+                break;
+            }
+        }
     }
 
     private void stepBack() {
@@ -199,14 +245,14 @@ public class ShareToSeafileActivity extends SherlockListActivity {
         case STEP_CHOOSE_ACCOUNT:
             break;
         case STEP_CHOOSE_REPO:
-            chooseAccount();
+            chooseAccount(false);
             break;
         case STEP_CHOOSE_DIR:
-            if (mNavContext.isRepoRoot()) {
+            if (getNavContext().isRepoRoot()) {
                 chooseRepo();
             } else {
-                String path = mNavContext.getDirPath();
-                mNavContext.setDir(Utils.getParentPath(path), null);
+                String path = getNavContext().getDirPath();
+                getNavContext().setDir(Utils.getParentPath(path), null);
                 refreshDir();
             }
             break;
@@ -216,14 +262,14 @@ public class ShareToSeafileActivity extends SherlockListActivity {
     /**
      * List all accounts
      */
-    private void chooseAccount() {
+    private void chooseAccount(boolean forwardIfOnlyOneAccount) {
         mStep = STEP_CHOOSE_ACCOUNT;
         mEmptyText.setText(R.string.no_account);
         if (mAccountManager == null) {
             mAccountManager = new AccountManager(this);
         }
 
-        mLoadAccountsTask = new LoadAccountsTask(getAccountManager());
+        mLoadAccountsTask = new LoadAccountsTask(getAccountManager(), forwardIfOnlyOneAccount);
 
         ConcurrentAsyncTask.execute(mLoadAccountsTask);
         setListAdapter(getAccountAdapter());
@@ -235,19 +281,24 @@ public class ShareToSeafileActivity extends SherlockListActivity {
         bar.setTitle(R.string.choose_an_account);
     }
 
+    private void chooseAccount() {
+        chooseAccount(true);
+    }
+
     /**
      * List all repos
      */
     private void chooseRepo() {
         mStep = STEP_CHOOSE_REPO;
         mEmptyText.setText(R.string.no_library);
-        showLoading(true);
 
         setListAdapter(getReposAdapter());
         mOkButton.setVisibility(View.GONE);
 
-        mLoadReposTask = new LoadReposTask(getDataManager());
+        getNavContext().setRepoID(null);
 
+        showLoading(true);
+        mLoadReposTask = new LoadReposTask(getDataManager());
         ConcurrentAsyncTask.execute(mLoadReposTask);
 
         // update action bar
@@ -398,9 +449,11 @@ public class ShareToSeafileActivity extends SherlockListActivity {
         private List<Account> accounts;
         private Exception err;
         private AccountManager accountManager;
+        private boolean forwardIfOnlyOneAccount;
 
-        public LoadAccountsTask(AccountManager accountManager) {
+        public LoadAccountsTask(AccountManager accountManager, boolean forwardIfOnlyOneAccount) {
             this.accountManager = accountManager;
+            this.forwardIfOnlyOneAccount = forwardIfOnlyOneAccount;
         }
 
         @Override
@@ -425,15 +478,10 @@ public class ShareToSeafileActivity extends SherlockListActivity {
                 return;
             }
 
-            if (accounts.size() == 1) {
+            if (accounts.size() == 1 && forwardIfOnlyOneAccount) {
                 // Only 1 account. Go to the next next step.
                 mAccount = accounts.get(0);
                 chooseRepo();
-                return;
-            }
-
-            if (accounts == null) {
-                Log.d(DEBUG_TAG, "failed to load seafile accounts");
                 return;
             }
 
