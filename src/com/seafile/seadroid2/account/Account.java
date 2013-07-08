@@ -1,6 +1,11 @@
 package com.seafile.seadroid2.account;
 
-public class Account {
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.util.Log;
+
+public class Account implements Parcelable {
+    private static final String DEBUG_TAG = "Account";
     
     // The full URL of the server, like 'http://gonggeng.org/seahub/' or 'http://gonggeng.org/'
     public String server;
@@ -83,4 +88,34 @@ public class Account {
         return email.substring(0, 4) + " " + hashCode();
     }
 
+     public int describeContents() {
+         return 0;
+     }
+
+     public void writeToParcel(Parcel out, int flags) {
+         out.writeString(server);
+         out.writeString(email);
+         out.writeString(passwd);
+         out.writeString(token);
+     }
+
+     public static final Parcelable.Creator<Account> CREATOR
+             = new Parcelable.Creator<Account>() {
+         public Account createFromParcel(Parcel in) {
+             return new Account(in);
+         }
+
+         public Account[] newArray(int size) {
+             return new Account[size];
+         }
+     };
+
+     private Account(Parcel in) {
+          server = in.readString();
+          email = in.readString();
+          passwd = in.readString();
+          token = in.readString();
+
+          Log.d(DEBUG_TAG, String.format("%s %s %s %s", server, email, passwd, token));
+     }
 }

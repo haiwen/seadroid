@@ -14,7 +14,6 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
@@ -23,7 +22,6 @@ import com.seafile.seadroid2.SeafException;
 /**
  * Basic class for dialog which get input from user and carries out some
  * operation in the background.
- * @param K
  */
 public abstract class TaskDialog extends DialogFragment {
     public static abstract class TaskDialogListener {
@@ -55,18 +53,19 @@ public abstract class TaskDialog extends DialogFragment {
 
     private TaskDialogListener mListener;
 
-    protected BrowserActivity getBrowserActivity() {
-        return (BrowserActivity)getActivity();
-    }
-
     /**
      * Create the content area of the dialog
      * @param inflater
      * @param savedInstanceState The saved dialog state. Most of the time subclasses don't need to make use of it, since the state of UI widgets is restored by the base class. 
      * @return The created view
      */
-    protected abstract View onCreateDialogContentView(LayoutInflater inflater,
+    protected abstract View createDialogContentView(LayoutInflater inflater,
                                                       Bundle savedInstanceState);
+    /**
+     * Create the AsyncTask
+     */
+    protected abstract Task prepareTask();
+
     /**
      * Return the content area view of the dialog
      */
@@ -88,11 +87,6 @@ public abstract class TaskDialog extends DialogFragment {
     protected void onSaveDialogContentState(Bundle outState) {
     }
 
-    /**
-     * Create the AsyncTask
-     */
-    protected abstract Task prepareTask();
-
     protected Task getTask() {
         return task;
     }
@@ -102,14 +96,17 @@ public abstract class TaskDialog extends DialogFragment {
      * when recreating this dialog. For example, when screen rotation
      * @param outState
      */
-    protected abstract void onSaveTaskState(Bundle outState);
+    protected void onSaveTaskState(Bundle outState) {
+    }
 
     /**
      * Recreate the background task when this dialog is recreated.
      * @param savedInstanceState
      * @return The background task if it should be restored. Or null to indicate that you don't want to recreate the task.
      */
-    protected abstract Task onRestoreTaskState(Bundle savedInstanceState);
+    protected Task onRestoreTaskState(Bundle savedInstanceState) {
+        return null;
+    }
 
     /**
      * Check if the user input is valid. It is called when the "OK" button is
@@ -160,7 +157,7 @@ public abstract class TaskDialog extends DialogFragment {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         LinearLayout view = (LinearLayout)inflater.inflate(R.layout.task_dialog, null);
 
-        contentView = onCreateDialogContentView(inflater, savedInstanceState);
+        contentView = createDialogContentView(inflater, savedInstanceState);
         view.addView(contentView, 0);
 
         errorText = (TextView)view.findViewById(R.id.error_message);
@@ -183,7 +180,7 @@ public abstract class TaskDialog extends DialogFragment {
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                if (task != null) {
+                if (task != null && task.getStatus() != AsyncTask.Status.FINISHED) {
                     task.cancel(true);
                 }
                 if (mListener != null) {
@@ -241,26 +238,26 @@ public abstract class TaskDialog extends DialogFragment {
 
     protected void showLoading() {
         loading.startAnimation(AnimationUtils.loadAnimation(
-                                   getBrowserActivity(), android.R.anim.fade_in));
+                                   getActivity(), android.R.anim.fade_in));
         loading.setVisibility(View.VISIBLE);
     }
 
     protected void hideLoading() {
         loading.startAnimation(AnimationUtils.loadAnimation(
-                                   getBrowserActivity(), android.R.anim.fade_out));
+                                   getActivity(), android.R.anim.fade_out));
         loading.setVisibility(View.INVISIBLE);
     }
 
     protected void showError(String error) {
         errorText.setText(error);
         errorText.startAnimation(AnimationUtils.loadAnimation(
-                                   getBrowserActivity(), android.R.anim.fade_in));
+                                   getActivity(), android.R.anim.fade_in));
         errorText.setVisibility(View.VISIBLE);
     }
 
     protected void hideError() {
         errorText.startAnimation(AnimationUtils.loadAnimation(
-                                   getBrowserActivity(), android.R.anim.fade_out));
+                                   getActivity(), android.R.anim.fade_out));
         errorText.setVisibility(View.GONE);
     }
 
@@ -284,6 +281,11 @@ public abstract class TaskDialog extends DialogFragment {
         private SeafException err;
         private TaskDialog dlg;
 
+        /**
+         * Carries out the background task.
+         */
+        protected abstract void runTask();
+
         public void setTaskDialog(TaskDialog dlg) {
             this.dlg = dlg;
         }
@@ -299,11 +301,6 @@ public abstract class TaskDialog extends DialogFragment {
         public SeafException getTaskException() {
             return err;
         }
-
-        /**
-         * Carries out the background task.
-         */
-        protected abstract void runTask();
 
         @Override
         public Void doInBackground(Void... params) {

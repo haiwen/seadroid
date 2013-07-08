@@ -555,4 +555,24 @@ public class DataManager {
         } catch (IOException e) {
         }
     }
+
+    public void createNewFile(String repoID, String parentDir, String fileName) throws SeafException {
+        TwoTuple<String, String> ret = sc.createNewFile(repoID, parentDir, fileName);
+        if (ret == null) {
+            return;
+        }
+
+        invalidateCache(repoID, parentDir);
+
+        String newDirID = ret.getFirst();
+        String response = ret.getSecond();
+        // The response is the dirents of the parentDir after creating
+        // the new dir. We save it to avoid request it again
+        File cache = getFileForDirentsCache(newDirID);
+        try {
+            Utils.writeFile(cache, response);
+            saveDirIDToCache(repoID, parentDir, newDirID);
+        } catch (IOException e) {
+        }
+    }
 }

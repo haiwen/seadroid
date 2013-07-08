@@ -47,6 +47,7 @@ import com.seafile.seadroid2.gallery.MultipleImageSelectionActivity;
 import com.seafile.seadroid2.ui.ActivitiesFragment;
 import com.seafile.seadroid2.ui.FetchFileDialog;
 import com.seafile.seadroid2.ui.NewDirDialog;
+import com.seafile.seadroid2.ui.NewFileDialog;
 import com.seafile.seadroid2.ui.PasswordDialog;
 import com.seafile.seadroid2.ui.ReposFragment;
 import com.seafile.seadroid2.ui.TaskDialog;
@@ -379,6 +380,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         MenuItem menuUpload = menu.findItem(R.id.upload);
         MenuItem menuRefresh = menu.findItem(R.id.refresh);
         MenuItem menuNewDir = menu.findItem(R.id.newdir);
+        MenuItem menuNewFile = menu.findItem(R.id.newfile);
 
         if (currentTab.equals(LIBRARY_TAB)) {
             menuUpload.setVisible(true);
@@ -402,11 +404,14 @@ public class BrowserActivity extends SherlockFragmentActivity
         if (currentTab.equals(LIBRARY_TAB)) {
             if (navContext.inRepo() && hasRepoWritePermission()) {
                 menuNewDir.setVisible(true);
+                menuNewFile.setVisible(true);
             } else {
                 menuNewDir.setVisible(false);
+                menuNewFile.setVisible(false);
             }
         } else {
             menuNewDir.setVisible(false);
+            menuNewFile.setVisible(false);
         }
 
         return true;
@@ -447,6 +452,9 @@ public class BrowserActivity extends SherlockFragmentActivity
         case R.id.newdir:
             showNewDirDialog();
             return true;
+        case R.id.newfile:
+            showNewFileDialog();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -458,7 +466,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
 
         final NewDirDialog dialog = new NewDirDialog();
-        dialog.show(getSupportFragmentManager(), "DialogFragment");
+        dialog.init(navContext.getRepoID(), navContext.getDirPath(), account);
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
@@ -468,6 +476,27 @@ public class BrowserActivity extends SherlockFragmentActivity
                 }
             }
         });
+        dialog.show(getSupportFragmentManager(), "DialogFragment");
+    }
+
+    private void showNewFileDialog() {
+        if (!hasRepoWritePermission()) {
+            showToast(R.string.library_read_only);
+            return;
+        }
+
+        final NewFileDialog dialog = new NewFileDialog();
+        dialog.init(navContext.getRepoID(), navContext.getDirPath(), account);
+        dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
+            @Override
+            public void onTaskSuccess() {
+                showToast("Sucessfully created file " + dialog.getNewFileName());
+                if (currentTab.equals(LIBRARY_TAB) && reposFragment != null) {
+                    reposFragment.refreshView();
+                }
+            }
+        });
+        dialog.show(getSupportFragmentManager(), "DialogFragment");
     }
 
     private void showReposFragment(FragmentTransaction ft) {
@@ -926,7 +955,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     public PasswordDialog showPasswordDialog(String repoName, String repoID,
                                              TaskDialog.TaskDialogListener listener) {
         PasswordDialog passwordDialog = new PasswordDialog();
-        passwordDialog.setRepo(repoName, repoID);
+        passwordDialog.setRepo(repoName, repoID, account);
         passwordDialog.setTaskDialogLisenter(listener);
         passwordDialog.show(getSupportFragmentManager(), PASSWORD_DIALOG_FRAGMENT_TAG);
         return passwordDialog;
@@ -962,6 +991,9 @@ public class BrowserActivity extends SherlockFragmentActivity
             } else if (type.equals(TransferService.BROADCAST_FILE_UPLOAD_PROGRESS)) {
                 int taskID = intent.getIntExtra("taskID", 0);
                 onFileUploadProgress(taskID);
+            } else if (type.equals(TransferService.BROADCAST_FILE_UPLOAD_CANCELLED)) {
+                int taskID = intent.getIntExtra("taskID", 0);
+                onFileUploadCancelled(taskID);
             }
         }
 

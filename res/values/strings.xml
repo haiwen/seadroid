@@ -61,6 +61,7 @@
     <string name="select_upload_items">select items to upload</string>
     <string name="n_upload_items_selected">%d items selected</string>
     <string name="dir_name_empty">Please enter the name of the folder</string>
+    <string name="file_name_empty">Please enter the name of the file</string>
     <string name="password_empty">Please enter the password</string>
     <string name="wrong_password">wrong password</string>
     <string name="library_read_only">This library is read-only</string>
@@ -79,4 +80,6 @@
     <string name="load_libraries_fail">Failed to load libraries</string>
     <string name="load_dir_fail">Failed to load contents of this folder</string>
     <string name="not_supported_share">This type of share is not supported</string>
+    <string name="create_new_file">Create a new file</string>
+    <string name="create_new_dir">Create a new folder</string>
 </resources>

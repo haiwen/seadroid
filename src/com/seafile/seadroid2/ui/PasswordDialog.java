@@ -8,6 +8,7 @@ import android.widget.EditText;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 
 class SetPasswordTask extends TaskDialog.Task {
@@ -36,26 +37,36 @@ public class PasswordDialog extends TaskDialog {
     private static final String STATE_TASK_REPO_NAME = "set_password_task.repo_name";
     private static final String STATE_TASK_REPO_ID = "set_password_task.repo_id";
     private static final String STATE_TASK_PASSWORD = "set_password_task.password";
+    private static final String STATE_ACCOUNT = "set_password_task.account";
 
     private EditText passwordText;
     private String repoID, repoName;
+    private DataManager dataManager;
+    private Account account;
 
-    public void setRepo(String repoName, String repoID) {
+    public void setRepo(String repoName, String repoID, Account account) {
         this.repoName = repoName;
         this.repoID = repoID;
+        this.account = account;
     }
 
-    public PasswordDialog() {
+    private DataManager getDataManager() {
+        if (dataManager == null) {
+            dataManager = new DataManager(account);
+        }
+
+        return dataManager;
     }
 
     @Override
-    protected View onCreateDialogContentView(LayoutInflater inflater, Bundle savedInstanceState) {
+    protected View createDialogContentView(LayoutInflater inflater, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_password, null);
         passwordText = (EditText) view.findViewById(R.id.password);
 
         if (savedInstanceState != null) {
             repoName = savedInstanceState.getString(STATE_TASK_REPO_NAME);
             repoID = savedInstanceState.getString(STATE_TASK_REPO_ID);
+            account = (Account)savedInstanceState.getParcelable(STATE_ACCOUNT);
         }
 
         return view;
@@ -69,7 +80,8 @@ public class PasswordDialog extends TaskDialog {
     @Override
     protected void onSaveDialogContentState(Bundle outState) {
         outState.putString(STATE_TASK_REPO_NAME, repoName);
-        outState.putString(STATE_TASK_REPO_ID, repoName);
+        outState.putString(STATE_TASK_REPO_ID, repoID);
+        outState.putParcelable(STATE_ACCOUNT, account);
     }
 
     @Override
@@ -77,7 +89,7 @@ public class PasswordDialog extends TaskDialog {
         String password = passwordText.getText().toString().trim();
 
         if (password.length() == 0) {
-            String err = getBrowserActivity().getResources().getString(R.string.password_empty);
+            String err = getActivity().getResources().getString(R.string.password_empty);
             throw new Exception(err);
         }
     }
@@ -97,8 +109,7 @@ public class PasswordDialog extends TaskDialog {
     @Override
     protected SetPasswordTask prepareTask() {
         String password = passwordText.getText().toString().trim();
-        SetPasswordTask task = new SetPasswordTask(repoID, password,
-                                                   getBrowserActivity().getDataManager());
+        SetPasswordTask task = new SetPasswordTask(repoID, password, getDataManager());
         return task;
     }
 
@@ -118,8 +129,7 @@ public class PasswordDialog extends TaskDialog {
 
         String password = outState.getString(STATE_TASK_PASSWORD);
         if (password != null) {
-            return new SetPasswordTask(repoID, password,
-                                       getBrowserActivity().getDataManager());
+            return new SetPasswordTask(repoID, password, getDataManager());
         } else {
             return null;
         }

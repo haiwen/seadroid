@@ -265,9 +265,6 @@ public class ShareToSeafileActivity extends SherlockListActivity {
     private void chooseAccount(boolean forwardIfOnlyOneAccount) {
         mStep = STEP_CHOOSE_ACCOUNT;
         mEmptyText.setText(R.string.no_account);
-        if (mAccountManager == null) {
-            mAccountManager = new AccountManager(this);
-        }
 
         mLoadAccountsTask = new LoadAccountsTask(getAccountManager(), forwardIfOnlyOneAccount);
 

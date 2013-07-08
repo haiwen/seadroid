@@ -329,7 +329,7 @@ public class SeafConnection {
             Log.d(DEBUG_TAG,
                   String.format("file %s will be downloaded from server, latest %s, local cache %s",
                                 path, fileID, cachedFileID != null ? cachedFileID : "null"));
-            
+
             File file = getFileFromLink(dlink, path, localPath, fileID, monitor);
             if (file != null) {
                 return TwoTuple.newInstance(fileID, file);
@@ -599,6 +599,50 @@ public class SeafConnection {
             throw SeafException.networkException;
         }
     }
+
+    public TwoTuple<String, String> createNewFile(String repoID,
+                                                  String parentDir,
+                                                  String fileName) throws SeafException {
+
+        try {
+            String fullPath = Utils.pathJoin(parentDir, fileName);
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("p", fullPath);
+            params.put("reloaddir", "true");
+
+            HttpRequest req = prepareApiPostRequest("api2/repos/" + repoID + "/file/", true, params);
+
+            req.form("operation", "create");
+
+            if (req.code() != 200) {
+                if (req.message() == null) {
+                    throw SeafException.networkException;
+                } else {
+                    throw new SeafException(req.code(), req.message());
+                }
+            }
+
+            String newDirID = req.header("oid");
+            if (newDirID == null) {
+                return null;
+            }
+
+            String content = new String(req.bytes(), "UTF-8");
+            if (content.length() == 0) {
+                return null;
+            }
+
+            return TwoTuple.newInstance(newDirID, content);
+
+        } catch (SeafException e) {
+            throw e;
+        } catch (UnsupportedEncodingException e) {
+            throw SeafException.encodingException;
+        } catch (HttpRequestException e) {
+            throw SeafException.networkException;
+        }
+    }
+
 
     /**
      * Wrap a FileInputStream in a upload task. We publish the progress of the upload during the process, and if we detect the task has been cancelled by the user, we throw a {@link MonitorCancelledException} to indicate such a situation.
