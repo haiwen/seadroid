@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
@@ -13,16 +14,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.seafile.seadroid2.SeafConnection;
-import com.seafile.seadroid2.SeafException;
-import com.seafile.seadroid2.Utils;
-import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.SeadroidApplication;
-
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.util.Log;
+
+import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.SeafConnection;
+import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.Utils;
+import com.seafile.seadroid2.account.Account;
 
 public class DataManager {
 
@@ -167,6 +168,10 @@ public class DataManager {
 
     HashMap<String, String> pathObjectIDMap = new HashMap<String, String>();
     List<SeafRepo> reposCache = null;
+    // last time of repos update from server
+    long lastRepoUpdate = 0;
+    // force refresh interval
+    private static final long REPOS_REFERSH_INTERVAL = 5 * 30 * 1000;
 
     public DataManager(Account act) {
         account = act;
@@ -349,26 +354,46 @@ public class DataManager {
     }
 
     public List<SeafRepo> getRepos() throws SeafException {
-        if (!Utils.isNetworkOn()) {
-            if (reposCache != null)
-                return reposCache;
+        return getRepos(false);
+    }
 
-            File cache = getFileForReposCache();
-            if (cache.exists()) {
-                String json = Utils.readFile(cache);
-                reposCache = parseRepos(json);
-                return reposCache;
+    public List<SeafRepo> getRepos(boolean forceRefresh) throws SeafException {
+        boolean useCache = true;
+        List<SeafRepo> repos;
+
+        // First decide if use cache
+        if (!Utils.isNetworkOn()) {
+            useCache = true;
+        } else {
+            if (forceRefresh) {
+                useCache = false;
+            } else {
+                long now = Calendar.getInstance().getTimeInMillis();
+                if (now - lastRepoUpdate > REPOS_REFERSH_INTERVAL) {
+                    useCache = false;
+                }
             }
         }
 
+        if (useCache) {
+            repos = getReposFromCache();
+            if (repos != null) {
+                Log.d(DEBUG_TAG, "get repos from cache");
+                return repos;
+            }
+        }
+
+        Log.d(DEBUG_TAG, "get repos from server");
         String json = sc.getRepos();
         if (json == null)
             return null;
+
         reposCache = parseRepos(json);
 
         try {
             File cache = getFileForReposCache();
             Utils.writeFile(cache, json);
+            lastRepoUpdate = Calendar.getInstance().getTimeInMillis();
         } catch (IOException e) {
             // ignore
         }

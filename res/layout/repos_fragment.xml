@@ -35,7 +35,6 @@
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:visibility="invisible"
-                android:text="@string/dir_empty"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
     </FrameLayout>
 

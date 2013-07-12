@@ -42,26 +42,6 @@ public class ReposFragment extends SherlockListFragment {
     private View mProgressContainer;
     private View mListContainer;
 
-    private void showLoading(boolean show) {
-        if (show) {
-            mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
-                        mActivity, android.R.anim.fade_out));
-                mListContainer.startAnimation(AnimationUtils.loadAnimation(
-                        mActivity, android.R.anim.fade_in));
-
-            mProgressContainer.setVisibility(View.GONE);
-            mListContainer.setVisibility(View.VISIBLE);
-        } else {
-            mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
-                    mActivity, android.R.anim.fade_in));
-            mListContainer.startAnimation(AnimationUtils.loadAnimation(
-                    mActivity, android.R.anim.fade_out));
-
-            mProgressContainer.setVisibility(View.VISIBLE);
-            mListContainer.setVisibility(View.INVISIBLE);
-        }
-    }
-
     private DataManager getDataManager() {
         return mActivity.getDataManager();
     }
@@ -105,6 +85,8 @@ public class ReposFragment extends SherlockListFragment {
         setListAdapter(adapter);
 
         getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+
+        mListContainer.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -140,6 +122,10 @@ public class ReposFragment extends SherlockListFragment {
     }
 
     public void refreshView() {
+        refreshView(false);
+    }
+
+    public void refreshView(boolean forceRefresh) {
         if (mActivity == null)
             return;
 
@@ -147,30 +133,30 @@ public class ReposFragment extends SherlockListFragment {
         if (navContext.inRepo()) {
             navToDirectory();
         } else {
-            navToReposView();
+            navToReposView(forceRefresh);
         }
         mActivity.invalidateOptionsMenu();
     }
 
-    public void navToReposView() {
-        showLoading(false);
-        // show cached repos first
-        List<SeafRepo> repos = getDataManager().getReposFromCache();
-        if  (repos != null) {
-            adapter.clear();
-            addReposToAdapter(repos);
-            adapter.notifyChanged();
-        }
+    public void navToReposView(boolean forceRefresh) {
+        showLoading(true);
+        // // show cached repos first
+        // List<SeafRepo> repos = getDataManager().getReposFromCache();
+        // if  (repos != null) {
+        //     adapter.clear();
+        //     addReposToAdapter(repos);
+        //     adapter.notifyChanged();
+        // }
 
         // load repos in background
         mActivity.disableUpButton();
-        ConcurrentAsyncTask.execute(new LoadTask(getDataManager()));
+        ConcurrentAsyncTask.execute(new LoadTask(getDataManager(), forceRefresh));
         updateActionBarTitle();
     }
 
     public void navToDirectory() {
         NavContext navContext = getNavContext();
-        showLoading(false);
+        showLoading(true);
         // refresh.setVisibility(View.INVISIBLE);
         mActivity.enableUpButton();
         ConcurrentAsyncTask.execute(new LoadDirTask(getDataManager()),
@@ -255,15 +241,17 @@ public class ReposFragment extends SherlockListFragment {
     private class LoadTask extends AsyncTask<Void, Void, List<SeafRepo> > {
         SeafException err = null;
         DataManager dataManager;
+        boolean forceRefresh;
 
-        public LoadTask(DataManager dataManager) {
+        public LoadTask(DataManager dataManager, boolean forceRefresh) {
             this.dataManager = dataManager;
+            this.forceRefresh = forceRefresh;
         }
 
         @Override
         protected List<SeafRepo> doInBackground(Void... params) {
             try {
-                return dataManager.getRepos();
+                return dataManager.getRepos(forceRefresh);
             } catch (SeafException e) {
                 err = e;
                 return null;
@@ -292,7 +280,7 @@ public class ReposFragment extends SherlockListFragment {
                 adapter.clear();
                 addReposToAdapter(rs);
                 adapter.notifyChanged();
-                showLoading(true);
+                showLoading(false);
             } else {
                 Log.d(DEBUG_TAG, "failed to load repos");
             }
@@ -372,13 +360,14 @@ public class ReposFragment extends SherlockListFragment {
                 adapter.notifyChanged();
                 mList.setVisibility(View.VISIBLE);
                 mEmptyView.setVisibility(View.GONE);
+                mEmptyView.setText(R.string.dir_empty);
             } else {
                 // Directory is empty
                 mList.setVisibility(View.GONE);
                 mEmptyView.setVisibility(View.VISIBLE);
             }
 
-            showLoading(true);
+            showLoading(false);
 
             if (dirents != null && nav.getFileName() != null) {
                 String fileName = nav.getFileName();
@@ -424,6 +413,26 @@ public class ReposFragment extends SherlockListFragment {
                 refreshView();
             }
         });
+    }
+
+    private void showLoading(boolean show) {
+        if (show) {
+            mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
+                    mActivity, android.R.anim.fade_in));
+            mListContainer.startAnimation(AnimationUtils.loadAnimation(
+                    mActivity, android.R.anim.fade_out));
+
+            mProgressContainer.setVisibility(View.VISIBLE);
+            mListContainer.setVisibility(View.INVISIBLE);
+        } else {
+            mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
+                        mActivity, android.R.anim.fade_out));
+            mListContainer.startAnimation(AnimationUtils.loadAnimation(
+                        mActivity, android.R.anim.fade_in));
+
+            mProgressContainer.setVisibility(View.GONE);
+            mListContainer.setVisibility(View.VISIBLE);
+        }
     }
 
     private void scheduleThumbnailTask(String repoName, String repoID,

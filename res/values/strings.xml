@@ -67,6 +67,7 @@
     <string name="library_read_only">This library is read-only</string>
     <string name="error_when_load_dir">Internal error</string>
     <string name="dir_empty">This folder is empty</string>
+    <string name="no_repo">You have no libraries yet</string>
     <string name="no_app_available">No app can be found</string>
     <string name="add_to_seafile">Add to Seafile</string>
     <string name="ok">Ok</string>
