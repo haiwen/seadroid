@@ -42,6 +42,7 @@ import com.seafile.seadroid2.TransferManager.UploadTaskInfo;
 import com.seafile.seadroid2.TransferService.TransferBinder;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.gallery.MultipleImageSelectionActivity;
 import com.seafile.seadroid2.ui.ActivitiesFragment;
@@ -59,10 +60,18 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     private static final String DEBUG_TAG = "BrowserActivity";
 
+
+    public static final String PKG_NAME = "com.seafile.seadroid2";
+    public static final String EXTRA_REPO_NAME = PKG_NAME + ".repoName";
+    public static final String EXTRA_REPO_ID = PKG_NAME + ".repoID";
+    public static final String EXTRA_FILE_PATH = PKG_NAME + ".filePath";
+    public static final String EXTRA_ACCOUT = PKG_NAME + ".filePath";
+
     private Account account;
     NavContext navContext = null;
     DataManager dataManager = null;
     TransferService txService = null;
+    TransferReceiver mTransferReceiver;
 
     // private boolean twoPaneMode = false;
     ReposFragment reposFragment = null;
@@ -286,8 +295,8 @@ public class BrowserActivity extends SherlockFragmentActivity
         Log.d(DEBUG_TAG, "start TransferService");
 
         IntentFilter filter = new IntentFilter(TransferService.BROADCAST_ACTION);
-        TransferReceiver receiver = new TransferReceiver();
-        LocalBroadcastManager.getInstance(this).registerReceiver(receiver, filter);
+        mTransferReceiver = new TransferReceiver();
+        LocalBroadcastManager.getInstance(this).registerReceiver(mTransferReceiver, filter);
 
         // bind transfer service
         Intent bIntent = new Intent(this, TransferService.class);
@@ -350,6 +359,10 @@ public class BrowserActivity extends SherlockFragmentActivity
         if (txService != null) {
             unbindService(mConnection);
             txService = null;
+        }
+
+        if (mTransferReceiver != null) {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(mTransferReceiver);
         }
 
         super.onDestroy();
@@ -672,16 +685,19 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     /***************  Navigation *************/
 
-    /**
-     * When a file is clicked on ReposFragment, only show file if:
-     *
-     * - There is cache
-     * - Cached file id is the same as current file id
-     *
-     * Otherwise, download the file
-     */
+    @Override
     public void onFileSelected(String fileName) {
-        openFile(fileName);
+        // openFile(fileName);
+        final String repoName = navContext.getRepoName();
+        final String repoID = navContext.getRepoID();
+        final String filePath = Utils.pathJoin(navContext.getDirPath(), fileName);
+
+        Intent intent = new Intent(this, FileActivity.class);
+        intent.putExtra("repoName", repoName);
+        intent.putExtra("repoID", repoID);
+        intent.putExtra("filePath", filePath);
+        intent.putExtra("account", account);
+        startActivity(intent);
         return;
     }
 

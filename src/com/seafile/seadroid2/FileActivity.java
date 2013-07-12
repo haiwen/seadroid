@@ -1,0 +1,306 @@
+package com.seafile.seadroid2;
+
+import java.io.File;
+
+import android.content.ActivityNotFoundException;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
+import android.view.View;
+import android.webkit.MimeTypeMap;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.seafile.seadroid2.TransferManager.DownloadTaskInfo;
+import com.seafile.seadroid2.TransferService.TransferBinder;
+import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.ui.PasswordDialog;
+import com.seafile.seadroid2.ui.TaskDialog;
+
+/**
+ * Display a file
+ */
+public class FileActivity extends SherlockFragmentActivity {
+    private static final String DEBUG_TAG = "FileActivity";
+
+    private TextView mFileNameText;
+    private ImageView mFileIcon;
+    private Button mButtonCancel, mButtonOpen;
+
+    private TextView mProgressText;
+    private ProgressBar mProgressBar;
+
+    private String mRepoName, mRepoID, mFilePath;
+    private DataManager mDataManager;
+    private Account mAccount;
+
+    private int mTaskID = -1;
+    private TransferService mTransferService;
+    private TransferReceiver mTransferReceiver;
+    private ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            Log.d(DEBUG_TAG, "TransferService connected");
+
+            TransferBinder binder = (TransferBinder) service;
+            mTransferService = binder.getService();
+            onTransferSericeConnected();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+        }
+    };
+
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Intent intent = getIntent();
+
+        mAccount  = (Account)intent.getParcelableExtra("account");
+        mRepoName = intent.getStringExtra("repoName");
+        mRepoID = intent.getStringExtra("repoID");
+        mFilePath = intent.getStringExtra("filePath");
+
+        mDataManager = new DataManager(mAccount);
+
+        setContentView(R.layout.file_activity);
+        initWidgets();
+        bindTransferService();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (mTransferService != null) {
+            unbindService(mConnection);
+            mTransferService = null;
+        }
+
+        if (mTransferReceiver != null) {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(mTransferReceiver);
+        }
+
+        super.onDestroy();
+    }
+
+    private void initWidgets() {
+        mFileNameText = (TextView)findViewById(R.id.file_name);
+        mFileIcon = (ImageView)findViewById(R.id.file_icon);
+        mButtonCancel = (Button)findViewById(R.id.op_cancel);
+        mButtonOpen = (Button)findViewById(R.id.op_open);
+        mProgressBar = (ProgressBar)findViewById(R.id.progress_bar);
+        mProgressText = (TextView)findViewById(R.id.progress_text);
+
+        mButtonOpen.setVisibility(View.GONE);
+
+        String fileName = Utils.fileNameFromPath(mFilePath);
+        mFileNameText.setText(fileName);
+
+        // icon
+        mFileIcon.setImageResource(Utils.getFileIcon(fileName));
+
+        mButtonOpen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onOpenButtonClicked();
+            }
+        });
+
+        mButtonCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
+    }
+
+    private void startMarkdownActivity(String path) {
+        Intent intent = new Intent(this, MarkdownActivity.class);
+        intent.putExtra("path", path);
+        startActivity(intent);
+    }
+
+    private void showFile(File file) {
+        String name = file.getName();
+        String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
+
+        if (suffix.length() == 0) {
+            showToast(R.string.unknown_file_type);
+            return;
+        }
+
+        if (suffix.endsWith("md") || suffix.endsWith("markdown")) {
+            startMarkdownActivity(file.getPath());
+            return;
+        }
+
+        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
+        Intent open = new Intent(Intent.ACTION_VIEW);
+        open.setDataAndType((Uri.fromFile(file)), mime);
+        try {
+            startActivity(open);
+            finish();
+            return;
+        } catch (ActivityNotFoundException e) {
+            showToast(R.string.activity_not_found);
+            return;
+        }
+    }
+
+    private void onTransferSericeConnected() {
+        // Register broadcast receiver
+        IntentFilter filter = new IntentFilter(TransferService.BROADCAST_ACTION);
+        mTransferReceiver = new TransferReceiver();
+        LocalBroadcastManager.getInstance(this).registerReceiver(mTransferReceiver, filter);
+
+        mTaskID = mTransferService.addDownloadTask(mAccount, mRepoName, mRepoID, mFilePath);
+        mProgressBar.setVisibility(View.VISIBLE);
+        mProgressBar.setIndeterminate(true);
+        mProgressText.setVisibility(View.VISIBLE);
+    }
+
+    private void onOpenButtonClicked() {
+        File localFile = mDataManager.getLocalRepoFile(mRepoName, mRepoID, mFilePath);
+        showFile(localFile);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
+
+    private void bindTransferService() {
+        Intent txIntent = new Intent(this, TransferService.class);
+        startService(txIntent);
+        Log.d(DEBUG_TAG, "start TransferService");
+
+        // bind transfer service
+        Intent bIntent = new Intent(this, TransferService.class);
+        bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
+        Log.d(DEBUG_TAG, "try bind TransferService");
+    }
+
+    private void onFileDownloadProgress(DownloadTaskInfo info) {
+        long fileSize = info.fileSize;
+        long finished = info.finished;
+        
+        mProgressBar.setIndeterminate(false);
+        int percent;
+        if (fileSize == 0) {
+            percent = 100;
+        } else {
+            percent = (int)(finished * 100 / fileSize);
+        }
+        mProgressBar.setProgress(percent);
+
+        String txt = Utils.readableFileSize(finished) + " / " + Utils.readableFileSize(fileSize);
+
+        mProgressText.setText(txt);
+    }
+
+    private void onFileDownloaded(DownloadTaskInfo info) {
+        mProgressBar.setVisibility(View.GONE);
+        mProgressText.setVisibility(View.GONE);
+        mButtonCancel.setVisibility(View.GONE);
+
+        // For markdown files, display directly with a MarkdownActivity
+        String name = Utils.fileNameFromPath(info.path);
+        String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
+        if (suffix.endsWith("md") || suffix.endsWith("markdown")) {
+            startMarkdownActivity(info.path);
+            finish();
+            return;
+        }
+
+        mButtonOpen.setVisibility(View.VISIBLE);
+    }
+
+    private void onFileDownloadFailed(DownloadTaskInfo info) {
+        SeafException err = info.err;
+        String fileName = Utils.fileNameFromPath(info.path);
+        if (err.getCode() == 404) {
+            // file deleted
+            showToast("The file \"" + fileName + "\" has been deleted");
+        } else if (err.getCode() == 440) {
+            handlePassword();
+        } else {
+            showToast("Failed to download file \"" + fileName);
+        }
+    }
+
+    private void handlePassword() {
+        PasswordDialog passwordDialog = new PasswordDialog();
+        passwordDialog.setRepo(mRepoName, mRepoID, mAccount);
+        passwordDialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
+            @Override
+            public void onTaskSuccess() {
+                mTaskID = mTransferService.addDownloadTask(mAccount,
+                                                           mRepoName,
+                                                           mRepoID,
+                                                           mFilePath);
+            }
+
+            @Override
+            public void onTaskCancelled() {
+                finish();
+            }
+        });
+        passwordDialog.show(getSupportFragmentManager(), "DialogFragment");
+    }
+
+    public void showToast(CharSequence msg) {
+        Context context = getApplicationContext();
+        Toast toast = Toast.makeText(context, msg, Toast.LENGTH_SHORT);
+        toast.show();
+    }
+
+    public void showToast(int id) {
+        showToast(getString(id));
+    }
+
+    private class TransferReceiver extends BroadcastReceiver {
+
+        private TransferReceiver() {}
+
+        public void onReceive(Context context, Intent intent) {
+            if (mTaskID < 0) {
+                return;
+            }
+
+            String type = intent.getStringExtra("type");
+            if (type == null) {
+                return;
+            }
+
+            int taskID = intent.getIntExtra("taskID", 0);
+            if (taskID != mTaskID) {
+                return;
+            }
+
+            DownloadTaskInfo info = mTransferService.getDownloadTaskInfo(taskID);
+            if (info == null) {
+                Log.w(DEBUG_TAG, "download info is null");
+            }
+            if (type.equals(TransferService.BROADCAST_FILE_DOWNLOAD_PROGRESS)) {
+                onFileDownloadProgress(info);
+            } else if (type.equals(TransferService.BROADCAST_FILE_DOWNLOAD_SUCCESS)) {
+                onFileDownloaded(info);
+            } else if (type.equals(TransferService.BROADCAST_FILE_DOWNLOAD_FAILED)) {
+                onFileDownloadFailed(info);
+            }
+        }
+
+    } // TransferReceiver
+}

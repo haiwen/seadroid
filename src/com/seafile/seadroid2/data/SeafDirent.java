@@ -1,14 +1,17 @@
 package com.seafile.seadroid2.data;
 
+import java.io.Serializable;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import android.util.Log;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.Utils;
 
-import android.util.Log;
-
-public class SeafDirent implements SeafItem {
+public class SeafDirent implements SeafItem, Serializable {
+    public static final long serialVersionUID = 0L;
 
     public enum DirentType { DIR, FILE };
 

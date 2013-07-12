@@ -8,6 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.net.http.SslError;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,9 +26,9 @@ import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.seafile.seadroid2.BrowserActivity;
+import com.seafile.seadroid2.FileActivity;
 import com.seafile.seadroid2.NavContext;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.Utils;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.SeafRepo;
 
@@ -171,19 +172,16 @@ public class ActivitiesFragment extends SherlockFragment {
         SeafRepo repo = getBrowserActivity().getDataManager().getCachedRepoByID(repoID);
 
         if (repo == null) {
-            getBrowserActivity().showToast("Couldn't find this library. It may be deleted");
+            getBrowserActivity().showToast(R.string.library_not_found);
             return;
         }
 
-        NavContext nav = getBrowserActivity().getNavContext();
-
-        nav.setRepoID(repoID);
-        nav.setRepoName(repo.getName());
-        nav.setDir(Utils.getParentPath(path), null);
-        nav.setFileName(Utils.fileNameFromPath(path));
-
-        // switch to LIBRARY TAB
-        getBrowserActivity().getSupportActionBar().setSelectedNavigationItem(0);
+        Intent intent = new Intent(getActivity(), FileActivity.class);
+        intent.putExtra("repoName", repo.getName());
+        intent.putExtra("repoID", repoID);
+        intent.putExtra("filePath", path);
+        intent.putExtra("account", getBrowserActivity().getAccount());
+        startActivity(intent);
     }
 
     private class MyWebViewClient extends WebViewClient {

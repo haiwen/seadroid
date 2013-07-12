@@ -82,4 +82,9 @@
     <string name="not_supported_share">This type of share is not supported</string>
     <string name="create_new_file">Create a new file</string>
     <string name="create_new_dir">Create a new folder</string>
+    <string name="download">Download</string>
+    <string name="open">Open</string>
+    <string name="last_modified">last modified</string>
+    <string name="file_size">file size</string>
+    <string name="library_not_found">The library have been deleted.</string>
 </resources>
