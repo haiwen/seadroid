@@ -294,10 +294,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         startService(txIntent);
         Log.d(DEBUG_TAG, "start TransferService");
 
-        IntentFilter filter = new IntentFilter(TransferService.BROADCAST_ACTION);
-        mTransferReceiver = new TransferReceiver();
-        LocalBroadcastManager.getInstance(this).registerReceiver(mTransferReceiver, filter);
-
         // bind transfer service
         Intent bIntent = new Intent(this, TransferService.class);
         bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
@@ -334,6 +330,13 @@ public class BrowserActivity extends SherlockFragmentActivity
     public void onStart() {
         Log.d(DEBUG_TAG, "onStart");
         super.onStart();
+
+        if (mTransferReceiver == null) {
+            mTransferReceiver = new TransferReceiver();
+        }
+
+        IntentFilter filter = new IntentFilter(TransferService.BROADCAST_ACTION);
+        LocalBroadcastManager.getInstance(this).registerReceiver(mTransferReceiver, filter);
     }
 
     @Override
@@ -351,6 +354,10 @@ public class BrowserActivity extends SherlockFragmentActivity
     protected void onStop() {
         Log.d(DEBUG_TAG, "onStop");
         super.onStop();
+
+        if (mTransferReceiver != null) {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(mTransferReceiver);
+        }
     }
 
     @Override
@@ -361,9 +368,6 @@ public class BrowserActivity extends SherlockFragmentActivity
             txService = null;
         }
 
-        if (mTransferReceiver != null) {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(mTransferReceiver);
-        }
 
         super.onDestroy();
     }

@@ -228,6 +228,10 @@ public class FileActivity extends SherlockFragmentActivity {
     }
 
     private void onFileDownloadFailed(DownloadTaskInfo info) {
+        mProgressBar.setVisibility(View.GONE);
+        mProgressText.setVisibility(View.GONE);
+        mButtonCancel.setVisibility(View.GONE);
+        
         SeafException err = info.err;
         String fileName = Utils.fileNameFromPath(info.path);
         if (err.getCode() == 404) {
