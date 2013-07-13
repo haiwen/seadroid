@@ -55,7 +55,7 @@ public class ReposFragment extends SherlockListFragment {
     }
 
     public interface OnFileSelectedListener {
-        public void onFileSelected(String fileName);
+        public void onFileSelected(SeafDirent fileName);
     }
 
     @Override
@@ -198,7 +198,7 @@ public class ReposFragment extends SherlockListFragment {
                 nav.setDir(newPath, dirent.id);
                 refreshView();
             } else {
-                mActivity.onFileSelected(dirent.name);
+                mActivity.onFileSelected(dirent);
             }
         } else {
             SeafItem item = adapter.getItem(position);
@@ -368,38 +368,7 @@ public class ReposFragment extends SherlockListFragment {
             }
 
             showLoading(false);
-
-            if (dirents != null && nav.getFileName() != null) {
-                String fileName = nav.getFileName();
-                nav.setFileName(null);
-                SeafDirent dent = findDirent(dirents, fileName);
-                if (dent == null) {
-                    mActivity.showToast(String.format("\"%s\" was deleted", fileName));
-                    return;
-                }
-
-                if (dent.type == SeafDirent.DirentType.FILE) {
-                    mActivity.openFile(fileName);
-                } else {
-                    nav.setDir(Utils.pathJoin(nav.getDirPath(), fileName), dent.id);
-                    refreshView();
-                }
-            }
         }
-    }
-
-    private SeafDirent findDirent(List<SeafDirent> dirents, String fileName) {
-        if (dirents == null) {
-            return null;
-        }
-
-        for (SeafDirent dent : dirents) {
-            if (dent.name.equals(fileName)) {
-                return dent;
-            }
-        }
-
-        return null;
     }
 
     private void showPasswordDialog() {

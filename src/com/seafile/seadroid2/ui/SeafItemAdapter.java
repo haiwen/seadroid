@@ -43,7 +43,7 @@ public class SeafItemAdapter extends BaseAdapter {
     private static final int ACTION_ID_DOWNLOAD = 0;
     private static final int ACTION_ID_REMOVE_CACHE = 1;
     private static final int ACTION_ID_UPDATE = 2;
-    private static final int ACTION_ID_SHARE = 3;
+    // private static final int ACTION_ID_SHARE = 3;
 
     @Override
     public int getCount() {
@@ -354,11 +354,11 @@ public class SeafItemAdapter extends BaseAdapter {
                 DataManager dataManager = mActivity.getDataManager();
                 String localPath = dataManager.getLocalRepoFile(repoName, repoID, path).getPath();
                 switch (actionId) {
-                case ACTION_ID_SHARE:
-                    mActivity.shareFile(dirent.name);
-                    break;
+                // case ACTION_ID_SHARE:
+                //     mActivity.shareFile(dirent.name);
+                //     break;
                 case ACTION_ID_DOWNLOAD:
-                    mActivity.onFileSelected(dirent.name);
+                    mActivity.onFileSelected(dirent);
                     break;
                 case ACTION_ID_UPDATE:
                     mActivity.addUpdateTask(repoID, repoName, dir, localPath);
@@ -383,20 +383,20 @@ public class SeafItemAdapter extends BaseAdapter {
     private QuickAction prepareDirAction(final SeafDirent dirent) {
         final QuickAction mQuickAction = new QuickAction(mActivity);
         Resources resources = mActivity.getResources();
-        ActionItem shareAction;
-        shareAction = new ActionItem(ACTION_ID_SHARE,
-                                     resources.getString(R.string.file_action_share),
-                                     resources.getDrawable(R.drawable.action_share));
-        mQuickAction.addActionItem(shareAction);
+        // ActionItem shareAction;
+        // shareAction = new ActionItem(ACTION_ID_SHARE,
+        //                              resources.getString(R.string.file_action_share),
+        //                              resources.getDrawable(R.drawable.action_share));
+        // mQuickAction.addActionItem(shareAction);
 
         //setup the action item click listener
         mQuickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
             @Override
             public void onItemClick(QuickAction quickAction, int pos, int actionId) {
                 switch (actionId) {
-                case ACTION_ID_SHARE:
-                    mActivity.shareDir(dirent.name);
-                    break;
+                // case ACTION_ID_SHARE:
+                //     mActivity.shareDir(dirent.name);
+                //     break;
                 }
             }
         });

@@ -3,7 +3,6 @@ package com.seafile.seadroid2;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.List;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -15,8 +14,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -690,11 +687,17 @@ public class BrowserActivity extends SherlockFragmentActivity
     /***************  Navigation *************/
 
     @Override
-    public void onFileSelected(String fileName) {
-        // openFile(fileName);
+    public void onFileSelected(SeafDirent dirent) {
+        String fileName= dirent.name;
         final String repoName = navContext.getRepoName();
         final String repoID = navContext.getRepoID();
         final String filePath = Utils.pathJoin(navContext.getDirPath(), fileName);
+
+        File localFile = dataManager.getLocalCachedFile(repoName, repoID, filePath, dirent.id);
+        if (localFile != null) {
+            showFile(localFile);
+            return;
+        }
 
         Intent intent = new Intent(this, FileActivity.class);
         intent.putExtra("repoName", repoName);
@@ -704,6 +707,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         startActivity(intent);
         return;
     }
+
 
     @Override
     public void onBackPressed() {
@@ -773,87 +777,87 @@ public class BrowserActivity extends SherlockFragmentActivity
      * blockingly download it, and then open it.
      * @param fn The name of the file to open
      */
-    public void openFile(String fileName) {
-        if (!navContext.inRepo()) {
-            return;
-        }
+    // public void openFile(String fileName) {
+    //     if (!navContext.inRepo()) {
+    //         return;
+    //     }
 
-        final String repoName = navContext.getRepoName();
-        final String repoID = navContext.getRepoID();
-        final String dirPath = navContext.getDirPath();
+    //     final String repoName = navContext.getRepoName();
+    //     final String repoID = navContext.getRepoID();
+    //     final String dirPath = navContext.getDirPath();
 
-        final String fullPath = Utils.pathJoin(dirPath, fileName);
+    //     final String fullPath = Utils.pathJoin(dirPath, fileName);
 
-        fetchFileDialog = new FetchFileDialog();
-        fetchFileDialog.init(repoName, repoID, fullPath,
-            new FetchFileDialog.FetchFileListener() {
-            @Override
-            public void onDismiss() {
-                fetchFileDialog = null;
-            }
+    //     fetchFileDialog = new FetchFileDialog();
+    //     fetchFileDialog.init(repoName, repoID, fullPath,
+    //         new FetchFileDialog.FetchFileListener() {
+    //         @Override
+    //         public void onDismiss() {
+    //             fetchFileDialog = null;
+    //         }
 
-            @Override
-            public void onSuccess() {
-                File localFile = dataManager.getLocalRepoFile(repoName, repoID, fullPath);
-                showFile(localFile);
-            }
+    //         @Override
+    //         public void onSuccess() {
+    //             File localFile = dataManager.getLocalRepoFile(repoName, repoID, fullPath);
+    //             showFile(localFile);
+    //         }
 
-            @Override
-            public void onFailure(SeafException err) {
-            }
-        });
-        fetchFileDialog.show(getSupportFragmentManager(), OPEN_FILE_DIALOG_FRAGMENT_TAG);
-    }
+    //         @Override
+    //         public void onFailure(SeafException err) {
+    //         }
+    //     });
+    //     fetchFileDialog.show(getSupportFragmentManager(), OPEN_FILE_DIALOG_FRAGMENT_TAG);
+    // }
 
     /**
      * Share a file. Generating a file share link and send the link to someone
      * through some app.
      * @param fileName The name of the file to share in the current navcontext
      */
-    public void shareFile(String fileName) {
-        String repoID = navContext.getRepoID();
-        String dirPath = navContext.getDirPath();
-        Log.d(DEBUG_TAG, "sharing file: " + fileName);
-        chooseShareApp();
-    }
+    // public void shareFile(String fileName) {
+    //     String repoID = navContext.getRepoID();
+    //     String dirPath = navContext.getDirPath();
+    //     Log.d(DEBUG_TAG, "sharing file: " + fileName);
+    //     chooseShareApp();
+    // }
 
-    private void chooseShareApp() {
-        PackageManager pm = getPackageManager();
+    // private void chooseShareApp() {
+    //     PackageManager pm = getPackageManager();
 
-        Intent sendIntent = new Intent();
-        sendIntent.setAction(Intent.ACTION_SEND);
-        sendIntent.putExtra(Intent.EXTRA_TEXT, "dummy text");
-        sendIntent.setType("text/plain");
+    //     Intent sendIntent = new Intent();
+    //     sendIntent.setAction(Intent.ACTION_SEND);
+    //     sendIntent.putExtra(Intent.EXTRA_TEXT, "dummy text");
+    //     sendIntent.setType("text/plain");
 
-        List<ResolveInfo> infos = pm.queryIntentActivities(sendIntent, 0);
-        if (infos.isEmpty()) {
-            showToast(R.string.no_app_available);
-            return;
-        }
+    //     List<ResolveInfo> infos = pm.queryIntentActivities(sendIntent, 0);
+    //     if (infos.isEmpty()) {
+    //         showToast(R.string.no_app_available);
+    //         return;
+    //     }
 
-        for (ResolveInfo info: infos) {
-            Log.d(DEBUG_TAG, info.toString());
-        }
-    }
+    //     for (ResolveInfo info: infos) {
+    //         Log.d(DEBUG_TAG, info.toString());
+    //     }
+    // }
 
     /**
      * Share a file
      */
-    public void shareDir(String dirName) {
-        String repoID = navContext.getRepoID();
-        String dirPath = navContext.getDirPath();
-        Log.d(DEBUG_TAG, "sharing dir: " + dirName);
-    }
+    // public void shareDir(String dirName) {
+    //     String repoID = navContext.getRepoID();
+    //     String dirPath = navContext.getDirPath();
+    //     Log.d(DEBUG_TAG, "sharing dir: " + dirName);
+    // }
 
     /**
      * Export a file. Download the latest version of the file and send it to
      * someone through some app.
      * @param fileName
      */
-    public void exportFile(String fileName) {
-        String repoID = navContext.getRepoID();
-        String dirPath = navContext.getDirPath();
-    }
+    // public void exportFile(String fileName) {
+    //     String repoID = navContext.getRepoID();
+    //     String dirPath = navContext.getDirPath();
+    // }
 
     private void onFileUploadProgress(int taskID) {
         if (txService == null) {

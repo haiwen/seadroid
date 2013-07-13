@@ -600,4 +600,18 @@ public class DataManager {
         } catch (IOException e) {
         }
     }
+
+    public File getLocalCachedFile(String repoName, String repoID, String filePath, String fileID) {
+        File localFile = getLocalRepoFile(repoName, repoID, filePath);
+        if (!localFile.exists()) {
+            return null;
+        }
+        
+        SeafCachedFile cf = getCachedFile(repoName, repoID, filePath);
+        if (cf != null && fileID.equals(cf.fileID)) {
+            return localFile;
+        } else {
+            return null;
+        }
+    }
 }

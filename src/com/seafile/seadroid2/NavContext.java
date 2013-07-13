@@ -6,7 +6,6 @@ public class NavContext {
     String repoName = null;     // for display
     String dirPath = null;
     String dirID = null;
-    String fileName = null;
 
     public NavContext() {
     }
@@ -22,19 +21,12 @@ public class NavContext {
     public void setDir(String path, String dirID) {
         this.dirPath = path;
         this.dirID = dirID;
-
-        // clear fileName when navigate to another dir
-        this.fileName = null;
     }
 
     public void setDirID(String dirID) {
         this.dirID = dirID;
     }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
-    
     public boolean inRepo() {
         return repoID != null;
     }
@@ -57,9 +49,5 @@ public class NavContext {
     
     public String getDirID() {
         return dirID;
-    }
-
-    public String getFileName() {
-        return fileName;
     }
 }

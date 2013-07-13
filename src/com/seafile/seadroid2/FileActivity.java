@@ -139,6 +139,7 @@ public class FileActivity extends SherlockFragmentActivity {
         if (suffix.endsWith("md") || suffix.endsWith("markdown")) {
             startMarkdownActivity(file.getPath());
             finish();
+            overridePendingTransition(0, 0);
             return;
         }
 
@@ -148,6 +149,7 @@ public class FileActivity extends SherlockFragmentActivity {
         try {
             startActivity(open);
             finish();
+            overridePendingTransition(0, 0);
             return;
         } catch (ActivityNotFoundException e) {
             showToast(R.string.activity_not_found);
