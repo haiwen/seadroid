@@ -48,14 +48,6 @@
 
     </LinearLayout>
 
-  <!-- file ops -->
-  <Button
-      android:id="@+id/op_open"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_gravity="center_horizontal"
-      android:text="@string/open" />
-
   <Button
       android:id="@+id/op_cancel"
       android:layout_width="wrap_content"

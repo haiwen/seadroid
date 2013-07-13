@@ -38,7 +38,7 @@ public class FileActivity extends SherlockFragmentActivity {
 
     private TextView mFileNameText;
     private ImageView mFileIcon;
-    private Button mButtonCancel, mButtonOpen;
+    private Button mButtonCancel;
 
     private TextView mProgressText;
     private ProgressBar mProgressBar;
@@ -99,11 +99,8 @@ public class FileActivity extends SherlockFragmentActivity {
         mFileNameText = (TextView)findViewById(R.id.file_name);
         mFileIcon = (ImageView)findViewById(R.id.file_icon);
         mButtonCancel = (Button)findViewById(R.id.op_cancel);
-        mButtonOpen = (Button)findViewById(R.id.op_open);
         mProgressBar = (ProgressBar)findViewById(R.id.progress_bar);
         mProgressText = (TextView)findViewById(R.id.progress_text);
-
-        mButtonOpen.setVisibility(View.GONE);
 
         String fileName = Utils.fileNameFromPath(mFilePath);
         mFileNameText.setText(fileName);
@@ -111,16 +108,12 @@ public class FileActivity extends SherlockFragmentActivity {
         // icon
         mFileIcon.setImageResource(Utils.getFileIcon(fileName));
 
-        mButtonOpen.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onOpenButtonClicked();
-            }
-        });
-
         mButtonCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (mTaskID > 0) {
+                    mTransferService.cancelDownloadTask(mTaskID);
+                }
                 finish();
             }
         });
@@ -132,7 +125,8 @@ public class FileActivity extends SherlockFragmentActivity {
         startActivity(intent);
     }
 
-    private void showFile(File file) {
+    private void showFile() {
+        File file = mDataManager.getLocalRepoFile(mRepoName, mRepoID, mFilePath);
         String name = file.getName();
         String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
 
@@ -141,8 +135,10 @@ public class FileActivity extends SherlockFragmentActivity {
             return;
         }
 
+        // Open markdown files in MarkdownActivity
         if (suffix.endsWith("md") || suffix.endsWith("markdown")) {
             startMarkdownActivity(file.getPath());
+            finish();
             return;
         }
 
@@ -169,11 +165,6 @@ public class FileActivity extends SherlockFragmentActivity {
         mProgressBar.setVisibility(View.VISIBLE);
         mProgressBar.setIndeterminate(true);
         mProgressText.setVisibility(View.VISIBLE);
-    }
-
-    private void onOpenButtonClicked() {
-        File localFile = mDataManager.getLocalRepoFile(mRepoName, mRepoID, mFilePath);
-        showFile(localFile);
     }
 
     @Override
@@ -215,16 +206,7 @@ public class FileActivity extends SherlockFragmentActivity {
         mProgressText.setVisibility(View.GONE);
         mButtonCancel.setVisibility(View.GONE);
 
-        // For markdown files, display directly with a MarkdownActivity
-        String name = Utils.fileNameFromPath(info.path);
-        String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
-        if (suffix.endsWith("md") || suffix.endsWith("markdown")) {
-            startMarkdownActivity(info.path);
-            finish();
-            return;
-        }
-
-        mButtonOpen.setVisibility(View.VISIBLE);
+        showFile();
     }
 
     private void onFileDownloadFailed(DownloadTaskInfo info) {

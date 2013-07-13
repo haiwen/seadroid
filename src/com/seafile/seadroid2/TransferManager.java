@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -339,8 +337,6 @@ public class TransferManager {
 
     private class DownloadTask extends AsyncTask<String, Long, File> {
 
-        Notification notification;
-        NotificationManager notificationManager;
         private int taskID;
 
         Account account;
@@ -356,38 +352,15 @@ public class TransferManager {
             this.myRepoName = repoName;
             this.myRepoID = repoID;
             this.myPath = path;
-            myState = TaskState.INIT;
+            this.myState = TaskState.INIT;
 
             // The size of the file would be known in the first progress update
             this.mySize = -1;
+            this.taskID = ++notificationID;
 
             // Log.d(DEBUG_TAG, "stored object is " + myPath + myObjectID);
             downloadTasks.add(this);
             err = null;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            taskID = ++notificationID;
-
-            Context context =  SeadroidApplication.getAppContext();
-            notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            Intent notificationIntent = new Intent(context,
-                    BrowserActivity.class);
-
-            PendingIntent intent = PendingIntent.getActivity(context, taskID, notificationIntent, 0);
-
-            notification = new Notification(R.drawable.ic_stat_download, "", System.currentTimeMillis());
-            notification.flags = notification.flags | Notification.FLAG_ONGOING_EVENT;
-            notification.contentView = new RemoteViews(context.getPackageName(),
-                    R.layout.download_progress);
-            notification.contentView.setCharSequence(R.id.tv_download_title, "setText",
-                    Utils.fileNameFromPath(myPath));
-            notification.contentIntent = intent;
-
-            notification.contentView.setProgressBar(R.id.pb_download_progressbar,
-                    100, 0, false);
-            notificationManager.notify(taskID, notification);
         }
 
         /**
@@ -402,9 +375,6 @@ public class TransferManager {
                 return;
             }
             finished = values[0];
-            notification.contentView.setProgressBar(R.id.pb_download_progressbar,
-                                                    (int)mySize, (int)finished, false);
-            notificationManager.notify(taskID, notification);
             listener.onFileDownloadProgress(taskID);
         }
 
@@ -434,8 +404,6 @@ public class TransferManager {
 
         @Override
         protected void onPostExecute(File file) {
-            notificationManager.cancel(taskID);
-
             if (listener != null) {
                 if (file != null) {
                     myState = TaskState.FINISHED;
@@ -452,7 +420,6 @@ public class TransferManager {
         @Override
         protected void onCancelled() {
             myState = TaskState.CANCELLED;
-            notificationManager.cancel(taskID);
         }
 
         public int getTaskID() {
