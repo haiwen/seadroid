@@ -306,4 +306,8 @@ public class Utils {
             return "Just now";
         }
     }
+
+    public static long now() {
+        return Calendar.getInstance().getTimeInMillis();
+    }
 }
