@@ -95,11 +95,6 @@ public class AccountsActivity extends FragmentActivity {
         finish();
     }
 
-    private void startAccountDetailActivity() {
-        Intent intent = new Intent(this, AccountDetailActivity.class);
-        startActivity(intent);
-    }
-
     private void startEditAccountActivity(Account account) {
         Intent intent = new Intent(this, AccountDetailActivity.class);
         intent.putExtra("server", account.server);

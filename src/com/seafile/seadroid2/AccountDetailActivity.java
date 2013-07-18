@@ -2,28 +2,23 @@ package com.seafile.seadroid2;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.cert.CertificateException;
 
-import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.AccountManager;
-
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentActivity;
-import android.os.Bundle;
+import android.content.Context;
+import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.util.Log;
+
+import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.AccountManager;
 
 
 public class AccountDetailActivity extends FragmentActivity {

@@ -351,6 +351,8 @@ public class ReposFragment extends SherlockListFragment {
                 return;
             }
 
+            nav.setDirID(null);
+
             adapter.clear();
             if (dirents.size() > 0) {
                 for (SeafDirent dirent : dirents) {

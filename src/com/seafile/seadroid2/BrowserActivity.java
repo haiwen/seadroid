@@ -3,6 +3,8 @@ package com.seafile.seadroid2;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -14,6 +16,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -43,6 +47,7 @@ import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.gallery.MultipleImageSelectionActivity;
 import com.seafile.seadroid2.ui.ActivitiesFragment;
+import com.seafile.seadroid2.ui.AppChoiceDialog;
 import com.seafile.seadroid2.ui.FetchFileDialog;
 import com.seafile.seadroid2.ui.NewDirDialog;
 import com.seafile.seadroid2.ui.NewFileDialog;
@@ -63,6 +68,8 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final String EXTRA_REPO_ID = PKG_NAME + ".repoID";
     public static final String EXTRA_FILE_PATH = PKG_NAME + ".filePath";
     public static final String EXTRA_ACCOUT = PKG_NAME + ".filePath";
+
+    public static final String MIME_APPLICATION_OCTET_STREAM = "application/octet-stream";
 
     private Account account;
     NavContext navContext = null;
@@ -87,6 +94,8 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final String ACTIVITIES_FRAGMENT_TAG = "activities_fragment";
     public static final String OPEN_FILE_DIALOG_FRAGMENT_TAG = "openfile_fragment";
     public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "password_fragment";
+    public static final String CHOOSE_APP_DIALOG_FRAGMENT_TAG = "choose_app_fragment";
+    public static final String PICK_FILE_DIALOG_FRAGMENT_TAG = "pick_file_fragment";
 
     public DataManager getDataManager() {
         return dataManager;
@@ -273,10 +282,10 @@ public class BrowserActivity extends SherlockFragmentActivity
             .setTabListener(new TabListener(UPLOAD_TASKS_TAB));
         actionBar.addTab(tab);
 
-        tab = actionBar.newTab()
-            .setText(R.string.activities)
-            .setTabListener(new TabListener(ACTIVITY_TAB));
-        actionBar.addTab(tab);
+        // tab = actionBar.newTab()
+        //     .setText(R.string.activities)
+        //     .setTabListener(new TabListener(ACTIVITY_TAB));
+        // actionBar.addTab(tab);
 
         actionBar.setSelectedNavigationItem(cTab);
         if (cTab == 0) {
@@ -644,7 +653,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
 
         UploadChoiceDialog dialog = new UploadChoiceDialog();
-        dialog.show(getSupportFragmentManager(), "pickFile");
+        dialog.show(getSupportFragmentManager(), PICK_FILE_DIALOG_FRAGMENT_TAG);
     }
 
     @Override
@@ -773,91 +782,107 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
 
     /**
-     * Open a file in current nav context. If the file is not cached,
-     * blockingly download it, and then open it.
-     * @param fn The name of the file to open
+     * Export a file.
+     * 1. first ask the user to choose an app
+     * 2. then download the latest version of the file
+     * 3. start the choosen app
+     *
+     * @param fileName The name of the file to share in the current navcontext
      */
-    // public void openFile(String fileName) {
-    //     if (!navContext.inRepo()) {
-    //         return;
-    //     }
+    public void exportFile(String fileName) {
+        String repoName = navContext.getRepoName();
+        String repoID = navContext.getRepoID();
+        String dirPath = navContext.getDirPath();
+        String fullPath = Utils.pathJoin(dirPath, fileName);
+        chooseExportApp(repoName, repoID, fullPath);
+    }
 
-    //     final String repoName = navContext.getRepoName();
-    //     final String repoID = navContext.getRepoID();
-    //     final String dirPath = navContext.getDirPath();
+    private void chooseExportApp(final String repoName, final String repoID, final String path) {
+        PackageManager pm = getPackageManager();
+        File file = dataManager.getLocalRepoFile(repoName, repoID, path); 
+        Uri uri = Uri.fromFile(file);
 
-    //     final String fullPath = Utils.pathJoin(dirPath, fileName);
+        final Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.setType(MIME_APPLICATION_OCTET_STREAM);
+        sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
 
-    //     fetchFileDialog = new FetchFileDialog();
-    //     fetchFileDialog.init(repoName, repoID, fullPath,
-    //         new FetchFileDialog.FetchFileListener() {
-    //         @Override
-    //         public void onDismiss() {
-    //             fetchFileDialog = null;
-    //         }
+        // Get a list of apps
+        List<ResolveInfo> infos = pm.queryIntentActivities(sendIntent, 0);
 
-    //         @Override
-    //         public void onSuccess() {
-    //             File localFile = dataManager.getLocalRepoFile(repoName, repoID, fullPath);
-    //             showFile(localFile);
-    //         }
+        
+        // Remove seafile app from the list
+        String seadroidPackageName = getPackageName();
+        ResolveInfo info;
+        Iterator<ResolveInfo> iter = infos.iterator();
+        while (iter.hasNext()) {
+            info = iter.next();
+            if (info.activityInfo.packageName.equals(seadroidPackageName)) {
+                iter.remove();
+            }
+        }
+        
+        if (infos.isEmpty()) {
+            showToast(R.string.no_app_available);
+            return;
+        }
 
-    //         @Override
-    //         public void onFailure(SeafException err) {
-    //         }
-    //     });
-    //     fetchFileDialog.show(getSupportFragmentManager(), OPEN_FILE_DIALOG_FRAGMENT_TAG);
-    // }
+        AppChoiceDialog dialog = new AppChoiceDialog();
+        dialog.init(infos, new AppChoiceDialog.OnAppSelectedListener() {
+            @Override
+            public void onAppSelected(ResolveInfo appInfo) {
+                fetchFileAndExport(appInfo, sendIntent, repoName, repoID,
+                                   path);
+            }
+
+        });
+        dialog.show(getSupportFragmentManager(), CHOOSE_APP_DIALOG_FRAGMENT_TAG);
+    }
+
+    private void fetchFileAndExport(final ResolveInfo appInfo, final Intent intent,
+                                    final String repoName, final String repoID, final String path) {
+
+        fetchFileDialog = new FetchFileDialog();
+        fetchFileDialog.init(repoName, repoID, path, new FetchFileDialog.FetchFileListener() {
+            @Override
+            public void onSuccess() {
+                String className = appInfo.activityInfo.name;
+                String packageName = appInfo.activityInfo.packageName;
+
+                intent.setClassName(packageName, className);
+                startActivity(intent);
+            }
+
+            @Override
+            public void onDismiss() {
+                fetchFileDialog = null;
+            }
+
+            @Override
+            public void onFailure(SeafException err) {
+            }
+        });
+        fetchFileDialog.show(getSupportFragmentManager(), OPEN_FILE_DIALOG_FRAGMENT_TAG);
+    }
 
     /**
      * Share a file. Generating a file share link and send the link to someone
      * through some app.
-     * @param fileName The name of the file to share in the current navcontext
-     */
-    // public void shareFile(String fileName) {
-    //     String repoID = navContext.getRepoID();
-    //     String dirPath = navContext.getDirPath();
-    //     Log.d(DEBUG_TAG, "sharing file: " + fileName);
-    //     chooseShareApp();
-    // }
-
-    // private void chooseShareApp() {
-    //     PackageManager pm = getPackageManager();
-
-    //     Intent sendIntent = new Intent();
-    //     sendIntent.setAction(Intent.ACTION_SEND);
-    //     sendIntent.putExtra(Intent.EXTRA_TEXT, "dummy text");
-    //     sendIntent.setType("text/plain");
-
-    //     List<ResolveInfo> infos = pm.queryIntentActivities(sendIntent, 0);
-    //     if (infos.isEmpty()) {
-    //         showToast(R.string.no_app_available);
-    //         return;
-    //     }
-
-    //     for (ResolveInfo info: infos) {
-    //         Log.d(DEBUG_TAG, info.toString());
-    //     }
-    // }
-
-    /**
-     * Share a file
-     */
-    // public void shareDir(String dirName) {
-    //     String repoID = navContext.getRepoID();
-    //     String dirPath = navContext.getDirPath();
-    //     Log.d(DEBUG_TAG, "sharing dir: " + dirName);
-    // }
-
-    /**
-     * Export a file. Download the latest version of the file and send it to
-     * someone through some app.
      * @param fileName
      */
-    // public void exportFile(String fileName) {
-    //     String repoID = navContext.getRepoID();
-    //     String dirPath = navContext.getDirPath();
-    // }
+    public void shareFile(String fileName) {
+        // TODO: share a file
+        // String repoID = navContext.getRepoID();
+        // String dirPath = navContext.getDirPath();
+    }
+
+    public void shareDir(String dirName) {
+        // TODO: share a dir
+        // String repoID = navContext.getRepoID();
+        // String dirPath = navContext.getDirPath();
+        // Log.d(DEBUG_TAG, "sharing dir: " + dirName);
+    }
+
 
     private void onFileUploadProgress(int taskID) {
         if (txService == null) {

@@ -1,9 +1,8 @@
 package com.seafile.seadroid2.gallery;
 
-import android.app.Activity;
-import android.os.Bundle;
-
 import java.util.ArrayList;
+
+import android.os.Bundle;
 
 public class MonitoredActivity extends NoSearchActivity {
 

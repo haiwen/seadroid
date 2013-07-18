@@ -5,12 +5,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.RemoteViews;
 
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;

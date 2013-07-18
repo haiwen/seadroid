@@ -55,6 +55,7 @@
     <string name="file_action_remove_cache">Remove Cache</string>
     <string name="file_action_update">Update</string>
     <string name="file_action_share">Share</string>
+    <string name="file_action_export">Export</string>
     <string name="wait">Wait</string>
     <string name="image_gallery_NoImageView_text">No image Found</string>
     <string name="pick_photo_video_title">Choose photos/videos to upload</string>
@@ -88,4 +89,5 @@
     <string name="last_modified">last modified</string>
     <string name="file_size">file size</string>
     <string name="library_not_found">The library have been deleted.</string>
+    <string name="export_file">Export this file</string>
 </resources>
