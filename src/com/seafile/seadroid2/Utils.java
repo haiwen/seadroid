@@ -31,6 +31,7 @@ import android.webkit.MimeTypeMap;
 import com.seafile.seadroid2.data.SeafRepo;
 
 public class Utils {
+    public static final String MIME_APPLICATION_OCTET_STREAM = "application/octet-stream";
 
     public static JSONObject parseJsonObject(String json) {
         if (json == null) {
@@ -309,5 +310,24 @@ public class Utils {
 
     public static long now() {
         return Calendar.getInstance().getTimeInMillis();
+    }
+
+    public static String getFileMimeType(String path) {
+        String name = fileNameFromPath(path);
+        String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
+        if (suffix.length() == 0) {
+            return MIME_APPLICATION_OCTET_STREAM;
+        } else {
+            String mime =  MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
+            if (mime != null) {
+                return mime;
+            } else {
+                return MIME_APPLICATION_OCTET_STREAM;
+            }
+        }
+    }
+
+    public static String getFileMimeType(File file) {
+        return getFileMimeType(file.getPath());
     }
 }

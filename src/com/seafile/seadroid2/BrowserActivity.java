@@ -69,7 +69,6 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final String EXTRA_FILE_PATH = PKG_NAME + ".filePath";
     public static final String EXTRA_ACCOUT = PKG_NAME + ".filePath";
 
-    public static final String MIME_APPLICATION_OCTET_STREAM = "application/octet-stream";
 
     private Account account;
     NavContext navContext = null;
@@ -804,7 +803,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         final Intent sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);
-        sendIntent.setType(MIME_APPLICATION_OCTET_STREAM);
+        sendIntent.setType(Utils.getFileMimeType(file));
         sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
 
         // Get a list of apps
@@ -865,23 +864,23 @@ public class BrowserActivity extends SherlockFragmentActivity
         fetchFileDialog.show(getSupportFragmentManager(), OPEN_FILE_DIALOG_FRAGMENT_TAG);
     }
 
-    /**
-     * Share a file. Generating a file share link and send the link to someone
-     * through some app.
-     * @param fileName
-     */
-    public void shareFile(String fileName) {
-        // TODO: share a file
-        // String repoID = navContext.getRepoID();
-        // String dirPath = navContext.getDirPath();
-    }
+    // /**
+    //  * Share a file. Generating a file share link and send the link to someone
+    //  * through some app.
+    //  * @param fileName
+    //  */
+    // public void shareFile(String fileName) {
+    //     // TODO: share a file
+    //     // String repoID = navContext.getRepoID();
+    //     // String dirPath = navContext.getDirPath();
+    // }
 
-    public void shareDir(String dirName) {
-        // TODO: share a dir
-        // String repoID = navContext.getRepoID();
-        // String dirPath = navContext.getDirPath();
-        // Log.d(DEBUG_TAG, "sharing dir: " + dirName);
-    }
+    // public void shareDir(String dirName) {
+    //     // TODO: share a dir
+    //     // String repoID = navContext.getRepoID();
+    //     // String dirPath = navContext.getDirPath();
+    //     // Log.d(DEBUG_TAG, "sharing dir: " + dirName);
+    // }
 
 
     private void onFileUploadProgress(int taskID) {
