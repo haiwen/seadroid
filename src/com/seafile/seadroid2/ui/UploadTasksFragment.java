@@ -1,16 +1,18 @@
 package com.seafile.seadroid2.ui;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 
@@ -48,6 +50,12 @@ public class UploadTasksFragment extends SherlockListFragment {
         }
 
         return txService.getAllUploadTaskInfos();
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.upload_tasks_fragment, container, false);
     }
 
     @Override
