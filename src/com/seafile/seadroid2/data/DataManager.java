@@ -176,7 +176,7 @@ public class DataManager {
         }
     }
 
-    HashMap<String, DirInfo> dirLastUpdateMap = new HashMap<String, DirInfo>();
+    static HashMap<String, DirInfo> dirLastUpdateMap = new HashMap<String, DirInfo>();
     List<SeafRepo> reposCache = null;
     // last time of repos update from server
     long lastRepoUpdate = 0;
@@ -462,9 +462,8 @@ public class DataManager {
         }
     }
 
-    public List<SeafDirent> getDirents(String repoID,
-            String path, String dirID) throws SeafException {
-        return getDirents(repoID, path, dirID, false);
+    public List<SeafDirent> getDirents(String repoID, String path) throws SeafException {
+        return getDirents(repoID, path, false);
     }
 
     private boolean shouldUseCachedDirents(String repoID, String path, boolean forceRefresh) {
@@ -489,15 +488,11 @@ public class DataManager {
         return useCache;
     }
 
-    private String getCachedDirID(String repoID, String path, String currentDirID) {
+    private String getCachedDirID(String repoID, String path) {
         String cachedDirID = null;
-        if (currentDirID != null) {
-            cachedDirID = currentDirID;
-        } else {
-            DirInfo info = getDirCacheInfo(repoID, path);
-            if (info != null) {
-                cachedDirID = info.dirID;
-            }
+        DirInfo info = getDirCacheInfo(repoID, path);
+        if (info != null) {
+            cachedDirID = info.dirID;
         }
 
         File cache = null;
@@ -515,14 +510,14 @@ public class DataManager {
     }
 
     public List<SeafDirent> getDirents(String repoID,
-            String path, String currentDirID, boolean forceRefresh) throws SeafException {
+            String path, boolean forceRefresh) throws SeafException {
 
         boolean useCache = shouldUseCachedDirents(repoID, path, forceRefresh);
 
         // Get the ID of the cached dir. This is necessary even if useCache is
         // false, because if the cached dir ID is the same as the latest
         // version on the server, we don't need to get the content of the dir.
-        String cachedDirID = getCachedDirID(repoID, path, currentDirID);
+        String cachedDirID = getCachedDirID(repoID, path);
 
         if (useCache && cachedDirID != null) {
             // Log.d(DEBUG_TAG, "get dirents from cache, p = " + path);
@@ -609,18 +604,24 @@ public class DataManager {
     }
 
     private DirInfo getDirCacheInfo(String repoID, String path) {
-        return dirLastUpdateMap.get(repoID + path);
+        synchronized(dirLastUpdateMap) {
+            return dirLastUpdateMap.get(repoID + path);
+        }
     }
 
     private void saveDirLastRefreshed(String repoID, String path, String dirID) {
         long now = Utils.now();
         // Log.d(DEBUG_TAG, "path = " + path + ", time = " + now);
         DirInfo info = new DirInfo(dirID, now);
-        dirLastUpdateMap.put(repoID + path, info);
+        synchronized(dirLastUpdateMap) {
+            dirLastUpdateMap.put(repoID + path, info);
+        }
     }
 
     private void removeDirCacheInfo(String repoID, String path) {
-        dirLastUpdateMap.remove(repoID + path);
+        synchronized(dirLastUpdateMap) {
+            dirLastUpdateMap.remove(repoID + path);
+        }
     }
 
     public void createNewDir(String repoID, String parentDir, String dirName) throws SeafException {

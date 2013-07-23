@@ -319,9 +319,8 @@ public class ShareToSeafileActivity extends SherlockListActivity {
 
         String repoID = getNavContext().getRepoID();
         String dirPath = getNavContext().getDirPath();
-        String dirID = getNavContext().getDirID();
 
-        mLoadDirTask = new LoadDirTask(repoID, dirPath, dirID, getDataManager());
+        mLoadDirTask = new LoadDirTask(repoID, dirPath, getDataManager());
         ConcurrentAsyncTask.execute(mLoadDirTask);
 
         // update action bar
@@ -535,22 +534,21 @@ public class ShareToSeafileActivity extends SherlockListActivity {
     }
 
     private class LoadDirTask extends AsyncTask<Void, Void, Void> {
-        private String repoID, dirPath, dirID;
+        private String repoID, dirPath;
         private SeafException err;
         private DataManager dataManager;
         private List<SeafDirent> dirents;
 
-        public LoadDirTask(String repoID, String dirPath, String dirID, DataManager dataManager) {
+        public LoadDirTask(String repoID, String dirPath, DataManager dataManager) {
             this.repoID = repoID;
             this.dirPath = dirPath;
-            this.dirID = dirID;
             this.dataManager = dataManager;
         }
 
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                dirents = dataManager.getDirents(repoID, dirPath, dirID);
+                dirents = dataManager.getDirents(repoID, dirPath);
             } catch (SeafException e) {
                 err = e;
             }

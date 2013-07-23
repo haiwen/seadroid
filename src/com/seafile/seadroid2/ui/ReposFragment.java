@@ -162,8 +162,7 @@ public class ReposFragment extends SherlockListFragment {
         ConcurrentAsyncTask.execute(new LoadDirTask(getDataManager()),
                                     navContext.getRepoName(),
                                     navContext.getRepoID(),
-                                    navContext.getDirPath(),
-                                    navContext.getDirID());
+                                    navContext.getDirPath());
 
         updateActionBarTitle();
     }
@@ -303,7 +302,7 @@ public class ReposFragment extends SherlockListFragment {
 
         @Override
         protected List<SeafDirent> doInBackground(String... params) {
-            if (params.length != 4) {
+            if (params.length != 3) {
                 Log.d(DEBUG_TAG, "Wrong params to LoadDirTask");
                 return null;
             }
@@ -311,9 +310,8 @@ public class ReposFragment extends SherlockListFragment {
             myRepoName = params[0];
             myRepoID = params[1];
             myPath = params[2];
-            String objectID = params[3];
             try {
-                return dataManager.getDirents(myRepoID, myPath, objectID);
+                return dataManager.getDirents(myRepoID, myPath);
             } catch (SeafException e) {
                 err = e;
                 return null;
@@ -350,8 +348,6 @@ public class ReposFragment extends SherlockListFragment {
                 mActivity.showToast(R.string.error_when_load_dir);
                 return;
             }
-
-            nav.setDirID(null);
 
             adapter.clear();
             if (dirents.size() > 0) {
