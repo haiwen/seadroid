@@ -41,6 +41,7 @@ public class ReposFragment extends SherlockListFragment {
     private TextView mEmptyView;
     private View mProgressContainer;
     private View mListContainer;
+    private TextView mErrorText;
 
     private DataManager getDataManager() {
         return mActivity.getDataManager();
@@ -72,6 +73,7 @@ public class ReposFragment extends SherlockListFragment {
         mList = (ListView) root.findViewById(android.R.id.list);
         mEmptyView = (TextView) root.findViewById(android.R.id.empty);
         mListContainer =  root.findViewById(R.id.listContainer);
+        mErrorText = (TextView)root.findViewById(R.id.error_message);
         mProgressContainer = root.findViewById(R.id.progressContainer);
 
         return root;
@@ -140,13 +142,6 @@ public class ReposFragment extends SherlockListFragment {
 
     public void navToReposView(boolean forceRefresh) {
         showLoading(true);
-        // // show cached repos first
-        // List<SeafRepo> repos = getDataManager().getReposFromCache();
-        // if  (repos != null) {
-        //     adapter.clear();
-        //     addReposToAdapter(repos);
-        //     adapter.notifyChanged();
-        // }
 
         // load repos in background
         mActivity.disableUpButton();
@@ -157,7 +152,6 @@ public class ReposFragment extends SherlockListFragment {
     public void navToDirectory() {
         NavContext navContext = getNavContext();
         showLoading(true);
-        // refresh.setVisibility(View.INVISIBLE);
         mActivity.enableUpButton();
         ConcurrentAsyncTask.execute(new LoadDirTask(getDataManager()),
                                     navContext.getRepoName(),
@@ -270,7 +264,9 @@ public class ReposFragment extends SherlockListFragment {
             }
 
             if (err != null) {
-                Log.d(DEBUG_TAG, "failed to load repos: " + err.getMessage());
+                err.printStackTrace();
+                Log.i(DEBUG_TAG, "failed to load repos: " + err.getMessage());
+                showError(R.string.error_when_load_repos);
                 return;
             }
 
@@ -281,10 +277,47 @@ public class ReposFragment extends SherlockListFragment {
                 adapter.notifyChanged();
                 showLoading(false);
             } else {
-                Log.d(DEBUG_TAG, "failed to load repos");
+                Log.i(DEBUG_TAG, "failed to load repos");
+                showError(R.string.error_when_load_repos);
             }
         }
 
+    }
+
+    private void showError(int strID) {
+        showError(mActivity.getResources().getString(strID));
+    }
+
+    private void showError(String msg) {
+        mProgressContainer.setVisibility(View.GONE);
+        mListContainer.setVisibility(View.GONE);
+
+        adapter.clear();
+        adapter.notifyChanged();
+
+        mErrorText.setText(msg);
+        mErrorText.setVisibility(View.VISIBLE);
+    }
+
+    private void showLoading(boolean show) {
+        mErrorText.setVisibility(View.GONE);
+        if (show) {
+            mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
+                    mActivity, android.R.anim.fade_in));
+            mListContainer.startAnimation(AnimationUtils.loadAnimation(
+                    mActivity, android.R.anim.fade_out));
+
+            mProgressContainer.setVisibility(View.VISIBLE);
+            mListContainer.setVisibility(View.INVISIBLE);
+        } else {
+            mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
+                        mActivity, android.R.anim.fade_out));
+            mListContainer.startAnimation(AnimationUtils.loadAnimation(
+                        mActivity, android.R.anim.fade_in));
+
+            mProgressContainer.setVisibility(View.GONE);
+            mListContainer.setVisibility(View.VISIBLE);
+        }
     }
 
     private class LoadDirTask extends AsyncTask<String, Void, List<SeafDirent> > {
@@ -337,15 +370,16 @@ public class ReposFragment extends SherlockListFragment {
                 } else if (err.getCode() == 404) {
                     mActivity.showToast(String.format("The folder \"%s\" was deleted", myPath));
                 } else {
-                    mActivity.showToast(R.string.error_when_load_dir);
-                    Log.i(DEBUG_TAG,
-                          String.format("failed to load dir %s: %s", myPath, err.getMessage()));
+                    Log.d(DEBUG_TAG, "failed to load dirents: " + err.getMessage());
+                    err.printStackTrace();
+                    showError(R.string.error_when_load_dirents);
                 }
                 return;
             }
 
             if (dirents == null) {
-                mActivity.showToast(R.string.error_when_load_dir);
+                showError(R.string.error_when_load_dirents);
+                Log.i(DEBUG_TAG, "failed to load dir");
                 return;
             }
 
@@ -380,26 +414,6 @@ public class ReposFragment extends SherlockListFragment {
                 refreshView();
             }
         });
-    }
-
-    private void showLoading(boolean show) {
-        if (show) {
-            mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
-                    mActivity, android.R.anim.fade_in));
-            mListContainer.startAnimation(AnimationUtils.loadAnimation(
-                    mActivity, android.R.anim.fade_out));
-
-            mProgressContainer.setVisibility(View.VISIBLE);
-            mListContainer.setVisibility(View.INVISIBLE);
-        } else {
-            mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
-                        mActivity, android.R.anim.fade_out));
-            mListContainer.startAnimation(AnimationUtils.loadAnimation(
-                        mActivity, android.R.anim.fade_in));
-
-            mProgressContainer.setVisibility(View.GONE);
-            mListContainer.setVisibility(View.VISIBLE);
-        }
     }
 
     private void scheduleThumbnailTask(String repoName, String repoID,

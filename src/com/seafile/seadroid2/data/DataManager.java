@@ -500,9 +500,6 @@ public class DataManager {
             cache = getFileForDirentsCache(cachedDirID);
             if (!cache.exists()) {
                 cachedDirID = null;
-                // Log.d(DEBUG_TAG,
-                //     String.format("cache %s does not exist for path %s",
-                //         cachedDirID, path));
             }
         }
 

@@ -131,7 +131,7 @@ public class SeafConnection {
             if (req.code() != 200) {
                 if (req.message() == null) {
                     throw SeafException.networkException;
-                } else  {
+                } else {
                     throw new SeafException(req.code(), req.message());
                 }
             }

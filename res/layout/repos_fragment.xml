@@ -38,4 +38,12 @@
                 android:textAppearance="?android:attr/textAppearanceLarge" />
     </FrameLayout>
 
+    <TextView
+        android:id="@+id/error_message"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:textSize="18dp"
+        android:visibility="gone" />
+
 </FrameLayout>
