@@ -918,6 +918,8 @@ public class BrowserActivity extends SherlockFragmentActivity
             dataManager.addCachedFile(info.repoName, info.repoID, path,
                                       info.newFileID, f);
         }
+
+        dataManager.invalidateCache(info.repoID, info.parentDir);
     }
 
     private void onFileUploadCancelled(int taskID) {

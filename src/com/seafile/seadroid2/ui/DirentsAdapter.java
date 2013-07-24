@@ -47,8 +47,12 @@ public class DirentsAdapter extends BaseAdapter {
         return position;
     }
 
+    public void clearDirents() {
+        dirents.clear();
+    }
+
     public void setDirents(List<SeafDirent> dirents) {
-        this.dirents.clear();
+        clearDirents();
         for (SeafDirent dirent : dirents) {
             this.dirents.add(dirent);
         }

@@ -16,12 +16,15 @@ import android.provider.MediaStore.Images;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockListActivity;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -32,13 +35,15 @@ import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.ui.DirentsAdapter;
+import com.seafile.seadroid2.ui.PasswordDialog;
 import com.seafile.seadroid2.ui.ReposAdapter;
+import com.seafile.seadroid2.ui.TaskDialog;
 
 
-public class ShareToSeafileActivity extends SherlockListActivity {
+public class ShareToSeafileActivity extends SherlockFragmentActivity {
     private static final String DEBUG_TAG = "ShareToSeafileActivity";
 
-    public static final String SHARE_SOURCE_URI = "share.src.uri";
+    public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "password_dialog_fragment_tag";
 
     private NavContext mNavContext;
 
@@ -100,6 +105,14 @@ public class ShareToSeafileActivity extends SherlockListActivity {
         mProgressContainer = findViewById(R.id.progressContainer);
         mContentArea = findViewById(R.id.content);
 
+        mListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        mListView.setOnItemClickListener(new ListView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> l, View view, int position, long id) {
+                onListItemClick(view, position, id);
+            }
+        });
+
         mOkButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -116,8 +129,6 @@ public class ShareToSeafileActivity extends SherlockListActivity {
                 finish();
             }
         });
-
-        mListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
         chooseAccount();
     }
@@ -160,7 +171,7 @@ public class ShareToSeafileActivity extends SherlockListActivity {
         super.onDestroy();
     }
 
-    public void onListItemClick(ListView l, View v, int position, long id) {
+    public void onListItemClick(View v, int position, long id) {
         NavContext nav = getNavContext();
         switch (mStep) {
         case STEP_CHOOSE_ACCOUNT:
@@ -208,13 +219,18 @@ public class ShareToSeafileActivity extends SherlockListActivity {
             stepBack();
             return true;
         case R.id.refresh:
-            refreshList();
+            refreshList(true);
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void refreshList() {
+    @Override
+    public void onBackPressed() {
+        stepBack(true);
+    }
+
+    private void refreshList(boolean forceRefresh) {
         switch (mStep) {
         case STEP_CHOOSE_ACCOUNT:
             if (mLoadAccountsTask != null && mLoadAccountsTask.getStatus() != AsyncTask.Status.FINISHED) {
@@ -227,22 +243,29 @@ public class ShareToSeafileActivity extends SherlockListActivity {
             if (mLoadReposTask != null && mLoadReposTask.getStatus() != AsyncTask.Status.FINISHED) {
                 return;
             } else {
-                chooseRepo();
+                chooseRepo(forceRefresh);
                 break;
             }
         case STEP_CHOOSE_DIR:
             if (mLoadDirTask != null && mLoadDirTask.getStatus() != AsyncTask.Status.FINISHED) {
                 return;
             } else {
-                chooseDir();
+                chooseDir(forceRefresh);
                 break;
             }
         }
     }
 
     private void stepBack() {
+        stepBack(false);
+    }
+
+    private void stepBack(boolean cancelIfFirstStep) {
         switch (mStep) {
         case STEP_CHOOSE_ACCOUNT:
+            if (cancelIfFirstStep) {
+                finish();
+            }
             break;
         case STEP_CHOOSE_REPO:
             chooseAccount(false);
@@ -257,6 +280,10 @@ public class ShareToSeafileActivity extends SherlockListActivity {
             }
             break;
         }
+    }
+
+    private void setListAdapter(BaseAdapter adapter) {
+        mListView.setAdapter(adapter);
     }
 
     /**
@@ -286,6 +313,10 @@ public class ShareToSeafileActivity extends SherlockListActivity {
      * List all repos
      */
     private void chooseRepo() {
+        chooseRepo(false);
+    }
+
+    private void chooseRepo(boolean forceRefresh) {
         mStep = STEP_CHOOSE_REPO;
         mEmptyText.setText(R.string.no_library);
 
@@ -295,7 +326,7 @@ public class ShareToSeafileActivity extends SherlockListActivity {
         getNavContext().setRepoID(null);
 
         showLoading(true);
-        mLoadReposTask = new LoadReposTask(getDataManager());
+        mLoadReposTask = new LoadReposTask(forceRefresh, getDataManager());
         ConcurrentAsyncTask.execute(mLoadReposTask);
 
         // update action bar
@@ -305,28 +336,52 @@ public class ShareToSeafileActivity extends SherlockListActivity {
     }
 
     private void chooseDir() {
+        chooseDir(false);
+    }
+
+    private void chooseDir(boolean forceRefresh) {
         mStep = STEP_CHOOSE_DIR;
         mEmptyText.setText(R.string.dir_empty);
 
         // update action bar
         setListAdapter(getDirentsAdapter());
         mOkButton.setVisibility(View.VISIBLE);
-        refreshDir();
+        refreshDir(forceRefresh);
     }
 
     private void refreshDir() {
+        refreshDir(false);
+    }
+
+    private void refreshDir(boolean forceRefresh) {
         showLoading(true);
 
         String repoID = getNavContext().getRepoID();
         String dirPath = getNavContext().getDirPath();
 
-        mLoadDirTask = new LoadDirTask(repoID, dirPath, getDataManager());
+        mLoadDirTask = new LoadDirTask(repoID, dirPath, forceRefresh, getDataManager());
         ConcurrentAsyncTask.execute(mLoadDirTask);
 
         // update action bar
         ActionBar bar = getSupportActionBar();
         bar.setDisplayHomeAsUpEnabled(true);
         bar.setTitle(R.string.choose_a_folder);
+    }
+
+    private void showPasswordDialog() {
+        NavContext nav = getNavContext();
+        String repoName = nav.getRepoName();
+        String repoID = nav.getRepoID();
+
+        PasswordDialog passwordDialog = new PasswordDialog();
+        passwordDialog.setRepo(repoName, repoID, mAccount);
+        passwordDialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
+            @Override
+            public void onTaskSuccess() {
+                refreshDir();
+            }
+        });
+        passwordDialog.show(getSupportFragmentManager(), PASSWORD_DIALOG_FRAGMENT_TAG);
     }
 
     private void addUploadTask(String repoName, String repoID, String targetDir, String localFilePath) {
@@ -362,6 +417,16 @@ public class ShareToSeafileActivity extends SherlockListActivity {
         Log.d(DEBUG_TAG, "try bind TransferService");
     }
 
+    public void showToast(CharSequence msg) {
+        Context context = getApplicationContext();
+        Toast toast = Toast.makeText(context, msg, Toast.LENGTH_SHORT);
+        toast.show();
+    }
+
+    public void showToast(int id) {
+        showToast(getString(id));
+    }
+
     private void showLoading(boolean loading) {
         clearError();
         if (loading) {
@@ -392,6 +457,16 @@ public class ShareToSeafileActivity extends SherlockListActivity {
     private void clearError() {
         mErrorText.setVisibility(View.GONE);
         mContentArea.setVisibility(View.VISIBLE);
+    }
+
+    private void showListOrEmptyText(int listSize) {
+        if (listSize == 0) {
+            mListView.setVisibility(View.GONE);
+            mEmptyText.setVisibility(View.VISIBLE);
+        } else {
+            mListView.setVisibility(View.VISIBLE);
+            mEmptyText.setVisibility(View.GONE);
+        }
     }
 
     private DataManager getDataManager() {
@@ -441,6 +516,7 @@ public class ShareToSeafileActivity extends SherlockListActivity {
 
         return mDirentsAdapter;
     }
+
     private class LoadAccountsTask extends AsyncTask<Void, Void, Void> {
         private List<Account> accounts;
         private Exception err;
@@ -487,22 +563,25 @@ public class ShareToSeafileActivity extends SherlockListActivity {
                 adapter.add(account);
             }
             adapter.notifyDataSetChanged();
+            showListOrEmptyText(accounts.size());
         }
     }
 
     private class LoadReposTask extends AsyncTask<Void, Void, Void> {
         private List<SeafRepo> repos;
+        private boolean forceRefresh;
         private SeafException err;
         private DataManager dataManager;
 
-        public LoadReposTask(DataManager dataManager) {
+        public LoadReposTask(boolean forceRefresh, DataManager dataManager) {
+            this.forceRefresh = forceRefresh;
             this.dataManager = dataManager;
         }
 
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                repos = dataManager.getRepos();
+                repos = dataManager.getRepos(forceRefresh);
             } catch (SeafException e) {
                 err = e;
             }
@@ -512,6 +591,10 @@ public class ShareToSeafileActivity extends SherlockListActivity {
 
         @Override
         protected void onPostExecute(Void v) {
+            if (mStep != STEP_CHOOSE_REPO) {
+                return;
+            }
+
             showLoading(false);
             if (err != null || repos == null) {
                 setErrorMessage(R.string.load_libraries_fail);
@@ -521,12 +604,9 @@ public class ShareToSeafileActivity extends SherlockListActivity {
                 return;
             }
 
-            if (mStep != STEP_CHOOSE_REPO) {
-                return;
-            }
-
             if (repos != null) {
                 getReposAdapter().setRepos(repos);
+                showListOrEmptyText(repos.size());
             } else {
                 Log.d(DEBUG_TAG, "failed to load repos");
             }
@@ -535,20 +615,22 @@ public class ShareToSeafileActivity extends SherlockListActivity {
 
     private class LoadDirTask extends AsyncTask<Void, Void, Void> {
         private String repoID, dirPath;
+        private boolean forceRefresh;
         private SeafException err;
         private DataManager dataManager;
         private List<SeafDirent> dirents;
 
-        public LoadDirTask(String repoID, String dirPath, DataManager dataManager) {
+        public LoadDirTask(String repoID, String dirPath, boolean forceRefresh, DataManager dataManager) {
             this.repoID = repoID;
             this.dirPath = dirPath;
+            this.forceRefresh = forceRefresh;
             this.dataManager = dataManager;
         }
 
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                dirents = dataManager.getDirents(repoID, dirPath);
+                dirents = dataManager.getDirents(repoID, dirPath, forceRefresh);
             } catch (SeafException e) {
                 err = e;
             }
@@ -558,21 +640,35 @@ public class ShareToSeafileActivity extends SherlockListActivity {
 
         @Override
         protected void onPostExecute(Void v) {
+            if (mStep != STEP_CHOOSE_DIR) {
+                return;
+            }
+
+            getDirentsAdapter().clearDirents();
             showLoading(false);
-            if (err != null || dirents == null) {
-                setErrorMessage(R.string.load_dir_fail);
-                if (err != null) {
-                    Log.d(DEBUG_TAG, "failed to load dir: " + err.getMessage());
+            if (err != null) {
+                int retCode = err.getCode();
+                if (retCode == 440) {
+                    showPasswordDialog();
+                } else if (retCode == 404) {
+                    showToast(String.format("The folder \"%s\" was deleted", dirPath));
+                } else {
+                    Log.d(DEBUG_TAG, "failed to load dirents: " + err.getMessage());
+                    err.printStackTrace();
+                    setErrorMessage(R.string.load_dir_fail);
                 }
                 return;
             }
 
-            if (mStep != STEP_CHOOSE_DIR) {
+            if (dirents == null) {
+                Log.d(DEBUG_TAG, "failed to load dirents: " + err.getMessage());
+                setErrorMessage(R.string.load_dir_fail);
                 return;
             }
 
             if (dirents != null) {
                 getDirentsAdapter().setDirents(dirents);
+                showListOrEmptyText(dirents.size());
             } else {
                 Log.d(DEBUG_TAG, "failed to load dir");
             }

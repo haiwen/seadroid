@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
   
+  <!-- Displayed when the share intent contains a text instead of a file -->
   <TextView
       android:id="@+id/not_supported_text"
       android:layout_width="match_parent"
@@ -12,6 +13,7 @@
       android:text="@string/not_supported_share"
       android:textSize="18dp" />
 
+  <!-- Error message -->
   <TextView
       android:id="@+id/error_message"
       android:layout_width="match_parent"
@@ -67,6 +69,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
+            android:visibility="gone"
             android:textAppearance="?android:attr/textAppearanceLarge" />
       </FrameLayout>
       
