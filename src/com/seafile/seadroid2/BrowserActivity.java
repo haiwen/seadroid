@@ -798,7 +798,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     private void chooseExportApp(final String repoName, final String repoID, final String path) {
         PackageManager pm = getPackageManager();
-        File file = dataManager.getLocalRepoFile(repoName, repoID, path); 
+        File file = dataManager.getLocalRepoFile(repoName, repoID, path);
         Uri uri = Uri.fromFile(file);
 
         final Intent sendIntent = new Intent();
@@ -809,7 +809,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         // Get a list of apps
         List<ResolveInfo> infos = pm.queryIntentActivities(sendIntent, 0);
 
-        
+
         // Remove seafile app from the list
         String seadroidPackageName = getPackageName();
         ResolveInfo info;
@@ -820,7 +820,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                 iter.remove();
             }
         }
-        
+
         if (infos.isEmpty()) {
             showToast(R.string.no_app_available);
             return;
@@ -896,11 +896,11 @@ public class BrowserActivity extends SherlockFragmentActivity
         if (txService == null) {
             return;
         }
+
         UploadTaskInfo info = txService.getUploadTaskInfo(taskID);
 
         String repoID = info.repoID;
         String dir = info.parentDir;
-        dataManager.invalidateCache(repoID, dir);
         if (currentTab.equals(LIBRARY_TAB)
                 && repoID.equals(navContext.getRepoID())
                 && dir.equals(navContext.getDirPath())) {
@@ -911,15 +911,6 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         if (uploadTasksFragment != null && uploadTasksFragment.isReady())
             uploadTasksFragment.onTaskFinished(info);
-
-        if (info.isUpdate) {
-            File f = new File(info.localFilePath);
-            String path = Utils.pathJoin(info.parentDir, f.getName());
-            dataManager.addCachedFile(info.repoName, info.repoID, path,
-                                      info.newFileID, f);
-        }
-
-        dataManager.invalidateCache(info.repoID, info.parentDir);
     }
 
     private void onFileUploadCancelled(int taskID) {

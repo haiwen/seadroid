@@ -196,7 +196,7 @@ public class TransferManager {
         return null;
     }
 
-    private class UploadTask extends AsyncTask<String, Long, String> {
+    private class UploadTask extends AsyncTask<String, Long, Void> {
 
         private String myRepoID;
         private String myRepoName;
@@ -208,8 +208,7 @@ public class TransferManager {
         private int myID;
         private long myUploaded;
         private long mySize;
-
-        private String newFileID; // Only used in update tasks;
+        private DataManager dataManager;
 
         SeafException err;
 
@@ -223,7 +222,7 @@ public class TransferManager {
             this.myDir = dir;
             this.myPath = filePath;
             this.isUpdate = isUpdate;
-            this.newFileID = null;
+            this.dataManager = new DataManager(account);
 
             File f = new File(filePath);
             mySize = f.length();
@@ -248,7 +247,7 @@ public class TransferManager {
         public UploadTaskInfo getTaskInfo() {
             UploadTaskInfo info = new UploadTaskInfo(myID, myState, myRepoID,
                                                      myRepoName, myDir, myPath, isUpdate,
-                                                     myUploaded, mySize, newFileID, err);
+                                                     myUploaded, mySize, err);
             return info;
         }
 
@@ -282,9 +281,8 @@ public class TransferManager {
         }
 
         @Override
-        protected String doInBackground(String... params) {
+        protected Void doInBackground(String... params) {
             try {
-                DataManager dataManager = new DataManager(account);
                 ProgressMonitor monitor = new ProgressMonitor() {
                     @Override
                     public void onProgressNotify(long uploaded) {
@@ -297,21 +295,20 @@ public class TransferManager {
                     }
                 };
                 if (isUpdate) {
-                    return dataManager.updateFile(myRepoID, myDir, myPath, monitor);
+                    dataManager.updateFile(myRepoName, myRepoID, myDir, myPath, monitor);
                 } else {
-                    dataManager.uploadFile(myRepoID, myDir, myPath, monitor);
-                    return null;
+                    dataManager.uploadFile(myRepoName, myRepoID, myDir, myPath, monitor);
                 }
             } catch (SeafException e) {
                 Log.d("Upload", "Exception " + e.getCode() + " " + e.getMessage());
                 err = e;
             }
+
             return null;
         }
 
         @Override
-        protected void onPostExecute(String newFileID) {
-            this.newFileID = newFileID;
+        protected void onPostExecute(Void v) {
             myState = err == null ? TaskState.FINISHED : TaskState.FAILED;
             if (listener != null) {
                 if (err == null) {
@@ -446,13 +443,12 @@ public class TransferManager {
         public final String localFilePath;
         public final boolean isUpdate;
         public final long uploadedSize, totalSize;
-        public final String newFileID; // only used for update tasks
         public final SeafException err;
 
         public UploadTaskInfo(int taskID, TaskState state, String repoID,
                               String repoName, String parentDir,
                               String localFilePath, boolean isUpdate,
-                              long uploadedSize, long totalSize, String newFileID,
+                              long uploadedSize, long totalSize,
                               SeafException err) {
             this.taskID = taskID;
             this.state = state;
@@ -463,7 +459,6 @@ public class TransferManager {
             this.isUpdate = isUpdate;
             this.uploadedSize = uploadedSize;
             this.totalSize = totalSize;
-            this.newFileID = newFileID;
             this.err = err;
         }
     }

@@ -1,5 +1,7 @@
 package com.seafile.seadroid2;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -329,5 +331,19 @@ public class Utils {
 
     public static String getFileMimeType(File file) {
         return getFileMimeType(file.getPath());
+    }
+
+    public static void copyFile(File src, File dst) throws IOException {
+        InputStream in = new BufferedInputStream(new FileInputStream(src));
+        OutputStream out = new BufferedOutputStream(new FileOutputStream(dst));
+
+        // Transfer bytes from in to out
+        byte[] buf = new byte[1024];
+        int len;
+        while ((len = in.read(buf)) > 0) {
+            out.write(buf, 0, len);
+        }
+        in.close();
+        out.close();
     }
 }

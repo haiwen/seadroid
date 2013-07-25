@@ -419,15 +419,15 @@ public class SeafConnection {
     /**
      * Upload a new file
      */
-    public void uploadFile(String repoID, String dir, String filePath, ProgressMonitor monitor)
+    public String uploadFile(String repoID, String dir, String filePath, ProgressMonitor monitor)
                             throws SeafException {
         try {
             String url = getUploadLink(repoID, false);
-            uploadFileCommon(url, repoID, dir, filePath, monitor, false);
+            return uploadFileCommon(url, repoID, dir, filePath, monitor, false);
         } catch (SeafException e) {
             // do again
             String url = getUploadLink(repoID, false);
-            uploadFileCommon(url, repoID, dir, filePath, monitor, false);
+            return uploadFileCommon(url, repoID, dir, filePath, monitor, false);
         }
     }
 
@@ -539,11 +539,7 @@ public class SeafConnection {
                     throw new SeafException(req.code(), req.message());
                 }
 
-            if (update) {
-                return new String(req.bytes(), "UTF-8");
-            } else {
-                return null;
-            }
+            return new String(req.bytes(), "UTF-8");
         } catch (IOException e) {
             throw SeafException.networkException;
 

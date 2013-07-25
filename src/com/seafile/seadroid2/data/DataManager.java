@@ -575,14 +575,46 @@ public class DataManager {
         sc.setPassword(repoID, passwd);
     }
 
-    public void uploadFile(String repoID, String dir, String filePath,
+    public void uploadFile(String repoName, String repoID, String dir, String filePath,
             ProgressMonitor monitor) throws SeafException {
-        sc.uploadFile(repoID, dir, filePath, monitor);
+        uploadFileCommon(repoName, repoID, dir, filePath, monitor, false);
     }
 
-    public String updateFile(String repoID, String dir, String filePath,
+    public void updateFile(String repoName, String repoID, String dir, String filePath,
             ProgressMonitor monitor) throws SeafException {
-        return sc.updateFile(repoID, dir, filePath, monitor);
+        uploadFileCommon(repoName, repoID, dir, filePath, monitor, true);
+    }
+
+    private void uploadFileCommon(String repoName, String repoID, String dir,
+                                  String filePath, ProgressMonitor monitor,
+                                  boolean isUpdate) throws SeafException {
+        String newFileID = null;
+        if (isUpdate) {
+            newFileID  = sc.updateFile(repoID, dir, filePath, monitor);
+        } else {
+            newFileID  = sc.uploadFile(repoID, dir, filePath, monitor);
+        }
+
+        invalidateCache(repoID, dir);
+        if (newFileID == null || newFileID.length() == 0) {
+            return;
+        }
+
+        File srcFile = new File(filePath);
+        String path = Utils.pathJoin(dir, srcFile.getName());
+        File fileInRepo = getLocalRepoFile(repoName, repoID, path);
+
+        if (!isUpdate) {
+            // Copy the uploaded file to local repo cache
+            try {
+                Utils.copyFile(srcFile, fileInRepo);
+            } catch (IOException e) {
+                return;
+            }
+        }
+
+        // Update file cache entry
+        addCachedFile(repoName, repoID, path, newFileID, fileInRepo);
     }
 
     /** Remove cached dirents from dir to the root.
