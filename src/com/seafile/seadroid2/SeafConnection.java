@@ -42,7 +42,7 @@ public class SeafConnection {
     }
 
     private HttpRequest prepareApiGetRequest(String apiPath, Map<String, ?> params) throws IOException {
-        return HttpRequest.get(account.server + apiPath, params, true).
+        return HttpRequest.get(account.server + apiPath, params, false).
                     trustAllCerts().trustAllHosts().
                     readTimeout(30000).connectTimeout(15000).
                     header("Authorization", "Token " + account.token);
@@ -147,6 +147,10 @@ public class SeafConnection {
         }
     }
 
+    private static String encodeUriComponent(String src) throws UnsupportedEncodingException {
+        return URLEncoder.encode(src, "UTF-8");
+    }
+
     /**
      * Get the contents of a directory.
      * @param repoID
@@ -160,7 +164,7 @@ public class SeafConnection {
         try {
             String apiPath = String.format("api2/repos/%s/dir/", repoID);
             Map<String, Object> params = new HashMap<String, Object>();
-            params.put("p", path);
+            params.put("p", encodeUriComponent(path));
             if (cachedDirID != null) {
                 params.put("oid", cachedDirID);
             }
@@ -209,7 +213,7 @@ public class SeafConnection {
         try {
             String apiPath = String.format("api2/repos/%s/file/", repoID);
             Map<String, Object> params = new HashMap<String, Object>();
-            params.put("p", path);
+            params.put("p", encodeUriComponent(path));
             params.put("op", "download");
             HttpRequest req = prepareApiGetRequest(apiPath, params);
             if (req.code() != 200) {
