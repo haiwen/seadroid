@@ -175,28 +175,42 @@ public class Utils {
         return map;
     }
 
-
     public static int getResIdforMimetype(String mimetype) {
         if (mimetype == null)
             return R.drawable.file;
 
-        if (mimetype.contains("pdf"))
+        if (mimetype.contains("pdf")) {
             return R.drawable.file_pdf;
-        if (mimetype.contains("application")) {
-            return R.drawable.file_application;
         } else if (mimetype.contains("image")) {
             return R.drawable.file_image;
         } else if (mimetype.contains("text")) {
-            return R.drawable.ic_text;
+            return R.drawable.file_text;
         } else if (mimetype.contains("audio")) {
             return R.drawable.file_audio;
         } else if (mimetype.contains("video")) {
             return R.drawable.file_video;
         } if (mimetype.contains("pdf")) {
             return R.drawable.file_pdf;
-        } else {
-            return R.drawable.file;
+        } else if (mimetype.contains("msword") || mimetype.contains("ms-word")) {
+            return R.drawable.file_ms_word;
+        } else if (mimetype.contains("mspowerpoint") || mimetype.contains("ms-powerpoint")) {
+            return R.drawable.file_ms_ppt;
+        } else if (mimetype.contains("msexcel") || mimetype.contains("ms-excel")) {
+            return R.drawable.file_ms_excel;
+        } else if (mimetype.contains("openxmlformats-officedocument")) {
+            // see http://stackoverflow.com/questions/4212861/what-is-a-correct-mime-type-for-docx-pptx-etc
+            if (mimetype.contains("wordprocessingml")) {
+                return R.drawable.file_ms_word;
+            } else if (mimetype.contains("spreadsheetml")) {
+                return R.drawable.file_ms_excel;
+            } else if (mimetype.contains("presentationml")) {
+                return R.drawable.file_ms_ppt;
+            }
+        } else if (mimetype.contains("application")) {
+            return R.drawable.file_binary;
         }
+
+        return R.drawable.file;
     }
 
     static HashMap<String, Integer> suffixIconMap = null;
@@ -207,8 +221,10 @@ public class Utils {
 
         suffixIconMap = new HashMap<String, Integer>();
         suffixIconMap.put("pdf", R.drawable.file_pdf);
-        suffixIconMap.put("doc", R.drawable.file_doc);
-        suffixIconMap.put("docx", R.drawable.file_doc);
+        suffixIconMap.put("doc", R.drawable.file_ms_word);
+        suffixIconMap.put("docx", R.drawable.file_ms_word);
+        suffixIconMap.put("md", R.drawable.file_text);
+        suffixIconMap.put("markdown", R.drawable.file_text);
         return suffixIconMap;
     }
 
