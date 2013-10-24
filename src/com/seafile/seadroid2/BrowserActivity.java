@@ -463,8 +463,6 @@ public class BrowserActivity extends SherlockFragmentActivity
             }
 
             if (currentTab.equals(LIBRARY_TAB)) {
-                if (navContext.repoID != null)
-                    dataManager.invalidateCache(navContext.repoID, navContext.dirPath);
                 reposFragment.refreshView(true);
             } else if (currentTab.equals(ACTIVITY_TAB)) {
                 activitiesFragment.refreshView();

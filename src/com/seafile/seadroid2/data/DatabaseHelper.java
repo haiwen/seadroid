@@ -4,20 +4,21 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.SeadroidApplication;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+import android.util.Pair;
+
+import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.account.Account;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DEBUG_TAG = "DatabaseHelper";
     // If you change the database schema, you must increment the database version.
-    public static final int DATABASE_VERSION = 4;
+    public static final int DATABASE_VERSION = 5;
     public static final String DATABASE_NAME = "data.db";
 
     // FileCache table
@@ -39,6 +40,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String REPODIR_COLUMN_REPO_ID = "repo_id";
     private static final String REPODIR_COLUMN_REPO_DIR = "repo_dir";
 
+    private static final String DIRENTS_CACHE_TABLE_NAME = "DirentsCache";
+
+    private static final String DIRENTS_CACHE_COLUMN_ID = "id";
+    private static final String DIRENTS_CACHE_COLUMN_REPO_ID = "repo_id";
+    private static final String DIRENTS_CACHE_COLUMN_PATH = "path";
+    private static final String DIRENTS_CACHE_COLUMN_DIR_ID = "dir_id";
+    private static final String DIRENTS_CACHE_COLUMN_CONTENT = "content";
+
     private static final String SQL_CREATE_FILECACHE_TABLE =
         "CREATE TABLE " + FILECACHE_TABLE_NAME + " ("
         + FILECACHE_COLUMN_ID + " INTEGER PRIMARY KEY, "
@@ -55,6 +64,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         + REPODIR_COLUMN_REPO_NAME + " TEXT NOT NULL, "
         + REPODIR_COLUMN_REPO_ID + " TEXT NOT NULL, "
         + REPODIR_COLUMN_REPO_DIR + " TEXT NOT NULL);";
+
+    private static final String SQL_CREATE_DIRENTS_CACHE_TABLE =
+        "CREATE TABLE " + DIRENTS_CACHE_TABLE_NAME + " ("
+        + DIRENTS_CACHE_COLUMN_ID + " INTEGER PRIMARY KEY, "
+        + DIRENTS_CACHE_COLUMN_REPO_ID + " TEXT NOT NULL, "
+        + DIRENTS_CACHE_COLUMN_PATH + " TEXT NOT NULL, "
+        + DIRENTS_CACHE_COLUMN_DIR_ID + " TEXT NOT NULL, "
+        + DIRENTS_CACHE_COLUMN_CONTENT + " TEXT NOT NULL);";
 
     // Use only single dbHelper to prevent multi-thread issue and db is closed exception
     // Reference http://stackoverflow.com/questions/2493331/what-are-the-best-practices-for-sqlite-on-android
@@ -77,6 +94,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         createFileCacheTable(db);
         createRepoDirTable(db);
+        createDirentsCacheTable(db);
     }
 
     private void createFileCacheTable(SQLiteDatabase db) {
@@ -106,6 +124,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(sql);
     }
 
+    private void createDirentsCacheTable(SQLiteDatabase db) {
+        db.execSQL(SQL_CREATE_DIRENTS_CACHE_TABLE);
+
+        String sql;
+        sql = String.format("CREATE INDEX repo_path_index ON %s (%s, %s)",
+                            DIRENTS_CACHE_TABLE_NAME,
+                            DIRENTS_CACHE_COLUMN_REPO_ID,
+                            DIRENTS_CACHE_COLUMN_PATH);
+        db.execSQL(sql);
+    }
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // This database is only a cache for online data, so its upgrade policy is
@@ -120,6 +149,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         db.execSQL("DROP TABLE IF EXISTS " + FILECACHE_TABLE_NAME + ";");
         db.execSQL("DROP TABLE IF EXISTS " + REPODIR_TABLE_NAME + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + DIRENTS_CACHE_TABLE_NAME + ";");
         onCreate(db);
     }
 
@@ -174,7 +204,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(FILECACHE_COLUMN_REPO_ID, item.repoID);
         values.put(FILECACHE_COLUMN_PATH, item.path);
         values.put(FILECACHE_COLUMN_ACCOUNT, item.accountSignature);
-        
+
         // Insert the new row, returning the primary key value of the new row
         database.insert(FILECACHE_TABLE_NAME, null, values);
     }
@@ -325,5 +355,72 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(REPODIR_COLUMN_REPO_DIR, dir);
 
         database.insert(REPODIR_TABLE_NAME, null, values);
+    }
+
+    public void saveDirents(String repoID, String path, String dirID, String content) {
+        removeCachedDirents(repoID, path);
+        // Create a new map of values, where column names are the keys
+        ContentValues values = new ContentValues();
+        values.put(DIRENTS_CACHE_COLUMN_REPO_ID, repoID);
+        values.put(DIRENTS_CACHE_COLUMN_PATH, path);
+        values.put(DIRENTS_CACHE_COLUMN_DIR_ID, dirID);
+        values.put(DIRENTS_CACHE_COLUMN_CONTENT, content);
+
+        // Insert the new row, returning the primary key value of the new row
+        database.insert(DIRENTS_CACHE_TABLE_NAME, null, values);
+    }
+
+    public void removeCachedDirents(String repoID, String path) {
+        String whereClause = String.format("%s = ? and %s = ?",
+            DIRENTS_CACHE_COLUMN_REPO_ID, DIRENTS_CACHE_COLUMN_PATH);
+
+        database.delete(DIRENTS_CACHE_TABLE_NAME, whereClause, new String[] { repoID, path });
+    }
+
+    public String getDirents(String repoID, String path, String dirID) {
+        Pair<String, String> ret = getCachedDirents(repoID, path);
+        if (ret == null) {
+            return null;
+        }
+
+        if (dirID != null && !ret.first.equals(dirID)) {
+            // cache is out of date
+            return null;
+        }
+
+        return ret.second;
+    }
+
+    public Pair<String, String> getCachedDirents(String repoID, String path) {
+        String[] projection = {
+            DIRENTS_CACHE_COLUMN_DIR_ID,
+            DIRENTS_CACHE_COLUMN_CONTENT
+        };
+
+        String selectClause = String.format("%s = ? and %s = ?",
+                                            DIRENTS_CACHE_COLUMN_REPO_ID,
+                                            DIRENTS_CACHE_COLUMN_PATH);
+
+        String[] selectArgs = { repoID, path };
+
+        Cursor cursor = database.query(
+            DIRENTS_CACHE_TABLE_NAME,
+            projection,
+            selectClause,
+            selectArgs,
+            null,   // don't group the rows
+            null,   // don't filter by row groups
+            null);  // The sort order
+
+        if (cursor.moveToFirst() == false) {
+            cursor.close();
+            return null;
+        }
+
+        String dirID = cursor.getString(0);
+        String content = cursor.getString(1);
+        cursor.close();
+
+        return new Pair<String, String>(dirID, content);
     }
 }

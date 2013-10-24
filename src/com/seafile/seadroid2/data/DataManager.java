@@ -18,6 +18,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.util.Log;
+import android.util.Pair;
 
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafConnection;
@@ -166,17 +167,6 @@ public class DataManager {
     private Account account;
     private DatabaseHelper dbHelper;
 
-    private class DirInfo {
-        String dirID;
-        long lastRefreshed;
-
-        DirInfo(String dirID, long lastRefreshed) {
-            this.dirID = dirID;
-            this.lastRefreshed = lastRefreshed;
-        }
-    }
-
-    static HashMap<String, DirInfo> dirLastUpdateMap = new HashMap<String, DirInfo>();
     List<SeafRepo> reposCache = null;
     // last time of repos update from server
     long lastRepoUpdate = 0;
@@ -430,14 +420,14 @@ public class DataManager {
             }
         }
 
-        TwoTuple<String, File> ret = sc.getFile(repoID, path, localFile.getPath(), cachedFileID, monitor);
+        Pair<String, File> ret = sc.getFile(repoID, path, localFile.getPath(), cachedFileID, monitor);
 
-        String fileID = ret.getFirst();
+        String fileID = ret.first;
         if (fileID.equals(cachedFileID)) {
             // cache is valid
             return localFile;
         } else {
-            File file = ret.getSecond();
+            File file = ret.second;
             addCachedFile(repoName, repoID, path, fileID, file);
             return file;
         }
@@ -462,89 +452,52 @@ public class DataManager {
         }
     }
 
-    public List<SeafDirent> getDirents(String repoID, String path) throws SeafException {
-        return getDirents(repoID, path, false);
-    }
-
-    private boolean shouldUseCachedDirents(String repoID, String path, boolean forceRefresh) {
-        boolean useCache = true;
-        DirInfo info = getDirCacheInfo(repoID, path);
-        if (!Utils.isNetworkOn()) {
-            useCache = true;
-        } else {
-            if (forceRefresh) {
-                useCache = false;
-            } else {
-                long now = Calendar.getInstance().getTimeInMillis();
-                if (info == null ||
-                    now - info.lastRefreshed > DIR_REFERSH_INTERVAL) {
-                    // Log.d(DEBUG_TAG,
-                    //       String.format("path = %s, cache out of date", path));
-                    useCache = false;
-                }
-            }
+    public List<SeafDirent> getCachedDirents(String repoID, String path) {
+        String json = null;
+        Pair<String, String> ret = dbHelper.getCachedDirents(repoID, path);
+        if (ret == null) {
+            return null;
         }
 
-        return useCache;
+        json = ret.second;
+        if (json == null) {
+            return null;
+        }
+
+        return parseDirents(json);
     }
 
-    private String getCachedDirID(String repoID, String path) {
+    /**
+     * In two cases we need to visit the server for dirents
+     *
+     * 1. No cached dirents
+     * 2. User clicks "refresh" button.
+     *
+     * In the second case, the local cache may still be valid.
+     */
+    public List<SeafDirent> getDirentsFromServer(String repoID, String path) throws SeafException {
+        Pair<String, String> cache = dbHelper.getCachedDirents(repoID, path);
         String cachedDirID = null;
-        DirInfo info = getDirCacheInfo(repoID, path);
-        if (info != null) {
-            cachedDirID = info.dirID;
+        if (cache != null) {
+            cachedDirID = cache.first;
+        }
+        Pair<String, String> ret = sc.getDirents(repoID, path, cachedDirID);
+        if (ret == null) {
+            return null;
         }
 
-        File cache = null;
-        if (cachedDirID != null) {
-            cache = getFileForDirentsCache(cachedDirID);
-            if (!cache.exists()) {
-                cachedDirID = null;
-            }
-        }
+        String dirID = ret.first;
+        String content;
 
-        return cachedDirID;
-    }
-
-    public List<SeafDirent> getDirents(String repoID,
-            String path, boolean forceRefresh) throws SeafException {
-
-        boolean useCache = shouldUseCachedDirents(repoID, path, forceRefresh);
-
-        // Get the ID of the cached dir. This is necessary even if useCache is
-        // false, because if the cached dir ID is the same as the latest
-        // version on the server, we don't need to get the content of the dir.
-        String cachedDirID = getCachedDirID(repoID, path);
-
-        if (useCache && cachedDirID != null) {
-            // Log.d(DEBUG_TAG, "get dirents from cache, p = " + path);
-            String json = Utils.readFile(getFileForDirentsCache(cachedDirID));
-            return parseDirents(json);
-        }
-
-        // Log.d(DEBUG_TAG, "get dirents from server, p = " + path);
-        TwoTuple<String, String> ret = sc.getDirents(repoID, path, cachedDirID);
-        String newDirID = ret.getFirst();
-
-        File cache = getFileForDirentsCache(newDirID);
-        if (newDirID.equals(cachedDirID)) {
-            // local cache is valid
-            String json = Utils.readFile(cache);
-            saveDirLastRefreshed(repoID, path, newDirID);
-            return parseDirents(json);
+        if (cache != null && dirID.equals(cachedDirID)) {
+            // local cache still valid
+            content = cache.second;
         } else {
-            // no cache
-            String content = ret.getSecond();
-            List<SeafDirent> dirents = parseDirents(content);
-
-            try {
-                Utils.writeFile(cache, content);
-                saveDirLastRefreshed(repoID, path, newDirID);
-            } catch (IOException e) {
-                // ignore
-            }
-            return dirents;
+            content = ret.second;
+            dbHelper.saveDirents(repoID, path, dirID, content);
         }
+
+        return parseDirents(content);
     }
 
     public SeafCachedFile getCachedFile(String repoName, String repoID, String path) {
@@ -595,7 +548,6 @@ public class DataManager {
             newFileID  = sc.uploadFile(repoID, dir, filePath, monitor);
         }
 
-        invalidateCache(repoID, dir);
         if (newFileID == null || newFileID.length() == 0) {
             return;
         }
@@ -617,80 +569,32 @@ public class DataManager {
         addCachedFile(repoName, repoID, path, newFileID, fileInRepo);
     }
 
-    /** Remove cached dirents from dir to the root.
-     */
-    public void invalidateCache(String repoID, String dir) {
-        if (repoID == null || dir == null)
-            return;
-
-        String d = dir;
-        while (true) {
-            removeDirCacheInfo(repoID, d);
-            if (d.equals("/"))
-                break;
-            d = Utils.getParentPath(d);
-        }
-    }
-
-    private DirInfo getDirCacheInfo(String repoID, String path) {
-        synchronized(dirLastUpdateMap) {
-            return dirLastUpdateMap.get(repoID + path);
-        }
-    }
-
-    private void saveDirLastRefreshed(String repoID, String path, String dirID) {
-        long now = Utils.now();
-        // Log.d(DEBUG_TAG, "path = " + path + ", time = " + now);
-        DirInfo info = new DirInfo(dirID, now);
-        synchronized(dirLastUpdateMap) {
-            dirLastUpdateMap.put(repoID + path, info);
-        }
-    }
-
-    private void removeDirCacheInfo(String repoID, String path) {
-        synchronized(dirLastUpdateMap) {
-            dirLastUpdateMap.remove(repoID + path);
-        }
-    }
-
     public void createNewDir(String repoID, String parentDir, String dirName) throws SeafException {
-        TwoTuple<String, String> ret = sc.createNewDir(repoID, parentDir, dirName);
+        Pair<String, String> ret = sc.createNewDir(repoID, parentDir, dirName);
         if (ret == null) {
             return;
         }
 
-        invalidateCache(repoID, parentDir);
+        String newDirID = ret.first;
+        String response = ret.second;
 
-        String newDirID = ret.getFirst();
-        String response = ret.getSecond();
         // The response is the dirents of the parentDir after creating
         // the new dir. We save it to avoid request it again
-        File cache = getFileForDirentsCache(newDirID);
-        try {
-            Utils.writeFile(cache, response);
-            saveDirLastRefreshed(repoID, parentDir, newDirID);
-        } catch (IOException e) {
-        }
+        dbHelper.saveDirents(repoID, parentDir, newDirID, response);
     }
 
     public void createNewFile(String repoID, String parentDir, String fileName) throws SeafException {
-        TwoTuple<String, String> ret = sc.createNewFile(repoID, parentDir, fileName);
+        Pair<String, String> ret = sc.createNewFile(repoID, parentDir, fileName);
         if (ret == null) {
             return;
         }
 
-        invalidateCache(repoID, parentDir);
+        String newDirID = ret.first;
+        String response = ret.second;
 
-        String newDirID = ret.getFirst();
-        String response = ret.getSecond();
         // The response is the dirents of the parentDir after creating
-        // the new dir. We save it to avoid request it again
-        File cache = getFileForDirentsCache(newDirID);
-        try {
-            Utils.writeFile(cache, response);
-            saveDirLastRefreshed(repoID, parentDir, newDirID);
-        } catch (IOException e) {
-        }
+        // the new file. We save it to avoid request it again
+        dbHelper.saveDirents(repoID, parentDir, newDirID, response);
     }
 
     public File getLocalCachedFile(String repoName, String repoID, String filePath, String fileID) {

@@ -353,13 +353,26 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
         refreshDir(false);
     }
 
-    private void refreshDir(boolean forceRefresh) {
-        showLoading(true);
+    private void updateAdapter(List<SeafDirent> dirents) {
+        getDirentsAdapter().setDirents(dirents);
+        showListOrEmptyText(dirents.size());
+    }
 
+    private void refreshDir(boolean forceRefresh) {
         String repoID = getNavContext().getRepoID();
         String dirPath = getNavContext().getDirPath();
 
-        mLoadDirTask = new LoadDirTask(repoID, dirPath, forceRefresh, getDataManager());
+        if (!Utils.isNetworkOn() || !forceRefresh) {
+            List<SeafDirent> dirents = getDataManager().getCachedDirents(
+                getNavContext().getRepoID(), getNavContext().getDirPath());
+            if (dirents != null) {
+                updateAdapter(dirents);
+                return;
+            }
+        }
+
+        showLoading(true);
+        mLoadDirTask = new LoadDirTask(repoID, dirPath, getDataManager());
         ConcurrentAsyncTask.execute(mLoadDirTask);
 
         // update action bar
@@ -615,22 +628,20 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
 
     private class LoadDirTask extends AsyncTask<Void, Void, Void> {
         private String repoID, dirPath;
-        private boolean forceRefresh;
         private SeafException err;
         private DataManager dataManager;
         private List<SeafDirent> dirents;
 
-        public LoadDirTask(String repoID, String dirPath, boolean forceRefresh, DataManager dataManager) {
+        public LoadDirTask(String repoID, String dirPath, DataManager dataManager) {
             this.repoID = repoID;
             this.dirPath = dirPath;
-            this.forceRefresh = forceRefresh;
             this.dataManager = dataManager;
         }
 
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                dirents = dataManager.getDirents(repoID, dirPath, forceRefresh);
+                dirents = dataManager.getDirentsFromServer(repoID, dirPath);
             } catch (SeafException e) {
                 err = e;
             }
@@ -667,8 +678,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
             }
 
             if (dirents != null) {
-                getDirentsAdapter().setDirents(dirents);
-                showListOrEmptyText(dirents.size());
+                updateAdapter(dirents);
             } else {
                 Log.d(DEBUG_TAG, "failed to load dir");
             }

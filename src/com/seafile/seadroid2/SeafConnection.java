@@ -15,13 +15,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.util.Log;
+import android.util.Pair;
 
 import com.github.kevinsawicki.http.HttpRequest;
 import com.github.kevinsawicki.http.HttpRequest.HttpRequestException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.DataManager.ProgressMonitor;
-import com.seafile.seadroid2.data.TwoTuple;
 
 /**
  * SeafConnection encapsulates Seafile Web API
@@ -156,10 +156,10 @@ public class SeafConnection {
      * @param repoID
      * @param path
      * @param cachedDirID The local cached dirID.
-     * @return A non-null TwoTuple of (dirID, content). If the local cache is up to date, the "content" is null.
+     * @return A non-null Pair of (dirID, content). If the local cache is up to date, the "content" is null.
      * @throws SeafException
      */
-    public TwoTuple<String, String> getDirents(String repoID, String path, String cachedDirID)
+    public Pair<String, String> getDirents(String repoID, String path, String cachedDirID)
                                         throws SeafException {
         try {
             String apiPath = String.format("api2/repos/%s/dir/", repoID);
@@ -196,7 +196,7 @@ public class SeafConnection {
                 content = new String(rawBytes, "UTF-8");
             }
 
-            return TwoTuple.newInstance(dirID, content);
+            return new Pair<String, String>(dirID, content);
 
         } catch (SeafException e) {
             throw e;
@@ -209,7 +209,7 @@ public class SeafConnection {
         }
     }
 
-    private TwoTuple<String, String> getDownloadLink(String repoID, String path) throws SeafException {
+    private Pair<String, String> getDownloadLink(String repoID, String path) throws SeafException {
         try {
             String apiPath = String.format("api2/repos/%s/file/", repoID);
             Map<String, Object> params = new HashMap<String, Object>();
@@ -230,7 +230,7 @@ public class SeafConnection {
             // should return "\"http://gonggeng.org:8082/...\"" or "\"https://gonggeng.org:8082/...\"
             if (result.startsWith("\"http") && fileID != null) {
                 String url = result.substring(1, result.length() - 1);
-                return TwoTuple.newInstance(url, fileID);
+                return new Pair<String, String>(url, fileID);
             } else {
                 throw SeafException.illFormatException;
             }
@@ -316,19 +316,19 @@ public class SeafConnection {
      * @param monitor
      * @return A two tuple of (fileID, file). If the local cached version is up to date, the returned file is null.
      */
-    public TwoTuple<String, File> getFile(String repoID,
+    public Pair<String, File> getFile(String repoID,
                                           String path,
                                           String localPath,
                                           String cachedFileID,
                                           ProgressMonitor monitor) throws SeafException {
-        TwoTuple<String, String> ret = getDownloadLink(repoID, path);
-        String dlink = ret.getFirst();
-        String fileID = ret.getSecond();
+        Pair<String, String> ret = getDownloadLink(repoID, path);
+        String dlink = ret.first;
+        String fileID = ret.second;
 
         if (fileID.equals(cachedFileID)) {
             // cache is valid
             Log.d(DEBUG_TAG, String.format("file %s is cached", path));
-            return TwoTuple.newInstance(fileID, null);
+            return new Pair<String, File>(fileID, null);
         } else {
             Log.d(DEBUG_TAG,
                   String.format("file %s will be downloaded from server, latest %s, local cache %s",
@@ -336,7 +336,7 @@ public class SeafConnection {
 
             File file = getFileFromLink(dlink, path, localPath, fileID, monitor);
             if (file != null) {
-                return TwoTuple.newInstance(fileID, file);
+                return new Pair<String, File>(fileID, file);
             } else {
                 throw SeafException.unknownException;
             }
@@ -557,7 +557,7 @@ public class SeafConnection {
         }
     }
 
-    public TwoTuple<String, String> createNewDir(String repoID,
+    public Pair<String, String> createNewDir(String repoID,
                                                  String parentDir,
                                                  String dirName) throws SeafException {
 
@@ -589,7 +589,7 @@ public class SeafConnection {
                 return null;
             }
 
-            return TwoTuple.newInstance(newDirID, content);
+            return new Pair<String, String>(newDirID, content);
 
         } catch (SeafException e) {
             throw e;
@@ -600,7 +600,7 @@ public class SeafConnection {
         }
     }
 
-    public TwoTuple<String, String> createNewFile(String repoID,
+    public Pair<String, String> createNewFile(String repoID,
                                                   String parentDir,
                                                   String fileName) throws SeafException {
 
@@ -632,7 +632,7 @@ public class SeafConnection {
                 return null;
             }
 
-            return TwoTuple.newInstance(newDirID, content);
+            return new Pair<String, String>(newDirID, content);
 
         } catch (SeafException e) {
             throw e;

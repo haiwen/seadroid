@@ -133,7 +133,7 @@ public class ReposFragment extends SherlockListFragment {
 
         NavContext navContext = getNavContext();
         if (navContext.inRepo()) {
-            navToDirectory();
+            navToDirectory(forceRefresh);
         } else {
             navToReposView(forceRefresh);
         }
@@ -149,16 +149,49 @@ public class ReposFragment extends SherlockListFragment {
         updateActionBarTitle();
     }
 
-    public void navToDirectory() {
+    public void navToDirectory(boolean forceRefresh) {
         NavContext navContext = getNavContext();
-        showLoading(true);
         mActivity.enableUpButton();
+
+        DataManager dataManager = getDataManager();
+
+        if (!Utils.isNetworkOn() || !forceRefresh) {
+            List<SeafDirent> dirents = dataManager.getCachedDirents(
+                navContext.getRepoID(), navContext.getDirPath());
+            if (dirents != null) {
+                updateAdapter(dirents);
+                return;
+            }
+        }
+
+        showLoading(true);
         ConcurrentAsyncTask.execute(new LoadDirTask(getDataManager()),
                                     navContext.getRepoName(),
                                     navContext.getRepoID(),
                                     navContext.getDirPath());
-
         updateActionBarTitle();
+    }
+
+    private void updateAdapter(List<SeafDirent> dirents) {
+        adapter.clear();
+        if (dirents.size() > 0) {
+            for (SeafDirent dirent : dirents) {
+                adapter.add(dirent);
+            }
+            NavContext nav = getNavContext();
+            String repoName = nav.getRepoName();
+            String repoID = nav.getRepoID();
+            String dirPath = nav.getDirPath();
+            scheduleThumbnailTask(repoName, repoID, dirPath, dirents);
+            adapter.notifyChanged();
+            mList.setVisibility(View.VISIBLE);
+            mEmptyView.setVisibility(View.GONE);
+            mEmptyView.setText(R.string.dir_empty);
+        } else {
+            // Directory is empty
+            mList.setVisibility(View.GONE);
+            mEmptyView.setVisibility(View.VISIBLE);
+        }
     }
 
     private void updateActionBarTitle() {
@@ -344,7 +377,7 @@ public class ReposFragment extends SherlockListFragment {
             myRepoID = params[1];
             myPath = params[2];
             try {
-                return dataManager.getDirents(myRepoID, myPath);
+                return dataManager.getDirentsFromServer(myRepoID, myPath);
             } catch (SeafException e) {
                 err = e;
                 return null;
@@ -383,22 +416,7 @@ public class ReposFragment extends SherlockListFragment {
                 return;
             }
 
-            adapter.clear();
-            if (dirents.size() > 0) {
-                for (SeafDirent dirent : dirents) {
-                    adapter.add(dirent);
-                }
-                scheduleThumbnailTask(myRepoName, myRepoID, myPath, dirents);
-                adapter.notifyChanged();
-                mList.setVisibility(View.VISIBLE);
-                mEmptyView.setVisibility(View.GONE);
-                mEmptyView.setText(R.string.dir_empty);
-            } else {
-                // Directory is empty
-                mList.setVisibility(View.GONE);
-                mEmptyView.setVisibility(View.VISIBLE);
-            }
-
+            updateAdapter(dirents);
             showLoading(false);
         }
     }
