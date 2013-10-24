@@ -87,8 +87,6 @@ public class ReposFragment extends SherlockListFragment {
         setListAdapter(adapter);
 
         getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-
-        mListContainer.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -141,12 +139,18 @@ public class ReposFragment extends SherlockListFragment {
     }
 
     public void navToReposView(boolean forceRefresh) {
-        showLoading(true);
+        if (!Utils.isNetworkOn() || !forceRefresh) {
+            List<SeafRepo> repos = getDataManager().getReposFromCache();
+            if (repos != null) {
+                updateAdapterWithRepos(repos);
+                return;
+            }
+        }
 
         // load repos in background
+        showLoading(true);
         mActivity.disableUpButton();
-        ConcurrentAsyncTask.execute(new LoadTask(getDataManager(), forceRefresh));
-        updateActionBarTitle();
+        ConcurrentAsyncTask.execute(new LoadTask(getDataManager()));
     }
 
     public void navToDirectory(boolean forceRefresh) {
@@ -159,7 +163,7 @@ public class ReposFragment extends SherlockListFragment {
             List<SeafDirent> dirents = dataManager.getCachedDirents(
                 navContext.getRepoID(), navContext.getDirPath());
             if (dirents != null) {
-                updateAdapter(dirents);
+                updateAdapterWithDirents(dirents);
                 return;
             }
         }
@@ -169,10 +173,23 @@ public class ReposFragment extends SherlockListFragment {
                                     navContext.getRepoName(),
                                     navContext.getRepoID(),
                                     navContext.getDirPath());
-        updateActionBarTitle();
     }
 
-    private void updateAdapter(List<SeafDirent> dirents) {
+    private void updateAdapterWithRepos(List<SeafRepo> repos) {
+        adapter.clear();
+        if (repos.size() > 0) {
+            addReposToAdapter(repos);
+            adapter.notifyChanged();
+            mList.setVisibility(View.VISIBLE);
+            mEmptyView.setVisibility(View.GONE);
+        } else {
+            mList.setVisibility(View.GONE);
+            mEmptyView.setText(R.string.no_repo);
+            mEmptyView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void updateAdapterWithDirents(List<SeafDirent> dirents) {
         adapter.clear();
         if (dirents.size() > 0) {
             for (SeafDirent dirent : dirents) {
@@ -186,27 +203,11 @@ public class ReposFragment extends SherlockListFragment {
             adapter.notifyChanged();
             mList.setVisibility(View.VISIBLE);
             mEmptyView.setVisibility(View.GONE);
-            mEmptyView.setText(R.string.dir_empty);
         } else {
             // Directory is empty
             mList.setVisibility(View.GONE);
+            mEmptyView.setText(R.string.dir_empty);
             mEmptyView.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void updateActionBarTitle() {
-        NavContext navContext = getNavContext();
-        if (!navContext.inRepo()) {
-            mActivity.setActionBarTitle("", "");
-        } else {
-
-            String title = navContext.getRepoName();
-            String dirPath = navContext.getDirPath();
-            if (dirPath.equals("/")) {
-                mActivity.setActionBarTitle(title, "");
-            } else {
-                mActivity.setActionBarTitle(title, Utils.fileNameFromPath(dirPath));
-            }
         }
     }
 
@@ -267,17 +268,15 @@ public class ReposFragment extends SherlockListFragment {
     private class LoadTask extends AsyncTask<Void, Void, List<SeafRepo> > {
         SeafException err = null;
         DataManager dataManager;
-        boolean forceRefresh;
 
-        public LoadTask(DataManager dataManager, boolean forceRefresh) {
+        public LoadTask(DataManager dataManager) {
             this.dataManager = dataManager;
-            this.forceRefresh = forceRefresh;
         }
 
         @Override
         protected List<SeafRepo> doInBackground(Void... params) {
             try {
-                return dataManager.getRepos(forceRefresh);
+                return dataManager.getReposFromServer();
             } catch (SeafException e) {
                 err = e;
                 return null;
@@ -305,9 +304,7 @@ public class ReposFragment extends SherlockListFragment {
 
             if (rs != null) {
                 //Log.d(DEBUG_TAG, "Load repos number " + rs.size());
-                adapter.clear();
-                addReposToAdapter(rs);
-                adapter.notifyChanged();
+                updateAdapterWithRepos(rs);
                 showLoading(false);
             } else {
                 Log.i(DEBUG_TAG, "failed to load repos");
@@ -416,7 +413,7 @@ public class ReposFragment extends SherlockListFragment {
                 return;
             }
 
-            updateAdapter(dirents);
+            updateAdapterWithDirents(dirents);
             showLoading(false);
         }
     }

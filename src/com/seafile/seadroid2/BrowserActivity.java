@@ -200,15 +200,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         getSupportActionBar().setDisplayShowTitleEnabled(false);
     }
 
-    public void setActionBarTitle(String title, String subtitle) {
-        // TODO: Before we find a way to make the actionbar title and tabs
-        // always appear in different lines, we do not set the titles.
-
-        // ActionBar actionBar = getSupportActionBar();
-        // actionBar.setDisplayShowTitleEnabled(true);
-        // actionBar.setTitle(title); actionBar.setSubtitle(subtitle);
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);

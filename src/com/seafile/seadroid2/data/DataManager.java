@@ -6,8 +6,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -168,11 +166,6 @@ public class DataManager {
     private DatabaseHelper dbHelper;
 
     List<SeafRepo> reposCache = null;
-    // last time of repos update from server
-    long lastRepoUpdate = 0;
-    // force refresh interval
-    private static final long REPOS_REFERSH_INTERVAL = 5 * 60 * 1000;
-    private static final long DIR_REFERSH_INTERVAL = 1 * 60 * 1000;
 
     public DataManager(Account act) {
         account = act;
@@ -354,34 +347,10 @@ public class DataManager {
         return null;
     }
 
-    public List<SeafRepo> getRepos() throws SeafException {
-        return getRepos(false);
-    }
-
-    public List<SeafRepo> getRepos(boolean forceRefresh) throws SeafException {
-        boolean useCache = true;
-        List<SeafRepo> repos;
-
+    public List<SeafRepo> getReposFromServer() throws SeafException {
         // First decide if use cache
         if (!Utils.isNetworkOn()) {
-            useCache = true;
-        } else {
-            if (forceRefresh) {
-                useCache = false;
-            } else {
-                long now = Calendar.getInstance().getTimeInMillis();
-                if (now - lastRepoUpdate > REPOS_REFERSH_INTERVAL) {
-                    useCache = false;
-                }
-            }
-        }
-
-        if (useCache) {
-            repos = getReposFromCache();
-            if (repos != null) {
-                // Log.d(DEBUG_TAG, "get repos from cache");
-                return repos;
-            }
+            throw SeafException.networkException;
         }
 
         // Log.d(DEBUG_TAG, "get repos from server");
@@ -394,7 +363,6 @@ public class DataManager {
         try {
             File cache = getFileForReposCache();
             Utils.writeFile(cache, json);
-            lastRepoUpdate = Calendar.getInstance().getTimeInMillis();
         } catch (IOException e) {
             // ignore
         }

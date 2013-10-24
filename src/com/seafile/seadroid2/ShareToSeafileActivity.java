@@ -325,8 +325,20 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
 
         getNavContext().setRepoID(null);
 
+        if (!Utils.isNetworkOn() || !forceRefresh) {
+            List<SeafRepo> repos = getDataManager().getReposFromCache();
+            if (repos != null) {
+                updateAdapterWithRepos(repos);
+                // update action bar
+                ActionBar bar = getSupportActionBar();
+                bar.setDisplayHomeAsUpEnabled(true);
+                bar.setTitle(R.string.choose_a_library);
+                return;
+            }
+        }
+
         showLoading(true);
-        mLoadReposTask = new LoadReposTask(forceRefresh, getDataManager());
+        mLoadReposTask = new LoadReposTask(getDataManager());
         ConcurrentAsyncTask.execute(mLoadReposTask);
 
         // update action bar
@@ -353,9 +365,14 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
         refreshDir(false);
     }
 
-    private void updateAdapter(List<SeafDirent> dirents) {
+    private void updateAdapterWithDirents(List<SeafDirent> dirents) {
         getDirentsAdapter().setDirents(dirents);
         showListOrEmptyText(dirents.size());
+    }
+
+    private void updateAdapterWithRepos(List<SeafRepo> repos) {
+        getReposAdapter().setRepos(repos);
+        showListOrEmptyText(repos.size());
     }
 
     private void refreshDir(boolean forceRefresh) {
@@ -366,7 +383,11 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
             List<SeafDirent> dirents = getDataManager().getCachedDirents(
                 getNavContext().getRepoID(), getNavContext().getDirPath());
             if (dirents != null) {
-                updateAdapter(dirents);
+                updateAdapterWithDirents(dirents);
+                // update action bar
+                ActionBar bar = getSupportActionBar();
+                bar.setDisplayHomeAsUpEnabled(true);
+                bar.setTitle(R.string.choose_a_folder);
                 return;
             }
         }
@@ -582,19 +603,17 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
 
     private class LoadReposTask extends AsyncTask<Void, Void, Void> {
         private List<SeafRepo> repos;
-        private boolean forceRefresh;
         private SeafException err;
         private DataManager dataManager;
 
-        public LoadReposTask(boolean forceRefresh, DataManager dataManager) {
-            this.forceRefresh = forceRefresh;
+        public LoadReposTask(DataManager dataManager) {
             this.dataManager = dataManager;
         }
 
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                repos = dataManager.getRepos(forceRefresh);
+                repos = dataManager.getReposFromServer();
             } catch (SeafException e) {
                 err = e;
             }
@@ -618,8 +637,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
             }
 
             if (repos != null) {
-                getReposAdapter().setRepos(repos);
-                showListOrEmptyText(repos.size());
+                updateAdapterWithRepos(repos);
             } else {
                 Log.d(DEBUG_TAG, "failed to load repos");
             }
@@ -678,7 +696,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
             }
 
             if (dirents != null) {
-                updateAdapter(dirents);
+                updateAdapterWithDirents(dirents);
             } else {
                 Log.d(DEBUG_TAG, "failed to load dir");
             }
