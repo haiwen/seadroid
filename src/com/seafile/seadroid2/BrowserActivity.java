@@ -787,7 +787,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     private void chooseExportApp(final String repoName, final String repoID, final String path) {
         PackageManager pm = getPackageManager();
-        File file = dataManager.getLocalRepoFile(repoName, repoID, path);
+        final File file = dataManager.getLocalRepoFile(repoName, repoID, path);
         Uri uri = Uri.fromFile(file);
 
         final Intent sendIntent = new Intent();
@@ -819,6 +819,14 @@ public class BrowserActivity extends SherlockFragmentActivity
         dialog.init(infos, new AppChoiceDialog.OnAppSelectedListener() {
             @Override
             public void onAppSelected(ResolveInfo appInfo) {
+                String className = appInfo.activityInfo.name;
+                String packageName = appInfo.activityInfo.packageName;
+                sendIntent.setClassName(packageName, className);
+
+                if (!Utils.isNetworkOn() && file.exists()) {
+                    startActivity(sendIntent);
+                    return;
+                }
                 fetchFileAndExport(appInfo, sendIntent, repoName, repoID,
                                    path);
             }
@@ -834,10 +842,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         fetchFileDialog.init(repoName, repoID, path, new FetchFileDialog.FetchFileListener() {
             @Override
             public void onSuccess() {
-                String className = appInfo.activityInfo.name;
-                String packageName = appInfo.activityInfo.packageName;
-
-                intent.setClassName(packageName, className);
                 startActivity(intent);
             }
 
