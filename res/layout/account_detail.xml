@@ -10,7 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="https" />
-        
+
     <EditText
         android:id="@+id/server_url"
         android:layout_width="fill_parent"
@@ -44,6 +44,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="" />
+
+    <TextView
+        android:id="@+id/seahub_url_hint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/seahub_url_hint" />
 
 </LinearLayout>
 

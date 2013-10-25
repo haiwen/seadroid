@@ -139,6 +139,7 @@ public class ReposFragment extends SherlockListFragment {
     }
 
     public void navToReposView(boolean forceRefresh) {
+        mActivity.disableUpButton();
         if (!Utils.isNetworkOn() || !forceRefresh) {
             List<SeafRepo> repos = getDataManager().getReposFromCache();
             if (repos != null) {
@@ -149,7 +150,6 @@ public class ReposFragment extends SherlockListFragment {
 
         // load repos in background
         showLoading(true);
-        mActivity.disableUpButton();
         ConcurrentAsyncTask.execute(new LoadTask(getDataManager()));
     }
 

@@ -31,6 +31,7 @@ public class AccountDetailActivity extends FragmentActivity {
     private EditText emailText;
     private EditText passwdText;
     private CheckBox httpsCheckBox;
+    private TextView seahubUrlHintText;
 
     private AccountManager accountManager;
     private Account account = null;
@@ -47,6 +48,7 @@ public class AccountDetailActivity extends FragmentActivity {
         serverText = (EditText) findViewById(R.id.server_url);
         emailText = (EditText) findViewById(R.id.email_address);
         passwdText = (EditText) findViewById(R.id.password);
+        seahubUrlHintText = (TextView) findViewById(R.id.seahub_url_hint);
 
         accountManager = new AccountManager(this);
 
@@ -61,6 +63,7 @@ public class AccountDetailActivity extends FragmentActivity {
             serverText.setText(account.getServerNoProtocol());
             emailText.setText(account.getEmail());
             emailText.requestFocus();
+            seahubUrlHintText.setVisibility(View.GONE);
         }
     }
 
