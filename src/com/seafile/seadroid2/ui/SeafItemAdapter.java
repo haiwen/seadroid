@@ -185,10 +185,16 @@ public class SeafItemAdapter extends BaseAdapter {
 
         if (file.exists()) {
             SeafCachedFile cf = dataManager.getCachedFile(repoName, repoID, filePath);
-            String subtitle = dirent.getSubtitle();
+            String subtitle = null;
+            long size = file.length();
+            if (size == dirent.size) {
+                subtitle = dirent.getSubtitle();
+            } else {
+                subtitle = Utils.readableFileSize(size) + ", modified";
+            }
             if (cf != null) {
                 cacheExists = true;
-                if (dirent.id.equals(cf.fileID)) {
+                if (dirent.id.equals(cf.fileID) && dirent.size == size) {
                     subtitle += ", cached";
                 }
             }
