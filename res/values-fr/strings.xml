@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Seafile</string>
+    <string name="app_url">http://seafile.com</string>
+    <string name="welcome_to_seafile">Bienvenue sur Seafile</string>
+    <string name="select_account">Choisissez un compte pour commencer</string>
+    <string name="server_hint">Serveur, par ex: cloud.seafile.com</string>
+    <string name="email_hint">Email</string>
+    <string name="passwd_hint">Mot de passe</string>
+    <string name="open_file">Ouvrir</string>
+    <string name="download_file">Télécharger</string>
+    <string name="redownload_file">Télécharger encore</string>
+    <string name="cancel_download">Annuler</string>
+    <string name="unknown_file_type">Fichier de type inconnu</string>
+    <string name="activity_not_found">Imposssible de trouver une application pour ouvrir ce type de fichier</string>
+    <string name="refresh">Rafraichir</string>
+    <string name="login">Login</string>
+    <string name="add_account">Ajouter un Compte</string>
+    <string name="personal">Personnel</string>
+    <string name="libraries">Bibliothèques</string>
+    <string name="cached">En Cache</string>
+    <string name="upload_tasks">ENVOYÉS</string>
+    <string name="activities">Activités</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Annuler</string>
+    <string name="pick_upload_type">Envoyer</string>
+    <string-array name="pick_upload_array">
+        <item>Fichier</item>
+        <item>Photos/Videos</item>
+        <item>Autre</item>
+    </string-array>
+    <string name="choose_server">Choisissez un Serveur Seafile</string>
+    <string-array name="choose_server_array">
+        <item>Serveur Seafile Privé</item>
+        <item>SeaCloud.cc</item>
+        <item>cloud.seafile.com</item>
+    </string-array>
+    <string name="network_down">Pas de connexion réseau</string>
+    <string name="invalid_server_address">Adresse du Serveur invalide</string>
+    <string name="err_server_andress_empty">L\'adresse du serveur ne peut pas être vide</string>
+    <string name="err_login_failed">Echec de la connection</string>
+    <string name="err_wrong_user_or_passwd">Erreur de mot de passse ou d\'email</string>
+    <string name="upload">Envoi</string>
+    <string name="uploaded">Envoyé</string>
+    <string name="updated">Mis à jour</string>
+    <string name="upload_failed">Echec de l\'envoi</string>
+    <string name="download_failed">Echec du téléchargement</string>
+    <string name="upload_to">Envoyer à: </string>
+    <string name="task_cancel">Annuler</string>
+    <string name="task_retry">Réessayer</string>
+    <string name="task_remove">Supprimer</string>
+    <string name="task_remove_all_finished">Supprimer tous les finis</string>
+    <string name="file_action_download">Télécharger</string>
+    <string name="file_action_remove_cache">Vider le Cache</string>
+    <string name="file_action_update">Mettre à jour</string>
+    <string name="file_action_share">Partager</string>
+    <string name="wait">Attendre</string>
+    <string name="image_gallery_NoImageView_text">Pas d\'image trouvée</string>
+    <string name="pick_photo_video_title">Choisissez des photos/videos à envoyer</string>
+    <string name="select_upload_items">selectionnez les éléments à envoyer</string>
+    <string name="n_upload_items_selected">%d éléments séléctionné</string>
+    <string name="dir_name_empty">Veuillez entrer le nom du dossier</string>
+    <string name="file_name_empty">Veuillez entrer le nom du fichier</string>
+    <string name="password_empty">Veuillez entrer le mot de passe</string>
+    <string name="wrong_password">mauvais mot de passe</string>
+    <string name="library_read_only">Cette bibliothèque est en lecture seule</string>
+    <string name="error_when_load_dir">Erreur Interne</string>
+    <string name="dir_empty">Ce dossier est vide</string>
+    <string name="no_app_available">Aucune application n\'a été trouvé</string>
+    <string name="add_to_seafile">Ajouter à Seafile</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Annuler</string>
+    <string name="no_account">Veuillez configurer un compte sur Seafile pour commencer</string>
+    <string name="no_library">Vous n\'avez pas encore de bibliothèques</string>
+    <string name="choose_an_account">Choisissez un compte</string>
+    <string name="choose_a_library">Choisissez une bibliothèque</string>
+    <string name="choose_a_folder">Choisissez un dossier</string>
+    <string name="load_accounts_fail">Echec du chargement des comptes Seafile</string>
+    <string name="load_libraries_fail">Echec du chargement des bibliothèques</string>
+    <string name="load_dir_fail">Echec du chargement du contenu de ce dossier</string>
+    <string name="not_supported_share">Ce type de partage n\'est pas supporté</string>
+    <string name="create_new_file">Créer un nouveau fichier</string>
+    <string name="create_new_dir">Créer un nouveau dossier</string>
+    <string name="download">Téléchager</string>
+    <string name="open">Ouvrir</string>
+    <string name="last_modified">dernièrement modifié</string>
+    <string name="file_size">taille du fichier</string>
+    <string name="export_file">Exporter ce fichier</string>
+    <string name="no_upload_tasks">Pas de tâches d\'envoi actuellement</string>
+    <string name="library_not_found">Cette bibliothèque a été supprimée</string>
+    <string name="seahub_url_hint">Note: L\'adresse du serveur doit contenir le port et le suffixe, si il y a. Par exemple, www.example.com:8000, ou www.example.com/seafile</string> 
+</resources>
