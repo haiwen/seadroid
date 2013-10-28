@@ -42,10 +42,21 @@ public class SeafConnection {
     }
 
     private HttpRequest prepareApiGetRequest(String apiPath, Map<String, ?> params) throws IOException {
-        return HttpRequest.get(account.server + apiPath, params, false).
-                    trustAllCerts().trustAllHosts().
-                    readTimeout(30000).connectTimeout(15000).
-                    header("Authorization", "Token " + account.token);
+        HttpRequest req = HttpRequest.get(account.server + apiPath, params, false);
+        setRequestCommon(req);
+        return req;
+    }
+
+    private void setRequestCommon(HttpRequest req) {
+        req.trustAllCerts().trustAllHosts().
+            readTimeout(30000).connectTimeout(15000).
+            header("Authorization", "Token " + account.token);
+    }
+
+    private HttpRequest prepareApiPutRequest(String apiPath, Map<String, ?> params) throws IOException {
+        HttpRequest req = HttpRequest.put(account.server + apiPath, params, false);
+        setRequestCommon(req);
+        return req;
     }
 
     private HttpRequest prepareApiGetRequest(String apiPath) throws IOException {
@@ -56,6 +67,10 @@ public class SeafConnection {
         return HttpRequest.get(url).
                 trustAllCerts().trustAllHosts().
                 connectTimeout(15000);
+    }
+
+    private HttpRequest prepareApiPostRequest(String apiPath, boolean withToken) {
+        return prepareApiPostRequest(apiPath, withToken, null);
     }
 
     /** Prepare a post request.
@@ -769,6 +784,44 @@ public class SeafConnection {
         @Override
         public String toString() {
             return "the upload/download task has been cancelled";
+        }
+    }
+
+    // public String getShareLink(String repoID, String path, boolean isdir) throws SeafException {
+    //     try {
+    //         Thread.sleep(5000);
+    //     } catch (InterruptedException e) {
+    //     }
+    //     return "http://baidu.com";
+    // }
+
+    public String getShareLink(String repoID, String path, boolean isdir) throws SeafException {
+        try {
+            String apiPath = String.format("api2/repos/%s/file/shared-link/", repoID);
+            HttpRequest req = prepareApiPutRequest(apiPath, null);
+            req.form("p", path);
+            if (req.code() != 201) {
+                if (req.message() == null) {
+                    throw SeafException.networkException;
+                } else {
+                    throw new SeafException(req.code(), req.message());
+                }
+            }
+
+            String result = req.header("Location");
+            if (result == null) {
+                throw SeafException.illFormatException;
+            }
+            return result;
+        } catch (UnsupportedEncodingException e) {
+            throw SeafException.encodingException;
+        } catch (IOException e) {
+            throw SeafException.networkException;
+
+        } catch (SeafException e) {
+            throw e;
+        } catch (HttpRequestException e) {
+            throw SeafException.networkException;
         }
     }
 }

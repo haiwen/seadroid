@@ -10,6 +10,8 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -48,12 +50,15 @@ import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.gallery.MultipleImageSelectionActivity;
 import com.seafile.seadroid2.ui.ActivitiesFragment;
 import com.seafile.seadroid2.ui.AppChoiceDialog;
+import com.seafile.seadroid2.ui.AppChoiceDialog.CustomAction;
 import com.seafile.seadroid2.ui.FetchFileDialog;
+import com.seafile.seadroid2.ui.GetShareLinkDialog;
 import com.seafile.seadroid2.ui.NewDirDialog;
 import com.seafile.seadroid2.ui.NewFileDialog;
 import com.seafile.seadroid2.ui.PasswordDialog;
 import com.seafile.seadroid2.ui.ReposFragment;
 import com.seafile.seadroid2.ui.TaskDialog;
+import com.seafile.seadroid2.ui.TaskDialog.TaskDialogListener;
 import com.seafile.seadroid2.ui.UploadTasksFragment;
 
 
@@ -786,7 +791,6 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
 
     private void chooseExportApp(final String repoName, final String repoID, final String path) {
-        PackageManager pm = getPackageManager();
         final File file = dataManager.getLocalRepoFile(repoName, repoID, path);
         Uri uri = Uri.fromFile(file);
 
@@ -796,19 +800,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
 
         // Get a list of apps
-        List<ResolveInfo> infos = pm.queryIntentActivities(sendIntent, 0);
-
-
-        // Remove seafile app from the list
-        String seadroidPackageName = getPackageName();
-        ResolveInfo info;
-        Iterator<ResolveInfo> iter = infos.iterator();
-        while (iter.hasNext()) {
-            info = iter.next();
-            if (info.activityInfo.packageName.equals(seadroidPackageName)) {
-                iter.remove();
-            }
-        }
+        List<ResolveInfo> infos = getAppsByIntent(sendIntent);
 
         if (infos.isEmpty()) {
             showToast(R.string.no_app_available);
@@ -816,7 +808,10 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
 
         AppChoiceDialog dialog = new AppChoiceDialog();
-        dialog.init(infos, new AppChoiceDialog.OnAppSelectedListener() {
+        dialog.init(getString(R.string.export_file), infos, new AppChoiceDialog.OnItemSelectedListener() {
+            @Override
+            public void onCustomActionSelected(CustomAction action) {
+            }
             @Override
             public void onAppSelected(ResolveInfo appInfo) {
                 String className = appInfo.activityInfo.name;
@@ -857,24 +852,91 @@ public class BrowserActivity extends SherlockFragmentActivity
         fetchFileDialog.show(getSupportFragmentManager(), OPEN_FILE_DIALOG_FRAGMENT_TAG);
     }
 
-    // /**
-    //  * Share a file. Generating a file share link and send the link to someone
-    //  * through some app.
-    //  * @param fileName
-    //  */
-    // public void shareFile(String fileName) {
-    //     // TODO: share a file
-    //     // String repoID = navContext.getRepoID();
-    //     // String dirPath = navContext.getDirPath();
-    // }
+    /**
+     * Share a file. Generating a file share link and send the link to someone
+     * through some app.
+     * @param fileName
+     */
+    public void shareFile(String repoID, String path) {
+        chooseShareApp(repoID, path, false);
+    }
 
-    // public void shareDir(String dirName) {
-    //     // TODO: share a dir
-    //     // String repoID = navContext.getRepoID();
-    //     // String dirPath = navContext.getDirPath();
-    //     // Log.d(DEBUG_TAG, "sharing dir: " + dirName);
-    // }
+    public void shareDir(String repoID, String path) {
+        chooseShareApp(repoID, path, true);
+    }
 
+    private List<ResolveInfo> getAppsByIntent(Intent intent) {
+        PackageManager pm = getPackageManager();
+        List<ResolveInfo> infos = pm.queryIntentActivities(intent, 0);
+
+        // Remove seafile app from the list
+        String seadroidPackageName = getPackageName();
+        ResolveInfo info;
+        Iterator<ResolveInfo> iter = infos.iterator();
+        while (iter.hasNext()) {
+            info = iter.next();
+            if (info.activityInfo.packageName.equals(seadroidPackageName)) {
+                iter.remove();
+            }
+        }
+
+        return infos;
+    }
+
+    private void chooseShareApp(final String repoID, final String path, final boolean isdir) {
+        final Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+
+        // Get a list of apps
+        List<ResolveInfo> infos = getAppsByIntent(shareIntent);
+
+        String title = getString(isdir ? R.string.share_dir_link : R.string.share_file_link);
+
+        AppChoiceDialog dialog = new AppChoiceDialog();
+        dialog.addCustomAction(0, getResources().getDrawable(R.drawable.copy_link),
+                               getString(R.string.copy_link));
+        dialog.init(title, infos, new AppChoiceDialog.OnItemSelectedListener() {
+            @Override
+            public void onCustomActionSelected(CustomAction action) {
+                final GetShareLinkDialog gdialog = new GetShareLinkDialog();
+                gdialog.init(repoID, path, isdir, account);
+                gdialog.setTaskDialogLisenter(new TaskDialogListener() {
+                    @Override
+                    public void onTaskSuccess() {
+                        // TODO: generate a share link through SeafConnection and copy
+                        // it to clipboard
+                        ClipboardManager clipboard = (ClipboardManager)
+                            getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipData clip = ClipData.newPlainText("seafile shared link", gdialog.getLink());
+                        clipboard.setPrimaryClip(clip);
+                        showToast(R.string.link_ready_to_be_pasted);
+                    }
+                });
+                gdialog.show(getSupportFragmentManager(), "DialogFragment");
+            }
+
+            @Override
+            public void onAppSelected(ResolveInfo appInfo) {
+                String className = appInfo.activityInfo.name;
+                String packageName = appInfo.activityInfo.packageName;
+                shareIntent.setClassName(packageName, className);
+
+                final GetShareLinkDialog gdialog = new GetShareLinkDialog();
+                gdialog.init(repoID, path, isdir, account);
+                gdialog.setTaskDialogLisenter(new TaskDialogListener() {
+                    @Override
+                    public void onTaskSuccess() {
+                        shareIntent.putExtra(Intent.EXTRA_TEXT, gdialog.getLink());
+                        startActivity(shareIntent);
+                    }
+                });
+                gdialog.show(getSupportFragmentManager(), "DialogFragment");
+            }
+
+        });
+        dialog.show(getSupportFragmentManager(), CHOOSE_APP_DIALOG_FRAGMENT_TAG);
+    }
 
     private void onFileUploadProgress(int taskID) {
         if (txService == null) {

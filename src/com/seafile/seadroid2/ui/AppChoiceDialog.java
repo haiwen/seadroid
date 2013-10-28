@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.app.AlertDialog;
@@ -21,26 +22,42 @@ import android.widget.TextView;
 import com.seafile.seadroid2.R;
 
 /**
- * Choose an app from a list of apps
+ * Choose an app from a list of apps or custom actions
  */
 public class AppChoiceDialog extends DialogFragment {
     private List<ResolveInfo> mAppInfos;
-    private OnAppSelectedListener mListener;
+    private OnItemSelectedListener mListener;
+    private String mTitle;
 
-    public interface OnAppSelectedListener {
+    private List<CustomAction> customActions = new ArrayList<CustomAction>();
+
+    public interface OnItemSelectedListener {
         public void onAppSelected(ResolveInfo appInfo);
+        public void onCustomActionSelected(CustomAction action);
     }
 
-    public void init(List<ResolveInfo> appInfos, OnAppSelectedListener listener) {
+    public void init(String title, List<ResolveInfo> appInfos, OnItemSelectedListener listener) {
         mAppInfos = appInfos;
         mListener = listener;
+        mTitle = title;
+    }
+
+    public void addCustomAction(int id, Drawable icon, String description) {
+        customActions.add(new CustomAction(id, icon, description));
     }
 
     private void onAppSelected(int index) {
-        ResolveInfo info = mAppInfos.get(index);
         dismiss();
-        if (mListener != null) {
-            mListener.onAppSelected(info);
+        if (index < customActions.size()) {
+            CustomAction action = customActions.get(index);
+            if (mListener != null) {
+                mListener.onCustomActionSelected(action);
+            }
+        } else {
+            ResolveInfo info = mAppInfos.get(index - customActions.size());
+            if (mListener != null) {
+                mListener.onAppSelected(info);
+            }
         }
     }
 
@@ -48,7 +65,7 @@ public class AppChoiceDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(R.string.export_file);
+        builder.setTitle(mTitle);
         ListView listView = new ListView(getActivity());
         listView.setAdapter(new AppsListAdapter());
         listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
@@ -66,7 +83,7 @@ public class AppChoiceDialog extends DialogFragment {
     private class AppsListAdapter extends BaseAdapter {
         @Override
         public int getCount() {
-            return mAppInfos.size();
+            return customActions.size() + mAppInfos.size();
         }
 
         @Override
@@ -76,7 +93,10 @@ public class AppChoiceDialog extends DialogFragment {
 
         @Override
         public Object getItem(int position) {
-            return mAppInfos.get(position);
+            if (position < customActions.size()) {
+                return customActions.get(position);
+            }
+            return mAppInfos.get(position - customActions.size());
         }
 
         @Override
@@ -94,16 +114,27 @@ public class AppChoiceDialog extends DialogFragment {
                 viewHolder = (Viewholder)convertView.getTag();
             }
 
-            ResolveInfo info = mAppInfos.get(position);
+            if (position < customActions.size()) {
+                setCustomAction(viewHolder, customActions.get(position));
+            } else {
+                setAppInfo(viewHolder, mAppInfos.get(position - customActions.size()));
+            }
 
+            return view;
+        }
+
+        private void setCustomAction(Viewholder viewHolder, CustomAction customAction) {
+            viewHolder.icon.setImageDrawable(customAction.icon);
+            viewHolder.desc.setText(customAction.description);
+        }
+
+        private void setAppInfo(Viewholder viewHolder, ResolveInfo info) {
             PackageManager pm = getActivity().getPackageManager();
             CharSequence appDesc = info.activityInfo.loadLabel(pm);
             Drawable appIcon = info.activityInfo.loadIcon(pm);
 
             viewHolder.icon.setImageDrawable(appIcon);
             viewHolder.desc.setText(appDesc);
-
-            return view;
         }
 
         private class Viewholder {
@@ -118,4 +149,15 @@ public class AppChoiceDialog extends DialogFragment {
 
     }
 
+    public static class CustomAction {
+        public final int id;
+        public final Drawable icon;
+        public final String description;
+
+        public CustomAction(int id, Drawable icon, String description) {
+            this.id = id;
+            this.icon = icon;
+            this.description = description;
+        }
+    }
 }

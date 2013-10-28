@@ -46,7 +46,7 @@ public abstract class TaskDialog extends DialogFragment {
     private ProgressBar loading;
 
     //
-    private Button okButton, cancelButton;
+    private Button okButton;
 
     // The content area of the dialog
     private View contentView;
@@ -56,7 +56,7 @@ public abstract class TaskDialog extends DialogFragment {
     /**
      * Create the content area of the dialog
      * @param inflater
-     * @param savedInstanceState The saved dialog state. Most of the time subclasses don't need to make use of it, since the state of UI widgets is restored by the base class. 
+     * @param savedInstanceState The saved dialog state. Most of the time subclasses don't need to make use of it, since the state of UI widgets is restored by the base class.
      * @return The created view
      */
     protected abstract View createDialogContentView(LayoutInflater inflater,
@@ -71,6 +71,14 @@ public abstract class TaskDialog extends DialogFragment {
      */
     protected View getContentView() {
         return contentView;
+    }
+
+
+    /**
+     * If true, execute the task without clicking the OK btn;
+     */
+    protected boolean executeTaskImmediately() {
+        return false;
     }
 
     /**
@@ -158,7 +166,9 @@ public abstract class TaskDialog extends DialogFragment {
         LinearLayout view = (LinearLayout)inflater.inflate(R.layout.task_dialog, null);
 
         contentView = createDialogContentView(inflater, savedInstanceState);
-        view.addView(contentView, 0);
+        if (contentView != null) {
+            view.addView(contentView, 0);
+        }
 
         errorText = (TextView)view.findViewById(R.id.error_message);
         loading = (ProgressBar)view.findViewById(R.id.loading);
@@ -172,11 +182,14 @@ public abstract class TaskDialog extends DialogFragment {
         }
 
         builder.setView(view);
-        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-            }
-        });
+
+        if (hasOkButton()) {
+            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                }
+            });
+        }
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -190,30 +203,37 @@ public abstract class TaskDialog extends DialogFragment {
         });
 
         final AlertDialog dialog = builder.create();
-        final View.OnClickListener onOKButtonClickedListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                try {
-                    onValidateUserInput();
-                } catch (Exception e) {
-                    showError(e.getMessage());
-                    return;
-                }
-
-                task = prepareTask();
-                executeTask();
-            }
-        };
 
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface d) {
-                okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                cancelButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-                okButton.setOnClickListener(onOKButtonClickedListener);
+                if (hasOkButton()) {
+                    okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                    View.OnClickListener onOKButtonClickedListener = new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            try {
+                                onValidateUserInput();
+                            } catch (Exception e) {
+                                showError(e.getMessage());
+                                return;
+                            }
+
+                            task = prepareTask();
+                            executeTask();
+                        }
+                    };
+                    okButton.setOnClickListener(onOKButtonClickedListener);
+                }
+
                 if (savedInstanceState != null) {
                     dialog.onRestoreInstanceState(savedInstanceState);
                     restoreTask(savedInstanceState);
+                }
+
+                if (executeTaskImmediately()) {
+                    task = prepareTask();
+                    executeTask();
                 }
             }
         });
@@ -261,12 +281,20 @@ public abstract class TaskDialog extends DialogFragment {
         errorText.setVisibility(View.GONE);
     }
 
+    private boolean hasOkButton() {
+        return !executeTaskImmediately();
+    }
+
     protected void disableInput() {
-        okButton.setEnabled(false);
+        if (hasOkButton()) {
+            okButton.setEnabled(false);
+        }
     }
 
     protected void enableInput() {
-        okButton.setEnabled(true);
+        if (hasOkButton()) {
+            okButton.setEnabled(true);
+        }
     }
 
     private void executeTask() {
