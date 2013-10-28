@@ -41,12 +41,11 @@ public class SeafItemAdapter extends BaseAdapter {
     }
 
     private static final int ACTION_ID_DOWNLOAD = 0;
-    private static final int ACTION_ID_REMOVE_CACHE = 1;
-    private static final int ACTION_ID_UPDATE = 2;
-    private static final int ACTION_ID_EXPORT = 3;
-    private static final int ACTION_ID_RENAME = 4;
-    private static final int ACTION_ID_DELETE = 5;
-    private static final int ACTION_ID_SHARE = 6;
+    private static final int ACTION_ID_UPDATE = 1;
+    private static final int ACTION_ID_EXPORT = 2;
+    private static final int ACTION_ID_RENAME = 3;
+    private static final int ACTION_ID_DELETE = 4;
+    private static final int ACTION_ID_SHARE = 5;
 
     @Override
     public int getCount() {
@@ -323,12 +322,22 @@ public class SeafItemAdapter extends BaseAdapter {
     private QuickAction prepareFileAction(final SeafDirent dirent, boolean cacheExists) {
         final QuickAction mQuickAction = new QuickAction(mActivity);
         Resources resources = mActivity.getResources();
-        ActionItem shareAction, downloadAction, updateAction, exportAction;
+        ActionItem shareAction, downloadAction, updateAction, exportAction, renameAction, deleteAction;
 
         shareAction = new ActionItem(ACTION_ID_SHARE,
                                      resources.getString(R.string.file_action_share),
                                      resources.getDrawable(R.drawable.action_share));
         mQuickAction.addActionItem(shareAction);
+
+        deleteAction = new ActionItem(ACTION_ID_DELETE,
+                                      resources.getString(R.string.file_action_delete),
+                                      resources.getDrawable(R.drawable.action_delete));
+        mQuickAction.addActionItem(deleteAction);
+
+        renameAction = new ActionItem(ACTION_ID_RENAME,
+                                      resources.getString(R.string.file_action_rename),
+                                      resources.getDrawable(R.drawable.action_rename));
+        mQuickAction.addActionItem(renameAction);
 
         exportAction = new ActionItem(ACTION_ID_EXPORT,
                                      resources.getString(R.string.file_action_export),
@@ -374,6 +383,9 @@ public class SeafItemAdapter extends BaseAdapter {
                     break;
                 case ACTION_ID_UPDATE:
                     mActivity.addUpdateTask(repoID, repoName, dir, localPath);
+                    break;
+                case ACTION_ID_RENAME:
+                    mActivity.renameFile(repoID, repoName, path);
                     break;
                 }
             }

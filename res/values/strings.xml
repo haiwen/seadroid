@@ -56,6 +56,8 @@
     <string name="file_action_update">Update</string>
     <string name="file_action_share">Share</string>
     <string name="file_action_export">Export</string>
+    <string name="file_action_delete">Delete</string>
+    <string name="file_action_rename">Rename</string>
     <string name="wait">Wait</string>
     <string name="image_gallery_NoImageView_text">No image Found</string>
     <string name="pick_photo_video_title">Choose photos/videos to upload</string>
@@ -98,4 +100,7 @@
     <string name="share_dir_link">Share a link to this folder</string>
     <string name="generating_link">Generating link...</string>
     <string name="link_ready_to_be_pasted">The link is ready to be pasted.</string>
+    <string name="rename_file">Rename file</string>
+    <string name="rename_dir">Rename folder</string>
+    <string name="rename_successful">Renamed successfully.</string>
 </resources>

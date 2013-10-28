@@ -817,4 +817,44 @@ public class SeafConnection {
             throw SeafException.networkException;
         }
     }
+
+    public Pair<String, String> rename(String repoID, String path,
+                                       String newName, boolean isdir) throws SeafException {
+        try {
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("p", path);
+            params.put("reloaddir", "true");
+            String suffix = isdir ? "/dir/" : "/file/";
+            HttpRequest req = prepareApiPostRequest("api2/repos/" + repoID + suffix, true, params);
+
+            req.form("operation", "rename");
+            req.form("newname", newName);
+
+            if (req.code() != 200) {
+                if (req.message() == null) {
+                    throw SeafException.networkException;
+                } else {
+                    throw new SeafException(req.code(), req.message());
+                }
+            }
+
+            String newDirID = req.header("oid");
+            if (newDirID == null) {
+                return null;
+            }
+
+            String content = new String(req.bytes(), "UTF-8");
+            if (content.length() == 0) {
+                return null;
+            }
+
+            return new Pair<String, String>(newDirID, content);
+        } catch (SeafException e) {
+            throw e;
+        } catch (UnsupportedEncodingException e) {
+            throw SeafException.encodingException;
+        } catch (HttpRequestException e) {
+            throw SeafException.networkException;
+        }
+    }
 }

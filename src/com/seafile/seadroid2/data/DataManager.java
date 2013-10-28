@@ -578,4 +578,18 @@ public class DataManager {
             return null;
         }
     }
+
+    public void rename(String repoID, String path, String newName, boolean isdir) throws SeafException {
+        Pair<String, String> ret = sc.rename(repoID, path, newName, isdir);
+        if (ret == null) {
+            return;
+        }
+
+        String newDirID = ret.first;
+        String response = ret.second;
+
+        // The response is the dirents of the parentDir after creating
+        // the new file. We save it to avoid request it again
+        dbHelper.saveDirents(repoID, Utils.getParentPath(path), newDirID, response);
+    }
 }

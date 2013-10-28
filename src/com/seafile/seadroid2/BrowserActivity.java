@@ -56,6 +56,7 @@ import com.seafile.seadroid2.ui.GetShareLinkDialog;
 import com.seafile.seadroid2.ui.NewDirDialog;
 import com.seafile.seadroid2.ui.NewFileDialog;
 import com.seafile.seadroid2.ui.PasswordDialog;
+import com.seafile.seadroid2.ui.RenameFileDialog;
 import com.seafile.seadroid2.ui.ReposFragment;
 import com.seafile.seadroid2.ui.TaskDialog;
 import com.seafile.seadroid2.ui.TaskDialog.TaskDialogListener;
@@ -936,6 +937,30 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         });
         dialog.show(getSupportFragmentManager(), CHOOSE_APP_DIALOG_FRAGMENT_TAG);
+    }
+
+
+    public void renameFile(String repoID, String repoName, String path) {
+        doRename(repoID, repoName, path, false);
+    }
+
+    public void renameDir(String repoID, String repoName, String path) {
+        doRename(repoID, repoName, path, true);
+    }
+
+    private void doRename(String repoID, String repoName, String path, boolean isdir) {
+        final RenameFileDialog dialog = new RenameFileDialog();
+        dialog.init(repoID, path, isdir, account);
+        dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
+            @Override
+            public void onTaskSuccess() {
+                showToast(R.string.rename_successful);
+                if (currentTab.equals(LIBRARY_TAB) && reposFragment != null) {
+                    reposFragment.refreshView();
+                }
+            }
+        });
+        dialog.show(getSupportFragmentManager(), "DialogFragment");
     }
 
     private void onFileUploadProgress(int taskID) {
