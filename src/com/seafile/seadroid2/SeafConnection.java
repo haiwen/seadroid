@@ -787,19 +787,12 @@ public class SeafConnection {
         }
     }
 
-    // public String getShareLink(String repoID, String path, boolean isdir) throws SeafException {
-    //     try {
-    //         Thread.sleep(5000);
-    //     } catch (InterruptedException e) {
-    //     }
-    //     return "http://baidu.com";
-    // }
-
     public String getShareLink(String repoID, String path, boolean isdir) throws SeafException {
         try {
             String apiPath = String.format("api2/repos/%s/file/shared-link/", repoID);
             HttpRequest req = prepareApiPutRequest(apiPath, null);
             req.form("p", path);
+            req.form("type", isdir ? "d": "f");
             if (req.code() != 201) {
                 if (req.message() == null) {
                     throw SeafException.networkException;
