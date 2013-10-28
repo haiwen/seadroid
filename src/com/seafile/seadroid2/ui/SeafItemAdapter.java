@@ -323,7 +323,7 @@ public class SeafItemAdapter extends BaseAdapter {
     private QuickAction prepareFileAction(final SeafDirent dirent, boolean cacheExists) {
         final QuickAction mQuickAction = new QuickAction(mActivity);
         Resources resources = mActivity.getResources();
-        ActionItem shareAction, removeCacheAction, downloadAction, updateAction, exportAction;
+        ActionItem shareAction, downloadAction, updateAction, exportAction;
 
         shareAction = new ActionItem(ACTION_ID_SHARE,
                                      resources.getString(R.string.file_action_share),
@@ -336,11 +336,6 @@ public class SeafItemAdapter extends BaseAdapter {
         mQuickAction.addActionItem(exportAction);
 
         if (cacheExists) {
-            removeCacheAction = new ActionItem(ACTION_ID_REMOVE_CACHE,
-                                               resources.getString(R.string.file_action_remove_cache),
-                                               resources.getDrawable(R.drawable.action_remove_cache));
-            mQuickAction.addActionItem(removeCacheAction);
-
             if (mActivity.hasRepoWritePermission()) {
                 updateAction = new ActionItem(ACTION_ID_UPDATE,
                                               resources.getString(R.string.file_action_update),
@@ -379,13 +374,6 @@ public class SeafItemAdapter extends BaseAdapter {
                     break;
                 case ACTION_ID_UPDATE:
                     mActivity.addUpdateTask(repoID, repoName, dir, localPath);
-                    break;
-                case ACTION_ID_REMOVE_CACHE:
-                    SeafCachedFile cachedFile = dataManager.getCachedFile(repoName, repoID, path);
-                    if (cachedFile != null) {
-                        dataManager.removeCachedFile(cachedFile);
-                        notifyDataSetChanged();
-                    }
                     break;
                 }
             }
