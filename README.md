@@ -4,7 +4,7 @@
 
 * [ActionBarSherlock](https://github.com/JakeWharton/ActionBarSherlock)
 * [aFileChooser](https://github.com/iPaulPro/aFileChooser)
-* [NewQuickAction](https://github.com/xgouchet/NewQuickAction)
+* [NewQuickAction](https://github.com/haiwen/NewQuickAction)
 * [http-request](https://github.com/kevinsawicki/http-request)
 
 ## Build
