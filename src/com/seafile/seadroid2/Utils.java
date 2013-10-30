@@ -27,6 +27,7 @@ import org.json.JSONTokener;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.NetworkInfo.DetailedState;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
@@ -261,12 +262,18 @@ public class Utils {
         ConnectivityManager connMgr = (ConnectivityManager)
                 SeadroidApplication.getAppContext().getSystemService(
                         Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
-        if (networkInfo != null && networkInfo.isConnected()) {
+        NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        if(wifi.isAvailable() && wifi.getDetailedState() == DetailedState.CONNECTED) {
             return true;
-        } else
-            return false;
+        }
+
+        NetworkInfo mobile = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        if( mobile.isAvailable() && mobile.getDetailedState() == DetailedState.CONNECTED) {
+            return true;
+        }
+
+        return false;
     }
 
     public static String pathJoin (String first, String... rest) {

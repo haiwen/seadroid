@@ -157,9 +157,6 @@ public class ReposFragment extends SherlockListFragment {
         mActivity.enableUpButton();
 
         NavContext nav = getNavContext();
-        final String repoName = nav.getRepoName();
-        final String repoID = nav.getRepoID();
-
         DataManager dataManager = getDataManager();
 
         if (!Utils.isNetworkOn() || !forceRefresh) {
@@ -218,7 +215,7 @@ public class ReposFragment extends SherlockListFragment {
     public void onListItemClick(ListView l, View v, int position, long id) {
         //Log.d(DEBUG_TAG, "click pos " + position + " id " + id);
 
-        NavContext nav = getNavContext();
+        final NavContext nav = getNavContext();
         if (nav.inRepo()) {
             SeafDirent dirent = (SeafDirent)adapter.getItem(position);
             if (dirent.isDir()) {
@@ -241,6 +238,9 @@ public class ReposFragment extends SherlockListFragment {
                     @Override
                     public void onTaskSuccess() {
                         DataManager.setRepoPasswordSet(repo.id);
+                        nav.setRepoID(repo.id);
+                        nav.setRepoName(repo.getName());
+                        nav.setDir("/", repo.root);
                         refreshView();
                     }
                 });

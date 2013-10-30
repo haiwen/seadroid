@@ -329,10 +329,10 @@ public class SeafItemAdapter extends BaseAdapter {
                                      resources.getDrawable(R.drawable.action_share));
         mQuickAction.addActionItem(shareAction);
 
-        deleteAction = new ActionItem(ACTION_ID_DELETE,
-                                      resources.getString(R.string.file_action_delete),
-                                      resources.getDrawable(R.drawable.action_delete));
-        mQuickAction.addActionItem(deleteAction);
+        // deleteAction = new ActionItem(ACTION_ID_DELETE,
+        //                               resources.getString(R.string.file_action_delete),
+        //                               resources.getDrawable(R.drawable.action_delete));
+        // mQuickAction.addActionItem(deleteAction);
 
         renameAction = new ActionItem(ACTION_ID_RENAME,
                                       resources.getString(R.string.file_action_rename),
