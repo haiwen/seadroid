@@ -6,7 +6,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -591,5 +593,19 @@ public class DataManager {
         // The response is the dirents of the parentDir after creating
         // the new file. We save it to avoid request it again
         dbHelper.saveDirents(repoID, Utils.getParentPath(path), newDirID, response);
+    }
+
+    private static Map<String, Boolean> passwords = new HashMap<String, Boolean>();
+
+    public static boolean getRepoPasswordSet(String repoID) {
+        Boolean ret = passwords.get(repoID);
+        if (ret == null) {
+            return false;
+        }
+        return (boolean)ret;
+    }
+
+    public static void setRepoPasswordSet(String repoID) {
+        passwords.put(repoID, true);
     }
 }

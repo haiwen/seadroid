@@ -154,14 +154,17 @@ public class ReposFragment extends SherlockListFragment {
     }
 
     public void navToDirectory(boolean forceRefresh) {
-        NavContext navContext = getNavContext();
         mActivity.enableUpButton();
+
+        NavContext nav = getNavContext();
+        final String repoName = nav.getRepoName();
+        final String repoID = nav.getRepoID();
 
         DataManager dataManager = getDataManager();
 
         if (!Utils.isNetworkOn() || !forceRefresh) {
             List<SeafDirent> dirents = dataManager.getCachedDirents(
-                navContext.getRepoID(), navContext.getDirPath());
+                nav.getRepoID(), nav.getDirPath());
             if (dirents != null) {
                 updateAdapterWithDirents(dirents);
                 return;
@@ -170,9 +173,9 @@ public class ReposFragment extends SherlockListFragment {
 
         showLoading(true);
         ConcurrentAsyncTask.execute(new LoadDirTask(getDataManager()),
-                                    navContext.getRepoName(),
-                                    navContext.getRepoID(),
-                                    navContext.getDirPath());
+                                    nav.getRepoName(),
+                                    nav.getRepoID(),
+                                    nav.getDirPath());
     }
 
     private void updateAdapterWithRepos(List<SeafRepo> repos) {
@@ -231,7 +234,19 @@ public class ReposFragment extends SherlockListFragment {
             SeafItem item = adapter.getItem(position);
             if (!(item instanceof SeafRepo))
                 return;
-            SeafRepo repo = (SeafRepo)item;
+            final SeafRepo repo = (SeafRepo)item;
+            
+            if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
+                mActivity.showPasswordDialog(repo.name, repo.id, new TaskDialog.TaskDialogListener() {
+                    @Override
+                    public void onTaskSuccess() {
+                        DataManager.setRepoPasswordSet(repo.id);
+                        refreshView();
+                    }
+                });
+                return;
+            }
+
             nav.setRepoID(repo.id);
             nav.setRepoName(repo.getName());
             nav.setDir("/", repo.root);
