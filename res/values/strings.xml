@@ -94,7 +94,7 @@
     <string name="library_not_found">The library have been deleted.</string>
     <string name="export_file">Export this file</string>
     <string name="no_upload_tasks">No upload tasks yet</string>
-    <string name="seahub_url_hint">Note: Server address should contain the port and suffix, if any. For example, www.example.com:8000, or www.example.com/seafile</string>
+    <string name="seahub_url_hint">Note: Server address should contain the port. For example, www.example.com:8000</string>
     <string name="copy_link">Copy link</string>
     <string name="share_file_link">Share a link to this file</string>
     <string name="share_dir_link">Share a link to this folder</string>

@@ -28,6 +28,9 @@ import com.seafile.seadroid2.account.Account;
 
 public class DataManager {
 
+    private static final long SET_PASSWORD_INTERVAL = 59 * 60 * 1000; // 59 min
+    // private static final long SET_PASSWORD_INTERVAL = 5 * 1000; // 5s
+
     public static String getExternalRootDirectory() {
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             File extDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Seafile/");
@@ -595,17 +598,41 @@ public class DataManager {
         dbHelper.saveDirents(repoID, Utils.getParentPath(path), newDirID, response);
     }
 
-    private static Map<String, Boolean> passwords = new HashMap<String, Boolean>();
+    private static class PasswordInfo {
+        String password;
+        long timestamp;
 
-    public static boolean getRepoPasswordSet(String repoID) {
-        Boolean ret = passwords.get(repoID);
-        if (ret == null) {
-            return false;
+        public PasswordInfo(String password, long timestamp) {
+            this.password = password;
+            this.timestamp = timestamp;
         }
-        return (boolean)ret;
     }
 
-    public static void setRepoPasswordSet(String repoID) {
-        passwords.put(repoID, true);
+    private static Map<String, PasswordInfo> passwords = new HashMap<String, PasswordInfo>();
+
+    public static boolean getRepoPasswordSet(String repoID) {
+        PasswordInfo info = passwords.get(repoID);
+        if (info == null) {
+            return false;
+        }
+
+        if (Utils.now() - info.timestamp > SET_PASSWORD_INTERVAL) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public static void setRepoPasswordSet(String repoID, String password) {
+        passwords.put(repoID, new PasswordInfo(password, Utils.now()));
+    }
+
+    public static String getRepoPassword(String repoID) {
+        PasswordInfo info = passwords.get(repoID);
+        if (info == null) {
+            return null;
+        }
+
+        return info.password;
     }
 }

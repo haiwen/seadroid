@@ -171,15 +171,37 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
         super.onDestroy();
     }
 
-    public void onListItemClick(View v, int position, long id) {
+    public void onListItemClick(final View v, final int position, final long id) {
         NavContext nav = getNavContext();
+        SeafRepo repo = null;
+
+        if (mStep == STEP_CHOOSE_REPO) {
+            repo = getReposAdapter().getItem(position);
+        } else if (mStep == STEP_CHOOSE_DIR) {
+            repo = getDataManager().getCachedRepoByID(nav.getRepoID());
+        }
+
+        if (repo != null) {
+            if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
+                String password = DataManager.getRepoPassword(repo.id);
+                showPasswordDialog(repo.name, repo.id,
+                    new TaskDialog.TaskDialogListener() {
+                        @Override
+                        public void onTaskSuccess() {
+                            onListItemClick(v, position, id);
+                        }
+                }, password);
+
+                return;
+            }
+        }
+
         switch (mStep) {
         case STEP_CHOOSE_ACCOUNT:
             mAccount = getAccountAdapter().getItem(position);
             chooseRepo();
             break;
         case STEP_CHOOSE_REPO:
-            SeafRepo repo = getReposAdapter().getItem(position);
             nav.setRepoName(repo.name);
             nav.setRepoID(repo.id);
             nav.setDir("/", repo.root);
@@ -230,7 +252,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
         stepBack(true);
     }
 
-    private void refreshList(boolean forceRefresh) {
+    private void refreshList(final boolean forceRefresh) {
         switch (mStep) {
         case STEP_CHOOSE_ACCOUNT:
             if (mLoadAccountsTask != null && mLoadAccountsTask.getStatus() != AsyncTask.Status.FINISHED) {
@@ -250,6 +272,17 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
             if (mLoadDirTask != null && mLoadDirTask.getStatus() != AsyncTask.Status.FINISHED) {
                 return;
             } else {
+                SeafRepo repo = getDataManager().getCachedRepoByID(getNavContext().getRepoID());
+                if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
+                    String password = DataManager.getRepoPassword(repo.id);
+                    showPasswordDialog(repo.name, repo.id,
+                    new TaskDialog.TaskDialogListener() {
+                        @Override
+                        public void onTaskSuccess() {
+                            chooseRepo(forceRefresh);
+                        }
+                    } , password);
+                }
                 chooseDir(forceRefresh);
                 break;
             }
@@ -415,6 +448,17 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
                 refreshDir();
             }
         });
+        passwordDialog.show(getSupportFragmentManager(), PASSWORD_DIALOG_FRAGMENT_TAG);
+    }
+
+    public void showPasswordDialog(String repoName, String repoID,
+                                   TaskDialog.TaskDialogListener listener, String password) {
+        PasswordDialog passwordDialog = new PasswordDialog();
+        passwordDialog.setRepo(repoName, repoID, mAccount);
+        if (password != null) {
+            passwordDialog.setPassword(password);
+        }
+        passwordDialog.setTaskDialogLisenter(listener);
         passwordDialog.show(getSupportFragmentManager(), PASSWORD_DIALOG_FRAGMENT_TAG);
     }
 

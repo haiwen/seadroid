@@ -264,12 +264,14 @@ public class Utils {
                         Context.CONNECTIVITY_SERVICE);
 
         NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        if(wifi.isAvailable() && wifi.getDetailedState() == DetailedState.CONNECTED) {
+        if(wifi != null && wifi.isAvailable()
+           && wifi.getDetailedState() == DetailedState.CONNECTED) {
             return true;
         }
 
         NetworkInfo mobile = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-        if( mobile.isAvailable() && mobile.getDetailedState() == DetailedState.CONNECTED) {
+        if(mobile != null && mobile.isAvailable()
+           && mobile.getDetailedState() == DetailedState.CONNECTED) {
             return true;
         }
 

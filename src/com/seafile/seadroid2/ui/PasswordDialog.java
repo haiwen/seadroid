@@ -43,6 +43,7 @@ public class PasswordDialog extends TaskDialog {
     private String repoID, repoName;
     private DataManager dataManager;
     private Account account;
+    private String password;
 
     public void setRepo(String repoName, String repoID, Account account) {
         this.repoName = repoName;
@@ -67,6 +68,10 @@ public class PasswordDialog extends TaskDialog {
             repoName = savedInstanceState.getString(STATE_TASK_REPO_NAME);
             repoID = savedInstanceState.getString(STATE_TASK_REPO_ID);
             account = (Account)savedInstanceState.getParcelable(STATE_ACCOUNT);
+        }
+
+        if (password != null) {
+            passwordText.setText(password);
         }
 
         return view;
@@ -133,5 +138,21 @@ public class PasswordDialog extends TaskDialog {
         } else {
             return null;
         }
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    @Override
+    protected boolean executeTaskImmediately() {
+        return password != null;
+    }
+
+    @Override
+    public void onTaskSuccess() {
+        String password = passwordText.getText().toString().trim();
+        DataManager.setRepoPasswordSet(repoID, password);
+        super.onTaskSuccess();
     }
 }

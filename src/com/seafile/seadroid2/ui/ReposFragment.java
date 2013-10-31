@@ -153,12 +153,11 @@ public class ReposFragment extends SherlockListFragment {
         ConcurrentAsyncTask.execute(new LoadTask(getDataManager()));
     }
 
-    public void navToDirectory(boolean forceRefresh) {
-        mActivity.enableUpButton();
-
+    public void navToDirectory(final boolean forceRefresh) {
         NavContext nav = getNavContext();
         DataManager dataManager = getDataManager();
 
+        mActivity.enableUpButton();
         if (!Utils.isNetworkOn() || !forceRefresh) {
             List<SeafDirent> dirents = dataManager.getCachedDirents(
                 nav.getRepoID(), nav.getDirPath());
@@ -212,12 +211,37 @@ public class ReposFragment extends SherlockListFragment {
     }
 
     @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        //Log.d(DEBUG_TAG, "click pos " + position + " id " + id);
-
+    public void onListItemClick(final ListView l, final View v, final int position, final long id) {
+        SeafRepo repo = null;
         final NavContext nav = getNavContext();
         if (nav.inRepo()) {
-            SeafDirent dirent = (SeafDirent)adapter.getItem(position);
+            repo = getDataManager().getCachedRepoByID(nav.getRepoID());
+        } else {
+            SeafItem item = adapter.getItem(position);
+            if (item instanceof SeafRepo) {
+                repo = (SeafRepo)item;
+            }
+        }
+
+        if (repo == null) {
+            return;
+        }
+
+        if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
+            String password = DataManager.getRepoPassword(repo.id);
+            mActivity.showPasswordDialog(repo.name, repo.id,
+                new TaskDialog.TaskDialogListener() {
+                    @Override
+                    public void onTaskSuccess() {
+                        onListItemClick(l, v, position, id);
+                    }
+                }, password);
+
+            return;
+        }
+
+        if (nav.inRepo()) {
+            final SeafDirent dirent = (SeafDirent)adapter.getItem(position);
             if (dirent.isDir()) {
                 String currentPath = nav.getDirPath();
                 String newPath = currentPath.endsWith("/") ?
@@ -228,25 +252,6 @@ public class ReposFragment extends SherlockListFragment {
                 mActivity.onFileSelected(dirent);
             }
         } else {
-            SeafItem item = adapter.getItem(position);
-            if (!(item instanceof SeafRepo))
-                return;
-            final SeafRepo repo = (SeafRepo)item;
-            
-            if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
-                mActivity.showPasswordDialog(repo.name, repo.id, new TaskDialog.TaskDialogListener() {
-                    @Override
-                    public void onTaskSuccess() {
-                        DataManager.setRepoPasswordSet(repo.id);
-                        nav.setRepoID(repo.id);
-                        nav.setRepoName(repo.getName());
-                        nav.setDir("/", repo.root);
-                        refreshView();
-                    }
-                });
-                return;
-            }
-
             nav.setRepoID(repo.id);
             nav.setRepoName(repo.getName());
             nav.setDir("/", repo.root);

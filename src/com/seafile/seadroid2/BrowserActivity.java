@@ -459,6 +459,22 @@ public class BrowserActivity extends SherlockFragmentActivity
             }
 
             if (currentTab.equals(LIBRARY_TAB)) {
+                if (navContext.inRepo()) {
+                    SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
+                    if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
+                        String password = DataManager.getRepoPassword(repo.id);
+                        showPasswordDialog(repo.name, repo.id,
+                            new TaskDialog.TaskDialogListener() {
+                                @Override
+                                public void onTaskSuccess() {
+                                    reposFragment.refreshView(true);
+                                }
+                            } , password);
+
+                        return true;
+                    }
+                }
+
                 reposFragment.refreshView(true);
             } else if (currentTab.equals(ACTIVITY_TAB)) {
                 activitiesFragment.refreshView();
@@ -1075,8 +1091,16 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     public PasswordDialog showPasswordDialog(String repoName, String repoID,
                                              TaskDialog.TaskDialogListener listener) {
+        return showPasswordDialog(repoName, repoID, listener, null);
+    }
+
+    public PasswordDialog showPasswordDialog(String repoName, String repoID,
+                                             TaskDialog.TaskDialogListener listener, String password) {
         PasswordDialog passwordDialog = new PasswordDialog();
         passwordDialog.setRepo(repoName, repoID, account);
+        if (password != null) {
+            passwordDialog.setPassword(password);
+        }
         passwordDialog.setTaskDialogLisenter(listener);
         passwordDialog.show(getSupportFragmentManager(), PASSWORD_DIALOG_FRAGMENT_TAG);
         return passwordDialog;
