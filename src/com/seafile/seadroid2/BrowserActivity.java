@@ -10,8 +10,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -27,6 +25,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.ClipboardManager;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
@@ -909,8 +908,9 @@ public class BrowserActivity extends SherlockFragmentActivity
                         // it to clipboard
                         ClipboardManager clipboard = (ClipboardManager)
                             getSystemService(Context.CLIPBOARD_SERVICE);
-                        ClipData clip = ClipData.newPlainText("seafile shared link", gdialog.getLink());
-                        clipboard.setPrimaryClip(clip);
+                        clipboard.setText(gdialog.getLink());
+                        // ClipData clip = ClipData.newPlainText("seafile shared link", gdialog.getLink());
+                        // clipboard.setPrimaryClip(clip);
                         showToast(R.string.link_ready_to_be_pasted);
                     }
                 });
