@@ -30,6 +30,9 @@ class RenameTask extends TaskDialog.Task {
 
     @Override
     protected void runTask() {
+        if (newName.equals(Utils.fileNameFromPath(path))) {
+            return;
+        }
         try {
             dataManager.rename(repoID, path, newName, isdir);
         } catch (SeafException e) {
@@ -71,6 +74,8 @@ public class RenameFileDialog extends TaskDialog {
         View view = inflater.inflate(R.layout.dialog_new_file, null);
         fileNameText = (EditText) view.findViewById(R.id.new_file_name);
 
+        fileNameText.setText(Utils.fileNameFromPath(path));
+
         return view;
     }
 
@@ -93,6 +98,7 @@ public class RenameFileDialog extends TaskDialog {
     @Override
     protected RenameTask prepareTask() {
         String newName = fileNameText.getText().toString().trim();
+
         RenameTask task = new RenameTask(repoID, path, newName, isdir, getDataManager());
         return task;
     }

@@ -129,6 +129,9 @@ public class ReposFragment extends SherlockListFragment {
         if (mActivity == null)
             return;
 
+        mErrorText.setVisibility(View.GONE);
+        mListContainer.setVisibility(View.VISIBLE);
+
         NavContext navContext = getNavContext();
         if (navContext.inRepo()) {
             navToDirectory(forceRefresh);
