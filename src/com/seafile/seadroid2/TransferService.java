@@ -584,11 +584,11 @@ public class TransferService extends Service implements TransferListener {
 	public void onFileUploaded(int taskID) {
 		synchronized (autoUploadQueue) {
 			final Media media = autoUploadQueue.get(taskID);
-			media.busy = false;
-			setTimeLastUpload(media.timestamp);
 			autoUploadQueue.remove(taskID);
 			if (media != null) {
 				autoUploadWaiting.remove(media);
+				media.busy = false;
+				setTimeLastUpload(media.timestamp);
 			}
 		}
 		Intent localIntent = new Intent(BROADCAST_ACTION).putExtra("type", BROADCAST_FILE_UPLOAD_SUCCESS)
