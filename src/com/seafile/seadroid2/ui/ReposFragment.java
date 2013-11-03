@@ -161,6 +161,12 @@ public class ReposFragment extends SherlockListFragment {
         DataManager dataManager = getDataManager();
 
         mActivity.enableUpButton();
+        
+    	SeafRepo repo = getDataManager().getCachedRepoByID(nav.getRepoID());
+    	if (repo != null) {
+    		adapter.setEncryptedRepo(repo.encrypted);
+    	}
+        
         if (!Utils.isNetworkOn() || !forceRefresh) {
             List<SeafDirent> dirents = dataManager.getCachedDirents(
                 nav.getRepoID(), nav.getDirPath());

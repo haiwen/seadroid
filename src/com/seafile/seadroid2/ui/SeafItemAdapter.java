@@ -34,6 +34,7 @@ public class SeafItemAdapter extends BaseAdapter {
 
     private ArrayList<SeafItem> items;
     private BrowserActivity mActivity;
+	private boolean repoIsEncrypted;
 
     public SeafItemAdapter(BrowserActivity activity) {
         this.mActivity = activity;
@@ -307,6 +308,10 @@ public class SeafItemAdapter extends BaseAdapter {
     }
 
     private void setDirAction(SeafDirent dirent, Viewholder viewHolder, final int position) {
+    	if (repoIsEncrypted) {
+    		viewHolder.action.setVisibility(View.GONE);
+    		return;
+    	}
         viewHolder.action.setImageResource(R.drawable.drop_down_button);
         viewHolder.action.setVisibility(View.VISIBLE);
         viewHolder.action.setOnClickListener(new OnClickListener() {
@@ -323,11 +328,13 @@ public class SeafItemAdapter extends BaseAdapter {
         final QuickAction mQuickAction = new QuickAction(mActivity);
         Resources resources = mActivity.getResources();
         ActionItem shareAction, downloadAction, updateAction, exportAction, renameAction, deleteAction;
-
-        shareAction = new ActionItem(ACTION_ID_SHARE,
-                                     resources.getString(R.string.file_action_share),
-                                     resources.getDrawable(R.drawable.action_share));
-        mQuickAction.addActionItem(shareAction);
+        
+        if (!repoIsEncrypted) {
+	        shareAction = new ActionItem(ACTION_ID_SHARE,
+	                                     resources.getString(R.string.file_action_share),
+	                                     resources.getDrawable(R.drawable.action_share));
+	        mQuickAction.addActionItem(shareAction);
+        }
 
         // deleteAction = new ActionItem(ACTION_ID_DELETE,
         //                               resources.getString(R.string.file_action_delete),
@@ -424,5 +431,9 @@ public class SeafItemAdapter extends BaseAdapter {
         mQuickAction.mAnimateTrack(false);
         return mQuickAction;
     }
+
+	public void setEncryptedRepo(boolean encrypted) {
+		repoIsEncrypted = encrypted;
+	}
 }
 
