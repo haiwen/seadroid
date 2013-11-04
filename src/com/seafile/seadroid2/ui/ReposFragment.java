@@ -5,8 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -125,6 +127,7 @@ public class ReposFragment extends SherlockListFragment {
         refreshView(false);
     }
 
+    @SuppressLint("NewApi")
     public void refreshView(boolean forceRefresh) {
         if (mActivity == null)
             return;
@@ -138,7 +141,9 @@ public class ReposFragment extends SherlockListFragment {
         } else {
             navToReposView(forceRefresh);
         }
-        mActivity.invalidateOptionsMenu();
+        if (Build.VERSION.SDK_INT >= 11) {
+            mActivity.invalidateOptionsMenu();
+        }
     }
 
     public void navToReposView(boolean forceRefresh) {
@@ -161,15 +166,15 @@ public class ReposFragment extends SherlockListFragment {
         DataManager dataManager = getDataManager();
 
         mActivity.enableUpButton();
-        
-    	SeafRepo repo = getDataManager().getCachedRepoByID(nav.getRepoID());
-    	if (repo != null) {
-    		adapter.setEncryptedRepo(repo.encrypted);
-    	}
-        
+
+        SeafRepo repo = getDataManager().getCachedRepoByID(nav.getRepoID());
+        if (repo != null) {
+            adapter.setEncryptedRepo(repo.encrypted);
+        }
+
         if (!Utils.isNetworkOn() || !forceRefresh) {
             List<SeafDirent> dirents = dataManager.getCachedDirents(
-                nav.getRepoID(), nav.getDirPath());
+                    nav.getRepoID(), nav.getDirPath());
             if (dirents != null) {
                 updateAdapterWithDirents(dirents);
                 return;
@@ -178,9 +183,9 @@ public class ReposFragment extends SherlockListFragment {
 
         showLoading(true);
         ConcurrentAsyncTask.execute(new LoadDirTask(getDataManager()),
-                                    nav.getRepoName(),
-                                    nav.getRepoID(),
-                                    nav.getDirPath());
+                nav.getRepoName(),
+                nav.getRepoID(),
+                nav.getDirPath());
     }
 
     private void updateAdapterWithRepos(List<SeafRepo> repos) {
@@ -239,12 +244,12 @@ public class ReposFragment extends SherlockListFragment {
         if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
             String password = DataManager.getRepoPassword(repo.id);
             mActivity.showPasswordDialog(repo.name, repo.id,
-                new TaskDialog.TaskDialogListener() {
-                    @Override
-                    public void onTaskSuccess() {
-                        onListItemClick(l, v, position, id);
-                    }
-                }, password);
+                    new TaskDialog.TaskDialogListener() {
+                @Override
+                public void onTaskSuccess() {
+                    onListItemClick(l, v, position, id);
+                }
+            }, password);
 
             return;
         }
@@ -370,9 +375,9 @@ public class ReposFragment extends SherlockListFragment {
             mListContainer.setVisibility(View.INVISIBLE);
         } else {
             mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
-                        mActivity, android.R.anim.fade_out));
+                    mActivity, android.R.anim.fade_out));
             mListContainer.startAnimation(AnimationUtils.loadAnimation(
-                        mActivity, android.R.anim.fade_in));
+                    mActivity, android.R.anim.fade_in));
 
             mProgressContainer.setVisibility(View.GONE);
             mListContainer.setVisibility(View.VISIBLE);
@@ -461,7 +466,7 @@ public class ReposFragment extends SherlockListFragment {
     }
 
     private void scheduleThumbnailTask(String repoName, String repoID,
-                                       String path, List<SeafDirent> dirents) {
+            String path, List<SeafDirent> dirents) {
         ArrayList<SeafDirent> needThumb = new ArrayList<SeafDirent>();
         for (SeafDirent dirent : dirents) {
             if (dirent.isDir())
