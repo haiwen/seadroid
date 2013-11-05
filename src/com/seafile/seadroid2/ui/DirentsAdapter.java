@@ -83,8 +83,8 @@ public class DirentsAdapter extends BaseAdapter {
             viewHolder.subtitle.setText("");
             viewHolder.icon.setImageResource(dirent.getIcon());
 
-            viewHolder.title.setTextColor(Color.BLACK);
-            viewHolder.subtitle.setTextColor(Color.BLACK);
+            viewHolder.title.setTextColor(Color.GRAY);
+            viewHolder.subtitle.setTextColor(Color.GRAY);
             if (android.os.Build.VERSION.SDK_INT >= 11) {
                 viewHolder.icon.setAlpha(255);
             }

@@ -32,7 +32,7 @@
         android:lines="1"
         android:singleLine="true"
         android:text="Titel"
-        android:textColor="@color/black"
+        android:textColor="#282828"
         android:textSize="18dp" />
 
     <TextView
@@ -43,6 +43,7 @@
         android:layout_toRightOf="@id/list_item_icon"
         android:layout_toLeftOf="@id/list_item_action"
         android:text="Subtitle"
+        android:textColor="#555555"
         android:textSize="12dp" />
     
 
