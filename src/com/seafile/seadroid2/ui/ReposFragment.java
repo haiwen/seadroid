@@ -141,9 +141,7 @@ public class ReposFragment extends SherlockListFragment {
         } else {
             navToReposView(forceRefresh);
         }
-        if (Build.VERSION.SDK_INT >= 11) {
-            mActivity.invalidateOptionsMenu();
-        }
+        mActivity.invalidateOptionsMenu();
     }
 
     public void navToReposView(boolean forceRefresh) {
