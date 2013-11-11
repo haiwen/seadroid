@@ -34,6 +34,7 @@ public class SeafItemAdapter extends BaseAdapter {
 
     private ArrayList<SeafItem> items;
     private BrowserActivity mActivity;
+    private boolean repoIsEncrypted;
 
     public SeafItemAdapter(BrowserActivity activity) {
         this.mActivity = activity;
@@ -215,7 +216,7 @@ public class SeafItemAdapter extends BaseAdapter {
     }
 
     private void setImageThumbNail(File file, SeafDirent dirent,
-                                   DataManager dataManager, Viewholder viewHolder) {
+            DataManager dataManager, Viewholder viewHolder) {
         if (file.length() < DataManager.MAX_DIRECT_SHOW_THUMB) {
             Bitmap imageBitmap = dataManager.getThumbnail(file);
             if (imageBitmap != null)
@@ -292,7 +293,7 @@ public class SeafItemAdapter extends BaseAdapter {
     }
 
     private void setFileAction(SeafDirent dirent, Viewholder viewHolder,
-                               final int position, final boolean cacheExists) {
+            final int position, final boolean cacheExists) {
 
         viewHolder.action.setImageResource(R.drawable.drop_down_button);
         viewHolder.action.setVisibility(View.VISIBLE);
@@ -307,6 +308,10 @@ public class SeafItemAdapter extends BaseAdapter {
     }
 
     private void setDirAction(SeafDirent dirent, Viewholder viewHolder, final int position) {
+        if (repoIsEncrypted) {
+            viewHolder.action.setVisibility(View.GONE);
+            return;
+        }
         viewHolder.action.setImageResource(R.drawable.drop_down_button);
         viewHolder.action.setVisibility(View.VISIBLE);
         viewHolder.action.setOnClickListener(new OnClickListener() {
@@ -324,10 +329,12 @@ public class SeafItemAdapter extends BaseAdapter {
         Resources resources = mActivity.getResources();
         ActionItem shareAction, downloadAction, updateAction, exportAction, renameAction, deleteAction;
 
-        shareAction = new ActionItem(ACTION_ID_SHARE,
-                                     resources.getString(R.string.file_action_share),
-                                     resources.getDrawable(R.drawable.action_share));
-        mQuickAction.addActionItem(shareAction);
+        if (!repoIsEncrypted) {
+            shareAction = new ActionItem(ACTION_ID_SHARE,
+                    resources.getString(R.string.file_action_share),
+                    resources.getDrawable(R.drawable.action_share));
+            mQuickAction.addActionItem(shareAction);
+        }
 
         // deleteAction = new ActionItem(ACTION_ID_DELETE,
         //                               resources.getString(R.string.file_action_delete),
@@ -335,27 +342,27 @@ public class SeafItemAdapter extends BaseAdapter {
         // mQuickAction.addActionItem(deleteAction);
 
         renameAction = new ActionItem(ACTION_ID_RENAME,
-                                      resources.getString(R.string.file_action_rename),
-                                      resources.getDrawable(R.drawable.action_rename));
+                resources.getString(R.string.file_action_rename),
+                resources.getDrawable(R.drawable.action_rename));
         mQuickAction.addActionItem(renameAction);
 
         exportAction = new ActionItem(ACTION_ID_EXPORT,
-                                     resources.getString(R.string.file_action_export),
-                                     resources.getDrawable(R.drawable.action_export));
+                resources.getString(R.string.file_action_export),
+                resources.getDrawable(R.drawable.action_export));
         mQuickAction.addActionItem(exportAction);
 
         if (cacheExists) {
             if (mActivity.hasRepoWritePermission()) {
                 updateAction = new ActionItem(ACTION_ID_UPDATE,
-                                              resources.getString(R.string.file_action_update),
-                                              resources.getDrawable(R.drawable.action_update));
+                        resources.getString(R.string.file_action_update),
+                        resources.getDrawable(R.drawable.action_update));
                 mQuickAction.addActionItem(updateAction);
             }
 
         } else {
             downloadAction = new ActionItem(ACTION_ID_DOWNLOAD,
-                                            resources.getString(R.string.file_action_download),
-                                            resources.getDrawable(R.drawable.action_download));
+                    resources.getString(R.string.file_action_download),
+                    resources.getDrawable(R.drawable.action_download));
             mQuickAction.addActionItem(downloadAction);
         }
 
@@ -400,8 +407,8 @@ public class SeafItemAdapter extends BaseAdapter {
         Resources resources = mActivity.getResources();
         ActionItem shareAction;
         shareAction = new ActionItem(ACTION_ID_SHARE,
-                                     resources.getString(R.string.file_action_share),
-                                     resources.getDrawable(R.drawable.action_share));
+                resources.getString(R.string.file_action_share),
+                resources.getDrawable(R.drawable.action_share));
         mQuickAction.addActionItem(shareAction);
 
         //setup the action item click listener
@@ -423,6 +430,10 @@ public class SeafItemAdapter extends BaseAdapter {
 
         mQuickAction.mAnimateTrack(false);
         return mQuickAction;
+    }
+
+    public void setEncryptedRepo(boolean encrypted) {
+        repoIsEncrypted = encrypted;
     }
 }
 
