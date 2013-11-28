@@ -25,7 +25,7 @@ import com.seafile.seadroid2.R;
  * Choose an app from a list of apps or custom actions
  */
 public class AppChoiceDialog extends DialogFragment {
-    private List<ResolveInfo> mAppInfos;
+    private List<ResolveInfo> mAppInfos = new ArrayList<ResolveInfo>();
     private OnItemSelectedListener mListener;
     private String mTitle;
 

@@ -88,10 +88,12 @@ public class Account implements Parcelable {
         return email.substring(0, 4) + " " + hashCode();
     }
 
+    @Override
      public int describeContents() {
          return 0;
      }
 
+    @Override
      public void writeToParcel(Parcel out, int flags) {
          out.writeString(server);
          out.writeString(email);

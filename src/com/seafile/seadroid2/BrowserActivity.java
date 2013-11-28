@@ -22,6 +22,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
@@ -87,6 +88,8 @@ public class BrowserActivity extends SherlockFragmentActivity
     ActivitiesFragment activitiesFragment = null;
 
     FetchFileDialog fetchFileDialog = null;
+
+    AppChoiceDialog appChoiceDialog = null;
 
     private String currentTab;
     private static final String LIBRARY_TAB = "libraries";
@@ -254,6 +257,15 @@ public class BrowserActivity extends SherlockFragmentActivity
             fetchFileDialog = (FetchFileDialog)
                     getSupportFragmentManager().findFragmentByTag(OPEN_FILE_DIALOG_FRAGMENT_TAG);
 
+            appChoiceDialog = (AppChoiceDialog)
+                getSupportFragmentManager().findFragmentByTag(CHOOSE_APP_DIALOG_FRAGMENT_TAG);
+
+            if (appChoiceDialog != null) {
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                ft.detach(appChoiceDialog);
+                ft.commit();
+            }
+
             cTab = savedInstanceState.getInt("tab");
 
             String repoID = savedInstanceState.getString("repoID");
@@ -368,7 +380,6 @@ public class BrowserActivity extends SherlockFragmentActivity
             unbindService(mConnection);
             txService = null;
         }
-
 
         super.onDestroy();
     }
