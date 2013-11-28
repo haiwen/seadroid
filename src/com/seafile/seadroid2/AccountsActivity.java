@@ -4,11 +4,13 @@ import java.util.List;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuInflater;
@@ -38,6 +40,8 @@ public class AccountsActivity extends FragmentActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
+        Log.d(DEBUG_TAG, "AccountsActivity.onCreate is called");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start);
 
@@ -133,10 +137,11 @@ public class AccountsActivity extends FragmentActivity {
     public static final int SEACLOUD_CC = 1;
     public static final int CLOUD_SEAFILE_COM = 3;
 
-    private class CreateAccountChoiceDialog extends DialogFragment {
+    public static class CreateAccountChoiceDialog extends DialogFragment {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             
+            final Context context = SeadroidApplication.getAppContext();
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle(R.string.choose_server);
             builder.setItems(R.array.choose_server_array,
@@ -146,16 +151,16 @@ public class AccountsActivity extends FragmentActivity {
                             Intent intent;
                             switch (which) {
                             case 0:
-                                intent = new Intent(AccountsActivity.this, AccountDetailActivity.class);
+                                intent = new Intent(context, AccountDetailActivity.class);
                                 startActivity(intent);
                                 break;
                             case 1:
-                                intent = new Intent(AccountsActivity.this, AccountDetailActivity.class);
+                                intent = new Intent(context, AccountDetailActivity.class);
                                 intent.putExtra("server", "https://seacloud.cc");
                                 startActivity(intent);
                                 break;
                             case 2:
-                                intent = new Intent(AccountsActivity.this, AccountDetailActivity.class);
+                                intent = new Intent(context, AccountDetailActivity.class);
                                 intent.putExtra("server", "https://cloud.seafile.com");
                                 startActivity(intent);
                                 break;
