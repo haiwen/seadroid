@@ -18,26 +18,32 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.res.Configuration;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.ClipboardManager;
 import android.util.Log;
+import android.view.ActionProvider;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.SubMenu;
+import android.view.View;
 import android.webkit.MimeTypeMap;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.ActionBar.Tab;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
+
 import com.ipaulpro.afilechooser.FileChooserActivity;
 import com.ipaulpro.afilechooser.utils.FileUtils;
 import com.seafile.seadroid2.TransferManager.DownloadTaskInfo;
@@ -53,15 +59,17 @@ import com.seafile.seadroid2.ui.AppChoiceDialog;
 import com.seafile.seadroid2.ui.AppChoiceDialog.CustomAction;
 import com.seafile.seadroid2.ui.FetchFileDialog;
 import com.seafile.seadroid2.ui.GetShareLinkDialog;
-import com.seafile.seadroid2.ui.NewDirDialog;
 import com.seafile.seadroid2.ui.NewFileDialog;
 import com.seafile.seadroid2.ui.PasswordDialog;
-import com.seafile.seadroid2.ui.RenameFileDialog;
 import com.seafile.seadroid2.ui.ReposFragment;
 import com.seafile.seadroid2.ui.TaskDialog;
 import com.seafile.seadroid2.ui.TaskDialog.TaskDialogListener;
 import com.seafile.seadroid2.ui.UploadTasksFragment;
 
+import android.support.v4.widget.DrawerLayout;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.view.GravityCompat;
+import com.seafile.seadroid2.ui.TabsFragment;
 
 public class BrowserActivity extends SherlockFragmentActivity
         implements ReposFragment.OnFileSelectedListener, OnBackStackChangedListener {
@@ -158,159 +166,123 @@ public class BrowserActivity extends SherlockFragmentActivity
         return navContext;
     }
 
-    public class TabListener implements ActionBar.TabListener {
-
-        private final String mTag;
-
-        /** Constructor used each time a new tab is created.
-          * @param activity  The host Activity, used to instantiate the fragment
-          * @param tag  The identifier tag for the fragment
-          * @param clz  The fragment's Class, used to instantiate the fragment
-          */
-        public TabListener(String tag) {
-            mTag = tag;
-        }
-
-        @Override
-        public void onTabSelected(Tab tab, FragmentTransaction ft) {
-            disableActionBarTitle();
-            Log.d(DEBUG_TAG, mTag + " is selected");
-            currentTab = mTag;
-            if (mTag.equals(LIBRARY_TAB)) {
-                showReposFragment(ft);
-            } else if (mTag.equals(UPLOAD_TASKS_TAB)) {
-                disableUpButton();
-                showUploadTasksFragment(ft);
-            } else if (mTag.equals(ACTIVITY_TAB)) {
-                disableUpButton();
-                showActivitiesFragment(ft);
-            }
-        }
-
-        @Override
-        public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-            Log.d(DEBUG_TAG, mTag + " is unselected");
-            if (mTag.equals(LIBRARY_TAB)) {
-                hideReposFragment(ft);
-            } else if (mTag.equals(UPLOAD_TASKS_TAB)) {
-                hideUploadTasksFragment(ft);
-            } else if (mTag.equals(ACTIVITY_TAB)) {
-                hideActivitiesFragment(ft);
-            }
-        }
-
-        @Override
-        public void onTabReselected(Tab tab, FragmentTransaction ft) {
-        }
-    }
-
     public void disableActionBarTitle() {
         getSupportActionBar().setDisplayShowTitleEnabled(false);
     }
 
+    private DrawerLayout mDrawerLayout;
+    private ListView mDrawerList;
+    private ActionBarDrawerToggle mDrawerToggle;
+
+    private CharSequence mDrawerTitle;
+    private CharSequence mTitle;
+    private String[] mNavTitles;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.seadroid_main);
+        
+        mTitle = mDrawerTitle = getTitle();
+        mNavTitles = getResources().getStringArray(R.array.nav_array);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
+        // set a custom shadow that overlays the main content when the drawer opens
+        mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+        // set up the drawer's list view with items and click listener
+        mDrawerList.setAdapter(new ArrayAdapter<String>(this,
+                R.layout.drawer_list_item, mNavTitles));
+        //mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+
+        // enable ActionBar app icon to behave as action to toggle nav drawer
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+
+        // ActionBarDrawerToggle ties together the the proper interactions
+        // between the sliding drawer and the action bar app icon
+        mDrawerToggle = new ActionBarDrawerToggle(
+                this,                  /* host Activity */
+                mDrawerLayout,         /* DrawerLayout object */
+                R.drawable.ic_drawer,  /* nav drawer image to replace 'Up' caret */
+                R.string.drawer_open,  /* "open drawer" description for accessibility */
+                R.string.drawer_close  /* "close drawer" description for accessibility */
+                ) {
+            public void onDrawerClosed(View view) {
+            	getSupportActionBar().setTitle(mTitle);
+            	supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+
+            public void onDrawerOpened(View drawerView) {
+            	getSupportActionBar().setTitle(mDrawerTitle);
+            	supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+        };
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+
+        if (savedInstanceState == null) {
+        	Fragment fragment = new TabsFragment();
+            getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
+        }
         // Get the message from the intent
-        Intent intent = getIntent();
-        String server = intent.getStringExtra("server");
-        String email = intent.getStringExtra("email");
-        String token = intent.getStringExtra("token");
-        account = new Account(server, email, null, token);
-        Log.d(DEBUG_TAG, "browser activity onCreate " + server + " " + email);
-
-        if (server == null) {
-            Intent newIntent = new Intent(this, AccountsActivity.class);
-            newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(newIntent);
-            finish();
-            return;
-        }
-
-        dataManager = new DataManager(account);
-        navContext = new NavContext();
-
-        //setContentView(R.layout.seadroid_main);
-        //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        getSupportFragmentManager().addOnBackStackChangedListener(this);
-
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        actionBar.setDisplayShowTitleEnabled(false);
-        unsetRefreshing();
-
-        int cTab = 0;
-
-        if (savedInstanceState != null) {
-            // fragment are saved during screen rotation, so do not need to create a new one
-            reposFragment = (ReposFragment)
-                    getSupportFragmentManager().findFragmentByTag(REPOS_FRAGMENT_TAG);
-            uploadTasksFragment = (UploadTasksFragment)
-                    getSupportFragmentManager().findFragmentByTag(UPLOAD_TASKS_FRAGMENT_TAG);
-
-            activitiesFragment = (ActivitiesFragment)
-                    getSupportFragmentManager().findFragmentByTag(ACTIVITIES_FRAGMENT_TAG);
-
-            fetchFileDialog = (FetchFileDialog)
-                    getSupportFragmentManager().findFragmentByTag(OPEN_FILE_DIALOG_FRAGMENT_TAG);
-
-            appChoiceDialog = (AppChoiceDialog)
-                getSupportFragmentManager().findFragmentByTag(CHOOSE_APP_DIALOG_FRAGMENT_TAG);
-
-            if (appChoiceDialog != null) {
-                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                ft.detach(appChoiceDialog);
-                ft.commit();
-            }
-
-            cTab = savedInstanceState.getInt("tab");
-
-            String repoID = savedInstanceState.getString("repoID");
-            String repoName = savedInstanceState.getString("repoName");
-            String path = savedInstanceState.getString("path");
-            String dirID = savedInstanceState.getString("dirID");
-            if (repoID != null) {
-                navContext.setRepoID(repoID);
-                navContext.setRepoName(repoName);
-                navContext.setDir(path, dirID);
-            }
-        }
-
-        Tab tab = actionBar.newTab()
-                .setText(R.string.libraries)
-                .setTabListener(new TabListener(LIBRARY_TAB));
-        actionBar.addTab(tab);
-
-        tab = actionBar.newTab()
-            .setText(R.string.upload_tasks)
-            .setTabListener(new TabListener(UPLOAD_TASKS_TAB));
-        actionBar.addTab(tab);
-
-        // tab = actionBar.newTab()
-        //     .setText(R.string.activities)
-        //     .setTabListener(new TabListener(ACTIVITY_TAB));
-        // actionBar.addTab(tab);
-
-        actionBar.setSelectedNavigationItem(cTab);
-        if (cTab == 0) {
-            currentTab = LIBRARY_TAB;
-        } else if (cTab == 1) {
-            currentTab = UPLOAD_TASKS_TAB;
-        } else {
-            currentTab = ACTIVITY_TAB;
-        }
-
-        Intent txIntent = new Intent(this, TransferService.class);
-        startService(txIntent);
-        Log.d(DEBUG_TAG, "start TransferService");
-
-        // bind transfer service
-        Intent bIntent = new Intent(this, TransferService.class);
-        bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
-        Log.d(DEBUG_TAG, "try bind TransferService");
+//        Intent intent = getIntent();
+//        String server = intent.getStringExtra("server");
+//        String email = intent.getStringExtra("email");
+//        String token = intent.getStringExtra("token");
+//        account = new Account(server, email, null, token);
+//        Log.d(DEBUG_TAG, "browser activity onCreate " + server + " " + email);
+//
+//        if (server == null) {
+//            Intent newIntent = new Intent(this, AccountsActivity.class);
+//            newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//            startActivity(newIntent);
+//            finish();
+//            return;
+//        }
+//
+//        dataManager = new DataManager(account);
+//        navContext = new NavContext();
+//
+//        getSupportFragmentManager().addOnBackStackChangedListener(this);
+//
+//        ActionBar actionBar = getSupportActionBar();
+//        actionBar.setDisplayShowTitleEnabled(false);
+//        unsetRefreshing();
+//
+//        if (savedInstanceState != null) {
+//            fetchFileDialog = (FetchFileDialog)
+//                    getSupportFragmentManager().findFragmentByTag(OPEN_FILE_DIALOG_FRAGMENT_TAG);
+//
+//            appChoiceDialog = (AppChoiceDialog)
+//                getSupportFragmentManager().findFragmentByTag(CHOOSE_APP_DIALOG_FRAGMENT_TAG);
+//
+//            if (appChoiceDialog != null) {
+//                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+//                ft.detach(appChoiceDialog);
+//                ft.commit();
+//            }
+//
+//            String repoID = savedInstanceState.getString("repoID");
+//            String repoName = savedInstanceState.getString("repoName");
+//            String path = savedInstanceState.getString("path");
+//            String dirID = savedInstanceState.getString("dirID");
+//            if (repoID != null) {
+//                navContext.setRepoID(repoID);
+//                navContext.setRepoName(repoName);
+//                navContext.setDir(path, dirID);
+//            }
+//        }
+//
+//        Intent txIntent = new Intent(this, TransferService.class);
+//        startService(txIntent);
+//        Log.d(DEBUG_TAG, "start TransferService");
+//
+//        // bind transfer service
+//        Intent bIntent = new Intent(this, TransferService.class);
+//        bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
+//        Log.d(DEBUG_TAG, "try bind TransferService");
+        
     }
 
     ServiceConnection mConnection = new ServiceConnection() {
@@ -388,7 +360,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     public void onSaveInstanceState(Bundle outState) {
         Log.d(DEBUG_TAG, "onSaveInstanceState");
         super.onSaveInstanceState(outState);
-        outState.putInt("tab", getSupportActionBar().getSelectedNavigationIndex());
+        //outState.putInt("tab", getSupportActionBar().getSelectedNavigationIndex());
         if (navContext.getRepoID() != null) {
             outState.putString("repoID", navContext.getRepoID());
             outState.putString("repoName", navContext.getRepoName());
@@ -410,118 +382,303 @@ public class BrowserActivity extends SherlockFragmentActivity
         MenuItem menuRefresh = menu.findItem(R.id.refresh);
         MenuItem menuNewDir = menu.findItem(R.id.newdir);
         MenuItem menuNewFile = menu.findItem(R.id.newfile);
-
-        if (currentTab.equals(LIBRARY_TAB)) {
-            menuUpload.setVisible(true);
-            if (navContext.inRepo() && hasRepoWritePermission()) {
-                menuUpload.setEnabled(true);
-            }
-            else
-                menuUpload.setEnabled(false);
-        } else {
-            menuUpload.setVisible(false);
-        }
-
-        if (currentTab.equals(LIBRARY_TAB)) {
-            menuRefresh.setVisible(true);
-        } else if (currentTab.equals(ACTIVITY_TAB)) {
-            menuRefresh.setVisible(true);
-        } else {
-            menuRefresh.setVisible(false);
-        }
-
-        if (currentTab.equals(LIBRARY_TAB)) {
-            if (navContext.inRepo() && hasRepoWritePermission()) {
-                menuNewDir.setVisible(true);
-                menuNewFile.setVisible(true);
-            } else {
-                menuNewDir.setVisible(false);
-                menuNewFile.setVisible(false);
-            }
-        } else {
-            menuNewDir.setVisible(false);
-            menuNewFile.setVisible(false);
-        }
-
+        
+        boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
+        menuUpload.setVisible(!drawerOpen);
+        menuRefresh.setVisible(!drawerOpen);
+        menuNewDir.setVisible(!drawerOpen);
+        menuNewFile.setVisible(!drawerOpen);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+    	
+        if (mDrawerToggle.onOptionsItemSelected(getMenuItem(item))) {
+            return true;
+        }
         switch (item.getItemId()) {
         case android.R.id.home:
-            if (navContext.isRepoRoot()) {
-                navContext.setRepoID(null);
-            } else {
-                String parentPath = Utils
-                        .getParentPath(navContext.getDirPath());
-                navContext.setDir(parentPath, null);
-            }
-            reposFragment.refreshView();
-
             return true;
         case R.id.upload:
-            pickFile();
+            //pickFile();
             return true;
         case R.id.refresh:
-            if (!Utils.isNetworkOn()) {
-                showToast(R.string.network_down);
-                return true;
-            }
-
-            if (currentTab.equals(LIBRARY_TAB)) {
-                if (navContext.inRepo()) {
-                    SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
-                    if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
-                        String password = DataManager.getRepoPassword(repo.id);
-                        showPasswordDialog(repo.name, repo.id,
-                            new TaskDialog.TaskDialogListener() {
-                                @Override
-                                public void onTaskSuccess() {
-                                    reposFragment.refreshView(true);
-                                }
-                            } , password);
-
-                        return true;
-                    }
-                }
-
-                reposFragment.refreshView(true);
-            } else if (currentTab.equals(ACTIVITY_TAB)) {
-                activitiesFragment.refreshView();
-            }
-
+//            if (!Utils.isNetworkOn()) {
+//                showToast(R.string.network_down);
+//                return true;
+//            }
             return true;
         case R.id.newdir:
-            showNewDirDialog();
             return true;
         case R.id.newfile:
-            showNewFileDialog();
+            //showNewFileDialog();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void showNewDirDialog() {
-        if (!hasRepoWritePermission()) {
-            showToast(R.string.library_read_only);
-            return;
-        }
+    private android.view.MenuItem getMenuItem(final MenuItem item) {
+        return new android.view.MenuItem() {
+           @Override
+           public int getItemId() {
+              return item.getItemId();
+           }
 
-        final NewDirDialog dialog = new NewDirDialog();
-        dialog.init(navContext.getRepoID(), navContext.getDirPath(), account);
-        dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
-            @Override
-            public void onTaskSuccess() {
-                showToast("Sucessfully created folder " + dialog.getNewDirName());
-                if (currentTab.equals(LIBRARY_TAB) && reposFragment != null) {
-                    reposFragment.refreshView();
-                }
-            }
-        });
-        dialog.show(getSupportFragmentManager(), "DialogFragment");
+           public boolean isEnabled() {
+              return true;
+           }
+
+           @Override
+           public boolean collapseActionView() {
+              // TODO Auto-generated method stub
+              return false;
+           }
+
+           @Override
+           public boolean expandActionView() {
+              // TODO Auto-generated method stub
+              return false;
+           }
+
+           @Override
+           public ActionProvider getActionProvider() {
+              // TODO Auto-generated method stub
+              return null;
+           }
+
+           @Override
+           public View getActionView() {
+              // TODO Auto-generated method stub
+              return null;
+           }
+
+           @Override
+           public char getAlphabeticShortcut() {
+              // TODO Auto-generated method stub
+              return 0;
+           }
+
+           @Override
+           public int getGroupId() {
+              // TODO Auto-generated method stub
+              return 0;
+           }
+
+           @Override
+           public Drawable getIcon() {
+              // TODO Auto-generated method stub
+              return null;
+           }
+
+           @Override
+           public Intent getIntent() {
+              // TODO Auto-generated method stub
+              return null;
+           }
+
+           @Override
+           public ContextMenuInfo getMenuInfo() {
+              // TODO Auto-generated method stub
+              return null;
+           }
+
+           @Override
+           public char getNumericShortcut() {
+              // TODO Auto-generated method stub
+              return 0;
+           }
+
+           @Override
+           public int getOrder() {
+              // TODO Auto-generated method stub
+              return 0;
+           }
+
+           @Override
+           public SubMenu getSubMenu() {
+              // TODO Auto-generated method stub
+              return null;
+           }
+
+           @Override
+           public CharSequence getTitle() {
+              // TODO Auto-generated method stub
+              return null;
+           }
+
+           @Override
+           public CharSequence getTitleCondensed() {
+              // TODO Auto-generated method stub
+              return null;
+           }
+
+           @Override
+           public boolean hasSubMenu() {
+              // TODO Auto-generated method stub
+              return false;
+           }
+
+           @Override
+           public boolean isActionViewExpanded() {
+              // TODO Auto-generated method stub
+              return false;
+           }
+
+           @Override
+           public boolean isCheckable() {
+              // TODO Auto-generated method stub
+              return false;
+           }
+
+           @Override
+           public boolean isChecked() {
+              // TODO Auto-generated method stub
+              return false;
+           }
+
+           @Override
+           public boolean isVisible() {
+              // TODO Auto-generated method stub
+              return false;
+           }
+
+           @Override
+           public android.view.MenuItem setActionProvider(ActionProvider actionProvider) {
+              // TODO Auto-generated method stub
+              return null;
+           }
+
+           @Override
+           public android.view.MenuItem setActionView(View view) {
+              // TODO Auto-generated method stub
+              return null;
+           }
+
+           @Override
+           public android.view.MenuItem setActionView(int resId) {
+              // TODO Auto-generated method stub
+              return null;
+           }
+
+           @Override
+           public android.view.MenuItem setAlphabeticShortcut(char alphaChar) {
+              // TODO Auto-generated method stub
+              return null;
+           }
+
+           @Override
+           public android.view.MenuItem setCheckable(boolean checkable) {
+              // TODO Auto-generated method stub
+              return null;
+           }
+
+           @Override
+           public android.view.MenuItem setChecked(boolean checked) {
+              // TODO Auto-generated method stub
+              return null;
+           }
+
+           @Override
+           public android.view.MenuItem setEnabled(boolean enabled) {
+              // TODO Auto-generated method stub
+              return null;
+           }
+
+           @Override
+           public android.view.MenuItem setIcon(Drawable icon) {
+              // TODO Auto-generated method stub
+              return null;
+           }
+
+           @Override
+           public android.view.MenuItem setIcon(int iconRes) {
+              // TODO Auto-generated method stub
+              return null;
+           }
+
+           @Override
+           public android.view.MenuItem setIntent(Intent intent) {
+              // TODO Auto-generated method stub
+              return null;
+           }
+
+           @Override
+           public android.view.MenuItem setNumericShortcut(char numericChar) {
+              // TODO Auto-generated method stub
+              return null;
+           }
+
+           @Override
+           public android.view.MenuItem setOnActionExpandListener(OnActionExpandListener listener) {
+              // TODO Auto-generated method stub
+              return null;
+           }
+
+           @Override
+           public android.view.MenuItem setOnMenuItemClickListener(OnMenuItemClickListener menuItemClickListener) {
+              // TODO Auto-generated method stub
+              return null;
+           }
+
+           @Override
+           public android.view.MenuItem setShortcut(char numericChar, char alphaChar) {
+              // TODO Auto-generated method stub
+              return null;
+           }
+
+           @Override
+           public void setShowAsAction(int actionEnum) {
+              // TODO Auto-generated method stub
+
+           }
+
+           @Override
+           public android.view.MenuItem setShowAsActionFlags(int actionEnum) {
+              // TODO Auto-generated method stub
+              return null;
+           }
+
+           @Override
+           public android.view.MenuItem setTitle(CharSequence title) {
+              // TODO Auto-generated method stub
+              return null;
+           }
+
+           @Override
+           public android.view.MenuItem setTitle(int title) {
+              // TODO Auto-generated method stub
+              return null;
+           }
+
+           @Override
+           public android.view.MenuItem setTitleCondensed(CharSequence title) {
+              // TODO Auto-generated method stub
+              return null;
+           }
+
+           @Override
+           public android.view.MenuItem setVisible(boolean visible) {
+              // TODO Auto-generated method stub
+              return null;
+           }
+        };
+     }
+    
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        mDrawerToggle.syncState();
     }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        // Pass any configuration change to the drawer toggls
+        mDrawerToggle.onConfigurationChanged(newConfig);
+    }
+    
     private void showNewFileDialog() {
         if (!hasRepoWritePermission()) {
             showToast(R.string.library_read_only);
@@ -540,51 +697,6 @@ public class BrowserActivity extends SherlockFragmentActivity
             }
         });
         dialog.show(getSupportFragmentManager(), "DialogFragment");
-    }
-
-    private void showReposFragment(FragmentTransaction ft) {
-        //Log.d(DEBUG_TAG, "showReposFragment");
-
-        if (reposFragment == null) {
-            reposFragment = new ReposFragment();
-            ft.add(android.R.id.content, reposFragment, REPOS_FRAGMENT_TAG);
-        } else {
-            //Log.d(DEBUG_TAG, "Attach reposFragment");
-            ft.attach(reposFragment);
-        }
-    }
-
-    private void hideReposFragment(FragmentTransaction ft) {
-        //Log.d(DEBUG_TAG, "hideReposFragment");
-        ft.detach(reposFragment);
-    }
-
-    private void showActivitiesFragment(FragmentTransaction ft) {
-        if (activitiesFragment == null) {
-            activitiesFragment = new ActivitiesFragment();
-            ft.add(android.R.id.content, activitiesFragment, ACTIVITIES_FRAGMENT_TAG);
-        } else {
-            //Log.d(DEBUG_TAG, "Attach reposFragment");
-            ft.attach(activitiesFragment);
-        }
-    }
-
-    private void hideActivitiesFragment(FragmentTransaction ft) {
-        ft.detach(activitiesFragment);
-    }
-
-    private void showUploadTasksFragment(FragmentTransaction ft) {
-        if (uploadTasksFragment == null) {
-            uploadTasksFragment = new UploadTasksFragment();
-            ft.add(android.R.id.content, uploadTasksFragment, UPLOAD_TASKS_FRAGMENT_TAG);
-        } else {
-            ft.attach(uploadTasksFragment);
-        }
-    }
-
-    private void hideUploadTasksFragment(FragmentTransaction ft) {
-        //Log.d(DEBUG_TAG, "hideUploadTasksFragment");
-        ft.detach(uploadTasksFragment);
     }
 
     public void setRefreshing() {
@@ -735,31 +847,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         intent.putExtra("account", account);
         startActivity(intent);
         return;
-    }
-
-
-    @Override
-    public void onBackPressed() {
-        if (getSupportFragmentManager().getBackStackEntryCount() != 0) {
-            getSupportFragmentManager().popBackStack();
-            return;
-        }
-
-        if (currentTab.equals(LIBRARY_TAB)) {
-            if (navContext.inRepo()) {
-                if (navContext.isRepoRoot()) {
-                    navContext.setRepoID(null);
-                } else {
-                    String parentPath = Utils.getParentPath(navContext
-                            .getDirPath());
-                    navContext.setDir(parentPath, null);
-                }
-                reposFragment.refreshView();
-            } else
-                super.onBackPressed();
-        } else {
-            super.onBackPressed();
-        }
     }
 
     @Override
@@ -966,30 +1053,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         dialog.show(getSupportFragmentManager(), CHOOSE_APP_DIALOG_FRAGMENT_TAG);
     }
 
-
-    public void renameFile(String repoID, String repoName, String path) {
-        doRename(repoID, repoName, path, false);
-    }
-
-    public void renameDir(String repoID, String repoName, String path) {
-        doRename(repoID, repoName, path, true);
-    }
-
-    private void doRename(String repoID, String repoName, String path, boolean isdir) {
-        final RenameFileDialog dialog = new RenameFileDialog();
-        dialog.init(repoID, path, isdir, account);
-        dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
-            @Override
-            public void onTaskSuccess() {
-                showToast(R.string.rename_successful);
-                if (currentTab.equals(LIBRARY_TAB) && reposFragment != null) {
-                    reposFragment.refreshView();
-                }
-            }
-        });
-        dialog.show(getSupportFragmentManager(), "DialogFragment");
-    }
-
     private void onFileUploadProgress(int taskID) {
         if (txService == null) {
             return;
@@ -997,27 +1060,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         UploadTaskInfo info = txService.getUploadTaskInfo(taskID);
         if (uploadTasksFragment != null && uploadTasksFragment.isReady())
             uploadTasksFragment.onTaskProgressUpdate(info);
-    }
-
-    private void onFileUploaded(int taskID) {
-        if (txService == null) {
-            return;
-        }
-
-        UploadTaskInfo info = txService.getUploadTaskInfo(taskID);
-
-        String repoID = info.repoID;
-        String dir = info.parentDir;
-        if (currentTab.equals(LIBRARY_TAB)
-                && repoID.equals(navContext.getRepoID())
-                && dir.equals(navContext.getDirPath())) {
-            reposFragment.refreshView();
-            String verb = getString(info.isUpdate ? R.string.updated : R.string.uploaded);
-            showToast(verb + " " + Utils.fileNameFromPath(info.localFilePath));
-        }
-
-        if (uploadTasksFragment != null && uploadTasksFragment.isReady())
-            uploadTasksFragment.onTaskFinished(info);
     }
 
     private void onFileUploadCancelled(int taskID) {
@@ -1050,55 +1092,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
     }
 
-    private void onFileDownloaded(int taskID) {
-        if (txService == null) {
-            return;
-        }
-
-        DownloadTaskInfo info = txService.getDownloadTaskInfo(taskID);
-        if (fetchFileDialog != null && fetchFileDialog.getTaskID() == taskID) {
-            fetchFileDialog.handleDownloadTaskInfo(info);
-        } else {
-            if (currentTab.equals(LIBRARY_TAB)
-                && info.repoID.equals(navContext.getRepoID())
-                && Utils.getParentPath(info.path).equals(navContext.getDirPath())) {
-                reposFragment.getAdapter().notifyChanged();
-            }
-        }
-    }
-
-    private void onFileDownloadFailed(int taskID) {
-        if (txService == null) {
-            return;
-        }
-
-        DownloadTaskInfo info = txService.getDownloadTaskInfo(taskID);
-        if (fetchFileDialog != null && fetchFileDialog.getTaskID() == taskID) {
-            fetchFileDialog.handleDownloadTaskInfo(info);
-            return;
-        }
-
-        SeafException err = info.err;
-        final String repoName = info.repoName;
-        final String repoID = info.repoID;
-        final String path = info.path;
-
-        if (err != null && err.getCode() == 440) {
-            if (currentTab.equals(LIBRARY_TAB)
-                && repoID.equals(navContext.getRepoID())
-                && Utils.getParentPath(path).equals(navContext.getDirPath())) {
-                showPasswordDialog(repoName, repoID, new TaskDialog.TaskDialogListener() {
-                    @Override
-                    public void onTaskSuccess() {
-                        txService.addDownloadTask(account, repoName, repoID, path);
-                    }
-                });
-                return;
-            }
-        }
-
-        showToast(getString(R.string.download_failed) + " " + Utils.fileNameFromPath(path));
-    }
 
     public PasswordDialog showPasswordDialog(String repoName, String repoID,
                                              TaskDialog.TaskDialogListener listener) {
@@ -1130,15 +1123,15 @@ public class BrowserActivity extends SherlockFragmentActivity
 
             } else if (type.equals(TransferService.BROADCAST_FILE_DOWNLOAD_SUCCESS)) {
                 int taskID = intent.getIntExtra("taskID", 0);
-                onFileDownloaded(taskID);
+                //onFileDownloaded(taskID);
 
             } else if (type.equals(TransferService.BROADCAST_FILE_DOWNLOAD_FAILED)) {
                 int taskID = intent.getIntExtra("taskID", 0);
-                onFileDownloadFailed(taskID);
+                //onFileDownloadFailed(taskID);
 
             } else if (type.equals(TransferService.BROADCAST_FILE_UPLOAD_SUCCESS)) {
                 int taskID = intent.getIntExtra("taskID", 0);
-                onFileUploaded(taskID);
+                //onFileUploaded(taskID);
 
             } else if (type.equals(TransferService.BROADCAST_FILE_UPLOAD_FAILED)) {
                 int taskID = intent.getIntExtra("taskID", 0);

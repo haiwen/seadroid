@@ -392,7 +392,7 @@ public class SeafItemAdapter extends BaseAdapter {
                     mActivity.addUpdateTask(repoID, repoName, dir, localPath);
                     break;
                 case ACTION_ID_RENAME:
-                    mActivity.renameFile(repoID, repoName, path);
+                    //mActivity.renameFile(repoID, repoName, path);
                     break;
                 }
             }
