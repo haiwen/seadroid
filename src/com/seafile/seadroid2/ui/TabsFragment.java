@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,7 +46,7 @@ public class TabsFragment extends SherlockFragment {
 
 	        TabPageIndicator indicator = (TabPageIndicator)root.findViewById(R.id.indicator);
 	        indicator.setViewPager(pager);
-	    	
+	        //pager.setCurrentItem(0, false);
 	        return root;
 	    }
 	    
@@ -54,9 +55,26 @@ public class TabsFragment extends SherlockFragment {
 	            super(fm);
 	        }
 
+	        private ReposFragment reposFragment = null;
+	        private ActivitiesFragment activitieFragment = null;
 	        @Override
 	        public Fragment getItem(int position) {
-	            return TestFragment.newInstance(CONTENT[position % CONTENT.length]);
+	        	switch(position) {
+	        	case 0 :
+	        		Log.e("tab", "repos create");
+	        		if(reposFragment == null) {
+	        			reposFragment = new ReposFragment();
+	        		}
+	        		return reposFragment;
+	        	case 1 :
+	        		Log.e("tab", "activities create");
+	        		if(activitieFragment == null) {
+	        			activitieFragment = new ActivitiesFragment();
+	        		}
+	        		return activitieFragment;
+	        	default : 
+	        		return new Fragment();
+	        	}
 	        }
 
 	        @Override
@@ -64,7 +82,8 @@ public class TabsFragment extends SherlockFragment {
 	            return CONTENT[position % CONTENT.length].toUpperCase();
 	        }
 
-	        @Override public int getIconResId(int index) {
+	        @Override 
+	        public int getIconResId(int index) {
 	          return ICONS[index];
 	        }
 

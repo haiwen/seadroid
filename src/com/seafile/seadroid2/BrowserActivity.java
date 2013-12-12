@@ -26,6 +26,7 @@ import android.os.IBinder;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.ClipboardManager;
 import android.util.Log;
@@ -38,6 +39,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
@@ -225,55 +227,58 @@ public class BrowserActivity extends SherlockFragmentActivity
             getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
         }
         // Get the message from the intent
-//        Intent intent = getIntent();
-//        String server = intent.getStringExtra("server");
-//        String email = intent.getStringExtra("email");
-//        String token = intent.getStringExtra("token");
-//        account = new Account(server, email, null, token);
-//        Log.d(DEBUG_TAG, "browser activity onCreate " + server + " " + email);
-//
-//        if (server == null) {
-//            Intent newIntent = new Intent(this, AccountsActivity.class);
-//            newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//            newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//            startActivity(newIntent);
-//            finish();
-//            return;
-//        }
-//
-//        dataManager = new DataManager(account);
-//        navContext = new NavContext();
-//
-//        getSupportFragmentManager().addOnBackStackChangedListener(this);
-//
-//        ActionBar actionBar = getSupportActionBar();
-//        actionBar.setDisplayShowTitleEnabled(false);
-//        unsetRefreshing();
-//
-//        if (savedInstanceState != null) {
-//            fetchFileDialog = (FetchFileDialog)
-//                    getSupportFragmentManager().findFragmentByTag(OPEN_FILE_DIALOG_FRAGMENT_TAG);
-//
-//            appChoiceDialog = (AppChoiceDialog)
-//                getSupportFragmentManager().findFragmentByTag(CHOOSE_APP_DIALOG_FRAGMENT_TAG);
-//
-//            if (appChoiceDialog != null) {
-//                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-//                ft.detach(appChoiceDialog);
-//                ft.commit();
-//            }
-//
-//            String repoID = savedInstanceState.getString("repoID");
-//            String repoName = savedInstanceState.getString("repoName");
-//            String path = savedInstanceState.getString("path");
-//            String dirID = savedInstanceState.getString("dirID");
-//            if (repoID != null) {
-//                navContext.setRepoID(repoID);
-//                navContext.setRepoName(repoName);
-//                navContext.setDir(path, dirID);
-//            }
-//        }
-//
+        Intent intent = getIntent();
+        String server = intent.getStringExtra("server");
+        String email = intent.getStringExtra("email");
+        String token = intent.getStringExtra("token");
+        account = new Account(server, email, null, token);
+        Log.d(DEBUG_TAG, "browser activity onCreate " + server + " " + email);
+
+        if (server == null) {
+            Intent newIntent = new Intent(this, AccountsActivity.class);
+            newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(newIntent);
+            finish();
+            return;
+        }
+
+        dataManager = new DataManager(account);
+        navContext = new NavContext();
+
+        getSupportFragmentManager().addOnBackStackChangedListener(this);
+
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayShowTitleEnabled(false);
+        unsetRefreshing();
+
+        if (savedInstanceState != null) {
+        	uploadTasksFragment = (UploadTasksFragment)
+                    getSupportFragmentManager().findFragmentByTag(UPLOAD_TASKS_FRAGMENT_TAG);
+        	
+            fetchFileDialog = (FetchFileDialog)
+                    getSupportFragmentManager().findFragmentByTag(OPEN_FILE_DIALOG_FRAGMENT_TAG);
+
+            appChoiceDialog = (AppChoiceDialog)
+                getSupportFragmentManager().findFragmentByTag(CHOOSE_APP_DIALOG_FRAGMENT_TAG);
+
+            if (appChoiceDialog != null) {
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                ft.detach(appChoiceDialog);
+                ft.commit();
+            }
+
+            String repoID = savedInstanceState.getString("repoID");
+            String repoName = savedInstanceState.getString("repoName");
+            String path = savedInstanceState.getString("path");
+            String dirID = savedInstanceState.getString("dirID");
+            if (repoID != null) {
+                navContext.setRepoID(repoID);
+                navContext.setRepoName(repoName);
+                navContext.setDir(path, dirID);
+            }
+        }
+
 //        Intent txIntent = new Intent(this, TransferService.class);
 //        startService(txIntent);
 //        Log.d(DEBUG_TAG, "start TransferService");
