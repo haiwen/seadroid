@@ -96,15 +96,16 @@ public class BrowserActivity extends SherlockFragmentActivity
     ReposFragment reposFragment = null;
     UploadTasksFragment uploadTasksFragment = null;
     ActivitiesFragment activitiesFragment = null;
+    TabsFragment tabsFragment = null;
 
     FetchFileDialog fetchFileDialog = null;
 
     AppChoiceDialog appChoiceDialog = null;
 
     private String currentTab;
-    private static final String LIBRARY_TAB = "libraries";
+    private static final String LIBRARY_TAB = "Libraries";
     private static final String UPLOAD_TASKS_TAB = "upload-tasks";
-    private static final String ACTIVITY_TAB = "activities";
+    private static final String ACTIVITY_TAB = "Activities";
 
     public static final String REPOS_FRAGMENT_TAG = "repos_fragment";
     public static final String UPLOAD_TASKS_FRAGMENT_TAG = "upload_tasks_fragment";
@@ -223,8 +224,8 @@ public class BrowserActivity extends SherlockFragmentActivity
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
         if (savedInstanceState == null) {
-        	Fragment fragment = new TabsFragment();
-            getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
+        	tabsFragment = new TabsFragment();
+            getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, tabsFragment).commit();
         }
         // Get the message from the intent
         Intent intent = getIntent();
@@ -287,9 +288,26 @@ public class BrowserActivity extends SherlockFragmentActivity
 //        Intent bIntent = new Intent(this, TransferService.class);
 //        bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
 //        Log.d(DEBUG_TAG, "try bind TransferService");
+
         
     }
-
+    
+    private String getCurrentTabName() {
+    	int index;
+    	if (tabsFragment == null) {
+    		index = 0;
+    	} else {
+    		index = tabsFragment.getCurrentTabIndex();
+    	}
+        if (index == 0){
+    		return LIBRARY_TAB;
+    	} else if (index == 1) {
+    		return ACTIVITY_TAB;
+    	} else {
+    		return new String();
+    	}
+    }
+    
     ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
@@ -304,7 +322,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             }
             pendingUploads.clear();
 
-            if (currentTab.equals(UPLOAD_TASKS_TAB)
+            if (getCurrentTabName().equals(UPLOAD_TASKS_TAB)
                 && uploadTasksFragment != null && uploadTasksFragment.isReady()) {
                 uploadTasksFragment.refreshView();
             }
@@ -388,11 +406,41 @@ public class BrowserActivity extends SherlockFragmentActivity
         MenuItem menuNewDir = menu.findItem(R.id.newdir);
         MenuItem menuNewFile = menu.findItem(R.id.newfile);
         
-        boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
-        menuUpload.setVisible(!drawerOpen);
-        menuRefresh.setVisible(!drawerOpen);
-        menuNewDir.setVisible(!drawerOpen);
-        menuNewFile.setVisible(!drawerOpen);
+        if (getCurrentTabName().equals(LIBRARY_TAB)) {
+            menuUpload.setVisible(true);
+//            if (navContext.inRepo() && hasRepoWritePermission()) {
+//                menuUpload.setEnabled(true);
+//            }
+//            else
+//                menuUpload.setEnabled(false);
+        } else {
+            menuUpload.setVisible(false);
+        }
+
+        if (getCurrentTabName().equals(LIBRARY_TAB)) {
+            menuRefresh.setVisible(true);
+        } else if (getCurrentTabName().equals(ACTIVITY_TAB)) {
+            menuRefresh.setVisible(true);
+        } else {
+            menuRefresh.setVisible(false);
+        }
+
+        if (getCurrentTabName().equals(LIBRARY_TAB)) {
+//            if (navContext.inRepo() && hasRepoWritePermission()) {
+//                menuNewDir.setVisible(true);
+//                menuNewFile.setVisible(true);
+//            } else {
+//                menuNewDir.setVisible(false);
+//                menuNewFile.setVisible(false);
+//            }
+        } else {
+            menuNewDir.setVisible(false);
+            menuNewFile.setVisible(false);
+        }
+        
+//        boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
+//        menuUpload.setVisible(!drawerOpen);
+//        menuRefresh.setVisible(!drawerOpen);
         return true;
     }
 
@@ -696,7 +744,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             @Override
             public void onTaskSuccess() {
                 showToast("Sucessfully created file " + dialog.getNewFileName());
-                if (currentTab.equals(LIBRARY_TAB) && reposFragment != null) {
+                if (getCurrentTabName().equals(LIBRARY_TAB) && reposFragment != null) {
                     reposFragment.refreshView();
                 }
             }
@@ -1152,4 +1200,5 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
 
     } // TransferReceiver
+
 }

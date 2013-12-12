@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -24,6 +25,7 @@ public class TabsFragment extends SherlockFragment {
 	            R.drawable.perm_group_activity,
 	    };
 
+	    private int currentPosition;
 	    @Override
 	    public void onCreate(Bundle savedInstanceState) {
 	        super.onCreate(savedInstanceState);
@@ -41,13 +43,38 @@ public class TabsFragment extends SherlockFragment {
 	    	View root = localInflater.inflate(R.layout.tabs_main, container, false);
 	    	FragmentPagerAdapter adapter = new SeafileTabsAdapter(getActivity().getSupportFragmentManager());
 
-	        ViewPager pager = (ViewPager)root.findViewById(R.id.pager);
+	    	ViewPager pager = (ViewPager)root.findViewById(R.id.pager);
 	        pager.setAdapter(adapter);
 
 	        TabPageIndicator indicator = (TabPageIndicator)root.findViewById(R.id.indicator);
 	        indicator.setViewPager(pager);
-	        //pager.setCurrentItem(0, false);
+	        indicator.setOnPageChangeListener(new OnPageChangeListener() {
+	        	@Override
+	        	public void onPageSelected(final int position) {
+	        	            // TODO Auto-generated method stub
+	        					currentPosition = position;
+	        					getActivity().supportInvalidateOptionsMenu();
+	        	        	}
+
+				@Override
+				public void onPageScrollStateChanged(int arg0) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void onPageScrolled(int arg0, float arg1, int arg2) {
+					// TODO Auto-generated method stub
+					
+				}
+
+	        });
 	        return root;
+	        
+	    }
+	    
+	    public int getCurrentTabIndex() {
+	    	return currentPosition;
 	    }
 	    
 	    class SeafileTabsAdapter extends FragmentPagerAdapter implements IconPagerAdapter {
@@ -61,13 +88,11 @@ public class TabsFragment extends SherlockFragment {
 	        public Fragment getItem(int position) {
 	        	switch(position) {
 	        	case 0 :
-	        		Log.e("tab", "repos create");
 	        		if(reposFragment == null) {
 	        			reposFragment = new ReposFragment();
 	        		}
 	        		return reposFragment;
 	        	case 1 :
-	        		Log.e("tab", "activities create");
 	        		if(activitieFragment == null) {
 	        			activitieFragment = new ActivitiesFragment();
 	        		}
