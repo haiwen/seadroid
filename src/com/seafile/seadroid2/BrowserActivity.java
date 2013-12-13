@@ -98,6 +98,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     // private boolean twoPaneMode = false;
     UploadTasksFragment uploadTasksFragment = null;
     TabsFragment tabsFragment = null;
+    private String currentSelectedItem = LIBRARY_TAB;
 
     FetchFileDialog fetchFileDialog = null;
 
@@ -327,7 +328,7 @@ setContentView(R.layout.seadroid_main);
             }
             pendingUploads.clear();
 
-            if (getCurrentTabName().equals(UPLOAD_TASKS_TAB)
+            if (currentSelectedItem.equals(UPLOAD_TASKS_TAB)
                 && uploadTasksFragment != null && uploadTasksFragment.isReady()) {
                 uploadTasksFragment.refreshView();
             }
@@ -418,6 +419,7 @@ setContentView(R.layout.seadroid_main);
         		uploadTasksFragment = new UploadTasksFragment();
         	}
         	getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, uploadTasksFragment).commit();
+        	currentSelectedItem = UPLOAD_TASKS_TAB;
         	break;
         default:
             break;
@@ -473,6 +475,13 @@ setContentView(R.layout.seadroid_main);
             }
         } else {
             menuNewDir.setVisible(false);
+            menuNewFile.setVisible(false);
+        }
+        
+        if (currentSelectedItem.equals(UPLOAD_TASKS_TAB)) {
+        	menuUpload.setVisible(false);
+        	menuRefresh.setVisible(false);
+        	menuNewDir.setVisible(false);
             menuNewFile.setVisible(false);
         }
         
