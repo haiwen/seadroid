@@ -972,7 +972,8 @@ public class BrowserActivity extends SherlockFragmentActivity
                     e.printStackTrace();
                     return;
                 }
-                showToast(getString(R.string.upload) + " " + Utils.fileNameFromPath(path));
+                showToast(getString(R.string.added_to_upload_tasks));
+                //showToast(getString(R.string.upload) + " " + Utils.fileNameFromPath(path));
                 addUploadTask(navContext.getRepoID(),
                     navContext.getRepoName(), navContext.getDirPath(), path);
             }
@@ -983,6 +984,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                 ArrayList<String> paths = data.getStringArrayListExtra("photos");
                 if (paths == null)
                     return;
+                showToast(getString(R.string.added_to_upload_tasks));
                 for (String path : paths) {
                     addUploadTask(navContext.getRepoID(),
                         navContext.getRepoName(), navContext.getDirPath(), path);

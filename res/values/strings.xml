@@ -110,4 +110,5 @@
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     <string name="no_starred_file">No starred file yet</string>
+    <string name="added_to_upload_tasks">The selected file(s) is added to the upload tasks list.</string>
 </resources>
