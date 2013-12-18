@@ -56,6 +56,7 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.data.SeafStarredFile;
 import com.seafile.seadroid2.gallery.MultipleImageSelectionActivity;
 import com.seafile.seadroid2.ui.ActivitiesFragment;
 import com.seafile.seadroid2.ui.AppChoiceDialog;
@@ -78,7 +79,7 @@ import com.seafile.seadroid2.ui.TabsFragment;
 import com.seafile.seadroid2.ui.StarredFragment;
 
 public class BrowserActivity extends SherlockFragmentActivity
-        implements ReposFragment.OnFileSelectedListener, OnBackStackChangedListener {
+        implements ReposFragment.OnFileSelectedListener, StarredFragment.OnStarredFileSelectedListener, OnBackStackChangedListener {
 
     private static final String DEBUG_TAG = "BrowserActivity";
 
@@ -484,8 +485,8 @@ public class BrowserActivity extends SherlockFragmentActivity
         
         if (currentSelectedItem.equals(UPLOAD_TASKS_TAB)) {
             menuUpload.setVisible(false);
-        	menuRefresh.setVisible(false);
-        	menuNewDir.setVisible(false);
+            menuRefresh.setVisible(false);
+            menuNewDir.setVisible(false);
             menuNewFile.setVisible(false);
         }
         
@@ -1015,6 +1016,29 @@ public class BrowserActivity extends SherlockFragmentActivity
         return;
     }
 
+    @Override
+    public void onStarredFileSelected(SeafStarredFile starredFile) {
+        
+        final String repoID = starredFile.getRepoID();
+        SeafRepo seafRepo = dataManager.getCachedRepoByID(repoID);
+        final String repoName = seafRepo.getName();
+        final String filePath = starredFile.getPath();
+
+        File localFile = dataManager.getLocalCachedFile(repoName, repoID, filePath, null);
+        if (localFile != null) {
+            showFile(localFile);
+            return;
+        }
+
+        Intent intent = new Intent(this, FileActivity.class);
+        intent.putExtra("repoName", repoName);
+        intent.putExtra("repoID", repoID);
+        intent.putExtra("filePath", filePath);
+        intent.putExtra("account", account);
+        startActivity(intent);
+        return;
+    }
+    
     @Override
     public void onBackPressed() {
         if (getSupportFragmentManager().getBackStackEntryCount() != 0) {

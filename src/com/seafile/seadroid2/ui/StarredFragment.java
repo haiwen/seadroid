@@ -21,6 +21,8 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
+import com.seafile.seadroid2.data.SeafItem;
+import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SeafStarredFile;
 
 public class StarredFragment extends SherlockListFragment {
@@ -40,6 +42,10 @@ public class StarredFragment extends SherlockListFragment {
 
     public StarredItemAdapter getAdapter() {
         return adapter;
+    }
+    
+    public interface OnStarredFileSelectedListener {
+        public void onStarredFileSelected(SeafStarredFile starredFile);
     }
     
     @Override
@@ -146,6 +152,12 @@ public class StarredFragment extends SherlockListFragment {
         }
     }
     
+    @Override
+    public void onListItemClick(final ListView l, final View v, final int position, final long id) {
+
+        final SeafStarredFile starredFile = (SeafStarredFile)adapter.getItem(position);
+        mActivity.onStarredFileSelected(starredFile);
+    }
     
     private class LoadStarredFilesTask extends AsyncTask<Void, Void, List<SeafStarredFile> > {
 

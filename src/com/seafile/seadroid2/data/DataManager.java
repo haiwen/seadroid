@@ -603,7 +603,7 @@ public class DataManager {
         }
 
         SeafCachedFile cf = getCachedFile(repoName, repoID, filePath);
-        if (cf != null && fileID.equals(cf.fileID)) {
+        if (cf != null && cf.fileID != null && cf.fileID.equals(fileID)) {
             return localFile;
         } else {
             return null;

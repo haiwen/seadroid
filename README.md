@@ -22,7 +22,7 @@
         git clone https://github.com/xgouchet/NewQuickAction
         git checkout 89f7f1ee572996787096992df5c2991c406d6967
 
-- Add ActionBarSherlock/aFileChhooser/NewQuickActioni/ViewPagerIndicator as library according to <http://developer.android.com/guide/developing/projects/projects-eclipse.html#ReferencingLibraryProject>
+- Add ActionBarSherlock/aFileChhooser/NewQuickAction/ViewPagerIndicator as library according to <http://developer.android.com/guide/developing/projects/projects-eclipse.html#ReferencingLibraryProject>
 
 - Replace the android-support-v4.jar in `aFileChooser`, `ActionBarSherlock` and `ViewPagerIndicator` with the jar in seadroid to make sure that all versions of this library be the same at this time.
 

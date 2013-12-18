@@ -13,11 +13,11 @@ public class SeafStarredFile implements SeafItem {
 
     public enum FileType { DIR, FILE };
 
-    public String repoID;
-    public long mtime;
-    public String path;
-    public FileType type;
-    public long size;    // size of file, 0 if type is dir
+    private String repoID;
+    private long mtime;
+    private String path;
+    private FileType type;
+    private long size;    // size of file, 0 if type is dir
     
     
     static SeafStarredFile fromJson(JSONObject obj) {
@@ -26,10 +26,10 @@ public class SeafStarredFile implements SeafItem {
             starredFile.repoID = obj.getString("repo");
             starredFile.mtime = obj.getLong("mtime");
             starredFile.path = obj.getString("path");
+            starredFile.size = obj.getLong("size");
             boolean type = obj.getBoolean("dir");
             if (!type) {
                 starredFile.type = FileType.FILE;
-                starredFile.size = obj.getLong("size");
             } else
                 starredFile.type = FileType.DIR;
             return starredFile;
@@ -41,6 +41,14 @@ public class SeafStarredFile implements SeafItem {
     
     public boolean isDir() {
         return (type == FileType.DIR);
+    }
+    
+    public String getRepoID() {
+        return repoID;
+    }
+    
+    public String getPath() {
+        return path;
     }
     
     @Override
