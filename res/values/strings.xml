@@ -109,4 +109,5 @@
     </string-array>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
+    <string name="no_starred_file">No starred file yet</string>
 </resources>

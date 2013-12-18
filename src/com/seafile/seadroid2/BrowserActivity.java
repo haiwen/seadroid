@@ -75,6 +75,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import com.seafile.seadroid2.ui.TabsFragment;
+import com.seafile.seadroid2.ui.StarredFragment;
 
 public class BrowserActivity extends SherlockFragmentActivity
         implements ReposFragment.OnFileSelectedListener, OnBackStackChangedListener {
@@ -107,6 +108,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     private static final String LIBRARY_TAB = "Libraries";
     private static final String UPLOAD_TASKS_TAB = "upload-tasks";
     private static final String ACTIVITY_TAB = "Activities";
+    private static final String STARRED_TAB = "Starred";
 
     public static final String REPOS_FRAGMENT_TAG = "repos_fragment";
     public static final String UPLOAD_TASKS_FRAGMENT_TAG = "upload_tasks_fragment";
@@ -182,6 +184,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     private CharSequence mDrawerTitle;
     private CharSequence mTitle;
     private String[] mNavTitles;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
@@ -242,7 +245,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             }
         }
 
-setContentView(R.layout.seadroid_main);
+        setContentView(R.layout.seadroid_main);
         
         mTitle = mDrawerTitle = getTitle();
         mNavTitles = getResources().getStringArray(R.array.nav_array);
@@ -299,18 +302,19 @@ setContentView(R.layout.seadroid_main);
     }
     
     private String getCurrentTabName() {
-    	int index;
-    	if (tabsFragment == null) {
-    		index = 0;
-    	} else {
-    		index = tabsFragment.getCurrentTabIndex();
-    	}
-        if (index == 0){
+    	
+    	int	index = tabsFragment.getCurrentTabIndex();
+    	
+    	switch (index) {
+    	case 0 :
     		return LIBRARY_TAB;
-    	} else if (index == 1) {
+    	case 1 :
     		return ACTIVITY_TAB;
-    	} else {
+    	case 2 :
+    		return STARRED_TAB;
+    	default:
     		return new String();
+    	
     	}
     }
     
@@ -479,10 +483,21 @@ setContentView(R.layout.seadroid_main);
         }
         
         if (currentSelectedItem.equals(UPLOAD_TASKS_TAB)) {
-        	menuUpload.setVisible(false);
+            menuUpload.setVisible(false);
         	menuRefresh.setVisible(false);
         	menuNewDir.setVisible(false);
             menuNewFile.setVisible(false);
+        }
+        
+        if (getCurrentTabName().equals(STARRED_TAB)) {
+            menuUpload.setVisible(false);
+            menuNewDir.setVisible(false);
+            menuNewFile.setVisible(false);
+            if (drawerOpen) {
+                menuRefresh.setVisible(false);
+            } else {
+                menuRefresh.setVisible(true);
+            }
         }
         
         return true;
@@ -533,6 +548,8 @@ setContentView(R.layout.seadroid_main);
                 ((ReposFragment)tabsFragment.getFragment(0)).refreshView(true);
             } else if (getCurrentTabName().equals(ACTIVITY_TAB)) {
             	((ActivitiesFragment)tabsFragment.getFragment(1)).refreshView();
+            } else if (getCurrentTabName().equals(STARRED_TAB)) {
+                ((StarredFragment)tabsFragment.getFragment(2)).refreshView();
             }
             return true;
         case R.id.newdir:

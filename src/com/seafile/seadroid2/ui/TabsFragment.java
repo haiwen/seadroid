@@ -19,13 +19,15 @@ import com.viewpagerindicator.IconPagerAdapter;
 import com.viewpagerindicator.TabPageIndicator;
 
 public class TabsFragment extends SherlockFragment {
-	 private static final String[] CONTENT = new String[] { "Libraries", "Activities" };
+	 private static final String[] CONTENT = new String[] { "Libraries", "Activities", "Starred" };
 	    private static final int[] ICONS = new int[] {
 	            R.drawable.perm_group_library,
 	            R.drawable.perm_group_activity,
+	            R.drawable.perm_group_starred
+	            
 	    };
 
-	    private int currentPosition;
+	    private int currentPosition = 0;
 	    FragmentPagerAdapter adapter;
 	    @Override
 	    public void onCreate(Bundle savedInstanceState) {
@@ -45,7 +47,7 @@ public class TabsFragment extends SherlockFragment {
 	    	adapter = new SeafileTabsAdapter(getActivity().getSupportFragmentManager());
 
 	    	ViewPager pager = (ViewPager)root.findViewById(R.id.pager);
-	        pager.setAdapter(adapter);
+	    	pager.setAdapter(adapter);
 
 	        TabPageIndicator indicator = (TabPageIndicator)root.findViewById(R.id.indicator);
 	        indicator.setViewPager(pager);
@@ -89,6 +91,7 @@ public class TabsFragment extends SherlockFragment {
 
 	        private ReposFragment reposFragment = null;
 	        private ActivitiesFragment activitieFragment = null;
+	        private StarredFragment starredFragment = null;
 	        @Override
 	        public Fragment getItem(int position) {
 	        	switch(position) {
@@ -102,6 +105,11 @@ public class TabsFragment extends SherlockFragment {
 	        			activitieFragment = new ActivitiesFragment();
 	        		}
 	        		return activitieFragment;
+	        	case 2 :
+	        		if(starredFragment == null) {
+	        		    starredFragment = new StarredFragment();
+	        		}
+	        		return starredFragment;	
 	        	default : 
 	        		return new Fragment();
 	        	}

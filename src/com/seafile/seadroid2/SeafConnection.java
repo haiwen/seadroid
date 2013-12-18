@@ -162,6 +162,28 @@ public class SeafConnection {
         }
     }
 
+    public String getStarredFiles() throws SeafException {
+        try {
+            HttpRequest req = prepareApiGetRequest("api2/starredfiles/");
+            if (req.code() != 200) {
+                if (req.message() == null) {
+                    throw SeafException.networkException;
+                } else {
+                    throw new SeafException(req.code(), req.message());
+                }
+            }
+
+            String result = new String(req.bytes(), "UTF-8");
+            return result;
+        } catch (SeafException e) {
+            throw e;
+        } catch (HttpRequestException e) {
+            throw SeafException.networkException;
+        } catch (IOException e) {
+            throw SeafException.networkException;
+        }
+    }
+    
     private static String encodeUriComponent(String src) throws UnsupportedEncodingException {
         return URLEncoder.encode(src, "UTF-8");
     }
