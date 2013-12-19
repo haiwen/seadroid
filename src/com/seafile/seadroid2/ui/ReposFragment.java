@@ -145,7 +145,7 @@ public class ReposFragment extends SherlockListFragment {
     }
 
     public void navToReposView(boolean forceRefresh) {
-        mActivity.disableUpButton();
+        //mActivity.disableUpButton();
         if (!Utils.isNetworkOn() || !forceRefresh) {
             List<SeafRepo> repos = getDataManager().getReposFromCache();
             if (repos != null) {

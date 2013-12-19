@@ -1048,6 +1048,10 @@ public class BrowserActivity extends SherlockFragmentActivity
             return;
         }
 
+        if (currentSelectedItem == UPLOAD_TASKS_TAB) {
+            navContext.setRepoID(null);
+        }
+        
         if (getCurrentTabName().equals(LIBRARY_TAB)) {
             if (navContext.inRepo()) {
                 if (navContext.isRepoRoot()) {
