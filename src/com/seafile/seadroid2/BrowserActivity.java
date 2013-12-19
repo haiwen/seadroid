@@ -426,6 +426,11 @@ public class BrowserActivity extends SherlockFragmentActivity
         	getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, uploadTasksFragment).commit();
         	currentSelectedItem = UPLOAD_TASKS_TAB;
         	break;
+        case 1 :
+            Intent newIntent = new Intent(this, AccountsActivity.class);
+            newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(newIntent);
+            break;
         default:
             break;
         		

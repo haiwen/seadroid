@@ -105,7 +105,7 @@
     <string name="rename_successful">Renamed successfully.</string>
     <string-array name="nav_array">
         <item>Uploads</item>
-        <item>Settings</item>
+        <item>Accounts</item>
     </string-array>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
