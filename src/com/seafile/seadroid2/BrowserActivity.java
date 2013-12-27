@@ -517,14 +517,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
         switch (item.getItemId()) {
         case android.R.id.home:
-//        	if (navContext.isRepoRoot()) {
-//                navContext.setRepoID(null);
-//            } else {
-//                String parentPath = Utils
-//                        .getParentPath(navContext.getDirPath());
-//                navContext.setDir(parentPath, null);
-//            }
-//        	((ReposFragment)getSupportFragmentManager().findFragmentByTag(REPOS_FRAGMENT_TAG)).refreshView();
             return true;
         case R.id.upload:
             pickFile();

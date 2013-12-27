@@ -73,4 +73,14 @@
         <item name="fadeLength">1000</item>
         <item name="fadeDelay">1000</item>
     </style>
+    
+    <style name="DrawerListItemText">
+        <item name="android:textColor">#ffffff</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+    
+    <style name="Theme.SeafileTheme" parent="Theme.Sherlock.Light">
+        <item name="homeAsUpIndicator">@drawable/ic_drawer</item>
+        <item name="android:homeAsUpIndicator">@drawable/ic_drawer</item>
+    </style>
 </resources>
