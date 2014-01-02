@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -19,8 +20,7 @@ import com.viewpagerindicator.IconPagerAdapter;
 import com.viewpagerindicator.TabPageIndicator;
 
 public class TabsFragment extends SherlockFragment {
-	 private static final String[] CONTENT = new String[] { "Libraries", "Activities", "Starred" };
-	    private static final int[] ICONS = new int[] {
+        private static final int[] ICONS = new int[] {
 	            R.drawable.perm_group_library,
 	            R.drawable.perm_group_activity,
 	            R.drawable.perm_group_starred
@@ -28,11 +28,24 @@ public class TabsFragment extends SherlockFragment {
 	    };
 
 	    private int currentPosition = 0;
-	    FragmentPagerAdapter adapter;
+	    private FragmentPagerAdapter adapter;
+	    
 	    @Override
 	    public void onCreate(Bundle savedInstanceState) {
 	        super.onCreate(savedInstanceState);
 	    }
+	    
+/*	    @Override
+	    public void onAttach(Activity activity) {
+	        super.onAttach(activity);
+	        mActivity = (BrowserActivity)activity;
+	    }
+	    
+	    @Override
+	    public void onDetach() {
+	        mActivity = null;
+	        super.onDetach();
+	    }*/
 	    
 	    @Override
 	    public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -44,7 +57,7 @@ public class TabsFragment extends SherlockFragment {
 	        LayoutInflater localInflater = inflater.cloneInContext(contextThemeWrapper);
 	    	
 	    	View root = localInflater.inflate(R.layout.tabs_main, container, false);
-	    	adapter = new SeafileTabsAdapter(getActivity().getSupportFragmentManager());
+	    	adapter = new SeafileTabsAdapter(getChildFragmentManager());
 
 	    	ViewPager pager = (ViewPager)root.findViewById(R.id.pager);
 	    	pager.setAdapter(adapter);
@@ -117,7 +130,17 @@ public class TabsFragment extends SherlockFragment {
 
 	        @Override
 	        public CharSequence getPageTitle(int position) {
-	            return CONTENT[position % CONTENT.length].toUpperCase();
+	            switch (position) {         
+	            case 0:
+	                return getString(R.string.tabs_library).toUpperCase();       
+	            case 1:
+	                return getString(R.string.tabs_activity).toUpperCase();
+	            case 2:
+	                return getString(R.string.tabs_starred).toUpperCase();
+	                
+	                default:
+	                    return null;
+	            }
 	        }
 
 	        @Override 
@@ -127,7 +150,7 @@ public class TabsFragment extends SherlockFragment {
 
 	      @Override
 	        public int getCount() {
-	          return CONTENT.length;
+	          return ICONS.length;
 	        }
 	    }
 }
