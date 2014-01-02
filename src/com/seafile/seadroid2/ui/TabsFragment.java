@@ -20,15 +20,16 @@ import com.viewpagerindicator.IconPagerAdapter;
 import com.viewpagerindicator.TabPageIndicator;
 
 public class TabsFragment extends SherlockFragment {
+    
         private static final int[] ICONS = new int[] {
 	            R.drawable.perm_group_library,
-	            R.drawable.perm_group_activity,
-	            R.drawable.perm_group_starred
+	            R.drawable.perm_group_starred,
+	            R.drawable.perm_group_activity
 	            
 	    };
 
-	    private int currentPosition = 0;
-	    private FragmentPagerAdapter adapter;
+        private int currentPosition = 0;
+        private FragmentPagerAdapter adapter;
 	    
 	    @Override
 	    public void onCreate(Bundle savedInstanceState) {
@@ -114,15 +115,15 @@ public class TabsFragment extends SherlockFragment {
 	        		}
 	        		return reposFragment;
 	        	case 1 :
-	        		if(activitieFragment == null) {
-	        			activitieFragment = new ActivitiesFragment();
-	        		}
-	        		return activitieFragment;
+	        	    if(starredFragment == null) {
+                        starredFragment = new StarredFragment();
+                    }
+                    return starredFragment; 
 	        	case 2 :
-	        		if(starredFragment == null) {
-	        		    starredFragment = new StarredFragment();
-	        		}
-	        		return starredFragment;	
+	        	    if(activitieFragment == null) {
+                        activitieFragment = new ActivitiesFragment();
+                    }
+                    return activitieFragment;
 	        	default : 
 	        		return new Fragment();
 	        	}
@@ -134,9 +135,9 @@ public class TabsFragment extends SherlockFragment {
 	            case 0:
 	                return getString(R.string.tabs_library).toUpperCase();       
 	            case 1:
-	                return getString(R.string.tabs_activity).toUpperCase();
-	            case 2:
 	                return getString(R.string.tabs_starred).toUpperCase();
+	            case 2:
+	                return getString(R.string.tabs_activity).toUpperCase();
 	                
 	                default:
 	                    return null;
