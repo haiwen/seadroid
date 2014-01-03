@@ -4,10 +4,10 @@
 
     <item android:id="@+id/edit"
         android:visible="true"
-        android:title="Edit" />
+        android:title="@string/edit_account" />
     
     <item android:id="@+id/delete"
         android:visible="true"
-        android:title="Delete" />
+        android:title="@string/delete_account" />
     
 </menu>

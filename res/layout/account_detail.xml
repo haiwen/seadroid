@@ -37,7 +37,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="login"
-        android:text="Login" />
+        android:text="@string/login" />
 
     <TextView
         android:id="@+id/status_view"

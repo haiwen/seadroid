@@ -95,7 +95,7 @@ public class UploadTasksAdapter extends BaseAdapter {
 
         switch (info.state) {
         case INIT:
-            stateStr = "Waiting";
+            stateStr = mContext.getString(R.string.upload_waiting);
             break;
         case TRANSFERRING:
             int percent;
@@ -111,17 +111,17 @@ public class UploadTasksAdapter extends BaseAdapter {
             viewHolder.progressBar.setVisibility(View.VISIBLE);
             break;
         case FINISHED:
-            stateStr = "Finished";
+            stateStr = mContext.getString(R.string.upload_finished);;
             stateColor = Color.BLACK;
             viewHolder.progressBar.setVisibility(View.INVISIBLE);
             break;
         case CANCELLED:
-            stateStr = "Cancelled";
+            stateStr = mContext.getString(R.string.upload_cancelled);;
             stateColor = Color.RED;
             viewHolder.progressBar.setVisibility(View.INVISIBLE);
             break;
         case FAILED:
-            stateStr = "Failed";
+            stateStr = mContext.getString(R.string.upload_failed);;
             stateColor = Color.RED;
             viewHolder.progressBar.setVisibility(View.INVISIBLE);
             break;

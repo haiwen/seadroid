@@ -192,12 +192,12 @@ public class SeafItemAdapter extends BaseAdapter {
             if (size == dirent.size) {
                 subtitle = dirent.getSubtitle();
             } else {
-                subtitle = Utils.readableFileSize(size) + ", modified";
+                subtitle = Utils.readableFileSize(size) + "," + mActivity.getString(R.string.file_modified);
             }
             if (cf != null) {
                 cacheExists = true;
                 if (dirent.id.equals(cf.fileID) && dirent.size == size) {
-                    subtitle += ", cached";
+                    subtitle += "," + mActivity.getString(R.string.cached);
                 }
             }
             viewHolder.subtitle.setText(subtitle);

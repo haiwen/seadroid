@@ -4,27 +4,27 @@
 
     <item android:id="@+id/upload"
         android:visible="true"
-        android:title="Upload"
+        android:title="@string/upload"
         android:showAsAction="ifRoom|withText"/>
 
     <item android:id="@+id/delete_cache"
         android:visible="false"
-        android:title="Delete"
+        android:title="@string/delete"
         android:showAsAction="ifRoom|withText"/>
 
     <item android:id="@+id/refresh"
         android:visible="false"
-        android:title="Refresh"
+        android:title="@string/refresh"
         android:showAsAction="ifRoom|withText"/>
 
     <item android:id="@+id/newdir"
         android:visible="false"
-        android:title="New Folder"
+        android:title="@string/create_new_dir"
         android:showAsAction="never"/>
 
     <item android:id="@+id/newfile"
         android:visible="false"
-        android:title="New File"
+        android:title="@string/create_new_file"
         android:showAsAction="never"/>
 
 </menu>

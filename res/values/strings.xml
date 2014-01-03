@@ -4,9 +4,13 @@
     <string name="app_url">http://seafile.com</string>
     <string name="welcome_to_seafile">Welcome to Seafile</string>
     <string name="select_account">Choose an account to start</string>
+    <string name="edit_account">Edit</string>
+    <string name="delete_account">Delete</string>
+    <string name="delete">Delete</string>
     <string name="server_hint">Server, like cloud.seafile.com</string>
     <string name="email_hint">Email</string>
     <string name="passwd_hint">Password</string>
+    <string name="login">Login</string>
     <string name="open_file">Open</string>
     <string name="download_file">Download</string>
     <string name="redownload_file">Download again</string>
@@ -90,6 +94,7 @@
     <string name="download">Download</string>
     <string name="open">Open</string>
     <string name="last_modified">last modified</string>
+    <string name="file_modified">modified</string>
     <string name="file_size">file size</string>
     <string name="library_not_found">The library have been deleted.</string>
     <string name="export_file">Export this file</string>
@@ -115,4 +120,14 @@
     <string name="tabs_library">Libraries</string>
     <string name="tabs_activity">Activities</string>
     <string name="tabs_starred">Starred</string>
+    <string name="provide_password">Provide the password for library \"%s\"</string>
+    <string name="upload_waiting">Waiting</string>
+    <string name="upload_finished">Finished</string>
+    <string name="upload_cancelled">Cancelled</string>
+    <string name="upload_failed">Failed</string>
+    <string name="days_ago"> days ago</string>
+    <string name="hours_ago"> hours ago</string>
+    <string name="minutes_ago"> minutes ago</string>
+    <string name="seconds_ago"> seconds ago</string>
+    <string name="just_now">Just now</string>
 </resources>

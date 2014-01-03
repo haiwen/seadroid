@@ -321,17 +321,17 @@ public class Utils {
             SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
             return fmt.format(d);
         } else if (days > 0) {
-            return days == 1 ? "1 days ago" : days + " days ago";
+            return days + SeadroidApplication.getAppContext().getString(R.string.days_ago);
         } else if (seconds >= 60 * 60) {
             long hours = seconds / 3600;
-            return hours == 1 ? "1 hours ago" : hours + " hours ago";
+            return hours + SeadroidApplication.getAppContext().getString(R.string.hours_ago);
         } else if (seconds >= 60) {
             long minutes = seconds / 60;
-            return minutes == 1 ? "1 minute ago" : minutes + " minutes ago";
+            return minutes + SeadroidApplication.getAppContext().getString(R.string.minutes_ago);
         } else if (seconds > 0) {
-            return seconds == 1 ? "1 second ago" : seconds + " seconds ago";
+            return seconds + SeadroidApplication.getAppContext().getString(R.string.seconds_ago);
         } else {
-            return "Just now";
+            return SeadroidApplication.getAppContext().getString(R.string.just_now);
         }
     }
 
