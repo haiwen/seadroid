@@ -185,12 +185,12 @@ public class BrowserActivity extends SherlockFragmentActivity
     private CharSequence mDrawerTitle;
     private CharSequence mTitle;
     private String[] mNavTitles;
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
-        
+
         // Get the message from the intent
         Intent intent = getIntent();
         String server = intent.getStringExtra("server");
@@ -218,11 +218,11 @@ public class BrowserActivity extends SherlockFragmentActivity
         unsetRefreshing();
 
         if (savedInstanceState != null) {
-        	tabsFragment = (TabsFragment)
-        			getSupportFragmentManager().findFragmentByTag(TABS_FRAGMENT_TAG);
-        	uploadTasksFragment = (UploadTasksFragment)
+            tabsFragment = (TabsFragment)
+                    getSupportFragmentManager().findFragmentByTag(TABS_FRAGMENT_TAG);
+            uploadTasksFragment = (UploadTasksFragment)
                     getSupportFragmentManager().findFragmentByTag(UPLOAD_TASKS_FRAGMENT_TAG);
-        	
+
             fetchFileDialog = (FetchFileDialog)
                     getSupportFragmentManager().findFragmentByTag(OPEN_FILE_DIALOG_FRAGMENT_TAG);
 
@@ -250,11 +250,11 @@ public class BrowserActivity extends SherlockFragmentActivity
             getSupportFragmentManager().beginTransaction().add(R.id.content_frame, tabsFragment, TABS_FRAGMENT_TAG).commit();
             getSupportFragmentManager().beginTransaction().add(R.id.content_frame, uploadTasksFragment, UPLOAD_TASKS_FRAGMENT_TAG).commit();
             getSupportFragmentManager().beginTransaction().detach(uploadTasksFragment).commit();
-            
+
         }
 
         setContentView(R.layout.seadroid_main);
-        
+
         mTitle = mDrawerTitle = getTitle();
         mNavTitles = getResources().getStringArray(R.array.nav_array);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -267,7 +267,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                 R.layout.drawer_list_item, mNavTitles));
 
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
-        
+
         // enable ActionBar app icon to behave as action to toggle nav drawer
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
@@ -282,17 +282,17 @@ public class BrowserActivity extends SherlockFragmentActivity
                 R.string.drawer_close  /* "close drawer" description for accessibility */
                 ) {
             public void onDrawerClosed(View view) {
-            	getSupportActionBar().setTitle(mTitle);
-            	supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+                getSupportActionBar().setTitle(mTitle);
+                supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
 
             public void onDrawerOpened(View drawerView) {
-            	getSupportActionBar().setTitle(mDrawerTitle);
-            	supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+                getSupportActionBar().setTitle(mDrawerTitle);
+                supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
         };
         mDrawerLayout.setDrawerListener(mDrawerToggle);
-        
+
         Intent txIntent = new Intent(this, TransferService.class);
         startService(txIntent);
         Log.d(DEBUG_TAG, "start TransferService");
@@ -302,26 +302,26 @@ public class BrowserActivity extends SherlockFragmentActivity
         bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
         Log.d(DEBUG_TAG, "try bind TransferService");
 
-        
+
     }
-    
+
     private String getCurrentTabName() {
-    	
-    	int	index = tabsFragment.getCurrentTabIndex();
-    	
-    	switch (index) {
-    	case 0 :
-    		return LIBRARY_TAB;
-    	case 1 :
-    		return STARRED_TAB;
-    	case 2 :
-    		return ACTIVITY_TAB;
-    	default:
-    		return "";
-    	
-    	}
+
+        int index = tabsFragment.getCurrentTabIndex();
+
+        switch (index) {
+        case 0 :
+            return LIBRARY_TAB;
+        case 1 :
+            return STARRED_TAB;
+        case 2 :
+            return ACTIVITY_TAB;
+        default:
+            return "";
+
+        }
     }
-    
+
     ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
@@ -426,8 +426,8 @@ public class BrowserActivity extends SherlockFragmentActivity
             selectItem(position);
         }
     }
-    
-    private void selectItem(int position) {        
+
+    private void selectItem(int position) {
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         switch (position) {
         case 0 :
@@ -439,26 +439,26 @@ public class BrowserActivity extends SherlockFragmentActivity
             ft.detach(tabsFragment);
             ft.attach(uploadTasksFragment);
             ft.commit();
-        	currentSelectedItem = UPLOAD_TASKS_TAB;
-        	break;
+            currentSelectedItem = UPLOAD_TASKS_TAB;
+            break;
         case 2 :
             ft.detach(uploadTasksFragment);
             ft.attach(tabsFragment);
             ft.commit();
-            
+
             Intent newIntent = new Intent(this, AccountsActivity.class);
             newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(newIntent);
             break;
         default:
             break;
-        		
+
         }
-        
+
         mDrawerList.setItemChecked(position, true);
         setTitle(mNavTitles[position]);
         mDrawerLayout.closeDrawer(mDrawerList);
-        
+
     }
 
     @Override
@@ -466,14 +466,14 @@ public class BrowserActivity extends SherlockFragmentActivity
         mTitle = title;
         getSupportActionBar().setTitle(mTitle);
     }
-    
+
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem menuUpload = menu.findItem(R.id.upload);
         MenuItem menuRefresh = menu.findItem(R.id.refresh);
         MenuItem menuNewDir = menu.findItem(R.id.newdir);
         MenuItem menuNewFile = menu.findItem(R.id.newfile);
-        
+
         boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
         if (getCurrentTabName().equals(LIBRARY_TAB) && !drawerOpen) {
             menuUpload.setVisible(true);
@@ -506,14 +506,14 @@ public class BrowserActivity extends SherlockFragmentActivity
             menuNewDir.setVisible(false);
             menuNewFile.setVisible(false);
         }
-        
+
         if (currentSelectedItem.equals(UPLOAD_TASKS_TAB)) {
             menuUpload.setVisible(false);
             menuRefresh.setVisible(false);
             menuNewDir.setVisible(false);
             menuNewFile.setVisible(false);
         }
-        
+
         if (getCurrentTabName().equals(STARRED_TAB)) {
             menuUpload.setVisible(false);
             menuNewDir.setVisible(false);
@@ -524,13 +524,13 @@ public class BrowserActivity extends SherlockFragmentActivity
                 menuRefresh.setVisible(true);
             }
         }
-        
+
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-    	
+
         if (mDrawerToggle.onOptionsItemSelected(getMenuItem(item))) {
             return true;
         }
@@ -554,7 +554,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                             new TaskDialog.TaskDialogListener() {
                                 @Override
                                 public void onTaskSuccess() {
-                                	tabsFragment.getReposFragment().refreshView(true);
+                                    tabsFragment.getReposFragment().refreshView(true);
                                 }
                             } , password);
 
@@ -570,7 +570,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             }
             return true;
         case R.id.newdir:
-        	showNewDirDialog();
+            showNewDirDialog();
             return true;
         case R.id.newfile:
             showNewFileDialog();
@@ -825,7 +825,7 @@ public class BrowserActivity extends SherlockFragmentActivity
            }
         };
      }
-    
+
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
@@ -839,7 +839,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         // Pass any configuration change to the drawer toggls
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
-    
+
     private void showNewDirDialog() {
         if (!hasRepoWritePermission()) {
             showToast(R.string.library_read_only);
@@ -860,7 +860,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         });
         dialog.show(getSupportFragmentManager(), "DialogFragment");
     }
-    
+
     private void showNewFileDialog() {
         if (!hasRepoWritePermission()) {
             showToast(R.string.library_read_only);
@@ -1036,7 +1036,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     @Override
     public void onStarredFileSelected(SeafStarredFile starredFile) {
-        
+
         final String repoID = starredFile.getRepoID();
         SeafRepo seafRepo = dataManager.getCachedRepoByID(repoID);
         final String repoName = seafRepo.getName();
@@ -1056,7 +1056,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         startActivity(intent);
         return;
     }
-    
+
     @Override
     public void onBackPressed() {
         if (getSupportFragmentManager().getBackStackEntryCount() != 0) {
@@ -1067,7 +1067,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         if (currentSelectedItem == UPLOAD_TASKS_TAB) {
             navContext.setRepoID(null);
         }
-        
+
         if (getCurrentTabName().equals(LIBRARY_TAB)) {
             if (navContext.inRepo()) {
                 if (navContext.isRepoRoot()) {
@@ -1085,7 +1085,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             super.onBackPressed();
         }
     }
-    
+
     @Override
     public void onBackStackChanged() {
     }
@@ -1313,7 +1313,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         });
         dialog.show(getSupportFragmentManager(), "DialogFragment");
     }
-    
+
     private void onFileUploadProgress(int taskID) {
         if (txService == null) {
             return;
@@ -1343,7 +1343,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         if (uploadTasksFragment != null && uploadTasksFragment.isReady())
             uploadTasksFragment.onTaskFinished(info);
     }
-    
+
     private void onFileUploadCancelled(int taskID) {
         if (txService == null) {
             return;
@@ -1390,7 +1390,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             }
         }
     }
-    
+
     private void onFileDownloadFailed(int taskID) {
         if (txService == null) {
             return;
