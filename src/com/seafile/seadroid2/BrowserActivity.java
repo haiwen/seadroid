@@ -370,11 +370,13 @@ public class BrowserActivity extends SherlockFragmentActivity
     @Override
     protected void onNewIntent(Intent intent) {
         Log.d(DEBUG_TAG, "onNewIntent");
-        boolean isAccountChanged = intent.getBooleanExtra("isAccountChanged", false);
-        if (isAccountChanged) {
+        String server = intent.getStringExtra("server");
+        String email = intent.getStringExtra("email");
+        Account selectedAccount = new Account(server, email);
+        if (!account.equals(selectedAccount)) {
             finish();
             startActivity(intent);
-        }      
+        }
     }
 
     @Override
