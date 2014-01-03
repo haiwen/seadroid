@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.R;
 import com.viewpagerindicator.IconPagerAdapter;
 import com.viewpagerindicator.TabPageIndicator;
@@ -26,10 +27,10 @@ public class TabsFragment extends SherlockFragment {
             R.drawable.perm_group_activity
 
     };
-
+    
     private int currentPosition = 0;
-    private FragmentPagerAdapter adapter;
-
+    private FragmentPagerAdapter adapter;    
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

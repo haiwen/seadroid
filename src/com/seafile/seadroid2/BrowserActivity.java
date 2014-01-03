@@ -100,14 +100,16 @@ public class BrowserActivity extends SherlockFragmentActivity
     // private boolean twoPaneMode = false;
     UploadTasksFragment uploadTasksFragment = null;
     TabsFragment tabsFragment = null;
-    private String currentSelectedItem = LIBRARY_TAB;
+    private String currentSelectedItem = "Blank";
 
     FetchFileDialog fetchFileDialog = null;
 
     AppChoiceDialog appChoiceDialog = null;
 
+    private static final String UPLOAD_TASKS_VIEW = "UploadTasks";
+    private static final String FILES_VIEW = "Files";
+    
     private static final String LIBRARY_TAB = "Libraries";
-    private static final String UPLOAD_TASKS_TAB = "upload-tasks";
     private static final String ACTIVITY_TAB = "Activities";
     private static final String STARRED_TAB = "Starred";
 
@@ -336,7 +338,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             }
             pendingUploads.clear();
 
-            if (currentSelectedItem.equals(UPLOAD_TASKS_TAB)
+            if (currentSelectedItem.equals(UPLOAD_TASKS_VIEW)
                 && uploadTasksFragment != null && uploadTasksFragment.isReady()) {
                 uploadTasksFragment.refreshView();
             }
@@ -424,6 +426,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             selectItem(position);
+            
         }
     }
 
@@ -434,12 +437,13 @@ public class BrowserActivity extends SherlockFragmentActivity
             ft.detach(uploadTasksFragment);
             ft.attach(tabsFragment);
             ft.commit();
+            currentSelectedItem = FILES_VIEW;
             break;
         case 1 :
             ft.detach(tabsFragment);
             ft.attach(uploadTasksFragment);
             ft.commit();
-            currentSelectedItem = UPLOAD_TASKS_TAB;
+            currentSelectedItem = UPLOAD_TASKS_VIEW;
             break;
         case 2 :
             ft.detach(uploadTasksFragment);
@@ -507,7 +511,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             menuNewFile.setVisible(false);
         }
 
-        if (currentSelectedItem.equals(UPLOAD_TASKS_TAB)) {
+        if (currentSelectedItem.equals(UPLOAD_TASKS_VIEW)) {
             menuUpload.setVisible(false);
             menuRefresh.setVisible(false);
             menuNewDir.setVisible(false);
@@ -1064,7 +1068,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             return;
         }
 
-        if (currentSelectedItem == UPLOAD_TASKS_TAB) {
+        if (currentSelectedItem == UPLOAD_TASKS_VIEW) {
             navContext.setRepoID(null);
         }
 

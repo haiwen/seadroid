@@ -116,6 +116,17 @@ public class StarredFragment extends SherlockListFragment {
         //mActivity.supportInvalidateOptionsMenu();
     }
     
+    private void showError(String msg) {
+        mProgressContainer.setVisibility(View.GONE);
+        mListContainer.setVisibility(View.GONE);
+
+        adapter.clear();
+        adapter.notifyChanged();
+
+        mErrorText.setText(msg);
+        mErrorText.setVisibility(View.VISIBLE);
+    }
+    
     private void showLoading(boolean show) {
         mErrorText.setVisibility(View.GONE);
         if (show) {
@@ -189,6 +200,15 @@ public class StarredFragment extends SherlockListFragment {
                 // this occurs if user navigation to another activity
                 return;
 
+            if (err != null) {
+                showError(getString(R.string.error_when_load_starred));
+                return;
+            }
+            
+            if (starredFiles == null) {
+                showError(getString(R.string.error_when_load_starred));
+                return;
+            }
             
             updateAdapterWithStarredFiles(starredFiles);
             showLoading(false);

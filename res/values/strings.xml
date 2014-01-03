@@ -130,4 +130,5 @@
     <string name="minutes_ago"> minutes ago</string>
     <string name="seconds_ago"> seconds ago</string>
     <string name="just_now">Just now</string>
+    <string name="error_when_load_starred">Error when loading starred files</string>
 </resources>
