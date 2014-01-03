@@ -37,7 +37,7 @@ public class AccountsActivity extends FragmentActivity {
 
     private AccountAdapter adapter;
     List<Account> accounts;
-    private int currentPosition = 0;
+    private Account currentAccount;
     private boolean isAccountChanged = false;
 
     @Override
@@ -66,13 +66,13 @@ public class AccountsActivity extends FragmentActivity {
         accountsView.setOnItemClickListener(new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position,
                     long id) {
-                if (currentPosition == 0 || currentPosition != position) {
+                Account account = accounts.get(position);
+                if (!account.equals(currentAccount)) {
                     isAccountChanged = true;
                 } else {
                     isAccountChanged = false;
                 }
-                currentPosition = position;
-                Account account = accounts.get(position);
+                currentAccount = account;
                 startFilesActivity(account);
             }
         });

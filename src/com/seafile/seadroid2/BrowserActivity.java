@@ -244,6 +244,13 @@ public class BrowserActivity extends SherlockFragmentActivity
                 navContext.setRepoName(repoName);
                 navContext.setDir(path, dirID);
             }
+        } else {
+            tabsFragment = new TabsFragment();
+            uploadTasksFragment = new UploadTasksFragment();
+            getSupportFragmentManager().beginTransaction().add(R.id.content_frame, tabsFragment, TABS_FRAGMENT_TAG).commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.content_frame, uploadTasksFragment, UPLOAD_TASKS_FRAGMENT_TAG).commit();
+            getSupportFragmentManager().beginTransaction().detach(uploadTasksFragment).commit();
+            
         }
 
         setContentView(R.layout.seadroid_main);
@@ -258,8 +265,9 @@ public class BrowserActivity extends SherlockFragmentActivity
         // set up the drawer's list view with items and click listener
         mDrawerList.setAdapter(new ArrayAdapter<String>(this,
                 R.layout.drawer_list_item, mNavTitles));
-        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
+        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+        
         // enable ActionBar app icon to behave as action to toggle nav drawer
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
@@ -284,20 +292,6 @@ public class BrowserActivity extends SherlockFragmentActivity
             }
         };
         mDrawerLayout.setDrawerListener(mDrawerToggle);
-
-        if (savedInstanceState == null) {
-//        	tabsFragment = new TabsFragment();
-//          getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, tabsFragment).commit();
-            tabsFragment = new TabsFragment();
-            uploadTasksFragment = new UploadTasksFragment();
-            getSupportFragmentManager().beginTransaction().add(R.id.content_frame, tabsFragment, TABS_FRAGMENT_TAG).commit();
-            //getSupportFragmentManager().beginTransaction().add(R.id.content_frame, uploadTasksFragment, UPLOAD_TASKS_FRAGMENT_TAG);
-            //getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, tabsFragment).commit();
-            getSupportFragmentManager().beginTransaction().add(R.id.content_frame, uploadTasksFragment, UPLOAD_TASKS_FRAGMENT_TAG).commit();
-            getSupportFragmentManager().beginTransaction().detach(uploadTasksFragment).commit();
-            //getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, tabsFragment).commit();
-        
-        }
         
         Intent txIntent = new Intent(this, TransferService.class);
         startService(txIntent);
@@ -319,11 +313,11 @@ public class BrowserActivity extends SherlockFragmentActivity
     	case 0 :
     		return LIBRARY_TAB;
     	case 1 :
-    		return ACTIVITY_TAB;
-    	case 2 :
     		return STARRED_TAB;
+    	case 2 :
+    		return ACTIVITY_TAB;
     	default:
-    		return new String();
+    		return "";
     	
     	}
     }
@@ -498,7 +492,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             menuRefresh.setVisible(false);
         }
 
-        if (getCurrentTabName().equals(LIBRARY_TAB)) {
+        if (getCurrentTabName().equals(LIBRARY_TAB) && !drawerOpen) {
             if (navContext.inRepo() && hasRepoWritePermission()) {
                 menuNewDir.setVisible(true);
                 menuNewFile.setVisible(true);
@@ -558,7 +552,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                             new TaskDialog.TaskDialogListener() {
                                 @Override
                                 public void onTaskSuccess() {
-                                	((ReposFragment)tabsFragment.getFragment(0)).refreshView(true);
+                                	tabsFragment.getReposFragment().refreshView(true);
                                 }
                             } , password);
 
@@ -566,11 +560,11 @@ public class BrowserActivity extends SherlockFragmentActivity
                     }
                 }
 
-                ((ReposFragment)tabsFragment.getFragment(0)).refreshView(true);
+                tabsFragment.getReposFragment().refreshView(true);
             } else if (getCurrentTabName().equals(ACTIVITY_TAB)) {
-            	((ActivitiesFragment)tabsFragment.getFragment(1)).refreshView();
+                tabsFragment.getActivitiesFragment().refreshView();
             } else if (getCurrentTabName().equals(STARRED_TAB)) {
-                ((StarredFragment)tabsFragment.getFragment(2)).refreshView();
+                tabsFragment.getStarredFragment().refreshView();
             }
             return true;
         case R.id.newdir:
@@ -856,7 +850,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             @Override
             public void onTaskSuccess() {
                 showToast("Sucessfully created folder " + dialog.getNewDirName());
-                ReposFragment reposFragment = (ReposFragment)tabsFragment.getFragment(0);
+                ReposFragment reposFragment = tabsFragment.getReposFragment();
                 if (getCurrentTabName().equals(LIBRARY_TAB) && reposFragment != null) {
                     reposFragment.refreshView();
                 }
@@ -877,7 +871,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             @Override
             public void onTaskSuccess() {
                 showToast("Sucessfully created file " + dialog.getNewFileName());
-                ReposFragment reposFragment = (ReposFragment)tabsFragment.getFragment(0);
+                ReposFragment reposFragment = tabsFragment.getReposFragment();
                 if (getCurrentTabName().equals(LIBRARY_TAB) && reposFragment != null) {
                     reposFragment.refreshView();
                 }
@@ -1081,7 +1075,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                             .getDirPath());
                     navContext.setDir(parentPath, null);
                 }
-                ((ReposFragment)tabsFragment.getFragment(0)).refreshView();
+                tabsFragment.getReposFragment().refreshView();
 
             } else
                 super.onBackPressed();
@@ -1309,7 +1303,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             @Override
             public void onTaskSuccess() {
                 showToast(R.string.rename_successful);
-                ReposFragment reposFragment = (ReposFragment)tabsFragment.getFragment(0);
+                ReposFragment reposFragment = tabsFragment.getReposFragment();
                 if (getCurrentTabName().equals(LIBRARY_TAB) && reposFragment != null) {
                     reposFragment.refreshView();
                 }
@@ -1339,7 +1333,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         if (getCurrentTabName().equals(LIBRARY_TAB)
                 && repoID.equals(navContext.getRepoID())
                 && dir.equals(navContext.getDirPath())) {
-        	((ReposFragment)tabsFragment.getFragment(0)).refreshView();
+            tabsFragment.getReposFragment().refreshView();
             String verb = getString(info.isUpdate ? R.string.updated : R.string.uploaded);
             showToast(verb + " " + Utils.fileNameFromPath(info.localFilePath));
         }
@@ -1390,7 +1384,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             if (getCurrentTabName().equals(LIBRARY_TAB)
                 && info.repoID.equals(navContext.getRepoID())
                 && Utils.getParentPath(info.path).equals(navContext.getDirPath())) {
-            	((ReposFragment)tabsFragment.getFragment(0)).getAdapter().notifyChanged();
+                tabsFragment.getReposFragment().getAdapter().notifyChanged();
             }
         }
     }

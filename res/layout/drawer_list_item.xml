@@ -22,5 +22,4 @@
     android:textAppearance="@style/DrawerListItemText"
     android:minHeight="50dp"
     android:paddingLeft="16dp"
-    android:paddingRight="16dp"
-    android:textColor="#000"/>
+    android:paddingRight="16dp"/>
