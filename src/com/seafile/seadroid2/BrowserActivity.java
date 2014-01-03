@@ -435,12 +435,17 @@ public class BrowserActivity extends SherlockFragmentActivity
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         switch (position) {
         case 0 :
+            ft.detach(uploadTasksFragment);
+            ft.attach(tabsFragment);
+            ft.commit();
+            break;
+        case 1 :
             ft.detach(tabsFragment);
             ft.attach(uploadTasksFragment);
             ft.commit();
         	currentSelectedItem = UPLOAD_TASKS_TAB;
         	break;
-        case 1 :
+        case 2 :
             ft.detach(uploadTasksFragment);
             ft.attach(tabsFragment);
             ft.commit();

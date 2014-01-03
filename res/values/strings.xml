@@ -104,6 +104,7 @@
     <string name="rename_dir">Rename folder</string>
     <string name="rename_successful">Renamed successfully.</string>
     <string-array name="nav_array">
+        <item>Files</item>
         <item>Uploads</item>
         <item>Accounts</item>
     </string-array>
