@@ -100,7 +100,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     // private boolean twoPaneMode = false;
     UploadTasksFragment uploadTasksFragment = null;
     TabsFragment tabsFragment = null;
-    private String currentSelectedItem = "Blank";
+    private String currentSelectedItem = FILES_VIEW;
 
     FetchFileDialog fetchFileDialog = null;
 
