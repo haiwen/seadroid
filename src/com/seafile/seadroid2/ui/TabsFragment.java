@@ -86,7 +86,11 @@ public class TabsFragment extends SherlockFragment {
     }
 
     public Fragment getFragment(int index) {
-        return adapter.getItem(index);
+        return getChildFragmentManager().findFragmentByTag(makeFragmentName(index));
+    }
+
+    private String makeFragmentName(int index) {
+        return "android:switcher:" + R.id.pager + ":" + index;
     }
 
     public ReposFragment getReposFragment() {
