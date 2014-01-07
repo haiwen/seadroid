@@ -20,6 +20,6 @@
 	
 	<color name="grey_gradient_start">#1B1B1B</color>
 	<color name="grey_gradient_stop">#323232</color>
-	
+	<color name="seafile_orange">#FEAC74</color>
 	
 </resources>

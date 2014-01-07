@@ -20,6 +20,7 @@
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
     android:textAppearance="@style/DrawerListItemText"
+    android:background="@drawable/drawer_list_selector"
     android:minHeight="50dp"
     android:paddingLeft="16dp"
     android:paddingRight="16dp"/>

@@ -306,7 +306,8 @@ public class BrowserActivity extends SherlockFragmentActivity
             }
         };
         mDrawerLayout.setDrawerListener(mDrawerToggle);
-
+        mDrawerList.setItemChecked(0, true);
+        
         Intent txIntent = new Intent(this, TransferService.class);
         startService(txIntent);
         Log.d(DEBUG_TAG, "start TransferService");
