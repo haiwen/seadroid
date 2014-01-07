@@ -7,6 +7,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
@@ -31,6 +32,8 @@ public class AccountsActivity extends FragmentActivity {
     @SuppressWarnings("unused")
     private static final String DEBUG_TAG = "StartActivity";
 
+    private static AccountsActivity accountsActivity;
+    
     private ListView accountsView;
 
     private AccountManager accountManager;
@@ -45,6 +48,8 @@ public class AccountsActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start);
 
+        accountsActivity = this;
+        
         accountsView = (ListView) findViewById(R.id.account_list_view);
 
         accountManager = new AccountManager(this);
@@ -91,11 +96,38 @@ public class AccountsActivity extends FragmentActivity {
         adapter.notifyChanged();
     }
 
+    private void writeToSharedPreferences(Account account) {
+        
+        SharedPreferences sharedPref = getSharedPreferences("latest_account", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("com.seafile.seadroid.server", account.server);
+        editor.putString("com.seafile.seadroid.email", account.email);
+        editor.putString("com.seafile.seadroid.token", account.token);
+        editor.commit();
+    }
+    
+    private void clearDataFromSharedPreferences(Account account) {
+        
+        SharedPreferences sharedPref = getSharedPreferences("latest_account", Context.MODE_PRIVATE);
+        String latest_server = sharedPref.getString("com.seafile.seadroid.server", null);
+        String latest_email = sharedPref.getString("com.seafile.seadroid.email", null);
+        if (latest_server.equals(account.server) && latest_email.equals(account.email)) {
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString("com.seafile.seadroid.server", null);
+            editor.putString("com.seafile.seadroid.email", null);
+            editor.putString("com.seafile.seadroid.token", null);
+            editor.commit();
+        }
+    }
+    
     private void startFilesActivity(Account account) {
         Intent intent = new Intent(this, BrowserActivity.class);
         intent.putExtra("server", account.server);
         intent.putExtra("email", account.email);
         intent.putExtra("token", account.token);
+        
+        writeToSharedPreferences(account);
+        
         startActivity(intent);
         finish();
     }
@@ -127,6 +159,9 @@ public class AccountsActivity extends FragmentActivity {
         case R.id.delete:
             account = adapter.getItem((int)info.id);
             accountManager.deleteAccount(account);
+            
+            clearDataFromSharedPreferences(account);
+            
             refreshView();
             return true;
         default:
@@ -134,6 +169,12 @@ public class AccountsActivity extends FragmentActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        
+        super.onBackPressed();
+    }
+    
     public static final int PRIVATE_SERVER = 0;
     public static final int SEACLOUD_CC = 1;
     public static final int CLOUD_SEAFILE_COM = 3;
@@ -168,6 +209,7 @@ public class AccountsActivity extends FragmentActivity {
                             default:
                                 return;
                             }
+                            accountsActivity.finish();
                         }
                     });
 

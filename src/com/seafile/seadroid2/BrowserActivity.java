@@ -16,6 +16,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
@@ -202,12 +203,23 @@ public class BrowserActivity extends SherlockFragmentActivity
         Log.d(DEBUG_TAG, "browser activity onCreate " + server + " " + email);
 
         if (server == null) {
-            Intent newIntent = new Intent(this, AccountsActivity.class);
-            newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(newIntent);
-            finish();
-            return;
+            
+            SharedPreferences sharedPref = getSharedPreferences("latest_account", Context.MODE_PRIVATE);
+            String latest_server = sharedPref.getString("com.seafile.seadroid.server", null);
+            String latest_email = sharedPref.getString("com.seafile.seadroid.email", null);
+            String latest_token = sharedPref.getString("com.seafile.seadroid.token", null);
+            
+            if (latest_server != null) {
+                account = new Account(latest_server, latest_email, null, latest_token);
+            } else {
+                Intent newIntent = new Intent(this, AccountsActivity.class);
+                newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(newIntent);
+                finish();
+                return;
+            }
+            
         }
 
         dataManager = new DataManager(account);
@@ -374,6 +386,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         Log.d(DEBUG_TAG, "onNewIntent");
         String server = intent.getStringExtra("server");
         String email = intent.getStringExtra("email");
+        
         Account selectedAccount = new Account(server, email);
         if (!account.equals(selectedAccount)) {
             finish();
@@ -452,6 +465,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
             Intent newIntent = new Intent(this, AccountsActivity.class);
             newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            finish();
             startActivity(newIntent);
             break;
         default:
@@ -1116,13 +1130,18 @@ public class BrowserActivity extends SherlockFragmentActivity
         String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
         Intent open = new Intent(Intent.ACTION_VIEW);
         open.setDataAndType((Uri.fromFile(file)), mime);
-        try {
-            startActivity(open);
+        
+        String chooser_title = getString(R.string.open_with);
+        Intent chooser = Intent.createChooser(open, chooser_title);
+        
+        if (open.resolveActivity(getPackageManager()) != null) {
+            startActivity(chooser);
             return;
-        } catch (ActivityNotFoundException e) {
+        } else {
             showToast(R.string.activity_not_found);
             return;
-        }
+        }        
+        
     }
 
     /**
@@ -1335,7 +1354,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         if (getCurrentTabName().equals(LIBRARY_TAB)
                 && repoID.equals(navContext.getRepoID())
                 && dir.equals(navContext.getDirPath())) {
-            tabsFragment.getReposFragment().refreshView();
+            tabsFragment.getReposFragment().refreshView(true);
             String verb = getString(info.isUpdate ? R.string.updated : R.string.uploaded);
             showToast(verb + " " + Utils.fileNameFromPath(info.localFilePath));
         }

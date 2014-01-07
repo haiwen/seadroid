@@ -146,15 +146,20 @@ public class FileActivity extends SherlockFragmentActivity {
         String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
         Intent open = new Intent(Intent.ACTION_VIEW);
         open.setDataAndType((Uri.fromFile(file)), mime);
-        try {
-            startActivity(open);
+        
+        String chooser_title = getString(R.string.open_with);
+        Intent chooser = Intent.createChooser(open, chooser_title);
+        
+        if (open.resolveActivity(getPackageManager()) != null) {
+            startActivity(chooser);
             finish();
             overridePendingTransition(0, 0);
             return;
-        } catch (ActivityNotFoundException e) {
+        } else {
             showToast(R.string.activity_not_found);
             return;
         }
+        
     }
 
     private void onTransferSericeConnected() {

@@ -306,7 +306,7 @@ public class Utils {
     public static String translateCommitTime(long timestampInMillis) {
         long now = Calendar.getInstance().getTimeInMillis();
         if (now <= timestampInMillis) {
-            return "Just now";
+            return SeadroidApplication.getAppContext().getString(R.string.just_now);
         }
 
         long delta = (now - timestampInMillis) / 1000;

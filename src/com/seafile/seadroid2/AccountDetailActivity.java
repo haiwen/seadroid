@@ -5,6 +5,7 @@ import java.net.URL;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -113,11 +114,24 @@ public class AccountDetailActivity extends FragmentActivity {
         }
     }
 
+    private void writeToSharedPreferences(Account account) {
+        
+        SharedPreferences sharedPref = getSharedPreferences("latest_account", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("com.seafile.seadroid.server", account.server);
+        editor.putString("com.seafile.seadroid.email", account.email);
+        editor.putString("com.seafile.seadroid.token", account.token);
+        editor.commit();
+    }
+    
     private void startFilesActivity(Account account) {
         Intent intent = new Intent(this, BrowserActivity.class);
         intent.putExtra("server", account.server);
         intent.putExtra("email", account.email);
         intent.putExtra("token", account.token);
+        
+        writeToSharedPreferences(account);
+        
         startActivity(intent);
         finish(); // so the user will not return to this activity when press 'back'
     }

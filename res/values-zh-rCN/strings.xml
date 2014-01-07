@@ -127,5 +127,6 @@
     <string name="minutes_ago">分钟前</string>
     <string name="seconds_ago">秒前</string>
     <string name="just_now">刚刚更新</string>
-    <string name="error_when_load_starred">加载星标文件失败</string>  
+    <string name="error_when_load_starred">加载星标文件失败</string>
+    <string name="open_with">请选择一个应用打开</string>  
 </resources>
