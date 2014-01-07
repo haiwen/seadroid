@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Seafile</string>
+    <string name="app_url">http://seafile.com</string>
+    <string name="welcome_to_seafile">Bienvenue sur Seafile</string>
+    <string name="select_account">Sélectionnez un compte pour démarrer</string>
+    <string name="edit_account">Éditer</string>
+    <string name="delete_account">Effacer</string>
+    <string name="delete">Effacer</string>
+    <string name="server_hint">Serveur, par exemple cloud.seafile.com</string>
+    <string name="email_hint">Email</string>
+    <string name="passwd_hint">Mot de passe</string>
+    <string name="login">Connexion</string>
+    <string name="open_file">Ouvrir</string>
+    <string name="download_file">Télécharger</string>
+    <string name="redownload_file">Download again</string>
+    <string name="cancel_download">Annuler</string>
+    <string name="unknown_file_type">Type de fichier inconnu</string>
+    <string name="activity_not_found">Aucune application disponible pour ouvrir ce fichier</string>
+    <string name="refresh">Rafraîchir</string>
+    <string name="login">Connexion</string>
+    <string name="add_account">Ajouter un Nouveau Compte</string>
+    <string name="personal">Personnel</string>
+    <string name="libraries">Bibliothèques</string>
+    <string name="cached">Caché</string>
+    <string name="upload_tasks">TRANSFERTS</string>
+    <string name="activities">Activités</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Annuler</string>
+    <string name="pick_upload_type">Transfert</string>
+    <string-array name="pick_upload_array">
+        <item>Fichiers</item>
+        <item>Photos/Vidéos</item>
+        <item>Autres</item>
+    </string-array>
+    <string name="choose_server">Choisir un Serveur Seafile</string>
+    <string-array name="choose_server_array">
+        <item>Serveur Seafile Privé</item>
+        <item>SeaCloud.cc</item>
+        <item>cloud.seafile.com</item>
+    </string-array>
+    <string name="network_down">Absence de connexion réseau</string>
+    <string name="invalid_server_address">Nom de serveur invalide</string>
+    <string name="err_server_andress_empty">Le nom de serveur ne peut pas être vide</string>
+    <string name="err_login_failed">Échec de la connexion</string>
+    <string name="err_wrong_user_or_passwd">Erreur d\'email ou de mot de passe</string>
+    <string name="upload">Transfert</string>
+    <string name="uploaded">Transféré</string>
+    <string name="updated">Mis à jour</string>
+    <string name="upload_failed">Échec du transfert</string>
+    <string name="download_failed">Échec du téléchargement</string>
+    <string name="trust_https_server">Ce certificat n\'est pas émis par une organisation de confiance, voulez-vous continuer ?</string>
+    <string name="upload_to">transféré vers: </string>
+    <string name="task_cancel">Annuler</string>
+    <string name="task_retry">Retry</string>
+    <string name="task_remove">Supprimé</string>
+    <string name="task_remove_all_finished">Fin des suppressions</string>
+    <string name="file_action_download">Télécharger</string>
+    <string name="file_action_remove_cache">Effacer le Cache</string>
+    <string name="file_action_update">Mettre à Jour</string>
+    <string name="file_action_share">Partager</string>
+    <string name="file_action_export">Exporter</string>
+    <string name="file_action_delete">Effacer</string>
+    <string name="file_action_rename">Renommer</string>
+    <string name="wait">Wait</string>
+    <string name="image_gallery_NoImageView_text">No image Found</string>
+    <string name="pick_photo_video_title">Choisir les photos/vidéos à transférer</string>
+    <string name="select_upload_items">sélection des items à tranférer</string>
+    <string name="n_upload_items_selected">%d items sélectionnés</string>
+    <string name="dir_name_empty">Please enter the name of the folder</string>
+    <string name="file_name_empty">Please enter the name of the file</string>
+    <string name="password_empty">Please enter the password</string>
+    <string name="wrong_password">erreur de mot de passe</string>
+    <string name="library_read_only">Cette bibliothèque est en lecture seule</string>
+    <string name="error_when_load_dirents">Erreur lors du chargement du dossier</string>
+    <string name="error_when_load_repos">Erreur lors du chargement des bibliothèques</string>
+    <string name="dir_empty">Ce dossier est vide</string>
+    <string name="no_repo">Vous n\'avez pas encore de bibliothèque</string>
+    <string name="no_app_available">Aucune application disponible</string>
+    <string name="add_to_seafile">Ajouter à Seafile</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Annuler</string>
+    <string name="no_account">Merci de créer un compte dans Seafile pour commencer</string>
+    <string name="no_library">Vous n\'avez pas encore de bibliothèque</string>
+    <string name="choose_an_account">Choisir un compte</string>
+    <string name="choose_a_library">Choisir une bibliothèque</string>
+    <string name="choose_a_folder">Choisir un fichier</string>
+    <string name="load_accounts_fail">Échec du chargement des comptes seafile</string>
+    <string name="load_libraries_fail">Échec du chargement des bibliothèques</string>
+    <string name="load_dir_fail">Échec du chargement du contenu de ce dossier</string>
+    <string name="not_supported_share">This type of share is not supported</string>
+    <string name="create_new_file">Créer un nouveau fichier</string>
+    <string name="create_new_dir">Créer un nouveau dossier</string>
+    <string name="download">Télécharger</string>
+    <string name="open">Ouvrir</string>
+    <string name="last_modified">dernière modification</string>
+    <string name="file_modified">modifié</string>
+    <string name="file_size">taille de fichier</string>
+    <string name="library_not_found">La bibliothèque a été effacée.</string>
+    <string name="export_file">Exporter ce fichier</string>
+    <string name="no_upload_tasks">Aucun transfert en cours</string>
+    <string name="seahub_url_hint">Note: Le nom de serveur peut contenir un port. Par exemple, www.exemple.com:8000</string>
+    <string name="copy_link">Copier le lien</string>
+    <string name="share_file_link">Partager un lien vers ce fichier</string>
+    <string name="share_dir_link">Partager un lien vers ce dossier</string>
+    <string name="generating_link">Génération du lien...</string>
+    <string name="link_ready_to_be_pasted">Le lien est prêt à être collé/transmis.</string>
+    <string name="rename_file">Renommer le fichier</string>
+    <string name="rename_dir">Renommer le dossier</string>
+    <string name="rename_successful">Renommage réussi.</string>
+    <string-array name="nav_array">
+        <item>Fichiers</item>
+        <item>Transferts</item>
+        <item>Comptes</item>
+    </string-array>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string name="no_starred_file">Aucun fichier préféré actuellement</string>
+    <string name="added_to_upload_tasks">Le(s) fichier(s) sélectionné est ajouté à la liste des transferts.</string>
+    <string name="tabs_library">Bibliothèques</string>
+    <string name="tabs_activity">Activités</string>
+    <string name="tabs_starred">Préférés</string>
+    <string name="provide_password">Mot de passe pour la bibliothèque \"%s\"</string>
+    <string name="upload_waiting">Waiting</string>
+    <string name="upload_finished">Fini</string>
+    <string name="upload_cancelled">Annulé</string>
+    <string name="upload_failed">Échec</string>
+    <string name="days_ago"> days ago</string>
+    <string name="hours_ago"> hours ago</string>
+    <string name="minutes_ago"> minutes ago</string>
+    <string name="seconds_ago"> seconds ago</string>
+    <string name="just_now">À l\'instant</string>
+    <string name="error_when_load_starred">Erreur de chargement des fichiers préférés</string>
+    <string name="open_with">Ouvrir avec</string>
+</resources>
