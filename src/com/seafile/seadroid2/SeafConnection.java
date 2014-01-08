@@ -305,11 +305,14 @@ public class SeafConnection {
             }
 
             if (monitor != null) {
-                if (req.header(HttpRequest.HEADER_CONTENT_LENGTH) == null) {
+                /*if (req.header(HttpRequest.HEADER_CONTENT_LENGTH) == null) {
                     throw SeafException.illFormatException;
                 }
-                Long size = Long.parseLong(req.header(HttpRequest.HEADER_CONTENT_LENGTH));
-                monitor.onProgressNotify(size);
+                Long size = Long.parseLong(req.header(HttpRequest.HEADER_CONTENT_LENGTH));*/
+                if (req.contentLength() > 0) {
+                    Long size =  Long.valueOf(req.contentLength());
+                    monitor.onProgressNotify(size);
+                };
             }
 
             File tmp = DataManager.getTempFile(path, oid);
