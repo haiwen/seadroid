@@ -22,7 +22,7 @@
     <string name="add_account">Ajouter un Nouveau Compte</string>
     <string name="personal">Personnel</string>
     <string name="libraries">Bibliothèques</string>
-    <string name="cached">Caché</string>
+    <string name="cached">En cache</string>
     <string name="upload_tasks">TRANSFERTS</string>
     <string name="activities">Activités</string>
     <string name="ok">OK</string>
@@ -33,9 +33,9 @@
         <item>Photos/Vidéos</item>
         <item>Autres</item>
     </string-array>
-    <string name="choose_server">Choisir un Serveur Seafile</string>
+    <string name="choose_server">Choisir un serveur Seafile</string>
     <string-array name="choose_server_array">
-        <item>Serveur Seafile Privé</item>
+        <item>Serveur Seafile privé</item>
         <item>SeaCloud.cc</item>
         <item>cloud.seafile.com</item>
     </string-array>
@@ -53,10 +53,10 @@
     <string name="upload_to">transféré vers: </string>
     <string name="task_cancel">Annuler</string>
     <string name="task_retry">Retry</string>
-    <string name="task_remove">Supprimé</string>
-    <string name="task_remove_all_finished">Fin des suppressions</string>
+    <string name="task_remove">Supprimer</string>
+    <string name="task_remove_all_finished">Supprimer les tâches terminées</string>
     <string name="file_action_download">Télécharger</string>
-    <string name="file_action_remove_cache">Effacer le Cache</string>
+    <string name="file_action_remove_cache">Effacer le cache</string>
     <string name="file_action_update">Mettre à Jour</string>
     <string name="file_action_share">Partager</string>
     <string name="file_action_export">Exporter</string>
@@ -65,7 +65,7 @@
     <string name="wait">Wait</string>
     <string name="image_gallery_NoImageView_text">No image Found</string>
     <string name="pick_photo_video_title">Choisir les photos/vidéos à transférer</string>
-    <string name="select_upload_items">sélection des items à tranférer</string>
+    <string name="select_upload_items">sélection des items à transférer</string>
     <string name="n_upload_items_selected">%d items sélectionnés</string>
     <string name="dir_name_empty">Please enter the name of the folder</string>
     <string name="file_name_empty">Please enter the name of the file</string>
@@ -125,10 +125,10 @@
     <string name="upload_finished">Fini</string>
     <string name="upload_cancelled">Annulé</string>
     <string name="upload_failed">Échec</string>
-    <string name="days_ago"> days ago</string>
-    <string name="hours_ago"> hours ago</string>
-    <string name="minutes_ago"> minutes ago</string>
-    <string name="seconds_ago"> seconds ago</string>
+    <string name="days_ago"> jours</string>
+    <string name="hours_ago"> heures</string>
+    <string name="minutes_ago"> minutes</string>
+    <string name="seconds_ago"> secondes</string>
     <string name="just_now">À l\'instant</string>
     <string name="error_when_load_starred">Erreur de chargement des fichiers préférés</string>
     <string name="open_with">Ouvrir avec</string>
