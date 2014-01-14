@@ -20,7 +20,7 @@
     <string name="refresh">Aktualisieren</string>
     <string name="login">Anmelden</string>
     <string name="add_account">Konto hinzufügen</string>
-    <string name="personal">Personal</string>
+    <string name="personal">Meine Bibliotheken</string>
     <string name="libraries">Bibliotheken</string>
     <string name="cached">Cached</string>
     <string name="upload_tasks">UPLOADS</string>
@@ -125,7 +125,7 @@
     <string name="drawer_close">Navigations-Schublade schließen</string>
     <string name="no_starred_file">Sie favorisieren derzeit keine Dateien</string>
     <string name="added_to_upload_tasks">Die selektieren Datei(en) wurden zum hochladen hinzugefügt.</string>
-    <string name="tabs_library">Bibliotheken</string>
+    <string name="tabs_library">Bibliotheken </string>
     <string name="tabs_activity">Aktivitäten</string>
     <string name="tabs_starred">Favoriten</string>
     <string name="provide_password">Geben Sie das Passwort für die Bibliothek \"%s\" ein</string>
