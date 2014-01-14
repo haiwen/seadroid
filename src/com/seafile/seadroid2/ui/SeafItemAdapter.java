@@ -366,7 +366,6 @@ public class SeafItemAdapter extends BaseAdapter {
             mQuickAction.addActionItem(downloadAction);
         }
 
-
         //setup the action item click listener
         mQuickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
             @Override

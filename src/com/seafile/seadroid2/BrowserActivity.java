@@ -66,6 +66,7 @@ import com.seafile.seadroid2.ui.FetchFileDialog;
 import com.seafile.seadroid2.ui.GetShareLinkDialog;
 import com.seafile.seadroid2.ui.NewDirDialog;
 import com.seafile.seadroid2.ui.NewFileDialog;
+import com.seafile.seadroid2.ui.OpenAsDialog;
 import com.seafile.seadroid2.ui.PasswordDialog;
 import com.seafile.seadroid2.ui.RenameFileDialog;
 import com.seafile.seadroid2.ui.ReposFragment;
@@ -1132,7 +1133,16 @@ public class BrowserActivity extends SherlockFragmentActivity
         Intent open = new Intent(Intent.ACTION_VIEW);
         open.setDataAndType((Uri.fromFile(file)), mime);
         
-        String chooser_title = getString(R.string.open_with);
+        try {
+            startActivity(open);
+            return;
+        } catch (ActivityNotFoundException e){
+            new OpenAsDialog(file).show(getSupportFragmentManager(), "OpenAsDialog");
+            //showToast(R.string.activity_not_found);
+            return;
+        }
+        
+/*      String chooser_title = getString(R.string.open_with);
         Intent chooser = Intent.createChooser(open, chooser_title);
         
         if (open.resolveActivity(getPackageManager()) != null) {
@@ -1141,7 +1151,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         } else {
             showToast(R.string.activity_not_found);
             return;
-        }        
+        }*/        
         
     }
 
@@ -1317,7 +1327,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     public void renameDir(String repoID, String repoName, String path) {
         doRename(repoID, repoName, path, true);
     }
-
+    
     private void doRename(String repoID, String repoName, String path, boolean isdir) {
         final RenameFileDialog dialog = new RenameFileDialog();
         dialog.init(repoID, path, isdir, account);

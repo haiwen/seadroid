@@ -2,16 +2,20 @@ package com.seafile.seadroid2;
 
 import java.io.File;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
@@ -27,6 +31,7 @@ import com.seafile.seadroid2.TransferManager.DownloadTaskInfo;
 import com.seafile.seadroid2.TransferService.TransferBinder;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.ui.OpenAsDialog;
 import com.seafile.seadroid2.ui.PasswordDialog;
 import com.seafile.seadroid2.ui.TaskDialog;
 
@@ -147,7 +152,15 @@ public class FileActivity extends SherlockFragmentActivity {
         Intent open = new Intent(Intent.ACTION_VIEW);
         open.setDataAndType((Uri.fromFile(file)), mime);
         
-        String chooser_title = getString(R.string.open_with);
+        try {
+            startActivity(open);
+            return;
+        } catch (ActivityNotFoundException e){
+            new OpenAsDialog(file).show(getSupportFragmentManager(), "OpenAsDialog");
+            return;
+        }
+        
+/*      String chooser_title = getString(R.string.open_with);
         Intent chooser = Intent.createChooser(open, chooser_title);
         
         if (open.resolveActivity(getPackageManager()) != null) {
@@ -158,7 +171,7 @@ public class FileActivity extends SherlockFragmentActivity {
         } else {
             showToast(R.string.activity_not_found);
             return;
-        }
+        }*/
         
     }
 
@@ -212,7 +225,7 @@ public class FileActivity extends SherlockFragmentActivity {
         mProgressBar.setVisibility(View.GONE);
         mProgressText.setVisibility(View.GONE);
         mButtonCancel.setVisibility(View.GONE);
-
+        
         showFile();
     }
 
@@ -296,4 +309,5 @@ public class FileActivity extends SherlockFragmentActivity {
         }
 
     } // TransferReceiver
+    
 }

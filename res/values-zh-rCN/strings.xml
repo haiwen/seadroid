@@ -61,6 +61,14 @@
     <string name="file_action_export">导出</string>
     <string name="file_action_delete">删除</string>
     <string name="file_action_rename">重命名</string>
+    <string name="file_action_open_as">打开为</string>
+    <string-array name="file_type_array">
+        <item>文本</item>
+        <item>音频</item>
+        <item>视频</item>
+        <item>图像</item>
+        <item>其他</item>
+    </string-array>
     <string name="wait">等待</string>
     <string name="image_gallery_NoImageView_text">没有找到图片</string>
     <string name="pick_photo_video_title">请选择要上传的图片/视频</string>
@@ -128,5 +136,5 @@
     <string name="seconds_ago">秒前</string>
     <string name="just_now">刚刚更新</string>
     <string name="error_when_load_starred">加载星标文件失败</string>
-    <string name="open_with">请选择一个应用打开</string>  
+    <string name="open_as">打开为</string>  
 </resources>
