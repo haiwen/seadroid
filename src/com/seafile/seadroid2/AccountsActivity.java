@@ -32,6 +32,11 @@ public class AccountsActivity extends FragmentActivity {
     @SuppressWarnings("unused")
     private static final String DEBUG_TAG = "StartActivity";
 
+    public static final String SHARED_PREF_NAME = "latest_account";
+    public static final String SHARED_PREF_SERVER_KEY = "com.seafile.seadroid.server";
+    public static final String SHARED_PREF_EMAIL_KEY = "com.seafile.seadroid.email";
+    public static final String SHARED_PREF_TOKEN_KEY = "com.seafile.seadroid.token";
+    
     private static AccountsActivity accountsActivity;
     
     private ListView accountsView;
@@ -98,24 +103,24 @@ public class AccountsActivity extends FragmentActivity {
 
     private void writeToSharedPreferences(Account account) {
         
-        SharedPreferences sharedPref = getSharedPreferences("latest_account", Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString("com.seafile.seadroid.server", account.server);
-        editor.putString("com.seafile.seadroid.email", account.email);
-        editor.putString("com.seafile.seadroid.token", account.token);
+        editor.putString(SHARED_PREF_SERVER_KEY, account.server);
+        editor.putString(SHARED_PREF_EMAIL_KEY, account.email);
+        editor.putString(SHARED_PREF_TOKEN_KEY, account.token);
         editor.commit();
     }
     
     private void clearDataFromSharedPreferences(Account account) {
         
-        SharedPreferences sharedPref = getSharedPreferences("latest_account", Context.MODE_PRIVATE);
-        String latest_server = sharedPref.getString("com.seafile.seadroid.server", null);
-        String latest_email = sharedPref.getString("com.seafile.seadroid.email", null);
+        SharedPreferences sharedPref = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        String latest_server = sharedPref.getString(SHARED_PREF_SERVER_KEY, null);
+        String latest_email = sharedPref.getString(SHARED_PREF_EMAIL_KEY, null);
         if (latest_server.equals(account.server) && latest_email.equals(account.email)) {
             SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putString("com.seafile.seadroid.server", null);
-            editor.putString("com.seafile.seadroid.email", null);
-            editor.putString("com.seafile.seadroid.token", null);
+            editor.putString(SHARED_PREF_SERVER_KEY, null);
+            editor.putString(SHARED_PREF_EMAIL_KEY, null);
+            editor.putString(SHARED_PREF_TOKEN_KEY, null);
             editor.commit();
         }
     }

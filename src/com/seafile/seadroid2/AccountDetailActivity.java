@@ -25,7 +25,7 @@ import com.seafile.seadroid2.account.AccountManager;
 public class AccountDetailActivity extends FragmentActivity {
 
     private static final String DEBUG_TAG = "AccountDetailActivity";
-
+    
     private TextView statusView;
     private Button loginButton;
     private EditText serverText;
@@ -116,11 +116,11 @@ public class AccountDetailActivity extends FragmentActivity {
 
     private void writeToSharedPreferences(Account account) {
         
-        SharedPreferences sharedPref = getSharedPreferences("latest_account", Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = getSharedPreferences(AccountsActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString("com.seafile.seadroid.server", account.server);
-        editor.putString("com.seafile.seadroid.email", account.email);
-        editor.putString("com.seafile.seadroid.token", account.token);
+        editor.putString(AccountsActivity.SHARED_PREF_SERVER_KEY, account.server);
+        editor.putString(AccountsActivity.SHARED_PREF_EMAIL_KEY, account.email);
+        editor.putString(AccountsActivity.SHARED_PREF_TOKEN_KEY, account.token);
         editor.commit();
     }
     

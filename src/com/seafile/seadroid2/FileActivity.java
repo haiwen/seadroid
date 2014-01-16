@@ -154,9 +154,15 @@ public class FileActivity extends SherlockFragmentActivity {
         
         try {
             startActivity(open);
+            finish();
             return;
         } catch (ActivityNotFoundException e){
-            new OpenAsDialog(file).show(getSupportFragmentManager(), "OpenAsDialog");
+            new OpenAsDialog(file) {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    finish();
+                }
+            }.show(getSupportFragmentManager(), "OpenAsDialog");
             return;
         }
         

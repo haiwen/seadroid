@@ -122,8 +122,8 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final String OPEN_FILE_DIALOG_FRAGMENT_TAG = "openfile_fragment";
     public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "password_fragment";
     public static final String CHOOSE_APP_DIALOG_FRAGMENT_TAG = "choose_app_fragment";
-    public static final String PICK_FILE_DIALOG_FRAGMENT_TAG = "pick_file_fragment";
-
+    public static final String PICK_FILE_DIALOG_FRAGMENT_TAG = "pick_file_fragment";    
+    
     public DataManager getDataManager() {
         return dataManager;
     }
@@ -205,10 +205,10 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         if (server == null) {
             
-            SharedPreferences sharedPref = getSharedPreferences("latest_account", Context.MODE_PRIVATE);
-            String latest_server = sharedPref.getString("com.seafile.seadroid.server", null);
-            String latest_email = sharedPref.getString("com.seafile.seadroid.email", null);
-            String latest_token = sharedPref.getString("com.seafile.seadroid.token", null);
+            SharedPreferences sharedPref = getSharedPreferences(AccountsActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+            String latest_server = sharedPref.getString(AccountsActivity.SHARED_PREF_SERVER_KEY, null);
+            String latest_email = sharedPref.getString(AccountsActivity.SHARED_PREF_EMAIL_KEY, null);
+            String latest_token = sharedPref.getString(AccountsActivity.SHARED_PREF_TOKEN_KEY, null);
             
             if (latest_server != null) {
                 account = new Account(latest_server, latest_email, null, latest_token);
