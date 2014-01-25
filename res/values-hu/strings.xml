@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Seafile</string>
+    <string name="app_url">http://seafile.com</string>
+    <string name="welcome_to_seafile">Üdvözlöm a Seafile-ban</string>
+    <string name="select_account">Válasszon egy fiókot</string>
+    <string name="edit_account">Szerkeszt</string>
+    <string name="delete_account">Töröl</string>
+    <string name="delete">Töröl</string>
+    <string name="server_hint">Szerver, mint a cloud.seafile.com</string>
+    <string name="email_hint">Email</string>
+    <string name="passwd_hint">Jelszó</string>
+    <string name="login">Belépés</string>
+    <string name="open_file">Megnyit</string>
+    <string name="download_file">Letölt</string>
+    <string name="redownload_file">Újra letölt</string>
+    <string name="cancel_download">Mégse</string>
+    <string name="unknown_file_type">Ismeretlen fájl típus</string>
+    <string name="activity_not_found">Nem található olyan alkalmazás amivel a fájlt meg lehet nyitni</string>
+    <string name="refresh">Frissít</string>
+    <string name="login">Belépés</string>
+    <string name="add_account">Fiók hozzáadása</string>
+    <string name="personal">Személyes</string>
+    <string name="libraries">Kötetek</string>
+    <string name="cached">Gyorsítótárazva</string>
+    <string name="upload_tasks">Feltöltések</string>
+    <string name="activities">Tevékenységek</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Mégse</string>
+    <string name="pick_upload_type">Feltölt</string>
+    <string-array name="pick_upload_array">
+        <item>Fájl</item>
+        <item>Képek/Videók</item>
+        <item>Más</item>
+    </string-array>
+    <string name="choose_server">Seafile szerver választás</string>
+    <string-array name="choose_server_array">
+        <item>Saját Seafile szerver</item>
+        <item>SeaCloud.cc</item>
+        <item>cloud.seafile.com</item>
+    </string-array>
+    <string name="network_down">Nincs hálózati kapcsolat</string>
+    <string name="invalid_server_address">Hibás szerver cím</string>
+    <string name="err_server_andress_empty">Szerver cím nem lehet üres</string>
+    <string name="err_login_failed">Belépés nem sikerült</string>
+    <string name="err_wrong_user_or_passwd">Email vagy jelszó hiba</string>
+    <string name="upload">Feltölt</string>
+    <string name="uploaded">Feltöltve</string>
+    <string name="updated">Frissítve</string>
+    <string name="upload_failed">Feltöltés nem sikerült</string>
+    <string name="download_failed">Letöltés nem sikerült</string>
+    <string name="trust_https_server">A szerver tanúsítványát nem egy megbízható szervezet adta ki, így is folytatja?</string>
+    <string name="upload_to">feltöltés ide: </string>
+    <string name="task_cancel">Mégse</string>
+    <string name="task_retry">Újra</string>
+    <string name="task_remove">Töröl</string>
+    <string name="task_remove_all_finished">Minden elkészültet töröl</string>
+    <string name="file_action_download">Letöltés</string>
+    <string name="file_action_remove_cache">Gyorsítótár törlése</string>
+    <string name="file_action_update">Frissít</string>
+    <string name="file_action_share">Megosztás</string>
+    <string name="file_action_export">Exportálás</string>
+    <string name="file_action_delete">Törlés</string>
+    <string name="file_action_rename">Átnevez</string>
+    <string name="file_action_open_as">Megnyit mint</string>
+    <string-array name="file_type_array">
+        <item>Szöveg</item>
+        <item>Hang</item>
+        <item>Videó</item>
+        <item>Kép</item>
+        <item>Más</item>
+    </string-array>
+    <string name="wait">Várakozik</string>
+    <string name="image_gallery_NoImageView_text">Kép nem található</string>
+    <string name="pick_photo_video_title">Fotó/videó választás feltöltéshez</string>
+    <string name="select_upload_items">elemek kiválasztása feltöltéshez</string>
+    <string name="n_upload_items_selected">%d db kiválasztva</string>
+    <string name="dir_name_empty">Adja meg a könyvtár nevét</string>
+    <string name="file_name_empty">Adja meg a fájl nevét</string>
+    <string name="password_empty">Adja meg a jelszót</string>
+    <string name="wrong_password">hibás jelszó</string>
+    <string name="library_read_only">This library is read-only</string>
+    <string name="error_when_load_dirents">Error when loading the folder</string>
+    <string name="error_when_load_repos">Error when loading libraries</string>
+    <string name="dir_empty">A könyvtár üres</string>
+    <string name="no_repo">Nincsenek kötetei</string>
+    <string name="no_app_available">Nem található alkalmazás</string>
+    <string name="add_to_seafile">Hozzáadás a Seafile-hoz</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Mégse</string>
+    <string name="no_account">Először hozzon létre egy felhasználói fiókot a Seafile-on</string>
+    <string name="no_library">Nincs kötete</string>
+    <string name="choose_an_account">Fiók kiválasztása</string>
+    <string name="choose_a_library">Kötet kiválasztása</string>
+    <string name="choose_a_folder">Könyvtár kiválasztása</string>
+    <string name="load_accounts_fail">Hiba a Seafile fiókok betöltésénél</string>
+    <string name="load_libraries_fail">Hiba a kötetek letöltésénél</string>
+    <string name="load_dir_fail">Hiba a könyvtár tartalmának betöltésénél</string>
+    <string name="not_supported_share">Ez a megosztás típus nem támogatott</string>
+    <string name="create_new_file">Új fájl létrehozása</string>
+    <string name="create_new_dir">Új könyvtár létrehozása</string>
+    <string name="download">Letöltés</string>
+    <string name="open">Megnyit</string>
+    <string name="last_modified">utoljára módosítva</string>
+    <string name="file_modified">módosítva</string>
+    <string name="file_size">fájl mérete</string>
+    <string name="library_not_found">Ez a kötet törölve lett.</string>
+    <string name="export_file">Fájl exportálása</string>
+    <string name="no_upload_tasks">Nincs feltöltési feladat</string>
+    <string name="seahub_url_hint">Megj.: A szerver cím tartalmazhat portszámot. Például, www.example.com:8000</string>
+    <string name="copy_link">Link másolása</string>
+    <string name="share_file_link">Link megosztása ehhez a fájlhoz</string>
+    <string name="share_dir_link">Link megosztása ehhez a könyvtárhoz</string>
+    <string name="generating_link">Link elkészítése...</string>
+    <string name="link_ready_to_be_pasted">A link beilleszthető.</string>
+    <string name="rename_file">Fájl átnevezése</string>
+    <string name="rename_dir">Könyvtár átnevezése</string>
+    <string name="rename_successful">Sikeres átnevezés.</string>
+    <string-array name="nav_array">
+        <item>Fájlok</item>
+        <item>Feltöltések</item>
+        <item>Fiókok</item>
+    </string-array>
+    <string name="drawer_open">Navigációs menü megnyitása</string>
+    <string name="drawer_close">Navigációs menü bezárása</string>
+    <string name="no_starred_file">Jelenleg nincsenek csillagozott fájlok</string>
+    <string name="added_to_upload_tasks">A kiválasztott fájlok a feltöltési feladatokhoz lettek adva.</string>
+    <string name="tabs_library">Kötetek</string>
+    <string name="tabs_activity">Tevékenységek</string>
+    <string name="tabs_starred">Csillagozott</string>
+    <string name="provide_password">Jelszó megadása ehhez: \"%s\"</string>
+    <string name="upload_waiting">Vár</string>
+    <string name="upload_finished">Kész</string>
+    <string name="upload_cancelled">Megszakítva</string>
+    <string name="upload_failed">Hibás</string>
+    <string name="days_ago"> napja</string>
+    <string name="hours_ago"> órája</string>
+    <string name="minutes_ago"> perce</string>
+    <string name="seconds_ago"> másodperce</string>
+    <string name="just_now">most</string>
+    <string name="error_when_load_starred">Hiba a csillagozott fájlok betöltésénél</string>
+    <string name="open_as">Megnyitás mint</string>
+</resources>
