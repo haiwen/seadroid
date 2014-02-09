@@ -80,7 +80,7 @@
     <string name="password_empty">Por favor ingrese la contraseña</string>
     <string name="wrong_password">contraseña inválida</string>
     <string name="library_read_only">Esta biblioteca es de sólo-lectura </string>
-    <string name="error_when_load_dirents">Error al cargar la carpeta/string>
+    <string name="error_when_load_dirents">Error al cargar la carpeta </string>
     <string name="error_when_load_repos">Error al cargar bibliotecas</string>
     <string name="dir_empty">Esta carpeta está vacía</string>
     <string name="no_repo">Aún no tiene bibliotecas</string>
