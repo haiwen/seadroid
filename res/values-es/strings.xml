@@ -79,8 +79,8 @@
     <string name="file_name_empty">Por favor ingrese el nombre del archivo</string>
     <string name="password_empty">Por favor ingrese la contraseña</string>
     <string name="wrong_password">contraseña inválida</string>
-    <string name="library_read_only">Esta biblioteca es de sólo-lectura </string>
-    <string name="error_when_load_dirents">Error al cargar la carpeta </string>
+    <string name="library_read_only">Esta biblioteca es de sólo-lectura</string>
+    <string name="error_when_load_dirents">Error al cargar la carpeta</string>
     <string name="error_when_load_repos">Error al cargar bibliotecas</string>
     <string name="dir_empty">Esta carpeta está vacía</string>
     <string name="no_repo">Aún no tiene bibliotecas</string>
@@ -96,7 +96,7 @@
     <string name="load_accounts_fail">Falla al cargar cuentas de seafile</string>
     <string name="load_libraries_fail">Falla al cargar bibliotecas</string>
     <string name="load_dir_fail">Falla al cargar el contenido de esta carpeta</string>
-    <string name="not_supported_share">This type of share is not supported</string>
+    <string name="not_supported_share">Este tipo de recurso compartido no es compatible</string>
     <string name="create_new_file">Crear un nuevo archivo</string>
     <string name="create_new_dir">Crear una nueva carpeta</string>
     <string name="download">Descargar</string>
