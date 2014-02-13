@@ -136,5 +136,13 @@
     <string name="seconds_ago">秒前</string>
     <string name="just_now">刚刚更新</string>
     <string name="error_when_load_starred">加载星标文件失败</string>
-    <string name="open_as">打开为</string>  
+    <string name="open_as">打开为</string>
+    <string name="select_upload_files">请选择要上传的文件</string>
+    <string name="cancel">取消上传</string>
+    <string name="upload">上传</string>
+    <string name="storage_removed">存储卡已被移出</string>
+    <string name="error_selecting_file">选择文件时出错</string>
+    <string name="n_upload_files_selected">已经选择 %d 个文件</string>
+    <string name="empty_folder">此文件夹是空的</string>
+    <string name="choose_file">请选择一个文件</string>  
 </resources>

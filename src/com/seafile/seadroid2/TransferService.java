@@ -3,15 +3,24 @@ package com.seafile.seadroid2;
 import java.util.List;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.seafile.seadroid2.TransferManager.DownloadTaskInfo;
 import com.seafile.seadroid2.TransferManager.TransferListener;
 import com.seafile.seadroid2.TransferManager.UploadTaskInfo;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.SeafCachedFile;
+import com.seafile.seadroid2.monitor.FileMonitorService;
 
 public class TransferService extends Service implements TransferListener {
 
@@ -23,7 +32,7 @@ public class TransferService extends Service implements TransferListener {
 
     private final IBinder mBinder = new TransferBinder();
     private TransferManager txManager;
-
+    
     public static final String BROADCAST_FILE_DOWNLOAD_SUCCESS = "downloaded";
     public static final String BROADCAST_FILE_DOWNLOAD_FAILED = "downloadFailed";
     public static final String BROADCAST_FILE_DOWNLOAD_PROGRESS = "downloadProgress";
@@ -37,15 +46,19 @@ public class TransferService extends Service implements TransferListener {
     public void onCreate() {
         txManager = new TransferManager();
         txManager.setListener(this);
+        
     }
 
     @Override
     public void onDestroy() {
+        Log.d(DEBUG_TAG, "onDestroy");
         txManager.unsetListener();
+
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        
         return START_STICKY;
     }
 
@@ -61,6 +74,7 @@ public class TransferService extends Service implements TransferListener {
         return mBinder;
     }
 
+    
     public int addUploadTask(Account account, String repoID, String repoName, String dir,
                               String filePath, boolean isUpdate) {
         return txManager.addUploadTask(account, repoID, repoName, dir, filePath, isUpdate);

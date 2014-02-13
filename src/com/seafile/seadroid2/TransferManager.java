@@ -420,7 +420,7 @@ public class TransferManager {
         }
 
         public DownloadTaskInfo getTaskInfo() {
-            DownloadTaskInfo info = new DownloadTaskInfo(taskID, myState, myRepoID,
+            DownloadTaskInfo info = new DownloadTaskInfo(account, taskID, myState, myRepoID,
                                                          myRepoName, myPath, mySize, finished, err);
             return info;
         }
@@ -464,6 +464,7 @@ public class TransferManager {
     }
 
     public class DownloadTaskInfo {
+        public final Account account;
         public final int taskID;
         public final TaskState state;
         public final String repoID;
@@ -472,10 +473,11 @@ public class TransferManager {
         public final long fileSize, finished;
         public final SeafException err;
 
-        public DownloadTaskInfo(int taskID, TaskState state, String repoID,
+        public DownloadTaskInfo(Account account, int taskID, TaskState state, String repoID,
                                 String repoName, String path,
                                 long fileSize, long finished,
                                 SeafException err) {
+            this.account = account;
             this.taskID = taskID;
             this.state = state;
             this.repoID = repoID;

@@ -17,6 +17,7 @@ import org.json.JSONObject;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
 
@@ -117,7 +118,7 @@ public class DataManager {
 
     static public final int MAX_GEN_CACHE_THUMB = 1000000;  // Only generate thumb cache for files less than 1MB
     static public final int MAX_DIRECT_SHOW_THUMB = 100000;  // directly show thumb
-
+    
     public void calculateThumbnail(String repoName, String repoID, String path, String oid) {
         try {
             final int THUMBNAIL_SIZE = 72;
@@ -149,8 +150,8 @@ public class DataManager {
      */
     public Bitmap getThumbnail(File file) {
         try {
-            final int THUMBNAIL_SIZE = 72;
-
+            final int THUMBNAIL_SIZE = caculateThumbnailSizeOfDevice();
+            
             if (!file.exists())
                 return null;
 
@@ -163,6 +164,26 @@ public class DataManager {
         }
     }
 
+    
+    public static int caculateThumbnailSizeOfDevice() {
+        
+        DisplayMetrics metrics = SeadroidApplication.getAppContext().getResources().getDisplayMetrics();
+        
+        switch(metrics.densityDpi) {
+        case DisplayMetrics.DENSITY_LOW: 
+            return 36;
+        case DisplayMetrics.DENSITY_MEDIUM:
+            return 48;
+        case DisplayMetrics.DENSITY_HIGH:
+            return 72;
+        case DisplayMetrics.DENSITY_XHIGH:
+            return 96;
+        default:
+            return 36;
+        }
+        
+    }
+    
 
     private static final String DEBUG_TAG = "DataManager";
 
@@ -214,7 +235,7 @@ public class DataManager {
      * "seafile.mycompany.com". Two repos, "Documents" and "Manuals", has
      * been viewed.
      */
-    private String getAccountDir() {
+    public String getAccountDir() {
 
         String username = account.getEmail();
         String server = Utils.stripSlashes(account.getServerHost());

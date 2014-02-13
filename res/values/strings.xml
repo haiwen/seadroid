@@ -140,4 +140,12 @@
     <string name="just_now">Just now</string>
     <string name="error_when_load_starred">Error when loading starred files</string>
     <string name="open_as">Open as</string>
+    <string name="select_upload_files">select files to upload</string>
+    <string name="cancel">Cancel</string>
+    <string name="upload">Upload</string>
+    <string name="storage_removed">Storage was removed</string>
+    <string name="error_selecting_file">Error when selecting file</string>
+    <string name="n_upload_files_selected">%d file(s) selected</string>
+    <string name="empty_folder">Empty folder</string>
+    <string name="choose_file">Choose a file</string>
 </resources>

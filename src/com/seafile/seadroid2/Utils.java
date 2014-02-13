@@ -3,6 +3,7 @@ package com.seafile.seadroid2;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -11,10 +12,13 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -25,13 +29,17 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.net.NetworkInfo.DetailedState;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.fileschooser.SelectableFile;
 
 public class Utils {
     public static final String MIME_APPLICATION_OCTET_STREAM = "application/octet-stream";
@@ -370,5 +378,107 @@ public class Utils {
         }
         in.close();
         out.close();
+    }
+    
+    
+    /************ MutiFileChooser ************/
+    
+    private static final String HIDDEN_PREFIX = ".";
+
+    private static Comparator<SelectableFile> mComparator = new Comparator<SelectableFile>() {
+        public int compare(SelectableFile f1, SelectableFile f2) {
+            // Sort alphabetically by lower case, which is much cleaner
+            return f1.getName().toLowerCase().compareTo(
+                    f2.getName().toLowerCase());
+        }
+    };
+    
+
+    private static FileFilter mFileFilter = new FileFilter() {
+        public boolean accept(File file) {
+            final String fileName = file.getName();
+            // Return files only (not directories) and skip hidden files
+            return file.isFile() && !fileName.startsWith(HIDDEN_PREFIX);
+        }
+    };
+    
+
+    private static FileFilter mDirFilter = new FileFilter() {
+        public boolean accept(File file) {
+            final String fileName = file.getName();
+            // Return directories only and skip hidden directories
+            return file.isDirectory() && !fileName.startsWith(HIDDEN_PREFIX);
+        }
+    };
+    
+
+    public static List<SelectableFile> getFileList(String path, List<File> selectedFile) {
+        ArrayList<SelectableFile> list = new ArrayList<SelectableFile>();
+
+        // Current directory File instance
+        final SelectableFile pathDir = new SelectableFile(path);
+        
+        // List file in this directory with the directory filter
+        final SelectableFile[] dirs = pathDir.listFiles(mDirFilter);
+        if (dirs != null) {
+            // Sort the folders alphabetically
+            Arrays.sort(dirs, mComparator);
+            // Add each folder to the File list for the list adapter
+            for (SelectableFile dir : dirs) list.add(dir);
+        }
+
+        // List file in this directory with the file filter
+        final SelectableFile[] files = pathDir.listFiles(mFileFilter);
+        if (files != null) {
+            // Sort the files alphabetically
+            Arrays.sort(files, mComparator);
+            // Add each file to the File list for the list adapter
+            for (SelectableFile file : files) {
+                if (selectedFile != null) {
+                    if (selectedFile.contains(file.getFile())) {
+                        file.setSelected(true);
+                    }
+                }
+                list.add(file);
+            }
+        }       
+        
+        return list;
+    }
+
+
+    public static Intent createGetContentIntent() {
+        // Implicitly allow the user to select a particular kind of data
+        final Intent intent = new Intent(Intent.ACTION_GET_CONTENT); 
+        // The MIME data type filter
+        intent.setType("*/*"); 
+        // Only return URIs that can be opened with ContentResolver
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        return intent;
+    }
+    
+    public static String getPath(Context context, Uri uri) throws URISyntaxException {
+
+        if ("content".equalsIgnoreCase(uri.getScheme())) {
+            String[] projection = { "_data" };
+            Cursor cursor = null;
+
+            try {
+                cursor = context.getContentResolver().query(uri, projection, null, null, null);
+                int column_index = cursor
+                .getColumnIndexOrThrow("_data");
+                if (cursor.moveToFirst()) {
+                    return cursor.getString(column_index);
+                }
+            } catch (Exception e) {
+                // Eat it
+            }
+        }
+
+        else if ("file".equalsIgnoreCase(uri.getScheme())) {
+            return uri.getPath();
+        }
+
+        return null;
     }
 }

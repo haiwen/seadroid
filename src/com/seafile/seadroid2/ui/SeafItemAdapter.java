@@ -227,11 +227,14 @@ public class SeafItemAdapter extends BaseAdapter {
             File thumbFile = DataManager.getThumbFile(dirent.id);
             if (thumbFile.exists()) {
                 Bitmap imageBitmap;
+                final int THUMBNAIL_SIZE = DataManager.caculateThumbnailSizeOfDevice();
                 try {
                     // setImageURI does not work correctly under high screen density
                     //viewHolder.icon.setScaleType(ImageView.ScaleType.FIT_XY);
                     //viewHolder.icon.setImageURI(Uri.fromFile(thumbFile));
                     imageBitmap = BitmapFactory.decodeStream(new FileInputStream(thumbFile));
+                    imageBitmap = Bitmap.createScaledBitmap(imageBitmap, THUMBNAIL_SIZE,
+                            THUMBNAIL_SIZE, false);
                     viewHolder.icon.setImageBitmap(imageBitmap);
                 } catch (FileNotFoundException e) {
                     viewHolder.icon.setImageResource(dirent.getIcon());

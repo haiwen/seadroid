@@ -73,6 +73,16 @@ public class AccountManager {
         db.close();
         return account;
     }
+    
+    public Account getAccountBySignature(String signature) {
+        List<Account> accounts = getAccountList();
+        for (int i = 0; i < accounts.size(); ++i) {
+            if (signature.equals(accounts.get(i).getSignature())) {
+                return accounts.get(i);
+            }
+        }
+        return null;
+    }
 
     public void saveAccount(Account account) {
         Account old = getAccount(account.server, account.email);
@@ -109,6 +119,26 @@ public class AccountManager {
         saveAccount(account);
     }
 
+    public void updateAccount(Account oldAccount, Account newAccount) {
+     // save to shared preference
+        SharedPreferences sharedPref = context.getSharedPreferences("Account", 0);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("server", newAccount.server);
+        editor.putString("email", newAccount.email);
+        editor.commit();
+        
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        
+        ContentValues values = new ContentValues();
+        values.put(AccountDbHelper.COLUMN_SERVER, newAccount.server);
+        values.put(AccountDbHelper.COLUMN_EMAIL, newAccount.email);
+        values.put(AccountDbHelper.COLUMN_TOKEN, newAccount.token);
+        
+        db.update(AccountDbHelper.TABLE_NAME, values, "server=? and email=?",
+                new String[] { oldAccount.server, oldAccount.email });
+        db.close();
+    }
+    
     public void deleteAccount(Account account) {
         // Gets the data repository in write mode
         SQLiteDatabase db = dbHelper.getWritableDatabase();

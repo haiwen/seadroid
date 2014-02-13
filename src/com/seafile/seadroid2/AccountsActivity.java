@@ -4,13 +4,18 @@ import java.util.List;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -25,6 +30,7 @@ import android.widget.ListView;
 
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.monitor.FileMonitorService;
 
 
 public class AccountsActivity extends FragmentActivity {
@@ -45,7 +51,25 @@ public class AccountsActivity extends FragmentActivity {
 
     private AccountAdapter adapter;
     List<Account> accounts;
+    private FileMonitorService mMonitorService;
+    private boolean isBound = false;
+    private ServiceConnection mMonitorConnection = new ServiceConnection() {
 
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder binder) {
+            FileMonitorService.MonitorBinder monitorBinder = (FileMonitorService.MonitorBinder)binder;
+            mMonitorService = monitorBinder.getService();
+            isBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName className) {
+            mMonitorService = null;
+            isBound = false;
+        }
+        
+    };
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
@@ -80,8 +104,25 @@ public class AccountsActivity extends FragmentActivity {
             }
         });
         registerForContextMenu(accountsView);
+        
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        Intent bIntent = new Intent(this, FileMonitorService.class);
+        bindService(bIntent, mMonitorConnection, Context.BIND_AUTO_CREATE);
+    }
+    
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (isBound) {
+            unbindService(mMonitorConnection);
+            isBound = false;
+        }
+    }
+    
     // Always reload accounts on resume, so that when user add a new account,
     // it will be shown.
     @Override
@@ -116,7 +157,7 @@ public class AccountsActivity extends FragmentActivity {
         SharedPreferences sharedPref = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
         String latest_server = sharedPref.getString(SHARED_PREF_SERVER_KEY, null);
         String latest_email = sharedPref.getString(SHARED_PREF_EMAIL_KEY, null);
-        if (latest_server.equals(account.server) && latest_email.equals(account.email)) {
+        if (account.server.equals(latest_server) && account.email.equals(latest_email)) {
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putString(SHARED_PREF_SERVER_KEY, null);
             editor.putString(SHARED_PREF_EMAIL_KEY, null);
@@ -141,6 +182,7 @@ public class AccountsActivity extends FragmentActivity {
         Intent intent = new Intent(this, AccountDetailActivity.class);
         intent.putExtra("server", account.server);
         intent.putExtra("email", account.email);
+        intent.putExtra("isEdited", true);
         startActivity(intent);
     }
 
@@ -164,7 +206,9 @@ public class AccountsActivity extends FragmentActivity {
         case R.id.delete:
             account = adapter.getItem((int)info.id);
             accountManager.deleteAccount(account);
-            
+            if (mMonitorService != null) {
+                mMonitorService.removeAccount(account);
+            }
             clearDataFromSharedPreferences(account);
             
             refreshView();

@@ -2,6 +2,7 @@ package com.seafile.seadroid2;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +21,7 @@ import android.widget.TextView;
 
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.monitor.FileMonitorService;
 
 
 public class AccountDetailActivity extends FragmentActivity {
@@ -36,7 +38,8 @@ public class AccountDetailActivity extends FragmentActivity {
 
     private AccountManager accountManager;
     private Account account = null;
-
+    private boolean isFromEdit = false;
+    
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -56,6 +59,7 @@ public class AccountDetailActivity extends FragmentActivity {
         Intent intent = getIntent();
         String server = intent.getStringExtra("server");
         String email = intent.getStringExtra("email");
+        isFromEdit = intent.getBooleanExtra("isEdited", false);
         if (server != null) {
             if (email == null) email = "";
             account = new Account(server, email);
@@ -156,7 +160,12 @@ public class AccountDetailActivity extends FragmentActivity {
         @Override
         protected void onPostExecute(String result) {
             if (result != null && result.equals("Success")) {
-                accountManager.saveDefaultAccount(loginAccount);
+                if (isFromEdit) {
+                    accountManager.updateAccount(account, loginAccount);
+                    isFromEdit = false;
+                } else {
+                    accountManager.saveDefaultAccount(loginAccount);
+                }     
                 startFilesActivity(loginAccount);
             } else {
                 if (err != null && err == SeafException.sslException) {
