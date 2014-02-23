@@ -73,7 +73,7 @@
     <string name="wait">Warten</string>
     <string name="image_gallery_NoImageView_text">Kein Bild gefunden</string>
     <string name="pick_photo_video_title">Bitte wählen Sie ein Foto/Video um es hochzuladen</string>
-    <string name="select_upload_items">Elemente zum hochladen auswählen</string>
+    <string name="select_upload_items">Elemente zum Hochladen auswählen</string>
     <string name="n_upload_items_selected">%d Elemente markiert</string>
     <string name="dir_name_empty">Bitte geben Sie den Namen des Ordners an</string>
     <string name="file_name_empty">Bitte geben Sie den Namen der Datei an</string>
