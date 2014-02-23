@@ -132,12 +132,12 @@
     <string name="upload_waiting">Warten</string>
     <string name="upload_finished">Beendet</string>
     <string name="upload_cancelled">Abgebrochen</string>
-    <string name="upload_failed">Fehlschlagen</string>
+    <string name="upload_failed">Fehlgeschlagen</string>
     <string name="days_ago"> Tage her</string>
     <string name="hours_ago"> Stunden her</string>
     <string name="minutes_ago"> Minuten her</string>
     <string name="seconds_ago"> Sekunden her</string>
     <string name="just_now">Gerade eben</string>
-    <string name="error_when_load_starred">Fehler beim laden der favorisieren Dateien</string>
+    <string name="error_when_load_starred">Fehler beim Laden der favorisierten Dateien</string>
     <string name="open_as">Öffnen als</string>
 </resources>
