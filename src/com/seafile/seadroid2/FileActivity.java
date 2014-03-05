@@ -2,8 +2,6 @@ package com.seafile.seadroid2;
 
 import java.io.File;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -15,7 +13,6 @@ import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
@@ -31,7 +28,6 @@ import com.seafile.seadroid2.TransferManager.DownloadTaskInfo;
 import com.seafile.seadroid2.TransferService.TransferBinder;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.ui.OpenAsDialog;
 import com.seafile.seadroid2.ui.PasswordDialog;
 import com.seafile.seadroid2.ui.TaskDialog;
@@ -152,7 +148,7 @@ public class FileActivity extends SherlockFragmentActivity {
         String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
         Intent open = new Intent(Intent.ACTION_VIEW);
         open.setDataAndType((Uri.fromFile(file)), mime);
-        
+
         try {
             startActivity(open);
             finish();
@@ -166,10 +162,10 @@ public class FileActivity extends SherlockFragmentActivity {
             }.show(getSupportFragmentManager(), "OpenAsDialog");
             return;
         }
-        
+
 /*      String chooser_title = getString(R.string.open_with);
         Intent chooser = Intent.createChooser(open, chooser_title);
-        
+
         if (open.resolveActivity(getPackageManager()) != null) {
             startActivity(chooser);
             finish();
@@ -179,7 +175,7 @@ public class FileActivity extends SherlockFragmentActivity {
             showToast(R.string.activity_not_found);
             return;
         }*/
-        
+
     }
 
     private void onTransferSericeConnected() {
@@ -213,7 +209,7 @@ public class FileActivity extends SherlockFragmentActivity {
     private void onFileDownloadProgress(DownloadTaskInfo info) {
         long fileSize = info.fileSize;
         long finished = info.finished;
-        
+
         mProgressBar.setIndeterminate(false);
         int percent;
         if (fileSize == 0) {
@@ -232,7 +228,7 @@ public class FileActivity extends SherlockFragmentActivity {
         mProgressBar.setVisibility(View.GONE);
         mProgressText.setVisibility(View.GONE);
         mButtonCancel.setVisibility(View.GONE);
-        
+
         showFile();
     }
 
@@ -240,7 +236,7 @@ public class FileActivity extends SherlockFragmentActivity {
         mProgressBar.setVisibility(View.GONE);
         mProgressText.setVisibility(View.GONE);
         mButtonCancel.setVisibility(View.GONE);
-        
+
         SeafException err = info.err;
         String fileName = Utils.fileNameFromPath(info.path);
         if (err.getCode() == 404) {
@@ -316,5 +312,5 @@ public class FileActivity extends SherlockFragmentActivity {
         }
 
     } // TransferReceiver
-    
+
 }

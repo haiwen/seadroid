@@ -2,7 +2,6 @@ package com.seafile.seadroid2;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 
 import android.content.Context;
 import android.content.Intent;
@@ -21,13 +20,12 @@ import android.widget.TextView;
 
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
-import com.seafile.seadroid2.monitor.FileMonitorService;
 
 
 public class AccountDetailActivity extends FragmentActivity {
 
     private static final String DEBUG_TAG = "AccountDetailActivity";
-    
+
     private TextView statusView;
     private Button loginButton;
     private EditText serverText;
@@ -39,7 +37,7 @@ public class AccountDetailActivity extends FragmentActivity {
     private AccountManager accountManager;
     private Account account = null;
     private boolean isFromEdit = false;
-    
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -119,7 +117,7 @@ public class AccountDetailActivity extends FragmentActivity {
     }
 
     private void writeToSharedPreferences(Account account) {
-        
+
         SharedPreferences sharedPref = getSharedPreferences(AccountsActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(AccountsActivity.SHARED_PREF_SERVER_KEY, account.server);
@@ -127,15 +125,15 @@ public class AccountDetailActivity extends FragmentActivity {
         editor.putString(AccountsActivity.SHARED_PREF_TOKEN_KEY, account.token);
         editor.commit();
     }
-    
+
     private void startFilesActivity(Account account) {
         Intent intent = new Intent(this, BrowserActivity.class);
         intent.putExtra("server", account.server);
         intent.putExtra("email", account.email);
         intent.putExtra("token", account.token);
-        
+
         writeToSharedPreferences(account);
-        
+
         startActivity(intent);
         finish(); // so the user will not return to this activity when press 'back'
     }
@@ -165,7 +163,7 @@ public class AccountDetailActivity extends FragmentActivity {
                     isFromEdit = false;
                 } else {
                     accountManager.saveDefaultAccount(loginAccount);
-                }     
+                }
                 startFilesActivity(loginAccount);
             } else {
                 if (err != null && err == SeafException.sslException) {

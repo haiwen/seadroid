@@ -3,7 +3,6 @@ package com.seafile.seadroid2;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -25,11 +24,13 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.text.ClipboardManager;
 import android.util.Log;
 import android.view.ActionProvider;
@@ -48,21 +49,17 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
-import com.seafile.seadroid2.monitor.FileMonitorService;
-
 import com.seafile.seadroid2.TransferManager.DownloadTaskInfo;
 import com.seafile.seadroid2.TransferManager.UploadTaskInfo;
 import com.seafile.seadroid2.TransferService.TransferBinder;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.data.SeafCachedFile;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SeafStarredFile;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 import com.seafile.seadroid2.gallery.MultipleImageSelectionActivity;
-import com.seafile.seadroid2.ui.ActivitiesFragment;
+import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.ui.AppChoiceDialog;
 import com.seafile.seadroid2.ui.AppChoiceDialog.CustomAction;
 import com.seafile.seadroid2.ui.FetchFileDialog;
@@ -73,15 +70,11 @@ import com.seafile.seadroid2.ui.OpenAsDialog;
 import com.seafile.seadroid2.ui.PasswordDialog;
 import com.seafile.seadroid2.ui.RenameFileDialog;
 import com.seafile.seadroid2.ui.ReposFragment;
+import com.seafile.seadroid2.ui.StarredFragment;
+import com.seafile.seadroid2.ui.TabsFragment;
 import com.seafile.seadroid2.ui.TaskDialog;
 import com.seafile.seadroid2.ui.TaskDialog.TaskDialogListener;
 import com.seafile.seadroid2.ui.UploadTasksFragment;
-
-import android.support.v4.widget.DrawerLayout;
-import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.view.GravityCompat;
-import com.seafile.seadroid2.ui.TabsFragment;
-import com.seafile.seadroid2.ui.StarredFragment;
 
 public class BrowserActivity extends SherlockFragmentActivity
         implements ReposFragment.OnFileSelectedListener, StarredFragment.OnStarredFileSelectedListener, OnBackStackChangedListener {
@@ -101,7 +94,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     DataManager dataManager = null;
     TransferService txService = null;
     TransferReceiver mTransferReceiver;
-    
+
     // private boolean twoPaneMode = false;
     UploadTasksFragment uploadTasksFragment = null;
     TabsFragment tabsFragment = null;
@@ -113,7 +106,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     private static final String UPLOAD_TASKS_VIEW = "UploadTasks";
     private static final String FILES_VIEW = "Files";
-    
+
     private static final String LIBRARY_TAB = "Libraries";
     private static final String ACTIVITY_TAB = "Activities";
     private static final String STARRED_TAB = "Starred";
@@ -125,8 +118,8 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final String OPEN_FILE_DIALOG_FRAGMENT_TAG = "openfile_fragment";
     public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "password_fragment";
     public static final String CHOOSE_APP_DIALOG_FRAGMENT_TAG = "choose_app_fragment";
-    public static final String PICK_FILE_DIALOG_FRAGMENT_TAG = "pick_file_fragment";    
-    
+    public static final String PICK_FILE_DIALOG_FRAGMENT_TAG = "pick_file_fragment";
+
     public DataManager getDataManager() {
         return dataManager;
     }
@@ -207,12 +200,12 @@ public class BrowserActivity extends SherlockFragmentActivity
         Log.d(DEBUG_TAG, "browser activity onCreate " + server + " " + email);
 
         if (server == null) {
-            
+
             SharedPreferences sharedPref = getSharedPreferences(AccountsActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
             String latest_server = sharedPref.getString(AccountsActivity.SHARED_PREF_SERVER_KEY, null);
             String latest_email = sharedPref.getString(AccountsActivity.SHARED_PREF_EMAIL_KEY, null);
             String latest_token = sharedPref.getString(AccountsActivity.SHARED_PREF_TOKEN_KEY, null);
-            
+
             if (latest_server != null) {
                 account = new Account(latest_server, latest_email, null, latest_token);
             } else {
@@ -223,7 +216,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                 finish();
                 return;
             }
-            
+
         }
 
         dataManager = new DataManager(account);
@@ -311,7 +304,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         };
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         mDrawerList.setItemChecked(0, true);
-        
+
         Intent txIntent = new Intent(this, TransferService.class);
         startService(txIntent);
         Log.d(DEBUG_TAG, "start TransferService");
@@ -320,7 +313,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         Intent bIntent = new Intent(this, TransferService.class);
         bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
         Log.d(DEBUG_TAG, "try bind TransferService");
-        
+
         Intent monitorIntent = new Intent(this, FileMonitorService.class);
         startService(monitorIntent);
     }
@@ -367,7 +360,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             txService = null;
         }
     };
-    
+
     @Override
     public void onStart() {
         Log.d(DEBUG_TAG, "onStart");
@@ -377,10 +370,10 @@ public class BrowserActivity extends SherlockFragmentActivity
             mTransferReceiver = new TransferReceiver();
         }
 
-        
+
         IntentFilter filter = new IntentFilter(TransferService.BROADCAST_ACTION);
         LocalBroadcastManager.getInstance(this).registerReceiver(mTransferReceiver, filter);
-        
+
     }
 
     @Override
@@ -388,7 +381,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         Log.d(DEBUG_TAG, "onPause");
       super.onPause();
     }
-    
+
     @Override
     public void onRestart() {
         Log.d(DEBUG_TAG, "onRestart");
@@ -400,14 +393,14 @@ public class BrowserActivity extends SherlockFragmentActivity
         Log.d(DEBUG_TAG, "onNewIntent");
         String server = intent.getStringExtra("server");
         String email = intent.getStringExtra("email");
-        
+
         Account selectedAccount = new Account(server, email);
         if (!account.equals(selectedAccount)) {
             finish();
             startActivity(intent);
         }
     }
-    
+
     @Override
     protected void onStop() {
         Log.d(DEBUG_TAG, "onStop");
@@ -416,7 +409,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         if (mTransferReceiver != null) {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(mTransferReceiver);
         }
-        
+
     }
 
     @Override
@@ -427,7 +420,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             txService = null;
         }
 
-        
+
         super.onDestroy();
     }
 
@@ -455,7 +448,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             selectItem(position);
-            
+
         }
     }
 
@@ -1162,7 +1155,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
         Intent open = new Intent(Intent.ACTION_VIEW);
         open.setDataAndType((Uri.fromFile(file)), mime);
-        
+
         try {
             startActivity(open);
             return;
@@ -1171,18 +1164,18 @@ public class BrowserActivity extends SherlockFragmentActivity
             //showToast(R.string.activity_not_found);
             return;
         }
-        
+
 /*      String chooser_title = getString(R.string.open_with);
         Intent chooser = Intent.createChooser(open, chooser_title);
-        
+
         if (open.resolveActivity(getPackageManager()) != null) {
             startActivity(chooser);
             return;
         } else {
             showToast(R.string.activity_not_found);
             return;
-        }*/        
-        
+        }*/
+
     }
 
     /**
@@ -1357,7 +1350,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     public void renameDir(String repoID, String repoName, String path) {
         doRename(repoID, repoName, path, true);
     }
-    
+
     private void doRename(String repoID, String repoName, String path, boolean isdir) {
         final RenameFileDialog dialog = new RenameFileDialog();
         dialog.init(repoID, path, isdir, account);

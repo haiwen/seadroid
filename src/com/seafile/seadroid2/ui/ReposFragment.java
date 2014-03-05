@@ -8,7 +8,6 @@ import java.util.Map;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -523,4 +522,3 @@ public class ReposFragment extends SherlockListFragment {
     }
 
 }
-

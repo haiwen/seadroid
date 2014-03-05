@@ -8,14 +8,12 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -42,9 +40,9 @@ public class AccountsActivity extends FragmentActivity {
     public static final String SHARED_PREF_SERVER_KEY = "com.seafile.seadroid.server";
     public static final String SHARED_PREF_EMAIL_KEY = "com.seafile.seadroid.email";
     public static final String SHARED_PREF_TOKEN_KEY = "com.seafile.seadroid.token";
-    
+
     private static AccountsActivity accountsActivity;
-    
+
     private ListView accountsView;
 
     private AccountManager accountManager;
@@ -67,9 +65,9 @@ public class AccountsActivity extends FragmentActivity {
             mMonitorService = null;
             isBound = false;
         }
-        
+
     };
-    
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
@@ -78,7 +76,7 @@ public class AccountsActivity extends FragmentActivity {
         setContentView(R.layout.start);
 
         accountsActivity = this;
-        
+
         accountsView = (ListView) findViewById(R.id.account_list_view);
 
         accountManager = new AccountManager(this);
@@ -98,13 +96,13 @@ public class AccountsActivity extends FragmentActivity {
         accountsView.setOnItemClickListener(new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position,
                     long id) {
-                
+
                 Account account = accounts.get(position);
                 startFilesActivity(account);
             }
         });
         registerForContextMenu(accountsView);
-        
+
     }
 
     @Override
@@ -113,7 +111,7 @@ public class AccountsActivity extends FragmentActivity {
         Intent bIntent = new Intent(this, FileMonitorService.class);
         bindService(bIntent, mMonitorConnection, Context.BIND_AUTO_CREATE);
     }
-    
+
     @Override
     public void onStop() {
         super.onStop();
@@ -122,7 +120,7 @@ public class AccountsActivity extends FragmentActivity {
             isBound = false;
         }
     }
-    
+
     // Always reload accounts on resume, so that when user add a new account,
     // it will be shown.
     @Override
@@ -143,7 +141,7 @@ public class AccountsActivity extends FragmentActivity {
     }
 
     private void writeToSharedPreferences(Account account) {
-        
+
         SharedPreferences sharedPref = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(SHARED_PREF_SERVER_KEY, account.server);
@@ -151,9 +149,9 @@ public class AccountsActivity extends FragmentActivity {
         editor.putString(SHARED_PREF_TOKEN_KEY, account.token);
         editor.commit();
     }
-    
+
     private void clearDataFromSharedPreferences(Account account) {
-        
+
         SharedPreferences sharedPref = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
         String latest_server = sharedPref.getString(SHARED_PREF_SERVER_KEY, null);
         String latest_email = sharedPref.getString(SHARED_PREF_EMAIL_KEY, null);
@@ -165,15 +163,15 @@ public class AccountsActivity extends FragmentActivity {
             editor.commit();
         }
     }
-    
+
     private void startFilesActivity(Account account) {
         Intent intent = new Intent(this, BrowserActivity.class);
         intent.putExtra("server", account.server);
         intent.putExtra("email", account.email);
         intent.putExtra("token", account.token);
-        
+
         writeToSharedPreferences(account);
-        
+
         startActivity(intent);
         finish();
     }
@@ -210,7 +208,7 @@ public class AccountsActivity extends FragmentActivity {
                 mMonitorService.removeAccount(account);
             }
             clearDataFromSharedPreferences(account);
-            
+
             refreshView();
             return true;
         default:
@@ -220,10 +218,10 @@ public class AccountsActivity extends FragmentActivity {
 
     @Override
     public void onBackPressed() {
-        
+
         super.onBackPressed();
     }
-    
+
     public static final int PRIVATE_SERVER = 0;
     public static final int SEACLOUD_CC = 1;
     public static final int CLOUD_SEAFILE_COM = 3;
@@ -231,7 +229,7 @@ public class AccountsActivity extends FragmentActivity {
     public static class CreateAccountChoiceDialog extends DialogFragment {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            
+
             final Context context = SeadroidApplication.getAppContext();
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle(R.string.choose_server);
@@ -265,5 +263,5 @@ public class AccountsActivity extends FragmentActivity {
             return builder.create();
         }
     }
-    
+
 }

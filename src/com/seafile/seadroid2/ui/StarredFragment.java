@@ -5,7 +5,6 @@ import java.util.List;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,13 +15,9 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
-import com.seafile.seadroid2.NavContext;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.data.SeafDirent;
-import com.seafile.seadroid2.data.SeafItem;
-import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SeafStarredFile;
 
 public class StarredFragment extends SherlockListFragment {
@@ -34,8 +29,8 @@ public class StarredFragment extends SherlockListFragment {
     private View mProgressContainer;
     private View mListContainer;
     private TextView mErrorText;
-    
-    
+
+
     private DataManager getDataManager() {
         return mActivity.getDataManager();
     }
@@ -43,17 +38,17 @@ public class StarredFragment extends SherlockListFragment {
     public StarredItemAdapter getAdapter() {
         return adapter;
     }
-    
+
     public interface OnStarredFileSelectedListener {
         public void onStarredFileSelected(SeafStarredFile starredFile);
     }
-    
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         mActivity = (BrowserActivity)activity;
     }
-    
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
@@ -65,7 +60,7 @@ public class StarredFragment extends SherlockListFragment {
         mProgressContainer = root.findViewById(R.id.progressContainer);
         return root;
     }
-    
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -73,9 +68,9 @@ public class StarredFragment extends SherlockListFragment {
         setListAdapter(adapter);
 
         getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-        
+
     }
-    
+
     @Override
     public void onStart() {
         super.onStart();
@@ -85,7 +80,7 @@ public class StarredFragment extends SherlockListFragment {
     public void onStop() {
         super.onStop();
     }
-    
+
     @Override
     public void onResume() {
         super.onResume();
@@ -102,20 +97,20 @@ public class StarredFragment extends SherlockListFragment {
         mActivity = null;
         super.onDetach();
     }
-    
+
     public void refreshView() {
-        
+
         if (mActivity == null)
             return;
-        
+
         mErrorText.setVisibility(View.GONE);
         mListContainer.setVisibility(View.VISIBLE);
-        
+
         showLoading(true);
         ConcurrentAsyncTask.execute(new LoadStarredFilesTask(getDataManager()));
         //mActivity.supportInvalidateOptionsMenu();
     }
-    
+
     private void showError(String msg) {
         mProgressContainer.setVisibility(View.GONE);
         mListContainer.setVisibility(View.GONE);
@@ -126,7 +121,7 @@ public class StarredFragment extends SherlockListFragment {
         mErrorText.setText(msg);
         mErrorText.setVisibility(View.VISIBLE);
     }
-    
+
     private void showLoading(boolean show) {
         mErrorText.setVisibility(View.GONE);
         if (show) {
@@ -147,7 +142,7 @@ public class StarredFragment extends SherlockListFragment {
             mListContainer.setVisibility(View.VISIBLE);
         }
     }
-    
+
     private void updateAdapterWithStarredFiles(List<SeafStarredFile> starredFiles) {
         adapter.clear();
         if (starredFiles.size() > 0) {
@@ -162,14 +157,14 @@ public class StarredFragment extends SherlockListFragment {
             mNoStarredView.setVisibility(View.VISIBLE);
         }
     }
-    
+
     @Override
     public void onListItemClick(final ListView l, final View v, final int position, final long id) {
 
         final SeafStarredFile starredFile = (SeafStarredFile)adapter.getItem(position);
         mActivity.onStarredFileSelected(starredFile);
     }
-    
+
     private class LoadStarredFilesTask extends AsyncTask<Void, Void, List<SeafStarredFile> > {
 
         SeafException err = null;
@@ -184,7 +179,7 @@ public class StarredFragment extends SherlockListFragment {
         protected List<SeafStarredFile> doInBackground(Void... params) {
 
             try {
-                List<SeafStarredFile> starredFiles = dataManager.getStarredFiles();             
+                List<SeafStarredFile> starredFiles = dataManager.getStarredFiles();
                 return starredFiles;
             } catch (SeafException e) {
                 err = e;
@@ -204,16 +199,16 @@ public class StarredFragment extends SherlockListFragment {
                 showError(getString(R.string.error_when_load_starred));
                 return;
             }
-            
+
             if (starredFiles == null) {
                 showError(getString(R.string.error_when_load_starred));
                 return;
             }
-            
+
             updateAdapterWithStarredFiles(starredFiles);
             showLoading(false);
         }
     }
-    
-    
+
+
 }
