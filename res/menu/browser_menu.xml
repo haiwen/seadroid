@@ -26,5 +26,12 @@
         android:visible="false"
         android:title="@string/create_new_file"
         android:showAsAction="never"/>
+    
+    <group android:checkableBehavior="all">
+	    <item android:id="@+id/cameraupload"
+	        android:visible="false"
+	        android:title="Use as camera upload"
+	        android:showAsAction="never"/>
+    </group>
 
 </menu>

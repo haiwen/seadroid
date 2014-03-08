@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
@@ -17,6 +18,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
@@ -420,7 +422,6 @@ public class BrowserActivity extends SherlockFragmentActivity
             txService = null;
         }
 
-
         super.onDestroy();
     }
 
@@ -500,6 +501,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         MenuItem menuRefresh = menu.findItem(R.id.refresh);
         MenuItem menuNewDir = menu.findItem(R.id.newdir);
         MenuItem menuNewFile = menu.findItem(R.id.newfile);
+        MenuItem menuCameraUpload = menu.findItem(R.id.cameraupload);
 
         boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
         if (getCurrentTabName().equals(LIBRARY_TAB) && !drawerOpen) {
@@ -532,6 +534,35 @@ public class BrowserActivity extends SherlockFragmentActivity
         } else {
             menuNewDir.setVisible(false);
             menuNewFile.setVisible(false);
+        }
+        
+        if (getCurrentTabName().equals(LIBRARY_TAB)) {
+            if (navContext.inRepo()) {
+            	menuCameraUpload.setVisible(true);
+            	
+            	if (txService.isAutoUploadEnabled()) {
+            		// Auto upload has been enabled at some point, check if it is set to this path
+            		// and repo
+            		if (navContext.getRepoID().equals(txService.getAutoUploadRepoId()) && navContext.getDirPath().equals(txService.getAutoUploadPath())) {
+            			menuCameraUpload.setChecked(true);
+            		} else {
+            			menuCameraUpload.setChecked(false);
+            		}
+            	} else {
+            		menuCameraUpload.setChecked(false);
+            	}
+            	
+            	if (hasRepoWritePermission()) {
+            		menuCameraUpload.setEnabled(true);
+            	} else {
+            		menuCameraUpload.setEnabled(false);
+            	}
+            	
+            } else {
+            	menuCameraUpload.setVisible(false);
+            }
+        } else {
+        	menuCameraUpload.setVisible(false);
         }
 
         if (currentSelectedItem.equals(UPLOAD_TASKS_VIEW)) {
@@ -567,6 +598,26 @@ public class BrowserActivity extends SherlockFragmentActivity
         case R.id.upload:
             pickFile();
             return true;
+        case R.id.cameraupload:
+        	if (navContext.inRepo()) {
+        		final String autoUploadPath = navContext.getDirPath();
+        		final String autoUploadRepoId = navContext.getRepoID();
+        		final String autoUploadRepoName = navContext.getRepoName();
+        		
+        		// If we are in the path were we are currently uploading to, the user wants to disable uploading
+        		if (account != null && txService.getAutoUploadAccount() != null) {
+        			if (account.equals(txService.getAutoUploadAccount()) && autoUploadRepoId.equals(txService.getAutoUploadRepoId()) && autoUploadPath.equals(txService.getAutoUploadPath())) {
+        				txService.setAutoUploadData(null, null, null, null);
+        			} else {
+        				txService.setAutoUploadData(autoUploadRepoId, autoUploadRepoName, autoUploadPath, account);
+        			}
+        		} else {
+        			txService.setAutoUploadData(autoUploadRepoId, autoUploadRepoName, autoUploadPath, account);
+        		}
+
+        		return true;
+        	}
+        	return false;
         case R.id.refresh:
             if (!Utils.isNetworkOn()) {
                 showToast(R.string.network_down);
@@ -941,7 +992,8 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final int PICK_PHOTOS_VIDEOS_REQUEST = 2;
     public static final int PICK_FILE_REQUEST = 3;
 
-    public class UploadChoiceDialog extends DialogFragment {
+    @SuppressLint("ValidFragment")
+	public class UploadChoiceDialog extends DialogFragment {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
 
