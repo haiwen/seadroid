@@ -474,7 +474,7 @@ public class TransferManager {
         public final String repoID;
         public final String repoName;
         public final String pathInRepo;
-        public final String localPath;
+        public final String localFilePath;
         public final long fileSize, finished;
         public final SeafException err;
 
@@ -488,7 +488,7 @@ public class TransferManager {
             this.repoID = repoID;
             this.repoName = repoName;
             this.pathInRepo = path;
-            this.localPath = localPath;
+            this.localFilePath = localPath;
             this.fileSize = fileSize;
             this.finished = finished;
             this.err = err;

@@ -138,21 +138,25 @@ public class FileMonitorService extends Service {
                 if (info != null) {
                     if (monitor.isStarted()) {
                         monitor.onFileDownloaded(info.account, info.repoID, info.repoName,
-                                info.pathInRepo, info.localPath);
+                                info.pathInRepo, info.localFilePath);
                     }
                 }
             } else if (type.equals(TransferService.BROADCAST_FILE_UPLOAD_SUCCESS)) {
                 int taskID = intent.getIntExtra("taskID", 0);
                 UploadTaskInfo info = mTransferService.getUploadTaskInfo(taskID);
 
-                updateMgr.onFileUpdateSuccess(info.account, info.repoID, info.repoName,
-                        info.parentDir, info.localFilePath);
+                if (info != null && info.isUpdate) {
+                    updateMgr.onFileUpdateSuccess(info.account, info.repoID, info.repoName,
+                            info.parentDir, info.localFilePath);
+                }
             } else if (type.equals(TransferService.BROADCAST_FILE_UPLOAD_FAILED)) {
                 int taskID = intent.getIntExtra("taskID", 0);
                 UploadTaskInfo info = mTransferService.getUploadTaskInfo(taskID);
 
-                updateMgr.onFileUpdateFailure(info.account, info.repoID, info.repoName,
-                        info.parentDir, info.localFilePath, info.err);
+                if (info != null && info.isUpdate) {
+                    updateMgr.onFileUpdateFailure(info.account, info.repoID, info.repoName,
+                            info.parentDir, info.localFilePath, info.err);
+                }
             }
 
         }
