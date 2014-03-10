@@ -199,7 +199,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
 
         switch (mStep) {
         case STEP_CHOOSE_ACCOUNT:
-            mAccount = getAccountAdapter().getItem(position);
+            setAccount(getAccountAdapter().getItem(position));
             chooseRepo();
             break;
         case STEP_CHOOSE_REPO:
@@ -596,6 +596,11 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
         return mDirentsAdapter;
     }
 
+    private void setAccount(Account account) {
+        mAccount = account;
+        mDataManager = new DataManager(account);
+    }
+
     private class LoadAccountsTask extends AsyncTask<Void, Void, Void> {
         private List<Account> accounts;
         private Exception err;
@@ -631,7 +636,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
 
             if (accounts.size() == 1 && forwardIfOnlyOneAccount) {
                 // Only 1 account. Go to the next next step.
-                mAccount = accounts.get(0);
+                setAccount(accounts.get(0));
                 chooseRepo();
                 return;
             }
