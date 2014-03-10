@@ -11,29 +11,28 @@ import com.seafile.seadroid2.monitor.SeafileObserver.CachedFileChangedListener;
 public class SeafileMonitor {
 
 	private static final String DEBUG_TAG = "SeafileMonitor";
-    // TODO: concurrency of observerMap
-	private Map<Account, SeafileObserver> observerMap = Maps.newHashMap();
-	private FileAlterationMonitor alterationMonitor;
+    // TODO: concurrency of observers map
+	private Map<Account, SeafileObserver> observers = Maps.newHashMap();
+	private FileAlterationMonitor alterationMonitor = new FileAlterationMonitor();;
 	private CachedFileChangedListener listener;
 
 	public SeafileMonitor(CachedFileChangedListener listener) {
 		this.listener = listener;
-		alterationMonitor = new FileAlterationMonitor();
 	}
 
 	public void monitorFilesForAccount(Account account) {
-		if (observerMap.containsKey(account)) {
+		if (observers.containsKey(account)) {
 			return;
 		}
 		SeafileObserver fileObserver = new SeafileObserver(account, listener);
 		addObserver(fileObserver);
-		observerMap.put(account, fileObserver);
+		observers.put(account, fileObserver);
 	}
 
 	public void stopMonitorFilesForAccount(Account account) {
-		SeafileObserver fileObserver = observerMap.get(account);
+		SeafileObserver fileObserver = observers.get(account);
 		removeObserver(fileObserver);
-		observerMap.remove(account);
+		observers.remove(account);
 	}
 
 	private void addObserver(SeafileObserver fileObserver) {
@@ -46,7 +45,7 @@ public class SeafileMonitor {
 
     public void onFilesDownloaded(Account account, String repoID, String repoName,
                                   String filePathInRepo, String localPath) {
-        SeafileObserver observer = observerMap.get(account);
+        SeafileObserver observer = observers.get(account);
         observer.watchDownloadedFile(repoID, repoName, filePathInRepo, localPath);
     }
 

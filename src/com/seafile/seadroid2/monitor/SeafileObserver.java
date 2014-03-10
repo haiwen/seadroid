@@ -23,14 +23,16 @@ public class SeafileObserver implements FileAlterationListener {
 
     private final Map<String, SeafCachedFile> watchedFiles = Maps.newHashMap();
     private final CachedFileChangedListener listener;
-    private final RecentDownloadedFilesWorkAround recentDownloadedFiles = new RecentDownloadedFilesWorkAround();
+    private final RecentDownloadedFilesWorkAround recentDownloadedFiles =
+            new RecentDownloadedFilesWorkAround();
 
     public interface CachedFileChangedListener {
         void onCachedFiledChanged(Account account, SeafCachedFile cf, File file);
     }
 
     public SeafileObserver(Account account, CachedFileChangedListener listener) {
-        this.account = account; this.dataManager = new DataManager(account);
+        this.account = account;
+        this.dataManager = new DataManager(account);
         this.listener = listener;
         alterationObserver = new FileAlterationObserver(getAccountDir());
         alterationObserver.addListener(this);
@@ -55,7 +57,8 @@ public class SeafileObserver implements FileAlterationListener {
         }
     }
 
-    public void watchDownloadedFile(String repoID, String repoName, String filePathInRepo, String localpath) {
+    public void watchDownloadedFile(String repoID, String repoName, String filePathInRepo,
+            String localpath) {
         recentDownloadedFiles.addRecentDownloadedFile(localpath);
 
         SeafCachedFile cacheInfo = new SeafCachedFile();
@@ -142,9 +145,9 @@ public class SeafileObserver implements FileAlterationListener {
     }
 
     /**
-     * When user downloads a file, the outdated file is replaced, so the
-     * onFileChange signal would be triggered, which we should not treat it as
-     * a modification. This class provides a workaroud for this.
+     * When user downloads a file, the outdated file is replaced, so the onFileChange signal would
+     * be triggered, which we should not treat it as a modification. This class provides a workaroud
+     * for this.
      */
     private static class RecentDownloadedFilesWorkAround {
         private final Map<String, Long> recentDownloadedFiles = Maps.newConcurrentMap();
