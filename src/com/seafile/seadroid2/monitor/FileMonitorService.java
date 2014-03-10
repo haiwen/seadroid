@@ -1,6 +1,5 @@
 package com.seafile.seadroid2.monitor;
 
-import java.io.File;
 import java.util.List;
 
 import android.app.Service;
@@ -10,7 +9,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
@@ -19,7 +17,6 @@ import android.util.Log;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
-import com.seafile.seadroid2.data.SeafCachedFile;
 import com.seafile.seadroid2.transfer.TransferManager.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.TransferManager.UploadTaskInfo;
 import com.seafile.seadroid2.transfer.TransferService;
@@ -27,63 +24,29 @@ import com.seafile.seadroid2.transfer.TransferService;
 /**
  * Monitor changes of local cached files, and upload them through TransferService if moidified
  */
-public class FileMonitorService extends Service implements
-        SeafileObserver.CachedFileChangedListener {
+public class FileMonitorService extends Service {
 
     private static final String DEBUG_TAG = "FileMonitorService";
 
-    private SeafileMonitor fileMonitor;
+    private SeafileMonitor monitor;
     private TransferService mTransferService;
     private AutoUpdateManager updateMgr = new AutoUpdateManager();
     private final IBinder mBinder = new MonitorBinder();
-
-    private BroadcastReceiver downloadReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (mTransferService == null) {
-                return;
-            }
-
-            String type = intent.getStringExtra("type");
-            if (type == null) {
-                return;
-            }
-
-            if (type.equals(TransferService.BROADCAST_FILE_DOWNLOAD_SUCCESS)) {
-
-                int taskID = intent.getIntExtra("taskID", 0);
-                DownloadTaskInfo info = mTransferService.getDownloadTaskInfo(taskID);
-                if (info != null) {
-                    fileMonitor.onFilesDownloaded(info.account, info.repoID, info.repoName, info.pathInRepo, info.localPath);
-                    Log.d(DEBUG_TAG, "start watch downloaded file " + info.pathInRepo);
-                }
-            } else if (type.equals(TransferService.BROADCAST_FILE_UPLOAD_SUCCESS)) {
-                int taskID = intent.getIntExtra("taskID", 0);
-                UploadTaskInfo info = mTransferService.getUploadTaskInfo(taskID);
-
-                updateMgr.onFileUpdateSuccess(info.account, info.repoID, info.repoName, info.parentDir,
-                        info.localFilePath);
-            } else if (type.equals(TransferService.BROADCAST_FILE_UPLOAD_FAILED)) {
-                int taskID = intent.getIntExtra("taskID", 0);
-                UploadTaskInfo info = mTransferService.getUploadTaskInfo(taskID);
-
-                updateMgr.onFileUpdateFailure(info.account, info.repoID, info.repoName, info.parentDir,
-                                              info.localFilePath, info.err);
-            }
-
-        }
-
-    };
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(DEBUG_TAG, "onStartCommand called.");
 
-        if (fileMonitor == null) {
-            fileMonitor = new SeafileMonitor(this);
-            ConcurrentAsyncTask.execute(new InitMonitorTask());
+        if (monitor == null) {
+            monitor = new SeafileMonitor(updateMgr);
         }
+
+        ConcurrentAsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                monitor.monitorAllAccounts();
+            }
+        });
 
         return START_STICKY;
     }
@@ -107,7 +70,7 @@ public class FileMonitorService extends Service implements
         Intent bindIntent = new Intent(this, TransferService.class);
         bindService(bindIntent, mTransferConnection, Context.BIND_AUTO_CREATE);
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(downloadReceiver,
+        LocalBroadcastManager.getInstance(this).registerReceiver(transferReceiver,
                 new IntentFilter(TransferService.BROADCAST_ACTION));
     }
 
@@ -117,9 +80,9 @@ public class FileMonitorService extends Service implements
 
         updateMgr.stop();
 
-        if (fileMonitor != null) {
+        if (monitor != null) {
             try {
-                fileMonitor.stop();
+                monitor.stop();
             } catch (Exception e) {
                 Log.d(DEBUG_TAG, "failed to stop file monitor");
             }
@@ -130,21 +93,14 @@ public class FileMonitorService extends Service implements
             mTransferService = null;
         }
 
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(downloadReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(transferReceiver);
     }
 
     public void removeAccount(Account account) {
         Log.d(DEBUG_TAG, account.email);
-        fileMonitor.stopMonitorFilesForAccount(account);
+        monitor.stopMonitorFilesForAccount(account);
     }
 
-    @Override
-    public void onCachedFiledChanged(final Account account, final SeafCachedFile cachedFile,
-            final File localFile) {
-
-        updateMgr.addTask(account, cachedFile, localFile);
-
-    }
 
     private ServiceConnection mTransferConnection = new ServiceConnection() {
 
@@ -162,26 +118,44 @@ public class FileMonitorService extends Service implements
 
     };
 
-    private class InitMonitorTask extends AsyncTask<Void, Void, Void> {
+    private BroadcastReceiver transferReceiver = new BroadcastReceiver() {
+
         @Override
-        protected Void doInBackground(Void... params) {
-            List<Account> accounts = new AccountManager(FileMonitorService.this).getAccountList();
-
-            for (Account account : accounts) {
-                fileMonitor.monitorFilesForAccount(account);
+        public void onReceive(Context context, Intent intent) {
+            if (mTransferService == null) {
+                return;
             }
 
-            try {
-                fileMonitor.start();
-            } catch (Exception e) {
-                Log.w(DEBUG_TAG, "failed to start file monitor");
-                throw new RuntimeException("failed to start file monitor");
+            String type = intent.getStringExtra("type");
+            if (type == null) {
+                return;
             }
 
-            return null;
+            if (type.equals(TransferService.BROADCAST_FILE_DOWNLOAD_SUCCESS)) {
+
+                int taskID = intent.getIntExtra("taskID", 0);
+                DownloadTaskInfo info = mTransferService.getDownloadTaskInfo(taskID);
+                if (info != null) {
+                    if (monitor.isStarted()) {
+                        monitor.onFileDownloaded(info.account, info.repoID, info.repoName,
+                                info.pathInRepo, info.localPath);
+                    }
+                }
+            } else if (type.equals(TransferService.BROADCAST_FILE_UPLOAD_SUCCESS)) {
+                int taskID = intent.getIntExtra("taskID", 0);
+                UploadTaskInfo info = mTransferService.getUploadTaskInfo(taskID);
+
+                updateMgr.onFileUpdateSuccess(info.account, info.repoID, info.repoName,
+                        info.parentDir, info.localFilePath);
+            } else if (type.equals(TransferService.BROADCAST_FILE_UPLOAD_FAILED)) {
+                int taskID = intent.getIntExtra("taskID", 0);
+                UploadTaskInfo info = mTransferService.getUploadTaskInfo(taskID);
+
+                updateMgr.onFileUpdateFailure(info.account, info.repoID, info.repoName,
+                        info.parentDir, info.localFilePath, info.err);
+            }
+
         }
 
-        @Override
-        protected void onPostExecute(Void v) {}
-    }
+    };
 }

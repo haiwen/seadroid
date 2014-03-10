@@ -50,20 +50,17 @@ public class AccountsActivity extends FragmentActivity {
     private AccountAdapter adapter;
     List<Account> accounts;
     private FileMonitorService mMonitorService;
-    private boolean isBound = false;
     private ServiceConnection mMonitorConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName className, IBinder binder) {
             FileMonitorService.MonitorBinder monitorBinder = (FileMonitorService.MonitorBinder)binder;
             mMonitorService = monitorBinder.getService();
-            isBound = true;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName className) {
             mMonitorService = null;
-            isBound = false;
         }
 
     };
@@ -115,9 +112,9 @@ public class AccountsActivity extends FragmentActivity {
     @Override
     public void onStop() {
         super.onStop();
-        if (isBound) {
+        if (mMonitorService != null) {
             unbindService(mMonitorConnection);
-            isBound = false;
+            mMonitorConnection = null;
         }
     }
 

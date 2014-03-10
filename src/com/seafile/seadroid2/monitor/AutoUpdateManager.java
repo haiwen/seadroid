@@ -15,13 +15,14 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.Utils;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.SeafCachedFile;
+import com.seafile.seadroid2.monitor.SeafileObserver.CachedFileChangedListener;
 import com.seafile.seadroid2.transfer.TransferService;
 
 /**
  * Update modified files, retry until success
  *
  */
-public class AutoUpdateManager implements Runnable {
+public class AutoUpdateManager implements Runnable, CachedFileChangedListener {
 
     private static final String DEBUG_TAG = "AutoUpdateManager";
 
@@ -49,6 +50,13 @@ public class AutoUpdateManager implements Runnable {
     /**
      * This method is called by file monitor, so it would be executed in the file monitor thread
      */
+    @Override
+    public void onCachedFiledChanged(final Account account, final SeafCachedFile cachedFile,
+            final File localFile) {
+
+        addTask(account, cachedFile, localFile);
+    }
+
     public void addTask(Account account, SeafCachedFile cachedFile, File localFile) {
 
         AutoUpdateInfo info =

@@ -57,15 +57,17 @@ public class SeafileObserver implements FileAlterationListener {
         }
     }
 
-    public void watchDownloadedFile(String repoID, String repoName, String filePathInRepo,
+    public void watchDownloadedFile(String repoID, String repoName, String pathInRepo,
             String localpath) {
         recentDownloadedFiles.addRecentDownloadedFile(localpath);
 
         SeafCachedFile cacheInfo = new SeafCachedFile();
         cacheInfo.repoID = repoID;
         cacheInfo.repoName = repoName;
-        cacheInfo.path = filePathInRepo;
+        cacheInfo.path = pathInRepo;
         watchedFiles.put(localpath, cacheInfo);
+
+        Log.d(DEBUG_TAG, "start watch downloaded file " + pathInRepo);
     }
 
     public void setAccount(Account account) {
