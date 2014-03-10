@@ -1,10 +1,9 @@
 # Seafile Android Client
 
-## Dependencies
+## Android Dependencies
 
 * [ActionBarSherlock](https://github.com/JakeWharton/ActionBarSherlock)
 * [NewQuickAction](https://github.com/haiwen/NewQuickAction)
-* [http-request](https://github.com/kevinsawicki/http-request)
 * [ViewPagerIndicator](https://github.com/JakeWharton/Android-ViewPagerIndicator)
 
 ## Build
@@ -21,6 +20,9 @@
 
 - Replace the android-support-v4.jar in `ActionBarSherlock` and `ViewPagerIndicator` with the jar in seadroid to make sure that all versions of this library be the same at this time.
 
-- Download [http-request-5.3.jar](http://mvnrepository.com/artifact/com.github.kevinsawicki/http-request/5.3) to `seadroid/libs` directory.
+- Download these JARs to `seadroid/libs` directory:  
+    - [http-request-5.3.jar](http://mvnrepository.com/artifact/com.github.kevinsawicki/http-request/5.3)
+    - [commons-io-2.4.jar](http://repo1.maven.org/maven2/commons-io/commons-io/2.4/commons-io-2.4.jar)
+    - [guava-16.0.1.jar](http://search.maven.org/remotecontent?filepath=com/google/guava/guava/16.0.1/guava-16.0.1.jar)
 
 Now you can build seadroid in eclipse.

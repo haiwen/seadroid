@@ -1,23 +1,23 @@
 package com.seafile.seadroid2.monitor;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.io.monitor.FileAlterationMonitor;
 
+import com.google.common.collect.Maps;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.monitor.SeafileObserver.CachedFileChangedListener;
 
 public class SeafileMonitor {
 
 	private static final String DEBUG_TAG = "SeafileMonitor";
-	private Map<Account, SeafileObserver> observerMap;
+    // TODO: concurrency of observerMap
+	private Map<Account, SeafileObserver> observerMap = Maps.newHashMap();
 	private FileAlterationMonitor alterationMonitor;
 	private CachedFileChangedListener listener;
 
 	public SeafileMonitor(CachedFileChangedListener listener) {
 		this.listener = listener;
-		observerMap = new HashMap<Account, SeafileObserver>();
 		alterationMonitor = new FileAlterationMonitor();
 	}
 
@@ -44,9 +44,11 @@ public class SeafileMonitor {
 		alterationMonitor.removeObserver(fileObserver.getAlterationObserver());
 	}
 
-	public SeafileObserver getObserverForAccount(Account account) {
-		return observerMap.get(account);
-	}
+    public void onFilesDownloaded(Account account, String repoID, String repoName,
+                                  String filePathInRepo, String localPath) {
+        SeafileObserver observer = observerMap.get(account);
+        observer.watchDownloadedFile(repoID, repoName, filePathInRepo, localPath);
+    }
 
 	public void start() throws Exception {
 		alterationMonitor.start();

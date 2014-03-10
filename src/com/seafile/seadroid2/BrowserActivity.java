@@ -49,9 +49,6 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
-import com.seafile.seadroid2.TransferManager.DownloadTaskInfo;
-import com.seafile.seadroid2.TransferManager.UploadTaskInfo;
-import com.seafile.seadroid2.TransferService.TransferBinder;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
@@ -60,6 +57,10 @@ import com.seafile.seadroid2.data.SeafStarredFile;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 import com.seafile.seadroid2.gallery.MultipleImageSelectionActivity;
 import com.seafile.seadroid2.monitor.FileMonitorService;
+import com.seafile.seadroid2.transfer.TransferService;
+import com.seafile.seadroid2.transfer.TransferManager.DownloadTaskInfo;
+import com.seafile.seadroid2.transfer.TransferManager.UploadTaskInfo;
+import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.ui.AppChoiceDialog;
 import com.seafile.seadroid2.ui.AppChoiceDialog.CustomAction;
 import com.seafile.seadroid2.ui.FetchFileDialog;
@@ -1438,7 +1439,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         } else {
             if (getCurrentTabName().equals(LIBRARY_TAB)
                 && info.repoID.equals(navContext.getRepoID())
-                && Utils.getParentPath(info.path).equals(navContext.getDirPath())) {
+                && Utils.getParentPath(info.pathInRepo).equals(navContext.getDirPath())) {
                 tabsFragment.getReposFragment().getAdapter().notifyChanged();
             }
         }
@@ -1458,7 +1459,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         SeafException err = info.err;
         final String repoName = info.repoName;
         final String repoID = info.repoID;
-        final String path = info.path;
+        final String path = info.pathInRepo;
 
         if (err != null && err.getCode() == 440) {
             if (getCurrentTabName().equals(LIBRARY_TAB)

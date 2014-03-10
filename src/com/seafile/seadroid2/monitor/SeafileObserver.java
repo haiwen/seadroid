@@ -1,7 +1,6 @@
 package com.seafile.seadroid2.monitor;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,6 +9,8 @@ import org.apache.commons.io.monitor.FileAlterationObserver;
 
 import android.util.Log;
 
+import com.google.common.collect.Maps;
+import com.seafile.seadroid2.Utils;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafCachedFile;
@@ -17,25 +18,26 @@ import com.seafile.seadroid2.data.SeafCachedFile;
 public class SeafileObserver implements FileAlterationListener {
     private final String DEBUG_TAG = "SeafileObserver";
     private Account account;
-    private Map<File, SeafCachedFile> fileMap = new HashMap<File, SeafCachedFile>();
+    private DataManager dataManager;
     private FileAlterationObserver alterationObserver;
 
-    private CachedFileChangedListener listener;
+    private final Map<String, SeafCachedFile> watchedFiles = Maps.newHashMap();
+    private final CachedFileChangedListener listener;
+    private final RecentDownloadedFilesWorkAround recentDownloadedFiles = new RecentDownloadedFilesWorkAround();
 
     public interface CachedFileChangedListener {
         void onCachedFiledChanged(Account account, SeafCachedFile cf, File file);
     }
 
     public SeafileObserver(Account account, CachedFileChangedListener listener) {
-        this.account = account;
+        this.account = account; this.dataManager = new DataManager(account);
         this.listener = listener;
         alterationObserver = new FileAlterationObserver(getAccountDir());
         alterationObserver.addListener(this);
-        addCachedFiles();
+        watchAllCachedFiles();
     }
 
     private String getAccountDir() {
-        DataManager dataManager = new DataManager(account);
         return dataManager.getAccountDir();
     }
 
@@ -43,21 +45,24 @@ public class SeafileObserver implements FileAlterationListener {
         return alterationObserver;
     }
 
-    private void addCachedFiles() {
-        DataManager dataManager = new DataManager(account);
+    private void watchAllCachedFiles() {
         List<SeafCachedFile> cachedfiles = dataManager.getCachedFiles();
         for (SeafCachedFile cached : cachedfiles) {
             File file = dataManager.getLocalRepoFile(cached.repoName, cached.repoID, cached.path);
             if (file.exists()) {
-                fileMap.put(file, cached);
+                watchedFiles.put(file.getPath(), cached);
             }
         }
     }
 
-    public void addToMap(SeafCachedFile cachedFile) {
-        DataManager dataManager = new DataManager(account);
-        File file = dataManager.getLocalRepoFile(cachedFile.repoName, cachedFile.repoID, cachedFile.path);
-        fileMap.put(file, cachedFile);
+    public void watchDownloadedFile(String repoID, String repoName, String filePathInRepo, String localpath) {
+        recentDownloadedFiles.addRecentDownloadedFile(localpath);
+
+        SeafCachedFile cacheInfo = new SeafCachedFile();
+        cacheInfo.repoID = repoID;
+        cacheInfo.repoName = repoName;
+        cacheInfo.path = filePathInRepo;
+        watchedFiles.put(localpath, cacheInfo);
     }
 
     public void setAccount(Account account) {
@@ -102,13 +107,17 @@ public class SeafileObserver implements FileAlterationListener {
 
     @Override
     public void onFileChange(File file) {
-        Log.d(DEBUG_TAG, file.getPath() + " was modified!");
-        SeafCachedFile cachedFile = fileMap.get(file);
+        String path = file.getPath();
+
+        if (recentDownloadedFiles.isRecentDownloadedFiles(path)) {
+            Log.d(DEBUG_TAG, "ignore change signal for recent downloaded file " + path);
+            return;
+        }
+
+        Log.d(DEBUG_TAG, path + " was modified!");
+        SeafCachedFile cachedFile = watchedFiles.get(path);
         if (cachedFile != null) {
             listener.onCachedFiledChanged(account, cachedFile, file);
-            // if (mTransferService != null) {
-            //     mTransferService.addUploadTask(account,cachedFile.repoID, cachedFile.repoName, Utils.getParentPath(cachedFile.path), file.getPath(), true);
-            // }
         }
     }
 
@@ -130,5 +139,32 @@ public class SeafileObserver implements FileAlterationListener {
     @Override
     public void onStop(FileAlterationObserver fao) {
         Log.d(DEBUG_TAG, fao.toString() + " finished checking event!");
+    }
+
+    /**
+     * When user downloads a file, the outdated file is replaced, so the
+     * onFileChange signal would be triggered, which we should not treat it as
+     * a modification. This class provides a workaroud for this.
+     */
+    private static class RecentDownloadedFilesWorkAround {
+        private final Map<String, Long> recentDownloadedFiles = Maps.newConcurrentMap();
+
+        public boolean isRecentDownloadedFiles(String filePath) {
+            Long timestamp = recentDownloadedFiles.get(filePath);
+            if (timestamp != null) {
+                long timeWhenDownloaded = timestamp;
+                long now = Utils.now();
+
+                if (now - timeWhenDownloaded < 10000) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public void addRecentDownloadedFile(String filePath) {
+            recentDownloadedFiles.put(filePath, Utils.now());
+        }
     }
 }

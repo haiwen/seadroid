@@ -16,4 +16,24 @@ public class ConcurrentAsyncTask {
             task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, args);
         }
     }
+
+    public static void execute(Runnable runnable) {
+        execute(new SimpleAsyncTask(runnable));
+    }
+
+    private static class SimpleAsyncTask extends AsyncTask<Void, Void, Void> {
+        Runnable runnable;
+        public SimpleAsyncTask(Runnable runnable) {
+            this.runnable = runnable;
+        }
+
+        public Void doInBackground(Void... args) {
+            try {
+                runnable.run();
+            } catch(Exception e) {
+                // ignore
+            }
+            return null;
+        }
+    }
 }

@@ -1,5 +1,7 @@
 package com.seafile.seadroid2;
 
+import com.google.common.base.Objects;
+
 public class SeafException extends Exception {
     
     private static final long serialVersionUID = 1L;
@@ -23,5 +25,11 @@ public class SeafException extends Exception {
     public int getCode() {
         return code;
     }
-    
+
+    public String toString() {
+        return Objects.toStringHelper(this)
+            .add("code", code)
+            .add("msg", getMessage())
+            .toString();
+    }
 }

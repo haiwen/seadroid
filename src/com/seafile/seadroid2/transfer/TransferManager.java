@@ -1,4 +1,4 @@
-package com.seafile.seadroid2;
+package com.seafile.seadroid2.transfer;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -8,6 +8,7 @@ import java.util.List;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.DataManager.ProgressMonitor;
@@ -245,7 +246,7 @@ public class TransferManager {
         }
 
         public UploadTaskInfo getTaskInfo() {
-            UploadTaskInfo info = new UploadTaskInfo(myID, myState, myRepoID,
+            UploadTaskInfo info = new UploadTaskInfo(myID, account, myState, myRepoID,
                                                      myRepoName, myDir, myPath, isUpdate,
                                                      myUploaded, mySize, err);
             return info;
@@ -335,7 +336,7 @@ public class TransferManager {
         Account account;
         private String myRepoName;
         private String myRepoID;
-        private String myPath;
+        private String myPath, myLocalPath;
         private long mySize, finished;
         private TaskState myState;
         SeafException err;
@@ -400,6 +401,7 @@ public class TransferManager {
             if (listener != null) {
                 if (file != null) {
                     myState = TaskState.FINISHED;
+                    myLocalPath = file.getPath();
                     listener.onFileDownloaded(taskID);
                 } else {
                     myState = TaskState.FAILED;
@@ -421,7 +423,7 @@ public class TransferManager {
 
         public DownloadTaskInfo getTaskInfo() {
             DownloadTaskInfo info = new DownloadTaskInfo(account, taskID, myState, myRepoID,
-                                                         myRepoName, myPath, mySize, finished, err);
+                                                         myRepoName, myPath, myLocalPath, mySize, finished, err);
             return info;
         }
 
@@ -444,13 +446,15 @@ public class TransferManager {
         public final boolean isUpdate;
         public final long uploadedSize, totalSize;
         public final SeafException err;
+        public final Account account;
 
-        public UploadTaskInfo(int taskID, TaskState state, String repoID,
+        public UploadTaskInfo(int taskID, Account account, TaskState state, String repoID,
                               String repoName, String parentDir,
                               String localFilePath, boolean isUpdate,
                               long uploadedSize, long totalSize,
                               SeafException err) {
             this.taskID = taskID;
+            this.account = account;
             this.state = state;
             this.repoID = repoID;
             this.repoName = repoName;
@@ -469,12 +473,13 @@ public class TransferManager {
         public final TaskState state;
         public final String repoID;
         public final String repoName;
-        public final String path;
+        public final String pathInRepo;
+        public final String localPath;
         public final long fileSize, finished;
         public final SeafException err;
 
         public DownloadTaskInfo(Account account, int taskID, TaskState state, String repoID,
-                                String repoName, String path,
+                                String repoName, String path, String localPath,
                                 long fileSize, long finished,
                                 SeafException err) {
             this.account = account;
@@ -482,7 +487,8 @@ public class TransferManager {
             this.state = state;
             this.repoID = repoID;
             this.repoName = repoName;
-            this.path = path;
+            this.pathInRepo = path;
+            this.localPath = localPath;
             this.fileSize = fileSize;
             this.finished = finished;
             this.err = err;
