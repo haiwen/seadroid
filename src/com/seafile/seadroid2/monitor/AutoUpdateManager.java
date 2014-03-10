@@ -28,7 +28,7 @@ public class AutoUpdateManager implements Runnable, CachedFileChangedListener {
 
     private TransferService txService;
     private Thread thread;
-    private boolean running;
+    private volatile boolean running;
     private static final int CHECK_INTERVAL_MILLI = 3000;
     private final Handler mHandler = new Handler();
 
@@ -94,8 +94,8 @@ public class AutoUpdateManager implements Runnable, CachedFileChangedListener {
             @Override
             public void run() {
                 for (AutoUpdateInfo info : infos) {
-                    txService.addUploadTask(info.account, info.repoID, info.repoName, info.parentDir,
-                        info.localPath, true);
+                    txService.addUploadTask(info.account, info.repoID, info.repoName,
+                            info.parentDir, info.localPath, true);
                 }
             }
         });
@@ -224,10 +224,11 @@ class AutoUpdateInfo {
         if (obj == null || (obj.getClass() != this.getClass()))
             return false;
 
-        AutoUpdateInfo a = (AutoUpdateInfo) obj;
+        AutoUpdateInfo that = (AutoUpdateInfo) obj;
 
-        return this.account == a.account && this.repoID == a.repoID && this.repoName == a.repoName
-                && this.parentDir == a.parentDir && this.localPath == a.localPath;
+        return this.account == that.account && this.repoID == that.repoID
+                && this.repoName == that.repoName && this.parentDir == that.parentDir
+                && this.localPath == that.localPath;
     }
 
     private volatile int hashCode = 0;
