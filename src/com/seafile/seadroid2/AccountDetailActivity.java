@@ -11,6 +11,8 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -26,6 +28,9 @@ public class AccountDetailActivity extends FragmentActivity {
 
     private static final String DEBUG_TAG = "AccountDetailActivity";
 
+    private static final String HTTP_PREFIX = "http://";
+    private static final String HTTPS_PREFIX = "https://";
+
     private TextView statusView;
     private Button loginButton;
     private EditText serverText;
@@ -37,6 +42,7 @@ public class AccountDetailActivity extends FragmentActivity {
     private AccountManager accountManager;
     private Account account = null;
     private boolean isFromEdit = false;
+    private boolean serverTextHasFocus;
 
     /** Called when the activity is first created. */
     @Override
@@ -52,6 +58,7 @@ public class AccountDetailActivity extends FragmentActivity {
         passwdText = (EditText) findViewById(R.id.password);
         seahubUrlHintText = (TextView) findViewById(R.id.seahub_url_hint);
 
+        setupServerText();
         accountManager = new AccountManager(this);
 
         Intent intent = getIntent();
@@ -63,19 +70,82 @@ public class AccountDetailActivity extends FragmentActivity {
             account = new Account(server, email);
             if (account.isHttps())
                 httpsCheckBox.setChecked(true);
-            serverText.setText(account.getServerNoProtocol());
+            serverText.setText(account.getServer());
             emailText.setText(account.getEmail());
             emailText.requestFocus();
             seahubUrlHintText.setVisibility(View.GONE);
+        } else {
+            serverText.setText(HTTP_PREFIX);
+            int prefixLen = HTTP_PREFIX.length();
+            serverText.setSelection(prefixLen, prefixLen);
         }
     }
 
-    private String cleanServerURL(String serverURL, boolean isHttps) throws MalformedURLException {
-        if (isHttps)
-            serverURL = "https://" + serverURL;
-        else
-            serverURL = "http://" + serverURL;
+    public void onHttpsCheckboxClicked(View view) {
+        refreshServerUrlPrefix();
+    }
 
+    private void refreshServerUrlPrefix() {
+        boolean isHttps = httpsCheckBox.isChecked();
+        String url = serverText.getText().toString();
+        String prefix = isHttps ? HTTPS_PREFIX : HTTP_PREFIX;
+
+        String urlWithoutScheme = url.replace(HTTPS_PREFIX, "").replace(HTTP_PREFIX, "");
+
+        int oldOffset = serverText.getSelectionStart();
+
+        // Change the text
+        serverText.setText(prefix + urlWithoutScheme);
+
+        if (serverTextHasFocus) {
+            // Change the cursor position since we changed the text
+            if (isHttps) {
+                int offset = oldOffset + 1;
+                serverText.setSelection(offset, offset);
+            } else {
+                int offset = Math.max(0, oldOffset - 1);
+                serverText.setSelection(offset, offset);
+            }
+        }
+    }
+
+    private void setupServerText() {
+        serverText.setOnFocusChangeListener(new View.OnFocusChangeListener () {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                Log.d(DEBUG_TAG, "serverText has focus: " + (hasFocus ? "yes" : "no"));
+                serverTextHasFocus = hasFocus;
+            }
+        });
+
+        serverText.addTextChangedListener(new TextWatcher() {
+            private String old;
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count,
+                                          int after) {
+                old = serverText.getText().toString();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // Don't allow the user to edit the "https://" or "http://" part of the serverText
+                String url = serverText.getText().toString();
+                boolean isHttps = httpsCheckBox.isChecked();
+                String prefix = isHttps ? HTTPS_PREFIX : HTTP_PREFIX;
+                if (!url.startsWith(prefix)) {
+                    int oldOffset = Math.max(prefix.length(), serverText.getSelectionStart());
+                    serverText.setText(old);
+                    serverText.setSelection(oldOffset, oldOffset);
+                }
+            }
+        });
+    }
+
+    private String cleanServerURL(String serverURL, boolean isHttps) throws MalformedURLException {
         if (!serverURL.endsWith("/")) {
             serverURL = serverURL + "/";
         }
