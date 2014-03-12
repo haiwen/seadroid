@@ -50,7 +50,7 @@
     <string name="download_failed">下载失败</string>
     <string name="trust_https_server">此证书不是由受信任的组织颁发，要继续吗？</string>
     <string name="upload_to">上传至： </string>
-    <string name="task_cancel">取消上传</string>
+    <string name="task_cancel">取消</string>
     <string name="task_retry">重新上传</string>
     <string name="task_remove">移除</string>
     <string name="task_remove_all_finished">移除所有任务</string>
@@ -86,7 +86,6 @@
     <string name="no_app_available">没有找到应用</string>
     <string name="add_to_seafile">添加到Seafile中</string>
     <string name="ok">确定</string>
-    <string name="cancel">取消</string>
     <string name="no_account">首先请在Seafile上创建一个账户</string>
     <string name="no_library">对不起，您还没有任何资料库</string>
     <string name="choose_an_account">请选择一个账户</string>
@@ -138,7 +137,6 @@
     <string name="error_when_load_starred">加载星标文件失败</string>
     <string name="open_as">打开为</string>
     <string name="select_upload_files">请选择要上传的文件</string>
-    <string name="cancel">取消上传</string>
     <string name="upload">上传</string>
     <string name="storage_removed">存储卡已被移出</string>
     <string name="error_selecting_file">选择文件时出错</string>

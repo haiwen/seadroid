@@ -23,9 +23,8 @@ import com.viewpagerindicator.TabPageIndicator;
 public class TabsFragment extends SherlockFragment {
     
     private static final int[] ICONS = new int[] {
-            R.drawable.perm_group_library, R.drawable.perm_group_starred,
-            R.drawable.perm_group_activity
-
+        R.drawable.tab_library, R.drawable.tab_starred,
+        R.drawable.tab_activity
     };
     
     private int currentPosition = 0;

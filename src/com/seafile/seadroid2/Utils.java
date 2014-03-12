@@ -215,8 +215,8 @@ public class Utils {
             } else if (mimetype.contains("presentationml")) {
                 return R.drawable.file_ms_ppt;
             }
-        } else if (mimetype.contains("application")) {
-            return R.drawable.file_binary;
+        // } else if (mimetype.contains("application")) {
+        //     return R.drawable.file_binary;
         }
 
         return R.drawable.file;

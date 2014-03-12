@@ -165,7 +165,7 @@ public class SeafItemAdapter extends BaseAdapter {
 
         viewHolder.title.setText(dirent.getTitle());
         if (dirent.isDir()) {
-            viewHolder.subtitle.setText("");
+            viewHolder.subtitle.setText(dirent.getSubtitle());
             viewHolder.icon.setImageResource(dirent.getIcon());
             viewHolder.action.setVisibility(View.VISIBLE);
             setDirAction(dirent, viewHolder, position);
