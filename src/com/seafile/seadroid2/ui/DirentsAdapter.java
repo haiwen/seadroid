@@ -71,32 +71,30 @@ public class DirentsAdapter extends BaseAdapter {
             TextView title = (TextView) view.findViewById(R.id.list_item_title);
             TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
             ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
-            ImageView action = (ImageView) view.findViewById(R.id.list_item_action);
-            viewHolder = new Viewholder(title, subtitle, icon, action);
+            viewHolder = new Viewholder(title, subtitle, icon);
             view.setTag(viewHolder);
         } else {
             viewHolder = (Viewholder) convertView.getTag();
         }
 
         viewHolder.title.setText(dirent.getTitle());
+        viewHolder.subtitle.setText(dirent.getSubtitle());
+        viewHolder.icon.setImageResource(dirent.getIcon());
+
+        int alpha;
+        int titleColor;
+
         if (dirent.isDir()) {
-            viewHolder.subtitle.setText("");
-            viewHolder.icon.setImageResource(dirent.getIcon());
-
-            viewHolder.title.setTextColor(Color.GRAY);
-            viewHolder.subtitle.setTextColor(Color.GRAY);
-            if (android.os.Build.VERSION.SDK_INT >= 11) {
-                viewHolder.icon.setAlpha(255);
-            }
+            alpha = 255;
+            titleColor = Color.BLACK;
         } else {
-            viewHolder.subtitle.setText(dirent.getSubtitle());
-            viewHolder.icon.setImageResource(dirent.getIcon());
-
-            viewHolder.title.setTextColor(Color.GRAY);
-            viewHolder.subtitle.setTextColor(Color.GRAY);
-            if (android.os.Build.VERSION.SDK_INT >= 11) {
-                viewHolder.icon.setAlpha(75);
-            }
+            alpha = 75;
+            titleColor = Color.GRAY;
+        }
+        viewHolder.title.setTextColor(titleColor);
+        viewHolder.subtitle.setTextColor(Color.GRAY);
+        if (android.os.Build.VERSION.SDK_INT >= 11) {
+            viewHolder.icon.setAlpha(alpha);
         }
 
         return view;
@@ -104,12 +102,11 @@ public class DirentsAdapter extends BaseAdapter {
 
     private class Viewholder {
         TextView title, subtitle;
-        ImageView icon, action;
+        ImageView icon;
 
-        public Viewholder(TextView title, TextView subtitle, ImageView icon, ImageView action) {
+        public Viewholder(TextView title, TextView subtitle, ImageView icon) {
             super();
             this.icon = icon;
-            this.action = action;
             this.title = title;
             this.subtitle = subtitle;
         }
