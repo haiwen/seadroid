@@ -112,9 +112,14 @@ public class AccountsActivity extends FragmentActivity {
     @Override
     public void onStop() {
         super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
         if (mMonitorService != null) {
             unbindService(mMonitorConnection);
-            mMonitorConnection = null;
+            mMonitorService = null;
         }
     }
 

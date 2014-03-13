@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.AnimationUtils;
@@ -33,6 +34,7 @@ public abstract class TaskDialog extends DialogFragment {
         }
     }
 
+    private static final String DEBUG_TAG = "TaskDialog";
     private static final String STATE_ERROR_TEXT = "task_dialog.error_text";
     private static final String TASK_STATE_SAVED = "task_dialog.task_saved";
 
@@ -97,6 +99,18 @@ public abstract class TaskDialog extends DialogFragment {
 
     protected Task getTask() {
         return task;
+    }
+
+    @Override
+    public void onStop() {
+        Log.d(DEBUG_TAG, "onStop");
+        super.onStop();
+
+        if (task != null && task.getStatus() != AsyncTask.Status.FINISHED) {
+            Log.d(DEBUG_TAG, "cancel the task");
+            task.cancel(true);
+        }
+
     }
 
     /**

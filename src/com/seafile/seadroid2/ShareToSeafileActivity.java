@@ -81,15 +81,15 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
         Intent intent = getIntent();
 
         Uri uri = (Uri)intent.getExtras().get(Intent.EXTRA_STREAM);
+        final String localPath = getSharedFilePath(uri);
 
-        if (uri == null) {
+        if (localPath == null) {
             findViewById(R.id.main).setVisibility(View.GONE);
             return;
         }
 
         findViewById(R.id.not_supported_text).setVisibility(View.GONE);
 
-        final String localPath = getSharedFilePath(uri);
         Log.d(DEBUG_TAG, "share " + localPath);
 
         ActionBar bar = getSupportActionBar();
@@ -135,12 +135,18 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
     }
 
     private String getSharedFilePath(Uri uri) {
+        if (uri == null) {
+            return null;
+        }
+
         if (uri.getScheme().equals("file")) {
             return uri.getPath();
         } else {
             ContentResolver contentResolver = getContentResolver();
             Cursor cursor = contentResolver.query(uri, null, null, null, null);
-            cursor.moveToFirst();
+            if (!cursor.moveToFirst()) {
+                return null;
+            }
             String filePath = cursor.getString(cursor.getColumnIndex(Images.Media.DATA));
             return filePath;
         }

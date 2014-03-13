@@ -188,7 +188,9 @@ public class ActivitiesFragment extends SherlockFragment {
         // Display error messages
         @Override
         public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-            Toast.makeText(getBrowserActivity(), "Error: " + description, Toast.LENGTH_SHORT).show();
+            if (getBrowserActivity() != null) {
+                Toast.makeText(getBrowserActivity(), "Error: " + description, Toast.LENGTH_SHORT).show();
+            }
         }
 
         // Ignore SSL certificate validate
