@@ -1,5 +1,15 @@
 package com.seafile.seadroid2.gallery;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -15,14 +25,8 @@ import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
 import android.util.Log;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 /**
  * ImageManager is used to retrieve and store images
@@ -109,7 +113,7 @@ public class ImageManager {
     public static String CAMERA_IMAGE_BUCKET_NAME =
             Environment.getExternalStorageDirectory().toString()
             + "/DCIM";
-    
+
     public static final String CAMERA_IMAGE_BUCKET_ID =
             getBucketId(CAMERA_IMAGE_BUCKET_NAME);
 
@@ -119,6 +123,22 @@ public class ImageManager {
      */
     public static String getBucketId(String path) {
         return String.valueOf(path.toLowerCase().hashCode());
+    }
+
+    public static List<String> getAllBucketIds() {
+        String[] paths = {
+            "/DCIM",
+            "/DCIM/Camera",
+            "/DCIM/100MEDIA"
+        };
+
+        List<String> ids = Lists.newArrayList();
+        for (String path : paths) {
+            String fullPath = Environment.getExternalStorageDirectory().toString() + path;
+            ids.add(getBucketId(fullPath));
+        }
+
+        return ImmutableList.copyOf(ids);
     }
 
     /**

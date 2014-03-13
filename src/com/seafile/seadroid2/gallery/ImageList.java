@@ -1,11 +1,15 @@
 package com.seafile.seadroid2.gallery;
 
+import java.util.HashMap;
+import java.util.List;
+
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore.Images.Media;
 
-import java.util.HashMap;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 
 /**
  * Represents an ordered collection of Image objects. Provides an API to add
@@ -49,23 +53,30 @@ public class ImageList extends BaseImageList implements IImageList {
 
     private static final String WHERE_CLAUSE =
             "(" + Media.MIME_TYPE + " in (?, ?, ?))";
-    private static final String WHERE_CLAUSE_WITH_BUCKET_ID =
-            WHERE_CLAUSE + " AND " + Media.BUCKET_ID + " = ?";
 
     protected String whereClause() {
-        return mBucketId == null ? WHERE_CLAUSE : WHERE_CLAUSE_WITH_BUCKET_ID;
+        int count = ImageManager.getAllBucketIds().size();
+        List<String> chars = Lists.newArrayList();
+        for (int i = 0; i < count; i++) {
+            chars.add("?");
+        }
+
+        String clause = WHERE_CLAUSE + " AND "
+            + Media.BUCKET_ID + " in " + "(" + Joiner.on(", ").join(chars) + ")";
+
+        return clause;
     }
 
     protected String[] whereClauseArgs() {
-        // TODO: Since mBucketId won't change, we should keep the array.
-        if (mBucketId != null) {
-            int count = ACCEPTABLE_IMAGE_TYPES.length;
-            String[] result = new String[count + 1];
-            System.arraycopy(ACCEPTABLE_IMAGE_TYPES, 0, result, 0, count);
-            result[count] = mBucketId;
-            return result;
+        int count = ACCEPTABLE_IMAGE_TYPES.length;
+        List<String> ids = ImageManager.getAllBucketIds();
+        int idsCount = ids.size();
+        String[] result = new String[count + idsCount];
+        System.arraycopy(ACCEPTABLE_IMAGE_TYPES, 0, result, 0, count);
+        for (int i = 0; i < idsCount; i++) {
+            result[count + i] = ids.get(i);
         }
-        return ACCEPTABLE_IMAGE_TYPES;
+        return result;
     }
 
     @Override

@@ -1,12 +1,17 @@
 package com.seafile.seadroid2.gallery;
 
+import java.util.HashMap;
+import java.util.List;
+
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore.Images;
 import android.provider.MediaStore.Video.Media;
 
-import java.util.HashMap;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
 /**
  * A collection of all the <code>VideoObject</code> in gallery.
@@ -84,13 +89,19 @@ public class VideoList extends BaseImageList {
     }
 
     protected String whereClause() {
-        return mBucketId != null
-                ? Images.Media.BUCKET_ID + " = '" + mBucketId + "'"
-                : null;
+        int count = ImageManager.getAllBucketIds().size();
+        List<String> chars = Lists.newArrayList();
+        for (int i = 0; i < count; i++) {
+            chars.add("?");
+        }
+
+        String clause = Media.BUCKET_ID + " in " + "(" + Joiner.on(", ").join(chars) + ")";
+
+        return clause;
     }
 
     protected String[] whereClauseArgs() {
-        return null;
+        return Iterables.toArray(ImageManager.getAllBucketIds(), String.class);
     }
 
     @Override
