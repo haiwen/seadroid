@@ -14,6 +14,11 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Build;
+import android.provider.Settings.Secure;
 import android.util.Log;
 import android.util.Pair;
 
@@ -105,6 +110,25 @@ public class SeafConnection {
             req.form("username", account.email);
             req.form("password", account.passwd);
 
+            String appVersion = "";
+            Context context = SeadroidApplication.getAppContext();
+            try {
+                PackageInfo pInfo = context.getPackageManager().
+                    getPackageInfo(context.getPackageName(), 0);
+                appVersion = pInfo.versionName;
+            } catch (NameNotFoundException e) {
+                // ignore
+            }
+
+            String deviceId = Secure.getString(context.getContentResolver(),
+                                               Secure.ANDROID_ID);
+
+            req.form("platform", "android");
+            req.form("device_id", deviceId);
+            req.form("device_name", Build.MODEL);
+            req.form("client_version", appVersion);
+            req.form("platform_version", Build.VERSION.RELEASE);
+
             if (req.code() != 200) {
                 if (req.message() == null) {
                     throw SeafException.networkException;
@@ -183,7 +207,7 @@ public class SeafConnection {
             throw SeafException.networkException;
         }
     }
-    
+
     private static String encodeUriComponent(String src) throws UnsupportedEncodingException {
         return URLEncoder.encode(src, "UTF-8");
     }

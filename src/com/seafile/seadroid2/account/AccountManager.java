@@ -181,6 +181,11 @@ public class AccountManager {
         return accounts;
     }
 
+    public boolean accountExist(String url, String username) {
+        // TODO
+        return false;
+    }
+
     public  Account getDemoAccout() {
         return new Account("http://cloud.seafile.com", "demo@seafile.com", "demo", null);
     }
