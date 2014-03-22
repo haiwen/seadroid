@@ -8,3 +8,5 @@ local.properties
 libs
 tmp
 proguard/
+target/
+lint.xml
