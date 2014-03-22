@@ -1,20 +1,32 @@
 # Seafile Android Client
 
-## Android Dependencies
+## Build the APK
+
+* Make sure you have installed [Maven](http://maven.apache.org/) 3.1.1+
+* Build the apk by:
+
+```
+mvn clean package
+```
+
+You will get `target/seadroid.apk` after the build finishes.
+
+## Develop in Eclipse
+
+### Android Dependencies
 
 * [ActionBarSherlock](https://github.com/JakeWharton/ActionBarSherlock)
 * [NewQuickAction](https://github.com/haiwen/NewQuickAction)
 * [ViewPagerIndicator](https://github.com/JakeWharton/Android-ViewPagerIndicator)
 
-## Build
+### Build
 
 - Download `ActionBarSherlock` 4.2.0 from http://actionbarsherlock.com/download.html
 - Download `ViewPagerIndicator` 2.4.1 from http://viewpagerindicator.com
 
-- Git clone `NewQuickAction`, checkout commit `89f7f1ee572996787096992df5c2991c406d6967`
+- Git clone `NewQuickAction`
 
-        git clone https://github.com/xgouchet/NewQuickAction
-        git checkout 89f7f1ee572996787096992df5c2991c406d6967
+        git clone https://github.com/haiwen/NewQuickAction
 
 - Add ActionBarSherlock/NewQuickAction/ViewPagerIndicator as library according to <http://developer.android.com/guide/developing/projects/projects-eclipse.html#ReferencingLibraryProject>
 
