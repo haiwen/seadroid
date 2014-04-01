@@ -19,11 +19,13 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.seafile.seadroid2.BrowserActivity;
+import com.seafile.seadroid2.CertsManager;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.NavContext;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.Utils;
+import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafGroup;
@@ -314,6 +316,27 @@ public class ReposFragment extends SherlockListFragment {
             }
         }
 
+        private void displaySSLError() {
+            if (mActivity == null)
+                return;
+
+            if (getNavContext().inRepo()) {
+                return;
+            }
+
+            showError(R.string.ssl_error);
+        }
+
+        private void resend() {
+            if (mActivity == null)
+                return;
+
+            if (getNavContext().inRepo()) {
+                return;
+            }
+            ConcurrentAsyncTask.execute(new LoadTask(dataManager));
+        }
+
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(List<SeafRepo> rs) {
@@ -323,6 +346,27 @@ public class ReposFragment extends SherlockListFragment {
 
             if (getNavContext().inRepo()) {
                 // this occurs if user already navigate into a repo
+                return;
+            }
+
+            // Prompt the user to accept the ssl certificate
+            if (err == SeafException.sslException) {
+                SslConfirmDialog dialog = new SslConfirmDialog(dataManager.getAccount(),
+                new SslConfirmDialog.Listener() {
+                    @Override
+                    public void onAccepted(boolean rememberChoice) {
+                        Account account = dataManager.getAccount();
+                        CertsManager.instance().saveCertForAccount(account, rememberChoice);
+                        resend();
+                    }
+
+                    @Override
+                    public void onRejected() {
+                        Log.d("SeafileHTTPS", "the user rejectes the ssl certificate");
+                        displaySSLError();
+                    }
+                });
+                dialog.show(getFragmentManager(), SslConfirmDialog.FRAGMENT_TAG);
                 return;
             }
 
@@ -342,7 +386,6 @@ public class ReposFragment extends SherlockListFragment {
                 showError(R.string.error_when_load_repos);
             }
         }
-
     }
 
     private void showError(int strID) {
@@ -413,6 +456,28 @@ public class ReposFragment extends SherlockListFragment {
 
         }
 
+        private void resend() {
+            if (mActivity == null)
+                return;
+            NavContext nav = mActivity.getNavContext();
+            if (!myRepoID.equals(nav.getRepoID()) || !myPath.equals(nav.getDirPath())) {
+                return;
+            }
+
+            ConcurrentAsyncTask.execute(new LoadDirTask(dataManager), myRepoName, myRepoID, myPath);
+        }
+
+        private void displaySSLError() {
+            if (mActivity == null)
+                return;
+
+            NavContext nav = mActivity.getNavContext();
+            if (!myRepoID.equals(nav.getRepoID()) || !myPath.equals(nav.getDirPath())) {
+                return;
+            }
+            showError(R.string.ssl_error);
+        }
+
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(List<SeafDirent> dirents) {
@@ -422,6 +487,26 @@ public class ReposFragment extends SherlockListFragment {
 
             NavContext nav = mActivity.getNavContext();
             if (!myRepoID.equals(nav.getRepoID()) || !myPath.equals(nav.getDirPath())) {
+                return;
+            }
+
+            if (err == SeafException.sslException) {
+                SslConfirmDialog dialog = new SslConfirmDialog(dataManager.getAccount(),
+                new SslConfirmDialog.Listener() {
+                    @Override
+                    public void onAccepted(boolean rememberChoice) {
+                        Account account = dataManager.getAccount();
+                        CertsManager.instance().saveCertForAccount(account, rememberChoice);
+                        resend();
+                    }
+
+                    @Override
+                    public void onRejected() {
+                        Log.d("SeafileHTTPS", "the user rejectes the ssl certificate");
+                        displaySSLError();
+                    }
+                });
+                dialog.show(getFragmentManager(), SslConfirmDialog.FRAGMENT_TAG);
                 return;
             }
 

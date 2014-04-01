@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.ui.SslConfirmDialog;
 
 
 public class AccountDetailActivity extends FragmentActivity {
@@ -225,8 +226,32 @@ public class AccountDetailActivity extends FragmentActivity {
             return doLogin();
         }
 
+        private void resend() {
+            ConcurrentAsyncTask.execute(new LoginTask(loginAccount));
+        }
+
         @Override
-        protected void onPostExecute(String result) {
+        protected void onPostExecute(final String result) {
+            if (err == SeafException.sslException) {
+                SslConfirmDialog dialog = new SslConfirmDialog(loginAccount,
+                new SslConfirmDialog.Listener() {
+                    @Override
+                    public void onAccepted(boolean rememberChoice) {
+                        CertsManager.instance().saveCertForAccount(loginAccount, rememberChoice);
+                        resend();
+                    }
+
+                    @Override
+                    public void onRejected() {
+                        Log.d("SeafileHTTPS", "the user rejectes the ssl certificate");
+                        statusView.setText(result);
+                        loginButton.setEnabled(true);
+                    }
+                });
+                dialog.show(getSupportFragmentManager(), SslConfirmDialog.FRAGMENT_TAG);
+                return;
+            }
+
             if (result != null && result.equals("Success")) {
                 if (isFromEdit) {
                     accountManager.updateAccount(account, loginAccount);
@@ -236,10 +261,7 @@ public class AccountDetailActivity extends FragmentActivity {
                 }
                 startFilesActivity(loginAccount);
             } else {
-                if (err != null && err == SeafException.sslException) {
-                    statusView.setText("SSL Error or Certification Error. You may try again.");
-                } else
-                    statusView.setText(result);
+                statusView.setText(result);
             }
             loginButton.setEnabled(true);
         }
@@ -253,6 +275,9 @@ public class AccountDetailActivity extends FragmentActivity {
                 return "Success";
             } catch (SeafException e) {
                 err = e;
+                if (e == SeafException.sslException) {
+                    return getString(R.string.ssl_error);
+                }
                 switch (e.getCode()) {
                 case 400:
                     return getString(R.string.err_wrong_user_or_passwd);

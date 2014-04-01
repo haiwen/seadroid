@@ -10,7 +10,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.io.Reader;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.text.DecimalFormat;
@@ -33,8 +35,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.net.NetworkInfo.DetailedState;
+import android.net.Uri;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
@@ -480,5 +482,12 @@ public class Utils {
         }
 
         return null;
+    }
+
+    public static String getStackTrace(Exception e) {
+        StringWriter buffer = new StringWriter();
+        PrintWriter writer = new PrintWriter(buffer);
+        e.printStackTrace(writer);
+        return buffer.toString();
     }
 }

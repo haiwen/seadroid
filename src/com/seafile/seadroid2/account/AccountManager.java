@@ -103,7 +103,7 @@ public class AccountManager {
         values.put(AccountDbHelper.COLUMN_TOKEN, account.token);
 
         // Insert the new row, returning the primary key value of the new row
-        db.insert(AccountDbHelper.TABLE_NAME, null, values);
+        db.replace(AccountDbHelper.TABLE_NAME, null, values);
         db.close();
     }
 

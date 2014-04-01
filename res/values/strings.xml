@@ -148,4 +148,10 @@
     <string name="n_upload_files_selected">%d file(s) selected</string>
     <string name="empty_folder">Empty folder</string>
     <string name="choose_file">Choose a file</string>
+    <string name="ssl_error">SSL check failed</string>
+    <string name="ssl_confirm">The ssl certificate of %s is not trusted. Do you want to continue?</string>
+    <string name="ssl_confirm_title">Untrusted Connection</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="remember_my_choice">Remember my choice</string>
 </resources>

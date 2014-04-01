@@ -57,9 +57,9 @@ import com.seafile.seadroid2.data.SeafStarredFile;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 import com.seafile.seadroid2.gallery.MultipleImageSelectionActivity;
 import com.seafile.seadroid2.monitor.FileMonitorService;
-import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferManager.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.TransferManager.UploadTaskInfo;
+import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.ui.AppChoiceDialog;
 import com.seafile.seadroid2.ui.AppChoiceDialog.CustomAction;
@@ -71,6 +71,7 @@ import com.seafile.seadroid2.ui.OpenAsDialog;
 import com.seafile.seadroid2.ui.PasswordDialog;
 import com.seafile.seadroid2.ui.RenameFileDialog;
 import com.seafile.seadroid2.ui.ReposFragment;
+import com.seafile.seadroid2.ui.SslConfirmDialog;
 import com.seafile.seadroid2.ui.StarredFragment;
 import com.seafile.seadroid2.ui.TabsFragment;
 import com.seafile.seadroid2.ui.TaskDialog;
@@ -230,6 +231,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         unsetRefreshing();
 
         if (savedInstanceState != null) {
+            Log.d(DEBUG_TAG, "savedInstanceState is not null");
             tabsFragment = (TabsFragment)
                     getSupportFragmentManager().findFragmentByTag(TABS_FRAGMENT_TAG);
             uploadTasksFragment = (UploadTasksFragment)
@@ -247,6 +249,18 @@ public class BrowserActivity extends SherlockFragmentActivity
                 ft.commit();
             }
 
+            SslConfirmDialog sslConfirmDlg = (SslConfirmDialog)
+                getSupportFragmentManager().findFragmentByTag(SslConfirmDialog.FRAGMENT_TAG);
+
+            if (sslConfirmDlg != null) {
+                Log.d(DEBUG_TAG, "sslConfirmDlg is not null");
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                ft.detach(sslConfirmDlg);
+                ft.commit();
+            } else {
+                Log.d(DEBUG_TAG, "sslConfirmDlg is null");
+            }
+
             String repoID = savedInstanceState.getString("repoID");
             String repoName = savedInstanceState.getString("repoName");
             String path = savedInstanceState.getString("path");
@@ -257,6 +271,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                 navContext.setDir(path, dirID);
             }
         } else {
+            Log.d(DEBUG_TAG, "savedInstanceState is null");
             tabsFragment = new TabsFragment();
             uploadTasksFragment = new UploadTasksFragment();
             getSupportFragmentManager().beginTransaction().add(R.id.content_frame, tabsFragment, TABS_FRAGMENT_TAG).commit();
@@ -370,7 +385,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         if (mTransferReceiver == null) {
             mTransferReceiver = new TransferReceiver();
         }
-
 
         IntentFilter filter = new IntentFilter(TransferService.BROADCAST_ACTION);
         LocalBroadcastManager.getInstance(this).registerReceiver(mTransferReceiver, filter);
