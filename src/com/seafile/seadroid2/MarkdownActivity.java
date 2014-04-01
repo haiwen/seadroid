@@ -90,7 +90,7 @@ public class MarkdownActivity extends SherlockActivity {
             // No activity to handle markdown, take it as text
             Intent editAsText = new Intent(Intent.ACTION_EDIT);
             mime = "text/plain";
-            editAsMarkDown.setDataAndType(uri, mime);
+            editAsText.setDataAndType(uri, mime);
 
             try {
                 startActivity(editAsText);
