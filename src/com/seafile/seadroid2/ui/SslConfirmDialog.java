@@ -8,6 +8,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.CheckBox;
@@ -15,6 +16,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SSLTrustManager;
+import com.seafile.seadroid2.SSLTrustManager.SslFailureReason;
 import com.seafile.seadroid2.account.Account;
 
 
@@ -57,8 +60,15 @@ public class SslConfirmDialog extends DialogFragment {
             // ignore
         }
 
-        String msg = String.format(getActivity().getString(R.string.ssl_confirm), host);
-        messageText.setText(msg);
+        SslFailureReason reason = SSLTrustManager.instance().getFailureReason(account);
+        String msg;
+        if (reason == SslFailureReason.CERT_NOT_TRUSTED) {
+            msg = String.format(getActivity().getString(R.string.ssl_confirm), host);
+            messageText.setText(msg);
+        } else {
+            msg = String.format(getActivity().getString(R.string.ssl_confirm_cert_changed), host);
+            messageText.setText(msg);
+        }
 
         builder.setTitle(R.string.ssl_confirm_title);
         builder.setView(view);

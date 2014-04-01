@@ -24,15 +24,27 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.account.Account;
 
-public class SSLTrustManager {
+public final class SSLTrustManager {
+
+    public enum SslFailureReason {
+        CERT_NOT_TRUSTED,
+        CERT_CHANGED,
+    }
 
     private static final String DEBUG_TAG = "SSLTrustManager";
 
     private X509TrustManager defaultTrustManager;
 
-    private SSLTrustManager() {}
+    private Map<Account, SecureX509TrustManager> managers =
+        new HashMap<Account, SecureX509TrustManager>();
+
+    private Map<Account, SSLSocketFactory> cachedFactories =
+        new HashMap<Account, SSLSocketFactory>();
 
     private static SSLTrustManager instance;
+
+    private SSLTrustManager() {
+    }
 
     public static synchronized SSLTrustManager instance() {
         if (instance == null) {
@@ -84,21 +96,28 @@ public class SSLTrustManager {
         return new TrustManager[] {mgr};
     }
 
-    private Map<Account, SecureX509TrustManager> managers =
-        new HashMap<Account, SecureX509TrustManager>();
+    public synchronized SSLSocketFactory getSSLSocketFactory(Account account) {
+        SSLSocketFactory factory = cachedFactories.get(account);
 
-    // TODO: cache SSLSocketFactory for each account
-    public SSLSocketFactory getSSLSocketFactory(Account account) {
+        if (factory != null) {
+            return factory;
+        }
+
         try {
             SSLContext context = SSLContext.getInstance("TLS");
             TrustManager[] mgrs = getTrustManagers(account);
             context.init(null, mgrs, new SecureRandom());
-            SSLSocketFactory factory = context.getSocketFactory();
-            return factory;
+            factory = context.getSocketFactory();
+            Log.d(DEBUG_TAG, "a SSLSocketFactory is created:" + factory);
         } catch (Exception e) {
-            Log.d("SeafileHTTPS", Utils.getStackTrace(e));
-            return null;
+            Log.e(DEBUG_TAG, "error when create SSLSocketFactory", e);
         }
+
+        if (factory != null) {
+            cachedFactories.put(account, factory);
+        }
+
+        return factory;
     }
 
     public List<X509Certificate> getCertsChainForAccount(Account account) {
@@ -108,6 +127,16 @@ public class SSLTrustManager {
         }
 
         return mgr.getServerCertsChain();
+    }
+
+    public SslFailureReason getFailureReason(Account account) {
+        SecureX509TrustManager mgr = managers.get(account);
+        SslFailureReason reason = null;
+        if (mgr != null) {
+            reason = mgr.getReason();
+        }
+
+        return reason != null ? reason : SslFailureReason.CERT_NOT_TRUSTED;
     }
 
     /**
@@ -153,6 +182,8 @@ public class SSLTrustManager {
 
         private Account account;
 
+        private SslFailureReason reason;
+
         private volatile List<X509Certificate> certsChain = ImmutableList.of();
 
         public SecureX509TrustManager(Account account) {
@@ -162,6 +193,10 @@ public class SSLTrustManager {
 
         public List<X509Certificate> getServerCertsChain() {
             return certsChain;
+        }
+
+        public SslFailureReason getReason() {
+            return reason;
         }
 
         @Override
@@ -177,8 +212,6 @@ public class SSLTrustManager {
                 defaultTrustManager.checkServerTrusted(chain, authType);
                 return;
             }
-
-            Log.d("SeafileHTTPS", ">>>>> authType is " + authType);
 
             try {
                 // First try to do default check
@@ -199,6 +232,7 @@ public class SSLTrustManager {
             X509Certificate savedCert = CertsManager.instance().getCertificate(account);
             if (savedCert == null) {
                 Log.d(DEBUG_TAG, "no saved cert for " + account.server);
+                reason = SslFailureReason.CERT_NOT_TRUSTED;
                 throw new CertificateException();
             } else if (savedCert.equals(cert)) {
                 // The user has confirmed to trust this certificate
@@ -210,6 +244,7 @@ public class SSLTrustManager {
                 // 1. The server admin has changed its cert
                 // 2. The user is under security attak
                 Log.d(DEBUG_TAG, "the cert of " + account.server + " has changed");
+                reason = SslFailureReason.CERT_CHANGED;
                 throw new CertificateException();
             }
         }

@@ -150,6 +150,7 @@
     <string name="choose_file">Choose a file</string>
     <string name="ssl_error">SSL check failed</string>
     <string name="ssl_confirm">The ssl certificate of %s is not trusted. Do you want to continue?</string>
+    <string name="ssl_confirm_cert_changed">%s uses an invalid security certificate. The connection is not secure. Do you want to continue?</string>
     <string name="ssl_confirm_title">Untrusted Connection</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>

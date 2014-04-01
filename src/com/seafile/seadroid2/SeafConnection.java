@@ -9,7 +9,6 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
-import java.security.cert.Certificate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -689,20 +688,6 @@ public class SeafConnection {
         } catch (UnsupportedEncodingException e) {
             throw SeafException.encodingException;
         } catch (HttpRequestException e) {
-            if (req != null) {
-                IOException exception = e.getCause();
-                if (exception instanceof SSLHandshakeException) {
-                    HttpsURLConnection conn = (HttpsURLConnection) req.getConnection();
-                    try {
-                        Certificate[] certs = conn.getServerCertificates();
-                        for (Certificate cert : certs) {
-                            Log.d("SeafileHTTPS", cert.toString());
-                        }
-                    } catch (Exception e1) {
-                    }
-                }
-            }
-
             throw SeafException.networkException;
         }
     }

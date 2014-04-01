@@ -243,7 +243,6 @@ public class AccountDetailActivity extends FragmentActivity {
 
                     @Override
                     public void onRejected() {
-                        Log.d("SeafileHTTPS", "the user rejectes the ssl certificate");
                         statusView.setText(result);
                         loginButton.setEnabled(true);
                     }

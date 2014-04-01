@@ -24,15 +24,15 @@ import com.seafile.seadroid2.account.Account;
 /**
  * Save the ssl certificates the user has confirmed to trust
  */
-public class CertsManager {
+public final class CertsManager {
 
     private static final String DEBUG_TAG = "CertsManager";
 
-    private DBHelper db = DBHelper.getDatabaseHelper();
+    private final DBHelper db = DBHelper.getDatabaseHelper();
+
+    private final Map<Account, X509Certificate> cachedCerts = Maps.newHashMap();
 
     private static CertsManager instance;
-
-    private static Map<Account, X509Certificate> cachedCerts = Maps.newHashMap();
 
     public static synchronized CertsManager instance() {
         if (instance == null) {
@@ -58,12 +58,18 @@ public class CertsManager {
         Log.d(DEBUG_TAG, "saved cert for account " + account);
     }
 
-    X509Certificate getCertificate(Account account) {
+    public synchronized X509Certificate getCertificate(Account account) {
         X509Certificate cert = cachedCerts.get(account);
         if (cert != null) {
             return cert;
         }
-        return db.getCertificate(account.server);
+
+        cert = db.getCertificate(account.server);
+        if (cert != null) {
+            cachedCerts.put(account, cert);
+        }
+
+        return cert;
     }
 
     static class DBHelper extends SQLiteOpenHelper {

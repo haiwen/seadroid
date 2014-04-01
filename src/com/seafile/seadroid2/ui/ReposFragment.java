@@ -362,7 +362,6 @@ public class ReposFragment extends SherlockListFragment {
 
                     @Override
                     public void onRejected() {
-                        Log.d("SeafileHTTPS", "the user rejectes the ssl certificate");
                         displaySSLError();
                     }
                 });
@@ -502,7 +501,6 @@ public class ReposFragment extends SherlockListFragment {
 
                     @Override
                     public void onRejected() {
-                        Log.d("SeafileHTTPS", "the user rejectes the ssl certificate");
                         displaySSLError();
                     }
                 });
