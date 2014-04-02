@@ -1,7 +1,13 @@
 package com.seafile.seadroid2.ui;
 
+import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -9,6 +15,8 @@ import java.util.regex.Pattern;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.http.SslCertificate;
+import android.net.http.SslCertificate.DName;
 import android.net.http.SslError;
 import android.os.Bundle;
 import android.util.Log;
@@ -26,6 +34,7 @@ import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.seafile.seadroid2.BrowserActivity;
+import com.seafile.seadroid2.CertsManager;
 import com.seafile.seadroid2.FileActivity;
 import com.seafile.seadroid2.NavContext;
 import com.seafile.seadroid2.R;
@@ -190,13 +199,31 @@ public class ActivitiesFragment extends SherlockFragment {
         public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
             if (getBrowserActivity() != null) {
                 Toast.makeText(getBrowserActivity(), "Error: " + description, Toast.LENGTH_SHORT).show();
+                showPageLoading(false);
             }
         }
 
         // Ignore SSL certificate validate
         @Override
         public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
-            handler.proceed();
+            BrowserActivity mActivity = getBrowserActivity();
+            if (mActivity == null) {
+                return;
+            }
+
+            Account account = mActivity.getAccount();
+
+            SslCertificate sslCert = error.getCertificate();
+            X509Certificate savedCert = CertsManager.instance().getCertificate(account);
+
+            if (isSameCert(sslCert, savedCert)) {
+                Log.d(DEBUG_TAG, "trust this cert");
+                handler.proceed();
+            } else {
+                Log.d(DEBUG_TAG, "cert is not trusted");
+                mActivity.showToast(R.string.ssl_error);
+                showPageLoading(false);
+            }
         }
 
         @Override
@@ -258,4 +285,80 @@ public class ActivitiesFragment extends SherlockFragment {
         }
     }
 
+    /**
+     * SslCertificate class does not has a public getter for the underlying
+     * X509Certificate, we can only do this by hack. This only works for andorid 4.0+
+     * @see https://groups.google.com/forum/#!topic/android-developers/eAPJ6b7mrmg
+     */
+    private static X509Certificate getX509CertFromSslCertHack(SslCertificate sslCert) {
+        X509Certificate x509Certificate = null;
+
+        Bundle bundle = SslCertificate.saveState(sslCert);
+        byte[] bytes = bundle.getByteArray("x509-certificate");
+
+        if (bytes == null) {
+            x509Certificate = null;
+        } else {
+            try {
+                CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+                Certificate cert = certFactory.generateCertificate(new ByteArrayInputStream(bytes));
+                x509Certificate = (X509Certificate) cert;
+            } catch (CertificateException e) {
+                x509Certificate = null;
+            }
+        }
+
+        return x509Certificate;
+    }
+
+    private static boolean isSameCert(SslCertificate sslCert, X509Certificate x509Cert) {
+        if (sslCert == null || x509Cert == null) {
+            return false;
+        }
+
+        X509Certificate realCert = getX509CertFromSslCertHack(sslCert);
+        if (realCert != null) {
+            // for android 4.0+
+            return realCert.equals(x509Cert);
+        } else {
+            // for andorid < 4.0
+            return SslCertificateComparator.compare(sslCert,
+                                                    new SslCertificate(x509Cert));
+        }
+    }
+
+    /**
+     * Compare SslCertificate objects for android before 4.0
+     */
+    private static class SslCertificateComparator {
+        private SslCertificateComparator() {
+        }
+
+        public static boolean compare(SslCertificate cert1, SslCertificate cert2) {
+            return isSameDN(cert1.getIssuedTo(), cert2.getIssuedTo())
+                && isSameDN(cert1.getIssuedBy(), cert2.getIssuedBy())
+                && isSameDate(cert1.getValidNotBeforeDate(), cert2.getValidNotBeforeDate())
+                && isSameDate(cert1.getValidNotAfterDate(), cert2.getValidNotAfterDate());
+        }
+
+        private static boolean isSameDate(Date date1, Date date2) {
+            if (date1 == null && date2 == null) {
+                return true;
+            } else if (date1 == null || date2 == null) {
+                return false;
+            }
+
+            return date1.equals(date2);
+        }
+
+        private static boolean isSameDN(DName dName1, DName dName2) {
+            if (dName1 == null && dName2 == null) {
+                return true;
+            } else if (dName1 == null || dName2 == null) {
+                return false;
+            }
+
+            return dName1.getDName().equals(dName2.getDName());
+        }
+    }
 }

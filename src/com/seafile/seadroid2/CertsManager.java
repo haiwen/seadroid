@@ -30,7 +30,7 @@ public final class CertsManager {
 
     private final DBHelper db = DBHelper.getDatabaseHelper();
 
-    private final Map<Account, X509Certificate> cachedCerts = Maps.newHashMap();
+    private final Map<Account, X509Certificate> cachedCerts = Maps.newConcurrentMap();
 
     private static CertsManager instance;
 
@@ -42,23 +42,28 @@ public final class CertsManager {
         return instance;
     }
 
-    public void saveCertForAccount(Account account, boolean rememberChoice) {
+    public void saveCertForAccount(final Account account, boolean rememberChoice) {
         List<X509Certificate> certs = SSLTrustManager.instance().getCertsChainForAccount(account);
         if (certs == null || certs.size() == 0) {
             return;
         }
 
-        X509Certificate cert = certs.get(0);
+        final X509Certificate cert = certs.get(0);
         cachedCerts.put(account, cert);
 
         if (rememberChoice) {
-            db.saveCertificate(account.server, cert);
+            ConcurrentAsyncTask.execute(new Runnable() {
+                @Override
+                public void run() {
+                    db.saveCertificate(account.server, cert);
+                }
+            });
         }
 
         Log.d(DEBUG_TAG, "saved cert for account " + account);
     }
 
-    public synchronized X509Certificate getCertificate(Account account) {
+    public X509Certificate getCertificate(Account account) {
         X509Certificate cert = cachedCerts.get(account);
         if (cert != null) {
             return cert;

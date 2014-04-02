@@ -33,8 +33,7 @@ import com.seafile.seadroid2.monitor.FileMonitorService;
 
 public class AccountsActivity extends FragmentActivity {
 
-    @SuppressWarnings("unused")
-    private static final String DEBUG_TAG = "StartActivity";
+    private static final String DEBUG_TAG = "AccountsActivity";
 
     public static final String SHARED_PREF_NAME = "latest_account";
     public static final String SHARED_PREF_SERVER_KEY = "com.seafile.seadroid.server";
