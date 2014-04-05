@@ -17,7 +17,7 @@ public class SeafileMonitor {
 
     private static final String DEBUG_TAG = "SeafileMonitor";
     private Map<Account, SeafileObserver> observers = Maps.newHashMap();
-    private FileAlterationMonitor alterationMonitor = new FileAlterationMonitor();;
+    private FileAlterationMonitor alterationMonitor = new FileAlterationMonitor();
     private CachedFileChangedListener listener;
     private boolean started;
 
