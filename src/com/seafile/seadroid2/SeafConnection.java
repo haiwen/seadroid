@@ -65,6 +65,7 @@ public class SeafConnection {
     private void setRequestCommon(HttpRequest req) {
         req.readTimeout(30000)
             .connectTimeout(15000)
+            .followRedirects(true)
             .header("Authorization", "Token " + account.token);
 
         prepareHttpsCheck(req);
@@ -86,7 +87,7 @@ public class SeafConnection {
     }
 
     private HttpRequest prepareApiFileGetRequest(String url) throws HttpRequestException {
-        HttpRequest req =  HttpRequest.get(url).connectTimeout(15000);
+        HttpRequest req =  HttpRequest.get(url).connectTimeout(15000).followRedirects(true);
 
         return prepareHttpsCheck(req);
     }
@@ -100,6 +101,7 @@ public class SeafConnection {
     private HttpRequest prepareApiPostRequest(String apiPath, boolean withToken, Map<String, ?> params)
                                             throws HttpRequestException {
         HttpRequest req = HttpRequest.post(account.server + apiPath, params, true)
+            .followRedirects(true)
             .connectTimeout(15000);
 
         if (withToken) {
@@ -543,8 +545,9 @@ public class SeafConnection {
             }
 
 
-            HttpRequest req = HttpRequest.post(link).
-                                connectTimeout(15000);
+            HttpRequest req = HttpRequest.post(link)
+                .followRedirects(true)
+                .connectTimeout(15000);
 
             prepareHttpsCheck(req);
 
