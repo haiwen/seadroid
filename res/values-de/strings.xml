@@ -73,7 +73,7 @@
     <string name="wait">Warten</string>
     <string name="image_gallery_NoImageView_text">Kein Bild gefunden</string>
     <string name="pick_photo_video_title">Bitte wählen Sie ein Foto/Video um es hochzuladen</string>
-    <string name="select_upload_items">Elemente zum hochladen auswählen</string>
+    <string name="select_upload_items">Elemente zum Hochladen auswählen</string>
     <string name="n_upload_items_selected">%d Elemente markiert</string>
     <string name="dir_name_empty">Bitte geben Sie den Namen des Ordners an</string>
     <string name="file_name_empty">Bitte geben Sie den Namen der Datei an</string>
@@ -132,12 +132,12 @@
     <string name="upload_waiting">Warten</string>
     <string name="upload_finished">Beendet</string>
     <string name="upload_cancelled">Abgebrochen</string>
-    <string name="upload_failed">Fehlschlagen</string>
+    <string name="upload_failed">Fehlgeschlagen</string>
     <string name="days_ago"> Tage her</string>
     <string name="hours_ago"> Stunden her</string>
     <string name="minutes_ago"> Minuten her</string>
     <string name="seconds_ago"> Sekunden her</string>
     <string name="just_now">Gerade eben</string>
-    <string name="error_when_load_starred">Fehler beim laden der favorisieren Dateien</string>
+    <string name="error_when_load_starred">Fehler beim Laden der favorisierten Dateien</string>
     <string name="open_as">Öffnen als</string>
 </resources>
