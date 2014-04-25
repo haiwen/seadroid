@@ -62,6 +62,14 @@
     <string name="file_action_export">Exporter</string>
     <string name="file_action_delete">Effacer</string>
     <string name="file_action_rename">Renommer</string>
+    <string name="file_action_open_as">Ouvrir comme</string>
+    <string-array name="file_type_array">
+        <item>Texte</item>
+        <item>Audio</item>
+        <item>Vidéo</item>
+        <item>Image</item>
+        <item>Autre</item>
+    </string-array>
     <string name="wait">Wait</string>
     <string name="image_gallery_NoImageView_text">No image Found</string>
     <string name="pick_photo_video_title">Choisir les photos/vidéos à transférer</string>
@@ -116,7 +124,7 @@
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     <string name="no_starred_file">Aucun fichier préféré actuellement</string>
-    <string name="added_to_upload_tasks">Le(s) fichier(s) sélectionné est ajouté à la liste des transferts.</string>
+    <string name="added_to_upload_tasks">Fichier sélectionné ajouté à la liste des transferts.</string>
     <string name="tabs_library">Bibliothèques</string>
     <string name="tabs_activity">Activités</string>
     <string name="tabs_starred">Préférés</string>
@@ -131,5 +139,5 @@
     <string name="seconds_ago"> secondes</string>
     <string name="just_now">À l\'instant</string>
     <string name="error_when_load_starred">Erreur de chargement des fichiers préférés</string>
-    <string name="open_with">Ouvrir avec</string>
+    <string name="open_as">Ouvrir comme</string>
 </resources>
