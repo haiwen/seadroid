@@ -140,4 +140,19 @@
     <string name="just_now">Ahora</string>
     <string name="error_when_load_starred">Error al cargar archivos favoritos</string>
     <string name="open_as">Abrir como</string>
+    <string name="select_upload_files">seleccionar archivos para subir</string>
+    <string name="cancel">Cancelar</string>
+    <string name="upload">Subir</string>
+    <string name="storage_removed">Almacenamiento fue removido</string>
+    <string name="error_selecting_file">Error al seleccionar archivo</string>
+    <string name="n_upload_files_selected">%d archivo(s) seleccionado(s)</string>
+    <string name="empty_folder">Carpeta vacía</string>
+    <string name="choose_file">Elija un archivo</string>
+    <string name="ssl_error">falló la verificación de seguridad</string>
+    <string name="ssl_confirm">El certificado de seguridad de %s no es de confianza. ¿Desea continuar?</string>
+    <string name="ssl_confirm_cert_changed">%s utiliza un certificado de seguridad inválido. La conexión no es segura. ¿Desea continuar?</string>
+    <string name="ssl_confirm_title">Conexión no confiable</string>
+    <string name="yes">Si</string>
+    <string name="no">No</string>
+    <string name="remember_my_choice">Recordar mi elección</string>
 </resources>
