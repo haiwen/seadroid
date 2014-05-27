@@ -50,7 +50,7 @@
         <activity android:name="com.seafile.seadroid2.ShareToSeafileActivity"
                   android:theme="@style/Theme.SeafileTheme"
                   android:excludeFromRecents="true"
-                  android:label="@string/add_to_seafile">
+                  android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
