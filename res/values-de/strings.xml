@@ -3,7 +3,7 @@
     <string name="app_name">Seafile</string>
     <string name="app_url">http://seafile.com</string>
     <string name="welcome_to_seafile">Willkommen bei Seafile</string>
-    <string name="select_account">Wählen Sie ein Konto, um zu beginnen</string>
+    <string name="select_account">Bitte ein Konto auswählen, um zu beginnen</string>
     <string name="edit_account">Bearbeiten</string>
     <string name="delete_account">Löschen</string>
     <string name="delete">Löschen</string>
@@ -22,26 +22,26 @@
     <string name="add_account">Konto hinzufügen</string>
     <string name="personal">Meine Bibliotheken</string>
     <string name="libraries">Bibliotheken</string>
-    <string name="cached">Cached</string>
-    <string name="upload_tasks">UPLOADS</string>
+    <string name="cached">Zwischengespeichert</string>
+    <string name="upload_tasks">Übertragungen</string>
     <string name="activities">Aktivitäten</string>
     <string name="ok">OK</string>
     <string name="cancel">Abbrechen</string>
     <string name="pick_upload_type">Hochladen</string>
     <string-array name="pick_upload_array">
         <item>Datei</item>
-        <item>Fotos/Videos</item>
+        <item>Fotos/Filme</item>
         <item>Andere</item>
     </string-array>
-    <string name="choose_server">Wählen Sie ein Seafile-Server</string>
+    <string name="choose_server">Bitte einen Seafile-Server auswählen</string>
     <string-array name="choose_server_array">
         <item>Privater Seafile-Server</item>
         <item>SeaCloud.cc</item>
         <item>cloud.seafile.com</item>
     </string-array>
     <string name="network_down">Keine Netzwerkverbindung</string>
-    <string name="invalid_server_address">Ungültige Server-Adresse</string>
-    <string name="err_server_andress_empty">Server-Adresse darf nicht leer sein</string>
+    <string name="invalid_server_address">Ungültige Serveradresse</string>
+    <string name="err_server_andress_empty">Serveradresse darf nicht leer sein</string>
     <string name="err_login_failed">Anmeldung fehlgeschlagen</string>
     <string name="err_wrong_user_or_passwd">Ungültige E-Mail-Adresse oder Passwort</string>
     <string name="upload">Hochladen</string>
@@ -65,19 +65,19 @@
     <string name="file_action_open_as">Öffnen als</string>
     <string-array name="file_type_array">
         <item>Text</item>
-        <item>Audio</item>
-        <item>Video</item>
+        <item>Ton</item>
+        <item>Film</item>
         <item>Bild</item>
         <item>Andere</item>
     </string-array>
     <string name="wait">Warten</string>
     <string name="image_gallery_NoImageView_text">Kein Bild gefunden</string>
-    <string name="pick_photo_video_title">Bitte wählen Sie ein Foto/Video um es hochzuladen</string>
+    <string name="pick_photo_video_title">Bitte ein Foto/Film auswählen, um es hochzuladen</string>
     <string name="select_upload_items">Elemente zum hochladen auswählen</string>
     <string name="n_upload_items_selected">%d Elemente markiert</string>
-    <string name="dir_name_empty">Bitte geben Sie den Namen des Ordners an</string>
-    <string name="file_name_empty">Bitte geben Sie den Namen der Datei an</string>
-    <string name="password_empty">Bitte geben Sie das Passwort ein</string>
+    <string name="dir_name_empty">Bitte den Namen des Ordners eingeben</string>
+    <string name="file_name_empty">Bitte den Namen der Datei eingeben</string>
+    <string name="password_empty">Bitte das Passwort eingeben</string>
     <string name="wrong_password">falsches Passwort</string>
     <string name="library_read_only">Diese Bibliothek ist schreibgeschützt</string>
     <string name="error_when_load_dirents">Fehler beim Laden des Ordners</string>
@@ -88,11 +88,11 @@
     <string name="add_to_seafile">Zu Seafile hinzufügen</string>
     <string name="ok">Ok</string>
     <string name="cancel">Abbrechen</string>
-    <string name="no_account">Bitte legen Sie zuerst ein Konto an</string>
+    <string name="no_account">Bitte zuerst ein Konto einrichten</string>
     <string name="no_library">Sie haben noch keine Bibliotheken angelegt</string>
-    <string name="choose_an_account">Wählen Sie ein Konto</string>
-    <string name="choose_a_library">Wählen Sie eine Bibliothek</string>
-    <string name="choose_a_folder">Wählen Sie einen Ordner</string>
+    <string name="choose_an_account">Ein Konto auswählen</string>
+    <string name="choose_a_library">Eine Bibliothek auswählen</string>
+    <string name="choose_a_folder">Einen Ordner auswählen</string>
     <string name="load_accounts_fail">Das Seafile-Konto konnte nicht geladen werden</string>
     <string name="load_libraries_fail">Bibliotheken konnten nicht geladen werden</string>
     <string name="load_dir_fail">Der Inhalt des Ordners konnte nicht geladen werden</string>
@@ -107,28 +107,28 @@
     <string name="library_not_found">Die Bibliothek wurde gelöscht.</string>
     <string name="export_file">Diese Datei exportieren</string>
     <string name="no_upload_tasks">Derzeit wird nichts hochgeladen</string>
-    <string name="seahub_url_hint">Anmerkung: Server-Adresse sollte den Port enthalten, z.B. www.example.com:8000</string>
-    <string name="copy_link">Link kopieren</string>
-    <string name="share_file_link">Teilen Sie den Freigabe-Link zu dieser Datei</string>
-    <string name="share_dir_link">Teilen Sie den Freigabe-Link zu diesem Ordner</string>
-    <string name="generating_link">Erstelle Freigabe-Link...</string>
-    <string name="link_ready_to_be_pasted">Der Freigabe-Link wurde in die Zwischenablage kopiert.</string>
+    <string name="seahub_url_hint">Anmerkung: Serveradresse sollte folgenden Port enthalten, z.B. www.example.com:8000</string>
+    <string name="copy_link">Verweis kopieren</string>
+    <string name="share_file_link">Einen Verweis zu dieser Datei freigeben</string>
+    <string name="share_dir_link">Einen Verweis zu diesem Ordner freigeben</string>
+    <string name="generating_link">Verweis wird erstellt …</string>
+    <string name="link_ready_to_be_pasted">Die Verknüpfung wurde in die Zwischenablage kopiert.</string>
     <string name="rename_file">Datei umbenennen</string>
     <string name="rename_dir">Ordner umbenennen</string>
     <string name="rename_successful">Erfolgreich umbenannt.</string>
     <string-array name="nav_array">
         <item>Dateien</item>
-        <item>Uploads</item>
+        <item>Übertragungen</item>
         <item>Konten</item>
     </string-array>
-    <string name="drawer_open">Navigations-Schublade öffnen</string>
-    <string name="drawer_close">Navigations-Schublade schließen</string>
+    <string name="drawer_open">Navigationsschublade öffnen</string>
+    <string name="drawer_close">Navigationsschublade schließen</string>
     <string name="no_starred_file">Sie favorisieren derzeit keine Dateien</string>
-    <string name="added_to_upload_tasks">Die selektieren Datei(en) wurden zum hochladen hinzugefügt.</string>
+    <string name="added_to_upload_tasks">Die ausgewählten Datei(en) wurden zum hochladen hinzugefügt.</string>
     <string name="tabs_library">Bibliotheken </string>
     <string name="tabs_activity">Aktivitäten</string>
     <string name="tabs_starred">Favoriten</string>
-    <string name="provide_password">Geben Sie das Passwort für die Bibliothek \"%s\" ein</string>
+    <string name="provide_password">Das Passwort für die Bibliothek »%s« eingeben</string>
     <string name="upload_waiting">Warten</string>
     <string name="upload_finished">Beendet</string>
     <string name="upload_cancelled">Abgebrochen</string>
