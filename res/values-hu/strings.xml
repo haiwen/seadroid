@@ -18,7 +18,6 @@
     <string name="unknown_file_type">Ismeretlen fájl típus</string>
     <string name="activity_not_found">Nem található olyan alkalmazás amivel a fájlt meg lehet nyitni</string>
     <string name="refresh">Frissít</string>
-    <string name="login">Belépés</string>
     <string name="add_account">Fiók hozzáadása</string>
     <string name="personal">Személyes</string>
     <string name="libraries">Kötetek</string>
@@ -47,7 +46,6 @@
     <string name="upload">Feltölt</string>
     <string name="uploaded">Feltöltve</string>
     <string name="updated">Frissítve</string>
-    <string name="upload_failed">Feltöltés nem sikerült</string>
     <string name="download_failed">Letöltés nem sikerült</string>
     <string name="trust_https_server">A szerver tanúsítványát nem egy megbízható szervezet adta ki, így is folytatja?</string>
     <string name="upload_to">feltöltés ide: </string>
@@ -86,8 +84,6 @@
     <string name="no_repo">Nincsenek kötetei</string>
     <string name="no_app_available">Nem található alkalmazás</string>
     <string name="add_to_seafile">Hozzáadás a Seafile-hoz</string>
-    <string name="ok">Ok</string>
-    <string name="cancel">Mégse</string>
     <string name="no_account">Először hozzon létre egy felhasználói fiókot a Seafile-on</string>
     <string name="no_library">Nincs kötete</string>
     <string name="choose_an_account">Fiók kiválasztása</string>

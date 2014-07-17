@@ -9,7 +9,6 @@
     <string name="server_hint">服务器地址, 比如cloud.seafile.com</string>
     <string name="email_hint">电子邮箱</string>
     <string name="passwd_hint">密码</string>
-    <string name="login">登录</string>
     <string name="open_file">打开</string>
     <string name="download_file">下载</string>
     <string name="redownload_file">重新下载</string>
@@ -46,7 +45,6 @@
     <string name="upload">上传</string>
     <string name="uploaded">已上传</string>
     <string name="updated">已更新</string>
-    <string name="upload_failed">上传失败</string>
     <string name="download_failed">下载失败</string>
     <string name="trust_https_server">此证书不是由受信任的组织颁发，要继续吗？</string>
     <string name="upload_to">上传至： </string>
@@ -85,7 +83,6 @@
     <string name="no_repo">您还没有任何资料库</string>
     <string name="no_app_available">没有找到应用</string>
     <string name="add_to_seafile">添加到Seafile中</string>
-    <string name="ok">确定</string>
     <string name="no_account">首先请在Seafile上创建一个账户</string>
     <string name="no_library">对不起，您还没有任何资料库</string>
     <string name="choose_an_account">请选择一个账户</string>
@@ -137,7 +134,6 @@
     <string name="error_when_load_starred">加载星标文件失败</string>
     <string name="open_as">打开为</string>
     <string name="select_upload_files">请选择要上传的文件</string>
-    <string name="upload">上传</string>
     <string name="storage_removed">存储卡已被移出</string>
     <string name="error_selecting_file">选择文件时出错</string>
     <string name="n_upload_files_selected">已经选择 %d 个文件</string>

@@ -18,15 +18,12 @@
     <string name="unknown_file_type">Unknown file type</string>
     <string name="activity_not_found">Can not find App to open this file</string>
     <string name="refresh">Refresh</string>
-    <string name="login">Login</string>
     <string name="add_account">Add Account</string>
     <string name="personal">Personal</string>
     <string name="libraries">Libraries</string>
     <string name="cached">Cached</string>
     <string name="upload_tasks">UPLOADS</string>
     <string name="activities">Activities</string>
-    <string name="ok">OK</string>
-    <string name="cancel">Cancel</string>
     <string name="pick_upload_type">Upload</string>
     <string-array name="pick_upload_array">
         <item>File</item>
@@ -47,7 +44,6 @@
     <string name="upload">Upload</string>
     <string name="uploaded">Uploaded</string>
     <string name="updated">Updated</string>
-    <string name="upload_failed">Upload failed</string>
     <string name="download_failed">Download failed</string>
     <string name="trust_https_server">The certification is not issued by a trusted organization, do you want to continue?</string>
     <string name="upload_to">upload to: </string>
@@ -141,8 +137,6 @@
     <string name="error_when_load_starred">Error when loading starred files</string>
     <string name="open_as">Open as</string>
     <string name="select_upload_files">select files to upload</string>
-    <string name="cancel">Cancel</string>
-    <string name="upload">Upload</string>
     <string name="storage_removed">Storage was removed</string>
     <string name="error_selecting_file">Error when selecting file</string>
     <string name="n_upload_files_selected">%d file(s) selected</string>

@@ -10,7 +10,6 @@
     <string name="server_hint">Serveur, par exemple cloud.seafile.com</string>
     <string name="email_hint">Email</string>
     <string name="passwd_hint">Mot de passe</string>
-    <string name="login">Connexion</string>
     <string name="open_file">Ouvrir</string>
     <string name="download_file">Télécharger</string>
     <string name="redownload_file">Download again</string>
@@ -47,7 +46,6 @@
     <string name="upload">Transfert</string>
     <string name="uploaded">Transféré</string>
     <string name="updated">Mis à jour</string>
-    <string name="upload_failed">Échec du transfert</string>
     <string name="download_failed">Échec du téléchargement</string>
     <string name="trust_https_server">Ce certificat n\'est pas émis par une organisation de confiance, voulez-vous continuer ?</string>
     <string name="upload_to">transféré vers: </string>
@@ -86,8 +84,6 @@
     <string name="no_repo">Vous n\'avez pas encore de bibliothèque</string>
     <string name="no_app_available">Aucune application disponible</string>
     <string name="add_to_seafile">Ajouter à Seafile</string>
-    <string name="ok">Ok</string>
-    <string name="cancel">Annuler</string>
     <string name="no_account">Merci de créer un compte dans Seafile pour commencer</string>
     <string name="no_library">Vous n\'avez pas encore de bibliothèque</string>
     <string name="choose_an_account">Choisir un compte</string>
