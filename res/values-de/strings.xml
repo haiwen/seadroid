@@ -18,15 +18,12 @@
     <string name="unknown_file_type">Unbekannter Dateityp</string>
     <string name="activity_not_found">Es ist keine Anwendung verfügbar, die diese Datei öffnen kann</string>
     <string name="refresh">Aktualisieren</string>
-    <string name="login">Anmelden</string>
     <string name="add_account">Konto hinzufügen</string>
     <string name="personal">Meine Bibliotheken</string>
     <string name="libraries">Bibliotheken</string>
     <string name="cached">Cached</string>
     <string name="upload_tasks">UPLOADS</string>
     <string name="activities">Aktivitäten</string>
-    <string name="ok">OK</string>
-    <string name="cancel">Abbrechen</string>
     <string name="pick_upload_type">Hochladen</string>
     <string-array name="pick_upload_array">
         <item>Datei</item>
@@ -47,7 +44,6 @@
     <string name="upload">Hochladen</string>
     <string name="uploaded">Hochgeladen</string>
     <string name="updated">Aktualisiert</string>
-    <string name="upload_failed">Hochladen fehlgeschlagen</string>
     <string name="download_failed">Herunterladen fehlgeschlagen</string>
     <string name="trust_https_server">Das Zertifikat wurde nicht von einer anerkannten Zertifizierungsstelle ausgegeben! Wollen Sie trotzdem fortfahren?</string>
     <string name="upload_to">hochgeladen nach: </string>
