@@ -53,7 +53,7 @@
     <string name="task_remove_all_finished">Remove all finished</string>
     <string name="file_action_download">Download</string>
     <string name="file_action_remove_cache">Remove Cache</string>
-    <string name="file_action_update">Update</string>
+    <string name="file_action_update">Upload</string>
     <string name="file_action_share">Share</string>
     <string name="file_action_export">Export</string>
     <string name="file_action_delete">Delete</string>
