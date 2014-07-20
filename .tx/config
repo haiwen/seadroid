@@ -1,0 +1,8 @@
+[main]
+host = https://www.transifex.com
+
+[seadroid.master]
+file_filter = res/values-<lang>/strings.xml
+source_file = res/values/strings.xml
+source_lang = en
+lang_map = es_AR: es-rAR, zh_CN: zh-rCN

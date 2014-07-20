@@ -38,3 +38,15 @@ You will get `target/seadroid.apk` after the build finishes.
     - [guava-16.0.1.jar](http://search.maven.org/remotecontent?filepath=com/google/guava/guava/16.0.1/guava-16.0.1.jar)
 
 Now you can build seadroid in eclipse.
+
+## Internationalization
+
+### Contribute your translation
+
+Please submit translations via Transifex: https://www.transifex.com/projects/p/seafile-client/
+
+Steps:
+
+1. Create a free account on Transifex (https://www.transifex.com/).
+2. Send a request to join the language translation.
+3. After accepted by the project maintainer, then you can upload your file or translate online.
