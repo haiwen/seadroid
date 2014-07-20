@@ -19,18 +19,18 @@ public class AccountAdapter extends BaseAdapter {
 
     private ArrayList<Account> items;
     private Context context;
-    
+
     public AccountAdapter(Context context) {
         this.context = context;
         items = new ArrayList<Account>();
     }
-    
+
     @Override
     public int getCount() {
         return items.size();
     }
-    
-    @Override 
+
+    @Override
     public boolean isEmpty() {
         return items.isEmpty();
     }
@@ -39,20 +39,20 @@ public class AccountAdapter extends BaseAdapter {
         items.add(entry);
         notifyDataSetChanged();
     }
-    
+
     public void add(Account entry) {
         items.add(entry);
     }
-    
+
     public void notifyChanged() {
         notifyDataSetChanged();
     }
-    
+
     @Override
     public Account getItem(int position) {
         return items.get(position);
-    } 
-    
+    }
+
     public void setItem(Account item, int listviewPosition) {
         items.set(listviewPosition, item);
         notifyDataSetChanged();
@@ -62,13 +62,13 @@ public class AccountAdapter extends BaseAdapter {
     public long getItemId(int position) {
         return position;
     }
-    
+
     public void clear() {
         items.clear();
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {      
+    public View getView(int position, View convertView, ViewGroup parent) {
         View view = convertView;
         Viewholder viewHolder;
         if (convertView == null) {
@@ -92,7 +92,7 @@ public class AccountAdapter extends BaseAdapter {
     private class Viewholder {
         TextView title, subtitle;
         ImageView icon;
-        
+
         public Viewholder(TextView title, TextView subtitle, ImageView icon) {
             super();
             this.icon = icon;

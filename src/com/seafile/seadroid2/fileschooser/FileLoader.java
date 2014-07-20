@@ -16,9 +16,9 @@ public class FileLoader extends AsyncTaskLoader<List<SelectableFile>> {
 			| FileObserver.DELETE | FileObserver.DELETE_SELF
 			| FileObserver.MOVED_FROM | FileObserver.MOVED_TO
 			| FileObserver.MODIFY | FileObserver.MOVE_SELF;
-	
+
 	private FileObserver mFileObserver;
-	
+
 	private List<SelectableFile> mData;
 	private String mPath;
 	private List<File> mSelectedFiles;
@@ -43,7 +43,7 @@ public class FileLoader extends AsyncTaskLoader<List<SelectableFile>> {
 
 		List<SelectableFile> oldData = mData;
 		mData = data;
-		
+
 		if (isStarted())
 			super.deliverResult(data);
 
@@ -60,12 +60,12 @@ public class FileLoader extends AsyncTaskLoader<List<SelectableFile>> {
 			mFileObserver = new FileObserver(mPath, FILE_OBSERVER_MASK) {
 				@Override
 				public void onEvent(int event, String path) {
-					onContentChanged();	
+					onContentChanged();
 				}
 			};
 		}
 		mFileObserver.startWatching();
-		
+
 		if (takeContentChanged() || mData == null)
 			forceLoad();
 	}
@@ -93,7 +93,7 @@ public class FileLoader extends AsyncTaskLoader<List<SelectableFile>> {
 	}
 
 	protected void onReleaseResources(List<SelectableFile> data) {
-		
+
 		if (mFileObserver != null) {
 			mFileObserver.stopWatching();
 			mFileObserver = null;

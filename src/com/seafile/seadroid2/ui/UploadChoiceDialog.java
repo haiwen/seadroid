@@ -13,7 +13,7 @@ public class UploadChoiceDialog extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        
+
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.pick_upload_type);
         builder.setItems(R.array.pick_upload_array,
@@ -22,11 +22,11 @@ public class UploadChoiceDialog extends DialogFragment {
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which) {
                         case 0:
-                            
+
                             break;
                         case 1:
                             // photos
-                            
+
                             break;
                         default:
                             return;

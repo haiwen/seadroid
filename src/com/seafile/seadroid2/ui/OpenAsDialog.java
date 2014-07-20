@@ -14,16 +14,16 @@ import android.support.v4.app.DialogFragment;
 import android.util.Log;
 
 public class OpenAsDialog extends DialogFragment {
-    
+
     private File file;
-    
+
     public OpenAsDialog(File file) {
         this.file = file;
     }
-    
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        
+
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.open_as);
         builder.setItems(R.array.file_type_array,

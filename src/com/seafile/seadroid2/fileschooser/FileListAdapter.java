@@ -18,12 +18,12 @@ public class FileListAdapter extends BaseAdapter {
 
     private Activity mActivity;
     private List<SelectableFile> mFiles;
-    
+
     public FileListAdapter(Activity activity) {
         this.mActivity = activity;
         mFiles = new ArrayList<SelectableFile>();
     }
-    
+
     @Override
     public int getCount() {
         return mFiles.size();
@@ -37,11 +37,11 @@ public class FileListAdapter extends BaseAdapter {
     public void addItem(SelectableFile file) {
         mFiles.add(file);
     }
-    
+
     public void clear() {
         mFiles.clear();
     }
-    
+
     @Override
     public long getItemId(int position) {
         return position;
@@ -51,11 +51,11 @@ public class FileListAdapter extends BaseAdapter {
         this.mFiles = files;
         notifyDataSetChanged();
     }
-    
+
     public List<SelectableFile> getListItems() {
         return mFiles;
     }
-    
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         SelectableFile item = mFiles.get(position);
@@ -65,7 +65,7 @@ public class FileListAdapter extends BaseAdapter {
         TextView subtitle;
         ImageView icon;
         CheckBox checkBox;
-        
+
         if (convertView == null) {
             view = LayoutInflater.from(mActivity).inflate(R.layout.list_item_entry_check, null);
             title = (TextView) view.findViewById(R.id.list_item_title);
@@ -74,19 +74,19 @@ public class FileListAdapter extends BaseAdapter {
             checkBox = (CheckBox) view.findViewById(R.id.list_item_checkbox);
             viewHolder = new Viewholder(title, subtitle, icon, checkBox);
             view.setTag(viewHolder);
-            
+
             viewHolder.checkBox.setOnClickListener(new View.OnClickListener() {
-                
+
                 @Override
                 public void onClick(View v) {
                     CheckBox cb = (CheckBox) v;
                     SelectableFile file = (SelectableFile) cb.getTag();
                     file.setSelected(cb.isChecked());
                     ((MultiFileChooserActivity)mActivity).onFileChecked(file);
-                    
+
                 }
             });
-            
+
         } else {
             viewHolder = (Viewholder) convertView.getTag();
             title = viewHolder.title;
@@ -98,7 +98,7 @@ public class FileListAdapter extends BaseAdapter {
         checkBox.setTag(item);
 
         checkBox.setChecked(item.isSelected());
-        
+
         int iconID = item.getIcon();
         viewHolder.icon.setImageResource(iconID);
         viewHolder.title.setText(item.getTitle());
@@ -107,8 +107,8 @@ public class FileListAdapter extends BaseAdapter {
 
         return view;
     }
-    
-    
+
+
     public class Viewholder {
         TextView title, subtitle;
         ImageView icon;
@@ -120,9 +120,9 @@ public class FileListAdapter extends BaseAdapter {
             this.checkBox = checkBox;
             this.title = title;
             this.subtitle = subtitle;
-        
+
         }
-        
+
     }
 
 

@@ -24,26 +24,26 @@ public class SeafItemCheckableAdapter extends BaseAdapter {
     public interface OnCheckedChangeListener {
         public void onCheckedChanged(SeafItem item, boolean isChecked);
     }
-    
+
     private ArrayList<SeafItemWrap> items;
     private BrowserActivity mActivity;
     private OnCheckedChangeListener listener = null;
-    
+
     public SeafItemCheckableAdapter(BrowserActivity mActivity) {
         this.mActivity = mActivity;
         items = new ArrayList<SeafItemWrap>();
     }
-    
+
     public void setOnCheckedChangeListener(OnCheckedChangeListener listener) {
         this.listener = listener;
     }
-    
+
     @Override
     public int getCount() {
         return items.size();
     }
-    
-    @Override 
+
+    @Override
     public boolean isEmpty() {
         return items.isEmpty();
     }
@@ -54,21 +54,21 @@ public class SeafItemCheckableAdapter extends BaseAdapter {
         // Collections.sort(items);
         notifyDataSetChanged();
     }
-    
+
     public void add(SeafItem entry) {
         SeafItemWrap w = new SeafItemWrap(entry);
         items.add(w);
     }
-    
+
     public void notifyChanged() {
         notifyDataSetChanged();
     }
-    
+
     @Override
     public SeafItem getItem(int position) {
         return items.get(position).item;
-    } 
-    
+    }
+
     public void setItem(SeafItem item, int listviewPosition) {
         SeafItemWrap w = new SeafItemWrap(item);
         items.set(listviewPosition, w);
@@ -79,7 +79,7 @@ public class SeafItemCheckableAdapter extends BaseAdapter {
     public long getItemId(int position) {
         return position;
     }
-    
+
     public int getNumSelected() {
         int i = 0;
         for (SeafItemWrap w : items) {
@@ -88,7 +88,7 @@ public class SeafItemCheckableAdapter extends BaseAdapter {
         }
         return i;
     }
-    
+
 
     public List<SeafItem> getSelectedItems() {
         List<SeafItem> r = new ArrayList<SeafItem>();
@@ -98,7 +98,7 @@ public class SeafItemCheckableAdapter extends BaseAdapter {
         }
         return r;
     }
-    
+
     public void removeSelectedItems() {
         List<SeafItemWrap> tmp = new ArrayList<SeafItemWrap>();
         for (SeafItemWrap w : items) {
@@ -108,16 +108,16 @@ public class SeafItemCheckableAdapter extends BaseAdapter {
         items.removeAll(tmp);
         notifyDataSetChanged();
     }
-    
+
     public void clear() {
         items.clear();
     }
-    
+
     private View getDirentView(SeafItemWrap w, View convertView,
             ViewGroup parent, int position) {
         View view = convertView;
         Viewholder viewHolder;
-        
+
         if (convertView == null) {
             view = LayoutInflater.from(mActivity).inflate(R.layout.list_item_entry_check, null);
             TextView title = (TextView) view.findViewById(R.id.list_item_title);
@@ -129,7 +129,7 @@ public class SeafItemCheckableAdapter extends BaseAdapter {
         } else {
             viewHolder = (Viewholder) convertView.getTag();
         }
-        
+
         viewHolder.title.setText(w.item.getTitle());
         SeafDirent dirent = (SeafDirent) w.item;
         if (dirent.isDir()) {
@@ -150,12 +150,12 @@ public class SeafItemCheckableAdapter extends BaseAdapter {
         viewHolder.checkbox.setChecked(w.isSelected());
         return view;
     }
-    
+
     private View getCacheView(SeafItemWrap w, View convertView,
             ViewGroup parent, int position) {
         View view = convertView;
         final Viewholder viewHolder;
-        
+
         if (convertView == null) {
             view = LayoutInflater.from(mActivity).inflate(R.layout.list_item_entry_check, null);
             TextView title = (TextView) view.findViewById(R.id.list_item_title);
@@ -165,8 +165,8 @@ public class SeafItemCheckableAdapter extends BaseAdapter {
             viewHolder = new Viewholder(title, subtitle, icon, ck);
             view.setTag(viewHolder);
             ck.setTag(items.get(position));
-            
-            ck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {                
+
+            ck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     SeafItemWrap w = (SeafItemWrap)viewHolder.checkbox.getTag();
@@ -180,7 +180,7 @@ public class SeafItemCheckableAdapter extends BaseAdapter {
             viewHolder = (Viewholder) convertView.getTag();
             viewHolder.checkbox.setTag(w);
         }
-        
+
         viewHolder.title.setText(w.item.getTitle());
         viewHolder.subtitle.setText(w.item.getSubtitle());
         viewHolder.icon.setImageResource(w.item.getIcon());
@@ -203,7 +203,7 @@ public class SeafItemCheckableAdapter extends BaseAdapter {
         TextView title, subtitle;
         ImageView icon;
         CheckBox checkbox;
-        
+
         public Viewholder(TextView title, TextView subtitle, ImageView icon, CheckBox checkbox) {
             this.icon = icon;
             this.title = title;
@@ -215,20 +215,20 @@ public class SeafItemCheckableAdapter extends BaseAdapter {
     public class SeafItemWrap {
         SeafItem item;
         boolean seleted;
-        
+
         public SeafItemWrap(SeafItem item) {
             this.item = item;
             seleted = false;
         }
-        
+
         public void setSeleted(boolean selected) {
-            this.seleted = selected;        
+            this.seleted = selected;
         }
 
         public boolean isSelected() {
             return seleted;
         }
     }
-    
+
 }
 

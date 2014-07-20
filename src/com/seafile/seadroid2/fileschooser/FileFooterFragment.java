@@ -16,12 +16,12 @@ public class FileFooterFragment extends Fragment {
     private TextView statusView;
     private Button cancelButton;
     private Button confirmButton;
-    
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
-    
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
@@ -30,36 +30,36 @@ public class FileFooterFragment extends Fragment {
         cancelButton = (Button)root.findViewById(R.id.button_cancel_upload);
         confirmButton = (Button)root.findViewById(R.id.button_confirm_upload);
         confirmButton.setEnabled(false);
-        
+
         cancelButton.setOnClickListener(new View.OnClickListener() {
-            
+
             @Override
             public void onClick(View v) {
                 ((MultiFileChooserActivity)getActivity()).onCancelButtonClicked();
-                
+
             }
         });
-        
+
         confirmButton.setOnClickListener(new View.OnClickListener() {
-            
+
             @Override
             public void onClick(View v) {
                 ((MultiFileChooserActivity)getActivity()).onConfirmButtonClicked();
-                
+
             }
         });
-        
+
         return root;
     }
-    
+
     public TextView getStatusView() {
         return statusView;
     }
-    
+
     public Button getConfirmButton() {
         return confirmButton;
     }
-    
+
     @Override
     public void onPause() {
         super.onPause();

@@ -1,7 +1,7 @@
 package com.seafile.seadroid2;
 
 public class NavContext {
-    
+
     String repoID = null;
     String repoName = null;     // for display
     String dirPath = null;
@@ -9,7 +9,7 @@ public class NavContext {
 
     public NavContext() {
     }
- 
+
     public void setRepoID(String repoID) {
         this.repoID = repoID;
     }
@@ -17,7 +17,7 @@ public class NavContext {
     public void setRepoName(String repoName) {
         this.repoName = repoName;
     }
-    
+
     public void setDir(String path, String dirID) {
         this.dirPath = path;
         this.dirID = dirID;
@@ -30,7 +30,7 @@ public class NavContext {
     public boolean inRepo() {
         return repoID != null;
     }
-    
+
     public String getRepoID() {
         return repoID;
     }
@@ -38,15 +38,15 @@ public class NavContext {
     public String getRepoName() {
         return repoName;
     }
-    
+
     public boolean isRepoRoot() {
         return "/".equals(dirPath);
     }
-    
+
     public String getDirPath() {
         return dirPath;
     }
-    
+
     public String getDirID() {
         return dirID;
     }

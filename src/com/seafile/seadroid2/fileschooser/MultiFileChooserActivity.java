@@ -29,24 +29,24 @@ OnBackStackChangedListener {
             .getExternalStorageDirectory().getAbsolutePath();
     public static final String PATH = "path";
     public static final String MULTI_FILES_PATHS = "com.seafile.seadroid2.fileschooser.paths";
-    
+
     private String mPath;
     private FragmentManager mFragmentManager;
     private FileFooterFragment mFooterFragment;
     private List<File> mSelectedFiles;
-    
+
     private BroadcastReceiver mStorageListener = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Toast.makeText(context, R.string.storage_removed, Toast.LENGTH_LONG).show();
         }
     };
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.multiple_files_chooser);
-        
+
         mFragmentManager = getSupportFragmentManager();
         mFragmentManager.addOnBackStackChangedListener(this);
 
@@ -60,11 +60,11 @@ OnBackStackChangedListener {
         mFooterFragment = new FileFooterFragment();
         mFragmentManager.beginTransaction()
         .add(R.id.footer_fragment, mFooterFragment).commit();
-        
+
         setTitle(mPath);
         mSelectedFiles = new ArrayList<File>();
     }
-    
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -80,10 +80,10 @@ OnBackStackChangedListener {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        
+
         outState.putString(PATH, mPath);
     }
-    
+
     private void addFragment(String path) {
         FileListFragment explorerFragment = FileListFragment.newInstance(mPath);
         mFragmentManager.beginTransaction()
@@ -93,29 +93,29 @@ OnBackStackChangedListener {
     @Override
     public void onBackStackChanged() {
         mPath = EXTERNAL_BASE_PATH;
-        
+
         int count = mFragmentManager.getBackStackEntryCount();
         if (count > 0) {
             BackStackEntry fragment = mFragmentManager
                     .getBackStackEntryAt(count - 1);
             mPath = fragment.getName();
         }
-        
+
         setTitle(mPath);
-        
+
     }
 
     public void onCancelButtonClicked() {
-        setResult(RESULT_CANCELED); 
+        setResult(RESULT_CANCELED);
         finish();
     }
-    
+
     public void onConfirmButtonClicked() {
         File file;
         Uri uri;
         String path;
         String[] paths = new String[mSelectedFiles.size()];
-        
+
         for (int i = 0; i < mSelectedFiles.size(); ++i) {
             file = mSelectedFiles.get(i);
             uri = Uri.fromFile(file);
@@ -126,15 +126,15 @@ OnBackStackChangedListener {
                 e.printStackTrace();
                 return;
             }
-            
+
         }
-        
+
         Intent intent = new Intent();
         intent.putExtra(MULTI_FILES_PATHS, paths);
         setResult(RESULT_OK, intent);
         finish();
     }
-    
+
     private void updateSelectionStatus() {
         int nSelected = mSelectedFiles.size();
         String status;
@@ -146,7 +146,7 @@ OnBackStackChangedListener {
         }
         mFooterFragment.getStatusView().setText(status);
     }
-    
+
     private void updateUploadButtonStatus() {
         int nSelected = mSelectedFiles.size();
         if (nSelected == 0) {
@@ -155,7 +155,7 @@ OnBackStackChangedListener {
             mFooterFragment.getConfirmButton().setEnabled(true);
         }
     }
-    
+
     private void updateSelectedFileList(SelectableFile file) {
         File defaultFile = file.getFile();
         if (file.isSelected()) {
@@ -166,17 +166,17 @@ OnBackStackChangedListener {
                 mSelectedFiles.remove(index);
             }
         }
-        
+
     }
-    
+
     public List<File> getSelectedFiles() {
         return mSelectedFiles;
     }
-    
+
     /**
      * "Replace" the existing Fragment with a new one using given path.
      * We're really adding a Fragment to the back stack.
-     * 
+     *
      * @param path The absolute path of the file (directory) to display.
      */
     private void replaceFragment(String path) {
@@ -185,12 +185,12 @@ OnBackStackChangedListener {
                 .replace(R.id.explorer_fragment, explorerFragment)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .addToBackStack(path).commit();
-        
+
     }
 
     /**
      * Finish this Activity with a result code and URI of the selected file.
-     * 
+     *
      * @param file The file selected.
      */
     private void finishWithResult(SelectableFile file) {
@@ -199,20 +199,20 @@ OnBackStackChangedListener {
             setResult(RESULT_OK, new Intent().setData(uri));
             finish();
         } else {
-            setResult(RESULT_CANCELED); 
+            setResult(RESULT_CANCELED);
             finish();
         }
     }
-    
+
     /**
      * Called when the user selects a File
-     * 
+     *
      * @param file The file that was selected
      */
     protected void onFileChecked(SelectableFile file) {
         if (file != null) {
             mPath = file.getAbsolutePath();
-            
+
             if (file.isDirectory()) {
                 replaceFragment(mPath);
             } else {
@@ -225,7 +225,7 @@ OnBackStackChangedListener {
             Toast.makeText(MultiFileChooserActivity.this, R.string.error_selecting_file, Toast.LENGTH_SHORT).show();
         }
     }
-    
+
     /**
      * Register the external storage BroadcastReceiver.
      */
@@ -241,5 +241,5 @@ OnBackStackChangedListener {
     private void unregisterStorageListener() {
         unregisterReceiver(mStorageListener);
     }
-    
+
 }
