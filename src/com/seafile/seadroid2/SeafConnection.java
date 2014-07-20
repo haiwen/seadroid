@@ -376,7 +376,7 @@ public class SeafConnection {
                 req.receive(new MonitoredFileOutputStream(tmp, monitor));
             }
 
-            if (tmp.renameTo(file) == false) {
+            if (!tmp.renameTo(file)) {
                 Log.w(DEBUG_TAG, "Rename file error");
                 return null;
             }

@@ -62,7 +62,7 @@ public class AccountManager {
              null    // The sort order
          );
 
-        if (c.moveToFirst() == false) {
+        if (!c.moveToFirst()) {
             c.close();
             db.close();
             return null;

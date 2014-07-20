@@ -143,28 +143,28 @@ class GridViewSpecial extends View {
             };
 
     public void setLoader(ImageLoader loader) {
-        Assert(mRunning == false);
+        Assert(!mRunning);
         mLoader = loader;
     }
 
     public void setListener(Listener listener) {
-        Assert(mRunning == false);
+        Assert(!mRunning);
         mListener = listener;
     }
 
     public void setDrawAdapter(DrawAdapter adapter) {
-        Assert(mRunning == false);
+        Assert(!mRunning);
         mDrawAdapter = adapter;
     }
 
     public void setImageList(IImageList list) {
-        Assert(mRunning == false);
+        Assert(!mRunning);
         mAllImages = list;
         mCount = mAllImages.getCount();
     }
 
     public void setSizeChoice(int choice) {
-        Assert(mRunning == false);
+        Assert(!mRunning);
         if (mSizeChoice == choice) return;
         mSizeChoice = choice;
     }

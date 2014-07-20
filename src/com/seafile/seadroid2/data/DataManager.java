@@ -51,7 +51,7 @@ public class DataManager {
         if (tmpDir.exists())
             return tmpDir.getAbsolutePath();
         else {
-            if (tmpDir.mkdirs() == false)
+            if (!tmpDir.mkdirs())
                 throw new RuntimeException("Couldn't create external temp directory");
             else
                 return tmpDir.getAbsolutePath();
@@ -64,7 +64,7 @@ public class DataManager {
         if (tmpDir.exists())
             return tmpDir.getAbsolutePath();
         else {
-            if (tmpDir.mkdirs() == false)
+            if (!tmpDir.mkdirs())
                 throw new RuntimeException("Couldn't create thumb directory");
             else
                 return tmpDir.getAbsolutePath();
@@ -77,7 +77,7 @@ public class DataManager {
         if (tmpDir.exists())
             return tmpDir.getAbsolutePath();
         else {
-            if (tmpDir.mkdirs() == false)
+            if (!tmpDir.mkdirs())
                 throw new RuntimeException("Couldn't create external temp directory");
             else
                 return tmpDir.getAbsolutePath();
@@ -262,7 +262,7 @@ public class DataManager {
             // Has record in databse
             repoDir = new File(path);
             if (!repoDir.exists()) {
-                if (repoDir.mkdirs() == false) {
+                if (!repoDir.mkdirs()) {
                     throw new RuntimeException("Could not create library directory " + path);
                 }
             }
@@ -287,7 +287,7 @@ public class DataManager {
             i++;
         }
 
-        if (repoDir.mkdirs() == false) {
+        if (!repoDir.mkdirs()) {
             throw new RuntimeException("Could not create repo directory " + path);
         }
 
