@@ -19,7 +19,7 @@ import com.seafile.seadroid2.transfer.TransferManager.UploadTaskInfo;
 import com.seafile.seadroid2.transfer.TransferService;
 
 /**
- * Monitor changes of local cached files, and upload them through TransferService if moidified
+ * Monitor changes of local cached files, and upload them through TransferService if modified
  */
 public class FileMonitorService extends Service {
 
@@ -97,7 +97,6 @@ public class FileMonitorService extends Service {
         Log.d(DEBUG_TAG, account.email);
         monitor.stopMonitorFilesForAccount(account);
     }
-
 
     private ServiceConnection mTransferConnection = new ServiceConnection() {
 
