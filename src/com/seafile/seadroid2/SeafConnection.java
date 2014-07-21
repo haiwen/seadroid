@@ -155,11 +155,7 @@ public class SeafConnection {
         } catch (SeafException e) {
             throw e;
         } catch (HttpRequestException e) {
-            if (e.getCause() instanceof SSLHandshakeException) {
-                throw SeafException.sslException;
-            } else {
-                throw SeafException.networkException;
-            }
+            throw getSeafExceptionFromHttpRequestException(e);
         } catch (IOException e) {
             e.printStackTrace();
             throw SeafException.networkException;
@@ -188,11 +184,7 @@ public class SeafConnection {
         } catch (SeafException e) {
             throw e;
         } catch (HttpRequestException e) {
-            if (e.getCause() instanceof SSLHandshakeException) {
-                throw SeafException.sslException;
-            } else {
-                throw SeafException.networkException;
-            }
+            throw getSeafExceptionFromHttpRequestException(e);
         } catch (IOException e) {
             throw SeafException.networkException;
         }
@@ -208,7 +200,7 @@ public class SeafConnection {
         } catch (SeafException e) {
             throw e;
         } catch (HttpRequestException e) {
-            throw SeafException.networkException;
+            throw getSeafExceptionFromHttpRequestException(e);
         } catch (IOException e) {
             throw SeafException.networkException;
         }
@@ -266,11 +258,7 @@ public class SeafConnection {
         } catch (UnsupportedEncodingException e) {
             throw SeafException.encodingException;
         } catch (HttpRequestException e) {
-            if (e.getCause() instanceof SSLHandshakeException) {
-                throw SeafException.sslException;
-            } else {
-                throw SeafException.networkException;
-            }
+            throw getSeafExceptionFromHttpRequestException(e);
         } catch (IOException e) {
             throw SeafException.networkException;
         }
@@ -302,7 +290,7 @@ public class SeafConnection {
         } catch (IOException e) {
             throw SeafException.networkException;
         } catch (HttpRequestException e) {
-            throw SeafException.networkException;
+            throw getSeafExceptionFromHttpRequestException(e);
         }
     }
 
@@ -360,7 +348,7 @@ public class SeafConnection {
                 Log.d(DEBUG_TAG, "download is cancelled");
                 throw SeafException.userCancelledException;
             } else {
-                throw SeafException.networkException;
+                throw getSeafExceptionFromHttpRequestException(e);
             }
         }
     }
@@ -593,7 +581,7 @@ public class SeafConnection {
                 Log.d(DEBUG_TAG, "upload is cancelled");
                 throw SeafException.userCancelledException;
             } else {
-                throw SeafException.networkException;
+                throw getSeafExceptionFromHttpRequestException(e);
             }
         }
     }
@@ -632,7 +620,7 @@ public class SeafConnection {
         } catch (UnsupportedEncodingException e) {
             throw SeafException.encodingException;
         } catch (HttpRequestException e) {
-            throw SeafException.networkException;
+            throw getSeafExceptionFromHttpRequestException(e);
         }
     }
 
@@ -668,7 +656,7 @@ public class SeafConnection {
         } catch (UnsupportedEncodingException e) {
             throw SeafException.encodingException;
         } catch (HttpRequestException e) {
-            throw SeafException.networkException;
+            throw getSeafExceptionFromHttpRequestException(e);
         }
     }
 
@@ -828,7 +816,7 @@ public class SeafConnection {
         } catch (SeafException e) {
             throw e;
         } catch (HttpRequestException e) {
-            throw SeafException.networkException;
+            throw getSeafExceptionFromHttpRequestException(e);
         }
     }
 
@@ -862,7 +850,7 @@ public class SeafConnection {
         } catch (UnsupportedEncodingException e) {
             throw SeafException.encodingException;
         } catch (HttpRequestException e) {
-            throw SeafException.networkException;
+            throw getSeafExceptionFromHttpRequestException(e);
         }
     }
 
@@ -878,6 +866,14 @@ public class SeafConnection {
         }
         else {
             Log.v(DEBUG_TAG, "HTTP request ok : " + req.url());
+        }
+    }
+
+    private SeafException getSeafExceptionFromHttpRequestException(HttpRequestException e) {
+        if (e.getCause() instanceof SSLHandshakeException) {
+            return SeafException.sslException;
+        } else {
+            return SeafException.networkException;
         }
     }
 }
