@@ -1,0 +1,11 @@
+language: android
+android:
+  components:
+    - build-tools-19.0.3
+    - android-19
+    - sysimg-19
+    - extra-android-support
+  licenses:
+    - '.*'
+notifications:
+    email: false

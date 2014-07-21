@@ -1,4 +1,4 @@
-# Seafile Android Client
+# Seafile Android Client [![Build Status](https://secure.travis-ci.org/haiwen/seadroid.png?branch=master)](http://travis-ci.org/haiwen/seadroid)
 
 ## Build the APK
 
