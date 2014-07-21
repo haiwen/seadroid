@@ -150,14 +150,13 @@ public class DataManager {
      */
     public Bitmap getThumbnail(File file) {
         try {
-            final int THUMBNAIL_SIZE = caculateThumbnailSizeOfDevice();
-
             if (!file.exists())
                 return null;
 
+            final int THUMBNAIL_SIZE = caculateThumbnailSizeOfDevice();
+
             Bitmap imageBitmap = BitmapFactory.decodeStream(new FileInputStream(file));
-            imageBitmap = Bitmap.createScaledBitmap(imageBitmap, THUMBNAIL_SIZE,
-                    THUMBNAIL_SIZE, false);
+            imageBitmap = Bitmap.createScaledBitmap(imageBitmap, THUMBNAIL_SIZE, THUMBNAIL_SIZE, false);
             return imageBitmap;
         } catch (Exception ex) {
             return null;
@@ -166,7 +165,6 @@ public class DataManager {
 
 
     public static int caculateThumbnailSizeOfDevice() {
-
         DisplayMetrics metrics = SeadroidApplication.getAppContext().getResources().getDisplayMetrics();
 
         switch(metrics.densityDpi) {
@@ -181,7 +179,6 @@ public class DataManager {
         default:
             return 36;
         }
-
     }
 
 
@@ -205,8 +202,7 @@ public class DataManager {
 
     private File getFileForReposCache() {
         String filename = "repos-" + (account.server + account.email).hashCode() + ".dat";
-        return new File(getExternalCacheDirectory() + "/" +
-                filename);
+        return new File(getExternalCacheDirectory() + "/" + filename);
     }
 
     /**
@@ -236,7 +232,6 @@ public class DataManager {
      * been viewed.
      */
     public String getAccountDir() {
-
         String username = account.getEmail();
         String server = Utils.stripSlashes(account.getServerHost());
         // strip port, like :8000 in 192.168.1.116:8000
@@ -279,8 +274,7 @@ public class DataManager {
             }
             path = Utils.pathJoin(getAccountDir(), uniqueRepoName);
             repoDir = new File(path);
-            if (!repoDir.exists() &&
-                !dbHelper.repoDirExists(account, uniqueRepoName)) {
+            if (!repoDir.exists() && !dbHelper.repoDirExists(account, uniqueRepoName)) {
                 // This repo dir does not exist yet, we can use it
                 break;
             }
