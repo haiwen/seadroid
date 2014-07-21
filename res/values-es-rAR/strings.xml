@@ -137,8 +137,6 @@
     <string name="error_when_load_starred">Error al cargar archivos favoritos</string>
     <string name="open_as">Abrir como</string>
     <string name="select_upload_files">seleccionar archivos para subir</string>
-    <string name="cancel">Cancelar</string>
-    <string name="upload">Subir</string>
     <string name="storage_removed">Almacenamiento fue removido</string>
     <string name="error_selecting_file">Error al seleccionar archivo</string>
     <string name="n_upload_files_selected">%d archivo(s) seleccionado(s)</string>
