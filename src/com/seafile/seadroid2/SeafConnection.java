@@ -144,13 +144,7 @@ public class SeafConnection {
             req.form("client_version", appVersion);
             req.form("platform_version", Build.VERSION.RELEASE);
 
-            if (req.code() != 200) {
-                if (req.message() == null) {
-                    throw SeafException.networkException;
-                } else  {
-                    throw new SeafException(req.code(), req.message());
-                }
-            }
+            checkRequestResponseStatus(req);
 
             String contentAsString = new String(req.bytes(), "UTF-8");
             JSONObject obj = Utils.parseJsonObject(contentAsString);
@@ -187,13 +181,7 @@ public class SeafConnection {
         HttpRequest req = null;
         try {
             req = prepareApiGetRequest("api2/repos/");
-            if (req.code() != 200) {
-                if (req.message() == null) {
-                    throw SeafException.networkException;
-                } else {
-                    throw new SeafException(req.code(), req.message());
-                }
-            }
+            checkRequestResponseStatus(req);
 
             String result = new String(req.bytes(), "UTF-8");
             return result;
@@ -213,13 +201,7 @@ public class SeafConnection {
     public String getStarredFiles() throws SeafException {
         try {
             HttpRequest req = prepareApiGetRequest("api2/starredfiles/");
-            if (req.code() != 200) {
-                if (req.message() == null) {
-                    throw SeafException.networkException;
-                } else {
-                    throw new SeafException(req.code(), req.message());
-                }
-            }
+            checkRequestResponseStatus(req);
 
             String result = new String(req.bytes(), "UTF-8");
             return result;
@@ -254,11 +236,7 @@ public class SeafConnection {
                 params.put("oid", cachedDirID);
             }
             HttpRequest req = prepareApiGetRequest(apiPath, params);
-            if (req.code() != 200)
-                if (req.message() == null)
-                    throw SeafException.networkException;
-                else
-                    throw new SeafException(req.code(), req.message());
+            checkRequestResponseStatus(req);
 
             String dirID = req.header("oid");
             String content;
@@ -305,13 +283,7 @@ public class SeafConnection {
             params.put("p", encodeUriComponent(path));
             params.put("op", "download");
             HttpRequest req = prepareApiGetRequest(apiPath, params);
-            if (req.code() != 200) {
-                if (req.message() == null) {
-                    throw SeafException.networkException;
-                } else {
-                    throw new SeafException(req.code(), req.message());
-                }
-            }
+            checkRequestResponseStatus(req);
 
             String result = new String(req.bytes(), "UTF-8");
             String fileID = req.header("oid");
@@ -348,13 +320,7 @@ public class SeafConnection {
                     URLEncoder.encode(dlink.substring(i+1), "UTF-8");
 
             HttpRequest req = prepareApiFileGetRequest(quoted);
-            if (req.code() != 200) {
-                if (req.message() == null) {
-                    throw SeafException.networkException;
-                } else {
-                    throw new SeafException(req.code(), req.message());
-                }
-            }
+            checkRequestResponseStatus(req);
 
             if (monitor != null) {
                 /*if (req.header(HttpRequest.HEADER_CONTENT_LENGTH) == null) {
@@ -441,14 +407,7 @@ public class SeafConnection {
             HttpRequest req = prepareApiPostRequest("api2/repos/" + repoID + "/", true, null);
 
             req.form("password", passwd);
-
-            if (req.code() != 200) {
-                if (req.message() == null) {
-                    throw SeafException.networkException;
-                } else {
-                    throw new SeafException(req.code(), req.message());
-                }
-            }
+            checkRequestResponseStatus(req);
         } catch (SeafException e) {
             Log.d(DEBUG_TAG, "Set Password err: " + e.getCode());
             throw e;
@@ -469,14 +428,7 @@ public class SeafConnection {
             }
 
             HttpRequest req = prepareApiGetRequest(apiPath);
-            if (req.code() != 200) {
-                Log.d("Upload", "Failed to get upload link " + req.code());
-                if (req.message() == null) {
-                    throw SeafException.networkException;
-                } else {
-                    throw new SeafException(req.code(), req.message());
-                }
-            }
+            checkRequestResponseStatus(req);
 
             String result = new String(req.bytes(), "UTF-8");
             // should return "\"http://gonggeng.org:8082/...\"" or "\"https://gonggeng.org:8082/...\"
@@ -630,12 +582,7 @@ public class SeafConnection {
             req.send(CRLF);
             req.send(end);
 
-            if (req.code() != 200)
-                if (req.message() == null) {
-                    throw SeafException.networkException;
-                } else {
-                    throw new SeafException(req.code(), req.message());
-                }
+            checkRequestResponseStatus(req);
 
             return new String(req.bytes(), "UTF-8");
         } catch (IOException e) {
@@ -666,13 +613,7 @@ public class SeafConnection {
 
             req.form("operation", "mkdir");
 
-            if (req.code() != 200) {
-                if (req.message() == null) {
-                    throw SeafException.networkException;
-                } else {
-                    throw new SeafException(req.code(), req.message());
-                }
-            }
+            checkRequestResponseStatus(req);
 
             String newDirID = req.header("oid");
             if (newDirID == null) {
@@ -709,13 +650,7 @@ public class SeafConnection {
 
             req.form("operation", "create");
 
-            if (req.code() != 200) {
-                if (req.message() == null) {
-                    throw SeafException.networkException;
-                } else {
-                    throw new SeafException(req.code(), req.message());
-                }
-            }
+            checkRequestResponseStatus(req);
 
             String newDirID = req.header("oid");
             if (newDirID == null) {
@@ -728,7 +663,6 @@ public class SeafConnection {
             }
 
             return new Pair<String, String>(newDirID, content);
-
         } catch (SeafException e) {
             throw e;
         } catch (UnsupportedEncodingException e) {
@@ -910,13 +844,7 @@ public class SeafConnection {
             req.form("operation", "rename");
             req.form("newname", newName);
 
-            if (req.code() != 200) {
-                if (req.message() == null) {
-                    throw SeafException.networkException;
-                } else {
-                    throw new SeafException(req.code(), req.message());
-                }
-            }
+            checkRequestResponseStatus(req);
 
             String newDirID = req.header("oid");
             if (newDirID == null) {
@@ -935,6 +863,21 @@ public class SeafConnection {
             throw SeafException.encodingException;
         } catch (HttpRequestException e) {
             throw SeafException.networkException;
+        }
+    }
+
+    private void checkRequestResponseStatus(HttpRequest req) throws SeafException {
+        if (req.code() != 200) {
+            Log.d(DEBUG_TAG, "HTTP request failed : " + req.url() + ", " + req.code() + ", " + req.message());
+
+            if (req.message() == null) {
+                throw SeafException.networkException;
+            } else {
+                throw new SeafException(req.code(), req.message());
+            }
+        }
+        else {
+            Log.v(DEBUG_TAG, "HTTP request ok : " + req.url());
         }
     }
 }
