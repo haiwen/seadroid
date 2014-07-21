@@ -59,14 +59,13 @@ public class MonitorDBHelper extends SQLiteOpenHelper {
         AUTO_UPDATE_INFO_COLUMN_PARENT_DIR,
         AUTO_UPDATE_INFO_COLUMN_LOCAL_PATH, };
 
-    // Use only single dbHelper to prevent multi-thread issue and db is closed
-    // exception
+    // Use only single dbHelper to prevent multi-thread issue and db is closed exception
     // Reference
     // http://stackoverflow.com/questions/2493331/what-are-the-best-practices-for-sqlite-on-android
     private static MonitorDBHelper dbHelper = null;
     private SQLiteDatabase database = null;
 
-    public static MonitorDBHelper getMonitorDBHelper() {
+    public static synchronized MonitorDBHelper getMonitorDBHelper() {
         if (dbHelper != null)
             return dbHelper;
         dbHelper = new MonitorDBHelper(SeadroidApplication.getAppContext());

@@ -1,11 +1,9 @@
 package com.seafile.seadroid2.data;
 
 public interface SeafItem {
+    String getTitle();
 
-    public String getTitle();
+    String getSubtitle();
 
-    public String getSubtitle();
-
-    public int getIcon();
-
+    int getIcon();
 }

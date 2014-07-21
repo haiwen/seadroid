@@ -22,7 +22,7 @@ import com.seafile.seadroid2.data.*;
 public class SeafItemCheckableAdapter extends BaseAdapter {
 
     public interface OnCheckedChangeListener {
-        public void onCheckedChanged(SeafItem item, boolean isChecked);
+        void onCheckedChanged(SeafItem item, boolean isChecked);
     }
 
     private ArrayList<SeafItemWrap> items;

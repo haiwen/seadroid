@@ -16,49 +16,46 @@ public interface IImage {
     static final int UNCONSTRAINED = -1;
 
     /** Get the image list which contains this image. */
-    public abstract IImageList getContainer();
+    IImageList getContainer();
 
     /** Get the bitmap for the full size image. */
-    public abstract Bitmap fullSizeBitmap(int minSideLength,
-            int maxNumberOfPixels);
-    public abstract Bitmap fullSizeBitmap(int minSideLength,
-            int maxNumberOfPixels, boolean rotateAsNeeded, boolean useNative);
-    public abstract int getDegreesRotated();
-    public static final boolean ROTATE_AS_NEEDED = true;
-    public static final boolean NO_ROTATE = false;
-    public static final boolean USE_NATIVE = true;
-    public static final boolean NO_NATIVE = false;
+    Bitmap fullSizeBitmap(int minSideLength, int maxNumberOfPixels);
+    Bitmap fullSizeBitmap(int minSideLength, int maxNumberOfPixels, boolean rotateAsNeeded, boolean useNative);
+    int getDegreesRotated();
+    static final boolean ROTATE_AS_NEEDED = true;
+    static final boolean NO_ROTATE = false;
+    static final boolean USE_NATIVE = true;
+    static final boolean NO_NATIVE = false;
 
     /** Get the input stream associated with a given full size image. */
-    public abstract InputStream fullSizeImageData();
-    public abstract Uri fullSizeImageUri();
+    InputStream fullSizeImageData();
+    Uri fullSizeImageUri();
 
     /** Get the path of the (full size) image data. */
-    public abstract String getDataPath();
+    String getDataPath();
 
     // Get the title of the image
-    public abstract String getTitle();
+    String getTitle();
 
     // Get metadata of the image
-    public abstract long getDateTaken();
+    long getDateTaken();
 
-    public abstract String getMimeType();
+    String getMimeType();
 
-    public abstract int getWidth();
+    int getWidth();
 
-    public abstract int getHeight();
+    int getHeight();
 
     // Get property of the image
-    public abstract boolean isReadonly();
-    public abstract boolean isDrm();
+    boolean isReadonly();
+    boolean isDrm();
 
     // Get the bitmap of the medium thumbnail
-    public abstract Bitmap thumbBitmap(boolean rotateAsNeeded);
+    Bitmap thumbBitmap(boolean rotateAsNeeded);
 
     // Get the bitmap of the mini thumbnail.
-    public abstract Bitmap miniThumbBitmap();
+    Bitmap miniThumbBitmap();
 
     // Rotate the image
-    public abstract boolean rotateImageBy(int degrees);
-
+    boolean rotateImageBy(int degrees);
 }

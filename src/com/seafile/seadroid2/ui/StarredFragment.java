@@ -40,7 +40,7 @@ public class StarredFragment extends SherlockListFragment {
     }
 
     public interface OnStarredFileSelectedListener {
-        public void onStarredFileSelected(SeafStarredFile starredFile);
+        void onStarredFileSelected(SeafStarredFile starredFile);
     }
 
     @Override

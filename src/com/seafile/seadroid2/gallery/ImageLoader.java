@@ -22,7 +22,7 @@ public class ImageLoader {
     private ContentResolver mCr;
 
     public interface LoadedCallback {
-        public void run(Bitmap result);
+        void run(Bitmap result);
     }
 
     public void getBitmap(IImage image,

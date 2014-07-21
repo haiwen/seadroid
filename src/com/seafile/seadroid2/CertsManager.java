@@ -5,7 +5,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.UnsupportedEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Map;
@@ -93,7 +92,7 @@ public final class CertsManager {
         private static DBHelper dbHelper = null;
         private SQLiteDatabase database = null;
 
-        public static DBHelper getDatabaseHelper() {
+        public static synchronized DBHelper getDatabaseHelper() {
             if (dbHelper != null)
                 return dbHelper;
             dbHelper = new DBHelper(SeadroidApplication.getAppContext());

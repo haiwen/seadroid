@@ -59,7 +59,7 @@ public class ReposFragment extends SherlockListFragment {
     }
 
     public interface OnFileSelectedListener {
-        public void onFileSelected(SeafDirent fileName);
+        void onFileSelected(SeafDirent fileName);
     }
 
     @Override

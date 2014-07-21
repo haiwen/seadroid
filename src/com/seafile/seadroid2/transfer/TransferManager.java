@@ -26,16 +26,14 @@ public class TransferManager {
     public enum TaskState { INIT, TRANSFERRING, FINISHED, CANCELLED, FAILED }
 
     public interface TransferListener {
+        void onFileUploadProgress(int taskID);
+        void onFileUploaded(int taskID);
+        void onFileUploadCancelled(int taskID);
+        void onFileUploadFailed(int taskID);
 
-        public void onFileUploadProgress(int taskID);
-        public void onFileUploaded(int taskID);
-        public void onFileUploadCancelled(int taskID);
-        public void onFileUploadFailed(int taskID);
-
-        public void onFileDownloadProgress(int taskID);
-        public void onFileDownloaded(int taskID);
-        public void onFileDownloadFailed(int taskID);
-
+        void onFileDownloadProgress(int taskID);
+        void onFileDownloaded(int taskID);
+        void onFileDownloadFailed(int taskID);
     }
 
     private ArrayList<UploadTask> uploadTasks;
