@@ -20,7 +20,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <platform.version>4.1.1.4</platform.version>
-    <android.plugin.version>3.9.0-rc.1</android.plugin.version>
+    <android.plugin.version>3.9.0-rc.2</android.plugin.version>
   </properties>
 
   <dependencies>
@@ -32,8 +32,8 @@
     </dependency>
     <dependency>
       <groupId>com.actionbarsherlock</groupId>
-      <artifactId>library</artifactId>
-      <version>4.1.0</version>
+      <artifactId>actionbarsherlock</artifactId>
+      <version>4.4.0</version>
       <type>apklib</type>
       <exclusions>
         <exclusion>
@@ -49,9 +49,16 @@
       <type>apklib</type>
     </dependency>
     <dependency>
+	  <groupId>com.github.lorensiuswlt</groupId>
+	  <artifactId>NewQuickAction</artifactId>
+      <version>1.0</version>
+      <type>apklib</type>
+    </dependency>
+
+    <dependency>
       <groupId>com.github.kevinsawicki</groupId>
       <artifactId>http-request</artifactId>
-      <version>5.4.1</version>
+      <version>5.6</version>
     </dependency>
     <dependency>
 	  <groupId>commons-io</groupId>
@@ -61,7 +68,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>16.0.1</version>
+      <version>17.0</version>
     </dependency>
 
     <dependency>
@@ -74,13 +81,6 @@
 	  <groupId>com.github.falnatsheh</groupId>
 	  <artifactId>markdownview</artifactId>
       <version>1.2</version>
-    </dependency>
-
-    <dependency>
-	  <groupId>com.github.lorensiuswlt</groupId>
-	  <artifactId>NewQuickAction</artifactId>
-      <version>1.0</version>
-      <type>apklib</type>
     </dependency>
 
     <!-- test dependencies  -->
