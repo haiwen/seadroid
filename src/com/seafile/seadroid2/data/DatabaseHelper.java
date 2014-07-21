@@ -180,7 +180,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
              null    // The sort order
         );
 
-        if (c.moveToFirst() == false) {
+        if (!c.moveToFirst()) {
             c.close();
             return null;
         }
@@ -288,7 +288,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             null,   // don't filter by row groups
             null);  // The sort order
 
-        if (cursor.moveToFirst() == false) {
+        if (!cursor.moveToFirst()) {
             cursor.close();
             return null;
         }
@@ -325,7 +325,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             null);  // The sort order
 
         boolean exist;
-        if (cursor.moveToFirst() == false) {
+        if (!cursor.moveToFirst()) {
             exist = false;
         } else {
             exist = false;
@@ -412,7 +412,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             null,   // don't filter by row groups
             null);  // The sort order
 
-        if (cursor.moveToFirst() == false) {
+        if (!cursor.moveToFirst()) {
             cursor.close();
             return null;
         }

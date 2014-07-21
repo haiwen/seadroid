@@ -51,7 +51,7 @@ public class DataManager {
         if (tmpDir.exists())
             return tmpDir.getAbsolutePath();
         else {
-            if (tmpDir.mkdirs() == false)
+            if (!tmpDir.mkdirs())
                 throw new RuntimeException("Couldn't create external temp directory");
             else
                 return tmpDir.getAbsolutePath();
@@ -64,7 +64,7 @@ public class DataManager {
         if (tmpDir.exists())
             return tmpDir.getAbsolutePath();
         else {
-            if (tmpDir.mkdirs() == false)
+            if (!tmpDir.mkdirs())
                 throw new RuntimeException("Couldn't create thumb directory");
             else
                 return tmpDir.getAbsolutePath();
@@ -77,7 +77,7 @@ public class DataManager {
         if (tmpDir.exists())
             return tmpDir.getAbsolutePath();
         else {
-            if (tmpDir.mkdirs() == false)
+            if (!tmpDir.mkdirs())
                 throw new RuntimeException("Couldn't create external temp directory");
             else
                 return tmpDir.getAbsolutePath();
@@ -118,7 +118,7 @@ public class DataManager {
 
     static public final int MAX_GEN_CACHE_THUMB = 1000000;  // Only generate thumb cache for files less than 1MB
     static public final int MAX_DIRECT_SHOW_THUMB = 100000;  // directly show thumb
-    
+
     public void calculateThumbnail(String repoName, String repoID, String path, String oid) {
         try {
             final int THUMBNAIL_SIZE = 72;
@@ -151,7 +151,7 @@ public class DataManager {
     public Bitmap getThumbnail(File file) {
         try {
             final int THUMBNAIL_SIZE = caculateThumbnailSizeOfDevice();
-            
+
             if (!file.exists())
                 return null;
 
@@ -164,13 +164,13 @@ public class DataManager {
         }
     }
 
-    
+
     public static int caculateThumbnailSizeOfDevice() {
-        
+
         DisplayMetrics metrics = SeadroidApplication.getAppContext().getResources().getDisplayMetrics();
-        
+
         switch(metrics.densityDpi) {
-        case DisplayMetrics.DENSITY_LOW: 
+        case DisplayMetrics.DENSITY_LOW:
             return 36;
         case DisplayMetrics.DENSITY_MEDIUM:
             return 48;
@@ -181,9 +181,9 @@ public class DataManager {
         default:
             return 36;
         }
-        
+
     }
-    
+
 
     private static final String DEBUG_TAG = "DataManager";
 
@@ -262,7 +262,7 @@ public class DataManager {
             // Has record in databse
             repoDir = new File(path);
             if (!repoDir.exists()) {
-                if (repoDir.mkdirs() == false) {
+                if (!repoDir.mkdirs()) {
                     throw new RuntimeException("Could not create library directory " + path);
                 }
             }
@@ -287,7 +287,7 @@ public class DataManager {
             i++;
         }
 
-        if (repoDir.mkdirs() == false) {
+        if (!repoDir.mkdirs()) {
             throw new RuntimeException("Could not create repo directory " + path);
         }
 
@@ -464,7 +464,7 @@ public class DataManager {
             return null;
         }
     }
-    
+
     public List<SeafDirent> getCachedDirents(String repoID, String path) {
         String json = null;
         Pair<String, String> ret = dbHelper.getCachedDirents(repoID, path);
@@ -514,12 +514,12 @@ public class DataManager {
     }
 
     public List<SeafStarredFile> getStarredFiles() throws SeafException {
-        
+
         String starredFiles = sc.getStarredFiles();
         Log.i("GET STARRED FILES", starredFiles);
         return parseStarredFiles(starredFiles);
     }
-    
+
     public SeafCachedFile getCachedFile(String repoName, String repoID, String path) {
         SeafCachedFile cf = dbHelper.getFileCacheItem(repoID, path, this);
         return cf;
@@ -626,7 +626,7 @@ public class DataManager {
         if (!Utils.isNetworkOn()) {
             return localFile;
         }
-        
+
         SeafCachedFile cf = getCachedFile(repoName, repoID, filePath);
         if (cf != null && cf.fileID != null && cf.fileID.equals(fileID)) {
             return localFile;

@@ -381,10 +381,10 @@ public class Utils {
         in.close();
         out.close();
     }
-    
-    
+
+
     /************ MutiFileChooser ************/
-    
+
     private static final String HIDDEN_PREFIX = ".";
 
     private static Comparator<SelectableFile> mComparator = new Comparator<SelectableFile>() {
@@ -394,7 +394,7 @@ public class Utils {
                     f2.getName().toLowerCase());
         }
     };
-    
+
 
     private static FileFilter mFileFilter = new FileFilter() {
         public boolean accept(File file) {
@@ -403,7 +403,7 @@ public class Utils {
             return file.isFile() && !fileName.startsWith(HIDDEN_PREFIX);
         }
     };
-    
+
 
     private static FileFilter mDirFilter = new FileFilter() {
         public boolean accept(File file) {
@@ -412,14 +412,14 @@ public class Utils {
             return file.isDirectory() && !fileName.startsWith(HIDDEN_PREFIX);
         }
     };
-    
+
 
     public static List<SelectableFile> getFileList(String path, List<File> selectedFile) {
         ArrayList<SelectableFile> list = new ArrayList<SelectableFile>();
 
         // Current directory File instance
         final SelectableFile pathDir = new SelectableFile(path);
-        
+
         // List file in this directory with the directory filter
         final SelectableFile[] dirs = pathDir.listFiles(mDirFilter);
         if (dirs != null) {
@@ -443,22 +443,22 @@ public class Utils {
                 }
                 list.add(file);
             }
-        }       
-        
+        }
+
         return list;
     }
 
 
     public static Intent createGetContentIntent() {
         // Implicitly allow the user to select a particular kind of data
-        final Intent intent = new Intent(Intent.ACTION_GET_CONTENT); 
+        final Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         // The MIME data type filter
-        intent.setType("*/*"); 
+        intent.setType("*/*");
         // Only return URIs that can be opened with ContentResolver
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         return intent;
     }
-    
+
     public static String getPath(Context context, Uri uri) throws URISyntaxException {
 
         if ("content".equalsIgnoreCase(uri.getScheme())) {

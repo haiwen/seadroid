@@ -5,7 +5,7 @@ import java.io.File;
 import com.seafile.seadroid2.Utils;
 
 public class SeafCachedFile implements SeafItem {
-    
+
     public int id;
     public String fileID;
     public String repoName;
@@ -17,7 +17,7 @@ public class SeafCachedFile implements SeafItem {
     public SeafCachedFile() {
         id = -1;
     }
-    
+
     @Override
     public String getTitle() {
         return path.substring(path.lastIndexOf('/') + 1);
@@ -32,11 +32,11 @@ public class SeafCachedFile implements SeafItem {
     public int getIcon() {
         return Utils.getFileIcon(file.getName());
     }
-    
+
     public long getSize() {
         return file.length();
     }
-    
+
     public String getAccountSignature() {
         return accountSignature;
     }

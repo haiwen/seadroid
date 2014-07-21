@@ -18,8 +18,8 @@ public class SeafStarredFile implements SeafItem {
     private String path;
     private FileType type;
     private long size;    // size of file, 0 if type is dir
-    
-    
+
+
     static SeafStarredFile fromJson(JSONObject obj) {
         SeafStarredFile starredFile = new SeafStarredFile();
         try {
@@ -38,19 +38,19 @@ public class SeafStarredFile implements SeafItem {
             return null;
         }
     }
-    
+
     public boolean isDir() {
         return (type == FileType.DIR);
     }
-    
+
     public String getRepoID() {
         return repoID;
     }
-    
+
     public String getPath() {
         return path;
     }
-    
+
     @Override
     public String getTitle() {
         return path.substring(path.lastIndexOf('/') + 1);

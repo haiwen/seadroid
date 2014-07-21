@@ -18,15 +18,15 @@ import com.viewpagerindicator.IconPagerAdapter;
 import com.viewpagerindicator.TabPageIndicator;
 
 public class TabsFragment extends SherlockFragment {
-    
+
     private static final int[] ICONS = new int[] {
         R.drawable.tab_library, R.drawable.tab_starred,
         R.drawable.tab_activity
     };
-    
+
     private int currentPosition = 0;
-    private FragmentPagerAdapter adapter;    
-    
+    private FragmentPagerAdapter adapter;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,15 +92,15 @@ public class TabsFragment extends SherlockFragment {
     public ReposFragment getReposFragment() {
         return (ReposFragment)getFragment(0);
     }
-    
+
     public StarredFragment getStarredFragment() {
         return (StarredFragment)getFragment(1);
     }
-    
+
     public ActivitiesFragment getActivitiesFragment() {
         return (ActivitiesFragment)getFragment(2);
-    } 
-    
+    }
+
     class SeafileTabsAdapter extends FragmentPagerAdapter implements
             IconPagerAdapter {
         public SeafileTabsAdapter(FragmentManager fm) {

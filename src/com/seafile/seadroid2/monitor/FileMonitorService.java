@@ -1,7 +1,5 @@
 package com.seafile.seadroid2.monitor;
 
-import java.util.List;
-
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -16,13 +14,12 @@ import android.util.Log;
 
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.transfer.TransferManager.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.TransferManager.UploadTaskInfo;
 import com.seafile.seadroid2.transfer.TransferService;
 
 /**
- * Monitor changes of local cached files, and upload them through TransferService if moidified
+ * Monitor changes of local cached files, and upload them through TransferService if modified
  */
 public class FileMonitorService extends Service {
 
@@ -100,7 +97,6 @@ public class FileMonitorService extends Service {
         Log.d(DEBUG_TAG, account.email);
         monitor.stopMonitorFilesForAccount(account);
     }
-
 
     private ServiceConnection mTransferConnection = new ServiceConnection() {
 

@@ -25,7 +25,7 @@ public class StarredItemAdapter extends BaseAdapter {
         this.mActivity = activity;
         items = new ArrayList<SeafItem>();
     }
-    
+
     @Override
     public int getCount() {
         return items.size();
@@ -34,15 +34,15 @@ public class StarredItemAdapter extends BaseAdapter {
     public void clear() {
         items.clear();
     }
-    
+
     public void add(SeafItem entry) {
         items.add(entry);
     }
-    
+
     public void notifyChanged() {
         notifyDataSetChanged();
     }
-    
+
     @Override
     public SeafItem getItem(int position) {
         return items.get(position);
@@ -80,8 +80,8 @@ public class StarredItemAdapter extends BaseAdapter {
 
         return view;
     }
-    
-    
+
+
     private class Viewholder {
         TextView title, subtitle;
         ImageView icon, action;
@@ -94,6 +94,6 @@ public class StarredItemAdapter extends BaseAdapter {
             this.subtitle = subtitle;
         }
     }
-    
+
 
 }

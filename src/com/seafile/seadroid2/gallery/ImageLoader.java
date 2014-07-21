@@ -3,8 +3,6 @@ package com.seafile.seadroid2.gallery;
 import android.content.ContentResolver;
 import android.graphics.Bitmap;
 import android.os.Handler;
-import android.provider.MediaStore;
-import android.util.Log;
 
 import java.util.ArrayList;
 

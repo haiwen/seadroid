@@ -127,7 +127,7 @@ public final class CertsManager {
                                       null,  // don't filter by row groups
                                       null); // The sort order
 
-            if (c.moveToFirst() == false) {
+            if (!c.moveToFirst()) {
                 c.close();
                 return null;
             }

@@ -16,13 +16,13 @@ import android.widget.ListView;
 
 public class FileListFragment extends ListFragment implements
 LoaderManager.LoaderCallbacks<List<SelectableFile>> {
-    
+
     private static final String LOG_TAG = "FileListFragment";
     private static final int LOADER_ID = 0;
-    
+
     private FileListAdapter mFileListAdapter;
     private String mPath;
-    
+
     public static FileListFragment newInstance(String path) {
         FileListFragment fragment = new FileListFragment();
         Bundle args = new Bundle();
@@ -31,7 +31,7 @@ LoaderManager.LoaderCallbacks<List<SelectableFile>> {
 
         return fragment;
     }
-    
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,17 +41,17 @@ LoaderManager.LoaderCallbacks<List<SelectableFile>> {
                 MultiFileChooserActivity.PATH) : Environment
                 .getExternalStorageDirectory().getAbsolutePath();
     }
-    
-    
+
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         setEmptyText(getString(R.string.empty_folder));
         setListAdapter(mFileListAdapter);
         setListShown(false);
-        getLoaderManager().initLoader(LOADER_ID, null, this);       
+        getLoaderManager().initLoader(LOADER_ID, null, this);
         super.onActivityCreated(savedInstanceState);
     }
-    
+
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         FileListAdapter adapter = (FileListAdapter) l.getAdapter();
@@ -66,7 +66,7 @@ LoaderManager.LoaderCallbacks<List<SelectableFile>> {
             ((MultiFileChooserActivity) getActivity()).onFileChecked(file);
         }
     }
-    
+
     @Override
     public void onPause () {
         Log.d(LOG_TAG, "onPause");
@@ -86,7 +86,7 @@ LoaderManager.LoaderCallbacks<List<SelectableFile>> {
             setListShown(true);
         else
             setListShownNoAnimation(true);
-        
+
 
     }
 

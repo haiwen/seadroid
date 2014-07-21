@@ -12,91 +12,91 @@ import android.support.v4.content.AsyncTaskLoader;
 
 public class FileLoader extends AsyncTaskLoader<List<SelectableFile>> {
 
-	private static final int FILE_OBSERVER_MASK = FileObserver.CREATE
-			| FileObserver.DELETE | FileObserver.DELETE_SELF
-			| FileObserver.MOVED_FROM | FileObserver.MOVED_TO
-			| FileObserver.MODIFY | FileObserver.MOVE_SELF;
-	
-	private FileObserver mFileObserver;
-	
-	private List<SelectableFile> mData;
-	private String mPath;
-	private List<File> mSelectedFiles;
+    private static final int FILE_OBSERVER_MASK = FileObserver.CREATE
+            | FileObserver.DELETE | FileObserver.DELETE_SELF
+            | FileObserver.MOVED_FROM | FileObserver.MOVED_TO
+            | FileObserver.MODIFY | FileObserver.MOVE_SELF;
 
-	public FileLoader(Context context, String path, List<File> selectedFiles) {
-		super(context);
-		this.mPath = path;
-		mSelectedFiles = new ArrayList<File>(selectedFiles);
-	}
+    private FileObserver mFileObserver;
 
-	@Override
-	public List<SelectableFile> loadInBackground() {
-		return Utils.getFileList(mPath, mSelectedFiles);
-	}
+    private List<SelectableFile> mData;
+    private String mPath;
+    private List<File> mSelectedFiles;
 
-	@Override
-	public void deliverResult(List<SelectableFile> data) {
-		if (isReset()) {
-			onReleaseResources(data);
-			return;
-		}
+    public FileLoader(Context context, String path, List<File> selectedFiles) {
+        super(context);
+        this.mPath = path;
+        mSelectedFiles = new ArrayList<File>(selectedFiles);
+    }
 
-		List<SelectableFile> oldData = mData;
-		mData = data;
-		
-		if (isStarted())
-			super.deliverResult(data);
+    @Override
+    public List<SelectableFile> loadInBackground() {
+        return Utils.getFileList(mPath, mSelectedFiles);
+    }
 
-		if (oldData != null && oldData != data)
-			onReleaseResources(oldData);
-	}
+    @Override
+    public void deliverResult(List<SelectableFile> data) {
+        if (isReset()) {
+            onReleaseResources(data);
+            return;
+        }
 
-	@Override
-	protected void onStartLoading() {
-		if (mData != null)
-			deliverResult(mData);
+        List<SelectableFile> oldData = mData;
+        mData = data;
 
-		if (mFileObserver == null) {
-			mFileObserver = new FileObserver(mPath, FILE_OBSERVER_MASK) {
-				@Override
-				public void onEvent(int event, String path) {
-					onContentChanged();	
-				}
-			};
-		}
-		mFileObserver.startWatching();
-		
-		if (takeContentChanged() || mData == null)
-			forceLoad();
-	}
+        if (isStarted())
+            super.deliverResult(data);
 
-	@Override
-	protected void onStopLoading() {
-		cancelLoad();
-	}
+        if (oldData != null && oldData != data)
+            onReleaseResources(oldData);
+    }
 
-	@Override
-	protected void onReset() {
-		onStopLoading();
+    @Override
+    protected void onStartLoading() {
+        if (mData != null)
+            deliverResult(mData);
 
-		if (mData != null) {
-			onReleaseResources(mData);
-			mData = null;
-		}
-	}
+        if (mFileObserver == null) {
+            mFileObserver = new FileObserver(mPath, FILE_OBSERVER_MASK) {
+                @Override
+                public void onEvent(int event, String path) {
+                    onContentChanged();
+                }
+            };
+        }
+        mFileObserver.startWatching();
 
-	@Override
-	public void onCanceled(List<SelectableFile> data) {
-		super.onCanceled(data);
+        if (takeContentChanged() || mData == null)
+            forceLoad();
+    }
 
-		onReleaseResources(data);
-	}
+    @Override
+    protected void onStopLoading() {
+        cancelLoad();
+    }
 
-	protected void onReleaseResources(List<SelectableFile> data) {
-		
-		if (mFileObserver != null) {
-			mFileObserver.stopWatching();
-			mFileObserver = null;
-		}
-	}
+    @Override
+    protected void onReset() {
+        onStopLoading();
+
+        if (mData != null) {
+            onReleaseResources(mData);
+            mData = null;
+        }
+    }
+
+    @Override
+    public void onCanceled(List<SelectableFile> data) {
+        super.onCanceled(data);
+
+        onReleaseResources(data);
+    }
+
+    protected void onReleaseResources(List<SelectableFile> data) {
+
+        if (mFileObserver != null) {
+            mFileObserver.stopWatching();
+            mFileObserver = null;
+        }
+    }
 }

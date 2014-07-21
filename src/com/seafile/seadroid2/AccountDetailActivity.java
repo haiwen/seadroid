@@ -269,7 +269,7 @@ public class AccountDetailActivity extends FragmentActivity {
             SeafConnection sc = new SeafConnection(loginAccount);
 
             try {
-                if (sc.doLogin() == false)
+                if (!sc.doLogin())
                     return getString(R.string.err_login_failed);
                 return "Success";
             } catch (SeafException e) {
