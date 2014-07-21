@@ -37,8 +37,9 @@ import com.seafile.seadroid2.data.DataManager.ProgressMonitor;
  * @author plt
  */
 public class SeafConnection {
-
     private static final String DEBUG_TAG = "SeafConnection";
+    private static final int CONNECTION_TIMEOUT = 15000;
+    private static final int READ_TIMEOUT = 30000;
 
     private Account account;
 
@@ -63,8 +64,8 @@ public class SeafConnection {
     }
 
     private void setRequestCommon(HttpRequest req) {
-        req.readTimeout(30000)
-            .connectTimeout(15000)
+        req.readTimeout(READ_TIMEOUT)
+            .connectTimeout(CONNECTION_TIMEOUT)
             .followRedirects(true)
             .header("Authorization", "Token " + account.token);
 
@@ -87,7 +88,7 @@ public class SeafConnection {
     }
 
     private HttpRequest prepareApiFileGetRequest(String url) throws HttpRequestException {
-        HttpRequest req =  HttpRequest.get(url).connectTimeout(15000).followRedirects(true);
+        HttpRequest req =  HttpRequest.get(url).connectTimeout(CONNECTION_TIMEOUT).followRedirects(true);
 
         return prepareHttpsCheck(req);
     }
@@ -102,7 +103,7 @@ public class SeafConnection {
                                             throws HttpRequestException {
         HttpRequest req = HttpRequest.post(account.server + apiPath, params, true)
             .followRedirects(true)
-            .connectTimeout(15000);
+            .connectTimeout(CONNECTION_TIMEOUT);
 
         if (withToken) {
             req.header("Authorization", "Token " + account.token);
@@ -485,9 +486,7 @@ public class SeafConnection {
             }
 
 
-            HttpRequest req = HttpRequest.post(link)
-                .followRedirects(true)
-                .connectTimeout(15000);
+            HttpRequest req = HttpRequest.post(link).followRedirects(true).connectTimeout(CONNECTION_TIMEOUT);
 
             prepareHttpsCheck(req);
 
