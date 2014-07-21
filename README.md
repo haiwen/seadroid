@@ -21,7 +21,7 @@ You will get `target/seadroid.apk` after the build finishes.
 
 ### Build
 
-- Download `ActionBarSherlock` 4.2.0 from http://actionbarsherlock.com/download.html
+- Download `ActionBarSherlock` 4.4.0 from http://actionbarsherlock.com/download.html
 - Download `ViewPagerIndicator` 2.4.1 from http://viewpagerindicator.com
 
 - Git clone `NewQuickAction`
@@ -32,10 +32,10 @@ You will get `target/seadroid.apk` after the build finishes.
 
 - Replace the android-support-v4.jar in `ActionBarSherlock` and `ViewPagerIndicator` with the jar in seadroid to make sure that all versions of this library be the same at this time.
 
-- Download these JARs to `seadroid/libs` directory:  
-    - [http-request-5.3.jar](http://mvnrepository.com/artifact/com.github.kevinsawicki/http-request/5.3)
+- Download these JARs to `seadroid/libs` directory (check pom.xml to verify versions):
+    - [http-request-5.6.jar](http://mvnrepository.com/artifact/com.github.kevinsawicki/http-request/5.6)
     - [commons-io-2.4.jar](http://repo1.maven.org/maven2/commons-io/commons-io/2.4/commons-io-2.4.jar)
-    - [guava-16.0.1.jar](http://search.maven.org/remotecontent?filepath=com/google/guava/guava/16.0.1/guava-16.0.1.jar)
+    - [guava-17.0.jar](http://search.maven.org/remotecontent?filepath=com/google/guava/guava/17.0/guava-17.0.jar)
 
 Now you can build seadroid in eclipse.
 
