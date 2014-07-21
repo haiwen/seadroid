@@ -4,8 +4,6 @@ import java.util.ArrayList;
 
 import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.Utils;
-import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafItem;
 import com.seafile.seadroid2.data.SeafStarredFile;
 

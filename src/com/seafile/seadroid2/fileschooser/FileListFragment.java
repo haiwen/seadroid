@@ -1,6 +1,5 @@
 package com.seafile.seadroid2.fileschooser;
 
-import java.io.File;
 import java.util.List;
 
 import com.seafile.seadroid2.R;
