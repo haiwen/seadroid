@@ -6,7 +6,7 @@ public class SeafException extends Exception {
 
     private static final long serialVersionUID = 1L;
 
-    static public final int OTHER_EXCEPTION = 599;
+    public static final int OTHER_EXCEPTION = 599;
 
     private int code;
 

@@ -85,7 +85,7 @@ public class DataManager {
 
     }
 
-    static public File getFileForFileCache(String path, String oid) {
+    public static File getFileForFileCache(String path, String oid) {
         String p = getExternalRootDirectory() + "/" + constructFileName(path, oid);
         return new File(p);
     }
