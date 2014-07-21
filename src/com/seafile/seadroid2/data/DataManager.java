@@ -35,7 +35,7 @@ public class DataManager {
     public static String getExternalRootDirectory() {
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             File extDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Seafile/");
-            if (extDir.mkdirs() || extDir.exists()) {
+            if (extDir.exists() || extDir.mkdirs()) {
                 return extDir.getAbsolutePath();
             } else {
                 throw new RuntimeException("Couldn't create external directory");
