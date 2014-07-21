@@ -93,7 +93,7 @@ public final class CertsManager {
         private static DBHelper dbHelper = null;
         private SQLiteDatabase database = null;
 
-        public static DBHelper getDatabaseHelper() {
+        public static synchronized DBHelper getDatabaseHelper() {
             if (dbHelper != null)
                 return dbHelper;
             dbHelper = new DBHelper(SeadroidApplication.getAppContext());

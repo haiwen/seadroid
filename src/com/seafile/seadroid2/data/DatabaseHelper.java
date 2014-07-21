@@ -78,7 +78,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static DatabaseHelper dbHelper = null;
     private SQLiteDatabase database = null;
 
-    public static DatabaseHelper getDatabaseHelper() {
+    public static synchronized DatabaseHelper getDatabaseHelper() {
         if (dbHelper != null)
             return dbHelper;
         dbHelper = new DatabaseHelper(SeadroidApplication.getAppContext());
