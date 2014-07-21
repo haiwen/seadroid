@@ -30,13 +30,17 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.DetailedState;
 import android.net.Uri;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
@@ -395,7 +399,20 @@ public class Utils {
         }
     };
     
-
+    private static FileFilter mImageFilter = new FileFilter() {
+        public boolean accept(File file) {
+            final String fileName = file.getName();
+            // Return files only (not directories) and skip hidden files
+			return file.isFile()
+					&& (fileName.endsWith(".jpg") | fileName.endsWith(".JPG")
+							| fileName.endsWith(".PNG")
+							| fileName.endsWith(".png")
+							| fileName.endsWith(".bmp")
+							| fileName.endsWith(".BMP")
+							| fileName.endsWith(".JPEG") | fileName
+								.endsWith(".jpeg"));
+        }
+    };
     private static FileFilter mFileFilter = new FileFilter() {
         public boolean accept(File file) {
             final String fileName = file.getName();
@@ -447,7 +464,136 @@ public class Utils {
         
         return list;
     }
+    /**
+	 * 获取SD卡的根目录，末尾带\
+	 * @author Logan Guo
+	 * @return
+	 */
+	public static String getSDRoot() {
+		return Environment.getExternalStorageDirectory().getAbsolutePath()
+				+ File.separator;
+	}
+    /**
+	 * list all sub directories under root
+	 * @author Logan Guo
+	 * @param path
+	 * @return 绝对路径
+	 */
+	public static List<String> listPath(String root) {
+		List<String> allDir = new ArrayList<String>();
+		SecurityManager checker = new SecurityManager();
+		File path = new File(root);
+		checker.checkRead(root);
+		if (path.isDirectory()) {
+			for (File f : path.listFiles()) {
+				if (f.isDirectory()) {
+					allDir.add(f.getAbsolutePath());
+				}
+			}
+		}
+		return allDir;
+	}
+	/**
+	 * 截取路径名
+	 * 
+	 * @return
+	 */
+	public static String getPathName(String absolutePath) {
+		int start = absolutePath.lastIndexOf(File.separator) + 1;
+		int end = absolutePath.length();
+		return absolutePath.substring(start, end);
+	}
+    /**
+     * modified by Logan Guo 
+     **/
+    public static List<SelectableFile> getImagesAutoBackupFolders(ContentResolver mContentResolver, String path, List<File> selectedFile) {
+        ArrayList<SelectableFile> list = new ArrayList<SelectableFile>();
 
+        // Current directory File instance
+        final SelectableFile pathDir = new SelectableFile(path);
+        
+        // List file in this directory with the directory filter
+        final SelectableFile[] dirs = pathDir.listFiles(mDirFilter);
+        System.out.println("Utils: "+ dirs.toString());
+        String[] projection = {
+                MediaStore.Images.Media._ID, MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
+                MediaStore.Images.Media.DISPLAY_NAME
+                };
+                String selection = MediaStore.Images.Media.BUCKET_DISPLAY_NAME + " = ?";
+                String[] selectionArgs = new String[] {
+                    "Camera"
+                };
+
+                Cursor mImageCursor = mContentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, selection, selectionArgs, null ); 
+
+                if (mImageCursor != null)
+                {
+
+                    mImageCursor.moveToFirst();
+
+                    for (int i = 0; i < mImageCursor.getCount(); i++)
+                    {
+//                        Images im=new Images();
+//                        eachImageView=new ImageView(this);
+                        int imageId = mImageCursor.getInt((mImageCursor.getColumnIndex( MediaStore.Images.Media._ID)));
+                        Bitmap bm = MediaStore.Images.Thumbnails.getThumbnail(mContentResolver, imageId, MediaStore.Images.Thumbnails.MINI_KIND, null);
+//                        im.setBitmap(bm);
+//                        eachImageView.setImageBitmap(bm);
+//                        im.setImageView(eachImageView);
+//
+//                        arrayOfImages.add(im);
+                        System.out.println("Utils-->imageId: "+ imageId);
+                        mImageCursor.moveToNext();
+                    }
+                }      
+        
+        return list;
+    }
+    
+    /**
+     * modified by Logan Guo 
+     **/
+    public static List<SelectableFile> getImagesAutoBackupFolders2(String path, List<File> selectedFile) {
+        ArrayList<SelectableFile> list = new ArrayList<SelectableFile>();
+
+        // Current directory File instance
+        final SelectableFile pathDir = new SelectableFile(path);
+        
+        // List file in this directory with the directory filter
+        final SelectableFile[] dirs = pathDir.listFiles(mDirFilter);
+        System.out.println("Utils: "+ dirs.toString());
+        if (dirs != null) {
+            // Sort the folders alphabetically
+            Arrays.sort(dirs, mComparator);
+            // Add each folder to the File list for the list adapter
+			for (SelectableFile dir : dirs) {
+				// Check if a image folder
+				System.out.println("Utils: "+ dir.listFiles(mImageFilter).length);
+				if (dir != null && dir.listFiles(mDirFilter).length == 0 && dir.listFiles(mImageFilter).length >= 1) {
+					list.add(dir);
+				}
+
+			} 
+        }
+
+        // List file in this directory with the file filter
+        final SelectableFile[] files = pathDir.listFiles(mImageFilter);
+        if (files != null) {
+            // Sort the files alphabetically
+            Arrays.sort(files, mComparator);
+            // Add each file to the File list for the list adapter
+            for (SelectableFile file : files) {
+                if (selectedFile != null) {
+                    if (selectedFile.contains(file.getFile())) {
+                        file.setSelected(true);
+                    }
+                }
+                list.add(file);
+            }
+        }       
+        
+        return list;
+    }
 
     public static Intent createGetContentIntent() {
         // Implicitly allow the user to select a particular kind of data

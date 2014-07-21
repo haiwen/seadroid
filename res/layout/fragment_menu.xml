@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/darker_gray" >
+
+    <ImageView
+        android:id="@+id/iv_logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="18dp"
+        android:src="@drawable/icon" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@android:color/background_light"
+        android:layout_above="@id/iv_logo"
+        android:layout_alignParentTop="true" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="20dp" >
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/account" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="10dp"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical" >
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="4dp"
+                        android:text="@string/app_name"
+                        android:textColor="@color/black" />
+
+                    <ProgressBar
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="6dp"
+                        android:max="100"
+                        android:progress="10"
+                        android:progressDrawable="@drawable/custom_progress_bar" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="2dp"
+                        android:text="9.3 MB / 2.0 GB"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <RelativeLayout style="@style/menuItem" >
+
+                <ImageView
+                    android:id="@+id/iv_backup"
+                    style="@style/menuItemIcon"
+                    android:src="@drawable/icon_backup" />
+
+                <Button
+                    android:id="@+id/btn_auto_img_backup"
+                    style="@style/menuItemTitle"
+                    android:layout_toRightOf="@id/iv_backup"
+                    android:text="自动备份照片" />
+            </RelativeLayout>
+
+            <RelativeLayout style="@style/menuItem" >
+
+                <ImageView
+                    android:id="@+id/iv_transfer"
+                    style="@style/menuItemIcon"
+                    android:src="@drawable/icon_transfer" />
+
+                <TextView
+                    style="@style/menuItemTitle"
+                    android:layout_toRightOf="@id/iv_transfer"
+                    android:text="传输管理" />
+            </RelativeLayout>
+
+            <RelativeLayout style="@style/menuItem" >
+
+                <ImageView
+                    android:id="@+id/iv_history"
+                    style="@style/menuItemIcon"
+                    android:src="@drawable/icon_history" />
+
+                <TextView
+                    style="@style/menuItemTitle"
+                    android:layout_toRightOf="@id/iv_history"
+                    android:text="查看最近操作" />
+            </RelativeLayout>
+
+            <RelativeLayout style="@style/menuItem" >
+
+                <ImageView
+                    android:id="@+id/iv_connect"
+                    style="@style/menuItemIcon"
+                    android:src="@drawable/icon_connect" />
+
+                <TextView
+                    style="@style/menuItemTitle"
+                    android:layout_toRightOf="@id/iv_connect"
+                    android:text="发送文件到电脑" />
+            </RelativeLayout>
+
+            <RelativeLayout style="@style/menuItem" >
+
+                <ImageView
+                    android:id="@+id/iv_reward"
+                    style="@style/menuItemIcon"
+                    android:src="@drawable/icon_reward" />
+
+                <TextView
+                    style="@style/menuItemTitle"
+                    android:layout_toRightOf="@id/iv_reward"
+                    android:text="免费抽空间" />
+            </RelativeLayout>
+
+            <RelativeLayout style="@style/menuItem" >
+
+                <ImageView
+                    android:id="@+id/iv_setting"
+                    style="@style/menuItemIcon"
+                    android:src="@drawable/icon_setting" />
+
+                <TextView
+                    style="@style/menuItemTitle"
+                    android:layout_toRightOf="@id/iv_setting"
+                    android:text="设置" />
+            </RelativeLayout>
+            <RelativeLayout style="@style/menuItem" >
+
+                <ImageView
+                    android:id="@+id/iv_logout"
+                    style="@style/menuItemIcon"
+                    android:src="@drawable/icon_logout" />
+
+                <TextView
+                    style="@style/menuItemTitle"
+                    android:layout_toRightOf="@id/iv_logout"
+                    android:text="退出登录" />
+            </RelativeLayout>
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>

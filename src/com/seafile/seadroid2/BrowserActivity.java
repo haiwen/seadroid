@@ -54,6 +54,7 @@ import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SeafStarredFile;
+import com.seafile.seadroid2.fileschooser.AutoBackupFolderChooserActivity;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 import com.seafile.seadroid2.gallery.MultipleImageSelectionActivity;
 import com.seafile.seadroid2.monitor.FileMonitorService;
@@ -71,6 +72,7 @@ import com.seafile.seadroid2.ui.OpenAsDialog;
 import com.seafile.seadroid2.ui.PasswordDialog;
 import com.seafile.seadroid2.ui.RenameFileDialog;
 import com.seafile.seadroid2.ui.ReposFragment;
+import com.seafile.seadroid2.ui.SettingsFragment;
 import com.seafile.seadroid2.ui.SslConfirmDialog;
 import com.seafile.seadroid2.ui.StarredFragment;
 import com.seafile.seadroid2.ui.TabsFragment;
@@ -92,7 +94,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
 
     private Account account;
-    NavContext navContext = null;
+    public NavContext navContext = null;
     DataManager dataManager = null;
     TransferService txService = null;
     TransferReceiver mTransferReceiver;
@@ -100,6 +102,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     // private boolean twoPaneMode = false;
     UploadTasksFragment uploadTasksFragment = null;
     TabsFragment tabsFragment = null;
+    SettingsFragment settingsFragment = null;
     private String currentSelectedItem = FILES_VIEW;
 
     FetchFileDialog fetchFileDialog = null;
@@ -108,6 +111,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     private static final String UPLOAD_TASKS_VIEW = "UploadTasks";
     private static final String FILES_VIEW = "Files";
+    private static final String SETTINGS_VIEW = "Settings";
 
     private static final String LIBRARY_TAB = "Libraries";
     private static final String ACTIVITY_TAB = "Activities";
@@ -116,6 +120,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final String REPOS_FRAGMENT_TAG = "repos_fragment";
     public static final String UPLOAD_TASKS_FRAGMENT_TAG = "upload_tasks_fragment";
     public static final String TABS_FRAGMENT_TAG = "tabs_main";
+    public static final String SETTINGS_FRAGMENT_TAG = "settings_fragment";
     public static final String ACTIVITIES_FRAGMENT_TAG = "activities_fragment";
     public static final String OPEN_FILE_DIALOG_FRAGMENT_TAG = "openfile_fragment";
     public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "password_fragment";
@@ -236,6 +241,8 @@ public class BrowserActivity extends SherlockFragmentActivity
                     getSupportFragmentManager().findFragmentByTag(TABS_FRAGMENT_TAG);
             uploadTasksFragment = (UploadTasksFragment)
                     getSupportFragmentManager().findFragmentByTag(UPLOAD_TASKS_FRAGMENT_TAG);
+            settingsFragment = (SettingsFragment)
+                    getSupportFragmentManager().findFragmentByTag(SETTINGS_FRAGMENT_TAG);
 
             fetchFileDialog = (FetchFileDialog)
                     getSupportFragmentManager().findFragmentByTag(OPEN_FILE_DIALOG_FRAGMENT_TAG);
@@ -274,8 +281,10 @@ public class BrowserActivity extends SherlockFragmentActivity
             Log.d(DEBUG_TAG, "savedInstanceState is null");
             tabsFragment = new TabsFragment();
             uploadTasksFragment = new UploadTasksFragment();
+            settingsFragment = new SettingsFragment();
             getSupportFragmentManager().beginTransaction().add(R.id.content_frame, tabsFragment, TABS_FRAGMENT_TAG).commit();
             getSupportFragmentManager().beginTransaction().add(R.id.content_frame, uploadTasksFragment, UPLOAD_TASKS_FRAGMENT_TAG).commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.content_frame, settingsFragment,SETTINGS_FRAGMENT_TAG).commit();
             getSupportFragmentManager().beginTransaction().detach(uploadTasksFragment).commit();
 
         }
@@ -472,18 +481,21 @@ public class BrowserActivity extends SherlockFragmentActivity
         switch (position) {
         case 0 :
             ft.detach(uploadTasksFragment);
+            ft.detach(settingsFragment);
             ft.attach(tabsFragment);
             ft.commit();
             currentSelectedItem = FILES_VIEW;
             break;
         case 1 :
             ft.detach(tabsFragment);
+            ft.detach(settingsFragment);
             ft.attach(uploadTasksFragment);
             ft.commit();
             currentSelectedItem = UPLOAD_TASKS_VIEW;
             break;
         case 2 :
             ft.detach(uploadTasksFragment);
+            ft.detach(settingsFragment);
             ft.attach(tabsFragment);
             ft.commit();
 
@@ -492,8 +504,14 @@ public class BrowserActivity extends SherlockFragmentActivity
             finish();
             startActivity(newIntent);
             break;
+        case 3:
+        	ft.detach(tabsFragment);
+        	ft.detach(uploadTasksFragment);
+        	ft.attach(settingsFragment);
+        	ft.commit();
+        	//currentSelectedItem = SETTINGS_VIEW; 
         default:
-            break;
+        	break;
 
         }
 
@@ -953,6 +971,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     /***********  Start other activity  ***************/
 
     public static final int PICK_FILES_REQUEST = 1;
+    public static final int PICK_AUTO_BACKUP_FOLDER_REQUEST = 4;
     public static final int PICK_PHOTOS_VIDEOS_REQUEST = 2;
     public static final int PICK_FILE_REQUEST = 3;
 
@@ -1029,6 +1048,20 @@ public class BrowserActivity extends SherlockFragmentActivity
                 }
             }
             break;
+        case PICK_AUTO_BACKUP_FOLDER_REQUEST:
+        	if (requestCode == RESULT_OK) {
+        		Log.v(DEBUG_TAG, "PICK_AUTO_BACKUP_FOLDER_REQUEST");
+        		String[] paths = data.getStringArrayExtra(AutoBackupFolderChooserActivity.AUTO_BACKUP_FOLDER_PATHS);
+                if (paths == null)
+                    return;
+                showToast(getString(R.string.added_to_upload_tasks));
+                for (String path : paths) {
+                	Log.v(DEBUG_TAG, path);
+                    addUploadTask(navContext.getRepoID(),
+                        navContext.getRepoName(), navContext.getDirPath(), path);
+                }
+			}
+        	break;
         case PICK_PHOTOS_VIDEOS_REQUEST:
             if (resultCode == RESULT_OK) {
                 ArrayList<String> paths = data.getStringArrayListExtra("photos");

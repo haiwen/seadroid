@@ -115,6 +115,7 @@
         <item>文件</item>
         <item>上传任务</item>
         <item>账户</item>
+        <item>设置</item>
     </string-array>
     <string name="no_starred_file">还没有星标文件</string>
     <string name="added_to_upload_tasks">选中的文件已被添加到上传任务列表中</string>

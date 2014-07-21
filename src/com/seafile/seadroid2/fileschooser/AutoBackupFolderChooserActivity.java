@@ -5,34 +5,34 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.Utils;
-
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Environment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentManager.BackStackEntry;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
+import android.support.v4.app.FragmentTransaction;
 import android.widget.Toast;
 
-public class MultiFileChooserActivity extends FragmentActivity implements
+import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.Utils;
+
+public class AutoBackupFolderChooserActivity extends FragmentActivity implements
 OnBackStackChangedListener {
 
+	private static final String LOG_TAG = "AutoBackupFolderChooserActivity";
     public static final String EXTERNAL_BASE_PATH = Environment
             .getExternalStorageDirectory().getAbsolutePath();
     public static final String PATH = "path";
-    public static final String MULTI_FILES_PATHS = "com.seafile.seadroid2.fileschooser.paths";
-    
+    public static final String AUTO_BACKUP_FOLDER_PATHS = "com.seafile.seadroid2.fileschooser.autobackup.folder.paths";
     private String mPath;
     private FragmentManager mFragmentManager;
-    private FileFooterFragment mFooterFragment;
+    private AutoBackupFolderFooterFragment mFooterFragment;
     private List<File> mSelectedFiles;
     
     private BroadcastReceiver mStorageListener = new BroadcastReceiver() {
@@ -57,7 +57,7 @@ OnBackStackChangedListener {
             mPath = savedInstanceState.getString(PATH);
         }
 
-        mFooterFragment = new FileFooterFragment();
+        mFooterFragment = new AutoBackupFolderFooterFragment();
         mFragmentManager.beginTransaction()
         .add(R.id.footer_fragment, mFooterFragment).commit();
         
@@ -85,7 +85,7 @@ OnBackStackChangedListener {
     }
     
     private void addFragment(String path) {
-        FileListFragment explorerFragment = FileListFragment.newInstance(mPath);
+        AutoBackupFolderListFragment explorerFragment = AutoBackupFolderListFragment.newInstance(mPath);
         mFragmentManager.beginTransaction()
                 .add(R.id.explorer_fragment, explorerFragment).commit();
     }
@@ -130,7 +130,7 @@ OnBackStackChangedListener {
         }
         
         Intent intent = new Intent();
-        intent.putExtra(MULTI_FILES_PATHS, paths);
+        intent.putExtra(AUTO_BACKUP_FOLDER_PATHS, paths);
         setResult(RESULT_OK, intent);
         finish();
     }
@@ -141,8 +141,7 @@ OnBackStackChangedListener {
         if (nSelected == 0) {
             status = getResources().getString(R.string.select_upload_files);
         } else {
-            status = String.format(getResources().getString(R.string.n_upload_files_selected),
-                                   nSelected);
+            status = String.format("已经选择 %d 个文件夹", nSelected);
         }
         mFooterFragment.getStatusView().setText(status);
     }
@@ -180,7 +179,7 @@ OnBackStackChangedListener {
      * @param path The absolute path of the file (directory) to display.
      */
     private void replaceFragment(String path) {
-        FileListFragment explorerFragment = FileListFragment.newInstance(path);
+    	AutoBackupFolderListFragment explorerFragment = AutoBackupFolderListFragment.newInstance(path);
         mFragmentManager.beginTransaction()
                 .replace(R.id.explorer_fragment, explorerFragment)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
@@ -215,14 +214,14 @@ OnBackStackChangedListener {
             
             if (file.isDirectory()) {
                 replaceFragment(mPath);
-            } else {
                 updateSelectedFileList(file);
                 updateSelectionStatus();
                 updateUploadButtonStatus();
+            } else {
                 // finishWithResult(file);
             }
         } else {
-            Toast.makeText(MultiFileChooserActivity.this, R.string.error_selecting_file, Toast.LENGTH_SHORT).show();
+            Toast.makeText(AutoBackupFolderChooserActivity.this, R.string.error_selecting_file, Toast.LENGTH_SHORT).show();
         }
     }
     
