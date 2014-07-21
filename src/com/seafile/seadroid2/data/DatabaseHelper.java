@@ -303,7 +303,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * Tell if a record exists already.
      */
     public boolean repoDirExists(Account account, String repoName) {
-
         String[] projection = {
             REPODIR_COLUMN_REPO_DIR
         };
@@ -311,9 +310,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String selectClause = String.format("%s = ? and %s = ?",
                                             REPODIR_COLUMN_ACCOUNT,
                                             REPODIR_COLUMN_REPO_NAME);
-
         String[] selectArgs = { account.getSignature(), repoName };
-
 
         Cursor cursor = database.query(
             REPODIR_TABLE_NAME,
@@ -324,13 +321,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             null,   // don't filter by row groups
             null);  // The sort order
 
-        boolean exist;
+        boolean exist = true;
         if (!cursor.moveToFirst()) {
             exist = false;
-        } else {
-            exist = false;
         }
-
         cursor.close();
 
         return exist;
