@@ -391,7 +391,7 @@ public class DataManager {
     }
 
     public interface ProgressMonitor {
-        public void onProgressNotify(long total);
+        void onProgressNotify(long total);
         boolean isCancelled();
     }
 

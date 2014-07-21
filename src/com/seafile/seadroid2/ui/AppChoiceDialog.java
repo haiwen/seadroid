@@ -32,8 +32,8 @@ public class AppChoiceDialog extends DialogFragment {
     private List<CustomAction> customActions = new ArrayList<CustomAction>();
 
     public interface OnItemSelectedListener {
-        public void onAppSelected(ResolveInfo appInfo);
-        public void onCustomActionSelected(CustomAction action);
+        void onAppSelected(ResolveInfo appInfo);
+        void onCustomActionSelected(CustomAction action);
     }
 
     public void init(String title, List<ResolveInfo> appInfos, OnItemSelectedListener listener) {
