@@ -36,282 +36,338 @@ import com.seafile.seadroid2.ui.TaskDialog;
 /**
  * Display a file
  */
-public class FileActivity extends SherlockFragmentActivity {
-    private static final String DEBUG_TAG = "FileActivity";
+public class FileActivity extends SherlockFragmentActivity
+{
+	private static final String DEBUG_TAG = "FileActivity";
 
-    private TextView mFileNameText;
-    private ImageView mFileIcon;
-    private Button mButtonCancel;
+	private TextView mFileNameText;
+	private ImageView mFileIcon;
+	private Button mButtonCancel;
 
-    private TextView mProgressText;
-    private ProgressBar mProgressBar;
+	private TextView mProgressText;
+	private ProgressBar mProgressBar;
 
-    private String mRepoName, mRepoID, mFilePath;
-    private DataManager mDataManager;
-    private Account mAccount;
+	private String mRepoName, mRepoID, mFilePath;
+	private DataManager mDataManager;
+	private Account mAccount;
 
-    private int mTaskID = -1;
-    private TransferService mTransferService;
-    private TransferReceiver mTransferReceiver;
-    private ServiceConnection mConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            Log.d(DEBUG_TAG, "TransferService connected");
+	private int mTaskID = -1;
+	private TransferService mTransferService;
+	private TransferReceiver mTransferReceiver;
+	private ServiceConnection mConnection = new ServiceConnection()
+	{
+		@Override
+		public void onServiceConnected(ComponentName className, IBinder service)
+			{
+				Log.d(DEBUG_TAG, "TransferService connected");
 
-            TransferBinder binder = (TransferBinder) service;
-            mTransferService = binder.getService();
-            onTransferSericeConnected();
-        }
+				TransferBinder binder = (TransferBinder) service;
+				mTransferService = binder.getService();
+				onTransferSericeConnected();
+			}
 
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-        }
-    };
+		@Override
+		public void onServiceDisconnected(ComponentName arg0)
+			{
+			}
+	};
 
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Intent intent = getIntent();
+	protected void onCreate(Bundle savedInstanceState)
+		{
+			super.onCreate(savedInstanceState);
+			Intent intent = getIntent();
 
-        mAccount  = (Account)intent.getParcelableExtra("account");
-        mRepoName = intent.getStringExtra("repoName");
-        mRepoID = intent.getStringExtra("repoID");
-        mFilePath = intent.getStringExtra("filePath");
+			mAccount = (Account) intent.getParcelableExtra("account");
+			mRepoName = intent.getStringExtra("repoName");
+			mRepoID = intent.getStringExtra("repoID");
+			mFilePath = intent.getStringExtra("filePath");
 
-        mDataManager = new DataManager(mAccount);
+			mDataManager = new DataManager(mAccount);
 
-        setContentView(R.layout.file_activity);
-        initWidgets();
-        bindTransferService();
-    }
+			setContentView(R.layout.file_activity);
+			initWidgets();
+			bindTransferService();
+		}
 
-    @Override
-    protected void onDestroy() {
-        if (mTransferService != null) {
-            unbindService(mConnection);
-            mTransferService = null;
-        }
+	@Override
+	protected void onDestroy()
+		{
+			if (mTransferService != null)
+			{
+				unbindService(mConnection);
+				mTransferService = null;
+			}
 
-        if (mTransferReceiver != null) {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(mTransferReceiver);
-        }
+			if (mTransferReceiver != null)
+			{
+				LocalBroadcastManager.getInstance(this).unregisterReceiver(
+						mTransferReceiver);
+			}
 
-        super.onDestroy();
-    }
+			super.onDestroy();
+		}
 
-    private void initWidgets() {
-        mFileNameText = (TextView)findViewById(R.id.file_name);
-        mFileIcon = (ImageView)findViewById(R.id.file_icon);
-        mButtonCancel = (Button)findViewById(R.id.op_cancel);
-        mProgressBar = (ProgressBar)findViewById(R.id.progress_bar);
-        mProgressText = (TextView)findViewById(R.id.progress_text);
+	private void initWidgets()
+		{
+			mFileNameText = (TextView) findViewById(R.id.file_name);
+			mFileIcon = (ImageView) findViewById(R.id.file_icon);
+			mButtonCancel = (Button) findViewById(R.id.op_cancel);
+			mProgressBar = (ProgressBar) findViewById(R.id.progress_bar);
+			mProgressText = (TextView) findViewById(R.id.progress_text);
 
-        String fileName = Utils.fileNameFromPath(mFilePath);
-        mFileNameText.setText(fileName);
+			String fileName = Utils.fileNameFromPath(mFilePath);
+			mFileNameText.setText(fileName);
 
-        // icon
-        mFileIcon.setImageResource(Utils.getFileIcon(fileName));
+			// icon
+			mFileIcon.setImageResource(Utils.getFileIcon(fileName));
 
-        mButtonCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mTaskID > 0) {
-                    mTransferService.cancelDownloadTask(mTaskID);
-                }
-                finish();
-            }
-        });
-    }
+			mButtonCancel.setOnClickListener(new View.OnClickListener()
+			{
+				@Override
+				public void onClick(View view)
+					{
+						if (mTaskID > 0)
+						{
+							mTransferService.cancelDownloadTask(mTaskID);
+						}
+						finish();
+					}
+			});
+		}
 
-    private void startMarkdownActivity(String path) {
-        Intent intent = new Intent(this, MarkdownActivity.class);
-        intent.putExtra("path", path);
-        startActivity(intent);
-    }
+	private void startMarkdownActivity(String path)
+		{
+			Intent intent = new Intent(this, MarkdownActivity.class);
+			intent.putExtra("path", path);
+			startActivity(intent);
+		}
 
-    private void showFile() {
-        File file = mDataManager.getLocalRepoFile(mRepoName, mRepoID, mFilePath);
-        String name = file.getName();
-        String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
+	private void showFile()
+		{
+			File file = mDataManager.getLocalRepoFile(mRepoName, mRepoID,
+					mFilePath);
+			String name = file.getName();
+			String suffix = name.substring(name.lastIndexOf('.') + 1)
+					.toLowerCase();
 
-        if (suffix.length() == 0) {
-            showToast(R.string.unknown_file_type);
-            return;
-        }
+			if (suffix.length() == 0)
+			{
+				showToast(R.string.unknown_file_type);
+				return;
+			}
 
-        // Open markdown files in MarkdownActivity
-        if (suffix.endsWith("md") || suffix.endsWith("markdown")) {
-            startMarkdownActivity(file.getPath());
-            finish();
-            overridePendingTransition(0, 0);
-            return;
-        }
+			// Open markdown files in MarkdownActivity
+			if (suffix.endsWith("md") || suffix.endsWith("markdown"))
+			{
+				startMarkdownActivity(file.getPath());
+				finish();
+				overridePendingTransition(0, 0);
+				return;
+			}
 
-        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
-        Intent open = new Intent(Intent.ACTION_VIEW);
-        open.setDataAndType((Uri.fromFile(file)), mime);
+			String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
+					suffix);
+			Intent open = new Intent(Intent.ACTION_VIEW);
+			open.setDataAndType((Uri.fromFile(file)), mime);
 
-        try {
-            startActivity(open);
-            finish();
-            return;
-        } catch (ActivityNotFoundException e){
-            new OpenAsDialog(file) {
-                @Override
-                public void onDismiss(DialogInterface dialog) {
-                    finish();
-                }
-            }.show(getSupportFragmentManager(), "OpenAsDialog");
-            return;
-        }
+			try
+			{
+				startActivity(open);
+				finish();
+				return;
+			} catch (ActivityNotFoundException e)
+			{
+				new OpenAsDialog(file)
+				{
+					@Override
+					public void onDismiss(DialogInterface dialog)
+						{
+							finish();
+						}
+				}.show(getSupportFragmentManager(), "OpenAsDialog");
+				return;
+			}
 
-/*      String chooser_title = getString(R.string.open_with);
-        Intent chooser = Intent.createChooser(open, chooser_title);
+			/*
+			 * String chooser_title = getString(R.string.open_with); Intent
+			 * chooser = Intent.createChooser(open, chooser_title);
+			 * 
+			 * if (open.resolveActivity(getPackageManager()) != null) {
+			 * startActivity(chooser); finish(); overridePendingTransition(0,
+			 * 0); return; } else { showToast(R.string.activity_not_found);
+			 * return; }
+			 */
 
-        if (open.resolveActivity(getPackageManager()) != null) {
-            startActivity(chooser);
-            finish();
-            overridePendingTransition(0, 0);
-            return;
-        } else {
-            showToast(R.string.activity_not_found);
-            return;
-        }*/
+		}
 
-    }
+	private void onTransferSericeConnected()
+		{
+			// Register broadcast receiver
+			IntentFilter filter = new IntentFilter(
+					TransferService.BROADCAST_ACTION);
+			mTransferReceiver = new TransferReceiver();
+			LocalBroadcastManager.getInstance(this).registerReceiver(
+					mTransferReceiver, filter);
 
-    private void onTransferSericeConnected() {
-        // Register broadcast receiver
-        IntentFilter filter = new IntentFilter(TransferService.BROADCAST_ACTION);
-        mTransferReceiver = new TransferReceiver();
-        LocalBroadcastManager.getInstance(this).registerReceiver(mTransferReceiver, filter);
+			mTaskID = mTransferService.addDownloadTask(mAccount, mRepoName,
+					mRepoID, mFilePath);
+			mProgressBar.setVisibility(View.VISIBLE);
+			mProgressBar.setIndeterminate(true);
+			mProgressText.setVisibility(View.VISIBLE);
+		}
 
-        mTaskID = mTransferService.addDownloadTask(mAccount, mRepoName, mRepoID, mFilePath);
-        mProgressBar.setVisibility(View.VISIBLE);
-        mProgressBar.setIndeterminate(true);
-        mProgressText.setVisibility(View.VISIBLE);
-    }
+	@Override
+	public void onSaveInstanceState(Bundle outState)
+		{
+			super.onSaveInstanceState(outState);
+		}
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-    }
+	private void bindTransferService()
+		{
+			Intent txIntent = new Intent(this, TransferService.class);
+			startService(txIntent);
+			Log.d(DEBUG_TAG, "start TransferService");
 
-    private void bindTransferService() {
-        Intent txIntent = new Intent(this, TransferService.class);
-        startService(txIntent);
-        Log.d(DEBUG_TAG, "start TransferService");
+			// bind transfer service
+			Intent bIntent = new Intent(this, TransferService.class);
+			bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
+			Log.d(DEBUG_TAG, "try bind TransferService");
+		}
 
-        // bind transfer service
-        Intent bIntent = new Intent(this, TransferService.class);
-        bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
-        Log.d(DEBUG_TAG, "try bind TransferService");
-    }
+	private void onFileDownloadProgress(DownloadTaskInfo info)
+		{
+			long fileSize = info.fileSize;
+			long finished = info.finished;
 
-    private void onFileDownloadProgress(DownloadTaskInfo info) {
-        long fileSize = info.fileSize;
-        long finished = info.finished;
+			mProgressBar.setIndeterminate(false);
+			int percent;
+			if (fileSize == 0)
+			{
+				percent = 100;
+			} else
+			{
+				percent = (int) (finished * 100 / fileSize);
+			}
+			mProgressBar.setProgress(percent);
 
-        mProgressBar.setIndeterminate(false);
-        int percent;
-        if (fileSize == 0) {
-            percent = 100;
-        } else {
-            percent = (int)(finished * 100 / fileSize);
-        }
-        mProgressBar.setProgress(percent);
+			String txt = Utils.readableFileSize(finished) + " / "
+					+ Utils.readableFileSize(fileSize);
 
-        String txt = Utils.readableFileSize(finished) + " / " + Utils.readableFileSize(fileSize);
+			mProgressText.setText(txt);
+		}
 
-        mProgressText.setText(txt);
-    }
+	private void onFileDownloaded(DownloadTaskInfo info)
+		{
+			mProgressBar.setVisibility(View.GONE);
+			mProgressText.setVisibility(View.GONE);
+			mButtonCancel.setVisibility(View.GONE);
 
-    private void onFileDownloaded(DownloadTaskInfo info) {
-        mProgressBar.setVisibility(View.GONE);
-        mProgressText.setVisibility(View.GONE);
-        mButtonCancel.setVisibility(View.GONE);
+			showFile();
+		}
 
-        showFile();
-    }
+	private void onFileDownloadFailed(DownloadTaskInfo info)
+		{
+			mProgressBar.setVisibility(View.GONE);
+			mProgressText.setVisibility(View.GONE);
+			mButtonCancel.setVisibility(View.GONE);
 
-    private void onFileDownloadFailed(DownloadTaskInfo info) {
-        mProgressBar.setVisibility(View.GONE);
-        mProgressText.setVisibility(View.GONE);
-        mButtonCancel.setVisibility(View.GONE);
+			SeafException err = info.err;
+			String fileName = Utils.fileNameFromPath(info.pathInRepo);
+			if (err.getCode() == 404)
+			{
+				// file deleted
+				showToast("The file \"" + fileName + "\" has been deleted");
+			} else if (err.getCode() == 440)
+			{
+				handlePassword();
+			} else
+			{
+				showToast("Failed to download file \"" + fileName);
+			}
+		}
 
-        SeafException err = info.err;
-        String fileName = Utils.fileNameFromPath(info.pathInRepo);
-        if (err.getCode() == 404) {
-            // file deleted
-            showToast("The file \"" + fileName + "\" has been deleted");
-        } else if (err.getCode() == 440) {
-            handlePassword();
-        } else {
-            showToast("Failed to download file \"" + fileName);
-        }
-    }
+	private void handlePassword()
+		{
+			PasswordDialog passwordDialog = new PasswordDialog();
+			passwordDialog.setRepo(mRepoName, mRepoID, mAccount);
+			passwordDialog
+					.setTaskDialogLisenter(new TaskDialog.TaskDialogListener()
+					{
+						@Override
+						public void onTaskSuccess()
+							{
+								mTaskID = mTransferService
+										.addDownloadTask(mAccount, mRepoName,
+												mRepoID, mFilePath);
+							}
 
-    private void handlePassword() {
-        PasswordDialog passwordDialog = new PasswordDialog();
-        passwordDialog.setRepo(mRepoName, mRepoID, mAccount);
-        passwordDialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
-            @Override
-            public void onTaskSuccess() {
-                mTaskID = mTransferService.addDownloadTask(mAccount,
-                                                           mRepoName,
-                                                           mRepoID,
-                                                           mFilePath);
-            }
+						@Override
+						public void onTaskCancelled()
+							{
+								finish();
+							}
+					});
+			passwordDialog.show(getSupportFragmentManager(), "DialogFragment");
+		}
 
-            @Override
-            public void onTaskCancelled() {
-                finish();
-            }
-        });
-        passwordDialog.show(getSupportFragmentManager(), "DialogFragment");
-    }
+	public void showToast(CharSequence msg)
+		{
+			Context context = getApplicationContext();
+			Toast toast = Toast.makeText(context, msg, Toast.LENGTH_SHORT);
+			toast.show();
+		}
 
-    public void showToast(CharSequence msg) {
-        Context context = getApplicationContext();
-        Toast toast = Toast.makeText(context, msg, Toast.LENGTH_SHORT);
-        toast.show();
-    }
+	public void showToast(int id)
+		{
+			showToast(getString(id));
+		}
 
-    public void showToast(int id) {
-        showToast(getString(id));
-    }
+	private class TransferReceiver extends BroadcastReceiver
+	{
 
-    private class TransferReceiver extends BroadcastReceiver {
+		private TransferReceiver()
+		{
+		}
 
-        private TransferReceiver() {}
+		public void onReceive(Context context, Intent intent)
+			{
+				if (mTaskID < 0)
+				{
+					return;
+				}
 
-        public void onReceive(Context context, Intent intent) {
-            if (mTaskID < 0) {
-                return;
-            }
+				String type = intent.getStringExtra("type");
+				if (type == null)
+				{
+					return;
+				}
 
-            String type = intent.getStringExtra("type");
-            if (type == null) {
-                return;
-            }
+				int taskID = intent.getIntExtra("taskID", 0);
+				if (taskID != mTaskID)
+				{
+					return;
+				}
 
-            int taskID = intent.getIntExtra("taskID", 0);
-            if (taskID != mTaskID) {
-                return;
-            }
+				DownloadTaskInfo info = mTransferService
+						.getDownloadTaskInfo(taskID);
+				if (info == null)
+				{
+					Log.w(DEBUG_TAG, "download info is null");
+				}
+				if (type.equals(TransferService.BROADCAST_FILE_DOWNLOAD_PROGRESS))
+				{
+					onFileDownloadProgress(info);
+				} else if (type
+						.equals(TransferService.BROADCAST_FILE_DOWNLOAD_SUCCESS))
+				{
+					onFileDownloaded(info);
+				} else if (type
+						.equals(TransferService.BROADCAST_FILE_DOWNLOAD_FAILED))
+				{
+					onFileDownloadFailed(info);
+				}
+			}
 
-            DownloadTaskInfo info = mTransferService.getDownloadTaskInfo(taskID);
-            if (info == null) {
-                Log.w(DEBUG_TAG, "download info is null");
-            }
-            if (type.equals(TransferService.BROADCAST_FILE_DOWNLOAD_PROGRESS)) {
-                onFileDownloadProgress(info);
-            } else if (type.equals(TransferService.BROADCAST_FILE_DOWNLOAD_SUCCESS)) {
-                onFileDownloaded(info);
-            } else if (type.equals(TransferService.BROADCAST_FILE_DOWNLOAD_FAILED)) {
-                onFileDownloadFailed(info);
-            }
-        }
-
-    } // TransferReceiver
+	} // TransferReceiver
 
 }
