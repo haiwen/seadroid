@@ -28,7 +28,6 @@ import com.seafile.seadroid2.Utils;
 import com.seafile.seadroid2.account.Account;
 
 public class DataManager {
-
     private static final long SET_PASSWORD_INTERVAL = 59 * 60 * 1000; // 59 min
     // private static final long SET_PASSWORD_INTERVAL = 5 * 1000; // 5s
 
@@ -45,46 +44,36 @@ public class DataManager {
         }
     }
 
-    public static String getExternalTempDirectory() {
+    private static String getExternalTempDirectory() {
         String root = getExternalRootDirectory();
         File tmpDir = new File(root + "/" + "temp");
-        if (tmpDir.exists())
-            return tmpDir.getAbsolutePath();
-        else {
-            if (!tmpDir.mkdirs())
-                throw new RuntimeException("Couldn't create external temp directory");
-            else
-                return tmpDir.getAbsolutePath();
-        }
+        return getDirectoryCreateIfNeeded(tmpDir);
     }
 
-    public static String getThumbDirectory() {
+    private static String getThumbDirectory() {
         String root = SeadroidApplication.getAppContext().getFilesDir().getAbsolutePath();
         File tmpDir = new File(root + "/" + "thumb");
-        if (tmpDir.exists())
-            return tmpDir.getAbsolutePath();
-        else {
-            if (!tmpDir.mkdirs())
-                throw new RuntimeException("Couldn't create thumb directory");
-            else
-                return tmpDir.getAbsolutePath();
-        }
+        return getDirectoryCreateIfNeeded(tmpDir);
     }
 
-    public static String getExternalCacheDirectory() {
+    private static String getExternalCacheDirectory() {
         String root = getExternalRootDirectory();
         File tmpDir = new File(root + "/" + "cache");
-        if (tmpDir.exists())
-            return tmpDir.getAbsolutePath();
+        return getDirectoryCreateIfNeeded(tmpDir);
+    }
+
+    private static String getDirectoryCreateIfNeeded(File dir) {
+        if (dir.exists())
+            return dir.getAbsolutePath();
         else {
-            if (!tmpDir.mkdirs())
-                throw new RuntimeException("Couldn't create external temp directory");
+            if (!dir.mkdirs())
+                throw new RuntimeException("Couldn't create external " + dir.getName() + " directory");
             else
-                return tmpDir.getAbsolutePath();
+                return dir.getAbsolutePath();
         }
     }
 
-    static public String constructFileName(String path, String oid) {
+    private static String constructFileName(String path, String oid) {
         String filename = path.substring(path.lastIndexOf("/") + 1);
         if (filename.contains(".")) {
             String purename = filename.substring(0, filename.lastIndexOf('.'));
@@ -101,23 +90,23 @@ public class DataManager {
         return new File(p);
     }
 
-    static public File getTempFile(String path, String oid) {
+    public static File getTempFile(String path, String oid) {
         String p = getExternalTempDirectory() + "/" + constructFileName(path, oid);
         return new File(p);
     }
 
-    static public File getThumbFile(String oid) {
+    public static File getThumbFile(String oid) {
         String p = Utils.pathJoin(getThumbDirectory(), oid + ".png");
         return new File(p);
     }
 
     // Obtain a cache file for storing a directory with oid
-    static public File getFileForDirentsCache(String oid) {
+    public static File getFileForDirentsCache(String oid) {
         return new File(getExternalCacheDirectory() + "/" + oid);
     }
 
-    static public final int MAX_GEN_CACHE_THUMB = 1000000;  // Only generate thumb cache for files less than 1MB
-    static public final int MAX_DIRECT_SHOW_THUMB = 100000;  // directly show thumb
+    public static final int MAX_GEN_CACHE_THUMB = 1000000;  // Only generate thumb cache for files less than 1MB
+    public static final int MAX_DIRECT_SHOW_THUMB = 100000;  // directly show thumb
 
     public void calculateThumbnail(String repoName, String repoID, String path, String oid) {
         try {
