@@ -55,7 +55,7 @@
     <string name="task_remove_all_finished">Supprimer les tâches terminées</string>
     <string name="file_action_download">Télécharger</string>
     <string name="file_action_remove_cache">Effacer le cache</string>
-    <string name="file_action_update">Mettre à Jour</string>
+    <string name="file_action_update">Transfert</string>
     <string name="file_action_share">Partager</string>
     <string name="file_action_export">Exporter</string>
     <string name="file_action_delete">Effacer</string>
