@@ -225,10 +225,13 @@ class AutoUpdateInfo {
             return false;
 
         AutoUpdateInfo that = (AutoUpdateInfo) obj;
+        if(that.account == null || that.repoID == null || that.repoName == null || that.parentDir == null || that.localPath == null) {
+            return false;
+        }
 
-        return this.account == that.account && this.repoID == that.repoID
-                && this.repoName == that.repoName && this.parentDir == that.parentDir
-                && this.localPath == that.localPath;
+        return that.account.equals(this.account) && that.repoID.equals(this.repoID) &&
+                that.repoName.equals(this.repoName) && that.parentDir.equals(this.parentDir) &&
+                that.localPath.equals(this.localPath);
     }
 
     private volatile int hashCode = 0;
