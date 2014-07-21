@@ -8,4 +8,6 @@ android:
   licenses:
     - '.*'
 notifications:
-    email: false
+  email:
+    recipients:
+      - linshuai2012@gmail.com
