@@ -19,344 +19,427 @@ import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 
-
 /**
  * Basic class for dialog which get input from user and carries out some
  * operation in the background.
  */
-public abstract class TaskDialog extends DialogFragment {
-    public static abstract class TaskDialogListener {
-        public void onTaskSuccess() {
-        }
-        public void onTaskFailed(SeafException e) {
-        }
-        public void onTaskCancelled() {
-        }
-    }
+public abstract class TaskDialog extends DialogFragment
+{
+	public static abstract class TaskDialogListener
+	{
+		public void onTaskSuccess()
+			{
+			}
 
-    private static final String DEBUG_TAG = "TaskDialog";
-    private static final String STATE_ERROR_TEXT = "task_dialog.error_text";
-    private static final String TASK_STATE_SAVED = "task_dialog.task_saved";
+		public void onTaskFailed(SeafException e)
+			{
+			}
 
-    // The AsyncTask instance
-    private Task task;
+		public void onTaskCancelled()
+			{
+			}
+	}
 
-    // The error message
-    private TextView errorText;
+	private static final String DEBUG_TAG = "TaskDialog";
+	private static final String STATE_ERROR_TEXT = "task_dialog.error_text";
+	private static final String TASK_STATE_SAVED = "task_dialog.task_saved";
 
-    // The spinning wheel to show loading
-    private ProgressBar loading;
+	// The AsyncTask instance
+	private Task task;
 
-    //
-    private Button okButton;
+	// The error message
+	private TextView errorText;
 
-    // The content area of the dialog
-    private View contentView;
+	// The spinning wheel to show loading
+	private ProgressBar loading;
 
-    private TaskDialogListener mListener;
+	//
+	private Button okButton;
 
-    /**
-     * Create the content area of the dialog
-     * @param inflater
-     * @param savedInstanceState The saved dialog state. Most of the time subclasses don't need to make use of it, since the state of UI widgets is restored by the base class.
-     * @return The created view
-     */
-    protected abstract View createDialogContentView(LayoutInflater inflater,
-                                                      Bundle savedInstanceState);
-    /**
-     * Create the AsyncTask
-     */
-    protected abstract Task prepareTask();
+	// The content area of the dialog
+	private View contentView;
 
-    /**
-     * Return the content area view of the dialog
-     */
-    protected View getContentView() {
-        return contentView;
-    }
+	private TaskDialogListener mListener;
 
+	/**
+	 * Create the content area of the dialog
+	 * 
+	 * @param inflater
+	 * @param savedInstanceState
+	 *            The saved dialog state. Most of the time subclasses don't need
+	 *            to make use of it, since the state of UI widgets is restored
+	 *            by the base class.
+	 * @return The created view
+	 */
+	protected abstract View createDialogContentView(LayoutInflater inflater,
+			Bundle savedInstanceState);
 
-    /**
-     * If true, execute the task without clicking the OK btn;
-     */
-    protected boolean executeTaskImmediately() {
-        return false;
-    }
+	/**
+	 * Create the AsyncTask
+	 */
+	protected abstract Task prepareTask();
 
-    /**
-     * This hook method is called right after the dialog is built.
-     * @prarm dialog
-     */
-    protected void onDialogCreated(Dialog dialog) {
-    }
+	/**
+	 * Return the content area view of the dialog
+	 */
+	protected View getContentView()
+		{
+			return contentView;
+		}
 
-    /**
-     * Save the content you are interested
-     * @param outState
-     */
-    protected void onSaveDialogContentState(Bundle outState) {
-    }
+	/**
+	 * If true, execute the task without clicking the OK btn;
+	 */
+	protected boolean executeTaskImmediately()
+		{
+			return false;
+		}
 
-    protected Task getTask() {
-        return task;
-    }
+	/**
+	 * This hook method is called right after the dialog is built.
+	 * 
+	 * @prarm dialog
+	 */
+	protected void onDialogCreated(Dialog dialog)
+		{
+		}
 
-    @Override
-    public void onStop() {
-        Log.d(DEBUG_TAG, "onStop");
-        super.onStop();
+	/**
+	 * Save the content you are interested
+	 * 
+	 * @param outState
+	 */
+	protected void onSaveDialogContentState(Bundle outState)
+		{
+		}
 
-        if (task != null && task.getStatus() != AsyncTask.Status.FINISHED) {
-            Log.d(DEBUG_TAG, "cancel the task");
-            task.cancel(true);
-        }
+	protected Task getTask()
+		{
+			return task;
+		}
 
-    }
+	@Override
+	public void onStop()
+		{
+			Log.d(DEBUG_TAG, "onStop");
+			super.onStop();
 
-    /**
-     * Save the state of the background task so that we can restore the task
-     * when recreating this dialog. For example, when screen rotation
-     * @param outState
-     */
-    protected void onSaveTaskState(Bundle outState) {
-    }
+			if (task != null && task.getStatus() != AsyncTask.Status.FINISHED)
+			{
+				Log.d(DEBUG_TAG, "cancel the task");
+				task.cancel(true);
+			}
 
-    /**
-     * Recreate the background task when this dialog is recreated.
-     * @param savedInstanceState
-     * @return The background task if it should be restored. Or null to indicate that you don't want to recreate the task.
-     */
-    protected Task onRestoreTaskState(Bundle savedInstanceState) {
-        return null;
-    }
+		}
 
-    /**
-     * Check if the user input is valid. It is called when the "OK" button is
-     * clicked.
-     * @throws Exception with the error message if there is error in user input
-     */
-    protected void onValidateUserInput() throws Exception {
-    }
+	/**
+	 * Save the state of the background task so that we can restore the task
+	 * when recreating this dialog. For example, when screen rotation
+	 * 
+	 * @param outState
+	 */
+	protected void onSaveTaskState(Bundle outState)
+		{
+		}
 
-    public void onTaskSuccess() {
-        getDialog().dismiss();
-        if (mListener != null) {
-            mListener.onTaskSuccess();
-        }
-    }
+	/**
+	 * Recreate the background task when this dialog is recreated.
+	 * 
+	 * @param savedInstanceState
+	 * @return The background task if it should be restored. Or null to indicate
+	 *         that you don't want to recreate the task.
+	 */
+	protected Task onRestoreTaskState(Bundle savedInstanceState)
+		{
+			return null;
+		}
 
-    public void onTaskFailed(SeafException e) {
-        hideLoading();
-        showError(e.getMessage());
-        enableInput();
-        if (mListener != null) {
-            mListener.onTaskFailed(e);
-        }
-    }
+	/**
+	 * Check if the user input is valid. It is called when the "OK" button is
+	 * clicked.
+	 * 
+	 * @throws Exception
+	 *             with the error message if there is error in user input
+	 */
+	protected void onValidateUserInput() throws Exception
+		{
+		}
 
-    public void setTaskDialogLisenter(TaskDialogListener listener) {
-        mListener = listener;
-    }
+	public void onTaskSuccess()
+		{
+			getDialog().dismiss();
+			if (mListener != null)
+			{
+				mListener.onTaskSuccess();
+			}
+		}
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        onSaveDialogContentState(outState);
-        if (task != null && task.getStatus() != AsyncTask.Status.FINISHED) {
-            outState.putBoolean(TASK_STATE_SAVED, true);
-            onSaveTaskState(outState);
-            task.cancel(true);
-        }
+	public void onTaskFailed(SeafException e)
+		{
+			hideLoading();
+			showError(e.getMessage());
+			enableInput();
+			if (mListener != null)
+			{
+				mListener.onTaskFailed(e);
+			}
+		}
 
-        outState.putString(STATE_ERROR_TEXT, errorText.getText().toString());
+	public void setTaskDialogLisenter(TaskDialogListener listener)
+		{
+			mListener = listener;
+		}
 
-        super.onSaveInstanceState(outState);
-    }
+	@Override
+	public void onSaveInstanceState(Bundle outState)
+		{
+			onSaveDialogContentState(outState);
+			if (task != null && task.getStatus() != AsyncTask.Status.FINISHED)
+			{
+				outState.putBoolean(TASK_STATE_SAVED, true);
+				onSaveTaskState(outState);
+				task.cancel(true);
+			}
 
-    @Override
-    public Dialog onCreateDialog(final Bundle savedInstanceState) {
+			outState.putString(STATE_ERROR_TEXT, errorText.getText().toString());
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        LayoutInflater inflater = getActivity().getLayoutInflater();
-        LinearLayout view = (LinearLayout)inflater.inflate(R.layout.task_dialog, null);
+			super.onSaveInstanceState(outState);
+		}
 
-        contentView = createDialogContentView(inflater, savedInstanceState);
-        if (contentView != null) {
-            view.addView(contentView, 0);
-        }
+	@Override
+	public Dialog onCreateDialog(final Bundle savedInstanceState)
+		{
 
-        errorText = (TextView)view.findViewById(R.id.error_message);
-        loading = (ProgressBar)view.findViewById(R.id.loading);
+			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+			LayoutInflater inflater = getActivity().getLayoutInflater();
+			LinearLayout view = (LinearLayout) inflater.inflate(
+					R.layout.task_dialog, null);
 
-        if (savedInstanceState != null) {
-            String error = savedInstanceState.getString(STATE_ERROR_TEXT);
-            if (error != null && error.length() > 0) {
-                errorText.setText(error);
-                errorText.setVisibility(View.VISIBLE);
-            }
-        }
+			contentView = createDialogContentView(inflater, savedInstanceState);
+			if (contentView != null)
+			{
+				view.addView(contentView, 0);
+			}
 
-        builder.setView(view);
+			errorText = (TextView) view.findViewById(R.id.error_message);
+			loading = (ProgressBar) view.findViewById(R.id.loading);
 
-        if (hasOkButton()) {
-            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                }
-            });
-        }
-        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (task != null && task.getStatus() != AsyncTask.Status.FINISHED) {
-                    task.cancel(true);
-                }
-                if (mListener != null) {
-                    mListener.onTaskCancelled();
-                }
-            }
-        });
+			if (savedInstanceState != null)
+			{
+				String error = savedInstanceState.getString(STATE_ERROR_TEXT);
+				if (error != null && error.length() > 0)
+				{
+					errorText.setText(error);
+					errorText.setVisibility(View.VISIBLE);
+				}
+			}
 
-        final AlertDialog dialog = builder.create();
+			builder.setView(view);
 
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface d) {
-                if (hasOkButton()) {
-                    okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                    View.OnClickListener onOKButtonClickedListener = new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            try {
-                                onValidateUserInput();
-                            } catch (Exception e) {
-                                showError(e.getMessage());
-                                return;
-                            }
+			if (hasOkButton())
+			{
+				builder.setPositiveButton(R.string.ok,
+						new DialogInterface.OnClickListener()
+						{
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which)
+								{
+								}
+						});
+			}
+			builder.setNegativeButton(R.string.cancel,
+					new DialogInterface.OnClickListener()
+					{
+						@Override
+						public void onClick(DialogInterface dialog, int which)
+							{
+								if (task != null
+										&& task.getStatus() != AsyncTask.Status.FINISHED)
+								{
+									task.cancel(true);
+								}
+								if (mListener != null)
+								{
+									mListener.onTaskCancelled();
+								}
+							}
+					});
 
-                            task = prepareTask();
-                            executeTask();
-                        }
-                    };
-                    okButton.setOnClickListener(onOKButtonClickedListener);
-                }
+			final AlertDialog dialog = builder.create();
 
-                if (savedInstanceState != null) {
-                    dialog.onRestoreInstanceState(savedInstanceState);
-                    restoreTask(savedInstanceState);
-                }
+			dialog.setOnShowListener(new DialogInterface.OnShowListener()
+			{
+				@Override
+				public void onShow(DialogInterface d)
+					{
+						if (hasOkButton())
+						{
+							okButton = dialog
+									.getButton(AlertDialog.BUTTON_POSITIVE);
+							View.OnClickListener onOKButtonClickedListener = new View.OnClickListener()
+							{
+								@Override
+								public void onClick(View view)
+									{
+										try
+										{
+											onValidateUserInput();
+										} catch (Exception e)
+										{
+											showError(e.getMessage());
+											return;
+										}
 
-                if (executeTaskImmediately()) {
-                    task = prepareTask();
-                    executeTask();
-                }
-            }
-        });
+										task = prepareTask();
+										executeTask();
+									}
+							};
+							okButton.setOnClickListener(onOKButtonClickedListener);
+						}
 
-        onDialogCreated(dialog);
+						if (savedInstanceState != null)
+						{
+							dialog.onRestoreInstanceState(savedInstanceState);
+							restoreTask(savedInstanceState);
+						}
 
-        return dialog;
-    }
+						if (executeTaskImmediately())
+						{
+							task = prepareTask();
+							executeTask();
+						}
+					}
+			});
 
-    private void restoreTask(Bundle savedInstanceState) {
-        // Restore the AsyncTask and execute it
-        boolean taskSaved = savedInstanceState.getBoolean(TASK_STATE_SAVED);
-        if (!taskSaved) {
-            return;
-        }
+			onDialogCreated(dialog);
 
-        task = onRestoreTaskState(savedInstanceState);
-        if (task != null) {
-            executeTask();
-        }
-    }
+			return dialog;
+		}
 
-    protected void showLoading() {
-        loading.startAnimation(AnimationUtils.loadAnimation(
-                                   getActivity(), android.R.anim.fade_in));
-        loading.setVisibility(View.VISIBLE);
-    }
+	private void restoreTask(Bundle savedInstanceState)
+		{
+			// Restore the AsyncTask and execute it
+			boolean taskSaved = savedInstanceState.getBoolean(TASK_STATE_SAVED);
+			if (!taskSaved)
+			{
+				return;
+			}
 
-    protected void hideLoading() {
-        loading.startAnimation(AnimationUtils.loadAnimation(
-                                   getActivity(), android.R.anim.fade_out));
-        loading.setVisibility(View.INVISIBLE);
-    }
+			task = onRestoreTaskState(savedInstanceState);
+			if (task != null)
+			{
+				executeTask();
+			}
+		}
 
-    protected void showError(String error) {
-        errorText.setText(error);
-        errorText.startAnimation(AnimationUtils.loadAnimation(
-                                   getActivity(), android.R.anim.fade_in));
-        errorText.setVisibility(View.VISIBLE);
-    }
+	protected void showLoading()
+		{
+			loading.startAnimation(AnimationUtils.loadAnimation(getActivity(),
+					android.R.anim.fade_in));
+			loading.setVisibility(View.VISIBLE);
+		}
 
-    protected void hideError() {
-        errorText.startAnimation(AnimationUtils.loadAnimation(
-                                   getActivity(), android.R.anim.fade_out));
-        errorText.setVisibility(View.GONE);
-    }
+	protected void hideLoading()
+		{
+			loading.startAnimation(AnimationUtils.loadAnimation(getActivity(),
+					android.R.anim.fade_out));
+			loading.setVisibility(View.INVISIBLE);
+		}
 
-    private boolean hasOkButton() {
-        return !executeTaskImmediately();
-    }
+	protected void showError(String error)
+		{
+			errorText.setText(error);
+			errorText.startAnimation(AnimationUtils.loadAnimation(
+					getActivity(), android.R.anim.fade_in));
+			errorText.setVisibility(View.VISIBLE);
+		}
 
-    protected void disableInput() {
-        if (hasOkButton()) {
-            okButton.setEnabled(false);
-        }
-    }
+	protected void hideError()
+		{
+			errorText.startAnimation(AnimationUtils.loadAnimation(
+					getActivity(), android.R.anim.fade_out));
+			errorText.setVisibility(View.GONE);
+		}
 
-    protected void enableInput() {
-        if (hasOkButton()) {
-            okButton.setEnabled(true);
-        }
-    }
+	private boolean hasOkButton()
+		{
+			return !executeTaskImmediately();
+		}
 
-    private void executeTask() {
-        disableInput();
-        hideError();
-        showLoading();
-        task.setTaskDialog(this);
-        ConcurrentAsyncTask.execute(task);
-    }
+	protected void disableInput()
+		{
+			if (hasOkButton())
+			{
+				okButton.setEnabled(false);
+			}
+		}
 
-    public static abstract class Task extends AsyncTask<Void, Long, Void> {
-        private SeafException err;
-        private TaskDialog dlg;
+	protected void enableInput()
+		{
+			if (hasOkButton())
+			{
+				okButton.setEnabled(true);
+			}
+		}
 
-        /**
-         * Carries out the background task.
-         */
-        protected abstract void runTask();
+	private void executeTask()
+		{
+			disableInput();
+			hideError();
+			showLoading();
+			task.setTaskDialog(this);
+			ConcurrentAsyncTask.execute(task);
+		}
 
-        public void setTaskDialog(TaskDialog dlg) {
-            this.dlg = dlg;
-        }
+	public static abstract class Task extends AsyncTask<Void, Long, Void>
+	{
+		private SeafException err;
+		private TaskDialog dlg;
 
-        /**
-         * Subclass should call this method to set the exception
-         * @param e The exception raised during {@link runTask()}
-         */
-        protected void setTaskException(SeafException e) {
-            err = e;
-        }
+		/**
+		 * Carries out the background task.
+		 */
+		protected abstract void runTask();
 
-        public SeafException getTaskException() {
-            return err;
-        }
+		public void setTaskDialog(TaskDialog dlg)
+			{
+				this.dlg = dlg;
+			}
 
-        @Override
-        public Void doInBackground(Void... params) {
-            runTask();
-            return null;
-        }
+		/**
+		 * Subclass should call this method to set the exception
+		 * 
+		 * @param e
+		 *            The exception raised during {@link runTask()}
+		 */
+		protected void setTaskException(SeafException e)
+			{
+				err = e;
+			}
 
-        @Override
-        public void onPostExecute(Void result) {
-            if (err != null) {
-                dlg.onTaskFailed(err);
-            } else {
-                dlg.onTaskSuccess();
-            }
-        }
-    }
+		public SeafException getTaskException()
+			{
+				return err;
+			}
+
+		@Override
+		public Void doInBackground(Void... params)
+			{
+				runTask();
+				return null;
+			}
+
+		@Override
+		public void onPostExecute(Void result)
+			{
+				if (err != null)
+				{
+					dlg.onTaskFailed(err);
+				} else
+				{
+					dlg.onTaskSuccess();
+				}
+			}
+	}
 }

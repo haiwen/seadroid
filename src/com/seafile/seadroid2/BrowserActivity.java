@@ -1357,7 +1357,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         });
         dialog.show(getSupportFragmentManager(), CHOOSE_APP_DIALOG_FRAGMENT_TAG);
     }
-
+    
     public void renameFile(String repoID, String repoName, String path) {
         doRename(repoID, repoName, path, false);
     }

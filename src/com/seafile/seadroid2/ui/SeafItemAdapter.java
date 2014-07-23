@@ -7,10 +7,10 @@ import java.util.ArrayList;
 
 import net.londatiga.android.ActionItem;
 import net.londatiga.android.QuickAction;
-
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.NetworkInfo.State;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -332,10 +332,10 @@ public class SeafItemAdapter extends BaseAdapter {
             mQuickAction.addActionItem(shareAction);
         }
 
-        // deleteAction = new ActionItem(ACTION_ID_DELETE,
-        //                               resources.getString(R.string.file_action_delete),
-        //                               resources.getDrawable(R.drawable.action_delete));
-        // mQuickAction.addActionItem(deleteAction);
+        deleteAction = new ActionItem(ACTION_ID_DELETE,
+        	resources.getString(R.string.file_action_delete),
+        	resources.getDrawable(R.drawable.action_delete));
+        mQuickAction.addActionItem(deleteAction);
 
         renameAction = new ActionItem(ACTION_ID_RENAME,
                 resources.getString(R.string.file_action_rename),
