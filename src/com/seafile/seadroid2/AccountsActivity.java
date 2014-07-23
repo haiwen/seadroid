@@ -30,22 +30,19 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 
-
 public class AccountsActivity extends FragmentActivity {
-
-    private static final String DEBUG_TAG = "AccountsActivity";
-
     public static final String SHARED_PREF_NAME = "latest_account";
     public static final String SHARED_PREF_SERVER_KEY = "com.seafile.seadroid.server";
     public static final String SHARED_PREF_EMAIL_KEY = "com.seafile.seadroid.email";
     public static final String SHARED_PREF_TOKEN_KEY = "com.seafile.seadroid.token";
+
+    private static final String DEBUG_TAG = "AccountsActivity";
 
     private static AccountsActivity accountsActivity;
 
     private ListView accountsView;
 
     private AccountManager accountManager;
-
     private AccountAdapter adapter;
     List<Account> accounts;
     private FileMonitorService mMonitorService;
@@ -66,7 +63,6 @@ public class AccountsActivity extends FragmentActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-
         Log.d(DEBUG_TAG, "AccountsActivity.onCreate is called");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start);
@@ -142,7 +138,6 @@ public class AccountsActivity extends FragmentActivity {
     }
 
     private void writeToSharedPreferences(Account account) {
-
         SharedPreferences sharedPref = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(SHARED_PREF_SERVER_KEY, account.server);
@@ -152,7 +147,6 @@ public class AccountsActivity extends FragmentActivity {
     }
 
     private void clearDataFromSharedPreferences(Account account) {
-
         SharedPreferences sharedPref = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
         String latest_server = sharedPref.getString(SHARED_PREF_SERVER_KEY, null);
         String latest_email = sharedPref.getString(SHARED_PREF_EMAIL_KEY, null);
@@ -219,13 +213,12 @@ public class AccountsActivity extends FragmentActivity {
 
     @Override
     public void onBackPressed() {
-
         super.onBackPressed();
     }
 
     public static final int PRIVATE_SERVER = 0;
     public static final int SEACLOUD_CC = 1;
-    public static final int CLOUD_SEAFILE_COM = 3;
+    public static final int CLOUD_SEAFILE_COM = 2;
 
     public static class CreateAccountChoiceDialog extends DialogFragment {
         @Override
@@ -240,16 +233,16 @@ public class AccountsActivity extends FragmentActivity {
                         public void onClick(DialogInterface dialog, int which) {
                             Intent intent;
                             switch (which) {
-                            case 0:
+                            case PRIVATE_SERVER:
                                 intent = new Intent(context, AccountDetailActivity.class);
                                 startActivity(intent);
                                 break;
-                            case 1:
+                            case SEACLOUD_CC:
                                 intent = new Intent(context, AccountDetailActivity.class);
                                 intent.putExtra("server", "https://seacloud.cc");
                                 startActivity(intent);
                                 break;
-                            case 2:
+                            case CLOUD_SEAFILE_COM:
                                 intent = new Intent(context, AccountDetailActivity.class);
                                 intent.putExtra("server", "https://cloud.seafile.com");
                                 startActivity(intent);
@@ -264,5 +257,4 @@ public class AccountsActivity extends FragmentActivity {
             return builder.create();
         }
     }
-
 }

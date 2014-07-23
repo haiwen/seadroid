@@ -3,13 +3,11 @@ package com.seafile.seadroid2.account;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-
 
 public class AccountManager {
     @SuppressWarnings("unused")
@@ -24,7 +22,6 @@ public class AccountManager {
     }
 
     public void login() {
-
     }
 
     public void getAccount(String server) {
@@ -119,7 +116,7 @@ public class AccountManager {
     }
 
     public void updateAccount(Account oldAccount, Account newAccount) {
-     // save to shared preference
+        // save to shared preference
         SharedPreferences sharedPref = context.getSharedPreferences("Account", 0);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString("server", newAccount.server);
@@ -196,5 +193,4 @@ public class AccountManager {
         account.token = cursor.getString(2);
         return account;
     }
-
 }
