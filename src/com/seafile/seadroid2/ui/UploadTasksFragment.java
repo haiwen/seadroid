@@ -21,7 +21,7 @@ import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferManager.TaskState;
-import com.seafile.seadroid2.transfer.TransferManager.UploadTaskInfo;
+import com.seafile.seadroid2.transfer.UploadTaskInfo;
 
 public class UploadTasksFragment extends SherlockListFragment {
     private static final String DEBUG_TAG = "UploadTasksFragment";

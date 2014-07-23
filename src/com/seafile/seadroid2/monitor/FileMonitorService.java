@@ -14,9 +14,9 @@ import android.util.Log;
 
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.transfer.TransferManager.DownloadTaskInfo;
-import com.seafile.seadroid2.transfer.TransferManager.UploadTaskInfo;
+import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.TransferService;
+import com.seafile.seadroid2.transfer.UploadTaskInfo;
 
 /**
  * Monitor changes of local cached files, and upload them through TransferService if modified

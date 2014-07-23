@@ -11,7 +11,7 @@ import android.util.Log;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.data.DataManager.ProgressMonitor;
+import com.seafile.seadroid2.data.ProgressMonitor;
 
 /**
  * Manages file downloading and uploading.
@@ -427,65 +427,6 @@ public class TransferManager {
             }
             myState = TaskState.CANCELLED;
             super.cancel(true);
-        }
-    }
-
-    public class UploadTaskInfo {
-        public final int taskID;
-        public final TaskState state;
-        public final String repoID;
-        public final String repoName;
-        public final String parentDir;
-        public final String localFilePath;
-        public final boolean isUpdate;
-        public final long uploadedSize, totalSize;
-        public final SeafException err;
-        public final Account account;
-
-        public UploadTaskInfo(int taskID, Account account, TaskState state, String repoID,
-                              String repoName, String parentDir,
-                              String localFilePath, boolean isUpdate,
-                              long uploadedSize, long totalSize,
-                              SeafException err) {
-            this.taskID = taskID;
-            this.account = account;
-            this.state = state;
-            this.repoID = repoID;
-            this.repoName = repoName;
-            this.parentDir = parentDir;
-            this.localFilePath = localFilePath;
-            this.isUpdate = isUpdate;
-            this.uploadedSize = uploadedSize;
-            this.totalSize = totalSize;
-            this.err = err;
-        }
-    }
-
-    public class DownloadTaskInfo {
-        public final Account account;
-        public final int taskID;
-        public final TaskState state;
-        public final String repoID;
-        public final String repoName;
-        public final String pathInRepo;
-        public final String localFilePath;
-        public final long fileSize, finished;
-        public final SeafException err;
-
-        public DownloadTaskInfo(Account account, int taskID, TaskState state, String repoID,
-                                String repoName, String path, String localPath,
-                                long fileSize, long finished,
-                                SeafException err) {
-            this.account = account;
-            this.taskID = taskID;
-            this.state = state;
-            this.repoID = repoID;
-            this.repoName = repoName;
-            this.pathInRepo = path;
-            this.localFilePath = localPath;
-            this.fileSize = fileSize;
-            this.finished = finished;
-            this.err = err;
         }
     }
 }

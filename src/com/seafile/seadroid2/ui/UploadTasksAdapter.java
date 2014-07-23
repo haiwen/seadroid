@@ -19,8 +19,8 @@ import android.widget.TextView;
 import android.graphics.Color;
 
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.transfer.TransferManager.UploadTaskInfo;
 import com.seafile.seadroid2.Utils;
+import com.seafile.seadroid2.transfer.UploadTaskInfo;
 
 public class UploadTasksAdapter extends BaseAdapter {
     private List<UploadTaskInfo> mTaskInfos;
