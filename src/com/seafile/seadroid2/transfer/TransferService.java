@@ -17,15 +17,7 @@ import com.seafile.seadroid2.transfer.TransferManager.TransferListener;
 import com.seafile.seadroid2.transfer.TransferManager.UploadTaskInfo;
 
 public class TransferService extends Service implements TransferListener {
-
-    @SuppressWarnings("unused")
-    private static final String DEBUG_TAG = "TransferService";
-
     public static final String BROADCAST_ACTION = "com.seafile.seadroid.TX_BROADCAST";
-
-    private final IBinder mBinder = new TransferBinder();
-    private TransferManager txManager;
-
     public static final String BROADCAST_FILE_DOWNLOAD_SUCCESS = "downloaded";
     public static final String BROADCAST_FILE_DOWNLOAD_FAILED = "downloadFailed";
     public static final String BROADCAST_FILE_DOWNLOAD_PROGRESS = "downloadProgress";
@@ -34,6 +26,11 @@ public class TransferService extends Service implements TransferListener {
     public static final String BROADCAST_FILE_UPLOAD_FAILED = "uploadFailed";
     public static final String BROADCAST_FILE_UPLOAD_PROGRESS = "uploadProgress";
     public static final String BROADCAST_FILE_UPLOAD_CANCELLED = "uploadCancelled";
+
+    private static final String DEBUG_TAG = "TransferService";
+
+    private final IBinder mBinder = new TransferBinder();
+    private TransferManager txManager;
 
     @Override
     public void onCreate() {
@@ -51,7 +48,6 @@ public class TransferService extends Service implements TransferListener {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
         return START_STICKY;
     }
 

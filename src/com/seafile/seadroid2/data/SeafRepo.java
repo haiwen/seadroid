@@ -12,7 +12,6 @@ import com.seafile.seadroid2.R;
  * @author plt
  */
 public class SeafRepo implements SeafItem {
-
     public String id;     // repo id
     public String name;
     public String description;
@@ -50,7 +49,6 @@ public class SeafRepo implements SeafItem {
     }
 
     public SeafRepo() {
-
     }
 
     public String getID() {
@@ -81,5 +79,4 @@ public class SeafRepo implements SeafItem {
             return R.drawable.repo_encrypted;
         return R.drawable.repo;
     }
-
 }

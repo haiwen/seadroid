@@ -22,7 +22,6 @@ import com.seafile.seadroid2.transfer.TransferService;
  * Monitor changes of local cached files, and upload them through TransferService if modified
  */
 public class FileMonitorService extends Service {
-
     private static final String DEBUG_TAG = "FileMonitorService";
 
     private SeafileMonitor monitor;
@@ -128,7 +127,6 @@ public class FileMonitorService extends Service {
             }
 
             if (type.equals(TransferService.BROADCAST_FILE_DOWNLOAD_SUCCESS)) {
-
                 int taskID = intent.getIntExtra("taskID", 0);
                 DownloadTaskInfo info = mTransferService.getDownloadTaskInfo(taskID);
                 if (info != null) {

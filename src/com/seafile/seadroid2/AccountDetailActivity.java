@@ -24,9 +24,7 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.ui.SslConfirmDialog;
 
-
 public class AccountDetailActivity extends FragmentActivity {
-
     private static final String DEBUG_TAG = "AccountDetailActivity";
 
     private static final String HTTP_PREFIX = "http://";
@@ -188,7 +186,6 @@ public class AccountDetailActivity extends FragmentActivity {
     }
 
     private void writeToSharedPreferences(Account account) {
-
         SharedPreferences sharedPref = getSharedPreferences(AccountsActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(AccountsActivity.SHARED_PREF_SERVER_KEY, account.server);
@@ -210,7 +207,6 @@ public class AccountDetailActivity extends FragmentActivity {
     }
 
     private class LoginTask extends AsyncTask<Void, Void, String> {
-
         Account loginAccount;
         SeafException err = null;
 

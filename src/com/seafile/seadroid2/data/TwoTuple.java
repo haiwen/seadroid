@@ -20,5 +20,4 @@ public class TwoTuple<X, Y> {
     public static <U,V> TwoTuple<U, V> newInstance(U u, V v) {
         return new TwoTuple<U,V>(u, v);
     }
-
 }

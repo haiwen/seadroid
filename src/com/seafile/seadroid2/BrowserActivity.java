@@ -80,16 +80,13 @@ import com.seafile.seadroid2.ui.UploadTasksFragment;
 
 public class BrowserActivity extends SherlockFragmentActivity
         implements ReposFragment.OnFileSelectedListener, StarredFragment.OnStarredFileSelectedListener, OnBackStackChangedListener {
-
-    private static final String DEBUG_TAG = "BrowserActivity";
-
-
     public static final String PKG_NAME = "com.seafile.seadroid2";
     public static final String EXTRA_REPO_NAME = PKG_NAME + ".repoName";
     public static final String EXTRA_REPO_ID = PKG_NAME + ".repoID";
     public static final String EXTRA_FILE_PATH = PKG_NAME + ".filePath";
     public static final String EXTRA_ACCOUT = PKG_NAME + ".filePath";
 
+    private static final String DEBUG_TAG = "BrowserActivity";
 
     private Account account;
     NavContext navContext = null;

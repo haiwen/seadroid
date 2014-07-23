@@ -1,8 +1,6 @@
 package com.seafile.seadroid2.data;
 
-
 public class SeafGroup implements SeafItem {
-
     private String name;
 
     public SeafGroup(String name) {
@@ -23,5 +21,4 @@ public class SeafGroup implements SeafItem {
     public int getIcon() {
         return 0;
     }
-
 }

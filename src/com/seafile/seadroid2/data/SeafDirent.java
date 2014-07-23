@@ -65,5 +65,4 @@ public class SeafDirent implements SeafItem, Serializable {
             return R.drawable.folder;
         return Utils.getFileIcon(name);
     }
-
 }

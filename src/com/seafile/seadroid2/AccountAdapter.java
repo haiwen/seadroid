@@ -16,7 +16,6 @@ import android.widget.TextView;
  * Adapter for showing account in a list view.
  */
 public class AccountAdapter extends BaseAdapter {
-
     private ArrayList<Account> items;
     private Context context;
 
@@ -100,5 +99,4 @@ public class AccountAdapter extends BaseAdapter {
             this.subtitle = subtitle;
         }
     }
-
 }

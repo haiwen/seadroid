@@ -17,7 +17,6 @@ public class Account implements Parcelable {
     public String passwd;
 
     public Account() {
-
     }
 
     public Account(String server, String email) {
@@ -129,5 +128,4 @@ public class Account implements Parcelable {
             .add("user", email)
             .toString();
     }
-
 }

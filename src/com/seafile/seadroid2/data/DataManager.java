@@ -82,7 +82,6 @@ public class DataManager {
         } else {
             return filename + "-" + oid.substring(0, 8);
         }
-
     }
 
     public static File getFileForFileCache(String path, String oid) {
@@ -109,9 +108,8 @@ public class DataManager {
     public static final int MAX_DIRECT_SHOW_THUMB = 100000;  // directly show thumb
 
     public void calculateThumbnail(String repoName, String repoID, String path, String oid) {
+        final int THUMBNAIL_SIZE = 72;
         try {
-            final int THUMBNAIL_SIZE = 72;
-
             File file = getLocalRepoFile(repoName, repoID, path);
             if (!file.exists())
                 return;
@@ -134,8 +132,7 @@ public class DataManager {
     }
 
     /**
-     * Caculate the thumbnail of an image directly when its size is less that
-     * {@link #MAX_DIRECT_SHOW_THUMB}
+     * Caculate the thumbnail of an image directly when its size is less than {@link #MAX_DIRECT_SHOW_THUMB}
      */
     public Bitmap getThumbnail(File file) {
         try {
@@ -497,7 +494,6 @@ public class DataManager {
     }
 
     public List<SeafStarredFile> getStarredFiles() throws SeafException {
-
         String starredFiles = sc.getStarredFiles();
         Log.i("GET STARRED FILES", starredFiles);
         return parseStarredFiles(starredFiles);

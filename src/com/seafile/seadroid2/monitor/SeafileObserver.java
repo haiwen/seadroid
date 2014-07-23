@@ -16,7 +16,8 @@ import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafCachedFile;
 
 public class SeafileObserver implements FileAlterationListener {
-    private final String DEBUG_TAG = "SeafileObserver";
+    private static final String DEBUG_TAG = "SeafileObserver";
+
     private Account account;
     private DataManager dataManager;
     private FileAlterationObserver alterationObserver;

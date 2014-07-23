@@ -19,8 +19,6 @@ import com.seafile.seadroid2.data.DataManager.ProgressMonitor;
  * Currently use an AsyncTask for an file.
  */
 public class TransferManager {
-
-    @SuppressWarnings("unused")
     private static final String DEBUG_TAG = "TransferManager";
 
     public enum TaskState { INIT, TRANSFERRING, FINISHED, CANCELLED, FAILED }
@@ -196,7 +194,6 @@ public class TransferManager {
     }
 
     private class UploadTask extends AsyncTask<String, Long, Void> {
-
         private String myRepoID;
         private String myRepoName;
         private String myDir;   // parent dir
@@ -328,7 +325,6 @@ public class TransferManager {
     }
 
     private class DownloadTask extends AsyncTask<String, Long, File> {
-
         private int taskID;
 
         Account account;

@@ -25,7 +25,6 @@ import com.google.common.collect.Lists;
 import com.seafile.seadroid2.account.Account;
 
 public final class SSLTrustManager {
-
     public enum SslFailureReason {
         CERT_NOT_TRUSTED,
         CERT_CHANGED,
@@ -71,7 +70,6 @@ public final class SSLTrustManager {
                     }
                 }
             }
-
         } catch (NoSuchAlgorithmException e) {
             Log.e(DEBUG_TAG, "Unable to get X509 Trust Manager ", e);
         } catch (KeyStoreException e) {
@@ -179,9 +177,7 @@ public final class SSLTrustManager {
     }
 
     private class SecureX509TrustManager implements X509TrustManager {
-
         private Account account;
-
         private SslFailureReason reason;
 
         private volatile List<X509Certificate> certsChain = ImmutableList.of();

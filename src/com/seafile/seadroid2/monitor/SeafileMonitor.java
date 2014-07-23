@@ -14,8 +14,8 @@ import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.monitor.SeafileObserver.CachedFileChangedListener;
 
 public class SeafileMonitor {
-
     private static final String DEBUG_TAG = "SeafileMonitor";
+
     private Map<Account, SeafileObserver> observers = Maps.newHashMap();
     private FileAlterationMonitor alterationMonitor = new FileAlterationMonitor();
     private CachedFileChangedListener listener;
