@@ -1,7 +1,6 @@
 package com.seafile.seadroid2;
 
 public class NavContext {
-
     String repoID = null;
     String repoName = null;     // for display
     String dirPath = null;

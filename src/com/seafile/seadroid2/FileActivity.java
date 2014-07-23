@@ -281,7 +281,6 @@ public class FileActivity extends SherlockFragmentActivity {
     }
 
     private class TransferReceiver extends BroadcastReceiver {
-
         private TransferReceiver() {}
 
         public void onReceive(Context context, Intent intent) {
@@ -313,5 +312,4 @@ public class FileActivity extends SherlockFragmentActivity {
         }
 
     } // TransferReceiver
-
 }

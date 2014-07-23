@@ -187,5 +187,4 @@ public class MonitorDBHelper extends SQLiteOpenHelper {
                 localPath);
         return info;
     }
-
 }

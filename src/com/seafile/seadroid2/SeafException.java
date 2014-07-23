@@ -3,7 +3,6 @@ package com.seafile.seadroid2;
 import com.google.common.base.Objects;
 
 public class SeafException extends Exception {
-
     private static final long serialVersionUID = 1L;
 
     public static final int OTHER_EXCEPTION = 599;

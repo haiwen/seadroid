@@ -24,7 +24,6 @@ import com.seafile.seadroid2.account.Account;
  * Save the ssl certificates the user has confirmed to trust
  */
 public final class CertsManager {
-
     private static final String DEBUG_TAG = "CertsManager";
 
     private final DBHelper db = DBHelper.getDatabaseHelper();

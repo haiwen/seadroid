@@ -20,10 +20,8 @@ import com.seafile.seadroid2.transfer.TransferService;
 
 /**
  * Update modified files, retry until success
- *
  */
 public class AutoUpdateManager implements Runnable, CachedFileChangedListener {
-
     private static final String DEBUG_TAG = "AutoUpdateManager";
 
     private TransferService txService;
@@ -53,12 +51,10 @@ public class AutoUpdateManager implements Runnable, CachedFileChangedListener {
     @Override
     public void onCachedFiledChanged(final Account account, final SeafCachedFile cachedFile,
             final File localFile) {
-
         addTask(account, cachedFile, localFile);
     }
 
     public void addTask(Account account, SeafCachedFile cachedFile, File localFile) {
-
         AutoUpdateInfo info =
                 new AutoUpdateInfo(account, cachedFile.repoID, cachedFile.repoName,
                         Utils.getParentPath(cachedFile.path), localFile.getPath());
@@ -127,7 +123,6 @@ public class AutoUpdateManager implements Runnable, CachedFileChangedListener {
 
     public void onFileUpdateFailure(Account account, String repoID, String repoName,
             String parentDir, String localPath, SeafException e) {
-
         if (e.getCode() / 100 != 4) {
             return;
         }
@@ -196,7 +191,6 @@ public class AutoUpdateManager implements Runnable, CachedFileChangedListener {
             }
         }
     }
-
 }
 
 

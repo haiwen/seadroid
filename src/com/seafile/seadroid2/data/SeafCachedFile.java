@@ -5,7 +5,6 @@ import java.io.File;
 import com.seafile.seadroid2.Utils;
 
 public class SeafCachedFile implements SeafItem {
-
     public int id;
     public String fileID;
     public String repoName;

@@ -8,9 +8,7 @@ import android.util.Log;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.Utils;
 
-
 public class SeafStarredFile implements SeafItem {
-
     public enum FileType { DIR, FILE };
 
     private String repoID;
@@ -18,7 +16,6 @@ public class SeafStarredFile implements SeafItem {
     private String path;
     private FileType type;
     private long size;    // size of file, 0 if type is dir
-
 
     static SeafStarredFile fromJson(JSONObject obj) {
         SeafStarredFile starredFile = new SeafStarredFile();
@@ -70,5 +67,4 @@ public class SeafStarredFile implements SeafItem {
             return R.drawable.folder;
         return Utils.getFileIcon(getTitle());
     }
-
 }

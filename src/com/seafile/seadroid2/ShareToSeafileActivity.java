@@ -40,7 +40,6 @@ import com.seafile.seadroid2.ui.PasswordDialog;
 import com.seafile.seadroid2.ui.ReposAdapter;
 import com.seafile.seadroid2.ui.TaskDialog;
 
-
 public class ShareToSeafileActivity extends SherlockFragmentActivity {
     private static final String DEBUG_TAG = "ShareToSeafileActivity";
 
