@@ -75,6 +75,10 @@ public class SeafConnection {
     private HttpRequest prepareHttpsCheck(HttpRequest req) {
         HttpURLConnection conn = req.getConnection();
         if (conn instanceof HttpsURLConnection) {
+            // Tell HttpRequest to trust all hosts, and then the user will get a dialog
+            // where he needs to confirm the SSL certificate for the account,
+            // and the accepted certificate will be stored, so he is not prompted to accept later on.
+            // This is handled by SSLTrustManager and CertsManager
             req.trustAllHosts();
             HttpsURLConnection sconn = (HttpsURLConnection)conn;
             sconn.setSSLSocketFactory(SSLTrustManager.instance().getSSLSocketFactory(account));
