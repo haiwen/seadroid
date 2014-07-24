@@ -45,11 +45,12 @@ import com.seafile.seadroid2.fileschooser.SelectableFile;
 
 public class Utils {
     public static final String MIME_APPLICATION_OCTET_STREAM = "application/octet-stream";
+    private static final String DEBUG_TAG = "Utils";
 
     public static JSONObject parseJsonObject(String json) {
         if (json == null) {
             // the caller should not give null
-            Log.w("Utils", "null in parseJsonObject");
+            Log.w(DEBUG_TAG, "null in parseJsonObject");
             return null;
         }
 
@@ -63,7 +64,7 @@ public class Utils {
     public static JSONArray parseJsonArray(String json) {
         if (json == null) {
          // the caller should not give null
-            Log.w("Utils", "null in parseJsonObject");
+            Log.w(DEBUG_TAG, "null in parseJsonObject");
             return null;
         }
 
@@ -126,7 +127,7 @@ public class Utils {
     public static String getParentPath(String path) {
         if (path == null) {
             // the caller should not give null
-            Log.w("Utils", "null in getParentPath");
+            Log.w(DEBUG_TAG, "null in getParentPath");
             return null;
         }
 
@@ -140,7 +141,7 @@ public class Utils {
     public static String fileNameFromPath(String path) {
         if (path == null) {
             // the caller should not give null
-            Log.w("Utils", "null in getParentPath");
+            Log.w(DEBUG_TAG, "null in getParentPath");
             return null;
         }
 

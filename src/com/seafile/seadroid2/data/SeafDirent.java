@@ -12,6 +12,7 @@ import com.seafile.seadroid2.Utils;
 
 public class SeafDirent implements SeafItem, Serializable {
     public static final long serialVersionUID = 0L;
+    private static final String DEBUG_TAG = "SeafDirent";
 
     public enum DirentType { DIR, FILE };
 
@@ -36,7 +37,7 @@ public class SeafDirent implements SeafItem, Serializable {
                 dirent.type = DirentType.DIR;
             return dirent;
         } catch (JSONException e) {
-            Log.d("SeafDirent", e.getMessage());
+            Log.d(DEBUG_TAG, e.getMessage());
             return null;
         }
     }

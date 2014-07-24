@@ -10,6 +10,7 @@ import com.seafile.seadroid2.Utils;
 
 public class SeafStarredFile implements SeafItem {
     public enum FileType { DIR, FILE };
+    private static final String DEBUG_TAG = "SeafStarredFile";
 
     private String repoID;
     private long mtime;
@@ -31,7 +32,7 @@ public class SeafStarredFile implements SeafItem {
                 starredFile.type = FileType.DIR;
             return starredFile;
         } catch (JSONException e) {
-            Log.d("SeafStarredFile", e.getMessage());
+            Log.d(DEBUG_TAG, e.getMessage());
             return null;
         }
     }

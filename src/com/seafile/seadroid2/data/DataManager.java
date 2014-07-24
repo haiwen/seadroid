@@ -490,7 +490,7 @@ public class DataManager {
 
     public List<SeafStarredFile> getStarredFiles() throws SeafException {
         String starredFiles = sc.getStarredFiles();
-        Log.i("GET STARRED FILES", starredFiles);
+        Log.i(DEBUG_TAG, "Get starred files : " + starredFiles);
         return parseStarredFiles(starredFiles);
     }
 
