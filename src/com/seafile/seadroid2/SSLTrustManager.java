@@ -184,7 +184,7 @@ public final class SSLTrustManager {
 
         public SecureX509TrustManager(Account account) {
             this.account = account;
-            Log.d("SeafileHTTPS", "a SecureX509TrustManager is created:" + hashCode());
+            Log.d(DEBUG_TAG, "a SecureX509TrustManager is created:" + hashCode());
         }
 
         public List<X509Certificate> getServerCertsChain() {
@@ -251,7 +251,7 @@ public final class SSLTrustManager {
 
         @Override
         public void finalize() {
-            Log.d("SeafileHTTPS", "a SecureX509TrustManager is finalized:" + hashCode());
+            Log.d(DEBUG_TAG, "a SecureX509TrustManager is finalized:" + hashCode());
         }
     }
 }

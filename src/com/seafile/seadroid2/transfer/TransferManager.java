@@ -296,7 +296,7 @@ public class TransferManager {
                     dataManager.uploadFile(myRepoName, myRepoID, myDir, myPath, monitor);
                 }
             } catch (SeafException e) {
-                Log.d("Upload", "Exception " + e.getCode() + " " + e.getMessage());
+                Log.d(DEBUG_TAG, "Upload exception " + e.getCode() + " " + e.getMessage());
                 err = e;
             }
 
