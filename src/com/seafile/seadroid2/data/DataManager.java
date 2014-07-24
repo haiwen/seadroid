@@ -376,11 +376,6 @@ public class DataManager {
         return reposCache;
     }
 
-    public interface ProgressMonitor {
-        void onProgressNotify(long total);
-        boolean isCancelled();
-    }
-
     public File getFile(String repoName, String repoID, String path,
                         ProgressMonitor monitor) throws SeafException {
 

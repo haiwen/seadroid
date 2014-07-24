@@ -12,9 +12,7 @@ import android.util.Log;
 
 import com.seafile.seadroid2.Utils;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.transfer.TransferManager.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.TransferManager.TransferListener;
-import com.seafile.seadroid2.transfer.TransferManager.UploadTaskInfo;
 
 public class TransferService extends Service implements TransferListener {
     public static final String BROADCAST_ACTION = "com.seafile.seadroid.TX_BROADCAST";

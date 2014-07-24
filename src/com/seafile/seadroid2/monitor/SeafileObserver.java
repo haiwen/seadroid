@@ -27,10 +27,6 @@ public class SeafileObserver implements FileAlterationListener {
     private final RecentDownloadedFilesWorkAround recentDownloadedFiles =
             new RecentDownloadedFilesWorkAround();
 
-    public interface CachedFileChangedListener {
-        void onCachedFiledChanged(Account account, SeafCachedFile cf, File file);
-    }
-
     public SeafileObserver(Account account, CachedFileChangedListener listener) {
         this.account = account;
         this.dataManager = new DataManager(account);

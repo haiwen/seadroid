@@ -11,7 +11,6 @@ import com.google.common.collect.Maps;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
-import com.seafile.seadroid2.monitor.SeafileObserver.CachedFileChangedListener;
 
 public class SeafileMonitor {
     private static final String DEBUG_TAG = "SeafileMonitor";
