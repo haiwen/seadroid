@@ -28,8 +28,26 @@ import com.seafile.seadroid2.Utils;
 import com.seafile.seadroid2.account.Account;
 
 public class DataManager {
+    public static final int MAX_GEN_CACHE_THUMB = 1000000;  // Only generate thumb cache for files less than 1MB
+    public static final int MAX_DIRECT_SHOW_THUMB = 100000;  // directly show thumb
+
+    private static final String DEBUG_TAG = "DataManager";
     private static final long SET_PASSWORD_INTERVAL = 59 * 60 * 1000; // 59 min
     // private static final long SET_PASSWORD_INTERVAL = 5 * 1000; // 5s
+
+    private static Map<String, PasswordInfo> passwords = new HashMap<String, PasswordInfo>();
+
+    private SeafConnection sc;
+    private Account account;
+    private DatabaseHelper dbHelper;
+
+    private List<SeafRepo> reposCache = null;
+
+    public DataManager(Account act) {
+        account = act;
+        sc = new SeafConnection(act);
+        dbHelper = DatabaseHelper.getDatabaseHelper();
+    }
 
     public static String getExternalRootDirectory() {
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
@@ -104,9 +122,6 @@ public class DataManager {
         return new File(getExternalCacheDirectory() + "/" + oid);
     }
 
-    public static final int MAX_GEN_CACHE_THUMB = 1000000;  // Only generate thumb cache for files less than 1MB
-    public static final int MAX_DIRECT_SHOW_THUMB = 100000;  // directly show thumb
-
     public void calculateThumbnail(String repoName, String repoID, String path, String oid) {
         final int THUMBNAIL_SIZE = 72;
         try {
@@ -165,21 +180,6 @@ public class DataManager {
         default:
             return 36;
         }
-    }
-
-
-    private static final String DEBUG_TAG = "DataManager";
-
-    private SeafConnection sc;
-    private Account account;
-    private DatabaseHelper dbHelper;
-
-    List<SeafRepo> reposCache = null;
-
-    public DataManager(Account act) {
-        account = act;
-        sc = new SeafConnection(act);
-        dbHelper = DatabaseHelper.getDatabaseHelper();
     }
 
     public Account getAccount() {
@@ -632,8 +632,6 @@ public class DataManager {
             this.timestamp = timestamp;
         }
     }
-
-    private static Map<String, PasswordInfo> passwords = new HashMap<String, PasswordInfo>();
 
     public static boolean getRepoPasswordSet(String repoID) {
         PasswordInfo info = passwords.get(repoID);
