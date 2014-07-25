@@ -70,6 +70,7 @@ import com.seafile.seadroid2.ui.NewFileDialog;
 import com.seafile.seadroid2.ui.OpenAsDialog;
 import com.seafile.seadroid2.ui.PasswordDialog;
 import com.seafile.seadroid2.ui.RenameFileDialog;
+import com.seafile.seadroid2.ui.DeleteFileDialog;
 import com.seafile.seadroid2.ui.ReposFragment;
 import com.seafile.seadroid2.ui.SslConfirmDialog;
 import com.seafile.seadroid2.ui.StarredFragment;
@@ -1381,6 +1382,30 @@ public class BrowserActivity extends SherlockFragmentActivity
         });
         dialog.show(getSupportFragmentManager(), "DialogFragment");
     }
+    
+    public void deleteFile(String repoID, String repoName, String path){
+	doDelete(repoID, repoName, path, false);
+    }
+    
+    public void deleteDir(String repoID, String repoName, String path){
+	doDelete(repoID, repoName, path, true);
+    }
+    
+    private void doDelete(String repoID, String repoName, String path, boolean isdir) {
+	final DeleteFileDialog dialog = new DeleteFileDialog();
+        dialog.init(repoID, path, isdir, account);
+        dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
+            @Override
+            public void onTaskSuccess() {
+                showToast(R.string.delete_successful);
+                ReposFragment reposFragment = tabsFragment.getReposFragment();
+                if (getCurrentTabName().equals(LIBRARY_TAB) && reposFragment != null) {
+                    reposFragment.refreshView();
+                }
+            }
+        });
+        dialog.show(getSupportFragmentManager(), "DialogFragment");
+    }
 
     private void onFileUploadProgress(int taskID) {
         if (txService == null) {
@@ -1546,5 +1571,5 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
 
     } // TransferReceiver
-
+    
 }

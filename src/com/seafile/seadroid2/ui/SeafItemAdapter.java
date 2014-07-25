@@ -389,6 +389,9 @@ public class SeafItemAdapter extends BaseAdapter {
                 case ACTION_ID_RENAME:
                     mActivity.renameFile(repoID, repoName, path);
                     break;
+                case ACTION_ID_DELETE:
+                    mActivity.deleteFile(repoID, repoName, path);
+                    break;
                 }
             }
         });
@@ -400,12 +403,17 @@ public class SeafItemAdapter extends BaseAdapter {
     private QuickAction prepareDirAction(final SeafDirent dirent) {
         final QuickAction mQuickAction = new QuickAction(mActivity);
         Resources resources = mActivity.getResources();
-        ActionItem shareAction;
+        ActionItem shareAction, deleteAction;
         shareAction = new ActionItem(ACTION_ID_SHARE,
                 resources.getString(R.string.file_action_share),
                 resources.getDrawable(R.drawable.action_share));
         mQuickAction.addActionItem(shareAction);
 
+        deleteAction = new ActionItem(ACTION_ID_DELETE,
+        	resources.getString(R.string.file_action_delete),
+        	resources.getDrawable(R.drawable.action_delete));
+        mQuickAction.addActionItem(deleteAction);
+        
         //setup the action item click listener
         mQuickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
             @Override
@@ -418,6 +426,9 @@ public class SeafItemAdapter extends BaseAdapter {
                 switch (actionId) {
                 case ACTION_ID_SHARE:
                     mActivity.shareDir(repoID, path);
+                    break;
+                case ACTION_ID_DELETE:
+                    mActivity.deleteDir(repoID, repoName, path);
                     break;
                 }
             }
