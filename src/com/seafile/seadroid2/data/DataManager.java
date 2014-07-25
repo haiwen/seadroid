@@ -623,6 +623,20 @@ public class DataManager {
         dbHelper.saveDirents(repoID, Utils.getParentPath(path), newDirID, response);
     }
 
+    public void delete(String repoID, String path, boolean isdir) throws SeafException{
+	Pair<String, String> ret = sc.delete(repoID, path, isdir);
+	if (ret == null){
+	    return;
+	}
+
+	String newDirID = ret.first;
+	String response = ret.second;
+
+	  // The response is the dirents of the parentDir after creating
+	  // the new file. We save it to avoid request it again
+	dbHelper.saveDirents(repoID, Utils.getParentPath(path), newDirID, response);
+    }
+    
     private static class PasswordInfo {
         String password;
         long timestamp;
