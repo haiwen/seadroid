@@ -1053,6 +1053,11 @@ public class BrowserActivity extends SherlockFragmentActivity
                     e.printStackTrace();
                     return;
                 }
+                if(path == null) {
+                    showToast("Unable to upload, no path available");
+                    Log.i(DEBUG_TAG, "Pick file request did not return a path");
+                    return;
+                }
                 showToast(getString(R.string.added_to_upload_tasks));
                 //showToast(getString(R.string.upload) + " " + Utils.fileNameFromPath(path));
                 addUploadTask(navContext.getRepoID(),
