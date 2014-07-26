@@ -120,7 +120,7 @@ public class SeafConnection {
 	    					throws HttpRequestException {
 	HttpRequest req = HttpRequest.delete(account.server + apiPath, params, true)
 		.followRedirects(true)
-		.connectTimeout(15000);
+		.connectTimeout(CONNECTION_TIMEOUT);
 
 	if (withToken) {
 	    	req.header("Authorization", "Token " + account.token);
@@ -872,13 +872,7 @@ public class SeafConnection {
 	    String suffix = isdir ? "/dir/" : "/file/";
 	    HttpRequest req = prepareApiDeleteRequest("api2/repos/" + repoID + suffix, true, params);
 
-	    if (req.code() != 200) {
-		if (req.message() == null) {
-		    throw SeafException.networkException;
-		} else {
-		    throw new SeafException(req.code(), req.message());
-		}
-	    }
+	    checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
 
 	    String newDirID = req.header("oid");
             if (newDirID == null) {
