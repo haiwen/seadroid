@@ -299,7 +299,8 @@ public class DataManager {
             // may throw ClassCastException
             JSONArray array = Utils.parseJsonArray(json);
             if (array.length() == 0)
-                return null;
+                return new ArrayList<SeafRepo>(0);
+
             ArrayList<SeafRepo> repos = new ArrayList<SeafRepo>();
             for (int i = 0; i < array.length(); i++) {
                 JSONObject obj = array.getJSONObject(i);
@@ -359,8 +360,8 @@ public class DataManager {
             throw SeafException.networkException;
         }
 
-        // Log.d(DEBUG_TAG, "get repos from server");
         String json = sc.getRepos();
+        //Log.d(DEBUG_TAG, "get repos from server " + json);
         if (json == null)
             return null;
 
