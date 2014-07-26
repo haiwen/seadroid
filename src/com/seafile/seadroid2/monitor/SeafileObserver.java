@@ -52,6 +52,7 @@ public class SeafileObserver implements FileAlterationListener {
                 watchedFiles.put(file.getPath(), cached);
             }
         }
+        Log.d(DEBUG_TAG, "watching files, # total watched " + watchedFiles.size());
     }
 
     public void watchDownloadedFile(String repoID, String repoName, String pathInRepo,
@@ -64,7 +65,7 @@ public class SeafileObserver implements FileAlterationListener {
         cacheInfo.path = pathInRepo;
         watchedFiles.put(localpath, cacheInfo);
 
-        Log.d(DEBUG_TAG, "start watch downloaded file " + pathInRepo);
+        Log.d(DEBUG_TAG, "start watch downloaded file " + pathInRepo + ", # total watched " + watchedFiles.size());
     }
 
     public void setAccount(Account account) {
@@ -115,6 +116,9 @@ public class SeafileObserver implements FileAlterationListener {
             Log.d(DEBUG_TAG, "ignore change signal for recent downloaded file " + path);
             return;
         }
+        else {
+            recentDownloadedFiles.removeRecentDownloadedFile(path);
+        }
 
         Log.d(DEBUG_TAG, path + " was modified!");
         SeafCachedFile cachedFile = watchedFiles.get(path);
@@ -131,6 +135,10 @@ public class SeafileObserver implements FileAlterationListener {
     @Override
     public void onFileDelete(File file) {
         Log.v(DEBUG_TAG, file.getPath() + " was deleted!");
+        String path = file.getPath();
+        watchedFiles.remove(path);
+        recentDownloadedFiles.removeRecentDownloadedFile(path);
+        Log.d(DEBUG_TAG, "now watching files, # total watched " + watchedFiles.size());
     }
 
     @Override
@@ -167,6 +175,11 @@ public class SeafileObserver implements FileAlterationListener {
 
         public void addRecentDownloadedFile(String filePath) {
             recentDownloadedFiles.put(filePath, Utils.now());
+        }
+
+        public void removeRecentDownloadedFile(String filePath) {
+            recentDownloadedFiles.remove(filePath);
+            Log.d(DEBUG_TAG, "remove recent file, # total watched " + recentDownloadedFiles.size());
         }
     }
 }
