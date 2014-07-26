@@ -51,6 +51,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.SeafCachedFile;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SeafStarredFile;
@@ -1096,7 +1097,6 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     @Override
     public void onStarredFileSelected(SeafStarredFile starredFile) {
-
         final String repoID = starredFile.getRepoID();
         SeafRepo seafRepo = dataManager.getCachedRepoByID(repoID);
         final String repoName = seafRepo.getName();
@@ -1382,6 +1382,24 @@ public class BrowserActivity extends SherlockFragmentActivity
             }
         });
         dialog.show(getSupportFragmentManager(), "DialogFragment");
+    }
+
+    public void deleteCache(SeafDirent dirent) {
+        // We only support deleting a cache file as of now, later on
+        // we could support deleting all cached files in a directory
+        if(!dirent.isDir()) {
+            String fileName = dirent.name;
+            final String repoName = navContext.getRepoName();
+            final String repoID = navContext.getRepoID();
+            final String filePath = Utils.pathJoin(navContext.getDirPath(), fileName);
+
+            SeafCachedFile cachedFile = dataManager.getCachedFile(repoName, repoID, filePath);
+            if(cachedFile != null) {
+                Log.d(DEBUG_TAG, "Will delete cache file " + filePath + ", " + fileName);
+                dataManager.removeCachedFile(cachedFile);
+                tabsFragment.getReposFragment().refreshView(true);
+            }
+        }
     }
 
     private void onFileUploadProgress(int taskID) {

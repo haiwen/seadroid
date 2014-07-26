@@ -31,7 +31,6 @@ import com.seafile.seadroid2.data.SeafItem;
 import com.seafile.seadroid2.data.SeafRepo;
 
 public class SeafItemAdapter extends BaseAdapter {
-
     private ArrayList<SeafItem> items;
     private BrowserActivity mActivity;
     private boolean repoIsEncrypted;
@@ -47,6 +46,7 @@ public class SeafItemAdapter extends BaseAdapter {
     private static final int ACTION_ID_RENAME = 3;
     private static final int ACTION_ID_DELETE = 4;
     private static final int ACTION_ID_SHARE = 5;
+    private static final int ACTION_ID_DELETE_CACHE = 6;
 
     @Override
     public int getCount() {
@@ -323,7 +323,7 @@ public class SeafItemAdapter extends BaseAdapter {
     private QuickAction prepareFileAction(final SeafDirent dirent, boolean cacheExists) {
         final QuickAction mQuickAction = new QuickAction(mActivity);
         Resources resources = mActivity.getResources();
-        ActionItem shareAction, downloadAction, updateAction, exportAction, renameAction, deleteAction;
+        ActionItem shareAction, downloadAction, updateAction, exportAction, renameAction, deleteAction, deleteCacheAction;
 
         if (!repoIsEncrypted) {
             shareAction = new ActionItem(ACTION_ID_SHARE,
@@ -354,7 +354,10 @@ public class SeafItemAdapter extends BaseAdapter {
                         resources.getDrawable(R.drawable.action_update));
                 mQuickAction.addActionItem(updateAction);
             }
-
+            deleteCacheAction = new ActionItem(ACTION_ID_DELETE_CACHE,
+                    resources.getString(R.string.file_action_delete_cache_file),
+                    resources.getDrawable(R.drawable.action_delete));
+            mQuickAction.addActionItem(deleteCacheAction);
         } else {
             downloadAction = new ActionItem(ACTION_ID_DOWNLOAD,
                     resources.getString(R.string.file_action_download),
@@ -388,6 +391,9 @@ public class SeafItemAdapter extends BaseAdapter {
                     break;
                 case ACTION_ID_RENAME:
                     mActivity.renameFile(repoID, repoName, path);
+                    break;
+                case ACTION_ID_DELETE_CACHE:
+                    mActivity.deleteCache(dirent);
                     break;
                 }
             }
