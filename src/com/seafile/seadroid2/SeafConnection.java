@@ -116,15 +116,13 @@ public class SeafConnection {
         return prepareHttpsCheck(req);
     }
 
-    private HttpRequest prepareApiDeleteRequest(String apiPath, boolean withToken, Map<String, ?> params)
+    private HttpRequest prepareApiDeleteRequest(String apiPath, Map<String, ?> params)
 	    					throws HttpRequestException {
 	HttpRequest req = HttpRequest.delete(account.server + apiPath, params, true)
 		.followRedirects(true)
 		.connectTimeout(CONNECTION_TIMEOUT);
 
-	if (withToken) {
-	    	req.header("Authorization", "Token " + account.token);
-	}
+	req.header("Authorization", "Token " + account.token);
 
 	return prepareHttpsCheck(req);
     }
@@ -870,7 +868,7 @@ public class SeafConnection {
 	    params.put("p", path);
 	    params.put("reloaddir", "true");
 	    String suffix = isdir ? "/dir/" : "/file/";
-	    HttpRequest req = prepareApiDeleteRequest("api2/repos/" + repoID + suffix, true, params);
+	    HttpRequest req = prepareApiDeleteRequest("api2/repos/" + repoID + suffix, params);
 
 	    checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
 

@@ -618,7 +618,7 @@ public class DataManager {
         String newDirID = ret.first;
         String response = ret.second;
 
-        // The response is the dirents of the parentDir after creating
+        // The response is the dirents of the parentDir after renaming
         // the new file. We save it to avoid request it again
         dbHelper.saveDirents(repoID, Utils.getParentPath(path), newDirID, response);
     }
@@ -632,7 +632,7 @@ public class DataManager {
 	String newDirID = ret.first;
 	String response = ret.second;
 
-	  // The response is the dirents of the parentDir after creating
+	  // The response is the dirents of the parentDir after deleting
 	  // the new file. We save it to avoid request it again
 	dbHelper.saveDirents(repoID, Utils.getParentPath(path), newDirID, response);
     }
