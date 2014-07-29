@@ -1502,7 +1502,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         final String repoID = info.repoID;
         final String path = info.pathInRepo;
 
-        if (err != null && err.getCode() == 440) {
+        if (err != null && err.getCode() == SeafConnection.HTTP_STATUS_REPO_PASSWORD_REQUIRED) {
             if (getCurrentTabName().equals(LIBRARY_TAB)
                 && repoID.equals(navContext.getRepoID())
                 && Utils.getParentPath(path).equals(navContext.getDirPath())) {

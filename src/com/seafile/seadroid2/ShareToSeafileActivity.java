@@ -733,7 +733,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
             showLoading(false);
             if (err != null) {
                 int retCode = err.getCode();
-                if (retCode == 440) {
+                if (retCode == SeafConnection.HTTP_STATUS_REPO_PASSWORD_REQUIRED) {
                     showPasswordDialog();
                 } else if (retCode == HttpURLConnection.HTTP_NOT_FOUND) {
                     showToast(String.format("The folder \"%s\" was deleted", dirPath));

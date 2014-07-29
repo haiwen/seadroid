@@ -244,7 +244,7 @@ public class FileActivity extends SherlockFragmentActivity {
         if (err.getCode() == HttpURLConnection.HTTP_NOT_FOUND) {
             // file deleted
             showToast("The file \"" + fileName + "\" has been deleted");
-        } else if (err.getCode() == 440) {
+        } else if (err.getCode() == SeafConnection.HTTP_STATUS_REPO_PASSWORD_REQUIRED) {
             handlePassword();
         } else {
             showToast("Failed to download file \"" + fileName);

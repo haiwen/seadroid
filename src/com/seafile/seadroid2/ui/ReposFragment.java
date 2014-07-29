@@ -24,6 +24,7 @@ import com.seafile.seadroid2.CertsManager;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.NavContext;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.Utils;
 import com.seafile.seadroid2.account.Account;
@@ -510,7 +511,7 @@ public class ReposFragment extends SherlockListFragment {
             }
 
             if (err != null) {
-                if (err.getCode() == 440) {
+                if (err.getCode() == SeafConnection.HTTP_STATUS_REPO_PASSWORD_REQUIRED) {
                     showPasswordDialog();
                 } else if (err.getCode() == HttpURLConnection.HTTP_NOT_FOUND) {
                     mActivity.showToast(String.format("The folder \"%s\" was deleted", myPath));
