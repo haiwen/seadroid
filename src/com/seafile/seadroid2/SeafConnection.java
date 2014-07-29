@@ -119,7 +119,7 @@ public class SeafConnection {
     }
 
     private HttpRequest prepareApiDeleteRequest(String apiPath, Map<String, ?> params)
-                            throws HttpRequestException {
+            throws HttpRequestException {
         HttpRequest req = HttpRequest.delete(account.server + apiPath, params, true)
             .followRedirects(true)
             .connectTimeout(CONNECTION_TIMEOUT);
@@ -875,14 +875,15 @@ public class SeafConnection {
             checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
 
             String newDirID = req.header("oid");
-                if (newDirID == null) {
-                    return null;
-                }
+            if (newDirID == null) {
+                return null;
+            }
 
-                String content = new String(req.bytes(), "UTF-8");
-                if (content.length() == 0) {
-                    return null;
-                }
+
+            String content = new String(req.bytes(), "UTF-8");
+            if (content.length() == 0) {
+                return null;
+            }
 
                 return new Pair<String, String>(newDirID, content);
             } catch (SeafException e) {
@@ -893,6 +894,41 @@ public class SeafConnection {
                 throw getSeafExceptionFromHttpRequestException(e);
             }
     }
+    
+    public Pair<String, String> move(String repoID, String filenames, String dst_repo, String dst_dir, String path,
+	                                 boolean isdir) throws SeafException {
+        try {
+    	    Map<String, Object> params = new HashMap<String, Object>();
+    	    params.put("p", path);
+    	    params.put("reloaddir", "true");
+    	    String suffix = isdir ? "/dir/" : "/file/";
+    	    HttpRequest req = prepareApiPostRequest("api2/repos/" + repoID + suffix, true, params);
+
+    	    req.form("operation", "move");
+            req.form("dst_repo", dst_repo);
+            req.form("dst_dir", dst_dir);
+    	    
+    	    checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+ 		
+    	    String newDirID = req.header("oid");
+    	    if (newDirID == null) {
+    			return null;
+            }
+
+            String content = new String(req.bytes(), "UTF-8");
+            if (content.length() == 0) {
+                return null;
+            }
+
+            return new Pair<String, String>(newDirID, content);
+        } catch (SeafException e) {
+            throw e;
+        } catch (UnsupportedEncodingException e) {
+            throw SeafException.encodingException;
+        } catch (HttpRequestException e) {
+            throw getSeafExceptionFromHttpRequestException(e);
+        }
+ }
     
     private void checkRequestResponseStatus(HttpRequest req, int expectedStatusCode) throws SeafException {
         if (req.code() != expectedStatusCode) {
