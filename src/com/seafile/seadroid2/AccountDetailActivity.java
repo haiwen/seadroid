@@ -1,5 +1,6 @@
 package com.seafile.seadroid2;
 
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -274,9 +275,9 @@ public class AccountDetailActivity extends FragmentActivity {
                     return getString(R.string.ssl_error);
                 }
                 switch (e.getCode()) {
-                case 400:
+                case HttpURLConnection.HTTP_BAD_REQUEST:
                     return getString(R.string.err_wrong_user_or_passwd);
-                case 404:
+                case HttpURLConnection.HTTP_NOT_FOUND:
                     return getString(R.string.invalid_server_address);
                 default:
                     return e.getMessage();
@@ -284,37 +285,4 @@ public class AccountDetailActivity extends FragmentActivity {
             }
         }
     }
-
-    /*  // no longer used
-    private class TrustServerDialogFragment extends DialogFragment {
-
-        Account account;
-
-        TrustServerDialogFragment(Account loginAccount) {
-            account = loginAccount;
-        }
-
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setMessage(R.string.trust_https_server)
-                   .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                       public void onClick(DialogInterface dialog, int id) {
-                           try {
-                               TrustManagerFactory.addCertificateChain(TrustManagerFactory.getLastCertChain());
-                               ConcurrentAsyncTask.execute(new LoginTask(account));
-                           } catch (CertificateException e) {
-                               e.printStackTrace();
-                           }
-                       }
-                   })
-                   .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                       public void onClick(DialogInterface dialog, int id) {
-                           // User cancelled the dialog
-                       }
-                   });
-            return builder.create();
-        }
-    }
-    */
 }

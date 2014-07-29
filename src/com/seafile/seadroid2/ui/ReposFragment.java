@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.ui;
 
 import java.io.File;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -511,7 +512,7 @@ public class ReposFragment extends SherlockListFragment {
             if (err != null) {
                 if (err.getCode() == 440) {
                     showPasswordDialog();
-                } else if (err.getCode() == 404) {
+                } else if (err.getCode() == HttpURLConnection.HTTP_NOT_FOUND) {
                     mActivity.showToast(String.format("The folder \"%s\" was deleted", myPath));
                 } else {
                     Log.d(DEBUG_TAG, "failed to load dirents: " + err.getMessage());
