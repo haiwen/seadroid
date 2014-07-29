@@ -47,6 +47,7 @@ public class SeafItemAdapter extends BaseAdapter {
     private static final int ACTION_ID_RENAME = 3;
     private static final int ACTION_ID_DELETE = 4;
     private static final int ACTION_ID_SHARE = 5;
+    private static final int ACTION_ID_COPY = 6;
 
     @Override
     public int getCount() {
@@ -323,7 +324,8 @@ public class SeafItemAdapter extends BaseAdapter {
     private QuickAction prepareFileAction(final SeafDirent dirent, boolean cacheExists) {
         final QuickAction mQuickAction = new QuickAction(mActivity);
         Resources resources = mActivity.getResources();
-        ActionItem shareAction, downloadAction, updateAction, exportAction, renameAction, deleteAction;
+        ActionItem shareAction, downloadAction, updateAction, exportAction, renameAction, deleteAction,
+        	   copyAction;;
 
         if (!repoIsEncrypted) {
             shareAction = new ActionItem(ACTION_ID_SHARE,
@@ -332,10 +334,10 @@ public class SeafItemAdapter extends BaseAdapter {
             mQuickAction.addActionItem(shareAction);
         }
 
-        // deleteAction = new ActionItem(ACTION_ID_DELETE,
-        //                               resources.getString(R.string.file_action_delete),
-        //                               resources.getDrawable(R.drawable.action_delete));
-        // mQuickAction.addActionItem(deleteAction);
+         deleteAction = new ActionItem(ACTION_ID_DELETE,
+                                       resources.getString(R.string.file_action_delete),
+                                       resources.getDrawable(R.drawable.action_delete));
+         mQuickAction.addActionItem(deleteAction);
 
         renameAction = new ActionItem(ACTION_ID_RENAME,
                 resources.getString(R.string.file_action_rename),
@@ -346,6 +348,11 @@ public class SeafItemAdapter extends BaseAdapter {
                 resources.getString(R.string.file_action_export),
                 resources.getDrawable(R.drawable.action_export));
         mQuickAction.addActionItem(exportAction);
+        
+        copyAction = new ActionItem(ACTION_ID_COPY,
+         	resources.getString(R.string.file_action_copy),
+         	resources.getDrawable(R.drawable.action_export));
+        mQuickAction.addActionItem(copyAction);
 
         if (cacheExists) {
             if (mActivity.hasRepoWritePermission()) {
@@ -389,6 +396,12 @@ public class SeafItemAdapter extends BaseAdapter {
                 case ACTION_ID_RENAME:
                     mActivity.renameFile(repoID, repoName, path);
                     break;
+                case ACTION_ID_DELETE:
+                    mActivity.deleteFile(repoID, repoName, path);
+                    break;
+                case ACTION_ID_COPY:
+                    
+                    break;
                 }
             }
         });
@@ -400,12 +413,17 @@ public class SeafItemAdapter extends BaseAdapter {
     private QuickAction prepareDirAction(final SeafDirent dirent) {
         final QuickAction mQuickAction = new QuickAction(mActivity);
         Resources resources = mActivity.getResources();
-        ActionItem shareAction;
+        ActionItem shareAction, deleteAction;
         shareAction = new ActionItem(ACTION_ID_SHARE,
                 resources.getString(R.string.file_action_share),
                 resources.getDrawable(R.drawable.action_share));
         mQuickAction.addActionItem(shareAction);
 
+        deleteAction = new ActionItem(ACTION_ID_DELETE,
+        	resources.getString(R.string.file_action_delete),
+        	resources.getDrawable(R.drawable.action_delete));
+        mQuickAction.addActionItem(deleteAction);
+        
         //setup the action item click listener
         mQuickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
             @Override
@@ -418,6 +436,9 @@ public class SeafItemAdapter extends BaseAdapter {
                 switch (actionId) {
                 case ACTION_ID_SHARE:
                     mActivity.shareDir(repoID, path);
+                    break;
+                case ACTION_ID_DELETE:
+                    mActivity.deleteDir(repoID, repoName, path);
                     break;
                 }
             }

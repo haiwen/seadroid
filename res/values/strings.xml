@@ -7,6 +7,10 @@
     <string name="edit_account">Edit</string>
     <string name="delete_account">Delete</string>
     <string name="delete">Delete</string>
+    <string name="delete_file">Are you sure to delete this file or folder?</string>
+    <string name="delete_successful">Deleted successfully</string>
+ 	<string name="delete_file_f">Delete file</string>
+ 	<string name="delete_dir">Delete folder</string>
     <string name="server_hint">Server, like cloud.seafile.com</string>
     <string name="email_hint">Email</string>
     <string name="passwd_hint">Password</string>
@@ -58,6 +62,7 @@
     <string name="file_action_export">Export</string>
     <string name="file_action_delete">Delete</string>
     <string name="file_action_rename">Rename</string>
+    <string name="file_action_copy">Copy</string>
     <string name="file_action_open_as">Open as</string>
     <string-array name="file_type_array">
         <item>Text</item>
