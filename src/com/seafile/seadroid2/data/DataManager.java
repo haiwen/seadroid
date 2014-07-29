@@ -124,6 +124,7 @@ public class DataManager {
 
     public void calculateThumbnail(String repoName, String repoID, String path, String oid) {
         final int THUMBNAIL_SIZE = 72;
+        FileOutputStream out = null;
         try {
             File file = getLocalRepoFile(repoName, repoID, path);
             if (!file.exists())
@@ -138,11 +139,17 @@ public class DataManager {
             imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
             byte[] byteArray = baos.toByteArray();
             File thumb = getThumbFile(oid);
-            FileOutputStream out = new FileOutputStream(thumb);
+            out = new FileOutputStream(thumb);
             out.write(byteArray);
-            out.close();
         } catch (Exception ex) {
-
+        } finally {
+            try {
+                if(out != null) {
+                    out.close();
+                }
+            }
+            catch(IOException ioe) {
+            }
         }
     }
 
@@ -288,6 +295,7 @@ public class DataManager {
         String localPath = Utils.pathJoin(getRepoDir(repoName, repoID), path);
         File parentDir = new File(Utils.getParentPath(localPath));
         if (!parentDir.exists()) {
+            // TODO should check if the directory creation succeeds
             parentDir.mkdirs();
         }
 
@@ -515,6 +523,7 @@ public class DataManager {
     }
 
     public void removeCachedFile(SeafCachedFile cf) {
+        // TODO should check if the file deletion succeeds
         cf.file.delete();
         dbHelper.deleteFileCacheItem(cf);
     }

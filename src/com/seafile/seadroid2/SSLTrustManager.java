@@ -55,7 +55,6 @@ public final class SSLTrustManager {
     }
 
     private void init() {
-        java.io.InputStream fis = null;
         try {
             javax.net.ssl.TrustManagerFactory tmf;
             TrustManager[] tms;
@@ -74,13 +73,6 @@ public final class SSLTrustManager {
             Log.e(DEBUG_TAG, "Unable to get X509 Trust Manager ", e);
         } catch (KeyStoreException e) {
             Log.e(DEBUG_TAG, "Key Store exception while initializing TrustManagerFactory ", e);
-        } finally {
-            try {
-                if (fis != null)
-                    fis.close();
-            } catch (IOException e) {
-                // ignore
-            }
         }
     }
 
@@ -250,7 +242,7 @@ public final class SSLTrustManager {
         }
 
         @Override
-        public void finalize() {
+        protected void finalize() {
             Log.d(DEBUG_TAG, "a SecureX509TrustManager is finalized:" + hashCode());
         }
     }

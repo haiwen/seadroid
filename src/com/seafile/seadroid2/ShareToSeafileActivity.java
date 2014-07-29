@@ -686,17 +686,11 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
             showLoading(false);
             if (err != null || repos == null) {
                 setErrorMessage(R.string.load_libraries_fail);
-                if (err != null) {
-                    Log.d(DEBUG_TAG, "failed to load repos: " + err.getMessage());
-                }
+                Log.d(DEBUG_TAG, "failed to load repos: " + (err != null ? err.getMessage() : " no error present"));
                 return;
             }
 
-            if (repos != null) {
-                updateAdapterWithRepos(repos);
-            } else {
-                Log.d(DEBUG_TAG, "failed to load repos");
-            }
+            updateAdapterWithRepos(repos);
         }
     }
 
@@ -746,16 +740,12 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
             }
 
             if (dirents == null) {
-                Log.d(DEBUG_TAG, "failed to load dirents: " + err.getMessage());
+                Log.d(DEBUG_TAG, "failed to load dirents: no error present");
                 setErrorMessage(R.string.load_dir_fail);
                 return;
             }
 
-            if (dirents != null) {
-                updateAdapterWithDirents(dirents);
-            } else {
-                Log.d(DEBUG_TAG, "failed to load dir");
-            }
+            updateAdapterWithDirents(dirents);
         }
     }
 }

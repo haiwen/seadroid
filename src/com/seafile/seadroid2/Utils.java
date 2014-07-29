@@ -45,7 +45,9 @@ import com.seafile.seadroid2.fileschooser.SelectableFile;
 
 public class Utils {
     public static final String MIME_APPLICATION_OCTET_STREAM = "application/octet-stream";
+    public static final String NOGROUP = "$nogroup";
     private static final String DEBUG_TAG = "Utils";
+
 
     public static JSONObject parseJsonObject(String json) {
         if (json == null) {
@@ -169,8 +171,6 @@ public class Utils {
             }
         }
     }
-
-    public static String NOGROUP = "$nogroup";
 
     public static TreeMap<String, List<SeafRepo>> groupRepos(List<SeafRepo> repos) {
         TreeMap<String, List<SeafRepo>> map = new TreeMap<String, List<SeafRepo>>();

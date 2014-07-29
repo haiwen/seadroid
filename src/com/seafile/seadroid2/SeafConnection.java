@@ -550,8 +550,8 @@ public class SeafConnection {
             // line 1
             String l1 = TWO_HYPENS + BOUNDARY + CRLF;
             // line 2,
-            byte[] l2 = new String("Content-Disposition: form-data; name=\"file\";filename=\""
-                    + file.getName() + "\"" + CRLF).getBytes("UTF-8");
+            String contentDisposition = "Content-Disposition: form-data; name=\"file\";filename=\"" + file.getName() + "\"" + CRLF; 
+            byte[] l2 = contentDisposition.getBytes("UTF-8");
             // line 3
             String l3 = "Content-Type: text/plain" + CRLF;
             // line 4
@@ -591,7 +591,6 @@ public class SeafConnection {
             return new String(req.bytes(), "UTF-8");
         } catch (IOException e) {
             throw SeafException.networkException;
-
         } catch (HttpRequestException e) {
             if (e.getCause() instanceof MonitorCancelledException) {
                 Log.d(DEBUG_TAG, "upload is cancelled");
