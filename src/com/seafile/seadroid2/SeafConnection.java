@@ -117,14 +117,14 @@ public class SeafConnection {
     }
 
     private HttpRequest prepareApiDeleteRequest(String apiPath, Map<String, ?> params)
-	    					throws HttpRequestException {
-	HttpRequest req = HttpRequest.delete(account.server + apiPath, params, true)
-		.followRedirects(true)
-		.connectTimeout(CONNECTION_TIMEOUT);
+                            throws HttpRequestException {
+        HttpRequest req = HttpRequest.delete(account.server + apiPath, params, true)
+            .followRedirects(true)
+            .connectTimeout(CONNECTION_TIMEOUT);
 
-	req.header("Authorization", "Token " + account.token);
+        req.header("Authorization", "Token " + account.token);
 
-	return prepareHttpsCheck(req);
+        return prepareHttpsCheck(req);
     }
     
     /**
@@ -862,34 +862,34 @@ public class SeafConnection {
     }
 
     public Pair<String, String> delete(String repoID, String path,
-		       boolean isdir) throws SeafException {
-	try {
-	    Map<String, Object> params = new HashMap<String, Object>();
-	    params.put("p", path);
-	    params.put("reloaddir", "true");
-	    String suffix = isdir ? "/dir/" : "/file/";
-	    HttpRequest req = prepareApiDeleteRequest("api2/repos/" + repoID + suffix, params);
+               boolean isdir) throws SeafException {
+        try {
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("p", path);
+            params.put("reloaddir", "true");
+            String suffix = isdir ? "/dir/" : "/file/";
+            HttpRequest req = prepareApiDeleteRequest("api2/repos/" + repoID + suffix, params);
 
-	    checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
 
-	    String newDirID = req.header("oid");
-            if (newDirID == null) {
-                return null;
+            String newDirID = req.header("oid");
+                if (newDirID == null) {
+                    return null;
+                }
+
+                String content = new String(req.bytes(), "UTF-8");
+                if (content.length() == 0) {
+                    return null;
+                }
+
+                return new Pair<String, String>(newDirID, content);
+            } catch (SeafException e) {
+                throw e;
+            } catch (UnsupportedEncodingException e) {
+                throw SeafException.encodingException;
+            } catch (HttpRequestException e) {
+                throw getSeafExceptionFromHttpRequestException(e);
             }
-
-            String content = new String(req.bytes(), "UTF-8");
-            if (content.length() == 0) {
-                return null;
-            }
-
-            return new Pair<String, String>(newDirID, content);
-        } catch (SeafException e) {
-            throw e;
-        } catch (UnsupportedEncodingException e) {
-            throw SeafException.encodingException;
-        } catch (HttpRequestException e) {
-            throw getSeafExceptionFromHttpRequestException(e);
-        }
     }
     
     private void checkRequestResponseStatus(HttpRequest req, int expectedStatusCode) throws SeafException {
