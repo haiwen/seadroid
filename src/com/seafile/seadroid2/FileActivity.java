@@ -1,6 +1,7 @@
 package com.seafile.seadroid2;
 
 import java.io.File;
+import java.net.HttpURLConnection;
 
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
@@ -240,10 +241,10 @@ public class FileActivity extends SherlockFragmentActivity {
 
         SeafException err = info.err;
         String fileName = Utils.fileNameFromPath(info.pathInRepo);
-        if (err.getCode() == 404) {
+        if (err.getCode() == HttpURLConnection.HTTP_NOT_FOUND) {
             // file deleted
             showToast("The file \"" + fileName + "\" has been deleted");
-        } else if (err.getCode() == 440) {
+        } else if (err.getCode() == SeafConnection.HTTP_STATUS_REPO_PASSWORD_REQUIRED) {
             handlePassword();
         } else {
             showToast("Failed to download file \"" + fileName);

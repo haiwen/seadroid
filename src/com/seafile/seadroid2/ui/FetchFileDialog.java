@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.ui;
 
+import java.net.HttpURLConnection;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -13,6 +15,7 @@ import android.widget.TextView;
 
 import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.TransferService;
@@ -107,10 +110,10 @@ public class FetchFileDialog extends DialogFragment {
 
     private void onTaskFailed(SeafException err) {
         String fileName = Utils.fileNameFromPath(path);
-        if (err.getCode() == 404) {
+        if (err.getCode() == HttpURLConnection.HTTP_NOT_FOUND) {
             getDialog().dismiss();
             getBrowserActivity().showToast("The file \"" + fileName + "\" has been deleted");
-        } else if (err.getCode() == 440) {
+        } else if (err.getCode() == SeafConnection.HTTP_STATUS_REPO_PASSWORD_REQUIRED) {
             handlePassword();
         } else {
             getDialog().dismiss();

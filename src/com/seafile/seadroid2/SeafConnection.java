@@ -37,6 +37,8 @@ import com.seafile.seadroid2.data.ProgressMonitor;
  * @author plt
  */
 public class SeafConnection {
+    public static final int HTTP_STATUS_REPO_PASSWORD_REQUIRED = 440;
+
     private static final String DEBUG_TAG = "SeafConnection";
     private static final int CONNECTION_TIMEOUT = 15000;
     private static final int READ_TIMEOUT = 30000;

@@ -16,19 +16,17 @@ class DeleteTask extends TaskDialog.Task {
     String path;
     boolean isdir;
     DataManager dataManager;
-    
-    public DeleteTask(String repoID, String path,
-	    	      boolean isdir, DataManager dataManager) {
-	this.repoID = repoID;
-	this.path = path;
-	this.isdir = isdir;
-	this.dataManager = dataManager;
+
+    public DeleteTask(String repoID, String path, boolean isdir, DataManager dataManager) {
+        this.repoID = repoID;
+        this.path = path;
+        this.isdir = isdir;
+        this.dataManager = dataManager;
     }
-    
+
     @Override
     protected void runTask() {
-	// TODO Auto-generated method stub
-	try {
+        try {
             dataManager.delete(repoID, path, isdir);
         } catch (SeafException e) {
             setTaskException(e);
@@ -43,41 +41,37 @@ public class DeleteFileDialog extends TaskDialog {
 
     private DataManager dataManager;
     private Account account;
-    
+
     public void init(String repoID, String path, boolean isdir, Account account) {
         this.repoID = repoID;
         this.path = path;
         this.isdir = isdir;
         this.account = account;
     }
-    
+
     private DataManager getDataManager() {
         if (dataManager == null) {
             dataManager = new DataManager(account);
         }
-
         return dataManager;
     }
-    
-    
 
     @Override
-    protected View createDialogContentView(LayoutInflater inflater,
-	    Bundle savedInstanceState) {
-	// TODO Auto-generated method stub
-	View view = inflater.inflate(R.layout.dialog_delete_file, null);
-	return view;
+    protected View createDialogContentView(LayoutInflater inflater, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.dialog_delete_file, null);
+        return view;
     }
 
     @Override
     protected void onDialogCreated(Dialog dialog) {
-        String str = getActivity().getString(isdir ? R.string.delete_dir : R.string.delete_file_f);
+        String str = getActivity().getString(
+                isdir ? R.string.delete_dir : R.string.delete_file_f);
         dialog.setTitle(str + " " + Utils.fileNameFromPath(path));
     }
-    
+
     @Override
     protected DeleteTask prepareTask() {
-	DeleteTask task = new DeleteTask(repoID, path, isdir, getDataManager());
-	return task;
+        DeleteTask task = new DeleteTask(repoID, path, isdir, getDataManager());
+        return task;
     }
 }

@@ -1,5 +1,6 @@
 package com.seafile.seadroid2;
 
+import java.net.HttpURLConnection;
 import java.util.List;
 
 import android.content.ComponentName;
@@ -732,9 +733,9 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
             showLoading(false);
             if (err != null) {
                 int retCode = err.getCode();
-                if (retCode == 440) {
+                if (retCode == SeafConnection.HTTP_STATUS_REPO_PASSWORD_REQUIRED) {
                     showPasswordDialog();
-                } else if (retCode == 404) {
+                } else if (retCode == HttpURLConnection.HTTP_NOT_FOUND) {
                     showToast(String.format("The folder \"%s\" was deleted", dirPath));
                 } else {
                     Log.d(DEBUG_TAG, "failed to load dirents: " + err.getMessage());
