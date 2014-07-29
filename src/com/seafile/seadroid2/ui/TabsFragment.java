@@ -55,7 +55,6 @@ public class TabsFragment extends SherlockFragment {
         indicator.setOnPageChangeListener(new OnPageChangeListener() {
             @Override
             public void onPageSelected(final int position) {
-                // TODO Auto-generated method stub
                 currentPosition = position;
                 getActivity().supportInvalidateOptionsMenu();
             }
@@ -63,18 +62,14 @@ public class TabsFragment extends SherlockFragment {
             @Override
             public void onPageScrollStateChanged(int arg0) {
                 // TODO Auto-generated method stub
-
             }
 
             @Override
             public void onPageScrolled(int arg0, float arg1, int arg2) {
                 // TODO Auto-generated method stub
-
             }
-
         });
         return root;
-
     }
 
     public int getCurrentTabIndex() {

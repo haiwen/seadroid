@@ -1386,27 +1386,27 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
 
     public void deleteFile(String repoID, String repoName, String path){
-	doDelete(repoID, repoName, path, false);
+        doDelete(repoID, repoName, path, false);
     }
    
     public void deleteDir(String repoID, String repoName, String path){
-	doDelete(repoID, repoName, path, true);
+        doDelete(repoID, repoName, path, true);
     }
 
     private void doDelete(String repoID, String repoName, String path, boolean isdir) {
-	final DeleteFileDialog dialog = new DeleteFileDialog();
-	dialog.init(repoID, path, isdir, account);
-	dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
-	@Override
-        public void onTaskSuccess() {
-             showToast(R.string.delete_successful);
-             ReposFragment reposFragment = tabsFragment.getReposFragment();
-             if (getCurrentTabName().equals(LIBRARY_TAB) && reposFragment != null) {
-                  reposFragment.refreshView();
-             }
-	}
-	});
-	dialog.show(getSupportFragmentManager(), "DialogFragment");
+        final DeleteFileDialog dialog = new DeleteFileDialog();
+        dialog.init(repoID, path, isdir, account);
+        dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
+            @Override
+            public void onTaskSuccess() {
+                showToast(R.string.delete_successful);
+                ReposFragment reposFragment = tabsFragment.getReposFragment();
+                if (getCurrentTabName().equals(LIBRARY_TAB) && reposFragment != null) {
+                    reposFragment.refreshView();
+                }
+            }
+        });
+        dialog.show(getSupportFragmentManager(), "DialogFragment");
     }
     
     private void onFileUploadProgress(int taskID) {
