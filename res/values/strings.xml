@@ -9,8 +9,8 @@
     <string name="delete">Delete</string>
     <string name="delete_file">Are you sure to delete this file or folder?</string>
     <string name="delete_successful">Deleted successfully</string>
- 	<string name="delete_file_f">Delete file</string>
- 	<string name="delete_dir">Delete folder</string>
+    <string name="delete_file_f">Delete file</string>
+    <string name="delete_dir">Delete folder</string>
     <string name="server_hint">Server, like cloud.seafile.com</string>
     <string name="email_hint">Email</string>
     <string name="passwd_hint">Password</string>
