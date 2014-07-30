@@ -892,24 +892,57 @@ public class SeafConnection {
         }
     }
     
-    public Pair<String, String> move(String repoID, String filenames, String dst_repo, String dst_dir, String path,
-	                                 boolean isdir) throws SeafException {
+    public void copy(String repoID, String filenames, String dst_repo, String dst_dir, String path,
+            boolean isdir) throws SeafException {
         try {
-    	    Map<String, Object> params = new HashMap<String, Object>();
-    	    params.put("p", path);
-    	    params.put("reloaddir", "true");
-    	    String suffix = isdir ? "/dir/" : "/file/";
-    	    HttpRequest req = prepareApiPostRequest("api2/repos/" + repoID + suffix, true, params);
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("p", path);
+            //params.put("reloaddir", "true");
+            //String suffix = isdir ? "/dir/" : "/file/";
+            HttpRequest req = prepareApiPostRequest("api2/repos/" + repoID + "/fileops/copy/", true, params);
 
-    	    req.form("operation", "move");
+            req.form("dst_repo", dst_repo);
+            req.form("dst_dir", dst_dir);
+            req.form("file_names", filenames);
+
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+
+            /*String newDirID = req.header("oid");
+            if (newDirID == null) {
+                return null;
+            }
+
+            String content = new String(req.bytes(), "UTF-8");
+            if (content.length() == 0) {
+                return null;
+            }
+
+            return new Pair<String, String>(newDirID, content);*/
+        } catch (SeafException e) {
+            throw e;
+        } catch (HttpRequestException e) {
+            throw getSeafExceptionFromHttpRequestException(e);
+        }
+    }
+    
+    public Pair<String, String> move(String repoID, String filenames, String dst_repo, String dst_dir, String path,
+                                     boolean isdir) throws SeafException {
+        try {
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("p", path);
+            params.put("reloaddir", "true");
+            String suffix = isdir ? "/dir/" : "/file/";
+            HttpRequest req = prepareApiPostRequest("api2/repos/" + repoID + suffix, true, params);
+
+            req.form("operation", "move");
             req.form("dst_repo", dst_repo);
             req.form("dst_dir", dst_dir);
     	    
-    	    checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
  		
-    	    String newDirID = req.header("oid");
-    	    if (newDirID == null) {
-    			return null;
+            String newDirID = req.header("oid");
+            if (newDirID == null) {
+                return null;
             }
 
             String content = new String(req.bytes(), "UTF-8");
@@ -925,7 +958,7 @@ public class SeafConnection {
         } catch (HttpRequestException e) {
             throw getSeafExceptionFromHttpRequestException(e);
         }
- }
+    }
     
     private void checkRequestResponseStatus(HttpRequest req, int expectedStatusCode) throws SeafException {
         if (req.code() != expectedStatusCode) {
