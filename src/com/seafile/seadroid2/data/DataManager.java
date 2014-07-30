@@ -141,7 +141,8 @@ public class DataManager {
             File thumb = getThumbFile(oid);
             out = new FileOutputStream(thumb);
             out.write(byteArray);
-        } catch (Exception ex) {
+        } catch (IOException e) {
+            Log.i(DEBUG_TAG, "Failed to write thumbnail : " + e.getMessage());
         } finally {
             try {
                 if(out != null) {

@@ -47,7 +47,8 @@ public class Utils {
     public static final String MIME_APPLICATION_OCTET_STREAM = "application/octet-stream";
     public static final String NOGROUP = "$nogroup";
     private static final String DEBUG_TAG = "Utils";
-
+    private static final String HIDDEN_PREFIX = ".";
+    private static HashMap<String, Integer> suffixIconMap = null;
 
     public static JSONObject parseJsonObject(String json) {
         if (json == null) {
@@ -161,7 +162,7 @@ public class Utils {
         OutputStream os = null;
         try {
             os = new FileOutputStream(file);
-            os.write(content.getBytes());
+            os.write(content.getBytes("UTF-8"));
         } finally {
             try {
                 if (os != null)
@@ -225,9 +226,7 @@ public class Utils {
         return R.drawable.file;
     }
 
-    static HashMap<String, Integer> suffixIconMap = null;
-
-    static private HashMap<String, Integer> getSuffixIconMap() {
+    private static synchronized HashMap<String, Integer> getSuffixIconMap() {
         if (suffixIconMap != null)
             return suffixIconMap;
 
@@ -290,18 +289,21 @@ public class Utils {
     }
 
     public static String pathJoin (String first, String... rest) {
-        String path = first;
+        StringBuilder result = new StringBuilder(first);
         for (String b: rest) {
-            if (path.endsWith("/") && b.startsWith("/")) {
-                path = path + b.substring(1);
-            } else if (path.endsWith("/") || b.startsWith("/")) {
-                path += b;
+            boolean resultEndsWithSlash = result.toString().endsWith("/");
+            boolean bStartWithSlash = b.startsWith("/");
+            if (resultEndsWithSlash && bStartWithSlash) {
+                result.append(b.substring(1));
+            } else if (resultEndsWithSlash || bStartWithSlash) {
+                result.append(b);
             } else {
-                path += "/" + b;
+                result.append("/");
+                result.append(b);
             }
         }
 
-        return path;
+        return result.toString();
     }
 
     /**
@@ -385,9 +387,6 @@ public class Utils {
 
 
     /************ MutiFileChooser ************/
-
-    private static final String HIDDEN_PREFIX = ".";
-
     private static Comparator<SelectableFile> mComparator = new Comparator<SelectableFile>() {
         public int compare(SelectableFile f1, SelectableFile f2) {
             // Sort alphabetically by lower case, which is much cleaner
@@ -395,7 +394,6 @@ public class Utils {
                     f2.getName().toLowerCase());
         }
     };
-
 
     private static FileFilter mFileFilter = new FileFilter() {
         public boolean accept(File file) {
@@ -405,7 +403,6 @@ public class Utils {
         }
     };
 
-
     private static FileFilter mDirFilter = new FileFilter() {
         public boolean accept(File file) {
             final String fileName = file.getName();
@@ -413,7 +410,6 @@ public class Utils {
             return file.isDirectory() && !fileName.startsWith(HIDDEN_PREFIX);
         }
     };
-
 
     public static List<SelectableFile> getFileList(String path, List<File> selectedFile) {
         ArrayList<SelectableFile> list = new ArrayList<SelectableFile>();
@@ -449,7 +445,6 @@ public class Utils {
         return list;
     }
 
-
     public static Intent createGetContentIntent() {
         // Implicitly allow the user to select a particular kind of data
         final Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -461,7 +456,6 @@ public class Utils {
     }
 
     public static String getPath(Context context, Uri uri) throws URISyntaxException {
-
         if ("content".equalsIgnoreCase(uri.getScheme())) {
             String[] projection = { "_data" };
             Cursor cursor = null;
@@ -477,7 +471,6 @@ public class Utils {
                 // Eat it
             }
         }
-
         else if ("file".equalsIgnoreCase(uri.getScheme())) {
             return uri.getPath();
         }

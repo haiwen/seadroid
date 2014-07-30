@@ -324,7 +324,7 @@ public class Util {
         return sNullOnClickListener;
     }
 
-    public static void Assert(boolean cond) {
+    public static void assertTrue(boolean cond) {
         if (!cond) {
             throw new AssertionError();
         }

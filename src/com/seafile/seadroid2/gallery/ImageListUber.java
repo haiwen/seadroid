@@ -2,6 +2,7 @@ package com.seafile.seadroid2.gallery;
 
 import android.net.Uri;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -219,7 +220,8 @@ public class ImageListUber implements IImageList {
         }
     }
 
-    private static class DescendingComparator implements Comparator<MergeSlot> {
+    private static class DescendingComparator implements Comparator<MergeSlot>, Serializable {
+        private static final long serialVersionUID = 3767807277478952774L;
 
         public int compare(MergeSlot m1, MergeSlot m2) {
             if (m1.mDateTaken != m2.mDateTaken) {
@@ -229,7 +231,8 @@ public class ImageListUber implements IImageList {
         }
     }
 
-    private static class AscendingComparator implements Comparator<MergeSlot> {
+    private static class AscendingComparator implements Comparator<MergeSlot>, Serializable {
+        private static final long serialVersionUID = -1156972649541001600L;
 
         public int compare(MergeSlot m1, MergeSlot m2) {
             if (m1.mDateTaken != m2.mDateTaken) {

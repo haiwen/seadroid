@@ -22,7 +22,7 @@ import android.view.ViewConfiguration;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.widget.Scroller;
 
-import static com.seafile.seadroid2.gallery.Util.Assert;
+import static com.seafile.seadroid2.gallery.Util.assertTrue;
 import com.seafile.seadroid2.R;
 
 
@@ -143,28 +143,28 @@ class GridViewSpecial extends View {
             };
 
     public void setLoader(ImageLoader loader) {
-        Assert(!mRunning);
+        assertTrue(!mRunning);
         mLoader = loader;
     }
 
     public void setListener(Listener listener) {
-        Assert(!mRunning);
+        assertTrue(!mRunning);
         mListener = listener;
     }
 
     public void setDrawAdapter(DrawAdapter adapter) {
-        Assert(!mRunning);
+        assertTrue(!mRunning);
         mDrawAdapter = adapter;
     }
 
     public void setImageList(IImageList list) {
-        Assert(!mRunning);
+        assertTrue(!mRunning);
         mAllImages = list;
         mCount = mAllImages.getCount();
     }
 
     public void setSizeChoice(int choice) {
-        Assert(!mRunning);
+        assertTrue(!mRunning);
         if (mSizeChoice == choice) return;
         mSizeChoice = choice;
     }
@@ -437,9 +437,9 @@ class GridViewSpecial extends View {
 
     public void start() {
         // These must be set before start().
-        Assert(mLoader != null);
-        Assert(mListener != null);
-        Assert(mDrawAdapter != null);
+        assertTrue(mLoader != null);
+        assertTrue(mListener != null);
+        assertTrue(mDrawAdapter != null);
         mRunning = true;
         requestLayout();
     }
@@ -782,7 +782,7 @@ class ImageBlockManager {
             int row = pos / mColumns;
             int col = pos - row * mColumns;
             ImageBlock blk = mCache.get(row);
-            Assert(blk != null);  // We won't reuse the block if it has pending
+            assertTrue(blk != null);  // We won't reuse the block if it has pending
                                   // requests. See getEmptyBlock().
             blk.cancelRequest(col);
         }
@@ -820,7 +820,7 @@ class ImageBlockManager {
 
     // Returns number of requests we issued for this row.
     private int tryToLoad(int row) {
-        Assert(row >= 0 && row < mRows);
+        assertTrue(row >= 0 && row < mRows);
         ImageBlock blk = mCache.get(row);
         if (blk == null) {
             // Find an empty block
@@ -998,7 +998,7 @@ class ImageBlockManager {
 
         // Returns number of requests submitted to ImageLoader.
         public int loadImages() {
-            Assert(mRow != -1);
+            assertTrue(mRow != -1);
 
             int columns = numColumns(mRow);
 
@@ -1071,8 +1071,8 @@ class ImageBlockManager {
             }
 
             int mask = (1 << col);
-            Assert((mCompletedMask & mask) == 0);
-            Assert((mRequestedMask & mask) != 0);
+            assertTrue((mCompletedMask & mask) == 0);
+            assertTrue((mRequestedMask & mask) != 0);
             mRequestedMask &= ~mask;
             mCompletedMask |= mask;
             mPendingRequest--;
@@ -1134,7 +1134,7 @@ class ImageBlockManager {
         // from the queue of ImageLoader, so we only need to mark the fact.
         public void cancelRequest(int col) {
             int mask = (1 << col);
-            Assert((mRequestedMask & mask) != 0);
+            assertTrue((mRequestedMask & mask) != 0);
             mRequestedMask &= ~mask;
             mPendingRequest--;
         }
