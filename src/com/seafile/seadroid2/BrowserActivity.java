@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
@@ -63,6 +64,7 @@ import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.transfer.UploadTaskInfo;
 import com.seafile.seadroid2.ui.AppChoiceDialog;
 import com.seafile.seadroid2.ui.AppChoiceDialog.CustomAction;
+import com.seafile.seadroid2.ui.CopyActivity;
 import com.seafile.seadroid2.ui.FetchFileDialog;
 import com.seafile.seadroid2.ui.GetShareLinkDialog;
 import com.seafile.seadroid2.ui.NewDirDialog;
@@ -79,7 +81,7 @@ import com.seafile.seadroid2.ui.TaskDialog.TaskDialogListener;
 import com.seafile.seadroid2.ui.UploadTasksFragment;
 import com.seafile.seadroid2.ui.DeleteFileDialog;
 
-public class BrowserActivity extends SherlockFragmentActivity
+@SuppressLint("ValidFragment") public class BrowserActivity extends SherlockFragmentActivity
         implements ReposFragment.OnFileSelectedListener, StarredFragment.OnStarredFileSelectedListener, OnBackStackChangedListener {
     public static final String PKG_NAME = "com.seafile.seadroid2";
     public static final String EXTRA_REPO_NAME = PKG_NAME + ".repoName";
@@ -1407,6 +1409,42 @@ public class BrowserActivity extends SherlockFragmentActivity
             }
         });
         dialog.show(getSupportFragmentManager(), "DialogFragment");
+    }
+    
+    public void copyFile(String repoID, String repoName, String path, String filenames){
+    	doCopy(repoID, repoName, path, filenames, false);
+    }
+    
+    private void doCopy(String repoID, String repoName, String path, String filenames, boolean isdir){
+        Intent intent = new Intent(this, CopyActivity.class);
+        intent.putExtra("repoName", repoName);
+        intent.putExtra("repoID", repoID);
+        intent.putExtra("path", path);
+        intent.putExtra("filenames", filenames);
+        intent.putExtra("mAccount", account);
+        intent.putExtra("isdir", isdir);
+        intent.putExtra("isCopy", true);
+        startActivity(intent);
+        return;
+    }
+    
+    public void moveFile(String repoID, String repoName, String path, String filenames){
+    	doMove(repoID, repoName, path, filenames, false);
+    }
+    
+    private void doMove(String repoID, String repoName, String path, String filenames, boolean isdir){
+    	/*CopyActivity cActivity = new CopyActivity();
+    	cActivity.init(repoID, repoName, path, filenames, account, isdir, false);*/
+    	Intent intent = new Intent(this, CopyActivity.class);
+        intent.putExtra("repoName", repoName);
+        intent.putExtra("repoID", repoID);
+        intent.putExtra("path", path);
+        intent.putExtra("filenames", filenames);
+        intent.putExtra("mAccount", account);
+        intent.putExtra("isdir", isdir);
+        intent.putExtra("isCopy", false);
+        startActivity(intent);
+        return;
     }
     
     private void onFileUploadProgress(int taskID) {

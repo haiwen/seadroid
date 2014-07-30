@@ -2,17 +2,11 @@ package com.seafile.seadroid2.ui;
 
 import java.util.List;
 
-import android.content.ComponentName;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.provider.MediaStore.Images;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
@@ -28,59 +22,20 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-import com.seafile.seadroid2.AccountAdapter;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.NavContext;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.Utils;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.transfer.TransferService;
-import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.ui.DirentsAdapter;
 import com.seafile.seadroid2.ui.PasswordDialog;
 import com.seafile.seadroid2.ui.ReposAdapter;
 import com.seafile.seadroid2.ui.TaskDialog;
-
-/*class CopyAndMoveTask extends TaskDialog.Task {
-    String repoID;
-    String filenames;
-    String dst_repoID;
-    String dst_dir;
-    String path;
-    boolean isdir;
-    boolean isCopy;
-    DataManager dataManager;
-
-    public CopyAndMoveTask(String repoID, String filenames, String dst_repoID, String dst_dir, String path,
-            boolean isdir, boolean isCopy, DataManager dataManager) {
-        this.repoID = repoID;
-        this.filenames = filenames;
-        this.dst_repoID = dst_repoID;
-        this.dst_dir = dst_dir;
-        this.path = path;
-        this.isdir = isdir;
-        this.isCopy = isCopy;
-        this.dataManager = dataManager;
-    }
-    
-    @Override
-    protected void runTask() {
-    // TODO Auto-generated method stub
-        try {
-            if (isCopy) {
-                //dataManager.copy
-            }
-            else dataManager.move(repoID, filenames, dst_repoID, dst_dir, path, isdir);;
-        } catch (SeafException e) {
-            setTaskException(e);
-        }
-    }
-}*/
 
 public class CopyActivity extends SherlockFragmentActivity {
     private static final String DEBUG_TAG = "CopyActivity";
@@ -88,33 +43,24 @@ public class CopyActivity extends SherlockFragmentActivity {
     public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "password_dialog_fragment_tag";
 
     private NavContext mNavContext;
-
     private TransferService mTxService;
     private Account mAccount;
-
-    private AccountManager mAccountManager;
     private DataManager mDataManager;
-
-    private AccountAdapter mAccountAdapter;
     private ReposAdapter mReposAdapter;
     private DirentsAdapter mDirentsAdapter;
-
     private LoadDirTask mLoadDirTask;
     private LoadReposTask mLoadReposTask;
-    private LoadAccountsTask mLoadAccountsTask;
-
     private View mProgressContainer, mListContainer, mContentArea;
     private Button mOkButton, mCancelButton;
     private TextView mEmptyText, mErrorText;
     private ListView mListView;
 
-    private static final int STEP_CHOOSE_ACCOUNT = 1;
+    private static final int STEP_SET_ACCOUNT = 1;
     private static final int STEP_CHOOSE_REPO = 2;
     private static final int STEP_CHOOSE_DIR = 3;
     private int mStep = 1;
 
-    private ServiceConnection mConnection;
-    
+    private ServiceConnection mConnection; 
     private String repoID;
     private String path;
     private String filenames;
@@ -122,35 +68,15 @@ public class CopyActivity extends SherlockFragmentActivity {
     private String repoName;
     private boolean isCopy;
 
-    /*public void init(String repoID, String repoName, String path, String filenames, Account mAccount,
-    		         boolean isdir, boolean isCopy){
-    	this.repoID = repoID;
-    	this.repoName = repoName;
-        this.path = path;
-        this.filenames = filenames;
-        this.mAccount = mAccount;
-        this.isdir = isdir;
-        this.isCopy = isCopy;
-    }*/
-    
     protected void onCreate(Bundle savedInstanceState) {
-    	// TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.share_to_seafile);
+        setContentView(R.layout.seafile_file_chooser);
 
-        /*Intent intent = getIntent();
-
-        Uri uri = (Uri)intent.getExtras().get(Intent.EXTRA_STREAM);
-        final String localPath = getSharedFilePath(uri);
-
-        if (localPath == null) {
-            findViewById(R.id.main).setVisibility(View.GONE);
-            return;
+        if (isCopy) {
+            Log.d(DEBUG_TAG, "copy " + path); 
+        } else {
+            Log.d(DEBUG_TAG, "move " + path);
         }
-
-        findViewById(R.id.not_supported_text).setVisibility(View.GONE);*/
-
-        //Log.d(DEBUG_TAG, "copy " + path);
 
         Intent intent = getIntent();
         this.repoID = intent.getStringExtra("repoID");
@@ -190,6 +116,7 @@ public class CopyActivity extends SherlockFragmentActivity {
                 String dst_repoID = mNavContext.getRepoID();
                 String dst_dir = mNavContext.getDirPath();
                 doTask(dst_repoName, dst_repoID, dst_dir, isCopy);
+                mOkButton.setEnabled(false);
             }
         });
 
@@ -200,27 +127,8 @@ public class CopyActivity extends SherlockFragmentActivity {
             }
         });
 
-        chooseAccount();
+        chooseRepo();
     }
-
-    /*private String getSharedFilePath(Uri uri) {
-    	// TODO Auto-generated method stub
-        if (uri == null) {
-            return null;
-        }
-
-        if (uri.getScheme().equals("file")) {
-            return uri.getPath();
-        } else {
-            ContentResolver contentResolver = getContentResolver();
-            Cursor cursor = contentResolver.query(uri, null, null, null, null);
-            if (!cursor.moveToFirst()) {
-                return null;
-            }
-            String filePath = cursor.getString(cursor.getColumnIndex(Images.Media.DATA));
-            return filePath;
-        }
-    }*/
 
     @Override
     protected void onDestroy() {
@@ -238,11 +146,6 @@ public class CopyActivity extends SherlockFragmentActivity {
         if (mLoadDirTask != null
             && mLoadDirTask.getStatus() != AsyncTask.Status.FINISHED) {
             mLoadDirTask.cancel(true);
-        }
-
-        if (mLoadAccountsTask != null
-            && mLoadAccountsTask.getStatus() != AsyncTask.Status.FINISHED) {
-            mLoadAccountsTask.cancel(true);
         }
 
         super.onDestroy();
@@ -274,8 +177,8 @@ public class CopyActivity extends SherlockFragmentActivity {
         }
 
         switch (mStep) {
-        case STEP_CHOOSE_ACCOUNT:
-            setAccount(getAccountAdapter().getItem(position));
+        case STEP_SET_ACCOUNT:
+            setAccount(mAccount);
             chooseRepo();
             break;
         case STEP_CHOOSE_REPO:
@@ -331,13 +234,6 @@ public class CopyActivity extends SherlockFragmentActivity {
 
     private void refreshList(final boolean forceRefresh) {
         switch (mStep) {
-        case STEP_CHOOSE_ACCOUNT:
-            if (mLoadAccountsTask != null && mLoadAccountsTask.getStatus() != AsyncTask.Status.FINISHED) {
-                return;
-            } else {
-                chooseAccount(false);
-                break;
-            }
         case STEP_CHOOSE_REPO:
             if (mLoadReposTask != null && mLoadReposTask.getStatus() != AsyncTask.Status.FINISHED) {
                 return;
@@ -372,13 +268,10 @@ public class CopyActivity extends SherlockFragmentActivity {
 
     private void stepBack(boolean cancelIfFirstStep) {
         switch (mStep) {
-        case STEP_CHOOSE_ACCOUNT:
+        case STEP_CHOOSE_REPO:
             if (cancelIfFirstStep) {
                 finish();
             }
-            break;
-        case STEP_CHOOSE_REPO:
-            chooseAccount(false);
             break;
         case STEP_CHOOSE_DIR:
             if (getNavContext().isRepoRoot()) {
@@ -394,29 +287,6 @@ public class CopyActivity extends SherlockFragmentActivity {
 
     private void setListAdapter(BaseAdapter adapter) {
         mListView.setAdapter(adapter);
-    }
-
-    /**
-     * List all accounts
-     */
-    private void chooseAccount(boolean forwardIfOnlyOneAccount) {
-        mStep = STEP_CHOOSE_ACCOUNT;
-        mEmptyText.setText(R.string.no_account);
-
-        mLoadAccountsTask = new LoadAccountsTask(getAccountManager(), forwardIfOnlyOneAccount);
-
-        ConcurrentAsyncTask.execute(mLoadAccountsTask);
-        setListAdapter(getAccountAdapter());
-        mOkButton.setVisibility(View.GONE);
-
-        // update action bar
-        ActionBar bar = getSupportActionBar();
-        bar.setDisplayHomeAsUpEnabled(false);
-        bar.setTitle(R.string.choose_an_account);
-    }
-
-    private void chooseAccount() {
-        chooseAccount(true);
     }
 
     /**
@@ -540,53 +410,10 @@ public class CopyActivity extends SherlockFragmentActivity {
     }
 
     private void doTask(String dst_repoName, String dst_repoID, String dst_dir, boolean isCopy) {
-    	// TODO Auto-generated method stub
         CopyAndMoveTask task = new CopyAndMoveTask();
         task.execute(dst_repoName, dst_repoID, dst_dir);
         return;
     }
-    
-    /*private void doCopyTask(String dst_repoName, String dst_repoID, String dst_dir){
-    	
-    }
-    
-    private void doMoveTask(String dst_repoName, String dst_repoID, String dst_dir){
-    	try{
-    		mDataManager.move(repoID, filenames, dst_repoID, dst_dir, path, isdir);
-    	} catch (SeafException e) {
-    	 // TODO Auto-generated method stub
-        }	
-    }*/
-
-    /*private void bindTransferService(final String repoName, final String repoID,
-                                        final String targetDir, final String localPath) {
-    	// TODO Auto-generated method stub
-        // start transfer service
-        Intent txIntent = new Intent(this, TransferService.class);
-        startService(txIntent);
-        Log.d(DEBUG_TAG, "start TransferService");
-
-        // bind transfer service
-        Intent bIntent = new Intent(this, TransferService.class);
-
-        mConnection = new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName className, IBinder service) {
-                TransferBinder binder = (TransferBinder) service;
-                mTxService = binder.getService();
-                mTxService.addUploadTask(mAccount, repoID, repoName, targetDir,
-                                         localPath, false);
-                finish();
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName arg0) {
-                mTxService = null;
-            }
-        };
-        bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
-        Log.d(DEBUG_TAG, "try bind TransferService");
-    }*/
 
     public void showToast(CharSequence msg) {
         Context context = getApplicationContext();
@@ -648,28 +475,12 @@ public class CopyActivity extends SherlockFragmentActivity {
         return mDataManager;
     }
 
-    private AccountManager getAccountManager() {
-        if (mAccountManager == null) {
-            mAccountManager = new AccountManager(this);
-        }
-
-        return mAccountManager;
-    }
-
     private NavContext getNavContext() {
         if (mNavContext == null) {
             mNavContext = new NavContext();
         }
 
         return mNavContext;
-    }
-
-    private AccountAdapter getAccountAdapter() {
-        if (mAccountAdapter == null) {
-            mAccountAdapter = new AccountAdapter(this);
-        }
-
-        return mAccountAdapter;
     }
 
     private ReposAdapter getReposAdapter() {
@@ -691,56 +502,6 @@ public class CopyActivity extends SherlockFragmentActivity {
     private void setAccount(Account account) {
         mAccount = account;
         mDataManager = new DataManager(account);
-    }
-
-    private class LoadAccountsTask extends AsyncTask<Void, Void, Void> {
-        private List<Account> accounts;
-        private Exception err;
-        private AccountManager accountManager;
-        private boolean forwardIfOnlyOneAccount;
-
-        public LoadAccountsTask(AccountManager accountManager, boolean forwardIfOnlyOneAccount) {
-            this.accountManager = accountManager;
-            this.forwardIfOnlyOneAccount = forwardIfOnlyOneAccount;
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            try {
-                accounts = accountManager.getAccountList();
-            } catch (Exception e) {
-                err = e;
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void v) {
-            showLoading(false);
-            if (err != null || accounts == null) {
-                setErrorMessage(R.string.load_accounts_fail);
-                if (err != null) {
-                    Log.d(DEBUG_TAG, "failed to load accounts: " + err.getMessage());
-                }
-                return;
-            }
-
-            if (accounts.size() == 1 && forwardIfOnlyOneAccount) {
-                // Only 1 account. Go to the next next step.
-                setAccount(accounts.get(0));
-                chooseRepo();
-                return;
-            }
-
-            AccountAdapter adapter = getAccountAdapter();
-            adapter.clear();
-            for (Account account: accounts) {
-                adapter.add(account);
-            }
-            adapter.notifyDataSetChanged();
-            showListOrEmptyText(accounts.size());
-        }
     }
 
     private class LoadReposTask extends AsyncTask<Void, Void, Void> {
@@ -847,6 +608,9 @@ public class CopyActivity extends SherlockFragmentActivity {
     
     private class CopyAndMoveTask extends AsyncTask<String, Long , Void>{
         
+        SeafException err = null;
+        
+        @Override
         protected Void doInBackground (String ... params) {
             
             String dst_repoID = params[1];
@@ -854,15 +618,48 @@ public class CopyActivity extends SherlockFragmentActivity {
             
             try {
                 if (isCopy) {
-                    //dataManager.copy
+                    getDataManager().copy(repoID, filenames, dst_repoID, dst_dir, path, isdir);
                 }
-                else getDataManager().move(repoID, filenames, dst_repoID, dst_dir, path, isdir);
+                else {
+                    getDataManager().move(repoID, filenames, dst_repoID, dst_dir, path, isdir);
+                }
             } catch (SeafException e) {
-                //setTaskException(e);
+                err = e;
             }
             return null;
         }
         
+        @Override
+        protected void onPostExecute(Void v) {
+
+            if (err != null) {
+                int retCode = err.getCode();
+                if (retCode == 400) {
+                    showToast(String.format("BAD REQUEST, Path is missing or invalid"));
+                } else if (retCode == 403) {
+                    showToast(String.format("FORBIDDEN, You do not have permission to move file"));
+                } else if (retCode == 404) {
+                    showToast(String.format("NOT FOUND, repo not found"));
+                } else {
+                    showToast(String.format("INTERNAL SERVER ERROR"));
+                }
+                
+                if (isCopy){
+                    Log.d(DEBUG_TAG, "failed to copy: " + err.getMessage());
+                } else {
+                    Log.d(DEBUG_TAG, "failed to move: " + err.getMessage());
+                }
+                
+                mOkButton.setEnabled(true);
+                return;
+            } else {
+                if (isCopy){
+                    showToast(String.format("COPIED SUCCESSFULLY"));
+                } else {
+                    showToast(String.format("MOVED SUCCESSFULLY"));
+                }
+                finish();
+            }
+        }
     }
-    
 }

@@ -47,6 +47,8 @@ public class SeafItemAdapter extends BaseAdapter {
     private static final int ACTION_ID_RENAME = 3;
     private static final int ACTION_ID_DELETE = 4;
     private static final int ACTION_ID_SHARE = 5;
+    private static final int ACTION_ID_COPY = 6;
+    private static final int ACTION_ID_move = 7;
 
     @Override
     public int getCount() {
@@ -323,7 +325,8 @@ public class SeafItemAdapter extends BaseAdapter {
     private QuickAction prepareFileAction(final SeafDirent dirent, boolean cacheExists) {
         final QuickAction mQuickAction = new QuickAction(mActivity);
         Resources resources = mActivity.getResources();
-        ActionItem shareAction, downloadAction, updateAction, exportAction, renameAction, deleteAction;
+        ActionItem shareAction, downloadAction, updateAction, exportAction, renameAction, deleteAction,
+        	   copyAction, moveAction;
 
         if (!repoIsEncrypted) {
             shareAction = new ActionItem(ACTION_ID_SHARE,
@@ -347,6 +350,16 @@ public class SeafItemAdapter extends BaseAdapter {
                 resources.getDrawable(R.drawable.action_export));
         mQuickAction.addActionItem(exportAction);
         
+        copyAction = new ActionItem(ACTION_ID_COPY,
+         	    resources.getString(R.string.file_action_copy),
+         	    resources.getDrawable(R.drawable.action_export));
+        mQuickAction.addActionItem(copyAction);
+        
+        moveAction = new ActionItem(ACTION_ID_move,
+             	resources.getString(R.string.file_action_move),
+             	resources.getDrawable(R.drawable.action_export));
+        mQuickAction.addActionItem(moveAction);
+
         if (cacheExists) {
             if (mActivity.hasRepoWritePermission()) {
                 updateAction = new ActionItem(ACTION_ID_UPDATE,
@@ -371,6 +384,7 @@ public class SeafItemAdapter extends BaseAdapter {
                 String repoID = nav.getRepoID();
                 String dir = nav.getDirPath();
                 String path = Utils.pathJoin(dir, dirent.name);
+                String filenames = dirent.name;
                 DataManager dataManager = mActivity.getDataManager();
                 String localPath = dataManager.getLocalRepoFile(repoName, repoID, path).getPath();
                 switch (actionId) {
@@ -392,6 +406,12 @@ public class SeafItemAdapter extends BaseAdapter {
                 case ACTION_ID_DELETE:
                     mActivity.deleteFile(repoID, repoName, path);
                     break;
+                case ACTION_ID_COPY:
+                    mActivity.copyFile(repoID, repoName, dir, filenames);
+                    break;
+                case ACTION_ID_move:
+                    mActivity.moveFile(repoID, repoName, path, filenames);
+                    break;
                 }
             }
         });
@@ -403,7 +423,7 @@ public class SeafItemAdapter extends BaseAdapter {
     private QuickAction prepareDirAction(final SeafDirent dirent) {
         final QuickAction mQuickAction = new QuickAction(mActivity);
         Resources resources = mActivity.getResources();
-        ActionItem shareAction, deleteAction;
+        ActionItem shareAction, deleteAction, moveAction, copyAction;
         shareAction = new ActionItem(ACTION_ID_SHARE,
                 resources.getString(R.string.file_action_share),
                 resources.getDrawable(R.drawable.action_share));
@@ -414,6 +434,16 @@ public class SeafItemAdapter extends BaseAdapter {
                 resources.getDrawable(R.drawable.action_delete));
         mQuickAction.addActionItem(deleteAction);
         
+        copyAction = new ActionItem(ACTION_ID_COPY,
+                resources.getString(R.string.file_action_copy),
+                resources.getDrawable(R.drawable.action_export));
+        mQuickAction.addActionItem(copyAction);
+        
+        moveAction = new ActionItem(ACTION_ID_move,
+                resources.getString(R.string.file_action_move),
+                resources.getDrawable(R.drawable.action_export));
+        mQuickAction.addActionItem(moveAction);
+        
         //setup the action item click listener
         mQuickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
             @Override
@@ -423,12 +453,19 @@ public class SeafItemAdapter extends BaseAdapter {
                 String repoID = nav.getRepoID();
                 String dir = nav.getDirPath();
                 String path = Utils.pathJoin(dir, dirent.name);
+                String filenames = dirent.name;
                 switch (actionId) {
                 case ACTION_ID_SHARE:
                     mActivity.shareDir(repoID, path);
                     break;
                 case ACTION_ID_DELETE:
                     mActivity.deleteDir(repoID, repoName, path);
+                    break;
+                case ACTION_ID_COPY:
+                    mActivity.copyFile(repoID, repoName, dir, filenames);
+                    break;
+                case ACTION_ID_move:
+                    mActivity.moveFile(repoID, repoName, path, filenames);
                     break;
                 }
             }
