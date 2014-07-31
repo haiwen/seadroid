@@ -879,7 +879,6 @@ public class SeafConnection {
                 return null;
             }
 
-
             String content = new String(req.bytes(), "UTF-8");
             if (content.length() == 0) {
                 return null;
