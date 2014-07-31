@@ -48,7 +48,7 @@ public class SeafItemAdapter extends BaseAdapter {
     private static final int ACTION_ID_DELETE = 4;
     private static final int ACTION_ID_SHARE = 5;
     private static final int ACTION_ID_COPY = 6;
-    private static final int ACTION_ID_move = 7;
+    private static final int ACTION_ID_MOVE = 7;
 
     @Override
     public int getCount() {
@@ -355,7 +355,7 @@ public class SeafItemAdapter extends BaseAdapter {
                 resources.getDrawable(R.drawable.action_export));
         mQuickAction.addActionItem(copyAction);
         
-        moveAction = new ActionItem(ACTION_ID_move,
+        moveAction = new ActionItem(ACTION_ID_MOVE,
                 resources.getString(R.string.file_action_move),
                 resources.getDrawable(R.drawable.action_export));
         mQuickAction.addActionItem(moveAction);
@@ -384,7 +384,7 @@ public class SeafItemAdapter extends BaseAdapter {
                 String repoID = nav.getRepoID();
                 String dir = nav.getDirPath();
                 String path = Utils.pathJoin(dir, dirent.name);
-                String filenames = dirent.name;
+                String filename = dirent.name;
                 DataManager dataManager = mActivity.getDataManager();
                 String localPath = dataManager.getLocalRepoFile(repoName, repoID, path).getPath();
                 switch (actionId) {
@@ -407,10 +407,10 @@ public class SeafItemAdapter extends BaseAdapter {
                     mActivity.deleteFile(repoID, repoName, path);
                     break;
                 case ACTION_ID_COPY:
-                    mActivity.copyFile(repoID, repoName, dir, filenames);
+                    mActivity.copyFile(repoID, repoName, dir, filename);
                     break;
-                case ACTION_ID_move:
-                    mActivity.moveFile(repoID, repoName, path, filenames);
+                case ACTION_ID_MOVE:
+                    mActivity.moveFile(repoID, repoName, path, filename);
                     break;
                 }
             }
@@ -439,7 +439,7 @@ public class SeafItemAdapter extends BaseAdapter {
                 resources.getDrawable(R.drawable.action_export));
         mQuickAction.addActionItem(copyAction);
         
-        moveAction = new ActionItem(ACTION_ID_move,
+        moveAction = new ActionItem(ACTION_ID_MOVE,
                 resources.getString(R.string.file_action_move),
                 resources.getDrawable(R.drawable.action_export));
         mQuickAction.addActionItem(moveAction);
@@ -453,7 +453,7 @@ public class SeafItemAdapter extends BaseAdapter {
                 String repoID = nav.getRepoID();
                 String dir = nav.getDirPath();
                 String path = Utils.pathJoin(dir, dirent.name);
-                String filenames = dirent.name;
+                String filename = dirent.name;
                 switch (actionId) {
                 case ACTION_ID_SHARE:
                     mActivity.shareDir(repoID, path);
@@ -462,10 +462,10 @@ public class SeafItemAdapter extends BaseAdapter {
                     mActivity.deleteDir(repoID, repoName, path);
                     break;
                 case ACTION_ID_COPY:
-                    mActivity.copyFile(repoID, repoName, dir, filenames);
+                    mActivity.copyFile(repoID, repoName, dir, filename);
                     break;
-                case ACTION_ID_move:
-                    mActivity.moveFile(repoID, repoName, path, filenames);
+                case ACTION_ID_MOVE:
+                    mActivity.moveFile(repoID, repoName, path, filename);
                     break;
                 }
             }

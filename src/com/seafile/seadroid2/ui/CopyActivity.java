@@ -55,6 +55,11 @@ public class CopyActivity extends SherlockFragmentActivity {
     private TextView mEmptyText, mErrorText;
     private ListView mListView;
 
+    public static final int HTTP_STATUS_REPO_PASSWORD_REQUIRED = 440;
+    public static final int HTTP_STATUS_BAD_REQUEST = 400;
+    public static final int HTTP_STATUS_FORBIDDEN = 403;
+    public static final int HTTP_STATUS_REPO_NOT_FOUND = 404;
+    public static final int HTTP_STATUS_INTERNAL_SERVER_ERROR = 500;
     private static final int STEP_SET_ACCOUNT = 1;
     private static final int STEP_CHOOSE_REPO = 2;
     private static final int STEP_CHOOSE_DIR = 3;
@@ -63,10 +68,11 @@ public class CopyActivity extends SherlockFragmentActivity {
     private ServiceConnection mConnection; 
     private String repoID;
     private String path;
-    private String filenames;
+    private String filename;
     private boolean isdir;
     private String repoName;
     private boolean isCopy;
+    private String show;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,7 +88,7 @@ public class CopyActivity extends SherlockFragmentActivity {
         this.repoID = intent.getStringExtra("repoID");
         this.repoName = intent.getStringExtra("repoName");
         this.path = intent.getStringExtra("path");
-        this.filenames = intent.getStringExtra("filenames");
+        this.filename = intent.getStringExtra("filename");
         this.mAccount = (Account)intent.getParcelableExtra("mAccount");
         this.isdir = intent.getExtras().getBoolean("isdir");
         this.isCopy = intent.getExtras().getBoolean("isCopy");
@@ -580,9 +586,9 @@ public class CopyActivity extends SherlockFragmentActivity {
             showLoading(false);
             if (err != null) {
                 int retCode = err.getCode();
-                if (retCode == 440) {
+                if (retCode == HTTP_STATUS_REPO_PASSWORD_REQUIRED) {
                     showPasswordDialog();
-                } else if (retCode == 404) {
+                } else if (retCode == HTTP_STATUS_REPO_NOT_FOUND) {
                     showToast(String.format("The folder \"%s\" was deleted", dirPath));
                 } else {
                     Log.d(DEBUG_TAG, "failed to load dirents: " + err.getMessage());
@@ -618,10 +624,10 @@ public class CopyActivity extends SherlockFragmentActivity {
             
             try {
                 if (isCopy) {
-                    getDataManager().copy(repoID, filenames, dst_repoID, dst_dir, path, isdir);
+                    getDataManager().copy(repoID, filename, dst_repoID, dst_dir, path, isdir);
                 }
                 else {
-                    getDataManager().move(repoID, filenames, dst_repoID, dst_dir, path, isdir);
+                    getDataManager().move(repoID, filename, dst_repoID, dst_dir, path, isdir);
                 }
             } catch (SeafException e) {
                 err = e;
@@ -634,14 +640,18 @@ public class CopyActivity extends SherlockFragmentActivity {
 
             if (err != null) {
                 int retCode = err.getCode();
-                if (retCode == 400) {
-                    showToast(String.format("BAD REQUEST, Path is missing or invalid"));
-                } else if (retCode == 403) {
-                    showToast(String.format("FORBIDDEN, You do not have permission to move file"));
-                } else if (retCode == 404) {
-                    showToast(String.format("NOT FOUND, repo not found"));
+                if (retCode == HTTP_STATUS_BAD_REQUEST) {
+                    show = getString(R.string.bad_request);
+                    showToast(String.format(show));
+                } else if (retCode == HTTP_STATUS_FORBIDDEN) {
+                    show = getString(R.string.forbidden);
+                    showToast(String.format(show));
+                } else if (retCode == HTTP_STATUS_REPO_NOT_FOUND) {
+                    show = getString(R.string.not_found);
+                    showToast(String.format(show));
                 } else {
-                    showToast(String.format("INTERNAL SERVER ERROR"));
+                    show = getString(R.string.internal_server_error);
+                    showToast(String.format(show));
                 }
                 
                 if (isCopy){
@@ -654,9 +664,11 @@ public class CopyActivity extends SherlockFragmentActivity {
                 return;
             } else {
                 if (isCopy){
-                    showToast(String.format("COPIED SUCCESSFULLY"));
+                    show = getString(R.string.copied_successfully);
+                    showToast(String.format(show));
                 } else {
-                    showToast(String.format("MOVED SUCCESSFULLY"));
+                    show = getString(R.string.moved_successfully);
+                    showToast(String.format(show));
                 }
                 finish();
             }

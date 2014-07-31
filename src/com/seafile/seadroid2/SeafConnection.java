@@ -894,7 +894,7 @@ public class SeafConnection {
             }
     }
     
-    public void copy(String repoID, String filenames, String dst_repo, String dst_dir, String path,
+    public void copy(String repoID, String filename, String dst_repo, String dst_dir, String path,
             boolean isdir) throws SeafException {
         try {
             Map<String, Object> params = new HashMap<String, Object>();
@@ -904,7 +904,7 @@ public class SeafConnection {
 
             req.form("dst_repo", dst_repo);
             req.form("dst_dir", dst_dir);
-            req.form("file_names", filenames);
+            req.form("file_names", filename);
 
             checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
 
@@ -915,7 +915,7 @@ public class SeafConnection {
         }
     }
     
-    public Pair<String, String> move(String repoID, String filenames, String dst_repo, String dst_dir, String path,
+    public Pair<String, String> move(String repoID, String filename, String dst_repo, String dst_dir, String path,
                                      boolean isdir) throws SeafException {
         try {
             Map<String, Object> params = new HashMap<String, Object>();

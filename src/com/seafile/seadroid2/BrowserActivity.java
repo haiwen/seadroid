@@ -5,7 +5,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
@@ -42,7 +42,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
-
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
@@ -1410,16 +1409,16 @@ public class BrowserActivity extends SherlockFragmentActivity
         dialog.show(getSupportFragmentManager(), "DialogFragment");
     }
     
-    public void copyFile(String repoID, String repoName, String path, String filenames){
-        doCopy(repoID, repoName, path, filenames, false);
+    public void copyFile(String repoID, String repoName, String path, String filename){
+        doCopy(repoID, repoName, path, filename, false);
     }
     
-    private void doCopy(String repoID, String repoName, String path, String filenames, boolean isdir){
+    private void doCopy(String repoID, String repoName, String path, String filename, boolean isdir){
         Intent intent = new Intent(this, CopyActivity.class);
         intent.putExtra("repoName", repoName);
         intent.putExtra("repoID", repoID);
         intent.putExtra("path", path);
-        intent.putExtra("filenames", filenames);
+        intent.putExtra("filename", filename);
         intent.putExtra("mAccount", account);
         intent.putExtra("isdir", isdir);
         intent.putExtra("isCopy", true);
@@ -1427,18 +1426,16 @@ public class BrowserActivity extends SherlockFragmentActivity
         return;
     }
     
-    public void moveFile(String repoID, String repoName, String path, String filenames){
-        doMove(repoID, repoName, path, filenames, false);
+    public void moveFile(String repoID, String repoName, String path, String filename){
+        doMove(repoID, repoName, path, filename, false);
     }
     
-    private void doMove(String repoID, String repoName, String path, String filenames, boolean isdir){
-        /*CopyActivity cActivity = new CopyActivity();
-        cActivity.init(repoID, repoName, path, filenames, account, isdir, false);*/
+    private void doMove(String repoID, String repoName, String path, String filename, boolean isdir){
         Intent intent = new Intent(this, CopyActivity.class);
         intent.putExtra("repoName", repoName);
         intent.putExtra("repoID", repoID);
         intent.putExtra("path", path);
-        intent.putExtra("filenames", filenames);
+        intent.putExtra("filename", filename);
         intent.putExtra("mAccount", account);
         intent.putExtra("isdir", isdir);
         intent.putExtra("isCopy", false);
