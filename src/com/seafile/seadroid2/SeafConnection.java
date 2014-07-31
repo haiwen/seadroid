@@ -927,9 +927,9 @@ public class SeafConnection {
             req.form("operation", "move");
             req.form("dst_repo", dst_repo);
             req.form("dst_dir", dst_dir);
-    	    
+
             checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
- 		
+
             String newDirID = req.header("oid");
             if (newDirID == null) {
                 return null;

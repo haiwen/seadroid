@@ -326,7 +326,7 @@ public class SeafItemAdapter extends BaseAdapter {
         final QuickAction mQuickAction = new QuickAction(mActivity);
         Resources resources = mActivity.getResources();
         ActionItem shareAction, downloadAction, updateAction, exportAction, renameAction, deleteAction,
-        	   copyAction, moveAction;
+               copyAction, moveAction;
 
         if (!repoIsEncrypted) {
             shareAction = new ActionItem(ACTION_ID_SHARE,
@@ -351,13 +351,13 @@ public class SeafItemAdapter extends BaseAdapter {
         mQuickAction.addActionItem(exportAction);
         
         copyAction = new ActionItem(ACTION_ID_COPY,
-         	    resources.getString(R.string.file_action_copy),
-         	    resources.getDrawable(R.drawable.action_export));
+                resources.getString(R.string.file_action_copy),
+                resources.getDrawable(R.drawable.action_export));
         mQuickAction.addActionItem(copyAction);
         
         moveAction = new ActionItem(ACTION_ID_move,
-             	resources.getString(R.string.file_action_move),
-             	resources.getDrawable(R.drawable.action_export));
+                resources.getString(R.string.file_action_move),
+                resources.getDrawable(R.drawable.action_export));
         mQuickAction.addActionItem(moveAction);
 
         if (cacheExists) {

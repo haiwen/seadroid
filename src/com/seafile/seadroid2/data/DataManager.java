@@ -639,15 +639,15 @@ public class DataManager {
     }
     
     public void copy(String repoID, String filenames, String dst_repo, String dst_dir, String path,
-    		         boolean isdir) throws SeafException{
-    	sc.copy(repoID, filenames, dst_repo, dst_dir, path, isdir);
-	    
-    	// After copying, we need to refresh the destination list
-	    getDirentsFromServer(dst_repo, dst_dir);
+                     boolean isdir) throws SeafException{
+        sc.copy(repoID, filenames, dst_repo, dst_dir, path, isdir);
+
+        // After copying, we need to refresh the destination list
+        getDirentsFromServer(dst_repo, dst_dir);
     }
     
     public void move(String repoID, String filenames, String dst_repo, String dst_dir, String path,
-	         boolean isdir) throws SeafException{
+             boolean isdir) throws SeafException{
         Pair<String, String> ret = sc.move(repoID, filenames, dst_repo, dst_dir, path, isdir);
         if (ret == null){
             return;

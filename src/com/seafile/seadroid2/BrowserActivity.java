@@ -1411,7 +1411,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
     
     public void copyFile(String repoID, String repoName, String path, String filenames){
-    	doCopy(repoID, repoName, path, filenames, false);
+        doCopy(repoID, repoName, path, filenames, false);
     }
     
     private void doCopy(String repoID, String repoName, String path, String filenames, boolean isdir){
@@ -1428,13 +1428,13 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
     
     public void moveFile(String repoID, String repoName, String path, String filenames){
-    	doMove(repoID, repoName, path, filenames, false);
+        doMove(repoID, repoName, path, filenames, false);
     }
     
     private void doMove(String repoID, String repoName, String path, String filenames, boolean isdir){
-    	/*CopyActivity cActivity = new CopyActivity();
-    	cActivity.init(repoID, repoName, path, filenames, account, isdir, false);*/
-    	Intent intent = new Intent(this, CopyActivity.class);
+        /*CopyActivity cActivity = new CopyActivity();
+        cActivity.init(repoID, repoName, path, filenames, account, isdir, false);*/
+        Intent intent = new Intent(this, CopyActivity.class);
         intent.putExtra("repoName", repoName);
         intent.putExtra("repoID", repoID);
         intent.putExtra("path", path);
