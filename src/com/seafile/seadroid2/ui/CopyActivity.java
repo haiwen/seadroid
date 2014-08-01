@@ -26,6 +26,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.NavContext;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.Utils;
 import com.seafile.seadroid2.account.Account;
@@ -56,7 +57,6 @@ public class CopyActivity extends SherlockFragmentActivity {
     private TextView mEmptyText, mErrorText;
     private ListView mListView;
 
-    public static final int HTTP_STATUS_REPO_PASSWORD_REQUIRED = 440;
     private static final int STEP_SET_ACCOUNT = 1;
     private static final int STEP_CHOOSE_REPO = 2;
     private static final int STEP_CHOOSE_DIR = 3;
@@ -583,7 +583,7 @@ public class CopyActivity extends SherlockFragmentActivity {
             showLoading(false);
             if (err != null) {
                 int retCode = err.getCode();
-                if (retCode == HTTP_STATUS_REPO_PASSWORD_REQUIRED) {
+                if (retCode == SeafConnection.HTTP_STATUS_REPO_PASSWORD_REQUIRED) {
                     showPasswordDialog();
                 } else if (retCode == HttpURLConnection.HTTP_NOT_FOUND) {
                     showToast(String.format("The folder \"%s\" was deleted", dirPath));
