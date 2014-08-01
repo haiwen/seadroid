@@ -1177,7 +1177,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         try {
             startActivity(open);
             return;
-        } catch (ActivityNotFoundException e){
+        } catch (ActivityNotFoundException e) {
             new OpenAsDialog(file).show(getSupportFragmentManager(), "OpenAsDialog");
             //showToast(R.string.activity_not_found);
             return;
@@ -1385,11 +1385,11 @@ public class BrowserActivity extends SherlockFragmentActivity
         dialog.show(getSupportFragmentManager(), "DialogFragment");
     }
 
-    public void deleteFile(String repoID, String repoName, String path){
+    public void deleteFile(String repoID, String repoName, String path) {
         doDelete(repoID, repoName, path, false);
     }
    
-    public void deleteDir(String repoID, String repoName, String path){
+    public void deleteDir(String repoID, String repoName, String path) {
         doDelete(repoID, repoName, path, true);
     }
 
@@ -1409,11 +1409,11 @@ public class BrowserActivity extends SherlockFragmentActivity
         dialog.show(getSupportFragmentManager(), "DialogFragment");
     }
     
-    public void copyFile(String repoID, String repoName, String path, String filename){
+    public void copyFile(String repoID, String repoName, String path, String filename) {
         doCopy(repoID, repoName, path, filename, false);
     }
     
-    private void doCopy(String repoID, String repoName, String path, String filename, boolean isdir){
+    private void doCopy(String repoID, String repoName, String path, String filename, boolean isdir) {
         Intent intent = new Intent(this, CopyActivity.class);
         intent.putExtra("repoName", repoName);
         intent.putExtra("repoID", repoID);
@@ -1426,11 +1426,11 @@ public class BrowserActivity extends SherlockFragmentActivity
         return;
     }
     
-    public void moveFile(String repoID, String repoName, String path, String filename){
+    public void moveFile(String repoID, String repoName, String path, String filename) {
         doMove(repoID, repoName, path, filename, false);
     }
     
-    private void doMove(String repoID, String repoName, String path, String filename, boolean isdir){
+    private void doMove(String repoID, String repoName, String path, String filename, boolean isdir) {
         Intent intent = new Intent(this, CopyActivity.class);
         intent.putExtra("repoName", repoName);
         intent.putExtra("repoID", repoID);

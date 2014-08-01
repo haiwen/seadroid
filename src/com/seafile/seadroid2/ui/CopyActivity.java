@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui;
 
+import java.net.HttpURLConnection;
 import java.util.List;
 
 import android.content.Context;
@@ -56,10 +57,6 @@ public class CopyActivity extends SherlockFragmentActivity {
     private ListView mListView;
 
     public static final int HTTP_STATUS_REPO_PASSWORD_REQUIRED = 440;
-    public static final int HTTP_STATUS_BAD_REQUEST = 400;
-    public static final int HTTP_STATUS_FORBIDDEN = 403;
-    public static final int HTTP_STATUS_REPO_NOT_FOUND = 404;
-    public static final int HTTP_STATUS_INTERNAL_SERVER_ERROR = 500;
     private static final int STEP_SET_ACCOUNT = 1;
     private static final int STEP_CHOOSE_REPO = 2;
     private static final int STEP_CHOOSE_DIR = 3;
@@ -588,7 +585,7 @@ public class CopyActivity extends SherlockFragmentActivity {
                 int retCode = err.getCode();
                 if (retCode == HTTP_STATUS_REPO_PASSWORD_REQUIRED) {
                     showPasswordDialog();
-                } else if (retCode == HTTP_STATUS_REPO_NOT_FOUND) {
+                } else if (retCode == HttpURLConnection.HTTP_NOT_FOUND) {
                     showToast(String.format("The folder \"%s\" was deleted", dirPath));
                 } else {
                     Log.d(DEBUG_TAG, "failed to load dirents: " + err.getMessage());
@@ -640,13 +637,13 @@ public class CopyActivity extends SherlockFragmentActivity {
 
             if (err != null) {
                 int retCode = err.getCode();
-                if (retCode == HTTP_STATUS_BAD_REQUEST) {
+                if (retCode == HttpURLConnection.HTTP_BAD_REQUEST) {
                     show = getString(R.string.bad_request);
                     showToast(String.format(show));
-                } else if (retCode == HTTP_STATUS_FORBIDDEN) {
+                } else if (retCode == HttpURLConnection.HTTP_FORBIDDEN) {
                     show = getString(R.string.forbidden);
                     showToast(String.format(show));
-                } else if (retCode == HTTP_STATUS_REPO_NOT_FOUND) {
+                } else if (retCode == HttpURLConnection.HTTP_NOT_FOUND) {
                     show = getString(R.string.not_found);
                     showToast(String.format(show));
                 } else {
@@ -654,7 +651,7 @@ public class CopyActivity extends SherlockFragmentActivity {
                     showToast(String.format(show));
                 }
                 
-                if (isCopy){
+                if (isCopy) {
                     Log.d(DEBUG_TAG, "failed to copy: " + err.getMessage());
                 } else {
                     Log.d(DEBUG_TAG, "failed to move: " + err.getMessage());
@@ -663,7 +660,7 @@ public class CopyActivity extends SherlockFragmentActivity {
                 mOkButton.setEnabled(true);
                 return;
             } else {
-                if (isCopy){
+                if (isCopy) {
                     show = getString(R.string.copied_successfully);
                     showToast(String.format(show));
                 } else {
