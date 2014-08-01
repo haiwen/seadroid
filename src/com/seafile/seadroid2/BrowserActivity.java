@@ -5,7 +5,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
@@ -42,7 +42,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
-
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
@@ -63,6 +62,7 @@ import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.transfer.UploadTaskInfo;
 import com.seafile.seadroid2.ui.AppChoiceDialog;
 import com.seafile.seadroid2.ui.AppChoiceDialog.CustomAction;
+import com.seafile.seadroid2.ui.CopyActivity;
 import com.seafile.seadroid2.ui.FetchFileDialog;
 import com.seafile.seadroid2.ui.GetShareLinkDialog;
 import com.seafile.seadroid2.ui.NewDirDialog;
@@ -1177,7 +1177,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         try {
             startActivity(open);
             return;
-        } catch (ActivityNotFoundException e){
+        } catch (ActivityNotFoundException e) {
             new OpenAsDialog(file).show(getSupportFragmentManager(), "OpenAsDialog");
             //showToast(R.string.activity_not_found);
             return;
@@ -1385,11 +1385,11 @@ public class BrowserActivity extends SherlockFragmentActivity
         dialog.show(getSupportFragmentManager(), "DialogFragment");
     }
 
-    public void deleteFile(String repoID, String repoName, String path){
+    public void deleteFile(String repoID, String repoName, String path) {
         doDelete(repoID, repoName, path, false);
     }
    
-    public void deleteDir(String repoID, String repoName, String path){
+    public void deleteDir(String repoID, String repoName, String path) {
         doDelete(repoID, repoName, path, true);
     }
 
@@ -1407,6 +1407,40 @@ public class BrowserActivity extends SherlockFragmentActivity
             }
         });
         dialog.show(getSupportFragmentManager(), "DialogFragment");
+    }
+    
+    public void copyFile(String repoID, String repoName, String path, String filename) {
+        doCopy(repoID, repoName, path, filename, false);
+    }
+    
+    private void doCopy(String repoID, String repoName, String path, String filename, boolean isdir) {
+        Intent intent = new Intent(this, CopyActivity.class);
+        intent.putExtra("repoName", repoName);
+        intent.putExtra("repoID", repoID);
+        intent.putExtra("path", path);
+        intent.putExtra("filename", filename);
+        intent.putExtra("mAccount", account);
+        intent.putExtra("isdir", isdir);
+        intent.putExtra("isCopy", true);
+        startActivity(intent);
+        return;
+    }
+    
+    public void moveFile(String repoID, String repoName, String path, String filename) {
+        doMove(repoID, repoName, path, filename, false);
+    }
+    
+    private void doMove(String repoID, String repoName, String path, String filename, boolean isdir) {
+        Intent intent = new Intent(this, CopyActivity.class);
+        intent.putExtra("repoName", repoName);
+        intent.putExtra("repoID", repoID);
+        intent.putExtra("path", path);
+        intent.putExtra("filename", filename);
+        intent.putExtra("mAccount", account);
+        intent.putExtra("isdir", isdir);
+        intent.putExtra("isCopy", false);
+        startActivity(intent);
+        return;
     }
     
     private void onFileUploadProgress(int taskID) {
