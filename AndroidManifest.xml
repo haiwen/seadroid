@@ -58,7 +58,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.seafile.seadroid2.ui.CopyActivity"
+        <activity android:name="com.seafile.seadroid2.ui.CopyAndMoveActivity"
                   android:theme="@style/Theme.SeafileTheme"
                   android:excludeFromRecents="true"
                   android:label="@string/app_name">

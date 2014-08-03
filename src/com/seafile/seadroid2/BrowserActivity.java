@@ -2,9 +2,12 @@ package com.seafile.seadroid2;
 
 import java.io.File;
 import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -23,7 +26,9 @@ import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.IBinder;
+import android.provider.MediaStore;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
@@ -42,6 +47,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
+
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
@@ -62,7 +68,7 @@ import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.transfer.UploadTaskInfo;
 import com.seafile.seadroid2.ui.AppChoiceDialog;
 import com.seafile.seadroid2.ui.AppChoiceDialog.CustomAction;
-import com.seafile.seadroid2.ui.CopyActivity;
+import com.seafile.seadroid2.ui.CopyAndMoveActivity;
 import com.seafile.seadroid2.ui.FetchFileDialog;
 import com.seafile.seadroid2.ui.GetShareLinkDialog;
 import com.seafile.seadroid2.ui.NewDirDialog;
@@ -513,6 +519,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         MenuItem menuRefresh = menu.findItem(R.id.refresh);
         MenuItem menuNewDir = menu.findItem(R.id.newdir);
         MenuItem menuNewFile = menu.findItem(R.id.newfile);
+        MenuItem menuCamera = menu.findItem(R.id.camera);
 
         boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
         if (getCurrentTabName().equals(LIBRARY_TAB) && !drawerOpen) {
@@ -538,13 +545,16 @@ public class BrowserActivity extends SherlockFragmentActivity
             if (navContext.inRepo() && hasRepoWritePermission()) {
                 menuNewDir.setVisible(true);
                 menuNewFile.setVisible(true);
+                menuCamera.setVisible(true);
             } else {
                 menuNewDir.setVisible(false);
                 menuNewFile.setVisible(false);
+                menuCamera.setVisible(false);
             }
         } else {
             menuNewDir.setVisible(false);
             menuNewFile.setVisible(false);
+            menuCamera.setVisible(false);
         }
 
         if (currentSelectedItem.equals(UPLOAD_TASKS_VIEW)) {
@@ -552,12 +562,14 @@ public class BrowserActivity extends SherlockFragmentActivity
             menuRefresh.setVisible(false);
             menuNewDir.setVisible(false);
             menuNewFile.setVisible(false);
+            menuCamera.setVisible(false);
         }
 
         if (getCurrentTabName().equals(STARRED_TAB)) {
             menuUpload.setVisible(false);
             menuNewDir.setVisible(false);
             menuNewFile.setVisible(false);
+            menuCamera.setVisible(false);
             if (drawerOpen) {
                 menuRefresh.setVisible(false);
             } else {
@@ -614,6 +626,9 @@ public class BrowserActivity extends SherlockFragmentActivity
             return true;
         case R.id.newfile:
             showNewFileDialog();
+            return true;
+        case R.id.camera:
+            CameraTakePhoto();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -929,6 +944,30 @@ public class BrowserActivity extends SherlockFragmentActivity
     public void unsetRefreshing() {
         setSupportProgressBarIndeterminateVisibility(Boolean.FALSE);
     }
+    
+    private String strImgPath;
+    
+    private void CameraTakePhoto() {
+        Intent imageCaptureIntent = new Intent("android.media.action.IMAGE_CAPTURE");
+        
+        String strImgDirPath = DataManager.getExternalRootDirectory() + "/myPhotos/";
+        String fileName = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + ".jpg";
+        strImgPath = strImgDirPath + fileName;
+        
+        File ImgDir = new File(strImgDirPath);
+        if (!ImgDir.exists()) {
+            ImgDir.mkdirs();
+        }
+        File Img = new File(strImgDirPath, fileName);
+        while (Img.exists()) {
+            fileName = fileName + "(1)";
+            strImgPath = strImgDirPath + fileName;
+        }
+        Uri photo = Uri.fromFile(Img);
+        imageCaptureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photo);
+        setResult(RESULT_OK, imageCaptureIntent);
+        startActivityForResult(imageCaptureIntent, TAKE_PHOTO_REQUEST);
+    }
 
     public void showToast(CharSequence msg) {
         Context context = getApplicationContext();
@@ -953,6 +992,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final int PICK_FILES_REQUEST = 1;
     public static final int PICK_PHOTOS_VIDEOS_REQUEST = 2;
     public static final int PICK_FILE_REQUEST = 3;
+    public static final int TAKE_PHOTO_REQUEST = 4;
 
     public class UploadChoiceDialog extends DialogFragment {
         @Override
@@ -1065,7 +1105,25 @@ public class BrowserActivity extends SherlockFragmentActivity
                     navContext.getRepoName(), navContext.getDirPath(), path);
             }
             break;
-         default:
+        case TAKE_PHOTO_REQUEST:
+            if (resultCode == RESULT_OK) {
+                showToast(getString(R.string.take_photo_successfully));
+                if (!Utils.isNetworkOn()) {
+                    showToast("Network is not connected");
+                    return;
+                }
+
+                if(strImgPath == null) {
+                    showToast("Unable to upload, no path available");
+                    Log.i(DEBUG_TAG, "Pick file request did not return a path");
+                    return;
+                }
+                showToast(getString(R.string.added_to_upload_tasks));
+                addUploadTask(navContext.getRepoID(),
+                        navContext.getRepoName(), navContext.getDirPath(), strImgPath);
+            }
+            break;
+        default:
              break;
         }
 
@@ -1409,12 +1467,12 @@ public class BrowserActivity extends SherlockFragmentActivity
         dialog.show(getSupportFragmentManager(), "DialogFragment");
     }
     
-    public void copyFile(String repoID, String repoName, String path, String filename) {
-        doCopy(repoID, repoName, path, filename, false);
+    public void copyFile(String repoID, String repoName, String path, String filename, boolean repoIsEncrypted) {
+        doCopy(repoID, repoName, path, filename, false, repoIsEncrypted);
     }
     
-    private void doCopy(String repoID, String repoName, String path, String filename, boolean isdir) {
-        Intent intent = new Intent(this, CopyActivity.class);
+    private void doCopy(String repoID, String repoName, String path, String filename, boolean isdir, boolean repoIsEncrypted) {
+        Intent intent = new Intent(this, CopyAndMoveActivity.class);
         intent.putExtra("repoName", repoName);
         intent.putExtra("repoID", repoID);
         intent.putExtra("path", path);
@@ -1422,16 +1480,17 @@ public class BrowserActivity extends SherlockFragmentActivity
         intent.putExtra("mAccount", account);
         intent.putExtra("isdir", isdir);
         intent.putExtra("isCopy", true);
+        intent.putExtra("repoIsEncrypted", repoIsEncrypted);
         startActivity(intent);
         return;
     }
     
-    public void moveFile(String repoID, String repoName, String path, String filename) {
-        doMove(repoID, repoName, path, filename, false);
+    public void moveFile(String repoID, String repoName, String path, String filename, boolean repoIsEncrypted) {
+        doMove(repoID, repoName, path, filename, false, repoIsEncrypted);
     }
     
-    private void doMove(String repoID, String repoName, String path, String filename, boolean isdir) {
-        Intent intent = new Intent(this, CopyActivity.class);
+    private void doMove(String repoID, String repoName, String path, String filename, boolean isdir, boolean repoIsEncrypted) {
+        Intent intent = new Intent(this, CopyAndMoveActivity.class);
         intent.putExtra("repoName", repoName);
         intent.putExtra("repoID", repoID);
         intent.putExtra("path", path);
@@ -1439,6 +1498,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         intent.putExtra("mAccount", account);
         intent.putExtra("isdir", isdir);
         intent.putExtra("isCopy", false);
+        intent.putExtra("repoIsEncrypted", repoIsEncrypted);
         startActivity(intent);
         return;
     }

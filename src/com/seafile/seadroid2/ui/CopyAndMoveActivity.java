@@ -39,7 +39,7 @@ import com.seafile.seadroid2.ui.PasswordDialog;
 import com.seafile.seadroid2.ui.ReposAdapter;
 import com.seafile.seadroid2.ui.TaskDialog;
 
-public class CopyActivity extends SherlockFragmentActivity {
+public class CopyAndMoveActivity extends SherlockFragmentActivity {
     private static final String DEBUG_TAG = "CopyActivity";
 
     public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "password_dialog_fragment_tag";
@@ -69,7 +69,8 @@ public class CopyActivity extends SherlockFragmentActivity {
     private boolean isdir;
     private String repoName;
     private boolean isCopy;
-    private String show;
+    private boolean repoIsEncrypted;
+    private List<SeafRepo> suitRepos;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,6 +90,7 @@ public class CopyActivity extends SherlockFragmentActivity {
         this.mAccount = (Account)intent.getParcelableExtra("mAccount");
         this.isdir = intent.getExtras().getBoolean("isdir");
         this.isCopy = intent.getExtras().getBoolean("isCopy");
+        this.repoIsEncrypted = intent.getExtras().getBoolean("repoIsEncrypted");
         
         ActionBar bar = getSupportActionBar();
         bar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
@@ -353,8 +355,29 @@ public class CopyActivity extends SherlockFragmentActivity {
         showListOrEmptyText(dirents.size());
     }
 
+    /*public boolean hasRepoWritePermission(SeafRepo repo) {
+        if (repo == null) {
+            return false;
+        }
+
+        if (repo.permission.indexOf('w') == -1) {
+            return false;
+        }
+        return true;
+    }*/
+    
     private void updateAdapterWithRepos(List<SeafRepo> repos) {
-        getReposAdapter().setRepos(repos);
+        getReposAdapter().setSuitRepos(repos, repoIsEncrypted, repoID);
+        /*this.suitRepos.clear();
+        for (SeafRepo repo: repos) {
+            if (repoIsEncrypted) {
+                if (repo.id == repoID){
+                    suitRepos.add(repo);
+                }
+            }else if (hasRepoWritePermission(repo)) {
+                suitRepos.add(repo);
+            }
+        }*/
         showListOrEmptyText(repos.size());
     }
 
@@ -638,17 +661,13 @@ public class CopyActivity extends SherlockFragmentActivity {
             if (err != null) {
                 int retCode = err.getCode();
                 if (retCode == HttpURLConnection.HTTP_BAD_REQUEST) {
-                    show = getString(R.string.bad_request);
-                    showToast(String.format(show));
+                    showToast(getString(R.string.bad_request));
                 } else if (retCode == HttpURLConnection.HTTP_FORBIDDEN) {
-                    show = getString(R.string.forbidden);
-                    showToast(String.format(show));
+                    showToast(getString(R.string.forbidden));
                 } else if (retCode == HttpURLConnection.HTTP_NOT_FOUND) {
-                    show = getString(R.string.not_found);
-                    showToast(String.format(show));
+                    showToast(getString(R.string.not_found));
                 } else {
-                    show = getString(R.string.internal_server_error);
-                    showToast(String.format(show));
+                    showToast(getString(R.string.internal_server_error));
                 }
                 
                 if (isCopy) {
@@ -661,11 +680,9 @@ public class CopyActivity extends SherlockFragmentActivity {
                 return;
             } else {
                 if (isCopy) {
-                    show = getString(R.string.copied_successfully);
-                    showToast(String.format(show));
+                    showToast(getString(R.string.copied_successfully));
                 } else {
-                    show = getString(R.string.moved_successfully);
-                    showToast(String.format(show));
+                    showToast(getString(R.string.moved_successfully));
                 }
                 finish();
             }
