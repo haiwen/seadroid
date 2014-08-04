@@ -101,6 +101,7 @@
     <string name="not_supported_share">This type of share is not supported</string>
     <string name="create_new_file">Create a new file</string>
     <string name="create_new_dir">Create a new folder</string>
+    <string name="camera">Take a photo here</string>
     <string name="download">Download</string>
     <string name="open">Open</string>
     <string name="last_modified">last modified</string>
@@ -127,6 +128,8 @@
     <string name="drawer_close">Close navigation drawer</string>
     <string name="no_starred_file">No starred file yet</string>
     <string name="added_to_upload_tasks">The selected file(s) is added to the upload tasks list.</string>
+    <string name="added_photo_to_upload_tasks">The photo is added to the upload tasks list.</string>
+    <string name="take_photo_successfully">Take Photo successfully</string>
     <string name="tabs_library">Libraries</string>
     <string name="tabs_activity">Activities</string>
     <string name="tabs_starred">Starred</string>

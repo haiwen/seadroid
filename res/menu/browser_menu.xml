@@ -26,5 +26,10 @@
         android:visible="false"
         android:title="@string/create_new_file"
         android:showAsAction="never"/>
+    
+    <item android:id="@+id/camera"
+        android:visible="false"
+        android:title="@string/camera"
+        android:showAsAction="never"/>
 
 </menu>

@@ -407,10 +407,10 @@ public class SeafItemAdapter extends BaseAdapter {
                     mActivity.deleteFile(repoID, repoName, path);
                     break;
                 case ACTION_ID_COPY:
-                    mActivity.copyFile(repoID, repoName, dir, filename);
+                    mActivity.copyFile(repoID, repoName, dir, filename, repoIsEncrypted);
                     break;
                 case ACTION_ID_MOVE:
-                    mActivity.moveFile(repoID, repoName, path, filename);
+                    mActivity.moveFile(repoID, repoName, path, filename, repoIsEncrypted);
                     break;
                 }
             }
@@ -462,10 +462,10 @@ public class SeafItemAdapter extends BaseAdapter {
                     mActivity.deleteDir(repoID, repoName, path);
                     break;
                 case ACTION_ID_COPY:
-                    mActivity.copyFile(repoID, repoName, dir, filename);
+                    mActivity.copyFile(repoID, repoName, dir, filename, repoIsEncrypted);
                     break;
                 case ACTION_ID_MOVE:
-                    mActivity.moveFile(repoID, repoName, path, filename);
+                    mActivity.moveFile(repoID, repoName, path, filename, repoIsEncrypted);
                     break;
                 }
             }

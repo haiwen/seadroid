@@ -3,6 +3,7 @@ package com.seafile.seadroid2.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.R.anim;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,6 +51,31 @@ public class ReposAdapter extends BaseAdapter {
         this.repos.clear();
         for (SeafRepo repo: repos) {
             this.repos.add(repo);
+        }
+        notifyDataSetChanged();
+    }
+    
+    public boolean hasRepoWritePermission(SeafRepo repo) {
+        if (repo == null) {
+            return false;
+        }
+
+        if (repo.permission.indexOf('w') == -1) {
+            return false;
+        }
+        return true;
+    }
+    
+    public void setSuitRepos(List<SeafRepo> repos, boolean repoIsEncrypted, String repoID) {
+        this.repos.clear();
+        for (SeafRepo repo: repos) {
+            if (repoIsEncrypted) {
+                if (repo.id.equals(repoID)) {
+                    this.repos.add(repo);
+                }
+            }else if (hasRepoWritePermission(repo) && !repo.encrypted) {
+                this.repos.add(repo);
+            }
         }
         notifyDataSetChanged();
     }
