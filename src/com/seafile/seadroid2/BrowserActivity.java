@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
@@ -26,7 +25,6 @@ import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -68,7 +66,8 @@ import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.transfer.UploadTaskInfo;
 import com.seafile.seadroid2.ui.AppChoiceDialog;
 import com.seafile.seadroid2.ui.AppChoiceDialog.CustomAction;
-import com.seafile.seadroid2.ui.CopyAndMoveActivity;
+import com.seafile.seadroid2.ui.CopyMoveDialog;
+import com.seafile.seadroid2.ui.DeleteFileDialog;
 import com.seafile.seadroid2.ui.FetchFileDialog;
 import com.seafile.seadroid2.ui.GetShareLinkDialog;
 import com.seafile.seadroid2.ui.NewDirDialog;
@@ -77,13 +76,13 @@ import com.seafile.seadroid2.ui.OpenAsDialog;
 import com.seafile.seadroid2.ui.PasswordDialog;
 import com.seafile.seadroid2.ui.RenameFileDialog;
 import com.seafile.seadroid2.ui.ReposFragment;
+import com.seafile.seadroid2.ui.SeafilePathChooserActivity;
 import com.seafile.seadroid2.ui.SslConfirmDialog;
 import com.seafile.seadroid2.ui.StarredFragment;
 import com.seafile.seadroid2.ui.TabsFragment;
 import com.seafile.seadroid2.ui.TaskDialog;
 import com.seafile.seadroid2.ui.TaskDialog.TaskDialogListener;
 import com.seafile.seadroid2.ui.UploadTasksFragment;
-import com.seafile.seadroid2.ui.DeleteFileDialog;
 
 public class BrowserActivity extends SherlockFragmentActivity
         implements ReposFragment.OnFileSelectedListener, StarredFragment.OnStarredFileSelectedListener, OnBackStackChangedListener {
@@ -125,6 +124,10 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "password_fragment";
     public static final String CHOOSE_APP_DIALOG_FRAGMENT_TAG = "choose_app_fragment";
     public static final String PICK_FILE_DIALOG_FRAGMENT_TAG = "pick_file_fragment";
+
+    private Intent copyMoveIntent;
+
+    private CopyMoveContext copyMoveContext;
 
     public DataManager getDataManager() {
         return dataManager;
@@ -889,6 +892,22 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
 
     @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        // We can't show the CopyMoveDialog in onActivityResult, this is a
+        // workaround found in
+        // http://stackoverflow.com/questions/16265733/failure-delivering-result-onactivityforresult/18345899#18345899
+        if (copyMoveIntent != null) {
+            String dstRepoId, dstDir;
+            dstRepoId = copyMoveIntent.getStringExtra(SeafilePathChooserActivity.DATA_REPO_ID);
+            dstDir = copyMoveIntent.getStringExtra(SeafilePathChooserActivity.DATA_DIR);
+            copyMoveContext.setDest(dstRepoId, dstDir);
+            doCopyMove();
+            copyMoveIntent = null;
+        }
+    }
+
+    @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         // Pass any configuration change to the drawer toggls
@@ -944,16 +963,16 @@ public class BrowserActivity extends SherlockFragmentActivity
     public void unsetRefreshing() {
         setSupportProgressBarIndeterminateVisibility(Boolean.FALSE);
     }
-    
+
     private String strImgPath;
-    
+
     private void CameraTakePhoto() {
         Intent imageCaptureIntent = new Intent("android.media.action.IMAGE_CAPTURE");
-        
+
         String strImgDirPath = DataManager.getExternalRootDirectory() + "/myPhotos/";
         String fileName = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + ".jpg";
         strImgPath = strImgDirPath + fileName;
-        
+
         File ImgDir = new File(strImgDirPath);
         if (!ImgDir.exists()) {
             ImgDir.mkdirs();
@@ -993,6 +1012,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final int PICK_PHOTOS_VIDEOS_REQUEST = 2;
     public static final int PICK_FILE_REQUEST = 3;
     public static final int TAKE_PHOTO_REQUEST = 4;
+    public static final int CHOOSE_COPY_MOVE_DEST_REQUEST = 5;
 
     public class UploadChoiceDialog extends DialogFragment {
         @Override
@@ -1082,7 +1102,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         case PICK_FILE_REQUEST:
             if (resultCode == RESULT_OK) {
                 if (!Utils.isNetworkOn()) {
-                    showToast("Network is not connected");
+                    showToast(R.string.network_down);
                     return;
                 }
 
@@ -1105,11 +1125,21 @@ public class BrowserActivity extends SherlockFragmentActivity
                     navContext.getRepoName(), navContext.getDirPath(), path);
             }
             break;
+        case CHOOSE_COPY_MOVE_DEST_REQUEST:
+            if (resultCode == RESULT_OK) {
+                if (!Utils.isNetworkOn()) {
+                    showToast(R.string.network_down);
+                    return;
+                }
+
+                copyMoveIntent = data;
+            }
+            break;
         case TAKE_PHOTO_REQUEST:
             if (resultCode == RESULT_OK) {
                 showToast(getString(R.string.take_photo_successfully));
                 if (!Utils.isNetworkOn()) {
-                    showToast("Network is not connected");
+                    showToast(R.string.network_down);
                     return;
                 }
 
@@ -1446,7 +1476,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     public void deleteFile(String repoID, String repoName, String path) {
         doDelete(repoID, repoName, path, false);
     }
-   
+
     public void deleteDir(String repoID, String repoName, String path) {
         doDelete(repoID, repoName, path, true);
     }
@@ -1466,43 +1496,46 @@ public class BrowserActivity extends SherlockFragmentActivity
         });
         dialog.show(getSupportFragmentManager(), "DialogFragment");
     }
-    
-    public void copyFile(String repoID, String repoName, String path, String filename, boolean repoIsEncrypted) {
-        doCopy(repoID, repoName, path, filename, false, repoIsEncrypted);
+
+    public void copyFile(String srcRepoId, String srcRepoName, String srcDir, String srcFn, boolean isdir) {
+        chooseCopyMoveDest(srcRepoId, srcRepoName, srcDir, srcFn, isdir, CopyMoveContext.OP.COPY);
     }
-    
-    private void doCopy(String repoID, String repoName, String path, String filename, boolean isdir, boolean repoIsEncrypted) {
-        Intent intent = new Intent(this, CopyAndMoveActivity.class);
-        intent.putExtra("repoName", repoName);
-        intent.putExtra("repoID", repoID);
-        intent.putExtra("path", path);
-        intent.putExtra("filename", filename);
-        intent.putExtra("mAccount", account);
-        intent.putExtra("isdir", isdir);
-        intent.putExtra("isCopy", true);
-        intent.putExtra("repoIsEncrypted", repoIsEncrypted);
-        startActivity(intent);
+
+    public void moveFile(String srcRepoId, String srcRepoName, String srcDir, String srcFn, boolean isdir) {
+        chooseCopyMoveDest(srcRepoId, srcRepoName, srcDir, srcFn, isdir, CopyMoveContext.OP.MOVE);
+    }
+
+    private void chooseCopyMoveDest(String repoID, String repoName, String path,
+                                    String filename, boolean isdir, CopyMoveContext.OP op) {
+        copyMoveContext = new CopyMoveContext(repoID, repoName, path, filename,
+                                              isdir, op);
+
+        Intent intent = new Intent(this, SeafilePathChooserActivity.class);
+        intent.putExtra("account", account);
+        startActivityForResult(intent, CHOOSE_COPY_MOVE_DEST_REQUEST);
         return;
     }
-    
-    public void moveFile(String repoID, String repoName, String path, String filename, boolean repoIsEncrypted) {
-        doMove(repoID, repoName, path, filename, false, repoIsEncrypted);
+
+    private void doCopyMove() {
+        final CopyMoveDialog dialog = new CopyMoveDialog();
+        dialog.init(account, copyMoveContext);
+        dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
+            @Override
+            public void onTaskSuccess() {
+                showToast(copyMoveContext.isCopy()
+                          ? R.string.copied_successfully
+                          : R.string.moved_successfully);
+                if (copyMoveContext.isMove()) {
+                    ReposFragment reposFragment = tabsFragment.getReposFragment();
+                    if (getCurrentTabName().equals(LIBRARY_TAB) && reposFragment != null) {
+                        reposFragment.refreshView();
+                    }
+                }
+            }
+        });
+        dialog.show(getSupportFragmentManager(), "DialogFragment");
     }
-    
-    private void doMove(String repoID, String repoName, String path, String filename, boolean isdir, boolean repoIsEncrypted) {
-        Intent intent = new Intent(this, CopyAndMoveActivity.class);
-        intent.putExtra("repoName", repoName);
-        intent.putExtra("repoID", repoID);
-        intent.putExtra("path", path);
-        intent.putExtra("filename", filename);
-        intent.putExtra("mAccount", account);
-        intent.putExtra("isdir", isdir);
-        intent.putExtra("isCopy", false);
-        intent.putExtra("repoIsEncrypted", repoIsEncrypted);
-        startActivity(intent);
-        return;
-    }
-    
+
     private void onFileUploadProgress(int taskID) {
         if (txService == null) {
             return;

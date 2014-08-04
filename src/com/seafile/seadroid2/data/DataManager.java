@@ -500,7 +500,7 @@ public class DataManager {
 
     public List<SeafStarredFile> getStarredFiles() throws SeafException {
         String starredFiles = sc.getStarredFiles();
-        Log.i(DEBUG_TAG, "Get starred files : " + starredFiles);
+        Log.v(DEBUG_TAG, "Get starred files : " + starredFiles);
         return parseStarredFiles(starredFiles);
     }
 
@@ -647,18 +647,19 @@ public class DataManager {
         // file/folder. We save it to avoid request it again
         dbHelper.saveDirents(repoID, Utils.getParentPath(path), newDirID, response);
     }
-    
-    public void copy(String repoID, String filenames, String dst_repo, String dst_dir, String path,
-                     boolean isdir) throws SeafException{
-        sc.copy(repoID, filenames, dst_repo, dst_dir, path, isdir);
 
+    public void copy(String srcRepoId, String srcDir, String srcFn,
+                     String dstRepoId, String dstDir, boolean isdir) throws SeafException {
+        sc.copy(srcRepoId, srcDir, srcFn, dstRepoId, dstDir, isdir);
+        
         // After copying, we need to refresh the destination list
-        getDirentsFromServer(dst_repo, dst_dir);
+        getDirentsFromServer(dstRepoId, dstDir);
     }
-    
-    public void move(String repoID, String filenames, String dst_repo, String dst_dir, String path,
-             boolean isdir) throws SeafException{
-        Pair<String, String> ret = sc.move(repoID, filenames, dst_repo, dst_dir, path, isdir);
+
+    public void move(String srcRepoId, String srcDir, String srcFn, String dstRepoId, String dstDir,
+                     boolean isdir) throws SeafException {
+        String srcPath = Utils.pathJoin(srcDir, srcFn);
+        Pair<String, String> ret = sc.move(srcRepoId, srcPath, dstRepoId, dstDir, isdir);
         if (ret == null){
             return;
         }
@@ -668,9 +669,9 @@ public class DataManager {
 
         // The response is the list of dst after moving the
         // file/folder. We save it to avoid request it again
-        dbHelper.saveDirents(dst_repo, dst_dir, newDirID, response);
+        dbHelper.saveDirents(dstRepoId, dstDir, newDirID, response);
         // We also need to refresh the original list
-        getDirentsFromServer(repoID, Utils.getParentPath(path));
+        getDirentsFromServer(srcRepoId, srcDir);
     }
 
     private static class PasswordInfo {

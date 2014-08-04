@@ -23,6 +23,7 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.seafile.seadroid2.AccountAdapter;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.NavContext;
 import com.seafile.seadroid2.R;
@@ -30,68 +31,70 @@ import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.Utils;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
-import com.seafile.seadroid2.transfer.TransferService;
-import com.seafile.seadroid2.ui.DirentsAdapter;
-import com.seafile.seadroid2.ui.PasswordDialog;
-import com.seafile.seadroid2.ui.ReposAdapter;
-import com.seafile.seadroid2.ui.TaskDialog;
 
-public class CopyAndMoveActivity extends SherlockFragmentActivity {
-    private static final String DEBUG_TAG = "CopyActivity";
+/**
+ * Path chooser - Let the user choose an target path (account, repo, dir)
+ */
+public class SeafilePathChooserActivity extends SherlockFragmentActivity {
+    private static final String DEBUG_TAG = "ShareToSeafileActivity";
 
     public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "password_dialog_fragment_tag";
 
     private NavContext mNavContext;
-    private TransferService mTxService;
+
     private Account mAccount;
+
+    private AccountManager mAccountManager;
     private DataManager mDataManager;
+
+    private AccountAdapter mAccountAdapter;
     private ReposAdapter mReposAdapter;
     private DirentsAdapter mDirentsAdapter;
+
     private LoadDirTask mLoadDirTask;
     private LoadReposTask mLoadReposTask;
+    private LoadAccountsTask mLoadAccountsTask;
+
+    private boolean canChooseAccount;
+    private boolean onlyShowWritableRepos;
+
     private View mProgressContainer, mListContainer, mContentArea;
     private Button mOkButton, mCancelButton;
     private TextView mEmptyText, mErrorText;
     private ListView mListView;
 
-    private static final int STEP_SET_ACCOUNT = 1;
+    private static final int STEP_CHOOSE_ACCOUNT = 1;
     private static final int STEP_CHOOSE_REPO = 2;
     private static final int STEP_CHOOSE_DIR = 3;
     private int mStep = 1;
 
-    private ServiceConnection mConnection; 
-    private String repoID;
-    private String path;
-    private String filename;
-    private boolean isdir;
-    private String repoName;
-    private boolean isCopy;
-    private boolean repoIsEncrypted;
-    private List<SeafRepo> suitRepos;
+    private ServiceConnection mConnection;
+
+    public static final String DATA_REPO_ID = "repoID";
+    public static final String DATA_REPO_NAME = "repoNAME";
+    public static final String DATA_DIR = "dir";
+    public static final String DATA_ACCOUNT = "account";
+
+    public static final String ONLY_SHOW_WRITABLE_REPOS = "onlyShowWritableRepos";
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.seafile_file_chooser);
-
-        if (isCopy) {
-            Log.d(DEBUG_TAG, "copy " + path); 
-        } else {
-            Log.d(DEBUG_TAG, "move " + path);
-        }
+        setContentView(R.layout.seafile_path_chooser);
 
         Intent intent = getIntent();
-        this.repoID = intent.getStringExtra("repoID");
-        this.repoName = intent.getStringExtra("repoName");
-        this.path = intent.getStringExtra("path");
-        this.filename = intent.getStringExtra("filename");
-        this.mAccount = (Account)intent.getParcelableExtra("mAccount");
-        this.isdir = intent.getExtras().getBoolean("isdir");
-        this.isCopy = intent.getExtras().getBoolean("isCopy");
-        this.repoIsEncrypted = intent.getExtras().getBoolean("repoIsEncrypted");
-        
+
+        Account account = (Account)intent.getParcelableExtra("account");
+        if (account == null) {
+            canChooseAccount = true;
+        } else {
+            mAccount = account;
+        }
+        onlyShowWritableRepos = intent.getBooleanExtra(ONLY_SHOW_WRITABLE_REPOS, true);
+
         ActionBar bar = getSupportActionBar();
         bar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         bar.setDisplayHomeAsUpEnabled(false);
@@ -117,31 +120,37 @@ public class CopyAndMoveActivity extends SherlockFragmentActivity {
         mOkButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String dst_repoName = mNavContext.getRepoName();
-                String dst_repoID = mNavContext.getRepoID();
-                String dst_dir = mNavContext.getDirPath();
-                doTask(dst_repoName, dst_repoID, dst_dir, isCopy);
-                mOkButton.setEnabled(false);
+                String repoName = mNavContext.getRepoName();
+                String repoID = mNavContext.getRepoID();
+                String dir = mNavContext.getDirPath();
+                Intent intent = new Intent();
+                intent.putExtra(DATA_REPO_NAME, repoName);
+                intent.putExtra(DATA_REPO_ID, repoID);
+                intent.putExtra(DATA_DIR, dir);
+                intent.putExtra(DATA_ACCOUNT, mAccount);
+                setResult(RESULT_OK, intent);
+                finish();
             }
         });
 
         mCancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                setResult(RESULT_CANCELED);
                 finish();
             }
         });
 
-        chooseRepo();
+        if (canChooseAccount) {
+            chooseAccount();
+        } else {
+            chooseRepo();
+        }
     }
 
     @Override
     protected void onDestroy() {
         Log.d(DEBUG_TAG, "onDestroy is called");
-        if (mTxService != null) {
-            unbindService(mConnection);
-            mTxService = null;
-        }
 
         if (mLoadReposTask != null
             && mLoadReposTask.getStatus() != AsyncTask.Status.FINISHED) {
@@ -151,6 +160,11 @@ public class CopyAndMoveActivity extends SherlockFragmentActivity {
         if (mLoadDirTask != null
             && mLoadDirTask.getStatus() != AsyncTask.Status.FINISHED) {
             mLoadDirTask.cancel(true);
+        }
+
+        if (mLoadAccountsTask != null
+            && mLoadAccountsTask.getStatus() != AsyncTask.Status.FINISHED) {
+            mLoadAccountsTask.cancel(true);
         }
 
         super.onDestroy();
@@ -182,8 +196,8 @@ public class CopyAndMoveActivity extends SherlockFragmentActivity {
         }
 
         switch (mStep) {
-        case STEP_SET_ACCOUNT:
-            setAccount(mAccount);
+        case STEP_CHOOSE_ACCOUNT:
+            setAccount(getAccountAdapter().getItem(position));
             chooseRepo();
             break;
         case STEP_CHOOSE_REPO:
@@ -207,7 +221,7 @@ public class CopyAndMoveActivity extends SherlockFragmentActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getSupportMenuInflater();
-        inflater.inflate(R.menu.share_to_seafile_menu, menu);
+        inflater.inflate(R.menu.seafile_path_chooser_menu, menu);
         return true;
     }
 
@@ -239,6 +253,13 @@ public class CopyAndMoveActivity extends SherlockFragmentActivity {
 
     private void refreshList(final boolean forceRefresh) {
         switch (mStep) {
+        case STEP_CHOOSE_ACCOUNT:
+            if (mLoadAccountsTask != null && mLoadAccountsTask.getStatus() != AsyncTask.Status.FINISHED) {
+                return;
+            } else {
+                chooseAccount(false);
+                break;
+            }
         case STEP_CHOOSE_REPO:
             if (mLoadReposTask != null && mLoadReposTask.getStatus() != AsyncTask.Status.FINISHED) {
                 return;
@@ -273,8 +294,15 @@ public class CopyAndMoveActivity extends SherlockFragmentActivity {
 
     private void stepBack(boolean cancelIfFirstStep) {
         switch (mStep) {
-        case STEP_CHOOSE_REPO:
+        case STEP_CHOOSE_ACCOUNT:
             if (cancelIfFirstStep) {
+                finish();
+            }
+            break;
+        case STEP_CHOOSE_REPO:
+            if (canChooseAccount) {
+                chooseAccount(false);
+            } else if (cancelIfFirstStep) {
                 finish();
             }
             break;
@@ -292,6 +320,29 @@ public class CopyAndMoveActivity extends SherlockFragmentActivity {
 
     private void setListAdapter(BaseAdapter adapter) {
         mListView.setAdapter(adapter);
+    }
+
+    /**
+     * List all accounts
+     */
+    private void chooseAccount(boolean forwardIfOnlyOneAccount) {
+        mStep = STEP_CHOOSE_ACCOUNT;
+        mEmptyText.setText(R.string.no_account);
+
+        mLoadAccountsTask = new LoadAccountsTask(getAccountManager(), forwardIfOnlyOneAccount);
+
+        ConcurrentAsyncTask.execute(mLoadAccountsTask);
+        setListAdapter(getAccountAdapter());
+        mOkButton.setVisibility(View.GONE);
+
+        // update action bar
+        ActionBar bar = getSupportActionBar();
+        bar.setDisplayHomeAsUpEnabled(false);
+        bar.setTitle(R.string.choose_an_account);
+    }
+
+    private void chooseAccount() {
+        chooseAccount(true);
     }
 
     /**
@@ -355,29 +406,8 @@ public class CopyAndMoveActivity extends SherlockFragmentActivity {
         showListOrEmptyText(dirents.size());
     }
 
-    /*public boolean hasRepoWritePermission(SeafRepo repo) {
-        if (repo == null) {
-            return false;
-        }
-
-        if (repo.permission.indexOf('w') == -1) {
-            return false;
-        }
-        return true;
-    }*/
-    
     private void updateAdapterWithRepos(List<SeafRepo> repos) {
-        getReposAdapter().setSuitRepos(repos, repoIsEncrypted, repoID);
-        /*this.suitRepos.clear();
-        for (SeafRepo repo: repos) {
-            if (repoIsEncrypted) {
-                if (repo.id == repoID){
-                    suitRepos.add(repo);
-                }
-            }else if (hasRepoWritePermission(repo)) {
-                suitRepos.add(repo);
-            }
-        }*/
+        getReposAdapter().setRepos(repos);
         showListOrEmptyText(repos.size());
     }
 
@@ -433,12 +463,6 @@ public class CopyAndMoveActivity extends SherlockFragmentActivity {
         }
         passwordDialog.setTaskDialogLisenter(listener);
         passwordDialog.show(getSupportFragmentManager(), PASSWORD_DIALOG_FRAGMENT_TAG);
-    }
-
-    private void doTask(String dst_repoName, String dst_repoID, String dst_dir, boolean isCopy) {
-        CopyAndMoveTask task = new CopyAndMoveTask();
-        task.execute(dst_repoName, dst_repoID, dst_dir);
-        return;
     }
 
     public void showToast(CharSequence msg) {
@@ -501,6 +525,14 @@ public class CopyAndMoveActivity extends SherlockFragmentActivity {
         return mDataManager;
     }
 
+    private AccountManager getAccountManager() {
+        if (mAccountManager == null) {
+            mAccountManager = new AccountManager(this);
+        }
+
+        return mAccountManager;
+    }
+
     private NavContext getNavContext() {
         if (mNavContext == null) {
             mNavContext = new NavContext();
@@ -509,9 +541,17 @@ public class CopyAndMoveActivity extends SherlockFragmentActivity {
         return mNavContext;
     }
 
+    private AccountAdapter getAccountAdapter() {
+        if (mAccountAdapter == null) {
+            mAccountAdapter = new AccountAdapter(this);
+        }
+
+        return mAccountAdapter;
+    }
+
     private ReposAdapter getReposAdapter() {
         if (mReposAdapter == null) {
-            mReposAdapter = new ReposAdapter();
+            mReposAdapter = new ReposAdapter(onlyShowWritableRepos);
         }
 
         return mReposAdapter;
@@ -528,6 +568,56 @@ public class CopyAndMoveActivity extends SherlockFragmentActivity {
     private void setAccount(Account account) {
         mAccount = account;
         mDataManager = new DataManager(account);
+    }
+
+    private class LoadAccountsTask extends AsyncTask<Void, Void, Void> {
+        private List<Account> accounts;
+        private Exception err;
+        private AccountManager accountManager;
+        private boolean forwardIfOnlyOneAccount;
+
+        public LoadAccountsTask(AccountManager accountManager, boolean forwardIfOnlyOneAccount) {
+            this.accountManager = accountManager;
+            this.forwardIfOnlyOneAccount = forwardIfOnlyOneAccount;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                accounts = accountManager.getAccountList();
+            } catch (Exception e) {
+                err = e;
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void v) {
+            showLoading(false);
+            if (err != null || accounts == null) {
+                setErrorMessage(R.string.load_accounts_fail);
+                if (err != null) {
+                    Log.d(DEBUG_TAG, "failed to load accounts: " + err.getMessage());
+                }
+                return;
+            }
+
+            if (accounts.size() == 1 && forwardIfOnlyOneAccount) {
+                // Only 1 account. Go to the next next step.
+                setAccount(accounts.get(0));
+                chooseRepo();
+                return;
+            }
+
+            AccountAdapter adapter = getAccountAdapter();
+            adapter.clear();
+            for (Account account: accounts) {
+                adapter.add(account);
+            }
+            adapter.notifyDataSetChanged();
+            showListOrEmptyText(accounts.size());
+        }
     }
 
     private class LoadReposTask extends AsyncTask<Void, Void, Void> {
@@ -559,17 +649,11 @@ public class CopyAndMoveActivity extends SherlockFragmentActivity {
             showLoading(false);
             if (err != null || repos == null) {
                 setErrorMessage(R.string.load_libraries_fail);
-                if (err != null) {
-                    Log.d(DEBUG_TAG, "failed to load repos: " + err.getMessage());
-                }
+                Log.d(DEBUG_TAG, "failed to load repos: " + (err != null ? err.getMessage() : " no error present"));
                 return;
             }
 
-            if (repos != null) {
-                updateAdapterWithRepos(repos);
-            } else {
-                Log.d(DEBUG_TAG, "failed to load repos");
-            }
+            updateAdapterWithRepos(repos);
         }
     }
 
@@ -619,73 +703,12 @@ public class CopyAndMoveActivity extends SherlockFragmentActivity {
             }
 
             if (dirents == null) {
-                Log.d(DEBUG_TAG, "failed to load dirents: " + err.getMessage());
+                Log.d(DEBUG_TAG, "failed to load dirents: no error present");
                 setErrorMessage(R.string.load_dir_fail);
                 return;
             }
 
-            if (dirents != null) {
-                updateAdapterWithDirents(dirents);
-            } else {
-                Log.d(DEBUG_TAG, "failed to load dir");
-            }
-        }
-    }
-    
-    private class CopyAndMoveTask extends AsyncTask<String, Long , Void>{
-        
-        SeafException err = null;
-        
-        @Override
-        protected Void doInBackground (String ... params) {
-            
-            String dst_repoID = params[1];
-            String dst_dir = params[2];
-            
-            try {
-                if (isCopy) {
-                    getDataManager().copy(repoID, filename, dst_repoID, dst_dir, path, isdir);
-                }
-                else {
-                    getDataManager().move(repoID, filename, dst_repoID, dst_dir, path, isdir);
-                }
-            } catch (SeafException e) {
-                err = e;
-            }
-            return null;
-        }
-        
-        @Override
-        protected void onPostExecute(Void v) {
-
-            if (err != null) {
-                int retCode = err.getCode();
-                if (retCode == HttpURLConnection.HTTP_BAD_REQUEST) {
-                    showToast(getString(R.string.bad_request));
-                } else if (retCode == HttpURLConnection.HTTP_FORBIDDEN) {
-                    showToast(getString(R.string.forbidden));
-                } else if (retCode == HttpURLConnection.HTTP_NOT_FOUND) {
-                    showToast(getString(R.string.not_found));
-                } else {
-                    showToast(getString(R.string.internal_server_error));
-                }
-                
-                if (isCopy) {
-                    Log.d(DEBUG_TAG, "failed to copy: " + err.getMessage());
-                } else {
-                    Log.d(DEBUG_TAG, "failed to move: " + err.getMessage());
-                }
-                
-                mOkButton.setEnabled(true);
-                return;
-            } else {
-                if (isCopy) {
-                    showToast(getString(R.string.copied_successfully));
-                } else {
-                    showToast(getString(R.string.moved_successfully));
-                }
-                finish();
-            }
+            updateAdapterWithDirents(dirents);
         }
     }
 }

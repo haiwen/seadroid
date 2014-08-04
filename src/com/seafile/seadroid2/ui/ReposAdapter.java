@@ -3,7 +3,6 @@ package com.seafile.seadroid2.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.R.anim;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,10 +16,11 @@ import com.seafile.seadroid2.data.SeafRepo;
 
 public class ReposAdapter extends BaseAdapter {
 
-    private List<SeafRepo> repos;
+    private List<SeafRepo> repos = new ArrayList<SeafRepo>();
+    private boolean onlyShowWritableRepos;
 
-    public ReposAdapter() {
-        repos = new ArrayList<SeafRepo>();
+    public ReposAdapter(boolean onlyShowWritableRepos) {
+        this.onlyShowWritableRepos = onlyShowWritableRepos;
     }
 
     @Override
@@ -50,32 +50,10 @@ public class ReposAdapter extends BaseAdapter {
     public void setRepos(List<SeafRepo> repos) {
         this.repos.clear();
         for (SeafRepo repo: repos) {
-            this.repos.add(repo);
-        }
-        notifyDataSetChanged();
-    }
-    
-    public boolean hasRepoWritePermission(SeafRepo repo) {
-        if (repo == null) {
-            return false;
-        }
-
-        if (repo.permission.indexOf('w') == -1) {
-            return false;
-        }
-        return true;
-    }
-    
-    public void setSuitRepos(List<SeafRepo> repos, boolean repoIsEncrypted, String repoID) {
-        this.repos.clear();
-        for (SeafRepo repo: repos) {
-            if (repoIsEncrypted) {
-                if (repo.id.equals(repoID)) {
-                    this.repos.add(repo);
-                }
-            }else if (hasRepoWritePermission(repo) && !repo.encrypted) {
-                this.repos.add(repo);
+            if (onlyShowWritableRepos && !repo.hasWritePermission()) {
+                continue;
             }
+            this.repos.add(repo);
         }
         notifyDataSetChanged();
     }
@@ -124,4 +102,3 @@ public class ReposAdapter extends BaseAdapter {
         }
     }
 }
-

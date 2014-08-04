@@ -58,17 +58,11 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.seafile.seadroid2.ui.CopyAndMoveActivity"
+        <activity android:name="com.seafile.seadroid2.ui.SeafilePathChooserActivity"
                   android:theme="@style/Theme.SeafileTheme"
-                  android:excludeFromRecents="true"
                   android:label="@string/app_name">
-            <intent-filter>
-                <action android:name="android.intent.action.SEND" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="*/*" />
-            </intent-filter>
         </activity>
-        
+
         <activity android:name="com.seafile.seadroid2.FileActivity"
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">

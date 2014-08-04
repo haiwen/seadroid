@@ -128,7 +128,7 @@
     <string name="drawer_close">Close navigation drawer</string>
     <string name="no_starred_file">No starred file yet</string>
     <string name="added_to_upload_tasks">The selected file(s) is added to the upload tasks list.</string>
-    <string name="added_photo_to_upload_tasks">The photo is added to the upload tasks list.</string>
+    <string name="added_photo_to_upload_tasks">The photo is being uploaded</string>
     <string name="take_photo_successfully">Take Photo successfully</string>
     <string name="tabs_library">Libraries</string>
     <string name="tabs_activity">Activities</string>
@@ -160,8 +160,10 @@
     <string name="remember_my_choice">Remember my choice</string>
     <string name="copied_successfully">Copied Successfully</string>
     <string name="moved_successfully">Moved Successfully</string>
-    <string name="bad_request">BAD REQUEST, Path is missing or invalid</string>
-    <string name="forbidden">FORBIDDEN, You do not have permission to move file</string>
-    <string name="not_found">NOT FOUND, repo not found</string>
-    <string name="internal_server_error">INTERNAL SERVER ERROR</string>
+    <string name="internal_server_error">Internal Server Error</string>
+    <string name="copy_file_ing">Copying file</string>
+    <string name="move_file_ing">Moving file</string>
+    <string name="copy_folder_ing">Copying folder</string>
+    <string name="move_folder_ing">Moving folder</string>
+    <string name="upload_started">upload is started</string>
 </resources>

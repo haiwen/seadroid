@@ -128,7 +128,7 @@ public class SeafConnection {
 
         return prepareHttpsCheck(req);
     }
-    
+
     /**
      * Login into the server
      * @return true if login success, false otherwise
@@ -550,7 +550,7 @@ public class SeafConnection {
             // line 1
             String l1 = TWO_HYPENS + BOUNDARY + CRLF;
             // line 2,
-            String contentDisposition = "Content-Disposition: form-data; name=\"file\";filename=\"" + file.getName() + "\"" + CRLF; 
+            String contentDisposition = "Content-Disposition: form-data; name=\"file\";filename=\"" + file.getName() + "\"" + CRLF;
             byte[] l2 = contentDisposition.getBytes("UTF-8");
             // line 3
             String l3 = "Content-Type: text/plain" + CRLF;
@@ -892,18 +892,18 @@ public class SeafConnection {
                 throw getSeafExceptionFromHttpRequestException(e);
             }
     }
-    
-    public void copy(String repoID, String filename, String dst_repo, String dst_dir, String path,
-            boolean isdir) throws SeafException {
+
+    public void copy(String srcRepoId, String srcDir, String srcFn,
+                     String dstRepoId, String dstDir, boolean isdir) throws SeafException {
         try {
             Map<String, Object> params = new HashMap<String, Object>();
-            params.put("p", path);
+            params.put("p", srcDir);
 
-            HttpRequest req = prepareApiPostRequest("api2/repos/" + repoID + "/fileops/copy/", true, params);
+            HttpRequest req = prepareApiPostRequest("api2/repos/" + srcRepoId + "/fileops/copy/", true, params);
 
-            req.form("dst_repo", dst_repo);
-            req.form("dst_dir", dst_dir);
-            req.form("file_names", filename);
+            req.form("dst_repo", dstRepoId);
+            req.form("dst_dir", dstDir);
+            req.form("file_names", srcFn);
 
             checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
 
@@ -913,19 +913,19 @@ public class SeafConnection {
             throw getSeafExceptionFromHttpRequestException(e);
         }
     }
-    
-    public Pair<String, String> move(String repoID, String filename, String dst_repo, String dst_dir, String path,
+
+    public Pair<String, String> move(String srcRepoId, String srcPath, String dstRepoId, String dstDir,
                                      boolean isdir) throws SeafException {
         try {
             Map<String, Object> params = new HashMap<String, Object>();
-            params.put("p", path);
+            params.put("p", srcPath);
             params.put("reloaddir", "true");
             String suffix = isdir ? "/dir/" : "/file/";
-            HttpRequest req = prepareApiPostRequest("api2/repos/" + repoID + suffix, true, params);
+            HttpRequest req = prepareApiPostRequest("api2/repos/" + srcRepoId + suffix, true, params);
 
             req.form("operation", "move");
-            req.form("dst_repo", dst_repo);
-            req.form("dst_dir", dst_dir);
+            req.form("dst_repo", dstRepoId);
+            req.form("dst_dir", dstDir);
 
             checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
 
@@ -948,7 +948,7 @@ public class SeafConnection {
             throw getSeafExceptionFromHttpRequestException(e);
         }
     }
-    
+
     private void checkRequestResponseStatus(HttpRequest req, int expectedStatusCode) throws SeafException {
         if (req.code() != expectedStatusCode) {
             Log.d(DEBUG_TAG, "HTTP request failed : " + req.url() + ", " + req.code() + ", " + req.message());

@@ -79,4 +79,8 @@ public class SeafRepo implements SeafItem {
             return R.drawable.repo_encrypted;
         return R.drawable.repo;
     }
+
+    public boolean hasWritePermission() {
+        return permission.indexOf('w') != -1;
+    }
 }
