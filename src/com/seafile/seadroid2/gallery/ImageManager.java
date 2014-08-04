@@ -36,11 +36,8 @@ public class ImageManager {
     private static final String TAG = "ImageManager";
 
     private static final Uri STORAGE_URI = Images.Media.EXTERNAL_CONTENT_URI;
-    private static final Uri THUMB_URI
-            = Images.Thumbnails.EXTERNAL_CONTENT_URI;
-
-    private static final Uri VIDEO_STORAGE_URI =
-            Uri.parse("content://media/external/video/media");
+    private static final Uri THUMB_URI = Images.Thumbnails.EXTERNAL_CONTENT_URI;
+    private static final Uri VIDEO_STORAGE_URI = Uri.parse("content://media/external/video/media");
 
     // ImageListParam specifies all the parameters we need to create an image
     // list (we also need a ContentResolver).
@@ -110,7 +107,7 @@ public class ImageManager {
     public static final int SORT_ASCENDING = 1;
     public static final int SORT_DESCENDING = 2;
 
-    public static String CAMERA_IMAGE_BUCKET_NAME =
+    private static final String CAMERA_IMAGE_BUCKET_NAME =
             Environment.getExternalStorageDirectory().toString()
             + "/DCIM";
 

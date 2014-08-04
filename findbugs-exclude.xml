@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!--  Exclude third party -->
+	<Match>
+		<Package name="~com\.actionbarsherlock\..*"/>
+	</Match>
+	<Match>
+		<Class name="~com\.actionbarsherlock\..*"/>
+	</Match>
+	<Match>
+		<Package name="~com\.viewpagerindicator\..*"/>
+	</Match>
+	<Match>
+		<Class name="~com\.viewpagerindicator\..*"/>
+	</Match>
+	<Match>
+		<Package name="~net\.londatiga\..*"/>
+	</Match>
+	<Match>
+		<Class name="~net\.londatiga\.android\.R\$.*"/>
+	</Match>
+
+    <!--  Exclude generated classes -->
+	<Match>
+		<Class name="com.seafile.seadroid2.R"/>
+	</Match>
+	<Match>
+		<Class name="~com\.seafile\.seadroid2\.R\$.*"/>
+	</Match>
+</FindBugsFilter>
