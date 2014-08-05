@@ -984,7 +984,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
         Uri photo = Uri.fromFile(Img);
         imageCaptureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photo);
-        setResult(RESULT_OK, imageCaptureIntent);
         startActivityForResult(imageCaptureIntent, TAKE_PHOTO_REQUEST);
     }
 
