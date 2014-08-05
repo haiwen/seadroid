@@ -18,9 +18,11 @@ public class ReposAdapter extends BaseAdapter {
 
     private List<SeafRepo> repos = new ArrayList<SeafRepo>();
     private boolean onlyShowWritableRepos;
+    private String encryptedRepoId;
 
-    public ReposAdapter(boolean onlyShowWritableRepos) {
+    public ReposAdapter(boolean onlyShowWritableRepos, String encryptedRepoId) {
         this.onlyShowWritableRepos = onlyShowWritableRepos;
+        this.encryptedRepoId = encryptedRepoId;
     }
 
     @Override
@@ -51,6 +53,9 @@ public class ReposAdapter extends BaseAdapter {
         this.repos.clear();
         for (SeafRepo repo: repos) {
             if (onlyShowWritableRepos && !repo.hasWritePermission()) {
+                continue;
+            }
+            if (encryptedRepoId != null && !repo.id.equals(encryptedRepoId)) {
                 continue;
             }
             this.repos.add(repo);

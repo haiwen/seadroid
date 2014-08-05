@@ -166,4 +166,6 @@
     <string name="copy_folder_ing">Copying folder</string>
     <string name="move_folder_ing">Moving folder</string>
     <string name="upload_started">upload is started</string>
+    <string name="cannot_copy_folder_to_subfolder">You can\'t copy a folder to its subfolder</string>
+    <string name="cannot_move_folder_to_subfolder">You can\'t move a folder to its subfolder</string>
 </resources>

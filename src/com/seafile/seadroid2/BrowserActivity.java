@@ -1509,14 +1509,23 @@ public class BrowserActivity extends SherlockFragmentActivity
                                     String filename, boolean isdir, CopyMoveContext.OP op) {
         copyMoveContext = new CopyMoveContext(repoID, repoName, path, filename,
                                               isdir, op);
-
         Intent intent = new Intent(this, SeafilePathChooserActivity.class);
-        intent.putExtra("account", account);
+        intent.putExtra(SeafilePathChooserActivity.DATA_ACCOUNT, account);
+        SeafRepo repo = dataManager.getCachedRepoByID(repoID);
+        if (repo.encrypted) {
+            intent.putExtra(SeafilePathChooserActivity.ENCRYPTED_REPO_ID, repoID);
+        }
         startActivityForResult(intent, CHOOSE_COPY_MOVE_DEST_REQUEST);
         return;
     }
 
     private void doCopyMove() {
+        if (!copyMoveContext.checkCopyMoveToSubfolder()) {
+            showToast(copyMoveContext.isCopy()
+                      ? R.string.cannot_copy_folder_to_subfolder
+                      : R.string.cannot_move_folder_to_subfolder);
+            return;
+        }
         final CopyMoveDialog dialog = new CopyMoveDialog();
         dialog.init(account, copyMoveContext);
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {

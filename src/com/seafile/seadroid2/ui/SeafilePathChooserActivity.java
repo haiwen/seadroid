@@ -61,6 +61,7 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
 
     private boolean canChooseAccount;
     private boolean onlyShowWritableRepos;
+    private String encryptedRepoId;
 
     private View mProgressContainer, mListContainer, mContentArea;
     private Button mOkButton, mCancelButton;
@@ -80,6 +81,8 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
     public static final String DATA_ACCOUNT = "account";
 
     public static final String ONLY_SHOW_WRITABLE_REPOS = "onlyShowWritableRepos";
+    public static final String SHOW_ENCRYPTED_REPOS = "showEncryptedRepos";
+    public static final String ENCRYPTED_REPO_ID = "encryptedRepoId";
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,6 +97,7 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
             mAccount = account;
         }
         onlyShowWritableRepos = intent.getBooleanExtra(ONLY_SHOW_WRITABLE_REPOS, true);
+        encryptedRepoId = intent.getStringExtra(ENCRYPTED_REPO_ID);
 
         ActionBar bar = getSupportActionBar();
         bar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
@@ -551,7 +555,7 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
 
     private ReposAdapter getReposAdapter() {
         if (mReposAdapter == null) {
-            mReposAdapter = new ReposAdapter(onlyShowWritableRepos);
+            mReposAdapter = new ReposAdapter(onlyShowWritableRepos, encryptedRepoId);
         }
 
         return mReposAdapter;

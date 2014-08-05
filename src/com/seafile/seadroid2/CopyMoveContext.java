@@ -37,4 +37,20 @@ public class CopyMoveContext {
     public boolean isMove() {
         return op == OP.MOVE;
     }
+
+    /**
+     * Avoid copy/move a folder into its subfolder E.g. situations like:
+     *
+     * srcDir: /
+     * srcFn: dirX
+     * dstDir: /dirX/dirY
+     *
+     */
+    public boolean checkCopyMoveToSubfolder() {
+        if (isdir && srcRepoId.equals(dstRepoId)) {
+            String srcFolder = Utils.pathJoin(srcDir, srcFn);
+            return !dstDir.startsWith(srcFolder);
+        }
+        return true;
+    }
 }
