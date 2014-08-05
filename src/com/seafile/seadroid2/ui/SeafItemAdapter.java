@@ -465,7 +465,7 @@ public class SeafItemAdapter extends BaseAdapter {
                     mActivity.copyFile(repoID, repoName, dir, filename, true);
                     break;
                 case ACTION_ID_MOVE:
-                    mActivity.moveFile(repoID, repoName, path, filename, true);
+                    mActivity.moveFile(repoID, repoName, dir, filename, true);
                     break;
                 }
             }

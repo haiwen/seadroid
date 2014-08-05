@@ -920,7 +920,7 @@ public class SeafConnection {
             Map<String, Object> params = new HashMap<String, Object>();
             params.put("p", srcPath);
             params.put("reloaddir", "true");
-            String suffix = isdir ? "/dir/" : "/file/";
+            String suffix = "/file/";
             HttpRequest req = prepareApiPostRequest("api2/repos/" + srcRepoId + suffix, true, params);
 
             req.form("operation", "move");
