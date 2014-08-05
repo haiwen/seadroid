@@ -352,12 +352,12 @@ public class SeafItemAdapter extends BaseAdapter {
         
         copyAction = new ActionItem(ACTION_ID_COPY,
                 resources.getString(R.string.file_action_copy),
-                resources.getDrawable(R.drawable.action_export));
+                resources.getDrawable(R.drawable.action_copy));
         mQuickAction.addActionItem(copyAction);
         
         moveAction = new ActionItem(ACTION_ID_MOVE,
                 resources.getString(R.string.file_action_move),
-                resources.getDrawable(R.drawable.action_export));
+                resources.getDrawable(R.drawable.action_move));
         mQuickAction.addActionItem(moveAction);
 
         if (cacheExists) {
@@ -436,12 +436,12 @@ public class SeafItemAdapter extends BaseAdapter {
         
         copyAction = new ActionItem(ACTION_ID_COPY,
                 resources.getString(R.string.file_action_copy),
-                resources.getDrawable(R.drawable.action_export));
+                resources.getDrawable(R.drawable.action_copy));
         mQuickAction.addActionItem(copyAction);
         
         moveAction = new ActionItem(ACTION_ID_MOVE,
                 resources.getString(R.string.file_action_move),
-                resources.getDrawable(R.drawable.action_export));
+                resources.getDrawable(R.drawable.action_move));
         mQuickAction.addActionItem(moveAction);
         
         //setup the action item click listener
