@@ -152,6 +152,7 @@
     <string name="remember_my_choice">Remember my choice</string>
     <!-- settings start -->
     <string name="select_upload_photo_folders">select folders to upload</string>
+    <string name="auto_upload_folders_selected">%d folder(s) selected</string>
     <string name="auto_upload_photos">Auto Upload Photos</string>
     <string name="sync_method">Sync Method</string>
     <string name="sync_history">Sync History</string>

@@ -149,6 +149,7 @@
     <string name="remember_my_choice">记住我的选择</string>
     <!-- settings start-->
     <string name="select_upload_photo_folders">自动备份照片文件夹</string>
+    <string name="auto_upload_folders_selected">已经选择 %d 个文件夹</string>
     <string name="auto_upload_photos">自动备份照片</string>
     <string name="sync_method">同步方法</string>
     <string name="sync_history">同步历史</string>

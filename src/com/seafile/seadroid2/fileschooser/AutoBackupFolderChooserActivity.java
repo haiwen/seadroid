@@ -145,7 +145,7 @@ OnBackStackChangedListener {
         if (nSelected == 0) {
             status = getResources().getString(R.string.select_upload_files);
         } else {
-            status = String.format("已经选择 %d 个文件夹", nSelected);
+            status = String.format(getResources().getString(R.string.auto_upload_folders_selected), nSelected);
         }
         mFooterFragment.getStatusView().setText(status);
     }

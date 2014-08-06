@@ -41,7 +41,7 @@ public class TabsFragment extends SherlockFragment {
         LayoutInflater localInflater = inflater.cloneInContext(contextThemeWrapper);
 
         View root = localInflater.inflate(R.layout.tabs_main, container, false);
-        adapter = new SeafileTabsAdapter(getFragmentManager());
+        adapter = new SeafileTabsAdapter(getChildFragmentManager());
 
         ViewPager pager = (ViewPager) root.findViewById(R.id.pager);
         pager.setAdapter(adapter);
@@ -79,7 +79,7 @@ public class TabsFragment extends SherlockFragment {
     }
 
     public Fragment getFragment(int index) {
-        return getFragmentManager().findFragmentByTag(makeFragmentName(index));
+        return getChildFragmentManager().findFragmentByTag(makeFragmentName(index));
     }
 
     private String makeFragmentName(int index) {
