@@ -29,7 +29,6 @@ public class AutoBackupFolderFooterFragment extends Fragment {
         statusView = (TextView)root.findViewById(R.id.upload_selection_status);
         cancelButton = (Button)root.findViewById(R.id.button_cancel_upload);
         confirmButton = (Button)root.findViewById(R.id.button_confirm_upload);
-        confirmButton.setText("È·¶¨");
         confirmButton.setEnabled(false);
         
         cancelButton.setOnClickListener(new View.OnClickListener() {

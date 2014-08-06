@@ -18,8 +18,8 @@ public class AutoBackupFolderListAdapter extends BaseAdapter {
 
     private Activity mActivity;
     private List<SelectableFile> mFiles;
-    // private LayoutInflater listContainer;// 视图容器
-	// private int itemViewResource;// 自定义项视图源
+    // private LayoutInflater listContainer;
+	// private int itemViewResource;
 	
     public AutoBackupFolderListAdapter(Activity activity) {
     	this.mActivity = activity;
@@ -106,7 +106,7 @@ public class AutoBackupFolderListAdapter extends BaseAdapter {
 		viewHolder.icon.setImageResource(iconID);
 		viewHolder.title.setText(item.getTitle());
 		viewHolder.subtitle.setText(item.getSubtitle());
-		viewHolder.checkBox.setVisibility(item.isFile() ? View.GONE : View.VISIBLE);
+		viewHolder.checkBox.setVisibility(View.VISIBLE);
 
 		return view;
 	}

@@ -181,6 +181,7 @@ class PersistentTransferScheduler implements UpdateTaskListener {
 	TransferService service;
 
     public void addPersistentUpdateTask() {
+    	
     }
 
     @Override

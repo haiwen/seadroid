@@ -51,7 +51,7 @@ public class AutoUpdateManager implements Runnable, CachedFileChangedListener {
      * This method is called by file monitor, so it would be executed in the file monitor thread
      */
     @Override
-    public void onCachedFiledChanged(final Account account, final SeafCachedFile cachedFile,
+    public void onCachedFileChanged(final Account account, final SeafCachedFile cachedFile,
             final File localFile) {
 
         addTask(account, cachedFile, localFile);

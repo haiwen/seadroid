@@ -205,8 +205,7 @@ public class DataManager {
 
     private File getFileForReposCache() {
         String filename = "repos-" + (account.server + account.email).hashCode() + ".dat";
-        return new File(getExternalCacheDirectory() + "/" +
-                filename);
+        return new File(getExternalCacheDirectory() + "/" + filename);
     }
 
     /**

@@ -79,7 +79,7 @@
                     android:id="@+id/btn_auto_img_backup"
                     style="@style/menuItemTitle"
                     android:layout_toRightOf="@id/iv_backup"
-                    android:text="自动备份照片" />
+                    android:text="@string/auto_upload_photos" />
             </RelativeLayout>
 
             <RelativeLayout style="@style/menuItem" >
@@ -92,7 +92,7 @@
                 <TextView
                     style="@style/menuItemTitle"
                     android:layout_toRightOf="@id/iv_transfer"
-                    android:text="传输管理" />
+                    android:text="@string/sync_method" />
             </RelativeLayout>
 
             <RelativeLayout style="@style/menuItem" >
@@ -105,7 +105,7 @@
                 <TextView
                     style="@style/menuItemTitle"
                     android:layout_toRightOf="@id/iv_history"
-                    android:text="查看最近操作" />
+                    android:text="@string/sync_history" />
             </RelativeLayout>
 
             <RelativeLayout style="@style/menuItem" >
@@ -118,7 +118,7 @@
                 <TextView
                     style="@style/menuItemTitle"
                     android:layout_toRightOf="@id/iv_connect"
-                    android:text="发送文件到电脑" />
+                    android:text="@string/transfer_to_PC" />
             </RelativeLayout>
 
             <RelativeLayout style="@style/menuItem" >
@@ -131,7 +131,7 @@
                 <TextView
                     style="@style/menuItemTitle"
                     android:layout_toRightOf="@id/iv_reward"
-                    android:text="免费抽空间" />
+                    android:text="@string/get_free_storage" />
             </RelativeLayout>
 
             <RelativeLayout style="@style/menuItem" >
@@ -144,7 +144,7 @@
                 <TextView
                     style="@style/menuItemTitle"
                     android:layout_toRightOf="@id/iv_setting"
-                    android:text="设置" />
+                    android:text="@string/settings" />
             </RelativeLayout>
             <RelativeLayout style="@style/menuItem" >
 
@@ -156,7 +156,7 @@
                 <TextView
                     style="@style/menuItemTitle"
                     android:layout_toRightOf="@id/iv_logout"
-                    android:text="退出登录" />
+                    android:text="@string/sign_out" />
             </RelativeLayout>
         </LinearLayout>
     </ScrollView>

@@ -27,7 +27,7 @@ public class SeafileObserver implements FileAlterationListener {
             new RecentDownloadedFilesWorkAround();
 
     public interface CachedFileChangedListener {
-        void onCachedFiledChanged(Account account, SeafCachedFile cf, File file);
+        void onCachedFileChanged(Account account, SeafCachedFile cf, File file);
     }
 
     public SeafileObserver(Account account, CachedFileChangedListener listener) {
@@ -122,7 +122,7 @@ public class SeafileObserver implements FileAlterationListener {
         Log.d(DEBUG_TAG, path + " was modified!");
         SeafCachedFile cachedFile = watchedFiles.get(path);
         if (cachedFile != null) {
-            listener.onCachedFiledChanged(account, cachedFile, file);
+            listener.onCachedFileChanged(account, cachedFile, file);
         }
     }
 

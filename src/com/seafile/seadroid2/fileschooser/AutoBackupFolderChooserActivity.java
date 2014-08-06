@@ -17,8 +17,10 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentManager.BackStackEntry;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.widget.Toast;
 
+import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.Utils;
 
@@ -122,16 +124,18 @@ OnBackStackChangedListener {
             try {
                 path = Utils.getPath(this, uri);
                 paths[i] = path;
+                Log.v(LOG_TAG, path);
+//                Toast.makeText(getApplicationContext(), path, Toast.LENGTH_SHORT).show();
             } catch (URISyntaxException e) {
                 e.printStackTrace();
                 return;
             }
             
         }
-        
         Intent intent = new Intent();
         intent.putExtra(AUTO_BACKUP_FOLDER_PATHS, paths);
         setResult(RESULT_OK, intent);
+//        Toast.makeText(getApplicationContext(), "RESULT_OK", Toast.LENGTH_SHORT).show();
         finish();
     }
     
@@ -213,7 +217,7 @@ OnBackStackChangedListener {
             mPath = file.getAbsolutePath();
             
             if (file.isDirectory()) {
-                replaceFragment(mPath);
+                //replaceFragment(mPath);
                 updateSelectedFileList(file);
                 updateSelectionStatus();
                 updateUploadButtonStatus();

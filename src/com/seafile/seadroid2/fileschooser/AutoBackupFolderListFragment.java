@@ -113,7 +113,7 @@ LoaderManager.LoaderCallbacks<List<SelectableFile>>{
     
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-        AutoBackupFolderListAdapter adapter = (AutoBackupFolderListAdapter) l.getAdapter();
+        /*AutoBackupFolderListAdapter adapter = (AutoBackupFolderListAdapter) l.getAdapter();
         if (adapter != null) {
             SelectableFile file = adapter.getItem(position);
             mPath = file.getAbsolutePath();
@@ -123,7 +123,7 @@ LoaderManager.LoaderCallbacks<List<SelectableFile>>{
                 viewHolder.checkBox.setChecked(file.isSelected());
             }
             ((AutoBackupFolderChooserActivity) getActivity()).onFileChecked(file);
-        }
+        }*/
     }
     
     
@@ -136,7 +136,7 @@ LoaderManager.LoaderCallbacks<List<SelectableFile>>{
     @Override
     public Loader<List<SelectableFile>> onCreateLoader(int id, Bundle args) {
     	//data = Utils.listPath(mPath);
-        return new FileLoader(getActivity(), mPath, ((AutoBackupFolderChooserActivity) getActivity()).getSelectedFiles());
+        return new AutoBackupFolderFileLoader(getActivity(), mPath, ((AutoBackupFolderChooserActivity) getActivity()).getSelectedFiles());
     }
 
     @Override

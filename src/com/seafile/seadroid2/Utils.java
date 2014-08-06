@@ -400,18 +400,18 @@ public class Utils {
     };
     
     private static FileFilter mImageFilter = new FileFilter() {
-        public boolean accept(File file) {
-            final String fileName = file.getName();
-            // Return files only (not directories) and skip hidden files
-			return file.isFile()
-					&& (fileName.endsWith(".jpg") | fileName.endsWith(".JPG")
-							| fileName.endsWith(".PNG")
-							| fileName.endsWith(".png")
-							| fileName.endsWith(".bmp")
-							| fileName.endsWith(".BMP")
-							| fileName.endsWith(".JPEG") | fileName
-								.endsWith(".jpeg"));
-        }
+		public boolean accept(File file) {
+			final String fileName = file.getName();
+			// Return files only (not directories) and skip hidden files
+			if (file.isFile() && !fileName.startsWith(HIDDEN_PREFIX)) {
+				for (String ext : imageExtensions) {
+					if (fileName.endsWith("." + ext)) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
     };
     private static FileFilter mFileFilter = new FileFilter() {
         public boolean accept(File file) {
@@ -430,13 +430,52 @@ public class Utils {
         }
     };
     
+    private static String imageExtensions[] ={"png","PNG","jpg","JPG","jpeg","JPEG","bmp","BMP","gif","GIF"};
+    /**
+     * @author Logan Guo
+     * {@link http://stackoverflow.com/questions/3873496/how-to-get-image-path-from-images-stored-on-sd-card}
+     */
+    private static FileFilter filterForImageFolders = new FileFilter() 
+    {            
+        public boolean accept(File folder) 
+        { 
+            try 
+            { 
+                //Checking only directories, since we are checking for files within 
+                //a directory 
+                if(folder.isDirectory() && !folder.getName().startsWith(HIDDEN_PREFIX)) 
+                { 
+                    File[] listOfFiles = folder.listFiles(); 
 
+                    if (listOfFiles == null) return false; 
+
+                    //For each file in the directory... 
+                    for (File file : listOfFiles) 
+                    {                            
+                        //Check if the extension is one of the supported filetypes                           
+                        //imageExtensions is a String[] containing image filetypes (e.g. "png")
+                        for (String ext : imageExtensions) 
+                        { 
+                            if (file.getName().endsWith("." + ext)) return true; 
+                        } 
+                    }                        
+                } 
+                return false; 
+            } 
+            catch (SecurityException e) 
+            { 
+                Log.v("debug", "Access Denied"); 
+                return false; 
+            } 
+        } 
+    };
+    
     public static List<SelectableFile> getFileList(String path, List<File> selectedFile) {
         ArrayList<SelectableFile> list = new ArrayList<SelectableFile>();
 
         // Current directory File instance
         final SelectableFile pathDir = new SelectableFile(path);
-        
+
         // List file in this directory with the directory filter
         final SelectableFile[] dirs = pathDir.listFiles(mDirFilter);
         if (dirs != null) {
@@ -460,10 +499,46 @@ public class Utils {
                 }
                 list.add(file);
             }
-        }       
-        
+        }
+
         return list;
     }
+
+	public static List<SelectableFile> getImageFoldersList(String path, List<File> selectedFile) {
+		ArrayList<SelectableFile> list = new ArrayList<SelectableFile>();
+
+		// Current directory File instance
+		final SelectableFile pathDir = new SelectableFile(Environment.getExternalStorageDirectory().toString() + "/DCIM/");
+
+		// List file in this directory with the directory filter
+		final SelectableFile[] dirs = pathDir.listFiles(filterForImageFolders);
+		if (dirs != null) {
+			// Sort the folders alphabetically
+			Arrays.sort(dirs, mComparator);
+			// Add each folder to the File list for the list adapter
+			for (SelectableFile dir : dirs)
+				list.add(dir);
+		}
+
+		/*
+		// List file in this directory with the file filter
+		final SelectableFile[] files = pathDir.listFiles(mFileFilter);
+		if (files != null) {
+			// Sort the files alphabetically
+			Arrays.sort(files, mComparator);
+			// Add each file to the File list for the list adapter
+			for (SelectableFile file : files) {
+				if (selectedFile != null) {
+					if (selectedFile.contains(file.getFile())) {
+						file.setSelected(true);
+					}
+				}
+				list.add(file);
+			}
+		}
+		 */
+		return list;
+	}
     /**
 	 * 获取SD卡的根目录，末尾带\
 	 * @author Logan Guo

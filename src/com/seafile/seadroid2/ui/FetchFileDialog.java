@@ -182,7 +182,7 @@ public class FetchFileDialog extends DialogFragment {
         fileSizeText = (TextView)view.findViewById(R.id.file_size);
         progressBar = (ProgressBar)view.findViewById(R.id.progress_bar);
 
-        if (savedInstanceState != null) {
+        if (savedInstanceState != null) {  
             repoName = savedInstanceState.getString("repoName");
             repoID = savedInstanceState.getString("repoID");
             path = savedInstanceState.getString("path");

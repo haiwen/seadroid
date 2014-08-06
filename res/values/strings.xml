@@ -150,4 +150,14 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="remember_my_choice">Remember my choice</string>
+    <!-- settings start -->
+    <string name="select_upload_photo_folders">select folders to upload</string>
+    <string name="auto_upload_photos">Auto Upload Photos</string>
+    <string name="sync_method">Sync Method</string>
+    <string name="sync_history">Sync History</string>
+    <string name="transfer_to_PC">transfer to PC</string>
+    <string name="get_free_storage">Get Free Storage</string>
+    <string name="settings">Settings</string>
+    <string name="sign_out">Sign Out</string>
+    <!-- settings end -->
 </resources>

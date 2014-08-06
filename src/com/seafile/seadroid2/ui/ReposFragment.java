@@ -242,8 +242,7 @@ public class ReposFragment extends SherlockListFragment {
 
         if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
             String password = DataManager.getRepoPassword(repo.id);
-            mActivity.showPasswordDialog(repo.name, repo.id,
-                    new TaskDialog.TaskDialogListener() {
+            mActivity.showPasswordDialog(repo.name, repo.id, new TaskDialog.TaskDialogListener() {
                 @Override
                 public void onTaskSuccess() {
                     onListItemClick(l, v, position, id);

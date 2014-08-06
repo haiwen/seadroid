@@ -12,14 +12,14 @@ import android.widget.Button;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.seafile.seadroid2.BrowserActivity;
+import com.seafile.seadroid2.NavContext;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.fileschooser.AutoBackupFolderChooserActivity;
-import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 
 public class SettingsFragment extends SherlockFragment{
 	private static final String DEBUG_TAG = "SettingsFragment";
 	private BrowserActivity mActivity;
-
+	private NavContext navContext;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -31,7 +31,12 @@ public class SettingsFragment extends SherlockFragment{
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 		mActivity = (BrowserActivity)activity;
+		navContext = mActivity.getNavContext();
 		Log.d(DEBUG_TAG, "SettingsFragment Attached");
+	}
+
+	public NavContext getNavContext() {
+		return navContext;
 	}
 
 	@Override
@@ -51,9 +56,15 @@ public class SettingsFragment extends SherlockFragment{
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(mActivity.getApplicationContext(), AutoBackupFolderChooserActivity.class);
-//				Toast.makeText(getActivity().getApplicationContext(), "Browse auto backup images folder", Toast.LENGTH_SHORT).show();
 				mActivity.startActivityForResult(intent, BrowserActivity.PICK_AUTO_BACKUP_FOLDER_REQUEST);
 				
+				/*Intent intent = new Intent();
+				intent.setType("vnd.android.cursor.dir/image");
+				intent.setType("image/*");
+				intent.setAction(Intent.ACTION_GET_CONTENT);
+				intent.addCategory(Intent.CATEGORY_OPENABLE);
+				startActivityForResult(
+						Intent.createChooser(intent, "Choose image"), BrowserActivity.PICK_AUTO_BACKUP_FOLDER_REQUEST);*/
 			}
 		});
 		return view;

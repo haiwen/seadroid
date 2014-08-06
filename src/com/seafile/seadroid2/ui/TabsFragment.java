@@ -33,15 +33,12 @@ public class TabsFragment extends SherlockFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        final Context contextThemeWrapper = new ContextThemeWrapper(
-                getActivity(), R.style.StyledIndicators);
+        final Context contextThemeWrapper = new ContextThemeWrapper(getActivity(), R.style.StyledIndicators);
 
         // clone the inflater using the ContextThemeWrapper
-        LayoutInflater localInflater = inflater
-                .cloneInContext(contextThemeWrapper);
+        LayoutInflater localInflater = inflater.cloneInContext(contextThemeWrapper);
 
         View root = localInflater.inflate(R.layout.tabs_main, container, false);
         adapter = new SeafileTabsAdapter(getFragmentManager());
@@ -101,8 +98,7 @@ public class TabsFragment extends SherlockFragment {
         return (ActivitiesFragment)getFragment(2);
     } 
     
-    class SeafileTabsAdapter extends FragmentPagerAdapter implements
-            IconPagerAdapter {
+    class SeafileTabsAdapter extends FragmentPagerAdapter implements IconPagerAdapter {
         public SeafileTabsAdapter(FragmentManager fm) {
             super(fm);
         }

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
@@ -158,7 +159,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
     }
 
-    private void addUploadTask(String repoID, String repoName, String targetDir, String localFilePath) {
+    public void addUploadTask(String repoID, String repoName, String targetDir, String localFilePath) {
         if (txService != null) {
             txService.addUploadTask(account, repoID, repoName, targetDir, localFilePath, false);
         } else {
@@ -286,6 +287,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             getSupportFragmentManager().beginTransaction().add(R.id.content_frame, uploadTasksFragment, UPLOAD_TASKS_FRAGMENT_TAG).commit();
             getSupportFragmentManager().beginTransaction().add(R.id.content_frame, settingsFragment,SETTINGS_FRAGMENT_TAG).commit();
             getSupportFragmentManager().beginTransaction().detach(uploadTasksFragment).commit();
+            getSupportFragmentManager().beginTransaction().detach(settingsFragment).commit();
 
         }
 
@@ -487,7 +489,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             currentSelectedItem = FILES_VIEW;
             break;
         case 1 :
-            ft.detach(tabsFragment);
+            //ft.detach(tabsFragment);
             ft.detach(settingsFragment);
             ft.attach(uploadTasksFragment);
             ft.commit();
@@ -505,11 +507,12 @@ public class BrowserActivity extends SherlockFragmentActivity
             startActivity(newIntent);
             break;
         case 3:
-        	ft.detach(tabsFragment);
+        	//ft.detach(tabsFragment);
         	ft.detach(uploadTasksFragment);
         	ft.attach(settingsFragment);
         	ft.commit();
-        	//currentSelectedItem = SETTINGS_VIEW; 
+        	currentSelectedItem = SETTINGS_VIEW;
+        	break;
         default:
         	break;
 
@@ -1049,28 +1052,27 @@ public class BrowserActivity extends SherlockFragmentActivity
             }
             break;
         case PICK_AUTO_BACKUP_FOLDER_REQUEST:
-        	if (requestCode == RESULT_OK) {
-        		Log.v(DEBUG_TAG, "PICK_AUTO_BACKUP_FOLDER_REQUEST");
-        		String[] paths = data.getStringArrayExtra(AutoBackupFolderChooserActivity.AUTO_BACKUP_FOLDER_PATHS);
-                if (paths == null)
-                    return;
-                showToast(getString(R.string.added_to_upload_tasks));
-                for (String path : paths) {
-                	Log.v(DEBUG_TAG, path);
-                    addUploadTask(navContext.getRepoID(),
-                        navContext.getRepoName(), navContext.getDirPath(), path);
-                }
+			if (resultCode == Activity.RESULT_OK) {
+				String[] paths = data.getStringArrayExtra(AutoBackupFolderChooserActivity.AUTO_BACKUP_FOLDER_PATHS);
+				if (paths == null) 
+					return;
+				showToast(R.string.added_to_upload_tasks);
+				for (String path : paths) {
+					Log.v(DEBUG_TAG, path);
+					Log.v(DEBUG_TAG, "RepoID: "+navContext.getRepoID());
+					Log.v(DEBUG_TAG, "Repo: "+navContext.getRepoName());
+					addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), path);
+				}
 			}
-        	break;
+			break;
         case PICK_PHOTOS_VIDEOS_REQUEST:
             if (resultCode == RESULT_OK) {
                 ArrayList<String> paths = data.getStringArrayListExtra("photos");
                 if (paths == null)
                     return;
-                showToast(getString(R.string.added_to_upload_tasks));
+                showToast(R.string.added_to_upload_tasks);
                 for (String path : paths) {
-                    addUploadTask(navContext.getRepoID(),
-                        navContext.getRepoName(), navContext.getDirPath(), path);
+                    addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), path);
                 }
             }
             break;
