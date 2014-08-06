@@ -11,3 +11,4 @@ tmp
 proguard/
 target/
 lint.xml
+*.apk

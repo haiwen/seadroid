@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.seafile.seadroid2</groupId>
   <artifactId>seadroid</artifactId>
-  <version>0.9.1</version>
+  <version>1.0.0</version>
   <packaging>apk</packaging>
   <name>seafile android client</name>
   <url>http://seafile.com</url>
@@ -171,4 +171,99 @@
 			</plugin>
 		</plugins>
   </reporting>
+
+  <profiles>
+    <profile>
+      <id>release</id>
+      <!-- via this activation the profile is automatically used when the
+        release is done with the maven release plugin -->
+      <activation>
+        <property>
+          <name>performRelease</name>
+          <value>true</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jarsigner-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>signing</id>
+                <goals>
+                  <goal>sign</goal>
+                  <goal>verify</goal>
+                </goals>
+                <phase>package</phase>
+                <inherited>true</inherited>
+                <configuration>
+                  <removeExistingSignatures>true</removeExistingSignatures>
+                  <archiveDirectory />
+                  <keystore>${sign.keystore}</keystore>
+                  <alias>${sign.alias}</alias>
+                  <storepass>${sign.storepass}</storepass>
+                  <keypass>${sign.keypass}</keypass>
+                  <verbose>true</verbose>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- the signed apk then needs to be zipaligned -->
+          <plugin>
+            <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+            <artifactId>android-maven-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <release>true</release>
+              <sign>
+                <debug>false</debug>
+              </sign>
+              <zipalign>
+                <skip>false</skip>
+                <verbose>true</verbose>
+                <outputApk>${project.build.directory}/${project.artifactId}-${project.version}-signed-aligned.apk
+                </outputApk>
+              </zipalign>
+              <manifest>
+                <debuggable>false</debuggable>
+              </manifest>
+            </configuration>
+            <executions>
+              <execution>
+                <id>alignApk</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>zipalign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <configuration>
+              <artifacts>
+                <artifact>
+                  <file>${project.build.directory}/${project.artifactId}-${project.version}-signed-aligned.apk</file>
+                  <type>apk</type>
+                  <classifier>signed-aligned</classifier>
+                </artifact>
+              </artifacts>
+            </configuration>
+            <executions>
+              <execution>
+                <id>attach-signed-aligned</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>attach-artifact</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
 </project>
