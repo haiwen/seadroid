@@ -63,7 +63,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
         } else {
             ContentResolver contentResolver = getContentResolver();
             Cursor cursor = contentResolver.query(uri, null, null, null, null);
-            if (!cursor.moveToFirst()) {
+            if (cursor == null || !cursor.moveToFirst()) {
                 return null;
             }
             String filePath = cursor.getString(cursor.getColumnIndex(Images.Media.DATA));
