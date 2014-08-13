@@ -87,14 +87,20 @@ public class FileActivity extends SherlockFragmentActivity {
     }
 
     @Override
+    protected void onStop() {
+        Log.d(DEBUG_TAG, "onStop");
+        super.onStop();
+
+        if (mTransferReceiver != null) {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(mTransferReceiver);
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         if (mTransferService != null) {
             unbindService(mConnection);
             mTransferService = null;
-        }
-
-        if (mTransferReceiver != null) {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(mTransferReceiver);
         }
 
         super.onDestroy();

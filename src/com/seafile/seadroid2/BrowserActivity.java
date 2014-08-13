@@ -432,7 +432,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         if (mTransferReceiver != null) {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(mTransferReceiver);
         }
-
     }
 
     @Override
@@ -442,7 +441,6 @@ public class BrowserActivity extends SherlockFragmentActivity
             unbindService(mConnection);
             txService = null;
         }
-
 
         super.onDestroy();
     }
