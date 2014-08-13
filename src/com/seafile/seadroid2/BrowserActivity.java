@@ -1671,6 +1671,10 @@ public class BrowserActivity extends SherlockFragmentActivity
         return passwordDialog;
     }
 
+    public void setSelectedTab(int index) {
+        tabsFragment.setSelectedTab(index);
+    }
+
     // for receive broadcast from TransferService
     private class TransferReceiver extends BroadcastReceiver {
 

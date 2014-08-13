@@ -174,7 +174,7 @@ public class ActivitiesFragment extends SherlockFragment {
         nav.setDir("/", repo.getRootDirID());
 
         // switch to LIBRARY TAB
-        getBrowserActivity().getSupportActionBar().setSelectedNavigationItem(0);
+        getBrowserActivity().setSelectedTab(0);
     }
 
     private void viewFile(String repoID, String path) {

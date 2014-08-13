@@ -26,6 +26,7 @@ public class TabsFragment extends SherlockFragment {
 
     private int currentPosition = 0;
     private FragmentPagerAdapter adapter;
+    private ViewPager pager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -46,7 +47,7 @@ public class TabsFragment extends SherlockFragment {
         View root = localInflater.inflate(R.layout.tabs_main, container, false);
         adapter = new SeafileTabsAdapter(getChildFragmentManager());
 
-        ViewPager pager = (ViewPager) root.findViewById(R.id.pager);
+        pager = (ViewPager) root.findViewById(R.id.pager);
         pager.setAdapter(adapter);
 
         TabPageIndicator indicator = (TabPageIndicator) root
@@ -70,6 +71,10 @@ public class TabsFragment extends SherlockFragment {
             }
         });
         return root;
+    }
+
+    public void setSelectedTab(int index) {
+        pager.setCurrentItem(index, true);
     }
 
     public int getCurrentTabIndex() {
