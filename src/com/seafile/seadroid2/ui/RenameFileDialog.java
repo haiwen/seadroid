@@ -50,6 +50,11 @@ public class RenameFileDialog extends TaskDialog {
     private DataManager dataManager;
     private Account account;
 
+    private static final String STATE_REPO_ID = "rename_task.repo_name";
+    private static final String STATE_PATH = "rename_task.repo_id";
+    private static final String STATE_ISDIR = "rename_task.account";
+    private static final String STATE_ACCOUNT = "rename_task.account";
+
     public void init(String repoID, String path, boolean isdir, Account account) {
         this.repoID = repoID;
         this.path = path;
@@ -73,6 +78,13 @@ public class RenameFileDialog extends TaskDialog {
     protected View createDialogContentView(LayoutInflater inflater, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_new_file, null);
         fileNameText = (EditText) view.findViewById(R.id.new_file_name);
+
+        if (savedInstanceState != null) {
+            repoID = savedInstanceState.getString(STATE_REPO_ID);
+            path = savedInstanceState.getString(STATE_PATH);
+            isdir = savedInstanceState.getBoolean(STATE_ISDIR);
+            account = (Account)savedInstanceState.getParcelable(STATE_ACCOUNT);
+        }
 
         fileNameText.setText(Utils.fileNameFromPath(path));
 
@@ -113,5 +125,13 @@ public class RenameFileDialog extends TaskDialog {
     protected void enableInput() {
         super.enableInput();
         fileNameText.setEnabled(true);
+    }
+
+    @Override
+    protected void onSaveDialogContentState(Bundle outState) {
+        outState.putString(STATE_REPO_ID, repoID);
+        outState.putString(STATE_PATH, path);
+        outState.putBoolean(STATE_ISDIR, isdir);
+        outState.putParcelable(STATE_ACCOUNT, account);
     }
 }
