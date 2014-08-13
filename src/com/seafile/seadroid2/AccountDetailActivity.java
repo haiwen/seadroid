@@ -150,6 +150,10 @@ public class AccountDetailActivity extends FragmentActivity {
             serverURL = serverURL + "/";
         }
 
+        // XXX: android 4.0.3 ~ 4.0.4 can't handle urls with underscore (_) in the host field.
+        // See https://github.com/nostra13/Android-Universal-Image-Loader/issues/256 , and
+        // https://code.google.com/p/android/issues/detail?id=24924
+        //
         new URL(serverURL); // will throw MalformedURLException if serverURL not valid
         return serverURL;
     }
