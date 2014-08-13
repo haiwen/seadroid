@@ -1,6 +1,5 @@
 package com.seafile.seadroid2;
 
-import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;

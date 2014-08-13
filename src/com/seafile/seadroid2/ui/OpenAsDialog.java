@@ -2,8 +2,6 @@ package com.seafile.seadroid2.ui;
 
 import java.io.File;
 
-import com.seafile.seadroid2.R;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -11,7 +9,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.util.Log;
+
+import com.seafile.seadroid2.R;
 
 public class OpenAsDialog extends DialogFragment {
 

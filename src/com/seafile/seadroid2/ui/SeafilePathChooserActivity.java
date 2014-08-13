@@ -5,7 +5,6 @@ import java.util.List;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -72,8 +71,6 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
     private static final int STEP_CHOOSE_REPO = 2;
     private static final int STEP_CHOOSE_DIR = 3;
     private int mStep = 1;
-
-    private ServiceConnection mConnection;
 
     public static final String DATA_REPO_ID = "repoID";
     public static final String DATA_REPO_NAME = "repoNAME";
