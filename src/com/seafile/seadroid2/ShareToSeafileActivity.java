@@ -37,8 +37,11 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
 
-        Uri uri = (Uri)intent.getExtras().get(Intent.EXTRA_STREAM);
-        localPath = getSharedFilePath(uri);
+        Bundle extras = intent.getExtras();
+        if (extras != null) {
+            Uri uri = (Uri)extras.get(Intent.EXTRA_STREAM);
+            localPath = getSharedFilePath(uri);
+        }
         if (localPath == null) {
             showToast(R.string.not_supported_share);
             finish();

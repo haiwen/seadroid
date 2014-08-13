@@ -1,4 +1,4 @@
-package com.seafile.seadroid2;
+package com.seafile.seadroid2.util;
 
 import org.junit.Test;
 import org.junit.Assert;
