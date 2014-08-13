@@ -65,7 +65,7 @@ public class UploadTasksFragment extends SherlockListFragment {
                                          getUploadTaskInfos());
         setListAdapter(adapter);
         registerForContextMenu(getListView());
-        mActivity.invalidateOptionsMenu();
+        mActivity.supportInvalidateOptionsMenu();
     }
 
     @Override
@@ -169,7 +169,7 @@ public class UploadTasksFragment extends SherlockListFragment {
     public void refreshView() {
         adapter.setTaskInfos(getUploadTaskInfos());
         adapter.notifyDataSetChanged();
-        mActivity.invalidateOptionsMenu();
+        mActivity.supportInvalidateOptionsMenu();
     }
 
     public void onTaskProgressUpdate(UploadTaskInfo info) {

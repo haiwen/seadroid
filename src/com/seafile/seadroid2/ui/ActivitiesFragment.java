@@ -94,7 +94,7 @@ public class ActivitiesFragment extends SherlockFragment {
             loadActivitiesPage();
         }
 
-        getBrowserActivity().invalidateOptionsMenu();
+        getBrowserActivity().supportInvalidateOptionsMenu();
 
         super.onActivityCreated(savedInstanceState);
     }
