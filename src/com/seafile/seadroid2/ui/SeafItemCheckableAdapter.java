@@ -16,8 +16,8 @@ import android.widget.TextView;
 import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.NavContext;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.Utils;
 import com.seafile.seadroid2.data.*;
+import com.seafile.seadroid2.util.Utils;
 
 public class SeafItemCheckableAdapter extends BaseAdapter {
 

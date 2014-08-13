@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.seafile.seadroid2.Utils;
+import com.seafile.seadroid2.util.Utils;
 
 import android.content.Context;
 import android.os.FileObserver;

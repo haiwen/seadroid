@@ -33,6 +33,7 @@ import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.ui.OpenAsDialog;
 import com.seafile.seadroid2.ui.PasswordDialog;
 import com.seafile.seadroid2.ui.TaskDialog;
+import com.seafile.seadroid2.util.Utils;
 
 /**
  * Display a file

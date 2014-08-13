@@ -1,5 +1,7 @@
 package com.seafile.seadroid2;
 
+import com.seafile.seadroid2.util.Utils;
+
 public class CopyMoveContext {
     enum OP {
         COPY,

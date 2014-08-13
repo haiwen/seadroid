@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.FileFilter;
 
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.Utils;
 import com.seafile.seadroid2.data.SeafItem;
+import com.seafile.seadroid2.util.Utils;
 
 public class SelectableFile implements SeafItem {
 

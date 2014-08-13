@@ -18,8 +18,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.Utils;
 import com.seafile.seadroid2.transfer.UploadTaskInfo;
+import com.seafile.seadroid2.util.Utils;
 
 public class UploadTasksAdapter extends BaseAdapter {
     private List<UploadTaskInfo> mTaskInfos;

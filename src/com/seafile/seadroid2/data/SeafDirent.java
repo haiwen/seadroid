@@ -8,7 +8,7 @@ import org.json.JSONObject;
 import android.util.Log;
 
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.Utils;
+import com.seafile.seadroid2.util.Utils;
 
 public class SeafDirent implements SeafItem, Serializable {
     public static final long serialVersionUID = 0L;

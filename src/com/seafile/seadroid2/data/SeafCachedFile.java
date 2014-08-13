@@ -2,7 +2,7 @@ package com.seafile.seadroid2.data;
 
 import java.io.File;
 
-import com.seafile.seadroid2.Utils;
+import com.seafile.seadroid2.util.Utils;
 
 public class SeafCachedFile implements SeafItem {
     public int id;

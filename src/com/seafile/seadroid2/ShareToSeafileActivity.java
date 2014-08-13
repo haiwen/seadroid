@@ -18,6 +18,7 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.ui.SeafilePathChooserActivity;
+import com.seafile.seadroid2.util.Utils;
 
 public class ShareToSeafileActivity extends SherlockFragmentActivity {
     private static final String DEBUG_TAG = "ShareToSeafileActivity";

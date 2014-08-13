@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.Utils;
+import com.seafile.seadroid2.util.Utils;
 
 import android.net.Uri;
 import android.os.Bundle;

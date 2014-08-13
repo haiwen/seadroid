@@ -3,7 +3,6 @@ package com.seafile.seadroid2;
 import java.io.File;
 
 import us.feras.mdv.MarkdownView;
-
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -16,6 +15,7 @@ import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.seafile.seadroid2.util.Utils;
 
 /*
  * For showing markdown files

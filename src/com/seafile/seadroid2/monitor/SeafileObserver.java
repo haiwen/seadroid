@@ -10,10 +10,10 @@ import org.apache.commons.io.monitor.FileAlterationObserver;
 import android.util.Log;
 
 import com.google.common.collect.Maps;
-import com.seafile.seadroid2.Utils;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafCachedFile;
+import com.seafile.seadroid2.util.Utils;
 
 public class SeafileObserver implements FileAlterationListener {
     private static final String DEBUG_TAG = "SeafileObserver";

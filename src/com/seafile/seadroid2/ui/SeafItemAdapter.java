@@ -7,7 +7,6 @@ import java.util.ArrayList;
 
 import net.londatiga.android.ActionItem;
 import net.londatiga.android.QuickAction;
-
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -22,13 +21,13 @@ import android.widget.TextView;
 import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.NavContext;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.Utils;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafCachedFile;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafGroup;
 import com.seafile.seadroid2.data.SeafItem;
 import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.util.Utils;
 
 public class SeafItemAdapter extends BaseAdapter {
 

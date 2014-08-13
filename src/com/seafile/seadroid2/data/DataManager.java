@@ -2,7 +2,6 @@ package com.seafile.seadroid2.data;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,7 +14,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -24,8 +22,9 @@ import android.util.Pair;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
-import com.seafile.seadroid2.Utils;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.util.BitmapUtil;
+import com.seafile.seadroid2.util.Utils;
 
 public class DataManager {
     public static final int MAX_GEN_CACHE_THUMB = 1000000;  // Only generate thumb cache for files less than 1MB
@@ -123,18 +122,19 @@ public class DataManager {
     }
 
     public void calculateThumbnail(String repoName, String repoID, String path, String oid) {
-        final int THUMBNAIL_SIZE = 72;
+        final int THUMBNAIL_SIZE = caculateThumbnailSizeOfDevice();
         FileOutputStream out = null;
         try {
             File file = getLocalRepoFile(repoName, repoID, path);
             if (!file.exists())
                 return;
-            if (file.length() > MAX_GEN_CACHE_THUMB)
-                return;
+            // if (file.length() > MAX_GEN_CACHE_THUMB)
+            //     return;
 
-            Bitmap imageBitmap = BitmapFactory.decodeStream(new FileInputStream(file));
-            imageBitmap = Bitmap.createScaledBitmap(imageBitmap, THUMBNAIL_SIZE,
-                    THUMBNAIL_SIZE, false);
+            Bitmap imageBitmap = BitmapUtil.calculateThumbnail(file.getPath(), THUMBNAIL_SIZE);
+            if (imageBitmap == null) {
+                return;
+            }
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
             byte[] byteArray = baos.toByteArray();
@@ -164,9 +164,7 @@ public class DataManager {
 
             final int THUMBNAIL_SIZE = caculateThumbnailSizeOfDevice();
 
-            Bitmap imageBitmap = BitmapFactory.decodeStream(new FileInputStream(file));
-            imageBitmap = Bitmap.createScaledBitmap(imageBitmap, THUMBNAIL_SIZE, THUMBNAIL_SIZE, false);
-            return imageBitmap;
+            return BitmapUtil.calculateThumbnail(file.getPath(), THUMBNAIL_SIZE);
         } catch (Exception ex) {
             return null;
         }

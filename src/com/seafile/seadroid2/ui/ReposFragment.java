@@ -26,13 +26,13 @@ import com.seafile.seadroid2.NavContext;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
-import com.seafile.seadroid2.Utils;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafGroup;
 import com.seafile.seadroid2.data.SeafItem;
 import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.util.Utils;
 
 
 public class ReposFragment extends SherlockListFragment {
@@ -203,17 +203,24 @@ public class ReposFragment extends SherlockListFragment {
         }
     }
 
-    private void updateAdapterWithDirents(List<SeafDirent> dirents) {
+    private void updateAdapterWithDirents(final List<SeafDirent> dirents) {
         adapter.clear();
         if (dirents.size() > 0) {
             for (SeafDirent dirent : dirents) {
                 adapter.add(dirent);
             }
             NavContext nav = getNavContext();
-            String repoName = nav.getRepoName();
-            String repoID = nav.getRepoID();
-            String dirPath = nav.getDirPath();
-            scheduleThumbnailTask(repoName, repoID, dirPath, dirents);
+            final String repoName = nav.getRepoName();
+            final String repoID = nav.getRepoID();
+            final String dirPath = nav.getDirPath();
+            // scheduleThumbnailTask(repoName, repoID, dirPath, dirents);
+            ConcurrentAsyncTask.execute(new Runnable() {
+                @Override
+                public void run() {
+                    scheduleThumbnailTask(repoName, repoID, dirPath, dirents);
+                }
+            });
+
             adapter.notifyChanged();
             mList.setVisibility(View.VISIBLE);
             mEmptyView.setVisibility(View.GONE);
@@ -557,8 +564,8 @@ public class ReposFragment extends SherlockListFragment {
                 String p = Utils.pathJoin(path, dirent.name);
                 File file = mActivity.getDataManager().getLocalRepoFile(repoName, repoID, p);
                 if (file.exists()) {
-                    if (file.length() > 1000000)
-                        continue;
+                    // if (file.length() > 1000000)
+                    //     continue;
 
                     File thumb = DataManager.getThumbFile(dirent.id);
                     if (!thumb.exists())

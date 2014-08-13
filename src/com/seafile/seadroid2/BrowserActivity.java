@@ -83,6 +83,7 @@ import com.seafile.seadroid2.ui.TabsFragment;
 import com.seafile.seadroid2.ui.TaskDialog;
 import com.seafile.seadroid2.ui.TaskDialog.TaskDialogListener;
 import com.seafile.seadroid2.ui.UploadTasksFragment;
+import com.seafile.seadroid2.util.Utils;
 
 public class BrowserActivity extends SherlockFragmentActivity
         implements ReposFragment.OnFileSelectedListener, StarredFragment.OnStarredFileSelectedListener, OnBackStackChangedListener {

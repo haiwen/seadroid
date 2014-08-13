@@ -8,9 +8,9 @@ import android.widget.EditText;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
-import com.seafile.seadroid2.Utils;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.util.Utils;
 
 class RenameTask extends TaskDialog.Task {
     String repoID;

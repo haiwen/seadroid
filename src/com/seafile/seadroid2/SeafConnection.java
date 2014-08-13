@@ -31,6 +31,7 @@ import com.github.kevinsawicki.http.HttpRequest.HttpRequestException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.ProgressMonitor;
+import com.seafile.seadroid2.util.Utils;
 
 /**
  * SeafConnection encapsulates Seafile Web API
