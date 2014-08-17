@@ -1,0 +1,171 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="app_name">시파일</string>
+  <string name="app_url">http://seafile.com</string>
+  <string name="welcome_to_seafile">환영합니다. 시파일입니다.</string>
+  <string name="select_account">시작할 계정을 선택하세요</string>
+  <string name="edit_account">편집</string>
+  <string name="delete_account">삭제</string>
+  <string name="delete">삭제</string>
+  <string name="delete_file">정말로 이 파일 또는 폴더를 삭제할까요?</string>
+  <string name="delete_successful">성공적으로 삭제했습니다</string>
+  <string name="delete_file_f">파일 삭제</string>
+  <string name="delete_dir">폴더 삭제</string>
+  <string name="server_hint">cloud.seafile.com처럼 서버를 적으세요</string>
+  <string name="email_hint">전자메일</string>
+  <string name="passwd_hint">암호</string>
+  <string name="login">로그인</string>
+  <string name="open_file">열기</string>
+  <string name="download_file">다운로드</string>
+  <string name="redownload_file">다시 다운로드</string>
+  <string name="cancel_download">취소</string>
+  <string name="unknown_file_type"> 알 수 없는 파일 형식</string>
+  <string name="activity_not_found">이 파일을 열 앱을 찾을 수 없습니다</string>
+  <string name="refresh">새로 고침</string>
+  <string name="add_account">계정 추가</string>
+  <string name="personal">개인</string>
+  <string name="libraries">라이브러리</string>
+  <string name="cached">캐시함</string>
+  <string name="upload_tasks">업로드 갯수</string>
+  <string name="activities">활동</string>
+  <string name="pick_upload_type">업로드</string>
+  <string-array name="pick_upload_array">
+    <item>파일</item>
+    <item>사진/동영상</item>
+    <item>기타</item>
+  </string-array>
+  <string name="choose_server">시파일 서버를 선택하세요</string>
+  <string-array name="choose_server_array">
+    <item>개인 시파일 서버</item>
+    <item>SeaCloud.cc</item>
+    <item>cloud.seafile.com</item>
+  </string-array>
+  <string name="network_down">네트워크 연결 상태가 아닙니다</string>
+  <string name="invalid_server_address">잘못된 서버 주소입니다</string>
+  <string name="err_server_andress_empty">서버 주소를 비워둘 수 없습니다</string>
+  <string name="err_login_failed">로그인에 실패했습니다</string>
+  <string name="err_wrong_user_or_passwd">전자메일 또는 암호 오류</string>
+  <string name="upload">업로드</string>
+  <string name="uploaded">업로드함</string>
+  <string name="updated">업데이트함</string>
+  <string name="download_failed">다운로드에 실패했습니다</string>
+  <string name="trust_https_server">신뢰 기관에서 발급한 인증서가 아닙니다. 계속할까요?</string>
+  <string name="upload_to">업로드 대상:</string>
+  <string name="task_cancel">취소</string>
+  <string name="task_retry">다시 시도</string>
+  <string name="task_remove">제거</string>
+  <string name="task_remove_all_finished">완료한 항목 제거</string>
+  <string name="file_action_download">다운로드</string>
+  <string name="file_action_remove_cache">캐시 제거</string>
+  <string name="file_action_update">업로드</string>
+  <string name="file_action_share">공유</string>
+  <string name="file_action_export">내보내기</string>
+  <string name="file_action_delete">삭제</string>
+  <string name="file_action_rename">이름 바꾸기</string>
+  <string name="file_action_copy">복사</string>
+  <string name="file_action_move">이동</string>
+  <string name="file_action_open_as">다른 앱에서 열기</string>
+  <string-array name="file_type_array">
+    <item>텍스트</item>
+    <item>오디오</item>
+    <item>동영상</item>
+    <item>그림</item>
+    <item>기타</item>
+  </string-array>
+  <string name="wait">대기</string>
+  <string name="image_gallery_NoImageView_text">그림이 없습니다</string>
+  <string name="pick_photo_video_title">업로드할 사진/동영상을 선택하세요</string>
+  <string name="select_upload_items">업로드할 항목을 선택하세요</string>
+  <string name="n_upload_items_selected">선택한 항목 %d개</string>
+  <string name="dir_name_empty">폴더 이름을 입력하세요</string>
+  <string name="file_name_empty">파일 이름을 입력하세요</string>
+  <string name="password_empty">암호를 입력하세요</string>
+  <string name="wrong_password">잘못된 암호입니다</string>
+  <string name="library_read_only">이 라이브러리는 읽기전용입니다</string>
+  <string name="error_when_load_dirents">폴더를 불러오는 중 오류가 생겼습니다</string>
+  <string name="error_when_load_repos">라이브러리를 불러오는 중 오류가 생겼습니다</string>
+  <string name="dir_empty">이 폴더는 비어있습니다</string>
+  <string name="no_repo">아직 라이브러리가 없습니다</string>
+  <string name="no_app_available">앱을 찾을 수 없습니다</string>
+  <string name="add_to_seafile">시파일에 추가</string>
+  <string name="ok">확인</string>
+  <string name="cancel">취소</string>
+  <string name="no_account">먼저 시파일에서 계정을 설정해주세요</string>
+  <string name="no_library">아직 라이브러리가 없습니다</string>
+  <string name="choose_an_account">계정 만들기</string>
+  <string name="choose_a_library">라이브러리 만들기</string>
+  <string name="choose_a_folder">폴더 만들기</string>
+  <string name="load_accounts_fail">시파일 계정 불러오기에 실패했습니다</string>
+  <string name="load_libraries_fail">라이브러리 불러오기에 실패했습니다</string>
+  <string name="load_dir_fail">이 폴더의 내용 불러오기에 실패했습니다.</string>
+  <string name="not_supported_share">이 공유 형식은 지원하지 않습니다</string>
+  <string name="create_new_file">새 파일 만들기</string>
+  <string name="create_new_dir">새 폴더 만들기</string>
+  <string name="camera">여기에 사진 넣기</string>
+  <string name="download">다운로드</string>
+  <string name="open">열기</string>
+  <string name="last_modified">최근 수정</string>
+  <string name="file_modified">수정함</string>
+  <string name="file_size">파일 크기</string>
+  <string name="library_not_found">라이브러리를 삭제했습니다.</string>
+  <string name="export_file">이 파일 내보내기</string>
+  <string name="no_upload_tasks">업로드 작업이 없습니다</string>
+  <string name="seahub_url_hint">참고: 서버 주소에 포트를 포함해야 합니다. 예, www.example.com:8000</string>
+  <string name="copy_link">링크 복사</string>
+  <string name="share_file_link">이 파일 링크 공유</string>
+  <string name="share_dir_link">이 폴더 링크 공유</string>
+  <string name="generating_link">링크 만드는 중...</string>
+  <string name="link_ready_to_be_pasted">붙여넣을 링크를 준비했습니다.</string>
+  <string name="rename_file">파일 이름 바꾸기</string>
+  <string name="rename_dir">폴더 이름 바꾸기</string>
+  <string name="rename_successful">성공적으로 이름을 바꾸었습니다.</string>
+  <string-array name="nav_array">
+    <item>파일</item>
+    <item>업로드</item>
+    <item>계정</item>
+  </string-array>
+  <string name="drawer_open">탐색 드로어 열기</string>
+  <string name="drawer_close">탐색 드로어 닫기</string>
+  <string name="no_starred_file">별표 표시한 파일이 없습니다</string>
+  <string name="added_to_upload_tasks">선택한 파일(들)을 업로드 작업 목록에 추가했습니다.</string>
+  <string name="added_photo_to_upload_tasks">사진을 업로드하는 중입니다.</string>
+  <string name="take_photo_successfully">사진을 잘 찍었습니다</string>
+  <string name="tabs_library">라이브러리</string>
+  <string name="tabs_activity">활동</string>
+  <string name="tabs_starred">별표 표시</string>
+  <string name="provide_password">\"%s\" 라이브러리에 대한 암호를 입력하세요</string>
+  <string name="upload_waiting">기다리는 중</string>
+  <string name="upload_finished">끝냈습니다</string>
+  <string name="upload_cancelled">취소했습니다</string>
+  <string name="upload_failed">실패했습니다</string>
+  <string name="days_ago">일 전</string>
+  <string name="hours_ago">시간 전</string>
+  <string name="minutes_ago">분 전</string>
+  <string name="seconds_ago">초 전</string>
+  <string name="just_now">지금</string>
+  <string name="error_when_load_starred">별표 표시한 파일을 불러오는 중 오류가 생겼습니다</string>
+  <string name="open_as">다른 앱으로 열기</string>
+  <string name="select_upload_files">업로드할 파일을 선택하세요</string>
+  <string name="storage_removed">저장소를 제거했습니다</string>
+  <string name="error_selecting_file">파일을 선택하는 중 오류가 생겼습니다</string>
+  <string name="n_upload_files_selected">선택한 파일(들) %d개</string>
+  <string name="empty_folder">빈 폴더</string>
+  <string name="choose_file">파일 선택</string>
+  <string name="ssl_error">보안 검사에 실패했습니다</string>
+  <string name="ssl_confirm">%s 보안 인증서를 신뢰할 수 없습니다. 계속할까요?</string>
+  <string name="ssl_confirm_cert_changed">%s에서 잘못된 보안 인증서를 사용합니다. 연결이 안전하지 않습니다. 계속할까요?</string>
+  <string name="ssl_confirm_title">신뢰할 수 없는 연결</string>
+  <string name="yes">예</string>
+  <string name="no">아니요</string>
+  <string name="remember_my_choice">내 선택 기억</string>
+  <string name="copied_successfully">성공적으로 복사했습니다</string>
+  <string name="moved_successfully">성공적으로 이동했습니다</string>
+  <string name="internal_server_error">내부 서버 오류</string>
+  <string name="copy_file_ing">파일 복사 중</string>
+  <string name="move_file_ing">파일 이동 중</string>
+  <string name="copy_folder_ing">폴더 복사 중</string>
+  <string name="move_folder_ing">폴더 이동 중</string>
+  <string name="upload_started">업로드를 시작했습니다</string>
+  <string name="cannot_copy_folder_to_subfolder">폴더를 이 폴더의 하위 폴더로 복사할 수 없습니다</string>
+  <string name="cannot_move_folder_to_subfolder">폴더를 이 폴더의 하위 폴더로 이동할 수 없습니다</string>
+</resources>
