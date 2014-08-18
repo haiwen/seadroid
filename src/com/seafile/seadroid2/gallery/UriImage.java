@@ -23,11 +23,13 @@ class UriImage implements IImage {
         mUri = uri;
     }
 
-    public int getDegreesRotated() {
+    @Override
+	public int getDegreesRotated() {
         return 0;
     }
 
-    public String getDataPath() {
+    @Override
+	public String getDataPath() {
         return mUri.getPath();
     }
 
@@ -57,7 +59,8 @@ class UriImage implements IImage {
         }
     }
 
-    public Bitmap fullSizeBitmap(int minSideLength, int maxNumberOfPixels) {
+    @Override
+	public Bitmap fullSizeBitmap(int minSideLength, int maxNumberOfPixels) {
         return fullSizeBitmap(minSideLength, maxNumberOfPixels,
                 IImage.ROTATE_AS_NEEDED, IImage.NO_NATIVE);
     }
@@ -68,7 +71,8 @@ class UriImage implements IImage {
                 rotateAsNeeded, IImage.NO_NATIVE);
     }
 
-    public Bitmap fullSizeBitmap(int minSideLength, int maxNumberOfPixels,
+    @Override
+	public Bitmap fullSizeBitmap(int minSideLength, int maxNumberOfPixels,
             boolean rotateAsNeeded, boolean useNative) {
         try {
             ParcelFileDescriptor pfdInput = getPFD();
@@ -81,23 +85,28 @@ class UriImage implements IImage {
         }
     }
 
-    public Uri fullSizeImageUri() {
+    @Override
+	public Uri fullSizeImageUri() {
         return mUri;
     }
 
-    public InputStream fullSizeImageData() {
+    @Override
+	public InputStream fullSizeImageData() {
         return getInputStream();
     }
 
-    public Bitmap miniThumbBitmap() {
+    @Override
+	public Bitmap miniThumbBitmap() {
         return thumbBitmap(IImage.ROTATE_AS_NEEDED);
     }
 
-    public String getTitle() {
+    @Override
+	public String getTitle() {
         return mUri.toString();
     }
 
-    public Bitmap thumbBitmap(boolean rotateAsNeeded) {
+    @Override
+	public Bitmap thumbBitmap(boolean rotateAsNeeded) {
         return fullSizeBitmap(THUMBNAIL_TARGET_SIZE, THUMBNAIL_MAX_NUM_PIXELS,
                 rotateAsNeeded);
     }
@@ -116,40 +125,48 @@ class UriImage implements IImage {
         }
     }
 
-    public String getMimeType() {
+    @Override
+	public String getMimeType() {
         BitmapFactory.Options options = snifBitmapOptions();
         return (options != null && options.outMimeType != null)
                 ? options.outMimeType
                 : "";
     }
 
-    public int getHeight() {
+    @Override
+	public int getHeight() {
         BitmapFactory.Options options = snifBitmapOptions();
         return (options != null) ? options.outHeight : 0;
     }
 
-    public int getWidth() {
+    @Override
+	public int getWidth() {
         BitmapFactory.Options options = snifBitmapOptions();
         return (options != null) ? options.outWidth : 0;
     }
 
-    public IImageList getContainer() {
+    @Override
+	public IImageList getContainer() {
         return mContainer;
     }
 
-    public long getDateTaken() {
+    @Override
+	public long getDateTaken() {
         return 0;
     }
 
-    public boolean isReadonly() {
+    @Override
+	public boolean isReadonly() {
         return true;
     }
 
-    public boolean isDrm() {
+    @Override
+	public boolean isDrm() {
         return false;
     }
 
-    public boolean rotateImageBy(int degrees) {
+    @Override
+	public boolean rotateImageBy(int degrees) {
         return false;
     }
 }

@@ -71,19 +71,23 @@ public class VideoObject extends BaseImage implements IImage {
         return 0;
     }
 
-    public boolean isReadonly() {
+    @Override
+	public boolean isReadonly() {
         return false;
     }
 
-    public boolean isDrm() {
+    @Override
+	public boolean isDrm() {
         return false;
     }
 
-    public boolean rotateImageBy(int degrees) {
+    @Override
+	public boolean rotateImageBy(int degrees) {
        return false;
     }
 
-    public Bitmap thumbBitmap(boolean rotateAsNeeded) {
+    @Override
+	public Bitmap thumbBitmap(boolean rotateAsNeeded) {
         return fullSizeBitmap(THUMBNAIL_TARGET_SIZE, THUMBNAIL_MAX_NUM_PIXELS);
     }
 

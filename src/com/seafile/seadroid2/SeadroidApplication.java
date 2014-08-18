@@ -7,7 +7,8 @@ public class SeadroidApplication extends Application {
 
     private static Context context;
 
-    public void onCreate() {
+    @Override
+	public void onCreate() {
         super.onCreate();
         SeadroidApplication.context = getApplicationContext();
     }

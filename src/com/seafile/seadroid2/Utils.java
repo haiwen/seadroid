@@ -30,17 +30,14 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.DetailedState;
 import android.net.Uri;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
@@ -392,7 +389,8 @@ public class Utils {
     private static final String HIDDEN_PREFIX = ".";
 
     private static Comparator<SelectableFile> mComparator = new Comparator<SelectableFile>() {
-        public int compare(SelectableFile f1, SelectableFile f2) {
+        @Override
+		public int compare(SelectableFile f1, SelectableFile f2) {
             // Sort alphabetically by lower case, which is much cleaner
             return f1.getName().toLowerCase().compareTo(
                     f2.getName().toLowerCase());
@@ -415,7 +413,8 @@ public class Utils {
     };
     */
     private static FileFilter mFileFilter = new FileFilter() {
-        public boolean accept(File file) {
+        @Override
+		public boolean accept(File file) {
             final String fileName = file.getName();
             // Return files only (not directories) and skip hidden files
             return file.isFile() && !fileName.startsWith(HIDDEN_PREFIX);
@@ -424,7 +423,8 @@ public class Utils {
     
 
     private static FileFilter mDirFilter = new FileFilter() {
-        public boolean accept(File file) {
+        @Override
+		public boolean accept(File file) {
             final String fileName = file.getName();
             // Return directories only and skip hidden directories
             return file.isDirectory() && !fileName.startsWith(HIDDEN_PREFIX);
@@ -438,7 +438,8 @@ public class Utils {
      */
     private static FileFilter filterForImageFolders = new FileFilter() 
     {            
-        public boolean accept(File folder) 
+        @Override
+		public boolean accept(File folder) 
         { 
             try 
             { 

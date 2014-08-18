@@ -137,7 +137,8 @@ class GridViewSpecial extends View {
     }
 
     private final Runnable mRedrawCallback = new Runnable() {
-                public void run() {
+                @Override
+				public void run() {
                     invalidate();
                 }
             };
@@ -561,7 +562,8 @@ class GridViewSpecial extends View {
     }
 
     private final Runnable mLongPressCallback = new Runnable() {
-        public void run() {
+        @Override
+		public void run() {
             mCurrentPressState &= ~CLICKING_FLAG;
             showContextMenu();
         }
@@ -1029,9 +1031,11 @@ class ImageBlockManager {
                     final int colFinal = col;
                     ImageLoader.LoadedCallback cb =
                             new ImageLoader.LoadedCallback() {
-                                    public void run(final Bitmap b) {
+                                    @Override
+									public void run(final Bitmap b) {
                                         mHandler.post(new Runnable() {
-                                            public void run() {
+                                            @Override
+											public void run() {
                                                 loadImageDone(image, b,
                                                         colFinal);
                                             }

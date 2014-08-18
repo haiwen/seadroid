@@ -20,7 +20,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.Utils;
 

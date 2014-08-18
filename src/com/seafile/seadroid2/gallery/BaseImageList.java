@@ -44,7 +44,8 @@ public abstract class BaseImageList implements IImageList {
         mCache.clear();
     }
 
-    public void close() {
+    @Override
+	public void close() {
         try {
             invalidateCursor();
         } catch (IllegalStateException e) {
@@ -73,7 +74,8 @@ public abstract class BaseImageList implements IImageList {
         }
     }
 
-    public int getCount() {
+    @Override
+	public int getCount() {
         Cursor cursor = getCursor();
         if (cursor == null) return 0;
         synchronized (this) {
@@ -81,7 +83,8 @@ public abstract class BaseImageList implements IImageList {
         }
     }
 
-    public boolean isEmpty() {
+    @Override
+	public boolean isEmpty() {
         return getCount() == 0;
     }
 
@@ -96,7 +99,8 @@ public abstract class BaseImageList implements IImageList {
         }
     }
 
-    public IImage getImageAt(int i) {
+    @Override
+	public IImage getImageAt(int i) {
         BaseImage result = mCache.get(i);
         if (result == null) {
             Cursor cursor = getCursor();
@@ -111,7 +115,8 @@ public abstract class BaseImageList implements IImageList {
         return result;
     }
 
-    public boolean removeImage(IImage image) {
+    @Override
+	public boolean removeImage(IImage image) {
         // TODO: need to delete the thumbnails as well
         if (mContentResolver.delete(image.fullSizeImageUri(), null, null) > 0) {
             ((BaseImage) image).onRemove();
@@ -123,7 +128,8 @@ public abstract class BaseImageList implements IImageList {
         }
     }
 
-    public boolean removeImageAt(int i) {
+    @Override
+	public boolean removeImageAt(int i) {
         // TODO: need to delete the thumbnails as well
         return removeImage(getImageAt(i));
     }
@@ -164,7 +170,8 @@ public abstract class BaseImageList implements IImageList {
                 && Util.equals(base.getPath(), getPathWithoutId(uri));
     }
 
-    public IImage getImageForUri(Uri uri) {
+    @Override
+	public IImage getImageForUri(Uri uri) {
         if (!isChildImageUri(uri)) return null;
         // Find the id of the input URI.
         long matchId;
@@ -193,7 +200,8 @@ public abstract class BaseImageList implements IImageList {
         }
     }
 
-    public int getImageIndex(IImage image) {
+    @Override
+	public int getImageIndex(IImage image) {
         return ((BaseImage) image).mIndex;
     }
 

@@ -6,6 +6,7 @@ import java.util.List;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
+import android.provider.MediaStore.Images.ImageColumns;
 import android.provider.MediaStore.Images.Media;
 
 import com.google.common.base.Joiner;
@@ -23,14 +24,15 @@ public class ImageList extends BaseImageList implements IImageList {
     private static final String[] ACCEPTABLE_IMAGE_TYPES =
             new String[] { "image/jpeg", "image/png", "image/gif" };
 
-    public HashMap<String, String> getBucketIds() {
+    @Override
+	public HashMap<String, String> getBucketIds() {
         Uri uri = mBaseUri.buildUpon()
                 .appendQueryParameter("distinct", "true").build();
         Cursor cursor = Media.query(
                 mContentResolver, uri,
                 new String[] {
-                    Media.BUCKET_DISPLAY_NAME,
-                    Media.BUCKET_ID},
+                    ImageColumns.BUCKET_DISPLAY_NAME,
+                    ImageColumns.BUCKET_ID},
                 whereClause(), whereClauseArgs(), null);
         try {
             HashMap<String, String> hash = new HashMap<String, String>();
@@ -62,7 +64,7 @@ public class ImageList extends BaseImageList implements IImageList {
         }
 
         String clause = WHERE_CLAUSE + " AND "
-            + Media.BUCKET_ID + " in " + "(" + Joiner.on(", ").join(chars) + ")";
+            + ImageColumns.BUCKET_ID + " in " + "(" + Joiner.on(", ").join(chars) + ")";
 
         return clause;
     }

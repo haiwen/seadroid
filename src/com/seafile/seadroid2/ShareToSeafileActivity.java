@@ -12,10 +12,11 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.provider.MediaStore.Images;
+import android.provider.MediaStore.MediaColumns;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
@@ -74,7 +75,8 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
 
     private ServiceConnection mConnection;
 
-    protected void onCreate(Bundle savedInstanceState) {
+    @Override
+	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.share_to_seafile);
 
@@ -106,7 +108,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
         mProgressContainer = findViewById(R.id.progressContainer);
         mContentArea = findViewById(R.id.content);
 
-        mListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        mListView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
         mListView.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> l, View view, int position, long id) {
@@ -147,7 +149,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
             if (!cursor.moveToFirst()) {
                 return null;
             }
-            String filePath = cursor.getString(cursor.getColumnIndex(Images.Media.DATA));
+            String filePath = cursor.getString(cursor.getColumnIndex(MediaColumns.DATA));
             return filePath;
         }
     }

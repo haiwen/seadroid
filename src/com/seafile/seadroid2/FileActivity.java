@@ -68,7 +68,8 @@ public class FileActivity extends SherlockFragmentActivity {
         }
     };
 
-    protected void onCreate(Bundle savedInstanceState) {
+    @Override
+	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
 
@@ -284,7 +285,8 @@ public class FileActivity extends SherlockFragmentActivity {
 
         private TransferReceiver() {}
 
-        public void onReceive(Context context, Intent intent) {
+        @Override
+		public void onReceive(Context context, Intent intent) {
             if (mTaskID < 0) {
                 return;
             }

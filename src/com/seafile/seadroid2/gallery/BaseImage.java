@@ -50,7 +50,8 @@ public abstract class BaseImage implements IImage {
         mTitle = title;
     }
 
-    public String getDataPath() {
+    @Override
+	public String getDataPath() {
         return mDataPath;
     }
 
@@ -65,12 +66,14 @@ public abstract class BaseImage implements IImage {
         return mUri.hashCode();
     }
 
-    public Bitmap fullSizeBitmap(int minSideLength, int maxNumberOfPixels) {
+    @Override
+	public Bitmap fullSizeBitmap(int minSideLength, int maxNumberOfPixels) {
         return fullSizeBitmap(minSideLength, maxNumberOfPixels,
                 IImage.ROTATE_AS_NEEDED, IImage.NO_NATIVE);
     }
 
-    public Bitmap fullSizeBitmap(int minSideLength, int maxNumberOfPixels,
+    @Override
+	public Bitmap fullSizeBitmap(int minSideLength, int maxNumberOfPixels,
             boolean rotateAsNeeded, boolean useNative) {
         Uri url = mContainer.contentUri(mId);
         if (url == null) return null;
@@ -85,7 +88,8 @@ public abstract class BaseImage implements IImage {
         return b;
     }
 
-    public InputStream fullSizeImageData() {
+    @Override
+	public InputStream fullSizeImageData() {
         try {
             InputStream input = mContentResolver.openInputStream(mUri);
             return input;
@@ -94,27 +98,33 @@ public abstract class BaseImage implements IImage {
         }
     }
 
-    public Uri fullSizeImageUri() {
+    @Override
+	public Uri fullSizeImageUri() {
         return mUri;
     }
 
-    public IImageList getContainer() {
+    @Override
+	public IImageList getContainer() {
         return mContainer;
     }
 
-    public long getDateTaken() {
+    @Override
+	public long getDateTaken() {
         return mDateTaken;
     }
 
-    public int getDegreesRotated() {
+    @Override
+	public int getDegreesRotated() {
         return 0;
     }
 
-    public String getMimeType() {
+    @Override
+	public String getMimeType() {
         return mMimeType;
     }
 
-    public String getTitle() {
+    @Override
+	public String getTitle() {
         return mTitle;
     }
 
@@ -136,17 +146,20 @@ public abstract class BaseImage implements IImage {
         }
     }
 
-    public int getWidth() {
+    @Override
+	public int getWidth() {
         if (mWidth == UNKNOWN_LENGTH) setupDimension();
         return mWidth;
     }
 
-    public int getHeight() {
+    @Override
+	public int getHeight() {
         if (mHeight == UNKNOWN_LENGTH) setupDimension();
         return mHeight;
     }
 
-    public Bitmap miniThumbBitmap() {
+    @Override
+	public Bitmap miniThumbBitmap() {
         Bitmap b = null;
         try {
             long id = mId;

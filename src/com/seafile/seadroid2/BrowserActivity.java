@@ -319,12 +319,14 @@ public class BrowserActivity extends SherlockFragmentActivity
                 R.string.drawer_open,  /* "open drawer" description for accessibility */
                 R.string.drawer_close  /* "close drawer" description for accessibility */
                 ) {
-            public void onDrawerClosed(View view) {
+            @Override
+			public void onDrawerClosed(View view) {
                 getSupportActionBar().setTitle(mTitle);
                 supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
 
-            public void onDrawerOpened(View drawerView) {
+            @Override
+			public void onDrawerOpened(View drawerView) {
                 getSupportActionBar().setTitle(mDrawerTitle);
                 supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
@@ -649,7 +651,8 @@ public class BrowserActivity extends SherlockFragmentActivity
               return item.getItemId();
            }
 
-           public boolean isEnabled() {
+           @Override
+		public boolean isEnabled() {
               return true;
            }
 
@@ -1549,7 +1552,8 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         private TransferReceiver() {}
 
-        public void onReceive(Context context, Intent intent) {
+        @Override
+		public void onReceive(Context context, Intent intent) {
             String type = intent.getStringExtra("type");
             if (type.equals(TransferService.BROADCAST_FILE_DOWNLOAD_PROGRESS)) {
                 int taskID = intent.getIntExtra("taskID", 0);

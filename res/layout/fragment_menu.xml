@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/darker_gray" >
+    android:background="@android:color/white" >
 
     <ImageView
         android:id="@+id/iv_logo"
@@ -13,152 +13,70 @@
         android:layout_marginBottom="18dp"
         android:src="@drawable/icon" />
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:background="@android:color/background_light"
-        android:layout_above="@id/iv_logo"
-        android:layout_alignParentTop="true" >
+        android:layout_height="wrap_content"
+        android:clickable="false"
+        android:focusable="false"
+        android:orientation="vertical" >
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:layout_marginBottom="15dp"
+            android:layout_marginTop="15dp"
+            android:orientation="horizontal" >
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:background="@drawable/avartar_bg"
+                android:maxHeight="18dp"
+                android:src="@drawable/account" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="20dp" >
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="10dp"
+                android:gravity="center_horizontal"
+                android:orientation="vertical" >
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/account" />
-
-                <LinearLayout
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="10dp"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical" >
+                    android:paddingBottom="4dp"
+                    android:text="Seafile Account： Administrator"
+                    android:textColor="@color/black" />
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:paddingBottom="4dp"
-                        android:text="@string/app_name"
-                        android:textColor="@color/black" />
+                <ProgressBar
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="6dp"
+                    android:max="100"
+                    android:progress="10"
+                    android:progressDrawable="@drawable/custom_progress_bar" />
 
-                    <ProgressBar
-                        style="?android:attr/progressBarStyleHorizontal"
-                        android:layout_width="match_parent"
-                        android:layout_height="6dp"
-                        android:max="100"
-                        android:progress="10"
-                        android:progressDrawable="@drawable/custom_progress_bar" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingTop="2dp"
-                        android:text="9.3 MB / 2.0 GB"
-                        android:textSize="12sp" />
-                </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:paddingTop="2dp"
+                    android:text="Storage： 9.3 MB / 2.0 GB"
+                    android:textColor="@color/black"
+                    android:textSize="12sp" />
             </LinearLayout>
-
-            <RelativeLayout style="@style/menuItem" >
-
-                <ImageView
-                    android:id="@+id/iv_backup"
-                    style="@style/menuItemIcon"
-                    android:src="@drawable/icon_backup" />
-
-                <Button
-                    android:id="@+id/btn_auto_img_backup"
-                    style="@style/menuItemTitle"
-                    android:layout_toRightOf="@id/iv_backup"
-                    android:text="@string/auto_upload_photos" />
-            </RelativeLayout>
-
-            <RelativeLayout style="@style/menuItem" >
-
-                <ImageView
-                    android:id="@+id/iv_transfer"
-                    style="@style/menuItemIcon"
-                    android:src="@drawable/icon_transfer" />
-
-                <TextView
-                    style="@style/menuItemTitle"
-                    android:layout_toRightOf="@id/iv_transfer"
-                    android:text="@string/sync_method" />
-            </RelativeLayout>
-
-            <RelativeLayout style="@style/menuItem" >
-
-                <ImageView
-                    android:id="@+id/iv_history"
-                    style="@style/menuItemIcon"
-                    android:src="@drawable/icon_history" />
-
-                <TextView
-                    style="@style/menuItemTitle"
-                    android:layout_toRightOf="@id/iv_history"
-                    android:text="@string/sync_history" />
-            </RelativeLayout>
-
-            <RelativeLayout style="@style/menuItem" >
-
-                <ImageView
-                    android:id="@+id/iv_connect"
-                    style="@style/menuItemIcon"
-                    android:src="@drawable/icon_connect" />
-
-                <TextView
-                    style="@style/menuItemTitle"
-                    android:layout_toRightOf="@id/iv_connect"
-                    android:text="@string/transfer_to_PC" />
-            </RelativeLayout>
-
-            <RelativeLayout style="@style/menuItem" >
-
-                <ImageView
-                    android:id="@+id/iv_reward"
-                    style="@style/menuItemIcon"
-                    android:src="@drawable/icon_reward" />
-
-                <TextView
-                    style="@style/menuItemTitle"
-                    android:layout_toRightOf="@id/iv_reward"
-                    android:text="@string/get_free_storage" />
-            </RelativeLayout>
-
-            <RelativeLayout style="@style/menuItem" >
-
-                <ImageView
-                    android:id="@+id/iv_setting"
-                    style="@style/menuItemIcon"
-                    android:src="@drawable/icon_setting" />
-
-                <TextView
-                    style="@style/menuItemTitle"
-                    android:layout_toRightOf="@id/iv_setting"
-                    android:text="@string/settings" />
-            </RelativeLayout>
-            <RelativeLayout style="@style/menuItem" >
-
-                <ImageView
-                    android:id="@+id/iv_logout"
-                    style="@style/menuItemIcon"
-                    android:src="@drawable/icon_logout" />
-
-                <TextView
-                    style="@style/menuItemTitle"
-                    android:layout_toRightOf="@id/iv_logout"
-                    android:text="@string/sign_out" />
-            </RelativeLayout>
         </LinearLayout>
-    </ScrollView>
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/lv_settings_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginBottom="30dp"
+        android:layout_marginTop="100dp" >
+    </ListView>
 
 </RelativeLayout>

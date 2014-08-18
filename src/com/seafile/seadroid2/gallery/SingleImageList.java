@@ -22,39 +22,48 @@ public class SingleImageList implements IImageList {
         mSingleImage = new UriImage(this, resolver, uri);
     }
 
-    public HashMap<String, String> getBucketIds() {
+    @Override
+	public HashMap<String, String> getBucketIds() {
         throw new UnsupportedOperationException();
     }
 
-    public int getCount() {
+    @Override
+	public int getCount() {
         return 1;
     }
 
-    public boolean isEmpty() {
+    @Override
+	public boolean isEmpty() {
         return false;
     }
 
-    public int getImageIndex(IImage image) {
+    @Override
+	public int getImageIndex(IImage image) {
         return image == mSingleImage ? 0 : -1;
     }
 
-    public IImage getImageAt(int i) {
+    @Override
+	public IImage getImageAt(int i) {
         return i == 0 ? mSingleImage : null;
     }
 
-    public boolean removeImage(IImage image) {
+    @Override
+	public boolean removeImage(IImage image) {
         return false;
     }
 
-    public boolean removeImageAt(int index) {
+    @Override
+	public boolean removeImageAt(int index) {
         return false;
     }
 
-    public IImage getImageForUri(Uri uri) {
+    @Override
+	public IImage getImageForUri(Uri uri) {
         return uri.equals(mUri) ? mSingleImage : null;
     }
 
-    public void close() {
+    @Override
+	public void close() {
         mSingleImage = null;
         mUri = null;
     }

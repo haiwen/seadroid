@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore.Images;
 import android.provider.MediaStore.Video.Media;
+import android.provider.MediaStore.Video.VideoColumns;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
@@ -67,14 +68,15 @@ public class VideoList extends BaseImageList {
         super(resolver, uri, sort, bucketId);
     }
 
-    public HashMap<String, String> getBucketIds() {
+    @Override
+	public HashMap<String, String> getBucketIds() {
         Uri uri = mBaseUri.buildUpon()
                 .appendQueryParameter("distinct", "true").build();
         Cursor c = Images.Media.query(
                 mContentResolver, uri,
                 new String[] {
-                    Media.BUCKET_DISPLAY_NAME,
-                    Media.BUCKET_ID
+                    VideoColumns.BUCKET_DISPLAY_NAME,
+                    VideoColumns.BUCKET_ID
                 },
                 whereClause(), whereClauseArgs(), sortOrder());
         try {
@@ -95,7 +97,7 @@ public class VideoList extends BaseImageList {
             chars.add("?");
         }
 
-        String clause = Media.BUCKET_ID + " in " + "(" + Joiner.on(", ").join(chars) + ")";
+        String clause = VideoColumns.BUCKET_ID + " in " + "(" + Joiner.on(", ").join(chars) + ")";
 
         return clause;
     }

@@ -1,7 +1,5 @@
 package com.seafile.seadroid2.monitor;
 
-import java.util.List;
-
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -16,7 +14,6 @@ import android.util.Log;
 
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.transfer.TransferManager.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.TransferManager.UploadTaskInfo;
 import com.seafile.seadroid2.transfer.TransferService;

@@ -317,7 +317,8 @@ public class Util {
     public static synchronized OnClickListener getNullOnClickListener() {
         if (sNullOnClickListener == null) {
             sNullOnClickListener = new OnClickListener() {
-                public void onClick(View v) {
+                @Override
+				public void onClick(View v) {
                 }
             };
         }
@@ -343,7 +344,8 @@ public class Util {
         private final Runnable mJob;
         private final Handler mHandler;
         private final Runnable mCleanupRunner = new Runnable() {
-            public void run() {
+            @Override
+			public void run() {
                 mActivity.removeLifeCycleListener(BackgroundJob.this);
                 if (mDialog.getWindow() != null) mDialog.dismiss();
             }
@@ -358,7 +360,8 @@ public class Util {
             mHandler = handler;
         }
 
-        public void run() {
+        @Override
+		public void run() {
             try {
                 mJob.run();
             } finally {

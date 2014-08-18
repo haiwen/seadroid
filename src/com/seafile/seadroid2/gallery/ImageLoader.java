@@ -3,9 +3,6 @@ package com.seafile.seadroid2.gallery;
 import android.content.ContentResolver;
 import android.graphics.Bitmap;
 import android.os.Handler;
-import android.provider.MediaStore;
-import android.util.Log;
-
 import java.util.ArrayList;
 
 /**
@@ -97,7 +94,8 @@ public class ImageLoader {
         // Pick off items on the queue, one by one, and compute their bitmap.
         // Place the resulting bitmap in the cache, then call back by executing
         // the given runnable so things can get updated appropriately.
-        public void run() {
+        @Override
+		public void run() {
             while (true) {
                 WorkItem workItem = null;
                 synchronized (mQueue) {

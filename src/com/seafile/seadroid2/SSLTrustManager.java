@@ -249,7 +249,8 @@ public final class SSLTrustManager {
             }
         }
 
-        public X509Certificate[] getAcceptedIssuers() {
+        @Override
+		public X509Certificate[] getAcceptedIssuers() {
             return defaultTrustManager.getAcceptedIssuers();
         }
 

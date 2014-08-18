@@ -27,7 +27,8 @@ public class ConcurrentAsyncTask {
             this.runnable = runnable;
         }
 
-        public Void doInBackground(Void... args) {
+        @Override
+		public Void doInBackground(Void... args) {
             try {
                 runnable.run();
             } catch(Exception e) {

@@ -13,6 +13,7 @@ import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
@@ -68,7 +69,7 @@ public class AppChoiceDialog extends DialogFragment {
         builder.setTitle(mTitle);
         ListView listView = new ListView(getActivity());
         listView.setAdapter(new AppsListAdapter());
-        listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
         builder.setView(listView);
         listView.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override

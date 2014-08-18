@@ -104,11 +104,13 @@ public class Account implements Parcelable {
 
     public static final Parcelable.Creator<Account> CREATOR
     = new Parcelable.Creator<Account>() {
-        public Account createFromParcel(Parcel in) {
+        @Override
+		public Account createFromParcel(Parcel in) {
             return new Account(in);
         }
 
-        public Account[] newArray(int size) {
+        @Override
+		public Account[] newArray(int size) {
             return new Account[size];
         }
     };

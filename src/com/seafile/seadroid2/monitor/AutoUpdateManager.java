@@ -179,7 +179,8 @@ public class AutoUpdateManager implements Runnable, CachedFileChangedListener {
         addAllUploadTasks(infosList);
     }
 
-    public void run() {
+    @Override
+	public void run() {
         synchronized (infos) {
             infos.addAll(db.getAutoUploadInfos());
         }

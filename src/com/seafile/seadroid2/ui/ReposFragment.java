@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
+import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -89,7 +90,7 @@ public class ReposFragment extends SherlockListFragment {
         adapter = new SeafItemAdapter(mActivity);
         setListAdapter(adapter);
 
-        getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        getListView().setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
     }
 
     @Override

@@ -115,14 +115,16 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
     private void initializeButtons() {
         Button cancelButton = (Button) findViewById(R.id.button_cancel_upload);
         cancelButton.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
+            @Override
+			public void onClick(View v) {
                 finish();
             }
         });
 
         Button confirmButton = (Button) findViewById(R.id.button_confirm_upload);
         confirmButton.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
+            @Override
+			public void onClick(View v) {
                 setResultAndFinish();
             }
         });
@@ -600,7 +602,8 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
         mGvs.invalidate();
     }
 
-    public void onImageClicked(int index) {
+    @Override
+	public void onImageClicked(int index) {
     }
     // public void onImageClicked(int index) {
     //     if (index < 0 || index >= mAllImages.getCount()) {
@@ -634,7 +637,8 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
     //     }
     // }
 
-    public void onImageTapped(int index) {
+    @Override
+	public void onImageTapped(int index) {
         // In the multiselect mode, once the finger finishes tapping, we hide
         // the selection box by setting the selected index to none. However, if
         // we use the dpad center key, we will keep the selected index in order
@@ -706,7 +710,8 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
     //     }
     // }
 
-    public void onLayoutComplete(boolean changed) {
+    @Override
+	public void onLayoutComplete(boolean changed) {
         mLayoutComplete = true;
         if (mCropResultUri != null) {
             IImage image = mAllImages.getImageForUri(mCropResultUri);
@@ -733,7 +738,8 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
         }
     }
 
-    public void onScroll(float scrollPosition) {
+    @Override
+	public void onScroll(float scrollPosition) {
         mScrollPosition = scrollPosition;
     }
 
@@ -750,7 +756,8 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
 
     private final Paint mPaint = new Paint(Paint.FILTER_BITMAP_FLAG);
 
-    public void drawImage(Canvas canvas, IImage image,
+    @Override
+	public void drawImage(Canvas canvas, IImage image,
             Bitmap b, int xPos, int yPos, int w, int h) {
         if (b != null) {
             // if the image is close to the target size then crop,
@@ -818,7 +825,8 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
         }
     }
 
-    public void drawDecoration(Canvas canvas, IImage image,
+    @Override
+	public void drawDecoration(Canvas canvas, IImage image,
             int xPos, int yPos, int w, int h) {
 
         initializeMultiSelectDrawables();

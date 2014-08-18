@@ -90,7 +90,8 @@ public class AccountsActivity extends FragmentActivity {
             }
         });
         accountsView.setOnItemClickListener(new OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view, int position,
+            @Override
+			public void onItemClick(AdapterView<?> parent, View view, int position,
                     long id) {
 
                 Account account = accounts.get(position);

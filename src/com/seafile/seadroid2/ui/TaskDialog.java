@@ -222,7 +222,7 @@ public abstract class TaskDialog extends DialogFragment {
             @Override
             public void onShow(DialogInterface d) {
                 if (hasOkButton()) {
-                    okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                    okButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
                     View.OnClickListener onOKButtonClickedListener = new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {

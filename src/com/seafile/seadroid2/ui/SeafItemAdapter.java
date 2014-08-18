@@ -105,11 +105,13 @@ public class SeafItemAdapter extends BaseAdapter {
         return !(item instanceof SeafGroup);
     }
 
-    public int getViewTypeCount() {
+    @Override
+	public int getViewTypeCount() {
         return 2;
     }
 
-    public int getItemViewType(int position) {
+    @Override
+	public int getItemViewType(int position) {
         SeafItem item = items.get(position);
         if (item instanceof SeafGroup)
             return 0;

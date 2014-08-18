@@ -49,7 +49,8 @@ public class ImageListUber implements IImageList {
         }
     }
 
-    public HashMap<String, String> getBucketIds() {
+    @Override
+	public HashMap<String, String> getBucketIds() {
         HashMap<String, String> hashMap = new HashMap<String, String>();
         for (IImageList list : mSubList) {
             hashMap.putAll(list.getBucketIds());
@@ -57,7 +58,8 @@ public class ImageListUber implements IImageList {
         return hashMap;
     }
 
-    public int getCount() {
+    @Override
+	public int getCount() {
         int count = 0;
         for (IImageList subList : mSubList) {
             count += subList.getCount();
@@ -65,7 +67,8 @@ public class ImageListUber implements IImageList {
         return count;
     }
 
-    public boolean isEmpty() {
+    @Override
+	public boolean isEmpty() {
         for (IImageList subList : mSubList) {
             if (!subList.isEmpty()) return false;
         }
@@ -77,7 +80,8 @@ public class ImageListUber implements IImageList {
     // we don't have to allocate each time through.  Otherwise
     // it could just as easily be a local.
 
-    public IImage getImageAt(int index) {
+    @Override
+	public IImage getImageAt(int index) {
         if (index < 0 || index > getCount()) {
             throw new IndexOutOfBoundsException(
                     "index " + index + " out of range max is " + getCount());
@@ -139,7 +143,8 @@ public class ImageListUber implements IImageList {
         return slot;
     }
 
-    public IImage getImageForUri(Uri uri) {
+    @Override
+	public IImage getImageForUri(Uri uri) {
         for (IImageList sublist : mSubList) {
             IImage image = sublist.getImageForUri(uri);
             if (image != null) return image;
@@ -175,17 +180,20 @@ public class ImageListUber implements IImageList {
         return false;
     }
 
-    public boolean removeImage(IImage image) {
+    @Override
+	public boolean removeImage(IImage image) {
         return removeImage(image, getImageIndex(image));
     }
 
-    public boolean removeImageAt(int index) {
+    @Override
+	public boolean removeImageAt(int index) {
         IImage image = getImageAt(index);
         if (image == null) return false;
         return removeImage(image, index);
     }
 
-    public synchronized int getImageIndex(IImage image) {
+    @Override
+	public synchronized int getImageIndex(IImage image) {
         IImageList list = image.getContainer();
         int listIndex = Util.indexOf(mSubList, list);
         if (listIndex == -1) {
@@ -221,7 +229,8 @@ public class ImageListUber implements IImageList {
 
     private static class DescendingComparator implements Comparator<MergeSlot> {
 
-        public int compare(MergeSlot m1, MergeSlot m2) {
+        @Override
+		public int compare(MergeSlot m1, MergeSlot m2) {
             if (m1.mDateTaken != m2.mDateTaken) {
                 return m1.mDateTaken < m2.mDateTaken ? 1 : -1;
             }
@@ -231,7 +240,8 @@ public class ImageListUber implements IImageList {
 
     private static class AscendingComparator implements Comparator<MergeSlot> {
 
-        public int compare(MergeSlot m1, MergeSlot m2) {
+        @Override
+		public int compare(MergeSlot m1, MergeSlot m2) {
             if (m1.mDateTaken != m2.mDateTaken) {
                 return m1.mDateTaken < m2.mDateTaken ? -1 : 1;
             }
@@ -268,7 +278,8 @@ public class ImageListUber implements IImageList {
         }
     }
 
-    public void close() {
+    @Override
+	public void close() {
         for (int i = 0, n = mSubList.length; i < n; ++i) {
             mSubList[i].close();
         }

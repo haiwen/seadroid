@@ -23,6 +23,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
+import android.provider.MediaStore.Images.ImageColumns;
+import android.provider.MediaStore.MediaColumns;
 import android.util.Log;
 
 import com.google.common.collect.ImmutableList;
@@ -58,7 +60,8 @@ public class ImageManager {
 
         public ImageListParam() {}
 
-        public void writeToParcel(Parcel out, int flags) {
+        @Override
+		public void writeToParcel(Parcel out, int flags) {
             out.writeInt(mLocation.ordinal());
             out.writeInt(mInclusion);
             out.writeInt(mSort);
@@ -76,7 +79,8 @@ public class ImageManager {
             mIsEmptyImageList = (in.readInt() != 0);
         }
 
-        public String toString() {
+        @Override
+		public String toString() {
             return String.format("ImageListParam{loc=%s,inc=%d,sort=%d," +
                 "bucket=%s,empty=%b,single=%s}", mLocation, mInclusion,
                 mSort, mBucketId, mIsEmptyImageList, mSingleImageUri);
@@ -84,16 +88,19 @@ public class ImageManager {
 
         public static final Parcelable.Creator CREATOR
                 = new Parcelable.Creator() {
-            public ImageListParam createFromParcel(Parcel in) {
+            @Override
+			public ImageListParam createFromParcel(Parcel in) {
                 return new ImageListParam(in);
             }
 
-            public ImageListParam[] newArray(int size) {
+            @Override
+			public ImageListParam[] newArray(int size) {
                 return new ImageListParam[size];
             }
         };
 
-        public int describeContents() {
+        @Override
+		public int describeContents() {
             return 0;
         }
     }
@@ -234,20 +241,20 @@ public class ImageManager {
         }
 
         ContentValues values = new ContentValues(7);
-        values.put(Images.Media.TITLE, title);
+        values.put(MediaColumns.TITLE, title);
 
         // That filename is what will be handed to Gmail when a user shares a
         // photo. Gmail gets the name of the picture attachment from the
         // "DISPLAY_NAME" field.
-        values.put(Images.Media.DISPLAY_NAME, filename);
-        values.put(Images.Media.DATE_TAKEN, dateTaken);
-        values.put(Images.Media.MIME_TYPE, "image/jpeg");
-        values.put(Images.Media.ORIENTATION, degree[0]);
-        values.put(Images.Media.DATA, filePath);
+        values.put(MediaColumns.DISPLAY_NAME, filename);
+        values.put(ImageColumns.DATE_TAKEN, dateTaken);
+        values.put(MediaColumns.MIME_TYPE, "image/jpeg");
+        values.put(ImageColumns.ORIENTATION, degree[0]);
+        values.put(MediaColumns.DATA, filePath);
 
         if (location != null) {
-            values.put(Images.Media.LATITUDE, location.getLatitude());
-            values.put(Images.Media.LONGITUDE, location.getLongitude());
+            values.put(ImageColumns.LATITUDE, location.getLatitude());
+            values.put(ImageColumns.LONGITUDE, location.getLongitude());
         }
 
         return cr.insert(STORAGE_URI, values);
@@ -375,38 +382,47 @@ public class ImageManager {
     }
 
     private static class EmptyImageList implements IImageList {
-        public void close() {
+        @Override
+		public void close() {
         }
 
-        public HashMap<String, String> getBucketIds() {
+        @Override
+		public HashMap<String, String> getBucketIds() {
             return new HashMap<String, String>();
         }
 
-        public int getCount() {
+        @Override
+		public int getCount() {
             return 0;
         }
 
-        public boolean isEmpty() {
+        @Override
+		public boolean isEmpty() {
             return true;
         }
 
-        public IImage getImageAt(int i) {
+        @Override
+		public IImage getImageAt(int i) {
             return null;
         }
 
-        public IImage getImageForUri(Uri uri) {
+        @Override
+		public IImage getImageForUri(Uri uri) {
             return null;
         }
 
-        public boolean removeImage(IImage image) {
+        @Override
+		public boolean removeImage(IImage image) {
             return false;
         }
 
-        public boolean removeImageAt(int i) {
+        @Override
+		public boolean removeImageAt(int i) {
             return false;
         }
 
-        public int getImageIndex(IImage image) {
+        @Override
+		public int getImageIndex(IImage image) {
             throw new UnsupportedOperationException();
         }
     }
