@@ -148,14 +148,6 @@
     <string name="no">否</string>
     <string name="remember_my_choice">记住我的选择</string>
     <!-- settings start-->
-    <string name="select_upload_photo_folders">自动备份照片文件夹</string>
-    <string name="auto_upload_folders_selected">已经选择 %d 个文件夹</string>
     <string name="auto_upload_photos">自动备份照片</string>
-    <string name="sync_method">同步方法</string>
-    <string name="sync_history">同步历史</string>
-    <string name="transfer_to_PC">发送到电脑</string>
-    <string name="get_free_storage">免费抽空间</string>
-    <string name="settings">设置</string>
-    <string name="sign_out">退出登录</string>
     <!-- settings end -->
 </resources>

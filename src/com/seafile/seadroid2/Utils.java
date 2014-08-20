@@ -420,6 +420,18 @@ public class Utils {
             return file.isFile() && !fileName.startsWith(HIDDEN_PREFIX);
         }
     };
+    private static FileFilter mPhotosFilter = new FileFilter() {
+        @Override
+		public boolean accept(File file) {
+            final String fileName = file.getName();
+            // Return files only (not directories) and skip hidden files
+            for (String ext : imageExtensions) 
+            { 
+                if (file.getName().endsWith("." + ext)  && !fileName.startsWith(HIDDEN_PREFIX)) return true; 
+            } 
+            return false;
+        }
+    };
     
 
     private static FileFilter mDirFilter = new FileFilter() {
@@ -479,7 +491,7 @@ public class Utils {
         final SelectableFile pathDir = new SelectableFile(path);
 
         // List file in this directory with the directory filter
-        final SelectableFile[] dirs = pathDir.listFiles(mDirFilter);
+        final SelectableFile[] dirs = pathDir.listFiles(filterForImageFolders);
         if (dirs != null) {
             // Sort the folders alphabetically
             Arrays.sort(dirs, mComparator);
@@ -488,7 +500,7 @@ public class Utils {
         }
 
         // List file in this directory with the file filter
-        final SelectableFile[] files = pathDir.listFiles(mFileFilter);
+        final SelectableFile[] files = pathDir.listFiles(mPhotosFilter);
         if (files != null) {
             // Sort the files alphabetically
             Arrays.sort(files, mComparator);
@@ -506,39 +518,57 @@ public class Utils {
         return list;
     }
 
-	public static List<SelectableFile> getImageFoldersList(String path, List<File> selectedFile) {
+	public static List<SelectableFile> getImageFoldersList() {
 		ArrayList<SelectableFile> list = new ArrayList<SelectableFile>();
 
 		// Current directory File instance
 		final SelectableFile pathDir = new SelectableFile(Environment.getExternalStorageDirectory().toString() + "/DCIM/");
 
-		// List file in this directory with the directory filter
+		// List folders in this directory with the directory filter
 		final SelectableFile[] dirs = pathDir.listFiles(filterForImageFolders);
 		if (dirs != null) {
 			// Sort the folders alphabetically
 			Arrays.sort(dirs, mComparator);
 			// Add each folder to the File list for the list adapter
-			for (SelectableFile dir : dirs)
-				list.add(dir);
+			for (SelectableFile dir : dirs){
+				
+				// List photos inside each directory with the photo filter
+				final SelectableFile[] photoFiles = dir.listFiles(mPhotosFilter);
+				if (photoFiles != null) {
+					// Sort the files alphabetically
+					Arrays.sort(photoFiles, mComparator);
+					// Add each file to the File list for the list adapter
+					for (SelectableFile file : photoFiles) {
+						/*if (selectedFile != null) {
+							if (selectedFile.contains(file.getFile())) {
+								file.setSelected(true);
+							}
+						}*/
+						list.add(file);
+					}
+				}
+				 
+			}
 		}
 
-		/*
-		// List file in this directory with the file filter
-		final SelectableFile[] files = pathDir.listFiles(mFileFilter);
-		if (files != null) {
+		
+		// List photos in this directory with the photo filter
+		final SelectableFile[] photos = pathDir.listFiles(mPhotosFilter);
+		if (photos != null) {
 			// Sort the files alphabetically
-			Arrays.sort(files, mComparator);
+			Arrays.sort(photos, mComparator);
 			// Add each file to the File list for the list adapter
-			for (SelectableFile file : files) {
-				if (selectedFile != null) {
+			for (SelectableFile file : photos) {
+				/*if (selectedFile != null) {
 					if (selectedFile.contains(file.getFile())) {
 						file.setSelected(true);
 					}
-				}
+				}*/
 				list.add(file);
 			}
 		}
-		 */
+		
+		
 		return list;
 	}
 	

@@ -10,7 +10,7 @@
           android:layout_width="fill_parent"
           android:layout_height="wrap_content"
           android:gravity="center_horizontal"
-          android:text="@string/select_upload_photo_folders"
+          android:text="@string/select_upload_files"
           android:singleLine="true"
           android:lines="1"
           android:textColor="@color/white"

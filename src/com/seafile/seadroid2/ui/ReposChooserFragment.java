@@ -7,7 +7,9 @@ import java.util.Map;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -32,10 +34,12 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.Utils;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.SeafCachedFile;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafGroup;
 import com.seafile.seadroid2.data.SeafItem;
 import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.fileschooser.SelectableFile;
 
 public class ReposChooserFragment extends SherlockListFragment {
 
@@ -264,26 +268,50 @@ public class ReposChooserFragment extends SherlockListFragment {
 
             return;
         }
+        /*
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(R.string.choose_repository_dialog)
+               .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                   public void onClick(DialogInterface dialog, int id) {
+                       // FIRE ZE MISSILES!
+                	   
+                   }
+               })
+               .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                   public void onClick(DialogInterface dialog, int id) {
+                       return;
+                   }
+               });
+        builder.show();*/
 		writeReposInfoToSharedPreferences(repo.id, repo.name);
-		getActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
-		Toast.makeText(mActivity, repo.id+"---"+repo.name, Toast.LENGTH_LONG).show();
-
-//        if (nav.inRepo()) {
-//            final SeafDirent dirent = (SeafDirent)adapter.getItem(position);
-//            if (dirent.isDir()) {
-//                String currentPath = nav.getDirPath();
-//                String newPath = currentPath.endsWith("/") ? currentPath + dirent.name : currentPath + "/" + dirent.name;
-//                nav.setDir(newPath, dirent.id);
-//                refreshView();
-//            } else {
-//                mActivity.onFileSelected(dirent);
-//            }
-//        } else {
-//            nav.setRepoID(repo.id);
-//            nav.setRepoName(repo.getName());
-//            nav.setDir("/", repo.root);
-//            refreshView();
-//        }
+		// getActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
+		List<SelectableFile> list = Utils.getImageFoldersList();
+		Toast.makeText(mActivity, "add " + list.size() + " photos to " + repo.name, Toast.LENGTH_LONG).show();
+		for (SelectableFile selectableFile : list) {
+			//Log.i(DEBUG_TAG, selectableFile.getFile().getPath());
+			SeafCachedFile cf = getDataManager().getCachedFile(repo.name, repo.id, selectableFile.getFile().getParent());
+			if (cf != null && cf.fileID != null) {
+				getDataManager().addCachedFile(repo.name, repo.id, selectableFile.getAbsolutePath(), cf.fileID, selectableFile.getFile());
+			} else {
+				mActivity.addUploadTask(repo.id, repo.name, "/", selectableFile.getAbsolutePath());
+	        }
+		}
+        /*if (nav.inRepo()) {
+            final SeafDirent dirent = (SeafDirent)adapter.getItem(position);
+            if (dirent.isDir()) {
+                String currentPath = nav.getDirPath();
+                String newPath = currentPath.endsWith("/") ? currentPath + dirent.name : currentPath + "/" + dirent.name;
+                nav.setDir(newPath, dirent.id);
+                refreshView();
+            } else {
+                mActivity.onFileSelected(dirent);
+            }
+        } else {
+            nav.setRepoID(repo.id);
+            nav.setRepoName(repo.getName());
+            nav.setDir("/", repo.root);
+            refreshView();
+        }*/
     	
     }
 
@@ -295,7 +323,7 @@ public class ReposChooserFragment extends SherlockListFragment {
         List<SeafRepo> personal = map.get(Utils.NOGROUP);
         SeafGroup group;
         if (personal != null) {
-            group = new SeafGroup(mActivity.getResources().getString(R.string.personal));
+            group = new SeafGroup(mActivity.getResources().getString(R.string.auto_upload_repository));
             adapter.add(group);
             for (SeafRepo repo : personal)
                 adapter.add(repo);
@@ -618,5 +646,4 @@ public class ReposChooserFragment extends SherlockListFragment {
         }
 
     }
-
 }

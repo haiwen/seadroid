@@ -7,10 +7,10 @@ import java.util.ArrayList;
 
 import net.londatiga.android.ActionItem;
 import net.londatiga.android.QuickAction;
-
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -184,6 +184,7 @@ public class SeafItemAdapter extends BaseAdapter {
         String repoName = nav.getRepoName();
         String repoID = nav.getRepoID();
         String filePath = Utils.pathJoin(nav.getDirPath(), dirent.name);
+        Log.i("SeafItemAdapter", filePath, null);
         File file = dataManager.getLocalRepoFile(repoName, repoID, filePath);
         boolean cacheExists = false;
 

@@ -67,8 +67,7 @@ public class TransferManager {
         while (iter.hasNext()) {
             UploadTask task = iter.next();
             if (task.myRepoID.equals(repoID) && task.myPath.equals(filePath)) {
-                if (task.myState == TaskState.CANCELLED || task.myState == TaskState.FAILED
-                        || task.myState == TaskState.FINISHED) {
+                if (task.myState == TaskState.CANCELLED || task.myState == TaskState.FAILED || task.myState == TaskState.FINISHED) {
                     // If there is a duplicate, but it has failed or been
                     // cancelled, remove it first
                     iter.remove();

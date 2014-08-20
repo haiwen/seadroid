@@ -70,10 +70,5 @@
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>
-        <activity android:name="com.seafile.seadroid2.fileschooser.AutoBackupFolderChooserActivity"
-                  android:theme="@style/Theme.SeafileTheme"
-                  android:label="@string/app_name">
-        </activity>
-        
     </application>
 </manifest>

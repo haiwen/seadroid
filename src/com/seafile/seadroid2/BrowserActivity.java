@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
@@ -55,7 +54,6 @@ import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SeafStarredFile;
-import com.seafile.seadroid2.fileschooser.AutoBackupFolderChooserActivity;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 import com.seafile.seadroid2.gallery.MultipleImageSelectionActivity;
 import com.seafile.seadroid2.monitor.FileMonitorService;
@@ -85,7 +83,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         implements ReposFragment.OnFileSelectedListener, ReposChooserFragment.OnRepoSelectedListener, StarredFragment.OnStarredFileSelectedListener, OnBackStackChangedListener {
 
     private static final String DEBUG_TAG = "BrowserActivity";
-
     public static final String SHARED_PREF_REPO_ID = "com.seafile.seadroid.id";
     public static final String SHARED_PREF_REPO_NAME = "com.seafile.seadroid.name";
     public static final String PKG_NAME = "com.seafile.seadroid2";
@@ -161,10 +158,10 @@ public class BrowserActivity extends SherlockFragmentActivity
             pendingUploads.add(info);
         }
     }
-    private static final String DUB_TAG="BrowserActivity";
+    
     public void addUploadTask(String repoID, String repoName, String targetDir, String localFilePath) {
-    	Toast.makeText(this, repoID+"---"+repoName+"---"+targetDir+"---"+localFilePath, Toast.LENGTH_LONG).show();
-    	Log.i(DUB_TAG, repoID+"---"+repoName+"---"+targetDir+"---"+localFilePath);
+    	// Toast.makeText(this, repoID+"---"+repoName+"---"+targetDir+"---"+localFilePath, Toast.LENGTH_LONG).show();
+    	// Log.i(DUB_TAG, repoID+"---"+repoName+"---"+targetDir+"---"+localFilePath);
         if (txService != null) {
             txService.addUploadTask(account, repoID, repoName, targetDir, localFilePath, false);
         } else {
@@ -1068,20 +1065,6 @@ public class BrowserActivity extends SherlockFragmentActivity
                 }
             }
             break;
-        case PICK_AUTO_BACKUP_FOLDER_REQUEST:
-			if (resultCode == Activity.RESULT_OK) {
-				String[] paths = data.getStringArrayExtra(AutoBackupFolderChooserActivity.AUTO_BACKUP_FOLDER_PATHS);
-				if (paths == null) 
-					return;
-				showToast(R.string.added_to_upload_tasks);
-				for (String path : paths) {
-					Log.v(DEBUG_TAG, path);
-					Log.v(DEBUG_TAG, "RepoID: "+navContext.getRepoID());
-					Log.v(DEBUG_TAG, "Repo: "+navContext.getRepoName());
-					addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), path);
-				}
-			}
-			break;
         case PICK_PHOTOS_VIDEOS_REQUEST:
             if (resultCode == RESULT_OK) {
                 ArrayList<String> paths = data.getStringArrayListExtra("photos");
