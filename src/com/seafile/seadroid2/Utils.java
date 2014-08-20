@@ -491,7 +491,7 @@ public class Utils {
         final SelectableFile pathDir = new SelectableFile(path);
 
         // List file in this directory with the directory filter
-        final SelectableFile[] dirs = pathDir.listFiles(filterForImageFolders);
+        final SelectableFile[] dirs = pathDir.listFiles(mDirFilter);
         if (dirs != null) {
             // Sort the folders alphabetically
             Arrays.sort(dirs, mComparator);
@@ -500,7 +500,7 @@ public class Utils {
         }
 
         // List file in this directory with the file filter
-        final SelectableFile[] files = pathDir.listFiles(mPhotosFilter);
+        final SelectableFile[] files = pathDir.listFiles(mFileFilter);
         if (files != null) {
             // Sort the files alphabetically
             Arrays.sort(files, mComparator);

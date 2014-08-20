@@ -80,7 +80,7 @@ import com.seafile.seadroid2.ui.TaskDialog.TaskDialogListener;
 import com.seafile.seadroid2.ui.UploadTasksFragment;
 
 public class BrowserActivity extends SherlockFragmentActivity
-        implements ReposFragment.OnFileSelectedListener, ReposChooserFragment.OnRepoSelectedListener, StarredFragment.OnStarredFileSelectedListener, OnBackStackChangedListener {
+        implements ReposFragment.OnFileSelectedListener, StarredFragment.OnStarredFileSelectedListener, OnBackStackChangedListener {
 
     private static final String DEBUG_TAG = "BrowserActivity";
     public static final String SHARED_PREF_REPO_ID = "com.seafile.seadroid.id";
@@ -101,7 +101,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     // private boolean twoPaneMode = false;
     UploadTasksFragment uploadTasksFragment = null;
     TabsFragment tabsFragment = null;
-    //SettingsFragment settingsFragment = null;
+    // SettingsFragment settingsFragment = null;
     ReposChooserFragment reposChooserFragment = null;
     private String currentSelectedItem = FILES_VIEW;
 
@@ -111,7 +111,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     private static final String UPLOAD_TASKS_VIEW = "UploadTasks";
     private static final String FILES_VIEW = "Files";
-    private static final String SETTINGS_VIEW = "Settings";
+    // private static final String SETTINGS_VIEW = "Settings";
 
     private static final String LIBRARY_TAB = "Libraries";
     private static final String ACTIVITY_TAB = "Activities";
@@ -120,7 +120,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final String REPOS_FRAGMENT_TAG = "repos_fragment";
     public static final String UPLOAD_TASKS_FRAGMENT_TAG = "upload_tasks_fragment";
     public static final String TABS_FRAGMENT_TAG = "tabs_main";
-    public static final String SETTINGS_FRAGMENT_TAG = "settings_fragment";
+    // public static final String SETTINGS_FRAGMENT_TAG = "settings_fragment";
     public static final String REPOS_CHOOSER_FRAGMENT_TAG = "repos_chooser_fragment";
     public static final String ACTIVITIES_FRAGMENT_TAG = "activities_fragment";
     public static final String OPEN_FILE_DIALOG_FRAGMENT_TAG = "openfile_fragment";
@@ -244,8 +244,8 @@ public class BrowserActivity extends SherlockFragmentActivity
                     getSupportFragmentManager().findFragmentByTag(TABS_FRAGMENT_TAG);
             uploadTasksFragment = (UploadTasksFragment)
                     getSupportFragmentManager().findFragmentByTag(UPLOAD_TASKS_FRAGMENT_TAG);
-//            settingsFragment = (SettingsFragment)
-//                    getSupportFragmentManager().findFragmentByTag(SETTINGS_FRAGMENT_TAG);
+            // settingsFragment = (SettingsFragment)
+            // getSupportFragmentManager().findFragmentByTag(SETTINGS_FRAGMENT_TAG);
             reposChooserFragment = (ReposChooserFragment)
                     getSupportFragmentManager().findFragmentByTag(REPOS_CHOOSER_FRAGMENT_TAG);
 
@@ -286,14 +286,14 @@ public class BrowserActivity extends SherlockFragmentActivity
             Log.d(DEBUG_TAG, "savedInstanceState is null");
             tabsFragment = new TabsFragment();
             uploadTasksFragment = new UploadTasksFragment();
-//            settingsFragment = new SettingsFragment();
+            // settingsFragment = new SettingsFragment();
             reposChooserFragment = new ReposChooserFragment();
             getSupportFragmentManager().beginTransaction().add(R.id.content_frame, tabsFragment, TABS_FRAGMENT_TAG).commit();
             getSupportFragmentManager().beginTransaction().add(R.id.content_frame, uploadTasksFragment, UPLOAD_TASKS_FRAGMENT_TAG).commit();
-//            getSupportFragmentManager().beginTransaction().add(R.id.content_frame, settingsFragment,SETTINGS_FRAGMENT_TAG).commit();
+            // getSupportFragmentManager().beginTransaction().add(R.id.content_frame, settingsFragment,SETTINGS_FRAGMENT_TAG).commit();
             getSupportFragmentManager().beginTransaction().add(R.id.content_frame, reposChooserFragment,REPOS_CHOOSER_FRAGMENT_TAG).commit();
             getSupportFragmentManager().beginTransaction().detach(uploadTasksFragment).commit();
-//            getSupportFragmentManager().beginTransaction().detach(settingsFragment).commit();
+            // getSupportFragmentManager().beginTransaction().detach(settingsFragment).commit();
             getSupportFragmentManager().beginTransaction().detach(reposChooserFragment).commit();
 
         }
@@ -463,7 +463,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     public void onSaveInstanceState(Bundle outState) {
         Log.d(DEBUG_TAG, "onSaveInstanceState");
         super.onSaveInstanceState(outState);
-        //outState.putInt("tab", getSupportActionBar().getSelectedNavigationIndex());
+        // outState.putInt("tab", getSupportActionBar().getSelectedNavigationIndex());
         if (navContext.getRepoID() != null) {
             outState.putString("repoID", navContext.getRepoID());
             outState.putString("repoName", navContext.getRepoName());
@@ -492,15 +492,15 @@ public class BrowserActivity extends SherlockFragmentActivity
         switch (position) {
         case 0 :
             ft.detach(uploadTasksFragment);
-//            ft.detach(settingsFragment);
+            // ft.detach(settingsFragment);
             ft.detach(reposChooserFragment);
             ft.attach(tabsFragment);
             ft.commit();
             currentSelectedItem = FILES_VIEW;
             break;
         case 1 :
-            //ft.detach(tabsFragment);
-//            ft.detach(settingsFragment);
+            // ft.detach(tabsFragment);
+        	// ft.detach(settingsFragment);
             ft.detach(reposChooserFragment);
             ft.attach(uploadTasksFragment);
             ft.commit();
@@ -508,7 +508,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             break;
         case 2 :
             ft.detach(uploadTasksFragment);
-//            ft.detach(settingsFragment);
+            // ft.detach(settingsFragment);
             ft.detach(reposChooserFragment);
             ft.attach(tabsFragment);
             ft.commit();
@@ -524,7 +524,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             //ft.detach(reposChooserFragment);
         	ft.attach(reposChooserFragment);
         	ft.commit();
-        	currentSelectedItem = SETTINGS_VIEW;
+        	// currentSelectedItem = SETTINGS_VIEW;
         	break;
         default:
         	break;
@@ -1151,27 +1151,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         return;
     }
     
-    @Override
-	public void onRepoSelected(SeafDirent dirent) {
-		String fileName = dirent.name;
-		final String repoName = navContext.getRepoName();
-		final String repoID = navContext.getRepoID();
-		final String filePath = Utils.pathJoin(navContext.getDirPath(), fileName);
-		
-		File localFile = dataManager.getLocalCachedFile(repoName, repoID, filePath, dirent.id);
-		if (localFile != null) {
-			showFile(localFile);
-			return;
-		}
-
-		Intent intent = new Intent(this, FileActivity.class);
-		intent.putExtra("repoName", repoName);
-		intent.putExtra("repoID", repoID);
-		intent.putExtra("filePath", filePath);
-		intent.putExtra("account", account);
-		startActivity(intent);
-		return;
-	}
+    
     @Override
     public void onBackPressed() {
         if (getSupportFragmentManager().getBackStackEntryCount() != 0) {

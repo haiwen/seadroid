@@ -115,7 +115,7 @@
         <item>文件</item>
         <item>上传任务</item>
         <item>账户</item>
-        <item>设置</item>
+        <item>备份照片</item>
     </string-array>
     <string name="no_starred_file">还没有星标文件</string>
     <string name="added_to_upload_tasks">选中的文件已被添加到上传任务列表中</string>
@@ -148,6 +148,8 @@
     <string name="no">否</string>
     <string name="remember_my_choice">记住我的选择</string>
     <!-- settings start-->
-    <string name="auto_upload_photos">自动备份照片</string>
+    <string name="auto_Backup_photos">自动备份照片</string>
+    <string name="choose_repository_dialog">确定上传到这个库吗？</string>
+    <string name="auto_upload_repository">请选择备份照片的库</string>
     <!-- settings end -->
 </resources>

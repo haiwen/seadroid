@@ -116,7 +116,7 @@
         <item>Files</item>
         <item>Uploads</item>
         <item>Accounts</item>
-        <item>Settings</item>
+        <item>Backup Photos</item>
     </string-array>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
@@ -151,7 +151,7 @@
     <string name="no">No</string>
     <string name="remember_my_choice">Remember my choice</string>
     <!-- settings start -->
-    <string name="auto_upload_photos">Auto Upload Photos</string>
+    <string name="auto_Backup_photos">Auto Backup Photos</string>
     <string name="choose_repository_dialog">upload to this repository ?</string>
     <string name="auto_upload_repository">Choose one repository to backup photos</string>
     <!-- settings end -->
