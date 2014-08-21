@@ -7,9 +7,7 @@ import java.util.Map;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -286,17 +284,24 @@ public class ReposChooserFragment extends SherlockListFragment {
 		writeReposInfoToSharedPreferences(repo.id, repo.name);
 		// getActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
 		List<SelectableFile> list = Utils.getImageFoldersList();
-		Toast.makeText(mActivity, "add " + list.size() + " photos to " + repo.name, Toast.LENGTH_LONG).show();
+		int photosCount = 0;
 		for (SelectableFile selectableFile : list) {
-			//Log.i(DEBUG_TAG, selectableFile.getFile().getPath());
-			SeafCachedFile cf = getDataManager().getCachedFile(repo.name, repo.id, selectableFile.getFile().getParent());
+			String path= "/" + new File(selectableFile.getAbsolutePath()).getName();
+			Log.i(DEBUG_TAG, path);
+			SeafCachedFile cf = getDataManager().getCachedFile(repo.name, repo.id, path);
 			if (cf != null && cf.fileID != null) {
-				getDataManager().addCachedFile(repo.name, repo.id, selectableFile.getAbsolutePath(), cf.fileID, selectableFile.getFile());
+				getDataManager().addCachedFile(repo.name, repo.id, path, cf.fileID, new File(path));
 			} else {
+				photosCount ++;
 				mActivity.addUploadTask(repo.id, repo.name, "/", selectableFile.getAbsolutePath());
 	        }
 		}
-        /*if (nav.inRepo()) {
+		if (photosCount == 0) {
+			Toast.makeText(mActivity, R.string.auto_backup_duplicate_detect, Toast.LENGTH_LONG).show();
+		} 
+		else Toast.makeText(mActivity, String.format(getActivity().getString(R.string.auto_backup_toast) + repo.name, photosCount), Toast.LENGTH_LONG).show();
+        
+		/*if (nav.inRepo()) {
             final SeafDirent dirent = (SeafDirent)adapter.getItem(position);
             if (dirent.isDir()) {
                 String currentPath = nav.getDirPath();
@@ -315,7 +320,7 @@ public class ReposChooserFragment extends SherlockListFragment {
     	
     }
 
-
+        
     private void addReposToAdapter(List<SeafRepo> repos) {
         if (repos == null)
             return;
@@ -323,7 +328,7 @@ public class ReposChooserFragment extends SherlockListFragment {
         List<SeafRepo> personal = map.get(Utils.NOGROUP);
         SeafGroup group;
         if (personal != null) {
-            group = new SeafGroup(mActivity.getResources().getString(R.string.auto_upload_repository));
+            group = new SeafGroup(mActivity.getResources().getString(R.string.auto_backup_repository));
             adapter.add(group);
             for (SeafRepo repo : personal)
                 adapter.add(repo);

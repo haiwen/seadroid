@@ -147,9 +147,10 @@
     <string name="yes">是</string>
     <string name="no">否</string>
     <string name="remember_my_choice">记住我的选择</string>
-    <!-- settings start-->
-    <string name="auto_Backup_photos">自动备份照片</string>
+    <!-- photos backup start -->
+    <string name="auto_backup_photos">自动备份照片</string>
     <string name="choose_repository_dialog">确定上传到这个库吗？</string>
-    <string name="auto_upload_repository">请选择备份照片的库</string>
-    <!-- settings end -->
+    <string name="auto_backup_repository">请选择备份照片的库</string>
+    <string name="auto_backup_duplicate_detect">已经备份这些相片！</string>
+    <!-- photos backup end -->
 </resources>

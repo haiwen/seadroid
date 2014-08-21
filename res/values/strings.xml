@@ -150,9 +150,11 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="remember_my_choice">Remember my choice</string>
-    <!-- settings start -->
-    <string name="auto_Backup_photos">Auto Backup Photos</string>
+    <!-- photos backup start -->
+    <string name="auto_backup_photos">Auto Backup Photos</string>
     <string name="choose_repository_dialog">upload to this repository ?</string>
-    <string name="auto_upload_repository">Choose one repository to backup photos</string>
-    <!-- settings end -->
+    <string name="auto_backup_repository">Choose one repository to backup photos</string>
+    <string name="auto_backup_duplicate_detect">You already backup these photos!</string>
+    <string name="auto_backup_toast">add %d photos to\u0020</string>
+    <!-- photos backup end -->
 </resources>
