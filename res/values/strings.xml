@@ -152,7 +152,7 @@
     <string name="remember_my_choice">Remember my choice</string>
     <!-- photos backup start -->
     <string name="auto_backup_photos">Auto Backup Photos</string>
-    <string name="choose_repository_dialog">upload to this repository ?</string>
+    <string name="choose_repository_dialog">bakcup photos to this repo ?</string>
     <string name="auto_backup_repository">Choose one repository to backup photos</string>
     <string name="auto_backup_duplicate_detect">You already backup these photos!</string>
     <string name="auto_backup_toast">add %d photos to\u0020</string>

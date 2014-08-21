@@ -1,13 +1,14 @@
 package com.seafile.seadroid2.ui;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -19,7 +20,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.seafile.seadroid2.AccountsActivity;
@@ -51,7 +51,9 @@ public class ReposChooserFragment extends SherlockListFragment {
     private View mProgressContainer;
     private View mListContainer;
     private TextView mErrorText;
-
+    
+    private SeafRepo repo = null;
+    
     private DataManager getDataManager() {
         return mActivity.getDataManager();
     }
@@ -71,7 +73,7 @@ public class ReposChooserFragment extends SherlockListFragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        Log.d(DEBUG_TAG, "ReposFragment Attached");
+        Log.d(DEBUG_TAG, "ReposChooserFragment Attached");
         mActivity = (BrowserActivity)activity;
     }
 
@@ -91,7 +93,7 @@ public class ReposChooserFragment extends SherlockListFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        Log.d(DEBUG_TAG, "ReposFragment onActivityCreated");
+        Log.d(DEBUG_TAG, "ReposChooserFragment onActivityCreated");
         adapter = new SeafItemAdapter(mActivity);
         setListAdapter(adapter);
 
@@ -100,22 +102,24 @@ public class ReposChooserFragment extends SherlockListFragment {
 
     @Override
     public void onStart() {
-        Log.d(DEBUG_TAG, "ReposFragment onStart");
+        Log.d(DEBUG_TAG, "ReposChooserFragment onStart");
         super.onStart();
     }
 
     @Override
     public void onStop() {
-        Log.d(DEBUG_TAG, "ReposFragment onStop");
+        Log.d(DEBUG_TAG, "ReposChooserFragment onStop");
         super.onStop();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(DEBUG_TAG, "ReposFragment onResume");
+        Log.d(DEBUG_TAG, "ReposChooserFragment onResume");
         // refresh the view (loading data)
         refreshView();
+        mActivity.disableUpButton();
+        mActivity.disableActionBarTitle();
     }
 
     @Override
@@ -126,7 +130,7 @@ public class ReposChooserFragment extends SherlockListFragment {
     @Override
     public void onDetach() {
         mActivity = null;
-        Log.d(DEBUG_TAG, "ReposFragment detached");
+        Log.d(DEBUG_TAG, "ReposChooserFragment detached");
         super.onDetach();
     }
 
@@ -142,17 +146,12 @@ public class ReposChooserFragment extends SherlockListFragment {
         mErrorText.setVisibility(View.GONE);
         mListContainer.setVisibility(View.VISIBLE);
 
-        NavContext navContext = getNavContext();
-        if (navContext.inRepo()) {
-            navToDirectory(forceRefresh);
-        } else {
-            navToReposView(forceRefresh);
-        }
+    	navToReposView(forceRefresh);
         mActivity.supportInvalidateOptionsMenu();
     }
 
     public void navToReposView(boolean forceRefresh) {
-        //mActivity.disableUpButton();
+        
         if (!Utils.isNetworkOn() || !forceRefresh) {
             List<SeafRepo> repos = getDataManager().getReposFromCache();
             if (repos != null) {
@@ -166,7 +165,7 @@ public class ReposChooserFragment extends SherlockListFragment {
         ConcurrentAsyncTask.execute(new LoadTask(getDataManager()));
     }
 
-    public void navToDirectory(final boolean forceRefresh) {
+   /*public void navToDirectory(final boolean forceRefresh) {
         NavContext nav = getNavContext();
         DataManager dataManager = getDataManager();
 
@@ -191,7 +190,7 @@ public class ReposChooserFragment extends SherlockListFragment {
                 nav.getRepoName(),
                 nav.getRepoID(),
                 nav.getDirPath());
-    }
+    }*/
 
     private void updateAdapterWithRepos(List<SeafRepo> repos) {
         adapter.clear();
@@ -207,7 +206,7 @@ public class ReposChooserFragment extends SherlockListFragment {
         }
     }
 
-    private void updateAdapterWithDirents(List<SeafDirent> dirents) {
+    /*private void updateAdapterWithDirents(List<SeafDirent> dirents) {
         adapter.clear();
         if (dirents.size() > 0) {
             for (SeafDirent dirent : dirents) {
@@ -228,7 +227,7 @@ public class ReposChooserFragment extends SherlockListFragment {
             mEmptyView.setVisibility(View.VISIBLE);
         }
     }
-    
+    */
     private void writeReposInfoToSharedPreferences(String id, String name) {
 
         SharedPreferences sharedPref = mActivity.getSharedPreferences(AccountsActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
@@ -238,9 +237,9 @@ public class ReposChooserFragment extends SherlockListFragment {
         editor.commit();
     }
     
+    
     @Override
     public void onListItemClick(final ListView l, final View v, final int position, final long id) {
-        SeafRepo repo = null;
         final NavContext nav = getNavContext();
         if (nav.inRepo()) {
             repo = getDataManager().getCachedRepoByID(nav.getRepoID());
@@ -260,46 +259,26 @@ public class ReposChooserFragment extends SherlockListFragment {
             mActivity.showPasswordDialog(repo.name, repo.id, new TaskDialog.TaskDialogListener() {
                 @Override
                 public void onTaskSuccess() {
-                    //onListItemClick(l, v, position, id);
+                    onListItemClick(l, v, position, id);
                 }
             }, password);
 
             return;
         }
-        /*
+        
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.choose_repository_dialog)
                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                   public void onClick(DialogInterface dialog, int id) {
-                       // FIRE ZE MISSILES!
-                	   
-                   }
+							public void onClick(DialogInterface dialog, int id) {
+								backupPhotos();
+							}
                })
                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                    public void onClick(DialogInterface dialog, int id) {
                        return;
                    }
                });
-        builder.show();*/
-		writeReposInfoToSharedPreferences(repo.id, repo.name);
-		// getActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
-		List<SelectableFile> list = Utils.getImageFoldersList();
-		int photosCount = 0;
-		for (SelectableFile selectableFile : list) {
-			String path= "/" + new File(selectableFile.getAbsolutePath()).getName();
-			Log.i(DEBUG_TAG, path);
-			SeafCachedFile cf = getDataManager().getCachedFile(repo.name, repo.id, path);
-			if (cf != null && cf.fileID != null) {
-				getDataManager().addCachedFile(repo.name, repo.id, path, cf.fileID, new File(path));
-			} else {
-				photosCount ++;
-				mActivity.addUploadTask(repo.id, repo.name, "/", selectableFile.getAbsolutePath());
-	        }
-		}
-		if (photosCount == 0) {
-			Toast.makeText(mActivity, R.string.auto_backup_duplicate_detect, Toast.LENGTH_LONG).show();
-		} 
-		else Toast.makeText(mActivity, String.format(getActivity().getString(R.string.auto_backup_toast) + repo.name, photosCount), Toast.LENGTH_LONG).show();
+        builder.show();
         
 		/*if (nav.inRepo()) {
             final SeafDirent dirent = (SeafDirent)adapter.getItem(position);
@@ -319,8 +298,31 @@ public class ReposChooserFragment extends SherlockListFragment {
         }*/
     	
     }
+    
+    private void backupPhotos(){
 
-        
+		writeReposInfoToSharedPreferences(repo.id, repo.name);
+		// getActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
+		List<SelectableFile> list = Utils.getImageFoldersList();
+		int photosCount = 0;
+		for (SelectableFile selectableFile : list) {
+			String path = "/" + new File(selectableFile
+							.getAbsolutePath())
+							.getName();
+			Log.i(DEBUG_TAG, path);
+			SeafCachedFile cf = getDataManager() .getCachedFile(repo.name, repo.id, path);
+			if (cf != null && cf.fileID != null) {
+				getDataManager().addCachedFile( repo.name, repo.id, path, cf.fileID, new File(path));
+			} else {
+				photosCount++;
+				mActivity.addUploadTask(repo.id, repo.name, "/", selectableFile.getAbsolutePath());
+			}
+		}
+		if (photosCount == 0) {
+			mActivity.showToast(R.string.auto_backup_duplicate_detect);
+		} else
+			mActivity.showToast(String.format(getActivity().getString(R.string.auto_backup_toast) + repo.name, photosCount));
+    }    
     private void addReposToAdapter(List<SeafRepo> repos) {
         if (repos == null)
             return;
@@ -471,7 +473,7 @@ public class ReposChooserFragment extends SherlockListFragment {
         }
     }
 
-    private class LoadDirTask extends AsyncTask<String, Void, List<SeafDirent> > {
+    /*private class LoadDirTask extends AsyncTask<String, Void, List<SeafDirent> > {
 
         SeafException err = null;
         String myRepoName;
@@ -578,9 +580,9 @@ public class ReposChooserFragment extends SherlockListFragment {
             updateAdapterWithDirents(dirents);
             showLoading(false);
         }
-    }
+    }*/
 
-    private void showPasswordDialog() {
+    /*private void showPasswordDialog() {
         NavContext nav = mActivity.getNavContext();
         String repoName = nav.getRepoName();
         String repoID = nav.getRepoID();
@@ -591,9 +593,9 @@ public class ReposChooserFragment extends SherlockListFragment {
                 refreshView();
             }
         });
-    }
+    }*/
 
-    private void scheduleThumbnailTask(String repoName, String repoID,
+    /*private void scheduleThumbnailTask(String repoName, String repoID,
             String path, List<SeafDirent> dirents) {
         ArrayList<SeafDirent> needThumb = new ArrayList<SeafDirent>();
         for (SeafDirent dirent : dirents) {
@@ -615,9 +617,9 @@ public class ReposChooserFragment extends SherlockListFragment {
         if (needThumb.size() != 0) {
             ConcurrentAsyncTask.execute(new ThumbnailTask(repoName, repoID, path, needThumb));
         }
-    }
+    }*/
 
-    private class ThumbnailTask extends AsyncTask<Void, Void, Void > {
+    /*private class ThumbnailTask extends AsyncTask<Void, Void, Void > {
 
         List<SeafDirent> dirents;
         private String repoName;
@@ -650,5 +652,5 @@ public class ReposChooserFragment extends SherlockListFragment {
             adapter.notifyChanged();
         }
 
-    }
+    }*/
 }

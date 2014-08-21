@@ -1545,7 +1545,24 @@ public class BrowserActivity extends SherlockFragmentActivity
         passwordDialog.show(getSupportFragmentManager(), PASSWORD_DIALOG_FRAGMENT_TAG);
         return passwordDialog;
     }
+    
+    public PasswordDialog showDialog(String repoName, String repoID,
+			TaskDialog.TaskDialogListener listener) {
+		return showDialog(repoName, repoID, listener, null);
+	}
 
+	public PasswordDialog showDialog(String repoName, String repoID,
+			TaskDialog.TaskDialogListener listener, String password) {
+		PasswordDialog passwordDialog = new PasswordDialog();
+		passwordDialog.setRepo(repoName, repoID, account);
+		if (password != null) {
+			passwordDialog.setPassword(password);
+		}
+		passwordDialog.setTaskDialogLisenter(listener);
+		passwordDialog.show(getSupportFragmentManager(),
+				PASSWORD_DIALOG_FRAGMENT_TAG);
+		return passwordDialog;
+	}
     // for receive broadcast from TransferService
     private class TransferReceiver extends BroadcastReceiver {
 
