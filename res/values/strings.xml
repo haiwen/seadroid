@@ -26,9 +26,10 @@
     <string name="personal">Personal</string>
     <string name="libraries">Libraries</string>
     <string name="cached">Cached</string>
-    <string name="upload_tasks">UPLOADS</string>
     <string name="activities">Activities</string>
     <string name="pick_upload_type">Upload</string>
+    <string name="upload_tasks">Uploads</string>
+    <string name="accounts">Accounts</string>
     <string-array name="pick_upload_array">
         <item>File</item>
         <item>Photos/Videos</item>

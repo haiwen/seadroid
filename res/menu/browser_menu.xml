@@ -12,6 +12,16 @@
         android:title="@string/delete"
         android:showAsAction="ifRoom|withText"/>
 
+	<item android:id="@+id/upload_tasks"
+        android:visible="false"
+        android:title="@string/upload_tasks"
+        android:showAsAction="never"/>
+
+	<item android:id="@+id/accounts"
+        android:visible="false"
+        android:title="@string/accounts"
+        android:showAsAction="never"/>
+
     <item android:id="@+id/refresh"
         android:visible="false"
         android:title="@string/refresh"

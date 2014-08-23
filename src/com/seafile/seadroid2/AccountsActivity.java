@@ -17,8 +17,6 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
@@ -29,8 +27,14 @@ import android.widget.ListView;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.monitor.FileMonitorService;
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 
-public class AccountsActivity extends FragmentActivity {
+
+public class AccountsActivity extends SherlockFragmentActivity {
     public static final String SHARED_PREF_NAME = "latest_account";
     public static final String SHARED_PREF_SERVER_KEY = "com.seafile.seadroid.server";
     public static final String SHARED_PREF_EMAIL_KEY = "com.seafile.seadroid.email";
@@ -95,6 +99,8 @@ public class AccountsActivity extends FragmentActivity {
         });
         registerForContextMenu(accountsView);
 
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
     }
 
     @Override
@@ -127,6 +133,16 @@ public class AccountsActivity extends FragmentActivity {
         refreshView();
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+         switch (item.getItemId()) {
+            case android.R.id.home:
+                this.finish();
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+    
     private void refreshView() {
         accounts = accountManager.getAccountList();
         // Log.d(DEBUG_TAG, "Load accounts num " + accounts.size());
@@ -183,12 +199,12 @@ public class AccountsActivity extends FragmentActivity {
     public void onCreateContextMenu(ContextMenu menu, View v,
             ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        MenuInflater inflater = getMenuInflater();
+        android.view.MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.account_menu, menu);
     }
 
     @Override
-    public boolean onContextItemSelected(MenuItem item) {
+    public boolean onContextItemSelected(android.view.MenuItem item) {
         AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
         Account account;
         switch (item.getItemId()) {
