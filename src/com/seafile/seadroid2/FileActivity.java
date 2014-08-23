@@ -78,6 +78,7 @@ public class FileActivity extends SherlockFragmentActivity {
         mRepoName = intent.getStringExtra("repoName");
         mRepoID = intent.getStringExtra("repoID");
         mFilePath = intent.getStringExtra("filePath");
+        mTaskID = intent.getIntExtra("taskID", 0);
 
         mDataManager = new DataManager(mAccount);
 
@@ -162,7 +163,7 @@ public class FileActivity extends SherlockFragmentActivity {
             startActivity(open);
             finish();
             return;
-        } catch (ActivityNotFoundException e){
+        } catch (ActivityNotFoundException e) {
             new OpenAsDialog(file) {
                 @Override
                 public void onDismiss(DialogInterface dialog) {
@@ -193,7 +194,6 @@ public class FileActivity extends SherlockFragmentActivity {
         mTransferReceiver = new TransferReceiver();
         LocalBroadcastManager.getInstance(this).registerReceiver(mTransferReceiver, filter);
 
-        mTaskID = mTransferService.addDownloadTask(mAccount, mRepoName, mRepoID, mFilePath);
         mProgressBar.setVisibility(View.VISIBLE);
         mProgressBar.setIndeterminate(true);
         mProgressText.setVisibility(View.VISIBLE);

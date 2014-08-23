@@ -1078,13 +1078,18 @@ public class BrowserActivity extends SherlockFragmentActivity
             return;
         }
 
+        startFileActivity(repoName, repoID, filePath);
+    }
+
+    private void startFileActivity(String repoName, String repoID, String filePath) {
+        int taskID = txService.addDownloadTask(account, repoName, repoID, filePath);
         Intent intent = new Intent(this, FileActivity.class);
         intent.putExtra("repoName", repoName);
         intent.putExtra("repoID", repoID);
         intent.putExtra("filePath", filePath);
         intent.putExtra("account", account);
+        intent.putExtra("taskID", taskID);
         startActivity(intent);
-        return;
     }
 
     @Override
@@ -1101,13 +1106,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             return;
         }
 
-        Intent intent = new Intent(this, FileActivity.class);
-        intent.putExtra("repoName", repoName);
-        intent.putExtra("repoID", repoID);
-        intent.putExtra("filePath", filePath);
-        intent.putExtra("account", account);
-        startActivity(intent);
-        return;
+        startFileActivity(repoName, repoID, filePath);
     }
 
     @Override
