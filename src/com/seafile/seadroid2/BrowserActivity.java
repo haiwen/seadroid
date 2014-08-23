@@ -82,6 +82,7 @@ import com.seafile.seadroid2.ui.SslConfirmDialog;
 import com.seafile.seadroid2.ui.StarredFragment;
 import com.seafile.seadroid2.ui.TabsFragment;
 import com.seafile.seadroid2.ui.TaskDialog;
+import com.seafile.seadroid2.ui.UploadTasksAdapter;
 import com.seafile.seadroid2.ui.TaskDialog.TaskDialogListener;
 import com.seafile.seadroid2.ui.UploadTasksActivity;
 import com.seafile.seadroid2.util.Utils;
@@ -485,6 +486,17 @@ public class BrowserActivity extends SherlockFragmentActivity
         return true;
     }
 
+    public static UploadTasksAdapter uploadTasksAdapter;
+
+    private List<UploadTaskInfo> getUploadTaskInfos() {
+        if (txService == null) {
+            // In case the service is not ready
+            return new ArrayList<UploadTaskInfo>();
+        }
+
+        return txService.getAllUploadTaskInfos();
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -496,6 +508,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             return true;
         case R.id.upload_tasks:
             Intent newIntent = new Intent(this, UploadTasksActivity.class);
+            uploadTasksAdapter = new UploadTasksAdapter(this, getUploadTaskInfos());
             newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(newIntent);
             return true;

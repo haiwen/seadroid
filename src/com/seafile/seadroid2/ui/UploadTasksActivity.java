@@ -40,7 +40,7 @@ public class UploadTasksActivity extends SherlockFragmentActivity {
         
         setContentView(R.layout.upload_tasks_activity);
         this.supportInvalidateOptionsMenu();
-        adapter = new UploadTasksAdapter(this, getUploadTaskInfos());
+        adapter = BrowserActivity.uploadTasksAdapter;
         uploadTasksView = (ListView) findViewById(R.id.upload_tasks_list);
         uploadTasksView.setAdapter(adapter);
         registerForContextMenu(uploadTasksView);
