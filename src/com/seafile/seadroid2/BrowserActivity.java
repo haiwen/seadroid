@@ -100,7 +100,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     private Account account;
     NavContext navContext = null;
     DataManager dataManager = null;
-    static TransferService txService = null;
+    TransferService txService = null;
     TransferReceiver mTransferReceiver;
 
     // private boolean twoPaneMode = false;
@@ -173,7 +173,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     private ArrayList<PendingUploadInfo> pendingUploads = new ArrayList<PendingUploadInfo>();
 
-    public static TransferService getTransferService() {
+    public TransferService getTransferService() {
         return txService;
     }
 
