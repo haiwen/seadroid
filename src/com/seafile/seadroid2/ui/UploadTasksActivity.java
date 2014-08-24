@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -23,6 +26,7 @@ import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferManager.TaskState;
+import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.transfer.UploadTaskInfo;
 
 public class UploadTasksActivity extends SherlockFragmentActivity {
@@ -31,12 +35,24 @@ public class UploadTasksActivity extends SherlockFragmentActivity {
     private ListView uploadTasksView;
     private UploadTasksAdapter adapter;
     private TransferService txService;
-    TransferReceiver mTransferReceiver;
+    private TransferReceiver mTransferReceiver;
+    private ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            TransferBinder binder = (TransferBinder) service;
+            txService = binder.getService();
+            Log.d(DEBUG_TAG, "bind TransferService");
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            txService = null;
+        }
+    };
     
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(DEBUG_TAG, "UploadTasksActivity.onCreate is called");
         super.onCreate(savedInstanceState);
-        txService = BrowserActivity.getTransferService();
         
         setContentView(R.layout.upload_tasks_activity);
         this.supportInvalidateOptionsMenu();
@@ -44,6 +60,10 @@ public class UploadTasksActivity extends SherlockFragmentActivity {
         uploadTasksView = (ListView) findViewById(R.id.upload_tasks_list);
         uploadTasksView.setAdapter(adapter);
         registerForContextMenu(uploadTasksView);
+        
+        Intent bIntent = new Intent(this, TransferService.class);
+        bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
+        Log.d(DEBUG_TAG, "try bind TransferService");
         
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);     
@@ -71,6 +91,17 @@ public class UploadTasksActivity extends SherlockFragmentActivity {
         if (mTransferReceiver != null) {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(mTransferReceiver);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.d(DEBUG_TAG, "onDestroy is called");
+        if (txService != null) {
+            unbindService(mConnection);
+            txService = null;
+        }
+
+        super.onDestroy();
     }
 
     private List<UploadTaskInfo> getUploadTaskInfos() {
