@@ -502,6 +502,9 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         switch (item.getItemId()) {
         case android.R.id.home:
+            if (navContext.inRepo()) {
+                onBackPressed();
+            } 
             return true;
         case R.id.upload:
             pickFile();
