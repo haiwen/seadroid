@@ -123,6 +123,7 @@
     <item>文件</item>
     <item>上传任务</item>
     <item>账户</item>
+    <item>相册备份</item>
   </string-array>
   <string name="drawer_open">打开导航栏</string>
   <string name="drawer_close">关闭导航栏</string>
