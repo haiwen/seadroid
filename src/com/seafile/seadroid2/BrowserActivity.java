@@ -45,10 +45,12 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.SeafCachedFile;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SeafStarredFile;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
+import com.seafile.seadroid2.fileschooser.SelectableFile;
 import com.seafile.seadroid2.gallery.MultipleImageSelectionActivity;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
@@ -85,10 +87,12 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final String EXTRA_REPO_NAME = PKG_NAME + ".repoName";
     public static final String EXTRA_REPO_ID = PKG_NAME + ".repoID";
     public static final String EXTRA_FILE_PATH = PKG_NAME + ".filePath";
-    public static final String EXTRA_ACCOUT = PKG_NAME + ".filePath";
+    public static final String EXTRA_ACCOUT = PKG_NAME + ".account";
+    public static final String EXTRA_CAMERA_UPLOAD = PKG_NAME + ".cameraUpload";
 
     private static final String DEBUG_TAG = "BrowserActivity";
-
+    private Boolean isCameraUpload = false;
+    private List<SelectableFile> list;
     private Account account;
     NavContext navContext = null;
     DataManager dataManager = null;
@@ -187,6 +191,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         getSupportActionBar().setDisplayShowTitleEnabled(false);
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
@@ -206,13 +211,16 @@ public class BrowserActivity extends SherlockFragmentActivity
         account = new Account(server, email, null, token);
         Log.d(DEBUG_TAG, "browser activity onCreate " + server + " " + email);
 
+        SharedPreferences sharedPref = getSharedPreferences(AccountsActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        repo_id = sharedPref.getString(ShareToSeafileActivity.SHARED_PREF_CAMERA_UPLOAD_REPO_ID, null);
+        repo_name = sharedPref.getString(ShareToSeafileActivity.SHARED_PREF_CAMERA_UPLOAD_REPO_NAME, null);
+        account_email = sharedPref.getString(ShareToSeafileActivity.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL, null);
+        account_server = sharedPref.getString(ShareToSeafileActivity.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER, null);
         if (server == null) {
 
-            SharedPreferences sharedPref = getSharedPreferences(AccountsActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
             String latest_server = sharedPref.getString(AccountsActivity.SHARED_PREF_SERVER_KEY, null);
             String latest_email = sharedPref.getString(AccountsActivity.SHARED_PREF_EMAIL_KEY, null);
             String latest_token = sharedPref.getString(AccountsActivity.SHARED_PREF_TOKEN_KEY, null);
-
             if (latest_server != null) {
                 account = new Account(latest_server, latest_email, null, latest_token);
             } else {
@@ -300,8 +308,87 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         Intent monitorIntent = new Intent(this, FileMonitorService.class);
         startService(monitorIntent);
+        
+        this.getApplicationContext().getContentResolver().registerContentObserver(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI, false, cameraUploadObserver);
+        
+        handleCameraUpload();
+    }
+    
+    private void handleCameraUpload() {
+    	if (repo_id != null && repo_name != null && account_email != null && account_server != null) {
+        	isCameraUpload = true ;
+		}
+        if (isCameraUpload) {
+        	list = Utils.getPhotoList();
+		}
+        if (list != null) {
+    		int photosCount = 0;
+    		for (SelectableFile selectableFile : list) {
+    			String path = "/" + new File(selectableFile
+    							.getAbsolutePath())
+    							.getName();
+    			SeafCachedFile cf = dataManager.getCachedFile(repo_name, repo_id, path);
+    			if (cf == null) {
+					photosCount++;
+    				addUploadTask(repo_id, repo_name, "/", selectableFile.getAbsolutePath());
+    			}
+    		}
+    		if (photosCount == 0) {
+    			showToast(R.string.camera_upload_duplicate);
+    		} else
+    			showToast(String.format(getString(R.string.camera_upload_info) + repo_name, photosCount));
+        }  
     }
 
+	private class CameraObserver extends ContentObserver {
+		private String saved;
+		
+		public CameraObserver() {
+			super(null);
+		}
+
+		@Override
+		public void onChange(boolean selfChange) {
+			super.onChange(selfChange);
+			Media media = readFromMediaStore(getApplicationContext(),
+					MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+			saved = "detected " + media.file.getName();
+			if (repo_id != null && repo_name != null && account_email != null && account_server != null && account.getEmail().equals(account_email) && account.getServer().equals(account_server)) {
+				Log.d(DEBUG_TAG, saved);
+				if (media.file.getAbsolutePath().indexOf("org") == -1 && getDataManager().getCachedFile(repo_name, repo_id, media.file.getName()) == null) {
+					addUploadTask(repo_id, repo_name, "/", media.file.getAbsolutePath());
+				}
+			}
+		}
+	}
+
+	private Media readFromMediaStore(Context context, Uri uri) {
+		Cursor cursor = context.getContentResolver().query(uri, null, null,
+				null, "date_added DESC");
+		Media media = null;
+		if (cursor.moveToNext()) {
+			int dataColumn = cursor.getColumnIndexOrThrow(MediaColumns.DATA);
+			String filePath = cursor.getString(dataColumn);
+			int mimeTypeColumn = cursor
+					.getColumnIndexOrThrow(MediaColumns.MIME_TYPE);
+			String mimeType = cursor.getString(mimeTypeColumn);
+			media = new Media(new File(filePath), mimeType);
+		}
+		cursor.close();
+		return media;
+	}
+
+	private class Media {
+		private File file;
+		@SuppressWarnings("unused")
+		private String type;
+
+		public Media(File file, String type) {
+			this.file = file;
+			this.type = type;
+		}
+	}
     private String getCurrentTabName() {
 
         int index = tabsFragment.getCurrentTabIndex();
