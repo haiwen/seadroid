@@ -1318,9 +1318,8 @@ public class BrowserActivity extends SherlockFragmentActivity
                 gdialog.init(repoID, path, isdir, account);
                 gdialog.setTaskDialogLisenter(new TaskDialogListener() {
                     @Override
+                    @SuppressWarnings("deprecation")
                     public void onTaskSuccess() {
-                        // TODO: generate a share link through SeafConnection and copy
-                        // it to clipboard
                         ClipboardManager clipboard = (ClipboardManager)
                             getSystemService(Context.CLIPBOARD_SERVICE);
                         clipboard.setText(gdialog.getLink());

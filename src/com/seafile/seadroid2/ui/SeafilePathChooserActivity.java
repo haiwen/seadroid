@@ -36,7 +36,7 @@ import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.util.Utils;
 
 /**
- * Path chooser - Let the user choose an target path (account, repo, dir)
+ * Path chooser - Let the user choose a target path (account, repo, dir)
  */
 public class SeafilePathChooserActivity extends SherlockFragmentActivity {
     private static final String DEBUG_TAG = "ShareToSeafileActivity";
