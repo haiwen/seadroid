@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -130,7 +129,6 @@ public class ReposFragment extends SherlockListFragment {
         refreshView(false);
     }
 
-    @SuppressLint("NewApi")
     public void refreshView(boolean forceRefresh) {
         if (mActivity == null)
             return;
@@ -140,8 +138,10 @@ public class ReposFragment extends SherlockListFragment {
 
         NavContext navContext = getNavContext();
         if (navContext.inRepo()) {
+            mActivity.enableUpButton();
             navToDirectory(forceRefresh);
         } else {
+            mActivity.disableUpButton();
             navToReposView(forceRefresh);
         }
         mActivity.supportInvalidateOptionsMenu();

@@ -223,6 +223,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowTitleEnabled(true);
         unsetRefreshing();
+        disableUpButton();
 
         if (savedInstanceState != null) {
             Log.d(DEBUG_TAG, "savedInstanceState is not null");
