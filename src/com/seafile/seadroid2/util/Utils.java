@@ -295,6 +295,19 @@ public class Utils {
         return false;
     }
 
+    public static boolean isWiFiOn() {
+        ConnectivityManager connMgr = (ConnectivityManager)
+                SeadroidApplication.getAppContext().getSystemService(
+                        Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        if(wifi != null && wifi.isAvailable()
+           && wifi.getDetailedState() == DetailedState.CONNECTED) {
+            return true;
+        }
+
+        return false;
+    }
     public static String pathJoin (String first, String... rest) {
         StringBuilder result = new StringBuilder(first);
         for (String b: rest) {

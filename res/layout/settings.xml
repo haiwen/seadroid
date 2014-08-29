@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white" >
+
+    <ImageView
+        android:id="@+id/iv_logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="18dp"
+        android:src="@drawable/icon" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="false"
+        android:focusable="false"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"
+            android:layout_marginTop="15dp"
+            android:orientation="horizontal" >
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:maxHeight="18dp"
+                android:src="@drawable/account" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="10dp"
+                android:gravity="center_horizontal"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="4dp"
+                    android:text="Seafile Account： Administrator"
+                    android:textColor="@color/black" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:paddingTop="2dp"
+                    android:text="Storage： 9.3 MB / 2.0 GB"
+                    android:textColor="@color/black"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/start_upload_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/linearLayout1"
+        android:layout_marginTop="33dp"
+        android:layout_marginLeft="15dp"
+        android:text="@string/settings_start"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@color/black" />
+
+    <CheckBox
+        android:id="@+id/start_upload_cb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/start_upload_tv"
+        android:layout_marginRight="16dp" />
+
+    <CheckBox
+        android:id="@+id/wifi_cb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/wifi_tv"
+        android:layout_alignLeft="@+id/start_upload_cb" />
+
+    <TextView
+        android:id="@+id/repo_name_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/start_upload_tv"
+        android:layout_below="@+id/start_upload_cb"
+        android:layout_marginTop="18dp"
+        android:text="@string/settings_hint"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="@color/black" />
+
+    <Button
+        android:id="@+id/chooseRepo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/repo_name_tv"
+        android:layout_alignRight="@+id/start_upload_tv"
+        android:layout_below="@+id/repo_name_tv"
+        android:layout_marginTop="27dp"
+        android:text="@string/settings_btn"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/wifi_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/chooseRepo"
+        android:layout_alignRight="@+id/chooseRepo"
+        android:layout_below="@+id/chooseRepo"
+        android:layout_marginTop="43dp"
+        android:text="@string/settings_wifi"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@color/black" />
+
+</RelativeLayout>

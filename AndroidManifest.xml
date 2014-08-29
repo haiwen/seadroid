@@ -90,6 +90,7 @@
 
         <service android:name="com.seafile.seadroid2.transfer.TransferService"></service>
         <service android:name="com.seafile.seadroid2.monitor.FileMonitorService"></service>
+        <service android:name="com.seafile.seadroid2.sync.CameraUploadService"></service>
         
         <activity android:name="com.seafile.seadroid2.fileschooser.MultiFileChooserActivity"
                   android:theme="@style/Theme.SeafileTheme"
