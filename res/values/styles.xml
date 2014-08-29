@@ -82,8 +82,6 @@
     <style name="Theme.SeafileTheme" parent="Theme.Sherlock.Light">
         <item name="android:logo">@drawable/icon</item>
         <item name="logo">@drawable/icon</item>
-        <item name="homeAsUpIndicator">@drawable/ic_drawer</item>
-        <item name="android:homeAsUpIndicator">@drawable/ic_drawer</item>
         <item name="android:listViewStyle">@style/SeafileListStyle</item>
     </style>
 
