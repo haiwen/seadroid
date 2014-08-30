@@ -190,7 +190,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         getSupportActionBar().setDisplayShowTitleEnabled(false);
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
@@ -399,7 +398,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             unbindService(mConnection);
             txService = null;
         }
-        
+
         super.onDestroy();
     }
 

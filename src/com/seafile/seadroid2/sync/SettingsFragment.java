@@ -11,19 +11,16 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.seafile.seadroid2.AccountsActivity;
 import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.NavContext;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.R.id;
-import com.seafile.seadroid2.R.layout;
-import com.seafile.seadroid2.R.string;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.ui.SeafilePathChooserActivity;
 import com.seafile.seadroid2.util.Utils;
@@ -47,14 +44,14 @@ public class SettingsFragment extends SherlockFragment{
     Intent cameraUploadIntent;
     private Intent dstData;
     private String repo_name;
-    private Boolean isStartUpload;
-    private Boolean isWiFiOnly;
+    private Boolean isStartUpload = false;
+    private Boolean isWiFiOnly = false;
     private BrowserActivity mActivity;
     private NavContext navContext;
-    private CheckBox start_wifi_cb;
-    private CheckBox start_upload_cb;
+    private ToggleButton start_wifi_tb;
+    private ToggleButton start_upload_tb;
     private TextView repo_name_tv;
-    private Button chooseRepo;
+    private Button choose_repo_btn;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -93,26 +90,35 @@ public class SettingsFragment extends SherlockFragment{
         getPrefSettings();
         Log.d(DEBUG_TAG, "isStartUpload: " + isStartUpload);
         View view = inflater.inflate(R.layout.settings, container, false);
-        start_upload_cb = (CheckBox) view.findViewById(R.id.start_upload_cb);
-        start_wifi_cb = (CheckBox) view.findViewById(R.id.wifi_cb);
+        start_upload_tb = (ToggleButton) view.findViewById(R.id.start_upload_cb);
+        start_wifi_tb = (ToggleButton) view.findViewById(R.id.wifi_cb);
         repo_name_tv = (TextView) view.findViewById(R.id.repo_name_tv);
-        chooseRepo = (Button) view.findViewById(R.id.chooseRepo);
-        start_upload_cb.setSelected(isStartUpload);
-        start_wifi_cb.setSelected(isWiFiOnly);
-        start_wifi_cb.setEnabled(isStartUpload);
-        start_upload_cb
+        choose_repo_btn = (Button) view.findViewById(R.id.chooseRepo);
+        if (isStartUpload) {
+            start_upload_tb.toggle();
+        } 
+            
+        start_wifi_tb.setSelected(isWiFiOnly);
+        start_wifi_tb.setEnabled(isStartUpload);
+        start_upload_tb
                 .setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView,
                             boolean isChecked) {
                         saveUploadServPre(isChecked);
-                        start_wifi_cb.setEnabled(isChecked);
+                        start_wifi_tb.setEnabled(isChecked);
+                        choose_repo_btn.setClickable(isChecked);
+                        if (!isChecked) {
+                            choose_repo_btn.setText("not applicable");
+                        }else {
+                            choose_repo_btn.setText(R.string.settings_btn);
+                        }
                         startUploadService(isChecked);
                         Log.d(DEBUG_TAG, "start_upload_cb: " + isChecked);
                     }
                 });
-        start_wifi_cb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+        start_wifi_tb.setOnCheckedChangeListener(new OnCheckedChangeListener() {
             
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -132,7 +138,7 @@ public class SettingsFragment extends SherlockFragment{
                 }
             }
         });
-        chooseRepo.setOnClickListener(new OnClickListener() {
+        choose_repo_btn.setOnClickListener(new OnClickListener() {
             
             @Override
             public void onClick(View v) {
@@ -141,6 +147,12 @@ public class SettingsFragment extends SherlockFragment{
                 
             }
         });
+        choose_repo_btn.setClickable(isStartUpload);
+        if (!isStartUpload) {
+            choose_repo_btn.setText("not applicable");
+        }else {
+            choose_repo_btn.setText(R.string.settings_btn);
+        }
         if (repo_name != null) {
             repo_name_tv.setText(repo_name);
         }
@@ -161,11 +173,11 @@ public class SettingsFragment extends SherlockFragment{
     public void onViewStateRestored(Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
         if (savedInstanceState!= null) {
-            start_upload_cb.setSelected(savedInstanceState.getBoolean("isStartUpload"));
-            start_wifi_cb.setSelected(savedInstanceState.getBoolean("isWiFiOnly"));
+            start_upload_tb.setSelected(savedInstanceState.getBoolean("isStartUpload"));
+            start_wifi_tb.setSelected(savedInstanceState.getBoolean("isWiFiOnly"));
         }
     }
-
+    
     private void startUploadService(Boolean isChecked) {
         if (!isChecked) {
             
@@ -180,7 +192,6 @@ public class SettingsFragment extends SherlockFragment{
 
             }else {
                 // Pop-up window to let user choose remote repo
-                // hide remote repo name
                 Intent intent = new Intent(mActivity, SeafilePathChooserActivity.class);
                 this.startActivityForResult(intent, CHOOSE_CAMERA_UPLOAD_REPO_REQUEST);
             }
@@ -203,35 +214,27 @@ public class SettingsFragment extends SherlockFragment{
             }
         }
     }
-
+    
     private void saveRepoInfo(String repoId, String repoName, String dstDir, Account account) {
         editor.putString(SHARED_PREF_CAMERA_UPLOAD_REPO_ID, repoId);
         editor.putString(SHARED_PREF_CAMERA_UPLOAD_REPO_NAME, repoName);
         editor.putString(SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL, account.getEmail());
         editor.putString(SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER, account.getServer());
         editor.putString(SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN, account.getToken());
-        // Log.d(DEBUG_TAG, "onActivityResult saveRepoInfo repo name: " + repoName);
-        // Log.d(DEBUG_TAG, "onActivityResult saveRepoInfo repo id: " + repoId);
-        // Log.d(DEBUG_TAG, "onActivityResult saveRepoInfo repo email: " + account.getEmail());
-        // Log.d(DEBUG_TAG, "onActivityResult saveRepoInfo repo server: " + account.getServer());
-        // Log.d(DEBUG_TAG, "onActivityResult saveRepoInfo repo token: " + account.getToken());
         editor.commit();
     }
     
     private void saveWifiPref(Boolean isWiFiOn) {
         editor.putBoolean(SHARED_PREF_CAMERA_UPLOAD_SETTINGS_WIFI, isWiFiOn);
-        Log.d(DEBUG_TAG, "saveWifiPref: " + isWiFiOn);
         editor.commit();
     }
     private void saveUploadServPre(Boolean isStartUpload) {
         editor.putBoolean(SHARED_PREF_CAMERA_UPLOAD_SETTINGS_START, isStartUpload);
-        Log.d(DEBUG_TAG, "saveUploadServPre: " + isStartUpload);
         editor.commit();
     }
     
     private void saveRepoName(String repoName) {
         editor.putString(SHARED_PREF_CAMERA_UPLOAD_SETTINGS_REPONAME, repoName);
-        // Log.d(DEBUG_TAG, "onActivityResult repo name: " + repoName);
         editor.commit();
     }
     
@@ -239,23 +242,19 @@ public class SettingsFragment extends SherlockFragment{
         repo_name = sharedPref.getString(SettingsFragment.SHARED_PREF_CAMERA_UPLOAD_SETTINGS_REPONAME, null);
         isStartUpload = sharedPref.getBoolean(SettingsFragment.SHARED_PREF_CAMERA_UPLOAD_SETTINGS_START, false);
         isWiFiOnly = sharedPref.getBoolean(SettingsFragment.SHARED_PREF_CAMERA_UPLOAD_SETTINGS_WIFI, false);
-        //Log.d(DEBUG_TAG, "repo name: " + repo_name);
-        //Log.d(DEBUG_TAG, "isStartUpload: " + isStartUpload);
-        //Log.d(DEBUG_TAG, "isWiFiOnly: " + isWiFiOnly);
     }
    
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-         Log.i(DEBUG_TAG, "CHOOSE_COPY_MOVE_DEST_REQUEST returns");
         if (requestCode != CHOOSE_CAMERA_UPLOAD_REPO_REQUEST) {
             return;
         }
         if (resultCode == Activity.RESULT_OK) {
-            
             dstData = data;
-            // Log.i(DEBUG_TAG, "CHOOSE_COPY_MOVE_DEST_REQUEST returns");
         }
-        
+        if (dstData == null) {
+            return;
+        }
         String dstRepoId, dstRepoName, dstDir;
         Account account;
         dstRepoName = dstData.getStringExtra(SeafilePathChooserActivity.DATA_REPO_NAME);
@@ -263,8 +262,9 @@ public class SettingsFragment extends SherlockFragment{
         dstDir = dstData.getStringExtra(SeafilePathChooserActivity.DATA_DIR);
         account = (Account)dstData.getParcelableExtra(SeafilePathChooserActivity.DATA_ACCOUNT);
         saveRepoInfo(dstRepoId, dstRepoName, dstDir, account);
-        repo_name_tv.setText(repo_name);
         saveRepoName(dstRepoName);
+        repo_name_tv.setText(dstRepoName);
+        mActivity.startService(cameraUploadIntent);
     }
     
 }

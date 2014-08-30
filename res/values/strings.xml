@@ -199,6 +199,6 @@
     <string name="stopUpService">photos upload service stoped</string>    
     <string name="settings_btn">change library</string>    
     <string name="settings_wifi">Back up over Wi-Fi only</string>    
-    <string name="settings_hint">please Choose a library first</string>    
+    <string name="settings_hint">please choose a remote library first</string>    
     <string name="settings_start">start camera photo upload</string>    
 </resources>
