@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.R;
 import com.viewpagerindicator.IconPagerAdapter;
 import com.viewpagerindicator.TabPageIndicator;
@@ -58,6 +59,7 @@ public class TabsFragment extends SherlockFragment {
             public void onPageSelected(final int position) {
                 currentPosition = position;
                 getActivity().supportInvalidateOptionsMenu();
+                ((BrowserActivity)getActivity()).disableUpButton();
             }
 
             @Override

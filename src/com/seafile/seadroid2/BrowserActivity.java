@@ -30,14 +30,10 @@ import android.os.IBinder;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
-import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.NavUtils;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.text.ClipboardManager;
 import android.util.Log;
 import android.view.ActionProvider;
@@ -45,9 +41,6 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.SubMenu;
 import android.view.View;
 import android.webkit.MimeTypeMap;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -87,9 +80,9 @@ import com.seafile.seadroid2.ui.SslConfirmDialog;
 import com.seafile.seadroid2.ui.StarredFragment;
 import com.seafile.seadroid2.ui.TabsFragment;
 import com.seafile.seadroid2.ui.TaskDialog;
-import com.seafile.seadroid2.ui.UploadTasksAdapter;
 import com.seafile.seadroid2.ui.TaskDialog.TaskDialogListener;
 import com.seafile.seadroid2.ui.UploadTasksActivity;
+import com.seafile.seadroid2.ui.UploadTasksAdapter;
 import com.seafile.seadroid2.util.Utils;
 
 public class BrowserActivity extends SherlockFragmentActivity
@@ -245,6 +238,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowTitleEnabled(true);
         unsetRefreshing();
+        disableUpButton();
 
         if (savedInstanceState != null) {
             Log.d(DEBUG_TAG, "savedInstanceState is not null");
@@ -287,8 +281,11 @@ public class BrowserActivity extends SherlockFragmentActivity
         } else {
             Log.d(DEBUG_TAG, "savedInstanceState is null");
             tabsFragment = new TabsFragment();
-            getSupportFragmentManager().beginTransaction().add(R.id.content_frame, tabsFragment, TABS_FRAGMENT_TAG).commit();
-
+            getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.fragment_container,
+                    tabsFragment, TABS_FRAGMENT_TAG)
+                .commit();
         }
 
         setContentView(R.layout.seadroid_main);
@@ -525,7 +522,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         case android.R.id.home:
             if (navContext.inRepo()) {
                 onBackPressed();
-            } 
+            }
             return true;
         case R.id.upload:
             pickFile();
@@ -1347,9 +1344,8 @@ public class BrowserActivity extends SherlockFragmentActivity
                 gdialog.init(repoID, path, isdir, account);
                 gdialog.setTaskDialogLisenter(new TaskDialogListener() {
                     @Override
+                    @SuppressWarnings("deprecation")
                     public void onTaskSuccess() {
-                        // TODO: generate a share link through SeafConnection and copy
-                        // it to clipboard
                         ClipboardManager clipboard = (ClipboardManager)
                             getSystemService(Context.CLIPBOARD_SERVICE);
                         clipboard.setText(gdialog.getLink());
