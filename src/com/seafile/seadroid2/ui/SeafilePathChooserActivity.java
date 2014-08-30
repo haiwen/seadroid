@@ -5,8 +5,10 @@ import java.util.List;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
@@ -23,6 +25,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.AccountAdapter;
+import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.NavContext;
 import com.seafile.seadroid2.R;
@@ -90,6 +93,14 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
         Account account = (Account)intent.getParcelableExtra("account");
         if (account == null) {
             canChooseAccount = true;
+            
+            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+            String lockPattenString = settings.getString(BrowserActivity.LOCK_KEY, null);
+            if (lockPattenString != null) {
+                Intent newIntent = new Intent(this, GestureLockActivity.class);
+                startActivity(newIntent);
+            }
+            
         } else {
             mAccount = account;
         }

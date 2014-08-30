@@ -134,7 +134,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     
     public static final String LOCK = "lock";
     public static final String LOCK_KEY = null;
-    public static final String PIN_LOCK_SWITCH_KEY = "pin_lock_switch_key";
+    public static final String GESTURE_LOCK_SWITCH_KEY = "gesture_lock_switch_key";
 
     private Intent copyMoveIntent;
 
@@ -204,13 +204,10 @@ public class BrowserActivity extends SherlockFragmentActivity
         super.onCreate(savedInstanceState);
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-
         String lockPattenString = settings.getString(LOCK_KEY, null);
-
         if (lockPattenString != null) {
             Intent intent = new Intent(this, GestureLockActivity.class);
             startActivity(intent);
-
         }
         // Get the message from the intent
         Intent intent = getIntent();

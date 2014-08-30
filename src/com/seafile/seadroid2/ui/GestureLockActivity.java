@@ -19,7 +19,7 @@ import android.widget.Toast;
 
 public class GestureLockActivity extends Activity implements
         GestureLockPatternView.OnPatternListener {
-    private static final String TAG = "LockActivity";
+    private static final String TAG = "GestureLockActivity";
 
     private List<Cell> lockPattern;
     private GestureLockPatternView lockPatternView;

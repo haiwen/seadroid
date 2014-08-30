@@ -97,6 +97,7 @@
     <string name="lockpattern_recording_incorrect_too_short" >"At least link 4 points, try again please"</string>
     <string name="lockpattern_error" >"Wrong gesture lock"</string>
     <string name="please_draw_gesture_lock" >"Please Draw Gesture Lock"</string>
+    <string name="setup_gesture_lock_success" >"Set up gesture lock successfully!"</string>
     <string name="no_account">Please setup an account in Seafile first</string>
     <string name="no_library">You have no library yet</string>
     <string name="choose_an_account">Choose an account</string>
@@ -175,10 +176,11 @@
     <string name="upload_started">upload is started</string>
     <string name="cannot_copy_folder_to_subfolder">You can\'t copy a folder to its subfolder</string>
     <string name="cannot_move_folder_to_subfolder">You can\'t move a folder to its subfolder</string>
+    <string name="security">Security</string>
     <string name="settings">Settings</string>
-    <string name="pin_lock">Pin Lock</string>
-    <string name="pin_lock_on">Pin Lock On</string>
-    <string name="pin_lock_off">Pin Lock Off</string>
+    <string name="gesture_lock">Gesture Lock</string>
+    <string name="gesture_lock_on">Gesture Lock On</string>
+    <string name="gesture_lock_off">Gesture Lock Off</string>
     
     <!-- Accessibility description sent when user starts drawing a lock pattern. [CHAR LIMIT=NONE] -->
     <string name="lockscreen_access_pattern_start">Pattern started</string>

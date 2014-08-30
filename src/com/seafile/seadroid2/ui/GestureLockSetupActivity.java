@@ -24,7 +24,7 @@ import android.widget.Toast;
 public class GestureLockSetupActivity extends Activity implements
         GestureLockPatternView.OnPatternListener, OnClickListener {
 
-    private static final String TAG = "LockSetupActivity";
+    private static final String TAG = "GestureLockSetupActivity";
     private GestureLockPatternView lockPatternView;
     private Button leftButton;
     private Button rightButton;
