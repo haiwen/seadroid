@@ -25,7 +25,10 @@ import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.DialogFragment;
@@ -70,6 +73,7 @@ import com.seafile.seadroid2.ui.AppChoiceDialog.CustomAction;
 import com.seafile.seadroid2.ui.CopyMoveDialog;
 import com.seafile.seadroid2.ui.DeleteFileDialog;
 import com.seafile.seadroid2.ui.FetchFileDialog;
+import com.seafile.seadroid2.ui.GestureLockActivity;
 import com.seafile.seadroid2.ui.GetShareLinkDialog;
 import com.seafile.seadroid2.ui.NewDirDialog;
 import com.seafile.seadroid2.ui.NewFileDialog;
@@ -78,6 +82,7 @@ import com.seafile.seadroid2.ui.PasswordDialog;
 import com.seafile.seadroid2.ui.RenameFileDialog;
 import com.seafile.seadroid2.ui.ReposFragment;
 import com.seafile.seadroid2.ui.SeafilePathChooserActivity;
+import com.seafile.seadroid2.ui.SettingsActivity;
 import com.seafile.seadroid2.ui.SslConfirmDialog;
 import com.seafile.seadroid2.ui.StarredFragment;
 import com.seafile.seadroid2.ui.TabsFragment;
@@ -126,6 +131,10 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "password_fragment";
     public static final String CHOOSE_APP_DIALOG_FRAGMENT_TAG = "choose_app_fragment";
     public static final String PICK_FILE_DIALOG_FRAGMENT_TAG = "pick_file_fragment";
+    
+    public static final String LOCK = "lock";
+    public static final String LOCK_KEY = null;
+    public static final String PIN_LOCK_SWITCH_KEY = "pin_lock_switch_key";
 
     private Intent copyMoveIntent;
 
@@ -194,6 +203,15 @@ public class BrowserActivity extends SherlockFragmentActivity
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
 
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+
+        String lockPattenString = settings.getString(LOCK_KEY, null);
+
+        if (lockPattenString != null) {
+            Intent intent = new Intent(this, GestureLockActivity.class);
+            startActivity(intent);
+
+        }
         // Get the message from the intent
         Intent intent = getIntent();
         String server = intent.getStringExtra("server");
@@ -421,6 +439,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         MenuItem menuCamera = menu.findItem(R.id.camera);
         MenuItem menuUploadTasks = menu.findItem(R.id.upload_tasks);
         MenuItem menuAccounts = menu.findItem(R.id.accounts);
+        MenuItem menuSettings = menu.findItem(R.id.settings);
 
         if (getCurrentTabName().equals(LIBRARY_TAB)) {
             menuUpload.setVisible(true);
@@ -437,14 +456,17 @@ public class BrowserActivity extends SherlockFragmentActivity
             menuRefresh.setVisible(true);
             menuUploadTasks.setVisible(true);
             menuAccounts.setVisible(true);
+            menuSettings.setVisible(true);
         } else if (getCurrentTabName().equals(ACTIVITY_TAB)) {
             menuRefresh.setVisible(true);
             menuUploadTasks.setVisible(true);
             menuAccounts.setVisible(true);
+            menuSettings.setVisible(true);
         } else {
             menuRefresh.setVisible(false);
             menuUploadTasks.setVisible(false);
             menuAccounts.setVisible(false);
+            menuSettings.setVisible(false);
         }
 
         if (getCurrentTabName().equals(LIBRARY_TAB)) {
@@ -471,6 +493,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             menuCamera.setVisible(false);
             menuUploadTasks.setVisible(false);
             menuAccounts.setVisible(false);
+            menuSettings.setVisible(false);
         }
 
         if (getCurrentTabName().equals(STARRED_TAB)) {
@@ -481,6 +504,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             menuRefresh.setVisible(true);
             menuUploadTasks.setVisible(true);
             menuAccounts.setVisible(true);
+            menuSettings.setVisible(true);
         }
 
         return true;
@@ -557,6 +581,11 @@ public class BrowserActivity extends SherlockFragmentActivity
             return true;
         case R.id.camera:
             CameraTakePhoto();
+            return true;
+        case R.id.settings:    
+            Intent settingsIntent = new Intent(BrowserActivity.this,SettingsActivity.class);
+            settingsIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(settingsIntent);
             return true;
         }
         return super.onOptionsItemSelected(item);

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <PreferenceCategory android:title="@string/settings">
+        <CheckBoxPreference   
+            android:title="@string/pin_lock"   
+            android:summaryOn="@string/pin_lock_on"  
+            android:summaryOff="@string/pin_lock_off"  
+            android:defaultValue="false" 
+            android:key="pin_lock_switch_key">  
+        </CheckBoxPreference>
+    </PreferenceCategory>
+    
+</PreferenceScreen>

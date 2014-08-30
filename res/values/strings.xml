@@ -91,6 +91,12 @@
     <string name="add_to_seafile">Add to Seafile</string>
     <string name="ok">Ok</string>
     <string name="cancel">Cancel</string>
+    <string name="go_on">Go on</string>
+    <string name="try_again">Try again</string>
+    <string name="confirm">Confirm</string>
+    <string name="lockpattern_recording_incorrect_too_short" >"At least link 4 points, try again please"</string>
+    <string name="lockpattern_error" >"Wrong gesture lock"</string>
+    <string name="please_draw_gesture_lock" >"Please Draw Gesture Lock"</string>
     <string name="no_account">Please setup an account in Seafile first</string>
     <string name="no_library">You have no library yet</string>
     <string name="choose_an_account">Choose an account</string>
@@ -169,4 +175,17 @@
     <string name="upload_started">upload is started</string>
     <string name="cannot_copy_folder_to_subfolder">You can\'t copy a folder to its subfolder</string>
     <string name="cannot_move_folder_to_subfolder">You can\'t move a folder to its subfolder</string>
+    <string name="settings">Settings</string>
+    <string name="pin_lock">Pin Lock</string>
+    <string name="pin_lock_on">Pin Lock On</string>
+    <string name="pin_lock_off">Pin Lock Off</string>
+    
+    <!-- Accessibility description sent when user starts drawing a lock pattern. [CHAR LIMIT=NONE] -->
+    <string name="lockscreen_access_pattern_start">Pattern started</string>
+    <!-- Accessibility description sent when the pattern times out and is cleared. [CHAR LIMIT=NONE] -->
+    <string name="lockscreen_access_pattern_cleared">Pattern cleared</string>
+    <!-- Accessibility description sent when user adds a cell to the pattern. [CHAR LIMIT=NONE] -->
+    <string name="lockscreen_access_pattern_cell_added">Cell added</string>
+    <!-- Accessibility description sent when user completes drawing a pattern. [CHAR LIMIT=NONE] -->
+    <string name="lockscreen_access_pattern_detected">Pattern completed</string>
 </resources>

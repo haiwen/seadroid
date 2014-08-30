@@ -41,5 +41,10 @@
         android:visible="false"
         android:title="@string/camera"
         android:showAsAction="never"/>
+    
+    <item android:id="@+id/settings"
+        android:visible="false"
+        android:title="@string/settings"
+        android:showAsAction="never"/>
 
 </menu>
