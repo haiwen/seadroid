@@ -51,7 +51,6 @@ import com.seafile.seadroid2.data.SeafStarredFile;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 import com.seafile.seadroid2.gallery.MultipleImageSelectionActivity;
 import com.seafile.seadroid2.monitor.FileMonitorService;
-import com.seafile.seadroid2.sync.SettingsFragment;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
@@ -87,8 +86,6 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final String EXTRA_REPO_ID = PKG_NAME + ".repoID";
     public static final String EXTRA_FILE_PATH = PKG_NAME + ".filePath";
     public static final String EXTRA_ACCOUT = PKG_NAME + ".account";
-   
-
     private static final String DEBUG_TAG = "BrowserActivity";
     private Account account;
     NavContext navContext = null;
@@ -136,12 +133,12 @@ public class BrowserActivity extends SherlockFragmentActivity
         return dataManager;
     }
 
-    private class PendingUploadInfo {
-        String repoID;
-        String repoName;
-        String targetDir;
-        String localFilePath;
-        boolean isUpdate;
+    public class PendingUploadInfo {
+        public String repoID;
+        public String repoName;
+        public String targetDir;
+        public String localFilePath;
+        public boolean isUpdate;
 
         public PendingUploadInfo(String repoID, String repoName,
                                  String targetDir, String localFilePath,

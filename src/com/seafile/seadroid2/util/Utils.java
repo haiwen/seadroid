@@ -467,52 +467,45 @@ public class Utils {
 
     private static FileFilter mPhotoFilter = new FileFilter() {
         @Override
-		public boolean accept(File file) {
+        public boolean accept(File file) {
             final String fileName = file.getName();
             // Return files only (not directories) and skip hidden files
-            for (String ext : imageExtensions) 
-            { 
+            for (String ext : imageExtensions) { 
                 if (file.getName().endsWith("." + ext)  && !fileName.startsWith(HIDDEN_PREFIX)) return true; 
             } 
             return false;
         }
     };
 	
-	private static String imageExtensions[] ={"png","PNG","jpg","JPG","jpeg","JPEG","bmp","BMP","gif","GIF"};
+    private static String imageExtensions[] = { "png", "PNG", "jpg", "JPG",
+            "jpeg", "JPEG", "bmp", "BMP", "gif", "GIF" };
     
     /**
      * {get photo path form sd-card @link http://stackoverflow.com/questions/3873496/how-to-get-image-path-from-images-stored-on-sd-card}
      */
-    private static FileFilter mPhotoDirFilter = new FileFilter() 
-    {            
+    private static FileFilter mPhotoDirFilter = new FileFilter() {            
         @Override
-		public boolean accept(File folder) 
-        { 
-            try 
-            { 
+		public boolean accept(File folder) { 
+            try { 
                 //Checking only directories, since we are checking for files within 
                 //a directory 
-                if(folder.isDirectory() && !folder.getName().startsWith(HIDDEN_PREFIX)) 
-                { 
+                if(folder.isDirectory() && !folder.getName().startsWith(HIDDEN_PREFIX)) { 
                     File[] listOfFiles = folder.listFiles(); 
 
                     if (listOfFiles == null) return false; 
 
                     //For each file in the directory 
-                    for (File file : listOfFiles) 
-                    {                            
+                    for (File file : listOfFiles) {                            
                         //Check if the extension is one of the supported filetypes                           
                         //imageExtensions is a String[] containing image filetypes (e.g. "png")
-                        for (String ext : imageExtensions) 
-                        { 
+                        for (String ext : imageExtensions) { 
                             if (file.getName().endsWith("." + ext)) return true; 
                         } 
                     }                        
                 } 
                 return false; 
             } 
-            catch (SecurityException e) 
-            { 
+            catch (SecurityException e) { 
                 Log.v("debug", "Access Denied"); 
                 return false; 
             } 

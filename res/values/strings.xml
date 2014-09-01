@@ -194,7 +194,7 @@
     <string name="camera_upload_duplicate">You already backup these photos</string>
     <string name="camera_upload_info_title">Camera Photo Upload</string>
     <string name="camera_upload_info">upload %d photos to\u0020</string>
-    <string name="wifi_down">No Wi-Fi connection</string>    
+    <string name="wifi_down">Wi-Fi connection down, will upload until Wi-Fi connected</string>    
     <string name="startUpService">photos upload service started</string>    
     <string name="stopUpService">photos upload service stoped</string>    
     <string name="settings_btn">change library</string>    

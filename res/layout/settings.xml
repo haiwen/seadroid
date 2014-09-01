@@ -46,25 +46,6 @@
         android:text="@string/settings_btn"
         android:textSize="14sp" />
 
-    <TextView
-        android:id="@+id/wifi_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/chooseRepo"
-        android:layout_alignRight="@+id/chooseRepo"
-        android:layout_below="@+id/chooseRepo"
-        android:layout_marginTop="43dp"
-        android:text="@string/settings_wifi"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="@color/black" />
-
-    <ToggleButton
-        android:id="@+id/wifi_cb"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/wifi_tv"
-        android:layout_alignRight="@+id/start_upload_cb" />
-
     <ToggleButton
         android:id="@+id/start_upload_cb"
         android:layout_width="wrap_content"

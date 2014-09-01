@@ -23,6 +23,7 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.seafile.seadroid2.AccountsActivity;
+import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
@@ -30,22 +31,23 @@ import com.seafile.seadroid2.data.SeafCachedFile;
 import com.seafile.seadroid2.fileschooser.SelectableFile;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
+import com.seafile.seadroid2.ui.SettingsFragment;
 import com.seafile.seadroid2.util.Utils;
 
 public class CameraUploadService extends Service {
     
     private static final String DEBUG_TAG = "CameraUploadService";
-    public static final int NOTIFICATION_ID = 001;
+    public static final int NOTIFICATION_ID = 1;
     private final IBinder mBinder = new CameraBinder();
     private CameraObserver cameraUploadObserver = new CameraObserver();
-    private ArrayList<PendingUploadInfo> pendingUploads = new ArrayList<PendingUploadInfo>();
+    private ArrayList<BrowserActivity.PendingUploadInfo> pendingUploads = new ArrayList<BrowserActivity.PendingUploadInfo>();
     private NotificationManager mNotificationManager;
     private NotificationCompat.Builder builder;
-    private String repo_id;
-    private String repo_name;
-    private String account_email;
-    private String account_server;
-    private String account_token;
+    private String repoId;
+    private String repoName;
+    private String accountEmail;
+    private String accountServer;
+    private String accountToken;
     private Account account;
     private Boolean isCameraUpload = false;
     private DataManager mDataManager;
@@ -93,11 +95,11 @@ public class CameraUploadService extends Service {
         Log.d(DEBUG_TAG, "onStartCommand");
 
         getPreference();
-        if (repo_id != null && repo_name != null && account_email != null
-                && account_server != null && account_token != null) {
+        if (repoId != null && repoName != null && accountEmail != null
+                && accountServer != null && accountToken != null) {
             isCameraUpload = true;
-            account = new Account(account_server, account_email, null,
-                    account_token);
+            account = new Account(accountServer, accountEmail, null,
+                    accountToken);
             mDataManager = new DataManager(account);
         }
 
@@ -109,28 +111,24 @@ public class CameraUploadService extends Service {
             for (SelectableFile selectableFile : list) {
                 String path = "/"
                         + new File(selectableFile.getAbsolutePath()).getName();
-                SeafCachedFile cf = mDataManager.getCachedFile(repo_name,
-                        repo_id, path);
-                if (cf == null) {
+                SeafCachedFile cf = mDataManager.getCachedFile(repoName, repoId, path); 
+                if (cf == null || cf.fileID == null ) {
                     photosCount++;
-                    addUploadTask(repo_id, repo_name, "/",
-                            selectableFile.getAbsolutePath());
+                    addUploadTask(repoId, repoName, "/", selectableFile.getAbsolutePath());
                 }
-                notifyUser(photosCount, repo_name);
             }
-            Log.d(DEBUG_TAG, "Upload " + photosCount + " photos");
-
+            notifyUser(photosCount, repoName);
         }
         return START_STICKY;
     }
     
     private void getPreference() {
         SharedPreferences sharedPref = getSharedPreferences(AccountsActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
-        repo_id = sharedPref.getString(SettingsFragment.SHARED_PREF_CAMERA_UPLOAD_REPO_ID, null);
-        repo_name = sharedPref.getString(SettingsFragment.SHARED_PREF_CAMERA_UPLOAD_REPO_NAME, null);
-        account_email = sharedPref.getString(SettingsFragment.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL, null);
-        account_server = sharedPref.getString(SettingsFragment.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER, null);
-        account_token = sharedPref.getString(SettingsFragment.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN, null);
+        repoId = sharedPref.getString(SettingsFragment.SHARED_PREF_CAMERA_UPLOAD_REPO_ID, null);
+        repoName = sharedPref.getString(SettingsFragment.SHARED_PREF_CAMERA_UPLOAD_REPO_NAME, null);
+        accountEmail = sharedPref.getString(SettingsFragment.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL, null);
+        accountServer = sharedPref.getString(SettingsFragment.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER, null);
+        accountToken = sharedPref.getString(SettingsFragment.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN, null);
     }
     
     private void notifyUser(String repoName) {
@@ -161,7 +159,7 @@ public class CameraUploadService extends Service {
             mTransferService = binder.getService();
             Log.d(DEBUG_TAG, "bind TransferService");
 
-            for (PendingUploadInfo info : pendingUploads) {
+            for (BrowserActivity.PendingUploadInfo info : pendingUploads) {
                int padd_task_id = mTransferService.addUploadTask(account, info.repoID,
                                         info.repoName, info.targetDir,
                                         info.localFilePath, info.isUpdate);
@@ -181,26 +179,9 @@ public class CameraUploadService extends Service {
             int task_id = mTransferService.addUploadTask(account, repoID, repoName, targetDir, localFilePath, false);
             taskIds.add(task_id);
         } else {
-            PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, false);
+            BrowserActivity ba = new BrowserActivity();
+            BrowserActivity.PendingUploadInfo info = ba.new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, false);
             pendingUploads.add(info);
-        }
-    }
-    
-    private class PendingUploadInfo {
-        String repoID;
-        String repoName;
-        String targetDir;
-        String localFilePath;
-        boolean isUpdate;
-
-        public PendingUploadInfo(String repoID, String repoName,
-                                 String targetDir, String localFilePath,
-                                 boolean isUpdate) {
-            this.repoID = repoID;
-            this.repoName = repoName;
-            this.targetDir = targetDir;
-            this.localFilePath = localFilePath;
-            this.isUpdate = isUpdate;
         }
     }
     
@@ -228,14 +209,14 @@ public class CameraUploadService extends Service {
             Media media = readFromMediaStore(getApplicationContext(),
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
             saved = "detected " + media.file.getName();
-            if (repo_id != null && repo_name != null && account_email != null
-                    && account_server != null
-                    && account.getEmail().equals(account_email)
-                    && account.getServer().equals(account_server)) {
+            if (repoId != null && repoName != null && accountEmail != null
+                    && accountServer != null
+                    && account.getEmail().equals(accountEmail)
+                    && account.getServer().equals(accountServer)) {
                 Log.d(DEBUG_TAG, saved);
-                if (mDataManager.getCachedFile(repo_name, repo_id, media.file.getName()) == null) {
-                    addUploadTask(repo_id, repo_name, "/", media.file.getAbsolutePath());
-                    notifyUser(repo_name);
+                if (mDataManager.getCachedFile(repoName, repoId, media.file.getName()) == null) {
+                    addUploadTask(repoId, repoName, "/", media.file.getAbsolutePath());
+                    notifyUser(repoName);
                 }
             }
         }
