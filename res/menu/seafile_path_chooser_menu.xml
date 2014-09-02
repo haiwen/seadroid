@@ -4,6 +4,7 @@
 
     <item android:id="@+id/refresh"
         android:title="@string/refresh"
+        android:icon="@drawable/refresh"
         android:showAsAction="ifRoom|withText"/>
 
 </menu>

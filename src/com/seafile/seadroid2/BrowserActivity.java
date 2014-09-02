@@ -33,6 +33,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.ClipboardManager;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
@@ -102,6 +103,8 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     AppChoiceDialog appChoiceDialog = null;
 
+    private Menu overFlowMenu;
+
     private static final String UPLOAD_TASKS_VIEW = "UploadTasks";
     private static final String FILES_VIEW = "Files";
 
@@ -117,7 +120,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "password_fragment";
     public static final String CHOOSE_APP_DIALOG_FRAGMENT_TAG = "choose_app_fragment";
     public static final String PICK_FILE_DIALOG_FRAGMENT_TAG = "pick_file_fragment";
-    
+
     public static final String LOCK = "lock";
     public static final String LOCK_KEY = null;
     public static final String GESTURE_LOCK_SWITCH_KEY = "gesture_lock_switch_key";
@@ -414,6 +417,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getSupportMenuInflater();
         inflater.inflate(R.menu.browser_menu, menu);
+        overFlowMenu = menu;
         return true;
     }
 
@@ -569,7 +573,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         case R.id.camera:
             CameraTakePhoto();
             return true;
-        case R.id.settings:    
+        case R.id.settings:
             Intent settingsIntent = new Intent(BrowserActivity.this,SettingsActivity.class);
             settingsIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(settingsIntent);
@@ -1328,6 +1332,19 @@ public class BrowserActivity extends SherlockFragmentActivity
     public void setSelectedTab(int index) {
         tabsFragment.setSelectedTab(index);
     }
+
+    @Override
+    public boolean onKeyUp(int keycode, KeyEvent e) {
+        switch(keycode) {
+        case KeyEvent.KEYCODE_MENU:
+            if (overFlowMenu !=null) {
+                overFlowMenu.performIdentifierAction(R.id.menu_overflow, 0);
+            }
+        }
+
+        return super.onKeyUp(keycode, e);
+    }
+
 
     // for receive broadcast from TransferService
     private class TransferReceiver extends BroadcastReceiver {
