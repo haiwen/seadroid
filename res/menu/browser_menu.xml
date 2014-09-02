@@ -5,46 +5,52 @@
     <item android:id="@+id/upload"
         android:visible="true"
         android:title="@string/upload"
+        android:icon="@drawable/upload"
         android:showAsAction="ifRoom|withText"/>
-
-    <item android:id="@+id/delete_cache"
-        android:visible="false"
-        android:title="@string/delete"
-        android:showAsAction="ifRoom|withText"/>
-
-	<item android:id="@+id/upload_tasks"
-        android:visible="false"
-        android:title="@string/upload_tasks"
-        android:showAsAction="never"/>
-
-	<item android:id="@+id/accounts"
-        android:visible="false"
-        android:title="@string/accounts"
-        android:showAsAction="never"/>
 
     <item android:id="@+id/refresh"
         android:visible="false"
         android:title="@string/refresh"
+        android:icon="@drawable/refresh"
         android:showAsAction="ifRoom|withText"/>
 
-    <item android:id="@+id/newdir"
-        android:visible="false"
-        android:title="@string/create_new_dir"
-        android:showAsAction="never"/>
+    <!-- More -->
+    <item
+        android:id="@+id/overflow_icon"
+        android:icon="@drawable/ic_action_overflow"
+        android:showAsAction="always"
+        android:title="More">
+      <menu>
+        <item android:id="@+id/newdir"
+              android:visible="false"
+              android:title="@string/create_new_dir"
+              android:showAsAction="never"/>
 
-    <item android:id="@+id/newfile"
-        android:visible="false"
-        android:title="@string/create_new_file"
-        android:showAsAction="never"/>
+        <item android:id="@+id/newfile"
+              android:visible="false"
+              android:title="@string/create_new_file"
+              android:showAsAction="never"/>
 
-    <item android:id="@+id/camera"
-        android:visible="false"
-        android:title="@string/camera"
-        android:showAsAction="never"/>
-    
-    <item android:id="@+id/settings"
-        android:visible="false"
-        android:title="@string/settings"
-        android:showAsAction="never"/>
+        <item android:id="@+id/camera"
+              android:visible="false"
+              android:title="@string/camera"
+              android:showAsAction="never"/>
 
+	    <item android:id="@+id/upload_tasks"
+              android:visible="false"
+              android:title="@string/upload_tasks"
+              android:showAsAction="never"/>
+
+	    <item android:id="@+id/accounts"
+              android:visible="false"
+              android:title="@string/accounts"
+              android:showAsAction="never"/>
+
+
+        <item android:id="@+id/settings"
+              android:visible="false"
+              android:title="@string/settings"
+              android:showAsAction="never"/>
+      </menu>
+    </item>
 </menu>
