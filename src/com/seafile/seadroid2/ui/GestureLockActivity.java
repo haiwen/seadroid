@@ -2,19 +2,18 @@ package com.seafile.seadroid2.ui;
 
 import java.util.List;
 
+import android.app.Activity;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.widget.Toast;
+
 import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.ui.GestureLockPatternView.Cell;
 import com.seafile.seadroid2.ui.GestureLockPatternView.DisplayMode;
-
-import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.app.Activity;
-import android.content.SharedPreferences;
-import android.util.Log;
-import android.view.KeyEvent;
-import android.view.Menu;
-import android.widget.Toast;
 
 
 public class GestureLockActivity extends Activity implements

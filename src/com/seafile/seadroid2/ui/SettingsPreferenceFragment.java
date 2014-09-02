@@ -1,19 +1,20 @@
 package com.seafile.seadroid2.ui;
 
-import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.BrowserActivity;
-
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
-import android.preference.PreferenceManager;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
 import android.widget.Toast;
+
+import com.seafile.seadroid2.BrowserActivity;
+import com.seafile.seadroid2.R;
 
 public class SettingsPreferenceFragment extends PreferenceFragment implements OnPreferenceChangeListener,   
 OnPreferenceClickListener {
@@ -75,7 +76,7 @@ OnPreferenceClickListener {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
         case Gesture_Lock_REQUEST:
-            if (resultCode == getActivity().RESULT_OK) {
+            if (resultCode == Activity.RESULT_OK) {
                 setupSuccess = data.getBooleanExtra("setupSuccess", true);
                 SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
                 SharedPreferences.Editor editor = settings.edit();

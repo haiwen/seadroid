@@ -1,16 +1,14 @@
 package com.seafile.seadroid2.ui;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.os.Bundle;
+import android.util.Log;
+
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.BrowserActivity;
-
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.os.Bundle;
-import android.preference.CheckBoxPreference;
-import android.util.Log;
 
 public class SettingsActivity extends SherlockFragmentActivity {
     private static final String DEBUG_TAG = "SettingsActivity";
