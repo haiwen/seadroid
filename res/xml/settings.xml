@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <PreferenceCategory android:title="@string/security">
+        <CheckBoxPreference   
+            android:title="@string/gesture_lock"   
+            android:summaryOn="@string/gesture_lock_on"  
+            android:summaryOff="@string/gesture_lock_off"  
+            android:defaultValue="false" 
+            android:key="gesture_lock_switch_key">  
+        </CheckBoxPreference>
+    </PreferenceCategory>
+    
+</PreferenceScreen>

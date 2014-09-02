@@ -24,6 +24,21 @@
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>
+        
+        <activity android:name="com.seafile.seadroid2.ui.SettingsActivity"
+                  android:theme="@style/Theme.SeafileTheme"
+                  android:label="@string/app_name">
+        </activity>
+        
+        <activity android:name="com.seafile.seadroid2.ui.GestureLockActivity"
+                  android:theme="@style/Theme.SeafileTheme"
+                  android:label="@string/app_name">
+        </activity>
+        
+        <activity android:name="com.seafile.seadroid2.ui.GestureLockSetupActivity"
+                  android:theme="@style/Theme.SeafileTheme"
+                  android:label="@string/app_name">
+        </activity>
 
         <activity android:name="com.seafile.seadroid2.BrowserActivity"
                   android:label="@string/app_name"
