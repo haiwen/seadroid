@@ -39,7 +39,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.DetailedState;
 import android.net.Uri;
-import android.os.Environment;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
@@ -47,6 +46,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.fileschooser.SelectableFile;
+import com.seafile.seadroid2.gallery.ImageManager;
 
 public class Utils {
     public static final String MIME_APPLICATION_OCTET_STREAM = "application/octet-stream";
@@ -511,45 +511,63 @@ public class Utils {
             } 
         } 
     };
+    
+    private static ArrayList<SelectableFile> getPhotoPathList(String path) {
+        
+        ArrayList<SelectableFile> list = new ArrayList<SelectableFile>();
+
+        // Current directory File instance
+        final SelectableFile pathDir = new SelectableFile(path);
+        if (!pathDir.isDirectory()) {
+            return null;
+        }
+        // List folders in this directory with the directory filter
+        final SelectableFile[] dirs = pathDir.listFiles(mPhotoDirFilter);
+        if (dirs != null) {
+            // Sort the folders alphabetically
+            Arrays.sort(dirs, mComparator);
+            // Add each folder to the File list for the list adapter
+            for (SelectableFile dir : dirs){
+                
+                // List photos inside each directory with the photo filter
+                final SelectableFile[] photoFiles = dir.listFiles(mPhotoFilter);
+                if (photoFiles != null) {
+                    // Sort the files alphabetically
+                    Arrays.sort(photoFiles, mComparator);
+                    // Add each file to the File list for the list adapter
+                    for (SelectableFile file : photoFiles) {
+                        list.add(file);
+                    }
+                }
+            }
+        }
+        // List photos in this directory with the photo filter
+        final SelectableFile[] photos = pathDir.listFiles(mPhotoFilter);
+        if (photos != null) {
+            // Sort the files alphabetically
+            Arrays.sort(photos, mComparator);
+            // Add each file to the File list for the list adapter
+            for (SelectableFile file : photos) {
+                list.add(file);
+            }
+        }
+        return list;
+    }
 	
 	public static List<SelectableFile> getPhotoList() {
-		ArrayList<SelectableFile> list = new ArrayList<SelectableFile>();
-
-		// Current directory File instance
-		final SelectableFile pathDir = new SelectableFile(Environment.getExternalStorageDirectory().toString() + "/DCIM/");
-
-		// List folders in this directory with the directory filter
-		final SelectableFile[] dirs = pathDir.listFiles(mPhotoDirFilter);
-		if (dirs != null) {
-			// Sort the folders alphabetically
-			Arrays.sort(dirs, mComparator);
-			// Add each folder to the File list for the list adapter
-			for (SelectableFile dir : dirs){
-				
-				// List photos inside each directory with the photo filter
-				final SelectableFile[] photoFiles = dir.listFiles(mPhotoFilter);
-				if (photoFiles != null) {
-					// Sort the files alphabetically
-					Arrays.sort(photoFiles, mComparator);
-					// Add each file to the File list for the list adapter
-					for (SelectableFile file : photoFiles) {
-						list.add(file);
-					}
-				}
-			}
-		}
-		// List photos in this directory with the photo filter
-		final SelectableFile[] photos = pathDir.listFiles(mPhotoFilter);
-		if (photos != null) {
-			// Sort the files alphabetically
-			Arrays.sort(photos, mComparator);
-			// Add each file to the File list for the list adapter
-			for (SelectableFile file : photos) {
-				list.add(file);
-			}
-		}
+	    ArrayList<SelectableFile> list = new ArrayList<SelectableFile>();
+	    ArrayList<SelectableFile> photoPathList = new ArrayList<SelectableFile>();
+	    
+	    List<String> paths = ImageManager.getAllPath();
+	    for (String path : paths) {
+	        photoPathList = getPhotoPathList(path);
+	        if (photoPathList != null) {
+	            list.addAll(photoPathList);
+            }
+        }
 		return list;
 	}
+
     public static Intent createGetContentIntent() {
         // Implicitly allow the user to select a particular kind of data
         final Intent intent = new Intent(Intent.ACTION_GET_CONTENT);

@@ -39,9 +39,9 @@ public class SettingsFragment extends SherlockFragment{
     public static final String SHARED_PREF_CAMERA_UPLOAD_SETTINGS_REPONAME = PKG + ".spf.camera.settings.repoName";
     public static final String SHARED_PREF_CAMERA_UPLOAD_SETTINGS_START = PKG + ".spf.camera.settings.startService";
     private static final int CHOOSE_CAMERA_UPLOAD_REPO_REQUEST = 1;
-    SharedPreferences sharedPref;
-    SharedPreferences.Editor editor;
-    Intent cameraUploadIntent;
+    private SharedPreferences sharedPref;
+    private SharedPreferences.Editor editor;
+    private Intent cameraUploadIntent;
     private Intent dstData;
     private String repo_name;
     private Boolean isStartUpload = false;
@@ -84,7 +84,6 @@ public class SettingsFragment extends SherlockFragment{
             Bundle savedInstanceState) {
         Log.d(DEBUG_TAG, "SettingsFragment onCreateView");
         getPrefSettings();
-        Log.d(DEBUG_TAG, "repo_name: " + repo_name);
         View view = inflater.inflate(R.layout.settings, container, false);
         start_upload_tb = (ToggleButton) view.findViewById(R.id.start_upload_cb);
         repo_name_tv = (TextView) view.findViewById(R.id.repo_name_tv);
@@ -100,6 +99,7 @@ public class SettingsFragment extends SherlockFragment{
                     public void onCheckedChanged(CompoundButton buttonView,
                             boolean isChecked) {
                         saveUploadServPre(isChecked);
+                        isStartUpload = isChecked;
                         choose_repo_btn.setClickable(isChecked);
                         if (!isChecked) {
                             choose_repo_btn.setText("not applicable");
@@ -107,7 +107,6 @@ public class SettingsFragment extends SherlockFragment{
                             choose_repo_btn.setText(R.string.settings_btn);
                         }
                         startUploadService(isChecked);
-                        Log.d(DEBUG_TAG, "start_upload_cb: " + isChecked);
                     }
                 });
         
@@ -164,13 +163,14 @@ public class SettingsFragment extends SherlockFragment{
         }else {
             
             if (repo_name != null) {
-                // show remote repo name
+                // show remote library name
                 repo_name_tv.setText(repo_name);
 
             }else {
-                // Pop-up window to let user choose remote repo
+                // Pop-up window to let user choose remote library
                 Intent intent = new Intent(mActivity, SeafilePathChooserActivity.class);
                 this.startActivityForResult(intent, CHOOSE_CAMERA_UPLOAD_REPO_REQUEST);
+                return;
             }
             
             if (Utils.isWiFiOn()) {
@@ -229,13 +229,10 @@ public class SettingsFragment extends SherlockFragment{
         saveRepoInfo(dstRepoId, dstRepoName, dstDir, account);
         saveRepoName(dstRepoName);
         repo_name_tv.setText(dstRepoName);
-        if (Utils.isWiFiOn()) {
-            mActivity.startService(cameraUploadIntent);
-            showToast(R.string.startUpService);
-        }else {
-            mActivity.stopService(cameraUploadIntent);
-            showToast(R.string.wifi_down);
-        }
+        repo_name = dstRepoName;
+        saveUploadServPre(true);
+        isStartUpload = true;
+        startUploadService(true);
     }
     
 }

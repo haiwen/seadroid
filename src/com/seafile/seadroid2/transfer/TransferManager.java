@@ -271,7 +271,7 @@ public class TransferManager {
         @Override
         protected void onProgressUpdate(Long... values) {
             long uploaded = values[0];
-            Log.d(DEBUG_TAG, "Uploaded " + uploaded);
+            // Log.d(DEBUG_TAG, "Uploaded " + uploaded);
             myUploaded = uploaded;
             listener.onFileUploadProgress(myID);
         }
@@ -293,6 +293,7 @@ public class TransferManager {
                 if (isUpdate) {
                     dataManager.updateFile(myRepoName, myRepoID, myDir, myPath, monitor);
                 } else {
+                    Log.d(DEBUG_TAG, "Upload path: " + myPath);
                     dataManager.uploadFile(myRepoName, myRepoID, myDir, myPath, monitor);
                 }
             } catch (SeafException e) {
