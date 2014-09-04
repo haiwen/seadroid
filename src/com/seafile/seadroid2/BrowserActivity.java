@@ -71,7 +71,6 @@ import com.seafile.seadroid2.ui.RenameFileDialog;
 import com.seafile.seadroid2.ui.ReposFragment;
 import com.seafile.seadroid2.ui.SeafilePathChooserActivity;
 import com.seafile.seadroid2.ui.SettingsActivity;
-import com.seafile.seadroid2.ui.SettingsFragment;
 import com.seafile.seadroid2.ui.SslConfirmDialog;
 import com.seafile.seadroid2.ui.StarredFragment;
 import com.seafile.seadroid2.ui.TabsFragment;
@@ -97,7 +96,6 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     // private boolean twoPaneMode = false;
     TabsFragment tabsFragment = null;
-    SettingsFragment settingsFragment = null;
     private String currentSelectedItem = FILES_VIEW;
 
     FetchFileDialog fetchFileDialog = null;
@@ -126,6 +124,8 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final String LOCK = "lock";
     public static final String LOCK_KEY = null;
     public static final String GESTURE_LOCK_SWITCH_KEY = "gesture_lock_switch_key";
+    public static final String CAMERA_UPLOAD_SWITCH_KEY = "camera_upload_switch_key";
+    public static final String CAMERA_UPLOAD_REPO_KEY = "camera_upload_repo_key";
 
     private Intent copyMoveIntent;
 

@@ -36,7 +36,7 @@ import com.seafile.seadroid2.transfer.PendingUploadInfo;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.transfer.UploadTaskInfo;
-import com.seafile.seadroid2.ui.SettingsFragment;
+import com.seafile.seadroid2.ui.SettingsPreferenceFragment;
 import com.seafile.seadroid2.util.Utils;
 
 public class CameraUploadService extends Service {
@@ -105,8 +105,7 @@ public class CameraUploadService extends Service {
         Log.d(DEBUG_TAG, "onStartCommand");
 
         getPreference();
-        if (repoId != null && repoName != null && accountEmail != null
-                && accountServer != null && accountToken != null) {
+        if (repoId != null && accountEmail != null) {
             isCameraUpload = true;
             account = new Account(accountServer, accountEmail, null, accountToken);
             cUploadManager = new CameraUploadManager(account);
@@ -121,11 +120,11 @@ public class CameraUploadService extends Service {
     
     private void getPreference() {
         SharedPreferences sharedPref = getSharedPreferences(AccountsActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
-        repoId = sharedPref.getString(SettingsFragment.SHARED_PREF_CAMERA_UPLOAD_REPO_ID, null);
-        repoName = sharedPref.getString(SettingsFragment.SHARED_PREF_CAMERA_UPLOAD_REPO_NAME, null);
-        accountEmail = sharedPref.getString(SettingsFragment.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL, null);
-        accountServer = sharedPref.getString(SettingsFragment.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER, null);
-        accountToken = sharedPref.getString(SettingsFragment.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN, null);
+        repoId = sharedPref.getString(SettingsPreferenceFragment.SHARED_PREF_CAMERA_UPLOAD_REPO_ID, null);
+        repoName = sharedPref.getString(SettingsPreferenceFragment.SHARED_PREF_CAMERA_UPLOAD_REPO_NAME, null);
+        accountEmail = sharedPref.getString(SettingsPreferenceFragment.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL, null);
+        accountServer = sharedPref.getString(SettingsPreferenceFragment.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER, null);
+        accountToken = sharedPref.getString(SettingsPreferenceFragment.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN, null);
     }
     
     private void notifyUser(String repoName) {
@@ -237,19 +236,20 @@ public class CameraUploadService extends Service {
 
         @Override
         protected void onPostExecute(List<SelectableFile> result) {
-            list = result;
-            if (list != null) {
-                int photosCount = 0;
-                for (SelectableFile selectableFile : list) {
-                    String path = new File(selectableFile.getAbsolutePath()).getName();
-                    SeafCachedPhoto cp = cUploadManager.getCachedPhoto(repoName, repoId, "/", path);
-                    if (cp == null) {
-                        photosCount++;
-                        addUploadTask(repoId, repoName, "/", selectableFile.getAbsolutePath());
-                    }
-                }
-                notifyUser(photosCount, repoName);
+            if (result == null) {
+                return;
             }
+            list = result;
+            int photosCount = 0;
+            for (SelectableFile selectableFile : list) {
+                String path = new File(selectableFile.getAbsolutePath()).getName();
+                SeafCachedPhoto cp = cUploadManager.getCachedPhoto(repoName, repoId, "/", path);
+                if (cp == null) {
+                    photosCount++;
+                    addUploadTask(repoId, repoName, "/", selectableFile.getAbsolutePath());
+                }
+            }
+            notifyUser(photosCount, repoName);
         }
     }
     
@@ -294,7 +294,10 @@ public class CameraUploadService extends Service {
                 UploadTaskInfo info = mTransferService.getUploadTaskInfo(taskID);
 
                 if (info != null) {
-                    cUploadManager.onPhotoUploadSuccess(info.repoName, info.repoID, info.localFilePath);
+                    cUploadManager.onPhotoUploadSuccess(info.repoName,
+                            info.repoID, info.localFilePath
+                                    .substring(info.localFilePath
+                                            .lastIndexOf("/")));
                 }
             }
 
