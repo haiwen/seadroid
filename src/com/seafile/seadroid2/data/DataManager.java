@@ -507,32 +507,6 @@ public class DataManager {
         return cf;
     }
     
-    /**
-     * 
-     * @param repoName
-     * @param repoID
-     * @param dir
-     * @param path
-     * @return
-     */
-    public SeafCachedPhoto getCachedPhoto(String repoName, String repoID, String dir, String path) {
-        String validPath = Utils.pathJoin(dir, path);
-        Log.v(DEBUG_TAG, "validPath:" + validPath);
-        return getCachedPhoto(repoName, repoID, validPath);
-    }
-    
-    /**
-     * 
-     * @param repoName
-     * @param repoID
-     * @param path
-     * @return
-     */
-    public SeafCachedPhoto getCachedPhoto(String repoName, String repoID, String path) {
-        SeafCachedPhoto cp = dbHelper.getPhotoCacheItem(repoID, path);
-        return cp;
-    }
-
     public List<SeafCachedFile> getCachedFiles() {
         return dbHelper.getFileCacheItems(this);
     }
@@ -547,34 +521,12 @@ public class DataManager {
         dbHelper.saveFileCacheItem(item, this);
     }
 
-    /**
-     * 
-     * @param repoName
-     * @param repoID
-     * @param path
-     */
-    public void addCachedPhoto(String repoName, String repoID, String path) {
-        Log.d(DEBUG_TAG, "path: " +path);
-        SeafCachedPhoto item = new SeafCachedPhoto();
-        item.repoName = repoName;
-        item.repoID = repoID;
-        item.path = path;
-        item.accountSignature = account.getSignature();
-        dbHelper.savePhotoCacheItem(item);
-    }
-    
     public void removeCachedFile(SeafCachedFile cf) {
         // TODO should check if the file deletion succeeds
         cf.file.delete();
         dbHelper.deleteFileCacheItem(cf);
     }
     
-    public int removeCachedPhoto(SeafCachedPhoto cp) {
-        // unused method
-        // check if the file deletion succeeds
-        return dbHelper.deletePhotoCacheItem(cp);
-    }
-
     public void setPassword(String repoID, String passwd) throws SeafException {
         sc.setPassword(repoID, passwd);
     }
@@ -618,7 +570,6 @@ public class DataManager {
 
         // Update file cache entry
         addCachedFile(repoName, repoID, path, newFileID, fileInRepo);
-        addCachedPhoto(repoName, repoID, path);
     }
 
     public void createNewDir(String repoID, String parentDir, String dirName) throws SeafException {

@@ -1,7 +1,5 @@
 package com.seafile.seadroid2.data;
 
-
-
 public class SeafCachedPhoto implements SeafItem {
     public int id;
     public String repoName;

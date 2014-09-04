@@ -23,7 +23,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // FileCache table
     private static final String FILECACHE_TABLE_NAME = "FileCache";
-    private static final String PHOTOCACHE_TABLE_NAME = "PhotoCache";
 
     private static final String FILECACHE_COLUMN_ID = "id";
     private static final String FILECACHE_COLUMN_FILEID = "fileid";
@@ -31,12 +30,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String FILECACHE_COLUMN_REPO_ID = "repo_id";
     private static final String FILECACHE_COLUMN_PATH = "path";
     private static final String FILECACHE_COLUMN_ACCOUNT = "account";
-    
-    private static final String PHOTOCACHE_COLUMN_ID = "id";
-    private static final String PHOTOCACHE_COLUMN_REPO_NAME = "repo_name";
-    private static final String PHOTOCACHE_COLUMN_REPO_ID = "repo_id";
-    private static final String PHOTOCACHE_COLUMN_PATH = "path";
-    private static final String PHOTOCACHE_COLUMN_ACCOUNT = "account";
 
     // RepoDir table
     private static final String REPODIR_TABLE_NAME = "RepoDir";
@@ -64,14 +57,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         + FILECACHE_COLUMN_REPO_ID + " TEXT NOT NULL, "
         + FILECACHE_COLUMN_ACCOUNT + " TEXT NOT NULL);";
     
-    private static final String SQL_CREATE_PHOTOCACHE_TABLE =
-            "CREATE TABLE " + PHOTOCACHE_TABLE_NAME + " ("
-            + PHOTOCACHE_COLUMN_ID + " INTEGER PRIMARY KEY, "
-            + PHOTOCACHE_COLUMN_PATH + " TEXT NOT NULL, "
-            + PHOTOCACHE_COLUMN_REPO_NAME + " TEXT NOT NULL, "
-            + PHOTOCACHE_COLUMN_REPO_ID + " TEXT NOT NULL, "
-            + PHOTOCACHE_COLUMN_ACCOUNT + " TEXT NOT NULL);";
-
     private static final String SQL_CREATE_REPODIR_TABLE =
         "CREATE TABLE " + REPODIR_TABLE_NAME + " ("
         + REPODIR_COLUMN_ID + " INTEGER PRIMARY KEY, "
@@ -108,7 +93,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         createFileCacheTable(db);
-        createPhotoCacheTable(db);
         createRepoDirTable(db);
         createDirentsCacheTable(db);
     }
@@ -123,14 +107,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + " (" + FILECACHE_COLUMN_ACCOUNT + ");");
     }
     
-    private void createPhotoCacheTable(SQLiteDatabase db) {
-        db.execSQL(SQL_CREATE_PHOTOCACHE_TABLE);
-        db.execSQL("CREATE INDEX photo_repoid_index ON " + PHOTOCACHE_TABLE_NAME
-                + " (" + PHOTOCACHE_COLUMN_REPO_ID + ");");
-        db.execSQL("CREATE INDEX photo_account_index ON " + PHOTOCACHE_TABLE_NAME
-                + " (" + PHOTOCACHE_COLUMN_ACCOUNT + ");");
-    }
-
     private void createRepoDirTable(SQLiteDatabase db) {
         db.execSQL(SQL_CREATE_REPODIR_TABLE);
 
@@ -172,7 +148,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
 
         db.execSQL("DROP TABLE IF EXISTS " + FILECACHE_TABLE_NAME + ";");
-        db.execSQL("DROP TABLE IF EXISTS " + PHOTOCACHE_TABLE_NAME + ";");
         db.execSQL("DROP TABLE IF EXISTS " + REPODIR_TABLE_NAME + ";");
         db.execSQL("DROP TABLE IF EXISTS " + DIRENTS_CACHE_TABLE_NAME + ";");
         onCreate(db);
@@ -215,42 +190,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return item;
     }
     
-    public SeafCachedPhoto getPhotoCacheItem(String repoID,
-            String path) {
-        String[] projection = {
-        FILECACHE_COLUMN_ID,
-        FILECACHE_COLUMN_REPO_NAME,
-        FILECACHE_COLUMN_REPO_ID,
-        FILECACHE_COLUMN_PATH,
-        FILECACHE_COLUMN_ACCOUNT
-        };
-        
-        Cursor c = database.query(
-        PHOTOCACHE_TABLE_NAME,
-        projection,
-        PHOTOCACHE_COLUMN_REPO_ID
-        + "=? and " + PHOTOCACHE_COLUMN_PATH + "=?",
-        new String[] { repoID, path },
-        null,   // don't group the rows
-        null,   // don't filter by row groups
-        null    // The sort order
-        );
-        
-        if (!c.moveToFirst()) {
-            c.close();
-            return null;
-        }
-        
-        SeafCachedPhoto item = new SeafCachedPhoto();
-        item.id = c.getInt(0);
-        item.repoName = c.getString(1);
-        item.repoID = c.getString(2);
-        item.path = c.getString(3);
-        item.accountSignature = c.getString(4);
-        c.close();
-        return item;
-    }
-
     // XXX: Here we can use SQLite3  "INSERT OR REPLACE" for convience
     public void saveFileCacheItem(SeafCachedFile item, DataManager dataManager) {
         SeafCachedFile old = getFileCacheItem(item.repoID, item.path, dataManager);
@@ -270,19 +209,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         database.insert(FILECACHE_TABLE_NAME, null, values);
     }
     
-    public void savePhotoCacheItem(SeafCachedPhoto item) {
-
-        // Create a new map of values, where column names are the keys
-        ContentValues values = new ContentValues();
-        values.put(PHOTOCACHE_COLUMN_REPO_NAME, item.repoName);
-        values.put(PHOTOCACHE_COLUMN_REPO_ID, item.repoID);
-        values.put(PHOTOCACHE_COLUMN_PATH, item.path);
-        values.put(PHOTOCACHE_COLUMN_ACCOUNT, item.accountSignature);
-
-        // Insert the new row, returning the primary key value of the new row
-        database.insert(PHOTOCACHE_TABLE_NAME, null, values);
-    }
-
     public void deleteFileCacheItem(SeafCachedFile item) {
         if (item.id != -1) {
             database.delete(FILECACHE_TABLE_NAME,  FILECACHE_COLUMN_ID + "=?",
@@ -292,15 +218,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 new String[] { item.repoID, item.path });
     }
     
-    public int deletePhotoCacheItem(SeafCachedPhoto item) {
-        if (item.id != -1) {
-            return database.delete(PHOTOCACHE_TABLE_NAME,  PHOTOCACHE_COLUMN_ID + "=?",
-                    new String[] { String.valueOf(item.id) });
-        } else
-            return database.delete(PHOTOCACHE_TABLE_NAME,  PHOTOCACHE_COLUMN_REPO_ID + "=? and " + PHOTOCACHE_COLUMN_PATH + "=?",
-                new String[] { item.repoID, item.path });
-    }
-
     public List<SeafCachedFile> getFileCacheItems(DataManager dataManager) {
         List<SeafCachedFile> files = new ArrayList<SeafCachedFile>();
 

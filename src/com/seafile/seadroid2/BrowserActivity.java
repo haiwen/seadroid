@@ -52,6 +52,7 @@ import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 import com.seafile.seadroid2.gallery.MultipleImageSelectionActivity;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
+import com.seafile.seadroid2.transfer.PendingUploadInfo;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.transfer.UploadTaskInfo;
@@ -70,6 +71,7 @@ import com.seafile.seadroid2.ui.RenameFileDialog;
 import com.seafile.seadroid2.ui.ReposFragment;
 import com.seafile.seadroid2.ui.SeafilePathChooserActivity;
 import com.seafile.seadroid2.ui.SettingsActivity;
+import com.seafile.seadroid2.ui.SettingsFragment;
 import com.seafile.seadroid2.ui.SslConfirmDialog;
 import com.seafile.seadroid2.ui.StarredFragment;
 import com.seafile.seadroid2.ui.TabsFragment;
@@ -131,24 +133,6 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     public DataManager getDataManager() {
         return dataManager;
-    }
-
-    public class PendingUploadInfo {
-        public String repoID;
-        public String repoName;
-        public String targetDir;
-        public String localFilePath;
-        public boolean isUpdate;
-
-        public PendingUploadInfo(String repoID, String repoName,
-                                 String targetDir, String localFilePath,
-                                 boolean isUpdate) {
-            this.repoID = repoID;
-            this.repoName = repoName;
-            this.targetDir = targetDir;
-            this.localFilePath = localFilePath;
-            this.isUpdate = isUpdate;
-        }
     }
 
     public void addUpdateTask(String repoID, String repoName, String targetDir, String localFilePath) {
@@ -847,7 +831,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         default:
              break;
         }
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
     /***************  Navigation *************/

@@ -25,7 +25,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
     private static final String DEBUG_TAG = "ShareToSeafileActivity";
 
     public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "password_dialog_fragment_tag";
-    public static final int CHOOSE_COPY_MOVE_DEST_REQUEST = 1;
+    private static final int CHOOSE_COPY_MOVE_DEST_REQUEST = 1;
 
     private TransferService mTxService;
     private ServiceConnection mConnection;
@@ -141,9 +141,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
             dstRepoId = dstData.getStringExtra(SeafilePathChooserActivity.DATA_REPO_ID);
             dstDir = dstData.getStringExtra(SeafilePathChooserActivity.DATA_DIR);
             account = (Account)dstData.getParcelableExtra(SeafilePathChooserActivity.DATA_ACCOUNT);
-            if (localPath != null) 
-            	addUploadTask(account, dstRepoName, dstRepoId, dstDir, localPath);
-            	
+        	addUploadTask(account, dstRepoName, dstRepoId, dstDir, localPath);
 		}
     }
 
