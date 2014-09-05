@@ -46,7 +46,6 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.fileschooser.SelectableFile;
-import com.seafile.seadroid2.gallery.ImageManager;
 
 public class Utils {
     public static final String MIME_APPLICATION_OCTET_STREAM = "application/octet-stream";
@@ -405,7 +404,6 @@ public class Utils {
         out.close();
     }
 
-
     /************ MutiFileChooser ************/
     private static Comparator<SelectableFile> mComparator = new Comparator<SelectableFile>() {
         public int compare(SelectableFile f1, SelectableFile f2) {
@@ -464,109 +462,6 @@ public class Utils {
 
         return list;
     }
-
-    private static FileFilter mPhotoFilter = new FileFilter() {
-        @Override
-        public boolean accept(File file) {
-            final String fileName = file.getName();
-            // Return files only (not directories) and skip hidden files
-            for (String ext : imageExtensions) { 
-                if (file.getName().endsWith("." + ext)  && !fileName.startsWith(HIDDEN_PREFIX)) return true; 
-            } 
-            return false;
-        }
-    };
-	
-    private static String imageExtensions[] = { "png", "PNG", "jpg", "JPG",
-            "jpeg", "JPEG", "bmp", "BMP", "gif", "GIF" };
-    
-    /**
-     * {get photo path form sd-card @link http://stackoverflow.com/questions/3873496/how-to-get-image-path-from-images-stored-on-sd-card}
-     */
-    private static FileFilter mPhotoDirFilter = new FileFilter() {            
-        @Override
-		public boolean accept(File folder) { 
-            try { 
-                //Checking only directories, since we are checking for files within 
-                //a directory 
-                if(folder.isDirectory() && !folder.getName().startsWith(HIDDEN_PREFIX)) { 
-                    File[] listOfFiles = folder.listFiles(); 
-
-                    if (listOfFiles == null) return false; 
-
-                    //For each file in the directory 
-                    for (File file : listOfFiles) {                            
-                        //Check if the extension is one of the supported filetypes                           
-                        //imageExtensions is a String[] containing image filetypes (e.g. "png")
-                        for (String ext : imageExtensions) { 
-                            if (file.getName().endsWith("." + ext)) return true; 
-                        } 
-                    }                        
-                } 
-                return false; 
-            } 
-            catch (SecurityException e) { 
-                Log.v("debug", "Access Denied"); 
-                return false; 
-            } 
-        } 
-    };
-    
-    private static ArrayList<SelectableFile> getPhotoPathList(String path) {
-        
-        ArrayList<SelectableFile> list = new ArrayList<SelectableFile>();
-
-        // Current directory File instance
-        final SelectableFile pathDir = new SelectableFile(path);
-        if (!pathDir.isDirectory()) {
-            return null;
-        }
-        // List folders in this directory with the directory filter
-        final SelectableFile[] dirs = pathDir.listFiles(mPhotoDirFilter);
-        if (dirs != null) {
-            // Sort the folders alphabetically
-            Arrays.sort(dirs, mComparator);
-            // Add each folder to the File list for the list adapter
-            for (SelectableFile dir : dirs){
-                
-                // List photos inside each directory with the photo filter
-                final SelectableFile[] photoFiles = dir.listFiles(mPhotoFilter);
-                if (photoFiles != null) {
-                    // Sort the files alphabetically
-                    Arrays.sort(photoFiles, mComparator);
-                    // Add each file to the File list for the list adapter
-                    for (SelectableFile file : photoFiles) {
-                        list.add(file);
-                    }
-                }
-            }
-        }
-        // List photos in this directory with the photo filter
-        final SelectableFile[] photos = pathDir.listFiles(mPhotoFilter);
-        if (photos != null) {
-            // Sort the files alphabetically
-            Arrays.sort(photos, mComparator);
-            // Add each file to the File list for the list adapter
-            for (SelectableFile file : photos) {
-                list.add(file);
-            }
-        }
-        return list;
-    }
-	
-	public static List<SelectableFile> getPhotoList() {
-	    ArrayList<SelectableFile> list = new ArrayList<SelectableFile>();
-	    ArrayList<SelectableFile> photoPathList = new ArrayList<SelectableFile>();
-	    
-	    List<String> paths = ImageManager.getAllPath();
-	    for (String path : paths) {
-	        photoPathList = getPhotoPathList(path);
-	        if (photoPathList != null) {
-	            list.addAll(photoPathList);
-            }
-        }
-		return list;
-	}
 
     public static Intent createGetContentIntent() {
         // Implicitly allow the user to select a particular kind of data

@@ -191,13 +191,14 @@
     <string name="lockscreen_access_pattern_cell_added">Cell added</string>
     <!-- Accessibility description sent when user completes drawing a pattern. [CHAR LIMIT=NONE] -->
     <string name="lockscreen_access_pattern_detected">Pattern completed</string>
-    <string name="camera_upload_duplicate">You already backup these photos</string>
+    
+    <string name="camera_upload_duplicate">already uploaded</string>
     <string name="camera_upload_info_title">Camera Photo Upload</string>
-    <string name="camera_upload_info">upload %d photos to\u0020</string>
-    <string name="wifi_down">Wi-Fi connection down, will upload until Wi-Fi connected</string>    
-    <string name="startUpService">photos upload service started</string>    
-    <string name="stopUpService">photos upload service stoped</string>    
-    <string name="settings_repo"> change upload library</string>    
+    <string name="camera_upload_info">upload %d photo(s) to\u0020</string>
+    <string name="wifi_down">Wi-Fi not available</string>    
+    <string name="startUpService">upload service started</string>    
+    <string name="stopUpService">upload service stoped</string>    
+    <string name="settings_repo">change upload library</string>    
     <string name="settings_hint">please choose a remote library first</string>    
     <string name="settings_start">start camera photo upload</string>    
 </resources>

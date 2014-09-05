@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -28,16 +27,14 @@ import android.util.Log;
 
 import com.seafile.seadroid2.AccountsActivity;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
-import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.SeafCachedPhoto;
-import com.seafile.seadroid2.fileschooser.SelectableFile;
 import com.seafile.seadroid2.transfer.PendingUploadInfo;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.transfer.UploadTaskInfo;
 import com.seafile.seadroid2.ui.SettingsPreferenceFragment;
-import com.seafile.seadroid2.util.Utils;
+import com.seafile.seadroid2.util.CameraUploadUtil;
 
 public class CameraUploadService extends Service {
     private static final String DEBUG_TAG = "CameraUploadService";
@@ -46,8 +43,6 @@ public class CameraUploadService extends Service {
     private final IBinder mBinder = new CameraBinder();
     private CameraObserver cameraUploadObserver = new CameraObserver();
     private ArrayList<PendingUploadInfo> pendingUploads = new ArrayList<PendingUploadInfo>();
-    private NotificationManager mNotificationManager;
-    private NotificationCompat.Builder builder;
     private String repoId;
     private String repoName;
     private String accountEmail;
@@ -57,7 +52,7 @@ public class CameraUploadService extends Service {
     private Boolean isCameraUpload = false;
     private CameraUploadManager cUploadManager;
     private TransferService mTransferService;
-    private List<SelectableFile> list;
+    private List<File> list;
     private List<Integer> taskIds;
     
     @Override
@@ -112,7 +107,7 @@ public class CameraUploadService extends Service {
         }
 
         if (isCameraUpload) {
-            ConcurrentAsyncTask.execute(new PhotoTask());
+            ConcurrentAsyncTask.execute(new PhotoUploadTask());
         }
         
         return START_STICKY;
@@ -125,27 +120,6 @@ public class CameraUploadService extends Service {
         accountEmail = sharedPref.getString(SettingsPreferenceFragment.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL, null);
         accountServer = sharedPref.getString(SettingsPreferenceFragment.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER, null);
         accountToken = sharedPref.getString(SettingsPreferenceFragment.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN, null);
-    }
-    
-    private void notifyUser(String repoName) {
-        notifyUser(1, repoName);
-    }
-    
-    private void notifyUser(int count, String repoName) {
-        if (count == 0) {
-            return;
-        }
-        // Send Notification
-        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        // Constructs the Builder object
-        builder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.icon)
-                .setContentTitle(getString(R.string.camera_upload_info_title))
-                .setContentText(getString(R.string.camera_upload_info, count) + repoName)
-                .setDefaults(Notification.DEFAULT_ALL); 
-        
-        // Including the notification ID allows you to update the notification later on.
-        mNotificationManager.notify(NOTIFICATION_ID, builder.build());
     }
     
     ServiceConnection mConnection = new ServiceConnection() {
@@ -198,79 +172,63 @@ public class CameraUploadService extends Service {
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
-            ConcurrentAsyncTask.execute(new MediaTask());
+            ConcurrentAsyncTask.execute(new CameraEventReceiverTask());
         }
     }
 
-    private Media readFromMediaStore(Context context, Uri uri) {
+    private File getPhotoFromMediaStore(Context context, Uri uri) {
         Cursor cursor = context.getContentResolver().query(uri, null, null,
                 null, "date_added DESC");
-        Media media = null;
+        File photo = null;
         if (cursor.moveToNext()) {
             int dataColumn = cursor.getColumnIndexOrThrow(MediaColumns.DATA);
             String filePath = cursor.getString(dataColumn);
-            int mimeTypeColumn = cursor
-                    .getColumnIndexOrThrow(MediaColumns.MIME_TYPE);
-            String mimeType = cursor.getString(mimeTypeColumn);
-            media = new Media(new File(filePath), mimeType);
+            photo = new File(filePath);
         }
         cursor.close();
-        return media;
+        return photo;
     }
 
-    private class Media {
-        private File file;
-        // private String type;
-
-        public Media(File file, String type) {
-            this.file = file;
-            // this.type = type;
-        }
-    }
-    private class PhotoTask extends AsyncTask<Void, Void, List<SelectableFile>> {
+    private class PhotoUploadTask extends AsyncTask<Void, Void, List<File>> {
 
         @Override
-        protected List<SelectableFile> doInBackground(Void... params) {
-            return Utils.getPhotoList();
+        protected List<File> doInBackground(Void... params) {
+            return CameraUploadUtil.getAllPhotosAbsolutePathList();
         }
 
         @Override
-        protected void onPostExecute(List<SelectableFile> result) {
+        protected void onPostExecute(List<File> result) {
             if (result == null) {
                 return;
             }
             list = result;
-            int photosCount = 0;
-            for (SelectableFile selectableFile : list) {
-                String path = new File(selectableFile.getAbsolutePath()).getName();
+            for (File photo : list) {
+                String path = new File(photo.getAbsolutePath()).getName();
                 SeafCachedPhoto cp = cUploadManager.getCachedPhoto(repoName, repoId, "/", path);
                 if (cp == null) {
-                    photosCount++;
-                    addUploadTask(repoId, repoName, "/", selectableFile.getAbsolutePath());
+                    Log.v(DEBUG_TAG, "add path: " + photo.getName());
+                    addUploadTask(repoId, repoName, "/", photo.getAbsolutePath());
                 }
             }
-            notifyUser(photosCount, repoName);
         }
     }
     
-    private class MediaTask extends AsyncTask<Void, Void, Media> {
+    private class CameraEventReceiverTask extends AsyncTask<Void, Void, File> {
         private String detectLog;
-
         @Override
-        protected Media doInBackground(Void... params) {
-            return readFromMediaStore(getApplicationContext(), MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        protected File doInBackground(Void... params) {
+            return getPhotoFromMediaStore(getApplicationContext(), MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         }
 
         @Override
-        protected void onPostExecute(Media media) {
-            detectLog = "detected " + media.file.getName();
+        protected void onPostExecute(File photo) {
+            detectLog = "detected " + photo.getName();
             if (repoId != null && accountEmail != null
                     && account.getEmail().equals(accountEmail)
                     && account.getServer().equals(accountServer)) {
                 Log.d(DEBUG_TAG, detectLog);
-                if (cUploadManager.getCachedPhoto(repoName, repoId, "/", media.file.getName()) == null) {
-                    addUploadTask(repoId, repoName, "/", media.file.getAbsolutePath());
-                    notifyUser(repoName);
+                if (cUploadManager.getCachedPhoto(repoName, repoId, "/", photo.getName()) == null) {
+                    addUploadTask(repoId, repoName, "/", photo.getAbsolutePath());
                 }
             }
         }
@@ -288,7 +246,6 @@ public class CameraUploadService extends Service {
             if (type == null) {
                 return;
             }
-
             if (type.equals(TransferService.BROADCAST_FILE_UPLOAD_SUCCESS)) {
                 int taskID = intent.getIntExtra("taskID", 0);
                 UploadTaskInfo info = mTransferService.getUploadTaskInfo(taskID);
@@ -298,6 +255,7 @@ public class CameraUploadService extends Service {
                             info.repoID, info.localFilePath
                                     .substring(info.localFilePath
                                             .lastIndexOf("/")));
+                    Log.d(DEBUG_TAG, "success path: " + info.localFilePath.substring(info.localFilePath.lastIndexOf("/")));
                 }
             }
 

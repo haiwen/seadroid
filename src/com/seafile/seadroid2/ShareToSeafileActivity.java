@@ -5,7 +5,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -31,7 +30,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
     private ServiceConnection mConnection;
     private String localPath;
     private Intent dstData;
-    
+    private Boolean isFinishActivity = false;
 	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
@@ -128,8 +127,9 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
             dstData = data;
             Log.i(DEBUG_TAG, "CHOOSE_COPY_MOVE_DEST_REQUEST returns");
         }
+        isFinishActivity =true;
     }
-    
+
     @Override
     protected void onPostResume() {
         super.onPostResume();
@@ -142,7 +142,14 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
             dstDir = dstData.getStringExtra(SeafilePathChooserActivity.DATA_DIR);
             account = (Account)dstData.getParcelableExtra(SeafilePathChooserActivity.DATA_ACCOUNT);
         	addUploadTask(account, dstRepoName, dstRepoId, dstDir, localPath);
+        	Log.d(DEBUG_TAG, "dstRepoName: " + dstRepoName);
+        	Log.d(DEBUG_TAG, "dstDir: " + dstDir);
 		}
+        
+        if(isFinishActivity) {
+		    Log.d(DEBUG_TAG, "finish!");
+		    finish();
+        }
     }
 
     public void showToast(CharSequence msg) {
