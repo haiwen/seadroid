@@ -676,11 +676,15 @@ public class BrowserActivity extends SherlockFragmentActivity
     public void enableUpButton() {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
-
+    
     public void disableUpButton() {
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     }
 
+    public void setUpButtonTitle(String title){
+        getSupportActionBar().setTitle(title);
+    } 
+    
     /***********  Start other activity  ***************/
 
     public static final int PICK_FILES_REQUEST = 1;
@@ -890,10 +894,19 @@ public class BrowserActivity extends SherlockFragmentActivity
             if (navContext.inRepo()) {
                 if (navContext.isRepoRoot()) {
                     navContext.setRepoID(null);
+                    getSupportActionBar().setTitle(R.string.app_name);
                 } else {
                     String parentPath = Utils.getParentPath(navContext
                             .getDirPath());
                     navContext.setDir(parentPath, null);
+                    Log.v(DEBUG_TAG, "parentPath" + parentPath);
+                    if (parentPath.equals("/")) {
+                        getSupportActionBar().setTitle(navContext.getRepoName());
+                        Log.v(DEBUG_TAG, "equal slash, RepoName: " + navContext.getRepoName());
+                    }else {
+                        getSupportActionBar().setTitle(parentPath.substring(parentPath.lastIndexOf("/") + 1));
+                        Log.v(DEBUG_TAG, "not equal slash, ParentPath: " + parentPath.substring(parentPath.lastIndexOf("/") + 1));
+                    }
                 }
                 tabsFragment.getReposFragment().refreshView();
 

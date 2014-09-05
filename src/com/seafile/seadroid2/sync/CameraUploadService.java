@@ -3,8 +3,6 @@ package com.seafile.seadroid2.sync;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-import android.app.NotificationManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -21,7 +19,6 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.provider.MediaStore.MediaColumns;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 

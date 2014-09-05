@@ -198,7 +198,7 @@ private static final String DEBUG_TAG = "SettingsPreferenceFragment";
             
             // stop camera upload service
             mActivity.stopService(cameraUploadIntent);
-            showToast(R.string.stopUpService);
+            showToast(R.string.settings_stopUpService);
         }else {
             
             if (repoName != null) {
@@ -215,10 +215,10 @@ private static final String DEBUG_TAG = "SettingsPreferenceFragment";
             if (Utils.isWiFiOn()) {
                 //start service
                 mActivity.startService(cameraUploadIntent);
-                showToast(R.string.startUpService);
+                showToast(R.string.settings_startUpService);
             }else {
                 mActivity.stopService(cameraUploadIntent);
-                showToast(R.string.wifi_down);
+                showToast(R.string.settings_wifi_down);
             }
         }
     }
