@@ -506,7 +506,7 @@ public class DataManager {
         SeafCachedFile cf = dbHelper.getFileCacheItem(repoID, path, this);
         return cf;
     }
-
+    
     public List<SeafCachedFile> getCachedFiles() {
         return dbHelper.getFileCacheItems(this);
     }
@@ -526,7 +526,7 @@ public class DataManager {
         cf.file.delete();
         dbHelper.deleteFileCacheItem(cf);
     }
-
+    
     public void setPassword(String repoID, String passwd) throws SeafException {
         sc.setPassword(repoID, passwd);
     }

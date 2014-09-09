@@ -1,14 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    
-    <PreferenceCategory android:title="@string/security">
-        <CheckBoxPreference   
-            android:title="@string/gesture_lock"   
-            android:summaryOn="@string/gesture_lock_on"  
-            android:summaryOff="@string/gesture_lock_off"  
-            android:defaultValue="false" 
-            android:key="gesture_lock_switch_key">  
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory android:title="@string/security" >
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="gesture_lock_switch_key"
+            android:summaryOff="@string/gesture_lock_off"
+            android:summaryOn="@string/gesture_lock_on"
+            android:title="@string/gesture_lock" >
         </CheckBoxPreference>
     </PreferenceCategory>
-    
-</PreferenceScreen>
+    <PreferenceCategory android:title="@string/camera_upload_info_title" >
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="camera_upload_switch_key"
+            android:summaryOff="@string/stopUpService"
+            android:summaryOn="@string/startUpService"
+            android:title="@string/settings_start" >
+        </CheckBoxPreference>
+        <Preference
+            android:layout="@layout/preference" 
+            android:key="camera_upload_repo_key"
+            android:title="@string/settings_repo"
+            android:summary="@string/settings_hint"
+            android:persistent="true"/>
+    </PreferenceCategory>
+</PreferenceScreen>

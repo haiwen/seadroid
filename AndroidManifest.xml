@@ -9,7 +9,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
     <application
         android:name="com.seafile.seadroid2.SeadroidApplication"
         android:label="@string/app_name"
@@ -90,6 +89,7 @@
 
         <service android:name="com.seafile.seadroid2.transfer.TransferService"></service>
         <service android:name="com.seafile.seadroid2.monitor.FileMonitorService"></service>
+        <service android:name="com.seafile.seadroid2.sync.CameraUploadService"></service>
         
         <activity android:name="com.seafile.seadroid2.fileschooser.MultiFileChooserActivity"
                   android:theme="@style/Theme.SeafileTheme"

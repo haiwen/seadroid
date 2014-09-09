@@ -52,6 +52,7 @@ import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 import com.seafile.seadroid2.gallery.MultipleImageSelectionActivity;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
+import com.seafile.seadroid2.transfer.PendingUploadInfo;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.transfer.UploadTaskInfo;
@@ -85,10 +86,8 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final String EXTRA_REPO_NAME = PKG_NAME + ".repoName";
     public static final String EXTRA_REPO_ID = PKG_NAME + ".repoID";
     public static final String EXTRA_FILE_PATH = PKG_NAME + ".filePath";
-    public static final String EXTRA_ACCOUT = PKG_NAME + ".filePath";
-
+    public static final String EXTRA_ACCOUT = PKG_NAME + ".account";
     private static final String DEBUG_TAG = "BrowserActivity";
-
     private Account account;
     NavContext navContext = null;
     DataManager dataManager = null;
@@ -114,6 +113,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     public static final String REPOS_FRAGMENT_TAG = "repos_fragment";
     public static final String UPLOAD_TASKS_FRAGMENT_TAG = "upload_tasks_fragment";
+    public static final String SETTINGS_FRAGMENT_TAG = "settings_fragment";
     public static final String TABS_FRAGMENT_TAG = "tabs_main";
     public static final String ACTIVITIES_FRAGMENT_TAG = "activities_fragment";
     public static final String OPEN_FILE_DIALOG_FRAGMENT_TAG = "openfile_fragment";
@@ -124,6 +124,8 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final String LOCK = "lock";
     public static final String LOCK_KEY = null;
     public static final String GESTURE_LOCK_SWITCH_KEY = "gesture_lock_switch_key";
+    public static final String CAMERA_UPLOAD_SWITCH_KEY = "camera_upload_switch_key";
+    public static final String CAMERA_UPLOAD_REPO_KEY = "camera_upload_repo_key";
 
     private Intent copyMoveIntent;
 
@@ -131,24 +133,6 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     public DataManager getDataManager() {
         return dataManager;
-    }
-
-    private class PendingUploadInfo {
-        String repoID;
-        String repoName;
-        String targetDir;
-        String localFilePath;
-        boolean isUpdate;
-
-        public PendingUploadInfo(String repoID, String repoName,
-                                 String targetDir, String localFilePath,
-                                 boolean isUpdate) {
-            this.repoID = repoID;
-            this.repoName = repoName;
-            this.targetDir = targetDir;
-            this.localFilePath = localFilePath;
-            this.isUpdate = isUpdate;
-        }
     }
 
     public void addUpdateTask(String repoID, String repoName, String targetDir, String localFilePath) {
@@ -205,14 +189,12 @@ public class BrowserActivity extends SherlockFragmentActivity
         String token = intent.getStringExtra("token");
         account = new Account(server, email, null, token);
         Log.d(DEBUG_TAG, "browser activity onCreate " + server + " " + email);
-
+        
+        SharedPreferences sharedPref = getSharedPreferences(AccountsActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
         if (server == null) {
-
-            SharedPreferences sharedPref = getSharedPreferences(AccountsActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
             String latest_server = sharedPref.getString(AccountsActivity.SHARED_PREF_SERVER_KEY, null);
             String latest_email = sharedPref.getString(AccountsActivity.SHARED_PREF_EMAIL_KEY, null);
             String latest_token = sharedPref.getString(AccountsActivity.SHARED_PREF_TOKEN_KEY, null);
-
             if (latest_server != null) {
                 account = new Account(latest_server, latest_email, null, latest_token);
             } else {
@@ -240,7 +222,6 @@ public class BrowserActivity extends SherlockFragmentActivity
             Log.d(DEBUG_TAG, "savedInstanceState is not null");
             tabsFragment = (TabsFragment)
                     getSupportFragmentManager().findFragmentByTag(TABS_FRAGMENT_TAG);
-
             fetchFileDialog = (FetchFileDialog)
                     getSupportFragmentManager().findFragmentByTag(OPEN_FILE_DIALOG_FRAGMENT_TAG);
 
@@ -300,8 +281,10 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         Intent monitorIntent = new Intent(this, FileMonitorService.class);
         startService(monitorIntent);
+        
     }
 
+	
     private String getCurrentTabName() {
 
         int index = tabsFragment.getCurrentTabIndex();
@@ -420,7 +403,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         overFlowMenu = menu;
         return true;
     }
-
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem menuUpload = menu.findItem(R.id.upload);
@@ -849,7 +831,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         default:
              break;
         }
-
     }
 
     /***************  Navigation *************/

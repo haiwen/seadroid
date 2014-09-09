@@ -124,6 +124,25 @@ public class ImageManager {
 
     private static List<String> allBucketIds;
 
+    public static List<String> getAllPath(){
+        String[] paths = {
+                "/DCIM",
+                "/DCIM/Camera",
+                "/DCIM/100MEDIA",
+                // Many Samsung phones mount the external sd card to /sdcard/external_sd
+                "/external_sd/DCIM",
+                "/external_sd/DCIM/Camera",
+                "/external_sd/DCIM/100MEDIA"
+            };
+
+            List<String> pathList = Lists.newArrayList();
+            for (String path : paths) {
+                String fullPath = Environment.getExternalStorageDirectory().toString() + path;
+                pathList.add(fullPath);
+            }
+        return pathList;
+    }
+    
     public static List<String> getAllBucketIds() {
         if (allBucketIds == null) {
             String[] paths = {

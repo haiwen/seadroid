@@ -56,7 +56,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         + FILECACHE_COLUMN_REPO_NAME + " TEXT NOT NULL, "
         + FILECACHE_COLUMN_REPO_ID + " TEXT NOT NULL, "
         + FILECACHE_COLUMN_ACCOUNT + " TEXT NOT NULL);";
-
+    
     private static final String SQL_CREATE_REPODIR_TABLE =
         "CREATE TABLE " + REPODIR_TABLE_NAME + " ("
         + REPODIR_COLUMN_ID + " INTEGER PRIMARY KEY, "
@@ -106,7 +106,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE INDEX account_index ON " + FILECACHE_TABLE_NAME
                 + " (" + FILECACHE_COLUMN_ACCOUNT + ");");
     }
-
+    
     private void createRepoDirTable(SQLiteDatabase db) {
         db.execSQL(SQL_CREATE_REPODIR_TABLE);
 
@@ -189,7 +189,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         c.close();
         return item;
     }
-
+    
     // XXX: Here we can use SQLite3  "INSERT OR REPLACE" for convience
     public void saveFileCacheItem(SeafCachedFile item, DataManager dataManager) {
         SeafCachedFile old = getFileCacheItem(item.repoID, item.path, dataManager);
@@ -208,7 +208,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // Insert the new row, returning the primary key value of the new row
         database.insert(FILECACHE_TABLE_NAME, null, values);
     }
-
+    
     public void deleteFileCacheItem(SeafCachedFile item) {
         if (item.id != -1) {
             database.delete(FILECACHE_TABLE_NAME,  FILECACHE_COLUMN_ID + "=?",
@@ -217,7 +217,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             database.delete(FILECACHE_TABLE_NAME,  FILECACHE_COLUMN_REPO_ID + "=? and " + FILECACHE_COLUMN_PATH + "=?",
                 new String[] { item.repoID, item.path });
     }
-
+    
     public List<SeafCachedFile> getFileCacheItems(DataManager dataManager) {
         List<SeafCachedFile> files = new ArrayList<SeafCachedFile>();
 

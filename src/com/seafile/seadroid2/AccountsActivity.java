@@ -29,6 +29,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.monitor.FileMonitorService;
+import com.seafile.seadroid2.ui.SettingsPreferenceFragment;
 
 
 public class AccountsActivity extends SherlockFragmentActivity {
@@ -161,13 +162,25 @@ public class AccountsActivity extends SherlockFragmentActivity {
 
     private void clearDataFromSharedPreferences(Account account) {
         SharedPreferences sharedPref = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        
         String latest_server = sharedPref.getString(SHARED_PREF_SERVER_KEY, null);
         String latest_email = sharedPref.getString(SHARED_PREF_EMAIL_KEY, null);
+        // update cache data of settings module
+        String settings_server = sharedPref.getString(SettingsPreferenceFragment.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER, null);
+        String settings_email = sharedPref.getString(SettingsPreferenceFragment.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL, null);
+        
         if (account.server.equals(latest_server) && account.email.equals(latest_email)) {
-            SharedPreferences.Editor editor = sharedPref.edit();
             editor.putString(SHARED_PREF_SERVER_KEY, null);
             editor.putString(SHARED_PREF_EMAIL_KEY, null);
             editor.putString(SHARED_PREF_TOKEN_KEY, null);
+            editor.commit();
+        }
+        if (account.server.equals(settings_server) && account.email.equals(settings_email)) {
+            editor.putString(SettingsPreferenceFragment.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER, null);
+            editor.putString(SettingsPreferenceFragment.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL, null);
+            editor.putString(SettingsPreferenceFragment.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN, null);
+            editor.putString(SettingsPreferenceFragment.SHARED_PREF_CAMERA_UPLOAD_SETTINGS_REPONAME, null);
             editor.commit();
         }
     }

@@ -28,12 +28,10 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
 
     private TransferService mTxService;
     private ServiceConnection mConnection;
-
     private String localPath;
-
     private Intent dstData;
-
-    protected void onCreate(Bundle savedInstanceState) {
+    private Boolean isFinishActivity = false;
+	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
 
@@ -129,6 +127,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
             dstData = data;
             Log.i(DEBUG_TAG, "CHOOSE_COPY_MOVE_DEST_REQUEST returns");
         }
+        isFinishActivity =true;
     }
 
     @Override
@@ -138,13 +137,18 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
 
             String dstRepoId, dstRepoName, dstDir;
             Account account;
-
             dstRepoName = dstData.getStringExtra(SeafilePathChooserActivity.DATA_REPO_NAME);
             dstRepoId = dstData.getStringExtra(SeafilePathChooserActivity.DATA_REPO_ID);
             dstDir = dstData.getStringExtra(SeafilePathChooserActivity.DATA_DIR);
             account = (Account)dstData.getParcelableExtra(SeafilePathChooserActivity.DATA_ACCOUNT);
-
-            addUploadTask(account, dstRepoName, dstRepoId, dstDir, localPath);
+        	addUploadTask(account, dstRepoName, dstRepoId, dstDir, localPath);
+        	Log.d(DEBUG_TAG, "dstRepoName: " + dstRepoName);
+        	Log.d(DEBUG_TAG, "dstDir: " + dstDir);
+		}
+        
+        if(isFinishActivity) {
+		    Log.d(DEBUG_TAG, "finish!");
+		    finish();
         }
     }
 
