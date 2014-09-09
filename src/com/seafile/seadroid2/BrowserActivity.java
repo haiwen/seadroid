@@ -189,7 +189,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         String token = intent.getStringExtra("token");
         account = new Account(server, email, null, token);
         Log.d(DEBUG_TAG, "browser activity onCreate " + server + " " + email);
-        
+
         SharedPreferences sharedPref = getSharedPreferences(AccountsActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
         if (server == null) {
             String latest_server = sharedPref.getString(AccountsActivity.SHARED_PREF_SERVER_KEY, null);
@@ -281,10 +281,10 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         Intent monitorIntent = new Intent(this, FileMonitorService.class);
         startService(monitorIntent);
-        
+
     }
 
-	
+
     private String getCurrentTabName() {
 
         int index = tabsFragment.getCurrentTabIndex();

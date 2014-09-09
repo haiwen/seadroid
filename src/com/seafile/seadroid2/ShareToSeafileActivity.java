@@ -31,7 +31,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
     private String localPath;
     private Intent dstData;
     private Boolean isFinishActivity = false;
-	protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
 
@@ -141,14 +141,14 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
             dstRepoId = dstData.getStringExtra(SeafilePathChooserActivity.DATA_REPO_ID);
             dstDir = dstData.getStringExtra(SeafilePathChooserActivity.DATA_DIR);
             account = (Account)dstData.getParcelableExtra(SeafilePathChooserActivity.DATA_ACCOUNT);
-        	addUploadTask(account, dstRepoName, dstRepoId, dstDir, localPath);
-        	Log.d(DEBUG_TAG, "dstRepoName: " + dstRepoName);
-        	Log.d(DEBUG_TAG, "dstDir: " + dstDir);
-		}
-        
+            addUploadTask(account, dstRepoName, dstRepoId, dstDir, localPath);
+            Log.d(DEBUG_TAG, "dstRepoName: " + dstRepoName);
+            Log.d(DEBUG_TAG, "dstDir: " + dstDir);
+        }
+
         if(isFinishActivity) {
-		    Log.d(DEBUG_TAG, "finish!");
-		    finish();
+            Log.d(DEBUG_TAG, "finish!");
+            finish();
         }
     }
 
