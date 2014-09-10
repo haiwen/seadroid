@@ -180,8 +180,8 @@
     <string name="security">Security</string>
     <string name="settings">Settings</string>
     <string name="gesture_lock">Gesture Lock</string>
-    <string name="gesture_lock_on">Gesture Lock On</string>
-    <string name="gesture_lock_off">Gesture Lock Off</string>
+    <string name="gesture_lock_on">Gesture lock on</string>
+    <string name="gesture_lock_off">Gesture lock off</string>
     
     <!-- Accessibility description sent when user starts drawing a lock pattern. [CHAR LIMIT=NONE] -->
     <string name="lockscreen_access_pattern_start">Pattern started</string>
@@ -195,9 +195,9 @@
     <string name="settings_camera_upload_info_title">Camera Photo Upload</string>
     <string name="settings_camera_upload_info">upload %d photo(s) to\u0020</string>
     <string name="settings_wifi_down">Wi-Fi not available</string>    
-    <string name="settings_startUpService">upload service started</string>    
-    <string name="settings_stopUpService">upload service stoped</string>    
-    <string name="settings_repo">change upload library</string>    
-    <string name="settings_hint">please choose a remote library first</string>    
-    <string name="settings_start">start camera photo upload</string>    
+    <string name="settings_startUpService">Upload service started</string>    
+    <string name="settings_stopUpService">Upload service stoped</string>    
+    <string name="settings_repo">Change Upload Library</string>    
+    <string name="settings_hint">Please choose a remote library first</string>    
+    <string name="settings_start">Turn on Camera Upload</string>    
 </resources>

@@ -36,7 +36,9 @@ import com.seafile.seadroid2.util.CameraUploadUtil;
 public class CameraUploadService extends Service {
     private static final String DEBUG_TAG = "CameraUploadService";
     
-    public static final int NOTIFICATION_ID = 1;
+    public static final String DIR = "/";
+    public static final String CAMERA_UPLOAD_REMOTE_DIR = "Camera Uploads";
+    public static final String CAMERA_UPLOAD_REMOTE_PARENTDIR = "/";
     private final IBinder mBinder = new CameraBinder();
     private CameraObserver cameraUploadObserver = new CameraObserver();
     private ArrayList<PendingUploadInfo> pendingUploads = new ArrayList<PendingUploadInfo>();
@@ -190,6 +192,9 @@ public class CameraUploadService extends Service {
 
         @Override
         protected List<File> doInBackground(Void... params) {
+            // create a remote directory "Camera Uploads" if not exist
+            // use local database to ensure if the directory existing
+            cUploadManager.createNewDir(repoId, CAMERA_UPLOAD_REMOTE_PARENTDIR, CAMERA_UPLOAD_REMOTE_DIR);
             return CameraUploadUtil.getAllPhotosAbsolutePathList();
         }
 
@@ -199,12 +204,17 @@ public class CameraUploadService extends Service {
                 return;
             }
             list = result;
+            
             for (File photo : list) {
                 String path = new File(photo.getAbsolutePath()).getName();
-                SeafCachedPhoto cp = cUploadManager.getCachedPhoto(repoName, repoId, "/", path);
+                // use local database to detect duplicate upload
+                // only if the cache is null, we think the photo needs to be uploaded
+                SeafCachedPhoto cp = cUploadManager.getCachedPhoto(repoName, repoId, DIR, path);
                 if (cp == null) {
                     Log.v(DEBUG_TAG, "add path: " + photo.getName());
-                    addUploadTask(repoId, repoName, "/", photo.getAbsolutePath());
+                    // add photos to uploading queue
+                    addUploadTask(repoId, repoName, CAMERA_UPLOAD_REMOTE_PARENTDIR + CAMERA_UPLOAD_REMOTE_DIR, photo.getAbsolutePath());
+                    
                 }
             }
         }
@@ -224,8 +234,8 @@ public class CameraUploadService extends Service {
                     && account.getEmail().equals(accountEmail)
                     && account.getServer().equals(accountServer)) {
                 Log.d(DEBUG_TAG, detectLog);
-                if (cUploadManager.getCachedPhoto(repoName, repoId, "/", photo.getName()) == null) {
-                    addUploadTask(repoId, repoName, "/", photo.getAbsolutePath());
+                if (cUploadManager.getCachedPhoto(repoName, repoId, DIR, photo.getName()) == null) {
+                    addUploadTask(repoId, repoName, CAMERA_UPLOAD_REMOTE_PARENTDIR + CAMERA_UPLOAD_REMOTE_DIR, photo.getAbsolutePath());
                 }
             }
         }
@@ -251,8 +261,8 @@ public class CameraUploadService extends Service {
                     cUploadManager.onPhotoUploadSuccess(info.repoName,
                             info.repoID, info.localFilePath
                                     .substring(info.localFilePath
-                                            .lastIndexOf("/")));
-                    Log.d(DEBUG_TAG, "success path: " + info.localFilePath.substring(info.localFilePath.lastIndexOf("/")));
+                                            .lastIndexOf(DIR)));
+                    Log.d(DEBUG_TAG, "success path: " + info.localFilePath.substring(info.localFilePath.lastIndexOf(DIR)));
                 }
             }
 
