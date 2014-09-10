@@ -11,21 +11,21 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
-import android.support.v4.content.LocalBroadcastManager;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferManager.TaskState;
+import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.transfer.UploadTaskInfo;
 
@@ -59,6 +59,9 @@ public class UploadTasksActivity extends SherlockFragmentActivity {
         adapter = BrowserActivity.uploadTasksAdapter;
         uploadTasksView = (ListView) findViewById(R.id.upload_tasks_list);
         uploadTasksView.setAdapter(adapter);
+        if (adapter.isEmpty()) {
+            uploadTasksView.setVisibility(View.GONE);
+        }
         registerForContextMenu(uploadTasksView);
         
         Intent bIntent = new Intent(this, TransferService.class);
