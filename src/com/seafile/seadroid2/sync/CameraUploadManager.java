@@ -1,22 +1,25 @@
 package com.seafile.seadroid2.sync;
 
-import android.util.Log;
+import java.util.List;
+
 import android.util.Pair;
 
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.DatabaseHelper;
 import com.seafile.seadroid2.data.SeafCachedPhoto;
+import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.util.Utils;
 
 public class CameraUploadManager {
     private static final String DEBUG_TAG = "CameraUploadManager";
 
-    private static final String EMPTY_DIRENT_CONTENT = "[]";
     private CameraUploadDBHelper dbHelper;
     private DatabaseHelper mDatabaseHelper;
+    private DataManager mDataManager;
     private SeafConnection sc;
     private Account account;
     
@@ -25,6 +28,7 @@ public class CameraUploadManager {
         sc = new SeafConnection(act); 
         dbHelper = CameraUploadDBHelper.getCameraUploadDBHelper();
         mDatabaseHelper = DatabaseHelper.getDatabaseHelper();
+        mDataManager = new DataManager(act);
     }
 
     /**
@@ -91,13 +95,17 @@ public class CameraUploadManager {
      * @param dirName
      */
     public void createNewDir(final String repoID, final String parentDir, final String dirName) {
-        Pair<String, String> ret = mDatabaseHelper.getCachedDirents(repoID, parentDir);
-        String dirent = mDatabaseHelper.getDirents(repoID, parentDir, ret.first);
-        Log.d(DEBUG_TAG, "dirent content: " + dirent);
-        if (!dirent.equals(EMPTY_DIRENT_CONTENT)) {
-            return;
+        try {
+            List<SeafDirent> list = mDataManager.getDirentsFromServer(repoID, parentDir);
+            for (SeafDirent seafDirent : list) {
+                if (seafDirent.name.equals(CameraUploadService.CAMERA_UPLOAD_REMOTE_DIR)) {
+                    return;
+                }
+            }
+        } catch (SeafException e) {
+            e.printStackTrace();
         }
-
+            
         Pair<String, String> rlt = null;
         try {
             rlt = sc.createNewDir(repoID, parentDir, dirName);

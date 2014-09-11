@@ -224,6 +224,7 @@ public class CameraUploadService extends Service {
         private String detectLog;
         @Override
         protected File doInBackground(Void... params) {
+            cUploadManager.createNewDir(repoId, CAMERA_UPLOAD_REMOTE_PARENTDIR, CAMERA_UPLOAD_REMOTE_DIR);
             return getPhotoFromMediaStore(getApplicationContext(), MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         }
 
@@ -262,7 +263,6 @@ public class CameraUploadService extends Service {
                             info.repoID, info.localFilePath
                                     .substring(info.localFilePath
                                             .lastIndexOf(DIR)));
-                    Log.d(DEBUG_TAG, "success path: " + info.localFilePath.substring(info.localFilePath.lastIndexOf(DIR)));
                 }
             }
 
