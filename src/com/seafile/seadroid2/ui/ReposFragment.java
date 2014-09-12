@@ -171,12 +171,12 @@ public class ReposFragment extends SherlockListFragment {
         SeafRepo repo = getDataManager().getCachedRepoByID(nav.getRepoID());
         if (repo != null) {
             adapter.setEncryptedRepo(repo.encrypted);
-            if (nav.getDirPath().equals("/")) {
+            if (nav.getDirPath().equals(BrowserActivity.ACTIONBAE_PARENT_PATH)) {
                 mActivity.setUpButtonTitle(nav.getRepoName());
             } else
 
                 mActivity.setUpButtonTitle(nav.getDirPath().substring(
-                        nav.getDirPath().lastIndexOf("/") + 1));
+                        nav.getDirPath().lastIndexOf(BrowserActivity.ACTIONBAE_PARENT_PATH) + 1));
         }
 
         if (!Utils.isNetworkOn() || !forceRefresh) {

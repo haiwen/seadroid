@@ -88,6 +88,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final String EXTRA_FILE_PATH = PKG_NAME + ".filePath";
     public static final String EXTRA_ACCOUT = PKG_NAME + ".account";
     private static final String DEBUG_TAG = "BrowserActivity";
+    public static final String ACTIONBAE_PARENT_PATH = "/";
     private Account account;
     NavContext navContext = null;
     DataManager dataManager = null;
@@ -882,7 +883,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         startFileActivity(repoName, repoID, filePath);
     }
-
+    
     @Override
     public void onBackPressed() {
         if (getSupportFragmentManager().getBackStackEntryCount() != 0) {
@@ -899,13 +900,10 @@ public class BrowserActivity extends SherlockFragmentActivity
                     String parentPath = Utils.getParentPath(navContext
                             .getDirPath());
                     navContext.setDir(parentPath, null);
-                    Log.v(DEBUG_TAG, "parentPath" + parentPath);
-                    if (parentPath.equals("/")) {
+                    if (parentPath.equals(ACTIONBAE_PARENT_PATH)) {
                         getSupportActionBar().setTitle(navContext.getRepoName());
-                        Log.v(DEBUG_TAG, "equal slash, RepoName: " + navContext.getRepoName());
                     }else {
-                        getSupportActionBar().setTitle(parentPath.substring(parentPath.lastIndexOf("/") + 1));
-                        Log.v(DEBUG_TAG, "not equal slash, ParentPath: " + parentPath.substring(parentPath.lastIndexOf("/") + 1));
+                        getSupportActionBar().setTitle(parentPath.substring(parentPath.lastIndexOf(ACTIONBAE_PARENT_PATH) + 1));
                     }
                 }
                 tabsFragment.getReposFragment().refreshView();
