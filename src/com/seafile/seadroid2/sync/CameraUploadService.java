@@ -84,14 +84,16 @@ public class CameraUploadService extends Service {
         Log.d(DEBUG_TAG, "onDestroy");
         cancelUploadTasks(taskIds);
         taskIds.clear();
+        taskIds = null;
+        this.getApplicationContext().getContentResolver()
+        .unregisterContentObserver(cameraUploadObserver);
+        cameraUploadObserver = null;
         if (mTransferService != null) {
             unbindService(mConnection);
             mTransferService = null;
         }
-        this.getApplicationContext().getContentResolver()
-                .unregisterContentObserver(cameraUploadObserver);
-        cameraUploadObserver = null;
         LocalBroadcastManager.getInstance(this).unregisterReceiver(transferReceiver);
+        transferReceiver = null;
     }
 
     @Override
@@ -194,7 +196,7 @@ public class CameraUploadService extends Service {
         protected List<File> doInBackground(Void... params) {
             // create a remote directory "Camera Uploads" if not exist
             // use local database to ensure if the directory existing
-            cUploadManager.createNewDir(repoId, CAMERA_UPLOAD_REMOTE_PARENTDIR, CAMERA_UPLOAD_REMOTE_DIR);
+            cUploadManager.createRemoteCameraUploadsDir(repoId, CAMERA_UPLOAD_REMOTE_PARENTDIR, CAMERA_UPLOAD_REMOTE_DIR);
             return CameraUploadUtil.getAllPhotosAbsolutePathList();
         }
 
@@ -211,7 +213,6 @@ public class CameraUploadService extends Service {
                 // only if the cache is null, we think the photo needs to be uploaded
                 SeafCachedPhoto cp = cUploadManager.getCachedPhoto(repoName, repoId, DIR, path);
                 if (cp == null) {
-                    Log.v(DEBUG_TAG, "add path: " + photo.getName());
                     // add photos to uploading queue
                     addUploadTask(repoId, repoName, CAMERA_UPLOAD_REMOTE_PARENTDIR + CAMERA_UPLOAD_REMOTE_DIR, photo.getAbsolutePath());
                     
@@ -224,7 +225,7 @@ public class CameraUploadService extends Service {
         private String detectLog;
         @Override
         protected File doInBackground(Void... params) {
-            cUploadManager.createNewDir(repoId, CAMERA_UPLOAD_REMOTE_PARENTDIR, CAMERA_UPLOAD_REMOTE_DIR);
+            cUploadManager.createRemoteCameraUploadsDir(repoId, CAMERA_UPLOAD_REMOTE_PARENTDIR, CAMERA_UPLOAD_REMOTE_DIR);
             return getPhotoFromMediaStore(getApplicationContext(), MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         }
 
@@ -254,19 +255,22 @@ public class CameraUploadService extends Service {
             if (type == null) {
                 return;
             }
+            List<String> list = new ArrayList<String>();
+            
             if (type.equals(TransferService.BROADCAST_FILE_UPLOAD_SUCCESS)) {
                 int taskID = intent.getIntExtra("taskID", 0);
                 UploadTaskInfo info = mTransferService.getUploadTaskInfo(taskID);
 
                 if (info != null) {
-                    cUploadManager.onPhotoUploadSuccess(info.repoName,
-                            info.repoID, info.localFilePath
-                                    .substring(info.localFilePath
-                                            .lastIndexOf(DIR)));
+                    if (!list.contains(info.localFilePath)) {
+                        cUploadManager.onPhotoUploadSuccess(info.repoName,
+                                info.repoID, info.localFilePath
+                                        .substring(info.localFilePath
+                                                .lastIndexOf(DIR)));
+                        list.add(info.localFilePath);
+                    }
                 }
             }
-
         }
-
     };
 }

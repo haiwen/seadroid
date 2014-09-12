@@ -39,7 +39,7 @@ import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.util.Utils;
 
 /**
- * Path chooser - Let the user choose a target path (account, repo)
+ * Path chooser - Let the user choose a target library (account, library)
  */
 public class SeafileLibraryChooserActivity extends SherlockFragmentActivity {
     private static final String DEBUG_TAG = "SeafileLibraryChooserActivity";
@@ -218,15 +218,6 @@ public class SeafileLibraryChooserActivity extends SherlockFragmentActivity {
             nav.setDir("/", repo.root);
             chooseDir();
             break;
-        case STEP_CHOOSE_DIR:
-            /*SeafDirent dirent = getDirentsAdapter().getItem(position);
-            if (dirent.type == SeafDirent.DirentType.FILE) {
-                return;
-            }
-
-            nav.setDir(Utils.pathJoin(nav.getDirPath(), dirent.name), dirent.id);
-            refreshDir();*/
-            break;
         }
     }
 
@@ -279,24 +270,6 @@ public class SeafileLibraryChooserActivity extends SherlockFragmentActivity {
                 chooseRepo(forceRefresh);
                 break;
             }
-        case STEP_CHOOSE_DIR:
-            /*if (mLoadDirTask != null && mLoadDirTask.getStatus() != AsyncTask.Status.FINISHED) {
-                return;
-            } else {
-                SeafRepo repo = getDataManager().getCachedRepoByID(getNavContext().getRepoID());
-                if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
-                    String password = DataManager.getRepoPassword(repo.id);
-                    showPasswordDialog(repo.name, repo.id,
-                    new TaskDialog.TaskDialogListener() {
-                        @Override
-                        public void onTaskSuccess() {
-                            chooseRepo(forceRefresh);
-                        }
-                    } , password);
-                }
-                chooseDir(forceRefresh);
-                break;
-            }*/
         }
     }
 
@@ -317,15 +290,6 @@ public class SeafileLibraryChooserActivity extends SherlockFragmentActivity {
             } else if (cancelIfFirstStep) {
                 finish();
             }
-            break;
-        case STEP_CHOOSE_DIR:
-            /*if (getNavContext().isRepoRoot()) {
-                chooseRepo();
-            } else {
-                String path = getNavContext().getDirPath();
-                getNavContext().setDir(Utils.getParentPath(path), null);
-                refreshDir();
-            }*/
             break;
         }
     }
@@ -406,18 +370,6 @@ public class SeafileLibraryChooserActivity extends SherlockFragmentActivity {
         intent.putExtra(DATA_ACCOUNT, mAccount);
         setResult(RESULT_OK, intent);
         finish();
-        
-        // chooseDir(false);
-    }
-
-    private void chooseDir(boolean forceRefresh) {
-        mStep = STEP_CHOOSE_DIR;
-        mEmptyText.setText(R.string.dir_empty);
-
-        // update action bar
-        setListAdapter(getDirentsAdapter());
-        mOkButton.setVisibility(View.VISIBLE);
-        refreshDir(forceRefresh);
     }
 
     private void refreshDir() {

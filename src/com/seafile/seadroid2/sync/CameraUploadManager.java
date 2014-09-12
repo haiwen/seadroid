@@ -90,30 +90,39 @@ public class CameraUploadManager {
     
     /**
      * 
+     * camera photos only uploaded to the specific folder called {@link CameraUploadService#CAMERA_UPLOAD_REMOTE_DIR},
+     * the folder was placed under the root directory of the selected library
+     * 
+     * get dirents list from server,
+     * traverse the dirents list to check if the remote folder {@link CameraUploadService#CAMERA_UPLOAD_REMOTE_DIR} already exist or not
+     * if not, create a new one
+     * 
+     * 
      * @param repoID
      * @param parentDir
      * @param dirName
      */
-    public void createNewDir(final String repoID, final String parentDir, final String dirName) {
+    public void createRemoteCameraUploadsDir(final String repoID, final String parentDir, final String dirName) {
+        List<SeafDirent> list = null;
         try {
-            List<SeafDirent> list = mDataManager.getDirentsFromServer(repoID, parentDir);
-            for (SeafDirent seafDirent : list) {
-                if (seafDirent.name.equals(CameraUploadService.CAMERA_UPLOAD_REMOTE_DIR)) {
-                    return;
-                }
+            list = mDataManager.getDirentsFromServer(repoID, parentDir);
+        } catch (SeafException e) {
+            e.printStackTrace();
+        }
+        for (SeafDirent seafDirent : list) {
+            if (seafDirent.name.equals(CameraUploadService.CAMERA_UPLOAD_REMOTE_DIR)) {
+                return;
             }
-        } catch (SeafException e) {
-            e.printStackTrace();
         }
-            
-        Pair<String, String> rlt = null;
+        
+        Pair<String, String> ret = null;
         try {
-            rlt = sc.createNewDir(repoID, parentDir, dirName);
+            ret = sc.createNewDir(repoID, parentDir, dirName);
         } catch (SeafException e) {
             e.printStackTrace();
         }
-        String newDirID = rlt.first;
-        String response = rlt.second;
+        String newDirID = ret.first;
+        String response = ret.second;
 
         // The response is the dirents of the parentDir after creating
         // the new dir. We save it to avoid request it again

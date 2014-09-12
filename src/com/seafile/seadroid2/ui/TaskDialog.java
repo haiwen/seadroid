@@ -334,7 +334,7 @@ public abstract class TaskDialog extends DialogFragment {
 
         /**
          * Subclass should call this method to set the exception
-         * @param e The exception raised during {@link runTask()}
+         * @param e The exception raised during {@link #runTask()}
          */
         protected void setTaskException(SeafException e) {
             err = e;
