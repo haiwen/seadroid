@@ -3,6 +3,7 @@ package com.seafile.seadroid2.sync;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -39,6 +40,7 @@ public class CameraUploadService extends Service {
     public static final String DIR = "/";
     public static final String CAMERA_UPLOAD_REMOTE_DIR = "Camera Uploads";
     public static final String CAMERA_UPLOAD_REMOTE_PARENTDIR = "/";
+    public static final String BROADCAST_CAMERA_UPLOAD_LIBRARY_NOT_FOUND = "cameraUploadLibarayNotFound";
     private final IBinder mBinder = new CameraBinder();
     private CameraObserver cameraUploadObserver = new CameraObserver();
     private ArrayList<PendingUploadInfo> pendingUploads = new ArrayList<PendingUploadInfo>();
@@ -194,8 +196,14 @@ public class CameraUploadService extends Service {
 
         @Override
         protected List<File> doInBackground(Void... params) {
-            // create a remote directory "Camera Uploads" if not exist
-            // use local database to ensure if the directory existing
+            // ensure remote library exists
+            if (!cUploadManager.isRemoteCameraUploadRepoExist(repoId, CAMERA_UPLOAD_REMOTE_PARENTDIR)) {
+                Intent localIntent = new Intent(TransferService.BROADCAST_ACTION).putExtra("type",
+                        BROADCAST_CAMERA_UPLOAD_LIBRARY_NOT_FOUND);
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);
+                return null;
+            }
+            // create a remote directory "Camera Uploads" if not exists
             cUploadManager.createRemoteCameraUploadsDir(repoId, CAMERA_UPLOAD_REMOTE_PARENTDIR, CAMERA_UPLOAD_REMOTE_DIR);
             return CameraUploadUtil.getAllPhotosAbsolutePathList();
         }
@@ -225,7 +233,6 @@ public class CameraUploadService extends Service {
         private String detectLog;
         @Override
         protected File doInBackground(Void... params) {
-            cUploadManager.createRemoteCameraUploadsDir(repoId, CAMERA_UPLOAD_REMOTE_PARENTDIR, CAMERA_UPLOAD_REMOTE_DIR);
             return getPhotoFromMediaStore(getApplicationContext(), MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         }
 
@@ -270,7 +277,7 @@ public class CameraUploadService extends Service {
                         list.add(info.localFilePath);
                     }
                 }
-            }
+            } 
         }
     };
 }

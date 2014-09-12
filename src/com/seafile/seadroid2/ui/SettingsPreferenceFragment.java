@@ -2,8 +2,10 @@ package com.seafile.seadroid2.ui;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
@@ -12,6 +14,7 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -20,6 +23,7 @@ import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.sync.CameraUploadService;
+import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.util.Utils;
 
 @SuppressLint("NewApi")
@@ -82,8 +86,17 @@ private static final String DEBUG_TAG = "SettingsPreferenceFragment";
             cameraUploadRepo.setEnabled(true);
         }
         
+        LocalBroadcastManager.getInstance(getActivity().getApplicationContext()).registerReceiver(transferReceiver,
+                new IntentFilter(TransferService.BROADCAST_ACTION));
     }
     
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        LocalBroadcastManager.getInstance(getActivity().getApplicationContext()).unregisterReceiver(transferReceiver);
+        transferReceiver = null;
+    }
+
     private void saveCameraUploadRepoName(String repoName) {
         editor.putString(SHARED_PREF_CAMERA_UPLOAD_SETTINGS_REPONAME, repoName);
         editor.commit();
@@ -186,6 +199,10 @@ private static final String DEBUG_TAG = "SettingsPreferenceFragment";
                 cameraUploadRepo.setDefaultValue(repoName);
                 saveCameraUploadRepoName(dstRepoName);
                 startCameraUploadService(true);
+            } else if (resultCode == Activity.RESULT_CANCELED) {
+                startCameraUploadService(false);
+                cameraUploadSwitch.setChecked(false);
+                cameraUploadRepo.setEnabled(false);
             }
            break; 
            
@@ -239,4 +256,24 @@ private static final String DEBUG_TAG = "SettingsPreferenceFragment";
                 account.getToken());
         editor.commit();
     }
+    private BroadcastReceiver transferReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            String type = intent.getStringExtra("type");
+            if (type == null) {
+                return;
+            }
+            
+            if (type.equals(CameraUploadService.BROADCAST_CAMERA_UPLOAD_LIBRARY_NOT_FOUND)) {
+                repoName = null;
+                cameraUploadRepo.setSummary(R.string.settings_hint);
+                saveCameraUploadRepoName(null);
+                cameraUploadSwitch.setChecked(false);
+                cameraUploadRepo.setEnabled(false);
+                startCameraUploadService(false);
+            }
+        }
+    };
 }
