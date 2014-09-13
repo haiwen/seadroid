@@ -15,8 +15,12 @@ import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.util.Utils;
 
+/**
+ * send request to server to ensure that Camera Uploads folder is valid
+ *
+ */
 public class CameraUploadManager {
-    private static final String DEBUG_TAG = "CameraUploadManager";
+    // private static final String DEBUG_TAG = "CameraUploadManager";
 
     private CameraUploadDBHelper dbHelper;
     private DatabaseHelper mDatabaseHelper;
@@ -33,6 +37,7 @@ public class CameraUploadManager {
     }
 
     /**
+     * get cached photo from local database
      * 
      * @param repoName
      * @param repoID
@@ -46,6 +51,7 @@ public class CameraUploadManager {
     }
 
     /**
+     * get cached photo from local database
      * 
      * @param repoName
      * @param repoID
@@ -60,6 +66,7 @@ public class CameraUploadManager {
     }
 
     /**
+     * add a photo cache to local database
      * 
      * @param repoName
      * @param repoID
@@ -74,6 +81,13 @@ public class CameraUploadManager {
         dbHelper.savePhotoCacheItem(item);
     }
 
+    /**
+     * remove a photo cache from local database
+     * 
+     * @param cp
+     * @return 1 when successfully removed a cache, otherwise 0
+     *
+     */
     public int removeCachedPhoto(SeafCachedPhoto cp) {
         // unused method
         // check if the file deletion succeeds
@@ -89,7 +103,17 @@ public class CameraUploadManager {
         });
     }
     
-    public Boolean isRemoteCameraUploadRepoExist(String repoID, String parentDir) {
+    /**
+     * send request to server to check if one particular folder {@link CameraUploadService#CAMERA_UPLOAD_REMOTE_DIR} exist
+     * 
+     * 
+     * this method should not be placed in UI thread
+     * 
+     * @param repoID
+     * @param parentDir
+     * @return
+     */
+    public Boolean isRemoteCameraUploadRepoValid(String repoID, String parentDir) {
         List<SeafRepo> list = null;
         try {
             list = mDataManager.getReposFromServer();
@@ -118,7 +142,7 @@ public class CameraUploadManager {
      * @param parentDir
      * @param dirName
      */
-    public void createRemoteCameraUploadsDir(String repoID, String parentDir, String dirName) {
+    public void validateRemoteCameraUploadsDir(String repoID, String parentDir, String dirName) {
         List<SeafDirent> list = null;
         try {
             list = mDataManager.getDirentsFromServer(repoID, parentDir);

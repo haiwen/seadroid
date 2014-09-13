@@ -41,7 +41,8 @@ private static final String DEBUG_TAG = "SettingsPreferenceFragment";
     public static final String SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN = PKG + ".camera.account.token";
     public static final String SHARED_PREF_CAMERA_UPLOAD_SETTINGS_REPONAME = PKG + ".camera.settings.repoName";
     public static final String SHARED_PREF_CAMERA_UPLOAD_SETTINGS_START = PKG + ".camera.settings.startService";
-    private static final int CHOOSE_CAMERA_UPLOAD_REPO_REQUEST = 1;
+    public static final int CHOOSE_CAMERA_UPLOAD_REPO_REQUEST = 1;
+    public static final int CHOOSE_CAMERA_UPLOAD_REPO_ONLY = 2;
     private static final int Gesture_Lock_REQUEST = 6;
     private CheckBoxPreference gestureLockSwitch;
     private CheckBoxPreference cameraUploadSwitch;
@@ -85,15 +86,19 @@ private static final String DEBUG_TAG = "SettingsPreferenceFragment";
         }else {
             cameraUploadRepo.setEnabled(true);
         }
-        
-        LocalBroadcastManager.getInstance(getActivity().getApplicationContext()).registerReceiver(transferReceiver,
-                new IntentFilter(TransferService.BROADCAST_ACTION));
+
+        LocalBroadcastManager
+                .getInstance(getActivity().getApplicationContext())
+                .registerReceiver(transferReceiver,
+                        new IntentFilter(TransferService.BROADCAST_ACTION));
     }
     
     @Override
     public void onDestroy() {
         super.onDestroy();
-        LocalBroadcastManager.getInstance(getActivity().getApplicationContext()).unregisterReceiver(transferReceiver);
+        LocalBroadcastManager
+                .getInstance(getActivity().getApplicationContext())
+                .unregisterReceiver(transferReceiver);
         transferReceiver = null;
     }
 
@@ -137,7 +142,8 @@ private static final String DEBUG_TAG = "SettingsPreferenceFragment";
         }else if (preference.getKey().equals(BrowserActivity.CAMERA_UPLOAD_REPO_KEY)) {
             mActivity.stopService(cameraUploadIntent);
             // Pop-up window to let user choose remote library
-            Intent intent = new Intent(mActivity, SeafileLibraryChooserActivity.class);
+            Intent intent = new Intent(mActivity, SeafilePathChooserActivity.class);
+            intent.putExtra(EXTRA_CAMERA_UPLOAD, true);
             this.startActivityForResult(intent, CHOOSE_CAMERA_UPLOAD_REPO_REQUEST);
         }
         return true;
@@ -189,10 +195,10 @@ private static final String DEBUG_TAG = "SettingsPreferenceFragment";
                 }
                 String dstRepoId, dstRepoName, dstDir;
                 Account account;
-                dstRepoName = dstData.getStringExtra(SeafileLibraryChooserActivity.DATA_REPO_NAME);
-                dstRepoId = dstData.getStringExtra(SeafileLibraryChooserActivity.DATA_REPO_ID);
-                dstDir = dstData.getStringExtra(SeafileLibraryChooserActivity.DATA_DIR);
-                account = (Account)dstData.getParcelableExtra(SeafileLibraryChooserActivity.DATA_ACCOUNT);
+                dstRepoName = dstData.getStringExtra(SeafilePathChooserActivity.DATA_REPO_NAME);
+                dstRepoId = dstData.getStringExtra(SeafilePathChooserActivity.DATA_REPO_ID);
+                dstDir = dstData.getStringExtra(SeafilePathChooserActivity.DATA_DIR);
+                account = (Account)dstData.getParcelableExtra(SeafilePathChooserActivity.DATA_ACCOUNT);
                 saveCameraUploadRepoInfo(dstRepoId, dstRepoName, dstDir, account);
                 repoName = dstRepoName;
                 cameraUploadRepo.setSummary(repoName);
@@ -226,7 +232,8 @@ private static final String DEBUG_TAG = "SettingsPreferenceFragment";
 
             }else {
                 // Pop-up window to let user choose remote library
-                Intent intent = new Intent(mActivity, SeafileLibraryChooserActivity.class);
+                Intent intent = new Intent(mActivity, SeafilePathChooserActivity.class);
+                intent.putExtra(EXTRA_CAMERA_UPLOAD, true);
                 this.startActivityForResult(intent, CHOOSE_CAMERA_UPLOAD_REPO_REQUEST);
                 return;
             }

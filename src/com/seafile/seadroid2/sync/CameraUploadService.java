@@ -50,7 +50,7 @@ public class CameraUploadService extends Service {
     private String accountServer;
     private String accountToken;
     private Account account;
-    private Boolean isCameraUpload = false;
+    private Boolean isCameraUpload;
     private CameraUploadManager cUploadManager;
     private TransferService mTransferService;
     private List<File> list;
@@ -191,28 +191,32 @@ public class CameraUploadService extends Service {
         cursor.close();
         return photo;
     }
-
+    private Boolean isRemoteCameraUploadRepoValid;
     private class PhotoUploadTask extends AsyncTask<Void, Void, List<File>> {
 
         @Override
         protected List<File> doInBackground(Void... params) {
             // ensure remote library exists
-            if (!cUploadManager.isRemoteCameraUploadRepoExist(repoId, CAMERA_UPLOAD_REMOTE_PARENTDIR)) {
-                Intent localIntent = new Intent(TransferService.BROADCAST_ACTION).putExtra("type",
-                        BROADCAST_CAMERA_UPLOAD_LIBRARY_NOT_FOUND);
-                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);
+            isRemoteCameraUploadRepoValid = cUploadManager.isRemoteCameraUploadRepoValid(repoId, CAMERA_UPLOAD_REMOTE_PARENTDIR);
+            if (!isRemoteCameraUploadRepoValid) {
                 return null;
             }
             // create a remote directory "Camera Uploads" if not exists
-            cUploadManager.createRemoteCameraUploadsDir(repoId, CAMERA_UPLOAD_REMOTE_PARENTDIR, CAMERA_UPLOAD_REMOTE_DIR);
+            cUploadManager.validateRemoteCameraUploadsDir(repoId, CAMERA_UPLOAD_REMOTE_PARENTDIR, CAMERA_UPLOAD_REMOTE_DIR);
             return CameraUploadUtil.getAllPhotosAbsolutePathList();
         }
 
         @Override
         protected void onPostExecute(List<File> result) {
             if (result == null) {
+                if (!isRemoteCameraUploadRepoValid) {
+                    Intent localIntent = new Intent(TransferService.BROADCAST_ACTION).putExtra("type",
+                            BROADCAST_CAMERA_UPLOAD_LIBRARY_NOT_FOUND);
+                    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);
+                }
                 return;
             }
+            
             list = result;
             
             for (File photo : list) {
@@ -230,7 +234,7 @@ public class CameraUploadService extends Service {
     }
     
     private class CameraEventReceiverTask extends AsyncTask<Void, Void, File> {
-        private String detectLog;
+        // private String detectLog;
         @Override
         protected File doInBackground(Void... params) {
             return getPhotoFromMediaStore(getApplicationContext(), MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -238,14 +242,9 @@ public class CameraUploadService extends Service {
 
         @Override
         protected void onPostExecute(File photo) {
-            detectLog = "detected " + photo.getName();
-            if (repoId != null && accountEmail != null
-                    && account.getEmail().equals(accountEmail)
-                    && account.getServer().equals(accountServer)) {
-                Log.d(DEBUG_TAG, detectLog);
-                if (cUploadManager.getCachedPhoto(repoName, repoId, DIR, photo.getName()) == null) {
-                    addUploadTask(repoId, repoName, CAMERA_UPLOAD_REMOTE_PARENTDIR + CAMERA_UPLOAD_REMOTE_DIR, photo.getAbsolutePath());
-                }
+            // detectLog = "detected " + photo.getName();
+            if (cUploadManager.getCachedPhoto(repoName, repoId, DIR, photo.getName()) == null) {
+                addUploadTask(repoId, repoName, CAMERA_UPLOAD_REMOTE_PARENTDIR + CAMERA_UPLOAD_REMOTE_DIR, photo.getAbsolutePath());
             }
         }
     }
