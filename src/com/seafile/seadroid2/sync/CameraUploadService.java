@@ -77,7 +77,7 @@ public class CameraUploadService extends Service {
     private void cancelUploadTasks(){
         List<UploadTaskInfo> cameraUploadsTasksList =  mTransferService.getAllUploadTaskInfos();
         for (UploadTaskInfo uploadTaskInfo : cameraUploadsTasksList) {
-            mTransferService.cancelDownloadTask(uploadTaskInfo.taskID);
+            mTransferService.cancelUploadTask(uploadTaskInfo.taskID);
         }
     }
     
