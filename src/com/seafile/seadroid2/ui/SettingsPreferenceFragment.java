@@ -45,15 +45,15 @@ private static final String DEBUG_TAG = "SettingsPreferenceFragment";
     private static final int Gesture_Lock_REQUEST = 6;
     private CheckBoxPreference gestureLockSwitch;
     private CheckBoxPreference cameraUploadSwitch;
+    private Preference cameraUploadRepo;
     private boolean setupSuccess = false;
     private boolean gestureLockBefore;
     private SharedPreferences sharedPref;
     private SharedPreferences.Editor editor;
     private SettingsActivity mActivity;
     private Intent cameraUploadIntent;
-    private Preference cameraUploadRepo;
     private boolean isUploadStart = false;
-    private Intent dstData;
+    private Intent mCameraUploadRepoChooserData;
     private String repoName;
 
     @SuppressLint("NewApi")
@@ -188,26 +188,26 @@ private static final String DEBUG_TAG = "SettingsPreferenceFragment";
         
         case CHOOSE_CAMERA_UPLOAD_REPO_REQUEST:
             if (resultCode == Activity.RESULT_OK) {
-                dstData = data;
-                if (dstData == null) {
+                mCameraUploadRepoChooserData = data;
+                if (mCameraUploadRepoChooserData == null) {
                     return;
                 }
-                String dstRepoId, dstRepoName, dstDir;
+                String repoId, repoName, dir;
                 Account account;
-                dstRepoName = dstData.getStringExtra(SeafilePathChooserActivity.DATA_REPO_NAME);
-                dstRepoId = dstData.getStringExtra(SeafilePathChooserActivity.DATA_REPO_ID);
-                dstDir = dstData.getStringExtra(SeafilePathChooserActivity.DATA_DIR);
-                account = (Account)dstData.getParcelableExtra(SeafilePathChooserActivity.DATA_ACCOUNT);
-                saveCameraUploadRepoInfo(dstRepoId, dstRepoName, dstDir, account);
-                repoName = dstRepoName;
+                repoName = mCameraUploadRepoChooserData.getStringExtra(SeafilePathChooserActivity.DATA_REPO_NAME);
+                repoId = mCameraUploadRepoChooserData.getStringExtra(SeafilePathChooserActivity.DATA_REPO_ID);
+                dir = mCameraUploadRepoChooserData.getStringExtra(SeafilePathChooserActivity.DATA_DIR);
+                account = (Account)mCameraUploadRepoChooserData.getParcelableExtra(SeafilePathChooserActivity.DATA_ACCOUNT);
+                saveCameraUploadRepoInfo(repoId, repoName, dir, account);
+                this.repoName = repoName;
                 cameraUploadRepo.setSummary(repoName);
                 cameraUploadRepo.setDefaultValue(repoName);
-                saveCameraUploadRepoName(dstRepoName);
+                saveCameraUploadRepoName(repoName);
                 startCameraUploadService(true);
             } else if (resultCode == Activity.RESULT_CANCELED) {
-                startCameraUploadService(false);
                 cameraUploadSwitch.setChecked(false);
                 cameraUploadRepo.setEnabled(false);
+                startCameraUploadService(false);
             }
            break; 
            

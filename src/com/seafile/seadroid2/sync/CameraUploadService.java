@@ -25,6 +25,7 @@ import android.util.Log;
 
 import com.seafile.seadroid2.AccountsActivity;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.SeafCachedPhoto;
 import com.seafile.seadroid2.transfer.PendingUploadInfo;
@@ -44,6 +45,7 @@ public class CameraUploadService extends Service {
     private final IBinder mBinder = new CameraBinder();
     private CameraObserver cameraUploadObserver = new CameraObserver();
     private ArrayList<PendingUploadInfo> pendingUploads = new ArrayList<PendingUploadInfo>();
+    private Boolean isRemoteCameraUploadRepoValid;
     private String repoId;
     private String repoName;
     private String accountEmail;
@@ -53,13 +55,10 @@ public class CameraUploadService extends Service {
     private Boolean isCameraUpload;
     private CameraUploadManager cUploadManager;
     private TransferService mTransferService;
-    private List<File> list;
-    private List<Integer> taskIds;
     
     @Override
     public void onCreate() {
         Log.d(DEBUG_TAG, "onCreate");
-        taskIds = new ArrayList<Integer>();
         // bind transfer service
         Intent bIntent = new Intent(this, TransferService.class);
         bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
@@ -75,18 +74,17 @@ public class CameraUploadService extends Service {
                 new IntentFilter(TransferService.BROADCAST_ACTION));
     }
 
-    private void cancelUploadTasks(List<Integer> taskIds){
-        for (Integer taskId : taskIds) {
-            mTransferService.cancelUploadTask(taskId);
+    private void cancelUploadTasks(){
+        List<UploadTaskInfo> cameraUploadsTasksList =  mTransferService.getAllUploadTaskInfos();
+        for (UploadTaskInfo uploadTaskInfo : cameraUploadsTasksList) {
+            mTransferService.cancelDownloadTask(uploadTaskInfo.taskID);
         }
     }
     
     @Override
     public void onDestroy() {
         Log.d(DEBUG_TAG, "onDestroy");
-        cancelUploadTasks(taskIds);
-        taskIds.clear();
-        taskIds = null;
+        cancelUploadTasks();
         this.getApplicationContext().getContentResolver()
         .unregisterContentObserver(cameraUploadObserver);
         cameraUploadObserver = null;
@@ -147,8 +145,7 @@ public class CameraUploadService extends Service {
     
     private void addUploadTask(String repoID, String repoName, String targetDir, String localFilePath) {
         if (mTransferService != null) {
-            int task_id = mTransferService.addUploadTask(account, repoID, repoName, targetDir, localFilePath, false);
-            taskIds.add(task_id);
+            mTransferService.addUploadTask(account, repoID, repoName, targetDir, localFilePath, false);
         } else {
             PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, false);
             pendingUploads.add(info);
@@ -181,7 +178,7 @@ public class CameraUploadService extends Service {
 
     private File getPhotoFromMediaStore(Context context, Uri uri) {
         Cursor cursor = context.getContentResolver().query(uri, null, null,
-                null, "date_added DESC");
+                null, null);
         File photo = null;
         if (cursor.moveToNext()) {
             int dataColumn = cursor.getColumnIndexOrThrow(MediaColumns.DATA);
@@ -191,18 +188,26 @@ public class CameraUploadService extends Service {
         cursor.close();
         return photo;
     }
-    private Boolean isRemoteCameraUploadRepoValid;
+    
     private class PhotoUploadTask extends AsyncTask<Void, Void, List<File>> {
 
         @Override
         protected List<File> doInBackground(Void... params) {
-            // ensure remote library exists
-            isRemoteCameraUploadRepoValid = cUploadManager.isRemoteCameraUploadRepoValid(repoId, CAMERA_UPLOAD_REMOTE_PARENTDIR);
-            if (!isRemoteCameraUploadRepoValid) {
-                return null;
+            // ensure remote camera upload library exists
+            try {
+                isRemoteCameraUploadRepoValid = cUploadManager
+                        .isRemoteCameraUploadRepoValid(repoId,
+                                CAMERA_UPLOAD_REMOTE_PARENTDIR);
+                if (!isRemoteCameraUploadRepoValid) {
+                    return null;
+                }
+                // create a remote "Camera Uploads" folder if deleted
+                cUploadManager.validateRemoteCameraUploadsDir(repoId,
+                        CAMERA_UPLOAD_REMOTE_PARENTDIR,
+                        CAMERA_UPLOAD_REMOTE_DIR);
+            } catch (SeafException e) {
+                e.printStackTrace();
             }
-            // create a remote directory "Camera Uploads" if not exists
-            cUploadManager.validateRemoteCameraUploadsDir(repoId, CAMERA_UPLOAD_REMOTE_PARENTDIR, CAMERA_UPLOAD_REMOTE_DIR);
             return CameraUploadUtil.getAllPhotosAbsolutePathList();
         }
 
@@ -217,17 +222,13 @@ public class CameraUploadService extends Service {
                 return;
             }
             
-            list = result;
-            
-            for (File photo : list) {
+            for (File photo : result) {
                 String path = photo.getName();
                 // use local database to detect duplicate upload
-                // only if the cache is null, we think the photo needs to be uploaded
                 SeafCachedPhoto cp = cUploadManager.getCachedPhoto(repoName, repoId, DIR, path);
                 if (cp == null) {
                     // add photos to uploading queue
                     addUploadTask(repoId, repoName, CAMERA_UPLOAD_REMOTE_PARENTDIR + CAMERA_UPLOAD_REMOTE_DIR, photo.getAbsolutePath());
-                    
                 }
             }
         }

@@ -2,14 +2,10 @@ package com.seafile.seadroid2.sync;
 
 import java.util.List;
 
-import android.util.Pair;
-
 import com.seafile.seadroid2.ConcurrentAsyncTask;
-import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.data.DatabaseHelper;
 import com.seafile.seadroid2.data.SeafCachedPhoto;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
@@ -23,16 +19,12 @@ public class CameraUploadManager {
     // private static final String DEBUG_TAG = "CameraUploadManager";
 
     private CameraUploadDBHelper dbHelper;
-    private DatabaseHelper mDatabaseHelper;
     private DataManager mDataManager;
-    private SeafConnection sc;
     private Account account;
     
     public CameraUploadManager(Account act) {
         account = act;
-        sc = new SeafConnection(act); 
         dbHelper = CameraUploadDBHelper.getCameraUploadDBHelper();
-        mDatabaseHelper = DatabaseHelper.getDatabaseHelper();
         mDataManager = new DataManager(act);
     }
 
@@ -112,14 +104,10 @@ public class CameraUploadManager {
      * @param repoID
      * @param parentDir
      * @return
+     * @throws SeafException 
      */
-    public Boolean isRemoteCameraUploadRepoValid(String repoID, String parentDir) {
-        List<SeafRepo> list = null;
-        try {
-            list = mDataManager.getReposFromServer();
-        } catch (SeafException e) {
-            e.printStackTrace();
-        }
+    public Boolean isRemoteCameraUploadRepoValid(String repoID, String parentDir) throws SeafException {
+        List<SeafRepo> list = mDataManager.getReposFromServer();
         for (SeafRepo seafRepo : list) {
             if (seafRepo.id.equals(repoID)) {
                 return true;
@@ -141,31 +129,17 @@ public class CameraUploadManager {
      * @param repoID
      * @param parentDir
      * @param dirName
+     * @throws SeafException 
      */
-    public void validateRemoteCameraUploadsDir(String repoID, String parentDir, String dirName) {
-        List<SeafDirent> list = null;
-        try {
-            list = mDataManager.getDirentsFromServer(repoID, parentDir);
-        } catch (SeafException e) {
-            e.printStackTrace();
-        }
+    public void validateRemoteCameraUploadsDir(String repoID, String parentDir, String dirName) throws SeafException {
+        List<SeafDirent> list = mDataManager.getDirentsFromServer(repoID, parentDir);
+        
         for (SeafDirent seafDirent : list) {
             if (seafDirent.name.equals(CameraUploadService.CAMERA_UPLOAD_REMOTE_DIR)) {
                 return;
             }
         }
         
-        Pair<String, String> ret = null;
-        try {
-            ret = sc.createNewDir(repoID, parentDir, dirName);
-        } catch (SeafException e) {
-            e.printStackTrace();
-        }
-        String newDirID = ret.first;
-        String response = ret.second;
-
-        // The response is the dirents of the parentDir after creating
-        // the new dir. We save it to avoid request it again
-        mDatabaseHelper.saveDirents(repoID, parentDir, newDirID, response);
+       mDataManager.createNewDir(repoID, parentDir, dirName);
     }
 }
