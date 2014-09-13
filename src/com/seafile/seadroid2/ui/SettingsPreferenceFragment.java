@@ -42,7 +42,6 @@ private static final String DEBUG_TAG = "SettingsPreferenceFragment";
     public static final String SHARED_PREF_CAMERA_UPLOAD_SETTINGS_REPONAME = PKG + ".camera.settings.repoName";
     public static final String SHARED_PREF_CAMERA_UPLOAD_SETTINGS_START = PKG + ".camera.settings.startService";
     public static final int CHOOSE_CAMERA_UPLOAD_REPO_REQUEST = 1;
-    public static final int CHOOSE_CAMERA_UPLOAD_REPO_ONLY = 2;
     private static final int Gesture_Lock_REQUEST = 6;
     private CheckBoxPreference gestureLockSwitch;
     private CheckBoxPreference cameraUploadSwitch;

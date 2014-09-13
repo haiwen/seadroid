@@ -220,7 +220,7 @@ public class CameraUploadService extends Service {
             list = result;
             
             for (File photo : list) {
-                String path = new File(photo.getAbsolutePath()).getName();
+                String path = photo.getName();
                 // use local database to detect duplicate upload
                 // only if the cache is null, we think the photo needs to be uploaded
                 SeafCachedPhoto cp = cUploadManager.getCachedPhoto(repoName, repoId, DIR, path);
