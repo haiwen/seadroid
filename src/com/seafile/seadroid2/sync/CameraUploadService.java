@@ -42,19 +42,21 @@ public class CameraUploadService extends Service {
     public static final String CAMERA_UPLOAD_REMOTE_DIR = "Camera Uploads";
     public static final String CAMERA_UPLOAD_REMOTE_PARENTDIR = "/";
     public static final String BROADCAST_CAMERA_UPLOAD_LIBRARY_NOT_FOUND = "cameraUploadLibarayNotFound";
-    private final IBinder mBinder = new CameraBinder();
-    private CameraObserver cameraUploadObserver = new CameraObserver();
+    public static final String BROADCAST_CAMERA_UPLOAD_SERVICE_STARTED = "cameraUploadServiceStarted";
+    public static final String BROADCAST_CAMERA_UPLOAD_SERVICE_STOPPED = "cameraUploadServiceStopped";
     private ArrayList<PendingUploadInfo> pendingUploads = new ArrayList<PendingUploadInfo>();
+    private CameraObserver cameraUploadObserver = new CameraObserver();
+    private CameraUploadManager cUploadManager;
+    private TransferService mTransferService;
+    private final IBinder mBinder = new CameraBinder();
     private Boolean isRemoteCameraUploadRepoValid;
-    private String repoId;
-    private String repoName;
+    private Boolean isCameraUpload;
+    private Account account;
     private String accountEmail;
     private String accountServer;
     private String accountToken;
-    private Account account;
-    private Boolean isCameraUpload;
-    private CameraUploadManager cUploadManager;
-    private TransferService mTransferService;
+    private String repoId;
+    private String repoName;
     
     @Override
     public void onCreate() {
@@ -79,6 +81,9 @@ public class CameraUploadService extends Service {
         for (UploadTaskInfo uploadTaskInfo : cameraUploadsTasksList) {
             mTransferService.cancelUploadTask(uploadTaskInfo.taskID);
         }
+        Intent localIntent = new Intent(TransferService.BROADCAST_ACTION).putExtra("type",
+                BROADCAST_CAMERA_UPLOAD_SERVICE_STOPPED);
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);
     }
     
     @Override
@@ -100,7 +105,7 @@ public class CameraUploadService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(DEBUG_TAG, "onStartCommand");
 
-        getPreference();
+        initializeCameraUploadPreference();
         if (repoId != null && accountEmail != null) {
             isCameraUpload = true;
             account = new Account(accountServer, accountEmail, null, accountToken);
@@ -114,7 +119,7 @@ public class CameraUploadService extends Service {
         return START_STICKY;
     }
     
-    private void getPreference() {
+    private void initializeCameraUploadPreference() {
         SharedPreferences sharedPref = getSharedPreferences(AccountsActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
         repoId = sharedPref.getString(SettingsPreferenceFragment.SHARED_PREF_CAMERA_UPLOAD_REPO_ID, null);
         repoName = sharedPref.getString(SettingsPreferenceFragment.SHARED_PREF_CAMERA_UPLOAD_REPO_NAME, null);
@@ -213,13 +218,18 @@ public class CameraUploadService extends Service {
 
         @Override
         protected void onPostExecute(List<File> result) {
+            Intent localIntent;
             if (result == null) {
                 if (!isRemoteCameraUploadRepoValid) {
-                    Intent localIntent = new Intent(TransferService.BROADCAST_ACTION).putExtra("type",
+                    localIntent = new Intent(TransferService.BROADCAST_ACTION).putExtra("type",
                             BROADCAST_CAMERA_UPLOAD_LIBRARY_NOT_FOUND);
                     LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);
                 }
                 return;
+            } else {
+                localIntent = new Intent(TransferService.BROADCAST_ACTION).putExtra("type",
+                        BROADCAST_CAMERA_UPLOAD_SERVICE_STARTED);
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);
             }
             
             for (File photo : result) {

@@ -88,7 +88,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final String EXTRA_FILE_PATH = PKG_NAME + ".filePath";
     public static final String EXTRA_ACCOUT = PKG_NAME + ".account";
     private static final String DEBUG_TAG = "BrowserActivity";
-    public static final String ACTIONBAE_PARENT_PATH = "/";
+    public static final String ACTIONBAR_PARENT_PATH = "/";
     private Account account;
     NavContext navContext = null;
     DataManager dataManager = null;
@@ -900,10 +900,10 @@ public class BrowserActivity extends SherlockFragmentActivity
                     String parentPath = Utils.getParentPath(navContext
                             .getDirPath());
                     navContext.setDir(parentPath, null);
-                    if (parentPath.equals(ACTIONBAE_PARENT_PATH)) {
+                    if (parentPath.equals(ACTIONBAR_PARENT_PATH)) {
                         getSupportActionBar().setTitle(navContext.getRepoName());
                     }else {
-                        getSupportActionBar().setTitle(parentPath.substring(parentPath.lastIndexOf(ACTIONBAE_PARENT_PATH) + 1));
+                        getSupportActionBar().setTitle(parentPath.substring(parentPath.lastIndexOf(ACTIONBAR_PARENT_PATH) + 1));
                     }
                 }
                 tabsFragment.getReposFragment().refreshView();

@@ -82,7 +82,7 @@ private static final String DEBUG_TAG = "SettingsPreferenceFragment";
         
         if (!cameraUploadSwitch.isChecked()) {
             cameraUploadRepo.setEnabled(false);
-        }else {
+        } else {
             cameraUploadRepo.setEnabled(true);
         }
 
@@ -127,18 +127,18 @@ private static final String DEBUG_TAG = "SettingsPreferenceFragment";
                 editor.commit();
                 gestureLockSwitch.setChecked(false);
             }
-        }else if (preference.getKey().equals(BrowserActivity.CAMERA_UPLOAD_SWITCH_KEY)) {
+        } else if (preference.getKey().equals(BrowserActivity.CAMERA_UPLOAD_SWITCH_KEY)) {
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
             isUploadStart = settings.getBoolean(BrowserActivity.CAMERA_UPLOAD_SWITCH_KEY, false);
             startCameraUploadService(isUploadStart);
             if (!isUploadStart) {
                 cameraUploadRepo.setEnabled(false);
-            }else {
+            } else {
                 if (Utils.isWiFiOn()) {
                     cameraUploadRepo.setEnabled(true);
                 }
             }
-        }else if (preference.getKey().equals(BrowserActivity.CAMERA_UPLOAD_REPO_KEY)) {
+        } else if (preference.getKey().equals(BrowserActivity.CAMERA_UPLOAD_REPO_KEY)) {
             mActivity.stopService(cameraUploadIntent);
             // Pop-up window to let user choose remote library
             Intent intent = new Intent(mActivity, SeafilePathChooserActivity.class);
@@ -222,14 +222,13 @@ private static final String DEBUG_TAG = "SettingsPreferenceFragment";
             
             // stop camera upload service
             mActivity.stopService(cameraUploadIntent);
-            showToast(R.string.settings_stopUpService);
-        }else {
+        } else {
             
             if (repoName != null) {
                 // show remote library name
                 cameraUploadRepo.setSummary(repoName);
 
-            }else {
+            } else {
                 // Pop-up window to let user choose remote library
                 Intent intent = new Intent(mActivity, SeafilePathChooserActivity.class);
                 intent.putExtra(EXTRA_CAMERA_UPLOAD, true);
@@ -240,8 +239,7 @@ private static final String DEBUG_TAG = "SettingsPreferenceFragment";
             if (Utils.isWiFiOn()) {
                 //start service
                 mActivity.startService(cameraUploadIntent);
-                showToast(R.string.settings_startUpService);
-            }else {
+            } else {
                 mActivity.stopService(cameraUploadIntent);
                 cameraUploadSwitch.setChecked(false);
                 cameraUploadRepo.setEnabled(false);
@@ -279,6 +277,11 @@ private static final String DEBUG_TAG = "SettingsPreferenceFragment";
                 cameraUploadSwitch.setChecked(false);
                 cameraUploadRepo.setEnabled(false);
                 startCameraUploadService(false);
+                showToast(R.string.settings_camera_upload_library_not_found);
+            } else if (type.equals(CameraUploadService.BROADCAST_CAMERA_UPLOAD_SERVICE_STARTED)) {
+                showToast(R.string.settings_startUpService);
+            } else if (type.equals(CameraUploadService.BROADCAST_CAMERA_UPLOAD_SERVICE_STOPPED)) {
+                showToast(R.string.settings_stopUpService);
             }
         }
     };
