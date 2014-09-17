@@ -263,8 +263,6 @@ public class CameraUploadService extends Service {
 				addUploadTask(repoId, repoName, CAMERA_UPLOAD_REMOTE_PARENTDIR
 						+ CAMERA_UPLOAD_REMOTE_DIR, photo.getAbsolutePath());
 			} 
-			else
-			Log.d(DEBUG_TAG, "already cached: " + cachePhoto.path);
         }
     }
 

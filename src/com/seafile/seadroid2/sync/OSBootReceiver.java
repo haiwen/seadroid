@@ -1,4 +1,4 @@
-package com.seafile.seadroid2;
+package com.seafile.seadroid2.sync;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -8,7 +8,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.seafile.seadroid2.sync.CameraUploadService;
+import com.seafile.seadroid2.BrowserActivity;
 /**
  * listening operating system boot broadcast.
  * 
@@ -30,9 +30,9 @@ public class OSBootReceiver extends BroadcastReceiver {
 			SharedPreferences settings = PreferenceManager
 					.getDefaultSharedPreferences(context);
 			boolean isUploadStart = settings.getBoolean(
-					BrowserActivity.CAMERA_UPLOAD_SWITCH_KEY, false);
+			        BrowserActivity.CAMERA_UPLOAD_SWITCH_KEY, false);
 			if (!isUploadStart) {
-				return;
+			    return;
 			}
 			Log.d(DEBUG_TAG, "boot to start service");
 			context.startService(cameraUploadIntent);
