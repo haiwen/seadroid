@@ -46,13 +46,13 @@ private static final String DEBUG_TAG = "SettingsPreferenceFragment";
     private CheckBoxPreference gestureLockSwitch;
     private CheckBoxPreference cameraUploadSwitch;
     private Preference cameraUploadRepo;
-    private boolean setupSuccess = false;
+    private boolean setupSuccess;
     private boolean gestureLockBefore;
     private SharedPreferences sharedPref;
     private SharedPreferences.Editor editor;
     private SettingsActivity mActivity;
     private Intent cameraUploadIntent;
-    private boolean isUploadStart = false;
+    private boolean isUploadStart;
     private Intent mCameraUploadRepoChooserData;
     private String repoName;
 

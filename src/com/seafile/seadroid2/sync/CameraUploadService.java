@@ -177,13 +177,14 @@ public class CameraUploadService extends Service {
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
+            Log.d(DEBUG_TAG, "CameraOberser onChange");
             ConcurrentAsyncTask.execute(new CameraEventReceiverTask());
         }
     }
 
     private File getPhotoFromMediaStore(Context context, Uri uri) {
         Cursor cursor = context.getContentResolver().query(uri, null, null,
-                null, null);
+                null, "date_added DESC");
         File photo = null;
         if (cursor.moveToNext()) {
             int dataColumn = cursor.getColumnIndexOrThrow(MediaColumns.DATA);
@@ -247,16 +248,23 @@ public class CameraUploadService extends Service {
     private class CameraEventReceiverTask extends AsyncTask<Void, Void, File> {
         // private String detectLog;
         @Override
-        protected File doInBackground(Void... params) {
-            return getPhotoFromMediaStore(getApplicationContext(), MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        }
+		protected File doInBackground(Void... params) {
+			return getPhotoFromMediaStore(getApplicationContext(),
+					MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+		}
 
         @Override
         protected void onPostExecute(File photo) {
-            // detectLog = "detected " + photo.getName();
-            if (cUploadManager.getCachedPhoto(repoName, repoId, DIR, photo.getName()) == null) {
-                addUploadTask(repoId, repoName, CAMERA_UPLOAD_REMOTE_PARENTDIR + CAMERA_UPLOAD_REMOTE_DIR, photo.getAbsolutePath());
-            }
+            String detectLog = "detected " + photo.getName();
+            Log.d(DEBUG_TAG, detectLog);
+            SeafCachedPhoto cachePhoto = cUploadManager.getCachedPhoto(repoName, repoId, DIR,
+					photo.getName());
+			if (cachePhoto == null) {
+				addUploadTask(repoId, repoName, CAMERA_UPLOAD_REMOTE_PARENTDIR
+						+ CAMERA_UPLOAD_REMOTE_DIR, photo.getAbsolutePath());
+			} 
+			else
+			Log.d(DEBUG_TAG, "already cached: " + cachePhoto.path);
         }
     }
 
