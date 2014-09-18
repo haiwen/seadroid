@@ -62,18 +62,7 @@ public class CameraUploadService extends Service {
     public void onCreate() {
         Log.d(DEBUG_TAG, "onCreate");
         // bind transfer service
-        Intent bIntent = new Intent(this, TransferService.class);
-        bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
-        Log.d(DEBUG_TAG, "try bind TransferService");
-
-        this.getApplicationContext()
-                .getContentResolver()
-                .registerContentObserver(
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI, false,
-                        cameraUploadObserver);
         
-        LocalBroadcastManager.getInstance(this).registerReceiver(transferReceiver,
-                new IntentFilter(TransferService.BROADCAST_ACTION));
     }
 
     private void cancelUploadTasks(){
@@ -104,6 +93,17 @@ public class CameraUploadService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(DEBUG_TAG, "onStartCommand");
+        Log.d(DEBUG_TAG, "onStartCommand.intent: " + intent);
+        Intent bIntent = new Intent(this, TransferService.class);
+        bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
+        Log.d(DEBUG_TAG, "try bind TransferService");
+        LocalBroadcastManager.getInstance(this).registerReceiver(transferReceiver,
+                new IntentFilter(TransferService.BROADCAST_ACTION));
+        this.getApplicationContext()
+        .getContentResolver()
+        .registerContentObserver(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, false,
+                cameraUploadObserver);
 
         initializeCameraUploadPreference();
         if (repoId != null && accountEmail != null) {
@@ -113,6 +113,7 @@ public class CameraUploadService extends Service {
         }
 
         if (isCameraUpload) {
+            Log.d(DEBUG_TAG, "onStartCommand.startPhotoUploadTask");
             ConcurrentAsyncTask.execute(new PhotoUploadTask());
         }
         

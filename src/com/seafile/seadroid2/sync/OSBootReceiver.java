@@ -6,11 +6,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.seafile.seadroid2.BrowserActivity;
 /**
- * listening operating system boot broadcast.
+ * Listening operating system boot broadcast.
  * 
  * If user turned on camera upload service, then run the service. Otherwise, ignore the broadcast.   
  *
@@ -22,8 +21,6 @@ public class OSBootReceiver extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
 
 		if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
-			Toast.makeText(context, "boot completed", Toast.LENGTH_SHORT).show();
-			Log.d(DEBUG_TAG, "boot to notic receiver");
 
 			Intent cameraUploadIntent = new Intent(context,
 					CameraUploadService.class);
@@ -34,7 +31,7 @@ public class OSBootReceiver extends BroadcastReceiver {
 			if (!isUploadStart) {
 			    return;
 			}
-			Log.d(DEBUG_TAG, "boot to start service");
+			Log.d(DEBUG_TAG, "start service after OS boot");
 			context.startService(cameraUploadIntent);
 		}
 	}
