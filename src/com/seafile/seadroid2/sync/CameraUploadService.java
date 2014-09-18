@@ -34,6 +34,7 @@ import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.transfer.UploadTaskInfo;
 import com.seafile.seadroid2.ui.SettingsPreferenceFragment;
 import com.seafile.seadroid2.util.CameraUploadUtil;
+import com.seafile.seadroid2.util.Utils;
 
 public class CameraUploadService extends Service {
     private static final String DEBUG_TAG = "CameraUploadService";
@@ -62,7 +63,17 @@ public class CameraUploadService extends Service {
     public void onCreate() {
         Log.d(DEBUG_TAG, "onCreate");
         // bind transfer service
-        
+        Intent bIntent = new Intent(this, TransferService.class);
+        bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
+        Log.d(DEBUG_TAG, "try bind TransferService");
+
+        this.getApplicationContext()
+        .getContentResolver()
+        .registerContentObserver(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, false,
+                cameraUploadObserver);
+        LocalBroadcastManager.getInstance(this).registerReceiver(transferReceiver,
+                new IntentFilter(TransferService.BROADCAST_ACTION));
     }
 
     private void cancelUploadTasks(){
@@ -86,6 +97,7 @@ public class CameraUploadService extends Service {
             unbindService(mConnection);
             mTransferService = null;
         }
+        
         LocalBroadcastManager.getInstance(this).unregisterReceiver(transferReceiver);
         transferReceiver = null;
     }
@@ -93,17 +105,6 @@ public class CameraUploadService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(DEBUG_TAG, "onStartCommand");
-        Log.d(DEBUG_TAG, "onStartCommand.intent: " + intent);
-        Intent bIntent = new Intent(this, TransferService.class);
-        bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
-        Log.d(DEBUG_TAG, "try bind TransferService");
-        LocalBroadcastManager.getInstance(this).registerReceiver(transferReceiver,
-                new IntentFilter(TransferService.BROADCAST_ACTION));
-        this.getApplicationContext()
-        .getContentResolver()
-        .registerContentObserver(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, false,
-                cameraUploadObserver);
 
         initializeCameraUploadPreference();
         if (repoId != null && accountEmail != null) {
@@ -200,6 +201,11 @@ public class CameraUploadService extends Service {
 
         @Override
         protected List<File> doInBackground(Void... params) {
+            // ensure network is available
+            if (!Utils.isNetworkOn()) {
+                return null;
+            }
+            
             // ensure remote camera upload library exists
             try {
                 isRemoteCameraUploadRepoValid = cUploadManager
@@ -228,11 +234,11 @@ public class CameraUploadService extends Service {
                     LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);
                 }
                 return;
-            } else {
+            } /*else {
                 localIntent = new Intent(TransferService.BROADCAST_ACTION).putExtra("type",
                         BROADCAST_CAMERA_UPLOAD_SERVICE_STARTED);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);
-            }
+            }*/
             
             for (File photo : result) {
                 String path = photo.getName();
