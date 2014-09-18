@@ -100,6 +100,7 @@ public class CameraUploadService extends Service {
         
         LocalBroadcastManager.getInstance(this).unregisterReceiver(transferReceiver);
         transferReceiver = null;
+        onlySentBroadcastOnce = 0;
     }
 
     @Override
@@ -114,7 +115,6 @@ public class CameraUploadService extends Service {
         }
 
         if (isCameraUpload) {
-            Log.d(DEBUG_TAG, "onStartCommand.startPhotoUploadTask");
             ConcurrentAsyncTask.execute(new PhotoUploadTask());
         }
         
@@ -152,9 +152,11 @@ public class CameraUploadService extends Service {
     
     private void addUploadTask(String repoID, String repoName, String targetDir, String localFilePath) {
         if (mTransferService != null) {
-            mTransferService.addUploadTask(account, repoID, repoName, targetDir, localFilePath, false);
+            // set the last parameter "isUpdate" to true to stop copying file into sd-card
+            // if passed "false" will cause OOM when uploading photos
+            mTransferService.addUploadTask(account, repoID, repoName, targetDir, localFilePath, true);
         } else {
-            PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, false);
+            PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, true);
             pendingUploads.add(info);
         }
     }
@@ -179,7 +181,6 @@ public class CameraUploadService extends Service {
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
-            Log.d(DEBUG_TAG, "CameraOberser onChange");
             ConcurrentAsyncTask.execute(new CameraEventReceiverTask());
         }
     }
@@ -196,9 +197,9 @@ public class CameraUploadService extends Service {
         cursor.close();
         return photo;
     }
-    
+    static int onlySentBroadcastOnce = 0;
     private class PhotoUploadTask extends AsyncTask<Void, Void, List<File>> {
-
+        
         @Override
         protected List<File> doInBackground(Void... params) {
             // ensure network is available
@@ -234,11 +235,14 @@ public class CameraUploadService extends Service {
                     LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);
                 }
                 return;
-            } /*else {
+            } 
+            if (onlySentBroadcastOnce == 0) {
+                    
                 localIntent = new Intent(TransferService.BROADCAST_ACTION).putExtra("type",
                         BROADCAST_CAMERA_UPLOAD_SERVICE_STARTED);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);
-            }*/
+                onlySentBroadcastOnce ++;
+            }
             
             for (File photo : result) {
                 String path = photo.getName();

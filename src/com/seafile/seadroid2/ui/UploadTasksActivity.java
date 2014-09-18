@@ -24,7 +24,6 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.sync.CameraUploadService;
 import com.seafile.seadroid2.transfer.TransferManager.TaskState;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;

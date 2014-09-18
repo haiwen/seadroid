@@ -533,7 +533,7 @@ public class DataManager {
 
     public void uploadFile(String repoName, String repoID, String dir, String filePath,
             ProgressMonitor monitor) throws SeafException {
-        uploadFileCommon(repoName, repoID, dir, filePath, monitor, true);
+        uploadFileCommon(repoName, repoID, dir, filePath, monitor, false);
     }
 
     public void updateFile(String repoName, String repoID, String dir, String filePath,
