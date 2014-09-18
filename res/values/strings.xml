@@ -89,7 +89,7 @@
     <string name="no_repo">You have no libraries yet</string>
     <string name="no_app_available">No app can be found</string>
     <string name="add_to_seafile">Add to Seafile</string>
-    <string name="ok">Ok</string>
+    <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="go_on">Go on</string>
     <string name="try_again">Try again</string>
@@ -122,7 +122,7 @@
     <string name="copy_link">Copy link</string>
     <string name="share_file_link">Share a link to this file</string>
     <string name="share_dir_link">Share a link to this folder</string>
-    <string name="generating_link">Generating link...</string>
+    <string name="generating_link">Generating link&#8230;</string>
     <string name="link_ready_to_be_pasted">The link is ready to be pasted.</string>
     <string name="rename_file">Rename file</string>
     <string name="rename_dir">Rename folder</string>
@@ -180,8 +180,8 @@
     <string name="security">Security</string>
     <string name="settings">Settings</string>
     <string name="gesture_lock">Gesture Lock</string>
-    <string name="gesture_lock_on">Gesture Lock On</string>
-    <string name="gesture_lock_off">Gesture Lock Off</string>
+    <string name="gesture_lock_on">Gesture lock on</string>
+    <string name="gesture_lock_off">Gesture lock off</string>
     
     <!-- Accessibility description sent when user starts drawing a lock pattern. [CHAR LIMIT=NONE] -->
     <string name="lockscreen_access_pattern_start">Pattern started</string>
@@ -191,14 +191,14 @@
     <string name="lockscreen_access_pattern_cell_added">Cell added</string>
     <!-- Accessibility description sent when user completes drawing a pattern. [CHAR LIMIT=NONE] -->
     <string name="lockscreen_access_pattern_detected">Pattern completed</string>
-    
-    <string name="camera_upload_duplicate">already uploaded</string>
-    <string name="camera_upload_info_title">Camera Photo Upload</string>
-    <string name="camera_upload_info">upload %d photo(s) to\u0020</string>
-    <string name="wifi_down">Wi-Fi not available</string>    
-    <string name="startUpService">upload service started</string>    
-    <string name="stopUpService">upload service stoped</string>    
-    <string name="settings_repo">change upload library</string>    
-    <string name="settings_hint">please choose a remote library first</string>    
-    <string name="settings_start">start camera photo upload</string>    
+    <string name="settings_camera_upload_duplicate">already uploaded</string>
+    <string name="settings_camera_upload_info_title">Camera Photo Upload</string>
+    <string name="settings_camera_upload_info">upload %d photo(s) to\u0020</string>
+    <string name="settings_wifi_down">Wi-Fi not available</string>    
+    <string name="settings_startUpService">Upload service started</string>    
+    <string name="settings_stopUpService">Upload service stoped</string>    
+    <string name="settings_repo">Change Upload Library</string>    
+    <string name="settings_hint">Please choose a remote library first</string>    
+    <string name="settings_start">Turn on Camera Upload</string>    
+    <string name="settings_camera_upload_library_not_found">library not found</string>
 </resources>

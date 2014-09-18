@@ -171,6 +171,12 @@ public class ReposFragment extends SherlockListFragment {
         SeafRepo repo = getDataManager().getCachedRepoByID(nav.getRepoID());
         if (repo != null) {
             adapter.setEncryptedRepo(repo.encrypted);
+            if (nav.getDirPath().equals(BrowserActivity.ACTIONBAR_PARENT_PATH)) {
+                mActivity.setUpButtonTitle(nav.getRepoName());
+            } else
+
+                mActivity.setUpButtonTitle(nav.getDirPath().substring(
+                        nav.getDirPath().lastIndexOf(BrowserActivity.ACTIONBAR_PARENT_PATH) + 1));
         }
 
         if (!Utils.isNetworkOn() || !forceRefresh) {
@@ -238,6 +244,7 @@ public class ReposFragment extends SherlockListFragment {
         final NavContext nav = getNavContext();
         if (nav.inRepo()) {
             repo = getDataManager().getCachedRepoByID(nav.getRepoID());
+            mActivity.setUpButtonTitle(repo.getName());
         } else {
             SeafItem item = adapter.getItem(position);
             if (item instanceof SeafRepo) {
@@ -270,6 +277,7 @@ public class ReposFragment extends SherlockListFragment {
                         currentPath + dirent.name : currentPath + "/" + dirent.name;
                 nav.setDir(newPath, dirent.id);
                 refreshView();
+                mActivity.setUpButtonTitle(dirent.name);
             } else {
                 mActivity.onFileSelected(dirent);
             }

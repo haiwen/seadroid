@@ -10,12 +10,12 @@
             android:title="@string/gesture_lock" >
         </CheckBoxPreference>
     </PreferenceCategory>
-    <PreferenceCategory android:title="@string/camera_upload_info_title" >
+    <PreferenceCategory android:title="@string/settings_camera_upload_info_title" >
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="camera_upload_switch_key"
-            android:summaryOff="@string/stopUpService"
-            android:summaryOn="@string/startUpService"
+            android:summaryOff="@string/settings_stopUpService"
+            android:summaryOn="@string/settings_startUpService"
             android:title="@string/settings_start" >
         </CheckBoxPreference>
         <Preference

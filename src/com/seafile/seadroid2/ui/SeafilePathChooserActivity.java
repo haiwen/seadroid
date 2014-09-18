@@ -3,6 +3,7 @@ package com.seafile.seadroid2.ui;
 import java.net.HttpURLConnection;
 import java.util.List;
 
+import android.R.bool;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -65,6 +66,8 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
     private boolean onlyShowWritableRepos;
     private String encryptedRepoId;
 
+    private boolean isOnlyChooseRepo;
+    
     private View mProgressContainer, mListContainer, mContentArea;
     private Button mOkButton, mCancelButton;
     private TextView mEmptyText, mErrorText;
@@ -89,7 +92,9 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
         setContentView(R.layout.seafile_path_chooser);
 
         Intent intent = getIntent();
-
+        
+        isOnlyChooseRepo = intent.getBooleanExtra(SettingsPreferenceFragment.EXTRA_CAMERA_UPLOAD, false);
+        
         Account account = (Account)intent.getParcelableExtra("account");
         if (account == null) {
             canChooseAccount = true;
@@ -213,10 +218,20 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
             chooseRepo();
             break;
         case STEP_CHOOSE_REPO:
-            nav.setRepoName(repo.name);
-            nav.setRepoID(repo.id);
-            nav.setDir("/", repo.root);
-            chooseDir();
+            if (!isOnlyChooseRepo) {
+                nav.setRepoName(repo.name);
+                nav.setRepoID(repo.id);
+                nav.setDir("/", repo.root);
+                chooseDir();
+            } else {
+                Intent intent = new Intent();
+                intent.putExtra(DATA_REPO_NAME, repo.name);
+                intent.putExtra(DATA_REPO_ID, repo.id);
+                intent.putExtra(DATA_DIR, repo.root);
+                intent.putExtra(DATA_ACCOUNT, mAccount);
+                setResult(RESULT_OK, intent);
+                finish();
+            }
             break;
         case STEP_CHOOSE_DIR:
             SeafDirent dirent = getDirentsAdapter().getItem(position);

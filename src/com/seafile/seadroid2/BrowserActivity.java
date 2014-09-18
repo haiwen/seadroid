@@ -88,6 +88,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final String EXTRA_FILE_PATH = PKG_NAME + ".filePath";
     public static final String EXTRA_ACCOUT = PKG_NAME + ".account";
     private static final String DEBUG_TAG = "BrowserActivity";
+    public static final String ACTIONBAR_PARENT_PATH = "/";
     private Account account;
     NavContext navContext = null;
     DataManager dataManager = null;
@@ -676,11 +677,15 @@ public class BrowserActivity extends SherlockFragmentActivity
     public void enableUpButton() {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
-
+    
     public void disableUpButton() {
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     }
 
+    public void setUpButtonTitle(String title){
+        getSupportActionBar().setTitle(title);
+    } 
+    
     /***********  Start other activity  ***************/
 
     public static final int PICK_FILES_REQUEST = 1;
@@ -878,7 +883,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         startFileActivity(repoName, repoID, filePath);
     }
-
+    
     @Override
     public void onBackPressed() {
         if (getSupportFragmentManager().getBackStackEntryCount() != 0) {
@@ -890,10 +895,16 @@ public class BrowserActivity extends SherlockFragmentActivity
             if (navContext.inRepo()) {
                 if (navContext.isRepoRoot()) {
                     navContext.setRepoID(null);
+                    getSupportActionBar().setTitle(R.string.app_name);
                 } else {
                     String parentPath = Utils.getParentPath(navContext
                             .getDirPath());
                     navContext.setDir(parentPath, null);
+                    if (parentPath.equals(ACTIONBAR_PARENT_PATH)) {
+                        getSupportActionBar().setTitle(navContext.getRepoName());
+                    }else {
+                        getSupportActionBar().setTitle(parentPath.substring(parentPath.lastIndexOf(ACTIONBAR_PARENT_PATH) + 1));
+                    }
                 }
                 tabsFragment.getReposFragment().refreshView();
 

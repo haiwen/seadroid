@@ -169,6 +169,4 @@
   <string name="upload_started">开始上传</string>
   <string name="cannot_copy_folder_to_subfolder">不能把一个文件夹复制到它的子文件夹里面去</string>
   <string name="cannot_move_folder_to_subfolder">不能把一个文件夹移动到它的子文件夹里面去</string>
-  <string name="camera_upload_duplicate">你已经备份这些相片</string>
-  <string name="camera_upload_info">上传 %d张相片到\u0020</string>
 </resources>

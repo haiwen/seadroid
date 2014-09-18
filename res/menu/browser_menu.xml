@@ -6,13 +6,13 @@
         android:visible="true"
         android:title="@string/upload"
         android:icon="@drawable/ab_upload"
-        android:showAsAction="ifRoom|withText"/>
+        android:showAsAction="ifRoom"/>
 
     <item android:id="@+id/refresh"
         android:visible="false"
         android:title="@string/refresh"
         android:icon="@drawable/refresh"
-        android:showAsAction="ifRoom|withText"/>
+        android:showAsAction="ifRoom"/>
 
     <!-- More -->
     <item
