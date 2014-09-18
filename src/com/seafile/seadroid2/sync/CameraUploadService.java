@@ -34,6 +34,7 @@ import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.transfer.UploadTaskInfo;
 import com.seafile.seadroid2.ui.SettingsPreferenceFragment;
 import com.seafile.seadroid2.util.CameraUploadUtil;
+import com.seafile.seadroid2.util.Utils;
 
 public class CameraUploadService extends Service {
     private static final String DEBUG_TAG = "CameraUploadService";
@@ -97,6 +98,7 @@ public class CameraUploadService extends Service {
             unbindService(mConnection);
             mTransferService = null;
         }
+        
         LocalBroadcastManager.getInstance(this).unregisterReceiver(transferReceiver);
         transferReceiver = null;
     }
@@ -199,6 +201,11 @@ public class CameraUploadService extends Service {
 
         @Override
         protected List<File> doInBackground(Void... params) {
+            // ensure network is available
+            if (!Utils.isNetworkOn()) {
+                return null;
+            }
+            
             // ensure remote camera upload library exists
             try {
                 isRemoteCameraUploadRepoValid = cUploadManager
@@ -227,11 +234,11 @@ public class CameraUploadService extends Service {
                     LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);
                 }
                 return;
-            } else {
+            } /*else {
                 localIntent = new Intent(TransferService.BROADCAST_ACTION).putExtra("type",
                         BROADCAST_CAMERA_UPLOAD_SERVICE_STARTED);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);
-            }
+            }*/
             
             for (File photo : result) {
                 String path = photo.getName();

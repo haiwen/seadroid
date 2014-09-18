@@ -51,6 +51,7 @@ import com.seafile.seadroid2.data.SeafStarredFile;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 import com.seafile.seadroid2.gallery.MultipleImageSelectionActivity;
 import com.seafile.seadroid2.monitor.FileMonitorService;
+import com.seafile.seadroid2.sync.CameraUploadService;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.PendingUploadInfo;
 import com.seafile.seadroid2.transfer.TransferService;
@@ -284,8 +285,19 @@ public class BrowserActivity extends SherlockFragmentActivity
         startService(monitorIntent);
 
     }
-
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean isUploadStart = settings.getBoolean(BrowserActivity.CAMERA_UPLOAD_SWITCH_KEY, false);
+        if (!isUploadStart) {
+            return;
+        }
+        Log.d(DEBUG_TAG, "start service explicitly on Resume method");
+        Intent cameraUploadIntent = new Intent(this, CameraUploadService.class);
+        startService(cameraUploadIntent);
+    }
+    
     private String getCurrentTabName() {
 
         int index = tabsFragment.getCurrentTabIndex();
