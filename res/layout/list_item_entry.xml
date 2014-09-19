@@ -10,41 +10,48 @@
         android:layout_height="fill_parent"
         android:layout_alignParentBottom="true"
         android:layout_alignParentTop="true"
+        android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:paddingBottom="4dp"
         android:src="@drawable/folder" />
-    
+
     <ImageView
         android:id="@+id/list_item_action"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:layout_marginRight="12dp"
-        android:layout_width="wrap_content"
-        android:layout_height="fill_parent" />
+        android:layout_marginEnd="12dp"
+        android:layout_marginRight="12dp" />
 
     <TextView
         android:id="@+id/list_item_title"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="36dp"
         android:layout_marginRight="36dp"
-        android:layout_toRightOf="@id/list_item_icon"
+        android:layout_toEndOf="@id/list_item_icon"
         android:layout_toLeftOf="@id/list_item_action"
+        android:layout_toRightOf="@id/list_item_icon"
+        android:layout_toStartOf="@id/list_item_action"
         android:lines="1"
         android:singleLine="true"
         android:text="Titel"
         android:textColor="#282828"
-        android:textSize="18dp" />
+        android:textSize="18sp" />
 
     <TextView
         android:id="@+id/list_item_subtitle"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/list_item_title"
-        android:layout_toRightOf="@id/list_item_icon"
+        android:layout_toEndOf="@id/list_item_icon"
         android:layout_toLeftOf="@id/list_item_action"
+        android:layout_toRightOf="@id/list_item_icon"
+        android:layout_toStartOf="@id/list_item_action"
         android:text="Subtitle"
         android:textColor="#555555"
-        android:textSize="12dp" />
-    
+        android:textSize="12sp" />
 
 </RelativeLayout>

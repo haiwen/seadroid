@@ -532,18 +532,18 @@ public class DataManager {
     }
 
     public void uploadFile(String repoName, String repoID, String dir, String filePath,
-            ProgressMonitor monitor) throws SeafException {
-        uploadFileCommon(repoName, repoID, dir, filePath, monitor, false);
+            ProgressMonitor monitor, boolean isCopyToLocal) throws SeafException {
+        uploadFileCommon(repoName, repoID, dir, filePath, monitor, false, isCopyToLocal);
     }
 
     public void updateFile(String repoName, String repoID, String dir, String filePath,
-            ProgressMonitor monitor) throws SeafException {
-        uploadFileCommon(repoName, repoID, dir, filePath, monitor, true);
+            ProgressMonitor monitor, boolean isCopyToLocal) throws SeafException {
+        uploadFileCommon(repoName, repoID, dir, filePath, monitor, true, isCopyToLocal);
     }
 
     private void uploadFileCommon(String repoName, String repoID, String dir,
                                   String filePath, ProgressMonitor monitor,
-                                  boolean isUpdate) throws SeafException {
+                                  boolean isUpdate, boolean isCopyToLocal) throws SeafException {
         String newFileID = null;
         if (isUpdate) {
             newFileID  = sc.updateFile(repoID, dir, filePath, monitor);
@@ -559,15 +559,16 @@ public class DataManager {
         String path = Utils.pathJoin(dir, srcFile.getName());
         File fileInRepo = getLocalRepoFile(repoName, repoID, path);
 
-        if (!isUpdate) {
-            // Copy the uploaded file to local repo cache
-            try {
-                Utils.copyFile(srcFile, fileInRepo);
-            } catch (IOException e) {
-                return;
+        if (isCopyToLocal) {
+            if (!isUpdate) {
+                // Copy the uploaded file to local repo cache
+                try {
+                    Utils.copyFile(srcFile, fileInRepo);
+                } catch (IOException e) {
+                    return;
+                }
             }
         }
-
         // Update file cache entry
         addCachedFile(repoName, repoID, path, newFileID, fileInRepo);
     }

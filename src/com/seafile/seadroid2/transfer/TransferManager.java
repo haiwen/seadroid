@@ -58,7 +58,7 @@ public class TransferManager {
      * Add a new upload task
      */
     public int addUploadTask(Account account, String repoID, String repoName,
-                              String dir, String filePath, boolean isUpdate) {
+                              String dir, String filePath, boolean isUpdate, boolean isCopyToLocal) {
         Iterator<UploadTask> iter = uploadTasks.iterator();
         while (iter.hasNext()) {
             UploadTask task = iter.next();
@@ -76,7 +76,7 @@ public class TransferManager {
             }
         }
 
-        UploadTask task = new UploadTask(account, repoID, repoName, dir, filePath, isUpdate);
+        UploadTask task = new UploadTask(account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal);
         task.execute();
         return task.getTaskID();
     }
@@ -199,7 +199,8 @@ public class TransferManager {
         private String myDir;   // parent dir
         private String myPath;  // local file path
         private boolean isUpdate;  // true if update an existing file
-
+        private boolean isCopyToLocal; // false to turn off copy operation
+        
         private TaskState myState;
         private int myID;
         private long myUploaded;
@@ -211,13 +212,14 @@ public class TransferManager {
         Account account;
 
         public UploadTask(Account account, String repoID, String repoName,
-                          String dir, String filePath, boolean isUpdate) {
+                          String dir, String filePath, boolean isUpdate, boolean isCopyToLocal) {
             this.account = account;
             this.myRepoID = repoID;
             this.myRepoName = repoName;
             this.myDir = dir;
             this.myPath = filePath;
             this.isUpdate = isUpdate;
+            this.isCopyToLocal = isCopyToLocal;
             this.dataManager = new DataManager(account);
 
             File f = new File(filePath);
@@ -242,7 +244,7 @@ public class TransferManager {
 
         public UploadTaskInfo getTaskInfo() {
             UploadTaskInfo info = new UploadTaskInfo(myID, account, myState, myRepoID,
-                                                     myRepoName, myDir, myPath, isUpdate,
+                                                     myRepoName, myDir, myPath, isUpdate, isCopyToLocal,
                                                      myUploaded, mySize, err);
             return info;
         }
@@ -252,7 +254,7 @@ public class TransferManager {
                 return;
             }
             uploadTasks.remove(this);
-            addUploadTask(account, myRepoID, myRepoName, myDir, myPath, isUpdate);
+            addUploadTask(account, myRepoID, myRepoName, myDir, myPath, isUpdate, isCopyToLocal);
         }
 
         public void cancelUpload() {
@@ -291,10 +293,10 @@ public class TransferManager {
                     }
                 };
                 if (isUpdate) {
-                    dataManager.updateFile(myRepoName, myRepoID, myDir, myPath, monitor);
+                    dataManager.updateFile(myRepoName, myRepoID, myDir, myPath, monitor, isCopyToLocal);
                 } else {
                     Log.d(DEBUG_TAG, "Upload path: " + myPath);
-                    dataManager.uploadFile(myRepoName, myRepoID, myDir, myPath, monitor);
+                    dataManager.uploadFile(myRepoName, myRepoID, myDir, myPath, monitor, isCopyToLocal);
                 }
             } catch (SeafException e) {
                 Log.d(DEBUG_TAG, "Upload exception " + e.getCode() + " " + e.getMessage());
