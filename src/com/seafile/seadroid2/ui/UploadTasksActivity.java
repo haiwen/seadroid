@@ -59,8 +59,11 @@ public class UploadTasksActivity extends SherlockFragmentActivity {
         adapter = BrowserActivity.uploadTasksAdapter;
         uploadTasksView = (ListView) findViewById(R.id.upload_tasks_list);
         uploadTasksView.setAdapter(adapter);
-        if (adapter.isEmpty()) {
+        if (adapter != null && adapter.isEmpty()) {
             uploadTasksView.setVisibility(View.GONE);
+        }
+        if (adapter == null) {
+            finish();
         }
         registerForContextMenu(uploadTasksView);
         
@@ -70,6 +73,13 @@ public class UploadTasksActivity extends SherlockFragmentActivity {
         
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);     
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(DEBUG_TAG, "datasetChanged");
+        adapter.notifyDataSetChanged();
     }
 
     @Override
