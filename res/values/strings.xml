@@ -28,8 +28,11 @@
     <string name="cached">Cached</string>
     <string name="activities">Activities</string>
     <string name="pick_upload_type">Upload</string>
+    
     <string name="upload_tasks">Uploads</string>
     <string name="accounts">Accounts</string>
+    <string name="settings">Settings</string>
+    
     <string-array name="pick_upload_array">
         <item>File</item>
         <item>Photos/Videos</item>
@@ -90,14 +93,6 @@
     <string name="no_app_available">No app can be found</string>
     <string name="add_to_seafile">Add to Seafile</string>
     <string name="ok">OK</string>
-    <string name="cancel">Cancel</string>
-    <string name="go_on">Go on</string>
-    <string name="try_again">Try again</string>
-    <string name="confirm">Confirm</string>
-    <string name="lockpattern_recording_incorrect_too_short" >"At least link 4 points, try again please"</string>
-    <string name="lockpattern_error" >"Wrong gesture lock"</string>
-    <string name="please_draw_gesture_lock" >"Please Draw Gesture Lock"</string>
-    <string name="setup_gesture_lock_success" >"Set up gesture lock successfully!"</string>
     <string name="no_account">Please setup an account in Seafile first</string>
     <string name="no_library">You have no library yet</string>
     <string name="choose_an_account">Choose an account</string>
@@ -177,12 +172,19 @@
     <string name="upload_started">upload is started</string>
     <string name="cannot_copy_folder_to_subfolder">You can\'t copy a folder to its subfolder</string>
     <string name="cannot_move_folder_to_subfolder">You can\'t move a folder to its subfolder</string>
+    
     <string name="security">Security</string>
-    <string name="settings">Settings</string>
     <string name="gesture_lock">Gesture Lock</string>
     <string name="gesture_lock_on">Gesture lock on</string>
     <string name="gesture_lock_off">Gesture lock off</string>
-    
+   <string name="cancel">Cancel</string>
+    <string name="go_on">Go on</string>
+    <string name="try_again">Try again</string>
+    <string name="confirm">Confirm</string>
+    <string name="lockpattern_recording_incorrect_too_short" >please at least link 4 points</string>
+    <string name="lockpattern_error" >Wrong gesture lock</string>
+    <string name="please_draw_gesture_lock" >Please Draw Gesture Lock</string>
+    <string name="setup_gesture_lock_success" >Set up gesture lock successfully!</string>
     <!-- Accessibility description sent when user starts drawing a lock pattern. [CHAR LIMIT=NONE] -->
     <string name="lockscreen_access_pattern_start">Pattern started</string>
     <!-- Accessibility description sent when the pattern times out and is cleared. [CHAR LIMIT=NONE] -->
@@ -191,12 +193,13 @@
     <string name="lockscreen_access_pattern_cell_added">Cell added</string>
     <!-- Accessibility description sent when user completes drawing a pattern. [CHAR LIMIT=NONE] -->
     <string name="lockscreen_access_pattern_detected">Pattern completed</string>
+    
     <string name="settings_camera_upload_duplicate">already uploaded</string>
     <string name="settings_camera_upload_info_title">Camera Photo Upload</string>
     <string name="settings_camera_upload_info">upload %d photo(s) to\u0020</string>
     <string name="settings_wifi_down">Wi-Fi not available</string>    
-    <string name="settings_startUpService">Upload service started</string>    
-    <string name="settings_stopUpService">Upload service stoped</string>    
+    <string name="settings_startUpService">Upload Service started</string>    
+    <string name="settings_stopUpService">Upload Service stopped</string>    
     <string name="settings_repo">Change Upload Library</string>    
     <string name="settings_hint">Please choose a remote library first</string>    
     <string name="settings_start">Turn on Camera Upload</string>    
