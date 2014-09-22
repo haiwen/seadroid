@@ -101,7 +101,7 @@ public class CameraUploadService extends Service {
         
         LocalBroadcastManager.getInstance(this).unregisterReceiver(transferReceiver);
         transferReceiver = null;
-        onlySentBroadcastOnce = 0;
+        intSendBroadcastOnlyOnceFlag = 0;
     }
 
     @Override
@@ -198,7 +198,7 @@ public class CameraUploadService extends Service {
         cursor.close();
         return photo;
     }
-    static int onlySentBroadcastOnce = 0;
+    static int intSendBroadcastOnlyOnceFlag = 0;
     private class PhotoUploadTask extends AsyncTask<Void, Void, List<File>> {
         
         @Override
@@ -237,12 +237,12 @@ public class CameraUploadService extends Service {
                 }
                 return;
             } 
-            if (onlySentBroadcastOnce == 0) {
+            if (intSendBroadcastOnlyOnceFlag == 0) {
                     
                 localIntent = new Intent(TransferService.BROADCAST_ACTION).putExtra("type",
                         BROADCAST_CAMERA_UPLOAD_SERVICE_STARTED);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);
-                onlySentBroadcastOnce ++;
+                intSendBroadcastOnlyOnceFlag ++;
             }
             
             for (File photo : result) {
