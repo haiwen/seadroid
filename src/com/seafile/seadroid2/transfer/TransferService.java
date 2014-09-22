@@ -62,8 +62,8 @@ public class TransferService extends Service implements TransferListener {
     }
 
     public int addUploadTask(Account account, String repoID, String repoName, String dir,
-            String filePath, boolean isUpdate) {
-        return txManager.addUploadTask(account, repoID, repoName, dir, filePath, isUpdate);
+            String filePath, boolean isUpdate, boolean isCopyToLocal) {
+        return txManager.addUploadTask(account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal);
     }
 
     public int addDownloadTask(Account account, String repoName, String repoID, String path) {
@@ -197,7 +197,7 @@ class PersistentTransferScheduler implements UpdateTaskListener {
             }
 
             service.addUploadTask(account, info.repoID, info.repoName, info.parentDir,
-                    info.localFilePath, true);
+                    info.localFilePath, true, true);
         }
     }
 }

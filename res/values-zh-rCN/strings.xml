@@ -26,9 +26,13 @@
   <string name="personal">个人</string>
   <string name="libraries">资料库</string>
   <string name="cached">已缓存</string>
-  <string name="upload_tasks">上传任务</string>
   <string name="activities">事件</string>
   <string name="pick_upload_type">上传</string>
+
+  <string name="upload_tasks">上传任务</string>
+  <string name="accounts">帐号</string>
+  <string name="settings">设置菜单</string>
+  
   <string-array name="pick_upload_array">
     <item>文件</item>
     <item>图片/视频</item>
@@ -89,7 +93,6 @@
   <string name="no_app_available">没有找到应用</string>
   <string name="add_to_seafile">添加到Seafile中</string>
   <string name="ok">确定</string>
-  <string name="cancel">取消</string>
   <string name="no_account">首先请在Seafile上创建一个账户</string>
   <string name="no_library">对不起，您还没有任何资料库</string>
   <string name="choose_an_account">请选择一个账户</string>
@@ -169,4 +172,29 @@
   <string name="upload_started">开始上传</string>
   <string name="cannot_copy_folder_to_subfolder">不能把一个文件夹复制到它的子文件夹里面去</string>
   <string name="cannot_move_folder_to_subfolder">不能把一个文件夹移动到它的子文件夹里面去</string>
+  
+  <string name="security">安全性</string>
+  <string name="gesture_lock">手势密码锁定</string>
+  <string name="gesture_lock_on">手势锁开启 on</string>
+  <string name="gesture_lock_off">手势锁关闭</string>
+  <string name="go_on">下一步</string>
+  <string name="cancel">取消</string>
+  <string name="try_again">重试</string>
+  <string name="confirm">确定</string>
+  <string name="lockpattern_recording_incorrect_too_short" >请至少连接四个点</string>
+  <string name="lockpattern_error" >密码错误</string>
+  <string name="please_draw_gesture_lock" >请绘制手势密码</string>
+  <string name="setup_gesture_lock_success" >设置手势秘密成功！</string>
+  
+  <string name="settings_camera_upload_duplicate">已上传</string>
+  <string name="settings_camera_upload_info_title">上传照片</string>
+  <string name="settings_camera_upload_info">上传%d张照片到\u0020</string>
+  <string name="settings_wifi_down">Wi-Fi不可用</string>    
+  <string name="settings_startUpService">上传服务已启动</string>    
+  <string name="settings_stopUpService">上传服务已关闭</string>    
+  <string name="settings_repo">更改上传照片的库</string>    
+  <string name="settings_hint">请先选择一个库来上传照片</string>    
+  <string name="settings_start">打开照片上传</string>    
+  <string name="settings_camera_upload_library_not_found">没找到库</string>
+  
 </resources>

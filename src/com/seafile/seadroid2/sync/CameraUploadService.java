@@ -34,6 +34,7 @@ import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.transfer.UploadTaskInfo;
 import com.seafile.seadroid2.ui.SettingsPreferenceFragment;
 import com.seafile.seadroid2.util.CameraUploadUtil;
+import com.seafile.seadroid2.util.Utils;
 
 public class CameraUploadService extends Service {
     private static final String DEBUG_TAG = "CameraUploadService";
@@ -97,8 +98,10 @@ public class CameraUploadService extends Service {
             unbindService(mConnection);
             mTransferService = null;
         }
+        
         LocalBroadcastManager.getInstance(this).unregisterReceiver(transferReceiver);
         transferReceiver = null;
+        intSendBroadcastOnlyOnceFlag = 0;
     }
 
     @Override
@@ -137,7 +140,7 @@ public class CameraUploadService extends Service {
             for (PendingUploadInfo info : pendingUploads) {
                mTransferService.addUploadTask(account, info.repoID,
                                         info.repoName, info.targetDir,
-                                        info.localFilePath, info.isUpdate);
+                                        info.localFilePath, info.isUpdate, info.isCopyToLocal);
             }
             pendingUploads.clear();
         }
@@ -150,9 +153,11 @@ public class CameraUploadService extends Service {
     
     private void addUploadTask(String repoID, String repoName, String targetDir, String localFilePath) {
         if (mTransferService != null) {
-            mTransferService.addUploadTask(account, repoID, repoName, targetDir, localFilePath, false);
+            // set the last parameter "isUpdate" to true to stop copying file into sd-card
+            // if passed "false" will cause OOM when uploading photos
+            mTransferService.addUploadTask(account, repoID, repoName, targetDir, localFilePath, false, false);
         } else {
-            PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, false);
+            PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, false, false);
             pendingUploads.add(info);
         }
     }
@@ -183,7 +188,7 @@ public class CameraUploadService extends Service {
 
     private File getPhotoFromMediaStore(Context context, Uri uri) {
         Cursor cursor = context.getContentResolver().query(uri, null, null,
-                null, null);
+                null, "date_added DESC");
         File photo = null;
         if (cursor.moveToNext()) {
             int dataColumn = cursor.getColumnIndexOrThrow(MediaColumns.DATA);
@@ -193,11 +198,16 @@ public class CameraUploadService extends Service {
         cursor.close();
         return photo;
     }
-    
+    static int intSendBroadcastOnlyOnceFlag = 0;
     private class PhotoUploadTask extends AsyncTask<Void, Void, List<File>> {
-
+        
         @Override
         protected List<File> doInBackground(Void... params) {
+            // ensure network is available
+            if (!Utils.isNetworkOn()) {
+                return null;
+            }
+            
             // ensure remote camera upload library exists
             try {
                 isRemoteCameraUploadRepoValid = cUploadManager
@@ -226,10 +236,13 @@ public class CameraUploadService extends Service {
                     LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);
                 }
                 return;
-            } else {
+            } 
+            if (intSendBroadcastOnlyOnceFlag == 0) {
+                    
                 localIntent = new Intent(TransferService.BROADCAST_ACTION).putExtra("type",
                         BROADCAST_CAMERA_UPLOAD_SERVICE_STARTED);
                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);
+                intSendBroadcastOnlyOnceFlag ++;
             }
             
             for (File photo : result) {
@@ -247,16 +260,21 @@ public class CameraUploadService extends Service {
     private class CameraEventReceiverTask extends AsyncTask<Void, Void, File> {
         // private String detectLog;
         @Override
-        protected File doInBackground(Void... params) {
-            return getPhotoFromMediaStore(getApplicationContext(), MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        }
+		protected File doInBackground(Void... params) {
+			return getPhotoFromMediaStore(getApplicationContext(),
+					MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+		}
 
         @Override
         protected void onPostExecute(File photo) {
-            // detectLog = "detected " + photo.getName();
-            if (cUploadManager.getCachedPhoto(repoName, repoId, DIR, photo.getName()) == null) {
-                addUploadTask(repoId, repoName, CAMERA_UPLOAD_REMOTE_PARENTDIR + CAMERA_UPLOAD_REMOTE_DIR, photo.getAbsolutePath());
-            }
+            String detectLog = "detected " + photo.getName();
+            Log.d(DEBUG_TAG, detectLog);
+            SeafCachedPhoto cachePhoto = cUploadManager.getCachedPhoto(repoName, repoId, DIR,
+					photo.getName());
+			if (cachePhoto == null) {
+				addUploadTask(repoId, repoName, CAMERA_UPLOAD_REMOTE_PARENTDIR
+						+ CAMERA_UPLOAD_REMOTE_DIR, photo.getAbsolutePath());
+			} 
         }
     }
 
