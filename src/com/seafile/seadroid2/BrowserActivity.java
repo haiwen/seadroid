@@ -298,7 +298,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         if (isCameraUploadServiceRunning("com.seafile.seadroid2.sync.CameraUploadService")) {
             Log.d(DEBUG_TAG, "service running...");
             // even camera upload service is running, still can`t return. 
-            // because running state does not guarantee UploadFragment to show uploading progress only, it may show "no upload tasks" which is not expected   
+            // because running state does not guarantee UploadFragment to only show uploading progress, it may show unexpected info like "no upload tasks".
             // 1. when OS under memory pressure, nothing upload even service state is running
             // 2. OS will restore upload, of course service state is running as well
 
