@@ -2,12 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="com.seafile.seadroid2"
       android:versionCode="20"
-      android:versionName="1.0.1"
-      android:installLocation="internalOnly">
+      android:versionName="1.0.1">
 
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="17" />
 
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -16,13 +14,6 @@
         android:name="com.seafile.seadroid2.SeadroidApplication"
         android:label="@string/app_name"
         android:icon="@drawable/ic_launcher">
-        
-        <receiver android:name="com.seafile.seadroid2.sync.OSBootReceiver" >
-            <intent-filter>
-                <category android:name="android.intent.category.DEFAULT" />  
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
 
         <activity android:name="com.seafile.seadroid2.AccountsActivity"
                   android:theme="@style/Theme.SeafileTheme"

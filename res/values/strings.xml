@@ -178,7 +178,7 @@
     <string name="gesture_lock_on">Gesture lock on</string>
     <string name="gesture_lock_off">Gesture lock off</string>
    <string name="cancel">Cancel</string>
-    <string name="go_on">Go on</string>
+    <string name="go_on">Next</string>
     <string name="try_again">Try again</string>
     <string name="confirm">Confirm</string>
     <string name="lockpattern_recording_incorrect_too_short" >please at least link 4 points</string>
