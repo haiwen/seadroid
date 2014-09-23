@@ -1,13 +1,15 @@
-language: android
-android:
-  components:
-    - build-tools-19.0.3
-    - android-19
-    - sysimg-19
-    - extra-android-support
-  licenses:
-    - '.*'
-notifications:
-  email:
-    recipients:
-      - linshuai2012@gmail.com
+#based on https://raw.github.com/leviwilson/android-travis-ci-example/master/.travis.yml
+language: java
+jdk:
+  # - openjdk7
+  - oraclejdk7
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq libstdc++6:i386 lib32z1 expect
+  - cd ..
+  - git clone https://github.com/mosabua/maven-android-sdk-deployer.git
+  - cd maven-android-sdk-deployer
+  - mvn -pl com.simpligility.android.sdk-deployer:android-19 -am install
+  - cd ..
+script:
+  - mvn test
