@@ -19,7 +19,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <platform.version>4.4W_r1</platform.version>
+    <platform.version>4.2.2_r2</platform.version>
     <android.plugin.version>3.9.0-rc.2</android.plugin.version>
   </properties>
 
@@ -110,7 +110,7 @@
         <artifactId>android-maven-plugin</artifactId>
         <configuration>
           <sdk>
-            <platform>16</platform>
+            <platform>17</platform>
           </sdk>
           <proguard>
             <skip>false</skip>

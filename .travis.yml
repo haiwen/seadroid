@@ -10,11 +10,11 @@ before_install:
   - tar xf android-sdk_r23.0.2-linux.tgz
   - export ANDROID_HOME=`pwd`/android-sdk-linux
   - export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
-  - echo "y" | android update sdk -a --filter tools,platform-tools,build-tools-20.0.0,android-20 --no-ui --force
+  - echo "y" | android update sdk -a --filter tools,platform-tools,build-tools-20.0.0,android-17 --no-ui --force
   - cd /tmp/
   - git clone https://github.com/mosabua/maven-android-sdk-deployer.git
   - cd maven-android-sdk-deployer
-  - mvn clean install -pl platforms/android-20
+  - mvn clean install -pl platforms/android-17
   - cd $TRAVIS_BUILD_DIR
 script:
   - mvn test
