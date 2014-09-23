@@ -285,12 +285,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         Intent monitorIntent = new Intent(this, FileMonitorService.class);
         startService(monitorIntent);
-
-    }
-    @Override
-    protected void onResume() {
-        super.onResume();
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        
         boolean isUploadStart = settings.getBoolean(BrowserActivity.CAMERA_UPLOAD_SWITCH_KEY, false);
         if (!isUploadStart) {
             return;
@@ -307,8 +302,9 @@ public class BrowserActivity extends SherlockFragmentActivity
         Log.d(DEBUG_TAG, "start service explicitly on Resume method");
         Intent cameraUploadIntent = new Intent(this, CameraUploadService.class);
         startService(cameraUploadIntent);
+
     }
-    
+        
     private boolean isCameraUploadServiceRunning(String serviceClassName) {
         final ActivityManager activityManager = 
                 (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
