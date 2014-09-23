@@ -145,9 +145,18 @@ public abstract class TaskDialog extends DialogFragment {
         }
     }
 
+    /**
+     * Get a readable message to display from an exception. Subclasses should
+     * override this method if needed.
+     *
+     */
+    protected String getErrorFromException(SeafException e) {
+        return e.getMessage();
+    }
+
     public void onTaskFailed(SeafException e) {
         hideLoading();
-        showError(e.getMessage());
+        showError(getErrorFromException(e));
         enableInput();
         if (mListener != null) {
             mListener.onTaskFailed(e);

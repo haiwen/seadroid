@@ -155,4 +155,12 @@ public class PasswordDialog extends TaskDialog {
         DataManager.setRepoPasswordSet(repoID, password);
         super.onTaskSuccess();
     }
+
+    @Override
+    protected String getErrorFromException(SeafException e) {
+        if (e.getCode() == 400) {
+            return getString(R.string.wrong_password);
+        }
+        return e.getMessage();
+    }
 }
