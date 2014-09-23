@@ -286,7 +286,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         Intent monitorIntent = new Intent(this, FileMonitorService.class);
         startService(monitorIntent);
         
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         boolean isUploadStart = settings.getBoolean(BrowserActivity.CAMERA_UPLOAD_SWITCH_KEY, false);
         if (!isUploadStart) {
             return;
