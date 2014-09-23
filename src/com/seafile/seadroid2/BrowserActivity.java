@@ -285,14 +285,19 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         Intent monitorIntent = new Intent(this, FileMonitorService.class);
         startService(monitorIntent);
-        
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         boolean isUploadStart = settings.getBoolean(BrowserActivity.CAMERA_UPLOAD_SWITCH_KEY, false);
         if (!isUploadStart) {
             return;
         }
         if (isCameraUploadServiceRunning("com.seafile.seadroid2.sync.CameraUploadService")) {
             Log.d(DEBUG_TAG, "service running...");
-            // even camera upload service is running, still can`t return. 
+            // even camera upload service is running, still can`t return.
             // because running state does not guarantee UploadFragment to only show uploading progress, it may show unexpected info like "no upload tasks".
             // 1. when OS under memory pressure, nothing upload even service state is running
             // 2. OS will restore upload, of course service state is running as well
@@ -302,11 +307,10 @@ public class BrowserActivity extends SherlockFragmentActivity
         Log.d(DEBUG_TAG, "start service explicitly on Resume method");
         Intent cameraUploadIntent = new Intent(this, CameraUploadService.class);
         startService(cameraUploadIntent);
-
     }
-        
+
     private boolean isCameraUploadServiceRunning(String serviceClassName) {
-        final ActivityManager activityManager = 
+        final ActivityManager activityManager =
                 (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         final List<RunningServiceInfo> services = activityManager
                 .getRunningServices(Integer.MAX_VALUE);
@@ -319,7 +323,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
         return false;
     }
-    
+
     private String getCurrentTabName() {
 
         int index = tabsFragment.getCurrentTabIndex();
@@ -711,15 +715,15 @@ public class BrowserActivity extends SherlockFragmentActivity
     public void enableUpButton() {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
-    
+
     public void disableUpButton() {
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     }
 
     public void setUpButtonTitle(String title){
         getSupportActionBar().setTitle(title);
-    } 
-    
+    }
+
     /***********  Start other activity  ***************/
 
     public static final int PICK_FILES_REQUEST = 1;
@@ -917,7 +921,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         startFileActivity(repoName, repoID, filePath);
     }
-    
+
     @Override
     public void onBackPressed() {
         if (getSupportFragmentManager().getBackStackEntryCount() != 0) {
