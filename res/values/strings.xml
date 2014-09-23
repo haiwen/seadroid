@@ -201,7 +201,7 @@
     <string name="settings_startUpService">Upload Service started</string>    
     <string name="settings_stopUpService">Upload Service stopped</string>    
     <string name="set_camera_upload_library">Change Upload Library</string>    
-    <string name="settings_hint">Please choose a remote library first</string>    
+    <string name="settings_hint">Please choose a library first</string>    
     <string name="settings_start">Turn on Camera Upload</string>    
-    <string name="settings_camera_upload_library_not_found">library not found</string>
+    <string name="settings_camera_upload_library_not_found">The selected library does not exist</string>
 </resources>
