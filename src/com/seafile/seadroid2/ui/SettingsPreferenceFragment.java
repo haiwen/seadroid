@@ -27,11 +27,12 @@ import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.util.Utils;
 
 @SuppressLint("NewApi")
-public class SettingsPreferenceFragment extends PreferenceFragment implements OnPreferenceChangeListener,   
-OnPreferenceClickListener {
+public class SettingsPreferenceFragment
+    extends PreferenceFragment
+    implements OnPreferenceChangeListener, OnPreferenceClickListener {
 
-private static final String DEBUG_TAG = "SettingsPreferenceFragment";
-    
+    private static final String DEBUG_TAG = "SettingsPreferenceFragment";
+
     public static final String PKG = "com.seafile.seadroid2";
     public static final String EXTRA_CAMERA_UPLOAD = PKG + ".camera.upload";
     public static final String SHARED_PREF_CAMERA_UPLOAD_REPO_ID = PKG + ".camera.repoid";
@@ -42,7 +43,7 @@ private static final String DEBUG_TAG = "SettingsPreferenceFragment";
     public static final String SHARED_PREF_CAMERA_UPLOAD_SETTINGS_REPONAME = PKG + ".camera.settings.repoName";
     public static final String SHARED_PREF_CAMERA_UPLOAD_SETTINGS_START = PKG + ".camera.settings.startService";
     public static final int CHOOSE_CAMERA_UPLOAD_REPO_REQUEST = 1;
-    private static final int Gesture_Lock_REQUEST = 6;
+    private static final int GESTURE_LOCK_REQUEST = 6;
     private CheckBoxPreference gestureLockSwitch;
     private CheckBoxPreference cameraUploadSwitch;
     private Preference cameraUploadRepo;
@@ -61,13 +62,13 @@ private static final String DEBUG_TAG = "SettingsPreferenceFragment";
         super.onCreate(savedInstanceState);
         Log.d(DEBUG_TAG, "onCreate");
         addPreferencesFromResource(R.xml.settings);
-        
-        gestureLockSwitch = (CheckBoxPreference) findPreference(BrowserActivity.GESTURE_LOCK_SWITCH_KEY); 
-        cameraUploadSwitch = (CheckBoxPreference) findPreference(BrowserActivity.CAMERA_UPLOAD_SWITCH_KEY); 
-        cameraUploadRepo = (Preference) findPreference(BrowserActivity.CAMERA_UPLOAD_REPO_KEY); 
+
+        gestureLockSwitch = (CheckBoxPreference) findPreference(BrowserActivity.GESTURE_LOCK_SWITCH_KEY);
+        cameraUploadSwitch = (CheckBoxPreference) findPreference(BrowserActivity.CAMERA_UPLOAD_SWITCH_KEY);
+        cameraUploadRepo = (Preference) findPreference(BrowserActivity.CAMERA_UPLOAD_REPO_KEY);
         gestureLockSwitch.setOnPreferenceChangeListener(this);
         gestureLockSwitch.setOnPreferenceClickListener(this);
-        
+
         cameraUploadSwitch.setOnPreferenceClickListener(this);
         cameraUploadRepo.setOnPreferenceClickListener(this);
         mActivity = (SettingsActivity) getActivity();
@@ -79,7 +80,7 @@ private static final String DEBUG_TAG = "SettingsPreferenceFragment";
             cameraUploadRepo.setSummary(repoName);
             cameraUploadRepo.setDefaultValue(repoName);
         }
-        
+
         if (!cameraUploadSwitch.isChecked()) {
             cameraUploadRepo.setEnabled(false);
         } else {
@@ -91,7 +92,7 @@ private static final String DEBUG_TAG = "SettingsPreferenceFragment";
                 .registerReceiver(transferReceiver,
                         new IntentFilter(TransferService.BROADCAST_ACTION));
     }
-    
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -105,7 +106,7 @@ private static final String DEBUG_TAG = "SettingsPreferenceFragment";
         editor.putString(SHARED_PREF_CAMERA_UPLOAD_SETTINGS_REPONAME, repoName);
         editor.commit();
     }
-    
+
     private String getCameraUploadRepoName() {
         return sharedPref.getString(SHARED_PREF_CAMERA_UPLOAD_SETTINGS_REPONAME, null);
     }
@@ -114,12 +115,12 @@ private static final String DEBUG_TAG = "SettingsPreferenceFragment";
         if (preference.getKey().equals(BrowserActivity.GESTURE_LOCK_SWITCH_KEY)) {
             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
             gestureLockBefore = settings.getBoolean(BrowserActivity.GESTURE_LOCK_SWITCH_KEY, false);
-            
+
             if (gestureLockBefore == false) {
                 Intent newIntent = new Intent(getActivity(), GestureLockSetupActivity.class);
                 newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivityForResult(newIntent, Gesture_Lock_REQUEST);
-                
+                startActivityForResult(newIntent, GESTURE_LOCK_REQUEST);
+
             } else {
                 SharedPreferences.Editor editor = settings.edit();
                 editor.putBoolean(BrowserActivity.GESTURE_LOCK_SWITCH_KEY, false);
@@ -152,7 +153,7 @@ private static final String DEBUG_TAG = "SettingsPreferenceFragment";
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         return false;
     }
-    
+
     public void showToast(CharSequence msg) {
         Context context = getActivity().getApplicationContext();
         Toast toast = Toast.makeText(context, msg, Toast.LENGTH_SHORT);
@@ -166,12 +167,12 @@ private static final String DEBUG_TAG = "SettingsPreferenceFragment";
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-        case Gesture_Lock_REQUEST:
+        case GESTURE_LOCK_REQUEST:
             if (resultCode == Activity.RESULT_OK) {
                 setupSuccess = data.getBooleanExtra("setupSuccess", true);
                 SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
                 SharedPreferences.Editor editor = settings.edit();
-                
+
                 if (setupSuccess == true) {
                     showToast(R.string.setup_gesture_lock_success);
                     editor.putBoolean(BrowserActivity.GESTURE_LOCK_SWITCH_KEY, true);
@@ -180,12 +181,12 @@ private static final String DEBUG_TAG = "SettingsPreferenceFragment";
                     editor.putBoolean(BrowserActivity.GESTURE_LOCK_SWITCH_KEY, false);
                     gestureLockSwitch.setChecked(false);
                 }
-    
+
                 editor.commit();
             }
-        
+
             break;
-        
+
         case CHOOSE_CAMERA_UPLOAD_REPO_REQUEST:
             if (resultCode == Activity.RESULT_OK) {
                 mCameraUploadRepoChooserData = data;
@@ -209,21 +210,21 @@ private static final String DEBUG_TAG = "SettingsPreferenceFragment";
                 cameraUploadRepo.setEnabled(false);
                 startCameraUploadService(false);
             }
-           break; 
-           
+           break;
+
         default:
             break;
         }
-        
+
     }
-    
+
     private void startCameraUploadService(Boolean isChecked) {
         if (!isChecked) {
-            
+
             // stop camera upload service
             mActivity.stopService(cameraUploadIntent);
         } else {
-            
+
             if (repoName != null) {
                 // show remote library name
                 cameraUploadRepo.setSummary(repoName);
@@ -235,7 +236,7 @@ private static final String DEBUG_TAG = "SettingsPreferenceFragment";
                 this.startActivityForResult(intent, CHOOSE_CAMERA_UPLOAD_REPO_REQUEST);
                 return;
             }
-            
+
             if (Utils.isWiFiOn()) {
                 //start service
                 mActivity.startService(cameraUploadIntent);
@@ -247,7 +248,7 @@ private static final String DEBUG_TAG = "SettingsPreferenceFragment";
             }
         }
     }
-    
+
     private void saveCameraUploadRepoInfo(String repoId, String repoName, String dstDir,
             Account account) {
         editor.putString(SHARED_PREF_CAMERA_UPLOAD_REPO_ID, repoId);
@@ -269,7 +270,7 @@ private static final String DEBUG_TAG = "SettingsPreferenceFragment";
             if (type == null) {
                 return;
             }
-            
+
             if (type.equals(CameraUploadService.BROADCAST_CAMERA_UPLOAD_LIBRARY_NOT_FOUND)) {
                 repoName = null;
                 cameraUploadRepo.setSummary(R.string.settings_hint);
