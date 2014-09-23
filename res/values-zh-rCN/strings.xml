@@ -31,7 +31,7 @@
 
   <string name="upload_tasks">上传任务</string>
   <string name="accounts">帐号</string>
-  <string name="settings">设置菜单</string>
+  <string name="settings">设置</string>
 
   <string-array name="pick_upload_array">
     <item>文件</item>
