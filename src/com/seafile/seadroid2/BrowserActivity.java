@@ -8,6 +8,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningServiceInfo;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
@@ -51,6 +53,7 @@ import com.seafile.seadroid2.data.SeafStarredFile;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 import com.seafile.seadroid2.gallery.MultipleImageSelectionActivity;
 import com.seafile.seadroid2.monitor.FileMonitorService;
+import com.seafile.seadroid2.sync.CameraUploadService;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.PendingUploadInfo;
 import com.seafile.seadroid2.transfer.TransferService;
@@ -138,18 +141,18 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     public void addUpdateTask(String repoID, String repoName, String targetDir, String localFilePath) {
         if (txService != null) {
-            txService.addUploadTask(account, repoID, repoName, targetDir, localFilePath, true);
+            txService.addUploadTask(account, repoID, repoName, targetDir, localFilePath, true, true);
         } else {
-            PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, true);
+            PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, true, true);
             pendingUploads.add(info);
         }
     }
 
     private void addUploadTask(String repoID, String repoName, String targetDir, String localFilePath) {
         if (txService != null) {
-            txService.addUploadTask(account, repoID, repoName, targetDir, localFilePath, false);
+            txService.addUploadTask(account, repoID, repoName, targetDir, localFilePath, false, false);
         } else {
-            PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, false);
+            PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, false, false);
             pendingUploads.add(info);
         }
     }
@@ -284,8 +287,43 @@ public class BrowserActivity extends SherlockFragmentActivity
         startService(monitorIntent);
 
     }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean isUploadStart = settings.getBoolean(BrowserActivity.CAMERA_UPLOAD_SWITCH_KEY, false);
+        if (!isUploadStart) {
+            return;
+        }
+        if (isCameraUploadServiceRunning("com.seafile.seadroid2.sync.CameraUploadService")) {
+            Log.d(DEBUG_TAG, "service running...");
+            // even camera upload service is running, still can`t return. 
+            // because running state does not guarantee UploadFragment to only show uploading progress, it may show unexpected info like "no upload tasks".
+            // 1. when OS under memory pressure, nothing upload even service state is running
+            // 2. OS will restore upload, of course service state is running as well
 
+            // return;
+        }
+        Log.d(DEBUG_TAG, "start service explicitly on Resume method");
+        Intent cameraUploadIntent = new Intent(this, CameraUploadService.class);
+        startService(cameraUploadIntent);
+    }
+    
+    private boolean isCameraUploadServiceRunning(String serviceClassName) {
+        final ActivityManager activityManager = 
+                (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        final List<RunningServiceInfo> services = activityManager
+                .getRunningServices(Integer.MAX_VALUE);
 
+        for (RunningServiceInfo runningServiceInfo : services) {
+            if (runningServiceInfo.service.getClassName().equals(
+                    serviceClassName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     private String getCurrentTabName() {
 
         int index = tabsFragment.getCurrentTabIndex();
@@ -313,7 +351,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             for (PendingUploadInfo info : pendingUploads) {
                 txService.addUploadTask(account, info.repoID,
                                         info.repoName, info.targetDir,
-                                        info.localFilePath, info.isUpdate);
+                                        info.localFilePath, info.isUpdate, info.isCopyToLocal);
             }
             pendingUploads.clear();
         }
