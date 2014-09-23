@@ -50,8 +50,8 @@ public class CameraUploadService extends Service {
     private CameraUploadManager cUploadManager;
     private TransferService mTransferService;
     private final IBinder mBinder = new CameraBinder();
-    private Boolean isRemoteCameraUploadRepoValid;
-    private Boolean isCameraUpload;
+    private boolean isRemoteCameraUploadRepoValid;
+    private boolean isCameraUpload;
     private Account account;
     private String accountEmail;
     private String accountServer;
