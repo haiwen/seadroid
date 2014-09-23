@@ -22,7 +22,6 @@
   <string name="personal">Personal</string>
   <string name="libraries">Bibliotecas</string>
   <string name="cached">En Caché</string>
-  <string name="upload_tasks">SUBIDAS</string>
   <string name="activities">Actividades</string>
   <string name="pick_upload_type">Subir</string>
   <string-array name="pick_upload_array">
@@ -82,8 +81,6 @@
   <string name="no_repo">Aún no tiene bibliotecas</string>
   <string name="no_app_available">No se encuentra ninguna app</string>
   <string name="add_to_seafile">Agregar a Seafile</string>
-  <string name="ok">Ok</string>
-  <string name="cancel">Cancelar</string>
   <string name="no_account">Por favor, primero configure una cuenta en Seafile</string>
   <string name="no_library">Aún no tiene bibliotecas</string>
   <string name="choose_an_account">Elija una cuenta</string>
@@ -107,16 +104,10 @@
   <string name="copy_link">Copiar enlace</string>
   <string name="share_file_link">Compartir un enlace a este archivo</string>
   <string name="share_dir_link">Compartir un enlace a esta carpeta</string>
-  <string name="generating_link">Generando enlace...</string>
   <string name="link_ready_to_be_pasted">El enlace está listo para ser pegado</string>
   <string name="rename_file">Renombrar archivo</string>
   <string name="rename_dir">Renombrar carpeta</string>
   <string name="rename_successful">Renombrado con éxito.</string>
-  <string-array name="nav_array">
-    <item>Archivos</item>
-    <item>Subidas</item>
-    <item>Cuentas</item>
-  </string-array>
   <string name="drawer_open">Abrir caja de navegación</string>
   <string name="drawer_close">Cerrar caja de navegación</string>
   <string name="no_starred_file">Aún no hay archivos favoritos</string>
@@ -149,4 +140,9 @@
   <string name="yes">Si</string>
   <string name="no">No</string>
   <string name="remember_my_choice">Recordar mi elección</string>
+  <string name="cancel">Cancelar</string>
+  <!--Accessibility description sent when user starts drawing a lock pattern. [CHAR LIMIT=NONE]-->
+  <!--Accessibility description sent when the pattern times out and is cleared. [CHAR LIMIT=NONE]-->
+  <!--Accessibility description sent when user adds a cell to the pattern. [CHAR LIMIT=NONE]-->
+  <!--Accessibility description sent when user completes drawing a pattern. [CHAR LIMIT=NONE]-->
 </resources>

@@ -26,7 +26,6 @@
   <string name="personal">개인</string>
   <string name="libraries">라이브러리</string>
   <string name="cached">캐시함</string>
-  <string name="upload_tasks">업로드 갯수</string>
   <string name="activities">활동</string>
   <string name="pick_upload_type">업로드</string>
   <string-array name="pick_upload_array">
@@ -88,8 +87,6 @@
   <string name="no_repo">아직 라이브러리가 없습니다</string>
   <string name="no_app_available">앱을 찾을 수 없습니다</string>
   <string name="add_to_seafile">시파일에 추가</string>
-  <string name="ok">확인</string>
-  <string name="cancel">취소</string>
   <string name="no_account">먼저 시파일에서 계정을 설정해주세요</string>
   <string name="no_library">아직 라이브러리가 없습니다</string>
   <string name="choose_an_account">계정 만들기</string>
@@ -114,16 +111,10 @@
   <string name="copy_link">링크 복사</string>
   <string name="share_file_link">이 파일 링크 공유</string>
   <string name="share_dir_link">이 폴더 링크 공유</string>
-  <string name="generating_link">링크 만드는 중...</string>
   <string name="link_ready_to_be_pasted">붙여넣을 링크를 준비했습니다.</string>
   <string name="rename_file">파일 이름 바꾸기</string>
   <string name="rename_dir">폴더 이름 바꾸기</string>
   <string name="rename_successful">성공적으로 이름을 바꾸었습니다.</string>
-  <string-array name="nav_array">
-    <item>파일</item>
-    <item>업로드</item>
-    <item>계정</item>
-  </string-array>
   <string name="drawer_open">탐색 드로어 열기</string>
   <string name="drawer_close">탐색 드로어 닫기</string>
   <string name="no_starred_file">별표 표시한 파일이 없습니다</string>
@@ -168,4 +159,9 @@
   <string name="upload_started">업로드를 시작했습니다</string>
   <string name="cannot_copy_folder_to_subfolder">폴더를 이 폴더의 하위 폴더로 복사할 수 없습니다</string>
   <string name="cannot_move_folder_to_subfolder">폴더를 이 폴더의 하위 폴더로 이동할 수 없습니다</string>
+  <string name="cancel">취소</string>
+  <!--Accessibility description sent when user starts drawing a lock pattern. [CHAR LIMIT=NONE]-->
+  <!--Accessibility description sent when the pattern times out and is cleared. [CHAR LIMIT=NONE]-->
+  <!--Accessibility description sent when user adds a cell to the pattern. [CHAR LIMIT=NONE]-->
+  <!--Accessibility description sent when user completes drawing a pattern. [CHAR LIMIT=NONE]-->
 </resources>

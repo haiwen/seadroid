@@ -7,6 +7,10 @@
   <string name="edit_account">Szerkeszt</string>
   <string name="delete_account">Töröl</string>
   <string name="delete">Töröl</string>
+  <string name="delete_file">Biztos, hogy törli a fájlt vagy könyvtárat?</string>
+  <string name="delete_successful">Sikeres törlés</string>
+  <string name="delete_file_f">Fájl törlés</string>
+  <string name="delete_dir">Könyvtár törlés</string>
   <string name="server_hint">Szerver, mint a cloud.seafile.com</string>
   <string name="email_hint">Email</string>
   <string name="passwd_hint">Jelszó</string>
@@ -22,7 +26,6 @@
   <string name="personal">Személyes</string>
   <string name="libraries">Kötetek</string>
   <string name="cached">Gyorsítótárazva</string>
-  <string name="upload_tasks">Feltöltések</string>
   <string name="activities">Tevékenységek</string>
   <string name="pick_upload_type">Feltölt</string>
   <string-array name="pick_upload_array">
@@ -58,6 +61,8 @@
   <string name="file_action_export">Exportálás</string>
   <string name="file_action_delete">Törlés</string>
   <string name="file_action_rename">Átnevez</string>
+  <string name="file_action_copy">Másol</string>
+  <string name="file_action_move">Mozgat</string>
   <string name="file_action_open_as">Megnyit mint</string>
   <string-array name="file_type_array">
     <item>Szöveg</item>
@@ -82,8 +87,6 @@
   <string name="no_repo">Nincsenek kötetei</string>
   <string name="no_app_available">Nem található alkalmazás</string>
   <string name="add_to_seafile">Hozzáadás a Seafile-hoz</string>
-  <string name="ok">OK</string>
-  <string name="cancel">Mégse</string>
   <string name="no_account">Először hozzon létre egy felhasználói fiókot a Seafile-on</string>
   <string name="no_library">Nincs kötete</string>
   <string name="choose_an_account">Fiók kiválasztása</string>
@@ -95,6 +98,7 @@
   <string name="not_supported_share">Ez a megosztás típus nem támogatott</string>
   <string name="create_new_file">Új fájl létrehozása</string>
   <string name="create_new_dir">Új könyvtár létrehozása</string>
+  <string name="camera">Fénykép ide</string>
   <string name="download">Letöltés</string>
   <string name="open">Megnyit</string>
   <string name="last_modified">utoljára módosítva</string>
@@ -107,20 +111,16 @@
   <string name="copy_link">Link másolása</string>
   <string name="share_file_link">Link megosztása ehhez a fájlhoz</string>
   <string name="share_dir_link">Link megosztása ehhez a könyvtárhoz</string>
-  <string name="generating_link">Link elkészítése...</string>
   <string name="link_ready_to_be_pasted">A link beilleszthető.</string>
   <string name="rename_file">Fájl átnevezése</string>
   <string name="rename_dir">Könyvtár átnevezése</string>
   <string name="rename_successful">Sikeres átnevezés.</string>
-  <string-array name="nav_array">
-    <item>Fájlok</item>
-    <item>Feltöltések</item>
-    <item>Fiókok</item>
-  </string-array>
   <string name="drawer_open">Navigációs menü megnyitása</string>
   <string name="drawer_close">Navigációs menü bezárása</string>
   <string name="no_starred_file">Jelenleg nincsenek csillagozott fájlok</string>
   <string name="added_to_upload_tasks">A kiválasztott fájlok a feltöltési feladatokhoz lettek adva.</string>
+  <string name="added_photo_to_upload_tasks">Fénykép feltöltés alatt</string>
+  <string name="take_photo_successfully">Sikeres fénykép készítés</string>
   <string name="tabs_library">Kötetek</string>
   <string name="tabs_activity">Tevékenységek</string>
   <string name="tabs_starred">Csillagozott</string>
@@ -149,4 +149,19 @@
   <string name="yes">Igen</string>
   <string name="no">Nem</string>
   <string name="remember_my_choice">Válasz megjegyzése</string>
+  <string name="copied_successfully">Sikeres másolás</string>
+  <string name="moved_successfully">Sikeres mozgatás</string>
+  <string name="internal_server_error">Belső hiba</string>
+  <string name="copy_file_ing">Fájl másolás</string>
+  <string name="move_file_ing">Fájl mozgatás</string>
+  <string name="copy_folder_ing">Könyvtár másolás</string>
+  <string name="move_folder_ing">Könyvtár mozgatása</string>
+  <string name="upload_started">feltöltés elindítva</string>
+  <string name="cannot_copy_folder_to_subfolder">A könyvtár nem másolható az alkönyvtárába</string>
+  <string name="cannot_move_folder_to_subfolder">A könyvtár nem mozgatható az alkönyvtárába</string>
+  <string name="cancel">Mégse</string>
+  <!--Accessibility description sent when user starts drawing a lock pattern. [CHAR LIMIT=NONE]-->
+  <!--Accessibility description sent when the pattern times out and is cleared. [CHAR LIMIT=NONE]-->
+  <!--Accessibility description sent when user adds a cell to the pattern. [CHAR LIMIT=NONE]-->
+  <!--Accessibility description sent when user completes drawing a pattern. [CHAR LIMIT=NONE]-->
 </resources>

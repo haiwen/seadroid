@@ -7,6 +7,10 @@
   <string name="edit_account">Bearbeiten</string>
   <string name="delete_account">Löschen</string>
   <string name="delete">Löschen</string>
+  <string name="delete_file">Sind Sie sicher das sie diese Datei oder diesen Ordner löschen möchten?</string>
+  <string name="delete_successful">Erfolgreich gelöscht</string>
+  <string name="delete_file_f">Datei löschen</string>
+  <string name="delete_dir">Ordner löschen</string>
   <string name="server_hint">Server, z.B. cloud.seafile.com</string>
   <string name="email_hint">E-Mail</string>
   <string name="passwd_hint">Passwort</string>
@@ -22,7 +26,6 @@
   <string name="personal">Meine Bibliotheken</string>
   <string name="libraries">Bibliotheken</string>
   <string name="cached">Zwischengespeichert</string>
-  <string name="upload_tasks">Übertragungen</string>
   <string name="activities">Aktivitäten</string>
   <string name="pick_upload_type">Hochladen</string>
   <string-array name="pick_upload_array">
@@ -58,6 +61,8 @@
   <string name="file_action_export">Exportieren</string>
   <string name="file_action_delete">Löschen</string>
   <string name="file_action_rename">Umbenennen</string>
+  <string name="file_action_copy">Kopieren</string>
+  <string name="file_action_move">Verschieben</string>
   <string name="file_action_open_as">Öffnen als</string>
   <string-array name="file_type_array">
     <item>Text</item>
@@ -82,8 +87,6 @@
   <string name="no_repo">Sie haben noch keine Bibliotheken angelegt</string>
   <string name="no_app_available">Es konnte keine Anwendung gefunden werden</string>
   <string name="add_to_seafile">Zu Seafile hinzufügen</string>
-  <string name="ok">Ok</string>
-  <string name="cancel">Abbrechen</string>
   <string name="no_account">Bitte zuerst ein Konto einrichten</string>
   <string name="no_library">Sie haben noch keine Bibliotheken angelegt</string>
   <string name="choose_an_account">Ein Konto auswählen</string>
@@ -95,6 +98,7 @@
   <string name="not_supported_share">Diese Art der Freigabe wird nicht unterstützt</string>
   <string name="create_new_file">Eine neue Datei anlegen</string>
   <string name="create_new_dir">Einen neuen Ordner anlegen</string>
+  <string name="camera">Neues Foto hier aufnehmen</string>
   <string name="download">Herunterladen</string>
   <string name="open">Öffnen</string>
   <string name="last_modified">zuletzt geändert</string>
@@ -107,20 +111,16 @@
   <string name="copy_link">Verweis kopieren</string>
   <string name="share_file_link">Einen Verweis zu dieser Datei freigeben</string>
   <string name="share_dir_link">Einen Verweis zu diesem Ordner freigeben</string>
-  <string name="generating_link">Verweis wird erstellt …</string>
   <string name="link_ready_to_be_pasted">Die Verknüpfung wurde in die Zwischenablage kopiert.</string>
   <string name="rename_file">Datei umbenennen</string>
   <string name="rename_dir">Ordner umbenennen</string>
   <string name="rename_successful">Erfolgreich umbenannt.</string>
-  <string-array name="nav_array">
-    <item>Dateien</item>
-    <item>Übertragungen</item>
-    <item>Konten</item>
-  </string-array>
   <string name="drawer_open">Navigationsschublade öffnen</string>
   <string name="drawer_close">Navigationsschublade schließen</string>
   <string name="no_starred_file">Sie favorisieren derzeit keine Dateien</string>
   <string name="added_to_upload_tasks">Die ausgewählten Datei(en) wurden zum hochladen hinzugefügt.</string>
+  <string name="added_photo_to_upload_tasks">Das Foto wird hochgeladen</string>
+  <string name="take_photo_successfully">Foto erfolgreich aufgenommen</string>
   <string name="tabs_library">Bibliotheken </string>
   <string name="tabs_activity">Aktivitäten</string>
   <string name="tabs_starred">Favoriten</string>
@@ -149,4 +149,19 @@
   <string name="yes">Ja</string>
   <string name="no">Nein</string>
   <string name="remember_my_choice">Auswahl merken</string>
+  <string name="copied_successfully">Erfolgreich kopiert</string>
+  <string name="moved_successfully">Erfolgreich verschoben</string>
+  <string name="internal_server_error">Interner Server Fehler</string>
+  <string name="copy_file_ing">Kopiere Datei</string>
+  <string name="move_file_ing">Verschiebe Datei</string>
+  <string name="copy_folder_ing">Kopiere Ordner</string>
+  <string name="move_folder_ing">Verschiebe Ordner</string>
+  <string name="upload_started">Upload wurde gestartet</string>
+  <string name="cannot_copy_folder_to_subfolder">Sie können keinen Ordnern in seinen Unterordner kopieren</string>
+  <string name="cannot_move_folder_to_subfolder">Sie können keinen Ordner in seinen Unterordner verschieben</string>
+  <string name="cancel">Abbrechen</string>
+  <!--Accessibility description sent when user starts drawing a lock pattern. [CHAR LIMIT=NONE]-->
+  <!--Accessibility description sent when the pattern times out and is cleared. [CHAR LIMIT=NONE]-->
+  <!--Accessibility description sent when user adds a cell to the pattern. [CHAR LIMIT=NONE]-->
+  <!--Accessibility description sent when user completes drawing a pattern. [CHAR LIMIT=NONE]-->
 </resources>

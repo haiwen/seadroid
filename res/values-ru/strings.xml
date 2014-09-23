@@ -26,7 +26,6 @@
   <string name="personal">Личные</string>
   <string name="libraries">Библиотеки</string>
   <string name="cached">Кэшированы</string>
-  <string name="upload_tasks">ЗАГРУЗКИ</string>
   <string name="activities">Активность</string>
   <string name="pick_upload_type">Загрузить</string>
   <string-array name="pick_upload_array">
@@ -88,8 +87,6 @@
   <string name="no_repo">У вас еще нет библиотек</string>
   <string name="no_app_available">Не найдено ни одно приложение</string>
   <string name="add_to_seafile">Добавить в Seafile</string>
-  <string name="ok">ОК</string>
-  <string name="cancel">Отмена</string>
   <string name="no_account">Пожалуйста, сначала добавьте аккаунт в Seafile</string>
   <string name="no_library">У вас еще нет библиотек</string>
   <string name="choose_an_account">Выберите аккаунт</string>
@@ -114,16 +111,10 @@
   <string name="copy_link">Копировать ссылку</string>
   <string name="share_file_link">Поделиться ссылкой на этот файл</string>
   <string name="share_dir_link">Поделиться ссылкой на эту папку</string>
-  <string name="generating_link">Создание ссылки...</string>
   <string name="link_ready_to_be_pasted">Ссылка готова для вставки.</string>
   <string name="rename_file">Переименовать файл</string>
   <string name="rename_dir">Переименовать папку</string>
   <string name="rename_successful">Успешно переименовано.</string>
-  <string-array name="nav_array">
-    <item>Файлы</item>
-    <item>Загрузки</item>
-    <item>Аккаунты</item>
-  </string-array>
   <string name="drawer_open">Открыть строку навигации</string>
   <string name="drawer_close">Закрыть строку навигации</string>
   <string name="no_starred_file">Пока нет помеченных файлов</string>
@@ -168,4 +159,9 @@
   <string name="upload_started">загрузка началась</string>
   <string name="cannot_copy_folder_to_subfolder">Вы не можете скопировать папку в эту подпапку</string>
   <string name="cannot_move_folder_to_subfolder">Вы не можете переместить папку в эту подпапку</string>
+  <string name="cancel">Отмена</string>
+  <!--Accessibility description sent when user starts drawing a lock pattern. [CHAR LIMIT=NONE]-->
+  <!--Accessibility description sent when the pattern times out and is cleared. [CHAR LIMIT=NONE]-->
+  <!--Accessibility description sent when user adds a cell to the pattern. [CHAR LIMIT=NONE]-->
+  <!--Accessibility description sent when user completes drawing a pattern. [CHAR LIMIT=NONE]-->
 </resources>

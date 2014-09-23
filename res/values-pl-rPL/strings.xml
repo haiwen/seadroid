@@ -1,2 +1,167 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources/>
+<resources>
+  <string name="app_name">Seafile</string>
+  <string name="app_url">http://seafile.com</string>
+  <string name="welcome_to_seafile">Witamy w Seafile</string>
+  <string name="select_account">Wybierz konto</string>
+  <string name="edit_account">Edytuj</string>
+  <string name="delete_account">Usuń</string>
+  <string name="delete">Usuń</string>
+  <string name="delete_file">Na pewno chcesz usunąć ten plik lub folder?</string>
+  <string name="delete_successful">Usunięto pomyślnie</string>
+  <string name="delete_file_f">Usuń plik</string>
+  <string name="delete_dir">Usuń folder</string>
+  <string name="server_hint">Serwer, np. cloud.seafile.com</string>
+  <string name="email_hint">Adres e-mail</string>
+  <string name="passwd_hint">Hasło</string>
+  <string name="login">Login</string>
+  <string name="open_file">Otwórz</string>
+  <string name="download_file">Pobierz</string>
+  <string name="redownload_file">Pobierz ponownie</string>
+  <string name="cancel_download">Anuluj</string>
+  <string name="unknown_file_type">Nieznany typ pliku</string>
+  <string name="activity_not_found">Nie można odnaleźć aplikacji do otwarcia tego pliku</string>
+  <string name="refresh">Odśwież</string>
+  <string name="add_account">Dodaj konto</string>
+  <string name="personal">Osobiste</string>
+  <string name="libraries">Biblioteki</string>
+  <string name="cached">W pamięci podręcznej</string>
+  <string name="activities">Aktywność</string>
+  <string name="pick_upload_type">Prześlij</string>
+  <string-array name="pick_upload_array">
+    <item>Plik</item>
+    <item>Zdjęcia/Wideo</item>
+    <item>Inne</item>
+  </string-array>
+  <string name="choose_server">Wybierz serwer Seafile</string>
+  <string-array name="choose_server_array">
+    <item>Prywatny serwer Seafile</item>
+    <item>SeaCloud.cc</item>
+    <item>cloud.seafile.com</item>
+  </string-array>
+  <string name="network_down">Brak połączenia z siecią</string>
+  <string name="invalid_server_address">Nieprawidłowy adres serwera</string>
+  <string name="err_server_andress_empty">Adres serwera nie może być pusty</string>
+  <string name="err_login_failed">Nieudane logowanie</string>
+  <string name="err_wrong_user_or_passwd">Nieprawidłowy adres e-mail lub hasło</string>
+  <string name="upload">Prześlij</string>
+  <string name="uploaded">Przesłane</string>
+  <string name="updated">Zaktualizowane</string>
+  <string name="download_failed">Nieudane pobieranie</string>
+  <string name="trust_https_server">Certyfikat nie jest podpisany przez zaufaną organizację, czy chcesz kontynuować?</string>
+  <string name="upload_to">prześlij do:</string>
+  <string name="task_cancel">Anuluj</string>
+  <string name="task_retry">Ponów</string>
+  <string name="task_remove">Skasuj</string>
+  <string name="task_remove_all_finished">Skasuj wszystkie zakończone</string>
+  <string name="file_action_download">Pobierz</string>
+  <string name="file_action_remove_cache">Wyczyść pamięć podręczną</string>
+  <string name="file_action_update">Prześlij</string>
+  <string name="file_action_share">Udostępnij</string>
+  <string name="file_action_export">Wyeksportuj</string>
+  <string name="file_action_delete">Usuń</string>
+  <string name="file_action_rename">Zmień nazwę</string>
+  <string name="file_action_copy">Kopiuj</string>
+  <string name="file_action_move">Przenieś</string>
+  <string name="file_action_open_as">Otwórz jako</string>
+  <string-array name="file_type_array">
+    <item>Tekst</item>
+    <item>Audio</item>
+    <item>Wideo</item>
+    <item>Obraz</item>
+    <item>Inne</item>
+  </string-array>
+  <string name="wait">Czekaj</string>
+  <string name="image_gallery_NoImageView_text">Nie znaleziono obrazu</string>
+  <string name="pick_photo_video_title">Wybierz zdjęcia/wideo do przesłania</string>
+  <string name="select_upload_items">wybierz elementy do przesłania</string>
+  <string name="n_upload_items_selected">zaznaczono %d elementów</string>
+  <string name="dir_name_empty">Podaj nazwę folderu</string>
+  <string name="file_name_empty">Podaj nazwę pliku</string>
+  <string name="password_empty">Podaj hasło</string>
+  <string name="wrong_password">hasło nieprawidłowe</string>
+  <string name="library_read_only">Ta biblioteka jest tylko do odczytu</string>
+  <string name="error_when_load_dirents">Błąd podczas wczytywania folderu</string>
+  <string name="error_when_load_repos">Błąd podczas wczytywania bibliotek</string>
+  <string name="dir_empty">Ten folder jest pusty</string>
+  <string name="no_repo">Nie masz jeszcze żadnej biblioteki</string>
+  <string name="no_app_available">Nie znaleziono aplikacji</string>
+  <string name="add_to_seafile">Dodaj do Seafile</string>
+  <string name="no_account">Proszę najpierw skonfigurować konto Seafile</string>
+  <string name="no_library">Nie masz jeszcze żadnej biblioteki</string>
+  <string name="choose_an_account">Wybierz konto</string>
+  <string name="choose_a_library">Wybierz bibliotekę</string>
+  <string name="choose_a_folder">Wybierz folder</string>
+  <string name="load_accounts_fail">Nie udało się wczytać kont seafile</string>
+  <string name="load_libraries_fail">Nie udało się wczytać bibliotek</string>
+  <string name="load_dir_fail">Nie udało się wczytać zawartości tego folderu</string>
+  <string name="not_supported_share">Ten rodzaj udziału nie jest obsługiwany</string>
+  <string name="create_new_file">Utwórz nowy plik</string>
+  <string name="create_new_dir">Utwórz nowy folder</string>
+  <string name="camera">Zrób zdjęcie</string>
+  <string name="download">Pobierz</string>
+  <string name="open">Otwórz</string>
+  <string name="last_modified">ostatnio zmieniono</string>
+  <string name="file_modified">zmodyfikowany</string>
+  <string name="file_size">rozmiar pliku</string>
+  <string name="library_not_found">Biblioteka została usunięta.</string>
+  <string name="export_file">Wyeksportuj ten plik</string>
+  <string name="no_upload_tasks">Brak zadań przesyłania</string>
+  <string name="seahub_url_hint">Uwaga: Adres serwera powinien zawierać port. Dla przykładu, www.example.com:8000</string>
+  <string name="copy_link">Kopiuj odsyłacz</string>
+  <string name="share_file_link">Udostępnij łącze do tego pliku</string>
+  <string name="share_dir_link">Udostępnij łącze do tego folderu</string>
+  <string name="link_ready_to_be_pasted">Łącze jest gotowe do wklejenia.</string>
+  <string name="rename_file">Zmień nazwę pliku</string>
+  <string name="rename_dir">Zmień nazwę folderu</string>
+  <string name="rename_successful">Pomyślnie zmieniono nazwę.</string>
+  <string name="drawer_open">Otwórz panel nawigacyjny</string>
+  <string name="drawer_close">Zamknij panel nawigacyjny</string>
+  <string name="no_starred_file">Brak plików oznaczonych gwiazdką</string>
+  <string name="added_to_upload_tasks">Wybrany plik jest dodany do kolejki przesyłania.</string>
+  <string name="added_photo_to_upload_tasks">Zdjęcie jest przesyłane</string>
+  <string name="take_photo_successfully">Zdjęcie zrobiono pomyślnie</string>
+  <string name="tabs_library">Biblioteki</string>
+  <string name="tabs_activity">Aktywność</string>
+  <string name="tabs_starred">Z gwiazdką</string>
+  <string name="provide_password">Podaj hasło do biblioteki \"%s\"</string>
+  <string name="upload_waiting">Oczekiwanie</string>
+  <string name="upload_finished">Zakończono</string>
+  <string name="upload_cancelled">Anulowane</string>
+  <string name="upload_failed">Niepowodzenie</string>
+  <string name="days_ago">dni temu</string>
+  <string name="hours_ago">godzin temu</string>
+  <string name="minutes_ago">minut temu</string>
+  <string name="seconds_ago">sekund temu</string>
+  <string name="just_now">Przed chwilą</string>
+  <string name="error_when_load_starred">Błąd podczas wczytywania plików z gwiazdką</string>
+  <string name="open_as">Otwórz jako</string>
+  <string name="select_upload_files">wybierz pliki do przesłania</string>
+  <string name="storage_removed">Magazyn został usunięty</string>
+  <string name="error_selecting_file">Błąd podczas wybierania pliku</string>
+  <string name="n_upload_files_selected">wybrano %d plik(ów)</string>
+  <string name="empty_folder">Pusty folder</string>
+  <string name="choose_file">Wybierz plik</string>
+  <string name="ssl_error">niepowodzenie kontroli bezpieczeństwa</string>
+  <string name="ssl_confirm">Certyfikat bezpieczeństwa %s nie jest zaufany. Czy chcesz kontynuować?</string>
+  <string name="ssl_confirm_cert_changed">%s używa nieprawidłowego certyfikatu bezpieczeństwa. Połączenie nie jest bezpieczne. Czy chcesz kontynuować?</string>
+  <string name="ssl_confirm_title">Niezaufane połączenie</string>
+  <string name="yes">Tak</string>
+  <string name="no">Nie</string>
+  <string name="remember_my_choice">Zapamiętaj mój wybór</string>
+  <string name="copied_successfully">Skopiowano pomyślnie</string>
+  <string name="moved_successfully">Przeniesiono pomyślnie</string>
+  <string name="internal_server_error">Wewnętrzny Błąd Serwera</string>
+  <string name="copy_file_ing">Kopiowanie pliku</string>
+  <string name="move_file_ing">Przenoszenie pliku</string>
+  <string name="copy_folder_ing">Kopiowanie folderu</string>
+  <string name="move_folder_ing">Przenoszenie folderu</string>
+  <string name="upload_started">przesyłanie rozpoczęte</string>
+  <string name="cannot_copy_folder_to_subfolder">Nie można skopiować folderu do jego podfolderu</string>
+  <string name="cannot_move_folder_to_subfolder">Nie można przenieść folderu do jego podfolderu</string>
+  <string name="cancel">Anuluj</string>
+  <!--Accessibility description sent when user starts drawing a lock pattern. [CHAR LIMIT=NONE]-->
+  <!--Accessibility description sent when the pattern times out and is cleared. [CHAR LIMIT=NONE]-->
+  <!--Accessibility description sent when user adds a cell to the pattern. [CHAR LIMIT=NONE]-->
+  <!--Accessibility description sent when user completes drawing a pattern. [CHAR LIMIT=NONE]-->
+</resources>
