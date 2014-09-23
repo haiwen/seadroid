@@ -83,7 +83,7 @@ public class CameraUploadDBHelper extends SQLiteOpenHelper {
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         onUpgrade(db, oldVersion, newVersion);
     }
-    
+
     public SeafCachedPhoto getPhotoCacheItem(String repoID,
             String path) {
         Cursor c = database.query(
@@ -96,12 +96,12 @@ public class CameraUploadDBHelper extends SQLiteOpenHelper {
         null,   // don't filter by row groups
         null    // The sort order
         );
-        
+
         if (!c.moveToFirst()) {
             c.close();
             return null;
         }
-        
+
         SeafCachedPhoto item = new SeafCachedPhoto();
         item.id = c.getInt(0);
         item.repoName = c.getString(1);
@@ -111,7 +111,7 @@ public class CameraUploadDBHelper extends SQLiteOpenHelper {
         c.close();
         return item;
     }
-    
+
     public void savePhotoCacheItem(SeafCachedPhoto item) {
 
         // Create a new map of values, where column names are the keys
@@ -124,7 +124,7 @@ public class CameraUploadDBHelper extends SQLiteOpenHelper {
         // Insert the new row, returning the primary key value of the new row
         database.insert(PHOTOCACHE_TABLE_NAME, null, values);
     }
-    
+
     public int removePhotoCacheItem(SeafCachedPhoto item) {
         if (item.id != -1) {
             return database.delete(PHOTOCACHE_TABLE_NAME,  PHOTOCACHE_COLUMN_ID + "=?",

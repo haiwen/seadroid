@@ -21,7 +21,7 @@ public class CameraUploadManager {
     private CameraUploadDBHelper dbHelper;
     private DataManager mDataManager;
     private Account account;
-    
+
     public CameraUploadManager(Account act) {
         account = act;
         dbHelper = CameraUploadDBHelper.getCameraUploadDBHelper();
@@ -30,7 +30,7 @@ public class CameraUploadManager {
 
     /**
      * get cached photo from local database
-     * 
+     *
      * @param repoName
      * @param repoID
      * @param path
@@ -44,7 +44,7 @@ public class CameraUploadManager {
 
     /**
      * get cached photo from local database
-     * 
+     *
      * @param repoName
      * @param repoID
      * @param dir
@@ -59,7 +59,7 @@ public class CameraUploadManager {
 
     /**
      * add a photo cache to local database
-     * 
+     *
      * @param repoName
      * @param repoID
      * @param path
@@ -75,7 +75,7 @@ public class CameraUploadManager {
 
     /**
      * remove a photo cache from local database
-     * 
+     *
      * @param cp
      * @return 1 when successfully removed a cache, otherwise 0
      *
@@ -85,7 +85,7 @@ public class CameraUploadManager {
         // check if the file deletion succeeds
         return dbHelper.removePhotoCacheItem(cp);
     }
-    
+
     public void onPhotoUploadSuccess(final String repoName, final String repoID, final String path) {
         ConcurrentAsyncTask.execute(new Runnable() {
             @Override
@@ -94,17 +94,17 @@ public class CameraUploadManager {
             }
         });
     }
-    
+
     /**
      * send request to server to check if one particular folder {@link CameraUploadService#CAMERA_UPLOAD_REMOTE_DIR} exist
-     * 
-     * 
+     *
+     *
      * this method should not be placed in UI thread
-     * 
+     *
      * @param repoID
      * @param parentDir
      * @return
-     * @throws SeafException 
+     * @throws SeafException
      */
     public Boolean isRemoteCameraUploadRepoValid(String repoID, String parentDir) throws SeafException {
         List<SeafRepo> list = mDataManager.getReposFromServer();
@@ -115,31 +115,31 @@ public class CameraUploadManager {
         }
         return  false;
     }
-    
+
     /**
-     * 
+     *
      * camera photos only uploaded to the specific folder called {@link CameraUploadService#CAMERA_UPLOAD_REMOTE_DIR},
      * the folder was placed under the root directory of the selected library
-     * 
+     *
      * get dirents list from server,
      * traverse the dirents list to check if the remote folder {@link CameraUploadService#CAMERA_UPLOAD_REMOTE_DIR} already existed or not
      * if not, create a new one
-     * 
-     * 
+     *
+     *
      * @param repoID
      * @param parentDir
      * @param dirName
-     * @throws SeafException 
+     * @throws SeafException
      */
     public void validateRemoteCameraUploadsDir(String repoID, String parentDir, String dirName) throws SeafException {
         List<SeafDirent> list = mDataManager.getDirentsFromServer(repoID, parentDir);
-        
+
         for (SeafDirent seafDirent : list) {
             if (seafDirent.name.equals(CameraUploadService.CAMERA_UPLOAD_REMOTE_DIR)) {
                 return;
             }
         }
-        
+
        mDataManager.createNewDir(repoID, parentDir, dirName);
     }
 }
