@@ -243,10 +243,11 @@ public class DataManager {
     private String getRepoDir(String repoName, String repoID) {
         File repoDir;
 
-        // Check if there is a record in databse
+        // Check if there is a record in database
         String path = dbHelper.getRepoDir(account, repoName, repoID);
+        Log.d(DEBUG_TAG, "path: " + path);
         if (path != null) {
-            // Has record in databse
+            // Has record in database
             repoDir = new File(path);
             if (!repoDir.exists()) {
                 if (!repoDir.mkdirs()) {
@@ -265,6 +266,7 @@ public class DataManager {
                 uniqueRepoName = repoName + " (" + i + ")";
             }
             path = Utils.pathJoin(getAccountDir(), uniqueRepoName);
+            Log.d(DEBUG_TAG, "inside path: " + path);
             repoDir = new File(path);
             if (!repoDir.exists() && !dbHelper.repoDirExists(account, uniqueRepoName)) {
                 // This repo dir does not exist yet, we can use it
@@ -274,7 +276,7 @@ public class DataManager {
         }
 
         if (!repoDir.mkdirs()) {
-            throw new RuntimeException("Could not create repo directory " + path);
+            // throw new RuntimeException("Could not create repo directory " + path);
         }
 
         // Save the new mapping in database
@@ -284,8 +286,8 @@ public class DataManager {
     }
 
     /**
-     * Each repo is places under [account-dir]/[repo-name]. When a
-     * file is downloaded, it's placed in its repo, with it full path.
+     * Each repo is placed under [account-dir]/[repo-name]. When a
+     * file is downloaded, it's placed in its repo, with its full path.
      * @param repoName
      * @param repoID
      * @param path
