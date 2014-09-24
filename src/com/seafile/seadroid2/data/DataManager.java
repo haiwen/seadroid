@@ -243,10 +243,10 @@ public class DataManager {
     private String getRepoDir(String repoName, String repoID) {
         File repoDir;
 
-        // Check if there is a record in databse
+        // Check if there is a record in database
         String path = dbHelper.getRepoDir(account, repoName, repoID);
         if (path != null) {
-            // Has record in databse
+            // Has record in database
             repoDir = new File(path);
             if (!repoDir.exists()) {
                 if (!repoDir.mkdirs()) {
@@ -274,7 +274,8 @@ public class DataManager {
         }
 
         if (!repoDir.mkdirs()) {
-            throw new RuntimeException("Could not create repo directory " + path);
+            // stop throwing exception because it causes unexpected exit
+            // throw new RuntimeException("Could not create repo directory " + path);
         }
 
         // Save the new mapping in database
@@ -284,8 +285,8 @@ public class DataManager {
     }
 
     /**
-     * Each repo is places under [account-dir]/[repo-name]. When a
-     * file is downloaded, it's placed in its repo, with it full path.
+     * Each repo is placed under [account-dir]/[repo-name]. When a
+     * file is downloaded, it's placed in its repo, with its full path.
      * @param repoName
      * @param repoID
      * @param path
