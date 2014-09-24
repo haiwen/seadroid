@@ -245,7 +245,6 @@ public class DataManager {
 
         // Check if there is a record in database
         String path = dbHelper.getRepoDir(account, repoName, repoID);
-        Log.d(DEBUG_TAG, "path: " + path);
         if (path != null) {
             // Has record in database
             repoDir = new File(path);
@@ -266,7 +265,6 @@ public class DataManager {
                 uniqueRepoName = repoName + " (" + i + ")";
             }
             path = Utils.pathJoin(getAccountDir(), uniqueRepoName);
-            Log.d(DEBUG_TAG, "inside path: " + path);
             repoDir = new File(path);
             if (!repoDir.exists() && !dbHelper.repoDirExists(account, uniqueRepoName)) {
                 // This repo dir does not exist yet, we can use it
@@ -276,6 +274,7 @@ public class DataManager {
         }
 
         if (!repoDir.mkdirs()) {
+            // stop throwing exception because it causes unexpected exit
             // throw new RuntimeException("Could not create repo directory " + path);
         }
 
