@@ -51,11 +51,10 @@ public class DataManager {
     public static String getExternalRootDirectory() {
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             File extDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Seafile/");
-            if (extDir.exists() || extDir.mkdirs()) {
-                return extDir.getAbsolutePath();
-            } else {
-                throw new RuntimeException("Couldn't create external directory");
+            if (!extDir.exists()) {
+                extDir.mkdirs();
             }
+            return extDir.getAbsolutePath();
         } else {
             throw new RuntimeException("External Storage is currently not available");
         }
@@ -80,14 +79,12 @@ public class DataManager {
     }
 
     private static String getDirectoryCreateIfNeeded(File dir) {
-        if (dir.exists())
+        if (dir.exists()) {
             return dir.getAbsolutePath();
-        else {
-            if (!dir.mkdirs())
-                throw new RuntimeException("Couldn't create external " + dir.getName() + " directory");
-            else
-                return dir.getAbsolutePath();
+        } else {
+            dir.mkdirs();
         }
+        return dir.getAbsolutePath();
     }
 
     private static String constructFileName(String path, String oid) {
@@ -240,7 +237,7 @@ public class DataManager {
      * say "ABC", their top dir would be "ABC", "ABC (1)", "ABC (2)", etc. The
      * mapping (repoName, repoID, dir) is stored in a database table.
      */
-    private String getRepoDir(String repoName, String repoID) {
+    private synchronized String getRepoDir(String repoName, String repoID) {
         File repoDir;
 
         // Check if there is a record in database
@@ -274,8 +271,7 @@ public class DataManager {
         }
 
         if (!repoDir.mkdirs()) {
-            // stop throwing exception because it causes unexpected exit
-            // throw new RuntimeException("Could not create repo directory " + path);
+            throw new RuntimeException("Could not create repo directory " + path);
         }
 
         // Save the new mapping in database
