@@ -271,7 +271,6 @@ public class DataManager {
         }
 
         if (!repoDir.mkdirs()) {
-            // stop throwing exception because it causes unexpected exit
             throw new RuntimeException("Could not create repo directory " + path);
         }
 
