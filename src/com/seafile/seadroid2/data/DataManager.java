@@ -27,8 +27,12 @@ import com.seafile.seadroid2.util.BitmapUtil;
 import com.seafile.seadroid2.util.Utils;
 
 public class DataManager {
-    public static final int MAX_GEN_CACHE_THUMB = 1000000;  // Only generate thumb cache for files less than 1MB
-    public static final int MAX_DIRECT_SHOW_THUMB = 100000;  // directly show thumb
+    public static final int MAX_GEN_CACHE_THUMB = 1000000; // Only generate
+                                                           // thumb cache for
+                                                           // files less than
+                                                           // 1MB
+    public static final int MAX_DIRECT_SHOW_THUMB = 100000; // directly show
+                                                            // thumb
 
     private static final String DEBUG_TAG = "DataManager";
     private static final long SET_PASSWORD_INTERVAL = 59 * 60 * 1000; // 59 min
@@ -49,15 +53,17 @@ public class DataManager {
     }
 
     public static String getExternalRootDirectory() {
-        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-            File extDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Seafile/");
-            if (extDir.exists() || extDir.mkdirs()) {
-                return extDir.getAbsolutePath();
-            } else {
-                throw new RuntimeException("Couldn't create external directory");
+        if (Environment.getExternalStorageState().equals(
+                Environment.MEDIA_MOUNTED)) {
+            File extDir = new File(Environment.getExternalStorageDirectory()
+                    .getAbsolutePath() + "/Seafile/");
+            if (!extDir.exists()) {
+                extDir.mkdirs();
             }
+            return extDir.getAbsolutePath();
         } else {
-            throw new RuntimeException("External Storage is currently not available");
+            throw new RuntimeException(
+                    "External Storage is currently not available");
         }
     }
 
@@ -68,7 +74,8 @@ public class DataManager {
     }
 
     private static String getThumbDirectory() {
-        String root = SeadroidApplication.getAppContext().getFilesDir().getAbsolutePath();
+        String root = SeadroidApplication.getAppContext().getFilesDir()
+                .getAbsolutePath();
         File tmpDir = new File(root + "/" + "thumb");
         return getDirectoryCreateIfNeeded(tmpDir);
     }
@@ -80,14 +87,12 @@ public class DataManager {
     }
 
     private static String getDirectoryCreateIfNeeded(File dir) {
-        if (dir.exists())
+        if (dir.exists()) {
             return dir.getAbsolutePath();
-        else {
-            if (!dir.mkdirs())
-                throw new RuntimeException("Couldn't create external " + dir.getName() + " directory");
-            else
-                return dir.getAbsolutePath();
+        } else {
+            dir.mkdirs();
         }
+        return dir.getAbsolutePath();
     }
 
     private static String constructFileName(String path, String oid) {
@@ -102,12 +107,14 @@ public class DataManager {
     }
 
     public static File getFileForFileCache(String path, String oid) {
-        String p = getExternalRootDirectory() + "/" + constructFileName(path, oid);
+        String p = getExternalRootDirectory() + "/"
+                + constructFileName(path, oid);
         return new File(p);
     }
 
     public static File getTempFile(String path, String oid) {
-        String p = getExternalTempDirectory() + "/" + constructFileName(path, oid);
+        String p = getExternalTempDirectory() + "/"
+                + constructFileName(path, oid);
         return new File(p);
     }
 
@@ -121,7 +128,8 @@ public class DataManager {
         return new File(getExternalCacheDirectory() + "/" + oid);
     }
 
-    public void calculateThumbnail(String repoName, String repoID, String path, String oid) {
+    public void calculateThumbnail(String repoName, String repoID, String path,
+            String oid) {
         final int THUMBNAIL_SIZE = caculateThumbnailSizeOfDevice();
         FileOutputStream out = null;
         try {
@@ -129,9 +137,10 @@ public class DataManager {
             if (!file.exists())
                 return;
             // if (file.length() > MAX_GEN_CACHE_THUMB)
-            //     return;
+            // return;
 
-            Bitmap imageBitmap = BitmapUtil.calculateThumbnail(file.getPath(), THUMBNAIL_SIZE);
+            Bitmap imageBitmap = BitmapUtil.calculateThumbnail(file.getPath(),
+                    THUMBNAIL_SIZE);
             if (imageBitmap == null) {
                 return;
             }
@@ -145,17 +154,17 @@ public class DataManager {
             Log.i(DEBUG_TAG, "Failed to write thumbnail : " + e.getMessage());
         } finally {
             try {
-                if(out != null) {
+                if (out != null) {
                     out.close();
                 }
-            }
-            catch(IOException ioe) {
+            } catch (IOException ioe) {
             }
         }
     }
 
     /**
-     * Caculate the thumbnail of an image directly when its size is less than {@link #MAX_DIRECT_SHOW_THUMB}
+     * Caculate the thumbnail of an image directly when its size is less than
+     * {@link #MAX_DIRECT_SHOW_THUMB}
      */
     public Bitmap getThumbnail(File file) {
         try {
@@ -164,17 +173,18 @@ public class DataManager {
 
             final int THUMBNAIL_SIZE = caculateThumbnailSizeOfDevice();
 
-            return BitmapUtil.calculateThumbnail(file.getPath(), THUMBNAIL_SIZE);
+            return BitmapUtil
+                    .calculateThumbnail(file.getPath(), THUMBNAIL_SIZE);
         } catch (Exception ex) {
             return null;
         }
     }
 
-
     public static int caculateThumbnailSizeOfDevice() {
-        DisplayMetrics metrics = SeadroidApplication.getAppContext().getResources().getDisplayMetrics();
+        DisplayMetrics metrics = SeadroidApplication.getAppContext()
+                .getResources().getDisplayMetrics();
 
-        switch(metrics.densityDpi) {
+        switch (metrics.densityDpi) {
         case DisplayMetrics.DENSITY_LOW:
             return 36;
         case DisplayMetrics.DENSITY_MEDIUM:
@@ -193,35 +203,26 @@ public class DataManager {
     }
 
     private File getFileForReposCache() {
-        String filename = "repos-" + (account.server + account.email).hashCode() + ".dat";
+        String filename = "repos-"
+                + (account.server + account.email).hashCode() + ".dat";
         return new File(getExternalCacheDirectory() + "/" + filename);
     }
 
     /**
      * The directory structure of Seafile on external storage is like this:
      *
-     * /sdcard/Seafile
-     *            |__ cache
-     *            |__ temp
-     *            |__ foo@gmail.com (cloud.seafile.com)
-     *                      |__ Photos
-     *                      |__ Musics
-     *                      |__ ...
-     *            |__ foo@mycompany.com (seafile.mycompany.com)
-     *                      |__ Documents
-     *                      |__ Manuals
-     *                      |__ ...
-     *            |__ ...
+     * /sdcard/Seafile |__ cache |__ temp |__ foo@gmail.com (cloud.seafile.com)
+     * |__ Photos |__ Musics |__ ... |__ foo@mycompany.com
+     * (seafile.mycompany.com) |__ Documents |__ Manuals |__ ... |__ ...
      *
      * In the above directory, the user has used two accounts.
      *
-     * 1. One account has email "foo@gmail.com" and server
-     * "cloud.seafile.com". Two repos, "Photos" and "Musics", has been
-     * viewed.
+     * 1. One account has email "foo@gmail.com" and server "cloud.seafile.com".
+     * Two repos, "Photos" and "Musics", has been viewed.
      *
      * 2. Another account has email "foo@mycompany.com", and server
-     * "seafile.mycompany.com". Two repos, "Documents" and "Manuals", has
-     * been viewed.
+     * "seafile.mycompany.com". Two repos, "Documents" and "Manuals", has been
+     * viewed.
      */
     public String getAccountDir() {
         String username = account.getEmail();
@@ -240,7 +241,7 @@ public class DataManager {
      * say "ABC", their top dir would be "ABC", "ABC (1)", "ABC (2)", etc. The
      * mapping (repoName, repoID, dir) is stored in a database table.
      */
-    private String getRepoDir(String repoName, String repoID) {
+    private synchronized String getRepoDir(String repoName, String repoID) {
         File repoDir;
 
         // Check if there is a record in database
@@ -250,7 +251,8 @@ public class DataManager {
             repoDir = new File(path);
             if (!repoDir.exists()) {
                 if (!repoDir.mkdirs()) {
-                    throw new RuntimeException("Could not create library directory " + path);
+                    throw new RuntimeException(
+                            "Could not create library directory " + path);
                 }
             }
             return path;
@@ -266,7 +268,8 @@ public class DataManager {
             }
             path = Utils.pathJoin(getAccountDir(), uniqueRepoName);
             repoDir = new File(path);
-            if (!repoDir.exists() && !dbHelper.repoDirExists(account, uniqueRepoName)) {
+            if (!repoDir.exists()
+                    && !dbHelper.repoDirExists(account, uniqueRepoName)) {
                 // This repo dir does not exist yet, we can use it
                 break;
             }
@@ -275,7 +278,8 @@ public class DataManager {
 
         if (!repoDir.mkdirs()) {
             // stop throwing exception because it causes unexpected exit
-            // throw new RuntimeException("Could not create repo directory " + path);
+            throw new RuntimeException("Could not create repo directory "
+                    + path);
         }
 
         // Save the new mapping in database
@@ -285,8 +289,9 @@ public class DataManager {
     }
 
     /**
-     * Each repo is placed under [account-dir]/[repo-name]. When a
-     * file is downloaded, it's placed in its repo, with its full path.
+     * Each repo is placed under [account-dir]/[repo-name]. When a file is
+     * downloaded, it's placed in its repo, with its full path.
+     * 
      * @param repoName
      * @param repoID
      * @param path
@@ -340,7 +345,7 @@ public class DataManager {
             return null;
         }
 
-        for (SeafRepo repo: cachedRepos) {
+        for (SeafRepo repo : cachedRepos) {
             if (repo.getID().equals(id)) {
                 return repo;
             }
@@ -369,7 +374,7 @@ public class DataManager {
         }
 
         String json = sc.getRepos();
-        //Log.d(DEBUG_TAG, "get repos from server " + json);
+        // Log.d(DEBUG_TAG, "get repos from server " + json);
         if (json == null)
             return null;
 
@@ -386,7 +391,7 @@ public class DataManager {
     }
 
     public File getFile(String repoName, String repoID, String path,
-                        ProgressMonitor monitor) throws SeafException {
+            ProgressMonitor monitor) throws SeafException {
 
         String cachedFileID = null;
         SeafCachedFile cf = getCachedFile(repoName, repoID, path);
@@ -398,7 +403,8 @@ public class DataManager {
             }
         }
 
-        Pair<String, File> ret = sc.getFile(repoID, path, localFile.getPath(), cachedFileID, monitor);
+        Pair<String, File> ret = sc.getFile(repoID, path, localFile.getPath(),
+                cachedFileID, monitor);
 
         String fileID = ret.first;
         if (fileID.equals(cachedFileID)) {
@@ -467,12 +473,12 @@ public class DataManager {
     /**
      * In two cases we need to visit the server for dirents
      *
-     * 1. No cached dirents
-     * 2. User clicks "refresh" button.
+     * 1. No cached dirents 2. User clicks "refresh" button.
      *
      * In the second case, the local cache may still be valid.
      */
-    public List<SeafDirent> getDirentsFromServer(String repoID, String path) throws SeafException {
+    public List<SeafDirent> getDirentsFromServer(String repoID, String path)
+            throws SeafException {
         Pair<String, String> cache = dbHelper.getCachedDirents(repoID, path);
         String cachedDirID = null;
         if (cache != null) {
@@ -503,16 +509,18 @@ public class DataManager {
         return parseStarredFiles(starredFiles);
     }
 
-    public SeafCachedFile getCachedFile(String repoName, String repoID, String path) {
+    public SeafCachedFile getCachedFile(String repoName, String repoID,
+            String path) {
         SeafCachedFile cf = dbHelper.getFileCacheItem(repoID, path, this);
         return cf;
     }
-    
+
     public List<SeafCachedFile> getCachedFiles() {
         return dbHelper.getFileCacheItems(this);
     }
 
-    public void addCachedFile(String repoName, String repoID, String path, String fileID, File file) {
+    public void addCachedFile(String repoName, String repoID, String path,
+            String fileID, File file) {
         SeafCachedFile item = new SeafCachedFile();
         item.repoName = repoName;
         item.repoID = repoID;
@@ -527,29 +535,33 @@ public class DataManager {
         cf.file.delete();
         dbHelper.deleteFileCacheItem(cf);
     }
-    
+
     public void setPassword(String repoID, String passwd) throws SeafException {
         sc.setPassword(repoID, passwd);
     }
 
-    public void uploadFile(String repoName, String repoID, String dir, String filePath,
-            ProgressMonitor monitor, boolean isCopyToLocal) throws SeafException {
-        uploadFileCommon(repoName, repoID, dir, filePath, monitor, false, isCopyToLocal);
+    public void uploadFile(String repoName, String repoID, String dir,
+            String filePath, ProgressMonitor monitor, boolean isCopyToLocal)
+            throws SeafException {
+        uploadFileCommon(repoName, repoID, dir, filePath, monitor, false,
+                isCopyToLocal);
     }
 
-    public void updateFile(String repoName, String repoID, String dir, String filePath,
-            ProgressMonitor monitor, boolean isCopyToLocal) throws SeafException {
-        uploadFileCommon(repoName, repoID, dir, filePath, monitor, true, isCopyToLocal);
+    public void updateFile(String repoName, String repoID, String dir,
+            String filePath, ProgressMonitor monitor, boolean isCopyToLocal)
+            throws SeafException {
+        uploadFileCommon(repoName, repoID, dir, filePath, monitor, true,
+                isCopyToLocal);
     }
 
     private void uploadFileCommon(String repoName, String repoID, String dir,
-                                  String filePath, ProgressMonitor monitor,
-                                  boolean isUpdate, boolean isCopyToLocal) throws SeafException {
+            String filePath, ProgressMonitor monitor, boolean isUpdate,
+            boolean isCopyToLocal) throws SeafException {
         String newFileID = null;
         if (isUpdate) {
-            newFileID  = sc.updateFile(repoID, dir, filePath, monitor);
+            newFileID = sc.updateFile(repoID, dir, filePath, monitor);
         } else {
-            newFileID  = sc.uploadFile(repoID, dir, filePath, monitor);
+            newFileID = sc.uploadFile(repoID, dir, filePath, monitor);
         }
 
         if (newFileID == null || newFileID.length() == 0) {
@@ -574,7 +586,8 @@ public class DataManager {
         addCachedFile(repoName, repoID, path, newFileID, fileInRepo);
     }
 
-    public void createNewDir(String repoID, String parentDir, String dirName) throws SeafException {
+    public void createNewDir(String repoID, String parentDir, String dirName)
+            throws SeafException {
         Pair<String, String> ret = sc.createNewDir(repoID, parentDir, dirName);
         if (ret == null) {
             return;
@@ -588,8 +601,10 @@ public class DataManager {
         dbHelper.saveDirents(repoID, parentDir, newDirID, response);
     }
 
-    public void createNewFile(String repoID, String parentDir, String fileName) throws SeafException {
-        Pair<String, String> ret = sc.createNewFile(repoID, parentDir, fileName);
+    public void createNewFile(String repoID, String parentDir, String fileName)
+            throws SeafException {
+        Pair<String, String> ret = sc
+                .createNewFile(repoID, parentDir, fileName);
         if (ret == null) {
             return;
         }
@@ -602,7 +617,8 @@ public class DataManager {
         dbHelper.saveDirents(repoID, parentDir, newDirID, response);
     }
 
-    public File getLocalCachedFile(String repoName, String repoID, String filePath, String fileID) {
+    public File getLocalCachedFile(String repoName, String repoID,
+            String filePath, String fileID) {
         File localFile = getLocalRepoFile(repoName, repoID, filePath);
         if (!localFile.exists()) {
             return null;
@@ -620,7 +636,8 @@ public class DataManager {
         }
     }
 
-    public void rename(String repoID, String path, String newName, boolean isdir) throws SeafException {
+    public void rename(String repoID, String path, String newName, boolean isdir)
+            throws SeafException {
         Pair<String, String> ret = sc.rename(repoID, path, newName, isdir);
         if (ret == null) {
             return;
@@ -631,12 +648,14 @@ public class DataManager {
 
         // The response is the dirents of the parentDir after renaming the
         // file/folder. We save it to avoid request it again.
-        dbHelper.saveDirents(repoID, Utils.getParentPath(path), newDirID, response);
+        dbHelper.saveDirents(repoID, Utils.getParentPath(path), newDirID,
+                response);
     }
 
-    public void delete(String repoID, String path, boolean isdir) throws SeafException{
+    public void delete(String repoID, String path, boolean isdir)
+            throws SeafException {
         Pair<String, String> ret = sc.delete(repoID, path, isdir);
-        if (ret == null){
+        if (ret == null) {
             return;
         }
 
@@ -645,22 +664,26 @@ public class DataManager {
 
         // The response is the dirents of the parentDir after deleting the
         // file/folder. We save it to avoid request it again
-        dbHelper.saveDirents(repoID, Utils.getParentPath(path), newDirID, response);
+        dbHelper.saveDirents(repoID, Utils.getParentPath(path), newDirID,
+                response);
     }
 
     public void copy(String srcRepoId, String srcDir, String srcFn,
-                     String dstRepoId, String dstDir, boolean isdir) throws SeafException {
+            String dstRepoId, String dstDir, boolean isdir)
+            throws SeafException {
         sc.copy(srcRepoId, srcDir, srcFn, dstRepoId, dstDir, isdir);
-        
+
         // After copying, we need to refresh the destination list
         getDirentsFromServer(dstRepoId, dstDir);
     }
 
-    public void move(String srcRepoId, String srcDir, String srcFn, String dstRepoId, String dstDir,
-                     boolean isdir) throws SeafException {
+    public void move(String srcRepoId, String srcDir, String srcFn,
+            String dstRepoId, String dstDir, boolean isdir)
+            throws SeafException {
         String srcPath = Utils.pathJoin(srcDir, srcFn);
-        Pair<String, String> ret = sc.move(srcRepoId, srcPath, dstRepoId, dstDir, isdir);
-        if (ret == null){
+        Pair<String, String> ret = sc.move(srcRepoId, srcPath, dstRepoId,
+                dstDir, isdir);
+        if (ret == null) {
             return;
         }
 
