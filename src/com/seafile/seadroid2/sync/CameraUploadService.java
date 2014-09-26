@@ -18,12 +18,14 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.MediaStore.MediaColumns;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.seafile.seadroid2.AccountsActivity;
+import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
@@ -197,31 +199,38 @@ public class CameraUploadService extends Service {
         cursor.close();
         return photo;
     }
-    static int intSendBroadcastOnlyOnceFlag = 0;
+    private static int intSendBroadcastOnlyOnceFlag = 0;
     private class PhotoUploadTask extends AsyncTask<Void, Void, List<File>> {
-
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         @Override
         protected List<File> doInBackground(Void... params) {
             // ensure network is available
             if (!Utils.isNetworkOn()) {
                 return null;
             }
-
+            
             // ensure remote camera upload library exists
             try {
                 isRemoteCameraUploadRepoValid = cUploadManager
-                        .isRemoteCameraUploadRepoValid(repoId,
-                                CAMERA_UPLOAD_REMOTE_PARENTDIR);
+                        .isRemoteCameraUploadRepoValid(repoId, CAMERA_UPLOAD_REMOTE_PARENTDIR);
                 if (!isRemoteCameraUploadRepoValid) {
                     return null;
                 }
                 // create a remote "Camera Uploads" folder if deleted
-                cUploadManager.validateRemoteCameraUploadsDir(repoId,
+                cUploadManager.validateRemoteCameraUploadsDir(
+                        repoId,
                         CAMERA_UPLOAD_REMOTE_PARENTDIR,
                         CAMERA_UPLOAD_REMOTE_DIR);
             } catch (SeafException e) {
                 e.printStackTrace();
             }
+            
+            boolean isAllowMobileConnections = settings.getBoolean(BrowserActivity.ALLOW_MOBILE_CONNECTIONS_SWITCH_KEY, false);
+            // if user does`t allow to use mobile connections, then return 
+            if (!Utils.isWiFiOn() && !isAllowMobileConnections) {
+                return null;
+            }
+            
             return CameraUploadUtil.getAllPhotosAbsolutePathList();
         }
 

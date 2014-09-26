@@ -200,6 +200,9 @@
     <string name="settings_wifi_down">Wi-Fi not available</string>    
     <string name="settings_startUpService">Upload Service started</string>    
     <string name="settings_stopUpService">Upload Service stopped</string>    
+    <string name="settings_allow_mobile_connections">Allow 2G/3G/4G Connections</string>    
+    <string name="settings_default_wifi_connection">Use Wi-Fi only by default</string>    
+    <string name="settings_use_mobile_connections">2G/3G/4G connections allowed</string>    
     <string name="settings_repo">Change Upload Library</string>    
     <string name="settings_hint">Please choose a library first</string>    
     <string name="settings_start">Turn on Camera Upload</string>    
