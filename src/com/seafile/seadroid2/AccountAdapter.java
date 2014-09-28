@@ -71,10 +71,10 @@ public class AccountAdapter extends BaseAdapter {
         View view = convertView;
         Viewholder viewHolder;
         if (convertView == null) {
-            view = LayoutInflater.from(context).inflate(R.layout.list_item_entry, null);
-            TextView title = (TextView) view.findViewById(R.id.list_item_title);
-            TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
-            ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
+            view = LayoutInflater.from(context).inflate(R.layout.list_item_account_entry, null);
+            TextView title = (TextView) view.findViewById(R.id.list_item_account_title);
+            TextView subtitle = (TextView) view.findViewById(R.id.list_item_account_subtitle);
+            ImageView icon = (ImageView) view.findViewById(R.id.list_item_account_icon);
             viewHolder = new Viewholder(title, subtitle, icon);
             view.setTag(viewHolder);
         } else {
