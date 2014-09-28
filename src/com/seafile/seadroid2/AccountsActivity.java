@@ -16,11 +16,14 @@ import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -68,25 +71,25 @@ public class AccountsActivity extends SherlockFragmentActivity {
         Log.d(DEBUG_TAG, "AccountsActivity.onCreate is called");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start);
-
         accountsActivity = this;
 
         accountsView = (ListView) findViewById(R.id.account_list_view);
-
         accountManager = new AccountManager(this);
-
-        Button addAccount = new Button(this);
-        addAccount.setText(R.string.add_account);
-        accountsView.addFooterView(addAccount, null, true);
-        accountsView.setFooterDividersEnabled(false);
-        adapter = new AccountAdapter(this);
-        accountsView.setAdapter(adapter);
+       
+        View footerView = ((LayoutInflater) this
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
+                R.layout.account_list_footer, null, false);
+        Button addAccount = (Button) footerView.findViewById(R.id.account_footer_btn);
         addAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View btn) {
                 new CreateAccountChoiceDialog().show(getSupportFragmentManager(), "Choose a server");
             }
         });
+        accountsView.addFooterView(footerView, null, true);
+        accountsView.setFooterDividersEnabled(false);
+        adapter = new AccountAdapter(this);
+        accountsView.setAdapter(adapter);
         accountsView.setOnItemClickListener(new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position,
                     long id) {
