@@ -52,6 +52,7 @@ public class CameraUploadService extends Service {
     private CameraUploadManager cUploadManager;
     private TransferService mTransferService;
     private final IBinder mBinder = new CameraBinder();
+    private boolean isAllowMobileConnections;
     private boolean isRemoteCameraUploadRepoValid;
     private boolean isCameraUpload;
     private Account account;
@@ -199,13 +200,30 @@ public class CameraUploadService extends Service {
         cursor.close();
         return photo;
     }
+
+    private boolean checkNetworkStatus() {
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        isAllowMobileConnections = settings.getBoolean(BrowserActivity.ALLOW_MOBILE_CONNECTIONS_SWITCH_KEY, false);
+        if (!Utils.isNetworkOn()) {
+            return false;
+        }
+        // user does not allow mobile connections
+        if (Utils.isNetworkOn() && !Utils.isWiFiOn() && !isAllowMobileConnections) {
+            return false;
+        }
+        // Wi-Fi or 2G/3G/4G connections available
+        return true;
+    }
+    
     private static int intSendBroadcastOnlyOnceFlag = 0;
+    private boolean isNetworkAvailable;
     private class PhotoUploadTask extends AsyncTask<Void, Void, List<File>> {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         @Override
         protected List<File> doInBackground(Void... params) {
+            isNetworkAvailable = checkNetworkStatus();
             // ensure network is available
-            if (!Utils.isNetworkOn()) {
+            if (!isNetworkAvailable) {
                 return null;
             }
             
@@ -238,7 +256,10 @@ public class CameraUploadService extends Service {
         protected void onPostExecute(List<File> result) {
             Intent localIntent;
             if (result == null) {
-                if (!isRemoteCameraUploadRepoValid) {
+                if (!isNetworkAvailable) {
+                    // do nothing until network connection available
+                }
+                if (isNetworkAvailable && !isRemoteCameraUploadRepoValid) {
                     localIntent = new Intent(TransferService.BROADCAST_ACTION).putExtra("type",
                             BROADCAST_CAMERA_UPLOAD_LIBRARY_NOT_FOUND);
                     LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);

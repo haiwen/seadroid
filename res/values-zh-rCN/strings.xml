@@ -193,9 +193,9 @@
   <string name="settings_startUpService">上传服务已启动</string>
   <string name="settings_stopUpService">上传服务已关闭</string>
   <string name="settings_allow_mobile_connections">允许移动网络上传</string>
-  <string name="settings_repo">更改上传照片的资料库</string>
   <string name="settings_default_wifi_connection">默认使用WiFi上传</string>
-  <string name="settings_use_mobile_connections">2G/3G/4G上传</string>
+  <string name="settings_use_mobile_connections">允许2G/3G/4G上传</string>
+  <string name="settings_repo">更改上传照片的资料库</string>
   <string name="settings_hint">请先选择一个资料库来上传照片</string>
   <string name="settings_start">打开照片上传</string>
   <string name="settings_camera_upload_library_not_found">资料库不存在</string>

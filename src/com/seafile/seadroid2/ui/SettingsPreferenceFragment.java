@@ -141,32 +141,21 @@ public class SettingsPreferenceFragment
                 allowMobileConnections.setEnabled(false);
                 startCameraUploadService(false);
             } else {
-                if (!Utils.isNetworkOn()) {
-                    cameraUploadSwitch.setChecked(false);
-                    allowMobileConnections.setEnabled(false);
-                    cameraUploadRepo.setEnabled(false);
-                    startCameraUploadService(false);
-                    showToast(R.string.network_down);
-                } else if (Utils.isNetworkOn() && !isAllowMobileConnections) { // user does not allow mobile connections
-                    allowMobileConnections.setEnabled(true);
-                    cameraUploadRepo.setEnabled(true);
-                    startCameraUploadService(true);
-                } else {
-                    allowMobileConnections.setEnabled(true);
-                    cameraUploadRepo.setEnabled(true);
-                    startCameraUploadService(true);
-                }
+                allowMobileConnections.setEnabled(true);
+                cameraUploadRepo.setEnabled(true);
+                startCameraUploadService(true);
             }
         } else if (preference.getKey().equals(BrowserActivity.ALLOW_MOBILE_CONNECTIONS_SWITCH_KEY)) {
-            isAllowMobileConnections = settings.getBoolean(BrowserActivity.ALLOW_MOBILE_CONNECTIONS_SWITCH_KEY, false);
+            /*isAllowMobileConnections = settings.getBoolean(BrowserActivity.ALLOW_MOBILE_CONNECTIONS_SWITCH_KEY, false);
             if (!isAllowMobileConnections && !Utils.isWiFiOn()) {
                 startCameraUploadService(false);
             } else if (Utils.isNetworkOn()) {
                 // use WiFi first if available
                 startCameraUploadService(true);
-            }
+            }*/
         } else if (preference.getKey().equals(BrowserActivity.CAMERA_UPLOAD_REPO_KEY)) {
-            mActivity.stopService(cameraUploadIntent);
+            // stop camera upload service
+            startCameraUploadService(false);
             // Pop-up window to let user choose remote library
             Intent intent = new Intent(mActivity, SeafilePathChooserActivity.class);
             intent.putExtra(EXTRA_CAMERA_UPLOAD, true);
@@ -245,8 +234,8 @@ public class SettingsPreferenceFragment
 
     }
 
-    private void startCameraUploadService(Boolean isChecked) {
-        if (!isChecked) {
+    private void startCameraUploadService(Boolean isStart) {
+        if (!isStart) {
             // stop camera upload service
             mActivity.stopService(cameraUploadIntent);
         } else {
