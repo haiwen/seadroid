@@ -54,7 +54,6 @@ public class SettingsPreferenceFragment
     private SettingsActivity mActivity;
     private Intent cameraUploadIntent;
     private boolean isUploadStart;
-    private boolean isAllowMobileConnections;
     private Intent mCameraUploadRepoChooserData;
     private String repoName;
 
