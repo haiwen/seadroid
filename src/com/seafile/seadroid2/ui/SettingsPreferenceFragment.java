@@ -24,7 +24,6 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.sync.CameraUploadService;
 import com.seafile.seadroid2.transfer.TransferService;
-import com.seafile.seadroid2.util.Utils;
 
 @SuppressLint("NewApi")
 public class SettingsPreferenceFragment
@@ -146,13 +145,7 @@ public class SettingsPreferenceFragment
                 startCameraUploadService(true);
             }
         } else if (preference.getKey().equals(BrowserActivity.ALLOW_MOBILE_CONNECTIONS_SWITCH_KEY)) {
-            /*isAllowMobileConnections = settings.getBoolean(BrowserActivity.ALLOW_MOBILE_CONNECTIONS_SWITCH_KEY, false);
-            if (!isAllowMobileConnections && !Utils.isWiFiOn()) {
-                startCameraUploadService(false);
-            } else if (Utils.isNetworkOn()) {
-                // use WiFi first if available
-                startCameraUploadService(true);
-            }*/
+            // no task here
         } else if (preference.getKey().equals(BrowserActivity.CAMERA_UPLOAD_REPO_KEY)) {
             // stop camera upload service
             startCameraUploadService(false);

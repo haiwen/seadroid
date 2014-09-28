@@ -52,6 +52,8 @@ public class CameraUploadService extends Service {
     private CameraUploadManager cUploadManager;
     private TransferService mTransferService;
     private final IBinder mBinder = new CameraBinder();
+    private static int intSendBroadcastOnlyOnceFlag = 0;
+    private boolean isNetworkAvailable;
     private boolean isAllowMobileConnections;
     private boolean isRemoteCameraUploadRepoValid;
     private boolean isCameraUpload;
@@ -215,10 +217,7 @@ public class CameraUploadService extends Service {
         return true;
     }
     
-    private static int intSendBroadcastOnlyOnceFlag = 0;
-    private boolean isNetworkAvailable;
     private class PhotoUploadTask extends AsyncTask<Void, Void, List<File>> {
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         @Override
         protected List<File> doInBackground(Void... params) {
             isNetworkAvailable = checkNetworkStatus();
@@ -241,12 +240,6 @@ public class CameraUploadService extends Service {
                         CAMERA_UPLOAD_REMOTE_DIR);
             } catch (SeafException e) {
                 e.printStackTrace();
-            }
-            
-            boolean isAllowMobileConnections = settings.getBoolean(BrowserActivity.ALLOW_MOBILE_CONNECTIONS_SWITCH_KEY, false);
-            // if user does`t allow to use mobile connections, then return 
-            if (!Utils.isWiFiOn() && !isAllowMobileConnections) {
-                return null;
             }
             
             return CameraUploadUtil.getAllPhotosAbsolutePathList();
