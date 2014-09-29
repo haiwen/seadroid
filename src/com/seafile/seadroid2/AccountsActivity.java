@@ -2,7 +2,6 @@ package com.seafile.seadroid2;
 
 import java.util.List;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -16,14 +15,12 @@ import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -32,6 +29,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.monitor.FileMonitorService;
+import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.SettingsPreferenceFragment;
 
 
@@ -250,11 +248,44 @@ public class AccountsActivity extends SherlockFragmentActivity {
     public static final int CLOUD_SEAFILE_COM = 2;
 
     public static class CreateAccountChoiceDialog extends DialogFragment {
+        // final Context context = SeadroidApplication.getAppContext();
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-
-            final Context context = SeadroidApplication.getAppContext();
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            SeafileStyleDialogBuilder qustomDialogBuilder = (SeafileStyleDialogBuilder) new SeafileStyleDialogBuilder(getActivity()).
+                    setTitle(getResources().getString(R.string.choose_server)).
+                    setTitleColor(getResources().getString(R.color.seafile_orange)).
+                    setDividerColor(getResources().getString(R.color.seafile_orange)).
+                    setItems(R.array.choose_server_array,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Intent intent;
+                                    switch (which) {
+                                    case PRIVATE_SERVER:
+                                        intent = new Intent(getActivity(), AccountDetailActivity.class);
+                                        startActivity(intent);
+                                        break;
+                                    case SEACLOUD_CC:
+                                        intent = new Intent(getActivity(), AccountDetailActivity.class);
+                                        intent.putExtra("server", "https://seacloud.cc");
+                                        startActivity(intent);
+                                        break;
+                                    case CLOUD_SEAFILE_COM:
+                                        intent = new Intent(getActivity(), AccountDetailActivity.class);
+                                        intent.putExtra("server", "https://cloud.seafile.com");
+                                        startActivity(intent);
+                                        break;
+                                    default:
+                                        return;
+                                    }
+                                    accountsActivity.finish();
+                                }
+                            }).
+                    setIcon(getResources().getDrawable(R.drawable.icon));
+            return qustomDialogBuilder.show();
+            /*AlertDialog.Builder builder = new AlertDialog.Builder(
+                    new ContextThemeWrapper(this.getActivity(),
+                            R.style.SeafileDialogStyle));
             builder.setTitle(R.string.choose_server);
             builder.setItems(R.array.choose_server_array,
                     new DialogInterface.OnClickListener() {
@@ -283,7 +314,7 @@ public class AccountsActivity extends SherlockFragmentActivity {
                         }
                     });
 
-            return builder.create();
+            return builder.create();*/
         }
     }
 }

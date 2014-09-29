@@ -10,8 +10,8 @@
     <Button
         android:id="@+id/account_footer_btn"
         android:layout_width="300dp"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:text="@string/add_account"
         android:textSize="14sp"
-        android:background="@drawable/seafile_orange_btn_default_holo_light"/>
+        android:background="@drawable/account_add_btn_default_holo_light"/>
 </LinearLayout>

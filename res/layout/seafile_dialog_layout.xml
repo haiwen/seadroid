@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+** Copyright 2010, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+
+ref:
+https://github.com/android/platform_frameworks_base/blob/master/core/res/res/layout/alert_dialog_holo.xml
+-->
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/parentPanel"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="8dip"
+    android:layout_marginEnd="8dip"
+    android:orientation="vertical">
+
+    <LinearLayout android:id="@+id/topPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <LinearLayout android:id="@+id/title_template"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical|start"
+            android:minHeight="64dip"
+            android:layout_marginStart="16dip"
+            android:layout_marginEnd="16dip">
+            <ImageView android:id="@+id/icon"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingEnd="8dip"
+                android:src="@null" 
+                />
+            <TextView android:id="@+id/alertTitle"
+                style="?android:attr/textAppearanceLarge"
+                android:textColor="@color/seafile_orange"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center" />
+        </LinearLayout>
+        <View android:id="@+id/titleDivider"
+            android:layout_width="match_parent"
+            android:layout_height="2dip"
+            android:visibility="visible"
+            android:background="#33b5e5" />
+    </LinearLayout>
+
+    <ScrollView android:id="@+id/contentPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView android:id="@+id/message"
+            style="?android:attr/textAppearanceMedium"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="16dip"
+            android:paddingEnd="16dip"
+            android:paddingTop="8dip"
+            android:paddingBottom="8dip"
+            />
+    </ScrollView>
+
+    <FrameLayout android:id="@+id/customPanel"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="64dp">
+    </FrameLayout>
+
+    <ScrollView
+        android:layout_height="wrap_content" android:layout_width="match_parent">
+        <LinearLayout
+            android:id="@+id/items_list"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:orientation="vertical">
+        </LinearLayout>
+    </ScrollView>
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/SeafileListStyle"
+        android:id="@+id/listView"/>
+</LinearLayout>

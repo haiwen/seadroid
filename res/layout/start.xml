@@ -29,6 +29,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_marginTop="10dp"
-        android:text="" />
+        android:divider="@null"
+        />
 
 </LinearLayout>
