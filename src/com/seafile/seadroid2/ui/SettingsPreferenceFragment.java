@@ -81,6 +81,10 @@ public class SettingsPreferenceFragment
         if (repoName != null) {
             cameraUploadRepo.setSummary(repoName);
             cameraUploadRepo.setDefaultValue(repoName);
+        } else {
+            cameraUploadSwitch.setChecked(false);
+            allowMobileConnections.setEnabled(false);
+            cameraUploadRepo.setEnabled(false);
         }
 
         if (!cameraUploadSwitch.isChecked()) {
@@ -146,8 +150,6 @@ public class SettingsPreferenceFragment
         } else if (preference.getKey().equals(BrowserActivity.ALLOW_MOBILE_CONNECTIONS_SWITCH_KEY)) {
             // no task here
         } else if (preference.getKey().equals(BrowserActivity.CAMERA_UPLOAD_REPO_KEY)) {
-            // stop camera upload service
-            startCameraUploadService(false);
             // Pop-up window to let user choose remote library
             Intent intent = new Intent(mActivity, SeafilePathChooserActivity.class);
             intent.putExtra(EXTRA_CAMERA_UPLOAD, true);
@@ -200,23 +202,23 @@ public class SettingsPreferenceFragment
                 if (mCameraUploadRepoChooserData == null) {
                     return;
                 }
-                String repoId, repoName, dir;
-                Account account;
-                repoName = mCameraUploadRepoChooserData.getStringExtra(SeafilePathChooserActivity.DATA_REPO_NAME);
-                repoId = mCameraUploadRepoChooserData.getStringExtra(SeafilePathChooserActivity.DATA_REPO_ID);
-                dir = mCameraUploadRepoChooserData.getStringExtra(SeafilePathChooserActivity.DATA_DIR);
-                account = (Account)mCameraUploadRepoChooserData.getParcelableExtra(SeafilePathChooserActivity.DATA_ACCOUNT);
+                // stop camera upload service
+                startCameraUploadService(false);
+                String repoName = mCameraUploadRepoChooserData.getStringExtra(SeafilePathChooserActivity.DATA_REPO_NAME);
+                String repoId = mCameraUploadRepoChooserData.getStringExtra(SeafilePathChooserActivity.DATA_REPO_ID);
+                String dir = mCameraUploadRepoChooserData.getStringExtra(SeafilePathChooserActivity.DATA_DIR);
+                Account account = (Account)mCameraUploadRepoChooserData.getParcelableExtra(SeafilePathChooserActivity.DATA_ACCOUNT);
                 saveCameraUploadRepoInfo(repoId, repoName, dir, account);
                 this.repoName = repoName;
                 cameraUploadRepo.setSummary(repoName);
                 cameraUploadRepo.setDefaultValue(repoName);
                 saveCameraUploadRepoName(repoName);
+                // start camera upload service
                 startCameraUploadService(true);
-            } else if (resultCode == Activity.RESULT_CANCELED) {
+            } else if (resultCode == Activity.RESULT_CANCELED && repoName == null) { // repoName is null when first initialized
                 cameraUploadSwitch.setChecked(false);
                 allowMobileConnections.setEnabled(false);
                 cameraUploadRepo.setEnabled(false);
-                startCameraUploadService(false);
             }
            break;
 
@@ -278,9 +280,9 @@ public class SettingsPreferenceFragment
                 startCameraUploadService(false);
                 showToast(R.string.settings_camera_upload_library_not_found);
             } else if (type.equals(CameraUploadService.BROADCAST_CAMERA_UPLOAD_SERVICE_STARTED)) {
-                showToast(R.string.settings_startUpService);
+                // showToast(R.string.settings_startUpService);
             } else if (type.equals(CameraUploadService.BROADCAST_CAMERA_UPLOAD_SERVICE_STOPPED)) {
-                showToast(R.string.settings_stopUpService);
+                // showToast(R.string.settings_stopUpService);
             }
         }
     };
