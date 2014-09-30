@@ -7,7 +7,8 @@
             android:key="gesture_lock_switch_key"
             android:summaryOff="@string/gesture_lock_off"
             android:summaryOn="@string/gesture_lock_on"
-            android:title="@string/gesture_lock" >
+            android:title="@string/gesture_lock"
+            android:widgetLayout="@layout/seafile_checkbox_layout" >
         </CheckBoxPreference>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/settings_camera_upload_info_title" >
@@ -16,7 +17,16 @@
             android:key="camera_upload_switch_key"
             android:summaryOff="@string/settings_stopUpService"
             android:summaryOn="@string/settings_startUpService"
-            android:title="@string/settings_start" >
+            android:title="@string/settings_start"
+            android:widgetLayout="@layout/seafile_checkbox_layout" >
+        </CheckBoxPreference>
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="allow_mobile_connections_switch_key"
+            android:summaryOff="@string/settings_default_wifi_connection"
+            android:summaryOn="@string/settings_use_mobile_connections"
+            android:title="@string/settings_allow_mobile_connections"
+            android:widgetLayout="@layout/seafile_checkbox_layout" >
         </CheckBoxPreference>
         <CheckBoxPreference
             android:defaultValue="false"
@@ -26,10 +36,11 @@
             android:title="@string/settings_allow_mobile_connections" >
         </CheckBoxPreference>
         <Preference
-            android:layout="@layout/preference" 
             android:key="camera_upload_repo_key"
-            android:title="@string/settings_repo"
+            android:layout="@layout/preference"
+            android:persistent="true"
             android:summary="@string/settings_hint"
-            android:persistent="true"/>
+            android:title="@string/settings_repo" />
     </PreferenceCategory>
-</PreferenceScreen>
+
+</PreferenceScreen>

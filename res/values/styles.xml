@@ -92,5 +92,8 @@
         <!-- <item name="android:colorPressedHighlight">@color/black</item> -->
         <!-- <item name="android:colorLongPressedHighlight">@color/black</item> -->
     </style>
+    <style name="CustomCheckboxTheme" parent="@android:style/Widget.CompoundButton.CheckBox">
+        <item name="android:button">@drawable/account_add_btn_check_holo_light</item>
+    </style>
 
 </resources>
