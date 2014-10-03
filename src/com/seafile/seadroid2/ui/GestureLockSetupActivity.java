@@ -123,7 +123,7 @@ public class GestureLockSetupActivity extends Activity implements
             } else if (step == STEP_4) {
 
                 SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-                settings.edit().putString(BrowserActivity.LOCK_KEY,GestureLockPatternView.patternToString(choosePattern)).commit();
+                settings.edit().putString(BrowserActivity.LOCK_KEY, GestureLockPatternView.patternToString(choosePattern)).commit();
 
                 backIntent.putExtra("setupSuccess", true);
                 this.setResult(RESULT_OK, backIntent);

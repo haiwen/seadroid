@@ -125,8 +125,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final String CHOOSE_APP_DIALOG_FRAGMENT_TAG = "choose_app_fragment";
     public static final String PICK_FILE_DIALOG_FRAGMENT_TAG = "pick_file_fragment";
 
-    public static final String LOCK = "lock";
-    public static final String LOCK_KEY = null;
+    public static final String LOCK_KEY = "gesture_lock_key";
     public static final String GESTURE_LOCK_SWITCH_KEY = "gesture_lock_switch_key";
     public static final String CAMERA_UPLOAD_SWITCH_KEY = "camera_upload_switch_key";
     public static final String CAMERA_UPLOAD_REPO_KEY = "camera_upload_repo_key";
@@ -379,13 +378,13 @@ public class BrowserActivity extends SherlockFragmentActivity
     @Override
     protected void onPause() {
         Log.d(DEBUG_TAG, "onPause");
-      super.onPause();
+        super.onPause();
     }
 
     @Override
     public void onRestart() {
         Log.d(DEBUG_TAG, "onRestart");
-        super.onStart();
+        super.onRestart();
     }
 
     @Override

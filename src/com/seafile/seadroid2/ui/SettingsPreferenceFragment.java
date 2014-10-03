@@ -57,11 +57,14 @@ public class SettingsPreferenceFragment
     private Intent mCameraUploadRepoChooserData;
     private String repoName;
 
-    @SuppressLint("NewApi")
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(DEBUG_TAG, "onCreate");
         addPreferencesFromResource(R.xml.settings);
+
+        mActivity = (SettingsActivity) getActivity();
+        sharedPref = mActivity.getSharedPreferences(AccountsActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        editor = sharedPref.edit();
 
         gestureLockSwitch = (CheckBoxPreference) findPreference(BrowserActivity.GESTURE_LOCK_SWITCH_KEY);
         cameraUploadSwitch = (CheckBoxPreference) findPreference(BrowserActivity.CAMERA_UPLOAD_SWITCH_KEY);
@@ -69,12 +72,13 @@ public class SettingsPreferenceFragment
         gestureLockSwitch.setOnPreferenceChangeListener(this);
         gestureLockSwitch.setOnPreferenceClickListener(this);
 
+        if (sharedPref.getBoolean(BrowserActivity.GESTURE_LOCK_SWITCH_KEY, false)) {
+            gestureLockSwitch.setChecked(true);
+        }
+
         cameraUploadSwitch.setOnPreferenceClickListener(this);
         cameraUploadRepo.setOnPreferenceClickListener(this);
-        mActivity = (SettingsActivity) getActivity();
         cameraUploadIntent = new Intent(mActivity, CameraUploadService.class);
-        sharedPref = mActivity.getSharedPreferences(AccountsActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
-        editor = sharedPref.edit();
         repoName = getCameraUploadRepoName();
         if (repoName != null) {
             cameraUploadRepo.setSummary(repoName);
