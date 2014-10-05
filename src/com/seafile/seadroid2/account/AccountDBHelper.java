@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.provider.AccountNotifier;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -130,6 +131,8 @@ public class AccountDBHelper extends SQLiteOpenHelper {
 
         // Insert the new row, returning the primary key value of the new row
         database.replace(AccountDBHelper.TABLE_NAME, null, values);
+
+		AccountNotifier.notifyProvider();
     }
 
     public void updateAccount(Account oldAccount, Account newAccount) {
@@ -140,11 +143,15 @@ public class AccountDBHelper extends SQLiteOpenHelper {
 
         database.update(AccountDBHelper.TABLE_NAME, values, "server=? and email=?",
                 new String[] { oldAccount.server, oldAccount.email });
+
+        AccountNotifier.notifyProvider();
     }
 
     public void deleteAccount(Account account) {
         database.delete(AccountDBHelper.TABLE_NAME,  "server=? and email=?",
                 new String[] { account.server, account.email });
+
+        AccountNotifier.notifyProvider();
     }
 
     private Account cursorToAccount(Cursor cursor) {
