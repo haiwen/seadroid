@@ -26,10 +26,12 @@ public class AccountDBHelper extends SQLiteOpenHelper {
     private static AccountDBHelper dbHelper = null;
     private SQLiteDatabase database = null;
 
-    public static synchronized AccountDBHelper getDatabaseHelper() {
+    public static synchronized AccountDBHelper getDatabaseHelper(Context context) {
+        // Note: the given context will be used for the singleton instance. it can come
+        // either from the application or the contentProvider.
         if (dbHelper != null)
             return dbHelper;
-        dbHelper = new AccountDBHelper(SeadroidApplication.getAppContext());
+        dbHelper = new AccountDBHelper(context);
         dbHelper.database = dbHelper.getWritableDatabase();
         return dbHelper;
     }
