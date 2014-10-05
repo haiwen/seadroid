@@ -387,7 +387,7 @@ public class DataManager {
         return reposCache;
     }
 
-    public File getFile(String repoName, String repoID, String path,
+    public synchronized File getFile(String repoName, String repoID, String path,
                         ProgressMonitor monitor) throws SeafException {
 
         String cachedFileID = null;
