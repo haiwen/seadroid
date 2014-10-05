@@ -36,6 +36,14 @@ public class SeafCachedFile implements SeafItem {
         return file.length();
     }
 
+    public long getLastModified() {
+        return file.lastModified();
+    }
+
+    public boolean isDirectory() {
+        return file.isDirectory();
+    }
+
     public String getAccountSignature() {
         return accountSignature;
     }
