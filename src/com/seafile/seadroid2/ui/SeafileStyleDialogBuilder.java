@@ -39,6 +39,10 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
+/**
+ * uniform global dialog style 
+ *
+ */
 public class SeafileStyleDialogBuilder extends AlertDialog.Builder {
 
 	/** The custom_body layout */

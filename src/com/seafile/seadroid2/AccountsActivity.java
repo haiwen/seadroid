@@ -283,38 +283,6 @@ public class AccountsActivity extends SherlockFragmentActivity {
                             }).
                     setIcon(getResources().getDrawable(R.drawable.icon));
             return qustomDialogBuilder.show();
-            /*AlertDialog.Builder builder = new AlertDialog.Builder(
-                    new ContextThemeWrapper(this.getActivity(),
-                            R.style.SeafileDialogStyle));
-            builder.setTitle(R.string.choose_server);
-            builder.setItems(R.array.choose_server_array,
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Intent intent;
-                            switch (which) {
-                            case PRIVATE_SERVER:
-                                intent = new Intent(context, AccountDetailActivity.class);
-                                startActivity(intent);
-                                break;
-                            case SEACLOUD_CC:
-                                intent = new Intent(context, AccountDetailActivity.class);
-                                intent.putExtra("server", "https://seacloud.cc");
-                                startActivity(intent);
-                                break;
-                            case CLOUD_SEAFILE_COM:
-                                intent = new Intent(context, AccountDetailActivity.class);
-                                intent.putExtra("server", "https://cloud.seafile.com");
-                                startActivity(intent);
-                                break;
-                            default:
-                                return;
-                            }
-                            accountsActivity.finish();
-                        }
-                    });
-
-            return builder.create();*/
         }
     }
 }

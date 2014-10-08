@@ -10,7 +10,6 @@ import java.util.List;
 
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
@@ -73,6 +72,7 @@ import com.seafile.seadroid2.ui.PasswordDialog;
 import com.seafile.seadroid2.ui.RenameFileDialog;
 import com.seafile.seadroid2.ui.ReposFragment;
 import com.seafile.seadroid2.ui.SeafilePathChooserActivity;
+import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.SettingsActivity;
 import com.seafile.seadroid2.ui.SslConfirmDialog;
 import com.seafile.seadroid2.ui.StarredFragment;
@@ -736,10 +736,12 @@ public class BrowserActivity extends SherlockFragmentActivity
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle(R.string.pick_upload_type);
-            builder.setItems(R.array.pick_upload_array,
-                    new DialogInterface.OnClickListener() {
+            SeafileStyleDialogBuilder builder = (SeafileStyleDialogBuilder) new SeafileStyleDialogBuilder(getActivity()).
+                    setTitle(getResources().getString(R.string.pick_upload_type)).
+                    setTitleColor(getResources().getString(R.color.seafile_orange)).
+                    setDividerColor(getResources().getString(R.color.seafile_orange)).
+                    setItems(R.array.pick_upload_array, 
+                            new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             switch (which) {
@@ -763,8 +765,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                             }
                         }
                     });
-
-            return builder.create();
+            return builder.show();
         }
     }
 
