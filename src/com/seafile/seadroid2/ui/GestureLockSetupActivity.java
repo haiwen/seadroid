@@ -15,8 +15,8 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.ui.GestureLockPatternView.Cell;
 import com.seafile.seadroid2.ui.GestureLockPatternView.DisplayMode;
 
@@ -105,7 +105,7 @@ public class GestureLockSetupActivity extends Activity implements
         case R.id.left_btn:
             if (step == STEP_1 || step == STEP_3 || step == STEP_4) {
                 SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-                settings.edit().putString(BrowserActivity.LOCK_KEY,null).commit();
+                settings.edit().putString(SettingsManager.LOCK_KEY,null).commit();
                 
                 backIntent.putExtra("setupSuccess", false);
                 this.setResult(RESULT_OK, backIntent);
@@ -123,7 +123,7 @@ public class GestureLockSetupActivity extends Activity implements
             } else if (step == STEP_4) {
 
                 SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-                settings.edit().putString(BrowserActivity.LOCK_KEY, GestureLockPatternView.patternToString(choosePattern)).commit();
+                settings.edit().putString(SettingsManager.LOCK_KEY, GestureLockPatternView.patternToString(choosePattern)).commit();
 
                 backIntent.putExtra("setupSuccess", true);
                 this.setResult(RESULT_OK, backIntent);

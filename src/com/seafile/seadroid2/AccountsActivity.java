@@ -28,10 +28,8 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
-import com.seafile.seadroid2.data.AvatarManager;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
-import com.seafile.seadroid2.ui.SettingsPreferenceFragment;
 
 
 public class AccountsActivity extends SherlockFragmentActivity {
@@ -176,8 +174,8 @@ public class AccountsActivity extends SherlockFragmentActivity {
         String latestServer = sharedPref.getString(SHARED_PREF_SERVER_KEY, null);
         String latestEmail = sharedPref.getString(SHARED_PREF_EMAIL_KEY, null);
         // update cache data of settings module
-        String settingsServer = sharedPref.getString(SettingsPreferenceFragment.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER, null);
-        String settingsEmail = sharedPref.getString(SettingsPreferenceFragment.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL, null);
+        String settingsServer = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER, null);
+        String settingsEmail = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL, null);
         
         if (account.server.equals(latestServer) && account.email.equals(latestEmail)) {
             editor.putString(SHARED_PREF_SERVER_KEY, null);
@@ -186,10 +184,10 @@ public class AccountsActivity extends SherlockFragmentActivity {
             editor.commit();
         }
         if (account.server.equals(settingsServer) && account.email.equals(settingsEmail)) {
-            editor.putString(SettingsPreferenceFragment.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER, null);
-            editor.putString(SettingsPreferenceFragment.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL, null);
-            editor.putString(SettingsPreferenceFragment.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN, null);
-            editor.putString(SettingsPreferenceFragment.SHARED_PREF_CAMERA_UPLOAD_SETTINGS_REPONAME, null);
+            editor.putString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER, null);
+            editor.putString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL, null);
+            editor.putString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN, null);
+            editor.putString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_SETTINGS_REPONAME, null);
             editor.commit();
         }
     }

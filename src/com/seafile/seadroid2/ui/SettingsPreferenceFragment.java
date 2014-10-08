@@ -20,9 +20,8 @@ import android.text.Html;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.seafile.seadroid2.AccountsActivity;
-import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.sync.CameraUploadService;
 import com.seafile.seadroid2.transfer.TransferService;
@@ -34,71 +33,47 @@ public class SettingsPreferenceFragment
 
     private static final String DEBUG_TAG = "SettingsPreferenceFragment";
 
-    public static final String PKG = "com.seafile.seadroid2";
-    public static final String EXTRA_CAMERA_UPLOAD = PKG + ".camera.upload";
-    public static final String SHARED_PREF_CAMERA_UPLOAD_REPO_ID = PKG + ".camera.repoid";
-    public static final String SHARED_PREF_CAMERA_UPLOAD_REPO_NAME = PKG + ".camera.repoName";
-    public static final String SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL = PKG + ".camera.account.email";
-    public static final String SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER = PKG + ".camera.account.server";
-    public static final String SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN = PKG + ".camera.account.token";
-    public static final String SHARED_PREF_CAMERA_UPLOAD_SETTINGS_REPONAME = PKG + ".camera.settings.repoName";
-    public static final String SHARED_PREF_CAMERA_UPLOAD_SETTINGS_START = PKG + ".camera.settings.startService";
-    public static final int CHOOSE_CAMERA_UPLOAD_REPO_REQUEST = 1;
-    public static final int GESTURE_LOCK_REQUEST = 6;
-    public static final int SETTINGS_FEEDBACK_REPORT_LIKE = 10;
-    public static final int SETTINGS_FEEDBACK_REPORT_DISLIKE = 11;
-    public static final int SETTINGS_FEEDBACK_REPORT_BUG = 12;
-    public static final int SETTINGS_FEEDBACK_NEED_HELP = 13;
-    public static final int SETTINGS_FEEDBACK_REPORT_OTHERS = 14;
     private CheckBoxPreference gestureLockSwitch;
     private CheckBoxPreference cameraUploadSwitch;
     private CheckBoxPreference allowMobileConnections;
     private Preference cameraUploadRepo;
     private Preference versionName;
     private boolean setupSuccess;
-    private boolean gestureLockBefore;
-    private SharedPreferences sharedPref;
-    private SharedPreferences.Editor editor;
+    private boolean isGestureLockOn;
     private SettingsActivity mActivity;
     private Intent cameraUploadIntent;
     private boolean isUploadStart;
     private Intent mCameraUploadRepoChooserData;
     private String repoName;
     private String appVersion;
-    
+    private SettingsManager settingsMgr;
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(DEBUG_TAG, "onCreate");
         addPreferencesFromResource(R.xml.settings);
-
+        
+        // global variables
         mActivity = (SettingsActivity) getActivity();
-        sharedPref = mActivity.getSharedPreferences(AccountsActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
-        editor = sharedPref.edit();
-
-        gestureLockSwitch = (CheckBoxPreference) findPreference(BrowserActivity.GESTURE_LOCK_SWITCH_KEY);
-        cameraUploadSwitch = (CheckBoxPreference) findPreference(BrowserActivity.CAMERA_UPLOAD_SWITCH_KEY);
-        allowMobileConnections = (CheckBoxPreference) findPreference(BrowserActivity.ALLOW_MOBILE_CONNECTIONS_SWITCH_KEY);
-        cameraUploadRepo = (Preference) findPreference(BrowserActivity.CAMERA_UPLOAD_REPO_KEY);
-        versionName = findPreference(BrowserActivity.SETTINGS_ABOUT_VERSION_KEY);
-        try {
-            appVersion = mActivity.getPackageManager().getPackageInfo(mActivity.getPackageName(), 0).versionName;
-        } catch (NameNotFoundException e) {
-            e.printStackTrace();
-        }
-        versionName.setSummary(appVersion);
-
+        settingsMgr = SettingsManager.instance();
+        
+        // Gesture Lock
+        gestureLockSwitch = (CheckBoxPreference) findPreference(SettingsManager.GESTURE_LOCK_SWITCH_KEY);
         gestureLockSwitch.setOnPreferenceChangeListener(this);
         gestureLockSwitch.setOnPreferenceClickListener(this);
-        if (sharedPref.getBoolean(BrowserActivity.GESTURE_LOCK_SWITCH_KEY, false)) {
-            gestureLockSwitch.setChecked(true);
-        }
-
+        gestureLockSwitch.setChecked(settingsMgr.isGestureLockEnabled());
+        
+        // Camera Upload
+        cameraUploadSwitch = (CheckBoxPreference) findPreference(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY);
+        cameraUploadRepo = (Preference) findPreference(SettingsManager.CAMERA_UPLOAD_REPO_KEY);
+        allowMobileConnections = (CheckBoxPreference) findPreference(SettingsManager.ALLOW_MOBILE_CONNECTIONS_SWITCH_KEY);
         cameraUploadSwitch.setOnPreferenceClickListener(this);
-        allowMobileConnections.setOnPreferenceClickListener(this);
-        versionName.setOnPreferenceClickListener(this);
         cameraUploadRepo.setOnPreferenceClickListener(this);
+        allowMobileConnections.setOnPreferenceClickListener(this);
+        
         cameraUploadIntent = new Intent(mActivity, CameraUploadService.class);
-        repoName = getCameraUploadRepoName();
+        repoName = settingsMgr.getCameraUploadRepoName();
+        
         if (repoName != null) {
             cameraUploadRepo.setSummary(repoName);
             cameraUploadRepo.setDefaultValue(repoName);
@@ -116,6 +91,16 @@ public class SettingsPreferenceFragment
             cameraUploadRepo.setEnabled(true);
         }
 
+        // About 
+        versionName = findPreference(SettingsManager.SETTINGS_ABOUT_VERSION_KEY);
+        versionName.setOnPreferenceClickListener(this);
+        try {
+            appVersion = mActivity.getPackageManager().getPackageInfo(mActivity.getPackageName(), 0).versionName;
+        } catch (NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        versionName.setSummary(appVersion);
+        
         LocalBroadcastManager
                 .getInstance(getActivity().getApplicationContext())
                 .registerReceiver(transferReceiver,
@@ -131,34 +116,22 @@ public class SettingsPreferenceFragment
         transferReceiver = null;
     }
 
-    private void saveCameraUploadRepoName(String repoName) {
-        editor.putString(SHARED_PREF_CAMERA_UPLOAD_SETTINGS_REPONAME, repoName);
-        editor.commit();
-    }
-
-    private String getCameraUploadRepoName() {
-        return sharedPref.getString(SHARED_PREF_CAMERA_UPLOAD_SETTINGS_REPONAME, null);
-    }
     @Override
     public boolean onPreferenceClick(Preference preference) {
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
-        if (preference.getKey().equals(BrowserActivity.GESTURE_LOCK_SWITCH_KEY)) {
-            gestureLockBefore = settings.getBoolean(BrowserActivity.GESTURE_LOCK_SWITCH_KEY, false);
+        if (preference.getKey().equals(SettingsManager.GESTURE_LOCK_SWITCH_KEY)) {
+            isGestureLockOn = settingsMgr.isGestureLockEnabled();
 
-            if (gestureLockBefore == false) {
+            if (isGestureLockOn == false) {
                 Intent newIntent = new Intent(getActivity(), GestureLockSetupActivity.class);
                 newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivityForResult(newIntent, GESTURE_LOCK_REQUEST);
+                startActivityForResult(newIntent, SettingsManager.GESTURE_LOCK_REQUEST);
 
             } else {
-                SharedPreferences.Editor editor = settings.edit();
-                editor.putBoolean(BrowserActivity.GESTURE_LOCK_SWITCH_KEY, false);
-                editor.putString(BrowserActivity.LOCK_KEY, null);
-                editor.commit();
+            	settingsMgr.clearGestureLock();
                 gestureLockSwitch.setChecked(false);
             }
-        } else if (preference.getKey().equals(BrowserActivity.CAMERA_UPLOAD_SWITCH_KEY)) {
-            isUploadStart = settings.getBoolean(BrowserActivity.CAMERA_UPLOAD_SWITCH_KEY, false);
+        } else if (preference.getKey().equals(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY)) {
+            isUploadStart = settingsMgr.isUploadStart();
             if (!isUploadStart) {
                 cameraUploadRepo.setEnabled(false);
                 allowMobileConnections.setEnabled(false);
@@ -168,14 +141,14 @@ public class SettingsPreferenceFragment
                 cameraUploadRepo.setEnabled(true);
                 startCameraUploadService(true);
             }
-        } else if (preference.getKey().equals(BrowserActivity.ALLOW_MOBILE_CONNECTIONS_SWITCH_KEY)) {
+        } else if (preference.getKey().equals(SettingsManager.ALLOW_MOBILE_CONNECTIONS_SWITCH_KEY)) {
             // no task here
-        } else if (preference.getKey().equals(BrowserActivity.CAMERA_UPLOAD_REPO_KEY)) {
+        } else if (preference.getKey().equals(SettingsManager.CAMERA_UPLOAD_REPO_KEY)) {
             // Pop-up window to let user choose remote library
             Intent intent = new Intent(mActivity, SeafilePathChooserActivity.class);
-            intent.putExtra(EXTRA_CAMERA_UPLOAD, true);
-            this.startActivityForResult(intent, CHOOSE_CAMERA_UPLOAD_REPO_REQUEST);
-        } else if(preference.getKey().equals(BrowserActivity.SETTINGS_ABOUT_VERSION_KEY)) {
+            intent.putExtra(SettingsManager.EXTRA_CAMERA_UPLOAD, true);
+            this.startActivityForResult(intent, SettingsManager.CHOOSE_CAMERA_UPLOAD_REPO_REQUEST);
+        } else if(preference.getKey().equals(SettingsManager.SETTINGS_ABOUT_VERSION_KEY)) {
             SeafileStyleDialogBuilder builder = new SeafileStyleDialogBuilder(mActivity);
             builder.setIcon(R.drawable.icon);            
             builder.setTitle(mActivity.getResources().getString(R.string.app_name));
@@ -203,7 +176,7 @@ public class SettingsPreferenceFragment
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-        case GESTURE_LOCK_REQUEST:
+        case SettingsManager.GESTURE_LOCK_REQUEST:
             if (resultCode == Activity.RESULT_OK) {
                 setupSuccess = data.getBooleanExtra("setupSuccess", true);
                 SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -211,10 +184,10 @@ public class SettingsPreferenceFragment
 
                 if (setupSuccess == true) {
                     showToast(R.string.setup_gesture_lock_success);
-                    editor.putBoolean(BrowserActivity.GESTURE_LOCK_SWITCH_KEY, true);
+                    editor.putBoolean(SettingsManager.GESTURE_LOCK_SWITCH_KEY, true);
                     gestureLockSwitch.setChecked(true);
                 } else {
-                    editor.putBoolean(BrowserActivity.GESTURE_LOCK_SWITCH_KEY, false);
+                    editor.putBoolean(SettingsManager.GESTURE_LOCK_SWITCH_KEY, false);
                     gestureLockSwitch.setChecked(false);
                 }
 
@@ -223,7 +196,7 @@ public class SettingsPreferenceFragment
 
             break;
 
-        case CHOOSE_CAMERA_UPLOAD_REPO_REQUEST:
+        case SettingsManager.CHOOSE_CAMERA_UPLOAD_REPO_REQUEST:
             if (resultCode == Activity.RESULT_OK) {
                 mCameraUploadRepoChooserData = data;
                 if (mCameraUploadRepoChooserData == null) {
@@ -235,11 +208,11 @@ public class SettingsPreferenceFragment
                 String repoId = mCameraUploadRepoChooserData.getStringExtra(SeafilePathChooserActivity.DATA_REPO_ID);
                 String dir = mCameraUploadRepoChooserData.getStringExtra(SeafilePathChooserActivity.DATA_DIR);
                 Account account = (Account)mCameraUploadRepoChooserData.getParcelableExtra(SeafilePathChooserActivity.DATA_ACCOUNT);
-                saveCameraUploadRepoInfo(repoId, repoName, dir, account);
+                settingsMgr.saveCameraUploadRepoInfo(repoId, repoName, dir, account);
                 this.repoName = repoName;
                 cameraUploadRepo.setSummary(repoName);
                 cameraUploadRepo.setDefaultValue(repoName);
-                saveCameraUploadRepoName(repoName);
+                settingsMgr.saveCameraUploadRepoName(repoName);
                 // start camera upload service
                 startCameraUploadService(true);
             } else if (resultCode == Activity.RESULT_CANCELED && repoName == null) { // repoName is null when first initialized
@@ -266,8 +239,8 @@ public class SettingsPreferenceFragment
             } else {
                 // Pop-up window to let user choose remote library
                 Intent intent = new Intent(mActivity, SeafilePathChooserActivity.class);
-                intent.putExtra(EXTRA_CAMERA_UPLOAD, true);
-                this.startActivityForResult(intent, CHOOSE_CAMERA_UPLOAD_REPO_REQUEST);
+                intent.putExtra(SettingsManager.EXTRA_CAMERA_UPLOAD, true);
+                this.startActivityForResult(intent, SettingsManager.CHOOSE_CAMERA_UPLOAD_REPO_REQUEST);
                 return;
             }
 
@@ -276,18 +249,6 @@ public class SettingsPreferenceFragment
         }
     }
 
-    private void saveCameraUploadRepoInfo(String repoId, String repoName, String dstDir,
-            Account account) {
-        editor.putString(SHARED_PREF_CAMERA_UPLOAD_REPO_ID, repoId);
-        editor.putString(SHARED_PREF_CAMERA_UPLOAD_REPO_NAME, repoName);
-        editor.putString(SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL,
-                account.getEmail());
-        editor.putString(SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER,
-                account.getServer());
-        editor.putString(SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN,
-                account.getToken());
-        editor.commit();
-    }
     private BroadcastReceiver transferReceiver = new BroadcastReceiver() {
 
         @Override
@@ -301,7 +262,7 @@ public class SettingsPreferenceFragment
             if (type.equals(CameraUploadService.BROADCAST_CAMERA_UPLOAD_LIBRARY_NOT_FOUND)) {
                 repoName = null;
                 cameraUploadRepo.setSummary(R.string.settings_hint);
-                saveCameraUploadRepoName(null);
+                settingsMgr.saveCameraUploadRepoName(null);
                 cameraUploadSwitch.setChecked(false);
                 cameraUploadRepo.setEnabled(false);
                 startCameraUploadService(false);

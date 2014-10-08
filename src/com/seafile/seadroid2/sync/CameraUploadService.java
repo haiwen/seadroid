@@ -25,16 +25,15 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.seafile.seadroid2.AccountsActivity;
-import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.SeafCachedPhoto;
 import com.seafile.seadroid2.transfer.PendingUploadInfo;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.transfer.UploadTaskInfo;
-import com.seafile.seadroid2.ui.SettingsPreferenceFragment;
 import com.seafile.seadroid2.util.CameraUploadUtil;
 import com.seafile.seadroid2.util.Utils;
 
@@ -128,11 +127,11 @@ public class CameraUploadService extends Service {
 
     private void initializeCameraUploadPreference() {
         SharedPreferences sharedPref = getSharedPreferences(AccountsActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
-        repoId = sharedPref.getString(SettingsPreferenceFragment.SHARED_PREF_CAMERA_UPLOAD_REPO_ID, null);
-        repoName = sharedPref.getString(SettingsPreferenceFragment.SHARED_PREF_CAMERA_UPLOAD_REPO_NAME, null);
-        accountEmail = sharedPref.getString(SettingsPreferenceFragment.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL, null);
-        accountServer = sharedPref.getString(SettingsPreferenceFragment.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER, null);
-        accountToken = sharedPref.getString(SettingsPreferenceFragment.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN, null);
+        repoId = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_REPO_ID, null);
+        repoName = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_REPO_NAME, null);
+        accountEmail = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL, null);
+        accountServer = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER, null);
+        accountToken = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN, null);
     }
 
     ServiceConnection mConnection = new ServiceConnection() {
@@ -205,7 +204,7 @@ public class CameraUploadService extends Service {
 
     private boolean checkNetworkStatus() {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        isAllowMobileConnections = settings.getBoolean(BrowserActivity.ALLOW_MOBILE_CONNECTIONS_SWITCH_KEY, false);
+        isAllowMobileConnections = settings.getBoolean(SettingsManager.ALLOW_MOBILE_CONNECTIONS_SWITCH_KEY, false);
         if (!Utils.isNetworkOn()) {
             return false;
         }

@@ -10,8 +10,8 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
-import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.ui.GestureLockPatternView.Cell;
 import com.seafile.seadroid2.ui.GestureLockPatternView.DisplayMode;
 
@@ -28,7 +28,7 @@ public class GestureLockActivity extends Activity implements
         super.onCreate(savedInstanceState);
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        String patternString = settings.getString(BrowserActivity.LOCK_KEY, null);
+        String patternString = settings.getString(SettingsManager.LOCK_KEY, null);
         if (patternString == null) {
             finish();
             return;
