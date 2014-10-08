@@ -24,7 +24,6 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.sync.CameraUploadService;
 import com.seafile.seadroid2.transfer.TransferService;
-import com.seafile.seadroid2.util.Utils;
 
 @SuppressLint("NewApi")
 public class SettingsPreferenceFragment
@@ -46,6 +45,7 @@ public class SettingsPreferenceFragment
     private static final int GESTURE_LOCK_REQUEST = 6;
     private CheckBoxPreference gestureLockSwitch;
     private CheckBoxPreference cameraUploadSwitch;
+    private CheckBoxPreference allowMobileConnections;
     private Preference cameraUploadRepo;
     private boolean setupSuccess;
     private boolean gestureLockBefore;
@@ -68,6 +68,7 @@ public class SettingsPreferenceFragment
 
         gestureLockSwitch = (CheckBoxPreference) findPreference(BrowserActivity.GESTURE_LOCK_SWITCH_KEY);
         cameraUploadSwitch = (CheckBoxPreference) findPreference(BrowserActivity.CAMERA_UPLOAD_SWITCH_KEY);
+        allowMobileConnections = (CheckBoxPreference) findPreference(BrowserActivity.ALLOW_MOBILE_CONNECTIONS_SWITCH_KEY);
         cameraUploadRepo = (Preference) findPreference(BrowserActivity.CAMERA_UPLOAD_REPO_KEY);
         gestureLockSwitch.setOnPreferenceChangeListener(this);
         gestureLockSwitch.setOnPreferenceClickListener(this);
@@ -77,17 +78,24 @@ public class SettingsPreferenceFragment
         }
 
         cameraUploadSwitch.setOnPreferenceClickListener(this);
+        allowMobileConnections.setOnPreferenceClickListener(this);
         cameraUploadRepo.setOnPreferenceClickListener(this);
         cameraUploadIntent = new Intent(mActivity, CameraUploadService.class);
         repoName = getCameraUploadRepoName();
         if (repoName != null) {
             cameraUploadRepo.setSummary(repoName);
             cameraUploadRepo.setDefaultValue(repoName);
+        } else {
+            cameraUploadSwitch.setChecked(false);
+            allowMobileConnections.setEnabled(false);
+            cameraUploadRepo.setEnabled(false);
         }
 
         if (!cameraUploadSwitch.isChecked()) {
+            allowMobileConnections.setEnabled(false);
             cameraUploadRepo.setEnabled(false);
         } else {
+            allowMobileConnections.setEnabled(true);
             cameraUploadRepo.setEnabled(true);
         }
 
@@ -116,8 +124,8 @@ public class SettingsPreferenceFragment
     }
     @Override
     public boolean onPreferenceClick(Preference preference) {
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
         if (preference.getKey().equals(BrowserActivity.GESTURE_LOCK_SWITCH_KEY)) {
-            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
             gestureLockBefore = settings.getBoolean(BrowserActivity.GESTURE_LOCK_SWITCH_KEY, false);
 
             if (gestureLockBefore == false) {
@@ -133,18 +141,19 @@ public class SettingsPreferenceFragment
                 gestureLockSwitch.setChecked(false);
             }
         } else if (preference.getKey().equals(BrowserActivity.CAMERA_UPLOAD_SWITCH_KEY)) {
-            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mActivity);
             isUploadStart = settings.getBoolean(BrowserActivity.CAMERA_UPLOAD_SWITCH_KEY, false);
-            startCameraUploadService(isUploadStart);
             if (!isUploadStart) {
                 cameraUploadRepo.setEnabled(false);
+                allowMobileConnections.setEnabled(false);
+                startCameraUploadService(false);
             } else {
-                if (Utils.isWiFiOn()) {
-                    cameraUploadRepo.setEnabled(true);
-                }
+                allowMobileConnections.setEnabled(true);
+                cameraUploadRepo.setEnabled(true);
+                startCameraUploadService(true);
             }
+        } else if (preference.getKey().equals(BrowserActivity.ALLOW_MOBILE_CONNECTIONS_SWITCH_KEY)) {
+            // no task here
         } else if (preference.getKey().equals(BrowserActivity.CAMERA_UPLOAD_REPO_KEY)) {
-            mActivity.stopService(cameraUploadIntent);
             // Pop-up window to let user choose remote library
             Intent intent = new Intent(mActivity, SeafilePathChooserActivity.class);
             intent.putExtra(EXTRA_CAMERA_UPLOAD, true);
@@ -197,22 +206,23 @@ public class SettingsPreferenceFragment
                 if (mCameraUploadRepoChooserData == null) {
                     return;
                 }
-                String repoId, repoName, dir;
-                Account account;
-                repoName = mCameraUploadRepoChooserData.getStringExtra(SeafilePathChooserActivity.DATA_REPO_NAME);
-                repoId = mCameraUploadRepoChooserData.getStringExtra(SeafilePathChooserActivity.DATA_REPO_ID);
-                dir = mCameraUploadRepoChooserData.getStringExtra(SeafilePathChooserActivity.DATA_DIR);
-                account = (Account)mCameraUploadRepoChooserData.getParcelableExtra(SeafilePathChooserActivity.DATA_ACCOUNT);
+                // stop camera upload service
+                startCameraUploadService(false);
+                String repoName = mCameraUploadRepoChooserData.getStringExtra(SeafilePathChooserActivity.DATA_REPO_NAME);
+                String repoId = mCameraUploadRepoChooserData.getStringExtra(SeafilePathChooserActivity.DATA_REPO_ID);
+                String dir = mCameraUploadRepoChooserData.getStringExtra(SeafilePathChooserActivity.DATA_DIR);
+                Account account = (Account)mCameraUploadRepoChooserData.getParcelableExtra(SeafilePathChooserActivity.DATA_ACCOUNT);
                 saveCameraUploadRepoInfo(repoId, repoName, dir, account);
                 this.repoName = repoName;
                 cameraUploadRepo.setSummary(repoName);
                 cameraUploadRepo.setDefaultValue(repoName);
                 saveCameraUploadRepoName(repoName);
+                // start camera upload service
                 startCameraUploadService(true);
-            } else if (resultCode == Activity.RESULT_CANCELED) {
+            } else if (resultCode == Activity.RESULT_CANCELED && repoName == null) { // repoName is null when first initialized
                 cameraUploadSwitch.setChecked(false);
+                allowMobileConnections.setEnabled(false);
                 cameraUploadRepo.setEnabled(false);
-                startCameraUploadService(false);
             }
            break;
 
@@ -222,17 +232,14 @@ public class SettingsPreferenceFragment
 
     }
 
-    private void startCameraUploadService(Boolean isChecked) {
-        if (!isChecked) {
-
+    private void startCameraUploadService(Boolean isStart) {
+        if (!isStart) {
             // stop camera upload service
             mActivity.stopService(cameraUploadIntent);
         } else {
-
             if (repoName != null) {
                 // show remote library name
                 cameraUploadRepo.setSummary(repoName);
-
             } else {
                 // Pop-up window to let user choose remote library
                 Intent intent = new Intent(mActivity, SeafilePathChooserActivity.class);
@@ -241,15 +248,8 @@ public class SettingsPreferenceFragment
                 return;
             }
 
-            if (Utils.isWiFiOn()) {
-                //start service
-                mActivity.startService(cameraUploadIntent);
-            } else {
-                mActivity.stopService(cameraUploadIntent);
-                cameraUploadSwitch.setChecked(false);
-                cameraUploadRepo.setEnabled(false);
-                showToast(R.string.settings_wifi_down);
-            }
+            //start service
+            mActivity.startService(cameraUploadIntent);
         }
     }
 
@@ -284,9 +284,9 @@ public class SettingsPreferenceFragment
                 startCameraUploadService(false);
                 showToast(R.string.settings_camera_upload_library_not_found);
             } else if (type.equals(CameraUploadService.BROADCAST_CAMERA_UPLOAD_SERVICE_STARTED)) {
-                showToast(R.string.settings_startUpService);
+                // showToast(R.string.settings_startUpService);
             } else if (type.equals(CameraUploadService.BROADCAST_CAMERA_UPLOAD_SERVICE_STOPPED)) {
-                showToast(R.string.settings_stopUpService);
+                // showToast(R.string.settings_stopUpService);
             }
         }
     };

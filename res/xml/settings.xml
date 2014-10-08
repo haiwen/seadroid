@@ -18,6 +18,13 @@
             android:summaryOn="@string/settings_startUpService"
             android:title="@string/settings_start" >
         </CheckBoxPreference>
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="allow_mobile_connections_switch_key"
+            android:summaryOff="@string/settings_default_wifi_connection"
+            android:summaryOn="@string/settings_use_mobile_connections"
+            android:title="@string/settings_allow_mobile_connections" >
+        </CheckBoxPreference>
         <Preference
             android:layout="@layout/preference" 
             android:key="camera_upload_repo_key"

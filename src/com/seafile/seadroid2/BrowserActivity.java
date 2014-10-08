@@ -128,6 +128,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final String LOCK_KEY = "gesture_lock_key";
     public static final String GESTURE_LOCK_SWITCH_KEY = "gesture_lock_switch_key";
     public static final String CAMERA_UPLOAD_SWITCH_KEY = "camera_upload_switch_key";
+    public static final String ALLOW_MOBILE_CONNECTIONS_SWITCH_KEY = "allow_mobile_connections_switch_key";
     public static final String CAMERA_UPLOAD_REPO_KEY = "camera_upload_repo_key";
 
     private Intent copyMoveIntent;
