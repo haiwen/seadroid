@@ -251,7 +251,7 @@ public class AccountsActivity extends SherlockFragmentActivity {
         // final Context context = SeadroidApplication.getAppContext();
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            SeafileStyleDialogBuilder qustomDialogBuilder = (SeafileStyleDialogBuilder) new SeafileStyleDialogBuilder(getActivity()).
+            SeafileStyleDialogBuilder builder = (SeafileStyleDialogBuilder) new SeafileStyleDialogBuilder(getActivity()).
                     setTitle(getResources().getString(R.string.choose_server)).
                     setTitleColor(getResources().getString(R.color.seafile_orange)).
                     setDividerColor(getResources().getString(R.color.seafile_orange)).
@@ -282,7 +282,7 @@ public class AccountsActivity extends SherlockFragmentActivity {
                                 }
                             }).
                     setIcon(getResources().getDrawable(R.drawable.icon));
-            return qustomDialogBuilder.show();
+            return builder.show();
         }
     }
 }
