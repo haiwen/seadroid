@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.seafile.seadroid2</groupId>
   <artifactId>seadroid</artifactId>
-  <version>1.0.0</version>
+  <version>1.1.1</version>
   <packaging>apk</packaging>
   <name>seafile android client</name>
   <url>http://seafile.com</url>
@@ -19,13 +19,13 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <platform.version>4.2.2_r2</platform.version>
+    <platform.version>4.1.1.4</platform.version>
     <android.plugin.version>3.9.0-rc.2</android.plugin.version>
   </properties>
 
   <dependencies>
     <dependency>
-      <groupId>android</groupId>
+      <groupId>com.google.android</groupId>
       <artifactId>android</artifactId>
       <scope>provided</scope>
       <version>${platform.version}</version>
