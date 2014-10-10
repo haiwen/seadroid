@@ -11,6 +11,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -180,17 +182,38 @@ public abstract class TaskDialog extends DialogFragment {
 
         super.onSaveInstanceState(outState);
     }
+    /** optional dialog title layout */
+    private TextView mTitle;
+    /** optional alert dialog image */
+    private ImageView mIcon;
+    /** optional message displayed below title if title exists*/
+    private TextView mMessage;
+    /** The colored holo divider. You can set its color with the setDividerColor method */
+    private View mDivider;
+    /** optional custom panel image */
+    private FrameLayout mCustom;
+    /**Keep Context as Member to support Apis below 11*/
 
+    public void setTitle(CharSequence text) {
+        mTitle.setText(text);
+    }
+    
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        LinearLayout view = (LinearLayout)inflater.inflate(R.layout.task_dialog, null);
-
+        LinearLayout view = (LinearLayout)inflater.inflate(R.layout.seafile_dialog_layout, null);
+        mTitle = (TextView) view.findViewById(R.id.alertTitle);
+        mMessage = (TextView) view.findViewById(R.id.message);
+        mIcon = (ImageView) view.findViewById(R.id.icon);
+        mDivider = view.findViewById(R.id.titleDivider);
+        mCustom = (FrameLayout) view.findViewById(R.id.customPanel);
+        mTitle.setBackgroundColor(getResources().getColor(R.color.seafile_orange));
+        mDivider.setBackgroundColor(getResources().getColor(R.color.seafile_orange));
         contentView = createDialogContentView(inflater, savedInstanceState);
         if (contentView != null) {
-            view.addView(contentView, 0);
+            mCustom.addView(contentView, 0);
         }
 
         errorText = (TextView)view.findViewById(R.id.error_message);

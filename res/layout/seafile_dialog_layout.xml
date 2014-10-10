@@ -27,7 +27,8 @@ https://github.com/android/platform_frameworks_base/blob/master/core/res/res/lay
     android:layout_height="wrap_content"
     android:layout_marginStart="8dip"
     android:layout_marginEnd="8dip"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/orange">
 
     <LinearLayout android:id="@+id/topPanel"
         android:layout_width="match_parent"
@@ -42,11 +43,11 @@ https://github.com/android/platform_frameworks_base/blob/master/core/res/res/lay
             android:layout_marginStart="16dip"
             android:layout_marginEnd="16dip">
             <ImageView android:id="@+id/icon"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingEnd="8dip"
-                android:src="@null" 
+                android:src="@drawable/icon" 
                 />
             <TextView android:id="@+id/alertTitle"
                 style="?android:attr/textAppearanceLarge"
@@ -55,13 +56,14 @@ https://github.com/android/platform_frameworks_base/blob/master/core/res/res/lay
                 android:ellipsize="end"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:text="Title"
                 android:gravity="center" />
         </LinearLayout>
         <View android:id="@+id/titleDivider"
             android:layout_width="match_parent"
             android:layout_height="2dip"
             android:visibility="visible"
-            android:background="#33b5e5" />
+            android:background="#F57900" />
     </LinearLayout>
 
     <ScrollView android:id="@+id/contentPanel"
@@ -75,6 +77,7 @@ https://github.com/android/platform_frameworks_base/blob/master/core/res/res/lay
             android:paddingEnd="16dip"
             android:paddingTop="8dip"
             android:paddingBottom="8dip"
+            android:text="message"
             />
     </ScrollView>
 
@@ -84,9 +87,35 @@ https://github.com/android/platform_frameworks_base/blob/master/core/res/res/lay
         android:layout_height="wrap_content"
         android:minHeight="64dp">
     </FrameLayout>
-
+	<LinearLayout android:background="@color/grey"
+		android:orientation="vertical"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content">
+	
+	    <FrameLayout
+	    	android:layout_width="fill_parent"
+	    	android:layout_height="wrap_content"
+	    	android:padding="5dp" >
+	
+	        <ProgressBar android:id="@+id/loading"
+	            android:layout_width="fill_parent"
+	            android:layout_height="30dp"
+	            android:gravity="center_horizontal"
+	            android:visibility="invisible" />
+	
+	        <TextView
+	            android:id="@+id/error_message"
+	            android:layout_width="fill_parent"
+	            android:layout_height="wrap_content"
+	            android:textColor="@color/red"
+	            android:visibility="gone"
+	            android:inputType="text" />
+	
+	    </FrameLayout>
+	
+	</LinearLayout>
     <ScrollView
-        android:layout_height="wrap_content" android:layout_width="match_parent">
+        android:layout_height="wrap_content" android:layout_width="match_parent" android:background="@color/light_blue">
         <LinearLayout
             android:id="@+id/items_list"
             android:layout_height="wrap_content"
