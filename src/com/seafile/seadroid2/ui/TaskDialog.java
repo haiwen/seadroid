@@ -206,11 +206,9 @@ public abstract class TaskDialog extends DialogFragment {
         LinearLayout view = (LinearLayout)inflater.inflate(R.layout.seafile_dialog_layout, null);
         mTitle = (TextView) view.findViewById(R.id.alertTitle);
         mMessage = (TextView) view.findViewById(R.id.message);
-        mIcon = (ImageView) view.findViewById(R.id.icon);
+        //mIcon = (ImageView) view.findViewById(R.id.icon);
         mDivider = view.findViewById(R.id.titleDivider);
         mCustom = (FrameLayout) view.findViewById(R.id.customPanel);
-        mTitle.setBackgroundColor(getResources().getColor(R.color.seafile_orange));
-        mDivider.setBackgroundColor(getResources().getColor(R.color.seafile_orange));
         contentView = createDialogContentView(inflater, savedInstanceState);
         if (contentView != null) {
             mCustom.addView(contentView, 0);

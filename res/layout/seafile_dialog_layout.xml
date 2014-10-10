@@ -28,42 +28,38 @@ https://github.com/android/platform_frameworks_base/blob/master/core/res/res/lay
     android:layout_marginStart="8dip"
     android:layout_marginEnd="8dip"
     android:orientation="vertical"
-    android:background="@color/orange">
+    android:background="@color/whitegrey">
 
     <LinearLayout android:id="@+id/topPanel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-        <LinearLayout android:id="@+id/title_template"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical|start"
-            android:minHeight="64dip"
-            android:layout_marginStart="16dip"
-            android:layout_marginEnd="16dip">
-            <ImageView android:id="@+id/icon"
-                android:visibility="visible"
+        <ImageView android:id="@+id/icon"
+                android:visibility="gone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingEnd="8dip"
+                android:paddingRight="8dip"
+                android:paddingLeft="8dip"
                 android:src="@drawable/icon" 
                 />
-            <TextView android:id="@+id/alertTitle"
+        <TextView android:id="@+id/alertTitle"
                 style="?android:attr/textAppearanceLarge"
                 android:textColor="@color/seafile_orange"
                 android:maxLines="2"
                 android:ellipsize="end"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Title"
-                android:gravity="center" />
-        </LinearLayout>
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="3dp"
+                android:gravity="center"
+                android:text="titile" />
         <View android:id="@+id/titleDivider"
             android:layout_width="match_parent"
             android:layout_height="2dip"
             android:visibility="visible"
-            android:background="#F57900" />
+            android:layout_marginTop="7dp"
+            android:background="@color/seafile_orange" />
     </LinearLayout>
 
     <ScrollView android:id="@+id/contentPanel"
@@ -76,18 +72,16 @@ https://github.com/android/platform_frameworks_base/blob/master/core/res/res/lay
             android:paddingStart="16dip"
             android:paddingEnd="16dip"
             android:paddingTop="8dip"
-            android:paddingBottom="8dip"
-            android:text="message"
-            />
+            android:visibility="gone"
+            android:paddingBottom="8dip"/>
     </ScrollView>
 
     <FrameLayout android:id="@+id/customPanel"
-        android:visibility="gone"
+        android:visibility="visible"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="64dp">
+        android:layout_height="wrap_content">
     </FrameLayout>
-	<LinearLayout android:background="@color/grey"
+	<LinearLayout
 		android:orientation="vertical"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content">
@@ -115,7 +109,7 @@ https://github.com/android/platform_frameworks_base/blob/master/core/res/res/lay
 	
 	</LinearLayout>
     <ScrollView
-        android:layout_height="wrap_content" android:layout_width="match_parent" android:background="@color/light_blue">
+        android:layout_height="wrap_content" android:layout_width="match_parent">
         <LinearLayout
             android:id="@+id/items_list"
             android:layout_height="wrap_content"

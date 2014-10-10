@@ -70,7 +70,8 @@ public class CopyMoveDialog extends TaskDialog {
             strId = ctx.isCopy() ? R.string.copy_file_ing : R.string.move_file_ing;
         }
         String str = getActivity().getString(strId);
-        dialog.setTitle(str + " " + ctx.srcFn);
+        setTitle(str + " " + ctx.srcFn);
+        // dialog.setTitle(str + " " + ctx.srcFn);
     }
 
     @Override

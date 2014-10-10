@@ -281,8 +281,7 @@ public class AccountsActivity extends SherlockFragmentActivity {
                                     }
                                     accountsActivity.finish();
                                 }
-                            }).
-                    setIcon(getResources().getDrawable(R.drawable.icon));
+                            });
             return builder.show();
         }
     }
