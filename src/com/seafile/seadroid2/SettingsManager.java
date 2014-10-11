@@ -89,14 +89,15 @@ public final class SettingsManager {
 		settingsEditor.putString(SettingsManager.LOCK_KEY, null);
 		settingsEditor.commit();
 	}
-    public boolean isLockPattenValid(){
+	
+    public boolean isGestureLockExpired(){
         String lockPattern = sharedPref.getString(SettingsManager.LOCK_KEY, null);
         if (lockPattern == null) {
-            return false;
+            return true;
         }
         if (lockPattern.equals("")) {
-            return false;
+            return true;
         }
-        return  isGestureLockEnabled();
+        return false;
     }
 }

@@ -94,13 +94,10 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
         settingsMgr = SettingsManager.instance();
         if (account == null) {
             canChooseAccount = true;
-            
-            
-            if (settingsMgr.isLockPattenValid()) {
+            if (settingsMgr.isGestureLockEnabled() && settingsMgr.isGestureLockExpired()) {
                 Intent newIntent = new Intent(this, GestureLockActivity.class);
                 startActivity(newIntent);
             }
-            
         } else {
             mAccount = account;
         }
