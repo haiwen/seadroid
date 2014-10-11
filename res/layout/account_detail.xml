@@ -12,6 +12,7 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="10dp"
         android:onClick="onHttpsCheckboxClicked"
+        android:button="@drawable/account_add_btn_check_holo_light"
         android:text="@string/accounts_https_hint" />
 
     <LinearLayout
