@@ -1,10 +1,10 @@
 package com.seafile.seadroid2;
 
-import com.seafile.seadroid2.account.Account;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+
+import com.seafile.seadroid2.account.Account;
 
 /**
  * Access the app settings
@@ -89,4 +89,14 @@ public final class SettingsManager {
 		settingsEditor.putString(SettingsManager.LOCK_KEY, null);
 		settingsEditor.commit();
 	}
+    public boolean isLockPattenValid(){
+        String lockPattern = sharedPref.getString(SettingsManager.LOCK_KEY, null);
+        if (lockPattern == null) {
+            return false;
+        }
+        if (lockPattern.equals("")) {
+            return false;
+        }
+        return  isGestureLockEnabled();
+    }
 }
