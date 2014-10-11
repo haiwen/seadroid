@@ -27,6 +27,7 @@
             android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:hint="@string/server_hint"
+            android:background="@drawable/dialog_edit_text_holo_light"
             android:inputType="textUri" />
 
         <EditText
@@ -34,6 +35,7 @@
             android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:hint="@string/email_hint"
+            android:background="@drawable/dialog_edit_text_holo_light"
             android:inputType="textEmailAddress" />
 
         <EditText
@@ -41,6 +43,7 @@
             android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:hint="@string/passwd_hint"
+            android:background="@drawable/dialog_edit_text_holo_light"
             android:inputType="textPassword" />
     </LinearLayout>
 

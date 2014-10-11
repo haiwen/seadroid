@@ -211,6 +211,7 @@ public abstract class TaskDialog extends DialogFragment {
         mCustom = (FrameLayout) view.findViewById(R.id.customPanel);
         contentView = createDialogContentView(inflater, savedInstanceState);
         if (contentView != null) {
+            mCustom.setVisibility(View.VISIBLE);
             mCustom.addView(contentView, 0);
         }
 

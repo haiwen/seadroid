@@ -254,8 +254,6 @@ public class AccountsActivity extends SherlockFragmentActivity {
             SeafileStyleDialogBuilder builder = 
                     (SeafileStyleDialogBuilder) new SeafileStyleDialogBuilder(getActivity()).
                     setTitle(getResources().getString(R.string.choose_server)).
-                    setTitleColor(getResources().getString(R.color.seafile_orange)).
-                    setDividerColor(getResources().getString(R.color.seafile_orange)).
                     setItems(R.array.choose_server_array,
                             new DialogInterface.OnClickListener() {
                                 @Override

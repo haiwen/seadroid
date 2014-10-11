@@ -3,10 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingBottom="0dp"
+    android:paddingBottom="15dp"
     android:paddingLeft="10dp"
     android:paddingRight="10dp"
-    android:paddingTop="0dp" >
+    android:paddingTop="10dp" >
 	
 	<EditText
     	android:id="@+id/new_file_name"

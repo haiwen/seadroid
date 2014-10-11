@@ -11,7 +11,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup.LayoutParams;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
@@ -70,6 +72,7 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
     
     private View mProgressContainer, mListContainer, mContentArea;
     private Button mOkButton, mCancelButton;
+    private View mTransparentSpace;
     private TextView mEmptyText, mErrorText;
     private ListView mListView;
 
@@ -90,11 +93,7 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.seafile_path_chooser);
-
         Intent intent = getIntent();
-        
-        isOnlyChooseRepo = intent.getBooleanExtra(SettingsPreferenceFragment.EXTRA_CAMERA_UPLOAD, false);
-        
         Account account = (Account)intent.getParcelableExtra("account");
         if (account == null) {
             canChooseAccount = true;
@@ -116,16 +115,20 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
         bar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         bar.setDisplayHomeAsUpEnabled(false);
 
-        mOkButton = (Button)findViewById(R.id.ok);
-        mCancelButton = (Button)findViewById(R.id.cancel);
-
+        mOkButton = (Button) findViewById(R.id.ok);
+        mCancelButton = (Button) findViewById(R.id.cancel);
+        mTransparentSpace = findViewById(R.id.transparent_space);
         mListView = (ListView) findViewById(android.R.id.list);
         mEmptyText = (TextView) findViewById(android.R.id.empty);
         mErrorText = (TextView) findViewById(R.id.error_message);
         mListContainer = findViewById(R.id.listContainer);
         mProgressContainer = findViewById(R.id.progressContainer);
         mContentArea = findViewById(R.id.content);
-
+        isOnlyChooseRepo = intent.getBooleanExtra(SettingsPreferenceFragment.EXTRA_CAMERA_UPLOAD, false);
+        if (isOnlyChooseRepo) {
+            mOkButton.setVisibility(View.GONE);
+            mTransparentSpace.setVisibility(View.GONE);
+        }
         mListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         mListView.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
