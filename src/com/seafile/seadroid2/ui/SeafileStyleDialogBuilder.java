@@ -118,12 +118,14 @@ public class SeafileStyleDialogBuilder extends AlertDialog.Builder {
 
     @Override
     public SeafileStyleDialogBuilder setMessage(int textResId) {
+        mMessage.setVisibility(View.VISIBLE);
         mMessage.setText(textResId);
         return this;
     }
 
     @Override
     public SeafileStyleDialogBuilder setMessage(CharSequence text) {
+        mMessage.setVisibility(View.VISIBLE);
         mMessage.setText(text);
         return this;
     }

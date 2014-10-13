@@ -31,7 +31,7 @@ public class SslConfirmDialog extends DialogFragment {
 
     private Account account;
     private Listener listener;
-    private TextView messageText;
+    // private TextView messageText;
     private CheckBox rememberChoiceCheckbox;
 
     public SslConfirmDialog() {
@@ -44,11 +44,13 @@ public class SslConfirmDialog extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        SeafileStyleDialogBuilder builder = new SeafileStyleDialogBuilder(getActivity());
+        builder.setTitle(getResources().getString(R.string.ssl_confirm_title));
+        builder.setCustomView(R.layout.dialog_ssl_confirm, getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         LinearLayout view = (LinearLayout)inflater.inflate(R.layout.dialog_ssl_confirm, null);
 
-        messageText = (TextView)view.findViewById(R.id.message);
+        // messageText = (TextView)view.findViewById(R.id.message);
         rememberChoiceCheckbox = (CheckBox)view.findViewById(R.id.remember_choice);
 
         String host = null;
@@ -63,14 +65,11 @@ public class SslConfirmDialog extends DialogFragment {
         String msg;
         if (reason == SslFailureReason.CERT_NOT_TRUSTED) {
             msg = String.format(getActivity().getString(R.string.ssl_confirm), host);
-            messageText.setText(msg);
+            // messageText.setText(msg);
         } else {
             msg = String.format(getActivity().getString(R.string.ssl_confirm_cert_changed), host);
-            messageText.setText(msg);
+            // messageText.setText(msg);
         }
-
-        builder.setTitle(R.string.ssl_confirm_title);
-        builder.setView(view);
 
         builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
@@ -86,10 +85,8 @@ public class SslConfirmDialog extends DialogFragment {
                 listener.onRejected();
             }
         });
-
-        Dialog dialog = builder.create();
-
-        return dialog;
+        builder.setMessage(msg);
+        return builder.create();
     }
 
     @Override
