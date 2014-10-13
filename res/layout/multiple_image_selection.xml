@@ -52,6 +52,7 @@
             android:layout_height="60dp"
             android:layout_weight="0.4"
             android:text="@string/cancel"
+            android:textColor="@color/white"
             android:background="@drawable/account_add_btn_default_holo_light"
             />
 
@@ -66,6 +67,7 @@
             android:layout_height="60dp"
             android:layout_weight="0.4"
             android:text="@string/upload"
+            android:textColor="@color/white"
             android:background="@drawable/account_add_btn_default_holo_light"
             />
       </LinearLayout>

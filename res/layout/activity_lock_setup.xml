@@ -39,6 +39,7 @@
 	            android:gravity="center"
 	            android:onClick="onClick"
 	            android:text="@string/try_again"
+	            android:textColor="@color/white"
 	            android:background="@drawable/account_add_btn_default_holo_light"
 	            />
 	
@@ -56,6 +57,7 @@
 	            android:onClick="onClick"
 	            android:background="@drawable/account_add_btn_default_holo_light"
 	            android:text="@string/go_on"
+	            android:textColor="@color/white"
 	            />
 	    </LinearLayout>
     </RelativeLayout>

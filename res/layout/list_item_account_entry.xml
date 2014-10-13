@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
     android:gravity="center_horizontal"
     android:padding="10dp" >
 
@@ -9,45 +10,34 @@
         android:id="@+id/list_item_account_icon"
         android:layout_width="wrap_content"
         android:layout_height="48dp"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:paddingLeft="0dp"
-        android:paddingStart="0dp"
-        android:paddingRight="5dp"
-        android:gravity="center"
+        android:layout_marginRight="8dp"
+        android:layout_marginEnd="8dp" 
         android:src="@drawable/folder" />
 
-    <ImageView
-        android:id="@+id/list_item_account_action"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true" 
-        />
+    <LinearLayout
+        android:layout_width="100dp"
+        android:layout_height="48dp"
+        android:orientation="vertical" 
+        >
 
-    <TextView
-        android:id="@+id/list_item_account_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/list_item_account_subtitle"
-        android:layout_alignTop="@+id/list_item_account_icon"
-        android:layout_centerVertical="true"
-        android:layout_toEndOf="@id/list_item_icon"
-        android:layout_toRightOf="@id/list_item_icon"
-        android:lines="1"
-        android:singleLine="true"
-        android:text="Titel"
-        android:textColor="#282828"
-        android:textSize="18sp" />
-
-    <TextView
-        android:id="@+id/list_item_account_subtitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/list_item_account_icon"
-        android:layout_toEndOf="@+id/list_item_account_icon"
-        android:layout_toRightOf="@+id/list_item_account_icon"
-        android:text="Subtitle"
-        android:textColor="#555555"
-        android:textSize="12sp" />
-
-</RelativeLayout>
+	    <TextView
+	        android:id="@+id/list_item_account_title"
+	        android:textAppearance="@android:style/TextAppearance.Large"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:lines="1" android:layout_marginTop="5dp"
+	        android:singleLine="true"
+	        android:text="Titel"
+	        android:textColor="@color/light_black"
+	        android:textSize="18sp" />
+	
+	    <TextView
+	        android:id="@+id/list_item_account_subtitle"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="5dp"
+	        android:text="Subtitle"
+	        android:textColor="@color/light_grey"
+	        android:textSize="12sp" />
+	</LinearLayout>
+</LinearLayout>

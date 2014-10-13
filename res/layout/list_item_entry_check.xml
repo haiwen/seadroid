@@ -21,6 +21,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
+		android:button="@drawable/account_add_btn_check_holo_light"
         android:focusable="false">
     </CheckBox>
 

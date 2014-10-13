@@ -83,7 +83,7 @@ public class AccountAdapter extends BaseAdapter {
         Account item = items.get(position);
         viewHolder.title.setText(item.getServerHost());
         viewHolder.subtitle.setText(item.getEmail());
-        viewHolder.icon.setImageResource(R.drawable.account);
+        viewHolder.icon.setImageResource(R.drawable.ic_launcher);
 
         return view;
     }

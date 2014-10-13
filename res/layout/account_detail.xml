@@ -25,24 +25,30 @@
 
         <EditText
             android:id="@+id/server_url"
-            android:layout_width="300dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
             android:hint="@string/server_hint"
             android:background="@drawable/dialog_edit_text_holo_light"
             android:inputType="textUri" />
 
         <EditText
             android:id="@+id/email_address"
-            android:layout_width="300dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
             android:hint="@string/email_hint"
             android:background="@drawable/dialog_edit_text_holo_light"
             android:inputType="textEmailAddress" />
 
         <EditText
             android:id="@+id/password"
-            android:layout_width="300dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
             android:hint="@string/passwd_hint"
             android:background="@drawable/dialog_edit_text_holo_light"
             android:inputType="textPassword" />
@@ -58,28 +64,31 @@
 
         <Button
             android:id="@+id/login_button"
-            android:layout_width="250dp"
+            android:layout_width="match_parent"
             android:layout_height="60dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
             android:onClick="login"
             android:background="@drawable/account_add_btn_default_holo_light"
             android:text="@string/login"
+            android:textColor="@color/white"
             android:textSize="14sp" />
     </LinearLayout>
 
     <TextView
         android:id="@+id/status_view"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
-        android:layout_marginStart="20dp"
+        android:layout_marginRight="20dp"
         android:text="" />
 
     <TextView
         android:id="@+id/seahub_url_hint"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
-        android:layout_marginStart="20dp"
+        android:layout_marginRight="20dp"
         android:text="@string/seahub_url_hint" />
 
 </LinearLayout>
