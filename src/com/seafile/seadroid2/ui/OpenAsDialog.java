@@ -23,8 +23,8 @@ public class OpenAsDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(R.string.open_as);
+        SeafileStyleDialogBuilder builder = new SeafileStyleDialogBuilder(getActivity());
+        builder.setTitle(getResources().getString(R.string.open_as));
         builder.setItems(R.array.file_type_array,
                 new DialogInterface.OnClickListener() {
                     @Override
