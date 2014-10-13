@@ -16,13 +16,13 @@ package com.seafile.seadroid2.ui;
 	See the License for the specific language governing permissions and
 	limitations under the License.
 */
-
 import com.seafile.seadroid2.R;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -30,11 +30,12 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
@@ -214,19 +215,17 @@ public class SeafileStyleDialogBuilder extends AlertDialog.Builder {
         return this;
     }
 
-    @Override
-    public Builder setSingleChoiceItems (ListAdapter adapter, int checkedItem, final DialogInterface.OnClickListener listener) {
+    public Builder setSingleChoiceItems(BaseAdapter adapter, int checkedItem, final OnItemClickListener onItemClickListener) {
         final ListView listView = (ListView) mDialogView.findViewById(R.id.listView);
         listView.setAdapter(adapter);
         listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-        listView.setItemChecked(checkedItem, true);
+        // listView.setItemChecked(checkedItem, true);
 
-
-        if (listener != null) {
+        if (onItemClickListener != null) {
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    listener.onClick(SeafileStyleDialogBuilder.this.mDialog, position);
+                    onItemClickListener.onItemClick(parent, listView, position, id);
                 }
             });
         }

@@ -64,18 +64,25 @@ public class AppChoiceDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        //View customizedView = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_app_list, null);
+        SeafileStyleDialogBuilder builder = new SeafileStyleDialogBuilder(getActivity());
         builder.setTitle(mTitle);
-        ListView listView = new ListView(getActivity());
-        listView.setAdapter(new AppsListAdapter());
-        listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-        builder.setView(listView);
-        listView.setOnItemClickListener(new ListView.OnItemClickListener() {
+        builder.setSingleChoiceItems(new AppsListAdapter(), 0, new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> l, View view, int position, long id) {
                 onAppSelected(position);
             }
         });
+        //ListView listView = (ListView) customizedView.findViewById(R.id.app_list_lv);
+        // listView.setAdapter(new AppsListAdapter());
+        // listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        // builder.setCustomView(R.layout.dialog_app_list, getActivity());
+        /*listView.setOnItemClickListener(new ListView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> l, View view, int position, long id) {
+                onAppSelected(position);
+            }
+        });*/
 
         return builder.create();
     }

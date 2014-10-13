@@ -3,7 +3,6 @@ package com.seafile.seadroid2.ui;
 import java.net.HttpURLConnection;
 import java.util.List;
 
-import android.R.bool;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,9 +10,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup.LayoutParams;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
@@ -364,6 +361,7 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
         ConcurrentAsyncTask.execute(mLoadAccountsTask);
         setListAdapter(getAccountAdapter());
         mOkButton.setVisibility(View.GONE);
+        mTransparentSpace.setVisibility(View.GONE);
 
         // update action bar
         ActionBar bar = getSupportActionBar();
@@ -388,6 +386,7 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
 
         setListAdapter(getReposAdapter());
         mOkButton.setVisibility(View.GONE);
+        mTransparentSpace.setVisibility(View.GONE);
 
         getNavContext().setRepoID(null);
 
@@ -424,6 +423,7 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
         // update action bar
         setListAdapter(getDirentsAdapter());
         mOkButton.setVisibility(View.VISIBLE);
+        mTransparentSpace.setVisibility(View.VISIBLE);
         refreshDir(forceRefresh);
     }
 

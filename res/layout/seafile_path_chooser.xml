@@ -103,7 +103,7 @@
             android:layout_weight="0.4"
             android:text="@string/ok"
             android:gravity="center"
-          	android:background="@drawable/dialog_edit_text_holo_light"            
+          	android:background="@drawable/account_add_btn_default_holo_light"            
             />
         
     </LinearLayout>
