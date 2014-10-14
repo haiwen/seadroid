@@ -1,10 +1,14 @@
 package com.seafile.seadroid2;
 
 import java.util.ArrayList;
-
-import com.seafile.seadroid2.account.Account;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.os.AsyncTask;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,16 +16,43 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
+import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
+import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.data.Avatar;
+import com.seafile.seadroid2.data.AvatarManager;
+
 /**
  * Adapter for showing account in a list view.
  */
 public class AccountAdapter extends BaseAdapter {
+    private static final String DEBUG_TAG = "AccountAdapter";
+    
+    private ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
+    DisplayImageOptions options;
     private ArrayList<Account> items;
     private Context context;
-
+    private AvatarManager avatarManager;
+    
     public AccountAdapter(Context context) {
         this.context = context;
         items = new ArrayList<Account>();
+        options = new DisplayImageOptions.Builder()
+                /*.showStubImage(R.drawable.account)
+                .delayBeforeLoading(1000)
+                .showImageOnLoading(R.drawable.ic_add)
+                .showImageForEmptyUri(R.drawable.ic_accept)
+                .showImageOnFail(R.drawable.ic_launcher)
+                .resetViewBeforeLoading()
+                .cacheInMemory(true)*/
+                .cacheOnDisk(true)
+                /*.considerExifParams(true)
+                .displayer(new RoundedBitmapDisplayer(1))*/
+                .build();
     }
 
     @Override
@@ -66,10 +97,11 @@ public class AccountAdapter extends BaseAdapter {
         items.clear();
     }
 
+    private Viewholder viewHolder;
+    
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = convertView;
-        Viewholder viewHolder;
         if (convertView == null) {
             view = LayoutInflater.from(context).inflate(R.layout.list_item_account_entry, null);
             TextView title = (TextView) view.findViewById(R.id.list_item_account_title);
@@ -83,11 +115,52 @@ public class AccountAdapter extends BaseAdapter {
         Account item = items.get(position);
         viewHolder.title.setText(item.getServerHost());
         viewHolder.subtitle.setText(item.getEmail());
-        viewHolder.icon.setImageResource(R.drawable.ic_launcher);
-
+        avatarManager = new AvatarManager(item);
+        ConcurrentAsyncTask.execute(new AvatarLoadTask());
+        
         return view;
     }
+    
+    private class AvatarLoadTask extends AsyncTask<Void, Void, Avatar> {
+        // private String detectLog;
+        @Override
+        protected Avatar doInBackground(Void... params) {
+            try {
+                return avatarManager.getAvatar(80);
+            } catch (SeafException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
 
+        @Override
+        protected void onPostExecute(Avatar avatar) {
+            if (avatar == null) {
+                return;
+            }
+            Log.v(DEBUG_TAG, "icon url: " + avatar.getUrl());
+            ImageLoader.getInstance().displayImage(avatar.getUrl(), viewHolder.icon, options, animateFirstListener);
+            ImageLoader.getInstance().handleSlowNetwork(true);
+        }
+    }
+    
+    private static class AnimateFirstDisplayListener extends SimpleImageLoadingListener {
+
+        static final List<String> displayedImages = Collections.synchronizedList(new LinkedList<String>());
+
+        @Override
+        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+            if (loadedImage != null) {
+                ImageView imageView = (ImageView) view;
+                boolean firstDisplay = !displayedImages.contains(imageUri);
+                if (firstDisplay) {
+                    FadeInBitmapDisplayer.animate(imageView, 500);
+                    displayedImages.add(imageUri);
+                }
+            }
+        }
+    }
+    
     private class Viewholder {
         TextView title, subtitle;
         ImageView icon;

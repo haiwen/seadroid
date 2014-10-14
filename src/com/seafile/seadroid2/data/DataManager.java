@@ -117,6 +117,10 @@ public class DataManager {
     public static File getFileForDirentsCache(String oid) {
         return new File(getExternalCacheDirectory() + "/" + oid);
     }
+    
+    public static File getAvatarCacheDirectory() {
+        return new File(getExternalCacheDirectory() + "/avatar");
+    }
 
     public void calculateThumbnail(String repoName, String repoID, String path, String oid) {
         final int THUMBNAIL_SIZE = caculateThumbnailSizeOfDevice();

@@ -139,7 +139,7 @@ public class SeafConnection {
         HttpRequest req = null;
         try {
             req = prepareApiPostRequest("api2/auth-token/", false, null);
-            Log.d(DEBUG_TAG, "Login to " + account.server + "api2/auth-token/");
+            // Log.d(DEBUG_TAG, "Login to " + account.server + "api2/auth-token/");
 
             req.form("username", account.email);
             req.form("password", account.passwd);
@@ -224,7 +224,24 @@ public class SeafConnection {
             throw SeafException.networkException;
         }
     }
-
+    public synchronized String getAvatar(String email, int size) throws SeafException  {
+        try {
+            String apiPath = String.format("api2/avatars/user/%s/resized/%d", email, size);
+            Log.d(DEBUG_TAG, "user: " + email);
+            HttpRequest req = prepareApiGetRequest(apiPath);
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+            
+            String result = new String(req.bytes(), "UTF-8");
+            Log.d(DEBUG_TAG, "result: " + result);
+            return result;
+        } catch (SeafException e) {
+            throw e;
+        } catch (HttpRequestException e) {
+            throw getSeafExceptionFromHttpRequestException(e);
+        } catch (IOException e) {
+            throw SeafException.networkException;
+        }
+    }
     private static String encodeUriComponent(String src) throws UnsupportedEncodingException {
         return URLEncoder.encode(src, "UTF-8");
     }
@@ -257,12 +274,12 @@ public class SeafConnection {
 
             if (dirID.equals(cachedDirID)) {
                 // local cache is valid
-                Log.d(DEBUG_TAG, String.format("dir %s is cached", path));
+                // Log.d(DEBUG_TAG, String.format("dir %s is cached", path));
                 content = null;
             } else {
-                Log.d(DEBUG_TAG,
+                /*Log.d(DEBUG_TAG,
                       String.format("dir %s will be downloaded from server, latest %s, local cache %s",
-                                    path, dirID, cachedDirID != null ? cachedDirID : "null"));
+                                    path, dirID, cachedDirID != null ? cachedDirID : "null"));*/
                 byte[] rawBytes = req.bytes();
                 if (rawBytes == null) {
                     throw SeafException.unknownException;
@@ -364,7 +381,7 @@ public class SeafConnection {
             throw SeafException.networkException;
         } catch (HttpRequestException e) {
             if (e.getCause() instanceof MonitorCancelledException) {
-                Log.d(DEBUG_TAG, "download is cancelled");
+                // Log.d(DEBUG_TAG, "download is cancelled");
                 throw SeafException.userCancelledException;
             } else {
                 throw getSeafExceptionFromHttpRequestException(e);
@@ -392,12 +409,12 @@ public class SeafConnection {
 
         if (fileID.equals(cachedFileID)) {
             // cache is valid
-            Log.d(DEBUG_TAG, String.format("file %s is cached", path));
+            // Log.d(DEBUG_TAG, String.format("file %s is cached", path));
             return new Pair<String, File>(fileID, null);
         } else {
-            Log.d(DEBUG_TAG,
+            /*Log.d(DEBUG_TAG,
                   String.format("file %s will be downloaded from server, latest %s, local cache %s",
-                                path, fileID, cachedFileID != null ? cachedFileID : "null"));
+                                path, fileID, cachedFileID != null ? cachedFileID : "null"));*/
 
             File file = getFileFromLink(dlink, path, localPath, fileID, monitor);
             if (file != null) {
@@ -961,7 +978,7 @@ public class SeafConnection {
             }
         }
         else {
-            Log.v(DEBUG_TAG, "HTTP request ok : " + req.url());
+            // Log.v(DEBUG_TAG, "HTTP request ok : " + req.url());
         }
     }
 
