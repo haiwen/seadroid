@@ -12,7 +12,7 @@
         android:gravity="center_horizontal"
         android:text="@string/welcome_to_seafile"
         android:textColor="#ee8833"
-        android:textSize="24sp" />
+        android:textSize="28sp" />
 
     <TextView
         android:id="@+id/lock_textview"
@@ -21,7 +21,7 @@
         android:layout_marginTop="10dip"
         android:gravity="center"
         android:text="@string/please_draw_gesture_lock"
-        android:textSize="15sp" 
+        android:textSize="16sp" 
         android:textColor="#888"
         android:layout_below="@id/welcome_view"/>
 
