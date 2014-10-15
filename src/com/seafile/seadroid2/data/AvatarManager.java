@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONObject;
@@ -13,25 +14,47 @@ import com.seafile.seadroid2.util.Utils;
 
 public class AvatarManager {
     private static final String DEBUG_TAG = "AvatarManager";
-    private static final String AVATARS_URL = "api2/avatars/";
     private SeafConnection sc;
+    private List<Account> accounts;
     private Account account;
-    private List<Avatar> avatars;
     
     public AvatarManager(Account account) {
         this.account = account;
         this.sc = new SeafConnection(account);
     }
+    
+    public AvatarManager(List<Account> accounts) {
+        this.accounts = accounts;
+        this.sc = new SeafConnection(account);
+    }
 
-    public Avatar getAvatar(int size) throws SeafException {
+    public synchronized Avatar getAvatar(int size) throws SeafException {
         // First decide if use cache
         if (!Utils.isNetworkOn()) {
             throw SeafException.networkException;
         }
+        Log.v(DEBUG_TAG, "request email : " + account.email);
         String avatarRawData = sc.getAvatar(account.email, size);
-        Log.v(DEBUG_TAG, "Get Avatar : " + avatarRawData);
+        Log.v(DEBUG_TAG, "response Avatar : " + avatarRawData);
         return parseAvatar(avatarRawData);
     }
+    
+    /*public synchronized List<Avatar> getAvatars(int size) throws SeafException {
+        // First decide if use cache
+        if (!Utils.isNetworkOn()) {
+            throw SeafException.networkException;
+        }
+        List<Avatar> avatars = new ArrayList<Avatar>();
+        for (Account account : accounts) {
+            Log.v(DEBUG_TAG, "request email : " + account.email);
+            String avatarRawData = sc.getAvatar(account.email, size);
+            Log.v(DEBUG_TAG, "response Avatar : " + avatarRawData);
+            Avatar avatar = parseAvatar(avatarRawData);
+            avatars.add(avatar);
+        }
+        return avatars;
+    }*/
+    
     private Avatar parseAvatar(String json) {
         JSONObject obj = Utils.parseJsonObject(json);
         if (obj == null)

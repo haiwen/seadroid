@@ -28,6 +28,7 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.data.AvatarManager;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.SettingsPreferenceFragment;
@@ -104,6 +105,7 @@ public class AccountsActivity extends SherlockFragmentActivity {
 
     @Override
     public void onStart() {
+        Log.d(DEBUG_TAG, "onStart");
         super.onStart();
         Intent bIntent = new Intent(this, FileMonitorService.class);
         bindService(bIntent, mMonitorConnection, Context.BIND_AUTO_CREATE);
@@ -111,11 +113,13 @@ public class AccountsActivity extends SherlockFragmentActivity {
 
     @Override
     public void onStop() {
+        Log.d(DEBUG_TAG, "onStop");
         super.onStop();
     }
 
     @Override
     protected void onDestroy() {
+        Log.d(DEBUG_TAG, "onDestroy");
         super.onDestroy();
         if (mMonitorService != null) {
             unbindService(mMonitorConnection);
@@ -127,6 +131,7 @@ public class AccountsActivity extends SherlockFragmentActivity {
     // it will be shown.
     @Override
     public void onResume() {
+        Log.d(DEBUG_TAG, "onResume");
         super.onResume();
 
         refreshView();
@@ -143,12 +148,15 @@ public class AccountsActivity extends SherlockFragmentActivity {
     }
     
     private void refreshView() {
+        Log.d(DEBUG_TAG, "refreshView");
         accounts = accountManager.getAccountList();
+        /*AvatarManager avatarManager = new AvatarManager(accounts);*/
         // Log.d(DEBUG_TAG, "Load accounts num " + accounts.size());
         adapter.clear();
-        for (Account a : accounts) {
+        /*for (Account a : accounts) {
             adapter.add(a);
-        }
+        }*/
+        adapter.setItems(accounts);
         adapter.notifyChanged();
     }
 

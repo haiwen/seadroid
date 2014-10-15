@@ -2,8 +2,10 @@ package com.seafile.seadroid2;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -33,25 +35,28 @@ public class AccountAdapter extends BaseAdapter {
     private static final String DEBUG_TAG = "AccountAdapter";
     
     private ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
-    DisplayImageOptions options;
+    private DisplayImageOptions options;
     private ArrayList<Account> items;
     private Context context;
-    private AvatarManager avatarManager;
+    private static Map<String, Avatar> avatars;
     
     public AccountAdapter(Context context) {
         this.context = context;
+        if (avatars == null) {
+            avatars = new HashMap<String, Avatar>();
+        }
         items = new ArrayList<Account>();
         options = new DisplayImageOptions.Builder()
-                /*.showStubImage(R.drawable.account)
+                .showStubImage(R.drawable.ic_launcher)
                 .delayBeforeLoading(1000)
-                .showImageOnLoading(R.drawable.ic_add)
-                .showImageForEmptyUri(R.drawable.ic_accept)
+                .showImageOnLoading(R.drawable.ic_launcher)
+                .showImageForEmptyUri(R.drawable.ic_launcher)
                 .showImageOnFail(R.drawable.ic_launcher)
                 .resetViewBeforeLoading()
-                .cacheInMemory(true)*/
+                .cacheInMemory(true)
                 .cacheOnDisk(true)
-                /*.considerExifParams(true)
-                .displayer(new RoundedBitmapDisplayer(1))*/
+                .considerExifParams(true)
+                .displayer(new RoundedBitmapDisplayer(50))
                 .build();
     }
 
@@ -87,7 +92,14 @@ public class AccountAdapter extends BaseAdapter {
         items.set(listviewPosition, item);
         notifyDataSetChanged();
     }
-
+    public void setItems(List<Account> items) {
+        this.items = (ArrayList<Account>) items;
+        notifyDataSetChanged();
+        for (Account account : items) {
+            ConcurrentAsyncTask.execute(new AvatarLoadTask(account));
+        }
+    }
+    
     @Override
     public long getItemId(int position) {
         return position;
@@ -115,18 +127,30 @@ public class AccountAdapter extends BaseAdapter {
         Account item = items.get(position);
         viewHolder.title.setText(item.getServerHost());
         viewHolder.subtitle.setText(item.getEmail());
-        avatarManager = new AvatarManager(item);
-        ConcurrentAsyncTask.execute(new AvatarLoadTask());
+        if (avatars.containsKey(item.getEmail())) {
+            ImageLoader.getInstance().displayImage(avatars.get(item.getEmail()).getUrl(), viewHolder.icon, options, animateFirstListener);
+            ImageLoader.getInstance().handleSlowNetwork(true);
+        }
         
         return view;
     }
     
     private class AvatarLoadTask extends AsyncTask<Void, Void, Avatar> {
-        // private String detectLog;
+        AvatarManager avatarManager;
+        Account account;
+        public AvatarLoadTask(Account account) {
+            this.account = account;
+            avatarManager = new AvatarManager(account);
+        }
+        
         @Override
         protected Avatar doInBackground(Void... params) {
             try {
-                return avatarManager.getAvatar(80);
+                Avatar avatar = avatarManager.getAvatar(48); 
+                Log.v(DEBUG_TAG, "icon url: " + avatar.getUrl());
+                Log.v(DEBUG_TAG, "email : " + account.getEmail());
+                
+                return avatar;
             } catch (SeafException e) {
                 e.printStackTrace();
                 return null;
@@ -138,9 +162,7 @@ public class AccountAdapter extends BaseAdapter {
             if (avatar == null) {
                 return;
             }
-            Log.v(DEBUG_TAG, "icon url: " + avatar.getUrl());
-            ImageLoader.getInstance().displayImage(avatar.getUrl(), viewHolder.icon, options, animateFirstListener);
-            ImageLoader.getInstance().handleSlowNetwork(true);
+            avatars.put(account.getEmail(), avatar);
         }
     }
     

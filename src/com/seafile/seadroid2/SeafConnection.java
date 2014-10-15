@@ -224,7 +224,7 @@ public class SeafConnection {
             throw SeafException.networkException;
         }
     }
-    public synchronized String getAvatar(String email, int size) throws SeafException  {
+    public String getAvatar(String email, int size) throws SeafException  {
         try {
             String apiPath = String.format("api2/avatars/user/%s/resized/%d", email, size);
             Log.d(DEBUG_TAG, "user: " + email);
