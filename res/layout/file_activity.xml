@@ -64,7 +64,7 @@
           android:layout_gravity="center_horizontal"
           android:text="@string/cancel"
           android:textColor="@color/white"
-          android:textSize="14sp" />
+          android:textSize="18sp" />
   </LinearLayout>
 
 </LinearLayout>
