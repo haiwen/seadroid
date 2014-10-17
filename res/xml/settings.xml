@@ -32,9 +32,13 @@
         <Preference
             android:key="camera_upload_repo_key"
             android:layout="@layout/preference"
-            android:persistent="true"
             android:summary="@string/settings_hint"
             android:title="@string/settings_repo" />
     </PreferenceCategory>
-
+    <PreferenceCategory android:title="@string/settings_about_title" >
+        <Preference
+            android:key="settings_about_version_key"
+            android:summary="@string/settings_about_version_info"
+            android:title="@string/settings_about_version_title" />
+    </PreferenceCategory>
 </PreferenceScreen>

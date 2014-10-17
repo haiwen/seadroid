@@ -207,4 +207,8 @@
     <string name="settings_hint">Please choose a library first</string>    
     <string name="settings_start">Turn on Camera Upload</string>    
     <string name="settings_camera_upload_library_not_found">The selected library does not exist</string>
+    
+    <string name="settings_about_title">ABOUT</string>
+    <string name="settings_about_version_title">App Version</string>
+    <string name="settings_about_version_info">version name</string>
 </resources>

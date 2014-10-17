@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
@@ -47,6 +48,7 @@ public class SettingsPreferenceFragment
     private CheckBoxPreference cameraUploadSwitch;
     private CheckBoxPreference allowMobileConnections;
     private Preference cameraUploadRepo;
+    private Preference versionName;
     private boolean setupSuccess;
     private boolean gestureLockBefore;
     private SharedPreferences sharedPref;
@@ -56,7 +58,7 @@ public class SettingsPreferenceFragment
     private boolean isUploadStart;
     private Intent mCameraUploadRepoChooserData;
     private String repoName;
-
+    
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(DEBUG_TAG, "onCreate");
@@ -70,6 +72,12 @@ public class SettingsPreferenceFragment
         cameraUploadSwitch = (CheckBoxPreference) findPreference(BrowserActivity.CAMERA_UPLOAD_SWITCH_KEY);
         allowMobileConnections = (CheckBoxPreference) findPreference(BrowserActivity.ALLOW_MOBILE_CONNECTIONS_SWITCH_KEY);
         cameraUploadRepo = (Preference) findPreference(BrowserActivity.CAMERA_UPLOAD_REPO_KEY);
+        versionName = findPreference(BrowserActivity.SETTINGS_ABOUT_VERSION_KEY);
+        try {
+            versionName.setSummary(mActivity.getPackageManager().getPackageInfo(mActivity.getPackageName(), 0).versionName);
+        } catch (NameNotFoundException e) {
+            e.printStackTrace();
+        }
         gestureLockSwitch.setOnPreferenceChangeListener(this);
         gestureLockSwitch.setOnPreferenceClickListener(this);
 
