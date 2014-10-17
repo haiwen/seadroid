@@ -19,7 +19,7 @@
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:layout_marginRight="2dp"
-        android:layout_width="60dp" android:src="@drawable/folder"
+        android:layout_width="60dp"
         android:layout_height="fill_parent" />
 
     <TextView
