@@ -18,6 +18,7 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.Html;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -66,6 +67,7 @@ public class SettingsPreferenceFragment
     private boolean isUploadStart;
     private Intent mCameraUploadRepoChooserData;
     private String repoName;
+    private String appVersion;
     
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,10 +84,11 @@ public class SettingsPreferenceFragment
         cameraUploadRepo = (Preference) findPreference(BrowserActivity.CAMERA_UPLOAD_REPO_KEY);
         versionName = findPreference(BrowserActivity.SETTINGS_ABOUT_VERSION_KEY);
         try {
-            versionName.setSummary(mActivity.getPackageManager().getPackageInfo(mActivity.getPackageName(), 0).versionName);
+            appVersion = mActivity.getPackageManager().getPackageInfo(mActivity.getPackageName(), 0).versionName;
         } catch (NameNotFoundException e) {
             e.printStackTrace();
         }
+        versionName.setSummary(appVersion);
         feedback = findPreference(BrowserActivity.SETTINGS_ABOUT_FEEDBACK_KEY);
 
         gestureLockSwitch.setOnPreferenceChangeListener(this);
@@ -96,6 +99,7 @@ public class SettingsPreferenceFragment
 
         cameraUploadSwitch.setOnPreferenceClickListener(this);
         allowMobileConnections.setOnPreferenceClickListener(this);
+        versionName.setOnPreferenceClickListener(this);
         feedback.setOnPreferenceClickListener(this);
         cameraUploadRepo.setOnPreferenceClickListener(this);
         cameraUploadIntent = new Intent(mActivity, CameraUploadService.class);
@@ -176,7 +180,14 @@ public class SettingsPreferenceFragment
             Intent intent = new Intent(mActivity, SeafilePathChooserActivity.class);
             intent.putExtra(EXTRA_CAMERA_UPLOAD, true);
             this.startActivityForResult(intent, CHOOSE_CAMERA_UPLOAD_REPO_REQUEST);
-        } else if (preference.getKey().equals(BrowserActivity.SETTINGS_ABOUT_FEEDBACK_KEY)) {
+        } else if(preference.getKey().equals(BrowserActivity.SETTINGS_ABOUT_VERSION_KEY)) {
+            SeafileStyleDialogBuilder builder = new SeafileStyleDialogBuilder(mActivity);
+            builder.setIcon(R.drawable.icon);            
+            builder.setTitle(mActivity.getResources().getString(R.string.app_name));
+            builder.setMessage(Html.fromHtml("Seafile Andoird Client " + appVersion + "  </br> Copyright ©2013-2014 Seafile Ltd."));
+            builder.show();
+        }
+        else if (preference.getKey().equals(BrowserActivity.SETTINGS_ABOUT_FEEDBACK_KEY)) {
             SeafileStyleDialogBuilder builder = new SeafileStyleDialogBuilder(mActivity);
             builder.setTitle(mActivity.getResources().getString(R.string.settings_about_feedback_title));
             builder.setItems(R.array.settings_feedback_entries, new OnClickListener() {
