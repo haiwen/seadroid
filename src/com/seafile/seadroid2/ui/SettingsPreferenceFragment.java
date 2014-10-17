@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -43,12 +45,18 @@ public class SettingsPreferenceFragment
     public static final String SHARED_PREF_CAMERA_UPLOAD_SETTINGS_REPONAME = PKG + ".camera.settings.repoName";
     public static final String SHARED_PREF_CAMERA_UPLOAD_SETTINGS_START = PKG + ".camera.settings.startService";
     public static final int CHOOSE_CAMERA_UPLOAD_REPO_REQUEST = 1;
-    private static final int GESTURE_LOCK_REQUEST = 6;
+    public static final int GESTURE_LOCK_REQUEST = 6;
+    public static final int SETTINGS_FEEDBACK_REPORT_LIKE = 10;
+    public static final int SETTINGS_FEEDBACK_REPORT_DISLIKE = 11;
+    public static final int SETTINGS_FEEDBACK_REPORT_BUG = 12;
+    public static final int SETTINGS_FEEDBACK_NEED_HELP = 13;
+    public static final int SETTINGS_FEEDBACK_REPORT_OTHERS = 14;
     private CheckBoxPreference gestureLockSwitch;
     private CheckBoxPreference cameraUploadSwitch;
     private CheckBoxPreference allowMobileConnections;
     private Preference cameraUploadRepo;
     private Preference versionName;
+    private Preference feedback;
     private boolean setupSuccess;
     private boolean gestureLockBefore;
     private SharedPreferences sharedPref;
@@ -78,15 +86,17 @@ public class SettingsPreferenceFragment
         } catch (NameNotFoundException e) {
             e.printStackTrace();
         }
+        feedback = findPreference(BrowserActivity.SETTINGS_ABOUT_FEEDBACK_KEY);
+
         gestureLockSwitch.setOnPreferenceChangeListener(this);
         gestureLockSwitch.setOnPreferenceClickListener(this);
-
         if (sharedPref.getBoolean(BrowserActivity.GESTURE_LOCK_SWITCH_KEY, false)) {
             gestureLockSwitch.setChecked(true);
         }
 
         cameraUploadSwitch.setOnPreferenceClickListener(this);
         allowMobileConnections.setOnPreferenceClickListener(this);
+        feedback.setOnPreferenceClickListener(this);
         cameraUploadRepo.setOnPreferenceClickListener(this);
         cameraUploadIntent = new Intent(mActivity, CameraUploadService.class);
         repoName = getCameraUploadRepoName();
@@ -166,6 +176,44 @@ public class SettingsPreferenceFragment
             Intent intent = new Intent(mActivity, SeafilePathChooserActivity.class);
             intent.putExtra(EXTRA_CAMERA_UPLOAD, true);
             this.startActivityForResult(intent, CHOOSE_CAMERA_UPLOAD_REPO_REQUEST);
+        } else if (preference.getKey().equals(BrowserActivity.SETTINGS_ABOUT_FEEDBACK_KEY)) {
+            SeafileStyleDialogBuilder builder = new SeafileStyleDialogBuilder(mActivity);
+            builder.setTitle(mActivity.getResources().getString(R.string.settings_about_feedback_title));
+            builder.setItems(R.array.settings_feedback_entries, new OnClickListener() {
+                
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Intent intent = new Intent();
+                    intent.setClass(mActivity, FeedbackActivity.class);
+                    switch (which) {
+                    case 0:
+                        // users like some features
+                        intent.setFlags(SettingsPreferenceFragment.SETTINGS_FEEDBACK_REPORT_LIKE);
+                        break;
+                    case 1:
+                        // users dislike some features
+                        intent.setFlags(SettingsPreferenceFragment.SETTINGS_FEEDBACK_REPORT_DISLIKE);
+                        break;
+                    case 2:
+                        // users report bugs
+                        intent.setFlags(SettingsPreferenceFragment.SETTINGS_FEEDBACK_REPORT_BUG);
+                        break;
+                    case 3:
+                        // users need help
+                        intent.setFlags(SettingsPreferenceFragment.SETTINGS_FEEDBACK_NEED_HELP);
+                        break;
+                    case 4:
+                        // users report something else
+                        intent.setFlags(SettingsPreferenceFragment.SETTINGS_FEEDBACK_REPORT_OTHERS);
+                        break;
+                        
+                    default:
+                        break;
+                    }
+                    startActivity(intent);
+                }
+            });
+            builder.show();
         }
         return true;
     }

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/settings_feedback_hint_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="20dp"
+        android:text="@string/settings_about_feedback_title"
+        android:textColor="@color/light_grey"
+        android:textSize="16sp" />
+
+    <EditText
+        android:id="@+id/settings_feedback_input_et"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:background="@drawable/dialog_edit_text_holo_light"
+        android:hint="@string/settings_about_feedback_input_hint" />
+
+<!--     <EditText -->
+<!--         android:id="@+id/settings_feedback_email_et" -->
+<!--         android:layout_width="match_parent" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:layout_marginBottom="5dp" -->
+<!--         android:layout_marginLeft="20dp" -->
+<!--         android:layout_marginRight="20dp" -->
+<!--         android:background="@drawable/dialog_edit_text_holo_light" -->
+<!--         android:hint="input email..." -->
+<!--         android:inputType="textEmailAddress" -->
+<!--         android:visibility="gone" /> -->
+
+    <Button
+        android:id="@+id/settings_feedback_send_btn"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:text="@string/settings_about_feedback_send"
+        android:textSize="20sp"
+        android:background="@drawable/account_add_btn_default_holo_light" />
+
+</LinearLayout>
