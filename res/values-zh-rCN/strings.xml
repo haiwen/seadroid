@@ -175,7 +175,7 @@
 
   <string name="security">安全性</string>
   <string name="gesture_lock">手势密码锁定</string>
-  <string name="gesture_lock_on">手势锁开启 on</string>
+  <string name="gesture_lock_on">手势锁开启</string>
   <string name="gesture_lock_off">手势锁关闭</string>
   <string name="go_on">下一步</string>
   <string name="cancel">取消</string>
