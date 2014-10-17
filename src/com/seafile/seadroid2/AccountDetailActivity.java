@@ -174,6 +174,15 @@ public class AccountDetailActivity extends FragmentActivity {
                 statusView.setText(R.string.err_server_andress_empty);
                 return;
             }
+            
+            if (email.length() == 0) {
+                emailText.setError(getResources().getString(R.string.err_email_empty));
+            }
+            
+            if (passwd.length() == 0) {
+                passwdText.setError(getResources().getString(R.string.err_passwd_empty));
+            }
+            
             try {
                 serverURL = cleanServerURL(serverURL, isHttps);
             } catch (MalformedURLException e) {
