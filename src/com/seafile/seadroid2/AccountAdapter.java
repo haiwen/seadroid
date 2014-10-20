@@ -47,11 +47,11 @@ public class AccountAdapter extends BaseAdapter {
         }
         items = new ArrayList<Account>();
         options = new DisplayImageOptions.Builder()
-                .showStubImage(R.drawable.ic_launcher)
+                .showStubImage(R.drawable.default_avatar)
                 .delayBeforeLoading(1000)
-                .showImageOnLoading(R.drawable.ic_launcher)
-                .showImageForEmptyUri(R.drawable.ic_launcher)
-                .showImageOnFail(R.drawable.ic_launcher)
+                .showImageOnLoading(R.drawable.default_avatar)
+                .showImageForEmptyUri(R.drawable.default_avatar)
+                .showImageOnFail(R.drawable.default_avatar)
                 .resetViewBeforeLoading()
                 .cacheInMemory(true)
                 .cacheOnDisk(true)
