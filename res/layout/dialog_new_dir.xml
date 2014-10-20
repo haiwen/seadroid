@@ -13,7 +13,7 @@
     	android:id="@+id/new_dir_name"
     	android:layout_width="fill_parent"
     	android:layout_height="wrap_content"
-    	android:background="@drawable/dialog_edit_text_holo_light"
+    	android:background="@drawable/edit_text_holo_light"
     	android:inputType="text" />
 
 </LinearLayout>

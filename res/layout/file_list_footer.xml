@@ -51,7 +51,7 @@
             android:text="@string/upload"
             android:textSize="18sp"
             android:textColor="@color/white"
-            android:background="@drawable/account_add_btn_default_holo_light"
+            android:background="@drawable/confirm_btn_default_holo_light"
             />
       </LinearLayout>
 

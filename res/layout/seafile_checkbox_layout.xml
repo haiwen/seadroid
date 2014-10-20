@@ -55,6 +55,6 @@
         android:focusable="false"
 		android:clickable="false"
         android:gravity="right"
-        android:button="@drawable/account_add_btn_check_holo_light" />
+        android:button="@drawable/checkbox_btn_holo_light" />
 
 </LinearLayout>

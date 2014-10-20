@@ -17,5 +17,5 @@
         android:text="@string/add_account"
         android:textColor="@color/white"
         android:textSize="24sp"
-        android:background="@drawable/account_add_btn_default_holo_light"/>
+        android:background="@drawable/confirm_btn_default_holo_light"/>
 </LinearLayout>

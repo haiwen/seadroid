@@ -56,7 +56,7 @@
 	            android:layout_weight="0.4"
 	            android:gravity="center"
 	            android:onClick="onClick"
-	            android:background="@drawable/account_add_btn_default_holo_light"
+	            android:background="@drawable/confirm_btn_default_holo_light"
 	            android:text="@string/go_on"
 	            android:textColor="@color/white"
 	            />

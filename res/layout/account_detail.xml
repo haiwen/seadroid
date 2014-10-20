@@ -12,7 +12,7 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="10dp"
         android:onClick="onHttpsCheckboxClicked"
-        android:button="@drawable/account_add_btn_check_holo_light"
+        android:button="@drawable/checkbox_btn_holo_light"
         android:text="@string/accounts_https_hint" />
 
     <LinearLayout
@@ -30,7 +30,7 @@
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:hint="@string/server_hint"
-            android:background="@drawable/dialog_edit_text_holo_light"
+            android:background="@drawable/edit_text_holo_light"
             android:inputType="textUri" />
 
         <EditText
@@ -40,7 +40,7 @@
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:hint="@string/email_hint"
-            android:background="@drawable/dialog_edit_text_holo_light"
+            android:background="@drawable/edit_text_holo_light"
             android:inputType="textEmailAddress" />
 
         <EditText
@@ -50,7 +50,7 @@
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:hint="@string/passwd_hint"
-            android:background="@drawable/dialog_edit_text_holo_light"
+            android:background="@drawable/edit_text_holo_light"
             android:inputType="textPassword" />
     </LinearLayout>
 
@@ -69,7 +69,7 @@
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
             android:onClick="login"
-            android:background="@drawable/account_add_btn_default_holo_light"
+            android:background="@drawable/confirm_btn_default_holo_light"
             android:text="@string/login"
             android:textColor="@color/white"
             android:textSize="14sp" />
