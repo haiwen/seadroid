@@ -179,7 +179,7 @@ public class SettingsPreferenceFragment
             SeafileStyleDialogBuilder builder = new SeafileStyleDialogBuilder(mActivity);
             builder.setIcon(R.drawable.icon);            
             builder.setTitle(mActivity.getResources().getString(R.string.app_name));
-            builder.setMessage(Html.fromHtml("Seafile Andoird Client " + appVersion + "  </br> Copyright ©2013-2014 Seafile Ltd."));
+            builder.setMessage(Html.fromHtml(getString(R.string.settings_about_version_info, versionName)));
             builder.show();
         }
         return true;

@@ -75,6 +75,8 @@ https://github.com/android/platform_frameworks_base/blob/master/core/res/res/lay
             android:paddingStart="16dip"
             android:paddingEnd="16dip"
             android:paddingTop="8dip"
+            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
             android:layout_marginBottom="15dp"
             android:layout_gravity="center_horizontal"
             android:visibility="gone"

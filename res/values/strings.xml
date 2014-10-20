@@ -212,6 +212,20 @@
     
     <string name="settings_about_title">ABOUT</string>
     <string name="settings_about_version_title">App Version</string>
-    <string name="settings_about_version_info">version name</string>
+    <string name="settings_about_version_info">
+        <![CDATA[
+        <h5>Seafile Andoird Client</h5>
+        <p>%s</p>
+        <h5>Contact Us</h5>
+		<p>
+			1. Twitter:Seafile<br>
+			2. Email:daniel.pan@seafile.com<br>
+			3. Telephone:+86-1060607734 Our working hour is 10:00 AM - 7:00 PM, GMT +8, Monday to Friday<br>
+		</p>
+		<h5>Contribution</h5>
+		<p>https://github.com/haiwen/seadroid.git</P>
+        <h5>Copyright ©2013-2014 Seafile Ltd.</h5>
+		]]>
+	</string>
         
 </resources>
