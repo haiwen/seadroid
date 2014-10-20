@@ -40,8 +40,8 @@
 	            android:gravity="center"
 	            android:onClick="onClick"
 	            android:text="@string/try_again"
-	            android:textColor="@color/white"
-	            android:background="@drawable/account_add_btn_default_holo_light"
+	            android:textColor="@color/light_black"
+	            android:background="@drawable/cancel_btn_default_holo_light"
 	            />
 	
 			<View

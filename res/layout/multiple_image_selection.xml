@@ -53,8 +53,8 @@
             android:layout_weight="0.4"
             android:text="@string/cancel"
             android:textSize="18sp"
-            android:textColor="@color/white"
-            android:background="@drawable/account_add_btn_default_holo_light"
+            android:textColor="@color/light_black"
+	        android:background="@drawable/cancel_btn_default_holo_light"
             />
 
 		<View

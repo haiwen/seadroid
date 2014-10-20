@@ -60,10 +60,10 @@
           android:id="@+id/op_cancel"
           android:layout_width="300dp"
           android:layout_height="60dp"
-          android:background="@drawable/account_add_btn_default_holo_light"
+          android:textColor="@color/light_black"
+          android:background="@drawable/cancel_btn_default_holo_light"
           android:layout_gravity="center_horizontal"
           android:text="@string/cancel"
-          android:textColor="@color/white"
           android:textSize="18sp" />
   </LinearLayout>
 
