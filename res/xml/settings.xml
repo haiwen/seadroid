@@ -40,7 +40,5 @@
             android:key="settings_about_version_key"
             android:summary="@string/settings_about_version_info"
             android:title="@string/settings_about_version_title" />
-        <Preference android:key="settings_about_feedback_key"
-            android:title="@string/settings_about_feedback_title" />
     </PreferenceCategory>
 </PreferenceScreen>

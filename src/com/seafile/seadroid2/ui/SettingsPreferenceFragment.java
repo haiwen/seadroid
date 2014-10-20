@@ -4,8 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -57,7 +55,6 @@ public class SettingsPreferenceFragment
     private CheckBoxPreference allowMobileConnections;
     private Preference cameraUploadRepo;
     private Preference versionName;
-    private Preference feedback;
     private boolean setupSuccess;
     private boolean gestureLockBefore;
     private SharedPreferences sharedPref;
@@ -89,7 +86,6 @@ public class SettingsPreferenceFragment
             e.printStackTrace();
         }
         versionName.setSummary(appVersion);
-        feedback = findPreference(BrowserActivity.SETTINGS_ABOUT_FEEDBACK_KEY);
 
         gestureLockSwitch.setOnPreferenceChangeListener(this);
         gestureLockSwitch.setOnPreferenceClickListener(this);
@@ -100,7 +96,6 @@ public class SettingsPreferenceFragment
         cameraUploadSwitch.setOnPreferenceClickListener(this);
         allowMobileConnections.setOnPreferenceClickListener(this);
         versionName.setOnPreferenceClickListener(this);
-        feedback.setOnPreferenceClickListener(this);
         cameraUploadRepo.setOnPreferenceClickListener(this);
         cameraUploadIntent = new Intent(mActivity, CameraUploadService.class);
         repoName = getCameraUploadRepoName();
@@ -185,45 +180,6 @@ public class SettingsPreferenceFragment
             builder.setIcon(R.drawable.icon);            
             builder.setTitle(mActivity.getResources().getString(R.string.app_name));
             builder.setMessage(Html.fromHtml("Seafile Andoird Client " + appVersion + "  </br> Copyright ©2013-2014 Seafile Ltd."));
-            builder.show();
-        }
-        else if (preference.getKey().equals(BrowserActivity.SETTINGS_ABOUT_FEEDBACK_KEY)) {
-            SeafileStyleDialogBuilder builder = new SeafileStyleDialogBuilder(mActivity);
-            builder.setTitle(mActivity.getResources().getString(R.string.settings_about_feedback_title));
-            builder.setItems(R.array.settings_feedback_entries, new OnClickListener() {
-                
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    Intent intent = new Intent();
-                    intent.setClass(mActivity, FeedbackActivity.class);
-                    switch (which) {
-                    case 0:
-                        // users like some features
-                        intent.setFlags(SettingsPreferenceFragment.SETTINGS_FEEDBACK_REPORT_LIKE);
-                        break;
-                    case 1:
-                        // users dislike some features
-                        intent.setFlags(SettingsPreferenceFragment.SETTINGS_FEEDBACK_REPORT_DISLIKE);
-                        break;
-                    case 2:
-                        // users report bugs
-                        intent.setFlags(SettingsPreferenceFragment.SETTINGS_FEEDBACK_REPORT_BUG);
-                        break;
-                    case 3:
-                        // users need help
-                        intent.setFlags(SettingsPreferenceFragment.SETTINGS_FEEDBACK_NEED_HELP);
-                        break;
-                    case 4:
-                        // users report something else
-                        intent.setFlags(SettingsPreferenceFragment.SETTINGS_FEEDBACK_REPORT_OTHERS);
-                        break;
-                        
-                    default:
-                        break;
-                    }
-                    startActivity(intent);
-                }
-            });
             builder.show();
         }
         return true;

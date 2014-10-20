@@ -213,21 +213,5 @@
     <string name="settings_about_title">ABOUT</string>
     <string name="settings_about_version_title">App Version</string>
     <string name="settings_about_version_info">version name</string>
-    <string name="settings_about_feedback_title">Send feedback</string>
-    <string-array name="settings_feedback_entries">
-        <item>Tell us what you like</item>
-        <item>Tell us what you dislike</item>
-        <item>Tell us an issue</item>
-        <item>Need some help</item>
-        <item>Something else</item>
-    </string-array>
-    <string name="settings_about_feedback_input_hint">input feedback...</string>
-    <string name="settings_about_feedback_like"><br>Send your feedback to tell us which feature you like or dislike, what new features you expect to add in the future.</br><br>We value your comments and always ready to make a change based on your need.</br></string>
-    <string name="settings_about_feedback_dislike"><br>Send your feedback to tell us which feature you like or dislike, what new features you expect to add in the future.</br><br>We value your comments and always ready to make a change based on your need.</br>If you just want to say hi, that\'s cool too.</string>
-    <string name="settings_about_feedback_bug"><br>Find a bug? Please describe the bug and tell us how to recreate it.</br>If you need to contact a human, please visit us on Github or Google Groups</string>
-    <string name="settings_about_feedback_help">Have a question? Please describe your question clearly. We are always ready to help.</string>
-    <string name="settings_about_feedback_others">We don\`t know who you are only when you choose to tell us about that. So feel free to tell us whatever you like, if you just want to say hi, that\'s cool too.</string>
-    <string name="settings_about_feedback_send">Send</string>
-    <string name="settings_about_feedback_input_error">please input your feedback first!</string>
         
 </resources>

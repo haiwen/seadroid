@@ -102,11 +102,6 @@
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>
-        <activity android:name="com.seafile.seadroid2.ui.FeedbackActivity"
-                  android:screenOrientation="portrait"
-                  android:theme="@style/Theme.SeafileTheme"
-                  android:label="@string/app_name">
-        </activity>
 		<service android:name="com.seafile.seadroid2.transfer.TransferService" > </service>
         <service android:name="com.seafile.seadroid2.monitor.FileMonitorService" > </service>
         <service android:name="com.seafile.seadroid2.sync.CameraUploadService" > </service>

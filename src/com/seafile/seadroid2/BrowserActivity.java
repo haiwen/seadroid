@@ -131,7 +131,6 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final String ALLOW_MOBILE_CONNECTIONS_SWITCH_KEY = "allow_mobile_connections_switch_key";
     public static final String CAMERA_UPLOAD_REPO_KEY = "camera_upload_repo_key";
     public static final String SETTINGS_ABOUT_VERSION_KEY = "settings_about_version_key";
-    public static final String SETTINGS_ABOUT_FEEDBACK_KEY = "settings_about_feedback_key";
 
     private Intent copyMoveIntent;
 
