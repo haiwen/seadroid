@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
@@ -15,6 +16,7 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.Html;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -42,11 +44,17 @@ public class SettingsPreferenceFragment
     public static final String SHARED_PREF_CAMERA_UPLOAD_SETTINGS_REPONAME = PKG + ".camera.settings.repoName";
     public static final String SHARED_PREF_CAMERA_UPLOAD_SETTINGS_START = PKG + ".camera.settings.startService";
     public static final int CHOOSE_CAMERA_UPLOAD_REPO_REQUEST = 1;
-    private static final int GESTURE_LOCK_REQUEST = 6;
+    public static final int GESTURE_LOCK_REQUEST = 6;
+    public static final int SETTINGS_FEEDBACK_REPORT_LIKE = 10;
+    public static final int SETTINGS_FEEDBACK_REPORT_DISLIKE = 11;
+    public static final int SETTINGS_FEEDBACK_REPORT_BUG = 12;
+    public static final int SETTINGS_FEEDBACK_NEED_HELP = 13;
+    public static final int SETTINGS_FEEDBACK_REPORT_OTHERS = 14;
     private CheckBoxPreference gestureLockSwitch;
     private CheckBoxPreference cameraUploadSwitch;
     private CheckBoxPreference allowMobileConnections;
     private Preference cameraUploadRepo;
+    private Preference versionName;
     private boolean setupSuccess;
     private boolean gestureLockBefore;
     private SharedPreferences sharedPref;
@@ -56,7 +64,8 @@ public class SettingsPreferenceFragment
     private boolean isUploadStart;
     private Intent mCameraUploadRepoChooserData;
     private String repoName;
-
+    private String appVersion;
+    
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(DEBUG_TAG, "onCreate");
@@ -70,15 +79,23 @@ public class SettingsPreferenceFragment
         cameraUploadSwitch = (CheckBoxPreference) findPreference(BrowserActivity.CAMERA_UPLOAD_SWITCH_KEY);
         allowMobileConnections = (CheckBoxPreference) findPreference(BrowserActivity.ALLOW_MOBILE_CONNECTIONS_SWITCH_KEY);
         cameraUploadRepo = (Preference) findPreference(BrowserActivity.CAMERA_UPLOAD_REPO_KEY);
+        versionName = findPreference(BrowserActivity.SETTINGS_ABOUT_VERSION_KEY);
+        try {
+            appVersion = mActivity.getPackageManager().getPackageInfo(mActivity.getPackageName(), 0).versionName;
+        } catch (NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        versionName.setSummary(appVersion);
+
         gestureLockSwitch.setOnPreferenceChangeListener(this);
         gestureLockSwitch.setOnPreferenceClickListener(this);
-
         if (sharedPref.getBoolean(BrowserActivity.GESTURE_LOCK_SWITCH_KEY, false)) {
             gestureLockSwitch.setChecked(true);
         }
 
         cameraUploadSwitch.setOnPreferenceClickListener(this);
         allowMobileConnections.setOnPreferenceClickListener(this);
+        versionName.setOnPreferenceClickListener(this);
         cameraUploadRepo.setOnPreferenceClickListener(this);
         cameraUploadIntent = new Intent(mActivity, CameraUploadService.class);
         repoName = getCameraUploadRepoName();
@@ -158,6 +175,12 @@ public class SettingsPreferenceFragment
             Intent intent = new Intent(mActivity, SeafilePathChooserActivity.class);
             intent.putExtra(EXTRA_CAMERA_UPLOAD, true);
             this.startActivityForResult(intent, CHOOSE_CAMERA_UPLOAD_REPO_REQUEST);
+        } else if(preference.getKey().equals(BrowserActivity.SETTINGS_ABOUT_VERSION_KEY)) {
+            SeafileStyleDialogBuilder builder = new SeafileStyleDialogBuilder(mActivity);
+            builder.setIcon(R.drawable.icon);            
+            builder.setTitle(mActivity.getResources().getString(R.string.app_name));
+            builder.setMessage(Html.fromHtml(getString(R.string.settings_about_version_info, versionName)));
+            builder.show();
         }
         return true;
     }

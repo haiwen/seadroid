@@ -3,7 +3,6 @@ package com.seafile.seadroid2.ui;
 import java.net.HttpURLConnection;
 import java.util.List;
 
-import android.R.bool;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -70,6 +69,7 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
     
     private View mProgressContainer, mListContainer, mContentArea;
     private Button mOkButton, mCancelButton;
+    private View mTransparentSpace;
     private TextView mEmptyText, mErrorText;
     private ListView mListView;
 
@@ -90,11 +90,7 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.seafile_path_chooser);
-
         Intent intent = getIntent();
-        
-        isOnlyChooseRepo = intent.getBooleanExtra(SettingsPreferenceFragment.EXTRA_CAMERA_UPLOAD, false);
-        
         Account account = (Account)intent.getParcelableExtra("account");
         if (account == null) {
             canChooseAccount = true;
@@ -116,16 +112,20 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
         bar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         bar.setDisplayHomeAsUpEnabled(false);
 
-        mOkButton = (Button)findViewById(R.id.ok);
-        mCancelButton = (Button)findViewById(R.id.cancel);
-
+        mOkButton = (Button) findViewById(R.id.ok);
+        mCancelButton = (Button) findViewById(R.id.cancel);
+        mTransparentSpace = findViewById(R.id.transparent_space);
         mListView = (ListView) findViewById(android.R.id.list);
         mEmptyText = (TextView) findViewById(android.R.id.empty);
         mErrorText = (TextView) findViewById(R.id.error_message);
         mListContainer = findViewById(R.id.listContainer);
         mProgressContainer = findViewById(R.id.progressContainer);
         mContentArea = findViewById(R.id.content);
-
+        isOnlyChooseRepo = intent.getBooleanExtra(SettingsPreferenceFragment.EXTRA_CAMERA_UPLOAD, false);
+        if (isOnlyChooseRepo) {
+            mOkButton.setVisibility(View.GONE);
+            mTransparentSpace.setVisibility(View.GONE);
+        }
         mListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         mListView.setOnItemClickListener(new ListView.OnItemClickListener() {
             @Override
@@ -361,6 +361,7 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
         ConcurrentAsyncTask.execute(mLoadAccountsTask);
         setListAdapter(getAccountAdapter());
         mOkButton.setVisibility(View.GONE);
+        mTransparentSpace.setVisibility(View.GONE);
 
         // update action bar
         ActionBar bar = getSupportActionBar();
@@ -385,6 +386,7 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
 
         setListAdapter(getReposAdapter());
         mOkButton.setVisibility(View.GONE);
+        mTransparentSpace.setVisibility(View.GONE);
 
         getNavContext().setRepoID(null);
 
@@ -421,6 +423,7 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
         // update action bar
         setListAdapter(getDirentsAdapter());
         mOkButton.setVisibility(View.VISIBLE);
+        mTransparentSpace.setVisibility(View.VISIBLE);
         refreshDir(forceRefresh);
     }
 

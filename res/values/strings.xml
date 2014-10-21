@@ -28,7 +28,7 @@
     <string name="cached">Cached</string>
     <string name="activities">Activities</string>
     <string name="pick_upload_type">Upload</string>
-    
+    <string name="accounts_https_hint">https</string>
     <string name="upload_tasks">Uploads</string>
     <string name="accounts">Accounts</string>
     <string name="settings">Settings</string>
@@ -47,6 +47,8 @@
     <string name="network_down">No network connection</string>
     <string name="invalid_server_address">Invalid server address</string>
     <string name="err_server_andress_empty">Server address can not be empty</string>
+    <string name="err_email_empty">Email can not be empty</string>
+    <string name="err_passwd_empty">Password can not be empty</string>
     <string name="err_login_failed">Login failed</string>
     <string name="err_wrong_user_or_passwd">Email or password error</string>
     <string name="upload">Upload</string>
@@ -207,4 +209,23 @@
     <string name="settings_hint">Please choose a library first</string>    
     <string name="settings_start">Turn on Camera Upload</string>    
     <string name="settings_camera_upload_library_not_found">The selected library does not exist</string>
+    
+    <string name="settings_about_title">ABOUT</string>
+    <string name="settings_about_version_title">App Version</string>
+    <string name="settings_about_version_info">
+        <![CDATA[
+        <h5>Seafile Andoird Client</h5>
+        <p>%s</p>
+        <h5>Contact Us</h5>
+		<p>
+			1. Twitter:Seafile<br>
+			2. Email:daniel.pan@seafile.com<br>
+			3. Telephone:+86-1060607734 Our working hour is 10:00 AM - 7:00 PM, GMT +8, Monday to Friday<br>
+		</p>
+		<h5>Contribution</h5>
+		<p>https://github.com/haiwen/seadroid.git</P>
+        <h5>Copyright ©2013-2014 Seafile Ltd.</h5>
+		]]>
+	</string>
+        
 </resources>

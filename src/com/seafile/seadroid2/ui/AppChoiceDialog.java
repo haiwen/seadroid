@@ -3,7 +3,6 @@ package com.seafile.seadroid2.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -64,13 +63,9 @@ public class AppChoiceDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        SeafileStyleDialogBuilder builder = new SeafileStyleDialogBuilder(getActivity());
         builder.setTitle(mTitle);
-        ListView listView = new ListView(getActivity());
-        listView.setAdapter(new AppsListAdapter());
-        listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-        builder.setView(listView);
-        listView.setOnItemClickListener(new ListView.OnItemClickListener() {
+        builder.setSingleChoiceItems(new AppsListAdapter(), 0, new ListView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> l, View view, int position, long id) {
                 onAppSelected(position);

@@ -1,56 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    >
+    android:orientation="vertical" >
 
     <CheckBox
         android:id="@+id/https_checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp"
         android:onClick="onHttpsCheckboxClicked"
-        android:text="https" />
+        android:button="@drawable/checkbox_btn_holo_light"
+        android:text="@string/accounts_https_hint" />
 
-    <EditText
-        android:id="@+id/server_url"
-        android:layout_width="fill_parent"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/server_hint"
-        android:inputType="textUri" />
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingBottom="7dp"
+        android:paddingTop="0dp" >
 
-    <EditText
-        android:id="@+id/email_address"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/email_hint"
-        android:inputType="textEmailAddress" />
+        <EditText
+            android:id="@+id/server_url"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:hint="@string/server_hint"
+            android:background="@drawable/edit_text_holo_light"
+            android:inputType="textUri" />
 
-    <EditText
-        android:id="@+id/password"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/passwd_hint"
-        android:inputType="textPassword" />
+        <EditText
+            android:id="@+id/email_address"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:hint="@string/email_hint"
+            android:background="@drawable/edit_text_holo_light"
+            android:inputType="textEmailAddress" />
 
-    <Button
-        android:id="@+id/login_button"
-        android:layout_width="wrap_content"
+        <EditText
+            android:id="@+id/password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:hint="@string/passwd_hint"
+            android:background="@drawable/edit_text_holo_light"
+            android:inputType="textPassword" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="login"
-        android:text="@string/login" />
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingBottom="7dp"
+        android:paddingTop="0dp" >
+
+        <Button
+            android:id="@+id/login_button"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:onClick="login"
+            android:background="@drawable/confirm_btn_default_holo_light"
+            android:text="@string/login"
+            android:textColor="@color/white"
+            android:textSize="14sp" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/status_view"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
         android:text="" />
 
     <TextView
         android:id="@+id/seahub_url_hint"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
         android:text="@string/seahub_url_hint" />
 
 </LinearLayout>
-

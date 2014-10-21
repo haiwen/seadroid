@@ -2,7 +2,8 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/light_grey">
 
   <LinearLayout
       android:layout_width="match_parent"
@@ -32,7 +33,7 @@
           android:singleLine="true"
           android:lines="1"
           android:textColor="@color/white"
-          android:textSize="18dp"
+          android:textSize="18sp"
           android:padding="5dp"
           />
 
@@ -40,22 +41,36 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:orientation="horizontal"
-          android:gravity="center_horizontal">
+          android:gravity="center_horizontal"
+          android:layout_marginLeft="20dp"
+          android:layout_marginRight="20dp"
+          android:layout_marginBottom="10dp">
 
         <Button
             android:id="@+id/button_cancel_upload"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_height="60dp"
+            android:layout_weight="0.4"
             android:text="@string/cancel"
+            android:textSize="18sp"
+            android:textColor="@color/light_black"
+	        android:background="@drawable/cancel_btn_default_holo_light"
             />
+
+		<View
+		    android:layout_width="0dp"
+		    android:layout_height="60dp"
+		    android:layout_weight="0.2" />
 
         <Button
             android:id="@+id/button_confirm_upload"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="60dp"
+            android:layout_weight="0.4"
             android:text="@string/upload"
-            android:layout_weight="1"
+            android:textSize="18sp"
+            android:textColor="@color/white"
+            android:background="@drawable/confirm_btn_default_holo_light"
             />
       </LinearLayout>
 

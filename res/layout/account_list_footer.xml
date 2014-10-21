@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="horizontal"
+    android:paddingBottom="7dp"
+    android:paddingTop="7dp" >
+
+    <Button
+        android:id="@+id/account_footer_btn"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginLeft="60dp"
+        android:layout_marginRight="60dp"
+        android:text="@string/add_account"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        android:background="@drawable/confirm_btn_default_holo_light"/>
+</LinearLayout>

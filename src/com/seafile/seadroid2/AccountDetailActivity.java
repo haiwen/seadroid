@@ -21,11 +21,14 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.ui.SslConfirmDialog;
 
-public class AccountDetailActivity extends FragmentActivity {
+public class AccountDetailActivity extends SherlockFragmentActivity {
     private static final String DEBUG_TAG = "AccountDetailActivity";
 
     private static final String HTTP_PREFIX = "http://";
@@ -78,6 +81,18 @@ public class AccountDetailActivity extends FragmentActivity {
             serverText.setText(HTTP_PREFIX);
             int prefixLen = HTTP_PREFIX.length();
             serverText.setSelection(prefixLen, prefixLen);
+        }
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+         switch (item.getItemId()) {
+            case android.R.id.home:
+                this.finish();
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
@@ -174,6 +189,15 @@ public class AccountDetailActivity extends FragmentActivity {
                 statusView.setText(R.string.err_server_andress_empty);
                 return;
             }
+            
+            if (email.length() == 0) {
+                emailText.setError(getResources().getString(R.string.err_email_empty));
+            }
+            
+            if (passwd.length() == 0) {
+                passwdText.setError(getResources().getString(R.string.err_passwd_empty));
+            }
+            
             try {
                 serverURL = cleanServerURL(serverURL, isHttps);
             } catch (MalformedURLException e) {

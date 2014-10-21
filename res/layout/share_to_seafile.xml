@@ -84,24 +84,38 @@
         android:gravity="center_horizontal"
         android:layout_alignParentBottom="true"
         android:background="@color/light_grey"
-        android:padding="6dp" >
-      
-      <Button
-          android:id="@+id/cancel"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_weight="1"
-          android:textSize="16dp"
-          android:text="@string/cancel" />
-      
-      <Button
-          android:id="@+id/ok"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_weight="1"
-          android:textSize="16dp"
-          android:text="@string/ok" />
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp">
+       <Button
+            android:id="@+id/cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:layout_weight="0.4"
+            android:text="@string/cancel"
+            android:textColor="@color/light_black"
+            android:gravity="center"
+            android:background="@drawable/cancel_btn_default_holo_light"
+            />
 
+		<View
+		    android:id="@+id/transparent_space"
+		    android:layout_width="0dp"
+		    android:layout_height="60dp"
+		    android:layout_weight="0.2" />
+
+        <Button
+            android:id="@+id/ok"
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:layout_weight="0.4"
+            android:text="@string/ok"
+            android:textColor="@color/white"
+            android:gravity="center"
+          	android:background="@drawable/confirm_btn_default_holo_light"            
+            />
+        
     </LinearLayout>
   </RelativeLayout>
 

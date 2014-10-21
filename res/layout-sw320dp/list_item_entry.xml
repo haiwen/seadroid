@@ -18,8 +18,8 @@
         android:id="@+id/list_item_action"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:layout_marginRight="12dp"
-        android:layout_width="wrap_content"
+        android:layout_marginRight="2dp"
+        android:layout_width="60dp"
         android:layout_height="fill_parent" />
 
     <TextView

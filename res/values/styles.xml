@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
     <style name="StyledIndicators" parent="@android:style/Theme.Light">
         <item name="vpiCirclePageIndicatorStyle">@style/CustomCirclePageIndicator</item>
         <item name="vpiLinePageIndicatorStyle">@style/CustomLinePageIndicator</item>
@@ -53,14 +53,14 @@
         <item name="android:background">@drawable/custom_tab_indicator</item>
         <item name="android:textAppearance">@style/CustomTabPageIndicator.Text</item>
         <item name="android:textColor">#FF555555</item>
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">12sp</item>
         <item name="android:divider">@drawable/custom_tab_indicator_divider</item>
-        <item name="android:dividerPadding">10dp</item>
+        <item name="android:dividerPadding">5dp</item>
         <item name="android:showDividers">middle</item>
         <item name="android:paddingLeft">8dp</item>
         <item name="android:paddingRight">8dp</item>
         <item name="android:fadingEdge">horizontal</item>
-        <item name="android:fadingEdgeLength">8dp</item>
+        <item name="android:fadingEdgeLength">5dp</item>
     </style>
 
     <style name="CustomTabPageIndicator.Text" parent="android:TextAppearance.Medium">
@@ -91,6 +91,9 @@
         <item name="android:dividerHeight">0.5sp</item>
         <!-- <item name="android:colorPressedHighlight">@color/black</item> -->
         <!-- <item name="android:colorLongPressedHighlight">@color/black</item> -->
+    </style>
+    <style name="CustomCheckboxTheme" parent="@android:style/Widget.CompoundButton.CheckBox">
+        <item name="android:button">@drawable/checkbox_btn_holo_light</item>
     </style>
 
 </resources>

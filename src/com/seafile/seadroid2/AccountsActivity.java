@@ -2,7 +2,6 @@ package com.seafile.seadroid2;
 
 import java.util.List;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -16,6 +15,7 @@ import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
@@ -28,7 +28,9 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.data.AvatarManager;
 import com.seafile.seadroid2.monitor.FileMonitorService;
+import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.SettingsPreferenceFragment;
 
 
@@ -68,25 +70,25 @@ public class AccountsActivity extends SherlockFragmentActivity {
         Log.d(DEBUG_TAG, "AccountsActivity.onCreate is called");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start);
-
         accountsActivity = this;
 
         accountsView = (ListView) findViewById(R.id.account_list_view);
-
         accountManager = new AccountManager(this);
-
-        Button addAccount = new Button(this);
-        addAccount.setText(R.string.add_account);
-        accountsView.addFooterView(addAccount, null, true);
-        accountsView.setFooterDividersEnabled(false);
-        adapter = new AccountAdapter(this);
-        accountsView.setAdapter(adapter);
+       
+        View footerView = ((LayoutInflater) this
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
+                R.layout.account_list_footer, null, false);
+        Button addAccount = (Button) footerView.findViewById(R.id.account_footer_btn);
         addAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View btn) {
                 new CreateAccountChoiceDialog().show(getSupportFragmentManager(), "Choose a server");
             }
         });
+        accountsView.addFooterView(footerView, null, true);
+        accountsView.setFooterDividersEnabled(false);
+        adapter = new AccountAdapter(this);
+        accountsView.setAdapter(adapter);
         accountsView.setOnItemClickListener(new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position,
                     long id) {
@@ -103,6 +105,7 @@ public class AccountsActivity extends SherlockFragmentActivity {
 
     @Override
     public void onStart() {
+        Log.d(DEBUG_TAG, "onStart");
         super.onStart();
         Intent bIntent = new Intent(this, FileMonitorService.class);
         bindService(bIntent, mMonitorConnection, Context.BIND_AUTO_CREATE);
@@ -110,11 +113,13 @@ public class AccountsActivity extends SherlockFragmentActivity {
 
     @Override
     public void onStop() {
+        Log.d(DEBUG_TAG, "onStop");
         super.onStop();
     }
 
     @Override
     protected void onDestroy() {
+        Log.d(DEBUG_TAG, "onDestroy");
         super.onDestroy();
         if (mMonitorService != null) {
             unbindService(mMonitorConnection);
@@ -126,6 +131,7 @@ public class AccountsActivity extends SherlockFragmentActivity {
     // it will be shown.
     @Override
     public void onResume() {
+        Log.d(DEBUG_TAG, "onResume");
         super.onResume();
 
         refreshView();
@@ -142,12 +148,15 @@ public class AccountsActivity extends SherlockFragmentActivity {
     }
     
     private void refreshView() {
+        Log.d(DEBUG_TAG, "refreshView");
         accounts = accountManager.getAccountList();
+        /*AvatarManager avatarManager = new AvatarManager(accounts);*/
         // Log.d(DEBUG_TAG, "Load accounts num " + accounts.size());
         adapter.clear();
-        for (Account a : accounts) {
+        /*for (Account a : accounts) {
             adapter.add(a);
-        }
+        }*/
+        adapter.setItems(accounts);
         adapter.notifyChanged();
     }
 
@@ -247,40 +256,39 @@ public class AccountsActivity extends SherlockFragmentActivity {
     public static final int CLOUD_SEAFILE_COM = 2;
 
     public static class CreateAccountChoiceDialog extends DialogFragment {
+        // final Context context = SeadroidApplication.getAppContext();
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-
-            final Context context = SeadroidApplication.getAppContext();
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle(R.string.choose_server);
-            builder.setItems(R.array.choose_server_array,
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Intent intent;
-                            switch (which) {
-                            case PRIVATE_SERVER:
-                                intent = new Intent(context, AccountDetailActivity.class);
-                                startActivity(intent);
-                                break;
-                            case SEACLOUD_CC:
-                                intent = new Intent(context, AccountDetailActivity.class);
-                                intent.putExtra("server", "https://seacloud.cc");
-                                startActivity(intent);
-                                break;
-                            case CLOUD_SEAFILE_COM:
-                                intent = new Intent(context, AccountDetailActivity.class);
-                                intent.putExtra("server", "https://cloud.seafile.com");
-                                startActivity(intent);
-                                break;
-                            default:
-                                return;
-                            }
-                            accountsActivity.finish();
-                        }
-                    });
-
-            return builder.create();
+            SeafileStyleDialogBuilder builder = 
+                    (SeafileStyleDialogBuilder) new SeafileStyleDialogBuilder(getActivity()).
+                    setTitle(getResources().getString(R.string.choose_server)).
+                    setItems(R.array.choose_server_array,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Intent intent;
+                                    switch (which) {
+                                    case PRIVATE_SERVER:
+                                        intent = new Intent(getActivity(), AccountDetailActivity.class);
+                                        startActivity(intent);
+                                        break;
+                                    case SEACLOUD_CC:
+                                        intent = new Intent(getActivity(), AccountDetailActivity.class);
+                                        intent.putExtra("server", "https://seacloud.cc");
+                                        startActivity(intent);
+                                        break;
+                                    case CLOUD_SEAFILE_COM:
+                                        intent = new Intent(getActivity(), AccountDetailActivity.class);
+                                        intent.putExtra("server", "https://cloud.seafile.com");
+                                        startActivity(intent);
+                                        break;
+                                    default:
+                                        return;
+                                    }
+                                    accountsActivity.finish();
+                                }
+                            });
+            return builder.show();
         }
     }
 }
