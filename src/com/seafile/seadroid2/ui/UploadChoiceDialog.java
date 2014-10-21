@@ -20,7 +20,7 @@ public class UploadChoiceDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        SeafileStyleDialogBuilder builder = (SeafileStyleDialogBuilder) new SeafileStyleDialogBuilder(getActivity()).
+        SeafileStyleDialogBuilder builder = new SeafileStyleDialogBuilder(getActivity()).
                 setTitle(getResources().getString(R.string.pick_upload_type)).
                 setTitleColor(getResources().getString(R.color.seafile_orange)).
                 setDividerColor(getResources().getString(R.color.seafile_orange)).

@@ -260,7 +260,7 @@ public class AccountsActivity extends SherlockFragmentActivity {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             SeafileStyleDialogBuilder builder = 
-                    (SeafileStyleDialogBuilder) new SeafileStyleDialogBuilder(getActivity()).
+                    new SeafileStyleDialogBuilder(getActivity()).
                     setTitle(getResources().getString(R.string.choose_server)).
                     setItems(R.array.choose_server_array,
                             new DialogInterface.OnClickListener() {
