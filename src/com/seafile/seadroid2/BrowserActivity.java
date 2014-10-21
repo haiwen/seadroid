@@ -10,12 +10,10 @@ import java.util.List;
 
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
-import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -28,7 +26,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
@@ -50,7 +47,6 @@ import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SeafStarredFile;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
-import com.seafile.seadroid2.gallery.MultipleImageSelectionActivity;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.sync.CameraUploadService;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
@@ -72,13 +68,13 @@ import com.seafile.seadroid2.ui.PasswordDialog;
 import com.seafile.seadroid2.ui.RenameFileDialog;
 import com.seafile.seadroid2.ui.ReposFragment;
 import com.seafile.seadroid2.ui.SeafilePathChooserActivity;
-import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.SettingsActivity;
 import com.seafile.seadroid2.ui.SslConfirmDialog;
 import com.seafile.seadroid2.ui.StarredFragment;
 import com.seafile.seadroid2.ui.TabsFragment;
 import com.seafile.seadroid2.ui.TaskDialog;
 import com.seafile.seadroid2.ui.TaskDialog.TaskDialogListener;
+import com.seafile.seadroid2.ui.UploadChoiceDialog;
 import com.seafile.seadroid2.ui.UploadTasksActivity;
 import com.seafile.seadroid2.ui.UploadTasksAdapter;
 import com.seafile.seadroid2.util.Utils;
@@ -732,43 +728,6 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final int PICK_FILE_REQUEST = 3;
     public static final int TAKE_PHOTO_REQUEST = 4;
     public static final int CHOOSE_COPY_MOVE_DEST_REQUEST = 5;
-
-    public class UploadChoiceDialog extends DialogFragment {
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-
-            SeafileStyleDialogBuilder builder = (SeafileStyleDialogBuilder) new SeafileStyleDialogBuilder(getActivity()).
-                    setTitle(getResources().getString(R.string.pick_upload_type)).
-                    setTitleColor(getResources().getString(R.color.seafile_orange)).
-                    setDividerColor(getResources().getString(R.color.seafile_orange)).
-                    setItems(R.array.pick_upload_array, 
-                            new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            switch (which) {
-                            case 0:
-                                Intent intent = new Intent(BrowserActivity.this, MultiFileChooserActivity.class);
-                                getActivity().startActivityForResult(intent, PICK_FILES_REQUEST);
-                                break;
-                            case 1:
-                                // photos
-                                intent = new Intent(BrowserActivity.this, MultipleImageSelectionActivity.class);
-                                getActivity().startActivityForResult(intent, PICK_PHOTOS_VIDEOS_REQUEST);
-                                break;
-                            case 2:
-                                // thirdparty file chooser
-                                Intent target = Utils.createGetContentIntent();
-                                intent = Intent.createChooser(target, getString(R.string.choose_file));
-                                getActivity().startActivityForResult(intent, PICK_FILE_REQUEST);
-                                break;
-                            default:
-                                return;
-                            }
-                        }
-                    });
-            return builder.show();
-        }
-    }
 
     public boolean hasRepoWritePermission() {
         SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
