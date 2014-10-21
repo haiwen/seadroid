@@ -95,9 +95,9 @@ public class AccountAdapter extends BaseAdapter {
     public void setItems(List<Account> items) {
         this.items = (ArrayList<Account>) items;
         notifyDataSetChanged();
-        for (Account account : items) {
-            ConcurrentAsyncTask.execute(new AvatarLoadTask(account));
-        }
+        // for (Account account : items) {
+        //     ConcurrentAsyncTask.execute(new AvatarLoadTask(account));
+        // }
     }
     
     @Override
