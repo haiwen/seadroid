@@ -93,7 +93,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     DataManager dataManager = null;
     TransferService txService = null;
     TransferReceiver mTransferReceiver;
-
+    SettingsManager settingsMgr;
     // private boolean twoPaneMode = false;
     TabsFragment tabsFragment = null;
     private String currentSelectedItem = FILES_VIEW;
@@ -170,9 +170,8 @@ public class BrowserActivity extends SherlockFragmentActivity
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
 
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        String lockPattenString = settings.getString(SettingsManager.LOCK_KEY, null);
-        if (lockPattenString != null) {
+        settingsMgr = SettingsManager.instance();
+        if (settingsMgr.needInputGesturePattern()) {
             Intent intent = new Intent(this, GestureLockActivity.class);
             startActivity(intent);
         }

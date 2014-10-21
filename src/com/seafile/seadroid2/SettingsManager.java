@@ -1,8 +1,14 @@
 package com.seafile.seadroid2;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
+import android.R.bool;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.seafile.seadroid2.account.Account;
 
@@ -14,6 +20,7 @@ public final class SettingsManager {
     // Gesture Lock
 	public static final String GESTURE_LOCK_SWITCH_KEY = "gesture_lock_switch_key";
 	public static final String LOCK_KEY = "gesture_lock_key";
+	public static final String NEED_INPUT_GESTURE = "gesture_need_input";
 	public static final int GESTURE_LOCK_REQUEST = 1;
 
     // Camera upload
@@ -41,9 +48,9 @@ public final class SettingsManager {
     private SharedPreferences.Editor editor = sharedPref.edit();
     private static SettingsManager instance;
 
-    private SharedPreferences settings = PreferenceManager
+    private SharedPreferences settingsSharedPref = PreferenceManager
     		.getDefaultSharedPreferences(SeadroidApplication.getAppContext());
-    private SharedPreferences.Editor settingsEditor = settings.edit();
+    private SharedPreferences.Editor settingsEditor = settingsSharedPref.edit();
     
     public static synchronized SettingsManager instance() {
         if (instance == null) {
@@ -55,9 +62,60 @@ public final class SettingsManager {
 
     public boolean isGestureLockEnabled() {
     	
-        return settings.getBoolean(SettingsManager.GESTURE_LOCK_SWITCH_KEY, false);
+        return settingsSharedPref.getBoolean(GESTURE_LOCK_SWITCH_KEY, false);
     }
     
+    public void setGestureLockPattern(String pattern) {
+    	sharedPref.edit().putString(LOCK_KEY, pattern).commit();
+    	startGestureLockTimer();
+	}
+
+    public String getGestureLockPattern() {
+    	return sharedPref.getString(LOCK_KEY, null);
+    }
+    
+    public boolean needInputGesturePattern() {
+    	if (!isGestureLockEnabled()) {
+			return false;
+		}
+    	if (getGestureLockPattern() == null || getGestureLockPattern().equals("")) {
+			return false;
+		}
+    	if (!sharedPref.getBoolean(NEED_INPUT_GESTURE, false)) {
+			return false;
+		}
+    	
+    	return true;
+	}
+    
+    /*public void unlockGesturePatternLock() {
+    	editor.putBoolean(NEED_INPUT_GESTURE, false);
+    }*/
+    
+    private void markGestureLockPatternExpired() {
+    	Log.d(DEBGUG_TAG, "expired");
+    	editor.putBoolean(NEED_INPUT_GESTURE, true);
+    	editor.commit();
+    }
+    
+    private static final String DEBGUG_TAG = SettingsManager.class.getName();
+	public void startGestureLockTimer() {
+		Log.d(DEBGUG_TAG, "timer starts");
+		TimerTask expireTask;
+		final Handler handler = new Handler();
+		Timer t = new Timer();
+		expireTask = new TimerTask() {
+			public void run() {
+				handler.post(new Runnable() {
+					public void run() {
+						markGestureLockPatternExpired();
+					}
+				});
+			}
+		};
+		t.schedule(expireTask, 30000);
+	}
+	
     public void saveCameraUploadRepoName(String repoName) {
         editor.putString(SHARED_PREF_CAMERA_UPLOAD_SETTINGS_REPONAME, repoName);
         editor.commit();
@@ -81,23 +139,7 @@ public final class SettingsManager {
     }
 
 	public boolean isUploadStart() {
-		return settings.getBoolean(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY, false);
+		return settingsSharedPref.getBoolean(CAMERA_UPLOAD_SWITCH_KEY, false);
 	}
 
-	public void clearGestureLock() {
-		settingsEditor.putBoolean(SettingsManager.GESTURE_LOCK_SWITCH_KEY, false);
-		settingsEditor.putString(SettingsManager.LOCK_KEY, null);
-		settingsEditor.commit();
-	}
-	
-    public boolean isGestureLockExpired(){
-        String lockPattern = sharedPref.getString(SettingsManager.LOCK_KEY, null);
-        if (lockPattern == null) {
-            return true;
-        }
-        if (lockPattern.equals("")) {
-            return true;
-        }
-        return false;
-    }
 }
