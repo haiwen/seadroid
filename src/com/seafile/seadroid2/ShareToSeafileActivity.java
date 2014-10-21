@@ -20,6 +20,9 @@ import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.ui.SeafilePathChooserActivity;
 import com.seafile.seadroid2.util.Utils;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
 public class ShareToSeafileActivity extends SherlockFragmentActivity {
     private static final String DEBUG_TAG = "ShareToSeafileActivity";
 
@@ -28,7 +31,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
 
     private TransferService mTxService;
     private ServiceConnection mConnection;
-    private String localPath;
+    private ArrayList<String> localPath;
     private Intent dstData;
     private Boolean isFinishActivity = false;
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,10 +40,20 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
 
         Bundle extras = intent.getExtras();
         if (extras != null) {
-            Uri uri = (Uri)extras.get(Intent.EXTRA_STREAM);
-            localPath = getSharedFilePath(uri);
+            Object extraStream = extras.get(Intent.EXTRA_STREAM);
+
+            if(extraStream instanceof ArrayList){
+                for (Uri uri : (ArrayList<Uri>)extraStream) {
+                    if(localPath == null) localPath = new ArrayList<String>();
+                    localPath.add(getSharedFilePath(uri));
+                }
+            }
+            else if(extraStream instanceof Uri){
+                if(localPath == null) localPath = new ArrayList<String>();
+                localPath.add(getSharedFilePath((Uri)extraStream));
+            }
         }
-        if (localPath == null) {
+        if (localPath == null || localPath.size() == 0) {
             showToast(R.string.not_supported_share);
             finish();
             return;
@@ -80,12 +93,12 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
         super.onDestroy();
     }
 
-    private void addUploadTask(Account account, String repoName, String repoID, String targetDir, String localFilePath) {
+    private void addUploadTask(Account account, String repoName, String repoID, String targetDir, ArrayList<String> localFilePath) {
         bindTransferService(account, repoName, repoID, targetDir, localFilePath);
     }
 
     private void bindTransferService(final Account account, final String repoName, final String repoID,
-                                        final String targetDir, final String localPath) {
+                                        final String targetDir, final ArrayList<String> localPath) {
         // start transfer service
         Intent txIntent = new Intent(this, TransferService.class);
         startService(txIntent);
@@ -99,8 +112,11 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
             public void onServiceConnected(ComponentName className, IBinder service) {
                 TransferBinder binder = (TransferBinder) service;
                 mTxService = binder.getService();
-                mTxService.addUploadTask(account, repoID, repoName, targetDir,
-                                         localPath, false, false);
+                for (String path : localPath) {
+                    mTxService.addUploadTask(account, repoID, repoName, targetDir,
+                            path, false, false);
+                    Log.d(PASSWORD_DIALOG_FRAGMENT_TAG, path + " uploaded");
+                }
                 showToast(R.string.upload_started);
                 finish();
             }
