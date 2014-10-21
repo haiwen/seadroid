@@ -23,8 +23,8 @@
           android:layout_height="wrap_content"
           android:orientation="horizontal"
           android:gravity="center_horizontal"
-          android:layout_marginLeft="5dp"
-          android:layout_marginRight="5dp"
+          android:layout_marginLeft="20dp"
+          android:layout_marginRight="20dp"
           android:layout_marginBottom="10dp">
 
         <Button
