@@ -28,6 +28,9 @@
   <string name="cached">En cache</string>
   <string name="activities">Activités</string>
   <string name="pick_upload_type">Transfert</string>
+  <string name="upload_tasks">Envois</string>
+  <string name="accounts">Comptes</string>
+  <string name="settings">Paramètres </string>
   <string-array name="pick_upload_array">
     <item>Fichiers</item>
     <item>Photos/Vidéos</item>
@@ -87,6 +90,7 @@
   <string name="no_repo">Vous n\'avez pas encore de bibliothèque</string>
   <string name="no_app_available">Aucune application disponible</string>
   <string name="add_to_seafile">Ajouter à Seafile</string>
+  <string name="ok">OK</string>
   <string name="no_account">Merci de créer un compte dans Seafile pour commencer</string>
   <string name="no_library">Vous n\'avez pas encore de bibliothèque</string>
   <string name="choose_an_account">Choisir un compte</string>
@@ -111,10 +115,17 @@
   <string name="copy_link">Copier le lien</string>
   <string name="share_file_link">Partager un lien vers ce fichier</string>
   <string name="share_dir_link">Partager un lien vers ce dossier</string>
+  <string name="generating_link">Génération du lien...</string>
   <string name="link_ready_to_be_pasted">Le lien est prêt à être collé/transmis.</string>
   <string name="rename_file">Renommer le fichier</string>
   <string name="rename_dir">Renommer le dossier</string>
   <string name="rename_successful">Renommage réussi.</string>
+  <string-array name="nav_array">
+    <item>Fichiers</item>
+    <item>Envois</item>
+    <item>Comptes</item>
+    <item>Photos sauvegardées</item>
+  </string-array>
   <string name="drawer_open">Open navigation drawer</string>
   <string name="drawer_close">Close navigation drawer</string>
   <string name="no_starred_file">Aucun fichier préféré actuellement</string>
@@ -159,9 +170,34 @@
   <string name="upload_started">Début du téléversement</string>
   <string name="cannot_copy_folder_to_subfolder">Vous ne pouvez pas copier un dossier dans son sous-dossier</string>
   <string name="cannot_move_folder_to_subfolder">Vous ne pouvez pas déplacer un dossier dans son sous-dossier</string>
+  <string name="security">Sécurité</string>
+  <string name="gesture_lock">Geste de verrouillage</string>
+  <string name="gesture_lock_on">Geste de verrouillage activé</string>
+  <string name="gesture_lock_off">Geste de verrouillage désactivé</string>
   <string name="cancel">Annuler</string>
+  <string name="go_on">Suivant</string>
+  <string name="try_again">Veuillez réessayer </string>
+  <string name="confirm">Confirmer</string>
+  <string name="lockpattern_recording_incorrect_too_short">Veuillez lier au moins 4 points</string>
+  <string name="lockpattern_error">Mauvais geste de verrouillage  </string>
+  <string name="please_draw_gesture_lock">Veuillez dessiner un geste de verrouillage  </string>
+  <string name="setup_gesture_lock_success">Mise en place du geste de verrouillage avec succès</string>
   <!--Accessibility description sent when user starts drawing a lock pattern. [CHAR LIMIT=NONE]-->
+  <string name="lockscreen_access_pattern_start">Modèle démarré</string>
   <!--Accessibility description sent when the pattern times out and is cleared. [CHAR LIMIT=NONE]-->
+  <string name="lockscreen_access_pattern_cleared">Modèle effacé</string>
   <!--Accessibility description sent when user adds a cell to the pattern. [CHAR LIMIT=NONE]-->
+  <string name="lockscreen_access_pattern_cell_added">Cellule ajoutée</string>
   <!--Accessibility description sent when user completes drawing a pattern. [CHAR LIMIT=NONE]-->
+  <string name="lockscreen_access_pattern_detected">Modèle terminé</string>
+  <string name="settings_camera_upload_duplicate">Déjà envoyé</string>
+  <string name="settings_camera_upload_info_title">Envoi des photos</string>
+  <string name="settings_camera_upload_info">envoyer %d photo(s) vers\u0020</string>
+  <string name="settings_wifi_down">Wifi non disponible</string>
+  <string name="settings_startUpService">Service d\'envoi démarré </string>
+  <string name="settings_stopUpService">Service d\'envoi arrêté </string>
+  <string name="set_camera_upload_library">Changer la bibliothèque d\'envoi</string>
+  <string name="settings_hint">Veuillez commencer par choisir une bibliothèque</string>
+  <string name="settings_start">Activer l\'envoi des photos</string>
+  <string name="settings_camera_upload_library_not_found">La bibliothèque sélectionné n\'existe pas</string>
 </resources>
