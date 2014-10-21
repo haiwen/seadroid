@@ -82,6 +82,12 @@
       <artifactId>markdownview</artifactId>
       <version>1.2</version>
     </dependency>
+    
+    <dependency>
+        <groupId>com.nostra13.universalimageloader</groupId>
+        <artifactId>universal-image-loader</artifactId>
+        <version>1.9.3</version>
+    </dependency>
 
     <!-- test dependencies  -->
     <dependency>
