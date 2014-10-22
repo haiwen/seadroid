@@ -2,15 +2,11 @@ package com.seafile.seadroid2;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +21,6 @@ import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.data.Avatar;
 import com.seafile.seadroid2.data.AvatarManager;
 
 /**
@@ -38,13 +33,9 @@ public class AccountAdapter extends BaseAdapter {
     private DisplayImageOptions options;
     private ArrayList<Account> items;
     private Context context;
-    private static Map<String, Avatar> avatars;
     
     public AccountAdapter(Context context) {
         this.context = context;
-        if (avatars == null) {
-            avatars = new HashMap<String, Avatar>();
-        }
         items = new ArrayList<Account>();
         options = new DisplayImageOptions.Builder()
                 .showStubImage(R.drawable.default_avatar)
@@ -125,10 +116,12 @@ public class AccountAdapter extends BaseAdapter {
         Account item = items.get(position);
         viewHolder.title.setText(item.getServerHost());
         viewHolder.subtitle.setText(item.getEmail());
-        if (avatars.containsKey(item.getSignature())) {
-            ImageLoader.getInstance().displayImage(avatars.get(item.getSignature()).getUrl(), viewHolder.icon, options, animateFirstListener);
-            ImageLoader.getInstance().handleSlowNetwork(true);
+        if (AvatarManager.getAvatarUrl(item) != null) {
+            ImageLoader.getInstance().displayImage(AvatarManager.getAvatarUrl(item), viewHolder.icon, options, animateFirstListener);
+        } else {
+            // off-line
         }
+        // ImageLoader.getInstance().handleSlowNetwork(true);
         
         return view;
     }

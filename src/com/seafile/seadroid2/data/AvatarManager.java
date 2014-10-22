@@ -1,6 +1,8 @@
 package com.seafile.seadroid2.data;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONObject;
 
@@ -13,46 +15,30 @@ import com.seafile.seadroid2.util.Utils;
 
 public class AvatarManager {
     private static final String DEBUG_TAG = "AvatarManager";
-    private SeafConnection sc;
-    private List<Account> accounts;
-    private Account account;
     
-    public AvatarManager(Account account) {
-        this.account = account;
-        this.sc = new SeafConnection(account);
-    }
+    private SeafConnection httpConnection;
+    private static Map<String, Avatar> avatars;
+    private List<Account> accounts;
     
     public AvatarManager(List<Account> accounts) {
         this.accounts = accounts;
-        this.sc = new SeafConnection(account);
+        avatars = new HashMap<String, Avatar>();
     }
-
-    public synchronized Avatar getAvatar(int size) throws SeafException {
+        
+    public synchronized void getAvatars(int size) throws SeafException {
         // First decide if use cache
         if (!Utils.isNetworkOn()) {
             throw SeafException.networkException;
         }
-        Log.v(DEBUG_TAG, "request email : " + account.email);
-        String avatarRawData = sc.getAvatar(account.email, size);
-        Log.v(DEBUG_TAG, "response Avatar : " + avatarRawData);
-        return parseAvatar(avatarRawData);
-    }
-    
-    /*public synchronized List<Avatar> getAvatars(int size) throws SeafException {
-        // First decide if use cache
-        if (!Utils.isNetworkOn()) {
-            throw SeafException.networkException;
-        }
-        List<Avatar> avatars = new ArrayList<Avatar>();
+        
         for (Account account : accounts) {
-            Log.v(DEBUG_TAG, "request email : " + account.email);
-            String avatarRawData = sc.getAvatar(account.email, size);
-            Log.v(DEBUG_TAG, "response Avatar : " + avatarRawData);
-            Avatar avatar = parseAvatar(avatarRawData);
-            avatars.add(avatar);
+            httpConnection = new SeafConnection(account);
+            String avatarRawData = httpConnection.getAvatar(account.getEmail(), size);
+            avatars.put(account.getSignature(), parseAvatar(avatarRawData));
+            Log.d(DEBUG_TAG, "add " + account.getEmail());
         }
-        return avatars;
-    }*/
+        
+    }
     
     private Avatar parseAvatar(String json) {
         JSONObject obj = Utils.parseJsonObject(json);
@@ -63,6 +49,18 @@ public class AvatarManager {
             return null;
         
         return avatar;
+    }
+
+    public static String getAvatarUrl(Account account) {
+        Log.d(DEBUG_TAG, "getAvatar url");
+        if (avatars == null) {
+            return null;
+        }
+        if (!avatars.containsKey(account.getSignature())) {
+            return null;
+        }
+        Log.d(DEBUG_TAG, "avatar url " + avatars.get(account.getSignature()).getUrl());
+        return avatars.get(account.getSignature()).getUrl();
     }
     
 }
