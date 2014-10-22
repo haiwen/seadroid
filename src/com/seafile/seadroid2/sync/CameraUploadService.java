@@ -126,11 +126,11 @@ public class CameraUploadService extends Service {
     }
 
     private void initParams() {
-        repoId = settingsManager.getRepoId();
-        repoName = settingsManager.getRepoName();
-        accountEmail = settingsManager.getAccountEmail();
-        accountServer = settingsManager.getAccountServer();
-        accountToken = settingsManager.getAccountToken();
+        repoId = settingsManager.getCameraUploadRepoId();
+        repoName = settingsManager.getCameraUploadRepoName();
+        accountEmail = settingsManager.getCameraUploadAccountEmail();
+        accountServer = settingsManager.getCameraUploadAccountServer();
+        accountToken = settingsManager.getCameraUploadAccountToken();
     }
 
     ServiceConnection mConnection = new ServiceConnection() {

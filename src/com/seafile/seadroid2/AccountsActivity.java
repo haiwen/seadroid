@@ -184,11 +184,7 @@ public class AccountsActivity extends SherlockFragmentActivity {
             editor.commit();
         }
         if (account.server.equals(settingsServer) && account.email.equals(settingsEmail)) {
-            editor.putString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER, null);
-            editor.putString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL, null);
-            editor.putString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN, null);
-            editor.putString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_SETTINGS_REPONAME, null);
-            editor.commit();
+            SettingsManager.instance().clearCameraUploadInfo();
         }
     }
 
