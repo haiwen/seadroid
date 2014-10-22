@@ -93,7 +93,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     DataManager dataManager = null;
     TransferService txService = null;
     TransferReceiver mTransferReceiver;
-
+    SettingsManager settingsMgr;
     // private boolean twoPaneMode = false;
     TabsFragment tabsFragment = null;
     private String currentSelectedItem = FILES_VIEW;
@@ -120,13 +120,6 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "password_fragment";
     public static final String CHOOSE_APP_DIALOG_FRAGMENT_TAG = "choose_app_fragment";
     public static final String PICK_FILE_DIALOG_FRAGMENT_TAG = "pick_file_fragment";
-
-    public static final String LOCK_KEY = "gesture_lock_key";
-    public static final String GESTURE_LOCK_SWITCH_KEY = "gesture_lock_switch_key";
-    public static final String CAMERA_UPLOAD_SWITCH_KEY = "camera_upload_switch_key";
-    public static final String ALLOW_MOBILE_CONNECTIONS_SWITCH_KEY = "allow_mobile_connections_switch_key";
-    public static final String CAMERA_UPLOAD_REPO_KEY = "camera_upload_repo_key";
-    public static final String SETTINGS_ABOUT_VERSION_KEY = "settings_about_version_key";
 
     private Intent copyMoveIntent;
 
@@ -177,9 +170,8 @@ public class BrowserActivity extends SherlockFragmentActivity
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
 
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        String lockPattenString = settings.getString(LOCK_KEY, null);
-        if (lockPattenString != null) {
+        settingsMgr = SettingsManager.instance();
+        if (settingsMgr.isGestureLockLocked()) {
             Intent intent = new Intent(this, GestureLockActivity.class);
             startActivity(intent);
         }
@@ -288,7 +280,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     protected void onResume() {
         super.onResume();
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean isUploadStart = settings.getBoolean(BrowserActivity.CAMERA_UPLOAD_SWITCH_KEY, false);
+        boolean isUploadStart = settings.getBoolean(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY, false);
         if (!isUploadStart) {
             return;
         }

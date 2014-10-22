@@ -15,8 +15,8 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.ui.GestureLockPatternView.Cell;
 import com.seafile.seadroid2.ui.GestureLockPatternView.DisplayMode;
 
@@ -27,7 +27,7 @@ public class GestureLockSetupActivity extends Activity implements
     private GestureLockPatternView lockPatternView;
     private Button leftButton;
     private Button rightButton;
-
+    
     private static final int STEP_1 = 1; // begin
     private static final int STEP_2 = 2; // first setup lock
     private static final int STEP_3 = 3; // click go on button
@@ -39,11 +39,15 @@ public class GestureLockSetupActivity extends Activity implements
 
     private boolean confirm = false;
     private Intent backIntent = new Intent();
+    private SettingsManager settingsMgr;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lock_setup);
+        
+        settingsMgr = SettingsManager.instance();
+        
         lockPatternView = (GestureLockPatternView) findViewById(R.id.lock_pattern);
         lockPatternView.setOnPatternListener(this);
         leftButton = (Button) findViewById(R.id.left_btn);
@@ -104,9 +108,7 @@ public class GestureLockSetupActivity extends Activity implements
         switch (v.getId()) {
         case R.id.left_btn:
             if (step == STEP_1 || step == STEP_3 || step == STEP_4) {
-                SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-                settings.edit().putString(BrowserActivity.LOCK_KEY,null).commit();
-                
+                settingsMgr.setGestureLockPattern(null);
                 backIntent.putExtra("setupSuccess", false);
                 this.setResult(RESULT_OK, backIntent);
                 finish();
@@ -121,10 +123,7 @@ public class GestureLockSetupActivity extends Activity implements
                 step = STEP_3;
                 updateView();
             } else if (step == STEP_4) {
-
-                SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-                settings.edit().putString(BrowserActivity.LOCK_KEY, GestureLockPatternView.patternToString(choosePattern)).commit();
-
+                settingsMgr.setGestureLockPattern(GestureLockPatternView.patternToString(choosePattern));
                 backIntent.putExtra("setupSuccess", true);
                 this.setResult(RESULT_OK, backIntent);
                 finish();
@@ -167,19 +166,19 @@ public class GestureLockSetupActivity extends Activity implements
 
         if (choosePattern == null) {
             choosePattern = new ArrayList<Cell>(pattern);
-            Log.d(TAG, "choosePattern = "+Arrays.toString(choosePattern.toArray()));
+            Log.d(TAG, "choosePattern = " + Arrays.toString(choosePattern.toArray()));
          
             step = STEP_2;
             updateView();
             return;
         }   
         
-        Log.d(TAG, "choosePattern = "+Arrays.toString(choosePattern.toArray()));
-        Log.d(TAG, "pattern = "+Arrays.toString(pattern.toArray()));
+        Log.d(TAG, "choosePattern = " + Arrays.toString(choosePattern.toArray()));
+        Log.d(TAG, "pattern = " + Arrays.toString(pattern.toArray()));
         
         if (choosePattern.equals(pattern)) {
-            Log.d(TAG, "pattern = "+Arrays.toString(pattern.toArray()));
-           
+            Log.d(TAG, "pattern = " + Arrays.toString(pattern.toArray()));
+
             confirm = true;
         } else {
             confirm = false;

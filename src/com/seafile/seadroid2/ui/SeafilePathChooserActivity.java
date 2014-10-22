@@ -5,10 +5,8 @@ import java.util.List;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
@@ -25,12 +23,12 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.AccountAdapter;
-import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.NavContext;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.DataManager;
@@ -52,7 +50,8 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
 
     private AccountManager mAccountManager;
     private DataManager mDataManager;
-
+    private SettingsManager settingsMgr;
+    
     private AccountAdapter mAccountAdapter;
     private ReposAdapter mReposAdapter;
     private DirentsAdapter mDirentsAdapter;
@@ -92,16 +91,13 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
         setContentView(R.layout.seafile_path_chooser);
         Intent intent = getIntent();
         Account account = (Account)intent.getParcelableExtra("account");
+        settingsMgr = SettingsManager.instance();
         if (account == null) {
             canChooseAccount = true;
-            
-            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-            String lockPattenString = settings.getString(BrowserActivity.LOCK_KEY, null);
-            if (lockPattenString != null) {
+            if (settingsMgr.isGestureLockLocked()) {
                 Intent newIntent = new Intent(this, GestureLockActivity.class);
                 startActivity(newIntent);
             }
-            
         } else {
             mAccount = account;
         }
