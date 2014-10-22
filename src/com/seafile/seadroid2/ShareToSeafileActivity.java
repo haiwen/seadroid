@@ -20,7 +20,6 @@ import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.ui.SeafilePathChooserActivity;
 import com.seafile.seadroid2.util.Utils;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class ShareToSeafileActivity extends SherlockFragmentActivity {
