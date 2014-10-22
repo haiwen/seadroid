@@ -108,7 +108,7 @@ public class GestureLockSetupActivity extends Activity implements
         switch (v.getId()) {
         case R.id.left_btn:
             if (step == STEP_1 || step == STEP_3 || step == STEP_4) {
-            	settingsMgr.setGestureLockPattern(null);
+                settingsMgr.setGestureLockPattern(null);
                 backIntent.putExtra("setupSuccess", false);
                 this.setResult(RESULT_OK, backIntent);
                 finish();
@@ -177,8 +177,8 @@ public class GestureLockSetupActivity extends Activity implements
         Log.d(TAG, "pattern = " + Arrays.toString(pattern.toArray()));
         
         if (choosePattern.equals(pattern)) {
-			Log.d(TAG, "pattern = " + Arrays.toString(pattern.toArray()));
-           
+            Log.d(TAG, "pattern = " + Arrays.toString(pattern.toArray()));
+
             confirm = true;
         } else {
             confirm = false;
