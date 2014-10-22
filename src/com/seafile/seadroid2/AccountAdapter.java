@@ -95,9 +95,7 @@ public class AccountAdapter extends BaseAdapter {
     public void setItems(List<Account> items) {
         this.items = (ArrayList<Account>) items;
         notifyDataSetChanged();
-        // for (Account account : items) {
-        //     ConcurrentAsyncTask.execute(new AvatarLoadTask(account));
-        // }
+        
     }
     
     @Override
@@ -127,43 +125,12 @@ public class AccountAdapter extends BaseAdapter {
         Account item = items.get(position);
         viewHolder.title.setText(item.getServerHost());
         viewHolder.subtitle.setText(item.getEmail());
-        if (avatars.containsKey(item.getEmail())) {
-            ImageLoader.getInstance().displayImage(avatars.get(item.getEmail()).getUrl(), viewHolder.icon, options, animateFirstListener);
+        if (avatars.containsKey(item.getSignature())) {
+            ImageLoader.getInstance().displayImage(avatars.get(item.getSignature()).getUrl(), viewHolder.icon, options, animateFirstListener);
             ImageLoader.getInstance().handleSlowNetwork(true);
         }
         
         return view;
-    }
-    
-    private class AvatarLoadTask extends AsyncTask<Void, Void, Avatar> {
-        AvatarManager avatarManager;
-        Account account;
-        public AvatarLoadTask(Account account) {
-            this.account = account;
-            avatarManager = new AvatarManager(account);
-        }
-        
-        @Override
-        protected Avatar doInBackground(Void... params) {
-            try {
-                Avatar avatar = avatarManager.getAvatar(48); 
-                Log.v(DEBUG_TAG, "icon url: " + avatar.getUrl());
-                Log.v(DEBUG_TAG, "email : " + account.getEmail());
-                
-                return avatar;
-            } catch (SeafException e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Avatar avatar) {
-            if (avatar == null) {
-                return;
-            }
-            avatars.put(account.getEmail(), avatar);
-        }
     }
     
     private static class AnimateFirstDisplayListener extends SimpleImageLoadingListener {
