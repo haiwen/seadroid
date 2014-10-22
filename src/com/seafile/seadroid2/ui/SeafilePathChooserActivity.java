@@ -50,8 +50,7 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
 
     private AccountManager mAccountManager;
     private DataManager mDataManager;
-    private SettingsManager settingsMgr;
-    
+
     private AccountAdapter mAccountAdapter;
     private ReposAdapter mReposAdapter;
     private DirentsAdapter mDirentsAdapter;
@@ -65,7 +64,7 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
     private String encryptedRepoId;
 
     private boolean isOnlyChooseRepo;
-    
+
     private View mProgressContainer, mListContainer, mContentArea;
     private Button mOkButton, mCancelButton;
     private View mTransparentSpace;
@@ -91,13 +90,8 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
         setContentView(R.layout.seafile_path_chooser);
         Intent intent = getIntent();
         Account account = (Account)intent.getParcelableExtra("account");
-        settingsMgr = SettingsManager.instance();
         if (account == null) {
             canChooseAccount = true;
-            if (settingsMgr.isGestureLockLocked()) {
-                Intent newIntent = new Intent(this, GestureLockActivity.class);
-                startActivity(newIntent);
-            }
         } else {
             mAccount = account;
         }
@@ -158,6 +152,15 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
             chooseAccount();
         } else {
             chooseRepo();
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (SettingsManager.instance().isGestureLockLocked()) {
+            Intent newIntent = new Intent(this, GestureLockActivity.class);
+            startActivity(newIntent);
         }
     }
 

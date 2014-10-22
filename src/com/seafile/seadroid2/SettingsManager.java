@@ -46,7 +46,8 @@ public final class SettingsManager {
 	public static final String SETTINGS_ABOUT_VERSION_KEY = "settings_about_version_key";
 
     public static long lock_timestamp = 0;
-    public static final long LOCK_EXPIRATION_MSECS = 6 * 50 * 1000;
+    // public static final long LOCK_EXPIRATION_MSECS = 6 * 50 * 1000;
+    public static final long LOCK_EXPIRATION_MSECS = 5 * 1000;
 
 	public static synchronized SettingsManager instance() {
 		if (instance == null) {

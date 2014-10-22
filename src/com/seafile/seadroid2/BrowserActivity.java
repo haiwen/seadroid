@@ -170,11 +170,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
 
-        settingsMgr = SettingsManager.instance();
-        if (settingsMgr.isGestureLockLocked()) {
-            Intent intent = new Intent(this, GestureLockActivity.class);
-            startActivity(intent);
-        }
         // Get the message from the intent
         Intent intent = getIntent();
         String server = intent.getStringExtra("server");
@@ -356,13 +351,17 @@ public class BrowserActivity extends SherlockFragmentActivity
         Log.d(DEBUG_TAG, "onStart");
         super.onStart();
 
+        if (SettingsManager.instance().isGestureLockLocked()) {
+            Intent intent = new Intent(this, GestureLockActivity.class);
+            startActivity(intent);
+        }
+
         if (mTransferReceiver == null) {
             mTransferReceiver = new TransferReceiver();
         }
 
         IntentFilter filter = new IntentFilter(TransferService.BROADCAST_ACTION);
         LocalBroadcastManager.getInstance(this).registerReceiver(mTransferReceiver, filter);
-
     }
 
     @Override
