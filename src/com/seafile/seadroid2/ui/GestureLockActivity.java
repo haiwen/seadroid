@@ -71,7 +71,7 @@ public class GestureLockActivity extends Activity implements
         Log.d(TAG, "onPatternDetected");
 
         if (pattern.equals(lockPattern)) {
-        	settingsMgr.startGestureLockTimer();
+            settingsMgr.startGestureLockTimer();
             finish();
         } else {
             lockPatternView.setDisplayMode(DisplayMode.Wrong);
