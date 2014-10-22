@@ -11,20 +11,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.MediaStore.MediaColumns;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.seafile.seadroid2.AccountsActivity;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
@@ -50,10 +47,10 @@ public class CameraUploadService extends Service {
     private CameraObserver cameraUploadObserver = new CameraObserver();
     private CameraUploadManager cUploadManager;
     private TransferService mTransferService;
+    private SettingsManager settingsManager;
     private final IBinder mBinder = new CameraBinder();
     private static int intSendBroadcastOnlyOnceFlag = 0;
     private boolean isNetworkAvailable;
-    private boolean isAllowMobileConnections;
     private boolean isRemoteCameraUploadRepoValid;
     private boolean isCameraUpload;
     private Account account;
@@ -66,6 +63,9 @@ public class CameraUploadService extends Service {
     @Override
     public void onCreate() {
         Log.d(DEBUG_TAG, "onCreate");
+        
+        settingsManager = SettingsManager.instance();
+        
         // bind transfer service
         Intent bIntent = new Intent(this, TransferService.class);
         bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
@@ -111,7 +111,7 @@ public class CameraUploadService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(DEBUG_TAG, "onStartCommand");
 
-        initializeCameraUploadPreference();
+        initParams();
         if (repoId != null && accountEmail != null) {
             isCameraUpload = true;
             account = new Account(accountServer, accountEmail, null, accountToken);
@@ -125,13 +125,12 @@ public class CameraUploadService extends Service {
         return START_STICKY;
     }
 
-    private void initializeCameraUploadPreference() {
-        SharedPreferences sharedPref = getSharedPreferences(AccountsActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
-        repoId = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_REPO_ID, null);
-        repoName = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_REPO_NAME, null);
-        accountEmail = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL, null);
-        accountServer = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER, null);
-        accountToken = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN, null);
+    private void initParams() {
+        repoId = settingsManager.getRepoId();
+        repoName = settingsManager.getRepoName();
+        accountEmail = settingsManager.getAccountEmail();
+        accountServer = settingsManager.getAccountServer();
+        accountToken = settingsManager.getAccountToken();
     }
 
     ServiceConnection mConnection = new ServiceConnection() {
@@ -203,13 +202,11 @@ public class CameraUploadService extends Service {
     }
 
     private boolean checkNetworkStatus() {
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        isAllowMobileConnections = settings.getBoolean(SettingsManager.ALLOW_MOBILE_CONNECTIONS_SWITCH_KEY, false);
         if (!Utils.isNetworkOn()) {
             return false;
         }
         // user does not allow mobile connections
-        if (!Utils.isWiFiOn() && !isAllowMobileConnections) {
+        if (!Utils.isWiFiOn() && !settingsManager.isAllowMobileConnections()) {
             return false;
         }
         // Wi-Fi or 2G/3G/4G connections available

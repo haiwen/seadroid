@@ -32,7 +32,8 @@ public class SettingsPreferenceFragment
     implements OnPreferenceChangeListener, OnPreferenceClickListener {
 
     private static final String DEBUG_TAG = "SettingsPreferenceFragment";
-
+    
+    public static final String EXTRA_CAMERA_UPLOAD = "com.seafile.seadroid2.camera.upload";
     private CheckBoxPreference gestureLockSwitch;
     private CheckBoxPreference cameraUploadSwitch;
     private CheckBoxPreference allowMobileConnections;
@@ -146,7 +147,7 @@ public class SettingsPreferenceFragment
         } else if (preference.getKey().equals(SettingsManager.CAMERA_UPLOAD_REPO_KEY)) {
             // Pop-up window to let user choose remote library
             Intent intent = new Intent(mActivity, SeafilePathChooserActivity.class);
-            intent.putExtra(SettingsManager.EXTRA_CAMERA_UPLOAD, true);
+            intent.putExtra(EXTRA_CAMERA_UPLOAD, true);
             this.startActivityForResult(intent, SettingsManager.CHOOSE_CAMERA_UPLOAD_REPO_REQUEST);
         } else if(preference.getKey().equals(SettingsManager.SETTINGS_ABOUT_VERSION_KEY)) {
             SeafileStyleDialogBuilder builder = new SeafileStyleDialogBuilder(mActivity);
@@ -239,7 +240,7 @@ public class SettingsPreferenceFragment
             } else {
                 // Pop-up window to let user choose remote library
                 Intent intent = new Intent(mActivity, SeafilePathChooserActivity.class);
-                intent.putExtra(SettingsManager.EXTRA_CAMERA_UPLOAD, true);
+                intent.putExtra(EXTRA_CAMERA_UPLOAD, true);
                 this.startActivityForResult(intent, SettingsManager.CHOOSE_CAMERA_UPLOAD_REPO_REQUEST);
                 return;
             }

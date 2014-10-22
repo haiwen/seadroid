@@ -117,7 +117,7 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
         mListContainer = findViewById(R.id.listContainer);
         mProgressContainer = findViewById(R.id.progressContainer);
         mContentArea = findViewById(R.id.content);
-        isOnlyChooseRepo = intent.getBooleanExtra(SettingsManager.EXTRA_CAMERA_UPLOAD, false);
+        isOnlyChooseRepo = intent.getBooleanExtra(SettingsPreferenceFragment.EXTRA_CAMERA_UPLOAD, false);
         if (isOnlyChooseRepo) {
             mOkButton.setVisibility(View.GONE);
             mTransparentSpace.setVisibility(View.GONE);

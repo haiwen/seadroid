@@ -1,14 +1,10 @@
 package com.seafile.seadroid2;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
+import com.seafile.seadroid2.R.string;
 import com.seafile.seadroid2.account.Account;
 
 /**
@@ -24,22 +20,19 @@ public final class SettingsManager {
     
     private SharedPreferences.Editor editor = sharedPref.edit();
     private static SettingsManager instance;
+    private SettingsManager() {}
     
     private SharedPreferences settingsSharedPref = PreferenceManager
             .getDefaultSharedPreferences(SeadroidApplication.getAppContext());
 
     // Gesture Lock
     public static final String GESTURE_LOCK_SWITCH_KEY = "gesture_lock_switch_key";
-    public static final String LOCK_KEY = "gesture_lock_key";
-    public static final String NEED_INPUT_GESTURE = "gesture_need_input";
+    public static final String GESTURE_LOCK_TIMESTAMP = "getsture_lock_timestamp";
+    public static final String GESTURE_LOCK_KEY = "gesture_lock_key";
     public static final int GESTURE_LOCK_REQUEST = 1;
-    private Timer timer;
-    final Handler handler = new Handler();
-    private GestureTimerTask task;
     
     // Camera upload
     public static final String PKG = "com.seafile.seadroid2";
-    public static final String EXTRA_CAMERA_UPLOAD = PKG + ".camera.upload";
     public static final String SHARED_PREF_CAMERA_UPLOAD_REPO_ID = PKG + ".camera.repoid";
     public static final String SHARED_PREF_CAMERA_UPLOAD_REPO_NAME = PKG + ".camera.repoName";
     public static final String SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL = PKG + ".camera.account.email";
@@ -70,13 +63,13 @@ public final class SettingsManager {
     }
     
     public void setGestureLockPattern(String pattern) {
-        sharedPref.edit().putString(LOCK_KEY, pattern).commit();
-        unlockGestureLock();
-        startGestureLockTimer();
+        editor.putString(GESTURE_LOCK_KEY, pattern);
+        editor.commit();
+        saveGestureLockTimeStamp();
     }
 
     public String getGestureLockPattern() {
-        return sharedPref.getString(LOCK_KEY, null);
+        return sharedPref.getString(GESTURE_LOCK_KEY, null);
     }
     
     public boolean isGestureLockLocked() {
@@ -87,53 +80,22 @@ public final class SettingsManager {
                 || getGestureLockPattern().equals("")) {
             return false;
         }
-        if (!sharedPref.getBoolean(NEED_INPUT_GESTURE, false)) {
+        
+        // IMPORTANT NOTE
+        // please use seconds to calculate expiration time period, like 5 mins = 60 * 5
+        // expiration time is less than or equals 5 mins here
+        if ((System.currentTimeMillis()/1000 - sharedPref.getLong(GESTURE_LOCK_TIMESTAMP, 0)) <= 60 * 5 ) {
             return false;
         }
 
         return true;
     }
     
-    public void unlockGestureLock() {
-        editor.putBoolean(NEED_INPUT_GESTURE, false);
+    public void saveGestureLockTimeStamp() {
+        Long tsLong = System.currentTimeMillis()/1000;
+        editor.putLong(GESTURE_LOCK_TIMESTAMP, tsLong);
         editor.commit();
     }
-    
-    private void lockGestureLock() {
-        Log.d(DEBGUG_TAG, "time is up, Locked!");
-        editor.putBoolean(NEED_INPUT_GESTURE, true);
-        editor.commit();
-    }
-    
-    public void startGestureLockTimer() {
-        if (task == null) {
-            timer = new Timer();
-            task = new GestureTimerTask();
-            unlockGestureLock();
-            timer.schedule(task, 1000 * 60 * 5); // last for 5 mins
-            Log.d(DEBGUG_TAG, "timer starts");
-        } else {
-            Log.d(DEBGUG_TAG, "timer cancelled");
-            task.cancel();
-            task = null;
-            timer.cancel();
-            timer = null;
-            startGestureLockTimer();
-        }
-    }
-	
-    private class GestureTimerTask extends TimerTask {
-
-        @Override
-        public void run() {
-            handler.post(new Runnable() {
-                public void run() {
-                    lockGestureLock();
-                }
-            });
-        }
-
-    } 
 	
     public void saveCameraUploadRepoName(String repoName) {
         editor.putString(SHARED_PREF_CAMERA_UPLOAD_SETTINGS_REPONAME, repoName);
@@ -160,6 +122,31 @@ public final class SettingsManager {
 
     public boolean isUploadStart() {
         return settingsSharedPref.getBoolean(CAMERA_UPLOAD_SWITCH_KEY, false);
+    }
+    
+    public boolean isAllowMobileConnections() {
+        return settingsSharedPref.getBoolean(ALLOW_MOBILE_CONNECTIONS_SWITCH_KEY, false);
+    }
+    
+    public String getRepoId() {
+        return sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_REPO_ID, null);
+    }
+    
+    public String getRepoName() {
+        return sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_REPO_NAME, null);
+    }
+    
+    public String getAccountEmail () {
+        return sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL, null);
+        
+    }
+    
+    public String getAccountServer() {
+        return sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER, null);
+    }
+    
+    public String getAccountToken() {
+        return sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN, null);
     }
 
 }
