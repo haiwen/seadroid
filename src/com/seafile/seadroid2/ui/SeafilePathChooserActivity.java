@@ -158,7 +158,7 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        if (SettingsManager.instance().isGestureLockLocked()) {
+        if (SettingsManager.instance().isGestureLockRequired()) {
             Intent newIntent = new Intent(this, GestureLockActivity.class);
             startActivity(newIntent);
         }

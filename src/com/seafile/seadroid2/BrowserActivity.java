@@ -351,7 +351,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         Log.d(DEBUG_TAG, "onStart");
         super.onStart();
 
-        if (SettingsManager.instance().isGestureLockLocked()) {
+        if (SettingsManager.instance().isGestureLockRequired()) {
             Intent intent = new Intent(this, GestureLockActivity.class);
             startActivity(intent);
         }

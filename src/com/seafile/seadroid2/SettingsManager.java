@@ -71,7 +71,7 @@ public final class SettingsManager {
 		return sharedPref.getString(GESTURE_LOCK_KEY, null);
 	}
 
-	public boolean isGestureLockLocked() {
+	public boolean isGestureLockRequired() {
 		if (!isGestureLockEnabled()) {
 			return false;
 		}
