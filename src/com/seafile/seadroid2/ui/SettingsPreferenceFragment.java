@@ -40,7 +40,6 @@ public class SettingsPreferenceFragment
     private Preference cameraUploadRepo;
     private Preference versionName;
     private boolean setupSuccess;
-    private boolean isGestureLockOn;
     private SettingsActivity mActivity;
     private Intent cameraUploadIntent;
     private boolean isUploadStart;
@@ -120,14 +119,14 @@ public class SettingsPreferenceFragment
     @Override
     public boolean onPreferenceClick(Preference preference) {
         if (preference.getKey().equals(SettingsManager.GESTURE_LOCK_SWITCH_KEY)) {
-            isGestureLockOn = settingsMgr.isGestureLockEnabled();
 
-            if (isGestureLockOn == false) {
+            if (!settingsMgr.isGestureLockEnabled()) {
                 Intent newIntent = new Intent(getActivity(), GestureLockSetupActivity.class);
                 newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivityForResult(newIntent, SettingsManager.GESTURE_LOCK_REQUEST);
 
             } else {
+                settingsMgr.clearGestureLock();
                 gestureLockSwitch.setChecked(false);
             }
         } else if (preference.getKey().equals(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY)) {
