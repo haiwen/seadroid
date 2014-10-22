@@ -3,7 +3,6 @@ package com.seafile.seadroid2;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import android.R.bool;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
@@ -50,7 +49,7 @@ public final class SettingsManager {
 
     private SharedPreferences settingsSharedPref = PreferenceManager
     		.getDefaultSharedPreferences(SeadroidApplication.getAppContext());
-    private SharedPreferences.Editor settingsEditor = settingsSharedPref.edit();
+    // private SharedPreferences.Editor settingsEditor = settingsSharedPref.edit();
     
     public static synchronized SettingsManager instance() {
         if (instance == null) {
@@ -67,6 +66,7 @@ public final class SettingsManager {
     
     public void setGestureLockPattern(String pattern) {
     	sharedPref.edit().putString(LOCK_KEY, pattern).commit();
+    	unlockGestureLock();
     	startGestureLockTimer();
 	}
 
@@ -74,7 +74,7 @@ public final class SettingsManager {
     	return sharedPref.getString(LOCK_KEY, null);
     }
     
-    public boolean needInputGesturePattern() {
+    public boolean isGestureLockLocked() {
     	if (!isGestureLockEnabled()) {
 			return false;
 		}
@@ -88,33 +88,50 @@ public final class SettingsManager {
     	return true;
 	}
     
-    /*public void unlockGesturePatternLock() {
+    public void unlockGestureLock() {
     	editor.putBoolean(NEED_INPUT_GESTURE, false);
-    }*/
+    	editor.commit();
+    }
     
-    private void markGestureLockPatternExpired() {
-    	Log.d(DEBGUG_TAG, "expired");
+    private void lockGestureLock() {
+    	Log.d(DEBGUG_TAG, "time is up, Locked!");
     	editor.putBoolean(NEED_INPUT_GESTURE, true);
     	editor.commit();
     }
     
     private static final String DEBGUG_TAG = SettingsManager.class.getName();
+    private Timer timer;
+    final Handler handler = new Handler();
+    private GestureTimerTask task;
 	public void startGestureLockTimer() {
-		Log.d(DEBGUG_TAG, "timer starts");
-		TimerTask expireTask;
-		final Handler handler = new Handler();
-		Timer t = new Timer();
-		expireTask = new TimerTask() {
-			public void run() {
-				handler.post(new Runnable() {
-					public void run() {
-						markGestureLockPatternExpired();
-					}
-				});
-			}
-		};
-		t.schedule(expireTask, 30000);
+		if (task == null) {
+			timer = new Timer();
+			task = new GestureTimerTask();
+			unlockGestureLock();
+			timer.schedule(task, 1000 * 60 * 5); // last for 5 mins
+			Log.d(DEBGUG_TAG, "timer starts");
+		} else {
+			Log.d(DEBGUG_TAG, "timer cancelled");
+			task.cancel();
+			task = null;
+			timer.cancel();
+			timer = null;
+			startGestureLockTimer();
+		}
 	}
+	
+	private class GestureTimerTask extends TimerTask {
+
+		@Override
+		public void run() {
+			handler.post(new Runnable() {
+				public void run() {
+					lockGestureLock();
+				}
+			});
+		}
+		
+	} 
 	
     public void saveCameraUploadRepoName(String repoName) {
         editor.putString(SHARED_PREF_CAMERA_UPLOAD_SETTINGS_REPONAME, repoName);

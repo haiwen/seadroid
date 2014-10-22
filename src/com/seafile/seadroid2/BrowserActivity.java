@@ -171,7 +171,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         super.onCreate(savedInstanceState);
 
         settingsMgr = SettingsManager.instance();
-        if (settingsMgr.needInputGesturePattern()) {
+        if (settingsMgr.isGestureLockLocked()) {
             Intent intent = new Intent(this, GestureLockActivity.class);
             startActivity(intent);
         }
