@@ -20,6 +20,7 @@ import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.ui.SeafilePathChooserActivity;
 import com.seafile.seadroid2.util.Utils;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class ShareToSeafileActivity extends SherlockFragmentActivity {
@@ -41,17 +42,17 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
         if (extras != null) {
             Object extraStream = extras.get(Intent.EXTRA_STREAM);
 
-            if(extraStream instanceof ArrayList){
+            if (extraStream instanceof ArrayList) {
                 for (Uri uri : (ArrayList<Uri>)extraStream) {
                     if(localPath == null) localPath = new ArrayList<String>();
                     localPath.add(getSharedFilePath(uri));
                 }
-            }
-            else if(extraStream instanceof Uri){
+            } else if (extraStream instanceof Uri) {
                 if(localPath == null) localPath = new ArrayList<String>();
                 localPath.add(getSharedFilePath((Uri)extraStream));
             }
         }
+        
         if (localPath == null || localPath.size() == 0) {
             showToast(R.string.not_supported_share);
             finish();
