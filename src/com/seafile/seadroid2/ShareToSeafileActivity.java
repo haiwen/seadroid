@@ -41,13 +41,12 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
         if (extras != null) {
             Object extraStream = extras.get(Intent.EXTRA_STREAM);
 
+            if(localPath == null) localPath = new ArrayList<String>();
             if (extraStream instanceof ArrayList) {
                 for (Uri uri : (ArrayList<Uri>)extraStream) {
-                    if(localPath == null) localPath = new ArrayList<String>();
                     localPath.add(getSharedFilePath(uri));
                 }
             } else if (extraStream instanceof Uri) {
-                if(localPath == null) localPath = new ArrayList<String>();
                 localPath.add(getSharedFilePath((Uri)extraStream));
             }
         }
