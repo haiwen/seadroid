@@ -15,29 +15,8 @@ import com.seafile.seadroid2.SeadroidApplication;
 public class AvatarDBHelper extends SQLiteOpenHelper {
     private static final String DEBUG_TAG = "AvatarDbHelper";
 
-    // If you change the database schema, you must increment the database version.
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "avatar.db";
-    
-    // Use only single dbHelper to prevent multi-thread issue and db is closed exception
-    // Reference
-    // http://stackoverflow.com/questions/2493331/what-are-the-best-practices-for-sqlite-on-android
-    private static AvatarDBHelper dbHelper = null;
-    private SQLiteDatabase database = null;
-
-    public static synchronized AvatarDBHelper getAvatarDbHelper() {
-        if (dbHelper != null)
-            return dbHelper;
-        dbHelper = new AvatarDBHelper(SeadroidApplication.getAppContext());
-        dbHelper.database = dbHelper.getWritableDatabase();
-        return dbHelper;
-    }
-
-    private AvatarDBHelper(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
-    }
-
-    // Avatar table
     private static final String AVATAR_TABLE_NAME = "Avatar";
     
     private static final String AVATAR_COLUMN_ID = "id";
@@ -62,8 +41,25 @@ public class AvatarDBHelper extends SQLiteOpenHelper {
             AVATAR_COLUMN_IS_DEFAULT
             };
     
+    private static AvatarDBHelper dbHelper = null;
+    private SQLiteDatabase database = null;
+
+    public static synchronized AvatarDBHelper getAvatarDbHelper() {
+        if (dbHelper != null)
+            return dbHelper;
+        dbHelper = new AvatarDBHelper(SeadroidApplication.getAppContext());
+        dbHelper.database = dbHelper.getWritableDatabase();
+        return dbHelper;
+    }
+
+    private AvatarDBHelper(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+    
+    private int queryIndex;
     public List<Avatar> getAvatarList() {
-        
+        Log.d(DEBUG_TAG, "query database: " + queryIndex);
+        queryIndex++;
         Cursor cursor = database.query(
         AVATAR_TABLE_NAME,
         projection,
@@ -74,11 +70,6 @@ public class AvatarDBHelper extends SQLiteOpenHelper {
         null    // The sort order
         );
 
-        /*if (!c.moveToFirst()) {
-            c.close();
-            return null;
-        }
-        */
         List<Avatar> avatars = new ArrayList<Avatar>();
         cursor.moveToFirst();
         if (!cursor.isAfterLast()) {
@@ -91,27 +82,22 @@ public class AvatarDBHelper extends SQLiteOpenHelper {
                 avatars.add(avatar);
             } while (cursor.moveToNext());
         }
-        /*while (cursor.moveToNext()) {
-            
-        }*/
         cursor.close();
         return avatars;
     }
 
-    public void saveAvatars(List<Avatar> avatars) {
+    public void saveAvatars(Avatar avatar) {
         Log.d(DEBUG_TAG, "saveAvatar to db");
-        for (Avatar avatar : avatars) {
-            // Create a new map of values, where column names are the keys
-            ContentValues values = new ContentValues();
-            values.put(AVATAR_COLUMN_SIGNATURE, avatar.getSignature());
-            values.put(AVATAR_COLUMN_URL, avatar.getUrl());
-            values.put(AVATAR_COLUMN_MTIME, avatar.getMtime());
-            values.put(AVATAR_COLUMN_IS_DEFAULT, (avatar.isIs_default() ? 1 : 0));
-            // Insert the new row, returning the primary key value of the new
-            // row
-            Long rlt = database.insert(AVATAR_TABLE_NAME, null, values);
-            Log.d(DEBUG_TAG, "insert: " + rlt);
-        }
+        // Create a new map of values, where column names are the keys
+        ContentValues values = new ContentValues();
+        values.put(AVATAR_COLUMN_SIGNATURE, avatar.getSignature());
+        values.put(AVATAR_COLUMN_URL, avatar.getUrl());
+        values.put(AVATAR_COLUMN_MTIME, avatar.getMtime());
+        values.put(AVATAR_COLUMN_IS_DEFAULT, (avatar.isIs_default() ? 1 : 0));
+        // Insert the new row, returning the primary key value of the new
+        // row
+        Long rlt = database.insert(AVATAR_TABLE_NAME, null, values);
+        Log.d(DEBUG_TAG, "insert: " + rlt);
     }
     
     @Override

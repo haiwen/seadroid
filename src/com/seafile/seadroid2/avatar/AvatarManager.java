@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.json.JSONObject;
 
-import android.util.Log;
-
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
@@ -54,6 +52,7 @@ public class AvatarManager {
                 Avatar avatar = parseAvatar(avatarRawData);
                 avatar.setSignature(account.getSignature());
                 avatars.add(avatar);
+                saveAvatarList(avatar);
             }
         } else { // load avatars for new added account   
             for (Account account : accountsWithoutAvatars) {
@@ -63,18 +62,17 @@ public class AvatarManager {
                 Avatar avatar = parseAvatar(avatarRawData);
                 avatar.setSignature(account.getSignature());
                 avatars.add(avatar);
+                saveAvatarList(avatar);
             }
         }
-        
-        saveAvatarList(avatars);
     }
     
     private List<Avatar> getAvatarList() {
         return dbHelper.getAvatarList();
     }
 
-    private void saveAvatarList(List<Avatar> avatars) {
-        dbHelper.saveAvatars(avatars);
+    private void saveAvatarList(Avatar avatar) {
+        dbHelper.saveAvatars(avatar);
     }
     
     private Avatar parseAvatar(String json) {
@@ -89,14 +87,9 @@ public class AvatarManager {
     }
 
     public static String getAvatarUrl(Account account) {
-        Log.d(DEBUG_TAG, "getAvatar url");
         if (avatars == null) {
             return null;
         }
-        /*if (!avatars.contains(account)) {
-            return null;
-        }*/
-        // Log.d(DEBUG_TAG, "avatar url " + avatars.get(avatars.indexOf(account)).getUrl());
         for (Avatar avatar : avatars) {
             if (avatar.getSignature().equals(account.getSignature())) {
                 return avatar.getUrl();
