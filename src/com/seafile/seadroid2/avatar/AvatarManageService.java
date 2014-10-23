@@ -13,7 +13,7 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 
 /**
- *  manage loading, caching, updating Avatar operations from background   
+ *  start avatar manager from background   
  *
  */
 public class AvatarManageService extends Service {
