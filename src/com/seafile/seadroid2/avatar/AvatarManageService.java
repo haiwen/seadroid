@@ -37,7 +37,6 @@ public class AvatarManageService extends Service {
         Log.d(DEBUG_TAG, "onStartCommand");
         accountManager = new AccountManager(getApplicationContext());
         accounts = (ArrayList<Account>) accountManager.getAccountList();
-        // ConcurrentAsyncTask.execute(new AvatarLoadTask(accounts));
         ConcurrentAsyncTask.execute(new Runnable() {
             @Override
             public void run() {
@@ -51,18 +50,6 @@ public class AvatarManageService extends Service {
         });
         return START_STICKY;
     }
-    
-    /*private class AvatarLoadTask extends AsyncTask<Void, Void, Void>{
-        public AvatarLoadTask(List<Account> accounts) {
-            
-        }
-        @Override
-        protected Void doInBackground(Void... params) {
-            
-            return null;
-        }
-        
-    }*/
     
     @Override
     public IBinder onBind(Intent intent) {
