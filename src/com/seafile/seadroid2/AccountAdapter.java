@@ -21,7 +21,7 @@ import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.data.AvatarManager;
+import com.seafile.seadroid2.avatar.AvatarManager;
 
 /**
  * Adapter for showing account in a list view.
@@ -118,8 +118,6 @@ public class AccountAdapter extends BaseAdapter {
         viewHolder.subtitle.setText(item.getEmail());
         if (AvatarManager.getAvatarUrl(item) != null) {
             ImageLoader.getInstance().displayImage(AvatarManager.getAvatarUrl(item), viewHolder.icon, options, animateFirstListener);
-        } else {
-            // off-line
         }
         // ImageLoader.getInstance().handleSlowNetwork(true);
         

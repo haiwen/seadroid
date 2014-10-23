@@ -118,7 +118,7 @@
         <service android:name="com.seafile.seadroid2.transfer.TransferService" > </service>
         <service android:name="com.seafile.seadroid2.monitor.FileMonitorService" > </service>
         <service android:name="com.seafile.seadroid2.sync.CameraUploadService" > </service>
-        <service android:name="com.seafile.seadroid2.data.AvatarManageService" > </service>
+        <service android:name="com.seafile.seadroid2.avatar.AvatarManageService" > </service>
         
       </application>
 </manifest>
