@@ -1,11 +1,9 @@
 package com.seafile.seadroid2.avatar;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import android.app.Service;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -21,7 +19,6 @@ import com.seafile.seadroid2.account.AccountManager;
 public class AvatarManageService extends Service {
     private static final String DEBUG_TAG = "AvatarManageService";
 
-    private AvatarManager avatarManager;
     private ArrayList<Account> accounts;
     private AccountManager accountManager;
     
@@ -44,7 +41,7 @@ public class AvatarManageService extends Service {
         ConcurrentAsyncTask.execute(new Runnable() {
             @Override
             public void run() {
-                avatarManager = new AvatarManager(accounts);
+                AvatarManager avatarManager = new AvatarManager(accounts);
                 try {
                     avatarManager.getAvatars(48);
                 } catch (SeafException e) {

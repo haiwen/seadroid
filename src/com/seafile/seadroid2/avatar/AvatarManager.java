@@ -43,18 +43,30 @@ public class AvatarManager {
             throw SeafException.networkException;
         }
         
-        if (accountsWithoutAvatars.size() == 0) {
+        // already loaded avatars
+        if (avatars.size() == accounts.size()) {
             return;
+        } else if (avatars.isEmpty()) { // initialization
+            for (Account account : accounts) {
+                httpConnection = new SeafConnection(account);
+                String avatarRawData = httpConnection.getAvatar(
+                        account.getEmail(), size);
+                Avatar avatar = parseAvatar(avatarRawData);
+                avatar.setSignature(account.getSignature());
+                avatars.add(avatar);
+            }
+        } else { // load avatars for new added account   
+            for (Account account : accountsWithoutAvatars) {
+                httpConnection = new SeafConnection(account);
+                String avatarRawData = httpConnection.getAvatar(
+                        account.getEmail(), size);
+                Avatar avatar = parseAvatar(avatarRawData);
+                avatar.setSignature(account.getSignature());
+                avatars.add(avatar);
+            }
         }
         
-        for (Account account : accountsWithoutAvatars) {
-            httpConnection = new SeafConnection(account);
-            String avatarRawData = httpConnection.getAvatar(account.getEmail(), size);
-            Avatar avatar = parseAvatar(avatarRawData);
-            avatar.setSignature(account.getSignature());
-            avatars.add(avatar);
-            saveAvatarList(avatars);
-        }
+        saveAvatarList(avatars);
     }
     
     private List<Avatar> getAvatarList() {
