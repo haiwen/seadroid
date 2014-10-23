@@ -44,7 +44,7 @@ import com.actionbarsherlock.view.Window;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
-import com.seafile.seadroid2.data.AvatarManageService;
+import com.seafile.seadroid2.avatar.AvatarManageService;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;

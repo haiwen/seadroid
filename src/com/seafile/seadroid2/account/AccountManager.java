@@ -9,7 +9,7 @@ public class AccountManager {
     @SuppressWarnings("unused")
     private static String DEBUG_TAG = "AccountManager";
 
-    private final AccountDbHelper dbHelper = AccountDbHelper.getDatabaseHelper();
+    private final AccountDBHelper dbHelper = AccountDBHelper.getDatabaseHelper();
     private Context context;
 
     public AccountManager(Context context) {

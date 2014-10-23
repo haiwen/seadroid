@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.data;
+package com.seafile.seadroid2.avatar;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -9,7 +9,8 @@ import android.util.Log;
 
 public class Avatar {
     private static final String DEBUG_TAG = "Avatar";
-
+    
+    private String signature; // Account Signature
     private String url;
     private long mtime;
     private boolean is_default;
@@ -56,12 +57,22 @@ public class Avatar {
     public void setIs_default(boolean is_default) {
         this.is_default = is_default;
     }
+    
+    public String getSignature() {
+        return signature;
+    }
 
+    public void setSignature(String signature) {
+        this.signature = signature;
+    }
+    
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
+                .add("signature", signature)
                 .add("url", url)
                 .add("mtime", mtime)
-                .add("is_default", is_default).toString();
+                .add("is_default", is_default)
+                .toString();
     }
 }

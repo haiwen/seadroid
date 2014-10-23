@@ -1,9 +1,7 @@
-package com.seafile.seadroid2.data;
+package com.seafile.seadroid2.avatar;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import android.app.Service;
 import android.content.Intent;
@@ -42,25 +40,32 @@ public class AvatarManageService extends Service {
         Log.d(DEBUG_TAG, "onStartCommand");
         accountManager = new AccountManager(getApplicationContext());
         accounts = (ArrayList<Account>) accountManager.getAccountList();
-        ConcurrentAsyncTask.execute(new AvatarLoadTask(accounts));
+        // ConcurrentAsyncTask.execute(new AvatarLoadTask(accounts));
+        ConcurrentAsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                avatarManager = new AvatarManager(accounts);
+                try {
+                    avatarManager.getAvatars(48);
+                } catch (SeafException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
         return START_STICKY;
     }
     
-    private class AvatarLoadTask extends AsyncTask<Void, Void, Void>{
+    /*private class AvatarLoadTask extends AsyncTask<Void, Void, Void>{
         public AvatarLoadTask(List<Account> accounts) {
-            avatarManager = new AvatarManager(accounts);
+            
         }
         @Override
         protected Void doInBackground(Void... params) {
-            try {
-                avatarManager.getAvatars(48);
-            } catch (SeafException e) {
-                e.printStackTrace();
-            }
+            
             return null;
         }
         
-    }
+    }*/
     
     @Override
     public IBinder onBind(Intent intent) {
