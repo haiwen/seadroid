@@ -29,6 +29,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.monitor.FileMonitorService;
+import com.seafile.seadroid2.sync.CameraUploadService;
 import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 
 
@@ -228,6 +229,11 @@ public class AccountsActivity extends SherlockFragmentActivity {
         case R.id.delete:
             account = adapter.getItem((int)info.id);
             accountManager.deleteAccount(account);
+            // stop camera upload service
+            if (SettingsManager.instance().getCameraUploadAccountEmail().equals(account.getEmail())) {
+                Intent cameraUploadIntent = new Intent(this, CameraUploadService.class);
+                stopService(cameraUploadIntent);
+            }
             if (mMonitorService != null) {
                 mMonitorService.removeAccount(account);
             }
