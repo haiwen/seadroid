@@ -8,12 +8,11 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 import com.seafile.seadroid2.SeadroidApplication;
 
 public class AvatarDBHelper extends SQLiteOpenHelper {
-    private static final String DEBUG_TAG = "AvatarDbHelper";
+    private static final String DEBUG_TAG = "AvatarDBHelper";
 
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "avatar.db";
@@ -43,7 +42,7 @@ public class AvatarDBHelper extends SQLiteOpenHelper {
     
     private static AvatarDBHelper dbHelper = null;
     private SQLiteDatabase database = null;
-
+    
     public static synchronized AvatarDBHelper getAvatarDbHelper() {
         if (dbHelper != null)
             return dbHelper;
@@ -56,10 +55,7 @@ public class AvatarDBHelper extends SQLiteOpenHelper {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
     
-    private int queryIndex;
     public List<Avatar> getAvatarList() {
-        Log.d(DEBUG_TAG, "query database: " + queryIndex);
-        queryIndex++;
         Cursor cursor = database.query(
         AVATAR_TABLE_NAME,
         projection,
@@ -72,32 +68,51 @@ public class AvatarDBHelper extends SQLiteOpenHelper {
 
         List<Avatar> avatars = new ArrayList<Avatar>();
         cursor.moveToFirst();
-        if (!cursor.isAfterLast()) {
-            do {
-                Avatar avatar = new Avatar();
-                avatar.setSignature(cursor.getString(0));
-                avatar.setUrl(cursor.getString(1));
-                avatar.setMtime(cursor.getInt(2));
-                avatar.setIs_default(cursor.getInt(3) == 1);
-                avatars.add(avatar);
-            } while (cursor.moveToNext());
+        while (cursor.moveToNext()) {
+            Avatar avatar = new Avatar();
+            avatar.setSignature(cursor.getString(0));
+            avatar.setUrl(cursor.getString(1));
+            avatar.setMtime(cursor.getInt(2));
+            avatar.setIs_default(cursor.getInt(3) == 1);
+            avatars.add(avatar);
         }
         cursor.close();
         return avatars;
     }
 
-    public void saveAvatars(Avatar avatar) {
-        Log.d(DEBUG_TAG, "saveAvatar to db");
-        // Create a new map of values, where column names are the keys
-        ContentValues values = new ContentValues();
-        values.put(AVATAR_COLUMN_SIGNATURE, avatar.getSignature());
-        values.put(AVATAR_COLUMN_URL, avatar.getUrl());
-        values.put(AVATAR_COLUMN_MTIME, avatar.getMtime());
-        values.put(AVATAR_COLUMN_IS_DEFAULT, (avatar.isIs_default() ? 1 : 0));
-        // Insert the new row, returning the primary key value of the new
-        // row
-        Long rlt = database.insert(AVATAR_TABLE_NAME, null, values);
-        Log.d(DEBUG_TAG, "insert: " + rlt);
+    public void saveAvatars(List<Avatar> avatars) {
+        for (Avatar avatar : avatars) {
+            if (!isAvatarExist(avatar)) {
+                ContentValues values = new ContentValues();
+                values.put(AVATAR_COLUMN_SIGNATURE, avatar.getSignature());
+                values.put(AVATAR_COLUMN_URL, avatar.getUrl());
+                values.put(AVATAR_COLUMN_MTIME, avatar.getMtime());
+                values.put(AVATAR_COLUMN_IS_DEFAULT, (avatar.isIs_default() ? 1 : 0));
+                database.insert(AVATAR_TABLE_NAME, null, values);
+            }
+        }
+    }
+    
+    // detect duplicate db insert request
+    private boolean isAvatarExist(Avatar avatar) {
+        Cursor cursor = database.query(
+                AVATAR_TABLE_NAME,
+                projection,
+                AVATAR_COLUMN_SIGNATURE
+                + "=? and " + AVATAR_COLUMN_URL + "=?",
+                new String[] { avatar.getSignature(), avatar.getUrl()},
+                null,   // don't group the rows
+                null,   // don't filter by row groups
+                null    // The sort order
+                );
+        cursor.moveToFirst();
+        if (cursor.moveToNext()) {
+            cursor.close();
+            return true;   
+        }
+        cursor.close();
+        return false;
+        
     }
     
     @Override

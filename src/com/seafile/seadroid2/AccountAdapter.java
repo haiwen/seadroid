@@ -119,7 +119,7 @@ public class AccountAdapter extends BaseAdapter {
         if (AvatarManager.getAvatarUrl(item) != null) {
             ImageLoader.getInstance().displayImage(AvatarManager.getAvatarUrl(item), viewHolder.icon, options, animateFirstListener);
         }
-        // ImageLoader.getInstance().handleSlowNetwork(true);
+        ImageLoader.getInstance().handleSlowNetwork(true);
         
         return view;
     }
