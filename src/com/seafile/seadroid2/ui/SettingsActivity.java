@@ -1,19 +1,19 @@
 package com.seafile.seadroid2.ui;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.os.Bundle;
-import android.util.Log;
+import java.util.List;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.MenuItem;
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.os.Build;
+import android.os.Bundle;
+import android.preference.PreferenceActivity;
+
 import com.seafile.seadroid2.R;
 
-public class SettingsActivity extends SherlockFragmentActivity {
+public class SettingsActivity extends PreferenceActivity {
     private static final String DEBUG_TAG = "SettingsActivity";
 
-    public void onCreate(Bundle savedInstanceState) {
+    /*public void onCreate(Bundle savedInstanceState) {
         Log.d(DEBUG_TAG, "SettingsActivity.onCreate is called");
         super.onCreate(savedInstanceState);
         
@@ -26,9 +26,30 @@ public class SettingsActivity extends SherlockFragmentActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         
-    }
+    }*/
     
     @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            // Load the legacy preferences headers
+            addPreferencesFromResource(R.xml.preference_headers_legacy);
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    @Override
+    public void onBuildHeaders(List<Header> target) {
+        loadHeadersFromResource(R.xml.preference_headers, target);
+    }
+    
+    @SuppressLint("Override")
+    protected boolean isValidFragment(String fragmentName) {
+        return SettingsPreferenceFragment.class.getName().equals(fragmentName);
+
+    }
+    
+   /* @Override
     public boolean onOptionsItemSelected(MenuItem item) {
          switch (item.getItemId()) {
             case android.R.id.home:
@@ -36,7 +57,7 @@ public class SettingsActivity extends SherlockFragmentActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
+    }*/
 
     
 }
