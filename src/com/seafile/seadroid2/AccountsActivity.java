@@ -230,8 +230,13 @@ public class AccountsActivity extends SherlockFragmentActivity {
             account = adapter.getItem((int)info.id);
             accountManager.deleteAccount(account);
             // stop camera upload service
-            if (SettingsManager.instance().getCameraUploadAccountEmail().equals(account.getEmail())) {
-                Intent cameraUploadIntent = new Intent(this, CameraUploadService.class);
+            if (SettingsManager.instance().getCameraUploadAccountEmail()
+                    .equals(account.getEmail())
+                    && SettingsManager.instance()
+                            .getCameraUploadAccountServer()
+                            .equals(account.getServer())) {
+                Intent cameraUploadIntent = new Intent(this,
+                        CameraUploadService.class);
                 stopService(cameraUploadIntent);
             }
             if (mMonitorService != null) {
