@@ -1,8 +1,8 @@
 package com.seafile.seadroid2.ui;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -18,7 +18,7 @@ public class SettingsActivity extends SherlockFragmentActivity {
         super.onCreate(savedInstanceState);
         
         setContentView(R.layout.settings_activity_layout);
-        FragmentManager fragmentManager = getFragmentManager();
+        FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.settings_fragment_container, new SettingsPreferenceFragment());
         fragmentTransaction.commit();
@@ -27,6 +27,27 @@ public class SettingsActivity extends SherlockFragmentActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
         
     }
+    /*
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            // Load the legacy preferences headers
+            addPreferencesFromResource(R.xml.preference_headers_legacy);
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    @Override
+    public void onBuildHeaders(List<Header> target) {
+        loadHeadersFromResource(R.xml.preference_headers, target);
+    }
+    
+    @SuppressLint("Override")
+    protected boolean isValidFragment(String fragmentName) {
+        return SettingsPreferenceFragment.class.getName().equals(fragmentName);
+
+    }*/
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
