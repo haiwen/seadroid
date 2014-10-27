@@ -1,24 +1,24 @@
 package com.seafile.seadroid2.ui;
 
-import java.util.List;
-
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.R;
 
-public class SettingsActivity extends PreferenceActivity {
+public class SettingsActivity extends SherlockFragmentActivity {
     private static final String DEBUG_TAG = "SettingsActivity";
 
-    /*public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         Log.d(DEBUG_TAG, "SettingsActivity.onCreate is called");
         super.onCreate(savedInstanceState);
         
         setContentView(R.layout.settings_activity_layout);
-        FragmentManager fragmentManager = getFragmentManager();
+        FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.settings_fragment_container, new SettingsPreferenceFragment());
         fragmentTransaction.commit();
@@ -26,8 +26,8 @@ public class SettingsActivity extends PreferenceActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         
-    }*/
-    
+    }
+    /*
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,9 +47,9 @@ public class SettingsActivity extends PreferenceActivity {
     protected boolean isValidFragment(String fragmentName) {
         return SettingsPreferenceFragment.class.getName().equals(fragmentName);
 
-    }
+    }*/
     
-   /* @Override
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
          switch (item.getItemId()) {
             case android.R.id.home:
@@ -57,7 +57,7 @@ public class SettingsActivity extends PreferenceActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }*/
+    }
 
     
 }
