@@ -34,18 +34,18 @@
                   android:label="@string/app_name">
         </activity>
         
-        <activity android:name="com.seafile.seadroid2.ui.GestureLockActivity"
-                  android:screenOrientation="portrait"
-                  android:theme="@style/Theme.SeafileTheme"
-                  android:label="@string/app_name">
-        </activity>
+<!--         <activity android:name="com.seafile.seadroid2.ui.UnlockGesturePasswordActivity" -->
+<!--                   android:screenOrientation="portrait" -->
+<!--                   android:theme="@style/Theme.SeafileTheme" -->
+<!--                   android:label="@string/app_name"> -->
+<!--         </activity> -->
         
-        <activity android:name="com.seafile.seadroid2.ui.GestureLockSetupActivity"
-            	  android:screenOrientation="portrait"
-                  android:theme="@style/Theme.SeafileTheme"
-                  android:label="@string/app_name">
-        </activity>
-
+<!--         <activity android:name="com.seafile.seadroid2.ui.GestureLockSetupActivity" -->
+<!--             	  android:screenOrientation="portrait" -->
+<!--                   android:theme="@style/Theme.SeafileTheme" -->
+<!--                   android:label="@string/app_name"> -->
+<!--         </activity> -->
+ 
         <activity android:name="com.seafile.seadroid2.BrowserActivity"
             	  android:screenOrientation="portrait"
                   android:label="@string/app_name"
@@ -56,6 +56,27 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
+        <activity
+            android:name="com.seafile.seadroid2.ui.UnlockGesturePasswordActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" 
+            android:theme="@style/Theme.SeafileTheme"
+            android:label="@string/app_name" />
+        
+        <activity
+            android:name="com.seafile.seadroid2.ui.CreateGesturePasswordActivity"
+            android:label="@string/app_name"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.SeafileTheme" />
+
+        <activity
+            android:name="com.seafile.seadroid2.ui.GuideGesturePasswordActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" 
+            android:theme="@style/Theme.SeafileTheme"
+            android:label="@string/app_name"/>
 
         <activity android:name="com.seafile.seadroid2.MarkdownActivity"
                   android:theme="@style/Theme.SeafileTheme"

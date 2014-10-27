@@ -6,22 +6,28 @@ import android.app.Application;
 import android.content.Context;
 
 import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
-import com.nostra13.universalimageloader.cache.disc.naming.HashCodeFileNameGenerator;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.util.LockPatternUtils;
 
 public class SeadroidApplication extends Application {
     private static Context context;
-
+    private static LockPatternUtils mLockPatternUtils;
+    
     public void onCreate() {
         super.onCreate();
         SeadroidApplication.context = getApplicationContext();
+        mLockPatternUtils = new LockPatternUtils(this);
         initImageLoader(getApplicationContext());
     }
 
+    public static LockPatternUtils getLockPatternUtils() {
+        return mLockPatternUtils;
+    }
+    
     public static Context getAppContext() {
         return SeadroidApplication.context;
     }

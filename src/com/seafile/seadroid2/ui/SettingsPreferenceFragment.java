@@ -1,6 +1,5 @@
 package com.seafile.seadroid2.ui;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -13,9 +12,9 @@ import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
-import android.support.v4.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.preference.PreferenceFragment;
 import android.text.Html;
 import android.util.Log;
 import android.widget.Toast;
@@ -25,7 +24,6 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
 import com.seafile.seadroid2.transfer.TransferService;
 
-@SuppressLint("NewApi")
 public class SettingsPreferenceFragment
     extends PreferenceFragment
     implements OnPreferenceChangeListener, OnPreferenceClickListener {
@@ -120,7 +118,7 @@ public class SettingsPreferenceFragment
         if (preference.getKey().equals(SettingsManager.GESTURE_LOCK_SWITCH_KEY)) {
 
             if (!settingsMgr.isGestureLockEnabled()) {
-                Intent newIntent = new Intent(getActivity(), GestureLockSetupActivity.class);
+                Intent newIntent = new Intent(getActivity(), GuideGesturePasswordActivity.class);
                 newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivityForResult(newIntent, SettingsManager.GESTURE_LOCK_REQUEST);
 

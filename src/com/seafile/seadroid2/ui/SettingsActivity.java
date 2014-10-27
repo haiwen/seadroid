@@ -27,27 +27,6 @@ public class SettingsActivity extends SherlockFragmentActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
         
     }
-    /*
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            // Load the legacy preferences headers
-            addPreferencesFromResource(R.xml.preference_headers_legacy);
-        }
-    }
-
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    @Override
-    public void onBuildHeaders(List<Header> target) {
-        loadHeadersFromResource(R.xml.preference_headers, target);
-    }
-    
-    @SuppressLint("Override")
-    protected boolean isValidFragment(String fragmentName) {
-        return SettingsPreferenceFragment.class.getName().equals(fragmentName);
-
-    }*/
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
