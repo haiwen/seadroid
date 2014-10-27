@@ -11,7 +11,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.util.LockPatternUtils;
+import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 
 public class SeadroidApplication extends Application {
     private static Context context;

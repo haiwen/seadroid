@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.ui;
+package com.seafile.seadroid2.gesturelock;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,9 +16,9 @@ import android.widget.Toast;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.ui.LockPatternView.Cell;
-import com.seafile.seadroid2.ui.LockPatternView.DisplayMode;
-import com.seafile.seadroid2.util.LockPatternUtils;
+import com.seafile.seadroid2.gesturelock.LockPatternView.Cell;
+import com.seafile.seadroid2.gesturelock.LockPatternView.DisplayMode;
+import com.seafile.seadroid2.gesturelock.LockPatternView.OnPatternListener;
 
 public class CreateGesturePasswordActivity extends Activity implements
         OnClickListener {

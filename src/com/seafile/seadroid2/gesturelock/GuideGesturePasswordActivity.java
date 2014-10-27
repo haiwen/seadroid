@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.ui;
+package com.seafile.seadroid2.gesturelock;
 
 import android.content.Intent;
 import android.os.Bundle;

@@ -25,7 +25,7 @@
         android:textColor="#888"
         android:layout_below="@id/welcome_view"/>
 
-    <com.seafile.seadroid2.ui.LockPatternView
+    <com.seafile.seadroid2.gesturelock.LockPatternView
         android:id="@+id/lock_pattern"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

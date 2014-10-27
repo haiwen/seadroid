@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.util;
+package com.seafile.seadroid2.gesturelock;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import com.seafile.seadroid2.ui.LockPatternView;
 
 import android.content.Context;
 import android.os.FileObserver;

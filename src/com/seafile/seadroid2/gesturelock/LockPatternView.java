@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.seafile.seadroid2.ui;
+package com.seafile.seadroid2.gesturelock;
 
 
 import java.util.ArrayList;
@@ -42,7 +42,6 @@ import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
 
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.util.LockPatternUtils;
 
 
 /**
