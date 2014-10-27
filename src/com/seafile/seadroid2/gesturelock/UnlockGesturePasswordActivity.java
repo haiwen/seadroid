@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.ui;
+package com.seafile.seadroid2.gesturelock;
 
 import java.util.List;
 
@@ -9,8 +9,6 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.view.Gravity;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
@@ -18,8 +16,7 @@ import android.widget.Toast;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.ui.LockPatternView.Cell;
-import com.seafile.seadroid2.util.LockPatternUtils;
+import com.seafile.seadroid2.gesturelock.LockPatternView.Cell;
 
 
 public class UnlockGesturePasswordActivity extends Activity {
@@ -46,10 +43,6 @@ public class UnlockGesturePasswordActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
-                                WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        
         setContentView(R.layout.gesturepassword_unlock);
 
         mLockPatternView = (LockPatternView) this

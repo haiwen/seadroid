@@ -34,6 +34,7 @@ import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.gesturelock.UnlockGesturePasswordActivity;
 import com.seafile.seadroid2.util.Utils;
 
 /**

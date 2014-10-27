@@ -18,10 +18,12 @@ import android.support.v4.preference.PreferenceFragment;
 import android.text.Html;
 import android.util.Log;
 import android.widget.Toast;
+
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
+import com.seafile.seadroid2.gesturelock.GuideGesturePasswordActivity;
 import com.seafile.seadroid2.transfer.TransferService;
 
 public class SettingsPreferenceFragment
