@@ -6,9 +6,7 @@ import java.util.List;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -17,14 +15,14 @@ import android.widget.Toast;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
-import com.seafile.seadroid2.ui.GestureLockPatternView.Cell;
-import com.seafile.seadroid2.ui.GestureLockPatternView.DisplayMode;
+import com.seafile.seadroid2.ui.LockPatternView.Cell;
+import com.seafile.seadroid2.ui.LockPatternView.DisplayMode;
 
 public class GestureLockSetupActivity extends Activity implements
-        GestureLockPatternView.OnPatternListener, OnClickListener {
+        LockPatternView.OnPatternListener, OnClickListener {
 
     private static final String TAG = "GestureLockSetupActivity";
-    private GestureLockPatternView lockPatternView;
+    private LockPatternView lockPatternView;
     private Button leftButton;
     private Button rightButton;
     
@@ -48,7 +46,7 @@ public class GestureLockSetupActivity extends Activity implements
         
         settingsMgr = SettingsManager.instance();
         
-        lockPatternView = (GestureLockPatternView) findViewById(R.id.lock_pattern);
+        lockPatternView = (LockPatternView) findViewById(R.id.lock_pattern);
         lockPatternView.setOnPatternListener(this);
         leftButton = (Button) findViewById(R.id.left_btn);
         rightButton = (Button) findViewById(R.id.right_btn);
@@ -123,7 +121,7 @@ public class GestureLockSetupActivity extends Activity implements
                 step = STEP_3;
                 updateView();
             } else if (step == STEP_4) {
-                settingsMgr.setGestureLockPattern(GestureLockPatternView.patternToString(choosePattern));
+                //settingsMgr.setGestureLockPattern(LockPatternView.patternToString(choosePattern));
                 backIntent.putExtra("setupSuccess", true);
                 this.setResult(RESULT_OK, backIntent);
                 finish();
@@ -155,8 +153,8 @@ public class GestureLockSetupActivity extends Activity implements
     @Override
     public void onPatternDetected(List<Cell> pattern) {
         Log.d(TAG, "onPatternDetected");
-
-        if (pattern.size() < GestureLockPatternView.MIN_LOCK_PATTERN_SIZE) {
+//LockPatternView.MIN_LOCK_PATTERN_SIZE
+        if (pattern.size() < 0) {
             Toast.makeText(this,
                     R.string.lockpattern_recording_incorrect_too_short,
                     Toast.LENGTH_LONG).show();
