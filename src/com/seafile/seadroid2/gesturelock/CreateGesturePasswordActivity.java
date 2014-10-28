@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -16,9 +15,9 @@ import android.widget.Toast;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.gesturelock.LockPatternView.Cell;
 import com.seafile.seadroid2.gesturelock.LockPatternView.DisplayMode;
-import com.seafile.seadroid2.gesturelock.LockPatternView.OnPatternListener;
 
 public class CreateGesturePasswordActivity extends Activity implements
         OnClickListener {
@@ -142,7 +141,8 @@ public class CreateGesturePasswordActivity extends Activity implements
         final int footerMessage;
         final boolean patternEnabled;
     }
-
+    SettingsManager settingsMgr = SettingsManager.instance();
+    
     private void showToast(CharSequence message) {
         if (null == mToast) {
             mToast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
@@ -411,8 +411,8 @@ public class CreateGesturePasswordActivity extends Activity implements
 
     private void saveChosenPatternAndFinish() {
         SeadroidApplication.getLockPatternUtils().saveLockPattern(mChosenPattern);
-        showToast("密码设置成功");
-        //startActivity(new Intent(this, UnlockGesturePasswordActivity.class));
+        settingsMgr.setupGestureLock();
+        showToast(getResources().getString(R.string.lockpattern_pattern_toast_saved));
         finish();
     }
 }
