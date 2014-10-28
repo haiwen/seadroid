@@ -3,12 +3,13 @@ package com.seafile.seadroid2.gesturelock;
 import java.util.List;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.view.Gravity;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
@@ -16,6 +17,7 @@ import android.widget.Toast;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.gesturelock.LockPatternView.Cell;
 
 
@@ -29,6 +31,8 @@ public class UnlockGesturePasswordActivity extends Activity {
 
     private Toast mToast;
 
+    SettingsManager settingsMgr;
+    
     private void showToast(CharSequence message) {
         if (null == mToast) {
             mToast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
@@ -43,24 +47,28 @@ public class UnlockGesturePasswordActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.gesturepassword_unlock);
-
         mLockPatternView = (LockPatternView) this
                 .findViewById(R.id.gesturepwd_unlock_lockview);
         mLockPatternView.setOnPatternListener(mChooseNewLockPatternListener);
         mLockPatternView.setTactileFeedbackEnabled(true);
         mHeadTextView = (TextView) findViewById(R.id.gesturepwd_unlock_text);
         mShakeAnim = AnimationUtils.loadAnimation(this, R.anim.shake_x);
+        
+        settingsMgr = SettingsManager.instance();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        if (!SeadroidApplication.getLockPatternUtils().savedPatternExists()) {
+        /*if (!SeadroidApplication.getLockPatternUtils().savedPatternExists()) {
             startActivity(new Intent(this, GuideGesturePasswordActivity.class));
             finish();
-        }
+        }*/
     }
 
     @Override
@@ -93,11 +101,11 @@ public class UnlockGesturePasswordActivity extends Activity {
             if (SeadroidApplication.getLockPatternUtils().checkPattern(pattern)) {
                 mLockPatternView
                         .setDisplayMode(LockPatternView.DisplayMode.Correct);
-                Intent intent = new Intent(UnlockGesturePasswordActivity.this,
+                /*Intent intent = new Intent(UnlockGesturePasswordActivity.this,
                         GuideGesturePasswordActivity.class);
-                // 打开新的Activity
-                startActivity(intent);
-                showToast("解锁成功");
+                startActivity(intent);*/
+                settingsMgr.setupGestureLock();
+                showToast(getResources().getString(R.string.lockpattern_pattern_toast_unlock));
                 finish();
             } else {
                 mLockPatternView
@@ -108,14 +116,14 @@ public class UnlockGesturePasswordActivity extends Activity {
                             - mFailedPatternAttemptsSinceLastTimeout;
                     if (retry >= 0) {
                         if (retry == 0)
-                            showToast("您已5次输错密码，请30秒后再试");
-                        mHeadTextView.setText("密码错误，还可以再输入" + retry + "次");
+                            showToast(getResources().getString(R.string.lockscreen_access_pattern_failure));
+                        mHeadTextView.setText(getResources().getString(R.string.lockscreen_access_pattern_failure_left_try_times, retry));
                         mHeadTextView.setTextColor(Color.RED);
                         mHeadTextView.startAnimation(mShakeAnim);
                     }
 
                 } else {
-                    showToast("输入长度不够，请重试");
+                    showToast(getResources().getString(R.string.lockscreen_access_pattern_failure_not_long_enough));
                 }
 
                 if (mFailedPatternAttemptsSinceLastTimeout >= LockPatternUtils.FAILED_ATTEMPTS_BEFORE_TIMEOUT) {
@@ -146,9 +154,9 @@ public class UnlockGesturePasswordActivity extends Activity {
                 public void onTick(long millisUntilFinished) {
                     int secondsRemaining = (int) (millisUntilFinished / 1000) - 1;
                     if (secondsRemaining > 0) {
-                        mHeadTextView.setText(secondsRemaining + " 秒后重试");
+                        mHeadTextView.setText(getResources().getString(R.string.lockscreen_access_pattern_failure_left_try_seconds, secondsRemaining));
                     } else {
-                        mHeadTextView.setText("请绘制手势密码");
+                        mHeadTextView.setText(R.string.lockscreen_access_pattern_hint);
                         mHeadTextView.setTextColor(Color.WHITE);
                     }
 

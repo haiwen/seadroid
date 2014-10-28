@@ -20,6 +20,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.gesturelock.GuideGesturePasswordActivity;
@@ -107,6 +108,12 @@ public class SettingsPreferenceFragment
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        gestureLockSwitch.setChecked(settingsMgr.isGestureLockEnabled());
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         LocalBroadcastManager
@@ -125,7 +132,7 @@ public class SettingsPreferenceFragment
                 startActivityForResult(newIntent, SettingsManager.GESTURE_LOCK_REQUEST);
 
             } else {
-                settingsMgr.clearGestureLock();
+                SeadroidApplication.getLockPatternUtils().clearLock();
                 gestureLockSwitch.setChecked(false);
             }
         } else if (preference.getKey().equals(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY)) {
