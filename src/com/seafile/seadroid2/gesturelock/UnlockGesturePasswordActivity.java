@@ -62,16 +62,6 @@ public class UnlockGesturePasswordActivity extends Activity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-
-        /*if (!SeadroidApplication.getLockPatternUtils().savedPatternExists()) {
-            startActivity(new Intent(this, GuideGesturePasswordActivity.class));
-            finish();
-        }*/
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
         if (mCountdownTimer != null)
@@ -101,11 +91,7 @@ public class UnlockGesturePasswordActivity extends Activity {
             if (SeadroidApplication.getLockPatternUtils().checkPattern(pattern)) {
                 mLockPatternView
                         .setDisplayMode(LockPatternView.DisplayMode.Correct);
-                /*Intent intent = new Intent(UnlockGesturePasswordActivity.this,
-                        GuideGesturePasswordActivity.class);
-                startActivity(intent);*/
                 settingsMgr.setupGestureLock();
-                showToast(getResources().getString(R.string.lockpattern_pattern_toast_unlock));
                 finish();
             } else {
                 mLockPatternView

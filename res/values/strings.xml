@@ -187,7 +187,7 @@
     <string name="lockscreen_access_pattern_cell_added">Pattern cell added</string>
     <string name="lockscreen_access_pattern_detected">Pattern detected</string>
     <string name="lockscreen_access_pattern_passwd_forget">Forget password</string>
-    <string name="lockscreen_access_pattern_failure">Failed 5 times, please try 30 seconds later</string>
+    <string name="lockscreen_access_pattern_failure">Failed 5 times, please wait for 30 seconds before trying</string>
     <string name="lockscreen_access_pattern_failure_left_try_seconds">You can retry %d seconds later</string>
     <string name="lockscreen_access_pattern_failure_left_try_times">Incorrect pattern, you can try another %d times</string>
     <string name="lockscreen_access_pattern_failure_not_long_enough">Linking points not long enough, pelase try again</string>
@@ -204,7 +204,6 @@
     <string name="lockpattern_pattern_confirmed_header">Confirm to save your pattern</string>
     <string name="lockpattern_recording_inprogress">Move away your firgure after drawing"</string>
     <string name="lockpattern_pattern_toast_saved">Gesture Lock Pattern successfully saved</string>
-    <string name="lockpattern_pattern_toast_unlock">Unlock successfully</string>
     <string name="gesture_password_guide_text">You can create a Gesture Lock Pattern to protect your privicy</string>
     <string name="gesture_password_guide_creat_btn">Create Gesture Lock Pattern</string>
     

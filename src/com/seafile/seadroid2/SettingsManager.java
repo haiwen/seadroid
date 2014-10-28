@@ -66,12 +66,12 @@ public final class SettingsManager {
         return settingsSharedPref.getBoolean(GESTURE_LOCK_SWITCH_KEY, false);
     }
 
-    public boolean isGestureLockRequired() {
-        if (!isGestureLockEnabled()) {
-            return false;
-        }
-        if (!SeadroidApplication.getLockPatternUtils().savedPatternExists()) {
-            return false;
+	public boolean isGestureLockRequired() {
+		if (!isGestureLockEnabled()) {
+			return false;
+		}
+		if (!SeadroidApplication.getLockPatternUtils().savedPatternExists()) {
+		    return false;
         }
         long now = System.currentTimeMillis();
         if (now < lock_timestamp + LOCK_EXPIRATION_MSECS) {

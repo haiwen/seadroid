@@ -209,7 +209,6 @@
   <string name="lockpattern_pattern_confirmed_header">确认保存新解锁图案</string>
   <string name="lockpattern_recording_inprogress">完成后松开手指</string>
   <string name="lockpattern_pattern_toast_saved">密码设置成功</string>
-  <string name="lockpattern_pattern_toast_unlock">解锁成功</string>
   <string name="gesture_password_guide_text">你可以创建一个解锁图案，这样他人在借用你的手机时，将无法打开应用。</string>
   <string name="gesture_password_guide_creat_btn">创建手势密码</string>
     
