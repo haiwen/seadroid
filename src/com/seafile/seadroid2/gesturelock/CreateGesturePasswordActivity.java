@@ -312,7 +312,7 @@ public class CreateGesturePasswordActivity extends Activity implements
             mFooterLeftButton.setVisibility(View.GONE);
         } else {
             mFooterLeftButton.setVisibility(View.VISIBLE);
-            mFooterLeftButton.setText(stage.leftMode.text);
+            mFooterLeftButton.setText(stage.leftMode.text); 
             mFooterLeftButton.setEnabled(stage.leftMode.enabled);
         }
 
