@@ -115,11 +115,11 @@ public class AccountAdapter extends BaseAdapter {
         } else {
             viewHolder = (Viewholder) convertView.getTag();
         }
-        Account item = items.get(position);
-        viewHolder.title.setText(item.getServerHost());
-        viewHolder.subtitle.setText(item.getEmail());
-        if (AvatarManager.getAvatarUrl(item) != null) {
-            ImageLoader.getInstance().displayImage(AvatarManager.getAvatarUrl(item), viewHolder.icon, options, animateFirstListener);
+        Account account = items.get(position);
+        viewHolder.title.setText(account.getServerHost());
+        viewHolder.subtitle.setText(account.getEmail());
+        if (AvatarManager.getAvatarUrl(account) != null) {
+            ImageLoader.getInstance().displayImage(AvatarManager.getAvatarUrl(account), viewHolder.icon, options, animateFirstListener);
         }
         ImageLoader.getInstance().handleSlowNetwork(true);
         
