@@ -22,22 +22,21 @@ public class AvatarDBHelper extends SQLiteOpenHelper {
     private static final String AVATAR_COLUMN_SIGNATURE = "signature";
     private static final String AVATAR_COLUMN_URL = "url";
     private static final String AVATAR_COLUMN_MTIME = "mtime";
-    private static final String AVATAR_COLUMN_IS_DEFAULT = "is_default";
+    /*private static final String AVATAR_COLUMN_IS_DEFAULT = "is_default";*/
 
     private static final String SQL_CREATE_AVATAR_TABLE =
             "CREATE TABLE " + AVATAR_TABLE_NAME + " ("
             + AVATAR_COLUMN_ID + " INTEGER PRIMARY KEY, "
             + AVATAR_COLUMN_SIGNATURE + " TEXT NOT NULL, "
             + AVATAR_COLUMN_URL + " TEXT NOT NULL, "
-            + AVATAR_COLUMN_MTIME + " INTEGER NOT NULL, "
-            + AVATAR_COLUMN_IS_DEFAULT + " INTEGER NOT NULL);";
+            + AVATAR_COLUMN_MTIME + " INTEGER NOT NULL);";
 
     private static final String[] projection = {
             //AVATAR_COLUMN_ID,
             AVATAR_COLUMN_SIGNATURE,
             AVATAR_COLUMN_URL,
-            AVATAR_COLUMN_MTIME,
-            AVATAR_COLUMN_IS_DEFAULT
+            AVATAR_COLUMN_MTIME
+            /*AVATAR_COLUMN_IS_DEFAULT*/
             };
     
     private static AvatarDBHelper dbHelper = null;
@@ -73,7 +72,7 @@ public class AvatarDBHelper extends SQLiteOpenHelper {
             avatar.setSignature(cursor.getString(0));
             avatar.setUrl(cursor.getString(1));
             avatar.setMtime(cursor.getInt(2));
-            avatar.setIs_default(cursor.getInt(3) == 1);
+            /*avatar.setIs_default(cursor.getInt(3) == 1);*/
             avatars.add(avatar);
         }
         cursor.close();
@@ -87,7 +86,7 @@ public class AvatarDBHelper extends SQLiteOpenHelper {
                 values.put(AVATAR_COLUMN_SIGNATURE, avatar.getSignature());
                 values.put(AVATAR_COLUMN_URL, avatar.getUrl());
                 values.put(AVATAR_COLUMN_MTIME, avatar.getMtime());
-                values.put(AVATAR_COLUMN_IS_DEFAULT, (avatar.isIs_default() ? 1 : 0));
+                /*values.put(AVATAR_COLUMN_IS_DEFAULT, (avatar.isIs_default() ? 1 : 0));*/
                 database.insert(AVATAR_TABLE_NAME, null, values);
             }
         }
