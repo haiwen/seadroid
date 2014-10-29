@@ -24,6 +24,7 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.Window;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.ui.SslConfirmDialog;
@@ -51,6 +52,9 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //This has to be called before setContentView and you must use the
+        //class in com.actionbarsherlock.view and NOT android.view
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.account_detail);
 
         statusView = (TextView) findViewById(R.id.status_view);
@@ -246,6 +250,12 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
         }
 
         @Override
+        protected void onPreExecute() {
+            //super.onPreExecute();
+            setSupportProgressBarIndeterminateVisibility(true);
+        }
+
+        @Override
         protected String doInBackground(Void... params) {
             if (params.length != 0)
                 return "Error number of parameter";
@@ -289,6 +299,7 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
             } else {
                 statusView.setText(result);
             }
+            setSupportProgressBarIndeterminateVisibility(false);
             loginButton.setEnabled(true);
         }
 
