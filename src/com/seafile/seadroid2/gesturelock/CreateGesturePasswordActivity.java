@@ -24,7 +24,7 @@ public class CreateGesturePasswordActivity extends Activity implements
     private static final int ID_EMPTY_MESSAGE = -1;
     private static final String KEY_UI_STAGE = "uiStage";
     private static final String KEY_PATTERN_CHOICE = "chosenPattern";
-    private LockPatternView mLockPatternView;
+    private LockPatternView mLockPattern;
     private Button mFooterRightButton;
     private Button mFooterLeftButton;
     protected TextView mHeaderText;
@@ -164,11 +164,11 @@ public class CreateGesturePasswordActivity extends Activity implements
         mAnimatePattern.add(LockPatternView.Cell.of(2, 1));
         mAnimatePattern.add(LockPatternView.Cell.of(2, 2));
 
-        mLockPatternView = (LockPatternView) this
+        mLockPattern = (LockPatternView) this
                 .findViewById(R.id.gesturepwd_create_lockview);
         mHeaderText = (TextView) findViewById(R.id.gesturepwd_create_text);
-        mLockPatternView.setOnPatternListener(mChooseNewLockPatternListener);
-        mLockPatternView.setTactileFeedbackEnabled(true);
+        mLockPattern.setOnPatternListener(mChooseNewLockPatternListener);
+        mLockPattern.setTactileFeedbackEnabled(true);
 
         mFooterRightButton = (Button) this.findViewById(R.id.right_btn);
         mFooterLeftButton = (Button) this.findViewById(R.id.reset_btn);
@@ -244,19 +244,19 @@ public class CreateGesturePasswordActivity extends Activity implements
 
     private Runnable mClearPatternRunnable = new Runnable() {
         public void run() {
-            mLockPatternView.clearPattern();
+            mLockPattern.clearPattern();
         }
     };
 
     protected LockPatternView.OnPatternListener mChooseNewLockPatternListener = new LockPatternView.OnPatternListener() {
 
         public void onPatternStart() {
-            mLockPatternView.removeCallbacks(mClearPatternRunnable);
+            mLockPattern.removeCallbacks(mClearPatternRunnable);
             patternInProgress();
         }
 
         public void onPatternCleared() {
-            mLockPatternView.removeCallbacks(mClearPatternRunnable);
+            mLockPattern.removeCallbacks(mClearPatternRunnable);
         }
 
         public void onPatternDetected(List<LockPatternView.Cell> pattern) {
@@ -321,32 +321,32 @@ public class CreateGesturePasswordActivity extends Activity implements
 
         // same for whether the patten is enabled
         if (stage.patternEnabled) {
-            mLockPatternView.enableInput();
+            mLockPattern.enableInput();
         } else {
-            mLockPatternView.disableInput();
+            mLockPattern.disableInput();
         }
 
-        mLockPatternView.setDisplayMode(DisplayMode.Correct);
+        mLockPattern.setDisplayMode(DisplayMode.Correct);
 
         switch (mUiStage) {
         case Introduction:
-            mLockPatternView.clearPattern();
+            mLockPattern.clearPattern();
             break;
         case HelpScreen:
-            mLockPatternView.setPattern(DisplayMode.Animate, mAnimatePattern);
+            mLockPattern.setPattern(DisplayMode.Animate, mAnimatePattern);
             break;
         case ChoiceTooShort:
-            mLockPatternView.setDisplayMode(DisplayMode.Wrong);
+            mLockPattern.setDisplayMode(DisplayMode.Wrong);
             postClearPatternRunnable();
             break;
         case FirstChoiceValid:
             break;
         case NeedToConfirm:
-            mLockPatternView.clearPattern();
+            mLockPattern.clearPattern();
             updatePreviewViews();
             break;
         case ConfirmWrong:
-            mLockPatternView.setDisplayMode(DisplayMode.Wrong);
+            mLockPattern.setDisplayMode(DisplayMode.Wrong);
             postClearPatternRunnable();
             break;
         case ChoiceConfirmed:
@@ -358,8 +358,8 @@ public class CreateGesturePasswordActivity extends Activity implements
     // clear the wrong pattern unless they have started a new one
     // already
     private void postClearPatternRunnable() {
-        mLockPatternView.removeCallbacks(mClearPatternRunnable);
-        mLockPatternView.postDelayed(mClearPatternRunnable, 2000);
+        mLockPattern.removeCallbacks(mClearPatternRunnable);
+        mLockPattern.postDelayed(mClearPatternRunnable, 2000);
     }
 
     @Override
@@ -368,7 +368,7 @@ public class CreateGesturePasswordActivity extends Activity implements
         case R.id.reset_btn:
             if (mUiStage.leftMode == LeftButtonMode.Retry) {
                 mChosenPattern = null;
-                mLockPatternView.clearPattern();
+                mLockPattern.clearPattern();
                 updateStage(Stage.Introduction);
             } else if (mUiStage.leftMode == LeftButtonMode.Cancel) {
                 // They are canceling the entire wizard
@@ -401,8 +401,8 @@ public class CreateGesturePasswordActivity extends Activity implements
                             "Help screen is only mode with ok button, but "
                                     + "stage is " + mUiStage);
                 }
-                mLockPatternView.clearPattern();
-                mLockPatternView.setDisplayMode(DisplayMode.Correct);
+                mLockPattern.clearPattern();
+                mLockPattern.setDisplayMode(DisplayMode.Correct);
                 updateStage(Stage.Introduction);
             }
             break;

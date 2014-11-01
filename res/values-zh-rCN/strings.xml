@@ -181,13 +181,6 @@
   <string name="cannot_copy_folder_to_subfolder">不能把一个文件夹复制到它的子文件夹里面去</string>
   <string name="cannot_move_folder_to_subfolder">不能把一个文件夹移动到它的子文件夹里面去</string>
 
-<!--   <string name="go_on">下一步</string> -->
-<!--   <string name="try_again">重试</string> -->
-<!--   <string name="lockpattern_recording_incorrect_too_short" >请至少连接四个点</string> -->
-<!--   <string name="lockpattern_error" >密码错误</string> -->
-<!--   <string name="please_draw_gesture_lock" >请绘制手势密码</string> -->
-<!--   <string name="setup_gesture_lock_success" >设置手势秘密成功！</string> -->
-
   <string name="confirm">确定</string>
   <string name="cancel">取消</string>
   <string name="security">安全性</string>
