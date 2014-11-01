@@ -2,6 +2,17 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <item android:id="@+id/upload"
+        android:visible="true"
+        android:title="@string/upload"
+        android:icon="@drawable/ab_upload"
+        android:showAsAction="ifRoom"/>
+
+    <item android:id="@+id/refresh"
+        android:visible="false"
+        android:title="@string/refresh"
+        android:icon="@drawable/refresh"
+        android:showAsAction="ifRoom"/>
 
     <!-- More -->
     <item
@@ -10,16 +21,6 @@
         android:showAsAction="always"
         android:title="More">
       <menu>
-        <item android:id="@+id/upload"
-        android:visible="true"
-        android:title="@string/upload"
-        android:showAsAction="ifRoom"/>
-
-        <item android:id="@+id/refresh"
-        android:visible="false"
-        android:title="@string/refresh"
-        android:showAsAction="ifRoom"/>
-        
         <item android:id="@+id/newdir"
               android:visible="false"
               android:title="@string/create_new_dir"
