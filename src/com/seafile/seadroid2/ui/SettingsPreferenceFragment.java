@@ -181,25 +181,6 @@ public class SettingsPreferenceFragment
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-        case SettingsManager.GESTURE_LOCK_REQUEST:
-            if (resultCode == Activity.RESULT_OK) {
-                setupSuccess = data.getBooleanExtra("setupSuccess", true);
-                SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                SharedPreferences.Editor editor = settings.edit();
-
-                if (setupSuccess == true) {
-                    showToast(R.string.setup_gesture_lock_success);
-                    editor.putBoolean(SettingsManager.GESTURE_LOCK_SWITCH_KEY, true);
-                    gestureLockSwitch.setChecked(true);
-                } else {
-                    editor.putBoolean(SettingsManager.GESTURE_LOCK_SWITCH_KEY, false);
-                    gestureLockSwitch.setChecked(false);
-                }
-
-                editor.commit();
-            }
-
-            break;
 
         case SettingsManager.CHOOSE_CAMERA_UPLOAD_REPO_REQUEST:
             if (resultCode == Activity.RESULT_OK) {

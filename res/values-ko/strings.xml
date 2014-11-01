@@ -115,7 +115,7 @@
   <string name="copy_link">링크 복사</string>
   <string name="share_file_link">이 파일 링크 공유</string>
   <string name="share_dir_link">이 폴더 링크 공유</string>
-  <string name="generating_link">링크 만드는 중...</string>
+  <string name="generating_link">링크 만드는 중&#8230;</string>
   <string name="link_ready_to_be_pasted">붙여넣을 링크를 준비했습니다.</string>
   <string name="rename_file">파일 이름 바꾸기</string>
   <string name="rename_dir">폴더 이름 바꾸기</string>
@@ -175,20 +175,11 @@
   <string name="gesture_lock_on">제스처 잠금 켬</string>
   <string name="gesture_lock_off">제스처 잠금 끔</string>
   <string name="cancel">취소</string>
-  <string name="go_on">다음</string>
-  <string name="try_again">다시 시도</string>
   <string name="confirm">확인</string>
   <string name="lockpattern_recording_incorrect_too_short">최소 4점 이상 연결하세요</string>
-  <string name="lockpattern_error">잘못된 제스처 잠금</string>
-  <string name="please_draw_gesture_lock">제스처 잠금을 그리세요</string>
-  <string name="setup_gesture_lock_success">제스처 잠금을 잘 설정했습니다!</string>
-  <!--Accessibility description sent when user starts drawing a lock pattern. [CHAR LIMIT=NONE]-->
   <string name="lockscreen_access_pattern_start">패턴 시작</string>
-  <!--Accessibility description sent when the pattern times out and is cleared. [CHAR LIMIT=NONE]-->
   <string name="lockscreen_access_pattern_cleared">패턴 지움</string>
-  <!--Accessibility description sent when user adds a cell to the pattern. [CHAR LIMIT=NONE]-->
   <string name="lockscreen_access_pattern_cell_added">셀 추가함</string>
-  <!--Accessibility description sent when user completes drawing a pattern. [CHAR LIMIT=NONE]-->
   <string name="lockscreen_access_pattern_detected">패턴 입력 끝남</string>
   <string name="settings_camera_upload_duplicate">이미 업로드했습니다</string>
   <string name="settings_camera_upload_info_title">카메라 사진 업로드</string>
@@ -196,7 +187,6 @@
   <string name="settings_wifi_down">Wi-Fi를 사용할 수 없습니다</string>
   <string name="settings_startUpService">업로드 서비스를 시작했습니다</string>
   <string name="settings_stopUpService">업로드 서비스를 멈추었습니다</string>
-  <string name="set_camera_upload_library">업로드 라이브러리 바꾸기</string>
   <string name="settings_hint">라이브러리를 먼저 선택하세요</string>
   <string name="settings_start">카메라 업로드 켬</string>
   <string name="settings_camera_upload_library_not_found">선택한 라이브러리가 없습니다</string>
