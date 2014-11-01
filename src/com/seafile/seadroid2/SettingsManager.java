@@ -6,6 +6,7 @@ import android.preference.PreferenceManager;
 
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.util.Utils;
+import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 
 /**
  * Access the app settings
@@ -67,12 +68,12 @@ public final class SettingsManager {
         return settingsSharedPref.getBoolean(GESTURE_LOCK_SWITCH_KEY, false);
     }
 
-	public boolean isGestureLockRequired() {
-		if (!isGestureLockEnabled()) {
-			return false;
-		}
-		if (!SeadroidApplication.getLockPatternUtils().savedPatternExists()) {
-		    return false;
+    public boolean isGestureLockRequired() {
+        if (!isGestureLockEnabled()) {
+            return false;
+        }
+        if (!LockPatternUtils.savedPatternExists()) {
+            return false;
         }
         long now = System.currentTimeMillis();
         if (now < lock_timestamp + LOCK_EXPIRATION_MSECS) {

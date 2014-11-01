@@ -87,11 +87,11 @@ public class LockPatternUtils {
      * 
      * @return Whether a saved pattern exists.
      */
-    public boolean savedPatternExists() {
+    public static boolean savedPatternExists() {
         return sHaveNonZeroPatternFile.get();
     }
 
-    public void clearLock() {
+    public static void clearLock() {
         saveLockPattern(null);
     }
 
@@ -142,7 +142,7 @@ public class LockPatternUtils {
      * @param isFallback
      *            Specifies if this is a fallback to biometric weak
      */
-    public void saveLockPattern(List<LockPatternView.Cell> pattern) {
+    public static void saveLockPattern(List<LockPatternView.Cell> pattern) {
         // Compute the hash
         final byte[] hash = LockPatternUtils.patternToHash(pattern);
         try {
@@ -203,7 +203,7 @@ public class LockPatternUtils {
      *            The pattern to check.
      * @return Whether the pattern matches the stored one.
      */
-    public boolean checkPattern(List<LockPatternView.Cell> pattern) {
+    public static boolean checkPattern(List<LockPatternView.Cell> pattern) {
         try {
             // Read all the bytes from the file
             RandomAccessFile raf = new RandomAccessFile(sLockPatternFilename,

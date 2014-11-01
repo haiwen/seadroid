@@ -22,8 +22,8 @@ public class LockPasswordUtils {
     private final static String LOCK_PASSWORD_SALT_FILE = "password_salt";
     private final static String LOCK_PASSWORD_SALT_KEY = "lockscreen.password_salt";
     private static final String LOCK_PASSWORD_FILE = "password.key";
-    private SharedPreferences mSharedPreferences;
-    private Editor mEditor;
+    private static SharedPreferences mSharedPreferences;
+    private static Editor mEditor;
     private static File sLockPasswordFilename;
     private static final AtomicBoolean sHaveNonZeroPasswordFile = new AtomicBoolean(
             false);
@@ -68,14 +68,14 @@ public class LockPasswordUtils {
      * 
      * @return Whether a saved pattern exists.
      */
-    public boolean savedPasswordExists() {
+    public static boolean savedPasswordExists() {
         return sHaveNonZeroPasswordFile.get();
     }
 
     /**
      * Compute the password quality from the given password string.
      */
-    static public int computePasswordQuality(String password) {
+    public static int computePasswordQuality(String password) {
         boolean hasDigit = false;
         boolean hasNonDigit = false;
         final int len = password.length();
@@ -112,7 +112,7 @@ public class LockPasswordUtils {
      * @param isFallback
      *            Specifies if this is a fallback to biometric weak
      */
-    public void saveLockPassword(String password, int quality,
+    public static void saveLockPassword(String password, int quality,
             boolean isFallback) {
         // Compute the hash
         final byte[] hash = passwordToHash(password);
@@ -151,7 +151,7 @@ public class LockPasswordUtils {
      *            The password to check.
      * @return Whether the password matches the stored one.
      */
-    public boolean checkPassword(String password) {
+    public static boolean checkPassword(String password) {
         try {
             // Read all the bytes from the file
             RandomAccessFile raf = new RandomAccessFile(sLockPasswordFilename,
@@ -181,7 +181,7 @@ public class LockPasswordUtils {
      * 
      * @return the hash of the pattern in a byte array.
      */
-    public byte[] passwordToHash(String password) {
+    public static byte[] passwordToHash(String password) {
         if (password == null) {
             return null;
         }
@@ -201,7 +201,7 @@ public class LockPasswordUtils {
         return hashed;
     }
 
-    private String getSalt() {
+    private static String getSalt() {
         long salt = getLong(LOCK_PASSWORD_SALT_KEY, 0);
         if (salt == 0) {
             try {
@@ -228,11 +228,11 @@ public class LockPasswordUtils {
         return ret;
     }
 
-    private long getLong(String secureSettingKey, long def) {
+    private static long getLong(String secureSettingKey, long def) {
         return mSharedPreferences.getLong(LOCK_PASSWORD_SALT_KEY, def);
     }
 
-    private void setLong(String secureSettingKey, long value) {
+    private static void setLong(String secureSettingKey, long value) {
         mEditor.putLong(LOCK_PASSWORD_SALT_KEY, value);
         mEditor.commit();
     }
