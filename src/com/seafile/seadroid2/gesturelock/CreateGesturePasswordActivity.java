@@ -14,7 +14,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.gesturelock.LockPatternView.Cell;
 import com.seafile.seadroid2.gesturelock.LockPatternView.DisplayMode;
@@ -410,7 +409,7 @@ public class CreateGesturePasswordActivity extends Activity implements
     }
 
     private void saveChosenPatternAndFinish() {
-        SeadroidApplication.getLockPatternUtils().saveLockPattern(mChosenPattern);
+        LockPatternUtils.saveLockPattern(mChosenPattern);
         settingsMgr.setupGestureLock();
         showToast(getResources().getString(R.string.lockpattern_pattern_toast_saved));
         finish();

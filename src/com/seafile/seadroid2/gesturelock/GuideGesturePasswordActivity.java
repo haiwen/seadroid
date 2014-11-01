@@ -9,7 +9,6 @@ import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SeadroidApplication;
 
 public class GuideGesturePasswordActivity extends SherlockFragmentActivity {
 
@@ -21,7 +20,7 @@ public class GuideGesturePasswordActivity extends SherlockFragmentActivity {
                 new OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        SeadroidApplication.getLockPatternUtils().clearLock();
+                        LockPatternUtils.clearLock();
                         Intent intent = new Intent(GuideGesturePasswordActivity.this, CreateGesturePasswordActivity.class);
                         startActivity(intent);
                         finish();

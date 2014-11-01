@@ -5,14 +5,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
-import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.preference.PreferenceFragment;
 import android.text.Html;
@@ -20,10 +18,10 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.gesturelock.GuideGesturePasswordActivity;
+import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.sync.CameraUploadService;
 import com.seafile.seadroid2.transfer.TransferService;
 
@@ -39,7 +37,6 @@ public class SettingsPreferenceFragment
     private CheckBoxPreference allowMobileConnections;
     private Preference cameraUploadRepo;
     private Preference versionName;
-    private boolean setupSuccess;
     private SettingsActivity mActivity;
     private Intent cameraUploadIntent;
     private boolean isUploadStart;
@@ -132,7 +129,7 @@ public class SettingsPreferenceFragment
                 startActivityForResult(newIntent, SettingsManager.GESTURE_LOCK_REQUEST);
 
             } else {
-                SeadroidApplication.getLockPatternUtils().clearLock();
+                LockPatternUtils.clearLock();
                 gestureLockSwitch.setChecked(false);
             }
         } else if (preference.getKey().equals(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY)) {

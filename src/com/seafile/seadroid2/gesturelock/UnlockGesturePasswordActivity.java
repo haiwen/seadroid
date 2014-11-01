@@ -16,7 +16,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.gesturelock.LockPatternView.Cell;
 
@@ -88,7 +87,7 @@ public class UnlockGesturePasswordActivity extends Activity {
         public void onPatternDetected(List<LockPatternView.Cell> pattern) {
             if (pattern == null)
                 return;
-            if (SeadroidApplication.getLockPatternUtils().checkPattern(pattern)) {
+            if (LockPatternUtils.checkPattern(pattern)) {
                 mLockPatternView
                         .setDisplayMode(LockPatternView.DisplayMode.Correct);
                 settingsMgr.setupGestureLock();
