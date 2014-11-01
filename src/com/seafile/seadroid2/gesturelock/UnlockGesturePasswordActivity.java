@@ -22,7 +22,7 @@ import com.seafile.seadroid2.gesturelock.LockPatternView.Cell;
 
 
 public class UnlockGesturePasswordActivity extends Activity {
-    private LockPatternView mLockPattern;
+    private LockPatternView mLockPatternView;
     private int mFailedPatternAttemptsSinceLastTimeout = 0;
     private CountDownTimer mCountdownTimer = null;
     private Handler mHandler = new Handler();
@@ -51,10 +51,10 @@ public class UnlockGesturePasswordActivity extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.gesturepassword_unlock);
-        mLockPattern = (LockPatternView) this
+        mLockPatternView = (LockPatternView) this
                 .findViewById(R.id.gesturepwd_unlock_lockview);
-        mLockPattern.setOnPatternListener(mChooseNewLockPatternListener);
-        mLockPattern.setTactileFeedbackEnabled(true);
+        mLockPatternView.setOnPatternListener(mChooseNewLockPatternListener);
+        mLockPatternView.setTactileFeedbackEnabled(true);
         mHeadTextView = (TextView) findViewById(R.id.gesturepwd_unlock_text);
         mShakeAnim = AnimationUtils.loadAnimation(this, R.anim.shake_x);
         
@@ -70,31 +70,31 @@ public class UnlockGesturePasswordActivity extends Activity {
 
     private Runnable mClearPatternRunnable = new Runnable() {
         public void run() {
-            mLockPattern.clearPattern();
+            mLockPatternView.clearPattern();
         }
     };
 
     protected LockPatternView.OnPatternListener mChooseNewLockPatternListener = new LockPatternView.OnPatternListener() {
 
         public void onPatternStart() {
-            mLockPattern.removeCallbacks(mClearPatternRunnable);
+            mLockPatternView.removeCallbacks(mClearPatternRunnable);
             patternInProgress();
         }
 
         public void onPatternCleared() {
-            mLockPattern.removeCallbacks(mClearPatternRunnable);
+            mLockPatternView.removeCallbacks(mClearPatternRunnable);
         }
 
         public void onPatternDetected(List<LockPatternView.Cell> pattern) {
             if (pattern == null)
                 return;
             if (SeadroidApplication.getLockPatternUtils().checkPattern(pattern)) {
-                mLockPattern
+                mLockPatternView
                         .setDisplayMode(LockPatternView.DisplayMode.Correct);
                 settingsMgr.setupGestureLock();
                 finish();
             } else {
-                mLockPattern
+                mLockPatternView
                         .setDisplayMode(LockPatternView.DisplayMode.Wrong);
                 if (pattern.size() >= LockPatternUtils.MIN_PATTERN_REGISTER_FAIL) {
                     mFailedPatternAttemptsSinceLastTimeout++;
@@ -115,7 +115,7 @@ public class UnlockGesturePasswordActivity extends Activity {
                 if (mFailedPatternAttemptsSinceLastTimeout >= LockPatternUtils.FAILED_ATTEMPTS_BEFORE_TIMEOUT) {
                     mHandler.postDelayed(attemptLockout, 2000);
                 } else {
-                    mLockPattern.postDelayed(mClearPatternRunnable, 2000);
+                    mLockPatternView.postDelayed(mClearPatternRunnable, 2000);
                 }
             }
         }
@@ -131,8 +131,8 @@ public class UnlockGesturePasswordActivity extends Activity {
 
         @Override
         public void run() {
-            mLockPattern.clearPattern();
-            mLockPattern.setEnabled(false);
+            mLockPatternView.clearPattern();
+            mLockPatternView.setEnabled(false);
             mCountdownTimer = new CountDownTimer(
                     LockPatternUtils.FAILED_ATTEMPT_TIMEOUT_MS + 1, 1000) {
 
@@ -150,7 +150,7 @@ public class UnlockGesturePasswordActivity extends Activity {
 
                 @Override
                 public void onFinish() {
-                    mLockPattern.setEnabled(true);
+                    mLockPatternView.setEnabled(true);
                     mFailedPatternAttemptsSinceLastTimeout = 0;
                 }
             }.start();
