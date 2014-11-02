@@ -33,7 +33,6 @@ import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.transfer.UploadTaskInfo;
 import com.seafile.seadroid2.util.CameraUploadUtil;
-import com.seafile.seadroid2.util.Utils;
 
 public class CameraUploadService extends Service {
     private static final String DEBUG_TAG = "CameraUploadService";
@@ -66,7 +65,6 @@ public class CameraUploadService extends Service {
         Log.d(DEBUG_TAG, "onCreate");
         
         settingsMgr = SettingsManager.instance();
-        
         // bind transfer service
         Intent bIntent = new Intent(this, TransferService.class);
         bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
@@ -83,6 +81,8 @@ public class CameraUploadService extends Service {
 
     private void cancelUploadTasks(){
         List<UploadTaskInfo> cameraUploadsTasksList =  mTransferService.getAllUploadTaskInfos();
+        // XXX: we should not cancel all upload tasks here, because not all
+        // upload tasks are camera uploads.
         for (UploadTaskInfo uploadTaskInfo : cameraUploadsTasksList) {
             mTransferService.cancelUploadTask(uploadTaskInfo.taskID);
         }
@@ -94,6 +94,7 @@ public class CameraUploadService extends Service {
     @Override
     public void onDestroy() {
         Log.d(DEBUG_TAG, "onDestroy");
+        // XXX: same as above
         cancelUploadTasks();
         this.getApplicationContext().getContentResolver()
         .unregisterContentObserver(cameraUploadObserver);
@@ -105,6 +106,7 @@ public class CameraUploadService extends Service {
 
         LocalBroadcastManager.getInstance(this).unregisterReceiver(transferReceiver);
         transferReceiver = null;
+        /// XXX: no need
         intSendBroadcastOnlyOnceFlag = 0;
     }
 
@@ -210,7 +212,7 @@ public class CameraUploadService extends Service {
             if (!isNetworkAvailable) {
                 return null;
             }
-            
+
             // ensure remote camera upload library exists
             try {
                 isRemoteCameraUploadRepoValid = cUploadManager
@@ -226,7 +228,7 @@ public class CameraUploadService extends Service {
             } catch (SeafException e) {
                 e.printStackTrace();
             }
-            
+
             return CameraUploadUtil.getAllPhotosAbsolutePathList();
         }
 

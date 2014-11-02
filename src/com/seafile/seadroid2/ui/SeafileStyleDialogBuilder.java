@@ -39,6 +39,8 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
+// XXX: Why do we need this custom builder class? Is it possible to set styles
+// of the AlertDialog by applying styles themes?
 /**
  * uniform global dialog style 
  *

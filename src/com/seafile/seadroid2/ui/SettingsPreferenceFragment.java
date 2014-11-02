@@ -26,6 +26,7 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.sync.CameraUploadService;
 import com.seafile.seadroid2.transfer.TransferService;
 
+/// XXX: why this?
 @SuppressLint("NewApi")
 public class SettingsPreferenceFragment
     extends PreferenceFragment
@@ -130,6 +131,7 @@ public class SettingsPreferenceFragment
                 gestureLockSwitch.setChecked(false);
             }
         } else if (preference.getKey().equals(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY)) {
+            /// XXX: isUploadStart is a bad variable name
             isUploadStart = settingsMgr.isUploadStart();
             if (!isUploadStart) {
                 cameraUploadRepo.setEnabled(false);

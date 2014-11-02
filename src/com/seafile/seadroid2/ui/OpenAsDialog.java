@@ -31,6 +31,7 @@ public class OpenAsDialog extends DialogFragment {
                     public void onClick(DialogInterface dialog, int which) {
                         Intent intent = new Intent(Intent.ACTION_VIEW);
                         switch (which) {
+                            // XXX: should use final variable here instead of number
                         case 0:
                             intent.setDataAndType((Uri.fromFile(file)), "text/*");
                             startActivity(intent);

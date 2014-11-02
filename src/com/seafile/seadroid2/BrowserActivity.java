@@ -80,6 +80,8 @@ import com.seafile.seadroid2.ui.UploadTasksActivity;
 import com.seafile.seadroid2.ui.UploadTasksAdapter;
 import com.seafile.seadroid2.util.Utils;
 
+// XXX: Browser Activity has only one fragment now: TabsFragment.
+// Does it have to be a FragmentActivity? 
 public class BrowserActivity extends SherlockFragmentActivity
         implements ReposFragment.OnFileSelectedListener, StarredFragment.OnStarredFileSelectedListener, OnBackStackChangedListener {
     public static final String PKG_NAME = "com.seafile.seadroid2";
