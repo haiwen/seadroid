@@ -113,7 +113,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
                 mTxService = binder.getService();
                 for (String path : localPath) {
                     mTxService.addUploadTask(account, repoID, repoName, targetDir,
-                            path, false, false);
+                            path, false, false, false);
                     Log.d(DEBUG_TAG, path + " uploaded");
                 }
                 showToast(R.string.upload_started);

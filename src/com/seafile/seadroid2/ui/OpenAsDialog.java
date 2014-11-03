@@ -2,7 +2,6 @@ package com.seafile.seadroid2.ui;
 
 import java.io.File;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -13,6 +12,12 @@ import android.support.v4.app.DialogFragment;
 import com.seafile.seadroid2.R;
 
 public class OpenAsDialog extends DialogFragment {
+    
+    private static final int OPEN_AS_TEXT = 0;
+    private static final int OPEN_AS_AUDIO = 1;
+    private static final int OPEN_AS_VIDEO = 2;
+    private static final int OPEN_AS_IMAGE = 3;
+    private static final int OPEN_AS_OTHER = 4;
 
     private File file;
 
@@ -31,24 +36,23 @@ public class OpenAsDialog extends DialogFragment {
                     public void onClick(DialogInterface dialog, int which) {
                         Intent intent = new Intent(Intent.ACTION_VIEW);
                         switch (which) {
-                            // XXX: should use final variable here instead of number
-                        case 0:
+                        case OPEN_AS_TEXT:
                             intent.setDataAndType((Uri.fromFile(file)), "text/*");
                             startActivity(intent);
                             break;
-                        case 1:
+                        case OPEN_AS_AUDIO:
                             intent.setDataAndType((Uri.fromFile(file)), "audio/*");
                             startActivity(intent);
                             break;
-                        case 2:
+                        case OPEN_AS_VIDEO:
                             intent.setDataAndType((Uri.fromFile(file)), "video/*");
                             startActivity(intent);
                             break;
-                        case 3:
+                        case OPEN_AS_IMAGE:
                             intent.setDataAndType((Uri.fromFile(file)), "image/*");
                             startActivity(intent);
                             break;
-                        case 4:
+                        case OPEN_AS_OTHER:
                             intent.setDataAndType((Uri.fromFile(file)), "*/*");
                             startActivity(intent);
                         default:

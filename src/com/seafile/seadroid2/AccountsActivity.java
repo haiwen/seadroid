@@ -28,8 +28,8 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.cameraupload.CameraUploadService;
 import com.seafile.seadroid2.monitor.FileMonitorService;
-import com.seafile.seadroid2.sync.CameraUploadService;
 import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 
 

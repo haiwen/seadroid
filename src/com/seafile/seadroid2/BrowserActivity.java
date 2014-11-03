@@ -43,13 +43,13 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.cameraupload.CameraUploadService;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SeafStarredFile;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 import com.seafile.seadroid2.monitor.FileMonitorService;
-import com.seafile.seadroid2.sync.CameraUploadService;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.PendingUploadInfo;
 import com.seafile.seadroid2.transfer.TransferService;
@@ -80,8 +80,6 @@ import com.seafile.seadroid2.ui.UploadTasksActivity;
 import com.seafile.seadroid2.ui.UploadTasksAdapter;
 import com.seafile.seadroid2.util.Utils;
 
-// XXX: Browser Activity has only one fragment now: TabsFragment.
-// Does it have to be a FragmentActivity? 
 public class BrowserActivity extends SherlockFragmentActivity
         implements ReposFragment.OnFileSelectedListener, StarredFragment.OnStarredFileSelectedListener, OnBackStackChangedListener {
     public static final String PKG_NAME = "com.seafile.seadroid2";
@@ -134,7 +132,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     public void addUpdateTask(String repoID, String repoName, String targetDir, String localFilePath) {
         if (txService != null) {
-            txService.addUploadTask(account, repoID, repoName, targetDir, localFilePath, true, true);
+            txService.addUploadTask(account, repoID, repoName, targetDir, localFilePath, true, true, false);
         } else {
             PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, true, true);
             pendingUploads.add(info);
@@ -143,7 +141,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     private void addUploadTask(String repoID, String repoName, String targetDir, String localFilePath) {
         if (txService != null) {
-            txService.addUploadTask(account, repoID, repoName, targetDir, localFilePath, false, true);
+            txService.addUploadTask(account, repoID, repoName, targetDir, localFilePath, false, true, false);
         } else {
             PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, false, true);
             pendingUploads.add(info);
@@ -338,7 +336,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             for (PendingUploadInfo info : pendingUploads) {
                 txService.addUploadTask(account, info.repoID,
                                         info.repoName, info.targetDir,
-                                        info.localFilePath, info.isUpdate, info.isCopyToLocal);
+                                        info.localFilePath, info.isUpdate, info.isCopyToLocal, false);
             }
             pendingUploads.clear();
         }

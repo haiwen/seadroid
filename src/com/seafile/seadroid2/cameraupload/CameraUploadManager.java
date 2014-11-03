@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.sync;
+package com.seafile.seadroid2.cameraupload;
 
 import java.util.List;
 

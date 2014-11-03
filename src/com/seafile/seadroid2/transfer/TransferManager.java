@@ -59,8 +59,10 @@ public class TransferManager {
      * Add a new upload task
      */
     public int addUploadTask(Account account, String repoID, String repoName,
-                              String dir, String filePath, boolean isUpdate, boolean isCopyToLocal) {
-        Iterator<UploadTask> iter = uploadTasks.iterator();
+                              String dir, String filePath, boolean isUpdate, boolean isCopyToLocal, boolean isCameraUpload) {
+        Iterator<UploadTask> iter;
+        iter = uploadTasks.iterator();
+        
         while (iter.hasNext()) {
             UploadTask task = iter.next();
             if (task.myRepoID.equals(repoID) && task.myPath.equals(filePath)) {
@@ -77,7 +79,7 @@ public class TransferManager {
             }
         }
 
-        UploadTask task = new UploadTask(account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal);
+        UploadTask task = new UploadTask(account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal, isCameraUpload);
         task.execute();
         return task.getTaskID();
     }
@@ -119,7 +121,7 @@ public class TransferManager {
         }
         return null;
     }
-
+    
     public UploadTaskInfo getUploadTaskInfo (int taskID) {
         UploadTask task = getUploadTaskByID(taskID);
         if (task != null) {
@@ -137,14 +139,14 @@ public class TransferManager {
 
         return infos;
     }
-
+    
     public void removeUploadTask(int taskID) {
         UploadTask task = getUploadTaskByID(taskID);
         if (task != null) {
             uploadTasks.remove(task);
         }
     }
-
+    
     public void removeFinishedUploadTasks() {
         Iterator<UploadTask> iter = uploadTasks.iterator();
         while (iter.hasNext()) {
@@ -193,14 +195,15 @@ public class TransferManager {
 
         return null;
     }
-
-    private class UploadTask extends AsyncTask<String, Long, Void> {
+    
+    protected class UploadTask extends AsyncTask<String, Long, Void> {
         private String myRepoID;
         private String myRepoName;
         private String myDir;   // parent dir
         private String myPath;  // local file path
         private boolean isUpdate;  // true if update an existing file
         private boolean isCopyToLocal; // false to turn off copy operation
+        private boolean isCameraUpload; // mark upload task is Camera photo upload task if ture
         
         private TaskState myState;
         private int myID;
@@ -213,7 +216,7 @@ public class TransferManager {
         Account account;
 
         public UploadTask(Account account, String repoID, String repoName,
-                          String dir, String filePath, boolean isUpdate, boolean isCopyToLocal) {
+                          String dir, String filePath, boolean isUpdate, boolean isCopyToLocal, boolean isCameraUpload) {
             this.account = account;
             this.myRepoID = repoID;
             this.myRepoName = repoName;
@@ -221,6 +224,7 @@ public class TransferManager {
             this.myPath = filePath;
             this.isUpdate = isUpdate;
             this.isCopyToLocal = isCopyToLocal;
+            this.isCameraUpload = isCameraUpload;
             this.dataManager = new DataManager(account);
 
             File f = new File(filePath);
@@ -246,6 +250,7 @@ public class TransferManager {
         public UploadTaskInfo getTaskInfo() {
             UploadTaskInfo info = new UploadTaskInfo(myID, account, myState, myRepoID,
                                                      myRepoName, myDir, myPath, isUpdate, isCopyToLocal,
+                                                     isCameraUpload,
                                                      myUploaded, mySize, err);
             return info;
         }
@@ -255,7 +260,7 @@ public class TransferManager {
                 return;
             }
             uploadTasks.remove(this);
-            addUploadTask(account, myRepoID, myRepoName, myDir, myPath, isUpdate, isCopyToLocal);
+            addUploadTask(account, myRepoID, myRepoName, myDir, myPath, isUpdate, isCopyToLocal, isCameraUpload);
         }
 
         public void cancelUpload() {

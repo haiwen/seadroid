@@ -23,7 +23,7 @@ import android.widget.Toast;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.sync.CameraUploadService;
+import com.seafile.seadroid2.cameraupload.CameraUploadService;
 import com.seafile.seadroid2.transfer.TransferService;
 
 /// XXX: why this?
