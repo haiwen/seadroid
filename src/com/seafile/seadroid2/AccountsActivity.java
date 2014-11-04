@@ -41,8 +41,6 @@ public class AccountsActivity extends SherlockFragmentActivity {
 
     private static final String DEBUG_TAG = "AccountsActivity";
 
-    private static AccountsActivity accountsActivity;
-
     private ListView accountsView;
 
     private AccountManager accountManager;
@@ -69,7 +67,6 @@ public class AccountsActivity extends SherlockFragmentActivity {
         Log.d(DEBUG_TAG, "AccountsActivity.onCreate is called");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start);
-        accountsActivity = this;
 
         accountsView = (ListView) findViewById(R.id.account_list_view);
         accountManager = new AccountManager(this);
@@ -149,12 +146,7 @@ public class AccountsActivity extends SherlockFragmentActivity {
     private void refreshView() {
         Log.d(DEBUG_TAG, "refreshView");
         accounts = accountManager.getAccountList();
-        /*AvatarManager avatarManager = new AvatarManager(accounts);*/
-        // Log.d(DEBUG_TAG, "Load accounts num " + accounts.size());
         adapter.clear();
-        /*for (Account a : accounts) {
-            adapter.add(a);
-        }*/
         adapter.setItems(accounts);
         adapter.notifyChanged();
     }
@@ -289,7 +281,6 @@ public class AccountsActivity extends SherlockFragmentActivity {
                                     default:
                                         return;
                                     }
-                                    accountsActivity.finish();
                                 }
                             });
             return builder.show();
