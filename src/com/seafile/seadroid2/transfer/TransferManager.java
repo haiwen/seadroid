@@ -60,8 +60,7 @@ public class TransferManager {
      */
     public int addUploadTask(Account account, String repoID, String repoName,
                               String dir, String filePath, boolean isUpdate, boolean isCopyToLocal, boolean isCameraUpload) {
-        Iterator<UploadTask> iter;
-        iter = uploadTasks.iterator();
+        Iterator<UploadTask> iter = uploadTasks.iterator();
         
         while (iter.hasNext()) {
             UploadTask task = iter.next();
@@ -196,7 +195,7 @@ public class TransferManager {
         return null;
     }
     
-    protected class UploadTask extends AsyncTask<String, Long, Void> {
+    private class UploadTask extends AsyncTask<String, Long, Void> {
         private String myRepoID;
         private String myRepoName;
         private String myDir;   // parent dir
