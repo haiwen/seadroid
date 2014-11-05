@@ -64,7 +64,7 @@ public class TransferService extends Service implements TransferListener {
     /**
      * handle two types of upload tasks request, including files upload tasks and camera photo upload tasks.
      *  
-     * Note: use isCameraUpload to mark camera photo upload tasks, if true
+     * Note: use isCopyToLocal to mark camera photo upload tasks, if true
      * @param account
      * @param repoID
      * @param repoName
@@ -72,12 +72,11 @@ public class TransferService extends Service implements TransferListener {
      * @param filePath
      * @param isUpdate
      * @param isCopyToLocal
-     * @param isCameraUpload
      * @return
      */
     public int addUploadTask(Account account, String repoID, String repoName, String dir,
-            String filePath, boolean isUpdate, boolean isCopyToLocal, boolean isCameraUpload) {
-        return txManager.addUploadTask(account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal, isCameraUpload);
+            String filePath, boolean isUpdate, boolean isCopyToLocal) {
+        return txManager.addUploadTask(account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal);
     }
     
     public int addDownloadTask(Account account, String repoName, String repoID, String path) {
@@ -211,7 +210,7 @@ class PersistentTransferScheduler implements UpdateTaskListener {
             }
 
             service.addUploadTask(account, info.repoID, info.repoName, info.parentDir,
-                    info.localFilePath, true, true, false);
+                    info.localFilePath, true, true);
         }
     }
 }

@@ -132,7 +132,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     public void addUpdateTask(String repoID, String repoName, String targetDir, String localFilePath) {
         if (txService != null) {
-            txService.addUploadTask(account, repoID, repoName, targetDir, localFilePath, true, true, false);
+            txService.addUploadTask(account, repoID, repoName, targetDir, localFilePath, true, true);
         } else {
             PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, true, true);
             pendingUploads.add(info);
@@ -141,7 +141,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     private void addUploadTask(String repoID, String repoName, String targetDir, String localFilePath) {
         if (txService != null) {
-            txService.addUploadTask(account, repoID, repoName, targetDir, localFilePath, false, true, false);
+            txService.addUploadTask(account, repoID, repoName, targetDir, localFilePath, false, true);
         } else {
             PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, false, true);
             pendingUploads.add(info);
@@ -336,7 +336,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             for (PendingUploadInfo info : pendingUploads) {
                 txService.addUploadTask(account, info.repoID,
                                         info.repoName, info.targetDir,
-                                        info.localFilePath, info.isUpdate, info.isCopyToLocal, false);
+                                        info.localFilePath, info.isUpdate, info.isCopyToLocal);
             }
             pendingUploads.clear();
         }

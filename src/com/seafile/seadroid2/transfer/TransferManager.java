@@ -59,7 +59,7 @@ public class TransferManager {
      * Add a new upload task
      */
     public int addUploadTask(Account account, String repoID, String repoName,
-                              String dir, String filePath, boolean isUpdate, boolean isCopyToLocal, boolean isCameraUpload) {
+                              String dir, String filePath, boolean isUpdate, boolean isCopyToLocal) {
         Iterator<UploadTask> iter = uploadTasks.iterator();
         
         while (iter.hasNext()) {
@@ -78,7 +78,7 @@ public class TransferManager {
             }
         }
 
-        UploadTask task = new UploadTask(account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal, isCameraUpload);
+        UploadTask task = new UploadTask(account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal);
         task.execute();
         return task.getTaskID();
     }
@@ -202,7 +202,6 @@ public class TransferManager {
         private String myPath;  // local file path
         private boolean isUpdate;  // true if update an existing file
         private boolean isCopyToLocal; // false to turn off copy operation
-        private boolean isCameraUpload; // mark upload task is Camera photo upload task if ture
         
         private TaskState myState;
         private int myID;
@@ -215,7 +214,7 @@ public class TransferManager {
         Account account;
 
         public UploadTask(Account account, String repoID, String repoName,
-                          String dir, String filePath, boolean isUpdate, boolean isCopyToLocal, boolean isCameraUpload) {
+                          String dir, String filePath, boolean isUpdate, boolean isCopyToLocal) {
             this.account = account;
             this.myRepoID = repoID;
             this.myRepoName = repoName;
@@ -223,7 +222,6 @@ public class TransferManager {
             this.myPath = filePath;
             this.isUpdate = isUpdate;
             this.isCopyToLocal = isCopyToLocal;
-            this.isCameraUpload = isCameraUpload;
             this.dataManager = new DataManager(account);
 
             File f = new File(filePath);
@@ -249,7 +247,6 @@ public class TransferManager {
         public UploadTaskInfo getTaskInfo() {
             UploadTaskInfo info = new UploadTaskInfo(myID, account, myState, myRepoID,
                                                      myRepoName, myDir, myPath, isUpdate, isCopyToLocal,
-                                                     isCameraUpload,
                                                      myUploaded, mySize, err);
             return info;
         }
@@ -259,7 +256,7 @@ public class TransferManager {
                 return;
             }
             uploadTasks.remove(this);
-            addUploadTask(account, myRepoID, myRepoName, myDir, myPath, isUpdate, isCopyToLocal, isCameraUpload);
+            addUploadTask(account, myRepoID, myRepoName, myDir, myPath, isUpdate, isCopyToLocal);
         }
 
         public void cancelUpload() {

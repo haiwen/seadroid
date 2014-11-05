@@ -12,7 +12,6 @@ public class UploadTaskInfo {
     public final String parentDir;
     public final String localFilePath;
     public final boolean isUpdate, isCopyToLocal;
-    public final boolean isCameraUpload;
     public final long uploadedSize, totalSize;
     public final SeafException err;
     public final Account account;
@@ -20,7 +19,6 @@ public class UploadTaskInfo {
     public UploadTaskInfo(int taskID, Account account, TaskState state, String repoID,
                           String repoName, String parentDir,
                           String localFilePath, boolean isUpdate, boolean isCopyToLocal, 
-                          boolean isCameraUpload,
                           long uploadedSize, long totalSize,
                           SeafException err) {
         this.taskID = taskID;
@@ -32,7 +30,6 @@ public class UploadTaskInfo {
         this.localFilePath = localFilePath;
         this.isUpdate = isUpdate;
         this.isCopyToLocal = isCopyToLocal;
-        this.isCameraUpload = isCameraUpload;
         this.uploadedSize = uploadedSize;
         this.totalSize = totalSize;
         this.err = err;
