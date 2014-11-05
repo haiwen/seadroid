@@ -559,7 +559,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                             new TaskDialog.TaskDialogListener() {
                                 @Override
                                 public void onTaskSuccess() {
-                                    tabsFragment.getReposFragment().refreshView(true);
+                                    tabsFragment.getReposFragment().refresh();
                                 }
                             } , password);
 
@@ -567,11 +567,11 @@ public class BrowserActivity extends SherlockFragmentActivity
                     }
                 }
 
-                tabsFragment.getReposFragment().refreshView(true);
+                tabsFragment.getReposFragment().refresh();
             } else if (getCurrentTabName().equals(ACTIVITY_TAB)) {
                 tabsFragment.getActivitiesFragment().refreshView();
             } else if (getCurrentTabName().equals(STARRED_TAB)) {
-                tabsFragment.getStarredFragment().refreshView();
+                tabsFragment.getStarredFragment().refresh();
             }
             return true;
         case R.id.newdir:
