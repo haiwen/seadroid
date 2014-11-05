@@ -26,10 +26,18 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-        <ListView android:id="@android:id/list"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:drawSelectorOnTop="false" />
+        <!-- The PullToRefreshListView replaces a standard ListView widget. -->
+        <com.handmark.pulltorefresh.library.PullToRefreshListView
+            android:id="@+id/pull_refresh_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:cacheColorHint="#00000000"
+            android:fadingEdge="none"
+            android:fastScrollEnabled="false"
+            android:footerDividersEnabled="false"
+            android:headerDividersEnabled="false"
+            android:smoothScrollbar="true" />
+
         <TextView android:id="@android:id/empty"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
