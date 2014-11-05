@@ -16,6 +16,7 @@
         android:icon="@drawable/ic_launcher">
 
         <activity android:name="com.seafile.seadroid2.AccountsActivity"
+                  android:launchMode="singleTop"
             	  android:screenOrientation="portrait"
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
@@ -63,7 +64,14 @@
 
         <activity android:name="com.seafile.seadroid2.AccountDetailActivity"
                   android:theme="@style/Theme.SeafileTheme"
+                  android:parentActivityName=".AccountsActivity"
                   android:label="@string/app_name">
+
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".AccountsActivity" />
+
         </activity>
 
         <!-- MultipleImageSelectionActivity uses the default theme, instead of

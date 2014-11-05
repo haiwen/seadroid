@@ -11,7 +11,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.NavUtils;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -94,10 +94,10 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
          switch (item.getItemId()) {
             case android.R.id.home:
-                this.finish();
-            default:
-                return super.onOptionsItemSelected(item);
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
         }
+         return super.onOptionsItemSelected(item);
     }
 
     public void onHttpsCheckboxClicked(View view) {
