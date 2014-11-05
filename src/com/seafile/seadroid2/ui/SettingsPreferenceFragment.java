@@ -141,7 +141,10 @@ public class SettingsPreferenceFragment
                 startCameraUploadService(true);
             }
         } else if (preference.getKey().equals(SettingsManager.ALLOW_MOBILE_CONNECTIONS_SWITCH_KEY)) {
-            // no task here
+            // user does not allow mobile connections, stop camera upload service
+            if (!settingsMgr.checkNetworkStatus()) {
+                startCameraUploadService(false);
+            }
         } else if (preference.getKey().equals(SettingsManager.CAMERA_UPLOAD_REPO_KEY)) {
             // Pop-up window to let user choose remote library
             Intent intent = new Intent(mActivity, SeafilePathChooserActivity.class);

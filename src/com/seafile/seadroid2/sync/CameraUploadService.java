@@ -47,12 +47,12 @@ public class CameraUploadService extends Service {
     private CameraObserver cameraUploadObserver = new CameraObserver();
     private CameraUploadManager cUploadManager;
     private TransferService mTransferService;
-    private SettingsManager settingsManager;
+    private SettingsManager settingsMgr;
     private final IBinder mBinder = new CameraBinder();
     private static int intSendBroadcastOnlyOnceFlag = 0;
     private boolean isNetworkAvailable;
     private boolean isRemoteCameraUploadRepoValid;
-    private boolean isCameraUpload;
+    private boolean isCameraUploadEnabled;
     private Account account;
     private String accountEmail;
     private String accountServer;
@@ -64,7 +64,7 @@ public class CameraUploadService extends Service {
     public void onCreate() {
         Log.d(DEBUG_TAG, "onCreate");
         
-        settingsManager = SettingsManager.instance();
+        settingsMgr = SettingsManager.instance();
         
         // bind transfer service
         Intent bIntent = new Intent(this, TransferService.class);
@@ -113,12 +113,12 @@ public class CameraUploadService extends Service {
 
         initParams();
         if (repoId != null && accountEmail != null) {
-            isCameraUpload = true;
+            isCameraUploadEnabled = true;
             account = new Account(accountServer, accountEmail, null, accountToken);
             cUploadManager = new CameraUploadManager(account);
         }
 
-        if (isCameraUpload) {
+        if (isCameraUploadEnabled) {
             ConcurrentAsyncTask.execute(new PhotoUploadTask());
         }
 
@@ -126,11 +126,11 @@ public class CameraUploadService extends Service {
     }
 
     private void initParams() {
-        repoId = settingsManager.getCameraUploadRepoId();
-        repoName = settingsManager.getCameraUploadRepoName();
-        accountEmail = settingsManager.getCameraUploadAccountEmail();
-        accountServer = settingsManager.getCameraUploadAccountServer();
-        accountToken = settingsManager.getCameraUploadAccountToken();
+        repoId = settingsMgr.getCameraUploadRepoId();
+        repoName = settingsMgr.getCameraUploadRepoName();
+        accountEmail = settingsMgr.getCameraUploadAccountEmail();
+        accountServer = settingsMgr.getCameraUploadAccountServer();
+        accountToken = settingsMgr.getCameraUploadAccountToken();
     }
 
     ServiceConnection mConnection = new ServiceConnection() {
@@ -201,22 +201,10 @@ public class CameraUploadService extends Service {
         return photo;
     }
 
-    private boolean checkNetworkStatus() {
-        if (!Utils.isNetworkOn()) {
-            return false;
-        }
-        // user does not allow mobile connections
-        if (!Utils.isWiFiOn() && !settingsManager.isAllowMobileConnections()) {
-            return false;
-        }
-        // Wi-Fi or 2G/3G/4G connections available
-        return true;
-    }
-    
     private class PhotoUploadTask extends AsyncTask<Void, Void, List<File>> {
         @Override
         protected List<File> doInBackground(Void... params) {
-            isNetworkAvailable = checkNetworkStatus();
+            isNetworkAvailable = settingsMgr.checkNetworkStatus();
             // ensure network is available
             if (!isNetworkAvailable) {
                 return null;
