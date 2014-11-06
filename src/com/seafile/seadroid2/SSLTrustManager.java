@@ -245,4 +245,12 @@ public final class SSLTrustManager {
             Log.d(DEBUG_TAG, "a SecureX509TrustManager is finalized:" + hashCode());
         }
     }
+    
+    public Map<Account, SSLSocketFactory> getCachedFactories() {
+        return cachedFactories;
+    }
+
+    /*public void setCachedFactories(Map<Account, SSLSocketFactory> cachedFactories) {
+        this.cachedFactories = cachedFactories;
+    }*/
 }

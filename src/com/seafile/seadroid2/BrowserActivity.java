@@ -42,6 +42,7 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.avatar.AvatarManageService;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
@@ -269,6 +270,10 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         Intent monitorIntent = new Intent(this, FileMonitorService.class);
         startService(monitorIntent);
+        
+        // start avatar service
+        Intent avatarIntent = new Intent(this, AvatarManageService.class);
+        startService(avatarIntent);
     }
 
     @Override
