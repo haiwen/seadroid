@@ -32,7 +32,6 @@ You will get `target/seadroid.apk` after the build finishes.
 - Git clone `android-support-v4-preferencefragment`
 
         git clone https://github.com/haiwen/android-support-v4-preferencefragment
-
 - Git clone `Android-PullToRefresh`
 
         git clone https://github.com/chrisbanes/Android-PullToRefresh
