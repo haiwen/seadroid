@@ -18,6 +18,7 @@ You will get `target/seadroid.apk` after the build finishes.
 * [ActionBarSherlock](https://github.com/JakeWharton/ActionBarSherlock)
 * [NewQuickAction](https://github.com/haiwen/NewQuickAction)
 * [ViewPagerIndicator](https://github.com/JakeWharton/Android-ViewPagerIndicator)
+* [Android-PullToRefresh](https://github.com/chrisbanes/Android-PullToRefresh)
 
 ### Build
 
@@ -27,8 +28,11 @@ You will get `target/seadroid.apk` after the build finishes.
 - Git clone `NewQuickAction`
 
         git clone https://github.com/haiwen/NewQuickAction
+- Git clone `Android-PullToRefresh`
 
-- Add ActionBarSherlock/NewQuickAction/ViewPagerIndicator as library according to <http://developer.android.com/guide/developing/projects/projects-eclipse.html#ReferencingLibraryProject>
+        git clone https://github.com/chrisbanes/Android-PullToRefresh
+        
+- Add ActionBarSherlock/NewQuickAction/ViewPagerIndicator/Android-PullToRefresh as library according to <http://developer.android.com/guide/developing/projects/projects-eclipse.html#ReferencingLibraryProject>
 
 - Replace the android-support-v4.jar in `ActionBarSherlock` and `ViewPagerIndicator` with the jar in seadroid to make sure that all versions of this library be the same at this time.
 
