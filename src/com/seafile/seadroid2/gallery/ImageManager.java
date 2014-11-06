@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -125,64 +124,6 @@ public class ImageManager {
 
     private static List<String> allBucketIds;
 
-    /**
-     * check if external storage directory exist
-     * 
-     * @return
-     */
-    private static boolean checkSaveLocationExists() {
-        String sDCardStatus = Environment.getExternalStorageState();
-        boolean status;
-        if (sDCardStatus.equals(Environment.MEDIA_MOUNTED)) {
-            status = true;
-        } else
-            status = false;
-        return status;
-    }
-
-    /**
-     * check if external SD card exist
-     * 
-     * @return
-     */
-    private static boolean checkExternalSDExists() {
-
-        Map<String, String> evn = System.getenv();
-        return evn.containsKey("SECONDARY_STORAGE");
-    }
-
-    /**
-     * Gets the Android external storage directory. This directory may not
-     * currently be accessible if it has been mounted by the user on their
-     * computer, has been removed from the device, or some other problem has
-     * happened. You can determine its current state with
-     * getExternalStorageState(). Note: don't be confused by the word "external"
-     * here. This directory can better be thought as media/ shared storage. It
-     * is a filesystem that can hold a relatively large amount of data and that
-     * is shared across all applications (does not enforce permissions).
-     * Traditionally this is an SD card, but it may also be implemented as
-     * built-in storage in a device that is distinct from the protected internal
-     * storage and can be mounted as a filesystem on a computer. 
-     * 
-     * @return
-     */
-    private static String getSDRoot() {
-
-        return Environment.getExternalStorageDirectory().getAbsolutePath();
-    }
-
-    /**
-     * get external SD card root directory
-     * 
-     * @return
-     */
-    private static String getExternalSDRoot() {
-
-        Map<String, String> evn = System.getenv();
-
-        return evn.get("SECONDARY_STORAGE");
-    }
-    
     public static List<String> getAllPath(){
         String[] paths = {
                 "/DCIM",
@@ -193,24 +134,12 @@ public class ImageManager {
                 "/external_sd/DCIM/Camera",
                 "/external_sd/DCIM/100MEDIA"
             };
-        List<String> pathList = Lists.newArrayList();
-        if (!checkSaveLocationExists()) {
-            throw new RuntimeException("sdcard not available");
-        }
-        
-        String root = getSDRoot();
-        for (String path : paths) {
-            String fullPath = root + path;
-            pathList.add(getBucketId(fullPath));
-        }
-        
-        if (checkExternalSDExists()) {
-            String sdcardRoot = getExternalSDRoot();
+
+            List<String> pathList = Lists.newArrayList();
             for (String path : paths) {
-                String fullPath = sdcardRoot + path;
-                pathList.add(getBucketId(fullPath));
+                String fullPath = Environment.getExternalStorageDirectory().toString() + path;
+                pathList.add(fullPath);
             }
-        }
         return pathList;
     }
     
