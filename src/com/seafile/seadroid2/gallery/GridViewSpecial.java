@@ -21,8 +21,9 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.widget.Scroller;
-
 import static com.seafile.seadroid2.gallery.Util.assertTrue;
+
+import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
 
 
@@ -746,7 +747,7 @@ class ImageBlockManager {
         mBlockHeight = mSpec.mCellSpacing + mSpec.mCellHeight;
         mCount = imageList.getCount();
         mRows = (mCount + mColumns - 1) / mColumns;
-        mCache = new HashMap<Integer, ImageBlock>();
+        mCache = Maps.newHashMap();
         mPendingRequest = 0;
         initGraphics();
     }

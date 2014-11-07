@@ -41,6 +41,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
+import com.google.common.collect.Lists;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
@@ -147,7 +148,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
     }
 
-    private ArrayList<PendingUploadInfo> pendingUploads = new ArrayList<PendingUploadInfo>();
+    private ArrayList<PendingUploadInfo> pendingUploads = Lists.newArrayList();
 
     public TransferService getTransferService() {
         return txService;
@@ -515,7 +516,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     private List<UploadTaskInfo> getUploadTaskInfos() {
         if (txService == null) {
             // In case the service is not ready
-            return new ArrayList<UploadTaskInfo>();
+            return Lists.newArrayList();
         }
 
         return txService.getAllUploadTaskInfos();

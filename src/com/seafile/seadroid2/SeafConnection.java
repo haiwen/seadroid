@@ -28,6 +28,7 @@ import android.util.Pair;
 
 import com.github.kevinsawicki.http.HttpRequest;
 import com.github.kevinsawicki.http.HttpRequest.HttpRequestException;
+import com.google.common.collect.Maps;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.ProgressMonitor;
@@ -258,7 +259,7 @@ public class SeafConnection {
                                         throws SeafException {
         try {
             String apiPath = String.format("api2/repos/%s/dir/", repoID);
-            Map<String, Object> params = new HashMap<String, Object>();
+            Map<String, Object> params = Maps.newHashMap();
             params.put("p", encodeUriComponent(path));
             if (cachedDirID != null) {
                 params.put("oid", cachedDirID);
@@ -303,7 +304,7 @@ public class SeafConnection {
     private Pair<String, String> getDownloadLink(String repoID, String path) throws SeafException {
         try {
             String apiPath = String.format("api2/repos/%s/file/", repoID);
-            Map<String, Object> params = new HashMap<String, Object>();
+            Map<String, Object> params = Maps.newHashMap();
             params.put("p", encodeUriComponent(path));
             params.put("op", "download");
             HttpRequest req = prepareApiGetRequest(apiPath, params);
@@ -626,7 +627,7 @@ public class SeafConnection {
         HttpRequest req = null;
         try {
             String fullPath = Utils.pathJoin(parentDir, dirName);
-            Map<String, Object> params = new HashMap<String, Object>();
+            Map<String, Object> params = Maps.newHashMap();
             params.put("p", fullPath);
             params.put("reloaddir", "true");
 
@@ -663,7 +664,7 @@ public class SeafConnection {
 
         try {
             String fullPath = Utils.pathJoin(parentDir, fileName);
-            Map<String, Object> params = new HashMap<String, Object>();
+            Map<String, Object> params = Maps.newHashMap();
             params.put("p", fullPath);
             params.put("reloaddir", "true");
 
@@ -849,7 +850,7 @@ public class SeafConnection {
     public Pair<String, String> rename(String repoID, String path,
                                        String newName, boolean isdir) throws SeafException {
         try {
-            Map<String, Object> params = new HashMap<String, Object>();
+            Map<String, Object> params = Maps.newHashMap();
             params.put("p", path);
             params.put("reloaddir", "true");
             String suffix = isdir ? "/dir/" : "/file/";
@@ -883,7 +884,7 @@ public class SeafConnection {
     public Pair<String, String> delete(String repoID, String path,
                boolean isdir) throws SeafException {
         try {
-            Map<String, Object> params = new HashMap<String, Object>();
+            Map<String, Object> params = Maps.newHashMap();
             params.put("p", path);
             params.put("reloaddir", "true");
             String suffix = isdir ? "/dir/" : "/file/";
@@ -914,7 +915,7 @@ public class SeafConnection {
     public void copy(String srcRepoId, String srcDir, String srcFn,
                      String dstRepoId, String dstDir, boolean isdir) throws SeafException {
         try {
-            Map<String, Object> params = new HashMap<String, Object>();
+            Map<String, Object> params = Maps.newHashMap();
             params.put("p", srcDir);
 
             HttpRequest req = prepareApiPostRequest("api2/repos/" + srcRepoId + "/fileops/copy/", true, params);
@@ -935,7 +936,7 @@ public class SeafConnection {
     public Pair<String, String> move(String srcRepoId, String srcPath, String dstRepoId, String dstDir,
                                      boolean isdir) throws SeafException {
         try {
-            Map<String, Object> params = new HashMap<String, Object>();
+            Map<String, Object> params = Maps.newHashMap();
             params.put("p", srcPath);
             params.put("reloaddir", "true");
             String suffix = "/file/";

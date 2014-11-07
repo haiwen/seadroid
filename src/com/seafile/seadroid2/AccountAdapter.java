@@ -18,6 +18,8 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
@@ -43,9 +45,9 @@ public class AccountAdapter extends BaseAdapter {
     public AccountAdapter(Context context) {
         this.context = context;
         if (avatars == null) {
-            avatars = new HashMap<String, Avatar>();
+            avatars = Maps.newHashMap();
         }
-        items = new ArrayList<Account>();
+        items = Lists.newArrayList();
         options = new DisplayImageOptions.Builder()
                 .showStubImage(R.drawable.default_avatar)
                 .delayBeforeLoading(1000)

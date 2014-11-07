@@ -19,6 +19,8 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
@@ -34,7 +36,7 @@ public class DataManager {
     private static final long SET_PASSWORD_INTERVAL = 59 * 60 * 1000; // 59 min
     // private static final long SET_PASSWORD_INTERVAL = 5 * 1000; // 5s
 
-    private static Map<String, PasswordInfo> passwords = new HashMap<String, PasswordInfo>();
+    private static Map<String, PasswordInfo> passwords = Maps.newHashMap();
 
     private SeafConnection sc;
     private Account account;
@@ -307,9 +309,9 @@ public class DataManager {
             // may throw ClassCastException
             JSONArray array = Utils.parseJsonArray(json);
             if (array.length() == 0)
-                return new ArrayList<SeafRepo>(0);
+                return Lists.newArrayListWithCapacity(0);
 
-            ArrayList<SeafRepo> repos = new ArrayList<SeafRepo>();
+            ArrayList<SeafRepo> repos = Lists.newArrayList();
             for (int i = 0; i < array.length(); i++) {
                 JSONObject obj = array.getJSONObject(i);
                 SeafRepo repo = SeafRepo.fromJson(obj);
@@ -417,7 +419,7 @@ public class DataManager {
             if (array == null)
                 return null;
 
-            ArrayList<SeafDirent> dirents = new ArrayList<SeafDirent>();
+            ArrayList<SeafDirent> dirents = Lists.newArrayList();
             for (int i = 0; i < array.length(); i++) {
                 JSONObject obj = array.getJSONObject(i);
                 SeafDirent de = SeafDirent.fromJson(obj);
@@ -436,7 +438,7 @@ public class DataManager {
             if (array == null)
                 return null;
 
-            ArrayList<SeafStarredFile> starredFiles = new ArrayList<SeafStarredFile>();
+            ArrayList<SeafStarredFile> starredFiles = Lists.newArrayList();
             for (int i = 0; i < array.length(); i++) {
                 JSONObject obj = array.getJSONObject(i);
                 SeafStarredFile sf = SeafStarredFile.fromJson(obj);

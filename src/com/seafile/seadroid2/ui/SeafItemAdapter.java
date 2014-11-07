@@ -18,6 +18,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.common.collect.Lists;
 import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.NavContext;
 import com.seafile.seadroid2.R;
@@ -37,7 +38,7 @@ public class SeafItemAdapter extends BaseAdapter {
 
     public SeafItemAdapter(BrowserActivity activity) {
         this.mActivity = activity;
-        items = new ArrayList<SeafItem>();
+        items = Lists.newArrayList();
     }
 
     private static final int ACTION_ID_DOWNLOAD = 0;

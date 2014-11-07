@@ -1,6 +1,5 @@
 package com.seafile.seadroid2.ui;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Dialog;
@@ -18,17 +17,18 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 
 /**
  * Choose an app from a list of apps or custom actions
  */
 public class AppChoiceDialog extends DialogFragment {
-    private List<ResolveInfo> mAppInfos = new ArrayList<ResolveInfo>();
+    private List<ResolveInfo> mAppInfos = Lists.newArrayList();
     private OnItemSelectedListener mListener;
     private String mTitle;
 
-    private List<CustomAction> customActions = new ArrayList<CustomAction>();
+    private List<CustomAction> customActions = Lists.newArrayList();
 
     public interface OnItemSelectedListener {
         void onAppSelected(ResolveInfo appInfo);

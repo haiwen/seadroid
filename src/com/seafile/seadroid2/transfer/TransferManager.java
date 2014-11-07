@@ -8,6 +8,7 @@ import java.util.List;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.google.common.collect.Lists;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
@@ -41,8 +42,8 @@ public class TransferManager {
 
     public TransferManager() {
         notificationID = 0;
-        uploadTasks = new ArrayList<UploadTask>();
-        downloadTasks = new ArrayList<DownloadTask>();
+        uploadTasks = Lists.newArrayList();
+        downloadTasks = Lists.newArrayList();
         listener = null;
     }
 
@@ -129,7 +130,7 @@ public class TransferManager {
     }
 
     public List<UploadTaskInfo> getAllUploadTaskInfos() {
-        ArrayList<UploadTaskInfo> infos = new ArrayList<UploadTaskInfo>();
+        ArrayList<UploadTaskInfo> infos = Lists.newArrayList();
         for (UploadTask task : uploadTasks) {
             infos.add(task.getTaskInfo());
         }

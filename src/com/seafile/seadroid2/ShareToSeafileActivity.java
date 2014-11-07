@@ -14,6 +14,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.google.common.collect.Lists;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
@@ -41,7 +42,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
         if (extras != null) {
             Object extraStream = extras.get(Intent.EXTRA_STREAM);
 
-            if(localPath == null) localPath = new ArrayList<String>();
+            if(localPath == null) localPath = Lists.newArrayList();
             if (extraStream instanceof ArrayList) {
                 for (Uri uri : (ArrayList<Uri>)extraStream) {
                     localPath.add(getSharedFilePath(uri));

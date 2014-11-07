@@ -35,6 +35,8 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.seafile.seadroid2.R;
 
 public class MultipleImageSelectionActivity extends NoSearchActivity implements
@@ -73,7 +75,7 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
     private float mScrollPosition = INVALID_POSITION;
     private boolean mConfigurationChanged = false;
 
-    private HashSet<IImage> mMultiSelected = new HashSet<IImage>();
+    private HashSet<IImage> mMultiSelected = Sets.newHashSet();
 
     @Override
     public void onCreate(Bundle icicle) {
@@ -130,7 +132,7 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
 
     private void setResultAndFinish() {
         Intent result = new Intent();
-        ArrayList<String> selected = new ArrayList<String>();
+        ArrayList<String> selected = Lists.newArrayList();
         for (IImage image : mMultiSelected) {
             selected.add(image.getDataPath());
         }
@@ -910,7 +912,7 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
 
     //         String mimeType = getShareMultipleMimeType();
     //         intent.setType(mimeType);
-    //         ArrayList<Parcelable> list = new ArrayList<Parcelable>();
+    //         ArrayList<Parcelable> list = Lists.newArrayList();
     //         for (IImage image : mMultiSelected) {
     //             list.add(image.fullSizeImageUri());
     //         }
@@ -946,7 +948,7 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
     //     if (mMultiSelected == null) return;
     //     Runnable action = new Runnable() {
     //         public void run() {
-    //             ArrayList<Uri> uriList = new ArrayList<Uri>();
+    //             ArrayList<Uri> uriList = Lists.newArrayList();
     //             for (IImage image : mMultiSelected) {
     //                 uriList.add(image.fullSizeImageUri());
     //             }

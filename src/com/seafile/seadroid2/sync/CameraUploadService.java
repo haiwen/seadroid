@@ -22,6 +22,7 @@ import android.provider.MediaStore.MediaColumns;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.google.common.collect.Lists;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
@@ -43,7 +44,7 @@ public class CameraUploadService extends Service {
     public static final String BROADCAST_CAMERA_UPLOAD_LIBRARY_NOT_FOUND = "cameraUploadLibarayNotFound";
     public static final String BROADCAST_CAMERA_UPLOAD_SERVICE_STARTED = "cameraUploadServiceStarted";
     public static final String BROADCAST_CAMERA_UPLOAD_SERVICE_STOPPED = "cameraUploadServiceStopped";
-    private ArrayList<PendingUploadInfo> pendingUploads = new ArrayList<PendingUploadInfo>();
+    private ArrayList<PendingUploadInfo> pendingUploads = Lists.newArrayList();
     private CameraObserver cameraUploadObserver = new CameraObserver();
     private CameraUploadManager cUploadManager;
     private TransferService mTransferService;
@@ -296,7 +297,7 @@ public class CameraUploadService extends Service {
             if (type == null) {
                 return;
             }
-            List<String> list = new ArrayList<String>();
+            List<String> list = Lists.newArrayList();
 
             if (type.equals(TransferService.BROADCAST_FILE_UPLOAD_SUCCESS)) {
                 int taskID = intent.getIntExtra("taskID", 0);

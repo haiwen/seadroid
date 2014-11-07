@@ -2,6 +2,7 @@ package com.seafile.seadroid2.ui;
 
 import java.util.ArrayList;
 
+import com.google.common.collect.Lists;
 import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.data.SeafItem;
@@ -21,7 +22,7 @@ public class StarredItemAdapter extends BaseAdapter {
 
     public StarredItemAdapter(BrowserActivity activity) {
         this.mActivity = activity;
-        items = new ArrayList<SeafItem>();
+        items = Lists.newArrayList();
     }
 
     @Override

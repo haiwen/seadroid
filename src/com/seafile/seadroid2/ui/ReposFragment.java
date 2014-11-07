@@ -18,6 +18,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
+import com.google.common.collect.Lists;
 import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.CertsManager;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
@@ -564,7 +565,7 @@ public class ReposFragment extends SherlockListFragment {
 
     private void scheduleThumbnailTask(String repoName, String repoID,
             String path, List<SeafDirent> dirents) {
-        ArrayList<SeafDirent> needThumb = new ArrayList<SeafDirent>();
+        ArrayList<SeafDirent> needThumb = Lists.newArrayList();
         for (SeafDirent dirent : dirents) {
             if (dirent.isDir())
                 continue;

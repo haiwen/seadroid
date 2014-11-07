@@ -27,6 +27,7 @@ import android.util.Log;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * ImageManager is used to retrieve and store images
@@ -321,7 +322,7 @@ public class ImageManager {
         boolean haveSdCard = hasStorage(false);
 
         // use this code to merge videos and stills into the same list
-        ArrayList<BaseImageList> l = new ArrayList<BaseImageList>();
+        ArrayList<BaseImageList> l = Lists.newArrayList();
 
         if (haveSdCard && location != DataLocation.INTERNAL) {
             if ((inclusion & INCLUDE_IMAGES) != 0) {
@@ -395,7 +396,7 @@ public class ImageManager {
         }
 
         public HashMap<String, String> getBucketIds() {
-            return new HashMap<String, String>();
+            return Maps.newHashMap();
         }
 
         public int getCount() {

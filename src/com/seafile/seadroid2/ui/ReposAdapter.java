@@ -1,6 +1,5 @@
 package com.seafile.seadroid2.ui;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import android.view.LayoutInflater;
@@ -10,13 +9,14 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.data.SeafRepo;
 
 public class ReposAdapter extends BaseAdapter {
 
-    private List<SeafRepo> repos = new ArrayList<SeafRepo>();
+    private List<SeafRepo> repos = Lists.newArrayList();
     private boolean onlyShowWritableRepos;
     private String encryptedRepoId;
 
