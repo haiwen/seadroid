@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.transfer.UploadTaskInfo;
 import com.seafile.seadroid2.util.Utils;
@@ -32,7 +33,7 @@ public class UploadTasksAdapter extends BaseAdapter {
     public UploadTasksAdapter(Context context, List<UploadTaskInfo> infos) {
         setTaskInfos(infos);
         mContext = context;
-        mTaskViewMap = new HashMap<Integer, Viewholder>();
+        mTaskViewMap = Maps.newHashMap();
     }
 
     private class TaskInfoComparator implements Comparator<UploadTaskInfo> {

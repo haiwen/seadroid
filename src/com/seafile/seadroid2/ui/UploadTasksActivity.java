@@ -1,6 +1,5 @@
 package com.seafile.seadroid2.ui;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import android.content.BroadcastReceiver;
@@ -22,6 +21,7 @@ import android.widget.ListView;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
+import com.google.common.collect.Lists;
 import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.transfer.TransferManager.TaskState;
@@ -120,7 +120,7 @@ public class UploadTasksActivity extends SherlockFragmentActivity {
     private List<UploadTaskInfo> getUploadTaskInfos() {
         if (txService == null) {
             // In case the service is not ready
-            return new ArrayList<UploadTaskInfo>();
+            return Lists.newArrayList();
         }
 
         return txService.getAllUploadTaskInfos();

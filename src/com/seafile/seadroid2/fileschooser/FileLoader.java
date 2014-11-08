@@ -1,9 +1,9 @@
 package com.seafile.seadroid2.fileschooser;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import com.seafile.seadroid2.util.Utils;
 
 import android.content.Context;
@@ -26,7 +26,7 @@ public class FileLoader extends AsyncTaskLoader<List<SelectableFile>> {
     public FileLoader(Context context, String path, List<File> selectedFiles) {
         super(context);
         this.mPath = path;
-        mSelectedFiles = new ArrayList<File>(selectedFiles);
+        mSelectedFiles = Lists.newArrayList(selectedFiles);
     }
 
     @Override

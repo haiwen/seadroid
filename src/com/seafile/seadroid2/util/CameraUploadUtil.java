@@ -2,11 +2,11 @@ package com.seafile.seadroid2.util;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.util.ArrayList;
 import java.util.List;
 
 import android.util.Log;
 
+import com.google.common.collect.Lists;
 import com.seafile.seadroid2.gallery.ImageManager;
 
 public class CameraUploadUtil {
@@ -74,9 +74,9 @@ public class CameraUploadUtil {
         }
     };
 
-    private static ArrayList<File> getPhotosAbsolutePathList(String path) {
+    private static List<File> getPhotosAbsolutePathList(String path) {
 
-        ArrayList<File> list = new ArrayList<File>();
+        List<File> list = Lists.newArrayList();
 
         // Current directory File instance
         final File pathDir = new File(path);
@@ -110,8 +110,8 @@ public class CameraUploadUtil {
     }
 
     public static List<File> getAllPhotosAbsolutePathList() {
-        ArrayList<File> list = new ArrayList<File>();
-        ArrayList<File> photoAbsolutePathList = new ArrayList<File>();
+        List<File> list = Lists.newArrayList();
+        List<File> photoAbsolutePathList = Lists.newArrayList();
 
         List<String> paths = ImageManager.getAllPath();
         for (String path : paths) {

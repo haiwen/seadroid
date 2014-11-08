@@ -3,6 +3,7 @@ package com.seafile.seadroid2.account;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import com.seafile.seadroid2.SeadroidApplication;
 
 import android.content.ContentValues;
@@ -81,7 +82,7 @@ public class AccountDbHelper extends SQLiteOpenHelper {
     }
 
     public List<Account> getAccountList() {
-        List<Account> accounts = new ArrayList<Account>();
+        List<Account> accounts = Lists.newArrayList();
 
         String[] projection = {
                 AccountDbHelper.COLUMN_SERVER,

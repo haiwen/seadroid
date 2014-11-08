@@ -10,6 +10,7 @@ import android.provider.MediaStore.Images.Media;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * Represents an ordered collection of Image objects. Provides an API to add
@@ -33,7 +34,7 @@ public class ImageList extends BaseImageList implements IImageList {
                     Media.BUCKET_ID},
                 whereClause(), whereClauseArgs(), null);
         try {
-            HashMap<String, String> hash = new HashMap<String, String>();
+            HashMap<String, String> hash = Maps.newHashMap();
             while (cursor.moveToNext()) {
                 hash.put(cursor.getString(1), cursor.getString(0));
             }

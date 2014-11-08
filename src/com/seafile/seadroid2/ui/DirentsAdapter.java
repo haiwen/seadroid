@@ -1,6 +1,5 @@
 package com.seafile.seadroid2.ui;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import android.graphics.Color;
@@ -11,6 +10,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.data.SeafDirent;
@@ -20,7 +20,7 @@ public class DirentsAdapter extends BaseAdapter {
     private List<SeafDirent> dirents;
 
     public DirentsAdapter() {
-        dirents = new ArrayList<SeafDirent>();
+        dirents = Lists.newArrayList();
     }
 
     @Override

@@ -40,6 +40,7 @@ import android.view.accessibility.AccessibilityManager;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 
 
@@ -1051,7 +1052,7 @@ public class GestureLockPatternView extends View {
      * @return The pattern.
      */
     public static List<GestureLockPatternView.Cell> stringToPattern(String string) {
-        List<GestureLockPatternView.Cell> result = new ArrayList<GestureLockPatternView.Cell>();
+        List<GestureLockPatternView.Cell> result = Lists.newArrayList();
 
         final byte[] bytes = string.getBytes();
         for (int i = 0; i < bytes.length; i++) {

@@ -12,6 +12,7 @@ import android.provider.MediaStore.Video.Media;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * A collection of all the <code>VideoObject</code> in gallery.
@@ -78,7 +79,7 @@ public class VideoList extends BaseImageList {
                 },
                 whereClause(), whereClauseArgs(), sortOrder());
         try {
-            HashMap<String, String> hash = new HashMap<String, String>();
+            HashMap<String, String> hash = Maps.newHashMap();
             while (c.moveToNext()) {
                 hash.put(c.getString(1), c.getString(0));
             }

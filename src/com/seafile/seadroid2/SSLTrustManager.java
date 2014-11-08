@@ -7,7 +7,6 @@ import java.security.Principal;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +20,7 @@ import android.util.Log;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.seafile.seadroid2.account.Account;
 
 public final class SSLTrustManager {
@@ -34,10 +34,10 @@ public final class SSLTrustManager {
     private X509TrustManager defaultTrustManager;
 
     private Map<Account, SecureX509TrustManager> managers =
-        new HashMap<Account, SecureX509TrustManager>();
+            Maps.newHashMap();
 
     private Map<Account, SSLSocketFactory> cachedFactories =
-        new HashMap<Account, SSLSocketFactory>();
+            Maps.newHashMap();
 
     private static SSLTrustManager instance;
 
@@ -141,7 +141,7 @@ public final class SSLTrustManager {
         // certs.addAll(Arrays.asList(certificates));
         X509Certificate certChain = certs.get(0);
         certs.remove(certChain);
-        LinkedList<X509Certificate> chainList= new LinkedList<X509Certificate>();
+        LinkedList<X509Certificate> chainList= Lists.newLinkedList();
         chainList.add(certChain);
         Principal certIssuer = certChain.getIssuerDN();
         Principal certSubject = certChain.getSubjectDN();

@@ -1,6 +1,5 @@
 package com.seafile.seadroid2.data;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONObject;
@@ -38,22 +37,6 @@ public class AvatarManager {
         Log.v(DEBUG_TAG, "response Avatar : " + avatarRawData);
         return parseAvatar(avatarRawData);
     }
-    
-    /*public synchronized List<Avatar> getAvatars(int size) throws SeafException {
-        // First decide if use cache
-        if (!Utils.isNetworkOn()) {
-            throw SeafException.networkException;
-        }
-        List<Avatar> avatars = new ArrayList<Avatar>();
-        for (Account account : accounts) {
-            Log.v(DEBUG_TAG, "request email : " + account.email);
-            String avatarRawData = sc.getAvatar(account.email, size);
-            Log.v(DEBUG_TAG, "response Avatar : " + avatarRawData);
-            Avatar avatar = parseAvatar(avatarRawData);
-            avatars.add(avatar);
-        }
-        return avatars;
-    }*/
     
     private Avatar parseAvatar(String json) {
         JSONObject obj = Utils.parseJsonObject(json);

@@ -13,6 +13,7 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.common.collect.Lists;
 import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.NavContext;
 import com.seafile.seadroid2.R;
@@ -31,7 +32,7 @@ public class SeafItemCheckableAdapter extends BaseAdapter {
 
     public SeafItemCheckableAdapter(BrowserActivity mActivity) {
         this.mActivity = mActivity;
-        items = new ArrayList<SeafItemWrap>();
+        items = Lists.newArrayList();
     }
 
     public void setOnCheckedChangeListener(OnCheckedChangeListener listener) {
@@ -91,7 +92,7 @@ public class SeafItemCheckableAdapter extends BaseAdapter {
 
 
     public List<SeafItem> getSelectedItems() {
-        List<SeafItem> r = new ArrayList<SeafItem>();
+        List<SeafItem> r = Lists.newArrayList();
         for (SeafItemWrap w : items) {
             if (w.seleted)
                 r.add(w.item);
@@ -100,7 +101,7 @@ public class SeafItemCheckableAdapter extends BaseAdapter {
     }
 
     public void removeSelectedItems() {
-        List<SeafItemWrap> tmp = new ArrayList<SeafItemWrap>();
+        List<SeafItemWrap> tmp = Lists.newArrayList();
         for (SeafItemWrap w : items) {
             if (w.seleted)
                 tmp.add(w);

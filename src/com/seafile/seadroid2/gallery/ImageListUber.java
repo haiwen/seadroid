@@ -8,6 +8,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.PriorityQueue;
 
+import com.google.common.collect.Maps;
+
 /**
  * A union of different <code>IImageList</code>. This class can merge several
  * <code>IImageList</code> into one list and sort them according to the
@@ -51,7 +53,7 @@ public class ImageListUber implements IImageList {
     }
 
     public HashMap<String, String> getBucketIds() {
-        HashMap<String, String> hashMap = new HashMap<String, String>();
+        HashMap<String, String> hashMap = Maps.newHashMap();
         for (IImageList list : mSubList) {
             hashMap.putAll(list.getBucketIds());
         }

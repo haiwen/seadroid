@@ -2,12 +2,14 @@ package com.seafile.seadroid2.gallery;
 
 import java.util.ArrayList;
 
+import com.google.common.collect.Lists;
+
 import android.os.Bundle;
 
 public class MonitoredActivity extends NoSearchActivity {
 
     private final ArrayList<LifeCycleListener> mListeners =
-            new ArrayList<LifeCycleListener>();
+            Lists.newArrayList();
 
     public static interface LifeCycleListener {
         public void onActivityCreated(MonitoredActivity activity);

@@ -6,6 +6,8 @@ import android.os.Handler;
 
 import java.util.ArrayList;
 
+import com.google.common.collect.Lists;
+
 /**
  * A dedicated decoding thread used by ImageGallery.
  */
@@ -14,7 +16,7 @@ public class ImageLoader {
     private static final String TAG = "ImageLoader";
 
     // Queue of work to do in the worker thread. The work is done in order.
-    private final ArrayList<WorkItem> mQueue = new ArrayList<WorkItem>();
+    private final ArrayList<WorkItem> mQueue = Lists.newArrayList();
 
     // the worker thread and a done flag so we know when to exit
     private boolean mDone;

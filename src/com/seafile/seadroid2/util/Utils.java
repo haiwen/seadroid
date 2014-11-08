@@ -42,6 +42,8 @@ import android.net.Uri;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.data.SeafRepo;
@@ -186,7 +188,7 @@ public class Utils {
             String groupName = repo.isGroupRepo ? repo.owner : NOGROUP;
             l = map.get(groupName);
             if (l == null) {
-                l = new ArrayList<SeafRepo>();
+                l = Lists.newArrayList();
                 map.put(groupName, l);
             }
             l.add(repo);
@@ -236,7 +238,7 @@ public class Utils {
         if (suffixIconMap != null)
             return suffixIconMap;
 
-        suffixIconMap = new HashMap<String, Integer>();
+        suffixIconMap = Maps.newHashMap();
         suffixIconMap.put("pdf", R.drawable.file_pdf);
         suffixIconMap.put("doc", R.drawable.file_ms_word);
         suffixIconMap.put("docx", R.drawable.file_ms_word);
@@ -430,7 +432,7 @@ public class Utils {
     };
 
     public static List<SelectableFile> getFileList(String path, List<File> selectedFile) {
-        ArrayList<SelectableFile> list = new ArrayList<SelectableFile>();
+        ArrayList<SelectableFile> list = Lists.newArrayList();
 
         // Current directory File instance
         final SelectableFile pathDir = new SelectableFile(path);

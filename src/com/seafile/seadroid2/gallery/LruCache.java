@@ -6,11 +6,13 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.google.common.collect.Maps;
+
 public class LruCache<K, V> {
 
     private final HashMap<K, V> mLruMap;
     private final HashMap<K, Entry<K, V>> mWeakMap =
-            new HashMap<K, Entry<K, V>>();
+            Maps.newHashMap();
     private ReferenceQueue<V> mQueue = new ReferenceQueue<V>();
 
     @SuppressWarnings("serial")

@@ -1,8 +1,8 @@
 package com.seafile.seadroid2.fileschooser;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 
 import android.app.Activity;
@@ -21,7 +21,7 @@ public class FileListAdapter extends BaseAdapter {
 
     public FileListAdapter(Activity activity) {
         this.mActivity = activity;
-        mFiles = new ArrayList<SelectableFile>();
+        mFiles = Lists.newArrayList();
     }
 
     @Override

@@ -33,6 +33,7 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.google.common.collect.Maps;
 import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.CertsManager;
 import com.seafile.seadroid2.FileActivity;
@@ -130,7 +131,7 @@ public class ActivitiesFragment extends SherlockFragment {
     private Map<String, String> getExtraHeaders() {
         Account account = getBrowserActivity().getAccount();
         String token = "Token " + account.getToken();
-        Map<String, String> headers = new HashMap<String, String>();
+        Map<String, String> headers = Maps.newHashMap();
         headers.put("Authorization", token);
 
         return headers;

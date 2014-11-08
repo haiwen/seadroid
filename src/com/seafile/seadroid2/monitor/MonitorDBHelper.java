@@ -14,6 +14,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
@@ -124,8 +126,8 @@ public class MonitorDBHelper extends SQLiteOpenHelper {
     }
 
     public List<AutoUpdateInfo> getAutoUploadInfos() {
-        List<AutoUpdateInfo> infos = new ArrayList<AutoUpdateInfo>();
-        List<AutoUpdateInfo> invalidInfos = new LinkedList<AutoUpdateInfo>();
+        List<AutoUpdateInfo> infos = Lists.newArrayList();
+        List<AutoUpdateInfo> invalidInfos = Lists.newLinkedList();
 
         Cursor c = database.query(AUTO_UPDATE_INFO_TABLE_NAME, FULL_PROJECTION, null, null,
                 null, // don't group the rows
@@ -161,7 +163,7 @@ public class MonitorDBHelper extends SQLiteOpenHelper {
 
     private Map<String, Account> getAllAccouts() {
         AccountManager accountMgr = new AccountManager(SeadroidApplication.getAppContext());
-        Map<String, Account> accounts = new HashMap<String, Account>();
+        Map<String, Account> accounts = Maps.newHashMap();
         for (Account account : accountMgr.getAccountList()) {
             accounts.put(account.getSignature(), account);
         }

@@ -1,7 +1,6 @@
 package com.seafile.seadroid2.data;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 import android.content.ContentValues;
@@ -12,6 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import android.util.Pair;
 
+import com.google.common.collect.Lists;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 
@@ -219,7 +219,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
     
     public List<SeafCachedFile> getFileCacheItems(DataManager dataManager) {
-        List<SeafCachedFile> files = new ArrayList<SeafCachedFile>();
+        List<SeafCachedFile> files = Lists.newArrayList();
 
         String[] projection = {
                 FILECACHE_COLUMN_ID,

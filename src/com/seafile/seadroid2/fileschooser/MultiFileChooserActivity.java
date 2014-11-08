@@ -2,9 +2,9 @@ package com.seafile.seadroid2.fileschooser;
 
 import java.io.File;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.util.Utils;
 
@@ -62,7 +62,7 @@ OnBackStackChangedListener {
         .add(R.id.footer_fragment, mFooterFragment).commit();
 
         setTitle(mPath);
-        mSelectedFiles = new ArrayList<File>();
+        mSelectedFiles = Lists.newArrayList();
     }
 
     @Override
