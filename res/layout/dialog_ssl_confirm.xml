@@ -12,7 +12,7 @@
         android:padding="20dp"
         android:text="texttexttexttext"
         android:textColor="@color/black"
-        android:textSize="18dp" />
+        android:textSize="18sp" />
 
     <LinearLayout
         android:id="@+id/cert_details"
@@ -20,6 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="25dp"
         android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp"
         android:orientation="vertical" >
 
         <LinearLayout
@@ -33,7 +34,7 @@
                 android:id="@+id/issuer_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Issuer"
+                android:text="Issued To"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -45,47 +46,43 @@
                 android:text="common_name"
                 android:textColor="@color/black" />
 
-            <TextView
-                android:id="@+id/orgnization"
+            <LinearLayout
+                android:id="@+id/finger_prints"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="orgnization"
-                android:textColor="@color/black" />
+                android:layout_marginTop="10dp"
+                android:orientation="vertical" >
 
-            <TextView
-                android:id="@+id/state"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="state"
-                android:textColor="@color/black" />
+                <TextView
+                    android:id="@+id/finger_prints_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Finger Prints"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/country"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="country"
-                android:textColor="@color/black" />
+                <TextView
+                    android:id="@+id/sha1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="sha1"
+                    android:textColor="@color/black" />
 
-            <TextView
-                android:id="@+id/version"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="version"
-                android:textColor="@color/black" />
+                <TextView
+                    android:id="@+id/md5"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="md5"
+                    android:textColor="@color/black" />
 
-            <TextView
-                android:id="@+id/serial_number"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="serial_number"
-                android:textColor="@color/black" />
-
-            <TextView
-                android:id="@+id/signature_algorithm"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="signature_algorithm"
-                android:textColor="@color/black" />
+                <TextView
+                    android:id="@+id/serial_number"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="serial_number"
+                    android:textColor="@color/black" />
+            </LinearLayout>
         </LinearLayout>
 
         <LinearLayout
@@ -93,6 +90,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
             android:gravity="center_horizontal"
             android:orientation="vertical" >
 
@@ -100,7 +98,7 @@
                 android:id="@+id/validity_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Validity"
+                android:text="Period of Validity"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -125,7 +123,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
-            android:layout_marginLeft="0dp"
             android:text="@string/remember_my_choice" />
     </LinearLayout>
 
