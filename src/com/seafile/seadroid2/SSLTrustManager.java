@@ -6,6 +6,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -117,6 +118,15 @@ public final class SSLTrustManager {
 
         return mgr.getServerCertsChain();
     }
+    
+    public X509Certificate getCertificateInfo(Account account) throws CertificateParsingException {
+        List<X509Certificate> certs = getCertsChainForAccount(account);
+        if (certs == null || certs.size() == 0) {
+            return null;
+        }
+        final X509Certificate cert = certs.get(0);
+        return cert;
+    }
 
     public SslFailureReason getFailureReason(Account account) {
         SecureX509TrustManager mgr = managers.get(account);
@@ -209,6 +219,14 @@ public final class SSLTrustManager {
             }
         }
 
+        public String getCeritificateInfo() throws CertificateParsingException {
+            X509Certificate cert = CertsManager.instance().getCertificate(account);
+            return "sigalgName:" + cert.getSigAlgName() + " Type: "
+                    + cert.getType() + " Version: " + cert.getVersion()
+                    + " IssuerAlternative: " + cert.getIssuerAlternativeNames()
+                    + " NotAfter: " + cert.getNotAfter();
+        }
+        
         private void customCheck(List<X509Certificate> chain, String authType)
             throws CertificateException {
 
