@@ -161,6 +161,14 @@
     <string name="ssl_confirm">The security certificate of %s is not trusted. Do you want to continue?</string>
     <string name="ssl_confirm_cert_changed">%s uses an invalid security certificate. The connection is not secure. Do you want to continue?</string>
     <string name="ssl_confirm_title">Untrusted Connection</string>
+    <string name="issued_to">Issued To</string>
+    <string name="finger_prints">Finger Prints</string>
+    <string name="period_of_validity">Period of Validity</string>
+    <string name="sha1">SHA-1 %s</string>
+    <string name="md5">MD5 %s</string>
+    <string name="serial_number">Serial number %s</string>
+    <string name="not_before">Valid from %s</string>
+    <string name="not_after">Valid until %s</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="remember_my_choice">Remember my choice</string>

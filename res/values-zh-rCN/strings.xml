@@ -159,6 +159,14 @@
   <string name="ssl_confirm">%s的安全证书不受信任,是否继续？</string>
   <string name="ssl_confirm_cert_changed">%s使用了非法的安全证书，这意味着该连接不安全，是否继续?</string>
   <string name="ssl_confirm_title">连接不受信任</string>
+  <string name="issued_to">签发者</string>
+  <string name="finger_prints">指纹</string>
+  <string name="period_of_validity">有效期</string>
+  <string name="sha1">SHA-1算法  %s</string>
+  <string name="md5">MD5算法  %s</string>
+  <string name="serial_number">序列号%s</string>
+  <string name="not_before">生效日期%s</string>
+  <string name="not_after">过期日期%s</string>
   <string name="yes">是</string>
   <string name="no">否</string>
   <string name="remember_my_choice">记住我的选择</string>

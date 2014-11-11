@@ -5,23 +5,21 @@ import java.net.URL;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.seafile.seadroid2.CertsManager;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SSLTrustManager;
 import com.seafile.seadroid2.SSLTrustManager.SslFailureReason;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.data.CertificateInfo;
 
 
 public class SslConfirmDialog extends DialogFragment {
@@ -37,12 +35,10 @@ public class SslConfirmDialog extends DialogFragment {
     private Listener listener;
     private TextView messageText;
     private TextView commonNameText;
-    private TextView orgnizationText;
-    private TextView stateText;
-    private TextView countryText;
-    private TextView versionText;
+    // private TextView altSubjNamesText;
+    private TextView sha1Text;
+    private TextView md5Text;
     private TextView serialNumberText;
-    private TextView signatureAlgorithmText;
     private TextView notBeforeText;
     private TextView notAfterText;
     private CheckBox rememberChoiceCheckbox;
@@ -57,19 +53,16 @@ public class SslConfirmDialog extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        SeafileStyleDialogBuilder builder = new SeafileStyleDialogBuilder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         LinearLayout view = (LinearLayout)inflater.inflate(R.layout.dialog_ssl_confirm, null);
 
         messageText = (TextView)view.findViewById(R.id.message);
         commonNameText = (TextView) view.findViewById(R.id.common_name);
-        orgnizationText = (TextView) view.findViewById(R.id.orgnization);
-        stateText = (TextView) view.findViewById(R.id.state);
-        countryText = (TextView) view.findViewById(R.id.country);
-        
-        versionText = (TextView) view.findViewById(R.id.version);
+        // altSubjNamesText = (TextView) view.findViewById(R.id.alt_subj_name);
+        sha1Text = (TextView) view.findViewById(R.id.sha1);
+        md5Text = (TextView) view.findViewById(R.id.md5);
         serialNumberText = (TextView) view.findViewById(R.id.serial_number);
-        signatureAlgorithmText = (TextView) view.findViewById(R.id.signature_algorithm);
         notBeforeText = (TextView) view.findViewById(R.id.not_before);
         notAfterText = (TextView) view.findViewById(R.id.not_after);
         rememberChoiceCheckbox = (CheckBox)view.findViewById(R.id.remember_choice);
@@ -91,26 +84,22 @@ public class SslConfirmDialog extends DialogFragment {
         }
         String msg = "";
         if (reason == SslFailureReason.CERT_NOT_TRUSTED) {
-            Log.d(DEBUG_TAG, cert.getIssuerDN().getName());
-            Log.d(DEBUG_TAG, cert.getType());
-            Log.d(DEBUG_TAG, String.valueOf(cert.getVersion()));
-            
             msg =getActivity().getString(R.string.ssl_confirm, host);
-            Log.d(DEBUG_TAG, "formated msg is " + msg);
         } else {
             msg = getActivity().getString(R.string.ssl_confirm_cert_changed, host);
-            Log.d(DEBUG_TAG, "formated msg is " + msg);
         }
         messageText.setText(msg);
-        commonNameText.setText("Common Name " + cert.getIssuerX500Principal().getName().toString());
-        orgnizationText.setText("Orgnization " + cert.getIssuerDN().getName().substring(cert.getIssuerDN().getName().indexOf("O="), cert.getIssuerDN().getName().indexOf(",ST")));
-        stateText.setText("State ");
-        countryText.setText("Country ");
-        versionText.setText("Version " + String.valueOf(cert.getVersion()));
-        serialNumberText.setText("Serial Number " + cert.getSerialNumber().toString());
-        notBeforeText.setText("Not before " + cert.getNotBefore().toGMTString());
-        notAfterText.setText("Not After " + cert.getNotAfter().toLocaleString());
-        builder.setTitle(R.string.ssl_confirm_title);
+        CertificateInfo certInfo = new CertificateInfo(cert);
+        commonNameText.setText(certInfo.getSubjectName());
+        // String[] subjAltNames = certInfo.getSubjectAltNames();
+        // altSubjNamesText.setText((subjAltNames.length > 0) ? StringUtils.join(subjAltNames, ", ") : "—");
+        sha1Text.setText(getActivity().getString(R.string.sha1, certInfo.getSignature("SHA-1")));
+        md5Text.setText(getActivity().getString(R.string.md5, certInfo.getSignature("MD5")));
+        serialNumberText.setText(getActivity().getString(R.string.serial_number, certInfo.getSerialNumber()));
+        notBeforeText.setText(getActivity().getString(R.string.not_before, certInfo.getNotBefore().toLocaleString()));
+        notAfterText.setText(getActivity().getString(R.string.not_after, certInfo.getNotAfter().toLocaleString()));
+        builder.setCustomTitle(inflater.inflate(R.layout.custom_ssl_confirm_title_view, null));
+        builder.setDividerColor(getResources().getString(R.color.orange));
         builder.setView(view);
 
         builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
@@ -121,6 +110,7 @@ public class SslConfirmDialog extends DialogFragment {
                 Log.d(DEBUG_TAG, "checbox is " + rememberChoiceCheckbox.isChecked());
             }
         });
+        
         builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
