@@ -1,21 +1,132 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="vertical"
-	android:layout_width="fill_parent"
-	android:layout_height="wrap_content"
-	android:paddingBottom="15dp"
-    android:paddingLeft="10dp"
-    android:paddingRight="10dp"
-    android:paddingTop="10dp">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:orientation="vertical" >
 
-    <CheckBox
-        android:id="@+id/remember_choice"
-        android:layout_width="wrap_content"
+    <TextView
+        android:id="@+id/message"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:layout_marginBottom="10dp"
-        android:button="@drawable/checkbox_btn_holo_light"
-        android:text="@string/remember_my_choice" />
+        android:padding="20dp"
+        android:text="texttexttexttext"
+        android:textColor="@color/black"
+        android:textSize="18dp" />
+
+    <LinearLayout
+        android:id="@+id/cert_details"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="25dp"
+        android:layout_marginLeft="20dp"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:id="@+id/issuer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:textColor="@color/black" >
+
+            <TextView
+                android:id="@+id/issuer_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Issuer"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/common_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="common_name"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/orgnization"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="orgnization"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/state"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="state"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/country"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="country"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/version"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="version"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/serial_number"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="serial_number"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/signature_algorithm"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="signature_algorithm"
+                android:textColor="@color/black" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/validity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_horizontal"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/validity_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Validity"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/not_before"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="not_before"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:id="@+id/not_after"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="not_after"
+                android:textColor="@color/black" />
+        </LinearLayout>
+
+        <CheckBox
+            android:id="@+id/remember_choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="0dp"
+            android:text="@string/remember_my_choice" />
+    </LinearLayout>
 
 </LinearLayout>

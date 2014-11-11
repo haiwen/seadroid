@@ -156,8 +156,8 @@
   <string name="empty_folder">此文件夹是空的</string>
   <string name="choose_file">请选择一个文件</string>
   <string name="ssl_error">安全验证失败</string>
-  <string name="ssl_confirm">%s 的 安全证书不受信任。是否继续？</string>
-  <string name="ssl_confirm_cert_changed">%s 使用了非法的安全证书，这意味着该连接不安全。是否继续?</string>
+  <string name="ssl_confirm">%s的安全证书不受信任,是否继续？</string>
+  <string name="ssl_confirm_cert_changed">%s使用了非法的安全证书，这意味着该连接不安全，是否继续?</string>
   <string name="ssl_confirm_title">连接不受信任</string>
   <string name="yes">是</string>
   <string name="no">否</string>
