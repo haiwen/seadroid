@@ -72,7 +72,8 @@ public final class SettingsManager {
         if (!isGestureLockEnabled()) {
             return false;
         }
-        if (!LockPatternUtils.savedPatternExists()) {
+        LockPatternUtils mLockPatternUtils = new LockPatternUtils(SeadroidApplication.getAppContext());
+        if (!mLockPatternUtils.savedPatternExists()) {
             return false;
         }
         long now = System.currentTimeMillis();

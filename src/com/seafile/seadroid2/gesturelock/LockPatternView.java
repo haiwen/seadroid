@@ -1066,7 +1066,6 @@ public class LockPatternView extends View {
         mEnableHapticFeedback = ss.isTactileFeedbackEnabled();
     }
 
-
     /**
      * The parecelable for saving and restoring a lock pattern view.
      */

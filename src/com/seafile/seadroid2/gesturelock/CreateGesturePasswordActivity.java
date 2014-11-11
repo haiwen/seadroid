@@ -409,7 +409,8 @@ public class CreateGesturePasswordActivity extends Activity implements
     }
 
     private void saveChosenPatternAndFinish() {
-        LockPatternUtils.saveLockPattern(mChosenPattern);
+        LockPatternUtils mLockPatternUtils = new LockPatternUtils(this);
+        mLockPatternUtils.saveLockPattern(mChosenPattern);
         settingsMgr.setupGestureLock();
         showToast(getResources().getString(R.string.lockpattern_pattern_toast_saved));
         finish();

@@ -129,7 +129,8 @@ public class SettingsPreferenceFragment
                 startActivityForResult(newIntent, SettingsManager.GESTURE_LOCK_REQUEST);
 
             } else {
-                LockPatternUtils.clearLock();
+                LockPatternUtils mLockPatternUtils = new LockPatternUtils(getActivity());
+                mLockPatternUtils.clearLock();
                 gestureLockSwitch.setChecked(false);
             }
         } else if (preference.getKey().equals(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY)) {

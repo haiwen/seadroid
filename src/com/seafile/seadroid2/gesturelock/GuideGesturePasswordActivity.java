@@ -20,7 +20,8 @@ public class GuideGesturePasswordActivity extends SherlockFragmentActivity {
                 new OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        LockPatternUtils.clearLock();
+                        LockPatternUtils mLockPatternUtils = new LockPatternUtils(getApplicationContext());
+                        mLockPatternUtils.clearLock();
                         Intent intent = new Intent(GuideGesturePasswordActivity.this, CreateGesturePasswordActivity.class);
                         startActivity(intent);
                         finish();

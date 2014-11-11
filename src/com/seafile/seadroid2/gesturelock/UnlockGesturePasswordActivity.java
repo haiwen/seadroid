@@ -87,7 +87,8 @@ public class UnlockGesturePasswordActivity extends Activity {
         public void onPatternDetected(List<LockPatternView.Cell> pattern) {
             if (pattern == null)
                 return;
-            if (LockPatternUtils.checkPattern(pattern)) {
+            LockPatternUtils mLockPatternUtils = new LockPatternUtils(getApplicationContext());
+            if (mLockPatternUtils.checkPattern(pattern)) {
                 mLockPatternView
                         .setDisplayMode(LockPatternView.DisplayMode.Correct);
                 settingsMgr.setupGestureLock();

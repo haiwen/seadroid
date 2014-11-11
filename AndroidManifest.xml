@@ -17,7 +17,7 @@
 
         <activity android:name="com.seafile.seadroid2.AccountsActivity"
                   android:launchMode="singleTop"
-            	  android:screenOrientation="portrait"
+                  android:screenOrientation="portrait"
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>
@@ -124,7 +124,7 @@
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>
-		<service android:name="com.seafile.seadroid2.transfer.TransferService" > </service>
+        <service android:name="com.seafile.seadroid2.transfer.TransferService" > </service>
         <service android:name="com.seafile.seadroid2.monitor.FileMonitorService" > </service>
         <service android:name="com.seafile.seadroid2.cameraupload.CameraUploadService" > </service>
       </application>
