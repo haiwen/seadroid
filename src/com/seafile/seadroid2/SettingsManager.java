@@ -6,6 +6,7 @@ import android.preference.PreferenceManager;
 
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.util.Utils;
+import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 
 /**
  * Access the app settings
@@ -47,9 +48,7 @@ public final class SettingsManager {
     public static final String SETTINGS_ABOUT_VERSION_KEY = "settings_about_version_key";
 
     public static long lock_timestamp = 0;
-    public static final long LOCK_EXPIRATION_MSECS = 6 * 50 * 1000;
-
-    // public static final long LOCK_EXPIRATION_MSECS = 5 * 1000;
+    public static final long LOCK_EXPIRATION_MSECS = 5 * 60 * 1000;
 
     public static synchronized SettingsManager instance() {
         if (instance == null) {
@@ -59,35 +58,24 @@ public final class SettingsManager {
         return instance;
     }
 
-    public boolean isGestureLockEnabled() {
-        return settingsSharedPref.getBoolean(GESTURE_LOCK_SWITCH_KEY, false);
-    }
-
-    public void setGestureLockPattern(String pattern) {
-        editor.putString(GESTURE_LOCK_KEY, pattern);
-        editor.commit();
+    public void setupGestureLock() {
+        settingsSharedPref.edit().putBoolean(GESTURE_LOCK_SWITCH_KEY, true)
+                .commit();
         saveGestureLockTimeStamp();
     }
-
-    public void clearGestureLock() {
-        editor.putString(GESTURE_LOCK_KEY, null);
-        editor.putBoolean(GESTURE_LOCK_SWITCH_KEY, false);
-        editor.commit();
-    }
-
-    public String getGestureLockPattern() {
-        return sharedPref.getString(GESTURE_LOCK_KEY, null);
+    
+    public boolean isGestureLockEnabled() {
+        return settingsSharedPref.getBoolean(GESTURE_LOCK_SWITCH_KEY, false);
     }
 
     public boolean isGestureLockRequired() {
         if (!isGestureLockEnabled()) {
             return false;
         }
-        if (getGestureLockPattern() == null
-                || getGestureLockPattern().equals("")) {
+        LockPatternUtils mLockPatternUtils = new LockPatternUtils(SeadroidApplication.getAppContext());
+        if (!mLockPatternUtils.savedPatternExists()) {
             return false;
         }
-
         long now = System.currentTimeMillis();
         if (now < lock_timestamp + LOCK_EXPIRATION_MSECS) {
             return false;

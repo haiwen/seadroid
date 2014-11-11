@@ -115,7 +115,7 @@
   <string name="copy_link">Kopiuj odsyłacz</string>
   <string name="share_file_link">Udostępnij łącze do tego pliku</string>
   <string name="share_dir_link">Udostępnij łącze do tego folderu</string>
-  <string name="generating_link">Generowanie odsyłacza...</string>
+  <string name="generating_link">Generowanie odsyłacza&#8230;</string>
   <string name="link_ready_to_be_pasted">Łącze jest gotowe do wklejenia.</string>
   <string name="rename_file">Zmień nazwę pliku</string>
   <string name="rename_dir">Zmień nazwę folderu</string>
@@ -175,20 +175,11 @@
   <string name="gesture_lock_on">Blokada gestem włączona</string>
   <string name="gesture_lock_off">Blokada gestem wyłączona</string>
   <string name="cancel">Anuluj</string>
-  <string name="go_on">Dalej</string>
-  <string name="try_again">Spróbuj ponownie</string>
   <string name="confirm">Zatwierdź</string>
   <string name="lockpattern_recording_incorrect_too_short">proszę połączyć przynajmniej 4 punkty</string>
-  <string name="lockpattern_error">Nieprawidłowy gest blokady</string>
-  <string name="please_draw_gesture_lock">Narysuj gest blokady</string>
-  <string name="setup_gesture_lock_success">Pomyślnie ustawiono gest blokady!</string>
-  <!--Accessibility description sent when user starts drawing a lock pattern. [CHAR LIMIT=NONE]-->
   <string name="lockscreen_access_pattern_start">Wzorzec rozpoczęty</string>
-  <!--Accessibility description sent when the pattern times out and is cleared. [CHAR LIMIT=NONE]-->
   <string name="lockscreen_access_pattern_cleared">Wzorzec wyczyszczony</string>
-  <!--Accessibility description sent when user adds a cell to the pattern. [CHAR LIMIT=NONE]-->
   <string name="lockscreen_access_pattern_cell_added">Komórka dodana</string>
-  <!--Accessibility description sent when user completes drawing a pattern. [CHAR LIMIT=NONE]-->
   <string name="lockscreen_access_pattern_detected">Wzorzec zakończony</string>
   <string name="settings_camera_upload_duplicate">już przesłane</string>
   <string name="settings_camera_upload_info_title">Automatyczna kopia zdjęć</string>
@@ -196,7 +187,6 @@
   <string name="settings_wifi_down">Sieć Wi-Fi jest niedostępna</string>
   <string name="settings_startUpService">Usługa przesyłania uruchomiona</string>
   <string name="settings_stopUpService">Usługa przesyłania zatrzymana</string>
-  <string name="set_camera_upload_library">Zmień bibliotekę docelową</string>
   <string name="settings_hint">Najpierw wskaż bibliotekę</string>
   <string name="settings_start">Włącz przesyłanie zdjęć z aparatu</string>
   <string name="settings_camera_upload_library_not_found">Wybrana biblioteka nie istnieje</string>

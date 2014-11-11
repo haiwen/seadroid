@@ -17,7 +17,7 @@
 
         <activity android:name="com.seafile.seadroid2.AccountsActivity"
                   android:launchMode="singleTop"
-            	  android:screenOrientation="portrait"
+                  android:screenOrientation="portrait"
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>
@@ -34,18 +34,6 @@
                   android:label="@string/app_name">
         </activity>
         
-        <activity android:name="com.seafile.seadroid2.ui.GestureLockActivity"
-                  android:screenOrientation="portrait"
-                  android:theme="@style/Theme.SeafileTheme"
-                  android:label="@string/app_name">
-        </activity>
-        
-        <activity android:name="com.seafile.seadroid2.ui.GestureLockSetupActivity"
-            	  android:screenOrientation="portrait"
-                  android:theme="@style/Theme.SeafileTheme"
-                  android:label="@string/app_name">
-        </activity>
-
         <activity android:name="com.seafile.seadroid2.BrowserActivity"
             	  android:screenOrientation="portrait"
                   android:label="@string/app_name"
@@ -56,6 +44,27 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
+        <activity
+            android:name="com.seafile.seadroid2.gesturelock.UnlockGesturePasswordActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" 
+            android:theme="@style/Theme.SeafileTheme"
+            android:label="@string/app_name" />
+        
+        <activity
+            android:name="com.seafile.seadroid2.gesturelock.CreateGesturePasswordActivity"
+            android:label="@string/app_name"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.SeafileTheme" />
+
+        <activity
+            android:name="com.seafile.seadroid2.gesturelock.GuideGesturePasswordActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" 
+            android:theme="@style/Theme.SeafileTheme"
+            android:label="@string/app_name"/>
 
         <activity android:name="com.seafile.seadroid2.MarkdownActivity"
                   android:theme="@style/Theme.SeafileTheme"
@@ -115,7 +124,7 @@
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>
-		<service android:name="com.seafile.seadroid2.transfer.TransferService" > </service>
+        <service android:name="com.seafile.seadroid2.transfer.TransferService" > </service>
         <service android:name="com.seafile.seadroid2.monitor.FileMonitorService" > </service>
         <service android:name="com.seafile.seadroid2.cameraupload.CameraUploadService" > </service>
       </application>

@@ -6,7 +6,6 @@ import android.app.Application;
 import android.content.Context;
 
 import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
-import com.nostra13.universalimageloader.cache.disc.naming.HashCodeFileNameGenerator;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -15,13 +14,13 @@ import com.seafile.seadroid2.data.DataManager;
 
 public class SeadroidApplication extends Application {
     private static Context context;
-
+    
     public void onCreate() {
         super.onCreate();
         SeadroidApplication.context = getApplicationContext();
         initImageLoader(getApplicationContext());
     }
-
+    
     public static Context getAppContext() {
         return SeadroidApplication.context;
     }

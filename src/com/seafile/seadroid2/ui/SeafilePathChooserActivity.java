@@ -34,6 +34,7 @@ import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.gesturelock.UnlockGesturePasswordActivity;
 import com.seafile.seadroid2.util.Utils;
 
 /**
@@ -159,7 +160,7 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
     protected void onStart() {
         super.onStart();
         if (SettingsManager.instance().isGestureLockRequired()) {
-            Intent newIntent = new Intent(this, GestureLockActivity.class);
+            Intent newIntent = new Intent(this, UnlockGesturePasswordActivity.class);
             startActivity(newIntent);
         }
     }

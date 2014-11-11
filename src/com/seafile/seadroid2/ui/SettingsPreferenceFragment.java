@@ -1,31 +1,30 @@
 package com.seafile.seadroid2.ui;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
-import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.preference.PreferenceFragment;
 import android.text.Html;
 import android.util.Log;
 import android.widget.Toast;
+
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
+import com.seafile.seadroid2.gesturelock.GuideGesturePasswordActivity;
+import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.transfer.TransferService;
 
-@SuppressLint("NewApi")
 public class SettingsPreferenceFragment
     extends PreferenceFragment
     implements OnPreferenceChangeListener, OnPreferenceClickListener {
@@ -38,7 +37,6 @@ public class SettingsPreferenceFragment
     private CheckBoxPreference allowMobileConnections;
     private Preference cameraUploadRepo;
     private Preference versionName;
-    private boolean setupSuccess;
     private SettingsActivity mActivity;
     private Intent cameraUploadIntent;
     private boolean isUploadEnabled;
@@ -107,6 +105,12 @@ public class SettingsPreferenceFragment
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        gestureLockSwitch.setChecked(settingsMgr.isGestureLockEnabled());
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         LocalBroadcastManager
@@ -120,12 +124,13 @@ public class SettingsPreferenceFragment
         if (preference.getKey().equals(SettingsManager.GESTURE_LOCK_SWITCH_KEY)) {
 
             if (!settingsMgr.isGestureLockEnabled()) {
-                Intent newIntent = new Intent(getActivity(), GestureLockSetupActivity.class);
+                Intent newIntent = new Intent(getActivity(), GuideGesturePasswordActivity.class);
                 newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivityForResult(newIntent, SettingsManager.GESTURE_LOCK_REQUEST);
 
             } else {
-                settingsMgr.clearGestureLock();
+                LockPatternUtils mLockPatternUtils = new LockPatternUtils(getActivity());
+                mLockPatternUtils.clearLock();
                 gestureLockSwitch.setChecked(false);
             }
         } else if (preference.getKey().equals(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY)) {
@@ -177,25 +182,6 @@ public class SettingsPreferenceFragment
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-        case SettingsManager.GESTURE_LOCK_REQUEST:
-            if (resultCode == Activity.RESULT_OK) {
-                setupSuccess = data.getBooleanExtra("setupSuccess", true);
-                SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                SharedPreferences.Editor editor = settings.edit();
-
-                if (setupSuccess == true) {
-                    showToast(R.string.setup_gesture_lock_success);
-                    editor.putBoolean(SettingsManager.GESTURE_LOCK_SWITCH_KEY, true);
-                    gestureLockSwitch.setChecked(true);
-                } else {
-                    editor.putBoolean(SettingsManager.GESTURE_LOCK_SWITCH_KEY, false);
-                    gestureLockSwitch.setChecked(false);
-                }
-
-                editor.commit();
-            }
-
-            break;
 
         case SettingsManager.CHOOSE_CAMERA_UPLOAD_REPO_REQUEST:
             if (resultCode == Activity.RESULT_OK) {

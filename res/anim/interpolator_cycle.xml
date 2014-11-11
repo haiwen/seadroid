@@ -1,0 +1,3 @@
+<cycleInterpolator xmlns:android="http://schemas.android.com/apk/res/android"
+    android:cycles="5" />
+<!-- repeat animation, set to 5 repeats here -->

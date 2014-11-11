@@ -115,7 +115,7 @@
   <string name="copy_link">Copier le lien</string>
   <string name="share_file_link">Partager un lien vers ce fichier</string>
   <string name="share_dir_link">Partager un lien vers ce dossier</string>
-  <string name="generating_link">Génération du lien...</string>
+  <string name="generating_link">Génération du lien&#8230;</string>
   <string name="link_ready_to_be_pasted">Le lien est prêt à être collé/transmis.</string>
   <string name="rename_file">Renommer le fichier</string>
   <string name="rename_dir">Renommer le dossier</string>
@@ -175,20 +175,11 @@
   <string name="gesture_lock_on">Geste de verrouillage activé</string>
   <string name="gesture_lock_off">Geste de verrouillage désactivé</string>
   <string name="cancel">Annuler</string>
-  <string name="go_on">Suivant</string>
-  <string name="try_again">Veuillez réessayer </string>
   <string name="confirm">Confirmer</string>
   <string name="lockpattern_recording_incorrect_too_short">Veuillez lier au moins 4 points</string>
-  <string name="lockpattern_error">Mauvais geste de verrouillage  </string>
-  <string name="please_draw_gesture_lock">Veuillez dessiner un geste de verrouillage  </string>
-  <string name="setup_gesture_lock_success">Mise en place du geste de verrouillage avec succès</string>
-  <!--Accessibility description sent when user starts drawing a lock pattern. [CHAR LIMIT=NONE]-->
   <string name="lockscreen_access_pattern_start">Modèle démarré</string>
-  <!--Accessibility description sent when the pattern times out and is cleared. [CHAR LIMIT=NONE]-->
   <string name="lockscreen_access_pattern_cleared">Modèle effacé</string>
-  <!--Accessibility description sent when user adds a cell to the pattern. [CHAR LIMIT=NONE]-->
   <string name="lockscreen_access_pattern_cell_added">Cellule ajoutée</string>
-  <!--Accessibility description sent when user completes drawing a pattern. [CHAR LIMIT=NONE]-->
   <string name="lockscreen_access_pattern_detected">Modèle terminé</string>
   <string name="settings_camera_upload_duplicate">Déjà envoyé</string>
   <string name="settings_camera_upload_info_title">Envoi des photos</string>
@@ -196,7 +187,6 @@
   <string name="settings_wifi_down">Wifi non disponible</string>
   <string name="settings_startUpService">Service d\'envoi démarré </string>
   <string name="settings_stopUpService">Service d\'envoi arrêté </string>
-  <string name="set_camera_upload_library">Changer la bibliothèque d\'envoi</string>
   <string name="settings_hint">Veuillez commencer par choisir une bibliothèque</string>
   <string name="settings_start">Activer l\'envoi des photos</string>
   <string name="settings_camera_upload_library_not_found">La bibliothèque sélectionné n\'existe pas</string>

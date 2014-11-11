@@ -49,6 +49,7 @@ import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SeafStarredFile;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
+import com.seafile.seadroid2.gesturelock.UnlockGesturePasswordActivity;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.PendingUploadInfo;
@@ -60,7 +61,6 @@ import com.seafile.seadroid2.ui.AppChoiceDialog.CustomAction;
 import com.seafile.seadroid2.ui.CopyMoveDialog;
 import com.seafile.seadroid2.ui.DeleteFileDialog;
 import com.seafile.seadroid2.ui.FetchFileDialog;
-import com.seafile.seadroid2.ui.GestureLockActivity;
 import com.seafile.seadroid2.ui.GetShareLinkDialog;
 import com.seafile.seadroid2.ui.NewDirDialog;
 import com.seafile.seadroid2.ui.NewFileDialog;
@@ -353,7 +353,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         super.onStart();
 
         if (SettingsManager.instance().isGestureLockRequired()) {
-            Intent intent = new Intent(this, GestureLockActivity.class);
+            Intent intent = new Intent(this, UnlockGesturePasswordActivity.class);
             startActivity(intent);
         }
 
