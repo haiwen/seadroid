@@ -10,7 +10,6 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:padding="20dp"
-        android:text="texttexttexttext"
         android:textColor="@color/black"
         android:textSize="18sp" />
 
@@ -34,7 +33,7 @@
                 android:id="@+id/issuer_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Issued To"
+                android:text="@string/issued_to"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -43,7 +42,6 @@
                 android:id="@+id/common_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="common_name"
                 android:textColor="@color/black" />
 
             <LinearLayout
@@ -57,7 +55,7 @@
                     android:id="@+id/finger_prints_header"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Finger Prints"
+                    android:text="@string/finger_prints"
                     android:textColor="@color/black"
                     android:textSize="16sp"
                     android:textStyle="bold" />
@@ -66,21 +64,18 @@
                     android:id="@+id/sha1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="sha1"
                     android:textColor="@color/black" />
 
                 <TextView
                     android:id="@+id/md5"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="md5"
                     android:textColor="@color/black" />
 
                 <TextView
                     android:id="@+id/serial_number"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="serial_number"
                     android:textColor="@color/black" />
             </LinearLayout>
         </LinearLayout>
@@ -98,7 +93,7 @@
                 android:id="@+id/validity_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Period of Validity"
+                android:text="@string/period_of_validity"
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -107,14 +102,12 @@
                 android:id="@+id/not_before"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="not_before"
                 android:textColor="@color/black" />
 
             <TextView
                 android:id="@+id/not_after"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="not_after"
                 android:textColor="@color/black" />
         </LinearLayout>
 
