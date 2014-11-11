@@ -18,7 +18,7 @@ public class UploadTaskInfo {
 
     public UploadTaskInfo(int taskID, Account account, TaskState state, String repoID,
                           String repoName, String parentDir,
-                          String localFilePath, boolean isUpdate, boolean isCopyToLocal,
+                          String localFilePath, boolean isUpdate, boolean isCopyToLocal, 
                           long uploadedSize, long totalSize,
                           SeafException err) {
         this.taskID = taskID;

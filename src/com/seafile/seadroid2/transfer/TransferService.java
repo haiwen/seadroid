@@ -60,12 +60,25 @@ public class TransferService extends Service implements TransferListener {
         // Log.d(DEBUG_TAG, "onBind");
         return mBinder;
     }
-
+    
+    /**
+     * handle two types of upload tasks request, including files upload tasks and camera photo upload tasks.
+     *  
+     * Note: use isCopyToLocal to mark camera photo upload tasks, if true
+     * @param account
+     * @param repoID
+     * @param repoName
+     * @param dir
+     * @param filePath
+     * @param isUpdate
+     * @param isCopyToLocal
+     * @return
+     */
     public int addUploadTask(Account account, String repoID, String repoName, String dir,
             String filePath, boolean isUpdate, boolean isCopyToLocal) {
         return txManager.addUploadTask(account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal);
     }
-
+    
     public int addDownloadTask(Account account, String repoName, String repoID, String path) {
         return txManager.addDownloadTask(account, repoName, repoID, path);
     }

@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.sync;
+package com.seafile.seadroid2.cameraupload;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -33,7 +33,6 @@ import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.transfer.UploadTaskInfo;
 import com.seafile.seadroid2.util.CameraUploadUtil;
-import com.seafile.seadroid2.util.Utils;
 
 public class CameraUploadService extends Service {
     private static final String DEBUG_TAG = "CameraUploadService";
@@ -50,7 +49,6 @@ public class CameraUploadService extends Service {
     private TransferService mTransferService;
     private SettingsManager settingsMgr;
     private final IBinder mBinder = new CameraBinder();
-    private static int intSendBroadcastOnlyOnceFlag = 0;
     private boolean isNetworkAvailable;
     private boolean isRemoteCameraUploadRepoValid;
     private boolean isCameraUploadEnabled;
@@ -66,7 +64,6 @@ public class CameraUploadService extends Service {
         Log.d(DEBUG_TAG, "onCreate");
         
         settingsMgr = SettingsManager.instance();
-        
         // bind transfer service
         Intent bIntent = new Intent(this, TransferService.class);
         bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
@@ -84,7 +81,11 @@ public class CameraUploadService extends Service {
     private void cancelUploadTasks(){
         List<UploadTaskInfo> cameraUploadsTasksList =  mTransferService.getAllUploadTaskInfos();
         for (UploadTaskInfo uploadTaskInfo : cameraUploadsTasksList) {
-            mTransferService.cancelUploadTask(uploadTaskInfo.taskID);
+            // use isCopyToLocal as a flag to mark a camera photo upload task if false
+            // mark a file upload task if true
+            if (!uploadTaskInfo.isCopyToLocal) {
+                mTransferService.cancelUploadTask(uploadTaskInfo.taskID);
+            }
         }
         Intent localIntent = new Intent(TransferService.BROADCAST_ACTION).putExtra("type",
                 BROADCAST_CAMERA_UPLOAD_SERVICE_STOPPED);
@@ -105,7 +106,6 @@ public class CameraUploadService extends Service {
 
         LocalBroadcastManager.getInstance(this).unregisterReceiver(transferReceiver);
         transferReceiver = null;
-        intSendBroadcastOnlyOnceFlag = 0;
     }
 
     @Override
@@ -154,7 +154,7 @@ public class CameraUploadService extends Service {
         }
     };
 
-    private void addUploadTask(String repoID, String repoName, String targetDir, String localFilePath) {
+    private void addUploadCameraPhotoTask(String repoID, String repoName, String targetDir, String localFilePath) {
         if (mTransferService != null) {
             // set the last parameter "isUpdate" to true to stop copying file into sd-card
             // if passed "false" will cause OOM when uploading photos
@@ -210,7 +210,7 @@ public class CameraUploadService extends Service {
             if (!isNetworkAvailable) {
                 return null;
             }
-            
+
             // ensure remote camera upload library exists
             try {
                 isRemoteCameraUploadRepoValid = cUploadManager
@@ -226,7 +226,7 @@ public class CameraUploadService extends Service {
             } catch (SeafException e) {
                 e.printStackTrace();
             }
-            
+
             return CameraUploadUtil.getAllPhotosAbsolutePathList();
         }
 
@@ -244,13 +244,6 @@ public class CameraUploadService extends Service {
                 }
                 return;
             }
-            if (intSendBroadcastOnlyOnceFlag == 0) {
-
-                localIntent = new Intent(TransferService.BROADCAST_ACTION).putExtra("type",
-                        BROADCAST_CAMERA_UPLOAD_SERVICE_STARTED);
-                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);
-                intSendBroadcastOnlyOnceFlag ++;
-            }
 
             for (File photo : result) {
                 String path = photo.getName();
@@ -258,7 +251,7 @@ public class CameraUploadService extends Service {
                 SeafCachedPhoto cp = cUploadManager.getCachedPhoto(repoName, repoId, DIR, path);
                 if (cp == null) {
                     // add photos to uploading queue
-                    addUploadTask(repoId, repoName, CAMERA_UPLOAD_REMOTE_PARENTDIR + CAMERA_UPLOAD_REMOTE_DIR, photo.getAbsolutePath());
+                    addUploadCameraPhotoTask(repoId, repoName, CAMERA_UPLOAD_REMOTE_PARENTDIR + CAMERA_UPLOAD_REMOTE_DIR, photo.getAbsolutePath());
                 }
             }
         }
@@ -279,7 +272,7 @@ public class CameraUploadService extends Service {
             SeafCachedPhoto cachePhoto = cUploadManager.getCachedPhoto(repoName, repoId, DIR,
                     photo.getName());
             if (cachePhoto == null) {
-                addUploadTask(repoId, repoName, CAMERA_UPLOAD_REMOTE_PARENTDIR
+                addUploadCameraPhotoTask(repoId, repoName, CAMERA_UPLOAD_REMOTE_PARENTDIR
                         + CAMERA_UPLOAD_REMOTE_DIR, photo.getAbsolutePath());
             }
         }

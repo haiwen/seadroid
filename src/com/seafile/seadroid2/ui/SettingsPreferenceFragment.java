@@ -19,11 +19,10 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.Html;
 import android.util.Log;
 import android.widget.Toast;
-
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.sync.CameraUploadService;
+import com.seafile.seadroid2.cameraupload.CameraUploadService;
 import com.seafile.seadroid2.transfer.TransferService;
 
 @SuppressLint("NewApi")
@@ -42,7 +41,7 @@ public class SettingsPreferenceFragment
     private boolean setupSuccess;
     private SettingsActivity mActivity;
     private Intent cameraUploadIntent;
-    private boolean isUploadStart;
+    private boolean isUploadEnabled;
     private Intent mCameraUploadRepoChooserData;
     private String repoName;
     private String appVersion;
@@ -130,8 +129,8 @@ public class SettingsPreferenceFragment
                 gestureLockSwitch.setChecked(false);
             }
         } else if (preference.getKey().equals(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY)) {
-            isUploadStart = settingsMgr.isUploadStart();
-            if (!isUploadStart) {
+            isUploadEnabled = settingsMgr.isUploadStart();
+            if (!isUploadEnabled) {
                 cameraUploadRepo.setEnabled(false);
                 allowMobileConnections.setEnabled(false);
                 startCameraUploadService(false);

@@ -61,6 +61,7 @@ public class TransferManager {
     public int addUploadTask(Account account, String repoID, String repoName,
                               String dir, String filePath, boolean isUpdate, boolean isCopyToLocal) {
         Iterator<UploadTask> iter = uploadTasks.iterator();
+        
         while (iter.hasNext()) {
             UploadTask task = iter.next();
             if (task.myRepoID.equals(repoID) && task.myPath.equals(filePath)) {
@@ -119,7 +120,7 @@ public class TransferManager {
         }
         return null;
     }
-
+    
     public UploadTaskInfo getUploadTaskInfo (int taskID) {
         UploadTask task = getUploadTaskByID(taskID);
         if (task != null) {
@@ -137,14 +138,14 @@ public class TransferManager {
 
         return infos;
     }
-
+    
     public void removeUploadTask(int taskID) {
         UploadTask task = getUploadTaskByID(taskID);
         if (task != null) {
             uploadTasks.remove(task);
         }
     }
-
+    
     public void removeFinishedUploadTasks() {
         Iterator<UploadTask> iter = uploadTasks.iterator();
         while (iter.hasNext()) {
@@ -193,7 +194,7 @@ public class TransferManager {
 
         return null;
     }
-
+    
     private class UploadTask extends AsyncTask<String, Long, Void> {
         private String myRepoID;
         private String myRepoName;
