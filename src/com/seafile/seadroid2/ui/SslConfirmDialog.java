@@ -56,7 +56,7 @@ public class SslConfirmDialog extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        SeafileStyleDialogBuilder builder = new SeafileStyleDialogBuilder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         LinearLayout view = (LinearLayout)inflater.inflate(R.layout.dialog_ssl_confirm, null);
 
@@ -101,7 +101,8 @@ public class SslConfirmDialog extends DialogFragment {
         serialNumberText.setText(getActivity().getString(R.string.serial_number, certInfo.getSerialNumber()));
         notBeforeText.setText(getActivity().getString(R.string.not_before, certInfo.getNotBefore().toLocaleString()));
         notAfterText.setText(getActivity().getString(R.string.not_after, certInfo.getNotAfter().toLocaleString()));
-        builder.setTitle(R.string.ssl_confirm_title);
+        builder.setCustomTitle(inflater.inflate(R.layout.custom_ssl_confirm_title_view, null));
+        builder.setDividerColor(getResources().getString(R.color.orange));
         builder.setView(view);
 
         builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
