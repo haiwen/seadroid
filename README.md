@@ -18,7 +18,6 @@ You will get `target/seadroid.apk` after the build finishes.
 * [ActionBarSherlock](https://github.com/JakeWharton/ActionBarSherlock)
 * [NewQuickAction](https://github.com/haiwen/NewQuickAction)
 * [ViewPagerIndicator](https://github.com/JakeWharton/Android-ViewPagerIndicator)
-* [android-support-v4-preferencefragment](https://github.com/haiwen/android-support-v4-preferencefragment)
 * [Android-PullToRefresh](https://github.com/chrisbanes/Android-PullToRefresh)
 
 ### Build
@@ -29,16 +28,13 @@ You will get `target/seadroid.apk` after the build finishes.
 - Git clone `NewQuickAction`
 
         git clone https://github.com/haiwen/NewQuickAction
-- Git clone `android-support-v4-preferencefragment`
-
-        git clone https://github.com/haiwen/android-support-v4-preferencefragment
 - Git clone `Android-PullToRefresh`
 
         git clone https://github.com/chrisbanes/Android-PullToRefresh
         
-- Add ActionBarSherlock/NewQuickAction/ViewPagerIndicator/android-support-v4-preferencefragment/Android-PullToRefresh as library according to <http://developer.android.com/guide/developing/projects/projects-eclipse.html#ReferencingLibraryProject>
+- Add ActionBarSherlock/NewQuickAction/ViewPagerIndicator/Android-PullToRefresh as library according to <http://developer.android.com/guide/developing/projects/projects-eclipse.html#ReferencingLibraryProject>
 
-- Replace the android-support-v4.jar in `ActionBarSherlock`, `ViewPagerIndicator` and `android-support-v4-preferencefragment` with the jar in seadroid to make sure that all versions of this library be the same at this time.
+- Replace the android-support-v4.jar in `ActionBarSherlock` and `ViewPagerIndicator` with the jar in seadroid to make sure that all versions of this library be the same at this time.
 
 - Download these JARs to `seadroid/libs` directory (check pom.xml to verify versions):
     - [http-request-5.6.jar](http://mvnrepository.com/artifact/com.github.kevinsawicki/http-request/5.6)

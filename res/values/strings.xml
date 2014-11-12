@@ -215,6 +215,12 @@
     <string name="gesture_password_guide_text">You can create a Gesture Lock Pattern to protect your privicy</string>
     <string name="gesture_password_guide_creat_btn">Create Gesture Lock Pattern</string>
     
+     <!--  Strings for possible PreferenceActivity Back/Next buttons -->
+    <string name="back_button_label">Back</string>
+    <string name="next_button_label">Next</string>
+    <!-- Optional button to Skip a PreferenceActivity [CHAR LIMIT=20] -->
+    <string name="skip_button_label">Skip</string>
+    
     <string name="settings_camera_upload_duplicate">already uploaded</string>
     <string name="settings_camera_upload_info_title">Camera Photo Upload</string>
     <string name="settings_camera_upload_info">upload %d photo(s) to\u0020</string>
