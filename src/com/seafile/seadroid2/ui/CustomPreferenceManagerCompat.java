@@ -32,11 +32,8 @@ import android.util.Log;
 
 /**
  * Unofficial PreferenceFragment compatibility layer for Android 1.6 and up.
- * Includes resources so add this as a library project to your project. 
- * we customized the original repo project to fit developing with eclipse ADT
- * plugin (original version with Android Studio) 
- * see the custom repo project {@link https://github.com/haiwen/android-support-v4-preferencefragment}
- * see the original repo on github {@link https://github.com/kolavar/android-support-v4-preferencefragment}
+ * @see Alternatives to PreferenceFragment with android-support-v4 {@link http://stackoverflow.com/a/20727515/3962551}
+ * @see {@link https://github.com/kolavar/android-support-v4-preferencefragment}
  * 
  * @author kolavar
  *
