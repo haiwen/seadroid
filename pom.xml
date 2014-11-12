@@ -88,13 +88,6 @@
         <artifactId>universal-image-loader</artifactId>
         <version>1.9.3</version>
     </dependency>
-    
-    <dependency>
-        <groupId>com.github.chrisbanes.pulltorefresh</groupId>
-        <artifactId>library</artifactId>
-        <version>2.2-SNAPSHOT</version>
-        <type>apklib</type>
-    </dependency>
 
     <!-- test dependencies  -->
     <dependency>
