@@ -20,7 +20,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
-import com.seafile.seadroid2.gesturelock.GuideGesturePasswordActivity;
+import com.seafile.seadroid2.gesturelock.CreateGesturePasswordActivity;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.transfer.TransferService;
 
@@ -123,7 +123,7 @@ public class SettingsPreferenceFragment
         if (preference.getKey().equals(SettingsManager.GESTURE_LOCK_SWITCH_KEY)) {
 
             if (!settingsMgr.isGestureLockEnabled()) {
-                Intent newIntent = new Intent(getActivity(), GuideGesturePasswordActivity.class);
+                Intent newIntent = new Intent(getActivity(), CreateGesturePasswordActivity.class);
                 newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivityForResult(newIntent, SettingsManager.GESTURE_LOCK_REQUEST);
 
