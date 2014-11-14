@@ -18,7 +18,6 @@ You will get `target/seadroid.apk` after the build finishes.
 * [ActionBarSherlock](https://github.com/JakeWharton/ActionBarSherlock)
 * [NewQuickAction](https://github.com/haiwen/NewQuickAction)
 * [ViewPagerIndicator](https://github.com/JakeWharton/Android-ViewPagerIndicator)
-* [Android-PullToRefresh](https://github.com/chrisbanes/Android-PullToRefresh)
 
 ### Build
 
@@ -51,3 +50,66 @@ Steps:
 1. Create a free account on Transifex (https://www.transifex.com/).
 2. Send a request to join the language translation.
 3. After accepted by the project maintainer, then you can upload your file or translate online.
+
+## License
+
+    Copyright (c) 2013-2014 Seafile ltd.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+### Third party Licenses
+Both the source and binary distributions of this software contain
+some third party software. All the third party software included
+or linked is redistributed under the terms and conditions of their 
+original licenses. These licenses are compatible the GPL license 
+that govern this software, for the purposes they are being used.
+
+The third party software included and used by this project is:
+
+ * ActionBarSherlock, master branch.  
+   Copyright (c) 2012 Jake Wharton.  
+   Licensed under Apache License, Version 2.0.  
+   The official repository is referenced as a external library in the  
+   Seadroid repository.  
+   A binary JAR file must be generated from this referenced project  
+   and included in the Seadroid APK.  
+   See http://http://actionbarsherlock.com/
+
+ * NewQuickAction, master branch  
+   Copyright (c) 2011 Lorensius W. L. T  
+   Licensed under Apache License, Version 2.0.  
+   The official repository is referenced as a external library in the  
+   Seadroid repository.  
+   A binary JAR file must be generated from this referenced project  
+   and included in the Seadroid APK.  
+   See http://www.londatiga.net/it/how-to-create-quickaction-dialog-in-android/  
+
+ * Android-ViewPagerIndicator, master branch  
+   Copyright (c) 2012 Jake Wharton  
+   Copyright (c) 2011 Patrik Åkerfeldt  
+   Copyright (c) 2011 Francisco Figueiredo Jr.  
+   Licensed under Apache License, Version 2.0.  
+   The official repository is referenced as a external library in the  
+   Seadroid repository.  
+   A binary JAR file must be generated from this referenced project  
+   and included in the Seadroid APK.  
+   See http://viewpagerindicator.com
+
+ * Universal Image Loader 1.9.3.  
+   Copyright (c) 2011-2014 Sergey Tarasevich.  
+   Licensed under the Apache License, Version 2.0.  
+   Placed at libs/universal-image-loader-1.9.3.jar.  
+   The jar file must be included in the Seafile APK.  
+   See https://github.com/nostra13/Android-Universal-Image-Loader
+
