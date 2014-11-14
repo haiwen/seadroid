@@ -212,8 +212,6 @@
     <string name="lockpattern_pattern_confirmed_header">Confirm to save your pattern</string>
     <string name="lockpattern_recording_inprogress">Move away your firgure after drawing"</string>
     <string name="lockpattern_pattern_toast_saved">Gesture Lock Pattern successfully saved</string>
-    <string name="gesture_password_guide_text">You can create a Gesture Lock Pattern to protect your privicy</string>
-    <string name="gesture_password_guide_creat_btn">Create Gesture Lock Pattern</string>
     
      <!--  Strings for possible PreferenceActivity Back/Next buttons -->
     <string name="back_button_label">Back</string>
