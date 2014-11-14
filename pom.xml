@@ -15,10 +15,6 @@
       <id>custom maven repository</id>
       <url>https://github.com/haiwen/maven-repo/raw/master</url>
     </repository>
-     <repository>
-      <id>custom maven preferencefragment repository</id>
-      <url>https://github.com/kolavar/android-support-v4-preferencefragment/raw/master/maven-repository</url>
-    </repository>
   </repositories>
 
   <properties>
@@ -60,13 +56,6 @@
     </dependency>
     
     <dependency>
-      <groupId>com.android.support</groupId>
-      <artifactId>support-v4-preferencefragment</artifactId>
-      <version>1.0.0</version>
-      <type>aar</type>
-    </dependency>
-
-    <dependency>
       <groupId>com.github.kevinsawicki</groupId>
       <artifactId>http-request</artifactId>
       <version>5.6</version>
@@ -100,6 +89,13 @@
         <version>1.9.3</version>
     </dependency>
     
+    <dependency>
+        <groupId>com.github.chrisbanes.pulltorefresh</groupId>
+        <artifactId>library</artifactId>
+        <version>2.2-SNAPSHOT</version>
+        <type>apklib</type>
+    </dependency>
+
     <!-- test dependencies  -->
     <dependency>
       <groupId>junit</groupId>

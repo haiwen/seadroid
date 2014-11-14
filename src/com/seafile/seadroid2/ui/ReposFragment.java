@@ -9,6 +9,7 @@ import java.util.Map;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +20,10 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.google.common.collect.Lists;
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.OnLastItemVisibleListener;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.CertsManager;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
@@ -42,7 +47,7 @@ public class ReposFragment extends SherlockListFragment {
     private SeafItemAdapter adapter;
     private BrowserActivity mActivity = null;
 
-    private ListView mList;
+    private PullToRefreshListView mPullRefreshListView;
     private TextView mEmptyView;
     private View mProgressContainer;
     private View mListContainer;
@@ -75,11 +80,35 @@ public class ReposFragment extends SherlockListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.repos_fragment, container, false);
-        mList = (ListView) root.findViewById(android.R.id.list);
+        mPullRefreshListView = (PullToRefreshListView) root.findViewById(R.id.pull_refresh_list);
         mEmptyView = (TextView) root.findViewById(android.R.id.empty);
         mListContainer =  root.findViewById(R.id.listContainer);
         mErrorText = (TextView)root.findViewById(R.id.error_message);
         mProgressContainer = root.findViewById(R.id.progressContainer);
+
+        // Set a listener to be invoked when the list should be refreshed.
+        mPullRefreshListView.setOnRefreshListener(new OnRefreshListener<ListView>() {
+            @Override
+            public void onRefresh(PullToRefreshBase<ListView> refreshView) {
+                String label = DateUtils.formatDateTime(mActivity, System.currentTimeMillis(),
+                        DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_ABBREV_ALL);
+
+                // Update the LastUpdatedLabel
+                refreshView.getLoadingLayoutProxy().setLastUpdatedLabel(label);
+
+                // Do work to refresh the list here.
+                refreshView(true);
+            }
+        });
+
+        // Add an end-of-list listener
+        mPullRefreshListView.setOnLastItemVisibleListener(new OnLastItemVisibleListener() {
+
+            @Override
+            public void onLastItemVisible() {
+                // Toast.makeText(mActivity, "end of list", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         return root;
     }
@@ -89,8 +118,10 @@ public class ReposFragment extends SherlockListFragment {
         super.onActivityCreated(savedInstanceState);
         Log.d(DEBUG_TAG, "ReposFragment onActivityCreated");
         adapter = new SeafItemAdapter(mActivity);
+        
+        // You can also just use setListAdapter(mAdapter) or
+        // mPullRefreshListView.setAdapter(mAdapter)
         setListAdapter(adapter);
-
         getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
     }
 
@@ -111,7 +142,7 @@ public class ReposFragment extends SherlockListFragment {
         super.onResume();
         Log.d(DEBUG_TAG, "ReposFragment onResume");
         // refresh the view (loading data)
-        refreshView();
+        refresh();
     }
 
     @Override
@@ -124,6 +155,11 @@ public class ReposFragment extends SherlockListFragment {
         mActivity = null;
         Log.d(DEBUG_TAG, "ReposFragment detached");
         super.onDetach();
+    }
+    
+    public void refresh() {
+        mPullRefreshListView.setRefreshing(false);
+        refreshView(true);
     }
 
     public void refreshView() {
@@ -159,7 +195,7 @@ public class ReposFragment extends SherlockListFragment {
         }
 
         // load repos in background
-        showLoading(true);
+        //showLoading(true);
         ConcurrentAsyncTask.execute(new LoadTask(getDataManager()));
     }
 
@@ -189,7 +225,7 @@ public class ReposFragment extends SherlockListFragment {
             }
         }
 
-        showLoading(true);
+        //showLoading(true);
         ConcurrentAsyncTask.execute(new LoadDirTask(getDataManager()),
                 nav.getRepoName(),
                 nav.getRepoID(),
@@ -201,10 +237,10 @@ public class ReposFragment extends SherlockListFragment {
         if (repos.size() > 0) {
             addReposToAdapter(repos);
             adapter.notifyChanged();
-            mList.setVisibility(View.VISIBLE);
+            mPullRefreshListView.setVisibility(View.VISIBLE);
             mEmptyView.setVisibility(View.GONE);
         } else {
-            mList.setVisibility(View.GONE);
+            mPullRefreshListView.setVisibility(View.GONE);
             mEmptyView.setText(R.string.no_repo);
             mEmptyView.setVisibility(View.VISIBLE);
         }
@@ -229,11 +265,11 @@ public class ReposFragment extends SherlockListFragment {
             });
 
             adapter.notifyChanged();
-            mList.setVisibility(View.VISIBLE);
+            mPullRefreshListView.setVisibility(View.VISIBLE);
             mEmptyView.setVisibility(View.GONE);
         } else {
             // Directory is empty
-            mList.setVisibility(View.GONE);
+            mPullRefreshListView.setVisibility(View.GONE);
             mEmptyView.setText(R.string.dir_empty);
             mEmptyView.setVisibility(View.VISIBLE);
         }
@@ -247,7 +283,7 @@ public class ReposFragment extends SherlockListFragment {
             repo = getDataManager().getCachedRepoByID(nav.getRepoID());
             mActivity.setUpButtonTitle(repo.getName());
         } else {
-            SeafItem item = adapter.getItem(position);
+            SeafItem item = adapter.getItem(position - 1);
             if (item instanceof SeafRepo) {
                 repo = (SeafRepo)item;
             }
@@ -263,7 +299,7 @@ public class ReposFragment extends SherlockListFragment {
                     new TaskDialog.TaskDialogListener() {
                 @Override
                 public void onTaskSuccess() {
-                    onListItemClick(l, v, position, id);
+                    onListItemClick(l, v, position - 1, id);
                 }
             }, password);
 
@@ -271,7 +307,7 @@ public class ReposFragment extends SherlockListFragment {
         }
 
         if (nav.inRepo()) {
-            final SeafDirent dirent = (SeafDirent)adapter.getItem(position);
+            final SeafDirent dirent = (SeafDirent)adapter.getItem(position - 1);
             if (dirent.isDir()) {
                 String currentPath = nav.getDirPath();
                 String newPath = currentPath.endsWith("/") ?
@@ -397,7 +433,9 @@ public class ReposFragment extends SherlockListFragment {
             if (rs != null) {
                 //Log.d(DEBUG_TAG, "Load repos number " + rs.size());
                 updateAdapterWithRepos(rs);
-                showLoading(false);
+                // Call onRefreshComplete when the list has been refreshed.
+                mPullRefreshListView.onRefreshComplete();
+                //showLoading(false);
             } else {
                 Log.i(DEBUG_TAG, "failed to load repos");
                 showError(R.string.error_when_load_repos);
@@ -546,7 +584,9 @@ public class ReposFragment extends SherlockListFragment {
             }
 
             updateAdapterWithDirents(dirents);
-            showLoading(false);
+            // showLoading(false);
+            // Call onRefreshComplete when the list has been refreshed.
+            mPullRefreshListView.onRefreshComplete();
         }
     }
 

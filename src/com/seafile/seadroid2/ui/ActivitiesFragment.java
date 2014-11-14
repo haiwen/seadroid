@@ -23,17 +23,18 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
 import android.webkit.JsResult;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.google.common.collect.Maps;
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
+import com.handmark.pulltorefresh.library.PullToRefreshWebView;
 import com.seafile.seadroid2.BrowserActivity;
 import com.seafile.seadroid2.CertsManager;
 import com.seafile.seadroid2.FileActivity;
@@ -42,14 +43,13 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.SeafRepo;
 
-public class ActivitiesFragment extends SherlockFragment {
+public class ActivitiesFragment extends SherlockFragment implements OnRefreshListener<WebView>{
     private static final String DEBUG_TAG = "ActivitiesFragment";
 
     private static final String ACTIVITIES_URL = "api2/html/events/";
 
-    private WebView webView = null;
-    private FrameLayout mWebViewContainer = null;
-    private View mProgressContainer;
+    private PullToRefreshWebView mPullRefreshWebView;
+    private WebView mWebView = null;
 
     @Override
     public void onAttach(Activity activity) {
@@ -69,31 +69,26 @@ public class ActivitiesFragment extends SherlockFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.activities_fragment, container, false);
+        View root = inflater.inflate(R.layout.activities_fragment, container, false);
+        mPullRefreshWebView = (PullToRefreshWebView) root.findViewById(R.id.pull_refresh_webview);
+        mPullRefreshWebView.setOnRefreshListener(this);
+        mWebView = mPullRefreshWebView.getRefreshableView();
+        
+        return root;
     }
 
     @Override
     public void onPause() {
         Log.d(DEBUG_TAG, "onPause");
         super.onPause();
-
-        if (webView != null) {
-            mWebViewContainer.removeView(webView);
-        }
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         Log.d(DEBUG_TAG, "onActivityCreated");
-
-        mWebViewContainer = (FrameLayout)getView().findViewById(R.id.webViewContainer);
-        mProgressContainer = getView().findViewById(R.id.progressContainer);
-
-        if (webView == null) {
-            webView = new WebView(getBrowserActivity());
-            initWebView();
-            loadActivitiesPage();
-        }
+        
+        initWebView();
+        loadActivitiesPage();
 
         getBrowserActivity().supportInvalidateOptionsMenu();
 
@@ -106,26 +101,24 @@ public class ActivitiesFragment extends SherlockFragment {
         // it retain state. Otherwise the webview will reload the url every
         // time the tab is switched.
         super.onResume();
-        mWebViewContainer.addView(webView);
     }
 
     public void refreshView() {
+        mPullRefreshWebView.setRefreshing();
         loadActivitiesPage();
     }
 
     private void initWebView() {
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.setWebViewClient(new MyWebViewClient());
-
-        webView.setWebChromeClient(new MyWebChromeClient());
+        mWebView.getSettings().setJavaScriptEnabled(true);
+        mWebView.setWebViewClient(new MyWebViewClient());
+        mWebView.setWebChromeClient(new MyWebChromeClient());
     }
 
     private void loadActivitiesPage() {
-        showPageLoading(true);
         Account account = getBrowserActivity().getAccount();
         String url = account.getServer() + ACTIVITIES_URL;
 
-        webView.loadUrl(url, getExtraHeaders());
+        mWebView.loadUrl(url, getExtraHeaders());
     }
 
     private Map<String, String> getExtraHeaders() {
@@ -137,28 +130,6 @@ public class ActivitiesFragment extends SherlockFragment {
         return headers;
     }
 
-    private void showPageLoading(boolean pageLoading) {
-        if (getBrowserActivity() == null) {
-            return;
-        }
-
-        if (!pageLoading) {
-            mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
-                                    getBrowserActivity(), android.R.anim.fade_out));
-            webView.startAnimation(AnimationUtils.loadAnimation(
-                                getBrowserActivity(), android.R.anim.fade_in));
-            mProgressContainer.setVisibility(View.GONE);
-            webView.setVisibility(View.VISIBLE);
-        } else {
-            mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
-                    getBrowserActivity(), android.R.anim.fade_in));
-            webView.startAnimation(AnimationUtils.loadAnimation(
-                    getBrowserActivity(), android.R.anim.fade_out));
-
-            mProgressContainer.setVisibility(View.VISIBLE);
-            webView.setVisibility(View.INVISIBLE);
-        }
-    }
 
     private void viewRepo(String repoID) {
         SeafRepo repo = getBrowserActivity().getDataManager().getCachedRepoByID(repoID);
@@ -200,7 +171,7 @@ public class ActivitiesFragment extends SherlockFragment {
         public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
             if (getBrowserActivity() != null) {
                 Toast.makeText(getBrowserActivity(), "Error: " + description, Toast.LENGTH_SHORT).show();
-                showPageLoading(false);
+                mPullRefreshWebView.onRefreshComplete();
             }
         }
 
@@ -223,7 +194,7 @@ public class ActivitiesFragment extends SherlockFragment {
             } else {
                 Log.d(DEBUG_TAG, "cert is not trusted");
                 mActivity.showToast(R.string.ssl_error);
-                showPageLoading(false);
+                mPullRefreshWebView.onRefreshComplete();
             }
         }
 
@@ -267,7 +238,7 @@ public class ActivitiesFragment extends SherlockFragment {
                                           getBrowserActivity().getAccount().getToken());
                 webView.loadUrl(js);
             }
-            showPageLoading(false);
+            mPullRefreshWebView.onRefreshComplete();
         }
     }
 
@@ -361,5 +332,11 @@ public class ActivitiesFragment extends SherlockFragment {
 
             return dName1.getDName().equals(dName2.getDName());
         }
+    }
+
+    @Override
+    public void onRefresh(PullToRefreshBase<WebView> refreshView) {
+        mPullRefreshWebView.setRefreshing(false);
+        loadActivitiesPage();
     }
 }

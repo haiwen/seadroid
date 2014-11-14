@@ -9,12 +9,14 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.seafile.seadroid2.CertsManager;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SSLTrustManager;
 import com.seafile.seadroid2.SSLTrustManager.SslFailureReason;

@@ -12,7 +12,6 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.preference.PreferenceFragment;
 import android.text.Html;
 import android.util.Log;
 import android.widget.Toast;
@@ -26,7 +25,7 @@ import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.transfer.TransferService;
 
 public class SettingsPreferenceFragment
-    extends PreferenceFragment
+    extends CustomPreferenceFragment
     implements OnPreferenceChangeListener, OnPreferenceClickListener {
 
     private static final String DEBUG_TAG = "SettingsPreferenceFragment";
