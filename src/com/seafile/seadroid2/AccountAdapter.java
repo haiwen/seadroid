@@ -2,15 +2,11 @@ package com.seafile.seadroid2;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,8 +23,7 @@ import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.data.Avatar;
-import com.seafile.seadroid2.data.AvatarManager;
+import com.seafile.seadroid2.avatar.AvatarManager;
 
 /**
  * Adapter for showing account in a list view.
@@ -40,13 +35,9 @@ public class AccountAdapter extends BaseAdapter {
     private DisplayImageOptions options;
     private ArrayList<Account> items;
     private Context context;
-    private static Map<String, Avatar> avatars;
     
     public AccountAdapter(Context context) {
         this.context = context;
-        if (avatars == null) {
-            avatars = Maps.newHashMap();
-        }
         items = Lists.newArrayList();
         options = new DisplayImageOptions.Builder()
                 .showStubImage(R.drawable.default_avatar)
@@ -97,9 +88,7 @@ public class AccountAdapter extends BaseAdapter {
     public void setItems(List<Account> items) {
         this.items = (ArrayList<Account>) items;
         notifyDataSetChanged();
-        // for (Account account : items) {
-        //     ConcurrentAsyncTask.execute(new AvatarLoadTask(account));
-        // }
+        
     }
     
     @Override
@@ -126,46 +115,15 @@ public class AccountAdapter extends BaseAdapter {
         } else {
             viewHolder = (Viewholder) convertView.getTag();
         }
-        Account item = items.get(position);
-        viewHolder.title.setText(item.getServerHost());
-        viewHolder.subtitle.setText(item.getEmail());
-        if (avatars.containsKey(item.getEmail())) {
-            ImageLoader.getInstance().displayImage(avatars.get(item.getEmail()).getUrl(), viewHolder.icon, options, animateFirstListener);
-            ImageLoader.getInstance().handleSlowNetwork(true);
+        Account account = items.get(position);
+        viewHolder.title.setText(account.getServerHost());
+        viewHolder.subtitle.setText(account.getEmail());
+        if (AvatarManager.getAvatarUrl(account) != null) {
+            ImageLoader.getInstance().displayImage(AvatarManager.getAvatarUrl(account), viewHolder.icon, options, animateFirstListener);
         }
+        ImageLoader.getInstance().handleSlowNetwork(true);
         
         return view;
-    }
-    
-    private class AvatarLoadTask extends AsyncTask<Void, Void, Avatar> {
-        AvatarManager avatarManager;
-        Account account;
-        public AvatarLoadTask(Account account) {
-            this.account = account;
-            avatarManager = new AvatarManager(account);
-        }
-        
-        @Override
-        protected Avatar doInBackground(Void... params) {
-            try {
-                Avatar avatar = avatarManager.getAvatar(48); 
-                Log.v(DEBUG_TAG, "icon url: " + avatar.getUrl());
-                Log.v(DEBUG_TAG, "email : " + account.getEmail());
-                
-                return avatar;
-            } catch (SeafException e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Avatar avatar) {
-            if (avatar == null) {
-                return;
-            }
-            avatars.put(account.getEmail(), avatar);
-        }
     }
     
     private static class AnimateFirstDisplayListener extends SimpleImageLoadingListener {

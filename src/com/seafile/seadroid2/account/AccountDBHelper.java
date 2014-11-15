@@ -12,7 +12,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-public class AccountDbHelper extends SQLiteOpenHelper {
+public class AccountDBHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "Account.db";
@@ -23,18 +23,18 @@ public class AccountDbHelper extends SQLiteOpenHelper {
     private static final String COLUMN_EMAIL = "email";
     private static final String COLUMN_TOKEN = "token";
 
-    private static AccountDbHelper dbHelper = null;
+    private static AccountDBHelper dbHelper = null;
     private SQLiteDatabase database = null;
 
-    public static synchronized AccountDbHelper getDatabaseHelper() {
+    public static synchronized AccountDBHelper getDatabaseHelper() {
         if (dbHelper != null)
             return dbHelper;
-        dbHelper = new AccountDbHelper(SeadroidApplication.getAppContext());
+        dbHelper = new AccountDBHelper(SeadroidApplication.getAppContext());
         dbHelper.database = dbHelper.getWritableDatabase();
         return dbHelper;
     }
 
-    private AccountDbHelper(Context context) {
+    private AccountDBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
@@ -56,13 +56,13 @@ public class AccountDbHelper extends SQLiteOpenHelper {
 
     public Account getAccount(String server, String email) {
         String[] projection = {
-                AccountDbHelper.COLUMN_SERVER,
-                AccountDbHelper.COLUMN_EMAIL,
-                AccountDbHelper.COLUMN_TOKEN
+                AccountDBHelper.COLUMN_SERVER,
+                AccountDBHelper.COLUMN_EMAIL,
+                AccountDBHelper.COLUMN_TOKEN
         };
 
         Cursor c = database.query(
-             AccountDbHelper.TABLE_NAME,
+             AccountDBHelper.TABLE_NAME,
              projection,
              "server=? and email=?",
              new String[] { server, email },
@@ -85,13 +85,13 @@ public class AccountDbHelper extends SQLiteOpenHelper {
         List<Account> accounts = Lists.newArrayList();
 
         String[] projection = {
-                AccountDbHelper.COLUMN_SERVER,
-                AccountDbHelper.COLUMN_EMAIL,
-                AccountDbHelper.COLUMN_TOKEN
+                AccountDBHelper.COLUMN_SERVER,
+                AccountDBHelper.COLUMN_EMAIL,
+                AccountDBHelper.COLUMN_TOKEN
         };
 
         Cursor c = database.query(
-             AccountDbHelper.TABLE_NAME,
+             AccountDBHelper.TABLE_NAME,
              projection,
              null,
              null,
@@ -122,26 +122,26 @@ public class AccountDbHelper extends SQLiteOpenHelper {
 
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
-        values.put(AccountDbHelper.COLUMN_SERVER, account.server);
-        values.put(AccountDbHelper.COLUMN_EMAIL, account.email);
-        values.put(AccountDbHelper.COLUMN_TOKEN, account.token);
+        values.put(AccountDBHelper.COLUMN_SERVER, account.server);
+        values.put(AccountDBHelper.COLUMN_EMAIL, account.email);
+        values.put(AccountDBHelper.COLUMN_TOKEN, account.token);
 
         // Insert the new row, returning the primary key value of the new row
-        database.replace(AccountDbHelper.TABLE_NAME, null, values);
+        database.replace(AccountDBHelper.TABLE_NAME, null, values);
     }
 
     public void updateAccount(Account oldAccount, Account newAccount) {
         ContentValues values = new ContentValues();
-        values.put(AccountDbHelper.COLUMN_SERVER, newAccount.server);
-        values.put(AccountDbHelper.COLUMN_EMAIL, newAccount.email);
-        values.put(AccountDbHelper.COLUMN_TOKEN, newAccount.token);
+        values.put(AccountDBHelper.COLUMN_SERVER, newAccount.server);
+        values.put(AccountDBHelper.COLUMN_EMAIL, newAccount.email);
+        values.put(AccountDBHelper.COLUMN_TOKEN, newAccount.token);
 
-        database.update(AccountDbHelper.TABLE_NAME, values, "server=? and email=?",
+        database.update(AccountDBHelper.TABLE_NAME, values, "server=? and email=?",
                 new String[] { oldAccount.server, oldAccount.email });
     }
 
     public void deleteAccount(Account account) {
-        database.delete(AccountDbHelper.TABLE_NAME,  "server=? and email=?",
+        database.delete(AccountDBHelper.TABLE_NAME,  "server=? and email=?",
                 new String[] { account.server, account.email });
     }
 
