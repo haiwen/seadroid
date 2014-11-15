@@ -1,10 +1,10 @@
 package com.seafile.seadroid2.avatar;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONObject;
 
+import com.google.common.collect.Lists;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
@@ -24,14 +24,14 @@ public class AvatarManager {
     
     public AvatarManager(List<Account> accounts) {
         this.accounts = accounts;
-        avatars = new ArrayList<Avatar>();
+        avatars = Lists.newArrayList();
     }
         
     public synchronized void getAvatars(int size) throws SeafException {
         // First decide if use cache
         avatars = getAvatarList();
         
-        List<Account> accountsWithoutAvatars = new ArrayList<Account>();
+        List<Account> accountsWithoutAvatars = Lists.newArrayList();
         
         for (Account account : accounts) {
             for (Avatar avatar : avatars) {
