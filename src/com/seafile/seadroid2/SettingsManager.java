@@ -63,11 +63,20 @@ public final class SettingsManager {
                 .commit();
         saveGestureLockTimeStamp();
     }
-    
+
+    /**
+     * Whether the user has setup a gesture lock or not
+     *
+     */
     public boolean isGestureLockEnabled() {
         return settingsSharedPref.getBoolean(GESTURE_LOCK_SWITCH_KEY, false);
     }
 
+    /**
+     * For convenience, if the user has given the correct gesture lock, he
+     * would not be asked for gesture lock for a short period of time.
+     *
+     */
     public boolean isGestureLockRequired() {
         if (!isGestureLockEnabled()) {
             return false;
@@ -121,19 +130,19 @@ public final class SettingsManager {
             return false;
         }
         // user does not allow mobile connections
-        if (!Utils.isWiFiOn() && !isAllowMobileConnections()) {
+        if (!Utils.isWiFiOn() && !isMobileConnectionsAllowed()) {
             return false;
         }
         // Wi-Fi or 2G/3G/4G connections available
         return true;
     }
-    
-    
-    public boolean isUploadStart() {
+
+
+    public boolean isCameraUploadEnabled() {
         return settingsSharedPref.getBoolean(CAMERA_UPLOAD_SWITCH_KEY, false);
     }
 
-    public boolean isAllowMobileConnections() {
+    public boolean isMobileConnectionsAllowed() {
         return settingsSharedPref.getBoolean(ALLOW_MOBILE_CONNECTIONS_SWITCH_KEY, false);
     }
 

@@ -133,7 +133,7 @@ public class SettingsPreferenceFragment
                 gestureLockSwitch.setChecked(false);
             }
         } else if (preference.getKey().equals(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY)) {
-            isUploadEnabled = settingsMgr.isUploadStart();
+            isUploadEnabled = settingsMgr.isCameraUploadEnabled();
             if (!isUploadEnabled) {
                 cameraUploadRepo.setEnabled(false);
                 allowMobileConnections.setEnabled(false);
