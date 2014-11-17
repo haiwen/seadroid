@@ -4,14 +4,20 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSocketFactory;
 
 import android.content.Context;
 
 import com.github.kevinsawicki.http.HttpRequest;
 import com.nostra13.universalimageloader.core.assist.FlushedInputStream;
 import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
+import com.seafile.seadroid2.SSLTrustManager;
+import com.seafile.seadroid2.account.Account;
 
 public class AuthImageDownloader extends BaseImageDownloader {
     public static final String TAG = AuthImageDownloader.class.getName();
@@ -35,8 +41,17 @@ public class AuthImageDownloader extends BaseImageDownloader {
             // and the accepted certificate will be stored, so he is not prompted to accept later on.
             // This is handled by SSLTrustManager and CertsManager
             req.trustAllHosts();
-            // TODO: use SSLTrustManager to verify user-trusted certs
-            req.trustAllCerts();
+            
+            HttpsURLConnection sconn = (HttpsURLConnection)conn;
+            Map<Account, SSLSocketFactory> cachedFactories = SSLTrustManager.instance().getCachedFactories();
+            Iterator<Entry<Account, SSLSocketFactory>> it = cachedFactories.entrySet().iterator();
+            while (it.hasNext()) {
+                Entry<Account, SSLSocketFactory> pairs = it.next();
+                if (imageUri.contains(pairs.getKey().server)) {
+                sconn.setSSLSocketFactory((SSLSocketFactory) pairs.getValue());
+                it.remove(); // avoids a ConcurrentModificationException
+                }
+            }
         }
 
         return new FlushedInputStream(new BufferedInputStream(
