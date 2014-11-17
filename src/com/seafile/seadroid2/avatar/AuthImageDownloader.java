@@ -5,16 +5,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 
-import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLSession;
 
 import android.content.Context;
 
 import com.github.kevinsawicki.http.HttpRequest;
 import com.nostra13.universalimageloader.core.assist.FlushedInputStream;
 import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
-import com.seafile.seadroid2.SSLTrustManager;
 
 public class AuthImageDownloader extends BaseImageDownloader {
     public static final String TAG = AuthImageDownloader.class.getName();
@@ -45,13 +42,4 @@ public class AuthImageDownloader extends BaseImageDownloader {
         return new FlushedInputStream(new BufferedInputStream(
                 req.stream()));
     }
-
-    // always verify the host - dont check for certificate
-    final static HostnameVerifier DO_NOT_VERIFY = new HostnameVerifier() {
-        @Override
-        public boolean verify(String hostname, SSLSession session) {
-            return true;
-        }
-
-    };
 }
