@@ -4,12 +4,8 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLSocketFactory;
 
 import android.content.Context;
 
@@ -28,7 +24,7 @@ public class AuthImageDownloader extends BaseImageDownloader {
     }
 
     @Override
-    protected InputStream getStreamFromNetwork(String imageUri, Object account)
+    protected InputStream getStreamFromNetwork(String imageUri, Object extra)
             throws IOException {
         HttpRequest req = HttpRequest.get(imageUri, null, false)
             .readTimeout(readTimeout)
@@ -42,7 +38,7 @@ public class AuthImageDownloader extends BaseImageDownloader {
             // This is handled by SSLTrustManager and CertsManager
             req.trustAllHosts();
             HttpsURLConnection sconn = (HttpsURLConnection)conn;
-            sconn.setSSLSocketFactory(SSLTrustManager.instance().getSSLSocketFactory((Account)account));
+            sconn.setSSLSocketFactory(SSLTrustManager.instance().getSSLSocketFactory((Account)extra));
         }
 
         return new FlushedInputStream(new BufferedInputStream(
