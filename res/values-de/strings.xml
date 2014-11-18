@@ -28,6 +28,7 @@
   <string name="cached">Zwischengespeichert</string>
   <string name="activities">Aktivitäten</string>
   <string name="pick_upload_type">Hochladen</string>
+  <string name="accounts_https_hint">HTTPS</string>
   <string name="upload_tasks">Übertragungen</string>
   <string name="accounts">Konten</string>
   <string name="settings">Einstellungen</string>
@@ -45,6 +46,8 @@
   <string name="network_down">Keine Netzwerkverbindung</string>
   <string name="invalid_server_address">Ungültige Serveradresse</string>
   <string name="err_server_andress_empty">Serveradresse darf nicht leer sein</string>
+  <string name="err_email_empty">Email darf nicht leer sein</string>
+  <string name="err_passwd_empty">Passwort darf nicht leer sein</string>
   <string name="err_login_failed">Anmeldung fehlgeschlagen</string>
   <string name="err_wrong_user_or_passwd">Ungültige E-Mail-Adresse oder Passwort</string>
   <string name="upload">Hochladen</string>
@@ -77,7 +80,7 @@
   <string name="wait">Warten</string>
   <string name="image_gallery_NoImageView_text">Kein Bild gefunden</string>
   <string name="pick_photo_video_title">Bitte ein Foto/Film auswählen, um es hochzuladen</string>
-  <string name="select_upload_items">Elemente zum hochladen auswählen</string>
+  <string name="select_upload_items">Elemente zum Hochladen auswählen</string>
   <string name="n_upload_items_selected">%d Elemente markiert</string>
   <string name="dir_name_empty">Bitte den Namen des Ordners eingeben</string>
   <string name="file_name_empty">Bitte den Namen der Datei eingeben</string>
@@ -129,7 +132,7 @@
   <string name="drawer_open">Navigationsschublade öffnen</string>
   <string name="drawer_close">Navigationsschublade schließen</string>
   <string name="no_starred_file">Sie favorisieren derzeit keine Dateien</string>
-  <string name="added_to_upload_tasks">Die ausgewählten Datei(en) wurden zum hochladen hinzugefügt.</string>
+  <string name="added_to_upload_tasks">Die ausgewählten Datei(en) wurden zum Hochladen hinzugefügt.</string>
   <string name="added_photo_to_upload_tasks">Das Foto wird hochgeladen</string>
   <string name="take_photo_successfully">Foto erfolgreich aufgenommen</string>
   <string name="tabs_library">Bibliotheken </string>
@@ -147,7 +150,7 @@
   <string name="just_now">Gerade eben</string>
   <string name="error_when_load_starred">Fehler beim laden der favorisieren Dateien</string>
   <string name="open_as">Öffnen als</string>
-  <string name="select_upload_files">Dateien zum hochladen auswählen</string>
+  <string name="select_upload_files">Dateien zum Hochladen auswählen</string>
   <string name="storage_removed">Speicher wurde entfernt</string>
   <string name="error_selecting_file">Fehler beim auswählen der Datei</string>
   <string name="n_upload_files_selected">%d Datei(en) ausgewählt</string>
@@ -157,6 +160,14 @@
   <string name="ssl_confirm">Dem Sicherheitszertifikat  von %s wird nicht vertraut! Wollen Sie trotzdem fortfahren?</string>
   <string name="ssl_confirm_cert_changed">%s benutzt ein ungültiges Sicherheitszertifikat. Die Verbindung ist nicht sicher. Wollen Sie fortfahren?</string>
   <string name="ssl_confirm_title">Nicht vertrauenswürdige Verbindung</string>
+  <string name="issued_to">Ausgestellt für</string>
+  <string name="finger_prints">Fingerabdrücke</string>
+  <string name="period_of_validity">Zeitraum der Gültigkeit</string>
+  <string name="sha1">SHA-1 %s</string>
+  <string name="md5">MD5 %s</string>
+  <string name="serial_number">Seriennummer %s</string>
+  <string name="not_before">gültig von %s</string>
+  <string name="not_after">gültig bis %s</string>
   <string name="yes">Ja</string>
   <string name="no">Nein</string>
   <string name="remember_my_choice">Auswahl merken</string>
@@ -170,24 +181,73 @@
   <string name="upload_started">Hochladen wurde gestartet</string>
   <string name="cannot_copy_folder_to_subfolder">Sie können keinen Ordnern in einen Unterordner kopieren</string>
   <string name="cannot_move_folder_to_subfolder">Sie können keinen Ordner in einen Unterordner verschieben</string>
+  <string name="cancel">Abbrechen</string>
+  <string name="confirm">Bestätigen</string>
   <string name="security">Sicherheit</string>
   <string name="gesture_lock">Bewegungssperre</string>
   <string name="gesture_lock_on">Bewegungssperre an</string>
   <string name="gesture_lock_off">Bewegungssperre aus</string>
-  <string name="cancel">Abbrechen</string>
-  <string name="confirm">Bestätigen</string>
-  <string name="lockpattern_recording_incorrect_too_short">bitte wenigstens 4 Punkte verbinden</string>
-  <string name="lockscreen_access_pattern_start">Muster gestartet</string>
+  <string name="lockscreen_access_pattern_hint">Zeichnen Sie ein Entsperrmuster</string>
+  <string name="lockscreen_access_pattern_start">Bitte fangen Sie an zu zeichnen</string>
   <string name="lockscreen_access_pattern_cleared">Muster gelöscht</string>
-  <string name="lockscreen_access_pattern_cell_added">Zelle hinzugefügt</string>
-  <string name="lockscreen_access_pattern_detected">Muster fertiggestellt</string>
+  <string name="lockscreen_access_pattern_cell_added">Entsperrmuster hinzugefügt</string>
+  <string name="lockscreen_access_pattern_detected">Entsperrmuster gefunden</string>
+  <string name="lockscreen_access_pattern_passwd_forget">Passwort vergessen</string>
+  <string name="lockscreen_access_pattern_failure">5 fehlerhafte Eingaben - bitte warten Sie 30 Sekunden bevor Sie es wieder versuchen</string>
+  <string name="lockscreen_access_pattern_failure_left_try_seconds">Sie können es in %d Sekunden nochmal versuchen</string>
+  <string name="lockscreen_access_pattern_failure_left_try_times">Falsches Entsperrmuster, Sie können es noch %d Mal versuchen </string>
+  <string name="lockscreen_access_pattern_failure_not_long_enough">Entsperrmuster nicht lang genug, Bitte wählen Sie ein längeres Muster</string>
+  <string name="lockpattern_retry_button_text">Wiederholen</string>
+  <string name="lockpattern_continue_button_text">Weiter</string>
+  <string name="lockpattern_confirm_button_text">OK</string>
+  <string name="lockpattern_recording_intro_header">Zeichnen Sie ein Entsperrmuster</string>
+  <string name="lockpattern_settings_help_how_to_record">So zeichnen Sie ein Entsperrmuster</string>
+  <string name="lockpattern_recording_incorrect_too_short">Verbinden Sie mindestens 4 Punkte!</string>
+  <string name="lockpattern_pattern_entered_header">Muster gespeichert</string>
+  <string name="lockpattern_need_to_draw">Bitte zeichnen Sie ein Entsperrmuster</string>
+  <string name="lockpattern_need_to_confirm">Bitte bestätigen Sie Ihr Muster</string>
+  <string name="lockpattern_need_to_unlock_wrong">Die Muster stimmen nicht überein. Bitte versuchen Sie es nochmal!</string>
+  <string name="lockpattern_pattern_confirmed_header">Bestätigen Sie Ihr Entsperrmuster</string>
+  <string name="lockpattern_recording_inprogress">Nehmen Sie Ihren Finger vom Bildschirm, wenn Sie fertig sind</string>
+  <string name="lockpattern_pattern_toast_saved">Entsperrungsmuster erfolgreich gespeichert</string>
+  <string name="gesture_password_guide_text">Sie können ein Entsperrmuster erstellen, im Ihre Privatsphäre zu schützen</string>
+  <string name="gesture_password_guide_creat_btn">Entsperrungsmuster erstellen</string>
+  <!--Strings for possible PreferenceActivity Back/Next buttons-->
+  <string name="back_button_label">Zurück</string>
+  <string name="next_button_label">Weiter</string>
+  <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
+  <string name="skip_button_label">Überspringen</string>
   <string name="settings_camera_upload_duplicate">bereits hochgeladen</string>
-  <string name="settings_camera_upload_info_title">Kamerafotohochladen</string>
+  <string name="settings_camera_upload_info_title">Kamerafoto hochladen</string>
   <string name="settings_camera_upload_info">%d Foto(s) hochladen auf\u0020</string>
   <string name="settings_wifi_down">WLAN nicht verfügbar</string>
-  <string name="settings_startUpService">Hochladedienst gestartet</string>
-  <string name="settings_stopUpService">Hochladedienst angehalten</string>
+  <string name="settings_startUpService">Hochladen gestartet</string>
+  <string name="settings_stopUpService">Hochladen angehalten</string>
+  <string name="settings_allow_mobile_connections">2G/3G/4G Verbindung erlauben</string>
+  <string name="settings_default_wifi_connection">Standarmäßig nur Wi-Fi Verbindung verwenden</string>
+  <string name="settings_use_mobile_connections">2G/3G/4G Verbindung erlaubt</string>
+  <string name="settings_repo">Upload Bibliothek ändern</string>
   <string name="settings_hint">Bitte zuerst eine Bibliothek auswählen</string>
   <string name="settings_start">Kamerahochladen anschalten</string>
   <string name="settings_camera_upload_library_not_found">Die ausgewählte Bibliothek ist nicht vorhanden</string>
+  <string name="settings_about_title">ÜBER</string>
+  <string name="settings_about_version_title">App Version</string>
+  <string name="settings_about_version_info">
+<![CDATA[
+<h5>Seafile Andoird Client</h5>
+<p>%s</p>
+<h5>Kontakt</h5>
+<p>
+Twitter: Seafile<br>
+Email: support@seafile.com<br>
+</p>
+<h5>Mitwirkung</h5>
+<p>https://github.com/haiwen/seadroid.git</P>
+<h5>Copyright ©2013-2014 Seafile Ltd.</h5>
+]]></string>
+  <!--pull to refresh-->
+  <string name="pull_to_refresh_pull_label">Zum Aktualisieren ziehen</string>
+  <string name="pull_to_refresh_release_label">Zum Aktualisieren loslassen...</string>
+  <string name="pull_to_refresh_refreshing_label">Lade...</string>
+  <!--Just use standard Pull Down String when pulling up. These can be set for languages which require it-->
 </resources>

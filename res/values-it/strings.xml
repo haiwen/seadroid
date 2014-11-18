@@ -115,7 +115,7 @@
   <string name="copy_link">Copia link</string>
   <string name="share_file_link">Condividi il link al file</string>
   <string name="share_dir_link">Condividi il link a questa cartella</string>
-  <string name="generating_link">Generazione del link&#8230;</string>
+  <string name="generating_link">Generazione del link...</string>
   <string name="link_ready_to_be_pasted">Il link è pronto per essere incollato.</string>
   <string name="rename_file">Rinomina file</string>
   <string name="rename_dir">Rinomina cartella</string>
@@ -170,17 +170,15 @@
   <string name="upload_started">il caricamento è iniziato</string>
   <string name="cannot_copy_folder_to_subfolder">Non puoi copiare una cartella in una sua sottocartella</string>
   <string name="cannot_move_folder_to_subfolder">Non puoi spostare una cartella in una sua sottocartella</string>
+  <string name="cancel">Annulla</string>
+  <string name="confirm">Conferma</string>
   <string name="security">Sicurezza</string>
   <string name="gesture_lock">Movimento per Blocco</string>
   <string name="gesture_lock_on">Movimento blocco attivo</string>
   <string name="gesture_lock_off">Movimento blocco disattivo</string>
-  <string name="cancel">Annulla</string>
-  <string name="confirm">Conferma</string>
-  <string name="lockpattern_recording_incorrect_too_short">per favore collega almeno 4 punti</string>
-  <string name="lockscreen_access_pattern_start">Avvio del Pattern</string>
   <string name="lockscreen_access_pattern_cleared">Pattern pulito</string>
-  <string name="lockscreen_access_pattern_cell_added">Cella aggiunta</string>
-  <string name="lockscreen_access_pattern_detected">Pattern completato</string>
+  <!--Strings for possible PreferenceActivity Back/Next buttons-->
+  <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="settings_camera_upload_duplicate">già caricato</string>
   <string name="settings_camera_upload_info_title">Caricamento Foto di Fotocamera</string>
   <string name="settings_camera_upload_info">caricato(e) %d foto in \u0020</string>
@@ -190,4 +188,6 @@
   <string name="settings_hint">Per favore scegli prima una libreria</string>
   <string name="settings_start">Abilita Upload della Fotocamera</string>
   <string name="settings_camera_upload_library_not_found">La libreria selezionata non esiste</string>
+  <!--pull to refresh-->
+  <!--Just use standard Pull Down String when pulling up. These can be set for languages which require it-->
 </resources>

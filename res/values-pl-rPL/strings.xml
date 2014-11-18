@@ -115,7 +115,7 @@
   <string name="copy_link">Kopiuj odsyłacz</string>
   <string name="share_file_link">Udostępnij łącze do tego pliku</string>
   <string name="share_dir_link">Udostępnij łącze do tego folderu</string>
-  <string name="generating_link">Generowanie odsyłacza&#8230;</string>
+  <string name="generating_link">Generowanie odsyłacza...</string>
   <string name="link_ready_to_be_pasted">Łącze jest gotowe do wklejenia.</string>
   <string name="rename_file">Zmień nazwę pliku</string>
   <string name="rename_dir">Zmień nazwę folderu</string>
@@ -170,17 +170,15 @@
   <string name="upload_started">przesyłanie rozpoczęte</string>
   <string name="cannot_copy_folder_to_subfolder">Nie można skopiować folderu do jego podfolderu</string>
   <string name="cannot_move_folder_to_subfolder">Nie można przenieść folderu do jego podfolderu</string>
+  <string name="cancel">Anuluj</string>
+  <string name="confirm">Zatwierdź</string>
   <string name="security">Bezpieczeństwo</string>
   <string name="gesture_lock">Blokada gestem</string>
   <string name="gesture_lock_on">Blokada gestem włączona</string>
   <string name="gesture_lock_off">Blokada gestem wyłączona</string>
-  <string name="cancel">Anuluj</string>
-  <string name="confirm">Zatwierdź</string>
-  <string name="lockpattern_recording_incorrect_too_short">proszę połączyć przynajmniej 4 punkty</string>
-  <string name="lockscreen_access_pattern_start">Wzorzec rozpoczęty</string>
   <string name="lockscreen_access_pattern_cleared">Wzorzec wyczyszczony</string>
-  <string name="lockscreen_access_pattern_cell_added">Komórka dodana</string>
-  <string name="lockscreen_access_pattern_detected">Wzorzec zakończony</string>
+  <!--Strings for possible PreferenceActivity Back/Next buttons-->
+  <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="settings_camera_upload_duplicate">już przesłane</string>
   <string name="settings_camera_upload_info_title">Automatyczna kopia zdjęć</string>
   <string name="settings_camera_upload_info">prześlij %d zdjęć do\u0020</string>
@@ -190,4 +188,6 @@
   <string name="settings_hint">Najpierw wskaż bibliotekę</string>
   <string name="settings_start">Włącz przesyłanie zdjęć z aparatu</string>
   <string name="settings_camera_upload_library_not_found">Wybrana biblioteka nie istnieje</string>
+  <!--pull to refresh-->
+  <!--Just use standard Pull Down String when pulling up. These can be set for languages which require it-->
 </resources>
