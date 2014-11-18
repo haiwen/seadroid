@@ -170,17 +170,15 @@
   <string name="upload_started">загрузка началась</string>
   <string name="cannot_copy_folder_to_subfolder">Вы не можете скопировать папку в эту подпапку</string>
   <string name="cannot_move_folder_to_subfolder">Вы не можете переместить папку в эту подпапку</string>
+  <string name="cancel">Отмена</string>
+  <string name="confirm">Подтвердить</string>
   <string name="security">Безопасность</string>
   <string name="gesture_lock">Защита жестом</string>
   <string name="gesture_lock_on">Защита жестом включена</string>
   <string name="gesture_lock_off">Защита жестом выключена</string>
-  <string name="cancel">Отмена</string>
-  <string name="confirm">Подтвердить</string>
-  <string name="lockpattern_recording_incorrect_too_short">нарисуйте хотя бы 4 соединенных точки</string>
-  <string name="lockscreen_access_pattern_start">Запись жеста началась</string>
   <string name="lockscreen_access_pattern_cleared">Жест очищен</string>
-  <string name="lockscreen_access_pattern_cell_added">Ячейка добавлена</string>
-  <string name="lockscreen_access_pattern_detected">Запись жеста закончилась</string>
+  <!--Strings for possible PreferenceActivity Back/Next buttons-->
+  <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="settings_camera_upload_duplicate">уже загружено</string>
   <string name="settings_camera_upload_info_title">Загрузить фото с камеры</string>
   <string name="settings_camera_upload_info">загрузить %d фото в\u0020</string>
@@ -190,4 +188,6 @@
   <string name="settings_hint">Пожалуйста, сначала выберите библиотеку</string>
   <string name="settings_start">Включить загрузку с камеры</string>
   <string name="settings_camera_upload_library_not_found">Выбранная библиотека не существует</string>
+  <!--pull to refresh-->
+  <!--Just use standard Pull Down String when pulling up. These can be set for languages which require it-->
 </resources>

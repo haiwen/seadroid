@@ -7,6 +7,10 @@
   <string name="edit_account">Editar</string>
   <string name="delete_account">Borrar</string>
   <string name="delete">Borrar</string>
+  <string name="delete_file">¿Seguro que deseas eliminar este archivo o carpeta?</string>
+  <string name="delete_successful">Eliminado con éxito</string>
+  <string name="delete_file_f">Eliminar archivo</string>
+  <string name="delete_dir">Eliminar carpeta</string>
   <string name="server_hint">Servidor, como cloud.seafile.com</string>
   <string name="email_hint">Email</string>
   <string name="passwd_hint">Contraseña</string>
@@ -24,6 +28,9 @@
   <string name="cached">En Caché</string>
   <string name="activities">Actividades</string>
   <string name="pick_upload_type">Subir</string>
+  <string name="upload_tasks">Subidas</string>
+  <string name="accounts">Cuentas</string>
+  <string name="settings">Configuración</string>
   <string-array name="pick_upload_array">
     <item>Archivo</item>
     <item>Fotos/Videos</item>
@@ -57,6 +64,8 @@
   <string name="file_action_export">Exportar</string>
   <string name="file_action_delete">Eliminar</string>
   <string name="file_action_rename">Renombrar</string>
+  <string name="file_action_copy">Copiar</string>
+  <string name="file_action_move">Mover</string>
   <string name="file_action_open_as">Abrir como</string>
   <string-array name="file_type_array">
     <item>Texto</item>
@@ -81,6 +90,7 @@
   <string name="no_repo">Aún no tiene bibliotecas</string>
   <string name="no_app_available">No se encuentra ninguna app</string>
   <string name="add_to_seafile">Agregar a Seafile</string>
+  <string name="ok">OK</string>
   <string name="no_account">Por favor, primero configure una cuenta en Seafile</string>
   <string name="no_library">Aún no tiene bibliotecas</string>
   <string name="choose_an_account">Elija una cuenta</string>
@@ -92,6 +102,7 @@
   <string name="not_supported_share">Este tipo de recurso compartido no es compatible</string>
   <string name="create_new_file">Crear un nuevo archivo</string>
   <string name="create_new_dir">Crear una nueva carpeta</string>
+  <string name="camera">Tomar una foto aquí</string>
   <string name="download">Descargar</string>
   <string name="open">Abrir</string>
   <string name="last_modified">última modificación</string>
@@ -104,14 +115,23 @@
   <string name="copy_link">Copiar enlace</string>
   <string name="share_file_link">Compartir un enlace a este archivo</string>
   <string name="share_dir_link">Compartir un enlace a esta carpeta</string>
+  <string name="generating_link">Generando enlace...</string>
   <string name="link_ready_to_be_pasted">El enlace está listo para ser pegado</string>
   <string name="rename_file">Renombrar archivo</string>
   <string name="rename_dir">Renombrar carpeta</string>
   <string name="rename_successful">Renombrado con éxito.</string>
+  <string-array name="nav_array">
+    <item>Archivos</item>
+    <item>Subidas</item>
+    <item>Cuentas</item>
+    <item>Backup Fotos</item>
+  </string-array>
   <string name="drawer_open">Abrir caja de navegación</string>
   <string name="drawer_close">Cerrar caja de navegación</string>
   <string name="no_starred_file">Aún no hay archivos favoritos</string>
   <string name="added_to_upload_tasks">El(los) archivo(s) seleccionado(s) se ha(n) agregado a la lista de tareas de subida.</string>
+  <string name="added_photo_to_upload_tasks">La foto esta siendo subida</string>
+  <string name="take_photo_successfully">Tomar Foto con éxito</string>
   <string name="tabs_library">Bibliotecas</string>
   <string name="tabs_activity">Actividades</string>
   <string name="tabs_starred">Favoritos</string>
@@ -140,9 +160,34 @@
   <string name="yes">Si</string>
   <string name="no">No</string>
   <string name="remember_my_choice">Recordar mi elección</string>
+  <string name="copied_successfully">Copiado con éxito</string>
+  <string name="moved_successfully">Movido con éxito</string>
+  <string name="internal_server_error">Error interno del Servidor</string>
+  <string name="copy_file_ing">Copiando archivo</string>
+  <string name="move_file_ing">Moviendo archivo</string>
+  <string name="copy_folder_ing">Copiando carpeta</string>
+  <string name="move_folder_ing">Moviendo carpeta</string>
+  <string name="upload_started">subida iniciada</string>
+  <string name="cannot_copy_folder_to_subfolder">No puede copiar una carpeta a su subcarpeta</string>
+  <string name="cannot_move_folder_to_subfolder">No puede mover una carpeta a su subcarpeta</string>
   <string name="cancel">Cancelar</string>
-  <!--Accessibility description sent when user starts drawing a lock pattern. [CHAR LIMIT=NONE]-->
-  <!--Accessibility description sent when the pattern times out and is cleared. [CHAR LIMIT=NONE]-->
-  <!--Accessibility description sent when user adds a cell to the pattern. [CHAR LIMIT=NONE]-->
-  <!--Accessibility description sent when user completes drawing a pattern. [CHAR LIMIT=NONE]-->
+  <string name="confirm">Confirmar</string>
+  <string name="security">Seguridad</string>
+  <string name="gesture_lock">Gesto de Bloqueo</string>
+  <string name="gesture_lock_on">Gesto de bloqueo activado</string>
+  <string name="gesture_lock_off">Gesto de bloqueo desactivado</string>
+  <string name="lockscreen_access_pattern_cleared">Patrón borrado</string>
+  <!--Strings for possible PreferenceActivity Back/Next buttons-->
+  <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
+  <string name="settings_camera_upload_duplicate">ya subido</string>
+  <string name="settings_camera_upload_info_title">Subir Foto de Cámara </string>
+  <string name="settings_camera_upload_info">subir %d foto(s) a\u0020</string>
+  <string name="settings_wifi_down">Wi-Fi no disponible</string>
+  <string name="settings_startUpService">Servicio de Subida iniciado</string>
+  <string name="settings_stopUpService">Servicio de Subida detenido</string>
+  <string name="settings_hint">Por favor primero elija una biblioteca</string>
+  <string name="settings_start">Activar Subida de Cámara</string>
+  <string name="settings_camera_upload_library_not_found">La biblioteca seleccionada no existe</string>
+  <!--pull to refresh-->
+  <!--Just use standard Pull Down String when pulling up. These can be set for languages which require it-->
 </resources>

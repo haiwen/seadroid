@@ -115,7 +115,7 @@
   <string name="copy_link">Link másolása</string>
   <string name="share_file_link">Link megosztása ehhez a fájlhoz</string>
   <string name="share_dir_link">Link megosztása ehhez a könyvtárhoz</string>
-  <string name="generating_link">Link elkészítése&#8230;</string>
+  <string name="generating_link">Link elkészítése...</string>
   <string name="link_ready_to_be_pasted">A link beilleszthető.</string>
   <string name="rename_file">Fájl átnevezése</string>
   <string name="rename_dir">Könyvtár átnevezése</string>
@@ -170,17 +170,15 @@
   <string name="upload_started">feltöltés elindítva</string>
   <string name="cannot_copy_folder_to_subfolder">A könyvtár nem másolható az alkönyvtárába</string>
   <string name="cannot_move_folder_to_subfolder">A könyvtár nem mozgatható az alkönyvtárába</string>
+  <string name="cancel">Mégse</string>
+  <string name="confirm">Megerősít</string>
   <string name="security">Biztonság</string>
   <string name="gesture_lock">Képernyőminta lezárás</string>
   <string name="gesture_lock_on">Képernyőmintával lezárva</string>
   <string name="gesture_lock_off">Képernyőmintával feloldva</string>
-  <string name="cancel">Mégse</string>
-  <string name="confirm">Megerősít</string>
-  <string name="lockpattern_recording_incorrect_too_short">legalább 4 pontot össze kell kötni</string>
-  <string name="lockscreen_access_pattern_start">Minta elindítva</string>
   <string name="lockscreen_access_pattern_cleared">Minta törölve</string>
-  <string name="lockscreen_access_pattern_cell_added">Pont hozzáadva</string>
-  <string name="lockscreen_access_pattern_detected">Minta kész</string>
+  <!--Strings for possible PreferenceActivity Back/Next buttons-->
+  <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="settings_camera_upload_duplicate">már feltöltve</string>
   <string name="settings_camera_upload_info_title">Fénykép feltöltés</string>
   <string name="settings_camera_upload_info">%d fénykép feltöltése ide: \u0020</string>
@@ -190,4 +188,6 @@
   <string name="settings_hint">Először a kötetet kell kiválasztani</string>
   <string name="settings_start">Fényképezőgép feltöltés bekapcsolása</string>
   <string name="settings_camera_upload_library_not_found">A kiválasztott kötet nem létezik.</string>
+  <!--pull to refresh-->
+  <!--Just use standard Pull Down String when pulling up. These can be set for languages which require it-->
 </resources>

@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <!--Accessibility description sent when user starts drawing a lock pattern. [CHAR LIMIT=NONE]-->
-  <!--Accessibility description sent when the pattern times out and is cleared. [CHAR LIMIT=NONE]-->
-  <!--Accessibility description sent when user adds a cell to the pattern. [CHAR LIMIT=NONE]-->
-  <!--Accessibility description sent when user completes drawing a pattern. [CHAR LIMIT=NONE]-->
+  <!--Strings for possible PreferenceActivity Back/Next buttons-->
+  <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
+  <!--pull to refresh-->
+  <!--Just use standard Pull Down String when pulling up. These can be set for languages which require it-->
 </resources>
