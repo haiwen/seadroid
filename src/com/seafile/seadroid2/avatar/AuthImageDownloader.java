@@ -28,7 +28,7 @@ public class AuthImageDownloader extends BaseImageDownloader {
     }
 
     @Override
-    protected InputStream getStreamFromNetwork(String imageUri, Object extra)
+    protected InputStream getStreamFromNetwork(String imageUri, Object account)
             throws IOException {
         HttpRequest req = HttpRequest.get(imageUri, null, false)
             .readTimeout(readTimeout)
@@ -41,17 +41,8 @@ public class AuthImageDownloader extends BaseImageDownloader {
             // and the accepted certificate will be stored, so he is not prompted to accept later on.
             // This is handled by SSLTrustManager and CertsManager
             req.trustAllHosts();
-            
             HttpsURLConnection sconn = (HttpsURLConnection)conn;
-            Map<Account, SSLSocketFactory> cachedFactories = SSLTrustManager.instance().getCachedFactories();
-            Iterator<Entry<Account, SSLSocketFactory>> it = cachedFactories.entrySet().iterator();
-            while (it.hasNext()) {
-                Entry<Account, SSLSocketFactory> pairs = it.next();
-                if (imageUri.contains(pairs.getKey().server)) {
-                sconn.setSSLSocketFactory((SSLSocketFactory) pairs.getValue());
-                it.remove(); // avoids a ConcurrentModificationException
-                }
-            }
+            sconn.setSSLSocketFactory(SSLTrustManager.instance().getSSLSocketFactory((Account)account));
         }
 
         return new FlushedInputStream(new BufferedInputStream(

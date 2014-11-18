@@ -38,18 +38,6 @@ public class AccountAdapter extends BaseAdapter {
     public AccountAdapter(Context context) {
         this.context = context;
         items = Lists.newArrayList();
-        options = new DisplayImageOptions.Builder()
-                .showStubImage(R.drawable.default_avatar)
-                .delayBeforeLoading(1000)
-                .showImageOnLoading(R.drawable.default_avatar)
-                .showImageForEmptyUri(R.drawable.default_avatar)
-                .showImageOnFail(R.drawable.default_avatar)
-                .resetViewBeforeLoading()
-                .cacheInMemory(true)
-                .cacheOnDisk(true)
-                .considerExifParams(true)
-                .displayer(new RoundedBitmapDisplayer(50))
-                .build();
     }
 
     @Override
@@ -118,6 +106,19 @@ public class AccountAdapter extends BaseAdapter {
         viewHolder.title.setText(account.getServerHost());
         viewHolder.subtitle.setText(account.getEmail());
         if (AvatarManager.getAvatarUrl(account) != null) {
+            options = new DisplayImageOptions.Builder()
+            .extraForDownloader(account)
+            .showStubImage(R.drawable.default_avatar)
+            .delayBeforeLoading(1000)
+            .showImageOnLoading(R.drawable.default_avatar)
+            .showImageForEmptyUri(R.drawable.default_avatar)
+            .showImageOnFail(R.drawable.default_avatar)
+            .resetViewBeforeLoading()
+            .cacheInMemory(true)
+            .cacheOnDisk(true)
+            .considerExifParams(true)
+            .displayer(new RoundedBitmapDisplayer(50))
+            .build();
             ImageLoader.getInstance().displayImage(AvatarManager.getAvatarUrl(account), viewHolder.icon, options, animateFirstListener);
         }
         ImageLoader.getInstance().handleSlowNetwork(true);
