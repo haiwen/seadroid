@@ -28,11 +28,10 @@
   <string name="cached">已缓存</string>
   <string name="activities">事件</string>
   <string name="pick_upload_type">上传</string>
-
+  <string name="accounts_https_hint">https</string>
   <string name="upload_tasks">上传任务</string>
   <string name="accounts">帐号</string>
   <string name="settings">设置</string>
-
   <string-array name="pick_upload_array">
     <item>文件</item>
     <item>图片/视频</item>
@@ -47,6 +46,8 @@
   <string name="network_down">没有网络连接</string>
   <string name="invalid_server_address">无效的服务器地址</string>
   <string name="err_server_andress_empty">服务器地址不能是空的</string>
+  <string name="err_email_empty">邮箱不能是空的</string>
+  <string name="err_passwd_empty">密码不能是空的</string>
   <string name="err_login_failed">登录失败</string>
   <string name="err_wrong_user_or_passwd">邮箱或密码错误</string>
   <string name="upload">上传</string>
@@ -180,9 +181,8 @@
   <string name="upload_started">开始上传</string>
   <string name="cannot_copy_folder_to_subfolder">不能把一个文件夹复制到它的子文件夹里面去</string>
   <string name="cannot_move_folder_to_subfolder">不能把一个文件夹移动到它的子文件夹里面去</string>
-
-  <string name="confirm">确定</string>
   <string name="cancel">取消</string>
+  <string name="confirm">确定</string>
   <string name="security">安全性</string>
   <string name="gesture_lock">手势密码锁定</string>
   <string name="gesture_lock_on">手势锁开启</string>
@@ -210,7 +210,13 @@
   <string name="lockpattern_pattern_confirmed_header">确认保存新解锁图案</string>
   <string name="lockpattern_recording_inprogress">完成后松开手指</string>
   <string name="lockpattern_pattern_toast_saved">密码设置成功</string>
-    
+  <string name="gesture_password_guide_text">你可以创建一个解锁图案，这样他人在借用你的手机时，将无法打开应用。</string>
+  <string name="gesture_password_guide_creat_btn">创建手势密码</string>
+  <!--Strings for possible PreferenceActivity Back/Next buttons-->
+  <string name="back_button_label">Back</string>
+  <string name="next_button_label">Next</string>
+  <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
+  <string name="skip_button_label">Skip</string>
   <string name="settings_camera_upload_duplicate">已上传</string>
   <string name="settings_camera_upload_info_title">上传照片</string>
   <string name="settings_camera_upload_info">上传%d张照片到\u0020</string>
@@ -224,7 +230,6 @@
   <string name="settings_hint">请先选择一个资料库来上传照片</string>
   <string name="settings_start">打开照片上传</string>
   <string name="settings_camera_upload_library_not_found">资料库不存在</string>
-  
   <string name="settings_about_title">关于</string>
   <string name="settings_about_version_title">应用版本号</string>
   <string name="settings_about_version_info">
@@ -241,4 +246,9 @@
         <h5>版权 ©2013-2014 Seafile Ltd.</h5>
         ]]>
 </string>
+  <!--pull to refresh-->
+  <string name="pull_to_refresh_pull_label">下拉更新</string>
+  <string name="pull_to_refresh_release_label">释放更新</string>
+  <string name="pull_to_refresh_refreshing_label">加载中。。。</string>
+  <!--Just use standard Pull Down String when pulling up. These can be set for languages which require it-->
 </resources>
