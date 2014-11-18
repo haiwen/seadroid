@@ -22,7 +22,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:layout_marginEnd="2dp" android:src="@drawable/folder"
+        android:layout_marginEnd="2dp"
         android:layout_marginRight="2dp" />
 
     <TextView
