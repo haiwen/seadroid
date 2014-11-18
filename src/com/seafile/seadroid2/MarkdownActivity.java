@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
@@ -41,8 +42,11 @@ public class MarkdownActivity extends SherlockActivity {
 
         if (path == null)
             return;
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        
     }
-
+    
     @Override
     public void onResume() {
         super.onResume();
@@ -66,6 +70,9 @@ public class MarkdownActivity extends SherlockActivity {
         switch (item.getItemId()) {
         case R.id.edit_markdown:
             edit();
+            return true;
+        case android.R.id.home:
+            finish();
             return true;
         }
         return super.onOptionsItemSelected(item);
