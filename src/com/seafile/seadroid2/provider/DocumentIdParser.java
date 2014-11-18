@@ -52,7 +52,7 @@ import java.io.FileNotFoundException;
 public class DocumentIdParser {
 
     /** used to seperate serverName, RepoId and Path. */
-    private static final String docSeperator = "::::";
+    private static final String DOC_SEPERATOR = "::::";
 
     Context context;
 
@@ -68,7 +68,7 @@ public class DocumentIdParser {
      * @throws java.io.FileNotFoundException if the documentId is bogus or the account doesn't exist
      */
     public Account getAccountFromId(String documentId) throws FileNotFoundException {
-        String[] list = documentId.split(docSeperator, 2);
+        String[] list = documentId.split(DOC_SEPERATOR, 2);
         if (list.length > 0) {
             String server = list[0];
             for (Account a: AccountDBHelper.getDatabaseHelper(context).getAccountList()) {
@@ -87,7 +87,7 @@ public class DocumentIdParser {
      * @return the repoId, might be empty string (if documentId isn't containing one)
      */
     public static String getRepoIdFromId(String documentId) {
-        String[] list = documentId.split(docSeperator, 3);
+        String[] list = documentId.split(DOC_SEPERATOR, 3);
         if (list.length>1) {
             String repoId = list[1];
             return repoId;
@@ -105,7 +105,7 @@ public class DocumentIdParser {
      * @return a file path
      */
     public static String getPathFromId(String documentId) {
-        String[] list = documentId.split(docSeperator, 3);
+        String[] list = documentId.split(DOC_SEPERATOR, 3);
         if (list.length>2) {
             String path = list[2];
             return path;
@@ -123,12 +123,11 @@ public class DocumentIdParser {
      */
     public static String buildId(Account a, String repoId, String path) {
         if (repoId != null && path != null)
-            return a.getServer()+ docSeperator +repoId+ docSeperator +path;
+            return a.getServer() + DOC_SEPERATOR + repoId + DOC_SEPERATOR + path;
         else if (repoId != null)
-            return a.getServer()+ docSeperator +repoId;
+            return a.getServer() + DOC_SEPERATOR + repoId;
         else
             return a.getServer();
     }
-
 
 }
