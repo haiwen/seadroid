@@ -9,11 +9,12 @@ public class AccountManager {
     @SuppressWarnings("unused")
     private static String DEBUG_TAG = "AccountManager";
 
-    private final AccountDBHelper dbHelper = AccountDBHelper.getDatabaseHelper();
+    private final AccountDBHelper dbHelper;
     private Context context;
 
     public AccountManager(Context context) {
        this.context = context;
+       dbHelper = AccountDBHelper.getDatabaseHelper(context);
     }
 
     public Account getDefaultAccount() {
