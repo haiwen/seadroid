@@ -87,6 +87,10 @@ public class Account implements Parcelable {
     public String getSignature() {
         return email.substring(0, 4) + " " + hashCode();
     }
+    
+    public String getName() {
+        return email.substring(0, email.indexOf("@")) + "@" + getServerHost();
+    }
 
     @Override
     public int describeContents() {
