@@ -81,7 +81,7 @@ public class ReposFragment extends SherlockListFragment {
             Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.repos_fragment, container, false);
         mPullRefreshListView = (PullToRefreshListView) root.findViewById(R.id.pull_refresh_list);
-        mEmptyView = (TextView) root.findViewById(android.R.id.empty);
+        mEmptyView = (TextView) root.findViewById(R.id.empty);
         mListContainer =  root.findViewById(R.id.listContainer);
         mErrorText = (TextView)root.findViewById(R.id.error_message);
         mProgressContainer = root.findViewById(R.id.progressContainer);
@@ -158,7 +158,7 @@ public class ReposFragment extends SherlockListFragment {
     }
     
     public void refresh() {
-        mPullRefreshListView.setRefreshing(false);
+        mPullRefreshListView.setRefreshing();
         refreshView(true);
     }
 
@@ -195,7 +195,6 @@ public class ReposFragment extends SherlockListFragment {
         }
 
         // load repos in background
-        //showLoading(true);
         ConcurrentAsyncTask.execute(new LoadTask(getDataManager()));
     }
 
@@ -225,7 +224,6 @@ public class ReposFragment extends SherlockListFragment {
             }
         }
 
-        //showLoading(true);
         ConcurrentAsyncTask.execute(new LoadDirTask(getDataManager()),
                 nav.getRepoName(),
                 nav.getRepoID(),
@@ -361,6 +359,12 @@ public class ReposFragment extends SherlockListFragment {
         }
 
         @Override
+        protected void onPreExecute() {
+            // showLoading(false);
+            mPullRefreshListView.setRefreshing();
+        }
+        
+        @Override
         protected List<SeafRepo> doInBackground(Void... params) {
             try {
                 return dataManager.getReposFromServer();
@@ -491,7 +495,13 @@ public class ReposFragment extends SherlockListFragment {
         public LoadDirTask(DataManager dataManager) {
             this.dataManager = dataManager;
         }
-
+        
+        @Override
+        protected void onPreExecute() {
+            // showLoading(false);
+            mPullRefreshListView.setRefreshing();
+        }
+        
         @Override
         protected List<SeafDirent> doInBackground(String... params) {
             if (params.length != 3) {
