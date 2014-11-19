@@ -19,6 +19,8 @@ package com.seafile.seadroid2.provider;
 
 import android.content.Context;
 
+import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountDBHelper;
 
@@ -31,13 +33,13 @@ import java.io.FileNotFoundException;
  * Example:
  * https://server.com/seafile/::::550e8400-e29b-11d4-a716-446655440000::::/dir/file.jpg
  *
- * the seperation using "::::" is arbitrary. Is has to be something, that is neither in an URL
+ * the separation using "::::" is arbitrary. Is has to be something, that is neither in an URL
  * nor in a repoId UUID.
  *
  */
 public class DocumentIdParser {
 
-    /** used to seperate serverName, RepoId and Path. */
+    /** used to separate serverName, RepoId and Path. */
     private static final String DOC_SEPERATOR = "::::";
 
     Context context;
@@ -47,7 +49,7 @@ public class DocumentIdParser {
     }
 
     /**
-     * Extract the seafile account from the documentId
+     * Extract the Seafile account from the documentId
      *
      * @param documentId our documentId, as created by createDocumentId()
      * @return the corresponding Account
@@ -63,7 +65,9 @@ public class DocumentIdParser {
                 }
             }
         }
-        throw new FileNotFoundException("could not find seafile account.");
+        throw new FileNotFoundException(SeadroidApplication.getAppContext()
+                .getResources()
+                .getString(R.string.saf_account_not_found_exception));
     }
 
     /**
@@ -96,7 +100,7 @@ public class DocumentIdParser {
             String path = list[2];
             return path;
         }
-        return "/";
+        return ProviderUtil.PATH_SEPERATOR;
     }
 
     /**

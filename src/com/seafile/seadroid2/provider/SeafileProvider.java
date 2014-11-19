@@ -19,12 +19,14 @@
 
 package com.seafile.seadroid2.provider;
 
+import android.annotation.TargetApi;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.Handler;
@@ -34,8 +36,8 @@ import android.provider.DocumentsContract.Document;
 import android.provider.DocumentsContract.Root;
 import android.provider.DocumentsProvider;
 import android.util.Log;
-
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountDBHelper;
@@ -44,7 +46,6 @@ import com.seafile.seadroid2.data.ProgressMonitor;
 import com.seafile.seadroid2.data.SeafCachedFile;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -57,10 +58,11 @@ import java.util.List;
  *
  * It depends on API level 19.
  *
- * This Provider gives access to other apps to browse, read and write all files
- * containted in Seafile repositories.
+ * This Provider gives access to other Apps to browse, read and write all files
+ * contained in Seafile repositories.
  *
  */
+@TargetApi(Build.VERSION_CODES.KITKAT)
 public class SeafileProvider extends DocumentsProvider {
 
     private static final String[] SUPPORTED_ROOT_PROJECTION = new String[] {
@@ -79,9 +81,8 @@ public class SeafileProvider extends DocumentsProvider {
                     Document.COLUMN_FLAGS,
                     Document.COLUMN_SIZE
             };
-
-    private static final String AUTHORITY = "com.seafile.seadroid2";
-    /** we remeber the last documentId queried so we don't run into a loop while doing async lookups. */
+    
+    /** we remember the last documentId queried so we don't run into a loop while doing Async lookups. */
     private String lastQueriedDocumentId = null;
 
     private DocumentIdParser docIdParser;
@@ -115,7 +116,7 @@ public class SeafileProvider extends DocumentsProvider {
         }
 
         // notification uri for the event, that the account list has changed
-        result.setNotificationUri(getContext().getContentResolver(), AccountNotifier.notificationUri);
+        result.setNotificationUri(getContext().getContentResolver(), AccountNotifier.NOTIFICATION_URI);
 
         return result;
     }
@@ -221,7 +222,7 @@ public class SeafileProvider extends DocumentsProvider {
 
         String path = DocumentIdParser.getPathFromId(documentId);
 
-        if (path.equals("/")) {
+        if (path.equals(ProviderUtil.PATH_SEPERATOR)) {
             // this is the base of the repository. this is special, as we give back the information
             // about the repository itself, not some directory in it.
             includeRepo(result, dm.getAccount(), repo);
@@ -272,7 +273,9 @@ public class SeafileProvider extends DocumentsProvider {
             return makeParcelFileDescriptor(f, mode);
 
         } catch (IOException e) {
-            throw new FileNotFoundException("Could not open file " + documentId + ".");
+            throw new FileNotFoundException(SeadroidApplication.getAppContext()
+                    .getResources()
+                    .getString(R.string.saf_open_file_exception, documentId));
         }
     }
 
@@ -286,7 +289,9 @@ public class SeafileProvider extends DocumentsProvider {
 
         String repoId = DocumentIdParser.getRepoIdFromId(documentId);
         if (repoId.isEmpty()) {
-            throw new FileNotFoundException("Cannot open directory.");
+            throw new FileNotFoundException(SeadroidApplication.getAppContext()
+                    .getResources()
+                    .getString(R.string.saf_open_directory_exception));
         }
         SeafRepo repo = dm.getCachedRepoByID(repoId); // we can assume that the repo is cached because the client has already seen it
 
@@ -298,15 +303,27 @@ public class SeafileProvider extends DocumentsProvider {
 
             SeafCachedFile seaFile = dm.getCachedFile(repo.getName(), repoId, path);
             if (seaFile == null)
-                throw new FileNotFoundException("File not cached: " + documentId);
+                throw new FileNotFoundException(SeadroidApplication
+                        .getAppContext()
+                        .getResources()
+                        .getString(R.string.saf_file_not_cached_exception,
+                                documentId));
 
             File file = dm.getLocalCachedFile(repo.getName(), repo.getID(), seaFile.path, seaFile.fileID);
             if (file == null)
-                throw new FileNotFoundException("File not cached: " + documentId);
+                throw new FileNotFoundException(SeadroidApplication
+                        .getAppContext()
+                        .getResources()
+                        .getString(R.string.saf_file_not_cached_exception,
+                                documentId));
 
             Bitmap bmp = dm.getThumbnail(file);
             if (bmp == null) {
-                throw new FileNotFoundException("Could not find/open thumbnail " + documentId + ".");
+                throw new FileNotFoundException(SeadroidApplication
+                        .getAppContext()
+                        .getResources()
+                        .getString(R.string.saf_thumbnail_not_found_exception,
+                                documentId));
             }
 
             ParcelFileDescriptor[] pair = ParcelFileDescriptor.createPipe();
@@ -318,7 +335,9 @@ public class SeafileProvider extends DocumentsProvider {
             return new AssetFileDescriptor(pair[0], 0, AssetFileDescriptor.UNKNOWN_LENGTH);
 
         } catch (IOException e) {
-            throw new FileNotFoundException("Could not open file " + documentId + ".");
+            throw new FileNotFoundException(SeadroidApplication.getAppContext()
+                    .getResources()
+                    .getString(R.string.saf_open_file_exception, documentId));
         }
     }
 
@@ -400,17 +419,27 @@ public class SeafileProvider extends DocumentsProvider {
             });
 
             if (f == null) {
-                throw new FileNotFoundException("Could not download file " + path + " from server.");
+                throw new FileNotFoundException(SeadroidApplication
+                        .getAppContext()
+                        .getResources()
+                        .getString(R.string.saf_file_not_downloaded_exception,
+                                path));
             }
 
             if (f.isDirectory()) {
-                throw new FileNotFoundException("Cannot open directory for reading/writing.");
+                throw new FileNotFoundException(SeadroidApplication
+                        .getAppContext().getResources()
+                        .getString(R.string.saf_write_diretory_exception));
             }
 
             return f;
 
         } catch (SeafException e) {
-            throw new FileNotFoundException("Could not download file " + path + " from server.");
+            throw new FileNotFoundException(SeadroidApplication
+                    .getAppContext()
+                    .getResources()
+                    .getString(R.string.saf_file_not_downloaded_exception,
+                            path));
         }
 
     }
@@ -464,7 +493,7 @@ public class SeafileProvider extends DocumentsProvider {
      * @param entry the seafile dirent to add
      */
     private void includeDirent(MatrixCursor result, DataManager dm, String repoId, String parentPath, SeafDirent entry) {
-        String fullPath = parentPath + "/" + entry.getTitle();
+        String fullPath = parentPath + ProviderUtil.PATH_SEPERATOR + entry.getTitle();
         String docId = DocumentIdParser.buildId(dm.getAccount(), repoId, fullPath);
 
         final String mimeType = ProviderUtil.getTypeForFile(docId, entry.isDir());
@@ -497,7 +526,7 @@ public class SeafileProvider extends DocumentsProvider {
      * @param result Cursor object over which to signal the client.
      */
     private void fetchDirentAsync(final DataManager dm, final String repoId, final String path, MatrixCursor result) {
-        final Uri uri = DocumentsContract.buildChildDocumentsUri(AUTHORITY, dm.getAccount().getServerHost() + repoId + path);
+        final Uri uri = DocumentsContract.buildChildDocumentsUri(ProviderUtil.AUTHORITY, dm.getAccount().getServerHost() + repoId + path);
         result.setNotificationUri(getContext().getContentResolver(), uri);
 
         new Thread(new Runnable() {
@@ -526,7 +555,7 @@ public class SeafileProvider extends DocumentsProvider {
      * @param result Cursor object over which to signal the client.
      */
     private void fetchReposAsync(final DataManager dm, MatrixCursor result) {
-        final Uri uri = DocumentsContract.buildChildDocumentsUri(AUTHORITY, dm.getAccount().getServerHost());
+        final Uri uri = DocumentsContract.buildChildDocumentsUri(ProviderUtil.AUTHORITY, dm.getAccount().getServerHost());
         result.setNotificationUri(getContext().getContentResolver(), uri);
 
         new Thread(new Runnable() {

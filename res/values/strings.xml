@@ -260,4 +260,11 @@
     <string name="pull_to_refresh_from_bottom_release_label">@string/pull_to_refresh_release_label</string>
     <string name="pull_to_refresh_from_bottom_refreshing_label">@string/pull_to_refresh_refreshing_label</string>
         
+    <string name="saf_open_file_exception">Could not open file %s.</string>
+    <string name="saf_open_directory_exception">Can not open directory.</string>
+    <string name="saf_file_not_cached_exception">File %s not cached.</string>
+    <string name="saf_thumbnail_not_found_exception">Could not find/open thumbnail %s.</string>
+    <string name="saf_file_not_downloaded_exception">Could not download file %s from server.</string>
+    <string name="saf_write_diretory_exception">Can not open directory for reading/writing.</string>
+    <string name="saf_account_not_found_exception">Could not find Seafile account.</string>
 </resources>

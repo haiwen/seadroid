@@ -25,6 +25,8 @@ import android.webkit.MimeTypeMap;
  */
 public class ProviderUtil {
 
+    public static final String PATH_SEPERATOR = "/";
+    public static final String AUTHORITY = "com.seafile.seadroid2";
     private static final String ARBITRARY_BINARY_DATA = "application/octet-stream";
     /**
      * get MIME type of file

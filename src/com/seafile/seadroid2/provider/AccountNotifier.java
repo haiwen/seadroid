@@ -32,16 +32,16 @@ public class AccountNotifier {
     /** This is a workaround
      *
      * the right thing to do would be this:
-     * public static final Uri notificationUri = DocumentsContract.buildRootsUri("com.seafile.seadroid2");
+     * public static final Uri NOTIFICATION_URI = DocumentsContract.buildRootsUri(ProviderUtil.AUTHORITY);
      *
      * However that would bump the API level to 19. Therefore we build the identical RootsUri by hand.
      */
-    public static final Uri notificationUri = new Uri.Builder().scheme("content").
-            authority("com.seafile.seadroid2").appendEncodedPath("root").build();
+    public static final Uri NOTIFICATION_URI = new Uri.Builder().scheme("content").
+            authority(ProviderUtil.AUTHORITY).appendEncodedPath("root").build();
 
     public static void notifyProvider() {
         Context c = SeadroidApplication.getAppContext();
-        c.getContentResolver().notifyChange(notificationUri, null);
+        c.getContentResolver().notifyChange(NOTIFICATION_URI, null);
     }
 
 }
