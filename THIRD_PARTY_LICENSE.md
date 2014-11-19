@@ -43,4 +43,8 @@ The third party software included and used by this project is:
    The jar file must be included in the Seafile APK.  
    See https://github.com/nostra13/Android-Universal-Image-Loader
 
-
+ * Custom Storage Access Framework, feature/documentprovider branch  
+   Copyright (c) 2014 Dariush Forouher.  
+   Licensed under the GNU Affero General Public License, Version 3.0.  
+   Placed at package com.seafile.seadroid2.provider.  
+   See https://github.com/forouher/seadroid/tree/feature/documentprovider
