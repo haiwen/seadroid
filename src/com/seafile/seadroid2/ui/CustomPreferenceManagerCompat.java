@@ -22,6 +22,8 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
+import com.seafile.seadroid2.ui.fragment.CustomPreferenceFragment;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -47,7 +49,7 @@ public class CustomPreferenceManagerCompat {
      * {@link Preference} in the hierarchy rooted at this {@link PreferenceScreen} is
      * clicked.
      */
-    interface OnPreferenceTreeClickListener {
+    public interface OnPreferenceTreeClickListener {
         /**
          * Called when a preference in the tree rooted at this
          * {@link PreferenceScreen} has been clicked.
@@ -60,7 +62,7 @@ public class CustomPreferenceManagerCompat {
         boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference);
     }
     
-	static PreferenceManager newInstance(Activity activity, int firstRequestCode) {
+	public static PreferenceManager newInstance(Activity activity, int firstRequestCode) {
 		try {
 			Constructor<PreferenceManager> c = PreferenceManager.class.getDeclaredConstructor(Activity.class, int.class);
 			c.setAccessible(true);
@@ -74,7 +76,7 @@ public class CustomPreferenceManagerCompat {
 	/**
      * Sets the owning preference fragment
      */
-    static void setFragment(PreferenceManager manager, CustomPreferenceFragment fragment) {
+    public static void setFragment(PreferenceManager manager, CustomPreferenceFragment fragment) {
     	// stub
     }
 
@@ -84,7 +86,7 @@ public class CustomPreferenceManagerCompat {
      * 
      * @param listener The callback to be invoked.
      */
-	static void setOnPreferenceTreeClickListener(PreferenceManager manager, final OnPreferenceTreeClickListener listener) {
+	public static void setOnPreferenceTreeClickListener(PreferenceManager manager, final OnPreferenceTreeClickListener listener) {
 		try {
 			Field onPreferenceTreeClickListener = PreferenceManager.class.getDeclaredField("mOnPreferenceTreeClickListener");
 			onPreferenceTreeClickListener.setAccessible(true);
@@ -125,7 +127,7 @@ public class CustomPreferenceManagerCompat {
      * @return The root hierarchy (if one was not provided, the new hierarchy's
      *         root).
      */
-	static PreferenceScreen inflateFromIntent(PreferenceManager manager, Intent intent, PreferenceScreen screen) {
+	public static PreferenceScreen inflateFromIntent(PreferenceManager manager, Intent intent, PreferenceScreen screen) {
 		try {
             Method m = PreferenceManager.class.getDeclaredMethod("inflateFromIntent", Intent.class, PreferenceScreen.class);
             m.setAccessible(true);
@@ -149,7 +151,7 @@ public class CustomPreferenceManagerCompat {
      *         root).
      * @hide
      */
-	static PreferenceScreen inflateFromResource(PreferenceManager manager, Activity activity, int resId, PreferenceScreen screen) {
+	public static PreferenceScreen inflateFromResource(PreferenceManager manager, Activity activity, int resId, PreferenceScreen screen) {
 		try {
             Method m = PreferenceManager.class.getDeclaredMethod("inflateFromResource", Context.class, int.class, PreferenceScreen.class);
             m.setAccessible(true);
@@ -166,7 +168,7 @@ public class CustomPreferenceManagerCompat {
      *  
      * @return The {@link PreferenceScreen} object that is at the root of the hierarchy.
      */
-	static PreferenceScreen getPreferenceScreen(PreferenceManager manager) {
+	public static PreferenceScreen getPreferenceScreen(PreferenceManager manager) {
 		try {
             Method m = PreferenceManager.class.getDeclaredMethod("getPreferenceScreen");
             m.setAccessible(true);
@@ -180,7 +182,7 @@ public class CustomPreferenceManagerCompat {
 	/**
      * Called by the {@link PreferenceManager} to dispatch a subactivity result.
      */
-	static void dispatchActivityResult(PreferenceManager manager, int requestCode, int resultCode, Intent data) {
+	public static void dispatchActivityResult(PreferenceManager manager, int requestCode, int resultCode, Intent data) {
 		try {
             Method m = PreferenceManager.class.getDeclaredMethod("dispatchActivityResult", int.class, int.class, Intent.class);
             m.setAccessible(true);
@@ -194,7 +196,7 @@ public class CustomPreferenceManagerCompat {
      * Called by the {@link PreferenceManager} to dispatch the activity stop
      * event.
      */
-	static void dispatchActivityStop(PreferenceManager manager) {
+	public static void dispatchActivityStop(PreferenceManager manager) {
 		try {
             Method m = PreferenceManager.class.getDeclaredMethod("dispatchActivityStop");
             m.setAccessible(true);
@@ -208,7 +210,7 @@ public class CustomPreferenceManagerCompat {
      * Called by the {@link PreferenceManager} to dispatch the activity destroy
      * event.
      */
-	static void dispatchActivityDestroy(PreferenceManager manager) {
+	public static void dispatchActivityDestroy(PreferenceManager manager) {
 		try {
 			Method m = PreferenceManager.class.getDeclaredMethod("dispatchActivityDestroy");
 			m.setAccessible(true);
@@ -224,7 +226,7 @@ public class CustomPreferenceManagerCompat {
      * @param preferenceScreen The root {@link PreferenceScreen} of the preference hierarchy.
      * @return Whether the {@link PreferenceScreen} given is different than the previous. 
      */
-	static boolean setPreferences(PreferenceManager manager, PreferenceScreen screen) {
+	public static boolean setPreferences(PreferenceManager manager, PreferenceScreen screen) {
 		try {
 			Method m = PreferenceManager.class.getDeclaredMethod("setPreferences", PreferenceScreen.class);
 			m.setAccessible(true);
