@@ -1,21 +1,21 @@
 package com.seafile.seadroid2.ui;
 
 /*
-	Copyright 2010 The Android Open Source Project
-	Copyright 2013 Daniel Smith
-
-	Licensed under the Apache License, Version 2.0 (the "License");
-	you may not use this file except in compliance with the License.
-	You may obtain a copy of the License at
-
-   	http://www.apache.org/licenses/LICENSE-2.0
-
-	Unless required by applicable law or agreed to in writing, software
-	distributed under the License is distributed on an "AS IS" BASIS,
-	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-	See the License for the specific language governing permissions and
-	limitations under the License.
-*/
+ *  Copyright 2010 The Android Open Source Project
+ *  Copyright 2013 Daniel Smith
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 import com.seafile.seadroid2.R;
 
 import android.app.AlertDialog;
@@ -40,28 +40,28 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 /**
- * uniform global dialog style 
+ * base class for unifying dialog styles
  *
  */
 public class SeafileStyleDialogBuilder extends AlertDialog.Builder {
 
-	/** The custom_body layout */
-	private View mDialogView;
+    /** The custom_body layout */
+    private View mDialogView;
     private AlertDialog mDialog;
-	
-	/** optional dialog title layout */
-	private TextView mTitle;
-	/** optional alert dialog image */
-	private ImageView mIcon;
-	/** optional message displayed below title if title exists*/
-	private TextView mMessage;
-	/** The colored holo divider. You can set its color with the setDividerColor method */
-	private View mDivider;
-	/** optional custom panel image */
-	private FrameLayout mCustom;
-    /**Keep Context as Member to support Apis below 11*/
+
+    /** optional dialog title layout */
+    private TextView mTitle;
+    /** optional alert dialog image */
+    private ImageView mIcon;
+    /** optional message displayed below title if title exists */
+    private TextView mMessage;
+    /** The colored holo divider. You can set its color with the setDividerColor method. */
+    private View mDivider;
+    /** optional custom panel image */
+    private FrameLayout mCustom;
+    /** Keep Context as Member to support Apis below 11 */
     private Context mContext;
-	
+
     public SeafileStyleDialogBuilder(Context context) {
         super(context);
 
@@ -91,7 +91,7 @@ public class SeafileStyleDialogBuilder extends AlertDialog.Builder {
      * @return the qustom dialog view
      */
     public View getDialogView() {
-    	return mDialogView;
+        return mDialogView;
     }
 
     /** 
@@ -101,8 +101,8 @@ public class SeafileStyleDialogBuilder extends AlertDialog.Builder {
      * @param colorString for passing "#ffffff"
      */
     public SeafileStyleDialogBuilder setDividerColor(String colorString) {
-    	mDivider.setBackgroundColor(Color.parseColor(colorString));
-    	return this;
+        mDivider.setBackgroundColor(Color.parseColor(colorString));
+        return this;
     }
  
     @Override
@@ -112,8 +112,8 @@ public class SeafileStyleDialogBuilder extends AlertDialog.Builder {
     }
 
     public SeafileStyleDialogBuilder setTitleColor(String colorString) {
-    	mTitle.setTextColor(Color.parseColor(colorString));
-    	return this;
+        mTitle.setTextColor(Color.parseColor(colorString));
+        return this;
     }
 
     @Override
@@ -132,7 +132,7 @@ public class SeafileStyleDialogBuilder extends AlertDialog.Builder {
 
     @Override
     public SeafileStyleDialogBuilder setIcon(int drawableResId) {
-    	mIcon.setVisibility(View.VISIBLE);
+        mIcon.setVisibility(View.VISIBLE);
         mIcon.setImageResource(drawableResId);
         return this;
     }
@@ -152,10 +152,10 @@ public class SeafileStyleDialogBuilder extends AlertDialog.Builder {
      * @param context
      */
     public SeafileStyleDialogBuilder setCustomView(int resId, Context context) {
-    	View customView = View.inflate(context, resId, null);
-    	mCustom.setVisibility(View.VISIBLE);
-    	mCustom.addView(customView);
-    	return this;
+        View customView = View.inflate(context, resId, null);
+        mCustom.setVisibility(View.VISIBLE);
+        mCustom.addView(customView);
+        return this;
     }
 
     /**
@@ -176,13 +176,15 @@ public class SeafileStyleDialogBuilder extends AlertDialog.Builder {
      * @return This Builder object to allow for chaining of calls to set methods
      */
     @Override
-    public SeafileStyleDialogBuilder setItems(CharSequence[] items, final DialogInterface.OnClickListener listener) {
-    	return (SeafileStyleDialogBuilder) setItems(items, null, listener);
+    public SeafileStyleDialogBuilder setItems(CharSequence[] items,
+            final DialogInterface.OnClickListener listener) {
+        return (SeafileStyleDialogBuilder) setItems(items, null, listener);
     }
     
-    public Builder setItems(int itemsId, int[] disabledOptions, final DialogInterface.OnClickListener listener) {
-    	CharSequence[] items = mContext.getResources().getTextArray(itemsId);
-    	return setItems(items, disabledOptions, listener);
+    public Builder setItems(int itemsId, int[] disabledOptions,
+            final DialogInterface.OnClickListener listener) {
+        CharSequence[] items = mContext.getResources().getTextArray(itemsId);
+        return setItems(items, disabledOptions, listener);
     }
     
     public Builder setItems(CharSequence[] items, int[] disabledOptions, final DialogInterface.OnClickListener listener) {
@@ -194,15 +196,16 @@ public class SeafileStyleDialogBuilder extends AlertDialog.Builder {
             View divider = inflateDivider();
             
             if (disabledOptions != null) {
-            	final boolean enabled = isEnabled(i, disabledOptions);
-				listItem.setEnabled(enabled);
-            	if (!enabled) listItem.setTextColor(Color.GRAY);
+                final boolean enabled = isEnabled(i, disabledOptions);
+                listItem.setEnabled(enabled);
+                if (!enabled)
+                    listItem.setTextColor(Color.GRAY);
             }
             
             itemList.addView(listItem);
             if (i+1 != items.length) itemList.addView(divider);
             if (listener != null) {
-            	// fix
+                // fix
                 listItem.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -236,9 +239,10 @@ public class SeafileStyleDialogBuilder extends AlertDialog.Builder {
 
     @Override
     public Builder setSingleChoiceItems(CharSequence[] items, int checkedItem,
-                                        final DialogInterface.OnClickListener listener) {
-        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(mContext,
-                android.R.layout.simple_list_item_single_choice, android.R.id.text1, items);
+            final DialogInterface.OnClickListener listener) {
+        ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(
+                mContext, android.R.layout.simple_list_item_single_choice,
+                android.R.id.text1, items);
 
         return this.setSingleChoiceItems(adapter, checkedItem, listener);
     }
@@ -258,39 +262,44 @@ public class SeafileStyleDialogBuilder extends AlertDialog.Builder {
     }
 
     public boolean isEnabled(int position, int[] disabledOptions) {
-    	if (disabledOptions != null) {
-	    	for (int i = 0; i < disabledOptions.length; i++) {
-	    		if (position == disabledOptions[i]) return false;
-	    	}
-    	}
+        if (disabledOptions != null) {
+            for (int i = 0; i < disabledOptions.length; i++) {
+                if (position == disabledOptions[i])
+                    return false;
+            }
+        }
         return true;
     }
 
     private TextView inflateItem(String itemText) {
-    	TextView listItem = (TextView) View.inflate(mContext, R.layout.seafile_dialog_item_layout, null);
-        TextView icaoTextView = (TextView) listItem.findViewById(R.id.item_text);
+        TextView listItem = (TextView) View.inflate(mContext,
+                R.layout.seafile_dialog_item_layout, null);
+        TextView icaoTextView = (TextView) listItem
+                .findViewById(R.id.item_text);
         icaoTextView.setText(itemText);
-        
-        listItem.setOnTouchListener(new OnTouchListener() {
-			
-			@Override
-			public boolean onTouch(View v, MotionEvent event){
-				if(event.getAction() == MotionEvent.ACTION_DOWN) {
 
-                    v.setBackgroundColor(mContext.getResources().getColor(android.R.color.darker_gray));
+        listItem.setOnTouchListener(new OnTouchListener() {
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+
+                    v.setBackgroundColor(mContext.getResources().getColor(
+                            android.R.color.darker_gray));
                 }
-				
-				if(event.getAction() == MotionEvent.ACTION_UP || 
-	                	event.getAction() == MotionEvent.ACTION_MOVE ||
-	                	event.getAction() == MotionEvent.ACTION_CANCEL) {
-                	
-                    v.setBackgroundColor(mContext.getResources().getColor(android.R.color.transparent));
+
+                if (event.getAction() == MotionEvent.ACTION_UP
+                        || event.getAction() == MotionEvent.ACTION_MOVE
+                        || event.getAction() == MotionEvent.ACTION_CANCEL) {
+
+                    v.setBackgroundColor(mContext.getResources().getColor(
+                            android.R.color.transparent));
                 }
-                
+
                 return false;
             }
-		});
-        
+        });
+
         return listItem;
     }
 
@@ -301,10 +310,12 @@ public class SeafileStyleDialogBuilder extends AlertDialog.Builder {
     
     @Override
     public AlertDialog show() {
-    	if (mTitle.getText().equals("")) mDialogView.findViewById(R.id.topPanel).setVisibility(View.GONE);
-    	// hide also message TextView if empty
-    	// if (mMessage.getText().equals("")) mDialogView.findViewById(R.id.contentPanel).setVisibility(View.GONE);
-    	mDialog = super.show();
+        if (mTitle.getText().equals(""))
+            mDialogView.findViewById(R.id.topPanel).setVisibility(View.GONE);
+        // hide also message TextView if empty
+        // if (mMessage.getText().equals(""))
+        // mDialogView.findViewById(R.id.contentPanel).setVisibility(View.GONE);
+        mDialog = super.show();
         return mDialog;
     }
 }
