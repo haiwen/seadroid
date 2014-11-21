@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.util.Utils;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 
@@ -116,7 +117,7 @@ public final class SettingsManager {
         editor.commit();
     }
 
-    void clearCameraUploadInfo() {
+    public void clearCameraUploadInfo() {
         editor.putString(SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER, null);
         editor.putString(SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL, null);
         editor.putString(SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN, null);
