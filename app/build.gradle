@@ -61,10 +61,21 @@ android {
         abortOnError false
     }
 
+    signingConfigs {
+        release {
+            // Signing code for manual signing
+            //storeFile file(System.console().readLine("\n\$ Enter keystore path: "))
+            //storePassword System.console().readPassword("\n\$ Enter keystore password: ").toString()
+            //keyAlias System.console().readLine("\n\$ Enter key alias: ")
+            //keyPassword System.console().readPassword("\n\$ Enter key password: ").toString()
+        }
+    }
+
     buildTypes {
         release {
-            runProguard false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            //signingConfig signingConfigs.release
+            runProguard true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
         }
     }
 }
