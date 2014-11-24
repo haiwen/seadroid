@@ -78,6 +78,17 @@ android {
             //signingConfig signingConfigs.release
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
+            applicationVariants.all { variant ->
+                variant.outputs.each { output ->
+                    if (output.outputFile != null && output.outputFile.name.endsWith('.apk')) {
+                        def file = output.outputFile
+                        if (variant.name == "release")
+                            output.outputFile = new File(file.parent,
+                                    "Seadroid-release-" + defaultConfig.versionName +
+                                            ".apk")
+                    }
+                }
+            }
         }
     }
 }
