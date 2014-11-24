@@ -49,7 +49,10 @@ public final class SettingsManager {
     public static final String SETTINGS_ABOUT_VERSION_KEY = "settings_about_version_key";
 
     public static long lock_timestamp = 0;
+    public static long refresh_timestamp = 0;
+
     public static final long LOCK_EXPIRATION_MSECS = 5 * 60 * 1000;
+    public static final long REFRESH_EXPIRATION_MSECS = 1 * 1 * 1000;
 
     public static synchronized SettingsManager instance() {
         if (instance == null) {
@@ -162,4 +165,19 @@ public final class SettingsManager {
     public String getCameraUploadAccountToken() {
         return sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN, null);
     }
+
+    public boolean isRefreshTimeout() {
+
+        long now = System.currentTimeMillis();
+        if (now < refresh_timestamp + REFRESH_EXPIRATION_MSECS) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public void saveRefreshTimeStamp() {
+        refresh_timestamp = System.currentTimeMillis();
+    }
+
 }
