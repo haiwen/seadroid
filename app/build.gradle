@@ -1,0 +1,81 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.13.0'
+    }
+}
+apply plugin: 'com.android.application'
+
+repositories {
+    jcenter()
+}
+
+/*
+ * Gets the version name from the latest Git tag
+ */
+def getVersionName = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'describe', '--tags'
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
+def getVersionCode = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-list', '--count', "HEAD"
+        standardOutput = stdout
+    }
+    return Integer.valueOf(stdout.toString().trim())
+}
+
+
+dependencies {
+    compile 'com.android.support:support-v4:21.0.+'
+    compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
+    compile 'com.inkapplications.viewpageindicator:library:2.4.3'
+    compile 'com.github.kevinsawicki:http-request:5.6'
+    compile 'commons-io:commons-io:2.4'
+    compile 'com.google.guava:guava:18.0'
+    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
+    compile project(':libraries:NewQuickAction')
+    compile project(':libraries:MarkdownView')
+    compile project(':libraries:PullToRefresh')
+}
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode getVersionCode()
+        versionName getVersionName()
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    signingConfigs {
+        release {
+            // Signing code for manual signing
+            //storeFile file(System.console().readLine("\n\$ Enter keystore path: "))
+            //storePassword System.console().readPassword("\n\$ Enter keystore password: ").toString()
+            //keyAlias System.console().readLine("\n\$ Enter key alias: ")
+            //keyPassword System.console().readPassword("\n\$ Enter key password: ").toString()
+        }
+    }
+
+    buildTypes {
+        release {
+            //signingConfig signingConfigs.release
+            runProguard true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
+        }
+    }
+}

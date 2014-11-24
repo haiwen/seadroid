@@ -1,20 +1,16 @@
-#based on https://raw.github.com/leviwilson/android-travis-ci-example/master/.travis.yml
-language: java
-jdk:
-  # - openjdk7
-  - oraclejdk7
-before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq libstdc++6:i386 lib32z1 expect
-  - wget http://dl.google.com/android/android-sdk_r23.0.2-linux.tgz
-  - tar xf android-sdk_r23.0.2-linux.tgz
-  - export ANDROID_HOME=`pwd`/android-sdk-linux
-  - export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
-  - echo "y" | android update sdk -a --filter tools,platform-tools,build-tools-20.0.0,android-19 --no-ui --force
-  - cd /tmp/
-  - git clone https://github.com/mosabua/maven-android-sdk-deployer.git
-  - cd maven-android-sdk-deployer
-  - mvn clean install -pl platforms/android-19
-  - cd $TRAVIS_BUILD_DIR
+language: android
+jdk: oraclejdk7
+android:
+  components:
+    # Uncomment the lines below if you want to
+    # use the latest revision of Android SDK Tools
+    # - platform-tools
+    # - tools
+
+    # The BuildTools version used by your project
+    - build-tools-21.0.2
+
+    # The SDK version used to compile your project
+    - android-21
 script:
-  - mvn test
+    - ./gradlew clean assemble
