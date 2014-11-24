@@ -192,7 +192,7 @@ public class ReposFragment extends SherlockListFragment {
 
     public void navToReposView(boolean forceRefresh) {
 
-        if (isForceRefreshReposRequired(forceRefresh)) {
+        if (isReposForceRefreshRequired(forceRefresh)) {
             Log.d(DEBUG_TAG, "force to refresh repos");
             // load repos in background
             ConcurrentAsyncTask.execute(new LoadTask(getDataManager()));
@@ -226,7 +226,7 @@ public class ReposFragment extends SherlockListFragment {
                         nav.getDirPath().lastIndexOf(BrowserActivity.ACTIONBAR_PARENT_PATH) + 1));
         }
         Log.d(DEBUG_TAG, "navToDirectory");
-        if (isForceRefreshDirentsRequired(forceRefresh)) {
+        if (isDirentsForceRefreshRequired(nav.getRepoID(), nav.getDirPath(), forceRefresh)) {
             ConcurrentAsyncTask.execute(new LoadDirTask(getDataManager()),
                     nav.getRepoName(),
                     nav.getRepoID(),
@@ -247,7 +247,7 @@ public class ReposFragment extends SherlockListFragment {
 
     }
 
-    private boolean isForceRefreshReposRequired(boolean forceRefresh) {
+    private boolean isReposForceRefreshRequired(boolean forceRefresh) {
         if (!settingsMgr.checkNetworkStatus()) {
             return false;
         }
@@ -256,7 +256,7 @@ public class ReposFragment extends SherlockListFragment {
             return true;
         }
 
-        if (settingsMgr.isRefreshTimeout()) {
+        if (settingsMgr.isReposRefreshTimeout()) {
             return true;
         }
 
@@ -269,7 +269,7 @@ public class ReposFragment extends SherlockListFragment {
 
     }
 
-    private boolean isForceRefreshDirentsRequired(boolean forceRefresh) {
+    private boolean isDirentsForceRefreshRequired(String repoID, String path, boolean forceRefresh) {
         if (!settingsMgr.checkNetworkStatus()) {
             return false;
         }
@@ -278,7 +278,7 @@ public class ReposFragment extends SherlockListFragment {
             return true;
         }
 
-        if (settingsMgr.isRefreshTimeout()) {
+        if (settingsMgr.isDirentsRefreshTimeout(repoID, path)) {
             return true;
         }
 
@@ -496,9 +496,7 @@ public class ReposFragment extends SherlockListFragment {
             }
 
             if (rs != null) {
-
-                settingsMgr.saveRefreshTimeStamp();
-
+                settingsMgr.setReposRefreshTimeStamp();
                 updateAdapterWithRepos(rs);
                 // Call onRefreshComplete when the list has been refreshed.
                 mPullRefreshListView.onRefreshComplete();
@@ -655,9 +653,7 @@ public class ReposFragment extends SherlockListFragment {
                 Log.i(DEBUG_TAG, "failed to load dir");
                 return;
             }
-
-            settingsMgr.saveRefreshTimeStamp();
-
+            settingsMgr.setDirsRefreshTimeStamp(myRepoID, myPath);
             updateAdapterWithDirents(dirents);
             // showLoading(false);
             // Call onRefreshComplete when the list has been refreshed.
