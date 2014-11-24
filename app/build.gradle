@@ -21,7 +21,9 @@ def getVersionName = { ->
         commandLine 'git', 'describe', '--tags'
         standardOutput = stdout
     }
-    return stdout.toString().trim()
+    // Version must be max 16 byte long, so trim results if needed.
+    def version = stdout.toString().trim()
+    return version.substring(0, Math.min(version.length(), 16))
 }
 def getVersionCode = { ->
     def stdout = new ByteArrayOutputStream()
