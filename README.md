@@ -2,42 +2,54 @@
 
 ## Build the APK
 
-* Make sure you have installed [Maven](http://maven.apache.org/) 3.1.1+
-* Build the apk by:
+* cd into seadroid directory
+* Build the apk with:
 
 ```
-mvn clean package
+./gradlew assembleRelease
 ```
 
-You will get `target/seadroid.apk` after the build finishes.
+You will get `app/build/outputs/Seadroid-release-*.apk` after the build finishes.
 
-## Develop in Eclipse
+## Sign the APK
 
-### Android Dependencies
+Uncomment the following lines:
 
-* [ActionBarSherlock](https://github.com/JakeWharton/ActionBarSherlock)
-* [NewQuickAction](https://github.com/haiwen/NewQuickAction)
-* [ViewPagerIndicator](https://github.com/JakeWharton/Android-ViewPagerIndicator)
+In `app/build.gradle`:
 
-### Build
+    buildTypes {
+         release {
+             //signingConfig signingConfigs.release
+             ...
+         }
+    }
 
-- Download `ActionBarSherlock` 4.4.0 from http://actionbarsherlock.com/download.html
-- Download `ViewPagerIndicator` 2.4.1 from http://viewpagerindicator.com
+    signingConfigs {
+            release {
+                // Signing code for manual signing
+                //storeFile file(System.console().readLine("\n\$ Enter keystore path: "))
+                //storePassword System.console().readPassword("\n\$ Enter keystore password: ").toString()
+                //keyAlias System.console().readLine("\n\$ Enter key alias: ")
+                //keyPassword System.console().readPassword("\n\$ Enter key password: ").toString()
+            }
+        }
 
-- Git clone `NewQuickAction`
+Build the APK with `./gradlew assembleRelease` and enter the signing config data.
 
-        git clone https://github.com/haiwen/NewQuickAction
-- Add ActionBarSherlock/NewQuickAction/ViewPagerIndicator as library according to <http://developer.android.com/guide/developing/projects/projects-eclipse.html#ReferencingLibraryProject>
+## Develop in Android Studio / IntelliJ
 
-- Replace the android-support-v4.jar in `ActionBarSherlock` and `ViewPagerIndicator` with the jar in seadroid to make sure that all versions of this library be the same at this time.
+### Prerequisites
 
-- Download these JARs to `seadroid/libs` directory (check pom.xml to verify versions):
-    - [http-request-5.6.jar](http://mvnrepository.com/artifact/com.github.kevinsawicki/http-request/5.6)
-    - [commons-io-2.4.jar](http://repo1.maven.org/maven2/commons-io/commons-io/2.4/commons-io-2.4.jar)
-    - [guava-17.0.jar](http://search.maven.org/remotecontent?filepath=com/google/guava/guava/17.0/guava-17.0.jar)
-    - [universal-image-loader-1.9.3.jar](https://raw.githubusercontent.com/nostra13/Android-Universal-Image-Loader/master/downloads/universal-image-loader-1.9.3.jar)
+* Android Studio 0.9 or IntelliJ 14
+* OpenJDK 7 / OracleJDK 7
 
-Now you can build seadroid in eclipse.
+### Import project
+
+* Open Android Studio / IntelliJ
+* Import project
+* Select seafile directory
+* Choose import from gradle
+* Click next until import is completed
 
 ## Internationalization
 
