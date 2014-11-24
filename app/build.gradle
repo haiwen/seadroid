@@ -36,7 +36,7 @@ def getVersionCode = { ->
 
 
 dependencies {
-    compile 'com.android.support:support-v4:21.0.2'
+    compile 'com.android.support:support-v4:21.0.+'
     compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
     compile 'com.inkapplications.viewpageindicator:library:2.4.3'
     compile 'com.github.kevinsawicki:http-request:5.6'
