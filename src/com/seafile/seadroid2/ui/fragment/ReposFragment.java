@@ -191,6 +191,14 @@ public class ReposFragment extends SherlockListFragment {
     }
 
     public void navToReposView(boolean forceRefresh) {
+
+        if (isForceRefreshReposRequired(forceRefresh)) {
+            Log.d(DEBUG_TAG, "force to refresh repos");
+            // load repos in background
+            ConcurrentAsyncTask.execute(new LoadTask(getDataManager()));
+            return;
+        }
+
         //mActivity.disableUpButton();
         if (!Utils.isNetworkOn() || !forceRefresh) {
             List<SeafRepo> repos = getDataManager().getReposFromCache();
@@ -199,9 +207,6 @@ public class ReposFragment extends SherlockListFragment {
                 return;
             }
         }
-
-        // load repos in background
-        ConcurrentAsyncTask.execute(new LoadTask(getDataManager()));
     }
 
     public void navToDirectory(final boolean forceRefresh) {
@@ -221,7 +226,7 @@ public class ReposFragment extends SherlockListFragment {
                         nav.getDirPath().lastIndexOf(BrowserActivity.ACTIONBAR_PARENT_PATH) + 1));
         }
         Log.d(DEBUG_TAG, "navToDirectory");
-        if (isForceRefreshRequired(forceRefresh)) {
+        if (isForceRefreshDirentsRequired(forceRefresh)) {
             ConcurrentAsyncTask.execute(new LoadDirTask(getDataManager()),
                     nav.getRepoName(),
                     nav.getRepoID(),
@@ -242,7 +247,33 @@ public class ReposFragment extends SherlockListFragment {
 
     }
 
-    private boolean isForceRefreshRequired(boolean forceRefresh) {
+    private boolean isForceRefreshReposRequired(boolean forceRefresh) {
+        if (!settingsMgr.checkNetworkStatus()) {
+            return false;
+        }
+
+        if (forceRefresh) {
+            return true;
+        }
+
+        if (settingsMgr.isRefreshTimeout()) {
+            return true;
+        }
+
+        List<SeafRepo> repos = getDataManager().getReposFromCache();
+        if (repos == null) {
+            return true;
+        }
+
+        return false;
+
+    }
+
+    private boolean isForceRefreshDirentsRequired(boolean forceRefresh) {
+        if (!settingsMgr.checkNetworkStatus()) {
+            return false;
+        }
+
         if (forceRefresh) {
             return true;
         }
@@ -465,7 +496,9 @@ public class ReposFragment extends SherlockListFragment {
             }
 
             if (rs != null) {
-                //Log.d(DEBUG_TAG, "Load repos number " + rs.size());
+
+                settingsMgr.saveRefreshTimeStamp();
+
                 updateAdapterWithRepos(rs);
                 // Call onRefreshComplete when the list has been refreshed.
                 mPullRefreshListView.onRefreshComplete();
