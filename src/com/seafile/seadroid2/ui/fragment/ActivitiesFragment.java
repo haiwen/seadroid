@@ -156,12 +156,13 @@ public class ActivitiesFragment extends SherlockFragment implements OnRefreshLis
             getBrowserActivity().showToast(R.string.library_not_found);
             return;
         }
-
+        int taskID = getBrowserActivity().getTransferService().addDownloadTask(getBrowserActivity().getAccount(), repo.getName(), repoID, path);
         Intent intent = new Intent(getActivity(), FileActivity.class);
         intent.putExtra("repoName", repo.getName());
         intent.putExtra("repoID", repoID);
         intent.putExtra("filePath", path);
         intent.putExtra("account", getBrowserActivity().getAccount());
+        intent.putExtra("taskID", taskID);
         startActivity(intent);
     }
 
