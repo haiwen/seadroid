@@ -62,6 +62,6 @@ public class OpenAsDialog extends DialogFragment {
                     }
                 });
 
-        return builder.create();
+        return builder.show();
     }
 }
