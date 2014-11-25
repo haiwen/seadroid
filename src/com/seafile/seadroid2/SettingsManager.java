@@ -1,13 +1,9 @@
 package com.seafile.seadroid2;
 
-import java.util.Map;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
-import com.google.common.collect.Maps;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.util.Utils;
@@ -19,8 +15,6 @@ import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 public final class SettingsManager {
     private static final String DEBUG_TAG = "SettingsManager";
     
-    private static Map<String, Long> refresh_times = Maps.newHashMap();
-
     // Global variables
     private SharedPreferences sharedPref = SeadroidApplication.getAppContext()
             .getSharedPreferences(AccountsActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
@@ -55,10 +49,7 @@ public final class SettingsManager {
     public static final String SETTINGS_ABOUT_VERSION_KEY = "settings_about_version_key";
 
     public static long lock_timestamp = 0;
-    public static long refresh_timestamp = 0;
-
     public static final long LOCK_EXPIRATION_MSECS = 5 * 60 * 1000;
-    public static final long REFRESH_EXPIRATION_MSECS = 10 * 60 * 1000;
 
     public static synchronized SettingsManager instance() {
         if (instance == null) {
@@ -171,36 +162,4 @@ public final class SettingsManager {
     public String getCameraUploadAccountToken() {
         return sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN, null);
     }
-
-    public boolean isReposRefreshTimeout() {
-
-        if (Utils.now() < refresh_timestamp + REFRESH_EXPIRATION_MSECS) {
-            return false;
-        }
-
-        return true;
-    }
-    
-    public boolean isDirentsRefreshTimeout(String repoID, String path) {
-        if (!refresh_times.containsKey(repoID + path)) {
-            return true;
-        }
-        long last_refresh_time = refresh_times.get(repoID + path);
-        Log.d(DEBUG_TAG, "find cached time " + last_refresh_time);
-
-        if (Utils.now() < last_refresh_time + REFRESH_EXPIRATION_MSECS) {
-            return false;
-        }
-        return true;
-    }
-
-    public void setDirsRefreshTimeStamp(String repoID, String path) {
-        Log.d(DEBUG_TAG, "save " + repoID + path + " time stamp: " + Utils.now());
-        refresh_times.put(repoID + path, Utils.now());
-    }
-    
-    public void setReposRefreshTimeStamp() {
-        refresh_timestamp = Utils.now();
-    }
-    
 }

@@ -192,20 +192,23 @@ public class ReposFragment extends SherlockListFragment {
 
     public void navToReposView(boolean forceRefresh) {
 
-        if (isReposForceRefreshRequired(forceRefresh)) {
+        List<SeafRepo> repos = getDataManager().getReposFromCache();
+        if (forceRefresh || isReposForceRefreshRequired(repos)) {
+            if (!settingsMgr.checkNetworkStatus()) {
+                showReposByCache(repos);
+                return;
+            }
             Log.d(DEBUG_TAG, "force to refresh repos");
             // load repos in background
             ConcurrentAsyncTask.execute(new LoadTask(getDataManager()));
             return;
         }
-
-        //mActivity.disableUpButton();
-        if (!Utils.isNetworkOn() || !forceRefresh) {
-            List<SeafRepo> repos = getDataManager().getReposFromCache();
-            if (repos != null) {
-                updateAdapterWithRepos(repos);
-                return;
-            }
+        showReposByCache(repos);
+    }
+    
+    private void showReposByCache(List<SeafRepo> repos) {
+        if (repos != null) {
+            updateAdapterWithRepos(repos);
         }
     }
 
@@ -226,7 +229,13 @@ public class ReposFragment extends SherlockListFragment {
                         nav.getDirPath().lastIndexOf(BrowserActivity.ACTIONBAR_PARENT_PATH) + 1));
         }
         Log.d(DEBUG_TAG, "navToDirectory");
-        if (isDirentsForceRefreshRequired(nav.getRepoID(), nav.getDirPath(), forceRefresh)) {
+        List<SeafDirent> dirents = dataManager.getCachedDirents(nav.getRepoID(), nav.getDirPath());
+        if (forceRefresh || isDirentsForceRefreshRequired(dirents, nav.getRepoID(), nav.getDirPath())) {
+            if (!settingsMgr.checkNetworkStatus()) {
+                showDirentsByCache(dirents);
+                return;
+            }
+            
             ConcurrentAsyncTask.execute(new LoadDirTask(getDataManager()),
                     nav.getRepoName(),
                     nav.getRepoID(),
@@ -235,32 +244,23 @@ public class ReposFragment extends SherlockListFragment {
             return;
         }
 
-        if (!Utils.isNetworkOn() || !forceRefresh) {
-            List<SeafDirent> dirents = dataManager.getCachedDirents(
-                    nav.getRepoID(), nav.getDirPath());
-            if (dirents != null) {
-                Log.d(DEBUG_TAG, "update with cache");
-                updateAdapterWithDirents(dirents);
-                return;
-            }
-        }
-
+        
+        showDirentsByCache(dirents);
     }
-
-    private boolean isReposForceRefreshRequired(boolean forceRefresh) {
-        if (!settingsMgr.checkNetworkStatus()) {
-            return false;
+    
+    private void showDirentsByCache(List<SeafDirent> dirents) {
+        if (dirents != null) {
+            Log.d(DEBUG_TAG, "update with cache");
+            updateAdapterWithDirents(dirents);
         }
+    } 
+    
+    private boolean isReposForceRefreshRequired(List<SeafRepo> repos) {
 
-        if (forceRefresh) {
+        if (getDataManager().isReposRefreshTimeout()) {
             return true;
         }
 
-        if (settingsMgr.isReposRefreshTimeout()) {
-            return true;
-        }
-
-        List<SeafRepo> repos = getDataManager().getReposFromCache();
         if (repos == null) {
             return true;
         }
@@ -269,21 +269,12 @@ public class ReposFragment extends SherlockListFragment {
 
     }
 
-    private boolean isDirentsForceRefreshRequired(String repoID, String path, boolean forceRefresh) {
-        if (!settingsMgr.checkNetworkStatus()) {
-            return false;
-        }
+    private boolean isDirentsForceRefreshRequired(List<SeafDirent> dirents, String repoID, String path) {
 
-        if (forceRefresh) {
+        if (getDataManager().isDirentsRefreshTimeout(repoID, path)) {
             return true;
         }
 
-        if (settingsMgr.isDirentsRefreshTimeout(repoID, path)) {
-            return true;
-        }
-
-        List<SeafDirent> dirents = getDataManager().getCachedDirents(
-                getNavContext().getRepoID(), getNavContext().getDirPath());
         if (dirents == null) {
             return true;
         }
@@ -496,7 +487,7 @@ public class ReposFragment extends SherlockListFragment {
             }
 
             if (rs != null) {
-                settingsMgr.setReposRefreshTimeStamp();
+                getDataManager().setReposRefreshTimeStamp();
                 updateAdapterWithRepos(rs);
                 // Call onRefreshComplete when the list has been refreshed.
                 mPullRefreshListView.onRefreshComplete();
@@ -653,7 +644,7 @@ public class ReposFragment extends SherlockListFragment {
                 Log.i(DEBUG_TAG, "failed to load dir");
                 return;
             }
-            settingsMgr.setDirsRefreshTimeStamp(myRepoID, myPath);
+            getDataManager().setDirsRefreshTimeStamp(myRepoID, myPath);
             updateAdapterWithDirents(dirents);
             // showLoading(false);
             // Call onRefreshComplete when the list has been refreshed.

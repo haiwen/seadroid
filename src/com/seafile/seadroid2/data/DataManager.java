@@ -36,7 +36,10 @@ public class DataManager {
     // private static final long SET_PASSWORD_INTERVAL = 5 * 1000; // 5s
 
     private static Map<String, PasswordInfo> passwords = Maps.newHashMap();
-
+    private static Map<String, Long> refreshTimes = Maps.newHashMap();
+    public static final long REFRESH_EXPIRATION_MSECS = 10 * 60 * 1000;
+    public static long refreshTimeStamp = 0;
+    
     private SeafConnection sc;
     private Account account;
     private DatabaseHelper dbHelper;
@@ -710,4 +713,36 @@ public class DataManager {
 
         return info.password;
     }
+    
+    public boolean isReposRefreshTimeout() {
+
+        if (Utils.now() < refreshTimeStamp + REFRESH_EXPIRATION_MSECS) {
+            return false;
+        }
+
+        return true;
+    }
+    
+    public boolean isDirentsRefreshTimeout(String repoID, String path) {
+        if (!refreshTimes.containsKey(repoID + path)) {
+            return true;
+        }
+        long last_refresh_time = refreshTimes.get(repoID + path);
+        Log.d(DEBUG_TAG, "find cached time " + last_refresh_time);
+
+        if (Utils.now() < last_refresh_time + REFRESH_EXPIRATION_MSECS) {
+            return false;
+        }
+        return true;
+    }
+
+    public void setDirsRefreshTimeStamp(String repoID, String path) {
+        Log.d(DEBUG_TAG, "save " + repoID + path + " time stamp: " + Utils.now());
+        refreshTimes.put(repoID + path, Utils.now());
+    }
+    
+    public void setReposRefreshTimeStamp() {
+        refreshTimeStamp = Utils.now();
+    }
+    
 }
