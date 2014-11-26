@@ -862,6 +862,26 @@ public class BrowserActivity extends SherlockFragmentActivity
         startFileActivity(repoName, repoID, filePath);
     }
 
+    public void downloadDir(SeafDirent dirent) {
+        String fileName= dirent.name;
+        final String repoName = navContext.getRepoName();
+        final String repoID = navContext.getRepoID();
+        final String filePath = Utils.pathJoin(navContext.getDirPath(), fileName);
+        List<SeafDirent> filesAbsolutePaths = null;
+        filesAbsolutePaths = dataManager.getCachedDirents(repoID, filePath);
+        if (filesAbsolutePaths == null || filesAbsolutePaths.isEmpty()) {
+            return;
+        }
+        for (SeafDirent seafDirent : filesAbsolutePaths) {
+            if (!seafDirent.isDir()) {
+                File localFile = dataManager.getLocalCachedFile(repoName, repoID, filePath, seafDirent.id);
+                if (localFile == null) {
+                    txService.addDownloadTask(account, repoName, repoID, Utils.pathJoin(filePath, seafDirent.name));
+                }
+            }
+        }
+    }
+    
     private void startFileActivity(String repoName, String repoID, String filePath) {
         int taskID = txService.addDownloadTask(account, repoName, repoID, filePath);
         Intent intent = new Intent(this, FileActivity.class);
