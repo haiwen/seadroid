@@ -22,6 +22,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -42,16 +43,12 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.google.common.collect.Lists;
+import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.NavContext;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
-import com.seafile.seadroid2.R.drawable;
-import com.seafile.seadroid2.R.id;
-import com.seafile.seadroid2.R.layout;
-import com.seafile.seadroid2.R.menu;
-import com.seafile.seadroid2.R.string;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
 import com.seafile.seadroid2.avatar.AvatarManageService;
@@ -67,7 +64,6 @@ import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.transfer.UploadTaskInfo;
 import com.seafile.seadroid2.ui.CopyMoveContext;
-import com.seafile.seadroid2.ui.CopyMoveContext.OP;
 import com.seafile.seadroid2.ui.adapter.UploadTasksAdapter;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
 import com.seafile.seadroid2.ui.dialog.CopyMoveDialog;
@@ -87,8 +83,6 @@ import com.seafile.seadroid2.ui.dialog.TaskDialog.TaskDialogListener;
 import com.seafile.seadroid2.ui.fragment.ReposFragment;
 import com.seafile.seadroid2.ui.fragment.StarredFragment;
 import com.seafile.seadroid2.ui.fragment.TabsFragment;
-import com.seafile.seadroid2.ui.fragment.ReposFragment.OnFileSelectedListener;
-import com.seafile.seadroid2.ui.fragment.StarredFragment.OnStarredFileSelectedListener;
 import com.seafile.seadroid2.util.Utils;
 
 public class BrowserActivity extends SherlockFragmentActivity
@@ -867,16 +861,48 @@ public class BrowserActivity extends SherlockFragmentActivity
         final String repoName = navContext.getRepoName();
         final String repoID = navContext.getRepoID();
         final String filePath = Utils.pathJoin(navContext.getDirPath(), fileName);
-        List<SeafDirent> filesAbsolutePaths = null;
-        filesAbsolutePaths = dataManager.getCachedDirents(repoID, filePath);
-        if (filesAbsolutePaths == null || filesAbsolutePaths.isEmpty()) {
-            return;
+        ConcurrentAsyncTask.execute(new DownloadDirTask(), repoName, repoID, filePath);
+    }
+    
+    private class DownloadDirTask extends AsyncTask<String, Void, List<SeafDirent> > {
+        
+        String repoName;
+        String repoID;
+        String filePath;
+
+        @Override
+        protected List<SeafDirent> doInBackground(String... params) {
+            
+            if (params.length != 3) {
+                Log.d(DEBUG_TAG, "Wrong params to LoadDirTask");
+                return null;
+            }
+
+            repoName = params[0];
+            repoID = params[1];
+            filePath = params[2];
+            
+            try {
+                return dataManager.getDirentsFromServer(repoID, filePath);
+            } catch (SeafException e) {
+                e.printStackTrace();
+                return null;
+            }
         }
-        for (SeafDirent seafDirent : filesAbsolutePaths) {
-            if (!seafDirent.isDir()) {
-                File localFile = dataManager.getLocalCachedFile(repoName, repoID, filePath, seafDirent.id);
-                if (localFile == null) {
-                    txService.addDownloadTask(account, repoName, repoID, Utils.pathJoin(filePath, seafDirent.name));
+        
+        @Override
+        protected void onPostExecute(List<SeafDirent> dirents) {
+            
+            if (dirents == null) {
+                return;
+            }
+            for (SeafDirent seafDirent : dirents) {
+                if (!seafDirent.isDir()) {
+                    File localCachedFile = dataManager.getLocalCachedFile(repoName, repoID, Utils.pathJoin(filePath, seafDirent.name), seafDirent.id);
+                    if (localCachedFile == null) {
+                        Log.d(DEBUG_TAG, Utils.pathJoin(repoName, filePath, seafDirent.name));
+                        txService.addDownloadTask(account, repoName, repoID, Utils.pathJoin(filePath, seafDirent.name));
+                    }
                 }
             }
         }
