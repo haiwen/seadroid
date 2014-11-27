@@ -724,10 +724,10 @@ public class DataManager {
     }
     
     public boolean isDirentsRefreshTimeout(String repoID, String path) {
-        if (!refreshTimes.containsKey(repoID + path)) {
+        if (!refreshTimes.containsKey(Utils.pathJoin(repoID, path))) {
             return true;
         }
-        long last_refresh_time = refreshTimes.get(repoID + path);
+        long last_refresh_time = refreshTimes.get(Utils.pathJoin(repoID, path));
         Log.d(DEBUG_TAG, "find cached time " + last_refresh_time);
 
         if (Utils.now() < last_refresh_time + REFRESH_EXPIRATION_MSECS) {
@@ -737,8 +737,8 @@ public class DataManager {
     }
 
     public void setDirsRefreshTimeStamp(String repoID, String path) {
-        Log.d(DEBUG_TAG, "save " + repoID + path + " time stamp: " + Utils.now());
-        refreshTimes.put(repoID + path, Utils.now());
+        Log.d(DEBUG_TAG, "save " + Utils.pathJoin(repoID, path) + " time stamp: " + Utils.now());
+        refreshTimes.put(Utils.pathJoin(repoID, path), Utils.now());
     }
     
     public void setReposRefreshTimeStamp() {
