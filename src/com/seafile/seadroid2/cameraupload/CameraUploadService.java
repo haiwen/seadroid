@@ -205,7 +205,7 @@ public class CameraUploadService extends Service {
     private class PhotoUploadTask extends AsyncTask<Void, Void, List<File>> {
         @Override
         protected List<File> doInBackground(Void... params) {
-            isNetworkAvailable = settingsMgr.checkNetworkStatus();
+            isNetworkAvailable = settingsMgr.checkCameraUploadNetworkAvailable();
             // ensure network is available
             if (!isNetworkAvailable) {
                 return null;

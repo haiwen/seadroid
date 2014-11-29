@@ -194,7 +194,7 @@ public class ReposFragment extends SherlockListFragment {
 
         List<SeafRepo> repos = getDataManager().getReposFromCache();
         if (forceRefresh || isReposForceRefreshRequired(repos)) {
-            if (!settingsMgr.checkNetworkStatus()) {
+            if (!settingsMgr.checkCameraUploadNetworkAvailable()) {
                 showReposByCache(repos);
                 return;
             }
@@ -231,7 +231,7 @@ public class ReposFragment extends SherlockListFragment {
         Log.d(DEBUG_TAG, "navToDirectory");
         List<SeafDirent> dirents = dataManager.getCachedDirents(nav.getRepoID(), nav.getDirPath());
         if (forceRefresh || isDirentsForceRefreshRequired(dirents, nav.getRepoID(), nav.getDirPath())) {
-            if (!settingsMgr.checkNetworkStatus()) {
+            if (!settingsMgr.checkCameraUploadNetworkAvailable()) {
                 showDirentsByCache(dirents);
                 return;
             }

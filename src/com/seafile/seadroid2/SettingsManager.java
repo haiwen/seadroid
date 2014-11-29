@@ -126,7 +126,7 @@ public final class SettingsManager {
         editor.commit();
     }
 
-    public boolean checkNetworkStatus() {
+    public boolean checkCameraUploadNetworkAvailable() {
         if (!Utils.isNetworkOn()) {
             return false;
         }
