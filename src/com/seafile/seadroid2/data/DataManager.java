@@ -37,7 +37,7 @@ public class DataManager {
 
     private static Map<String, PasswordInfo> passwords = Maps.newHashMap();
     private static Map<String, Long> refreshTimes = Maps.newHashMap();
-    public static final long REFRESH_EXPIRATION_MSECS = 10 * 60 * 1000;
+    public static final long REFRESH_EXPIRATION_MSECS = 10 * 60 * 1000; // 10 mins
     public static long refreshTimeStamp = 0;
     
     private SeafConnection sc;

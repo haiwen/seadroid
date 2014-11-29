@@ -14,7 +14,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -30,7 +29,6 @@ import com.seafile.seadroid2.NavContext;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
-import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
@@ -50,7 +48,6 @@ public class ReposFragment extends SherlockListFragment {
 
     private SeafItemAdapter adapter;
     private BrowserActivity mActivity = null;
-    private SettingsManager settingsMgr;
 
     private PullToRefreshListView mPullRefreshListView;
     private TextView mEmptyView;
@@ -79,7 +76,6 @@ public class ReposFragment extends SherlockListFragment {
         super.onAttach(activity);
         Log.d(DEBUG_TAG, "ReposFragment Attached");
         mActivity = (BrowserActivity)activity;
-        settingsMgr = SettingsManager.instance();
     }
 
     @Override
@@ -191,27 +187,19 @@ public class ReposFragment extends SherlockListFragment {
     }
 
     public void navToReposView(boolean forceRefresh) {
-
-        List<SeafRepo> repos = getDataManager().getReposFromCache();
-        if (forceRefresh || isReposForceRefreshRequired(repos)) {
-            if (!settingsMgr.checkCameraUploadNetworkAvailable()) {
-                showReposByCache(repos);
+        if (!Utils.isNetworkOn() || !forceRefresh) {
+            List<SeafRepo> repos = getDataManager().getReposFromCache();
+            if (repos != null && !isReposRefreshTimeOut()) {
+                updateAdapterWithRepos(repos);
                 return;
             }
-            Log.d(DEBUG_TAG, "force to refresh repos");
-            // load repos in background
-            ConcurrentAsyncTask.execute(new LoadTask(getDataManager()));
-            return;
         }
-        showReposByCache(repos);
+
+        // load repos in background
+        //showLoading(true);
+        ConcurrentAsyncTask.execute(new LoadTask(getDataManager()));
     }
     
-    private void showReposByCache(List<SeafRepo> repos) {
-        if (repos != null) {
-            updateAdapterWithRepos(repos);
-        }
-    }
-
     public void navToDirectory(final boolean forceRefresh) {
         NavContext nav = getNavContext();
         DataManager dataManager = getDataManager();
@@ -228,40 +216,26 @@ public class ReposFragment extends SherlockListFragment {
                 mActivity.setUpButtonTitle(nav.getDirPath().substring(
                         nav.getDirPath().lastIndexOf(BrowserActivity.ACTIONBAR_PARENT_PATH) + 1));
         }
-        Log.d(DEBUG_TAG, "navToDirectory");
-        List<SeafDirent> dirents = dataManager.getCachedDirents(nav.getRepoID(), nav.getDirPath());
-        if (forceRefresh || isDirentsForceRefreshRequired(dirents, nav.getRepoID(), nav.getDirPath())) {
-            if (!settingsMgr.checkCameraUploadNetworkAvailable()) {
-                showDirentsByCache(dirents);
+
+        if (!Utils.isNetworkOn() || !forceRefresh) {
+            List<SeafDirent> dirents = dataManager.getCachedDirents(
+                    nav.getRepoID(), nav.getDirPath());
+            if (dirents != null && !isDirentsRefreshTimeOut(nav.getRepoID(), nav.getDirPath())) {
+                updateAdapterWithDirents(dirents);
                 return;
             }
-            
-            ConcurrentAsyncTask.execute(new LoadDirTask(getDataManager()),
-                    nav.getRepoName(),
-                    nav.getRepoID(),
-                    nav.getDirPath());
-            Log.d(DEBUG_TAG, "force update from server");
-            return;
         }
 
-        
-        showDirentsByCache(dirents);
+        //showLoading(true);
+        ConcurrentAsyncTask.execute(new LoadDirTask(getDataManager()),
+                nav.getRepoName(),
+                nav.getRepoID(),
+                nav.getDirPath());
     }
     
-    private void showDirentsByCache(List<SeafDirent> dirents) {
-        if (dirents != null) {
-            Log.d(DEBUG_TAG, "update with cache");
-            updateAdapterWithDirents(dirents);
-        }
-    } 
-    
-    private boolean isReposForceRefreshRequired(List<SeafRepo> repos) {
+    private boolean isReposRefreshTimeOut() {
 
         if (getDataManager().isReposRefreshTimeout()) {
-            return true;
-        }
-
-        if (repos == null) {
             return true;
         }
 
@@ -269,13 +243,9 @@ public class ReposFragment extends SherlockListFragment {
 
     }
 
-    private boolean isDirentsForceRefreshRequired(List<SeafDirent> dirents, String repoID, String path) {
+    private boolean isDirentsRefreshTimeOut(String repoID, String path) {
 
         if (getDataManager().isDirentsRefreshTimeout(repoID, path)) {
-            return true;
-        }
-
-        if (dirents == null) {
             return true;
         }
 
@@ -514,7 +484,7 @@ public class ReposFragment extends SherlockListFragment {
         mErrorText.setVisibility(View.VISIBLE);
     }
 
-    private void showLoading(boolean show) {
+    /*private void showLoading(boolean show) {
         mErrorText.setVisibility(View.GONE);
         if (show) {
             mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
@@ -533,7 +503,7 @@ public class ReposFragment extends SherlockListFragment {
             mProgressContainer.setVisibility(View.GONE);
             mListContainer.setVisibility(View.VISIBLE);
         }
-    }
+    }*/
 
     private class LoadDirTask extends AsyncTask<String, Void, List<SeafDirent> > {
 
