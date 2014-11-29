@@ -36,9 +36,9 @@ public class DataManager {
     // private static final long SET_PASSWORD_INTERVAL = 5 * 1000; // 5s
 
     private static Map<String, PasswordInfo> passwords = Maps.newHashMap();
-    private static Map<String, Long> refreshTimes = Maps.newHashMap();
+    private static Map<String, Long> direntsRefreshTimeMap = Maps.newHashMap();
     public static final long REFRESH_EXPIRATION_MSECS = 10 * 60 * 1000; // 10 mins
-    public static long refreshTimeStamp = 0;
+    public static long repoRefreshTimeStamp = 0;
     
     private SeafConnection sc;
     private Account account;
@@ -716,7 +716,7 @@ public class DataManager {
     
     public boolean isReposRefreshTimeout() {
 
-        if (Utils.now() < refreshTimeStamp + REFRESH_EXPIRATION_MSECS) {
+        if (Utils.now() < repoRefreshTimeStamp + REFRESH_EXPIRATION_MSECS) {
             return false;
         }
 
@@ -724,25 +724,23 @@ public class DataManager {
     }
     
     public boolean isDirentsRefreshTimeout(String repoID, String path) {
-        if (!refreshTimes.containsKey(Utils.pathJoin(repoID, path))) {
+        if (!direntsRefreshTimeMap.containsKey(Utils.pathJoin(repoID, path))) {
             return true;
         }
-        long last_refresh_time = refreshTimes.get(Utils.pathJoin(repoID, path));
-        Log.d(DEBUG_TAG, "find cached time " + last_refresh_time);
+        long lastRefreshTime = direntsRefreshTimeMap.get(Utils.pathJoin(repoID, path));
 
-        if (Utils.now() < last_refresh_time + REFRESH_EXPIRATION_MSECS) {
+        if (Utils.now() < lastRefreshTime + REFRESH_EXPIRATION_MSECS) {
             return false;
         }
         return true;
     }
 
     public void setDirsRefreshTimeStamp(String repoID, String path) {
-        Log.d(DEBUG_TAG, "save " + Utils.pathJoin(repoID, path) + " time stamp: " + Utils.now());
-        refreshTimes.put(Utils.pathJoin(repoID, path), Utils.now());
+        direntsRefreshTimeMap.put(Utils.pathJoin(repoID, path), Utils.now());
     }
     
     public void setReposRefreshTimeStamp() {
-        refreshTimeStamp = Utils.now();
+        repoRefreshTimeStamp = Utils.now();
     }
     
 }
