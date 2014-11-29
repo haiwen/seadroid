@@ -3,38 +3,17 @@
 ## Build the APK
 
 * cd into seadroid directory
-* Build the apk with:
-
-```
-./gradlew assembleRelease
-```
+* Create `key.properties` file or copy `key.properties.example` in `app` dir
+* Create keystore file if you don't have one `keytool -genkey -v -keystore app/debug.keystore -alias AndroidDebugKey -keyalg RSA -keysize 2048 -validity 1 -storepass android -keypass android -dname "cn=TEST, ou=TEST, o=TEST, c=TE"`
+* Build with `./gradlew assembleRelease`
 
 You will get `app/build/outputs/Seadroid-release-*.apk` after the build finishes.
 
 ## Sign the APK
 
-Uncomment the following lines:
+Change `key.properties` to match your keystore file.
 
-In `app/build.gradle`:
-
-    buildTypes {
-         release {
-             //signingConfig signingConfigs.release
-             ...
-         }
-    }
-
-    signingConfigs {
-            release {
-                // Signing code for manual signing
-                //storeFile file(System.console().readLine("\n\$ Enter keystore path: "))
-                //storePassword System.console().readPassword("\n\$ Enter keystore password: ").toString()
-                //keyAlias System.console().readLine("\n\$ Enter key alias: ")
-                //keyPassword System.console().readPassword("\n\$ Enter key password: ").toString()
-            }
-        }
-
-Build the APK with `./gradlew assembleRelease` and enter the signing config data.
+Build the APK with `./gradlew assembleRelease`.
 
 ## Develop in Android Studio / IntelliJ
 

@@ -13,4 +13,6 @@ android:
     # The SDK version used to compile your project
     - android-21
 script:
+    - cp app/key.properties.example app/key.properties
+    - keytool -genkey -v -keystore app/debug.keystore -alias AndroidDebugKey -keyalg RSA -keysize 2048 -validity 1 -storepass android -keypass android -dname "cn=TEST, ou=TEST, o=TEST, c=TE"
     - ./gradlew clean assemble
