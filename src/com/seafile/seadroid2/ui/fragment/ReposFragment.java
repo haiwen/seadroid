@@ -195,8 +195,6 @@ public class ReposFragment extends SherlockListFragment {
             }
         }
 
-        // load repos in background
-        //showLoading(true);
         ConcurrentAsyncTask.execute(new LoadTask(getDataManager()));
     }
     
@@ -226,14 +224,22 @@ public class ReposFragment extends SherlockListFragment {
             }
         }
 
-        //showLoading(true);
         ConcurrentAsyncTask.execute(new LoadDirTask(getDataManager()),
                 nav.getRepoName(),
                 nav.getRepoID(),
                 nav.getDirPath());
     }
     
+    /**
+     * calculate if repo refresh time is expired, the expiration is 10 mins 
+     * <p>
+     * always return false when network is down,
+     * in order to use local cache
+     */
     private boolean isReposRefreshTimeOut() {
+        if (!Utils.isNetworkOn()) {
+            return false;
+        }
 
         if (getDataManager().isReposRefreshTimeout()) {
             return true;
@@ -243,7 +249,20 @@ public class ReposFragment extends SherlockListFragment {
 
     }
 
+    /**
+     * calculate if dirent refresh time is expired, the expiration is 10 mins 
+     * <p>
+     * always return false when network is down,
+     * in order to use local cache
+     * 
+     * @param repoID
+     * @param path
+     * @return true if dirent refresh time expired, false otherwise
+     */
     private boolean isDirentsRefreshTimeOut(String repoID, String path) {
+        if (!Utils.isNetworkOn()) {
+            return false;
+        }
 
         if (getDataManager().isDirentsRefreshTimeout(repoID, path)) {
             return true;

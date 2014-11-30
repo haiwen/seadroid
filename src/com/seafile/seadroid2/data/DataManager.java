@@ -713,16 +713,18 @@ public class DataManager {
 
         return info.password;
     }
-    
-    public boolean isReposRefreshTimeout() {
 
+    /**
+     * calculate if refresh time is expired, the expiration is 10 mins 
+     */
+    public boolean isReposRefreshTimeout() {
         if (Utils.now() < repoRefreshTimeStamp + REFRESH_EXPIRATION_MSECS) {
             return false;
         }
 
         return true;
     }
-    
+
     public boolean isDirentsRefreshTimeout(String repoID, String path) {
         if (!direntsRefreshTimeMap.containsKey(Utils.pathJoin(repoID, path))) {
             return true;
