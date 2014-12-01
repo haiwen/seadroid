@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -508,7 +509,7 @@ public class ReposFragment extends SherlockListFragment {
         mErrorText.setVisibility(View.VISIBLE);
     }
 
-    /*private void showLoading(boolean show) {
+    private void showLoading(boolean show) {
         mErrorText.setVisibility(View.GONE);
         if (show) {
             mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
@@ -527,7 +528,7 @@ public class ReposFragment extends SherlockListFragment {
             mProgressContainer.setVisibility(View.GONE);
             mListContainer.setVisibility(View.VISIBLE);
         }
-    }*/
+    }
 
     private class LoadDirTask extends AsyncTask<String, Void, List<SeafDirent> > {
 
