@@ -14,7 +14,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -195,7 +194,7 @@ public class ReposFragment extends SherlockListFragment {
     }
 
     public void navToReposView(boolean forceRefresh) {
-        //mActivity.disableUpButton();
+        forceRefresh = forceRefresh || isReposRefreshTimeOut();
         if (!Utils.isNetworkOn() || !forceRefresh) {
             List<SeafRepo> repos = getDataManager().getReposFromCache();
             if (repos != null) {
@@ -204,11 +203,10 @@ public class ReposFragment extends SherlockListFragment {
             }
         }
 
-        // load repos in background
         ConcurrentAsyncTask.execute(new LoadTask(getDataManager()));
     }
 
-    public void navToDirectory(final boolean forceRefresh) {
+    public void navToDirectory(boolean forceRefresh) {
         NavContext nav = getNavContext();
         DataManager dataManager = getDataManager();
 
@@ -225,6 +223,7 @@ public class ReposFragment extends SherlockListFragment {
                         nav.getDirPath().lastIndexOf(BrowserActivity.ACTIONBAR_PARENT_PATH) + 1));
         }
 
+        forceRefresh = forceRefresh || isDirentsRefreshTimeOut(nav.getRepoID(), nav.getDirPath());
         if (!Utils.isNetworkOn() || !forceRefresh) {
             List<SeafDirent> dirents = dataManager.getCachedDirents(
                     nav.getRepoID(), nav.getDirPath());
@@ -238,6 +237,33 @@ public class ReposFragment extends SherlockListFragment {
                 nav.getRepoName(),
                 nav.getRepoID(),
                 nav.getDirPath());
+    }
+    
+    /**
+     * calculate if repo refresh time is expired, the expiration is 10 mins 
+     */
+    private boolean isReposRefreshTimeOut() {
+        if (getDataManager().isReposRefreshTimeout()) {
+            return true;
+        }
+
+        return false;
+
+    }
+
+    /**
+     * calculate if dirent refresh time is expired, the expiration is 10 mins 
+     * 
+     * @param repoID
+     * @param path
+     * @return true if refresh time expired, false otherwise
+     */
+    private boolean isDirentsRefreshTimeOut(String repoID, String path) {
+        if (getDataManager().isDirentsRefreshTimeout(repoID, path)) {
+            return true;
+        }
+
+        return false;
     }
 
     private void updateAdapterWithRepos(List<SeafRepo> repos) {
@@ -458,7 +484,7 @@ public class ReposFragment extends SherlockListFragment {
             }
 
             if (rs != null) {
-                //Log.d(DEBUG_TAG, "Load repos number " + rs.size());
+                getDataManager().setReposRefreshTimeStamp();
                 updateAdapterWithRepos(rs);
             } else {
                 Log.i(DEBUG_TAG, "failed to load repos");
@@ -482,7 +508,7 @@ public class ReposFragment extends SherlockListFragment {
         mErrorText.setVisibility(View.VISIBLE);
     }
 
-    private void showLoading(boolean show) {
+    /*private void showLoading(boolean show) {
         mErrorText.setVisibility(View.GONE);
         if (show) {
             mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
@@ -501,7 +527,7 @@ public class ReposFragment extends SherlockListFragment {
             mProgressContainer.setVisibility(View.GONE);
             mListContainer.setVisibility(View.VISIBLE);
         }
-    }
+    }*/
 
     private class LoadDirTask extends AsyncTask<String, Void, List<SeafDirent> > {
 
@@ -624,7 +650,7 @@ public class ReposFragment extends SherlockListFragment {
                 Log.i(DEBUG_TAG, "failed to load dir");
                 return;
             }
-
+            getDataManager().setDirsRefreshTimeStamp(myRepoID, myPath);
             updateAdapterWithDirents(dirents);
         }
     }

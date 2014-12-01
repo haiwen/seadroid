@@ -36,7 +36,10 @@ public class DataManager {
     // private static final long SET_PASSWORD_INTERVAL = 5 * 1000; // 5s
 
     private static Map<String, PasswordInfo> passwords = Maps.newHashMap();
-
+    private static Map<String, Long> direntsRefreshTimeMap = Maps.newHashMap();
+    public static final long REFRESH_EXPIRATION_MSECS = 10 * 60 * 1000; // 10 mins
+    public static long repoRefreshTimeStamp = 0;
+    
     private SeafConnection sc;
     private Account account;
     private DatabaseHelper dbHelper;
@@ -710,4 +713,36 @@ public class DataManager {
 
         return info.password;
     }
+
+    /**
+     * calculate if refresh time is expired, the expiration is 10 mins 
+     */
+    public boolean isReposRefreshTimeout() {
+        if (Utils.now() < repoRefreshTimeStamp + REFRESH_EXPIRATION_MSECS) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean isDirentsRefreshTimeout(String repoID, String path) {
+        if (!direntsRefreshTimeMap.containsKey(Utils.pathJoin(repoID, path))) {
+            return true;
+        }
+        long lastRefreshTime = direntsRefreshTimeMap.get(Utils.pathJoin(repoID, path));
+
+        if (Utils.now() < lastRefreshTime + REFRESH_EXPIRATION_MSECS) {
+            return false;
+        }
+        return true;
+    }
+
+    public void setDirsRefreshTimeStamp(String repoID, String path) {
+        direntsRefreshTimeMap.put(Utils.pathJoin(repoID, path), Utils.now());
+    }
+    
+    public void setReposRefreshTimeStamp() {
+        repoRefreshTimeStamp = Utils.now();
+    }
+    
 }

@@ -148,7 +148,7 @@ public class SettingsPreferenceFragment
             }
         } else if (preference.getKey().equals(SettingsManager.ALLOW_MOBILE_CONNECTIONS_SWITCH_KEY)) {
             // user does not allow mobile connections, stop camera upload service
-            if (!settingsMgr.checkNetworkStatus()) {
+            if (!settingsMgr.checkCameraUploadNetworkAvailable()) {
                 startCameraUploadService(false);
             }
         } else if (preference.getKey().equals(SettingsManager.CAMERA_UPLOAD_REPO_KEY)) {
