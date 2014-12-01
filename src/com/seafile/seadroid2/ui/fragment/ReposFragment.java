@@ -187,9 +187,10 @@ public class ReposFragment extends SherlockListFragment {
     }
 
     public void navToReposView(boolean forceRefresh) {
+        forceRefresh = forceRefresh || isReposRefreshTimeOut();
         if (!Utils.isNetworkOn() || !forceRefresh) {
             List<SeafRepo> repos = getDataManager().getReposFromCache();
-            if (repos != null && !isReposRefreshTimeOut()) {
+            if (repos != null) {
                 updateAdapterWithRepos(repos);
                 return;
             }
@@ -197,8 +198,8 @@ public class ReposFragment extends SherlockListFragment {
 
         ConcurrentAsyncTask.execute(new LoadTask(getDataManager()));
     }
-    
-    public void navToDirectory(final boolean forceRefresh) {
+
+    public void navToDirectory(boolean forceRefresh) {
         NavContext nav = getNavContext();
         DataManager dataManager = getDataManager();
 
@@ -215,10 +216,11 @@ public class ReposFragment extends SherlockListFragment {
                         nav.getDirPath().lastIndexOf(BrowserActivity.ACTIONBAR_PARENT_PATH) + 1));
         }
 
+        forceRefresh = forceRefresh || isDirentsRefreshTimeOut(nav.getRepoID(), nav.getDirPath());
         if (!Utils.isNetworkOn() || !forceRefresh) {
             List<SeafDirent> dirents = dataManager.getCachedDirents(
                     nav.getRepoID(), nav.getDirPath());
-            if (dirents != null && !isDirentsRefreshTimeOut(nav.getRepoID(), nav.getDirPath())) {
+            if (dirents != null) {
                 updateAdapterWithDirents(dirents);
                 return;
             }
@@ -232,15 +234,8 @@ public class ReposFragment extends SherlockListFragment {
     
     /**
      * calculate if repo refresh time is expired, the expiration is 10 mins 
-     * <p>
-     * always return false when network is down,
-     * in order to use local cache
      */
     private boolean isReposRefreshTimeOut() {
-        if (!Utils.isNetworkOn()) {
-            return false;
-        }
-
         if (getDataManager().isReposRefreshTimeout()) {
             return true;
         }
@@ -251,19 +246,12 @@ public class ReposFragment extends SherlockListFragment {
 
     /**
      * calculate if dirent refresh time is expired, the expiration is 10 mins 
-     * <p>
-     * always return false when network is down,
-     * in order to use local cache
      * 
      * @param repoID
      * @param path
-     * @return true if dirent refresh time expired, false otherwise
+     * @return true if refresh time expired, false otherwise
      */
     private boolean isDirentsRefreshTimeOut(String repoID, String path) {
-        if (!Utils.isNetworkOn()) {
-            return false;
-        }
-
         if (getDataManager().isDirentsRefreshTimeout(repoID, path)) {
             return true;
         }
