@@ -13,8 +13,8 @@ import com.seafile.seadroid2.gesturelock.LockPatternUtils;
  * Access the app settings
  */
 public final class SettingsManager {
-    private static final String DEBGUG_TAG = "SettingsManager";
-
+    private static final String DEBUG_TAG = "SettingsManager";
+    
     // Global variables
     private SharedPreferences sharedPref = SeadroidApplication.getAppContext()
             .getSharedPreferences(AccountsActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
@@ -126,7 +126,7 @@ public final class SettingsManager {
         editor.commit();
     }
 
-    public boolean checkNetworkStatus() {
+    public boolean checkCameraUploadNetworkAvailable() {
         if (!Utils.isNetworkOn()) {
             return false;
         }

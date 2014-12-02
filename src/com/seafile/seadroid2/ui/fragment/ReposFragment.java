@@ -46,6 +46,12 @@ import com.seafile.seadroid2.util.Utils;
 public class ReposFragment extends SherlockListFragment {
 
     private static final String DEBUG_TAG = "ReposFragment";
+    
+    private static final int REFRESH_ON_RESUME = 0;
+    private static final int REFRESH_ON_PULL = 1;
+    private static final int REFRESH_ON_CLICK = 2;
+    private static final int REFRESH_ON_OVERFLOW_MENU = 3;
+    private static int mRefreshType = -1;
 
     private SeafItemAdapter adapter;
     private BrowserActivity mActivity = null;
@@ -98,7 +104,7 @@ public class ReposFragment extends SherlockListFragment {
 
                 // Update the LastUpdatedLabel
                 refreshView.getLoadingLayoutProxy().setLastUpdatedLabel(label);
-
+                mRefreshType = REFRESH_ON_PULL;
                 // Do work to refresh the list here.
                 refreshView(true);
             }
@@ -146,6 +152,7 @@ public class ReposFragment extends SherlockListFragment {
         Log.d(DEBUG_TAG, "ReposFragment onResume");
         // refresh the view (loading data)
         refreshView();
+        mRefreshType = REFRESH_ON_RESUME;
     }
 
     @Override
@@ -161,7 +168,7 @@ public class ReposFragment extends SherlockListFragment {
     }
     
     public void refresh() {
-        mPullRefreshListView.setRefreshing();
+        mRefreshType = REFRESH_ON_OVERFLOW_MENU;
         refreshView(true);
     }
 
@@ -188,7 +195,7 @@ public class ReposFragment extends SherlockListFragment {
     }
 
     public void navToReposView(boolean forceRefresh) {
-        //mActivity.disableUpButton();
+        forceRefresh = forceRefresh || isReposRefreshTimeOut();
         if (!Utils.isNetworkOn() || !forceRefresh) {
             List<SeafRepo> repos = getDataManager().getReposFromCache();
             if (repos != null) {
@@ -197,11 +204,10 @@ public class ReposFragment extends SherlockListFragment {
             }
         }
 
-        // load repos in background
         ConcurrentAsyncTask.execute(new LoadTask(getDataManager()));
     }
 
-    public void navToDirectory(final boolean forceRefresh) {
+    public void navToDirectory(boolean forceRefresh) {
         NavContext nav = getNavContext();
         DataManager dataManager = getDataManager();
 
@@ -218,6 +224,7 @@ public class ReposFragment extends SherlockListFragment {
                         nav.getDirPath().lastIndexOf(BrowserActivity.ACTIONBAR_PARENT_PATH) + 1));
         }
 
+        forceRefresh = forceRefresh || isDirentsRefreshTimeOut(nav.getRepoID(), nav.getDirPath());
         if (!Utils.isNetworkOn() || !forceRefresh) {
             List<SeafDirent> dirents = dataManager.getCachedDirents(
                     nav.getRepoID(), nav.getDirPath());
@@ -231,6 +238,33 @@ public class ReposFragment extends SherlockListFragment {
                 nav.getRepoName(),
                 nav.getRepoID(),
                 nav.getDirPath());
+    }
+    
+    /**
+     * calculate if repo refresh time is expired, the expiration is 10 mins 
+     */
+    private boolean isReposRefreshTimeOut() {
+        if (getDataManager().isReposRefreshTimeout()) {
+            return true;
+        }
+
+        return false;
+
+    }
+
+    /**
+     * calculate if dirent refresh time is expired, the expiration is 10 mins 
+     * 
+     * @param repoID
+     * @param path
+     * @return true if refresh time expired, false otherwise
+     */
+    private boolean isDirentsRefreshTimeOut(String repoID, String path) {
+        if (getDataManager().isDirentsRefreshTimeout(repoID, path)) {
+            return true;
+        }
+
+        return false;
     }
 
     private void updateAdapterWithRepos(List<SeafRepo> repos) {
@@ -307,6 +341,7 @@ public class ReposFragment extends SherlockListFragment {
             return;
         }
 
+        mRefreshType = REFRESH_ON_CLICK;
         if (nav.inRepo()) {
             final SeafDirent dirent = (SeafDirent)adapter.getItem(position - 1);
             if (dirent.isDir()) {
@@ -363,8 +398,13 @@ public class ReposFragment extends SherlockListFragment {
 
         @Override
         protected void onPreExecute() {
-            // showLoading(false);
-            mPullRefreshListView.setRefreshing();
+            if (mRefreshType == REFRESH_ON_CLICK
+                    || mRefreshType == REFRESH_ON_OVERFLOW_MENU
+                    || mRefreshType == REFRESH_ON_RESUME) {
+                showLoading(true);
+            } else if (mRefreshType == REFRESH_ON_PULL) {
+                mPullRefreshListView.setRefreshing();
+            }
         }
         
         @Override
@@ -401,6 +441,13 @@ public class ReposFragment extends SherlockListFragment {
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(List<SeafRepo> rs) {
+            if (mRefreshType == REFRESH_ON_CLICK
+                    || mRefreshType == REFRESH_ON_OVERFLOW_MENU
+                    || mRefreshType == REFRESH_ON_RESUME) {
+                showLoading(false);
+            } else if (mRefreshType == REFRESH_ON_PULL) {
+                mPullRefreshListView.onRefreshComplete();
+            }
             if (mActivity == null)
                 // this occurs if user navigation to another activity
                 return;
@@ -438,11 +485,8 @@ public class ReposFragment extends SherlockListFragment {
             }
 
             if (rs != null) {
-                //Log.d(DEBUG_TAG, "Load repos number " + rs.size());
+                getDataManager().setReposRefreshTimeStamp();
                 updateAdapterWithRepos(rs);
-                // Call onRefreshComplete when the list has been refreshed.
-                mPullRefreshListView.onRefreshComplete();
-                //showLoading(false);
             } else {
                 Log.i(DEBUG_TAG, "failed to load repos");
                 showError(R.string.error_when_load_repos);
@@ -501,8 +545,13 @@ public class ReposFragment extends SherlockListFragment {
         
         @Override
         protected void onPreExecute() {
-            // showLoading(false);
-            mPullRefreshListView.setRefreshing();
+            if (mRefreshType == REFRESH_ON_CLICK
+                    || mRefreshType == REFRESH_ON_OVERFLOW_MENU
+                    || mRefreshType == REFRESH_ON_RESUME) {
+                showLoading(true);
+            } else if (mRefreshType == REFRESH_ON_PULL) {
+                mPullRefreshListView.setRefreshing();
+            }
         }
         
         @Override
@@ -549,6 +598,13 @@ public class ReposFragment extends SherlockListFragment {
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(List<SeafDirent> dirents) {
+            if (mRefreshType == REFRESH_ON_CLICK
+                    || mRefreshType == REFRESH_ON_OVERFLOW_MENU
+                    || mRefreshType == REFRESH_ON_RESUME) {
+                showLoading(false);
+            } else if (mRefreshType == REFRESH_ON_PULL) {
+                mPullRefreshListView.onRefreshComplete();
+            }
             if (mActivity == null)
                 // this occurs if user navigation to another activity
                 return;
@@ -595,11 +651,8 @@ public class ReposFragment extends SherlockListFragment {
                 Log.i(DEBUG_TAG, "failed to load dir");
                 return;
             }
-
+            getDataManager().setDirsRefreshTimeStamp(myRepoID, myPath);
             updateAdapterWithDirents(dirents);
-            // showLoading(false);
-            // Call onRefreshComplete when the list has been refreshed.
-            mPullRefreshListView.onRefreshComplete();
         }
     }
 
