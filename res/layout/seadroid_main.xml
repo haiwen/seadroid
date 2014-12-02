@@ -18,9 +18,9 @@
      for display when not in landscape: we can only fit the list of titles. -->
 
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/fragment_container"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-</LinearLayout>
+</FrameLayout>
