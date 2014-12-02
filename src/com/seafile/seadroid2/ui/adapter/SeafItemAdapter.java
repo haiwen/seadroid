@@ -426,7 +426,13 @@ public class SeafItemAdapter extends BaseAdapter {
     private QuickAction prepareDirAction(final SeafDirent dirent) {
         final QuickAction mQuickAction = new QuickAction(mActivity);
         Resources resources = mActivity.getResources();
-        ActionItem shareAction, deleteAction, moveAction, copyAction;
+        ActionItem downloadAction, shareAction, deleteAction, moveAction, copyAction;
+        
+        downloadAction = new ActionItem(ACTION_ID_DOWNLOAD,
+                resources.getString(R.string.file_action_download),
+                resources.getDrawable(R.drawable.action_download));
+        mQuickAction.addActionItem(downloadAction);
+        
         shareAction = new ActionItem(ACTION_ID_SHARE,
                 resources.getString(R.string.file_action_share),
                 resources.getDrawable(R.drawable.action_share));
@@ -458,6 +464,9 @@ public class SeafItemAdapter extends BaseAdapter {
                 String path = Utils.pathJoin(dir, dirent.name);
                 String filename = dirent.name;
                 switch (actionId) {
+                case ACTION_ID_DOWNLOAD:
+                    mActivity.downloadDir(dirent);
+                    break;
                 case ACTION_ID_SHARE:
                     mActivity.shareDir(repoID, path);
                     break;
