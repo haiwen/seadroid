@@ -52,11 +52,6 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
-import com.seafile.seadroid2.R.drawable;
-import com.seafile.seadroid2.R.id;
-import com.seafile.seadroid2.R.layout;
-import com.seafile.seadroid2.R.menu;
-import com.seafile.seadroid2.R.string;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
 import com.seafile.seadroid2.avatar.AvatarManageService;
@@ -72,7 +67,6 @@ import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.transfer.UploadTaskInfo;
 import com.seafile.seadroid2.ui.CopyMoveContext;
-import com.seafile.seadroid2.ui.CopyMoveContext.OP;
 import com.seafile.seadroid2.ui.adapter.UploadTasksAdapter;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
 import com.seafile.seadroid2.ui.dialog.CopyMoveDialog;
@@ -108,15 +102,6 @@ public class BrowserActivity extends SherlockFragmentActivity
     private static final String UPLOAD_TASKS_VIEW = "UploadTasks";
     private static final String FILES_VIEW = "Files";
 
-    private static final String LIBRARY_TAB = "Libraries";
-    private static final String ACTIVITY_TAB = "Activities";
-    private static final String STARRED_TAB = "Starred";
-
-    public static final String REPOS_FRAGMENT_TAG = "repos_fragment";
-    public static final String UPLOAD_TASKS_FRAGMENT_TAG = "upload_tasks_fragment";
-    public static final String SETTINGS_FRAGMENT_TAG = "settings_fragment";
-    public static final String TABS_FRAGMENT_TAG = "tabs_main";
-    public static final String ACTIVITIES_FRAGMENT_TAG = "activities_fragment";
     public static final String OPEN_FILE_DIALOG_FRAGMENT_TAG = "openfile_fragment";
     public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "password_fragment";
     public static final String CHOOSE_APP_DIALOG_FRAGMENT_TAG = "choose_app_fragment";
@@ -137,8 +122,6 @@ public class BrowserActivity extends SherlockFragmentActivity
     TransferService txService = null;
     TransferReceiver mTransferReceiver;
     SettingsManager settingsMgr;
-    // private boolean twoPaneMode = false;
-    // TabsFragment tabsFragment = null;
     private String currentSelectedItem = FILES_VIEW;
 
     FetchFileDialog fetchFileDialog = null;
@@ -235,13 +218,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         unsetRefreshing();
         disableUpButton();
 
-        /*final Context contextThemeWrapper = new ContextThemeWrapper(
-                getActivity(), R.style.StyledIndicators);
-        // clone the inflater using the ContextThemeWrapper
-        LayoutInflater localInflater = inflater
-                .cloneInContext(contextThemeWrapper);*/
-
-        /*View root = localInflater.inflate(R.layout.tabs_main, container, false);*/
         adapter = new SeafileTabsAdapter(getSupportFragmentManager());
 
         pager = (ViewPager) findViewById(R.id.pager);
@@ -253,7 +229,6 @@ public class BrowserActivity extends SherlockFragmentActivity
             @Override
             public void onPageSelected(final int position) {
                 currentPosition = position;
-                setSelectedTab(position);
                 supportInvalidateOptionsMenu();
                 disableUpButton();
             }
@@ -271,8 +246,6 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         if (savedInstanceState != null) {
             Log.d(DEBUG_TAG, "savedInstanceState is not null");
-            /*tabsFragment = (TabsFragment)
-                    getSupportFragmentManager().findFragmentByTag(TABS_FRAGMENT_TAG);*/
             fetchFileDialog = (FetchFileDialog)
                     getSupportFragmentManager().findFragmentByTag(OPEN_FILE_DIALOG_FRAGMENT_TAG);
 
@@ -306,15 +279,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                 navContext.setRepoName(repoName);
                 navContext.setDir(path, dirID);
             }
-        } /*else {
-            Log.d(DEBUG_TAG, "savedInstanceState is null");
-            tabsFragment = new TabsFragment();
-            getSupportFragmentManager()
-                .beginTransaction()
-                .add(R.id.fragment_container,
-                    tabsFragment, TABS_FRAGMENT_TAG)
-                .commit();
-        }*/
+        }
 
         // enable ActionBar app icon to behave as action back
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -433,25 +398,12 @@ public class BrowserActivity extends SherlockFragmentActivity
         return false;
     }
 
-    private String getCurrentTabName() {
-
-        int index = currentPosition;
-
-        switch (index) {
-        case 0 :
-            return LIBRARY_TAB;
-        case 1 :
-            return STARRED_TAB;
-        case 2 :
-            return ACTIVITY_TAB;
-        default:
-            return "";
-
-        }
+    public int getCurrentPosition() {
+        return currentPosition;
     }
 
-    public void setSelectedTab(int index) {
-        pager.setCurrentItem(index, true);
+    public void setCurrentPosition(int currentPosition) {
+        this.currentPosition = currentPosition;
     }
 
     public Fragment getFragment(int index) {
@@ -473,7 +425,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     public ActivitiesFragment getActivitiesFragment() {
         return (ActivitiesFragment)getFragment(2);
     }
-    
+
     ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
@@ -590,7 +542,8 @@ public class BrowserActivity extends SherlockFragmentActivity
         MenuItem menuAccounts = menu.findItem(R.id.accounts);
         MenuItem menuSettings = menu.findItem(R.id.settings);
 
-        if (getCurrentTabName().equals(LIBRARY_TAB)) {
+        // Libraries Tab
+        if (currentPosition == 0) {
             menuUpload.setVisible(true);
             if (navContext.inRepo() && hasRepoWritePermission()) {
                 menuUpload.setEnabled(true);
@@ -601,12 +554,13 @@ public class BrowserActivity extends SherlockFragmentActivity
             menuUpload.setVisible(false);
         }
 
-        if (getCurrentTabName().equals(LIBRARY_TAB)) {
+        // Libraries Tab
+        if (currentPosition == 0) {
             menuRefresh.setVisible(true);
             menuUploadTasks.setVisible(true);
             menuAccounts.setVisible(true);
             menuSettings.setVisible(true);
-        } else if (getCurrentTabName().equals(ACTIVITY_TAB)) {
+        } else if (currentPosition == 2) { // ACTIVITY_TAB
             menuRefresh.setVisible(true);
             menuUploadTasks.setVisible(true);
             menuAccounts.setVisible(true);
@@ -618,7 +572,8 @@ public class BrowserActivity extends SherlockFragmentActivity
             menuSettings.setVisible(false);
         }
 
-        if (getCurrentTabName().equals(LIBRARY_TAB)) {
+        // Libraries Tab
+        if (currentPosition == 0) {
             if (navContext.inRepo() && hasRepoWritePermission()) {
                 menuNewDir.setVisible(true);
                 menuNewFile.setVisible(true);
@@ -645,7 +600,8 @@ public class BrowserActivity extends SherlockFragmentActivity
             menuSettings.setVisible(false);
         }
 
-        if (getCurrentTabName().equals(STARRED_TAB)) {
+        // Starred tab
+        if (currentPosition == 1) {
             menuUpload.setVisible(false);
             menuNewDir.setVisible(false);
             menuNewFile.setVisible(false);
@@ -698,7 +654,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                 showToast(R.string.network_down);
                 return true;
             }
-            if (getCurrentTabName().equals(LIBRARY_TAB)) {
+            if (currentPosition == 0) {
                 if (navContext.inRepo()) {
                     SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
                     if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
@@ -716,9 +672,9 @@ public class BrowserActivity extends SherlockFragmentActivity
                 }
 
                 getReposFragment().refresh();
-            } else if (getCurrentTabName().equals(ACTIVITY_TAB)) {
+            } else if (currentPosition == 2) {
                 getActivitiesFragment().refreshView();
-            } else if (getCurrentTabName().equals(STARRED_TAB)) {
+            } else if (currentPosition == 1) {
                 getStarredFragment().refresh();
             }
             return true;
@@ -779,7 +735,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             public void onTaskSuccess() {
                 showToast("Sucessfully created folder " + dialog.getNewDirName());
                 ReposFragment reposFragment = getReposFragment();
-                if (getCurrentTabName().equals(LIBRARY_TAB) && reposFragment != null) {
+                if (currentPosition == 0 && reposFragment != null) {
                     reposFragment.refreshView();
                 }
             }
@@ -800,7 +756,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             public void onTaskSuccess() {
                 showToast("Sucessfully created file " + dialog.getNewFileName());
                 ReposFragment reposFragment = getReposFragment();
-                if (getCurrentTabName().equals(LIBRARY_TAB) && reposFragment != null) {
+                if (currentPosition == 0 && reposFragment != null) {
                     reposFragment.refreshView();
                 }
             }
@@ -1030,7 +986,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             return;
         }
 
-        if (currentSelectedItem == FILES_VIEW && getCurrentTabName().equals(LIBRARY_TAB)) {
+        if (currentSelectedItem == FILES_VIEW && currentPosition == 0) {
             if (navContext.inRepo()) {
                 if (navContext.isRepoRoot()) {
                     navContext.setRepoID(null);
@@ -1276,7 +1232,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             public void onTaskSuccess() {
                 showToast(R.string.rename_successful);
                 ReposFragment reposFragment = getReposFragment();
-                if (getCurrentTabName().equals(LIBRARY_TAB) && reposFragment != null) {
+                if (currentPosition == 0 && reposFragment != null) {
                     reposFragment.refreshView();
                 }
             }
@@ -1300,7 +1256,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             public void onTaskSuccess() {
                 showToast(R.string.delete_successful);
                 ReposFragment reposFragment = getReposFragment();
-                if (getCurrentTabName().equals(LIBRARY_TAB) && reposFragment != null) {
+                if (currentPosition == 0 && reposFragment != null) {
                     reposFragment.refreshView();
                 }
             }
@@ -1347,7 +1303,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                           : R.string.moved_successfully);
                 if (copyMoveContext.isMove()) {
                     ReposFragment reposFragment = getReposFragment();
-                    if (getCurrentTabName().equals(LIBRARY_TAB) && reposFragment != null) {
+                    if (currentPosition == 0 && reposFragment != null) {
                         reposFragment.refreshView();
                     }
                 }
@@ -1365,7 +1321,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         String repoID = info.repoID;
         String dir = info.parentDir;
-        if (getCurrentTabName().equals(LIBRARY_TAB)
+        if (currentPosition == 0
                 && repoID.equals(navContext.getRepoID())
                 && dir.equals(navContext.getDirPath())) {
             getReposFragment().refreshView(true);
@@ -1402,7 +1358,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         if (fetchFileDialog != null && fetchFileDialog.getTaskID() == taskID) {
             fetchFileDialog.handleDownloadTaskInfo(info);
         } else {
-            if (getCurrentTabName().equals(LIBRARY_TAB)
+            if (currentPosition == 0
                 && info.repoID.equals(navContext.getRepoID())
                 && Utils.getParentPath(info.pathInRepo).equals(navContext.getDirPath())) {
                 getReposFragment().getAdapter().notifyChanged();
@@ -1427,7 +1383,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         final String path = info.pathInRepo;
 
         if (err != null && err.getCode() == SeafConnection.HTTP_STATUS_REPO_PASSWORD_REQUIRED) {
-            if (getCurrentTabName().equals(LIBRARY_TAB)
+            if (currentPosition == 0
                 && repoID.equals(navContext.getRepoID())
                 && Utils.getParentPath(path).equals(navContext.getDirPath())) {
                 showPasswordDialog(repoName, repoID, new TaskDialog.TaskDialogListener() {
