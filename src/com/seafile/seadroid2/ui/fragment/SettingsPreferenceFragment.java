@@ -1,5 +1,12 @@
 package com.seafile.seadroid2.ui.fragment;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import org.apache.http.cookie.SM;
+
 import android.app.Activity;
 import android.content.*;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -22,6 +29,7 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
+import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
@@ -48,6 +56,8 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
     private Preference cameraUploadRepo;
     private Preference versionName;
     private Preference authorInfo;
+    private Preference cacheSize;
+    private Preference clearCache;
     private SettingsActivity mActivity;
     private Intent cameraUploadIntent;
     private boolean isUploadEnabled;
@@ -152,6 +162,18 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
 
         authorInfo = findPreference(SettingsManager.SETTINGS_ABOUT_AUTHOR_KEY);
         authorInfo.setOnPreferenceClickListener(this);
+        // Cache
+        cacheSize = findPreference(SettingsManager.SETTINGS_CACHE_SIZE_KEY);
+        // set cache size
+        cacheSize.setSummary(getCacheSize());
+        clearCache = findPreference(SettingsManager.SETTINGS_CLEAR_CACHE_KEY);
+        clearCache.setOnPreferenceClickListener(this);
+
+        LocalBroadcastManager
+        .getInstance(getActivity().getApplicationContext())
+        .registerReceiver(transferReceiver,
+                new IntentFilter(TransferService.BROADCAST_ACTION));
+
     }
 
     @Override
@@ -243,9 +265,94 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
             builder.setTitle(mActivity.getResources().getString(R.string.app_name));
             builder.setMessage(Html.fromHtml(getString(R.string.settings_about_author_info, versionName)));
             builder.show();
+        } else if (preference.getKey().equals(SettingsManager.SETTINGS_CLEAR_CACHE_KEY)) {
+            // clear cache
+            clearCache();
         }
         return true;
     }
+
+    public class CacheManager {
+
+        private static final long MAX_SIZE = 5242880L; // 5MB
+
+        private CacheManager() {
+
+        }
+
+        public void cacheData(Context context, byte[] data, String name) throws IOException {
+
+            File cacheDir = new File(DataManager.getExternalRootDirectory());
+            long size = getDirSize(cacheDir);
+            long newSize = data.length + size;
+
+            if (newSize > MAX_SIZE) {
+                cleanDir(cacheDir, newSize - MAX_SIZE);
+            }
+
+            File file = new File(cacheDir, name);
+            FileOutputStream os = new FileOutputStream(file);
+            try {
+                os.write(data);
+            }
+            finally {
+                os.flush();
+                os.close();
+            }
+        }
+
+        public byte[] retrieveData(Context context, String name) throws IOException {
+
+            File cacheDir = context.getCacheDir();
+            File file = new File(cacheDir, name);
+
+            if (!file.exists()) {
+                // Data doesn't exist
+                return null;
+            }
+
+            byte[] data = new byte[(int) file.length()];
+            FileInputStream is = new FileInputStream(file);
+            try {
+                is.read(data);
+            }
+            finally {
+                is.close();
+            }
+
+            return data;
+        }
+
+        private void cleanDir(File dir, long bytes) {
+
+            long bytesDeleted = 0;
+            File[] files = dir.listFiles();
+
+            for (File file : files) {
+                bytesDeleted += file.length();
+                file.delete();
+
+                if (bytesDeleted >= bytes) {
+                    break;
+                }
+            }
+        }
+
+        private long getDirSize(File dir) {
+
+            long size = 0;
+            File[] files = dir.listFiles();
+
+            for (File file : files) {
+                if (file.isFile()) {
+                    size += file.length();
+                }
+            }
+
+            return size;
+        }
+    }
+
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {

@@ -54,6 +54,10 @@ public final class SettingsManager {
     public static final String SETTINGS_ABOUT_VERSION_KEY = "settings_about_version_key";
     public static final String SETTINGS_ABOUT_AUTHOR_KEY = "settings_about_author_key";
 
+    // Cache
+    public static final String SETTINGS_CACHE_SIZE_KEY = "settings_cache_info_key";
+    public static final String SETTINGS_CLEAR_CACHE_KEY = "settings_clear_cache_key";
+
     public static long lock_timestamp = 0;
     public static final long LOCK_EXPIRATION_MSECS = 5 * 60 * 1000;
 
