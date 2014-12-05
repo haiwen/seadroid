@@ -258,7 +258,12 @@
         <h5>Copyright ©2013-2014 Seafile Ltd.</h5>
         ]]>
     </string>
-    
+
+    <string name="settings_advance_feature_title">ADVANCE FEATURE</string>    
+    <string name="settings_cache_info">Current cache size is %d MB</string>    
+    <string name="settings_cache_title">Cache size</string>    
+    <string name="settings_clear_cache_title">Clear cache</string>    
+
     <!-- pull to refresh -->
     <string name="pull_to_refresh_pull_label">Pull to refresh…</string>
     <string name="pull_to_refresh_release_label">Release to refresh…</string>
