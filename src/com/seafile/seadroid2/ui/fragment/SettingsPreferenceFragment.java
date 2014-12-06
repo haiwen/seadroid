@@ -5,8 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import org.apache.http.cookie.SM;
-
+import android.R.bool;
 import android.app.Activity;
 import android.content.*;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -25,6 +24,8 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.seafile.seadroid2.*;
+import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.AccountManager;
@@ -66,6 +67,7 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
     private String appVersion;
     private SettingsManager settingsMgr;
     private AccountManager accountMgr;
+    private DataManager dataMgr;
 
     @Override
     public void onAttach(Activity activity) {
@@ -76,6 +78,8 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
         mActivity = (SettingsActivity) getActivity();
         settingsMgr = SettingsManager.instance();
         accountMgr = new AccountManager(mActivity);
+        Account act = settingsMgr.getCurrentAccount();
+        dataMgr = new DataManager(act);
 
         LocalBroadcastManager
                 .getInstance(mActivity)
@@ -116,6 +120,7 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
         spaceAvailablePref = findPreference(SettingsManager.SETTINGS_ACCOUNT_SPACE_KEY);
         signOutPref = findPreference(SettingsManager.SETTINGS_ACCOUNT_SIGN_OUT_KEY);
         signOutPref.setOnPreferenceClickListener(this);
+
 
         // Gesture Lock
         gestureLockSwitch = (CheckBoxPreference) findPreference(SettingsManager.GESTURE_LOCK_SWITCH_KEY);
@@ -165,7 +170,10 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
         // Cache
         cacheSize = findPreference(SettingsManager.SETTINGS_CACHE_SIZE_KEY);
         // set cache size
-        cacheSize.setSummary(getCacheSize());
+        String actDir = dataMgr.getAccountDir();
+        File cacheDir = new File(actDir);
+        long cacheSize = settingsMgr.getDirSize(cacheDir); 
+        clearCache.setSummary(Utils.readableFileSize(cacheSize));
         clearCache = findPreference(SettingsManager.SETTINGS_CLEAR_CACHE_KEY);
         clearCache.setOnPreferenceClickListener(this);
 
@@ -266,93 +274,12 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
             builder.setMessage(Html.fromHtml(getString(R.string.settings_about_author_info, versionName)));
             builder.show();
         } else if (preference.getKey().equals(SettingsManager.SETTINGS_CLEAR_CACHE_KEY)) {
+            String cacheDir = dataMgr.getAccountDir();
             // clear cache
-            clearCache();
+            settingsMgr.clearCache(new File(cacheDir));
         }
         return true;
     }
-
-    public class CacheManager {
-
-        private static final long MAX_SIZE = 5242880L; // 5MB
-
-        private CacheManager() {
-
-        }
-
-        public void cacheData(Context context, byte[] data, String name) throws IOException {
-
-            File cacheDir = new File(DataManager.getExternalRootDirectory());
-            long size = getDirSize(cacheDir);
-            long newSize = data.length + size;
-
-            if (newSize > MAX_SIZE) {
-                cleanDir(cacheDir, newSize - MAX_SIZE);
-            }
-
-            File file = new File(cacheDir, name);
-            FileOutputStream os = new FileOutputStream(file);
-            try {
-                os.write(data);
-            }
-            finally {
-                os.flush();
-                os.close();
-            }
-        }
-
-        public byte[] retrieveData(Context context, String name) throws IOException {
-
-            File cacheDir = context.getCacheDir();
-            File file = new File(cacheDir, name);
-
-            if (!file.exists()) {
-                // Data doesn't exist
-                return null;
-            }
-
-            byte[] data = new byte[(int) file.length()];
-            FileInputStream is = new FileInputStream(file);
-            try {
-                is.read(data);
-            }
-            finally {
-                is.close();
-            }
-
-            return data;
-        }
-
-        private void cleanDir(File dir, long bytes) {
-
-            long bytesDeleted = 0;
-            File[] files = dir.listFiles();
-
-            for (File file : files) {
-                bytesDeleted += file.length();
-                file.delete();
-
-                if (bytesDeleted >= bytes) {
-                    break;
-                }
-            }
-        }
-
-        private long getDirSize(File dir) {
-
-            long size = 0;
-            File[] files = dir.listFiles();
-
-            for (File file : files) {
-                if (file.isFile()) {
-                    size += file.length();
-                }
-            }
-
-            return size;
-        }
-    }
-
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {

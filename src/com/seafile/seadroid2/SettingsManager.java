@@ -1,11 +1,19 @@
 package com.seafile.seadroid2;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Iterator;
+
+import org.apache.commons.io.FileUtils;
+
+import android.R.raw;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.util.Utils;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 
@@ -171,6 +179,45 @@ public final class SettingsManager {
 
     public String getCameraUploadAccountToken() {
         return sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN, null);
+    }
+
+    /**
+     * get current login Account instance
+     * 
+     * @return Account if has, otherwise, returns null.
+     */
+    public Account getCurrentAccount() {
+        AccountManager accountMgr = new AccountManager(
+                SeadroidApplication.getAppContext());
+        return accountMgr.getDefaultAccount();
+    }
+
+    /**
+     * Deletes cache files inside cache directory<br>  
+     * @param dirPath
+     * @throws IOException 
+     */
+    public void clearCache(File dirPath) throws IOException {
+        FileUtils.deleteDirectory(dirPath);
+    }
+    /**
+     * Returns the length of files in bytes of the directory. 
+     * 
+     * @param dirPath
+     * @return
+     */
+    public long getDirSize(File dirPath) {
+
+        long size = 0;
+        File[] files = dirPath.listFiles();
+
+        for (File file : files) {
+            if (file.isFile()) {
+                size += file.length();
+            }
+        }
+
+        return size;
     }
 
 }

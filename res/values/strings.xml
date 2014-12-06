@@ -260,7 +260,6 @@
     </string>
 
     <string name="settings_advance_feature_title">ADVANCE FEATURE</string>    
-    <string name="settings_cache_info">Current cache size is %d MB</string>    
     <string name="settings_cache_title">Cache size</string>    
     <string name="settings_clear_cache_title">Clear cache</string>    
 
