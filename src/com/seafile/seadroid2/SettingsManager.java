@@ -9,11 +9,13 @@ import org.apache.commons.io.FileUtils;
 import android.R.raw;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.ui.activity.AccountsActivity;
+import com.seafile.seadroid2.ui.dialog.NewDirDialog;
 import com.seafile.seadroid2.util.Utils;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 
@@ -197,9 +199,10 @@ public final class SettingsManager {
      * @param dirPath
      * @throws IOException 
      */
-    public void clearCache(File dirPath) throws IOException {
-        FileUtils.deleteDirectory(dirPath);
+    public void clearCache(String dirPath) {
+        ConcurrentAsyncTask.execute(new ClearCacheTask(), dirPath);
     }
+
     /**
      * Returns the length of files in bytes of the directory. 
      * 
@@ -207,17 +210,37 @@ public final class SettingsManager {
      * @return
      */
     public long getDirSize(File dirPath) {
+        long totalSize = 0;
 
-        long size = 0;
         File[] files = dirPath.listFiles();
 
         for (File file : files) {
             if (file.isFile()) {
-                size += file.length();
+                totalSize += file.length();
+            } else
+                totalSize += getDirSize(file);
+        }
+
+        return totalSize;
+    }
+
+    class ClearCacheTask extends AsyncTask<String, Long, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+            if (params == null) {
+                return false;
+            }
+            File cacheDir = new File(params[0]);
+            try {
+                FileUtils.deleteDirectory(cacheDir);
+                return true;
+            } catch (IOException e) {
+                // clear cache failed
+                e.printStackTrace();
+                return false;
             }
         }
 
-        return size;
     }
-
 }

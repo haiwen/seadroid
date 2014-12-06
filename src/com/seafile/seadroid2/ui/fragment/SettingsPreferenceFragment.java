@@ -1,11 +1,8 @@
 package com.seafile.seadroid2.ui.fragment;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
-import android.R.bool;
 import android.app.Activity;
 import android.content.*;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -57,7 +54,7 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
     private Preference cameraUploadRepo;
     private Preference versionName;
     private Preference authorInfo;
-    private Preference cacheSize;
+    private Preference cacheSizePrf;
     private Preference clearCache;
     private SettingsActivity mActivity;
     private Intent cameraUploadIntent;
@@ -168,12 +165,14 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
         authorInfo = findPreference(SettingsManager.SETTINGS_ABOUT_AUTHOR_KEY);
         authorInfo.setOnPreferenceClickListener(this);
         // Cache
-        cacheSize = findPreference(SettingsManager.SETTINGS_CACHE_SIZE_KEY);
+        cacheSizePrf = findPreference(SettingsManager.SETTINGS_CACHE_SIZE_KEY);
         // set cache size
         String actDir = dataMgr.getAccountDir();
         File cacheDir = new File(actDir);
+        Log.d(DEBUG_TAG, "account dir path: " + actDir);
         long cacheSize = settingsMgr.getDirSize(cacheDir); 
-        clearCache.setSummary(Utils.readableFileSize(cacheSize));
+        Log.d(DEBUG_TAG, "cache size(bytes): " + cacheSize);
+        cacheSizePrf.setSummary(Utils.readableFileSize(cacheSize));
         clearCache = findPreference(SettingsManager.SETTINGS_CLEAR_CACHE_KEY);
         clearCache.setOnPreferenceClickListener(this);
 
@@ -276,7 +275,7 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
         } else if (preference.getKey().equals(SettingsManager.SETTINGS_CLEAR_CACHE_KEY)) {
             String cacheDir = dataMgr.getAccountDir();
             // clear cache
-            settingsMgr.clearCache(new File(cacheDir));
+            settingsMgr.clearCache(cacheDir);
         }
         return true;
     }
