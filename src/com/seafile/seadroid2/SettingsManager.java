@@ -2,20 +2,16 @@ package com.seafile.seadroid2;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
 
 import org.apache.commons.io.FileUtils;
 
-import android.R.raw;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.ui.activity.AccountsActivity;
-import com.seafile.seadroid2.ui.dialog.NewDirDialog;
 import com.seafile.seadroid2.util.Utils;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 
@@ -195,16 +191,17 @@ public final class SettingsManager {
     }
 
     /**
-     * Deletes cache files inside cache directory<br>  
+     * Deletes cache directory under a specific account<br>  
      * @param dirPath
      * @throws IOException 
      */
-    public void clearCache(String dirPath) {
-        ConcurrentAsyncTask.execute(new ClearCacheTask(), dirPath);
+    public void clearCache(String dirPath) throws IOException {
+        File cacheDir = new File(dirPath);
+        FileUtils.deleteDirectory(cacheDir);
     }
 
     /**
-     * Returns the length of files in bytes of the directory. 
+     * Returns total size of files in bytes of the directory. 
      * 
      * @param dirPath
      * @return
@@ -213,6 +210,9 @@ public final class SettingsManager {
         long totalSize = 0;
 
         File[] files = dirPath.listFiles();
+        if (files == null) {
+            return 0;
+        }
 
         for (File file : files) {
             if (file.isFile()) {
@@ -224,23 +224,4 @@ public final class SettingsManager {
         return totalSize;
     }
 
-    class ClearCacheTask extends AsyncTask<String, Long, Boolean> {
-
-        @Override
-        protected Boolean doInBackground(String... params) {
-            if (params == null) {
-                return false;
-            }
-            File cacheDir = new File(params[0]);
-            try {
-                FileUtils.deleteDirectory(cacheDir);
-                return true;
-            } catch (IOException e) {
-                // clear cache failed
-                e.printStackTrace();
-                return false;
-            }
-        }
-
-    }
 }

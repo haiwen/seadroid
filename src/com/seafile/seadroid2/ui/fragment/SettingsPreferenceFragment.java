@@ -1,7 +1,6 @@
 package com.seafile.seadroid2.ui.fragment;
 
 import java.io.File;
-import java.io.IOException;
 
 import android.app.Activity;
 import android.content.*;
@@ -35,6 +34,8 @@ import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.ui.activity.CreateGesturePasswordActivity;
 import com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity;
 import com.seafile.seadroid2.ui.activity.SettingsActivity;
+import com.seafile.seadroid2.ui.dialog.ClearCacheTaskDialog;
+import com.seafile.seadroid2.ui.dialog.TaskDialog.TaskDialogListener;
 import com.seafile.seadroid2.util.Utils;
 import org.json.JSONException;
 
@@ -166,13 +167,8 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
         authorInfo.setOnPreferenceClickListener(this);
         // Cache
         cacheSizePrf = findPreference(SettingsManager.SETTINGS_CACHE_SIZE_KEY);
-        // set cache size
-        String actDir = dataMgr.getAccountDir();
-        File cacheDir = new File(actDir);
-        Log.d(DEBUG_TAG, "account dir path: " + actDir);
-        long cacheSize = settingsMgr.getDirSize(cacheDir); 
-        Log.d(DEBUG_TAG, "cache size(bytes): " + cacheSize);
-        cacheSizePrf.setSummary(Utils.readableFileSize(cacheSize));
+        cacheSizePrf.setSummary(getCacheSize());
+        // Clear cache
         clearCache = findPreference(SettingsManager.SETTINGS_CLEAR_CACHE_KEY);
         clearCache.setOnPreferenceClickListener(this);
 
@@ -274,10 +270,31 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
             builder.show();
         } else if (preference.getKey().equals(SettingsManager.SETTINGS_CLEAR_CACHE_KEY)) {
             String cacheDir = dataMgr.getAccountDir();
-            // clear cache
-            settingsMgr.clearCache(cacheDir);
+            clearCache(cacheDir);
         }
         return true;
+    }
+
+    private String getCacheSize() {
+        String actDir = dataMgr.getAccountDir();
+        File cacheDir = new File(actDir);
+        Log.d(DEBUG_TAG, "account dir path: " + actDir);
+        long cacheSize = settingsMgr.getDirSize(cacheDir); 
+        Log.d(DEBUG_TAG, "cache size(bytes): " + cacheSize);
+        return Utils.readableFileSize(cacheSize);
+    }
+
+    private void clearCache(String path) {
+        ClearCacheTaskDialog dialog = new ClearCacheTaskDialog();
+        dialog.init(path);
+        dialog.setTaskDialogLisenter(new TaskDialogListener() {
+            @Override
+            public void onTaskSuccess() {
+                // refresh cache size
+                cacheSizePrf.setSummary(getCacheSize());
+            }
+        });
+        dialog.show(getFragmentManager(), "DialogFragment");
     }
 
     @Override
