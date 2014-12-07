@@ -1,10 +1,7 @@
 package com.seafile.seadroid2.ui.fragment;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+import android.content.*;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
@@ -34,6 +31,9 @@ public class SettingsPreferenceFragment
     private static final String DEBUG_TAG = "SettingsPreferenceFragment";
     
     public static final String EXTRA_CAMERA_UPLOAD = "com.seafile.seadroid2.camera.upload";
+    private Preference actInfo;
+    private Preference spaceAvailable;
+    private Preference signOut;
     private CheckBoxPreference gestureLockSwitch;
     private CheckBoxPreference cameraUploadSwitch;
     private CheckBoxPreference allowMobileConnections;
@@ -55,7 +55,15 @@ public class SettingsPreferenceFragment
         // global variables
         mActivity = (SettingsActivity) getActivity();
         settingsMgr = SettingsManager.instance();
-        
+
+        // Account
+        actInfo = findPreference(SettingsManager.SETTINGS_ACCOUNT_INFO_KEY);
+        actInfo.setSummary("logan676@163.com");
+        spaceAvailable = findPreference(SettingsManager.SETTINGS_ACCOUNT_SPACE_KEY);
+        spaceAvailable.setSummary("2G/5G");
+        signOut = findPreference(SettingsManager.SETTINGS_ACCOUNT_SIGN_OUT_KEY);
+        signOut.setOnPreferenceClickListener(this);
+
         // Gesture Lock
         gestureLockSwitch = (CheckBoxPreference) findPreference(SettingsManager.GESTURE_LOCK_SWITCH_KEY);
         gestureLockSwitch.setOnPreferenceChangeListener(this);
@@ -123,7 +131,27 @@ public class SettingsPreferenceFragment
 
     @Override
     public boolean onPreferenceClick(Preference preference) {
-        if (preference.getKey().equals(SettingsManager.GESTURE_LOCK_SWITCH_KEY)) {
+        if (preference.getKey().equals(SettingsManager.SETTINGS_ACCOUNT_SIGN_OUT_KEY)) {
+            // popup a dialog to confirm sign out request
+            final SeafileStyleDialogBuilder builder = new SeafileStyleDialogBuilder(mActivity);
+            builder.setTitle(getString(R.string.settings_account_sign_out_title));
+            builder.setMessage(getString(R.string.settings_account_sign_out_confirm));
+            builder.setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    // sign out operations
+                }
+            });
+            builder.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    // dismiss
+                    dialog.dismiss();
+                }
+            });
+            builder.show();
+
+        } else if (preference.getKey().equals(SettingsManager.GESTURE_LOCK_SWITCH_KEY)) {
 
             if (!settingsMgr.isGestureLockEnabled()) {
                 Intent newIntent = new Intent(getActivity(), CreateGesturePasswordActivity.class);

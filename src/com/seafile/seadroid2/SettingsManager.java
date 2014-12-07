@@ -28,6 +28,11 @@ public final class SettingsManager {
     private SharedPreferences settingsSharedPref = PreferenceManager
             .getDefaultSharedPreferences(SeadroidApplication.getAppContext());
 
+    // Account
+    public static final String SETTINGS_ACCOUNT_INFO_KEY = "account_info_user_key";
+    public static final String SETTINGS_ACCOUNT_SPACE_KEY = "account_info_space_key";
+    public static final String SETTINGS_ACCOUNT_SIGN_OUT_KEY = "account_sign_out_key";
+
     // Gesture Lock
     public static final String GESTURE_LOCK_SWITCH_KEY = "gesture_lock_switch_key";
     public static final String GESTURE_LOCK_KEY = "gesture_lock_key";
