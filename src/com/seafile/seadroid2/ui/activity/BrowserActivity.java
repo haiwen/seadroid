@@ -194,7 +194,9 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         if (server == null) {
             AccountManager accountManager = new AccountManager(this);
-            Account act = accountManager.getLatestAccount();
+            // get current Account from SharedPreference
+            // "current" means the Account is in using at foreground
+            Account act = accountManager.getCurrentAccount();
             if (act != null) {
                 account = act;
             } else {
@@ -306,59 +308,59 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
 
     class SeafileTabsAdapter extends FragmentPagerAdapter implements
-    IconPagerAdapter {
+            IconPagerAdapter {
         public SeafileTabsAdapter(FragmentManager fm) {
             super(fm);
         }
-        
+
         private ReposFragment reposFragment = null;
         private ActivitiesFragment activitieFragment = null;
         private StarredFragment starredFragment = null;
-        
+
         @Override
         public Fragment getItem(int position) {
             switch (position) {
-            case 0:
-                
-                if (reposFragment == null) {
-                    reposFragment = new ReposFragment();
-                }
-                return reposFragment;
-            case 1:
-                if (starredFragment == null) {
-                    starredFragment = new StarredFragment();
-                }
-                return starredFragment;
-            case 2:
-                if (activitieFragment == null) {
-                    activitieFragment = new ActivitiesFragment();
-                }
-                return activitieFragment;
-            default:
-                return new Fragment();
+                case 0:
+
+                    if (reposFragment == null) {
+                        reposFragment = new ReposFragment();
+                    }
+                    return reposFragment;
+                case 1:
+                    if (starredFragment == null) {
+                        starredFragment = new StarredFragment();
+                    }
+                    return starredFragment;
+                case 2:
+                    if (activitieFragment == null) {
+                        activitieFragment = new ActivitiesFragment();
+                    }
+                    return activitieFragment;
+                default:
+                    return new Fragment();
             }
         }
-        
+
         @Override
         public CharSequence getPageTitle(int position) {
             switch (position) {
-            case 0:
-                return getString(R.string.tabs_library).toUpperCase();
-            case 1:
-                return getString(R.string.tabs_starred).toUpperCase();
-            case 2:
-                return getString(R.string.tabs_activity).toUpperCase();
-        
-            default:
-                return null;
+                case 0:
+                    return getString(R.string.tabs_library).toUpperCase();
+                case 1:
+                    return getString(R.string.tabs_starred).toUpperCase();
+                case 2:
+                    return getString(R.string.tabs_activity).toUpperCase();
+
+                default:
+                    return null;
             }
         }
-        
+
         @Override
         public int getIconResId(int index) {
             return ICONS[index];
         }
-        
+
         @Override
         public int getCount() {
             return ICONS.length;

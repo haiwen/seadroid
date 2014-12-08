@@ -154,7 +154,8 @@ public class AccountsActivity extends SherlockFragmentActivity {
         intent.putExtra("email", account.email);
         intent.putExtra("token", account.token);
 
-        accountManager.writeToSharedPreferences(account);
+        // update current Account info from SharedPreference
+        accountManager.updateCurrentAccount(account);
 
         startActivity(intent);
         finish();
@@ -196,11 +197,11 @@ public class AccountsActivity extends SherlockFragmentActivity {
                     stopService(cameraUploadIntent);
                 }
             }
-            accountManager.deleteAccount(account);
+            accountManager.deleteAccountFromDB(account);
             if (mMonitorService != null) {
                 mMonitorService.removeAccount(account);
             }
-            accountManager.clearDataFromSharedPreferences(account);
+            accountManager.deleteAccountFromSharedPreference(account);
 
             refreshView();
             return true;

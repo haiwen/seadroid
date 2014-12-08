@@ -89,7 +89,7 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
 
         // Account
         actInfoPref = findPreference(SettingsManager.SETTINGS_ACCOUNT_INFO_KEY);
-        AccountInfo actInfo = accountMgr.getAccountInfo();
+        AccountInfo actInfo = accountMgr.getAccountInfoFromSharedPreference();
         actInfoPref.setSummary(actInfo.getEmail() != null ? actInfo.getEmail() : settingsMgr.getCurrentAccount().getEmail());
         spaceAvailablePref = findPreference(SettingsManager.SETTINGS_ACCOUNT_SPACE_KEY);
         spaceAvailablePref.setSummary(Utils.readableFileSize(actInfo.getUsage()) + "/" + Utils.readableFileSize(actInfo.getTotal()));
@@ -162,7 +162,7 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
             builder.setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    Account account = settingsMgr.getCurrentAccount();
+                    Account account = accountMgr.getCurrentAccount();
                     // stop camera upload service if on
                     if (SettingsManager.instance().getCameraUploadAccountEmail() != null) {
                         if (SettingsManager.instance().getCameraUploadAccountEmail().equals(account.getEmail())
@@ -174,7 +174,7 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
                     }
 
                     // sign out operations
-                    accountMgr.deleteTokenByAccount(settingsMgr.getCurrentAccount());
+                    accountMgr.signOutCurrentAccount();
 
                     // navigate to AccountsActivity
                     Intent intent = new Intent(mActivity, AccountsActivity.class);

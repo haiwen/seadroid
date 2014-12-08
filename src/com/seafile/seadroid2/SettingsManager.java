@@ -6,7 +6,6 @@ import android.preference.PreferenceManager;
 
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
-import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.util.Utils;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 
@@ -176,7 +175,7 @@ public final class SettingsManager {
      */
     public Account getCurrentAccount() {
         AccountManager accountMgr = new AccountManager(SeadroidApplication.getAppContext());
-        return accountMgr.getDefaultAccount();
+        return accountMgr.getLatestAuthorizedAccount();
     }
 
 }
