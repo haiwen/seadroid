@@ -29,12 +29,10 @@ import com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity;
 import com.seafile.seadroid2.ui.activity.SettingsActivity;
 import com.seafile.seadroid2.util.Utils;
 
-public class SettingsPreferenceFragment
-    extends CustomPreferenceFragment
-    implements OnPreferenceChangeListener, OnPreferenceClickListener {
-
+public class SettingsPreferenceFragment extends CustomPreferenceFragment implements
+        OnPreferenceChangeListener, OnPreferenceClickListener {
     private static final String DEBUG_TAG = "SettingsPreferenceFragment";
-    
+
     public static final String EXTRA_CAMERA_UPLOAD = "com.seafile.seadroid2.camera.upload";
     private Preference actInfoPref;
     private Preference spaceAvailablePref;
@@ -53,15 +51,41 @@ public class SettingsPreferenceFragment
     private SettingsManager settingsMgr;
     private AccountManager accountMgr;
 
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Log.d(DEBUG_TAG, "onCreate");
-        addPreferencesFromResource(R.xml.settings);
-        
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
         // global variables
         mActivity = (SettingsActivity) getActivity();
         settingsMgr = SettingsManager.instance();
         accountMgr = new AccountManager(mActivity);
+
+        LocalBroadcastManager
+                .getInstance(mActivity)
+                .registerReceiver(transferReceiver,
+                        new IntentFilter(TransferService.BROADCAST_ACTION));
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        LocalBroadcastManager
+                .getInstance(mActivity)
+                .unregisterReceiver(transferReceiver);
+        transferReceiver = null;
+    }
+
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Log.d(DEBUG_TAG, "onCreate");
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        addPreferencesFromResource(R.xml.settings);
 
         // Account
         actInfoPref = findPreference(SettingsManager.SETTINGS_ACCOUNT_INFO_KEY);
@@ -77,7 +101,7 @@ public class SettingsPreferenceFragment
         gestureLockSwitch.setOnPreferenceChangeListener(this);
         gestureLockSwitch.setOnPreferenceClickListener(this);
         gestureLockSwitch.setChecked(settingsMgr.isGestureLockEnabled());
-        
+
         // Camera Upload
         cameraUploadSwitch = (CheckBoxPreference) findPreference(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY);
         cameraUploadRepo = (Preference) findPreference(SettingsManager.CAMERA_UPLOAD_REPO_KEY);
@@ -85,10 +109,10 @@ public class SettingsPreferenceFragment
         cameraUploadSwitch.setOnPreferenceClickListener(this);
         cameraUploadRepo.setOnPreferenceClickListener(this);
         allowMobileConnections.setOnPreferenceClickListener(this);
-        
+
         cameraUploadIntent = new Intent(mActivity, CameraUploadService.class);
         repoName = settingsMgr.getCameraUploadRepoName();
-        
+
         if (repoName != null) {
             cameraUploadRepo.setSummary(repoName);
             cameraUploadRepo.setDefaultValue(repoName);
@@ -106,7 +130,7 @@ public class SettingsPreferenceFragment
             cameraUploadRepo.setEnabled(true);
         }
 
-        // About 
+        // About
         versionName = findPreference(SettingsManager.SETTINGS_ABOUT_VERSION_KEY);
         versionName.setOnPreferenceClickListener(this);
         try {
@@ -115,11 +139,6 @@ public class SettingsPreferenceFragment
             e.printStackTrace();
         }
         versionName.setSummary(appVersion);
-        
-        LocalBroadcastManager
-                .getInstance(getActivity().getApplicationContext())
-                .registerReceiver(transferReceiver,
-                        new IntentFilter(TransferService.BROADCAST_ACTION));
     }
 
     @Override
@@ -131,10 +150,6 @@ public class SettingsPreferenceFragment
     @Override
     public void onDestroy() {
         super.onDestroy();
-        LocalBroadcastManager
-                .getInstance(getActivity().getApplicationContext())
-                .unregisterReceiver(transferReceiver);
-        transferReceiver = null;
     }
 
     @Override
