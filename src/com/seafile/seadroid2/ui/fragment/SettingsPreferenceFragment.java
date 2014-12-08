@@ -11,18 +11,23 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Html;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.AccountInfo;
+import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
+import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.ui.activity.CreateGesturePasswordActivity;
 import com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity;
 import com.seafile.seadroid2.ui.activity.SettingsActivity;
+import com.seafile.seadroid2.util.Utils;
 
 public class SettingsPreferenceFragment
     extends CustomPreferenceFragment
@@ -31,9 +36,9 @@ public class SettingsPreferenceFragment
     private static final String DEBUG_TAG = "SettingsPreferenceFragment";
     
     public static final String EXTRA_CAMERA_UPLOAD = "com.seafile.seadroid2.camera.upload";
-    private Preference actInfo;
-    private Preference spaceAvailable;
-    private Preference signOut;
+    private Preference actInfoPref;
+    private Preference spaceAvailablePref;
+    private Preference signOutPref;
     private CheckBoxPreference gestureLockSwitch;
     private CheckBoxPreference cameraUploadSwitch;
     private CheckBoxPreference allowMobileConnections;
@@ -46,6 +51,7 @@ public class SettingsPreferenceFragment
     private String repoName;
     private String appVersion;
     private SettingsManager settingsMgr;
+    private AccountManager accountMgr;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,14 +61,16 @@ public class SettingsPreferenceFragment
         // global variables
         mActivity = (SettingsActivity) getActivity();
         settingsMgr = SettingsManager.instance();
+        accountMgr = new AccountManager(mActivity);
 
         // Account
-        actInfo = findPreference(SettingsManager.SETTINGS_ACCOUNT_INFO_KEY);
-        actInfo.setSummary("logan676@163.com");
-        spaceAvailable = findPreference(SettingsManager.SETTINGS_ACCOUNT_SPACE_KEY);
-        spaceAvailable.setSummary("2G/5G");
-        signOut = findPreference(SettingsManager.SETTINGS_ACCOUNT_SIGN_OUT_KEY);
-        signOut.setOnPreferenceClickListener(this);
+        actInfoPref = findPreference(SettingsManager.SETTINGS_ACCOUNT_INFO_KEY);
+        AccountInfo actInfo = accountMgr.getAccountInfo();
+        actInfoPref.setSummary(actInfo.getEmail() != null ? actInfo.getEmail() : settingsMgr.getCurrentAccount().getEmail());
+        spaceAvailablePref = findPreference(SettingsManager.SETTINGS_ACCOUNT_SPACE_KEY);
+        spaceAvailablePref.setSummary(Utils.readableFileSize(actInfo.getUsage()) + "/" + Utils.readableFileSize(actInfo.getTotal()));
+        signOutPref = findPreference(SettingsManager.SETTINGS_ACCOUNT_SIGN_OUT_KEY);
+        signOutPref.setOnPreferenceClickListener(this);
 
         // Gesture Lock
         gestureLockSwitch = (CheckBoxPreference) findPreference(SettingsManager.GESTURE_LOCK_SWITCH_KEY);
@@ -139,7 +147,24 @@ public class SettingsPreferenceFragment
             builder.setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+                    Account account = settingsMgr.getCurrentAccount();
+                    // stop camera upload service if on
+                    if (SettingsManager.instance().getCameraUploadAccountEmail() != null) {
+                        if (SettingsManager.instance().getCameraUploadAccountEmail().equals(account.getEmail())
+                                &&
+                                SettingsManager.instance().getCameraUploadAccountServer().equals(account.getServer())) {
+                            Intent cameraUploadIntent = new Intent(mActivity, CameraUploadService.class);
+                            mActivity.stopService(cameraUploadIntent);
+                        }
+                    }
+
                     // sign out operations
+                    accountMgr.deleteTokenByAccount(settingsMgr.getCurrentAccount());
+
+                    // navigate to AccountsActivity
+                    Intent intent = new Intent(mActivity, AccountsActivity.class);
+                    mActivity.startActivity(intent);
+                    mActivity.finish();
                 }
             });
             builder.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {

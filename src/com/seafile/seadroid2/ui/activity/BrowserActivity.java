@@ -53,6 +53,7 @@ import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.AccountInfoService;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
 import com.seafile.seadroid2.avatar.AvatarManageService;
 import com.seafile.seadroid2.data.DataManager;
@@ -299,6 +300,10 @@ public class BrowserActivity extends SherlockFragmentActivity
         // start avatar service
         Intent avatarIntent = new Intent(this, AvatarManageService.class);
         startService(avatarIntent);
+
+        // start AccountInfo service
+        Intent actInfoIntent = new Intent(this, AccountInfoService.class);
+        startService(actInfoIntent);
     }
 
     class SeafileTabsAdapter extends FragmentPagerAdapter implements

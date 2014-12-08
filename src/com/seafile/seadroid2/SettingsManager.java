@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.util.Utils;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
@@ -14,7 +15,7 @@ import com.seafile.seadroid2.gesturelock.LockPatternUtils;
  */
 public final class SettingsManager {
     private static final String DEBUG_TAG = "SettingsManager";
-    
+
     // Global variables
     private SharedPreferences sharedPref = SeadroidApplication.getAppContext()
             .getSharedPreferences(AccountsActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
@@ -167,4 +168,15 @@ public final class SettingsManager {
     public String getCameraUploadAccountToken() {
         return sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN, null);
     }
+
+    /**
+     * get current Account instance
+     *
+     * @return Account if has, null otherwise.
+     */
+    public Account getCurrentAccount() {
+        AccountManager accountMgr = new AccountManager(SeadroidApplication.getAppContext());
+        return accountMgr.getDefaultAccount();
+    }
+
 }
