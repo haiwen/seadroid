@@ -18,7 +18,7 @@ public final class SettingsManager {
 
     // Global variables
     private SharedPreferences sharedPref = SeadroidApplication.getAppContext()
-            .getSharedPreferences(AccountsActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+            .getSharedPreferences(AccountManager.SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
     private SharedPreferences.Editor editor = sharedPref.edit();
     private static SettingsManager instance;

@@ -229,11 +229,11 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
     }
 
     private void writeToSharedPreferences(Account account) {
-        SharedPreferences sharedPref = getSharedPreferences(AccountsActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        SharedPreferences sharedPref = getSharedPreferences(AccountManager.SHARED_PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(AccountsActivity.SHARED_PREF_SERVER_KEY, account.server);
-        editor.putString(AccountsActivity.SHARED_PREF_EMAIL_KEY, account.email);
-        editor.putString(AccountsActivity.SHARED_PREF_TOKEN_KEY, account.token);
+        editor.putString(AccountManager.SHARED_PREF_SERVER_KEY, account.server);
+        editor.putString(AccountManager.SHARED_PREF_EMAIL_KEY, account.email);
+        editor.putString(AccountManager.SHARED_PREF_TOKEN_KEY, account.token);
         editor.commit();
     }
 

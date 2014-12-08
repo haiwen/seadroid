@@ -21,18 +21,34 @@ public class AccountManager {
     public static final String ACCOUNT_INFO_TOTAL = "account_info_total";
     public static final String ACCOUNT_INFO_EMAIL = "account_info_email";
 
+    public static final String SHARED_PREF_NAME = "latest_account";
+    public static final String SHARED_PREF_SERVER_KEY = "com.seafile.seadroid.server";
+    public static final String SHARED_PREF_EMAIL_KEY = "com.seafile.seadroid.email";
+    public static final String SHARED_PREF_TOKEN_KEY = "com.seafile.seadroid.token";
+
+    public static final String SHARED_PREF_ACCOUNT = "Account";
+    public static final String SHARED_PREF_ACCOUNT_SERVER = "server";
+    public static final String SHARED_PREF_ACCOUNT_EMAIL = "email";
+
+    private SharedPreferences sharedPref; // for SHARED_PREF_NAME
+    private SharedPreferences spf; // for SHARED_PREF_ACCOUNT
+    private SharedPreferences.Editor editor; // sharedPref.Editor()
+
     private final AccountDBHelper dbHelper;
     private Context context;
 
     public AccountManager(Context context) {
         this.context = context;
         dbHelper = AccountDBHelper.getDatabaseHelper(context);
+        sharedPref = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        spf = context.getSharedPreferences(SHARED_PREF_ACCOUNT, Context.MODE_PRIVATE);
+
+        editor = sharedPref.edit();
     }
 
     public Account getDefaultAccount() {
-        SharedPreferences settings = context.getSharedPreferences("Account", 0);
-        String defaultServer = settings.getString("server", "");
-        String defaultEmail = settings.getString("email", "");
+        String defaultServer = spf.getString(SHARED_PREF_ACCOUNT_SERVER, "");
+        String defaultEmail = spf.getString(SHARED_PREF_ACCOUNT_EMAIL, "");
 
         if (defaultServer.length() == 0 || defaultEmail.length() == 0)
             return null;
@@ -56,10 +72,9 @@ public class AccountManager {
 
     public void saveDefaultAccount(Account account) {
         // save to shared preference
-        SharedPreferences sharedPref = context.getSharedPreferences("Account", 0);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString("server", account.server);
-        editor.putString("email", account.email);
+        SharedPreferences.Editor editor = spf.edit();
+        editor.putString(SHARED_PREF_ACCOUNT_SERVER, account.server);
+        editor.putString(SHARED_PREF_ACCOUNT_EMAIL, account.email);
         editor.commit();
 
         // save to db
@@ -68,10 +83,9 @@ public class AccountManager {
 
     public void updateAccount(Account oldAccount, Account newAccount) {
         // save to shared preference
-        SharedPreferences sharedPref = context.getSharedPreferences("Account", 0);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString("server", newAccount.server);
-        editor.putString("email", newAccount.email);
+        SharedPreferences.Editor editor = spf.edit();
+        editor.putString(SHARED_PREF_ACCOUNT_SERVER, newAccount.server);
+        editor.putString(SHARED_PREF_ACCOUNT_EMAIL, newAccount.email);
         editor.commit();
 
         // save to db
@@ -89,6 +103,46 @@ public class AccountManager {
         return new Account("http://cloud.seafile.com", "demo@seafile.com", "demo", null);
     }
 
+    public Account getLatestAccount() {
+        String latest_server = sharedPref.getString(SHARED_PREF_SERVER_KEY, null);
+        String latest_email = sharedPref.getString(SHARED_PREF_EMAIL_KEY, null);
+        String latest_token = sharedPref.getString(SHARED_PREF_TOKEN_KEY, null);
+
+        // When user sign out, the value of token will be null, then leads user to AccountsActivity
+        if (latest_server != null && latest_token != null) {
+            return new Account(latest_server, latest_email, null, latest_token);
+        } else
+            return null;
+    }
+
+
+    public void writeToSharedPreferences(Account account) {
+
+        editor.putString(SHARED_PREF_SERVER_KEY, account.server);
+        editor.putString(SHARED_PREF_EMAIL_KEY, account.email);
+        editor.putString(SHARED_PREF_TOKEN_KEY, account.token);
+        editor.commit();
+    }
+
+    public void clearDataFromSharedPreferences(Account account) {
+
+        String latestServer = sharedPref.getString(SHARED_PREF_SERVER_KEY, null);
+        String latestEmail = sharedPref.getString(SHARED_PREF_EMAIL_KEY, null);
+        // update cache data of settings module
+        String settingsServer = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER, null);
+        String settingsEmail = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL, null);
+
+        if (account.server.equals(latestServer) && account.email.equals(latestEmail)) {
+            editor.putString(SHARED_PREF_SERVER_KEY, null);
+            editor.putString(SHARED_PREF_EMAIL_KEY, null);
+            editor.putString(SHARED_PREF_TOKEN_KEY, null);
+            editor.commit();
+        }
+        if (account.server.equals(settingsServer) && account.email.equals(settingsEmail)) {
+            SettingsManager.instance().clearCameraUploadInfo();
+        }
+    }
+
     /**
      * delete token of the current Account instance.<br>
      * If Camera Upload Service is running under the Account, stop the service.
@@ -96,18 +150,16 @@ public class AccountManager {
      * @param account
      */
     public void deleteTokenByAccount(Account account) {
-        SharedPreferences sharedPref = context.getSharedPreferences(AccountsActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
 
-        String latestServer = sharedPref.getString(AccountsActivity.SHARED_PREF_SERVER_KEY, null);
-        String latestEmail = sharedPref.getString(AccountsActivity.SHARED_PREF_EMAIL_KEY, null);
+        String latestServer = sharedPref.getString(SHARED_PREF_SERVER_KEY, null);
+        String latestEmail = sharedPref.getString(SHARED_PREF_EMAIL_KEY, null);
 
         String signOutServer = account.getServer();
         String signOutEmail = account.getEmail();
 
         if (signOutServer.equals(latestServer) && signOutEmail.equals(latestEmail)) {
             // delete token
-            editor.putString(AccountsActivity.SHARED_PREF_TOKEN_KEY, null);
+            editor.putString(SHARED_PREF_TOKEN_KEY, null);
             editor.commit();
         }
 
@@ -123,7 +175,6 @@ public class AccountManager {
      * @return AccountInfo
      */
     public AccountInfo getAccountInfo() {
-        SharedPreferences spf = context.getSharedPreferences("Account", Context.MODE_PRIVATE);
         long usage = spf.getLong(ACCOUNT_INFO_USAGE, 0);
         long total = spf.getLong(ACCOUNT_INFO_TOTAL, 0);
         String email = spf.getString(ACCOUNT_INFO_EMAIL, null);
@@ -149,8 +200,7 @@ public class AccountManager {
             if (accountInfo == null) return;
 
             // persist AccountInfo data
-            SharedPreferences sharedPref = context.getSharedPreferences("Account", Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPref.edit();
+            SharedPreferences.Editor editor = spf.edit();
             editor.putLong(ACCOUNT_INFO_USAGE, accountInfo.getUsage());
             editor.putLong(ACCOUNT_INFO_TOTAL, accountInfo.getTotal());
             editor.putString(ACCOUNT_INFO_EMAIL, accountInfo.getEmail());

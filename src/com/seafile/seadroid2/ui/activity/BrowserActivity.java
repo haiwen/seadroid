@@ -54,6 +54,7 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfoService;
+import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
 import com.seafile.seadroid2.avatar.AvatarManageService;
 import com.seafile.seadroid2.data.DataManager;
@@ -191,13 +192,11 @@ public class BrowserActivity extends SherlockFragmentActivity
         account = new Account(server, email, null, token);
         Log.d(DEBUG_TAG, "browser activity onCreate " + server + " " + email);
 
-        SharedPreferences sharedPref = getSharedPreferences(AccountsActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
         if (server == null) {
-            String latest_server = sharedPref.getString(AccountsActivity.SHARED_PREF_SERVER_KEY, null);
-            String latest_email = sharedPref.getString(AccountsActivity.SHARED_PREF_EMAIL_KEY, null);
-            String latest_token = sharedPref.getString(AccountsActivity.SHARED_PREF_TOKEN_KEY, null);
-            if (latest_server != null) {
-                account = new Account(latest_server, latest_email, null, latest_token);
+            AccountManager accountManager = new AccountManager(this);
+            Account act = accountManager.getLatestAccount();
+            if (act != null) {
+                account = act;
             } else {
                 Intent newIntent = new Intent(this, AccountsActivity.class);
                 newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -1139,7 +1138,6 @@ public class BrowserActivity extends SherlockFragmentActivity
     /**
      * Share a file. Generating a file share link and send the link to someone
      * through some app.
-     * @param fileName
      */
     public void shareFile(String repoID, String path) {
         chooseShareApp(repoID, path, false);

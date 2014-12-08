@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.DialogFragment;
@@ -28,11 +27,6 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
-import com.seafile.seadroid2.R.array;
-import com.seafile.seadroid2.R.id;
-import com.seafile.seadroid2.R.layout;
-import com.seafile.seadroid2.R.menu;
-import com.seafile.seadroid2.R.string;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
@@ -42,11 +36,6 @@ import com.seafile.seadroid2.ui.adapter.AccountAdapter;
 
 
 public class AccountsActivity extends SherlockFragmentActivity {
-    public static final String SHARED_PREF_NAME = "latest_account";
-    public static final String SHARED_PREF_SERVER_KEY = "com.seafile.seadroid.server";
-    public static final String SHARED_PREF_EMAIL_KEY = "com.seafile.seadroid.email";
-    public static final String SHARED_PREF_TOKEN_KEY = "com.seafile.seadroid.token";
-
     private static final String DEBUG_TAG = "AccountsActivity";
 
     private ListView accountsView;
@@ -159,43 +148,13 @@ public class AccountsActivity extends SherlockFragmentActivity {
         adapter.notifyChanged();
     }
 
-    private void writeToSharedPreferences(Account account) {
-        SharedPreferences sharedPref = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(SHARED_PREF_SERVER_KEY, account.server);
-        editor.putString(SHARED_PREF_EMAIL_KEY, account.email);
-        editor.putString(SHARED_PREF_TOKEN_KEY, account.token);
-        editor.commit();
-    }
-
-    private void clearDataFromSharedPreferences(Account account) {
-        SharedPreferences sharedPref = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        
-        String latestServer = sharedPref.getString(SHARED_PREF_SERVER_KEY, null);
-        String latestEmail = sharedPref.getString(SHARED_PREF_EMAIL_KEY, null);
-        // update cache data of settings module
-        String settingsServer = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER, null);
-        String settingsEmail = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL, null);
-        
-        if (account.server.equals(latestServer) && account.email.equals(latestEmail)) {
-            editor.putString(SHARED_PREF_SERVER_KEY, null);
-            editor.putString(SHARED_PREF_EMAIL_KEY, null);
-            editor.putString(SHARED_PREF_TOKEN_KEY, null);
-            editor.commit();
-        }
-        if (account.server.equals(settingsServer) && account.email.equals(settingsEmail)) {
-            SettingsManager.instance().clearCameraUploadInfo();
-        }
-    }
-
     private void startFilesActivity(Account account) {
         Intent intent = new Intent(this, BrowserActivity.class);
         intent.putExtra("server", account.server);
         intent.putExtra("email", account.email);
         intent.putExtra("token", account.token);
 
-        writeToSharedPreferences(account);
+        accountManager.writeToSharedPreferences(account);
 
         startActivity(intent);
         finish();
@@ -241,7 +200,7 @@ public class AccountsActivity extends SherlockFragmentActivity {
             if (mMonitorService != null) {
                 mMonitorService.removeAccount(account);
             }
-            clearDataFromSharedPreferences(account);
+            accountManager.clearDataFromSharedPreferences(account);
 
             refreshView();
             return true;
