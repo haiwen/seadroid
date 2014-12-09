@@ -14,7 +14,6 @@ public class AccountInfo {
     private long usage;
     private long total;
     private String email;
-
     private String server;
 
     public AccountInfo() {}

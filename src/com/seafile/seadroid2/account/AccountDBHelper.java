@@ -242,10 +242,10 @@ public class AccountDBHelper extends SQLiteOpenHelper {
 
     private AccountInfo cursorToAccountInfo(Cursor cursor) {
         AccountInfo accountInfo = new AccountInfo();
-        accountInfo.setUsage(cursor.getLong(1));
-        accountInfo.setTotal(cursor.getLong(2));
-        accountInfo.setEmail(cursor.getString(3));
-        accountInfo.setServer(cursor.getString(4));
+        accountInfo.setUsage(cursor.getLong(0));
+        accountInfo.setTotal(cursor.getLong(1));
+        accountInfo.setEmail(cursor.getString(2));
+        accountInfo.setServer(cursor.getString(3));
         return accountInfo;
     }
 }

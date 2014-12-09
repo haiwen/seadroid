@@ -108,7 +108,7 @@ public class AccountManager {
     }
 
     /**
-     * recommend to call this method when edit Account Info in {@link com.seafile.seadroid2.ui.activity.AccountDetailActivity.LoginTask}
+     * recommend to call this method when edit account info in {@link com.seafile.seadroid2.ui.activity.AccountDetailActivity.LoginTask}
      *
      * @param oldAccount
      * @param newAccount
@@ -251,11 +251,13 @@ public class AccountManager {
     public void getAccountInfoFromServer(Account account) {
         SeafConnection seafConnection = new SeafConnection(account);
         try {
-            // get Account Info from server
+            // get account info from server
             String actInfo = seafConnection.getAccountInfo();
             // parse raw data
             AccountInfo accountInfo = parseAccountInfo(actInfo);
             if (accountInfo == null) return;
+
+            accountInfo.setServer(account.getServer());
 
             // persist AccountInfo data
             SharedPreferences.Editor editor = authoritySharedPref.edit();
@@ -263,6 +265,9 @@ public class AccountManager {
             editor.putLong(ACCOUNT_INFO_TOTAL, accountInfo.getTotal());
             editor.putString(ACCOUNT_INFO_EMAIL, accountInfo.getEmail());
             editor.commit();
+
+            // save to database
+            saveAccountInfo(accountInfo);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -274,9 +279,25 @@ public class AccountManager {
 
     }
 
+    /**
+     * get current account info from database
+     *
+     * @return
+     */
     public AccountInfo getCurrentAccountInfo() {
-        return null;
+        String server = getCurrentAccount().getServer();
+        String email = getCurrentAccount().getEmail();
+        return dbHelper.getAccountInfo(server, email);
 
+    }
+
+    /**
+     * save account info to database
+     *
+     * @param accountInfo
+     */
+    private void saveAccountInfo(AccountInfo accountInfo) {
+        dbHelper.saveAccountInfo(accountInfo);
     }
 
     /**
