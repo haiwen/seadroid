@@ -240,6 +240,20 @@ public class AccountDBHelper extends SQLiteOpenHelper {
         return accountInfo;
     }
 
+    /**
+     * delete account info from database
+     *
+     * @param accountInfo
+     */
+    public void deleteAccountInfo(AccountInfo accountInfo) {
+        database.delete(ACCOUNT_INFO_TABLE_NAME,
+                        "server=? and email=?",
+                        new String[]{accountInfo.getServer(),
+                                     accountInfo.getEmail()});
+
+        AccountNotifier.notifyProvider();
+    }
+
     private AccountInfo cursorToAccountInfo(Cursor cursor) {
         AccountInfo accountInfo = new AccountInfo();
         accountInfo.setUsage(cursor.getLong(0));
@@ -248,4 +262,5 @@ public class AccountDBHelper extends SQLiteOpenHelper {
         accountInfo.setServer(cursor.getString(3));
         return accountInfo;
     }
+
 }

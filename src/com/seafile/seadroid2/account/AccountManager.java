@@ -103,9 +103,9 @@ public class AccountManager {
         dbHelper.saveAccount(account);
     }
 
-    public void saveAuthorizedAccountInfoToDB(AccountInfo accountInfo) {
+    /*public void saveAuthorizedAccountInfoToDB(AccountInfo accountInfo) {
         dbHelper.saveAccountInfo(accountInfo);
-    }
+    }*/
 
     /**
      * recommend to call this method when edit account info in {@link com.seafile.seadroid2.ui.activity.AccountDetailActivity.LoginTask}
@@ -198,14 +198,18 @@ public class AccountManager {
     public void signOutCurrentAccount() {
 
         Account currentAccount =  getCurrentAccount();
+        AccountInfo currentAccountInfo = getCurrentAccountInfo();
         // delete data in Shared_prefs
         deleteAccountFromSharedPreference(currentAccount);
 
         // delete camera upload settings of this account if has
         deleteCameraUploadSettingsByAccount(currentAccount);
 
-        // delete data in database
+        // delete account data in database
         deleteAccountFromDB(currentAccount);
+
+        // delete account info data in database
+        deleteAccountInfo(currentAccountInfo);
 
         /*String currentServer = actMangeSharedPref.getString(SHARED_PREF_SERVER_KEY, null);
         String currentEmail = actMangeSharedPref.getString(SHARED_PREF_EMAIL_KEY, null);
@@ -232,7 +236,7 @@ public class AccountManager {
      *
      * @return AccountInfo
      */
-    public AccountInfo getAccountInfoFromSharedPreference() {
+    /*public AccountInfo getAccountInfoFromSharedPreference() {
         long usage = authoritySharedPref.getLong(ACCOUNT_INFO_USAGE, 0);
         long total = authoritySharedPref.getLong(ACCOUNT_INFO_TOTAL, 0);
         String email = authoritySharedPref.getString(ACCOUNT_INFO_EMAIL, null);
@@ -241,7 +245,7 @@ public class AccountManager {
         actInfo.setTotal(total);
         actInfo.setEmail(email);
         return actInfo;
-    }
+    }*/
 
     /**
      * get AccountInfo from server, should check return result, it maybe null.
@@ -297,7 +301,18 @@ public class AccountManager {
      * @param accountInfo
      */
     private void saveAccountInfo(AccountInfo accountInfo) {
+        if (accountInfo == null) return;
         dbHelper.saveAccountInfo(accountInfo);
+    }
+
+    /**
+     * delete account info from database
+     *
+     * @param accountInfo
+     */
+    private void deleteAccountInfo(AccountInfo accountInfo) {
+        if (accountInfo == null) return;
+        dbHelper.deleteAccountInfo(accountInfo);
     }
 
     /**
