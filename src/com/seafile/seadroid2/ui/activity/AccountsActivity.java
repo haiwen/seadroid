@@ -150,9 +150,9 @@ public class AccountsActivity extends SherlockFragmentActivity {
 
     private void startFilesActivity(Account account) {
         Intent intent = new Intent(this, BrowserActivity.class);
-        intent.putExtra("server", account.server);
-        intent.putExtra("email", account.email);
-        intent.putExtra("token", account.token);
+        intent.putExtra(AccountManager.SHARED_PREF_SERVER_KEY, account.server);
+        intent.putExtra(AccountManager.SHARED_PREF_EMAIL_KEY, account.email);
+        intent.putExtra(AccountManager.SHARED_PREF_TOKEN_KEY, account.token);
 
         // update current Account info from SharedPreference
         accountManager.updateCurrentAccount(account);
@@ -202,6 +202,7 @@ public class AccountsActivity extends SherlockFragmentActivity {
                 mMonitorService.removeAccount(account);
             }
             accountManager.deleteAccountFromSharedPreference(account);
+            accountManager.deleteCameraUploadSettingsByAccount(account);
 
             refreshView();
             return true;

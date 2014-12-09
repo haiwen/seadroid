@@ -33,6 +33,8 @@ public class AccountManager {
     public static final String SHARED_PREF_ACCOUNT = "Account";
     public static final String SHARED_PREF_ACCOUNT_SERVER = "server";
     public static final String SHARED_PREF_ACCOUNT_EMAIL = "email";
+    public static final String SHARED_PREF_ACCOUNT_TOKEN = "token";
+
 
     /** used to manage multi Accounts when user switch between different Accounts */
     private SharedPreferences actMangeSharedPref;
@@ -123,13 +125,13 @@ public class AccountManager {
     }
 
     public Account getCurrentAccount() {
-        String latest_server = actMangeSharedPref.getString(SHARED_PREF_SERVER_KEY, null);
-        String latest_email = actMangeSharedPref.getString(SHARED_PREF_EMAIL_KEY, null);
-        String latest_token = actMangeSharedPref.getString(SHARED_PREF_TOKEN_KEY, null);
+        String currentServer = actMangeSharedPref.getString(SHARED_PREF_SERVER_KEY, null);
+        String currentEmail = actMangeSharedPref.getString(SHARED_PREF_EMAIL_KEY, null);
+        String currentToken = actMangeSharedPref.getString(SHARED_PREF_TOKEN_KEY, null);
 
         // When user sign out, the value of token will be null, then leads user to AccountsActivity
-        if (latest_server != null && latest_token != null) {
-            return new Account(latest_server, latest_email, null, latest_token);
+        if (currentServer != null && currentToken != null) {
+            return new Account(currentServer, currentEmail, null, currentToken);
         } else
             return null;
     }
@@ -155,18 +157,23 @@ public class AccountManager {
      */
     public void deleteAccountFromSharedPreference(Account account) {
 
-        String latestServer = actMangeSharedPref.getString(SHARED_PREF_SERVER_KEY, null);
-        String latestEmail = actMangeSharedPref.getString(SHARED_PREF_EMAIL_KEY, null);
-        // update cache data of settings module
-        String settingsServer = actMangeSharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER, null);
-        String settingsEmail = actMangeSharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL, null);
+        String currentServer = actMangeSharedPref.getString(SHARED_PREF_SERVER_KEY, null);
+        String currentEmail = actMangeSharedPref.getString(SHARED_PREF_EMAIL_KEY, null);
 
-        if (account.server.equals(latestServer) && account.email.equals(latestEmail)) {
+        if (account.server.equals(currentServer) && account.email.equals(currentEmail)) {
             editor.putString(SHARED_PREF_SERVER_KEY, null);
             editor.putString(SHARED_PREF_EMAIL_KEY, null);
             editor.putString(SHARED_PREF_TOKEN_KEY, null);
             editor.commit();
         }
+
+    }
+
+    public void deleteCameraUploadSettingsByAccount(Account account) {
+        // update cache data of settings module
+        String settingsServer = actMangeSharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER, null);
+        String settingsEmail = actMangeSharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL, null);
+
         if (account.server.equals(settingsServer) && account.email.equals(settingsEmail)) {
             SettingsManager.instance().clearCameraUploadInfo();
         }
@@ -186,11 +193,15 @@ public class AccountManager {
      */
     public void signOutCurrentAccount() {
 
-        // TODO delete data in Shared_prefs
+        Account currentAccount =  getCurrentAccount();
+        // delete data in Shared_prefs
+        deleteAccountFromSharedPreference(currentAccount);
 
-        // TODO delete data in database
+        // delete camera upload settings of this account if has
+        deleteCameraUploadSettingsByAccount(currentAccount);
 
-        // TODO delete data in AccountsActivity
+        // delete data in database
+        deleteAccountFromDB(currentAccount);
 
         /*String currentServer = actMangeSharedPref.getString(SHARED_PREF_SERVER_KEY, null);
         String currentEmail = actMangeSharedPref.getString(SHARED_PREF_EMAIL_KEY, null);

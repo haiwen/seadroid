@@ -186,16 +186,16 @@ public class BrowserActivity extends SherlockFragmentActivity
         
         // Get the message from the intent
         Intent intent = getIntent();
-        String server = intent.getStringExtra("server");
-        String email = intent.getStringExtra("email");
-        String token = intent.getStringExtra("token");
+        String server = intent.getStringExtra(AccountManager.SHARED_PREF_SERVER_KEY);
+        String email = intent.getStringExtra(AccountManager.SHARED_PREF_EMAIL_KEY);
+        String token = intent.getStringExtra(AccountManager.SHARED_PREF_TOKEN_KEY);
         account = new Account(server, email, null, token);
         Log.d(DEBUG_TAG, "browser activity onCreate " + server + " " + email);
 
         if (server == null) {
             AccountManager accountManager = new AccountManager(this);
             // get current Account from SharedPreference
-            // "current" means the Account is in using at foreground
+            // "current" means the Account is in using at foreground if multiple accounts exist
             Account act = accountManager.getCurrentAccount();
             if (act != null) {
                 account = act;
