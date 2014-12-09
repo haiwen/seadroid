@@ -334,7 +334,7 @@ public class ReposFragment extends SherlockListFragment {
                     new TaskDialog.TaskDialogListener() {
                 @Override
                 public void onTaskSuccess() {
-                    onListItemClick(l, v, position - 1, id);
+                    onListItemClick(l, v, position, id);
                 }
             }, password);
 
