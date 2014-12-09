@@ -14,6 +14,11 @@ public class AccountInfo {
     private long usage;
     private long total;
     private String email;
+
+    // server doesn`t exist in API JOSN data,
+    // it was used together with email to identify the uniqueness
+    //  of the AccountInfo instance
+    // to assign value to it, explicitly call its setter method.
     private String server;
 
     public AccountInfo() {}

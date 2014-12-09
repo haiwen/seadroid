@@ -4,13 +4,11 @@
     <PreferenceCategory android:title="@string/settings_account" >
         <Preference
                 android:key="account_info_user_key"
-                android:title="@string/settings_account_info_title"
-                android:summary="logan676@163.com">
+                android:title="@string/settings_account_info_title" >
         </Preference>
         <Preference
                 android:key="account_info_space_key"
-                android:title="@string/settings_account_space_title"
-                android:summary="2G/5G">
+                android:title="@string/settings_account_space_title" >
         </Preference>
         <Preference
                 android:key="account_sign_out_key"
