@@ -163,7 +163,7 @@ public class AccountsActivity extends SherlockFragmentActivity {
         intent.putExtra(AccountManager.SHARED_PREF_TOKEN_KEY, account.token);
 
         // update current Account info from SharedPreference
-        accountManager.updateCurrentAccount(account);
+        accountManager.saveCurrentAccount(account);
 
         startActivity(intent);
         finish();

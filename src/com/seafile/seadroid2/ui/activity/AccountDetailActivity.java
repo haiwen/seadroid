@@ -230,7 +230,7 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
         intent.putExtra("email", account.email);
         intent.putExtra("token", account.token);
 
-        accountManager.updateCurrentAccount(account);
+        accountManager.saveCurrentAccount(account);
 
         startActivity(intent);
         finish(); // so the user will not return to this activity when press 'back'
@@ -285,10 +285,10 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
 
             if (result != null && result.equals("Success")) {
                 if (isFromEdit) {
-                    accountManager.updateAuthorizedAccount(account, loginAccount);
+                    accountManager.updateAccountFromDB(account, loginAccount);
                     isFromEdit = false;
                 } else {
-                    accountManager.saveAuthorizedAccount(loginAccount);
+                    accountManager.saveAccountToDB(loginAccount);
                 }
                 startFilesActivity(loginAccount);
             } else {

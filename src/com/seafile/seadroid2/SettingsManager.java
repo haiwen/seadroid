@@ -168,14 +168,4 @@ public final class SettingsManager {
         return sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN, null);
     }
 
-    /**
-     * get current Account instance
-     *
-     * @return Account if has, null otherwise.
-     */
-    public Account getCurrentAccount() {
-        AccountManager accountMgr = new AccountManager(SeadroidApplication.getAppContext());
-        return accountMgr.getLatestAuthorizedAccount();
-    }
-
 }

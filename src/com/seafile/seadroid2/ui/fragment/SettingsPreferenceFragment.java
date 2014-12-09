@@ -90,7 +90,7 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
         // Account
         actInfoPref = findPreference(SettingsManager.SETTINGS_ACCOUNT_INFO_KEY);
         AccountInfo actInfo = accountMgr.getCurrentAccountInfo();
-        actInfoPref.setSummary(actInfo.getEmail() != null ? actInfo.getEmail() : settingsMgr.getCurrentAccount().getEmail());
+        actInfoPref.setSummary(actInfo.getEmail());
         spaceAvailablePref = findPreference(SettingsManager.SETTINGS_ACCOUNT_SPACE_KEY);
         spaceAvailablePref.setSummary(Utils.readableFileSize(actInfo.getUsage()) + "/" + Utils.readableFileSize(actInfo.getTotal()));
         signOutPref = findPreference(SettingsManager.SETTINGS_ACCOUNT_SIGN_OUT_KEY);

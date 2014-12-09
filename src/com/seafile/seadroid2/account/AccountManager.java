@@ -21,40 +21,24 @@ public class AccountManager {
     @SuppressWarnings("unused")
     private static String DEBUG_TAG = "AccountManager";
 
-    public static final String ACCOUNT_INFO_USAGE = "account_info_usage";
-    public static final String ACCOUNT_INFO_TOTAL = "account_info_total";
-    public static final String ACCOUNT_INFO_EMAIL = "account_info_email";
-
     public static final String SHARED_PREF_NAME = "latest_account";
     public static final String SHARED_PREF_SERVER_KEY = "com.seafile.seadroid.server";
     public static final String SHARED_PREF_EMAIL_KEY = "com.seafile.seadroid.email";
     public static final String SHARED_PREF_TOKEN_KEY = "com.seafile.seadroid.token";
 
-    public static final String SHARED_PREF_ACCOUNT = "Account";
-    public static final String SHARED_PREF_ACCOUNT_SERVER = "server";
-    public static final String SHARED_PREF_ACCOUNT_EMAIL = "email";
-    public static final String SHARED_PREF_ACCOUNT_TOKEN = "token";
-
-
     /** used to manage multi Accounts when user switch between different Accounts */
     private SharedPreferences actMangeSharedPref;
     private SharedPreferences.Editor editor;
 
-    /** used to persist Authorized Account info to local storage */
-    private SharedPreferences authoritySharedPref;
-
     private final AccountDBHelper dbHelper;
-    private Context context;
+    private Context ctx;
 
     public AccountManager(Context context) {
-        this.context = context;
+        this.ctx = context;
         dbHelper = AccountDBHelper.getDatabaseHelper(context);
         // used to manage multi Accounts when user switch between different Accounts
-        actMangeSharedPref = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        actMangeSharedPref = ctx.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
         editor = actMangeSharedPref.edit();
-
-        // used to persist Authorized Account info to local storage
-        authoritySharedPref = context.getSharedPreferences(SHARED_PREF_ACCOUNT, Context.MODE_PRIVATE);
 
     }
 
@@ -73,59 +57,25 @@ public class AccountManager {
     }
 
     /**
-     * get the latest Authorized Account
-     *
-     * @return
-     */
-    public Account getLatestAuthorizedAccount() {
-        String defaultServer = authoritySharedPref.getString(SHARED_PREF_ACCOUNT_SERVER, "");
-        String defaultEmail = authoritySharedPref.getString(SHARED_PREF_ACCOUNT_EMAIL, "");
-
-        if (defaultServer.length() == 0 || defaultEmail.length() == 0)
-            return null;
-
-        return dbHelper.getAccount(defaultServer, defaultEmail);
-    }
-
-    /**
-     * recommend to call this method in {@link com.seafile.seadroid2.ui.activity.AccountDetailActivity.LoginTask}
+     * save sign in account to database
      *
      * @param account
      */
-    public void saveAuthorizedAccount(Account account) {
-        // save to shared preference
-        SharedPreferences.Editor editor = authoritySharedPref.edit();
-        editor.putString(SHARED_PREF_ACCOUNT_SERVER, account.server);
-        editor.putString(SHARED_PREF_ACCOUNT_EMAIL, account.email);
-        editor.commit();
+    public void saveAccountToDB(Account account) {
 
         // save to db
         dbHelper.saveAccount(account);
     }
 
-    /*public void saveAuthorizedAccountInfoToDB(AccountInfo accountInfo) {
-        dbHelper.saveAccountInfo(accountInfo);
-    }*/
-
     /**
-     * recommend to call this method when edit account info in {@link com.seafile.seadroid2.ui.activity.AccountDetailActivity.LoginTask}
+     * update account info from database
      *
      * @param oldAccount
      * @param newAccount
      */
-    public void updateAuthorizedAccount(Account oldAccount, Account newAccount) {
-        // save to shared preference
-        SharedPreferences.Editor editor = authoritySharedPref.edit();
-        editor.putString(SHARED_PREF_ACCOUNT_SERVER, newAccount.server);
-        editor.putString(SHARED_PREF_ACCOUNT_EMAIL, newAccount.email);
-        editor.commit();
+    public void updateAccountFromDB(Account oldAccount, Account newAccount) {
 
-        // save to db
         dbHelper.updateAccount(oldAccount, newAccount);
-    }
-
-    public  Account getDemoAccount() {
-        return new Account("http://cloud.seafile.com", "demo@seafile.com", "demo", null);
     }
 
     public Account getCurrentAccount() {
@@ -141,12 +91,12 @@ public class AccountManager {
     }
 
     /**
-     * update current Account info from SharedPreference<br>
-     * <strong>current</strong> means the Account is now in using at the foreground
+     * save current Account info to SharedPreference<br>
+     * <strong>current</strong> means the Account is now in using at the foreground if has multiple accounts
      *
      * @param account
      */
-    public void updateCurrentAccount(Account account) {
+    public void saveCurrentAccount(Account account) {
 
         editor.putString(SHARED_PREF_SERVER_KEY, account.server);
         editor.putString(SHARED_PREF_EMAIL_KEY, account.email);
@@ -205,47 +155,15 @@ public class AccountManager {
         // delete camera upload settings of this account if has
         deleteCameraUploadSettingsByAccount(currentAccount);
 
+        // TODO turn off Gesture lock settings?
+
         // delete account data in database
         deleteAccountFromDB(currentAccount);
 
-        // delete account info data in database
+        // delete account-info data in database
         deleteAccountInfo(currentAccountInfo);
 
-        /*String currentServer = actMangeSharedPref.getString(SHARED_PREF_SERVER_KEY, null);
-        String currentEmail = actMangeSharedPref.getString(SHARED_PREF_EMAIL_KEY, null);
-
-        String signOutServer = authoritySharedPref.getString(SHARED_PREF_ACCOUNT_SERVER, null);
-        String signOutEmail = authoritySharedPref.getString(SHARED_PREF_ACCOUNT_EMAIL, null);
-
-        if (signOutServer.equals(currentServer) && signOutEmail.equals(currentEmail)) {
-            // set current account to null in actMangeSharedPref
-            editor.putString(SHARED_PREF_SERVER_KEY, null);
-            editor.putString(SHARED_PREF_EMAIL_KEY, null);
-            editor.putString(SHARED_PREF_TOKEN_KEY, null);
-            editor.commit();
-
-            // clear camera upload info
-            SettingsManager.instance().clearCameraUploadInfo();
-
-        }*/
-
     }
-
-    /**
-     * get AccountInfo instance from local SharedPreference
-     *
-     * @return AccountInfo
-     */
-    /*public AccountInfo getAccountInfoFromSharedPreference() {
-        long usage = authoritySharedPref.getLong(ACCOUNT_INFO_USAGE, 0);
-        long total = authoritySharedPref.getLong(ACCOUNT_INFO_TOTAL, 0);
-        String email = authoritySharedPref.getString(ACCOUNT_INFO_EMAIL, null);
-        AccountInfo actInfo = new AccountInfo();
-        actInfo.setUsage(usage);
-        actInfo.setTotal(total);
-        actInfo.setEmail(email);
-        return actInfo;
-    }*/
 
     /**
      * get AccountInfo from server, should check return result, it maybe null.
@@ -262,13 +180,6 @@ public class AccountManager {
             if (accountInfo == null) return;
 
             accountInfo.setServer(account.getServer());
-
-            // persist AccountInfo data
-            SharedPreferences.Editor editor = authoritySharedPref.edit();
-            editor.putLong(ACCOUNT_INFO_USAGE, accountInfo.getUsage());
-            editor.putLong(ACCOUNT_INFO_TOTAL, accountInfo.getTotal());
-            editor.putString(ACCOUNT_INFO_EMAIL, accountInfo.getEmail());
-            editor.commit();
 
             // save to database
             saveAccountInfo(accountInfo);

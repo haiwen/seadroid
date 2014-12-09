@@ -17,14 +17,12 @@ public class AccountInfoService extends Service {
     public static final String DEBUG_TAG = "AccountInfoService";
 
     private AccountManager accountMgr;
-    private SettingsManager instance;
 
     @Override
     public void onCreate() {
         Log.d(DEBUG_TAG, "onCreate");
         super.onCreate();
         accountMgr = new AccountManager(this);
-        instance = SettingsManager.instance();
     }
 
     @Override
@@ -36,7 +34,7 @@ public class AccountInfoService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(DEBUG_TAG, "onStartCommand");
-        final Account act = instance.getCurrentAccount();
+        final Account act = accountMgr.getCurrentAccount();
         ConcurrentAsyncTask.execute(new Runnable() {
             @Override
             public void run() {
