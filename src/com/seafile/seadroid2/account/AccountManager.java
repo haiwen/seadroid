@@ -103,6 +103,10 @@ public class AccountManager {
         dbHelper.saveAccount(account);
     }
 
+    public void saveAuthorizedAccountInfoToDB(AccountInfo accountInfo) {
+        dbHelper.saveAccountInfo(accountInfo);
+    }
+
     /**
      * recommend to call this method when edit Account Info in {@link com.seafile.seadroid2.ui.activity.AccountDetailActivity.LoginTask}
      *
@@ -267,6 +271,11 @@ public class AccountManager {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+    }
+
+    public AccountInfo getCurrentAccountInfo() {
+        return null;
 
     }
 

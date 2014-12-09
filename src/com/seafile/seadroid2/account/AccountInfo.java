@@ -15,6 +15,8 @@ public class AccountInfo {
     private long total;
     private String email;
 
+    private String server;
+
     public AccountInfo() {}
 
     public static  AccountInfo fromJson(JSONObject accountInfo) throws JSONException {
@@ -49,4 +51,13 @@ public class AccountInfo {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    public String getServer() {
+        return server;
+    }
+
+    public void setServer(String server) {
+        this.server = server;
+    }
+
 }
