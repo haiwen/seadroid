@@ -134,6 +134,14 @@ public class AccountsActivity extends SherlockFragmentActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
          switch (item.getItemId()) {
             case android.R.id.home:
+                // if the current account sign out and no account was to logged in,
+                // then always goes to AccountsActivity
+                if (accountManager.getCurrentAccount() == null) {
+                    Intent intent = new Intent(this, BrowserActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                }
+
                 this.finish();
             default:
                 return super.onOptionsItemSelected(item);
