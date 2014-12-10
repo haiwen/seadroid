@@ -9,13 +9,18 @@ import android.view.View;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
+import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.data.DatabaseHelper;
 import com.seafile.seadroid2.util.Utils;
 
 class ClearCacheTask extends TaskDialog.Task {
+    Account account;
     String path;
     SettingsManager settingsMgr;
+    DatabaseHelper dbHelper = DatabaseHelper.getDatabaseHelper();
 
-    public ClearCacheTask(String path, SettingsManager settingsManager) {
+    public ClearCacheTask(Account account, String path, SettingsManager settingsManager) {
+        this.account = account;
         this.path = path;
         this.settingsMgr = settingsManager;
     }
@@ -23,7 +28,11 @@ class ClearCacheTask extends TaskDialog.Task {
     @Override
     protected void runTask() {
         try {
+            // clear cached files
             Utils.clearCache(path);
+
+            // clear cached data from database
+            settingsMgr.delCachesByActSignature(account);
         } catch (IOException e) {
             e.printStackTrace();
             // delete cache failed
@@ -34,9 +43,11 @@ class ClearCacheTask extends TaskDialog.Task {
 
 public class ClearCacheTaskDialog extends TaskDialog {
     private String path;
+    private Account account;
     SettingsManager settingsMgr;
 
-    public void init(String path) {
+    public void init(Account account, String path) {
+        this.account = account;
         this.path = path;
     }
 
@@ -60,7 +71,7 @@ public class ClearCacheTaskDialog extends TaskDialog {
 
     @Override
     protected ClearCacheTask prepareTask() {
-        ClearCacheTask task = new ClearCacheTask(path, getSettingsManager());
+        ClearCacheTask task = new ClearCacheTask(account, path, getSettingsManager());
         return task;
     }
 }

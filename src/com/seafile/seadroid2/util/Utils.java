@@ -547,12 +547,16 @@ public class Utils {
 
     /**
      * Deletes cache directory under a specific account<br>
+     * remember to clear cache from database after called this method
+     *
      * @param dirPath
      * @throws IOException
      */
     public static void clearCache(String dirPath) throws IOException {
+        // clear all cached files inside of the directory, the directory itself included
         File cacheDir = new File(dirPath);
         FileUtils.deleteDirectory(cacheDir);
+
     }
 
     /**

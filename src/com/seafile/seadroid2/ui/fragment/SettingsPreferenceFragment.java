@@ -271,14 +271,14 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
             builder.show();
         } else if (preference.getKey().equals(SettingsManager.SETTINGS_CLEAR_CACHE_KEY)) {
             String cacheDir = dataMgr.getAccountDir();
-            clearCache(cacheDir);
+            clearCache(settingsMgr.getCurrentAccount(), cacheDir);
         }
         return true;
     }
 
-    private void clearCache(String path) {
+    private void clearCache(Account account, String path) {
         ClearCacheTaskDialog dialog = new ClearCacheTaskDialog();
-        dialog.init(path);
+        dialog.init(account, path);
         dialog.setTaskDialogLisenter(new TaskDialogListener() {
             @Override
             public void onTaskSuccess() {

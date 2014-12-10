@@ -10,6 +10,7 @@ import android.preference.PreferenceManager;
 
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.data.DatabaseHelper;
 import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.util.Utils;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
@@ -187,6 +188,11 @@ public final class SettingsManager {
         AccountManager accountMgr = new AccountManager(
                 SeadroidApplication.getAppContext());
         return accountMgr.getDefaultAccount();
+    }
+
+    public void delCachesByActSignature(Account account) {
+        DatabaseHelper dbHelper = DatabaseHelper.getDatabaseHelper();
+        dbHelper.delCachesBySignature(account);
     }
 
     public static final String DEBUG_TAG = "SettingsManager";

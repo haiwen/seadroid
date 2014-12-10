@@ -217,7 +217,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             database.delete(FILECACHE_TABLE_NAME,  FILECACHE_COLUMN_REPO_ID + "=? and " + FILECACHE_COLUMN_PATH + "=?",
                 new String[] { item.repoID, item.path });
     }
-    
+
+    /**
+     * delete all cache info under one specific account from database
+     *
+     * @param account
+     */
+    public void delCachesBySignature(Account account) {
+        String signature = account.getSignature();
+        database.delete(FILECACHE_TABLE_NAME, FILECACHE_COLUMN_ACCOUNT + "=?", new String[]{signature});
+    }
+
     public List<SeafCachedFile> getFileCacheItems(DataManager dataManager) {
         List<SeafCachedFile> files = Lists.newArrayList();
 
