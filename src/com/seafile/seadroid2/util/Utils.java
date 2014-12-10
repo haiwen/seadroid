@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
 
+import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -542,6 +543,40 @@ public class Utils {
         options.inJustDecodeBounds = false;
         // return BitmapFactory.decodeResource(res, resId, options);
         return BitmapFactory.decodeStream(stream, null, options);
+    }
+
+    /**
+     * Deletes cache directory under a specific account<br>
+     * @param dirPath
+     * @throws IOException
+     */
+    public static void clearCache(String dirPath) throws IOException {
+        File cacheDir = new File(dirPath);
+        FileUtils.deleteDirectory(cacheDir);
+    }
+
+    /**
+     * Returns total size of files in bytes of the directory.
+     *
+     * @param dirPath
+     * @return
+     */
+    public static long getDirSize(File dirPath) {
+        long totalSize = 0l;
+
+        File[] files = dirPath.listFiles();
+        if (files == null) {
+            return 0l;
+        }
+
+        for (File file : files) {
+            if (file.isFile()) {
+                totalSize += file.length();
+            } else
+                totalSize += getDirSize(file);
+        }
+
+        return totalSize;
     }
 
 }

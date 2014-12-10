@@ -167,7 +167,8 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
         authorInfo.setOnPreferenceClickListener(this);
         // Cache
         cacheSizePrf = findPreference(SettingsManager.SETTINGS_CACHE_SIZE_KEY);
-        cacheSizePrf.setSummary(getCacheSize());
+        String cachePath = dataMgr.getAccountDir();
+        cacheSizePrf.setSummary(settingsMgr.getCacheSize(cachePath));
         // Clear cache
         clearCache = findPreference(SettingsManager.SETTINGS_CLEAR_CACHE_KEY);
         clearCache.setOnPreferenceClickListener(this);
@@ -275,15 +276,6 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
         return true;
     }
 
-    private String getCacheSize() {
-        String actDir = dataMgr.getAccountDir();
-        File cacheDir = new File(actDir);
-        Log.d(DEBUG_TAG, "account dir path: " + actDir);
-        long cacheSize = settingsMgr.getDirSize(cacheDir); 
-        Log.d(DEBUG_TAG, "cache size(bytes): " + cacheSize);
-        return Utils.readableFileSize(cacheSize);
-    }
-
     private void clearCache(String path) {
         ClearCacheTaskDialog dialog = new ClearCacheTaskDialog();
         dialog.init(path);
@@ -291,7 +283,8 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
             @Override
             public void onTaskSuccess() {
                 // refresh cache size
-                cacheSizePrf.setSummary(getCacheSize());
+                String cachePath = dataMgr.getAccountDir();
+                cacheSizePrf.setSummary(settingsMgr.getCacheSize(cachePath));
             }
         });
         dialog.show(getFragmentManager(), "DialogFragment");

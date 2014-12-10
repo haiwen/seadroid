@@ -9,6 +9,7 @@ import android.view.View;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
+import com.seafile.seadroid2.util.Utils;
 
 class ClearCacheTask extends TaskDialog.Task {
     String path;
@@ -22,7 +23,7 @@ class ClearCacheTask extends TaskDialog.Task {
     @Override
     protected void runTask() {
         try {
-            settingsMgr.clearCache(path);
+            Utils.clearCache(path);
         } catch (IOException e) {
             e.printStackTrace();
             // delete cache failed

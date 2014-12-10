@@ -1,9 +1,8 @@
 package com.seafile.seadroid2;
 
 import java.io.File;
-import java.io.IOException;
 
-import org.apache.commons.io.FileUtils;
+import android.util.Log;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -190,38 +189,37 @@ public final class SettingsManager {
         return accountMgr.getDefaultAccount();
     }
 
-    /**
-     * Deletes cache directory under a specific account<br>  
-     * @param dirPath
-     * @throws IOException 
-     */
-    public void clearCache(String dirPath) throws IOException {
-        File cacheDir = new File(dirPath);
-        FileUtils.deleteDirectory(cacheDir);
+    public static final String DEBUG_TAG = "SettingsManager";
+
+    // use AsyncTask to calculate cache size in case that UI thread blocked
+    public String getCacheSize(String cachePath) {
+        long cacheSize = 0l;
+        CalculateCacheTask caculateTask = new CalculateCacheTask(cachePath);
+        ConcurrentAsyncTask.execute(caculateTask);
+        cacheSize = caculateTask.getCacheSize();
+        Log.d(DEBUG_TAG, "account dir path: " + cachePath);
+        Log.d(DEBUG_TAG, "cache size(bytes): " + cacheSize);
+        return Utils.readableFileSize(cacheSize);
     }
 
-    /**
-     * Returns total size of files in bytes of the directory. 
-     * 
-     * @param dirPath
-     * @return
-     */
-    public long getDirSize(File dirPath) {
-        long totalSize = 0;
+    class CalculateCacheTask implements Runnable {
 
-        File[] files = dirPath.listFiles();
-        if (files == null) {
-            return 0;
+        private final String cachePath;
+        private long cacheSize;
+
+        public CalculateCacheTask(final String cacheDir) {
+            this.cachePath = cacheDir;
         }
 
-        for (File file : files) {
-            if (file.isFile()) {
-                totalSize += file.length();
-            } else
-                totalSize += getDirSize(file);
+        @Override
+        public void run() {
+            File cacheDir = new File(cachePath);
+            cacheSize = Utils.getDirSize(cacheDir);
         }
 
-        return totalSize;
+        public long getCacheSize() {
+            return cacheSize;
+        }
+
     }
-
 }
