@@ -1,57 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="48dp"
-    android:padding="10dp" >
+                android:layout_width="fill_parent"
+                android:layout_height="48dp"
+                android:padding="10dp" >
 
     <ImageView
-        android:id="@+id/list_item_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:paddingBottom="4dp"
-        android:src="@drawable/folder" />
+            android:id="@+id/list_item_icon"
+            android:layout_width="60dp"
+            android:layout_height="fill_parent"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            />
 
     <ImageView
-        android:id="@+id/list_item_action"
-        android:layout_width="60dp"
-        android:layout_height="fill_parent"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:layout_marginEnd="2dp"
-        android:layout_marginRight="2dp" />
+            android:id="@+id/list_item_action"
+            android:layout_width="60dp"
+            android:layout_height="fill_parent"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            />
 
     <TextView
-        android:id="@+id/list_item_title"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="36dp"
-        android:layout_marginRight="36dp"
-        android:layout_toEndOf="@id/list_item_icon"
-        android:layout_toLeftOf="@id/list_item_action"
-        android:layout_toRightOf="@id/list_item_icon"
-        android:layout_toStartOf="@id/list_item_action"
-        android:lines="1"
-        android:singleLine="true"
-        android:text="Titel"
-        android:textColor="#282828"
-        android:textSize="18sp" />
+            android:id="@+id/list_item_title"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/list_item_action"
+            android:layout_toRightOf="@id/list_item_icon"
+            android:gravity="left"
+            android:lines="1"
+            android:paddingLeft="8dp"
+            android:singleLine="true"
+            android:textColor="#282828"
+            android:textSize="14sp" />
 
     <TextView
-        android:id="@+id/list_item_subtitle"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/list_item_title"
-        android:layout_toEndOf="@id/list_item_icon"
-        android:layout_toLeftOf="@id/list_item_action"
-        android:layout_toRightOf="@id/list_item_icon"
-        android:layout_toStartOf="@id/list_item_action"
-        android:text="Subtitle"
-        android:textColor="#555555"
-        android:textSize="12sp" />
+            android:id="@+id/list_item_subtitle"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/list_item_title"
+            android:layout_below="@id/list_item_title"
+            android:layout_toLeftOf="@+id/list_item_action"
+            android:gravity="left"
+            android:paddingLeft="8dp"
+            android:textColor="#555555"
+            android:textSize="12sp" />
 
 </RelativeLayout>
