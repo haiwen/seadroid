@@ -114,8 +114,8 @@ public class BrowserActivity extends SherlockFragmentActivity
     private int currentPosition = 0;
     private FragmentPagerAdapter adapter;
     private ViewPager pager;
+    private TabPageIndicator indicator;
 
-    
     private Account account;
     NavContext navContext = null;
     DataManager dataManager = null;
@@ -223,7 +223,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         pager = (ViewPager) findViewById(R.id.pager);
         pager.setAdapter(adapter);
 
-        TabPageIndicator indicator = (TabPageIndicator)findViewById(R.id.indicator);
+        indicator = (TabPageIndicator)findViewById(R.id.indicator);
         indicator.setViewPager(pager);
         indicator.setOnPageChangeListener(new OnPageChangeListener() {
             @Override
@@ -404,6 +404,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     public void setCurrentPosition(int currentPosition) {
         this.currentPosition = currentPosition;
+        indicator.setCurrentItem(currentPosition);
     }
 
     public Fragment getFragment(int index) {
