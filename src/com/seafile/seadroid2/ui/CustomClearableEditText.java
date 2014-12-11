@@ -2,10 +2,13 @@ package com.seafile.seadroid2.ui;
 
 import android.content.Context;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
+import android.text.method.PasswordTransformationMethod;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.InputMethodInfo;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.AutoCompleteTextView;
@@ -13,10 +16,15 @@ import android.widget.RelativeLayout;
 import com.seafile.seadroid2.R;
 
 /**
+ * clearable EditText, also supports auto complete text typing.<br/>
+ * if want to use auto complete feature, should set data source to it.
+ *
  * Created by Logan on 14/12/11.
  */
 public class CustomClearableEditText extends RelativeLayout {
 
+    public static final String INPUT_TYPE_PASSWORD = "password";
+    public static final String INPUT_TYPE_EMAIL = "email";
 
     LayoutInflater inflater = null;
     AutoCompleteTextView edit_text;
@@ -94,7 +102,7 @@ public class CustomClearableEditText extends RelativeLayout {
 
     public void setEmailAddressAutoCompleteAdapter(ArrayAdapter<String> adapter) {
         if (adapter != null)
-        edit_text.setAdapter(adapter);
+            edit_text.setAdapter(adapter);
     }
 
     public void setText(String text) {
@@ -104,4 +112,16 @@ public class CustomClearableEditText extends RelativeLayout {
     public void setError(String errorMessage) {
         edit_text.setError(errorMessage);
     }
+
+    public void setInputType(String type) {
+        if (type.equals(INPUT_TYPE_EMAIL)) {
+            edit_text.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+            edit_text.setHint("email");
+        } else if (type.equals(INPUT_TYPE_PASSWORD)) {
+            edit_text.setTransformationMethod(PasswordTransformationMethod.getInstance());
+            edit_text.setHint("password");
+
+        }
+    }
+
 }

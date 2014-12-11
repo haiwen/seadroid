@@ -9,13 +9,12 @@
             android:layout_height="40dp"
             android:hint="@string/email_hint"
             android:background="@drawable/edit_text_holo_light"
-            android:inputType="textEmailAddress"
             android:paddingRight="35dip"
             />
     <Button
             android:id="@+id/clearable_button_clear"
-            android:layout_width="30dip"
-            android:layout_height="30dip"
+            android:layout_width="20dip"
+            android:layout_height="20dip"
             android:layout_alignParentRight="true"
             android:background="@drawable/clear_text"
             android:layout_centerVertical="true"

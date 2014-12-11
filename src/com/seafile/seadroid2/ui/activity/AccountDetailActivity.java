@@ -42,7 +42,7 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
     private Button loginButton;
     private EditText serverText;
     private CustomClearableEditText emailText;
-    private EditText passwdText;
+    private CustomClearableEditText passwdText;
     private CheckBox httpsCheckBox;
     private TextView seahubUrlHintText;
 
@@ -65,7 +65,9 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
         httpsCheckBox = (CheckBox) findViewById(R.id.https_checkbox);
         serverText = (EditText) findViewById(R.id.server_url);
         emailText = (CustomClearableEditText) findViewById(R.id.email_address);
-        passwdText = (EditText) findViewById(R.id.password);
+        emailText.setInputType(CustomClearableEditText.INPUT_TYPE_EMAIL);
+        passwdText = (CustomClearableEditText) findViewById(R.id.password);
+        passwdText.setInputType(CustomClearableEditText.INPUT_TYPE_PASSWORD);
         seahubUrlHintText = (TextView) findViewById(R.id.seahub_url_hint);
 
         setupServerText();
