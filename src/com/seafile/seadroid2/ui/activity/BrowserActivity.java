@@ -118,7 +118,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     private TabPageIndicator indicator;
 
     private Account account;
-    NavContext navContext = null;
+    NavContext navContext = new NavContext();;
     DataManager dataManager = null;
     TransferService txService = null;
     TransferReceiver mTransferReceiver;
@@ -210,7 +210,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
 
         dataManager = new DataManager(account);
-        navContext = new NavContext();
+
 
         getSupportFragmentManager().addOnBackStackChangedListener(this);
 

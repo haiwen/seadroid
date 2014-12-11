@@ -1,7 +1,9 @@
 package com.seafile.seadroid2.account;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -27,6 +29,8 @@ public class AccountManager {
     public static final String SHARED_PREF_SERVER_KEY = "com.seafile.seadroid.server";
     public static final String SHARED_PREF_EMAIL_KEY = "com.seafile.seadroid.email";
     public static final String SHARED_PREF_TOKEN_KEY = "com.seafile.seadroid.token";
+
+    public static final String INVALID_TOKEN = "not_applicable";
 
     /** used to manage multi Accounts when user switch between different Accounts */
     private SharedPreferences actMangeSharedPref;
@@ -55,7 +59,19 @@ public class AccountManager {
     }
 
     public List<Account> getAccountList() {
-        return dbHelper.getAccountList();
+        ArrayList<Account> accounts = (ArrayList<Account>) dbHelper.getAccountList();
+
+        // Avoid ConcurrentModificationException because bothe Avatar service and AccountsActivity call this
+        CopyOnWriteArrayList<Account> concurrentList = new CopyOnWriteArrayList<Account>();
+        concurrentList.addAll(accounts);
+        for (Account act : concurrentList) {
+            // check if account was signed out
+            // if token is null, remove the account from list
+            if (act.getToken().equals(INVALID_TOKEN)) {
+                accounts.remove(act);
+            }
+        }
+        return accounts;
     }
 
     /**
@@ -151,19 +167,17 @@ public class AccountManager {
 
         Account currentAccount =  getCurrentAccount();
         AccountInfo currentAccountInfo = getCurrentAccountInfo();
+
+        // delete token of the account from database
+        Account accountWithoutToken = new Account(currentAccount.getServer(), currentAccount.getEmail(), null, INVALID_TOKEN);
+        updateAccountFromDB(currentAccount, accountWithoutToken);
+
         // delete data in Shared_prefs
         deleteAccountFromSharedPreference(currentAccount);
 
-        // delete camera upload settings of this account if has
-        deleteCameraUploadSettingsByAccount(currentAccount);
+        // TODO stop camera uploading service if on
 
         // TODO turn off Gesture lock settings?
-
-        // delete account data in database
-        deleteAccountFromDB(currentAccount);
-
-        // delete account-info data in database
-        deleteAccountInfo(currentAccountInfo);
 
     }
 
