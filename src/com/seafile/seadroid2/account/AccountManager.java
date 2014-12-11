@@ -5,6 +5,8 @@ import java.util.List;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Handler;
+import android.os.Message;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
@@ -165,24 +167,35 @@ public class AccountManager {
 
     }
 
+    public static final int REQUEST_ACCOUNT_INFO_FAILED = 0;
+    public static final int REQUEST_ACCOUNT_INFO_SUCCESSFUL = 1;
+
     /**
      * get AccountInfo from server, should check return result, it maybe null.
      * Recommend to run this method in {@link com.seafile.seadroid2.ConcurrentAsyncTask}
      * @param account
      */
-    public void getAccountInfoFromServer(Account account) {
+    private void doRequestAccountInfo(Account account, Handler handler) {
         SeafConnection seafConnection = new SeafConnection(account);
         try {
             // get account info from server
             String actInfo = seafConnection.getAccountInfo();
             // parse raw data
             AccountInfo accountInfo = parseAccountInfo(actInfo);
-            if (accountInfo == null) return;
+            if (accountInfo == null) {
+                handler.sendEmptyMessage(REQUEST_ACCOUNT_INFO_FAILED);
+                return;
+            }
 
             accountInfo.setServer(account.getServer());
 
             // save to database
             saveAccountInfo(accountInfo);
+
+            Message msg = new Message();
+            msg.what = REQUEST_ACCOUNT_INFO_SUCCESSFUL;
+            msg.obj = accountInfo;
+            handler.sendMessage(msg);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -238,5 +251,34 @@ public class AccountManager {
         if (obj == null)
             return null;
         return AccountInfo.fromJson(obj);
+    }
+
+    /**
+     * request Account info from server
+     */
+    public void requestAccountInfo(Handler handler) {
+        Account act = getCurrentAccount();
+        Thread t = new Thread(new RequestAccountInfoTask(act, handler));
+        t.start();
+    }
+
+    /**
+     * automatically update Account info, like space usage, total space size, from background.
+     */
+     class RequestAccountInfoTask implements Runnable {
+
+        private Account account;
+        private Handler handler;
+
+        public RequestAccountInfoTask(Account account, Handler handler) {
+            this.account = account;
+            this.handler = handler;
+        }
+
+        @Override
+        public void run() {
+            doRequestAccountInfo(account, handler);
+
+        }
     }
 }

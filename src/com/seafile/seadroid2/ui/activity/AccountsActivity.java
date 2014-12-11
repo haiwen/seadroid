@@ -88,6 +88,9 @@ public class AccountsActivity extends SherlockFragmentActivity {
 
                 Account account = accounts.get(position);
                 startFilesActivity(account);
+                // update current Account info from SharedPreference
+                accountManager.saveCurrentAccount(account);
+
             }
         });
         registerForContextMenu(accountsView);
@@ -161,9 +164,6 @@ public class AccountsActivity extends SherlockFragmentActivity {
         intent.putExtra(AccountManager.SHARED_PREF_SERVER_KEY, account.server);
         intent.putExtra(AccountManager.SHARED_PREF_EMAIL_KEY, account.email);
         intent.putExtra(AccountManager.SHARED_PREF_TOKEN_KEY, account.token);
-
-        // update current Account info from SharedPreference
-        accountManager.saveCurrentAccount(account);
 
         startActivity(intent);
         finish();

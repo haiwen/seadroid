@@ -132,6 +132,5 @@
         <service android:name="com.seafile.seadroid2.monitor.FileMonitorService" > </service>
         <service android:name="com.seafile.seadroid2.cameraupload.CameraUploadService" > </service>
         <service android:name="com.seafile.seadroid2.avatar.AvatarManageService" > </service>
-        <service android:name="com.seafile.seadroid2.account.AccountInfoService" > </service>
       </application>
 </manifest>

@@ -302,9 +302,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         Intent avatarIntent = new Intent(this, AvatarManageService.class);
         startService(avatarIntent);
 
-        // start AccountInfo service
-        Intent actInfoIntent = new Intent(this, AccountInfoService.class);
-        startService(actInfoIntent);
     }
 
     class SeafileTabsAdapter extends FragmentPagerAdapter implements

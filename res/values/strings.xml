@@ -187,6 +187,7 @@
 
     <string name="settings_account">Account</string>
     <string name="settings_account_info_title">User info</string>
+    <string name="settings_account_info_load_data">loading...</string>
     <string name="settings_account_space_title">Space used</string>
     <string name="settings_account_sign_out_title">Sign out</string>
     <string name="settings_account_sign_out_hint">Click to sign out</string>

@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.*;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
+import android.os.Looper;
+import android.os.Message;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
@@ -53,6 +55,7 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
 
     @Override
     public void onAttach(Activity activity) {
+        Log.d(DEBUG_TAG, "onAttach");
         super.onAttach(activity);
 
         // global variables
@@ -68,6 +71,7 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
 
     @Override
     public void onDetach() {
+        Log.d(DEBUG_TAG, "onDetach");
         super.onDetach();
 
         LocalBroadcastManager
@@ -77,22 +81,49 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
     }
 
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         Log.d(DEBUG_TAG, "onCreate");
+        super.onCreate(savedInstanceState);
+
+        accountMgr.requestAccountInfo(handler);
+
     }
+
+    private android.os.Handler handler = new android.os.Handler(Looper.getMainLooper()) {
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case AccountManager.REQUEST_ACCOUNT_INFO_FAILED:
+                    //TODO notice user
+
+                    break;
+                case AccountManager.REQUEST_ACCOUNT_INFO_SUCCESSFUL:
+                    AccountInfo accountInfo = (AccountInfo) msg.obj;
+                    if (accountInfo == null)
+                        // TODO notice user
+                        break;
+                    // update Account info settings
+                    actInfoPref.setSummary(accountInfo.getEmail());
+                    String spaceUsage = Utils.readableFileSize(accountInfo.getUsage()) + "/" + Utils.readableFileSize(accountInfo.getTotal());
+                    spaceAvailablePref.setSummary(spaceUsage);
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
+        Log.d(DEBUG_TAG, "onViewCreated");
         super.onViewCreated(view, savedInstanceState);
 
         addPreferencesFromResource(R.xml.settings);
 
         // Account
         actInfoPref = findPreference(SettingsManager.SETTINGS_ACCOUNT_INFO_KEY);
-        AccountInfo actInfo = accountMgr.getCurrentAccountInfo();
-        actInfoPref.setSummary(actInfo.getEmail());
+        // AccountInfo actInfo = accountMgr.getCurrentAccountInfo();
         spaceAvailablePref = findPreference(SettingsManager.SETTINGS_ACCOUNT_SPACE_KEY);
-        spaceAvailablePref.setSummary(Utils.readableFileSize(actInfo.getUsage()) + "/" + Utils.readableFileSize(actInfo.getTotal()));
         signOutPref = findPreference(SettingsManager.SETTINGS_ACCOUNT_SIGN_OUT_KEY);
         signOutPref.setOnPreferenceClickListener(this);
 
@@ -104,7 +135,7 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
 
         // Camera Upload
         cameraUploadSwitch = (CheckBoxPreference) findPreference(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY);
-        cameraUploadRepo = (Preference) findPreference(SettingsManager.CAMERA_UPLOAD_REPO_KEY);
+        cameraUploadRepo = findPreference(SettingsManager.CAMERA_UPLOAD_REPO_KEY);
         allowMobileConnections = (CheckBoxPreference) findPreference(SettingsManager.ALLOW_MOBILE_CONNECTIONS_SWITCH_KEY);
         cameraUploadSwitch.setOnPreferenceClickListener(this);
         cameraUploadRepo.setOnPreferenceClickListener(this);
