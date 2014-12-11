@@ -83,6 +83,7 @@
         <item name="android:logo">@drawable/icon</item>
         <item name="logo">@drawable/icon</item>
         <item name="android:listViewStyle">@style/SeafileListStyle</item>
+        <item name="vpiTabPageIndicatorStyle">@style/CustomTabPageIndicator</item>
     </style>
 
     <style name="SeafileListStyle" parent="@android:style/Widget.ListView">
