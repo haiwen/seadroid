@@ -29,6 +29,7 @@ import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.ui.CustomClearableEditText;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 
 public class AccountDetailActivity extends SherlockFragmentActivity {
@@ -40,7 +41,7 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
     private TextView statusView;
     private Button loginButton;
     private EditText serverText;
-    private AutoCompleteTextView emailText;
+    private CustomClearableEditText emailText;
     private EditText passwdText;
     private CheckBox httpsCheckBox;
     private TextView seahubUrlHintText;
@@ -63,7 +64,7 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
         loginButton = (Button) findViewById(R.id.login_button);
         httpsCheckBox = (CheckBox) findViewById(R.id.https_checkbox);
         serverText = (EditText) findViewById(R.id.server_url);
-        emailText = (AutoCompleteTextView) findViewById(R.id.email_address);
+        emailText = (CustomClearableEditText) findViewById(R.id.email_address);
         passwdText = (EditText) findViewById(R.id.password);
         seahubUrlHintText = (TextView) findViewById(R.id.seahub_url_hint);
 
@@ -74,7 +75,7 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
         ArrayList<String> accounts = accountManager.getAccountAutoCompleteTexts();
         if (accounts != null) {
             ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, accounts);
-            emailText.setAdapter(adapter);
+            emailText.setEmailAddressAutoCompleteAdapter(adapter);
         }
 
         Intent intent = getIntent();
