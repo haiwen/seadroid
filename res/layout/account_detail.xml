@@ -33,7 +33,7 @@
             android:background="@drawable/edit_text_holo_light"
             android:inputType="textUri" />
 
-        <EditText
+        <AutoCompleteTextView
             android:id="@+id/email_address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

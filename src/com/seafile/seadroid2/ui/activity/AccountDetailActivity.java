@@ -3,6 +3,7 @@ package com.seafile.seadroid2.ui.activity;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,10 +16,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.TextView;
+import android.widget.*;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -42,7 +40,7 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
     private TextView statusView;
     private Button loginButton;
     private EditText serverText;
-    private EditText emailText;
+    private AutoCompleteTextView emailText;
     private EditText passwdText;
     private CheckBox httpsCheckBox;
     private TextView seahubUrlHintText;
@@ -65,12 +63,19 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
         loginButton = (Button) findViewById(R.id.login_button);
         httpsCheckBox = (CheckBox) findViewById(R.id.https_checkbox);
         serverText = (EditText) findViewById(R.id.server_url);
-        emailText = (EditText) findViewById(R.id.email_address);
+        emailText = (AutoCompleteTextView) findViewById(R.id.email_address);
         passwdText = (EditText) findViewById(R.id.password);
         seahubUrlHintText = (TextView) findViewById(R.id.seahub_url_hint);
 
         setupServerText();
         accountManager = new AccountManager(this);
+
+        // email address auto complete when login in
+        ArrayList<String> accounts = accountManager.getAccountAutoCompleteTexts();
+        if (accounts != null) {
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, accounts);
+            emailText.setAdapter(adapter);
+        }
 
         Intent intent = getIntent();
         String server = intent.getStringExtra("server");
