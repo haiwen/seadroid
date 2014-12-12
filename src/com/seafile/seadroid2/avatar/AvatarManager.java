@@ -39,7 +39,7 @@ public class AvatarManager {
         this.accounts = accounts;
     }
 
-    private ArrayList<String> getNoAvatarAccountsSignature() {
+    private ArrayList<String> getActSignatureWithoutAvatars() {
         // use account signature to mark accounts without avatars
         ArrayList<String> actSignature = Lists.newArrayList();
 
@@ -70,7 +70,7 @@ public class AvatarManager {
         return actSignature;
     }
 
-    private List<Account> getNoAvatarAccounts(ArrayList<String> signatures) {
+    private List<Account> getAccountsWithoutAvatars(ArrayList<String> signatures) {
         ArrayList<Account> actList = Lists.newArrayList();
         if (signatures == null)
             return null;
@@ -86,13 +86,13 @@ public class AvatarManager {
     }
 
 
-    public synchronized void getAvatars(int size, Handler handler) throws SeafException {
+    public synchronized void loadAvatarsForAccounts(int size, Handler handler) throws SeafException {
         if (!Utils.isNetworkOn()) {
             throw SeafException.networkException;
         }
 
-        ArrayList<String> signatures = getNoAvatarAccountsSignature();
-        List<Account> acts = getNoAvatarAccounts(signatures);
+        ArrayList<String> signatures = getActSignatureWithoutAvatars();
+        List<Account> acts = getAccountsWithoutAvatars(signatures);
 
         for (Account account : acts) {
             httpConnection = new SeafConnection(account);
@@ -159,7 +159,7 @@ public class AvatarManager {
         @Override
         public void run() {
             try {
-                getAvatars(avatarSize, handler);
+                loadAvatarsForAccounts(avatarSize, handler);
             } catch (SeafException e) {
                 e.printStackTrace();
             }
