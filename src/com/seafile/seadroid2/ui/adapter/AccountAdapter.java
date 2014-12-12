@@ -22,12 +22,8 @@ import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.R.drawable;
-import com.seafile.seadroid2.R.id;
-import com.seafile.seadroid2.R.layout;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.avatar.Avatar;
-import com.seafile.seadroid2.avatar.AvatarManager;
 
 /**
  * Adapter for showing account in a list view.

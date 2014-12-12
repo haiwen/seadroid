@@ -102,45 +102,6 @@ public class AvatarManager {
             avatars.add(avatar);
         }
 
-        // First decide if use cache
-
-        /*List<Account> accountsWithoutAvatars = Lists.newArrayList();
-
-        for (Account account : accounts) {
-            for (Avatar avatar : avatars) {
-                if (!avatar.getSignature().equals(account.getSignature())) {
-                    accountsWithoutAvatars.add(account);
-                }
-            }
-        }
-
-        if (!Utils.isNetworkOn()) {
-            throw SeafException.networkException;
-        }
-
-        // already loaded avatars
-        if (avatars.size() == accounts.size()) {
-            return;
-        } else if (avatars.isEmpty()) { // initialization
-            for (Account account : accounts) {
-                httpConnection = new SeafConnection(account);
-                String avatarRawData = httpConnection.getAvatar(
-                        account.getEmail(), size);
-                Avatar avatar = parseAvatar(avatarRawData);
-                avatar.setSignature(account.getSignature());
-                avatars.add(avatar);
-            }
-        } else { // load avatars for new added account
-            for (Account account : accountsWithoutAvatars) {
-                httpConnection = new SeafConnection(account);
-                String avatarRawData = httpConnection.getAvatar(
-                        account.getEmail(), size);
-                Avatar avatar = parseAvatar(avatarRawData);
-                avatar.setSignature(account.getSignature());
-                avatars.add(avatar);
-            }
-        }*/
-
         Message msg = new Message();
         msg.what = LOAD_AVATAR_SUCCESSFULLY;
         msg.obj = avatars;
