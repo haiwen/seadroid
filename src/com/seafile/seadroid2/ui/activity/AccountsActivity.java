@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui.activity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Dialog;
@@ -9,7 +10,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -29,6 +32,8 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.avatar.Avatar;
+import com.seafile.seadroid2.avatar.AvatarManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
@@ -41,8 +46,9 @@ public class AccountsActivity extends SherlockFragmentActivity {
     private ListView accountsView;
 
     private AccountManager accountManager;
+    private AvatarManager avatarManager;
     private AccountAdapter adapter;
-    List<Account> accounts;
+    private List<Account> accounts;
     private FileMonitorService mMonitorService;
     private ServiceConnection mMonitorConnection = new ServiceConnection() {
 
@@ -67,6 +73,7 @@ public class AccountsActivity extends SherlockFragmentActivity {
 
         accountsView = (ListView) findViewById(R.id.account_list_view);
         accountManager = new AccountManager(this);
+        avatarManager = new AvatarManager();
        
         View footerView = ((LayoutInflater) this
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
@@ -160,12 +167,42 @@ public class AccountsActivity extends SherlockFragmentActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
-    
+
+    private Handler handler = new Handler() {
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case AvatarManager.LOAD_AVATAR_FAILED:
+                    // notify ui
+                    break;
+                case AvatarManager.LOAD_AVATAR_SUCCESSFULLY:
+                    // get loaded avatars
+                    ArrayList<Avatar> avatars = (ArrayList<Avatar>) msg.obj;
+
+                    // set avatars url to adapter
+                    adapter.setAvatars(avatars);
+
+                    // notify adapter data changed
+                    adapter.notifyDataSetChanged();
+
+                    break;
+                default:
+                    break;
+            }
+
+        }
+    };
+
     private void refreshView() {
         Log.d(DEBUG_TAG, "refreshView");
         accounts = accountManager.getAccountList();
         adapter.clear();
         adapter.setItems(accounts);
+
+        avatarManager.setAccounts(accounts);
+        avatarManager.loadAvatars(handler);
+
         adapter.notifyChanged();
     }
 

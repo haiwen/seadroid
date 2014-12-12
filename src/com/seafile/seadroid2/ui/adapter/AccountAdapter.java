@@ -26,6 +26,7 @@ import com.seafile.seadroid2.R.drawable;
 import com.seafile.seadroid2.R.id;
 import com.seafile.seadroid2.R.layout;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.avatar.Avatar;
 import com.seafile.seadroid2.avatar.AvatarManager;
 
 /**
@@ -37,11 +38,13 @@ public class AccountAdapter extends BaseAdapter {
     private ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
     private DisplayImageOptions options;
     private ArrayList<Account> items;
+    private ArrayList<Avatar> avatars;
     private Context context;
     
     public AccountAdapter(Context context) {
         this.context = context;
         items = Lists.newArrayList();
+        avatars = Lists.newArrayList();
     }
 
     @Override
@@ -76,12 +79,17 @@ public class AccountAdapter extends BaseAdapter {
         items.set(listviewPosition, item);
         notifyDataSetChanged();
     }
+
     public void setItems(List<Account> items) {
         this.items = (ArrayList<Account>) items;
         notifyDataSetChanged();
         
     }
-    
+
+    public void setAvatars(ArrayList<Avatar> avatars) {
+        this.avatars = avatars;
+    }
+
     @Override
     public long getItemId(int position) {
         return position;
@@ -109,7 +117,7 @@ public class AccountAdapter extends BaseAdapter {
         Account account = items.get(position);
         viewHolder.title.setText(account.getServerHost());
         viewHolder.subtitle.setText(account.getEmail());
-        if (AvatarManager.getAvatarUrl(account) != null) {
+        if (getAvatarUrl(account) != null) {
             options = new DisplayImageOptions.Builder()
             .extraForDownloader(account)
             .showStubImage(R.drawable.default_avatar)
@@ -123,13 +131,26 @@ public class AccountAdapter extends BaseAdapter {
             .considerExifParams(true)
             .displayer(new RoundedBitmapDisplayer(50))
             .build();
-            ImageLoader.getInstance().displayImage(AvatarManager.getAvatarUrl(account), viewHolder.icon, options, animateFirstListener);
+            ImageLoader.getInstance().displayImage(getAvatarUrl(account), viewHolder.icon, options, animateFirstListener);
         }
         ImageLoader.getInstance().handleSlowNetwork(true);
         
         return view;
     }
-    
+
+    private String getAvatarUrl(Account account) {
+        if (avatars == null) {
+            return null;
+        }
+        for (Avatar avatar : avatars) {
+            if (avatar.getSignature().equals(account.getSignature())) {
+                return avatar.getUrl();
+            }
+        }
+
+        return null;
+    }
+
     private static class AnimateFirstDisplayListener extends SimpleImageLoadingListener {
 
         static final List<String> displayedImages = Collections.synchronizedList(new LinkedList<String>());
