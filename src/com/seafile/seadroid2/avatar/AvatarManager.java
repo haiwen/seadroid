@@ -39,29 +39,38 @@ public class AvatarManager {
         this.accounts = accounts;
     }
 
-    private ArrayList<String> getActSignatureWithoutAvatars() {
-        // use account signature to mark accounts without avatars
-        ArrayList<String> actSignature = Lists.newArrayList();
+    /**
+     * get accounts signature who don`t have avatars yet
+     *
+     * @return account signature
+     */
+    private ArrayList<String> getActSignatures() {
 
         if (accounts == null) return null;
 
+        // first put all keys (account signature) to avatarMgr, leave values to null
         for (Account act : accounts) {
             avatarMgr.put(act.getSignature(), null);
         }
 
+        // second get avatars from database, in order to use cache
         avatars = getAvatarList();
 
+        // third binding account signature with avatar (if has) in avatarMgr
         for (Avatar avatar : avatars) {
             if (avatarMgr.containsKey(avatar.getSignature())) {
                 avatarMgr.put(avatar.getSignature(), avatar);
             }
         }
 
+        // fourth get account signature who don`t have avatar yet
+        ArrayList<String> actSignature = Lists.newArrayList();
         Iterator<Map.Entry<String, Avatar>> iterator = avatarMgr.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<String, Avatar> pairs = iterator.next();
             if (pairs.getValue() == null) {
                 String signature = pairs.getKey();
+                // use account signature to mark accounts who don`t have avatars
                 actSignature.add(signature);
             }
             iterator.remove();
@@ -70,10 +79,18 @@ public class AvatarManager {
         return actSignature;
     }
 
-    private List<Account> getAccountsWithoutAvatars(ArrayList<String> signatures) {
-        ArrayList<Account> actList = Lists.newArrayList();
+    /**
+     * get account list who don`t have avatars yet
+     *
+     * @param signatures
+     * @return
+     */
+    private List<Account> getActsBySignature(ArrayList<String> signatures) {
+
         if (signatures == null)
             return null;
+
+        ArrayList<Account> actList = Lists.newArrayList();
         for (String signature : signatures) {
 
             for (Account account : accounts) {
@@ -86,29 +103,38 @@ public class AvatarManager {
     }
 
 
-    public synchronized void loadAvatarsForAccounts(int size, Handler handler) throws SeafException {
+    private synchronized void loadAvatarsForAccounts(int size, Handler handler) throws SeafException {
+
         if (!Utils.isNetworkOn()) {
             throw SeafException.networkException;
         }
 
-        ArrayList<String> signatures = getActSignatureWithoutAvatars();
-        List<Account> acts = getAccountsWithoutAvatars(signatures);
+        ArrayList<String> signatures = getActSignatures();
 
+        // contains accounts who don`t have avatars yet
+        List<Account> acts = getActsBySignature(signatures);
+
+        // contains new avatars in order to persist them to database
+        List<Avatar> newAvatars = new ArrayList<Avatar>(acts.size());
+
+        // load avatars from server
         for (Account account : acts) {
             httpConnection = new SeafConnection(account);
             String avatarRawData = httpConnection.getAvatar(account.getEmail(), size);
             Avatar avatar = parseAvatar(avatarRawData);
             avatar.setSignature(account.getSignature());
-            avatars.add(avatar);
+            // avatars.add(avatar);
+            newAvatars.add(avatar);
         }
 
         Message msg = new Message();
         msg.what = LOAD_AVATAR_SUCCESSFULLY;
         msg.obj = avatars;
-        handler.sendMessage(msg);
+        if (handler != null)
+            handler.sendMessage(msg);
 
         // save avatars to database
-        saveAvatarList(avatars);
+        saveAvatarList(newAvatars);
     }
 
     private List<Avatar> getAvatarList() {
@@ -134,7 +160,8 @@ public class AvatarManager {
         // set avatar size to 48*48
         LoadAvatarTask task = new LoadAvatarTask(48, handler);
 
-        ConcurrentAsyncTask.execute(task);
+        //ConcurrentAsyncTask.execute(task);
+        new Thread(task).start();
 
     }
 

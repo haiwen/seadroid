@@ -31,6 +31,7 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.ui.CustomClearableEditText;
+import com.seafile.seadroid2.avatar.AvatarManager;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 
 public class AccountDetailActivity extends SherlockFragmentActivity {
@@ -319,6 +320,11 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
 
                 // save account to SharedPreference
                 accountManager.saveCurrentAccount(loginAccount);
+                AvatarManager avatarManager = new AvatarManager();
+                avatarManager.setAccounts(accountManager.getAccountList());
+                // disable handler
+                avatarManager.loadAvatars(null);
+
                 startFilesActivity(loginAccount);
             } else {
                 statusView.setText(result);
