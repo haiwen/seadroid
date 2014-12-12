@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.google.common.collect.Lists;
 import com.seafile.seadroid2.SeadroidApplication;
 
 public class AvatarDBHelper extends SQLiteOpenHelper {
@@ -80,20 +81,28 @@ public class AvatarDBHelper extends SQLiteOpenHelper {
     }
 
     public void saveAvatars(List<Avatar> avatars) {
+
+        List<Avatar> validAvatars = Lists.newArrayList();
+
+        // query database in case insert duplicate rows
         for (Avatar avatar : avatars) {
-            if (!isAvatarExist(avatar)) {
-                ContentValues values = new ContentValues();
-                values.put(AVATAR_COLUMN_SIGNATURE, avatar.getSignature());
-                values.put(AVATAR_COLUMN_URL, avatar.getUrl());
-                values.put(AVATAR_COLUMN_MTIME, avatar.getMtime());
-                /*values.put(AVATAR_COLUMN_IS_DEFAULT, (avatar.isIs_default() ? 1 : 0));*/
-                database.insert(AVATAR_TABLE_NAME, null, values);
+            if (!isRowDuplicate(avatar)) {
+                validAvatars.add(avatar);
             }
+        }
+
+        for (Avatar avatar : validAvatars) {
+            ContentValues values = new ContentValues();
+            values.put(AVATAR_COLUMN_SIGNATURE, avatar.getSignature());
+            values.put(AVATAR_COLUMN_URL, avatar.getUrl());
+            values.put(AVATAR_COLUMN_MTIME, avatar.getMtime());
+            /*values.put(AVATAR_COLUMN_IS_DEFAULT, (avatar.isIs_default() ? 1 : 0));*/
+            database.insert(AVATAR_TABLE_NAME, null, values);
         }
     }
     
     // detect duplicate db insert request
-    private boolean isAvatarExist(Avatar avatar) {
+    private boolean isRowDuplicate(Avatar avatar) {
         Cursor cursor = database.query(
                 AVATAR_TABLE_NAME,
                 projection,

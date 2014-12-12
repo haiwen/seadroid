@@ -32,7 +32,7 @@ public class AvatarManager {
     public AvatarManager() {
         // this.accounts = accounts;
         this.avatars = Lists.newArrayList();
-        avatarMgr = new HashMap<String, Avatar>();
+        this.avatarMgr = new HashMap<String, Avatar>();
     }
 
     public void setAccounts(List<Account> accounts) {
@@ -123,7 +123,11 @@ public class AvatarManager {
             String avatarRawData = httpConnection.getAvatar(account.getEmail(), size);
             Avatar avatar = parseAvatar(avatarRawData);
             avatar.setSignature(account.getSignature());
-            // avatars.add(avatar);
+
+            // handler will send the latest data to ui
+            avatars.add(avatar);
+
+            // save new added avatars to database
             newAvatars.add(avatar);
         }
 
