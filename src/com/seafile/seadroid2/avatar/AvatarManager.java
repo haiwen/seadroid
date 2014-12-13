@@ -4,7 +4,6 @@ import java.util.*;
 
 import android.os.Handler;
 import android.os.Message;
-import com.seafile.seadroid2.ConcurrentAsyncTask;
 import org.json.JSONObject;
 
 import com.google.common.collect.Lists;
@@ -20,8 +19,10 @@ import com.seafile.seadroid2.util.Utils;
 public class AvatarManager {
     private static final String DEBUG_TAG = "AvatarManager";
 
-    public static final int LOAD_AVATAR_FAILED = 0;
-    public static final int LOAD_AVATAR_SUCCESSFULLY = 1;
+    public static final int LOAD_AVATAR_FAILED_UNKNOW_ERROR = 0;
+    public static final int LOAD_AVATAR_FAILED_NETWORK_DOWN = 1;
+    public static final int LOAD_AVATAR_SUCCESSFULLY = 2;
+    public static final int LOAD_AVATAR_USE_CACHE = 3;
 
     private SeafConnection httpConnection;
     private List<Avatar> avatars;
@@ -103,20 +104,21 @@ public class AvatarManager {
     }
 
 
-    private synchronized void loadAvatarsForAccounts(int size, Handler handler) throws SeafException {
-
-        Message message = new Message();
+    private synchronized void loadAvatarsForAccounts(int size, Handler handler) {
 
         if (!Utils.isNetworkOn()) {
-            message.what = LOAD_AVATAR_FAILED;
-            message.obj = SeafException.networkException;
-            handler.sendMessage(message);
+            // use cache
+            avatars = getAvatarList();
+            sendMessageByHandler(handler, LOAD_AVATAR_FAILED_NETWORK_DOWN);
             return;
         }
 
         ArrayList<String> signatures = getActSignatures();
 
-        if (signatures.size() == 0) return;
+        if (signatures.size() == 0) {
+            sendMessageByHandler(handler, LOAD_AVATAR_USE_CACHE);
+            return;
+        }
 
         // contains accounts who don`t have avatars yet
         List<Account> acts = getActsBySignature(signatures);
@@ -127,7 +129,14 @@ public class AvatarManager {
         // load avatars from server
         for (Account account : acts) {
             httpConnection = new SeafConnection(account);
-            String avatarRawData = httpConnection.getAvatar(account.getEmail(), size);
+
+            String avatarRawData = null;
+            try {
+                avatarRawData = httpConnection.getAvatar(account.getEmail(), size);
+            } catch (SeafException e) {
+                sendMessageByHandler(handler, LOAD_AVATAR_FAILED_UNKNOW_ERROR);
+            }
+
             Avatar avatar = parseAvatar(avatarRawData);
             avatar.setSignature(account.getSignature());
 
@@ -138,14 +147,20 @@ public class AvatarManager {
             newAvatars.add(avatar);
         }
 
-        message.what = LOAD_AVATAR_SUCCESSFULLY;
-        message.obj = avatars;
-        if (handler != null)
-            handler.sendMessage(message);
+        sendMessageByHandler(handler, LOAD_AVATAR_SUCCESSFULLY);
 
         // save avatars to database
         saveAvatarList(newAvatars);
     }
+
+    private void sendMessageByHandler(Handler handler, int statusCode) {
+        Message message = new Message();
+        message.what = statusCode;
+        message.obj = avatars;
+        if (handler != null)
+            handler.sendMessage(message);
+    }
+
 
     private List<Avatar> getAvatarList() {
         return dbHelper.getAvatarList();
@@ -195,11 +210,7 @@ public class AvatarManager {
 
         @Override
         public void run() {
-            try {
-                loadAvatarsForAccounts(avatarSize, handler);
-            } catch (SeafException e) {
-                e.printStackTrace();
-            }
+            loadAvatarsForAccounts(avatarSize, handler);
         }
     }
 

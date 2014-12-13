@@ -174,30 +174,31 @@ public class AccountsActivity extends SherlockFragmentActivity {
 
         @Override
         public void handleMessage(Message msg) {
+            // get loaded avatars
+            ArrayList<Avatar> avatars = (ArrayList<Avatar>) msg.obj;
+
+            // set avatars url to adapter
+            adapter.setAvatars(avatars);
+
+            // notify adapter data changed
+            adapter.notifyDataSetChanged();
+
             switch (msg.what) {
-                case AvatarManager.LOAD_AVATAR_FAILED:
+                case AvatarManager.LOAD_AVATAR_FAILED_UNKNOW_ERROR:
                     // notify ui
-                    if (msg.obj == null) {
-                        break;
-                    }
-
-                    SeafException exception = (SeafException) msg.obj;
-                    if (exception.getCode() == 2) {
-                        Toast.makeText(AccountsActivity.this, getString(R.string.network_down), Toast.LENGTH_SHORT).show();
-                    }
-
+                    Toast.makeText(AccountsActivity.this, getString(R.string.unknow_error), Toast.LENGTH_SHORT).show();
                     break;
+
+                case AvatarManager.LOAD_AVATAR_FAILED_NETWORK_DOWN:
+                    Toast.makeText(AccountsActivity.this, getString(R.string.network_down), Toast.LENGTH_SHORT).show();
+                    break;
+
                 case AvatarManager.LOAD_AVATAR_SUCCESSFULLY:
-                    // get loaded avatars
-                    ArrayList<Avatar> avatars = (ArrayList<Avatar>) msg.obj;
-
-                    // set avatars url to adapter
-                    adapter.setAvatars(avatars);
-
-                    // notify adapter data changed
-                    adapter.notifyDataSetChanged();
-
                     break;
+
+                case AvatarManager.LOAD_AVATAR_USE_CACHE:
+                    break;
+
                 default:
                     break;
             }
