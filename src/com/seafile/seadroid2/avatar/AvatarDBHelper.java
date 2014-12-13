@@ -6,6 +6,7 @@ import java.util.List;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -103,24 +104,15 @@ public class AvatarDBHelper extends SQLiteOpenHelper {
     
     // avoid duplicate inserting request
     private boolean isRowDuplicate(Avatar avatar) {
-        Cursor cursor = database.query(
+
+        long count = DatabaseUtils.queryNumEntries(
+                database,
                 AVATAR_TABLE_NAME,
-                projection,
-                AVATAR_COLUMN_SIGNATURE
-                + "=? and " + AVATAR_COLUMN_URL + "=?",
-                new String[] { avatar.getSignature(), avatar.getUrl()},
-                null,   // don't group the rows
-                null,   // don't filter by row groups
-                null    // The sort order
-                );
-        cursor.moveToFirst();
-        if (cursor.moveToNext()) {
-            cursor.close();
-            return true;   
-        }
-        cursor.close();
-        return false;
-        
+                AVATAR_COLUMN_SIGNATURE + "=? and " +
+                        AVATAR_COLUMN_URL + "=?",
+                new String[]{avatar.getSignature(), avatar.getUrl()});
+        return count > 0;
+
     }
     
     @Override
