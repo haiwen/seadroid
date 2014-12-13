@@ -25,10 +25,12 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ListView;
 
+import android.widget.Toast;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
@@ -175,6 +177,15 @@ public class AccountsActivity extends SherlockFragmentActivity {
             switch (msg.what) {
                 case AvatarManager.LOAD_AVATAR_FAILED:
                     // notify ui
+                    if (msg.obj == null) {
+                        break;
+                    }
+
+                    SeafException exception = (SeafException) msg.obj;
+                    if (exception.getCode() == 2) {
+                        Toast.makeText(AccountsActivity.this, getString(R.string.network_down), Toast.LENGTH_SHORT).show();
+                    }
+
                     break;
                 case AvatarManager.LOAD_AVATAR_SUCCESSFULLY:
                     // get loaded avatars

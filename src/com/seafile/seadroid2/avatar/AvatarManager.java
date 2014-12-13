@@ -105,8 +105,13 @@ public class AvatarManager {
 
     private synchronized void loadAvatarsForAccounts(int size, Handler handler) throws SeafException {
 
+        Message message = new Message();
+
         if (!Utils.isNetworkOn()) {
-            throw SeafException.networkException;
+            message.what = LOAD_AVATAR_FAILED;
+            message.obj = SeafException.networkException;
+            handler.sendMessage(message);
+            return;
         }
 
         ArrayList<String> signatures = getActSignatures();
@@ -133,11 +138,10 @@ public class AvatarManager {
             newAvatars.add(avatar);
         }
 
-        Message msg = new Message();
-        msg.what = LOAD_AVATAR_SUCCESSFULLY;
-        msg.obj = avatars;
+        message.what = LOAD_AVATAR_SUCCESSFULLY;
+        message.obj = avatars;
         if (handler != null)
-            handler.sendMessage(msg);
+            handler.sendMessage(message);
 
         // save avatars to database
         saveAvatarList(newAvatars);
