@@ -6,12 +6,14 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
+import com.seafile.seadroid2.cameraupload.CameraUploadService;
 import com.seafile.seadroid2.util.Utils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -175,10 +177,31 @@ public class AccountManager {
         // delete data in Shared_prefs
         deleteAccountFromSharedPreference(currentAccount);
 
-        // TODO stop camera uploading service if on
+        // TODO stop camera upload service if on
+        stopCamerUploadServiceByAccount(currentAccount);
 
         // TODO turn off Gesture lock settings?
 
+    }
+
+    /**
+     * turn off camera upload service of the deleted account if it was turned on before
+     *
+     * @param account
+     */
+    public void stopCamerUploadServiceByAccount(Account account) {
+        String camerUploadEmail = SettingsManager.instance().getCameraUploadAccountEmail();
+        String cameraUploadServer = SettingsManager.instance().getCameraUploadAccountServer();
+
+        if (camerUploadEmail == null) {
+            return;
+        }
+
+        // stop camera upload service
+        if (camerUploadEmail.equals(account.getEmail()) && cameraUploadServer.equals(account.getServer())) {
+            Intent cameraUploadIntent = new Intent(ctx, CameraUploadService.class);
+            ctx.stopService(cameraUploadIntent);
+        }
     }
 
     public static final int REQUEST_ACCOUNT_INFO_FAILED = 0;
