@@ -33,6 +33,8 @@ public class AccountManager {
     public static final String SHARED_PREF_TOKEN_KEY = "com.seafile.seadroid.token";
 
     public static final String INVALID_TOKEN = "not_applicable";
+    public static final int REQUEST_ACCOUNT_INFO_FAILED = 0;
+    public static final int REQUEST_ACCOUNT_INFO_SUCCESSFUL = 1;
 
     /** used to manage multi Accounts when user switch between different Accounts */
     private SharedPreferences actMangeSharedPref;
@@ -154,7 +156,6 @@ public class AccountManager {
     }
 
     public void deleteAccountFromDB(Account account) {
-        // TODO delete from shared preference if it is the default account ?
 
         // delete from db
         dbHelper.deleteAccount(account);
@@ -177,10 +178,10 @@ public class AccountManager {
         // delete data in Shared_prefs
         deleteAccountFromSharedPreference(currentAccount);
 
-        // TODO stop camera upload service if on
+        // stop camera upload service if on
         stopCamerUploadServiceByAccount(currentAccount);
 
-        // TODO turn off Gesture lock settings?
+        // keep Gesture lock settings
 
     }
 
@@ -203,9 +204,6 @@ public class AccountManager {
             ctx.stopService(cameraUploadIntent);
         }
     }
-
-    public static final int REQUEST_ACCOUNT_INFO_FAILED = 0;
-    public static final int REQUEST_ACCOUNT_INFO_SUCCESSFUL = 1;
 
     /**
      * get AccountInfo from server, should check return result, it maybe null.
