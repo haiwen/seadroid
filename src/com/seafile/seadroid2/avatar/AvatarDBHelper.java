@@ -101,7 +101,7 @@ public class AvatarDBHelper extends SQLiteOpenHelper {
         }
     }
     
-    // detect duplicate db insert request
+    // avoid duplicate inserting request
     private boolean isRowDuplicate(Avatar avatar) {
         Cursor cursor = database.query(
                 AVATAR_TABLE_NAME,

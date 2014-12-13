@@ -111,6 +111,8 @@ public class AvatarManager {
 
         ArrayList<String> signatures = getActSignatures();
 
+        if (signatures.size() == 0) return;
+
         // contains accounts who don`t have avatars yet
         List<Account> acts = getActsBySignature(signatures);
 
