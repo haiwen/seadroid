@@ -41,7 +41,7 @@ public class AvatarManager {
     }
 
     /**
-     * get accounts signature who don`t have avatars yet
+     * get signature of which account doesn`t have avatar yet
      *
      * @return account signature
      */
@@ -64,14 +64,14 @@ public class AvatarManager {
             }
         }
 
-        // fourth get account signature who don`t have avatar yet
+        // fourth get signature of which account doesn`t have avatar yet
         ArrayList<String> actSignature = Lists.newArrayList();
         Iterator<Map.Entry<String, Avatar>> iterator = avatarMgr.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<String, Avatar> pairs = iterator.next();
             if (pairs.getValue() == null) {
                 String signature = pairs.getKey();
-                // use account signature to mark accounts who don`t have avatars
+                // use signature to mark account who doesn`t have avatar yet
                 actSignature.add(signature);
             }
             iterator.remove();
@@ -113,6 +113,7 @@ public class AvatarManager {
             return;
         }
 
+        // contains signature of which account doesn`t have avatar yet
         ArrayList<String> signatures = getActSignatures();
 
         if (signatures.size() == 0) {
