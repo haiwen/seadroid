@@ -57,6 +57,8 @@ public class AvatarManager {
         // second get avatars from database, in order to use cache
         avatars = getAvatarList();
 
+        // TODO detect if avatar was modified by sending request to server
+
         // third binding account signature with avatar (if has) in avatarMgr
         for (Avatar avatar : avatars) {
             if (avatarMgr.containsKey(avatar.getSignature())) {
