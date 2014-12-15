@@ -372,8 +372,6 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
 
             accountInfo.setServer(account.getServer());
 
-            // save to database
-            accountMgr.saveAccountInfo(accountInfo);
             return accountInfo;
         }
 

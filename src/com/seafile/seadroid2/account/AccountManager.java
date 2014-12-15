@@ -184,28 +184,6 @@ public class AccountManager {
     }
 
     /**
-     * get current account info from database
-     *
-     * @return
-     */
-    public AccountInfo getCurrentAccountInfo() {
-        String server = getCurrentAccount().getServer();
-        String email = getCurrentAccount().getEmail();
-        return dbHelper.getAccountInfo(server, email);
-
-    }
-
-    /**
-     * save account info to database
-     *
-     * @param accountInfo
-     */
-    public void saveAccountInfo(AccountInfo accountInfo) {
-        if (accountInfo == null) return;
-        dbHelper.saveAccountInfo(accountInfo);
-    }
-
-    /**
      * parse JSON format data
      *
      * @param accountInfo

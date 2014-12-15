@@ -12,7 +12,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 /*
- * Account and AccountInfo database helper
+ * Account database helper
  */
 public class AccountDBHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.
@@ -20,32 +20,17 @@ public class AccountDBHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "account.db";
 
     private static final String ACCOUNT_TABLE_NAME = "Account";
-    private static final String ACCOUNT_INFO_TABLE_NAME = "AccountInfo";
 
     // Account
     private static final String ACCOUNT_COLUMN_SERVER = "server";
     private static final String ACCOUNT_COLUMN_EMAIL = "email";
     private static final String ACCOUNT_COLUMN_TOKEN = "token";
-    // Account Info
-    private static final String ACCOUNT_INFO_COLUMN_ID = "id";
-    private static final String ACCOUNT_INFO_COLUMN_USAGE = "usage";
-    private static final String ACCOUNT_INFO_COLUMN_TOTAL = "total";
-    private static final String ACCOUNT_INFO_COLUMN_EMAIL = "email";
-    private static final String ACCOUNT_INFO_COLUMN_SERVER = "server";
 
     private static final String SQL_CREATE_ACCOUNT_TABLE =
             "CREATE TABLE " + ACCOUNT_TABLE_NAME + " ("
                     + ACCOUNT_COLUMN_SERVER + " TEXT NOT NULL, "
                     + ACCOUNT_COLUMN_EMAIL + " TEXT NOT NULL, "
                     + ACCOUNT_COLUMN_TOKEN + " TEXT NOT NULL);";
-
-    private static final String SQL_CREATE_ACCOUNT_INFO_TABLE =
-            "CREATE TABLE " + ACCOUNT_INFO_TABLE_NAME + " ("
-                    + ACCOUNT_INFO_COLUMN_ID + " INTEGER PRIMARY KEY, "
-                    + ACCOUNT_INFO_COLUMN_USAGE + " TEXT NOT NULL, "
-                    + ACCOUNT_INFO_COLUMN_TOTAL + " TEXT NOT NULL, "
-                    + ACCOUNT_INFO_COLUMN_EMAIL + " TEXT NOT NULL, "
-                    + ACCOUNT_INFO_COLUMN_SERVER + " TEXT NOT NULL);";
 
     private static AccountDBHelper dbHelper = null;
     private SQLiteDatabase database = null;
@@ -66,7 +51,6 @@ public class AccountDBHelper extends SQLiteOpenHelper {
 
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(SQL_CREATE_ACCOUNT_TABLE);
-        db.execSQL(SQL_CREATE_ACCOUNT_INFO_TABLE);
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -184,83 +168,6 @@ public class AccountDBHelper extends SQLiteOpenHelper {
         account.email = cursor.getString(1);
         account.token = cursor.getString(2);
         return account;
-    }
-
-    /**
-     * save account info to database
-     *
-     * @param accountInfo
-     */
-    public void saveAccountInfo(AccountInfo accountInfo) {
-        // Create a new map of values, where column names are the keys
-        ContentValues values = new ContentValues();
-        values.put(ACCOUNT_INFO_COLUMN_USAGE, accountInfo.getUsage());
-        values.put(ACCOUNT_INFO_COLUMN_TOTAL, accountInfo.getTotal());
-        values.put(ACCOUNT_INFO_COLUMN_EMAIL, accountInfo.getEmail());
-        values.put(ACCOUNT_INFO_COLUMN_SERVER, accountInfo.getServer());
-
-        // Insert the new row, returning the primary key value of the new row
-        database.replace(ACCOUNT_INFO_TABLE_NAME, null, values);
-
-        AccountNotifier.notifyProvider();
-    }
-
-    /**
-     * get account info from database
-     *
-     * @param server
-     * @param email
-     * @return
-     */
-    public AccountInfo getAccountInfo(String server, String email) {
-        String[] projection = {
-                ACCOUNT_INFO_COLUMN_USAGE,
-                ACCOUNT_INFO_COLUMN_TOTAL,
-                ACCOUNT_INFO_COLUMN_EMAIL,
-                ACCOUNT_INFO_COLUMN_SERVER
-        };
-
-        Cursor c = database.query(
-                AccountDBHelper.ACCOUNT_INFO_TABLE_NAME,
-                projection,
-                "server=? and email=?",
-                new String[] { server, email },
-                null,   // don't group the rows
-                null,   // don't filter by row groups
-                null    // The sort order
-        );
-
-        if (!c.moveToFirst()) {
-            c.close();
-            return null;
-        }
-
-        AccountInfo accountInfo = cursorToAccountInfo(c);
-        c.close();
-        return accountInfo;
-    }
-
-    /**
-     * delete account info from database
-     *
-     * @param accountInfo
-     */
-    public void deleteAccountInfo(AccountInfo accountInfo) {
-        database.delete(ACCOUNT_INFO_TABLE_NAME,
-                        "server=? and email=?",
-                        new String[]{accountInfo.getServer(),
-                                     accountInfo.getEmail()});
-
-        AccountNotifier.notifyProvider();
-    }
-
-    private AccountInfo cursorToAccountInfo(Cursor cursor) {
-        AccountInfo accountInfo = new AccountInfo();
-        accountInfo.setUsage(cursor.getLong(0));
-        accountInfo.setTotal(cursor.getLong(1));
-        accountInfo.setEmail(cursor.getString(2));
-        accountInfo.setServer(cursor.getString(3));
-        return accountInfo;
     }
 
 }
