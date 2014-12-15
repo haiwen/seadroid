@@ -260,8 +260,6 @@ public class DataManager {
         String path = dbHelper.getRepoDir(account, repoName, repoID);
         if (path != null) {
             // Has record in database
-            // path = path.replace(" ", "\\ ");
-            Log.e(DEBUG_TAG, "create dir path " + path);
             repoDir = new File(path);
             if (!repoDir.exists()) {
                 if (!repoDir.mkdirs()) {

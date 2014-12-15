@@ -287,8 +287,7 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
             @Override
             public void onTaskSuccess() {
                 // refresh cache size
-                // String cachePath = dataMgr.getAccountDir();
-                cacheSizePrf.setSummary("0 KB");
+                cacheSizePrf.setSummary(getString(R.string.settings_cache_empty));
             }
         });
         dialog.show(getFragmentManager(), "DialogFragment");
@@ -324,7 +323,7 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
                 String repoName = mCameraUploadRepoChooserData.getStringExtra(SeafilePathChooserActivity.DATA_REPO_NAME);
                 String repoId = mCameraUploadRepoChooserData.getStringExtra(SeafilePathChooserActivity.DATA_REPO_ID);
                 String dir = mCameraUploadRepoChooserData.getStringExtra(SeafilePathChooserActivity.DATA_DIR);
-                Account account = (Account)mCameraUploadRepoChooserData.getParcelableExtra(SeafilePathChooserActivity.DATA_ACCOUNT);
+                Account account = mCameraUploadRepoChooserData.getParcelableExtra(SeafilePathChooserActivity.DATA_ACCOUNT);
                 settingsMgr.saveCameraUploadRepoInfo(repoId, repoName, dir, account);
                 this.repoName = repoName;
                 cameraUploadRepo.setSummary(repoName);
@@ -440,7 +439,6 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
     private void calculateCacheSize() {
         String cachePath = dataMgr.getAccountDir();
         Log.d(DEBUG_TAG, "path " + cachePath);
-        // cachePath = cachePath.replace(" ", "\\ ");
         ConcurrentAsyncTask.execute(new CalculateCacheTask(), cachePath);
     }
 

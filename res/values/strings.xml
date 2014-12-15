@@ -260,9 +260,10 @@
     </string>
 
     <string name="settings_advance_feature_title">ADVANCE FEATURE</string>    
-    <string name="settings_cache_title">Cache size</string>    
-    <string name="settings_clear_cache_title">Clear cache</string>    
-    <string name="settings_clear_cache_hint">Do you really want to clear cache?</string>    
+    <string name="settings_cache_title">Cache size</string>
+    <string name="settings_clear_cache_title">Clear cache</string>
+    <string name="settings_clear_cache_hint">Do you really want to clear cache?</string>
+    <string name="settings_cache_empty">0 KB</string>
 
     <!-- pull to refresh -->
     <string name="pull_to_refresh_pull_label">Pull to refresh…</string>
