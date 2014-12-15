@@ -28,6 +28,7 @@ import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
 import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.gallery.Util;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
@@ -439,9 +440,12 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
 
 
     private void calculateCacheSize() {
-        String cachePath = dataMgr.getAccountDir();
-        Log.d(DEBUG_TAG, "path " + cachePath);
-        ConcurrentAsyncTask.execute(new CalculateCacheTask(), cachePath);
+        String filesDir = dataMgr.getAccountDir();
+        String cacheDir = DataManager.getExternalCacheDirectory();
+        String tempDir = DataManager.getExternalTempDirectory();
+        String thumbDir = DataManager.getThumbDirectory();
+
+        ConcurrentAsyncTask.execute(new CalculateCacheTask(), filesDir, cacheDir, tempDir, thumbDir);
     }
 
 
@@ -450,9 +454,16 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
         @Override
         protected Long doInBackground(String... params) {
             if (params ==  null) return 0l;
-            String accountDir = params[0];
-            File cacheDir = new File(accountDir);
-            long cacheSize = Utils.getDirSize(cacheDir);
+            String filesDir = params[0];
+            String cacheDir = params[1];
+            String tempDir = params[2];
+            String thumbDir = params[3];
+            File files = new File(filesDir);
+            File caches = new File(cacheDir);
+            File temp = new File(tempDir);
+            File thumb = new File(thumbDir);
+
+            long cacheSize = Utils.getDirSize(files) + Utils.getDirSize(caches) + Utils.getDirSize(temp) + Utils.getDirSize(thumb);
             return cacheSize;
         }
 
