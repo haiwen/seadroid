@@ -555,7 +555,18 @@ public class Utils {
     public static void clearCache(String dirPath) throws IOException {
         // clear all cached files inside of the directory, the directory itself included
         File cacheDir = new File(dirPath);
-        FileUtils.deleteDirectory(cacheDir);
+        // FileUtils.deleteDirectory(cacheDir);
+        deleteRecursive(cacheDir);
+
+    }
+
+    private  static void deleteRecursive(File fileOrDirectory) {
+
+        if (fileOrDirectory.isDirectory())
+            for (File child : fileOrDirectory.listFiles())
+                deleteRecursive(child);
+
+        fileOrDirectory.delete();
 
     }
 
@@ -568,11 +579,10 @@ public class Utils {
     public static long getDirSize(File dirPath) {
         long totalSize = 0l;
 
-        File[] files = dirPath.listFiles();
-        if (files == null) {
+        if (!dirPath.isDirectory())
             return 0l;
-        }
 
+        File[] files = dirPath.listFiles();
         for (File file : files) {
             if (file.isFile()) {
                 totalSize += file.length();

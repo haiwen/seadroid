@@ -72,7 +72,7 @@ public class DataManager {
         }
     }
 
-    private static String getExternalTempDirectory() {
+    public static String getExternalTempDirectory() {
         String root = getExternalRootDirectory();
         File tmpDir = new File(root + "/" + "temp");
         return getDirectoryCreateIfNeeded(tmpDir);
@@ -84,7 +84,7 @@ public class DataManager {
         return getDirectoryCreateIfNeeded(tmpDir);
     }
 
-    private static String getExternalCacheDirectory() {
+    public static String getExternalCacheDirectory() {
         String root = getExternalRootDirectory();
         File tmpDir = new File(root + "/" + "cache");
         return getDirectoryCreateIfNeeded(tmpDir);
@@ -260,6 +260,8 @@ public class DataManager {
         String path = dbHelper.getRepoDir(account, repoName, repoID);
         if (path != null) {
             // Has record in database
+            // path = path.replace(" ", "\\ ");
+            Log.e(DEBUG_TAG, "create dir path " + path);
             repoDir = new File(path);
             if (!repoDir.exists()) {
                 if (!repoDir.mkdirs()) {

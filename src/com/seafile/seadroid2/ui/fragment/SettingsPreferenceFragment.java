@@ -20,6 +20,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.seafile.seadroid2.*;
+import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
@@ -167,8 +168,8 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
         authorInfo.setOnPreferenceClickListener(this);
         // Cache
         cacheSizePrf = findPreference(SettingsManager.SETTINGS_CACHE_SIZE_KEY);
-        String cachePath = dataMgr.getAccountDir();
-        cacheSizePrf.setSummary(settingsMgr.getCacheSize(cachePath));
+        calculateCacheSize();
+
         // Clear cache
         clearCache = findPreference(SettingsManager.SETTINGS_CLEAR_CACHE_KEY);
         clearCache.setOnPreferenceClickListener(this);
@@ -270,21 +271,24 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
             builder.setMessage(Html.fromHtml(getString(R.string.settings_about_author_info, versionName)));
             builder.show();
         } else if (preference.getKey().equals(SettingsManager.SETTINGS_CLEAR_CACHE_KEY)) {
-            String cacheDir = dataMgr.getAccountDir();
-            clearCache(settingsMgr.getCurrentAccount(), cacheDir);
+            clearCache();
         }
         return true;
     }
 
-    private void clearCache(Account account, String path) {
+    private void clearCache() {
+        String filesDir = dataMgr.getAccountDir();
+        String cacheDir = dataMgr.getExternalCacheDirectory();
+        String tempDir = dataMgr.getExternalTempDirectory();
         ClearCacheTaskDialog dialog = new ClearCacheTaskDialog();
-        dialog.init(account, path);
+        Account account = settingsMgr.getCurrentAccount();
+        dialog.init(account, filesDir, cacheDir, tempDir);
         dialog.setTaskDialogLisenter(new TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
                 // refresh cache size
-                String cachePath = dataMgr.getAccountDir();
-                cacheSizePrf.setSummary(settingsMgr.getCacheSize(cachePath));
+                // String cachePath = dataMgr.getAccountDir();
+                cacheSizePrf.setSummary("0 KB");
             }
         });
         dialog.show(getFragmentManager(), "DialogFragment");
@@ -429,6 +433,35 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
             String spaceUsage = Utils.readableFileSize(accountInfo.getUsage()) + "/" + Utils.readableFileSize(accountInfo.getTotal());
             spaceAvailablePref.setSummary(spaceUsage);
         }
+    }
+
+
+
+    private void calculateCacheSize() {
+        String cachePath = dataMgr.getAccountDir();
+        Log.d(DEBUG_TAG, "path " + cachePath);
+        // cachePath = cachePath.replace(" ", "\\ ");
+        ConcurrentAsyncTask.execute(new CalculateCacheTask(), cachePath);
+    }
+
+
+    class CalculateCacheTask extends AsyncTask<String, Void, Long> {
+
+        @Override
+        protected Long doInBackground(String... params) {
+            if (params ==  null) return 0l;
+            String accountDir = params[0];
+            File cacheDir = new File(accountDir);
+            long cacheSize = Utils.getDirSize(cacheDir);
+            return cacheSize;
+        }
+
+        @Override
+        protected void onPostExecute(Long aLong) {
+            String total = Utils.readableFileSize(aLong);
+            cacheSizePrf.setSummary(total);
+        }
+
     }
 
 }

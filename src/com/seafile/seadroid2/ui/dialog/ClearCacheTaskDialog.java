@@ -16,12 +16,16 @@ import com.seafile.seadroid2.util.Utils;
 class ClearCacheTask extends TaskDialog.Task {
     Account account;
     String path;
+    private String cacheDir;
+    private String tempDir;
     SettingsManager settingsMgr;
     DatabaseHelper dbHelper = DatabaseHelper.getDatabaseHelper();
 
-    public ClearCacheTask(Account account, String path, SettingsManager settingsManager) {
+    public ClearCacheTask(Account account, String filesDir, String cacheDir, String tempDir, SettingsManager settingsManager) {
         this.account = account;
-        this.path = path;
+        this.path = filesDir;
+        this.cacheDir = cacheDir;
+        this.tempDir = tempDir;
         this.settingsMgr = settingsManager;
     }
 
@@ -31,8 +35,19 @@ class ClearCacheTask extends TaskDialog.Task {
             // clear cached files
             Utils.clearCache(path);
 
+            // clear cached repo data
+            Utils.clearCache(cacheDir);
+
+            // clear temp files
+            Utils.clearCache(tempDir);
+
             // clear cached data from database
             settingsMgr.delCachesByActSignature(account);
+
+            // clear WebView data
+
+            // clear editor cache
+
         } catch (IOException e) {
             e.printStackTrace();
             // delete cache failed
@@ -42,13 +57,17 @@ class ClearCacheTask extends TaskDialog.Task {
 }
 
 public class ClearCacheTaskDialog extends TaskDialog {
-    private String path;
+    private String filesDir;
+    private String cacheDir;
+    private String tempDir;
     private Account account;
     SettingsManager settingsMgr;
 
-    public void init(Account account, String path) {
+    public void init(Account account, String filesDir, String cacheDir, String tempDir) {
         this.account = account;
-        this.path = path;
+        this.filesDir = filesDir;
+        this.cacheDir = cacheDir;
+        this.tempDir = tempDir;
     }
 
     private SettingsManager getSettingsManager() {
@@ -71,7 +90,7 @@ public class ClearCacheTaskDialog extends TaskDialog {
 
     @Override
     protected ClearCacheTask prepareTask() {
-        ClearCacheTask task = new ClearCacheTask(account, path, getSettingsManager());
+        ClearCacheTask task = new ClearCacheTask(account, filesDir, cacheDir, tempDir, getSettingsManager());
         return task;
     }
 }

@@ -194,36 +194,4 @@ public final class SettingsManager {
         DatabaseHelper dbHelper = DatabaseHelper.getDatabaseHelper();
         dbHelper.delCachesBySignature(account);
     }
-
-    // use AsyncTask to calculate cache size in case that UI thread blocked
-    public String getCacheSize(String cachePath) {
-        long cacheSize = 0l;
-        CalculateCacheTask caculateTask = new CalculateCacheTask(cachePath);
-        ConcurrentAsyncTask.execute(caculateTask);
-        cacheSize = caculateTask.getCacheSize();
-        Log.d(DEBUG_TAG, "account dir path: " + cachePath);
-        Log.d(DEBUG_TAG, "cache size(bytes): " + cacheSize);
-        return Utils.readableFileSize(cacheSize);
-    }
-
-    class CalculateCacheTask implements Runnable {
-
-        private final String cachePath;
-        private long cacheSize;
-
-        public CalculateCacheTask(final String cacheDir) {
-            this.cachePath = cacheDir;
-        }
-
-        @Override
-        public void run() {
-            File cacheDir = new File(cachePath);
-            cacheSize = Utils.getDirSize(cacheDir);
-        }
-
-        public long getCacheSize() {
-            return cacheSize;
-        }
-
-    }
 }
