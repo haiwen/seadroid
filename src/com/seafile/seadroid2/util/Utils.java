@@ -566,7 +566,9 @@ public class Utils {
             for (File child : fileOrDirectory.listFiles())
                 deleteRecursive(child);
 
-        fileOrDirectory.delete();
+        final File renamedFile = new File(fileOrDirectory.getAbsolutePath() + System.currentTimeMillis());
+        fileOrDirectory.renameTo(renamedFile);
+        renamedFile.delete();
 
     }
 
