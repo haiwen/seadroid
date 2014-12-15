@@ -87,9 +87,15 @@ public class AccountsActivity extends SherlockFragmentActivity {
                     long id) {
 
                 Account account = accounts.get(position);
-                startFilesActivity(account);
-                // update current Account info from SharedPreference
-                accountManager.saveCurrentAccount(account);
+                if (account.getToken().equals(AccountManager.INVALID_TOKEN)) {
+                    // user already signed out, input password first
+                    authorizeAccount(account);
+                } else {
+
+                    startFilesActivity(account);
+                    // update current Account info from SharedPreference
+                    accountManager.saveCurrentAccount(account);
+                }
 
             }
         });
@@ -97,6 +103,10 @@ public class AccountsActivity extends SherlockFragmentActivity {
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+    }
+
+    private void authorizeAccount(Account account) {
+        startEditAccountActivity(account);
     }
 
     @Override

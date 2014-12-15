@@ -63,19 +63,7 @@ public class AccountManager {
     }
 
     public List<Account> getAccountList() {
-        ArrayList<Account> accounts = (ArrayList<Account>) dbHelper.getAccountList();
-
-        // Avoid ConcurrentModificationException because bothe Avatar service and AccountsActivity call this
-        CopyOnWriteArrayList<Account> concurrentList = new CopyOnWriteArrayList<Account>();
-        concurrentList.addAll(accounts);
-        for (Account act : concurrentList) {
-            // check if account was signed out
-            // if token is null, remove the account from list
-            if (act.getToken().equals(INVALID_TOKEN)) {
-                accounts.remove(act);
-            }
-        }
-        return accounts;
+        return dbHelper.getAccountList();
     }
 
     /**
