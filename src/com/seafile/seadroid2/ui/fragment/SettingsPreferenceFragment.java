@@ -278,11 +278,13 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
 
     private void clearCache() {
         String filesDir = dataMgr.getAccountDir();
-        String cacheDir = dataMgr.getExternalCacheDirectory();
-        String tempDir = dataMgr.getExternalTempDirectory();
+        String cacheDir = DataManager.getExternalCacheDirectory();
+        String tempDir = DataManager.getExternalTempDirectory();
+        String thumbDir = DataManager.getThumbDirectory();
+
         ClearCacheTaskDialog dialog = new ClearCacheTaskDialog();
         Account account = settingsMgr.getCurrentAccount();
-        dialog.init(account, filesDir, cacheDir, tempDir);
+        dialog.init(account, filesDir, cacheDir, tempDir, thumbDir);
         dialog.setTaskDialogLisenter(new TaskDialogListener() {
             @Override
             public void onTaskSuccess() {

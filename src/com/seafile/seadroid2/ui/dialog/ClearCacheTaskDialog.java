@@ -14,18 +14,19 @@ import com.seafile.seadroid2.data.DatabaseHelper;
 import com.seafile.seadroid2.util.Utils;
 
 class ClearCacheTask extends TaskDialog.Task {
-    Account account;
-    String path;
+    private Account account;
+    private String path;
     private String cacheDir;
     private String tempDir;
+    private String thumbDir;
     SettingsManager settingsMgr;
-    DatabaseHelper dbHelper = DatabaseHelper.getDatabaseHelper();
 
-    public ClearCacheTask(Account account, String filesDir, String cacheDir, String tempDir, SettingsManager settingsManager) {
+    public ClearCacheTask(Account account, String filesDir, String cacheDir, String tempDir, String thumbDir, SettingsManager settingsManager) {
         this.account = account;
         this.path = filesDir;
         this.cacheDir = cacheDir;
         this.tempDir = tempDir;
+        this.thumbDir = thumbDir;
         this.settingsMgr = settingsManager;
     }
 
@@ -40,6 +41,9 @@ class ClearCacheTask extends TaskDialog.Task {
 
             // clear temp files
             Utils.clearCache(tempDir);
+
+            // clear thumb files
+            Utils.clearCache(thumbDir);
 
             // clear cached data from database
             settingsMgr.delCachesByActSignature(account);
@@ -60,14 +64,16 @@ public class ClearCacheTaskDialog extends TaskDialog {
     private String filesDir;
     private String cacheDir;
     private String tempDir;
+    private String thumbDir;
     private Account account;
     SettingsManager settingsMgr;
 
-    public void init(Account account, String filesDir, String cacheDir, String tempDir) {
+    public void init(Account account, String filesDir, String cacheDir, String tempDir, String thumbDir) {
         this.account = account;
         this.filesDir = filesDir;
         this.cacheDir = cacheDir;
         this.tempDir = tempDir;
+        this.thumbDir = thumbDir;
     }
 
     private SettingsManager getSettingsManager() {
@@ -90,7 +96,7 @@ public class ClearCacheTaskDialog extends TaskDialog {
 
     @Override
     protected ClearCacheTask prepareTask() {
-        ClearCacheTask task = new ClearCacheTask(account, filesDir, cacheDir, tempDir, getSettingsManager());
+        ClearCacheTask task = new ClearCacheTask(account, filesDir, cacheDir, tempDir, thumbDir, getSettingsManager());
         return task;
     }
 }

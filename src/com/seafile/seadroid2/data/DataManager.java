@@ -78,7 +78,7 @@ public class DataManager {
         return getDirectoryCreateIfNeeded(tmpDir);
     }
 
-    private static String getThumbDirectory() {
+    public static String getThumbDirectory() {
         String root = SeadroidApplication.getAppContext().getFilesDir().getAbsolutePath();
         File tmpDir = new File(root + "/" + "thumb");
         return getDirectoryCreateIfNeeded(tmpDir);
