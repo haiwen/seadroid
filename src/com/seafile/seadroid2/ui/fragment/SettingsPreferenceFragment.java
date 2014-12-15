@@ -3,6 +3,7 @@ package com.seafile.seadroid2.ui.fragment;
 import android.app.Activity;
 import android.content.*;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Looper;
 import android.os.Message;
@@ -16,8 +17,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SettingsManager;
+import com.seafile.seadroid2.*;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.AccountManager;
@@ -30,6 +30,9 @@ import com.seafile.seadroid2.ui.activity.CreateGesturePasswordActivity;
 import com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity;
 import com.seafile.seadroid2.ui.activity.SettingsActivity;
 import com.seafile.seadroid2.util.Utils;
+import org.json.JSONException;
+
+import java.io.IOException;
 
 public class SettingsPreferenceFragment extends CustomPreferenceFragment implements
         OnPreferenceChangeListener, OnPreferenceClickListener {
@@ -84,7 +87,8 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
         Log.d(DEBUG_TAG, "onCreate");
         super.onCreate(savedInstanceState);
 
-        accountMgr.requestAccountInfo(handler);
+        Account account = accountMgr.getCurrentAccount();
+        ConcurrentAsyncTask.execute(new RequestAccountInfoTask(), account);
 
     }
 
@@ -362,4 +366,50 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
             }
         }
     };
+
+    /**
+     * automatically update Account info, like space usage, total space size, from background.
+     */
+    class RequestAccountInfoTask extends AsyncTask<Account, Void, AccountInfo> {
+
+        @Override
+        protected AccountInfo doInBackground(Account... params) {
+            AccountInfo accountInfo = null;
+
+            if (params == null) return null;
+
+            Account account = params[0];
+            SeafConnection seafConnection = new SeafConnection(account);
+            try {
+                // get account info from server
+                String actInfo = seafConnection.getAccountInfo();
+                // parse raw data
+                accountInfo = accountMgr.parseAccountInfo(actInfo);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (SeafException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            if (accountInfo == null) return null;
+
+            accountInfo.setServer(account.getServer());
+
+            // save to database
+            accountMgr.saveAccountInfo(accountInfo);
+            return accountInfo;
+        }
+
+        @Override
+        protected void onPostExecute(AccountInfo accountInfo) {
+            if (accountInfo == null) return;
+            // update Account info settings
+            actInfoPref.setSummary(accountInfo.getEmail());
+            String spaceUsage = Utils.readableFileSize(accountInfo.getUsage()) + "/" + Utils.readableFileSize(accountInfo.getTotal());
+            spaceAvailablePref.setSummary(spaceUsage);
+        }
+    }
+
 }

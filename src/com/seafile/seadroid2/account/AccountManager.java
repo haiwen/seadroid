@@ -198,35 +198,7 @@ public class AccountManager {
      * Recommend to run this method in {@link com.seafile.seadroid2.ConcurrentAsyncTask}
      * @param account
      */
-    private void doRequestAccountInfo(Account account, Handler handler) {
-        SeafConnection seafConnection = new SeafConnection(account);
-        try {
-            // get account info from server
-            String actInfo = seafConnection.getAccountInfo();
-            // parse raw data
-            AccountInfo accountInfo = parseAccountInfo(actInfo);
-            if (accountInfo == null) {
-                handler.sendEmptyMessage(REQUEST_ACCOUNT_INFO_FAILED);
-                return;
-            }
-
-            accountInfo.setServer(account.getServer());
-
-            // save to database
-            saveAccountInfo(accountInfo);
-
-            Message msg = new Message();
-            msg.what = REQUEST_ACCOUNT_INFO_SUCCESSFUL;
-            msg.obj = accountInfo;
-            handler.sendMessage(msg);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (SeafException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+    public void doRequestAccountInfo(Account account) {
 
     }
 
@@ -247,7 +219,7 @@ public class AccountManager {
      *
      * @param accountInfo
      */
-    private void saveAccountInfo(AccountInfo accountInfo) {
+    public void saveAccountInfo(AccountInfo accountInfo) {
         if (accountInfo == null) return;
         dbHelper.saveAccountInfo(accountInfo);
     }
@@ -269,39 +241,11 @@ public class AccountManager {
      * @return AccountInfo
      * @throws JSONException
      */
-    private AccountInfo parseAccountInfo(String accountInfo) throws JSONException {
+    public AccountInfo parseAccountInfo(String accountInfo) throws JSONException {
         JSONObject obj = Utils.parseJsonObject(accountInfo);
         if (obj == null)
             return null;
         return AccountInfo.fromJson(obj);
     }
 
-    /**
-     * request Account info from server
-     */
-    public void requestAccountInfo(Handler handler) {
-        Account act = getCurrentAccount();
-        Thread t = new Thread(new RequestAccountInfoTask(act, handler));
-        t.start();
-    }
-
-    /**
-     * automatically update Account info, like space usage, total space size, from background.
-     */
-     class RequestAccountInfoTask implements Runnable {
-
-        private Account account;
-        private Handler handler;
-
-        public RequestAccountInfoTask(Account account, Handler handler) {
-            this.account = account;
-            this.handler = handler;
-        }
-
-        @Override
-        public void run() {
-            doRequestAccountInfo(account, handler);
-
-        }
-    }
 }
