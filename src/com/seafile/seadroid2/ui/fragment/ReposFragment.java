@@ -16,14 +16,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.google.common.collect.Lists;
-import com.handmark.pulltorefresh.library.PullToRefreshBase;
-import com.handmark.pulltorefresh.library.PullToRefreshBase.OnLastItemVisibleListener;
-import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
-import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.seafile.seadroid2.CertsManager;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.NavContext;
@@ -36,6 +33,7 @@ import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafGroup;
 import com.seafile.seadroid2.data.SeafItem;
 import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.ui.PullToRefreshListView;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
@@ -56,6 +54,7 @@ public class ReposFragment extends SherlockListFragment {
     private SeafItemAdapter adapter;
     private BrowserActivity mActivity = null;
 
+    private ProgressBar mHeadProgress;
     private PullToRefreshListView mPullRefreshListView;
     private TextView mEmptyView;
     private View mProgressContainer;
@@ -89,33 +88,21 @@ public class ReposFragment extends SherlockListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.repos_fragment, container, false);
-        mPullRefreshListView = (PullToRefreshListView) root.findViewById(R.id.pull_refresh_list);
+        mHeadProgress = (ProgressBar) root.findViewById(R.id.main_head_progress);
+        mPullRefreshListView = (PullToRefreshListView) root.findViewById(android.R.id.list);
         mEmptyView = (TextView) root.findViewById(R.id.empty);
         mListContainer =  root.findViewById(R.id.listContainer);
         mErrorText = (TextView)root.findViewById(R.id.error_message);
         mProgressContainer = root.findViewById(R.id.progressContainer);
 
         // Set a listener to be invoked when the list should be refreshed.
-        mPullRefreshListView.setOnRefreshListener(new OnRefreshListener<ListView>() {
-            @Override
-            public void onRefresh(PullToRefreshBase<ListView> refreshView) {
-                String label = DateUtils.formatDateTime(mActivity, System.currentTimeMillis(),
-                        DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_ABBREV_ALL);
+        mPullRefreshListView.setOnRefreshListener(new PullToRefreshListView.OnRefreshListener(){
 
-                // Update the LastUpdatedLabel
-                refreshView.getLoadingLayoutProxy().setLastUpdatedLabel(label);
-                mRefreshType = REFRESH_ON_PULL;
-                // Do work to refresh the list here.
+            @Override
+            public void onRefresh() {
+                mHeadProgress.setVisibility(ProgressBar.VISIBLE);
                 refreshView(true);
-            }
-        });
 
-        // Add an end-of-list listener
-        mPullRefreshListView.setOnLastItemVisibleListener(new OnLastItemVisibleListener() {
-
-            @Override
-            public void onLastItemVisible() {
-                // Toast.makeText(mActivity, "end of list", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -229,6 +216,7 @@ public class ReposFragment extends SherlockListFragment {
             List<SeafDirent> dirents = dataManager.getCachedDirents(
                     nav.getRepoID(), nav.getDirPath());
             if (dirents != null) {
+                mHeadProgress.setVisibility(ProgressBar.GONE);
                 updateAdapterWithDirents(dirents);
                 return;
             }
@@ -403,7 +391,7 @@ public class ReposFragment extends SherlockListFragment {
                     || mRefreshType == REFRESH_ON_RESUME) {
                 showLoading(true);
             } else if (mRefreshType == REFRESH_ON_PULL) {
-                mPullRefreshListView.setRefreshing();
+                mHeadProgress.setVisibility(ProgressBar.VISIBLE);
             }
         }
         
@@ -446,7 +434,7 @@ public class ReposFragment extends SherlockListFragment {
                     || mRefreshType == REFRESH_ON_RESUME) {
                 showLoading(false);
             } else if (mRefreshType == REFRESH_ON_PULL) {
-                mPullRefreshListView.onRefreshComplete();
+                mHeadProgress.setVisibility(ProgressBar.GONE);
             }
             if (mActivity == null)
                 // this occurs if user navigation to another activity
@@ -550,7 +538,7 @@ public class ReposFragment extends SherlockListFragment {
                     || mRefreshType == REFRESH_ON_RESUME) {
                 showLoading(true);
             } else if (mRefreshType == REFRESH_ON_PULL) {
-                mPullRefreshListView.setRefreshing();
+                mHeadProgress.setVisibility(ProgressBar.VISIBLE);
             }
         }
         
@@ -603,7 +591,7 @@ public class ReposFragment extends SherlockListFragment {
                     || mRefreshType == REFRESH_ON_RESUME) {
                 showLoading(false);
             } else if (mRefreshType == REFRESH_ON_PULL) {
-                mPullRefreshListView.onRefreshComplete();
+                mHeadProgress.setVisibility(ProgressBar.GONE);
             }
             if (mActivity == null)
                 // this occurs if user navigation to another activity

@@ -26,9 +26,16 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
+        <ProgressBar
+                android:id="@+id/main_head_progress"
+                style="@style/loading_small"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="5.0dip"
+                android:visibility="visible"/>
+
         <!-- The PullToRefreshListView replaces a standard ListView widget. -->
-        <com.handmark.pulltorefresh.library.PullToRefreshListView
-            android:id="@+id/pull_refresh_list"
+        <com.seafile.seadroid2.ui.PullToRefreshListView
+            android:id="@android:id/list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:cacheColorHint="#00000000"

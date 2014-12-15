@@ -14,15 +14,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
-import com.handmark.pulltorefresh.library.PullToRefreshBase;
-import com.handmark.pulltorefresh.library.PullToRefreshBase.OnLastItemVisibleListener;
-import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
-import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafStarredFile;
+import com.seafile.seadroid2.ui.PullToRefreshListView;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.adapter.StarredItemAdapter;
 
@@ -59,35 +56,20 @@ public class StarredFragment extends SherlockListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.starred_fragment, container, false);
-        mPullRefreshListView = (PullToRefreshListView) root.findViewById(R.id.pull_refresh_list);
+        mPullRefreshListView = (PullToRefreshListView) root.findViewById(android.R.id.list);
         mNoStarredView = (TextView) root.findViewById(android.R.id.empty);
         mListContainer =  root.findViewById(R.id.listContainer);
         mErrorText = (TextView)root.findViewById(R.id.error_message);
         mProgressContainer = root.findViewById(R.id.progressContainer);
         
         // Set a listener to be invoked when the list should be refreshed.
-        mPullRefreshListView.setOnRefreshListener(new OnRefreshListener<ListView>() {
+        mPullRefreshListView.setOnRefreshListener(new PullToRefreshListView.OnRefreshListener() {
             @Override
-            public void onRefresh(PullToRefreshBase<ListView> refreshView) {
-                String label = DateUtils.formatDateTime(mActivity, System.currentTimeMillis(),
-                        DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_ABBREV_ALL);
-
-                // Update the LastUpdatedLabel
-                refreshView.getLoadingLayoutProxy().setLastUpdatedLabel(label);
-
-                // Do work to refresh the list here.
+            public void onRefresh() {
                 refreshView();
             }
         });
 
-        // Add an end-of-list listener
-        mPullRefreshListView.setOnLastItemVisibleListener(new OnLastItemVisibleListener() {
-
-            @Override
-            public void onLastItemVisible() {
-                // Toast.makeText(mActivity, "end of list", Toast.LENGTH_SHORT).show();
-            }
-        });
         return root;
     }
 
@@ -129,7 +111,7 @@ public class StarredFragment extends SherlockListFragment {
     }
 
     public void refresh() {
-        mPullRefreshListView.setRefreshing(false);
+        //mPullRefreshListView.setRefreshing(false);
         refreshView();
     }
     
