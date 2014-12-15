@@ -92,31 +92,6 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
 
     }
 
-    private android.os.Handler handler = new android.os.Handler(Looper.getMainLooper()) {
-
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case AccountManager.REQUEST_ACCOUNT_INFO_FAILED:
-                    //TODO notice user
-
-                    break;
-                case AccountManager.REQUEST_ACCOUNT_INFO_SUCCESSFUL:
-                    AccountInfo accountInfo = (AccountInfo) msg.obj;
-                    if (accountInfo == null)
-                        // TODO notice user
-                        break;
-                    // update Account info settings
-                    actInfoPref.setSummary(accountInfo.getEmail());
-                    String spaceUsage = Utils.readableFileSize(accountInfo.getUsage()) + "/" + Utils.readableFileSize(accountInfo.getTotal());
-                    spaceAvailablePref.setSummary(spaceUsage);
-                    break;
-                default:
-                    break;
-            }
-        }
-    };
-
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         Log.d(DEBUG_TAG, "onViewCreated");

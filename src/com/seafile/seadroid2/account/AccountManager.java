@@ -1,17 +1,10 @@
 package com.seafile.seadroid2.account;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Handler;
-import android.os.Message;
-import com.seafile.seadroid2.SeafConnection;
-import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
 import com.seafile.seadroid2.util.Utils;
@@ -33,8 +26,6 @@ public class AccountManager {
     public static final String SHARED_PREF_TOKEN_KEY = "com.seafile.seadroid.token";
 
     public static final String INVALID_TOKEN = "not_applicable";
-    public static final int REQUEST_ACCOUNT_INFO_FAILED = 0;
-    public static final int REQUEST_ACCOUNT_INFO_SUCCESSFUL = 1;
 
     /** used to manage multi Accounts when user switch between different Accounts */
     private SharedPreferences actMangeSharedPref;
@@ -157,7 +148,6 @@ public class AccountManager {
     public void signOutCurrentAccount() {
 
         Account currentAccount =  getCurrentAccount();
-        AccountInfo currentAccountInfo = getCurrentAccountInfo();
 
         // delete token of the account from database
         Account accountWithoutToken = new Account(currentAccount.getServer(), currentAccount.getEmail(), null, INVALID_TOKEN);
@@ -194,15 +184,6 @@ public class AccountManager {
     }
 
     /**
-     * get AccountInfo from server, should check return result, it maybe null.
-     * Recommend to run this method in {@link com.seafile.seadroid2.ConcurrentAsyncTask}
-     * @param account
-     */
-    public void doRequestAccountInfo(Account account) {
-
-    }
-
-    /**
      * get current account info from database
      *
      * @return
@@ -222,16 +203,6 @@ public class AccountManager {
     public void saveAccountInfo(AccountInfo accountInfo) {
         if (accountInfo == null) return;
         dbHelper.saveAccountInfo(accountInfo);
-    }
-
-    /**
-     * delete account info from database
-     *
-     * @param accountInfo
-     */
-    private void deleteAccountInfo(AccountInfo accountInfo) {
-        if (accountInfo == null) return;
-        dbHelper.deleteAccountInfo(accountInfo);
     }
 
     /**
