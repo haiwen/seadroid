@@ -195,8 +195,6 @@ public final class SettingsManager {
         dbHelper.delCachesBySignature(account);
     }
 
-    public static final String DEBUG_TAG = "SettingsManager";
-
     // use AsyncTask to calculate cache size in case that UI thread blocked
     public String getCacheSize(String cachePath) {
         long cacheSize = 0l;
