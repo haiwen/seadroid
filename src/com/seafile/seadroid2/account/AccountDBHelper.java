@@ -1,10 +1,8 @@
 package com.seafile.seadroid2.account;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.provider.AccountNotifier;
 
 import android.content.ContentValues;
@@ -13,16 +11,26 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+/*
+ * Account database helper
+ */
 public class AccountDBHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.
     private static final int DATABASE_VERSION = 1;
-    private static final String DATABASE_NAME = "Account.db";
+    private static final String DATABASE_NAME = "account.db";
 
-    private static final String TABLE_NAME = "Account";
+    private static final String ACCOUNT_TABLE_NAME = "Account";
 
-    private static final String COLUMN_SERVER = "server";
-    private static final String COLUMN_EMAIL = "email";
-    private static final String COLUMN_TOKEN = "token";
+    // Account
+    private static final String ACCOUNT_COLUMN_SERVER = "server";
+    private static final String ACCOUNT_COLUMN_EMAIL = "email";
+    private static final String ACCOUNT_COLUMN_TOKEN = "token";
+
+    private static final String SQL_CREATE_ACCOUNT_TABLE =
+            "CREATE TABLE " + ACCOUNT_TABLE_NAME + " ("
+                    + ACCOUNT_COLUMN_SERVER + " TEXT NOT NULL, "
+                    + ACCOUNT_COLUMN_EMAIL + " TEXT NOT NULL, "
+                    + ACCOUNT_COLUMN_TOKEN + " TEXT NOT NULL);";
 
     private static AccountDBHelper dbHelper = null;
     private SQLiteDatabase database = null;
@@ -42,14 +50,14 @@ public class AccountDBHelper extends SQLiteOpenHelper {
     }
 
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE " + TABLE_NAME + " (" + COLUMN_SERVER + " TEXT, "
-                + COLUMN_EMAIL + " TEXT, " + COLUMN_TOKEN + " TEXT);");
+        db.execSQL(SQL_CREATE_ACCOUNT_TABLE);
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // This database is only a cache for online data, so its upgrade policy is
         // to simply to discard the data and start over
         db.execSQL("DELETE TABLE Account;");
+        db.execSQL("DELETE TABLE AccountInfo");
         onCreate(db);
     }
 
@@ -59,13 +67,13 @@ public class AccountDBHelper extends SQLiteOpenHelper {
 
     public Account getAccount(String server, String email) {
         String[] projection = {
-                AccountDBHelper.COLUMN_SERVER,
-                AccountDBHelper.COLUMN_EMAIL,
-                AccountDBHelper.COLUMN_TOKEN
+                AccountDBHelper.ACCOUNT_COLUMN_SERVER,
+                AccountDBHelper.ACCOUNT_COLUMN_EMAIL,
+                AccountDBHelper.ACCOUNT_COLUMN_TOKEN
         };
 
         Cursor c = database.query(
-             AccountDBHelper.TABLE_NAME,
+             AccountDBHelper.ACCOUNT_TABLE_NAME,
              projection,
              "server=? and email=?",
              new String[] { server, email },
@@ -88,13 +96,13 @@ public class AccountDBHelper extends SQLiteOpenHelper {
         List<Account> accounts = Lists.newArrayList();
 
         String[] projection = {
-                AccountDBHelper.COLUMN_SERVER,
-                AccountDBHelper.COLUMN_EMAIL,
-                AccountDBHelper.COLUMN_TOKEN
+                AccountDBHelper.ACCOUNT_COLUMN_SERVER,
+                AccountDBHelper.ACCOUNT_COLUMN_EMAIL,
+                AccountDBHelper.ACCOUNT_COLUMN_TOKEN
         };
 
         Cursor c = database.query(
-             AccountDBHelper.TABLE_NAME,
+             AccountDBHelper.ACCOUNT_TABLE_NAME,
              projection,
              null,
              null,
@@ -125,30 +133,30 @@ public class AccountDBHelper extends SQLiteOpenHelper {
 
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
-        values.put(AccountDBHelper.COLUMN_SERVER, account.server);
-        values.put(AccountDBHelper.COLUMN_EMAIL, account.email);
-        values.put(AccountDBHelper.COLUMN_TOKEN, account.token);
+        values.put(AccountDBHelper.ACCOUNT_COLUMN_SERVER, account.server);
+        values.put(AccountDBHelper.ACCOUNT_COLUMN_EMAIL, account.email);
+        values.put(AccountDBHelper.ACCOUNT_COLUMN_TOKEN, account.token);
 
         // Insert the new row, returning the primary key value of the new row
-        database.replace(AccountDBHelper.TABLE_NAME, null, values);
+        database.replace(AccountDBHelper.ACCOUNT_TABLE_NAME, null, values);
 
-		AccountNotifier.notifyProvider();
+        AccountNotifier.notifyProvider();
     }
 
     public void updateAccount(Account oldAccount, Account newAccount) {
         ContentValues values = new ContentValues();
-        values.put(AccountDBHelper.COLUMN_SERVER, newAccount.server);
-        values.put(AccountDBHelper.COLUMN_EMAIL, newAccount.email);
-        values.put(AccountDBHelper.COLUMN_TOKEN, newAccount.token);
+        values.put(AccountDBHelper.ACCOUNT_COLUMN_SERVER, newAccount.server);
+        values.put(AccountDBHelper.ACCOUNT_COLUMN_EMAIL, newAccount.email);
+        values.put(AccountDBHelper.ACCOUNT_COLUMN_TOKEN, newAccount.token);
 
-        database.update(AccountDBHelper.TABLE_NAME, values, "server=? and email=?",
-                new String[] { oldAccount.server, oldAccount.email });
+        database.update(AccountDBHelper.ACCOUNT_TABLE_NAME, values, "server=? and email=?",
+                new String[]{oldAccount.server, oldAccount.email});
 
         AccountNotifier.notifyProvider();
     }
 
     public void deleteAccount(Account account) {
-        database.delete(AccountDBHelper.TABLE_NAME,  "server=? and email=?",
+        database.delete(AccountDBHelper.ACCOUNT_TABLE_NAME,  "server=? and email=?",
                 new String[] { account.server, account.email });
 
         AccountNotifier.notifyProvider();
@@ -161,4 +169,5 @@ public class AccountDBHelper extends SQLiteOpenHelper {
         account.token = cursor.getString(2);
         return account;
     }
+
 }

@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.DialogFragment;
@@ -28,11 +27,6 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
-import com.seafile.seadroid2.R.array;
-import com.seafile.seadroid2.R.id;
-import com.seafile.seadroid2.R.layout;
-import com.seafile.seadroid2.R.menu;
-import com.seafile.seadroid2.R.string;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
@@ -42,11 +36,6 @@ import com.seafile.seadroid2.ui.adapter.AccountAdapter;
 
 
 public class AccountsActivity extends SherlockFragmentActivity {
-    public static final String SHARED_PREF_NAME = "latest_account";
-    public static final String SHARED_PREF_SERVER_KEY = "com.seafile.seadroid.server";
-    public static final String SHARED_PREF_EMAIL_KEY = "com.seafile.seadroid.email";
-    public static final String SHARED_PREF_TOKEN_KEY = "com.seafile.seadroid.token";
-
     private static final String DEBUG_TAG = "AccountsActivity";
 
     private ListView accountsView;
@@ -98,13 +87,26 @@ public class AccountsActivity extends SherlockFragmentActivity {
                     long id) {
 
                 Account account = accounts.get(position);
-                startFilesActivity(account);
+                if (account.getToken().equals(AccountManager.INVALID_TOKEN)) {
+                    // user already signed out, input password first
+                    authorizeAccount(account);
+                } else {
+
+                    startFilesActivity(account);
+                    // update current Account info from SharedPreference
+                    accountManager.saveCurrentAccount(account);
+                }
+
             }
         });
         registerForContextMenu(accountsView);
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+    }
+
+    private void authorizeAccount(Account account) {
+        startEditAccountActivity(account);
     }
 
     @Override
@@ -145,6 +147,14 @@ public class AccountsActivity extends SherlockFragmentActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
          switch (item.getItemId()) {
             case android.R.id.home:
+                // if the current account sign out and no account was to logged in,
+                // then always goes to AccountsActivity
+                if (accountManager.getCurrentAccount() == null) {
+                    Intent intent = new Intent(this, BrowserActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                }
+
                 this.finish();
             default:
                 return super.onOptionsItemSelected(item);
@@ -159,43 +169,11 @@ public class AccountsActivity extends SherlockFragmentActivity {
         adapter.notifyChanged();
     }
 
-    private void writeToSharedPreferences(Account account) {
-        SharedPreferences sharedPref = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(SHARED_PREF_SERVER_KEY, account.server);
-        editor.putString(SHARED_PREF_EMAIL_KEY, account.email);
-        editor.putString(SHARED_PREF_TOKEN_KEY, account.token);
-        editor.commit();
-    }
-
-    private void clearDataFromSharedPreferences(Account account) {
-        SharedPreferences sharedPref = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        
-        String latestServer = sharedPref.getString(SHARED_PREF_SERVER_KEY, null);
-        String latestEmail = sharedPref.getString(SHARED_PREF_EMAIL_KEY, null);
-        // update cache data of settings module
-        String settingsServer = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER, null);
-        String settingsEmail = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL, null);
-        
-        if (account.server.equals(latestServer) && account.email.equals(latestEmail)) {
-            editor.putString(SHARED_PREF_SERVER_KEY, null);
-            editor.putString(SHARED_PREF_EMAIL_KEY, null);
-            editor.putString(SHARED_PREF_TOKEN_KEY, null);
-            editor.commit();
-        }
-        if (account.server.equals(settingsServer) && account.email.equals(settingsEmail)) {
-            SettingsManager.instance().clearCameraUploadInfo();
-        }
-    }
-
     private void startFilesActivity(Account account) {
         Intent intent = new Intent(this, BrowserActivity.class);
-        intent.putExtra("server", account.server);
-        intent.putExtra("email", account.email);
-        intent.putExtra("token", account.token);
-
-        writeToSharedPreferences(account);
+        intent.putExtra(AccountManager.SHARED_PREF_SERVER_KEY, account.server);
+        intent.putExtra(AccountManager.SHARED_PREF_EMAIL_KEY, account.email);
+        intent.putExtra(AccountManager.SHARED_PREF_TOKEN_KEY, account.token);
 
         startActivity(intent);
         finish();
@@ -228,20 +206,14 @@ public class AccountsActivity extends SherlockFragmentActivity {
             return true;
         case R.id.delete:
             account = adapter.getItem((int)info.id);
-            // stop camera upload service
-            if (SettingsManager.instance().getCameraUploadAccountEmail() != null) {
-                if (SettingsManager.instance().getCameraUploadAccountEmail().equals(account.getEmail())
-                        && 
-                        SettingsManager.instance().getCameraUploadAccountServer().equals(account.getServer())) {
-                    Intent cameraUploadIntent = new Intent(this, CameraUploadService.class);
-                    stopService(cameraUploadIntent);
-                }
-            }
-            accountManager.deleteAccount(account);
+
+            accountManager.stopCamerUploadServiceByAccount(account);
+            accountManager.deleteAccountFromDB(account);
             if (mMonitorService != null) {
                 mMonitorService.removeAccount(account);
             }
-            clearDataFromSharedPreferences(account);
+            accountManager.deleteAccountFromSharedPreference(account);
+            accountManager.deleteCameraUploadSettingsByAccount(account);
 
             refreshView();
             return true;

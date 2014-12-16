@@ -184,6 +184,25 @@ public class SeafConnection {
         }
     }
 
+    /**
+     * <p>
+     *     get Account info, which consists of three fields, usage, total and email.
+     * </p>
+     * use GET to send HTTP request.
+     *
+     * @return
+     * @throws SeafException
+     */
+    public String getAccountInfo() throws IOException, SeafException {
+        String apiPath = String.format("api2/account/info/");
+
+        HttpRequest req = prepareApiGetRequest(apiPath);
+        checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+        String result = new String(req.bytes(), "UTF-8");
+
+        return result;
+    }
+
     public boolean doLogin() throws SeafException {
         try {
             return realLogin();
@@ -395,7 +414,7 @@ public class SeafConnection {
      * @param repoID
      * @param path
      * @param localPath
-     * @param cachedDirID The file id of the local cached version
+     * @param cachedFileID The file id of the local cached version
      * @param monitor
      * @return A two tuple of (fileID, file). If the local cached version is up to date, the returned file is null.
      */

@@ -53,6 +53,7 @@ import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
 import com.seafile.seadroid2.avatar.AvatarManageService;
 import com.seafile.seadroid2.data.DataManager;
@@ -117,7 +118,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     private TabPageIndicator indicator;
 
     private Account account;
-    NavContext navContext = null;
+    NavContext navContext = new NavContext();;
     DataManager dataManager = null;
     TransferService txService = null;
     TransferReceiver mTransferReceiver;
@@ -184,19 +185,19 @@ public class BrowserActivity extends SherlockFragmentActivity
         
         // Get the message from the intent
         Intent intent = getIntent();
-        String server = intent.getStringExtra("server");
-        String email = intent.getStringExtra("email");
-        String token = intent.getStringExtra("token");
+        String server = intent.getStringExtra(AccountManager.SHARED_PREF_SERVER_KEY);
+        String email = intent.getStringExtra(AccountManager.SHARED_PREF_EMAIL_KEY);
+        String token = intent.getStringExtra(AccountManager.SHARED_PREF_TOKEN_KEY);
         account = new Account(server, email, null, token);
         Log.d(DEBUG_TAG, "browser activity onCreate " + server + " " + email);
 
-        SharedPreferences sharedPref = getSharedPreferences(AccountsActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
         if (server == null) {
-            String latest_server = sharedPref.getString(AccountsActivity.SHARED_PREF_SERVER_KEY, null);
-            String latest_email = sharedPref.getString(AccountsActivity.SHARED_PREF_EMAIL_KEY, null);
-            String latest_token = sharedPref.getString(AccountsActivity.SHARED_PREF_TOKEN_KEY, null);
-            if (latest_server != null) {
-                account = new Account(latest_server, latest_email, null, latest_token);
+            AccountManager accountManager = new AccountManager(this);
+            // get current Account from SharedPreference
+            // "current" means the Account is in using at foreground if multiple accounts exist
+            Account act = accountManager.getCurrentAccount();
+            if (act != null) {
+                account = act;
             } else {
                 Intent newIntent = new Intent(this, AccountsActivity.class);
                 newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -209,7 +210,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
 
         dataManager = new DataManager(account);
-        navContext = new NavContext();
+
 
         getSupportFragmentManager().addOnBackStackChangedListener(this);
 
@@ -299,62 +300,63 @@ public class BrowserActivity extends SherlockFragmentActivity
         // start avatar service
         Intent avatarIntent = new Intent(this, AvatarManageService.class);
         startService(avatarIntent);
+
     }
 
     class SeafileTabsAdapter extends FragmentPagerAdapter implements
-    IconPagerAdapter {
+            IconPagerAdapter {
         public SeafileTabsAdapter(FragmentManager fm) {
             super(fm);
         }
-        
+
         private ReposFragment reposFragment = null;
         private ActivitiesFragment activitieFragment = null;
         private StarredFragment starredFragment = null;
-        
+
         @Override
         public Fragment getItem(int position) {
             switch (position) {
-            case 0:
-                
-                if (reposFragment == null) {
-                    reposFragment = new ReposFragment();
-                }
-                return reposFragment;
-            case 1:
-                if (starredFragment == null) {
-                    starredFragment = new StarredFragment();
-                }
-                return starredFragment;
-            case 2:
-                if (activitieFragment == null) {
-                    activitieFragment = new ActivitiesFragment();
-                }
-                return activitieFragment;
-            default:
-                return new Fragment();
+                case 0:
+
+                    if (reposFragment == null) {
+                        reposFragment = new ReposFragment();
+                    }
+                    return reposFragment;
+                case 1:
+                    if (starredFragment == null) {
+                        starredFragment = new StarredFragment();
+                    }
+                    return starredFragment;
+                case 2:
+                    if (activitieFragment == null) {
+                        activitieFragment = new ActivitiesFragment();
+                    }
+                    return activitieFragment;
+                default:
+                    return new Fragment();
             }
         }
-        
+
         @Override
         public CharSequence getPageTitle(int position) {
             switch (position) {
-            case 0:
-                return getString(R.string.tabs_library).toUpperCase();
-            case 1:
-                return getString(R.string.tabs_starred).toUpperCase();
-            case 2:
-                return getString(R.string.tabs_activity).toUpperCase();
-        
-            default:
-                return null;
+                case 0:
+                    return getString(R.string.tabs_library).toUpperCase();
+                case 1:
+                    return getString(R.string.tabs_starred).toUpperCase();
+                case 2:
+                    return getString(R.string.tabs_activity).toUpperCase();
+
+                default:
+                    return null;
             }
         }
-        
+
         @Override
         public int getIconResId(int index) {
             return ICONS[index];
         }
-        
+
         @Override
         public int getCount() {
             return ICONS.length;
@@ -1134,7 +1136,6 @@ public class BrowserActivity extends SherlockFragmentActivity
     /**
      * Share a file. Generating a file share link and send the link to someone
      * through some app.
-     * @param fileName
      */
     public void shareFile(String repoID, String path) {
         chooseShareApp(repoID, path, false);

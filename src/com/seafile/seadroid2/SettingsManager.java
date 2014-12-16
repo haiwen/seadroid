@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.ui.activity.AccountsActivity;
+import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.util.Utils;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 
@@ -14,10 +14,10 @@ import com.seafile.seadroid2.gesturelock.LockPatternUtils;
  */
 public final class SettingsManager {
     private static final String DEBUG_TAG = "SettingsManager";
-    
+
     // Global variables
     private SharedPreferences sharedPref = SeadroidApplication.getAppContext()
-            .getSharedPreferences(AccountsActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+            .getSharedPreferences(AccountManager.SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
     private SharedPreferences.Editor editor = sharedPref.edit();
     private static SettingsManager instance;
@@ -27,6 +27,11 @@ public final class SettingsManager {
 
     private SharedPreferences settingsSharedPref = PreferenceManager
             .getDefaultSharedPreferences(SeadroidApplication.getAppContext());
+
+    // Account
+    public static final String SETTINGS_ACCOUNT_INFO_KEY = "account_info_user_key";
+    public static final String SETTINGS_ACCOUNT_SPACE_KEY = "account_info_space_key";
+    public static final String SETTINGS_ACCOUNT_SIGN_OUT_KEY = "account_sign_out_key";
 
     // Gesture Lock
     public static final String GESTURE_LOCK_SWITCH_KEY = "gesture_lock_switch_key";
@@ -162,4 +167,5 @@ public final class SettingsManager {
     public String getCameraUploadAccountToken() {
         return sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN, null);
     }
+
 }
