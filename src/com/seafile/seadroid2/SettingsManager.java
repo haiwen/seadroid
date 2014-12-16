@@ -187,7 +187,7 @@ public final class SettingsManager {
     public Account getCurrentAccount() {
         AccountManager accountMgr = new AccountManager(
                 SeadroidApplication.getAppContext());
-        return accountMgr.getDefaultAccount();
+        return accountMgr.getCurrentAccount();
     }
 
     public void delCachesByActSignature(Account account) {
