@@ -47,6 +47,7 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
     private CheckBoxPreference allowMobileConnections;
     private Preference cameraUploadRepo;
     private Preference versionName;
+    private Preference authorInfo;
     private SettingsActivity mActivity;
     private Intent cameraUploadIntent;
     private boolean isUploadEnabled;
@@ -142,13 +143,15 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
 
         // About
         versionName = findPreference(SettingsManager.SETTINGS_ABOUT_VERSION_KEY);
-        versionName.setOnPreferenceClickListener(this);
         try {
             appVersion = mActivity.getPackageManager().getPackageInfo(mActivity.getPackageName(), 0).versionName;
         } catch (NameNotFoundException e) {
             e.printStackTrace();
         }
         versionName.setSummary(appVersion);
+
+        authorInfo = findPreference(SettingsManager.SETTINGS_ABOUT_AUTHOR_KEY);
+        authorInfo.setOnPreferenceClickListener(this);
     }
 
     @Override
@@ -234,11 +237,11 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
             Intent intent = new Intent(mActivity, SeafilePathChooserActivity.class);
             intent.putExtra(EXTRA_CAMERA_UPLOAD, true);
             this.startActivityForResult(intent, SettingsManager.CHOOSE_CAMERA_UPLOAD_REPO_REQUEST);
-        } else if(preference.getKey().equals(SettingsManager.SETTINGS_ABOUT_VERSION_KEY)) {
+        } else if(preference.getKey().equals(SettingsManager.SETTINGS_ABOUT_AUTHOR_KEY)) {
             SeafileStyleDialogBuilder builder = new SeafileStyleDialogBuilder(mActivity);
             builder.setIcon(R.drawable.icon);            
             builder.setTitle(mActivity.getResources().getString(R.string.app_name));
-            builder.setMessage(Html.fromHtml(getString(R.string.settings_about_version_info, versionName)));
+            builder.setMessage(Html.fromHtml(getString(R.string.settings_about_author_info, versionName)));
             builder.show();
         }
         return true;

@@ -243,7 +243,8 @@
     
     <string name="settings_about_title">ABOUT</string>
     <string name="settings_about_version_title">App Version</string>
-    <string name="settings_about_version_info">
+    <string name="settings_about_author_title">About Author</string>
+    <string name="settings_about_author_info">
         <![CDATA[
         <h5>Seafile Andoird Client</h5>
         <p>%s</p>
