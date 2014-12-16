@@ -191,7 +191,7 @@
     <string name="settings_account_space_title">Space used</string>
     <string name="settings_account_sign_out_title">Sign out</string>
     <string name="settings_account_sign_out_hint">Click to sign out</string>
-    <string name="settings_account_sign_out_confirm">This will clear your authorized data, do you want to sign out?</string>
+    <string name="settings_account_sign_out_confirm">Do you want to sign out?</string>
 
     <string name="security">Security</string>
     <string name="gesture_lock">Gesture Lock</string>
