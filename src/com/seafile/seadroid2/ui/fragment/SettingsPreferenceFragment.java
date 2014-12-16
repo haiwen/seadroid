@@ -437,8 +437,6 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
         }
     }
 
-
-
     private void calculateCacheSize() {
         String filesDir = dataMgr.getAccountDir();
         String cacheDir = DataManager.getExternalCacheDirectory();
@@ -447,7 +445,6 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
 
         ConcurrentAsyncTask.execute(new CalculateCacheTask(), filesDir, cacheDir, tempDir, thumbDir);
     }
-
 
     class CalculateCacheTask extends AsyncTask<String, Void, Long> {
 
