@@ -3,6 +3,7 @@ package com.seafile.seadroid2.ui.fragment;
 import java.io.File;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -96,11 +97,12 @@ public class ReposFragment extends SherlockListFragment {
         mProgressContainer = root.findViewById(R.id.progressContainer);
 
         // Set a listener to be invoked when the list should be refreshed.
-        mPullRefreshListView.setOnRefreshListener(new PullToRefreshListView.OnRefreshListener(){
+        mPullRefreshListView.setOnRefreshListener(new PullToRefreshListView.OnRefreshListener() {
 
             @Override
             public void onRefresh() {
-                mHeadProgress.setVisibility(ProgressBar.VISIBLE);
+                // mHeadProgress.setVisibility(ProgressBar.VISIBLE);
+                mRefreshType = REFRESH_ON_PULL;
                 refreshView(true);
 
             }
@@ -186,6 +188,9 @@ public class ReposFragment extends SherlockListFragment {
         if (!Utils.isNetworkOn() || !forceRefresh) {
             List<SeafRepo> repos = getDataManager().getReposFromCache();
             if (repos != null) {
+                if (mRefreshType == REFRESH_ON_PULL)
+                    mPullRefreshListView.onRefreshComplete();
+
                 updateAdapterWithRepos(repos);
                 return;
             }
@@ -216,7 +221,9 @@ public class ReposFragment extends SherlockListFragment {
             List<SeafDirent> dirents = dataManager.getCachedDirents(
                     nav.getRepoID(), nav.getDirPath());
             if (dirents != null) {
-                mHeadProgress.setVisibility(ProgressBar.GONE);
+                if (mRefreshType == REFRESH_ON_PULL)
+                    mPullRefreshListView.onRefreshComplete();
+
                 updateAdapterWithDirents(dirents);
                 return;
             }
@@ -391,7 +398,7 @@ public class ReposFragment extends SherlockListFragment {
                     || mRefreshType == REFRESH_ON_RESUME) {
                 showLoading(true);
             } else if (mRefreshType == REFRESH_ON_PULL) {
-                mHeadProgress.setVisibility(ProgressBar.VISIBLE);
+                // mHeadProgress.setVisibility(ProgressBar.VISIBLE);
             }
         }
         
@@ -434,7 +441,8 @@ public class ReposFragment extends SherlockListFragment {
                     || mRefreshType == REFRESH_ON_RESUME) {
                 showLoading(false);
             } else if (mRefreshType == REFRESH_ON_PULL) {
-                mHeadProgress.setVisibility(ProgressBar.GONE);
+                // mHeadProgress.setVisibility(ProgressBar.GONE);
+                mPullRefreshListView.onRefreshComplete("Last update " + new Date().toLocaleString());
             }
             if (mActivity == null)
                 // this occurs if user navigation to another activity
@@ -538,7 +546,7 @@ public class ReposFragment extends SherlockListFragment {
                     || mRefreshType == REFRESH_ON_RESUME) {
                 showLoading(true);
             } else if (mRefreshType == REFRESH_ON_PULL) {
-                mHeadProgress.setVisibility(ProgressBar.VISIBLE);
+                // mHeadProgress.setVisibility(ProgressBar.VISIBLE);
             }
         }
         
@@ -591,7 +599,8 @@ public class ReposFragment extends SherlockListFragment {
                     || mRefreshType == REFRESH_ON_RESUME) {
                 showLoading(false);
             } else if (mRefreshType == REFRESH_ON_PULL) {
-                mHeadProgress.setVisibility(ProgressBar.GONE);
+                // mHeadProgress.setVisibility(ProgressBar.GONE);
+                mPullRefreshListView.onRefreshComplete("Last update time" + new Date().toLocaleString());
             }
             if (mActivity == null)
                 // this occurs if user navigation to another activity

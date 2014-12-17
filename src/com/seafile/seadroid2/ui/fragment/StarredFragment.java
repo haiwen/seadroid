@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui.fragment;
 
+import java.util.Date;
 import java.util.List;
 
 import android.app.Activity;
@@ -207,6 +208,10 @@ public class StarredFragment extends SherlockListFragment {
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(List<SeafStarredFile> starredFiles) {
+            // Call onRefreshComplete when the list has been refreshed.
+            mPullRefreshListView.onRefreshComplete("Last update " + new Date().toLocaleString());
+            //showLoading(false);
+
             if (mActivity == null)
                 // this occurs if user navigation to another activity
                 return;
@@ -222,9 +227,6 @@ public class StarredFragment extends SherlockListFragment {
             }
 
             updateAdapterWithStarredFiles(starredFiles);
-            // Call onRefreshComplete when the list has been refreshed.
-            mPullRefreshListView.onRefreshComplete();
-            //showLoading(false);
         }
     }
 
