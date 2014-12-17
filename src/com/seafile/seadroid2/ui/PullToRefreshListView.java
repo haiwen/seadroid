@@ -284,7 +284,7 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
             progressBar.setVisibility(View.GONE);
             arrowImageView.clearAnimation();  
             // 此处更换图标   
-            arrowImageView.setImageResource(R.drawable.ic_pulltorefresh_arrow);  
+            arrowImageView.setImageResource(R.drawable.pulltorefresh_arrow);
   
             tipsTextview.setText(R.string.pull_to_refresh_pull_label);  
             lastUpdatedTextView.setVisibility(View.VISIBLE);
