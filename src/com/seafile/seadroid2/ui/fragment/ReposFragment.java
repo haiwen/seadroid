@@ -55,7 +55,6 @@ public class ReposFragment extends SherlockListFragment {
     private SeafItemAdapter adapter;
     private BrowserActivity mActivity = null;
 
-    private ProgressBar mHeadProgress;
     private PullToRefreshListView mPullRefreshListView;
     private TextView mEmptyView;
     private View mProgressContainer;
@@ -89,7 +88,6 @@ public class ReposFragment extends SherlockListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.repos_fragment, container, false);
-        mHeadProgress = (ProgressBar) root.findViewById(R.id.main_head_progress);
         mPullRefreshListView = (PullToRefreshListView) root.findViewById(android.R.id.list);
         mEmptyView = (TextView) root.findViewById(R.id.empty);
         mListContainer =  root.findViewById(R.id.listContainer);
