@@ -48,6 +48,8 @@ public class ReposFragment extends SherlockListFragment {
     private static final int REFRESH_ON_CLICK = 2;
     private static final int REFRESH_ON_OVERFLOW_MENU = 3;
     private static int mRefreshType = -1;
+    /** flag to stop refreshing when nav to other directory  */
+    private static int mPullToRefreshStopRefreshing = 0;
 
     private SeafItemAdapter adapter;
     private BrowserActivity mActivity = null;
@@ -178,12 +180,21 @@ public class ReposFragment extends SherlockListFragment {
     }
 
     public void navToReposView(boolean forceRefresh) {
+        mPullToRefreshStopRefreshing ++;
+
+        if (mPullToRefreshStopRefreshing >1) {
+            mPullRefreshListView.onRefreshComplete();
+            mPullToRefreshStopRefreshing = 0;
+        }
+
         forceRefresh = forceRefresh || isReposRefreshTimeOut();
         if (!Utils.isNetworkOn() || !forceRefresh) {
             List<SeafRepo> repos = getDataManager().getReposFromCache();
             if (repos != null) {
-                if (mRefreshType == REFRESH_ON_PULL)
+                if (mRefreshType == REFRESH_ON_PULL) {
                     mPullRefreshListView.onRefreshComplete();
+                    mPullToRefreshStopRefreshing = 0;
+                }
 
                 updateAdapterWithRepos(repos);
                 return;
@@ -194,6 +205,13 @@ public class ReposFragment extends SherlockListFragment {
     }
 
     public void navToDirectory(boolean forceRefresh) {
+        mPullToRefreshStopRefreshing ++;
+
+        if (mPullToRefreshStopRefreshing > 1) {
+            mPullRefreshListView.onRefreshComplete();
+            mPullToRefreshStopRefreshing = 0;
+        }
+
         NavContext nav = getNavContext();
         DataManager dataManager = getDataManager();
 
@@ -215,8 +233,10 @@ public class ReposFragment extends SherlockListFragment {
             List<SeafDirent> dirents = dataManager.getCachedDirents(
                     nav.getRepoID(), nav.getDirPath());
             if (dirents != null) {
-                if (mRefreshType == REFRESH_ON_PULL)
+                if (mRefreshType == REFRESH_ON_PULL) {
                     mPullRefreshListView.onRefreshComplete();
+                    mPullToRefreshStopRefreshing = 0;
+                }
 
                 updateAdapterWithDirents(dirents);
                 return;
@@ -438,6 +458,7 @@ public class ReposFragment extends SherlockListFragment {
                 String lastUpdate = getDataManager().getLastPullToRefreshTime(DataManager.PULL_TO_REFRESH_LAST_TIME_FOR_REPOS_FRAGMENT);
                 mPullRefreshListView.onRefreshComplete(lastUpdate);
                 getDataManager().saveLastPullToRefreshTime(System.currentTimeMillis(), DataManager.PULL_TO_REFRESH_LAST_TIME_FOR_REPOS_FRAGMENT);
+                mPullToRefreshStopRefreshing = 0;
             }
             if (mActivity == null)
                 // this occurs if user navigation to another activity
@@ -597,6 +618,7 @@ public class ReposFragment extends SherlockListFragment {
                 String lastUpdate = getDataManager().getLastPullToRefreshTime(DataManager.PULL_TO_REFRESH_LAST_TIME_FOR_REPOS_FRAGMENT);
                 mPullRefreshListView.onRefreshComplete(lastUpdate);
                 getDataManager().saveLastPullToRefreshTime(System.currentTimeMillis(), DataManager.PULL_TO_REFRESH_LAST_TIME_FOR_REPOS_FRAGMENT);
+                mPullToRefreshStopRefreshing = 0;
             }
             if (mActivity == null)
                 // this occurs if user navigation to another activity
