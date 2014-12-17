@@ -38,7 +38,11 @@ public class DataManager {
     private static final long SET_PASSWORD_INTERVAL = 59 * 60 * 1000; // 59 min
     // private static final long SET_PASSWORD_INTERVAL = 5 * 1000; // 5s
 
-    public static final String LAST_PULL_TO_REFRESH_TIME = "last update";
+    // pull to refresh
+    public static final String PULL_TO_REFRESH_LAST_TIME_FOR_REPOS_FRAGMENT = "repo fragment last update";
+    public static final String PULL_TO_REFRESH_LAST_TIME_FOR_STARRED_FRAGMENT = "starred fragment last update ";
+    private static SimpleDateFormat ptrDataFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
     private static Map<String, PasswordInfo> passwords = Maps.newHashMap();
     private static Map<String, Long> direntsRefreshTimeMap = Maps.newHashMap();
     public static final long REFRESH_EXPIRATION_MSECS = 10 * 60 * 1000; // 10 mins
@@ -749,22 +753,20 @@ public class DataManager {
         repoRefreshTimeStamp = Utils.now();
     }
 
-    public void saveLastPullToRefreshTime(long lastUpdateTime) {
-        direntsRefreshTimeMap.put(LAST_PULL_TO_REFRESH_TIME, lastUpdateTime);
+    public void saveLastPullToRefreshTime(long lastUpdateTime, String whichFragment) {
+        direntsRefreshTimeMap.put(whichFragment, lastUpdateTime);
     }
 
-    private static SimpleDateFormat sDataFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    public String getLastPullToRefreshTime(String whichFragment) {
 
-    public String getLastPullToRefreshTime() {
-
-        if (!direntsRefreshTimeMap.containsKey(LAST_PULL_TO_REFRESH_TIME)) {
+        if (!direntsRefreshTimeMap.containsKey(whichFragment)) {
             return null;
         }
 
-        Long objLastUpdate = direntsRefreshTimeMap.get(LAST_PULL_TO_REFRESH_TIME);
+        Long objLastUpdate = direntsRefreshTimeMap.get(whichFragment);
         if (objLastUpdate == null) return null;
 
-        long lastUpdate = direntsRefreshTimeMap.get(LAST_PULL_TO_REFRESH_TIME);
+        long lastUpdate = direntsRefreshTimeMap.get(whichFragment);
 
         long diffTime = new Date().getTime() - lastUpdate;
         int seconds = (int) (diffTime / 1000);
@@ -785,7 +787,7 @@ public class DataManager {
                 int hours = minutes / 60;
                 if (hours > 24) {
                     Date date = new Date(lastUpdate);
-                    sb.append(sDataFormat.format(date));
+                    sb.append(ptrDataFormat.format(date));
                 } else {
                     sb.append(hours + SeadroidApplication.getAppContext().getString(R.string.pull_to_refresh_last_update_hours_ago));
                 }
@@ -796,4 +798,5 @@ public class DataManager {
         }
         return sb.toString();
     }
+
 }

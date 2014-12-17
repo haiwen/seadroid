@@ -3,21 +3,18 @@ package com.seafile.seadroid2.ui.fragment;
 import java.io.File;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -438,9 +435,9 @@ public class ReposFragment extends SherlockListFragment {
                     || mRefreshType == REFRESH_ON_RESUME) {
                 showLoading(false);
             } else if (mRefreshType == REFRESH_ON_PULL) {
-                String lastUpdate = getDataManager().getLastPullToRefreshTime();
+                String lastUpdate = getDataManager().getLastPullToRefreshTime(DataManager.PULL_TO_REFRESH_LAST_TIME_FOR_REPOS_FRAGMENT);
                 mPullRefreshListView.onRefreshComplete(lastUpdate);
-                getDataManager().saveLastPullToRefreshTime(System.currentTimeMillis());
+                getDataManager().saveLastPullToRefreshTime(System.currentTimeMillis(), DataManager.PULL_TO_REFRESH_LAST_TIME_FOR_REPOS_FRAGMENT);
             }
             if (mActivity == null)
                 // this occurs if user navigation to another activity
@@ -597,9 +594,9 @@ public class ReposFragment extends SherlockListFragment {
                     || mRefreshType == REFRESH_ON_RESUME) {
                 showLoading(false);
             } else if (mRefreshType == REFRESH_ON_PULL) {
-                String lastUpdate = getDataManager().getLastPullToRefreshTime();
+                String lastUpdate = getDataManager().getLastPullToRefreshTime(DataManager.PULL_TO_REFRESH_LAST_TIME_FOR_REPOS_FRAGMENT);
                 mPullRefreshListView.onRefreshComplete(lastUpdate);
-                getDataManager().saveLastPullToRefreshTime(System.currentTimeMillis());
+                getDataManager().saveLastPullToRefreshTime(System.currentTimeMillis(), DataManager.PULL_TO_REFRESH_LAST_TIME_FOR_REPOS_FRAGMENT);
             }
             if (mActivity == null)
                 // this occurs if user navigation to another activity
