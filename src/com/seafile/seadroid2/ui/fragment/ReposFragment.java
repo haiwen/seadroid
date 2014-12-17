@@ -101,7 +101,6 @@ public class ReposFragment extends SherlockListFragment {
 
             @Override
             public void onRefresh() {
-                // mHeadProgress.setVisibility(ProgressBar.VISIBLE);
                 mRefreshType = REFRESH_ON_PULL;
                 refreshView(true);
 
@@ -398,7 +397,7 @@ public class ReposFragment extends SherlockListFragment {
                     || mRefreshType == REFRESH_ON_RESUME) {
                 showLoading(true);
             } else if (mRefreshType == REFRESH_ON_PULL) {
-                // mHeadProgress.setVisibility(ProgressBar.VISIBLE);
+
             }
         }
         
@@ -441,8 +440,9 @@ public class ReposFragment extends SherlockListFragment {
                     || mRefreshType == REFRESH_ON_RESUME) {
                 showLoading(false);
             } else if (mRefreshType == REFRESH_ON_PULL) {
-                // mHeadProgress.setVisibility(ProgressBar.GONE);
-                mPullRefreshListView.onRefreshComplete("Last update " + new Date().toLocaleString());
+                String lastUpdate = getDataManager().getLastPullToRefreshTime();
+                mPullRefreshListView.onRefreshComplete(lastUpdate);
+                getDataManager().saveLastPullToRefreshTime(System.currentTimeMillis());
             }
             if (mActivity == null)
                 // this occurs if user navigation to another activity
@@ -599,8 +599,9 @@ public class ReposFragment extends SherlockListFragment {
                     || mRefreshType == REFRESH_ON_RESUME) {
                 showLoading(false);
             } else if (mRefreshType == REFRESH_ON_PULL) {
-                // mHeadProgress.setVisibility(ProgressBar.GONE);
-                mPullRefreshListView.onRefreshComplete("Last update time" + new Date().toLocaleString());
+                String lastUpdate = getDataManager().getLastPullToRefreshTime();
+                mPullRefreshListView.onRefreshComplete(lastUpdate);
+                getDataManager().saveLastPullToRefreshTime(System.currentTimeMillis());
             }
             if (mActivity == null)
                 // this occurs if user navigation to another activity

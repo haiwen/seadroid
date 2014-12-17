@@ -4,10 +4,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.seafile.seadroid2.R;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,6 +38,7 @@ public class DataManager {
     private static final long SET_PASSWORD_INTERVAL = 59 * 60 * 1000; // 59 min
     // private static final long SET_PASSWORD_INTERVAL = 5 * 1000; // 5s
 
+    public static final String LAST_PULL_TO_REFRESH_TIME = "last update";
     private static Map<String, PasswordInfo> passwords = Maps.newHashMap();
     private static Map<String, Long> direntsRefreshTimeMap = Maps.newHashMap();
     public static final long REFRESH_EXPIRATION_MSECS = 10 * 60 * 1000; // 10 mins
@@ -744,5 +748,52 @@ public class DataManager {
     public void setReposRefreshTimeStamp() {
         repoRefreshTimeStamp = Utils.now();
     }
-    
+
+    public void saveLastPullToRefreshTime(long lastUpdateTime) {
+        direntsRefreshTimeMap.put(LAST_PULL_TO_REFRESH_TIME, lastUpdateTime);
+    }
+
+    private static SimpleDateFormat sDataFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+    public String getLastPullToRefreshTime() {
+
+        if (!direntsRefreshTimeMap.containsKey(LAST_PULL_TO_REFRESH_TIME)) {
+            return null;
+        }
+
+        Long objLastUpdate = direntsRefreshTimeMap.get(LAST_PULL_TO_REFRESH_TIME);
+        if (objLastUpdate == null) return null;
+
+        long lastUpdate = direntsRefreshTimeMap.get(LAST_PULL_TO_REFRESH_TIME);
+
+        long diffTime = new Date().getTime() - lastUpdate;
+        int seconds = (int) (diffTime / 1000);
+        if (diffTime < 0) {
+            return null;
+        }
+        if (seconds <= 0) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append(SeadroidApplication.getAppContext().getString(R.string.pull_to_refresh_last_update));
+
+        if (seconds < 60) {
+            sb.append(seconds + SeadroidApplication.getAppContext().getString(R.string.pull_to_refresh_last_update_seconds_ago));
+        } else {
+            int minutes = (seconds / 60);
+            if (minutes > 60) {
+                int hours = minutes / 60;
+                if (hours > 24) {
+                    Date date = new Date(lastUpdate);
+                    sb.append(sDataFormat.format(date));
+                } else {
+                    sb.append(hours + SeadroidApplication.getAppContext().getString(R.string.pull_to_refresh_last_update_hours_ago));
+                }
+
+            } else {
+                sb.append(minutes + SeadroidApplication.getAppContext().getString(R.string.pull_to_refresh_last_update_minutes_ago));
+            }
+        }
+        return sb.toString();
+    }
 }

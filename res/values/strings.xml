@@ -259,7 +259,11 @@
     <string name="pull_to_refresh_from_bottom_pull_label">@string/pull_to_refresh_pull_label</string>
     <string name="pull_to_refresh_from_bottom_release_label">@string/pull_to_refresh_release_label</string>
     <string name="pull_to_refresh_from_bottom_refreshing_label">@string/pull_to_refresh_refreshing_label</string>
-        
+    <string name="pull_to_refresh_last_update">Last update :&#160;</string>
+    <string name="pull_to_refresh_last_update_seconds_ago">&#160;seconds ago</string>
+    <string name="pull_to_refresh_last_update_minutes_ago">&#160;minutes ago</string>
+    <string name="pull_to_refresh_last_update_hours_ago">&#160;hours ago</string>
+
     <string name="saf_open_file_exception">Could not open file %s.</string>
     <string name="saf_open_directory_exception">Can not open directory.</string>
     <string name="saf_file_not_cached_exception">File %s not cached.</string>
