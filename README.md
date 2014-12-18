@@ -27,7 +27,7 @@ You will get `target/seadroid.apk` after the build finishes.
 - Git clone `NewQuickAction`
 
         git clone https://github.com/haiwen/NewQuickAction
-- Add ActionBarSherlock/NewQuickAction/ViewPagerIndicator as library according to <http://developer.android.com/guide/developing/projects/projects-eclipse.html#ReferencingLibraryProject>
+- Add ActionBarSherlock/NewQuickAction/ViewPagerIndicator as library according to this [referencing library tutorial](http://developer.android.com/guide/developing/projects/projects-eclipse.html#ReferencingLibraryProject)
 
 - Replace the android-support-v4.jar in `ActionBarSherlock` and `ViewPagerIndicator` with the jar in seadroid to make sure that all versions of this library be the same at this time.
 
