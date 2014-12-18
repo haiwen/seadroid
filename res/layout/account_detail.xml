@@ -33,25 +33,19 @@
             android:background="@drawable/edit_text_holo_light"
             android:inputType="textUri" />
 
-        <EditText
+        <com.seafile.seadroid2.ui.CustomClearableEditText
             android:id="@+id/email_address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:hint="@string/email_hint"
-            android:background="@drawable/edit_text_holo_light"
-            android:inputType="textEmailAddress" />
+            android:layout_marginRight="20dp" />
 
-        <EditText
+        <com.seafile.seadroid2.ui.CustomClearableEditText
             android:id="@+id/password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:hint="@string/passwd_hint"
-            android:background="@drawable/edit_text_holo_light"
-            android:inputType="textPassword" />
+            android:layout_marginRight="20dp" />
     </LinearLayout>
 
     <LinearLayout

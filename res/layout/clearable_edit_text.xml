@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" >
+
+    <AutoCompleteTextView
+            android:id="@+id/clearable_edit"
+            android:layout_width="fill_parent"
+            android:layout_height="40dp"
+            android:hint="@string/email_hint"
+            android:background="@drawable/edit_text_holo_light"
+            android:paddingRight="35dip"
+            />
+    <Button
+            android:id="@+id/clearable_button_clear"
+            android:layout_width="20dip"
+            android:layout_height="20dip"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/clear_text"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="5dip"/>
+
+</RelativeLayout>

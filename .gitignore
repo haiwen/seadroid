@@ -12,3 +12,8 @@ proguard/
 target/
 lint.xml
 *.apk
+.DS_Store
+.idea/
+Seadroid2.iml
+out/
+

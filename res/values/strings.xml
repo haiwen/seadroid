@@ -184,7 +184,15 @@
     <string name="cannot_move_folder_to_subfolder">You can\'t move a folder to its subfolder</string>
     <string name="cancel">Cancel</string>
     <string name="confirm">Confirm</string>
-    
+
+    <string name="settings_account">Account</string>
+    <string name="settings_account_info_title">User info</string>
+    <string name="settings_account_info_load_data">loading...</string>
+    <string name="settings_account_space_title">Space used</string>
+    <string name="settings_account_sign_out_title">Sign out</string>
+    <string name="settings_account_sign_out_hint">Click to sign out</string>
+    <string name="settings_account_sign_out_confirm">This will clear your authorized data, do you want to sign out?</string>
+
     <string name="security">Security</string>
     <string name="gesture_lock">Gesture Lock</string>
     <string name="gesture_lock_on">Gesture lock on</string>
@@ -235,7 +243,8 @@
     
     <string name="settings_about_title">ABOUT</string>
     <string name="settings_about_version_title">App Version</string>
-    <string name="settings_about_version_info">
+    <string name="settings_about_author_title">About Author</string>
+    <string name="settings_about_author_info">
         <![CDATA[
         <h5>Seafile Andoird Client</h5>
         <p>%s</p>

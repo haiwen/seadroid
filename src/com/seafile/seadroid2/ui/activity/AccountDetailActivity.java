@@ -3,23 +3,21 @@ package com.seafile.seadroid2.ui.activity;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.support.v4.app.TaskStackBuilder;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.TextView;
+import android.widget.*;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -30,11 +28,9 @@ import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
-import com.seafile.seadroid2.R.id;
-import com.seafile.seadroid2.R.layout;
-import com.seafile.seadroid2.R.string;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.ui.CustomClearableEditText;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 
 public class AccountDetailActivity extends SherlockFragmentActivity {
@@ -46,8 +42,8 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
     private TextView statusView;
     private Button loginButton;
     private EditText serverText;
-    private EditText emailText;
-    private EditText passwdText;
+    private CustomClearableEditText emailText;
+    private CustomClearableEditText passwdText;
     private CheckBox httpsCheckBox;
     private TextView seahubUrlHintText;
 
@@ -69,12 +65,21 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
         loginButton = (Button) findViewById(R.id.login_button);
         httpsCheckBox = (CheckBox) findViewById(R.id.https_checkbox);
         serverText = (EditText) findViewById(R.id.server_url);
-        emailText = (EditText) findViewById(R.id.email_address);
-        passwdText = (EditText) findViewById(R.id.password);
+        emailText = (CustomClearableEditText) findViewById(R.id.email_address);
+        emailText.setInputType(CustomClearableEditText.INPUT_TYPE_EMAIL);
+        passwdText = (CustomClearableEditText) findViewById(R.id.password);
+        passwdText.setInputType(CustomClearableEditText.INPUT_TYPE_PASSWORD);
         seahubUrlHintText = (TextView) findViewById(R.id.seahub_url_hint);
 
         setupServerText();
         accountManager = new AccountManager(this);
+
+        // email address auto complete when login in
+        ArrayList<String> accounts = accountManager.getAccountAutoCompleteTexts();
+        if (accounts != null) {
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, accounts);
+            emailText.setEmailAddressAutoCompleteAdapter(adapter);
+        }
 
         Intent intent = getIntent();
         String server = intent.getStringExtra("server");
@@ -102,7 +107,26 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
          switch (item.getItemId()) {
             case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
+
+                /* FYI {@link http://stackoverflow.com/questions/13293772/how-to-navigate-up-to-the-same-parent-state?rq=1} */
+                Intent upIntent = new Intent(this, AccountsActivity.class);
+                if (NavUtils.shouldUpRecreateTask(this, upIntent)) {
+                    // This activity is NOT part of this app's task, so create a new task
+                    // when navigating up, with a synthesized back stack.
+                    TaskStackBuilder.create(this)
+                            // Add all of this activity's parents to the back stack
+                            .addNextIntentWithParentStack(upIntent)
+                            // Navigate up to the closest parent
+                            .startActivities();
+                } else {
+                    // This activity is part of this app's task, so simply
+                    // navigate up to the logical parent activity.
+                    // NavUtils.navigateUpTo(this, upIntent);
+                    upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(upIntent);
+                    finish();
+                }
+
                 return true;
         }
          return super.onOptionsItemSelected(item);
@@ -228,22 +252,11 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
         }
     }
 
-    private void writeToSharedPreferences(Account account) {
-        SharedPreferences sharedPref = getSharedPreferences(AccountsActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(AccountsActivity.SHARED_PREF_SERVER_KEY, account.server);
-        editor.putString(AccountsActivity.SHARED_PREF_EMAIL_KEY, account.email);
-        editor.putString(AccountsActivity.SHARED_PREF_TOKEN_KEY, account.token);
-        editor.commit();
-    }
-
     private void startFilesActivity(Account account) {
         Intent intent = new Intent(this, BrowserActivity.class);
         intent.putExtra("server", account.server);
         intent.putExtra("email", account.email);
         intent.putExtra("token", account.token);
-
-        writeToSharedPreferences(account);
 
         startActivity(intent);
         finish(); // so the user will not return to this activity when press 'back'
@@ -298,11 +311,14 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
 
             if (result != null && result.equals("Success")) {
                 if (isFromEdit) {
-                    accountManager.updateAccount(account, loginAccount);
+                    accountManager.updateAccountFromDB(account, loginAccount);
                     isFromEdit = false;
                 } else {
-                    accountManager.saveDefaultAccount(loginAccount);
+                    accountManager.saveAccountToDB(loginAccount);
                 }
+
+                // save account to SharedPreference
+                accountManager.saveCurrentAccount(loginAccount);
                 startFilesActivity(loginAccount);
             } else {
                 statusView.setText(result);
