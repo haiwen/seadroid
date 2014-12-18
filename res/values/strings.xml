@@ -191,7 +191,7 @@
     <string name="settings_account_space_title">Space used</string>
     <string name="settings_account_sign_out_title">Sign out</string>
     <string name="settings_account_sign_out_hint">Click to sign out</string>
-    <string name="settings_account_sign_out_confirm">This will clear your authorized data, do you want to sign out?</string>
+    <string name="settings_account_sign_out_confirm">Do you want to sign out?</string>
 
     <string name="security">Security</string>
     <string name="gesture_lock">Gesture Lock</string>
@@ -258,7 +258,15 @@
         <h5>Copyright ©2013-2014 Seafile Ltd.</h5>
         ]]>
     </string>
-    
+
+    <string name="settings_advance_feature_title">ADVANCE FEATURE</string>    
+    <string name="settings_cache_title">Cache size</string>
+    <string name="settings_clear_cache_title">Clear cache</string>
+    <string name="settings_clear_cache_hint">Do you want to clear cache?</string>
+    <string name="settings_clear_cache_success">Clear cache successfully</string>
+    <string name="settings_clear_cache_failed">Clear cache failed</string>
+    <string name="settings_cache_empty">0 KB</string>
+
     <!-- pull to refresh -->
     <string name="pull_to_refresh_pull_label">Pull to refresh…</string>
     <string name="pull_to_refresh_release_label">Release to refresh…</string>

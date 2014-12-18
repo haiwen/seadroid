@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.ui.fragment;
 
+import java.io.File;
+
 import android.app.Activity;
 import android.content.*;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -18,10 +20,15 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.seafile.seadroid2.*;
+import com.seafile.seadroid2.ConcurrentAsyncTask;
+import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
+import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.gallery.Util;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
@@ -29,6 +36,8 @@ import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.ui.activity.CreateGesturePasswordActivity;
 import com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity;
 import com.seafile.seadroid2.ui.activity.SettingsActivity;
+import com.seafile.seadroid2.ui.dialog.ClearCacheTaskDialog;
+import com.seafile.seadroid2.ui.dialog.TaskDialog.TaskDialogListener;
 import com.seafile.seadroid2.util.Utils;
 import org.json.JSONException;
 
@@ -48,6 +57,8 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
     private Preference cameraUploadRepo;
     private Preference versionName;
     private Preference authorInfo;
+    private Preference cacheSizePrf;
+    private Preference clearCache;
     private SettingsActivity mActivity;
     private Intent cameraUploadIntent;
     private boolean isUploadEnabled;
@@ -56,6 +67,7 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
     private String appVersion;
     private SettingsManager settingsMgr;
     private AccountManager accountMgr;
+    private DataManager dataMgr;
 
     @Override
     public void onAttach(Activity activity) {
@@ -66,6 +78,8 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
         mActivity = (SettingsActivity) getActivity();
         settingsMgr = SettingsManager.instance();
         accountMgr = new AccountManager(mActivity);
+        Account act = settingsMgr.getCurrentAccount();
+        dataMgr = new DataManager(act);
 
         LocalBroadcastManager
                 .getInstance(mActivity)
@@ -106,6 +120,7 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
         spaceAvailablePref = findPreference(SettingsManager.SETTINGS_ACCOUNT_SPACE_KEY);
         signOutPref = findPreference(SettingsManager.SETTINGS_ACCOUNT_SIGN_OUT_KEY);
         signOutPref.setOnPreferenceClickListener(this);
+
 
         // Gesture Lock
         gestureLockSwitch = (CheckBoxPreference) findPreference(SettingsManager.GESTURE_LOCK_SWITCH_KEY);
@@ -152,6 +167,19 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
 
         authorInfo = findPreference(SettingsManager.SETTINGS_ABOUT_AUTHOR_KEY);
         authorInfo.setOnPreferenceClickListener(this);
+        // Cache
+        cacheSizePrf = findPreference(SettingsManager.SETTINGS_CACHE_SIZE_KEY);
+        calculateCacheSize();
+
+        // Clear cache
+        clearCache = findPreference(SettingsManager.SETTINGS_CLEAR_CACHE_KEY);
+        clearCache.setOnPreferenceClickListener(this);
+
+        LocalBroadcastManager
+        .getInstance(getActivity().getApplicationContext())
+        .registerReceiver(transferReceiver,
+                new IntentFilter(TransferService.BROADCAST_ACTION));
+
     }
 
     @Override
@@ -243,8 +271,35 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
             builder.setTitle(mActivity.getResources().getString(R.string.app_name));
             builder.setMessage(Html.fromHtml(getString(R.string.settings_about_author_info, versionName)));
             builder.show();
+        } else if (preference.getKey().equals(SettingsManager.SETTINGS_CLEAR_CACHE_KEY)) {
+            clearCache();
         }
         return true;
+    }
+
+    private void clearCache() {
+        String filesDir = dataMgr.getAccountDir();
+        String cacheDir = DataManager.getExternalCacheDirectory();
+        String tempDir = DataManager.getExternalTempDirectory();
+        String thumbDir = DataManager.getThumbDirectory();
+
+        ClearCacheTaskDialog dialog = new ClearCacheTaskDialog();
+        Account account = settingsMgr.getCurrentAccount();
+        dialog.init(account, filesDir, cacheDir, tempDir, thumbDir);
+        dialog.setTaskDialogLisenter(new TaskDialogListener() {
+            @Override
+            public void onTaskSuccess() {
+                // refresh cache size
+                cacheSizePrf.setSummary(getString(R.string.settings_cache_empty));
+                Toast.makeText(mActivity, getString(R.string.settings_clear_cache_success), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onTaskFailed(SeafException e) {
+                Toast.makeText(mActivity, getString(R.string.settings_clear_cache_failed), Toast.LENGTH_SHORT).show();
+            }
+        });
+        dialog.show(getFragmentManager(), "DialogFragment");
     }
 
     @Override
@@ -277,7 +332,7 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
                 String repoName = mCameraUploadRepoChooserData.getStringExtra(SeafilePathChooserActivity.DATA_REPO_NAME);
                 String repoId = mCameraUploadRepoChooserData.getStringExtra(SeafilePathChooserActivity.DATA_REPO_ID);
                 String dir = mCameraUploadRepoChooserData.getStringExtra(SeafilePathChooserActivity.DATA_DIR);
-                Account account = (Account)mCameraUploadRepoChooserData.getParcelableExtra(SeafilePathChooserActivity.DATA_ACCOUNT);
+                Account account = mCameraUploadRepoChooserData.getParcelableExtra(SeafilePathChooserActivity.DATA_ACCOUNT);
                 settingsMgr.saveCameraUploadRepoInfo(repoId, repoName, dir, account);
                 this.repoName = repoName;
                 cameraUploadRepo.setSummary(repoName);
@@ -386,6 +441,41 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
             String spaceUsage = Utils.readableFileSize(accountInfo.getUsage()) + "/" + Utils.readableFileSize(accountInfo.getTotal());
             spaceAvailablePref.setSummary(spaceUsage);
         }
+    }
+
+    private void calculateCacheSize() {
+        String filesDir = dataMgr.getAccountDir();
+        String cacheDir = DataManager.getExternalCacheDirectory();
+        String tempDir = DataManager.getExternalTempDirectory();
+        String thumbDir = DataManager.getThumbDirectory();
+
+        ConcurrentAsyncTask.execute(new CalculateCacheTask(), filesDir, cacheDir, tempDir, thumbDir);
+    }
+
+    class CalculateCacheTask extends AsyncTask<String, Void, Long> {
+
+        @Override
+        protected Long doInBackground(String... params) {
+            if (params ==  null) return 0l;
+            String filesDir = params[0];
+            String cacheDir = params[1];
+            String tempDir = params[2];
+            String thumbDir = params[3];
+            File files = new File(filesDir);
+            File caches = new File(cacheDir);
+            File temp = new File(tempDir);
+            File thumb = new File(thumbDir);
+
+            long cacheSize = Utils.getDirSize(files) + Utils.getDirSize(caches) + Utils.getDirSize(temp) + Utils.getDirSize(thumb);
+            return cacheSize;
+        }
+
+        @Override
+        protected void onPostExecute(Long aLong) {
+            String total = Utils.readableFileSize(aLong);
+            cacheSizePrf.setSummary(total);
+        }
+
     }
 
 }

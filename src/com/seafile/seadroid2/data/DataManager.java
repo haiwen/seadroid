@@ -72,19 +72,19 @@ public class DataManager {
         }
     }
 
-    private static String getExternalTempDirectory() {
+    public static String getExternalTempDirectory() {
         String root = getExternalRootDirectory();
         File tmpDir = new File(root + "/" + "temp");
         return getDirectoryCreateIfNeeded(tmpDir);
     }
 
-    private static String getThumbDirectory() {
+    public static String getThumbDirectory() {
         String root = SeadroidApplication.getAppContext().getFilesDir().getAbsolutePath();
         File tmpDir = new File(root + "/" + "thumb");
         return getDirectoryCreateIfNeeded(tmpDir);
     }
 
-    private static String getExternalCacheDirectory() {
+    public static String getExternalCacheDirectory() {
         String root = getExternalRootDirectory();
         File tmpDir = new File(root + "/" + "cache");
         return getDirectoryCreateIfNeeded(tmpDir);

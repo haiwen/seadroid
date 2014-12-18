@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
 
+import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -542,6 +543,56 @@ public class Utils {
         options.inJustDecodeBounds = false;
         // return BitmapFactory.decodeResource(res, resId, options);
         return BitmapFactory.decodeStream(stream, null, options);
+    }
+
+    /**
+     * Deletes cache directory under a specific account<br>
+     * remember to clear cache from database after called this method
+     *
+     * @param dirPath
+     * @throws IOException
+     */
+    public static void clearCache(String dirPath) throws IOException {
+        // clear all cached files inside of the directory, the directory itself included
+        File cacheDir = new File(dirPath);
+        // FileUtils.deleteDirectory(cacheDir);
+        deleteRecursive(cacheDir);
+
+    }
+
+    private  static void deleteRecursive(File fileOrDirectory) {
+
+        if (fileOrDirectory.isDirectory())
+            for (File child : fileOrDirectory.listFiles())
+                deleteRecursive(child);
+
+        final File renamedFile = new File(fileOrDirectory.getAbsolutePath() + System.currentTimeMillis());
+        fileOrDirectory.renameTo(renamedFile);
+        renamedFile.delete();
+
+    }
+
+    /**
+     * Returns total size of files in bytes of the directory.
+     *
+     * @param dirPath
+     * @return
+     */
+    public static long getDirSize(File dirPath) {
+        long totalSize = 0l;
+
+        if (!dirPath.isDirectory())
+            return 0l;
+
+        File[] files = dirPath.listFiles();
+        for (File file : files) {
+            if (file.isFile()) {
+                totalSize += file.length();
+            } else
+                totalSize += getDirSize(file);
+        }
+
+        return totalSize;
     }
 
 }
