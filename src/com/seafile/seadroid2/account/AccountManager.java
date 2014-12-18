@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.account;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
@@ -16,6 +18,8 @@ import org.json.JSONObject;
  * note the differences between {@link Account} and {@link AccountInfo}<br>
  *
  */
+import com.google.common.collect.Lists;
+
 public class AccountManager {
     @SuppressWarnings("unused")
     private static String DEBUG_TAG = "AccountManager";
@@ -63,7 +67,6 @@ public class AccountManager {
      * @param account
      */
     public void saveAccountToDB(Account account) {
-
         // save to db
         dbHelper.saveAccount(account);
     }
@@ -197,4 +200,21 @@ public class AccountManager {
         return AccountInfo.fromJson(obj);
     }
 
+    /**
+    * get all email texts from database in order to auto complete email address
+    *
+    * @return
+    */
+    public ArrayList<String> getAccountAutoCompleteTexts() {
+        ArrayList<String> autoCompleteTexts = Lists.newArrayList();
+
+        List<Account> accounts = dbHelper.getAccountList();
+
+        if (accounts == null) return null;
+        for (Account act : accounts) {
+            if (!autoCompleteTexts.contains(act.getEmail()))
+                autoCompleteTexts.add(act.getEmail());
+        }
+        return autoCompleteTexts;
+    }
 }

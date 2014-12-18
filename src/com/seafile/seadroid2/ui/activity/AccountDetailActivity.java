@@ -3,6 +3,7 @@ package com.seafile.seadroid2.ui.activity;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 
 import android.content.Context;
 import android.content.Intent;
@@ -16,10 +17,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.TextView;
+import android.widget.*;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -32,6 +30,7 @@ import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.ui.CustomClearableEditText;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 
 public class AccountDetailActivity extends SherlockFragmentActivity {
@@ -43,8 +42,8 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
     private TextView statusView;
     private Button loginButton;
     private EditText serverText;
-    private EditText emailText;
-    private EditText passwdText;
+    private CustomClearableEditText emailText;
+    private CustomClearableEditText passwdText;
     private CheckBox httpsCheckBox;
     private TextView seahubUrlHintText;
 
@@ -66,12 +65,21 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
         loginButton = (Button) findViewById(R.id.login_button);
         httpsCheckBox = (CheckBox) findViewById(R.id.https_checkbox);
         serverText = (EditText) findViewById(R.id.server_url);
-        emailText = (EditText) findViewById(R.id.email_address);
-        passwdText = (EditText) findViewById(R.id.password);
+        emailText = (CustomClearableEditText) findViewById(R.id.email_address);
+        emailText.setInputType(CustomClearableEditText.INPUT_TYPE_EMAIL);
+        passwdText = (CustomClearableEditText) findViewById(R.id.password);
+        passwdText.setInputType(CustomClearableEditText.INPUT_TYPE_PASSWORD);
         seahubUrlHintText = (TextView) findViewById(R.id.seahub_url_hint);
 
         setupServerText();
         accountManager = new AccountManager(this);
+
+        // email address auto complete when login in
+        ArrayList<String> accounts = accountManager.getAccountAutoCompleteTexts();
+        if (accounts != null) {
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, accounts);
+            emailText.setEmailAddressAutoCompleteAdapter(adapter);
+        }
 
         Intent intent = getIntent();
         String server = intent.getStringExtra("server");
