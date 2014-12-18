@@ -52,6 +52,7 @@ public final class SettingsManager {
 
     // About tab
     public static final String SETTINGS_ABOUT_VERSION_KEY = "settings_about_version_key";
+    public static final String SETTINGS_ABOUT_AUTHOR_KEY = "settings_about_author_key";
 
     public static long lock_timestamp = 0;
     public static final long LOCK_EXPIRATION_MSECS = 5 * 60 * 1000;

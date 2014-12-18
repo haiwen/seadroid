@@ -5,11 +5,13 @@
         <Preference
                 android:key="account_info_user_key"
                 android:summary="@string/settings_account_info_load_data"
+                android:enabled="false"
                 android:title="@string/settings_account_info_title" >
         </Preference>
         <Preference
                 android:key="account_info_space_key"
                 android:summary="@string/settings_account_info_load_data"
+                android:enabled="false"
                 android:title="@string/settings_account_space_title" >
         </Preference>
         <Preference
@@ -56,6 +58,10 @@
         <Preference
             android:key="settings_about_version_key"
             android:summary="@string/settings_about_version_info"
+            android:enabled="false"
             android:title="@string/settings_about_version_title" />
+        <Preference
+                android:key="settings_about_author_key"
+                android:title="@string/settings_about_author_title" />
     </PreferenceCategory>
 </PreferenceScreen>
