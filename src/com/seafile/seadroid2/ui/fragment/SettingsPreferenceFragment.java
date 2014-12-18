@@ -291,6 +291,12 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
             public void onTaskSuccess() {
                 // refresh cache size
                 cacheSizePrf.setSummary(getString(R.string.settings_cache_empty));
+                Toast.makeText(mActivity, getString(R.string.settings_clear_cache_success), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onTaskFailed(SeafException e) {
+                Toast.makeText(mActivity, getString(R.string.settings_clear_cache_failed), Toast.LENGTH_SHORT).show();
             }
         });
         dialog.show(getFragmentManager(), "DialogFragment");

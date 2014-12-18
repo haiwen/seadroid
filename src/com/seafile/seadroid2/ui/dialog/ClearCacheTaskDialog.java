@@ -10,12 +10,11 @@ import android.view.View;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.data.DatabaseHelper;
 import com.seafile.seadroid2.util.Utils;
 
 class ClearCacheTask extends TaskDialog.Task {
     private Account account;
-    private String path;
+    private String filesDir;
     private String cacheDir;
     private String tempDir;
     private String thumbDir;
@@ -23,7 +22,7 @@ class ClearCacheTask extends TaskDialog.Task {
 
     public ClearCacheTask(Account account, String filesDir, String cacheDir, String tempDir, String thumbDir, SettingsManager settingsManager) {
         this.account = account;
-        this.path = filesDir;
+        this.filesDir = filesDir;
         this.cacheDir = cacheDir;
         this.tempDir = tempDir;
         this.thumbDir = thumbDir;
@@ -34,7 +33,7 @@ class ClearCacheTask extends TaskDialog.Task {
     protected void runTask() {
         try {
             // clear cached files
-            Utils.clearCache(path);
+            Utils.clearCache(filesDir);
 
             // clear cached repo data
             Utils.clearCache(cacheDir);
@@ -85,7 +84,7 @@ public class ClearCacheTaskDialog extends TaskDialog {
 
     @Override
     protected View createDialogContentView(LayoutInflater inflater, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.dialog_delete_file, null);
+        View view = inflater.inflate(R.layout.dialog_delete_cache, null);
         return view;
     }
 
