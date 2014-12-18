@@ -97,4 +97,11 @@
         <item name="android:button">@drawable/checkbox_btn_holo_light</item>
     </style>
 
+    <style name="loading_small" parent="@android:style/Widget.ProgressBar">
+        <item name="android:indeterminateDrawable">@anim/pull_to_refresh_header_loading</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center_vertical</item>
+    </style>
+
 </resources>
