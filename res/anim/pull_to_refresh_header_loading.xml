@@ -6,6 +6,4 @@
     <item android:duration="100" android:drawable="@drawable/loading_3"/>
     <item android:duration="100" android:drawable="@drawable/loading_4"/>
     <item android:duration="100" android:drawable="@drawable/loading_5"/>
-    <item android:duration="100" android:drawable="@drawable/loading_6"/>
-    <item android:duration="100" android:drawable="@drawable/loading_7"/>
-</animation-list> 
+</animation-list>
