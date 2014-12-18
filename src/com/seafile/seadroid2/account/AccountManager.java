@@ -212,7 +212,8 @@ public class AccountManager {
 
         if (accounts == null) return null;
         for (Account act : accounts) {
-            autoCompleteTexts.add(act.getEmail());
+            if (!autoCompleteTexts.contains(act.getEmail()))
+                autoCompleteTexts.add(act.getEmail());
         }
         return autoCompleteTexts;
     }
