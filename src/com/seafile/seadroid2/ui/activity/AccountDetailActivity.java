@@ -322,8 +322,6 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
                 accountManager.saveCurrentAccount(loginAccount);
                 AvatarManager avatarManager = new AvatarManager();
                 avatarManager.setAccounts(accountManager.getAccountList());
-                // disable handler
-                avatarManager.loadAvatars(null);
 
                 startFilesActivity(loginAccount);
             } else {

@@ -2,13 +2,9 @@ package com.seafile.seadroid2.avatar;
 
 import java.util.*;
 
-import android.os.Handler;
-import android.os.Message;
 import org.json.JSONObject;
 
 import com.google.common.collect.Lists;
-import com.seafile.seadroid2.SeafConnection;
-import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.util.Utils;
 
@@ -19,16 +15,12 @@ import com.seafile.seadroid2.util.Utils;
 public class AvatarManager {
     private static final String DEBUG_TAG = "AvatarManager";
 
-    public static final int LOAD_AVATAR_FAILED_UNKNOW_ERROR = 0;
-    public static final int LOAD_AVATAR_FAILED_NETWORK_DOWN = 1;
-    public static final int LOAD_AVATAR_SUCCESSFULLY = 2;
-    public static final int LOAD_AVATAR_USE_CACHE = 3;
 
-    private SeafConnection httpConnection;
-    private List<Avatar> avatars;
+
     private List<Account> accounts;
     private final AvatarDBHelper dbHelper = AvatarDBHelper.getAvatarDbHelper();
     private HashMap<String, Avatar> avatarMgr;
+    private List<Avatar> avatars;
 
     public AvatarManager() {
         // this.accounts = accounts;
@@ -45,7 +37,7 @@ public class AvatarManager {
      *
      * @return account signature
      */
-    private ArrayList<String> getActSignatures() {
+    public ArrayList<String> getActSignatures() {
 
         if (accounts == null) return null;
 
@@ -88,7 +80,7 @@ public class AvatarManager {
      * @param signatures
      * @return
      */
-    private List<Account> getActsBySignature(ArrayList<String> signatures) {
+    public List<Account> getActsBySignature(ArrayList<String> signatures) {
 
         if (signatures == null)
             return null;
@@ -105,75 +97,15 @@ public class AvatarManager {
         return actList;
     }
 
-
-    private synchronized void loadAvatarsForAccounts(int size, Handler handler) {
-
-        if (!Utils.isNetworkOn()) {
-            // use cache
-            avatars = getAvatarList();
-            sendMessageByHandler(handler, LOAD_AVATAR_FAILED_NETWORK_DOWN);
-            return;
-        }
-
-        // contains signature of which account doesn`t have avatar yet
-        ArrayList<String> signatures = getActSignatures();
-
-        if (signatures.size() == 0) {
-            sendMessageByHandler(handler, LOAD_AVATAR_USE_CACHE);
-            return;
-        }
-
-        // contains accounts who don`t have avatars yet
-        List<Account> acts = getActsBySignature(signatures);
-
-        // contains new avatars in order to persist them to database
-        List<Avatar> newAvatars = new ArrayList<Avatar>(acts.size());
-
-        // load avatars from server
-        for (Account account : acts) {
-            httpConnection = new SeafConnection(account);
-
-            String avatarRawData = null;
-            try {
-                avatarRawData = httpConnection.getAvatar(account.getEmail(), size);
-            } catch (SeafException e) {
-                sendMessageByHandler(handler, LOAD_AVATAR_FAILED_UNKNOW_ERROR);
-            }
-
-            Avatar avatar = parseAvatar(avatarRawData);
-            avatar.setSignature(account.getSignature());
-
-            // handler will send the latest data to ui
-            avatars.add(avatar);
-
-            // save new added avatars to database
-            newAvatars.add(avatar);
-        }
-
-        sendMessageByHandler(handler, LOAD_AVATAR_SUCCESSFULLY);
-
-        // save avatars to database
-        saveAvatarList(newAvatars);
-    }
-
-    private void sendMessageByHandler(Handler handler, int statusCode) {
-        Message message = new Message();
-        message.what = statusCode;
-        message.obj = avatars;
-        if (handler != null)
-            handler.sendMessage(message);
-    }
-
-
-    private List<Avatar> getAvatarList() {
+    public List<Avatar> getAvatarList() {
         return dbHelper.getAvatarList();
     }
 
-    private void saveAvatarList(List<Avatar> avatars) {
+    public void saveAvatarList(List<Avatar> avatars) {
         dbHelper.saveAvatars(avatars);
     }
 
-    private Avatar parseAvatar(String json) {
+    public Avatar parseAvatar(String json) {
         JSONObject obj = Utils.parseJsonObject(json);
         if (obj == null)
             return null;
@@ -184,37 +116,7 @@ public class AvatarManager {
         return avatar;
     }
 
-    public void loadAvatars(Handler handler) {
-        // set avatar size to 48*48
-        LoadAvatarTask task = new LoadAvatarTask(48, handler);
 
-        //ConcurrentAsyncTask.execute(task);
-        new Thread(task).start();
 
-    }
-
-    /*
-     * load avatars from server and use handler to notify UI
-     */
-    private class LoadAvatarTask implements Runnable {
-
-        private int avatarSize;
-        private Handler handler;
-
-        /**
-         *
-         * @param avatarSize which size to download
-         * @param handler
-         */
-        public LoadAvatarTask(int avatarSize, Handler handler) {
-            this.avatarSize = avatarSize;
-            this.handler = handler;
-        }
-
-        @Override
-        public void run() {
-            loadAvatarsForAccounts(avatarSize, handler);
-        }
-    }
 
 }
