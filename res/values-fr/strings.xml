@@ -157,8 +157,8 @@
   <string name="empty_folder">Dossier vide</string>
   <string name="choose_file">Choisir un fichier</string>
   <string name="ssl_error">Échec de la vérification de securité</string>
-  <string name="ssl_confirm">La certificat de %s n\'est pas vérifié. Voulez vous continuer?</string>
-  <string name="ssl_confirm_cert_changed">%s utilise un certificat invalide. La connexion n\'est pas sécurisée. Voulez vous continuer?</string>
+  <string name="ssl_confirm">La certificat de %s n\'est pas vérifié. Voulez-vous continuer?</string>
+  <string name="ssl_confirm_cert_changed">%s utilise un certificat invalide. La connexion n\'est pas sécurisée. Voulez-vous continuer?</string>
   <string name="ssl_confirm_title">Connexion non sécurisée</string>
   <string name="issued_to">Publié à</string>
   <string name="finger_prints">Empreintes</string>
@@ -183,6 +183,13 @@
   <string name="cannot_move_folder_to_subfolder">Vous ne pouvez pas déplacer un dossier dans son sous-dossier</string>
   <string name="cancel">Annuler</string>
   <string name="confirm">Confirmer</string>
+  <string name="settings_account">Compte</string>
+  <string name="settings_account_info_title">Infos utilisateur</string>
+  <string name="settings_account_info_load_data">Chargement en cours....</string>
+  <string name="settings_account_space_title">Espace utilisé</string>
+  <string name="settings_account_sign_out_title">Déconnexion</string>
+  <string name="settings_account_sign_out_hint">Cliquez pour vous déconnecter</string>
+  <string name="settings_account_sign_out_confirm">Voulez-vous vous déconnecter ?</string>
   <string name="security">Sécurité</string>
   <string name="gesture_lock">Geste de verrouillage</string>
   <string name="gesture_lock_on">Geste de verrouillage activé</string>
@@ -210,8 +217,6 @@
   <string name="lockpattern_pattern_confirmed_header">Confirmez l\'enregistrement de votre modèle</string>
   <string name="lockpattern_recording_inprogress">Relâchez le doigt lorsque vous avez terminé</string>
   <string name="lockpattern_pattern_toast_saved">Le modèle de geste de verrouillage a été enregistré avec succès</string>
-  <string name="gesture_password_guide_text">Vous pouvez créer un modèle de geste de verrouillage pour protéger l\'accès à vos données</string>
-  <string name="gesture_password_guide_creat_btn">Créer un modèle de geste de verrouillage</string>
   <!--Strings for possible PreferenceActivity Back/Next buttons-->
   <string name="back_button_label">Retour</string>
   <string name="next_button_label">Suivant</string>
@@ -224,7 +229,7 @@
   <string name="settings_startUpService">Service d\'envoi démarré </string>
   <string name="settings_stopUpService">Service d\'envoi arrêté </string>
   <string name="settings_allow_mobile_connections">Activer les connexions 2G/3G/4G </string>
-  <string name="settings_default_wifi_connection">Utiliser le WI-FI seulement par défaut</string>
+  <string name="settings_default_wifi_connection">Par défaut seul le WI-FI est utilisé</string>
   <string name="settings_use_mobile_connections">Connexions 2G/3G/4G activées</string>
   <string name="settings_repo">Changer la bibliothèque cible</string>
   <string name="settings_hint">Veuillez commencer par choisir une bibliothèque</string>
@@ -232,11 +237,12 @@
   <string name="settings_camera_upload_library_not_found">La bibliothèque sélectionné n\'existe pas</string>
   <string name="settings_about_title">A PROPOS</string>
   <string name="settings_about_version_title">Version</string>
-  <string name="settings_about_version_info">
+  <string name="settings_about_author_title">A propos de l\'auteur</string>
+  <string name="settings_about_author_info">
         <![CDATA[
-        <h5>Seafile Android Client</h5>
+        <h5>Client Seafile Android </h5>
         <p>%s</p>
-        <h5>Contact Us</h5>
+        <h5>Nous contacter</h5>
         <p>
             Twitter: Seafile<br>
             Email: support@seafile.com<br>
@@ -246,9 +252,24 @@
         <h5>Copyright ©2013-2014 Seafile Ltd.</h5>
         ]]>
     </string>
+  <string name="settings_advance_feature_title">FONCTIONNALITÉ AVANCÉE</string>
+  <string name="settings_cache_title">Taille du cache</string>
+  <string name="settings_clear_cache_title">Effacer le cache</string>
+  <string name="settings_clear_cache_hint">Voulez-vous vraiment effacer le cache ?</string>
+  <string name="settings_cache_empty">0 KB</string>
   <!--pull to refresh-->
   <string name="pull_to_refresh_pull_label">Appuyer pour rafraichir...</string>
   <string name="pull_to_refresh_release_label">Relâcher pour rafraichir...</string>
   <string name="pull_to_refresh_refreshing_label">Chargement en cours...</string>
-  <!--Just use standard Pull Down String when pulling up. These can be set for languages which require it-->
+  <string name="pull_to_refresh_last_update">Dernière mise à jour:</string>
+  <string name="pull_to_refresh_last_update_seconds_ago">secondes</string>
+  <string name="pull_to_refresh_last_update_minutes_ago">minutes</string>
+  <string name="pull_to_refresh_last_update_hours_ago">heures</string>
+  <string name="saf_open_file_exception">Impossible d\'ouvrir le fichier %s.</string>
+  <string name="saf_open_directory_exception">Impossible d\'ouvrir le répertoire</string>
+  <string name="saf_file_not_cached_exception">Le fichier %s n\'est pas en cache</string>
+  <string name="saf_thumbnail_not_found_exception">Impossible de trouver/ouvrir la vignette %s</string>
+  <string name="saf_file_not_downloaded_exception">Impossible de télécharger le fichier %s depuis le serveur.</string>
+  <string name="saf_write_diretory_exception">Impossible d\'ouvrir le répertoire en lecture/écriture.</string>
+  <string name="saf_account_not_found_exception">Impossible de trouver un compte Seafile.</string>
 </resources>

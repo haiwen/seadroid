@@ -210,8 +210,6 @@
   <string name="lockpattern_pattern_confirmed_header">Bestätigen Sie Ihr Entsperrmuster</string>
   <string name="lockpattern_recording_inprogress">Nehmen Sie Ihren Finger vom Bildschirm, wenn Sie fertig sind</string>
   <string name="lockpattern_pattern_toast_saved">Entsperrungsmuster erfolgreich gespeichert</string>
-  <string name="gesture_password_guide_text">Sie können ein Entsperrmuster erstellen, im Ihre Privatsphäre zu schützen</string>
-  <string name="gesture_password_guide_creat_btn">Entsperrungsmuster erstellen</string>
   <!--Strings for possible PreferenceActivity Back/Next buttons-->
   <string name="back_button_label">Zurück</string>
   <string name="next_button_label">Weiter</string>
@@ -232,22 +230,15 @@
   <string name="settings_camera_upload_library_not_found">Die ausgewählte Bibliothek ist nicht vorhanden</string>
   <string name="settings_about_title">ÜBER</string>
   <string name="settings_about_version_title">App Version</string>
-  <string name="settings_about_version_info">
-<![CDATA[
-<h5>Seafile Andoird Client</h5>
-<p>%s</p>
-<h5>Kontakt</h5>
-<p>
-Twitter: Seafile<br>
-Email: support@seafile.com<br>
-</p>
-<h5>Mitwirkung</h5>
-<p>https://github.com/haiwen/seadroid.git</P>
-<h5>Copyright ©2013-2014 Seafile Ltd.</h5>
-]]></string>
   <!--pull to refresh-->
   <string name="pull_to_refresh_pull_label">Zum Aktualisieren ziehen</string>
   <string name="pull_to_refresh_release_label">Zum Aktualisieren loslassen...</string>
   <string name="pull_to_refresh_refreshing_label">Lade...</string>
-  <!--Just use standard Pull Down String when pulling up. These can be set for languages which require it-->
+  <string name="saf_open_file_exception">Datei %s konnte nicht geöffnet werden.</string>
+  <string name="saf_open_directory_exception">Das Verzeichnis kann nicht geöffnet werden.</string>
+  <string name="saf_file_not_cached_exception">Datei %s wurde nicht gecached.</string>
+  <string name="saf_thumbnail_not_found_exception">Konnte Vorschaubild %s nicht finden/öffnen.</string>
+  <string name="saf_file_not_downloaded_exception">Datei %s konnte nicht vom Server heruntergeladen werden.</string>
+  <string name="saf_write_diretory_exception">Das Verzeichnis konnte nicht zum Lesen oder Schreiben geöffnet werden.</string>
+  <string name="saf_account_not_found_exception">Das Seafile Konto wurde nicht gefunden.</string>
 </resources>

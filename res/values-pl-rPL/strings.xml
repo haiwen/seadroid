@@ -28,6 +28,7 @@
   <string name="cached">W pamięci podręcznej</string>
   <string name="activities">Aktywność</string>
   <string name="pick_upload_type">Prześlij</string>
+  <string name="accounts_https_hint">https</string>
   <string name="upload_tasks">Transfery</string>
   <string name="accounts">Konta</string>
   <string name="settings">Ustawienia</string>
@@ -45,6 +46,8 @@
   <string name="network_down">Brak połączenia z siecią</string>
   <string name="invalid_server_address">Nieprawidłowy adres serwera</string>
   <string name="err_server_andress_empty">Adres serwera nie może być pusty</string>
+  <string name="err_email_empty">Email nie może być pusty</string>
+  <string name="err_passwd_empty">Hasło nie może być puste</string>
   <string name="err_login_failed">Nieudane logowanie</string>
   <string name="err_wrong_user_or_passwd">Nieprawidłowy adres e-mail lub hasło</string>
   <string name="upload">Prześlij</string>
@@ -157,6 +160,14 @@
   <string name="ssl_confirm">Certyfikat bezpieczeństwa %s nie jest zaufany. Czy chcesz kontynuować?</string>
   <string name="ssl_confirm_cert_changed">%s używa nieprawidłowego certyfikatu bezpieczeństwa. Połączenie nie jest bezpieczne. Czy chcesz kontynuować?</string>
   <string name="ssl_confirm_title">Niezaufane połączenie</string>
+  <string name="issued_to">Wystawiony dla</string>
+  <string name="finger_prints">Odciski palca</string>
+  <string name="period_of_validity">Okres ważności</string>
+  <string name="sha1">SHA-1 %s</string>
+  <string name="md5">MD5 %s</string>
+  <string name="serial_number">Numer seryjny %s</string>
+  <string name="not_before">Ważny od %s</string>
+  <string name="not_after">Ważny do %s</string>
   <string name="yes">Tak</string>
   <string name="no">Nie</string>
   <string name="remember_my_choice">Zapamiętaj mój wybór</string>
@@ -172,22 +183,93 @@
   <string name="cannot_move_folder_to_subfolder">Nie można przenieść folderu do jego podfolderu</string>
   <string name="cancel">Anuluj</string>
   <string name="confirm">Zatwierdź</string>
+  <string name="settings_account">Konto</string>
+  <string name="settings_account_info_title">Informacje o użytkowniku</string>
+  <string name="settings_account_info_load_data">wczytywanie...</string>
+  <string name="settings_account_space_title">Wykorzystane miejsce</string>
+  <string name="settings_account_sign_out_title">Wyloguj się</string>
+  <string name="settings_account_sign_out_hint">Kliknij, aby się wylogować</string>
+  <string name="settings_account_sign_out_confirm">Czy chcesz się wylogować?</string>
   <string name="security">Bezpieczeństwo</string>
   <string name="gesture_lock">Blokada gestem</string>
   <string name="gesture_lock_on">Blokada gestem włączona</string>
   <string name="gesture_lock_off">Blokada gestem wyłączona</string>
+  <string name="lockscreen_access_pattern_hint">Proszę narysować wzór blokady</string>
+  <string name="lockscreen_access_pattern_start">Zacznij rysować</string>
   <string name="lockscreen_access_pattern_cleared">Wzorzec wyczyszczony</string>
+  <string name="lockscreen_access_pattern_cell_added">Dodano komórkę wzoru</string>
+  <string name="lockscreen_access_pattern_detected">Wykryto wzór</string>
+  <string name="lockscreen_access_pattern_passwd_forget">Zapomnij hasło</string>
+  <string name="lockscreen_access_pattern_failure">Pociągnij, aby odświeżyć...</string>
+  <string name="lockscreen_access_pattern_failure_left_try_seconds">Możesz spróbować ponownie po %d sekundach</string>
+  <string name="lockscreen_access_pattern_failure_left_try_times">Nieprawidłowy wzór, możesz spróbować ponownie %d razy</string>
+  <string name="lockscreen_access_pattern_failure_not_long_enough">Połączenie punktów jest zbyt krótkie, spróbuj ponownie</string>
+  <string name="lockpattern_retry_button_text">Ponów</string>
+  <string name="lockpattern_continue_button_text">Dalej</string>
+  <string name="lockpattern_confirm_button_text">OK</string>
+  <string name="lockpattern_recording_intro_header">Narysuj wzór blokady</string>
+  <string name="lockpattern_settings_help_how_to_record">Dowiedz się jak rysować wzór blokady</string>
+  <string name="lockpattern_recording_incorrect_too_short">Połącz przynajmniej 4 punkty, spróbuj ponownie!</string>
+  <string name="lockpattern_pattern_entered_header">Wzór zapisany</string>
+  <string name="lockpattern_need_to_draw">Narysuj wzór blokady</string>
+  <string name="lockpattern_need_to_confirm">Potwierdź swój wzór</string>
+  <string name="lockpattern_need_to_unlock_wrong">Wzór nie pasuje, spróbuj ponownie!</string>
+  <string name="lockpattern_pattern_confirmed_header">Potwierdź, aby zapisać swój wzór</string>
+  <string name="lockpattern_recording_inprogress">Odsuń palec od ekranu po zakończeniu rysowania</string>
+  <string name="lockpattern_pattern_toast_saved">Wzór blokady zapisano pomyślnie</string>
   <!--Strings for possible PreferenceActivity Back/Next buttons-->
+  <string name="back_button_label">Wstecz</string>
+  <string name="next_button_label">Dalej</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
+  <string name="skip_button_label">Pomiń</string>
   <string name="settings_camera_upload_duplicate">już przesłane</string>
   <string name="settings_camera_upload_info_title">Automatyczna kopia zdjęć</string>
   <string name="settings_camera_upload_info">prześlij %d zdjęć do\u0020</string>
   <string name="settings_wifi_down">Sieć Wi-Fi jest niedostępna</string>
   <string name="settings_startUpService">Usługa przesyłania uruchomiona</string>
   <string name="settings_stopUpService">Usługa przesyłania zatrzymana</string>
+  <string name="settings_allow_mobile_connections">Dopuść połączenia 2G/3G/4G</string>
+  <string name="settings_default_wifi_connection">Domyślnie używaj tylko Wi-Fi</string>
+  <string name="settings_use_mobile_connections">połączenia 2G/3G/4G dozwolone</string>
+  <string name="settings_repo">Zmień bibliotekę przesyłania</string>
   <string name="settings_hint">Najpierw wskaż bibliotekę</string>
   <string name="settings_start">Włącz przesyłanie zdjęć z aparatu</string>
   <string name="settings_camera_upload_library_not_found">Wybrana biblioteka nie istnieje</string>
+  <string name="settings_about_title">O PROGRAMIE</string>
+  <string name="settings_about_version_title">Wersja aplikacji</string>
+  <string name="settings_about_author_title">O autorze</string>
+  <string name="settings_about_author_info">
+        <![CDATA[
+        <h5>Seafile Android Client</h5>
+        <p>%s</p>
+        <h5>Kontakt</h5>
+        <p>
+            Twitter: Seafile<br>
+            Email: support@seafile.com<br>
+        </p>
+        <h5>Contribution</h5>
+        <p>https://github.com/haiwen/seadroid.git</P>
+        <h5>Copyright ©2013-2014 Seafile Ltd.</h5>
+        ]]>
+    </string>
+  <string name="settings_advance_feature_title">ZAAWANSOWANE</string>
+  <string name="settings_cache_title">Rozmiar pamięci podręcznej</string>
+  <string name="settings_clear_cache_title">Wyczyść pamięć podręczną</string>
+  <string name="settings_clear_cache_hint">Czy na pewno chcesz wyczyścić pamięć podręczną?</string>
+  <string name="settings_cache_empty">0 KB</string>
   <!--pull to refresh-->
-  <!--Just use standard Pull Down String when pulling up. These can be set for languages which require it-->
+  <string name="pull_to_refresh_pull_label">Pociągnij, aby odświeżyć...</string>
+  <string name="pull_to_refresh_release_label">Puść, aby odświeżyć...</string>
+  <string name="pull_to_refresh_refreshing_label">Wczytywanie...</string>
+  <string name="pull_to_refresh_last_update">Zaktualizowano :</string>
+  <string name="pull_to_refresh_last_update_seconds_ago">sekundy temu</string>
+  <string name="pull_to_refresh_last_update_minutes_ago">minuty temu</string>
+  <string name="pull_to_refresh_last_update_hours_ago">godziny temu</string>
+  <string name="saf_open_file_exception">Nie można otworzyć pliku %s.</string>
+  <string name="saf_open_directory_exception">Nie można otworzyć folderu.</string>
+  <string name="saf_file_not_cached_exception">Plik %s nie jest buforowany.</string>
+  <string name="saf_thumbnail_not_found_exception">Nie można odnaleźć/otworzyć miniatury %s.</string>
+  <string name="saf_file_not_downloaded_exception">Nie można pobrać pliku %s z serwera.</string>
+  <string name="saf_write_diretory_exception">Nie można otworzyć katalogu do odczytu/zapisu.</string>
+  <string name="saf_account_not_found_exception">Nie można odnaleźć konta Seafile.</string>
 </resources>
