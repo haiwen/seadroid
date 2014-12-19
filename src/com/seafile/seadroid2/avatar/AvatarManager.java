@@ -41,7 +41,7 @@ public class AvatarManager {
 
         if (accounts == null) return null;
 
-        // first put all keys (account signature) to avatarMgr, leave values to null
+        // first establish <key, null> mapping
         for (Account act : accounts) {
             avatarMgr.put(act.getSignature(), null);
         }
@@ -49,16 +49,16 @@ public class AvatarManager {
         // second get avatars from database, in order to use cache
         avatars = getAvatarList();
 
-        // TODO detect if avatar was modified by sending request to server
+        // TODO check if avatar was changed by sending request to server, substitute local cache if changed.
 
-        // third binding account signature with avatar (if has) in avatarMgr
+        // third populate value (if has) to <key, null> mapping
         for (Avatar avatar : avatars) {
             if (avatarMgr.containsKey(avatar.getSignature())) {
                 avatarMgr.put(avatar.getSignature(), avatar);
             }
         }
 
-        // fourth get signature of which account doesn`t have avatar yet
+        // fourth filter signature whose value is null of <key, null> mapping
         ArrayList<String> actSignature = Lists.newArrayList();
         Iterator<Map.Entry<String, Avatar>> iterator = avatarMgr.entrySet().iterator();
         while (iterator.hasNext()) {
@@ -106,6 +106,8 @@ public class AvatarManager {
     }
 
     public Avatar parseAvatar(String json) {
+        if (json == null) return null;
+
         JSONObject obj = Utils.parseJsonObject(json);
         if (obj == null)
             return null;

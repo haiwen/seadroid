@@ -280,20 +280,18 @@ public class AccountsActivity extends SherlockFragmentActivity {
     }
 
     /**
+     * asynchronously load avatars
      *
-     * @param avatarSize which size to download
+     * @param avatarSize set a avatar size in one of 24*24, 32*32, 48*48, 64*64, 72*72, 96*96
      */
     public void loadAvatars(int avatarSize) {
-        // set avatar size to 48*48
+
         LoadAvatarTask task = new LoadAvatarTask(avatarSize);
 
         ConcurrentAsyncTask.execute(task);
 
     }
 
-    /*
-     * load avatars from server
-     */
     private class LoadAvatarTask extends AsyncTask<Void, Void, List<Avatar>> {
 
         private static final int LOAD_AVATAR_FAILED_UNKNOW_ERROR = 0;
@@ -316,11 +314,13 @@ public class AccountsActivity extends SherlockFragmentActivity {
         protected List<Avatar> doInBackground(Void... params) {
 
             if (!Utils.isNetworkOn()) {
-                // use cache
+                // use cached avatars
                 avatars = avatarManager.getAvatarList();
                 loadAvatarStatus = LOAD_AVATAR_FAILED_NETWORK_DOWN;
                 return avatars;
             }
+
+            avatars = avatarManager.getAvatarList();
 
             // contains signature of which account doesn`t have avatar yet
             ArrayList<String> signatures = avatarManager.getActSignatures();
@@ -332,7 +332,6 @@ public class AccountsActivity extends SherlockFragmentActivity {
 
             // contains accounts who don`t have avatars yet
             List<Account> acts = avatarManager.getActsBySignature(signatures);
-            avatars = avatarManager.getAvatarList();
 
             // contains new avatars in order to persist them to database
             List<Avatar> newAvatars = new ArrayList<Avatar>(acts.size());
@@ -352,7 +351,6 @@ public class AccountsActivity extends SherlockFragmentActivity {
                 Avatar avatar = avatarManager.parseAvatar(avatarRawData);
                 avatar.setSignature(account.getSignature());
 
-                // handler will send the latest data to ui
                 avatars.add(avatar);
 
                 // save new added avatars to database
@@ -370,7 +368,6 @@ public class AccountsActivity extends SherlockFragmentActivity {
         @Override
         protected void onPostExecute(List<Avatar> avatars) {
             if (avatars == null) {
-                Toast.makeText(AccountsActivity.this, getString(R.string.unknow_error), Toast.LENGTH_SHORT).show();
                 return;
             }
 
