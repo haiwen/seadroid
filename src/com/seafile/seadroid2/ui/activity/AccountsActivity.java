@@ -175,7 +175,6 @@ public class AccountsActivity extends SherlockFragmentActivity {
         adapter.clear();
         adapter.setItems(accounts);
 
-        avatarManager.setAccounts(accounts);
         loadAvatarUrls(48);
 
         adapter.notifyChanged();
@@ -322,16 +321,12 @@ public class AccountsActivity extends SherlockFragmentActivity {
 
             avatars = avatarManager.getAvatarList();
 
-            // contains signature of which account doesn`t have avatar yet
-            ArrayList<String> signatures = avatarManager.getActSignatures();
-
-            if (signatures.size() == 0) {
+            if (!avatarManager.isNeedToLoadNewAvatars()) {
                 loadAvatarStatus = LOAD_AVATAR_USE_CACHE;
                 return avatars;
             }
-
             // contains accounts who don`t have avatars yet
-            List<Account> acts = avatarManager.getActsBySignature(signatures);
+            List<Account> acts = avatarManager.getAccountsWithoutAvatars();
 
             // contains new avatars in order to persist them to database
             List<Avatar> newAvatars = new ArrayList<Avatar>(acts.size());
@@ -353,13 +348,12 @@ public class AccountsActivity extends SherlockFragmentActivity {
 
                 avatars.add(avatar);
 
-                // save new added avatars to database
                 newAvatars.add(avatar);
             }
 
             loadAvatarStatus = LOAD_AVATAR_SUCCESSFULLY;
 
-            // save avatars to database
+            // save new added avatars to database
             avatarManager.saveAvatarList(newAvatars);
 
             return avatars;
