@@ -176,7 +176,7 @@ public class AccountsActivity extends SherlockFragmentActivity {
         adapter.setItems(accounts);
 
         avatarManager.setAccounts(accounts);
-        loadAvatars(48);
+        loadAvatarUrls(48);
 
         adapter.notifyChanged();
     }
@@ -284,15 +284,15 @@ public class AccountsActivity extends SherlockFragmentActivity {
      *
      * @param avatarSize set a avatar size in one of 24*24, 32*32, 48*48, 64*64, 72*72, 96*96
      */
-    public void loadAvatars(int avatarSize) {
+    public void loadAvatarUrls(int avatarSize) {
 
-        LoadAvatarTask task = new LoadAvatarTask(avatarSize);
+        LoadAvatarUrlsTask task = new LoadAvatarUrlsTask(avatarSize);
 
         ConcurrentAsyncTask.execute(task);
 
     }
 
-    private class LoadAvatarTask extends AsyncTask<Void, Void, List<Avatar>> {
+    private class LoadAvatarUrlsTask extends AsyncTask<Void, Void, List<Avatar>> {
 
         private static final int LOAD_AVATAR_FAILED_UNKNOW_ERROR = 0;
         private static final int LOAD_AVATAR_FAILED_NETWORK_DOWN = 1;
@@ -305,7 +305,7 @@ public class AccountsActivity extends SherlockFragmentActivity {
         private List<Avatar> avatars;
         private SeafConnection httpConnection;
 
-        public LoadAvatarTask(int avatarSize) {
+        public LoadAvatarUrlsTask(int avatarSize) {
             this.avatarSize = avatarSize;
             this.avatars = Lists.newArrayList();
         }
