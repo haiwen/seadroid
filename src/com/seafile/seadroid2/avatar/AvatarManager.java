@@ -48,18 +48,7 @@ public class AvatarManager {
     }
 
     private boolean hasAvatar(Account account) {
-        // get avatars from database
-        avatars = getAvatarList();
-
-        if (avatars == null || avatars.size() == 0)
-            return false;
-
-        for (Avatar avatar : avatars) {
-            if (account.getSignature().equals(avatar.getSignature())) {
-                return true;
-            }
-        }
-        return false;
+        return dbHelper.hasAvatar(account);
     }
 
     public boolean isNeedToLoadNewAvatars() {

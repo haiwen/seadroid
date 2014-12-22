@@ -12,6 +12,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.account.Account;
 
 public class AvatarDBHelper extends SQLiteOpenHelper {
     private static final String DEBUG_TAG = "AvatarDBHelper";
@@ -39,8 +40,14 @@ public class AvatarDBHelper extends SQLiteOpenHelper {
             AVATAR_COLUMN_URL,
             AVATAR_COLUMN_MTIME
             /*AVATAR_COLUMN_IS_DEFAULT*/
-            };
-    
+    };
+
+    public static final String [] hasAvatarProjection = {
+            AVATAR_COLUMN_SIGNATURE,
+            AVATAR_COLUMN_URL,
+            AVATAR_COLUMN_MTIME
+    };
+
     private static AvatarDBHelper dbHelper = null;
     private SQLiteDatabase database = null;
     
@@ -55,7 +62,37 @@ public class AvatarDBHelper extends SQLiteOpenHelper {
     private AvatarDBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
-    
+
+    public boolean hasAvatar(Account account) {
+
+        if (account == null)
+            return false;
+        if (account.getSignature() == null || account.getSignature().isEmpty())
+            return false;
+
+        String selection = AVATAR_COLUMN_SIGNATURE + "=?";
+
+        Cursor cursor = database.query(
+        AVATAR_TABLE_NAME,
+        hasAvatarProjection,
+        selection,
+        new String[]{account.getSignature()},
+        null,
+        null,
+        null
+        );
+
+        boolean hasAvatar = false;
+
+        cursor.moveToFirst();
+        if (cursor.moveToNext())
+            hasAvatar = true;
+
+        cursor.close();
+        return hasAvatar;
+
+    }
+
     public List<Avatar> getAvatarList() {
         Cursor cursor = database.query(
         AVATAR_TABLE_NAME,
