@@ -319,6 +319,7 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
 
                 // save account to SharedPreference
                 accountManager.saveCurrentAccount(loginAccount);
+
                 startFilesActivity(loginAccount);
             } else {
                 statusView.setText(result);

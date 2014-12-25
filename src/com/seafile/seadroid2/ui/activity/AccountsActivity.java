@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui.activity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Dialog;
@@ -8,8 +9,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.Bundle;
-import android.os.IBinder;
+import android.os.*;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -22,17 +22,23 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ListView;
 
+import android.widget.Toast;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
+import com.google.common.collect.Lists;
+import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SettingsManager;
+import com.seafile.seadroid2.SeafConnection;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
-import com.seafile.seadroid2.cameraupload.CameraUploadService;
+import com.seafile.seadroid2.avatar.Avatar;
+import com.seafile.seadroid2.avatar.AvatarManager;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.adapter.AccountAdapter;
+import com.seafile.seadroid2.util.Utils;
 
 
 public class AccountsActivity extends SherlockFragmentActivity {
@@ -41,8 +47,9 @@ public class AccountsActivity extends SherlockFragmentActivity {
     private ListView accountsView;
 
     private AccountManager accountManager;
+    private AvatarManager avatarManager;
     private AccountAdapter adapter;
-    List<Account> accounts;
+    private List<Account> accounts;
     private FileMonitorService mMonitorService;
     private ServiceConnection mMonitorConnection = new ServiceConnection() {
 
@@ -67,6 +74,7 @@ public class AccountsActivity extends SherlockFragmentActivity {
 
         accountsView = (ListView) findViewById(R.id.account_list_view);
         accountManager = new AccountManager(this);
+        avatarManager = new AvatarManager();
        
         View footerView = ((LayoutInflater) this
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
@@ -160,12 +168,15 @@ public class AccountsActivity extends SherlockFragmentActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
-    
+
     private void refreshView() {
         Log.d(DEBUG_TAG, "refreshView");
         accounts = accountManager.getAccountList();
         adapter.clear();
         adapter.setItems(accounts);
+
+        loadAvatarUrls(48);
+
         adapter.notifyChanged();
     }
 
@@ -266,4 +277,116 @@ public class AccountsActivity extends SherlockFragmentActivity {
             return builder.show();
         }
     }
+
+    /**
+     * asynchronously load avatars
+     *
+     * @param avatarSize set a avatar size in one of 24*24, 32*32, 48*48, 64*64, 72*72, 96*96
+     */
+    public void loadAvatarUrls(int avatarSize) {
+
+        LoadAvatarUrlsTask task = new LoadAvatarUrlsTask(avatarSize);
+
+        ConcurrentAsyncTask.execute(task);
+
+    }
+
+    private class LoadAvatarUrlsTask extends AsyncTask<Void, Void, List<Avatar>> {
+
+        private static final int LOAD_AVATAR_FAILED_UNKNOW_ERROR = 0;
+        private static final int LOAD_AVATAR_FAILED_NETWORK_DOWN = 1;
+        private static final int LOAD_AVATAR_SUCCESSFULLY = 2;
+        private static final int LOAD_AVATAR_USE_CACHE = 3;
+
+        private int loadAvatarStatus = -1;
+
+        private int avatarSize;
+        private List<Avatar> avatars;
+        private SeafConnection httpConnection;
+
+        public LoadAvatarUrlsTask(int avatarSize) {
+            this.avatarSize = avatarSize;
+            this.avatars = Lists.newArrayList();
+        }
+
+        @Override
+        protected List<Avatar> doInBackground(Void... params) {
+
+            if (!Utils.isNetworkOn()) {
+                // use cached avatars
+                avatars = avatarManager.getAvatarList();
+                loadAvatarStatus = LOAD_AVATAR_FAILED_NETWORK_DOWN;
+                return avatars;
+            }
+
+            avatars = avatarManager.getAvatarList();
+
+            if (!avatarManager.isNeedToLoadNewAvatars()) {
+                loadAvatarStatus = LOAD_AVATAR_USE_CACHE;
+                return avatars;
+            }
+            // contains accounts who don`t have avatars yet
+            List<Account> acts = avatarManager.getAccountsWithoutAvatars();
+
+            // contains new avatars in order to persist them to database
+            List<Avatar> newAvatars = new ArrayList<Avatar>(acts.size());
+
+            // load avatars from server
+            for (Account account : acts) {
+                httpConnection = new SeafConnection(account);
+
+                String avatarRawData = null;
+                try {
+                    avatarRawData = httpConnection.getAvatar(account.getEmail(), avatarSize);
+                } catch (SeafException e) {
+                    loadAvatarStatus = LOAD_AVATAR_FAILED_UNKNOW_ERROR;
+                    return avatars;
+                }
+
+                Avatar avatar = avatarManager.parseAvatar(avatarRawData);
+                avatar.setSignature(account.getSignature());
+
+                avatars.add(avatar);
+
+                newAvatars.add(avatar);
+            }
+
+            loadAvatarStatus = LOAD_AVATAR_SUCCESSFULLY;
+
+            // save new added avatars to database
+            avatarManager.saveAvatarList(newAvatars);
+
+            return avatars;
+        }
+
+        @Override
+        protected void onPostExecute(List<Avatar> avatars) {
+            if (avatars == null) {
+                return;
+            }
+
+            // set avatars url to adapter
+            adapter.setAvatars((ArrayList<Avatar>) avatars);
+
+            // notify adapter data changed
+            adapter.notifyDataSetChanged();
+
+            switch (loadAvatarStatus) {
+                case LOAD_AVATAR_FAILED_NETWORK_DOWN:
+                    Toast.makeText(AccountsActivity.this, getString(R.string.network_down), Toast.LENGTH_SHORT).show();
+                    break;
+                case LOAD_AVATAR_FAILED_UNKNOW_ERROR:
+                    Toast.makeText(AccountsActivity.this, getString(R.string.unknow_error), Toast.LENGTH_SHORT).show();
+                    break;
+                case LOAD_AVATAR_USE_CACHE:
+                    break;
+                case LOAD_AVATAR_SUCCESSFULLY:
+                    break;
+                default:
+                    break;
+            }
+
+        }
+    }
+
 }

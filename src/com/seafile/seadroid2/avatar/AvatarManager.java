@@ -1,12 +1,12 @@
 package com.seafile.seadroid2.avatar;
 
-import java.util.List;
+import java.util.*;
 
+import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.account.AccountManager;
 import org.json.JSONObject;
 
 import com.google.common.collect.Lists;
-import com.seafile.seadroid2.SeafConnection;
-import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.util.Utils;
 
@@ -16,91 +16,70 @@ import com.seafile.seadroid2.util.Utils;
  */
 public class AvatarManager {
     private static final String DEBUG_TAG = "AvatarManager";
-    
-    private SeafConnection httpConnection;
-    private static List<Avatar> avatars;
-    private List<Account> accounts;
+
     private final AvatarDBHelper dbHelper = AvatarDBHelper.getAvatarDbHelper();
-    
-    public AvatarManager(List<Account> accounts) {
-        this.accounts = accounts;
-        avatars = Lists.newArrayList();
+    private List<Avatar> avatars;
+    private AccountManager accountMgr;
+
+    public AvatarManager() {
+        this.avatars = Lists.newArrayList();
+        this.accountMgr = new AccountManager(SeadroidApplication.getAppContext());
     }
-        
-    public synchronized void getAvatars(int size) throws SeafException {
-        // First decide if use cache
-        avatars = getAvatarList();
-        
-        List<Account> accountsWithoutAvatars = Lists.newArrayList();
-        
+
+    /**
+     * get accounts who don`t have avatars yet
+     *
+     * @return ArrayList<Account>
+     */
+    public ArrayList<Account> getAccountsWithoutAvatars() {
+        List<Account> accounts = accountMgr.getAccountList();
+
+        if (accounts == null) return null;
+
+        ArrayList<Account> accountsWithoutAvatar = Lists.newArrayList();
+
         for (Account account : accounts) {
-            for (Avatar avatar : avatars) {
-                if (!avatar.getSignature().equals(account.getSignature())) {
-                    accountsWithoutAvatars.add(account);
-                }
+            if (!hasAvatar(account)) {
+                accountsWithoutAvatar.add(account);
             }
         }
 
-        if (!Utils.isNetworkOn()) {
-            throw SeafException.networkException;
-        }
-        
-        // already loaded avatars
-        if (avatars.size() == accounts.size()) {
-            return;
-        } else if (avatars.isEmpty()) { // initialization
-            for (Account account : accounts) {
-                httpConnection = new SeafConnection(account);
-                String avatarRawData = httpConnection.getAvatar(
-                        account.getEmail(), size);
-                Avatar avatar = parseAvatar(avatarRawData);
-                avatar.setSignature(account.getSignature());
-                avatars.add(avatar);
-            }
-        } else { // load avatars for new added account   
-            for (Account account : accountsWithoutAvatars) {
-                httpConnection = new SeafConnection(account);
-                String avatarRawData = httpConnection.getAvatar(
-                        account.getEmail(), size);
-                Avatar avatar = parseAvatar(avatarRawData);
-                avatar.setSignature(account.getSignature());
-                avatars.add(avatar);
-            }
-        }
-        
-        saveAvatarList(avatars);
+        return accountsWithoutAvatar;
     }
-    
-    private List<Avatar> getAvatarList() {
+
+    private boolean hasAvatar(Account account) {
+        return dbHelper.hasAvatar(account);
+    }
+
+    public boolean isNeedToLoadNewAvatars() {
+        ArrayList<Account> accounts = getAccountsWithoutAvatars();
+        if (accounts == null || accounts.size() ==0) return false;
+        else
+            return true;
+    }
+
+    public List<Avatar> getAvatarList() {
         return dbHelper.getAvatarList();
     }
 
-    private void saveAvatarList(List<Avatar> avatars) {
+    public void saveAvatarList(List<Avatar> avatars) {
         dbHelper.saveAvatars(avatars);
     }
-    
-    private Avatar parseAvatar(String json) {
+
+    public Avatar parseAvatar(String json) {
+        if (json == null) return null;
+
         JSONObject obj = Utils.parseJsonObject(json);
         if (obj == null)
             return null;
         Avatar avatar = Avatar.fromJson(obj);
         if (avatar == null)
             return null;
-        
+
         return avatar;
     }
 
-    public static String getAvatarUrl(Account account) {
-        if (avatars == null) {
-            return null;
-        }
-        for (Avatar avatar : avatars) {
-            if (avatar.getSignature().equals(account.getSignature())) {
-                return avatar.getUrl();
-            }
-        }
-        
-        return null;
-    }
-    
+
+
+
 }

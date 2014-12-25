@@ -247,12 +247,10 @@ public class SeafConnection {
     public String getAvatar(String email, int size) throws SeafException  {
         try {
             String apiPath = String.format("api2/avatars/user/%s/resized/%d", email, size);
-            Log.d(DEBUG_TAG, "user: " + email);
             HttpRequest req = prepareApiGetRequest(apiPath);
             checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
             
             String result = new String(req.bytes(), "UTF-8");
-            Log.d(DEBUG_TAG, "result: " + result);
             return result;
         } catch (SeafException e) {
             throw e;

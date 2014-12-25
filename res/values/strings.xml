@@ -45,6 +45,7 @@
         <item>cloud.seafile.com</item>
     </string-array>
     <string name="network_down">No network connection</string>
+    <string name="unknow_error">Unknown error</string>
     <string name="invalid_server_address">Invalid server address</string>
     <string name="err_server_andress_empty">Server address can not be empty</string>
     <string name="err_email_empty">Email can not be empty</string>
