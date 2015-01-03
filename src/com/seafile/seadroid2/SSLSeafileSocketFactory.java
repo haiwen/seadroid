@@ -118,9 +118,66 @@ public class SSLSeafileSocketFactory extends SSLSocketFactory {
 
     protected String[] GetCipherList() {
 
+        // only allow ciphers which are still considered secure.
+        // based on:
+        // https://briansmith.org/browser-ciphersuites-01.html
+
+        String[] preferredCiphers;
+
+        // Android up to 2.2 use other names
+        if (Build.VERSION.SDK_INT <= 8) {
+
+            preferredCiphers = new String[] {
+                    "DHE-RSA-AES128-SHA",
+                    "DHE-RSA-AES256-SHA",
+                    "DHE-DSS-AES128-SHA",
+                    "AES128-SHA",
+                    "AES256-SHA",
+                    "RC4-SHA"
+            };
+
+        } else {
+
+            preferredCiphers = new String[] {
+
+                    "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+                    "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+                    "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+                    "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+                    "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+                    "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+                    "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+                    "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+                    "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+                    "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
+                    "TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
+                    "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
+                    "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA",
+
+                    // backward compatibility. offers no forward security.
+                    "TLS_RSA_WITH_AES_128_CBC_SHA",
+                    "TLS_RSA_WITH_AES_256_CBC_SHA",
+                    "SSL_RSA_WITH_RC4_128_SHA",
+
+                    // RFC 5746
+                    "TLS_EMPTY_RENEGOTIATION_INFO_SCSV"
+            };
+
+        }
+
+        // now filter out any ciphers that aren't supported by this device
         SSLSocketFactory factory = m_ctx.getSocketFactory();
         String[] availableCiphers = factory.getSupportedCipherSuites();
-        return availableCiphers;
+        ArrayList<String> available = new ArrayList<String>(Arrays.asList(availableCiphers));
+
+        List<String> result = new ArrayList<String>();
+        for(int i = 0; i < preferredCiphers.length; i++)
+        {
+            if(available.contains(preferredCiphers[i]))
+                result.add(preferredCiphers[i]);
+        }
+
+        return result.toArray(new String[0]);
 
     }
 
