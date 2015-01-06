@@ -104,6 +104,7 @@
     public *** startFinalizer(java.lang.Class,java.lang.Object);
     *** startFinalizer(java.lang.Class,java.lang.Object);
 }
+-dontwarn com.google.**
 
 -keep class com.seafile.seadroid2.**
 -keepclassmembers class com.seafile.seadroid2.** { *; }
