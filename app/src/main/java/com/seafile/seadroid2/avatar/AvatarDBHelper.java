@@ -6,10 +6,13 @@ import java.util.List;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.google.common.collect.Lists;
 import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.account.Account;
 
 public class AvatarDBHelper extends SQLiteOpenHelper {
     private static final String DEBUG_TAG = "AvatarDBHelper";
@@ -37,8 +40,14 @@ public class AvatarDBHelper extends SQLiteOpenHelper {
             AVATAR_COLUMN_URL,
             AVATAR_COLUMN_MTIME
             /*AVATAR_COLUMN_IS_DEFAULT*/
-            };
-    
+    };
+
+    public static final String [] hasAvatarProjection = {
+            AVATAR_COLUMN_SIGNATURE,
+            AVATAR_COLUMN_URL,
+            AVATAR_COLUMN_MTIME
+    };
+
     private static AvatarDBHelper dbHelper = null;
     private SQLiteDatabase database = null;
     
@@ -53,7 +62,37 @@ public class AvatarDBHelper extends SQLiteOpenHelper {
     private AvatarDBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
-    
+
+    public boolean hasAvatar(Account account) {
+
+        if (account == null)
+            return false;
+        if (account.getSignature() == null || account.getSignature().isEmpty())
+            return false;
+
+        String selection = AVATAR_COLUMN_SIGNATURE + "=?";
+
+        Cursor cursor = database.query(
+        AVATAR_TABLE_NAME,
+        hasAvatarProjection,
+        selection,
+        new String[]{account.getSignature()},
+        null,
+        null,
+        null
+        );
+
+        boolean hasAvatar = false;
+
+        cursor.moveToFirst();
+        if (cursor.moveToNext())
+            hasAvatar = true;
+
+        cursor.close();
+        return hasAvatar;
+
+    }
+
     public List<Avatar> getAvatarList() {
         Cursor cursor = database.query(
         AVATAR_TABLE_NAME,
@@ -80,38 +119,37 @@ public class AvatarDBHelper extends SQLiteOpenHelper {
     }
 
     public void saveAvatars(List<Avatar> avatars) {
+
+        List<Avatar> validAvatars = Lists.newArrayList();
+
+        // query database in case insert duplicate rows
         for (Avatar avatar : avatars) {
-            if (!isAvatarExist(avatar)) {
-                ContentValues values = new ContentValues();
-                values.put(AVATAR_COLUMN_SIGNATURE, avatar.getSignature());
-                values.put(AVATAR_COLUMN_URL, avatar.getUrl());
-                values.put(AVATAR_COLUMN_MTIME, avatar.getMtime());
-                /*values.put(AVATAR_COLUMN_IS_DEFAULT, (avatar.isIs_default() ? 1 : 0));*/
-                database.insert(AVATAR_TABLE_NAME, null, values);
+            if (!isRowDuplicate(avatar)) {
+                validAvatars.add(avatar);
             }
+        }
+
+        for (Avatar avatar : validAvatars) {
+            ContentValues values = new ContentValues();
+            values.put(AVATAR_COLUMN_SIGNATURE, avatar.getSignature());
+            values.put(AVATAR_COLUMN_URL, avatar.getUrl());
+            values.put(AVATAR_COLUMN_MTIME, avatar.getMtime());
+            /*values.put(AVATAR_COLUMN_IS_DEFAULT, (avatar.isIs_default() ? 1 : 0));*/
+            database.insert(AVATAR_TABLE_NAME, null, values);
         }
     }
     
-    // detect duplicate db insert request
-    private boolean isAvatarExist(Avatar avatar) {
-        Cursor cursor = database.query(
+    // avoid duplicate inserting request
+    private boolean isRowDuplicate(Avatar avatar) {
+
+        long count = DatabaseUtils.queryNumEntries(
+                database,
                 AVATAR_TABLE_NAME,
-                projection,
-                AVATAR_COLUMN_SIGNATURE
-                + "=? and " + AVATAR_COLUMN_URL + "=?",
-                new String[] { avatar.getSignature(), avatar.getUrl()},
-                null,   // don't group the rows
-                null,   // don't filter by row groups
-                null    // The sort order
-                );
-        cursor.moveToFirst();
-        if (cursor.moveToNext()) {
-            cursor.close();
-            return true;   
-        }
-        cursor.close();
-        return false;
-        
+                AVATAR_COLUMN_SIGNATURE + "=? and " +
+                        AVATAR_COLUMN_URL + "=?",
+                new String[]{avatar.getSignature(), avatar.getUrl()});
+        return count > 0;
+
     }
     
     @Override

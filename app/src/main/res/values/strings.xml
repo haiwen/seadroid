@@ -45,6 +45,7 @@
         <item>cloud.seafile.com</item>
     </string-array>
     <string name="network_down">No network connection</string>
+    <string name="unknow_error">Unknown error</string>
     <string name="invalid_server_address">Invalid server address</string>
     <string name="err_server_andress_empty">Server address can not be empty</string>
     <string name="err_email_empty">Email can not be empty</string>
@@ -184,7 +185,15 @@
     <string name="cannot_move_folder_to_subfolder">You can\'t move a folder to its subfolder</string>
     <string name="cancel">Cancel</string>
     <string name="confirm">Confirm</string>
-    
+
+    <string name="settings_account">Account</string>
+    <string name="settings_account_info_title">User info</string>
+    <string name="settings_account_info_load_data">loading...</string>
+    <string name="settings_account_space_title">Space used</string>
+    <string name="settings_account_sign_out_title">Sign out</string>
+    <string name="settings_account_sign_out_hint">Click to sign out</string>
+    <string name="settings_account_sign_out_confirm">Do you want to sign out?</string>
+
     <string name="security">Security</string>
     <string name="gesture_lock">Gesture Lock</string>
     <string name="gesture_lock_on">Gesture lock on</string>
@@ -235,7 +244,8 @@
     
     <string name="settings_about_title">ABOUT</string>
     <string name="settings_about_version_title">App Version</string>
-    <string name="settings_about_version_info">
+    <string name="settings_about_author_title">About Author</string>
+    <string name="settings_about_author_info">
         <![CDATA[
         <h5>Seafile Andoird Client</h5>
         <p>%s</p>
@@ -249,17 +259,24 @@
         <h5>Copyright ©2013-2014 Seafile Ltd.</h5>
         ]]>
     </string>
-    
+
+    <string name="settings_advance_feature_title">ADVANCE FEATURE</string>    
+    <string name="settings_cache_title">Cache size</string>
+    <string name="settings_clear_cache_title">Clear cache</string>
+    <string name="settings_clear_cache_hint">Do you want to clear cache?</string>
+    <string name="settings_clear_cache_success">Clear cache successfully</string>
+    <string name="settings_clear_cache_failed">Clear cache failed</string>
+    <string name="settings_cache_empty">0 KB</string>
+
     <!-- pull to refresh -->
     <string name="pull_to_refresh_pull_label">Pull to refresh…</string>
     <string name="pull_to_refresh_release_label">Release to refresh…</string>
     <string name="pull_to_refresh_refreshing_label">Loading…</string>
+    <string name="pull_to_refresh_last_update">Last update :&#160;</string>
+    <string name="pull_to_refresh_last_update_seconds_ago">&#160;seconds ago</string>
+    <string name="pull_to_refresh_last_update_minutes_ago">&#160;minutes ago</string>
+    <string name="pull_to_refresh_last_update_hours_ago">&#160;hours ago</string>
 
-    <!-- Just use standard Pull Down String when pulling up. These can be set for languages which require it -->
-    <string name="pull_to_refresh_from_bottom_pull_label">@string/pull_to_refresh_pull_label</string>
-    <string name="pull_to_refresh_from_bottom_release_label">@string/pull_to_refresh_release_label</string>
-    <string name="pull_to_refresh_from_bottom_refreshing_label">@string/pull_to_refresh_refreshing_label</string>
-        
     <string name="saf_open_file_exception">Could not open file %s.</string>
     <string name="saf_open_directory_exception">Can not open directory.</string>
     <string name="saf_file_not_cached_exception">File %s not cached.</string>

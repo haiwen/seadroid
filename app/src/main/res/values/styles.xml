@@ -83,6 +83,7 @@
         <item name="android:logo">@drawable/icon</item>
         <item name="logo">@drawable/icon</item>
         <item name="android:listViewStyle">@style/SeafileListStyle</item>
+        <item name="vpiTabPageIndicatorStyle">@style/CustomTabPageIndicator</item>
     </style>
 
     <style name="SeafileListStyle" parent="@android:style/Widget.ListView">
@@ -94,6 +95,13 @@
     </style>
     <style name="CustomCheckboxTheme" parent="@android:style/Widget.CompoundButton.CheckBox">
         <item name="android:button">@drawable/checkbox_btn_holo_light</item>
+    </style>
+
+    <style name="loading_small" parent="@android:style/Widget.ProgressBar">
+        <item name="android:indeterminateDrawable">@anim/pull_to_refresh_header_loading</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center_vertical</item>
     </style>
 
 </resources>

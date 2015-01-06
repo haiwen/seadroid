@@ -5,7 +5,6 @@ import java.util.List;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,18 +12,17 @@ import android.view.animation.AnimationUtils;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockListFragment;
-import com.handmark.pulltorefresh.library.PullToRefreshBase;
-import com.handmark.pulltorefresh.library.PullToRefreshBase.OnLastItemVisibleListener;
-import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
-import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafStarredFile;
+import com.seafile.seadroid2.ui.PullToRefreshListView;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.adapter.StarredItemAdapter;
+import com.seafile.seadroid2.util.Utils;
 
 public class StarredFragment extends SherlockListFragment {
     private StarredItemAdapter adapter;
@@ -35,7 +33,10 @@ public class StarredFragment extends SherlockListFragment {
     private View mProgressContainer;
     private View mListContainer;
     private TextView mErrorText;
-
+    private static final int REFRESH_ON_RESUME = 0;
+    private static final int REFRESH_ON_PULL = 1;
+    private static final int REFRESH_ON_OVERFLOW_MENU = 2;
+    private static int mRefreshType = -1;
 
     private DataManager getDataManager() {
         return mActivity.getDataManager();
@@ -59,35 +60,21 @@ public class StarredFragment extends SherlockListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.starred_fragment, container, false);
-        mPullRefreshListView = (PullToRefreshListView) root.findViewById(R.id.pull_refresh_list);
+        mPullRefreshListView = (PullToRefreshListView) root.findViewById(android.R.id.list);
         mNoStarredView = (TextView) root.findViewById(android.R.id.empty);
         mListContainer =  root.findViewById(R.id.listContainer);
         mErrorText = (TextView)root.findViewById(R.id.error_message);
         mProgressContainer = root.findViewById(R.id.progressContainer);
         
         // Set a listener to be invoked when the list should be refreshed.
-        mPullRefreshListView.setOnRefreshListener(new OnRefreshListener<ListView>() {
+        mPullRefreshListView.setOnRefreshListener(new PullToRefreshListView.OnRefreshListener() {
             @Override
-            public void onRefresh(PullToRefreshBase<ListView> refreshView) {
-                String label = DateUtils.formatDateTime(mActivity, System.currentTimeMillis(),
-                        DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_ABBREV_ALL);
-
-                // Update the LastUpdatedLabel
-                refreshView.getLoadingLayoutProxy().setLastUpdatedLabel(label);
-
-                // Do work to refresh the list here.
+            public void onRefresh() {
+                mRefreshType = REFRESH_ON_PULL;
                 refreshView();
             }
         });
 
-        // Add an end-of-list listener
-        mPullRefreshListView.setOnLastItemVisibleListener(new OnLastItemVisibleListener() {
-
-            @Override
-            public void onLastItemVisible() {
-                // Toast.makeText(mActivity, "end of list", Toast.LENGTH_SHORT).show();
-            }
-        });
         return root;
     }
 
@@ -114,6 +101,7 @@ public class StarredFragment extends SherlockListFragment {
     @Override
     public void onResume() {
         super.onResume();
+        mRefreshType = REFRESH_ON_RESUME;
         refreshView();
     }
 
@@ -129,7 +117,7 @@ public class StarredFragment extends SherlockListFragment {
     }
 
     public void refresh() {
-        mPullRefreshListView.setRefreshing(false);
+        mRefreshType = REFRESH_ON_OVERFLOW_MENU;
         refreshView();
     }
     
@@ -140,7 +128,10 @@ public class StarredFragment extends SherlockListFragment {
 
         mErrorText.setVisibility(View.GONE);
         mListContainer.setVisibility(View.VISIBLE);
-        // showLoading(true);
+        if (!Utils.isNetworkOn()) {
+            mPullRefreshListView.onRefreshComplete();
+            Toast.makeText(mActivity, getString(R.string.network_down), Toast.LENGTH_SHORT).show();
+        }
         ConcurrentAsyncTask.execute(new LoadStarredFilesTask(getDataManager()));
         //mActivity.supportInvalidateOptionsMenu();
     }
@@ -210,6 +201,12 @@ public class StarredFragment extends SherlockListFragment {
         }
 
         @Override
+        protected void onPreExecute() {
+            if (mRefreshType != REFRESH_ON_PULL)
+                showLoading(true);
+        }
+
+        @Override
         protected List<SeafStarredFile> doInBackground(Void... params) {
 
             try {
@@ -225,6 +222,14 @@ public class StarredFragment extends SherlockListFragment {
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(List<SeafStarredFile> starredFiles) {
+            if (mRefreshType == REFRESH_ON_RESUME || mRefreshType == REFRESH_ON_OVERFLOW_MENU){
+                showLoading(false);
+            } else if (mRefreshType == REFRESH_ON_PULL) {
+                // Call onRefreshComplete when the list has been refreshed.
+                mPullRefreshListView.onRefreshComplete(getDataManager().getLastPullToRefreshTime(DataManager.PULL_TO_REFRESH_LAST_TIME_FOR_STARRED_FRAGMENT));
+                getDataManager().saveLastPullToRefreshTime(System.currentTimeMillis(), DataManager.PULL_TO_REFRESH_LAST_TIME_FOR_STARRED_FRAGMENT);
+            }
+
             if (mActivity == null)
                 // this occurs if user navigation to another activity
                 return;
@@ -240,9 +245,6 @@ public class StarredFragment extends SherlockListFragment {
             }
 
             updateAdapterWithStarredFiles(starredFiles);
-            // Call onRefreshComplete when the list has been refreshed.
-            mPullRefreshListView.onRefreshComplete();
-            //showLoading(false);
         }
     }
 

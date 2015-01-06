@@ -189,5 +189,4 @@
   <string name="settings_start">Abilita Upload della Fotocamera</string>
   <string name="settings_camera_upload_library_not_found">La libreria selezionata non esiste</string>
   <!--pull to refresh-->
-  <!--Just use standard Pull Down String when pulling up. These can be set for languages which require it-->
 </resources>

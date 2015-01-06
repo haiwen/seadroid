@@ -183,6 +183,13 @@
   <string name="cannot_move_folder_to_subfolder">不能把一个文件夹移动到它的子文件夹里面去</string>
   <string name="cancel">取消</string>
   <string name="confirm">确定</string>
+  <string name="settings_account">账户</string>
+  <string name="settings_account_info_title">账户信息</string>
+  <string name="settings_account_info_load_data">加载中...</string>
+  <string name="settings_account_space_title">已使用空间</string>
+  <string name="settings_account_sign_out_title">退出登录</string>
+  <string name="settings_account_sign_out_hint">点击退出</string>
+  <string name="settings_account_sign_out_confirm">你想退出登录吗？</string>
   <string name="security">安全性</string>
   <string name="gesture_lock">手势密码锁定</string>
   <string name="gesture_lock_on">手势锁开启</string>
@@ -210,8 +217,6 @@
   <string name="lockpattern_pattern_confirmed_header">确认保存新解锁图案</string>
   <string name="lockpattern_recording_inprogress">完成后松开手指</string>
   <string name="lockpattern_pattern_toast_saved">密码设置成功</string>
-  <string name="gesture_password_guide_text">你可以创建一个解锁图案，这样他人在借用你的手机时，将无法打开应用。</string>
-  <string name="gesture_password_guide_creat_btn">创建手势密码</string>
   <!--Strings for possible PreferenceActivity Back/Next buttons-->
   <string name="back_button_label">Back</string>
   <string name="next_button_label">Next</string>
@@ -232,23 +237,25 @@
   <string name="settings_camera_upload_library_not_found">资料库不存在</string>
   <string name="settings_about_title">关于</string>
   <string name="settings_about_version_title">应用版本号</string>
-  <string name="settings_about_version_info">
-        <![CDATA[
-        <h5>海文互知安卓客户端</h5>
-        <p>%s</p>
-        <h5>联系我们</h5>
-        <p>
-            Twitter: Seafile<br>
-            邮箱: support@seafile.com<br>
-        </p>
-        <h5>贡献代码</h5>
-        <p>https://github.com/haiwen/seadroid.git</P>
-        <h5>版权 ©2013-2014 Seafile Ltd.</h5>
-        ]]>
-</string>
+  <string name="settings_about_author_title">关于我们</string>
+  <string name="settings_advance_feature_title">高级特性</string>
+  <string name="settings_cache_title">缓存大小</string>
+  <string name="settings_clear_cache_title">清空缓存</string>
+  <string name="settings_clear_cache_hint">你确定要清空缓存吗？</string>
+  <string name="settings_cache_empty">0 KB</string>
   <!--pull to refresh-->
   <string name="pull_to_refresh_pull_label">下拉更新</string>
   <string name="pull_to_refresh_release_label">释放更新</string>
-  <string name="pull_to_refresh_refreshing_label">加载中。。。</string>
-  <!--Just use standard Pull Down String when pulling up. These can be set for languages which require it-->
+  <string name="pull_to_refresh_refreshing_label">加载中...</string>
+  <string name="pull_to_refresh_last_update">上次刷新：</string>
+  <string name="pull_to_refresh_last_update_seconds_ago">秒以前</string>
+  <string name="pull_to_refresh_last_update_minutes_ago">分钟以前</string>
+  <string name="pull_to_refresh_last_update_hours_ago">小时以前</string>
+  <string name="saf_open_file_exception">无法打开文件%s</string>
+  <string name="saf_open_directory_exception"> 无法打开目录</string>
+  <string name="saf_file_not_cached_exception">文件%s没有被缓存</string>
+  <string name="saf_thumbnail_not_found_exception">找不到（或）打不开缩略图%s</string>
+  <string name="saf_file_not_downloaded_exception">不能从服务器下载%s</string>
+  <string name="saf_write_diretory_exception">不能进入目录进行读取（或）写入</string>
+  <string name="saf_account_not_found_exception">无法找到Seafile账户</string>
 </resources>

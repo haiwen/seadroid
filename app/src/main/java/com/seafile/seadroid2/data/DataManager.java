@@ -4,10 +4,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.seafile.seadroid2.R;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,8 +38,16 @@ public class DataManager {
     private static final long SET_PASSWORD_INTERVAL = 59 * 60 * 1000; // 59 min
     // private static final long SET_PASSWORD_INTERVAL = 5 * 1000; // 5s
 
-    private static Map<String, PasswordInfo> passwords = Maps.newHashMap();
+    // pull to refresh
+    public static final String PULL_TO_REFRESH_LAST_TIME_FOR_REPOS_FRAGMENT = "repo fragment last update";
+    public static final String PULL_TO_REFRESH_LAST_TIME_FOR_STARRED_FRAGMENT = "starred fragment last update ";
+    private static SimpleDateFormat ptrDataFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+    private static Map<String, PasswordInfo> passwords = Maps.newHashMap();
+    private static Map<String, Long> direntsRefreshTimeMap = Maps.newHashMap();
+    public static final long REFRESH_EXPIRATION_MSECS = 10 * 60 * 1000; // 10 mins
+    public static long repoRefreshTimeStamp = 0;
+    
     private SeafConnection sc;
     private Account account;
     private DatabaseHelper dbHelper;
@@ -61,19 +72,19 @@ public class DataManager {
         }
     }
 
-    private static String getExternalTempDirectory() {
+    public static String getExternalTempDirectory() {
         String root = getExternalRootDirectory();
         File tmpDir = new File(root + "/" + "temp");
         return getDirectoryCreateIfNeeded(tmpDir);
     }
 
-    private static String getThumbDirectory() {
+    public static String getThumbDirectory() {
         String root = SeadroidApplication.getAppContext().getFilesDir().getAbsolutePath();
         File tmpDir = new File(root + "/" + "thumb");
         return getDirectoryCreateIfNeeded(tmpDir);
     }
 
-    private static String getExternalCacheDirectory() {
+    public static String getExternalCacheDirectory() {
         String root = getExternalRootDirectory();
         File tmpDir = new File(root + "/" + "cache");
         return getDirectoryCreateIfNeeded(tmpDir);
@@ -710,4 +721,82 @@ public class DataManager {
 
         return info.password;
     }
+
+    /**
+     * calculate if refresh time is expired, the expiration is 10 mins 
+     */
+    public boolean isReposRefreshTimeout() {
+        if (Utils.now() < repoRefreshTimeStamp + REFRESH_EXPIRATION_MSECS) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean isDirentsRefreshTimeout(String repoID, String path) {
+        if (!direntsRefreshTimeMap.containsKey(Utils.pathJoin(repoID, path))) {
+            return true;
+        }
+        long lastRefreshTime = direntsRefreshTimeMap.get(Utils.pathJoin(repoID, path));
+
+        if (Utils.now() < lastRefreshTime + REFRESH_EXPIRATION_MSECS) {
+            return false;
+        }
+        return true;
+    }
+
+    public void setDirsRefreshTimeStamp(String repoID, String path) {
+        direntsRefreshTimeMap.put(Utils.pathJoin(repoID, path), Utils.now());
+    }
+    
+    public void setReposRefreshTimeStamp() {
+        repoRefreshTimeStamp = Utils.now();
+    }
+
+    public void saveLastPullToRefreshTime(long lastUpdateTime, String whichFragment) {
+        direntsRefreshTimeMap.put(whichFragment, lastUpdateTime);
+    }
+
+    public String getLastPullToRefreshTime(String whichFragment) {
+
+        if (!direntsRefreshTimeMap.containsKey(whichFragment)) {
+            return null;
+        }
+
+        Long objLastUpdate = direntsRefreshTimeMap.get(whichFragment);
+        if (objLastUpdate == null) return null;
+
+        long lastUpdate = direntsRefreshTimeMap.get(whichFragment);
+
+        long diffTime = new Date().getTime() - lastUpdate;
+        int seconds = (int) (diffTime / 1000);
+        if (diffTime < 0) {
+            return null;
+        }
+        if (seconds <= 0) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append(SeadroidApplication.getAppContext().getString(R.string.pull_to_refresh_last_update));
+
+        if (seconds < 60) {
+            sb.append(seconds + SeadroidApplication.getAppContext().getString(R.string.pull_to_refresh_last_update_seconds_ago));
+        } else {
+            int minutes = (seconds / 60);
+            if (minutes > 60) {
+                int hours = minutes / 60;
+                if (hours > 24) {
+                    Date date = new Date(lastUpdate);
+                    sb.append(ptrDataFormat.format(date));
+                } else {
+                    sb.append(hours + SeadroidApplication.getAppContext().getString(R.string.pull_to_refresh_last_update_hours_ago));
+                }
+
+            } else {
+                sb.append(minutes + SeadroidApplication.getAppContext().getString(R.string.pull_to_refresh_last_update_minutes_ago));
+            }
+        }
+        return sb.toString();
+    }
+
 }

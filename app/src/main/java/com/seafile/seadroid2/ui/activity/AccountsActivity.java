@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui.activity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Dialog;
@@ -8,9 +9,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.os.IBinder;
+import android.os.*;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -23,37 +22,34 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ListView;
 
+import android.widget.Toast;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
+import com.google.common.collect.Lists;
+import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SettingsManager;
-import com.seafile.seadroid2.R.array;
-import com.seafile.seadroid2.R.id;
-import com.seafile.seadroid2.R.layout;
-import com.seafile.seadroid2.R.menu;
-import com.seafile.seadroid2.R.string;
+import com.seafile.seadroid2.SeafConnection;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
-import com.seafile.seadroid2.cameraupload.CameraUploadService;
+import com.seafile.seadroid2.avatar.Avatar;
+import com.seafile.seadroid2.avatar.AvatarManager;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.adapter.AccountAdapter;
+import com.seafile.seadroid2.util.Utils;
 
 
 public class AccountsActivity extends SherlockFragmentActivity {
-    public static final String SHARED_PREF_NAME = "latest_account";
-    public static final String SHARED_PREF_SERVER_KEY = "com.seafile.seadroid.server";
-    public static final String SHARED_PREF_EMAIL_KEY = "com.seafile.seadroid.email";
-    public static final String SHARED_PREF_TOKEN_KEY = "com.seafile.seadroid.token";
-
     private static final String DEBUG_TAG = "AccountsActivity";
 
     private ListView accountsView;
 
     private AccountManager accountManager;
+    private AvatarManager avatarManager;
     private AccountAdapter adapter;
-    List<Account> accounts;
+    private List<Account> accounts;
     private FileMonitorService mMonitorService;
     private ServiceConnection mMonitorConnection = new ServiceConnection() {
 
@@ -78,6 +74,7 @@ public class AccountsActivity extends SherlockFragmentActivity {
 
         accountsView = (ListView) findViewById(R.id.account_list_view);
         accountManager = new AccountManager(this);
+        avatarManager = new AvatarManager();
        
         View footerView = ((LayoutInflater) this
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
@@ -98,13 +95,26 @@ public class AccountsActivity extends SherlockFragmentActivity {
                     long id) {
 
                 Account account = accounts.get(position);
-                startFilesActivity(account);
+                if (account.getToken().equals(AccountManager.INVALID_TOKEN)) {
+                    // user already signed out, input password first
+                    authorizeAccount(account);
+                } else {
+
+                    startFilesActivity(account);
+                    // update current Account info from SharedPreference
+                    accountManager.saveCurrentAccount(account);
+                }
+
             }
         });
         registerForContextMenu(accountsView);
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+    }
+
+    private void authorizeAccount(Account account) {
+        startEditAccountActivity(account);
     }
 
     @Override
@@ -145,57 +155,36 @@ public class AccountsActivity extends SherlockFragmentActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
          switch (item.getItemId()) {
             case android.R.id.home:
+                // if the current account sign out and no account was to logged in,
+                // then always goes to AccountsActivity
+                if (accountManager.getCurrentAccount() == null) {
+                    Intent intent = new Intent(this, BrowserActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                }
+
                 this.finish();
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
-    
+
     private void refreshView() {
         Log.d(DEBUG_TAG, "refreshView");
         accounts = accountManager.getAccountList();
         adapter.clear();
         adapter.setItems(accounts);
+
+        loadAvatarUrls(48);
+
         adapter.notifyChanged();
-    }
-
-    private void writeToSharedPreferences(Account account) {
-        SharedPreferences sharedPref = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(SHARED_PREF_SERVER_KEY, account.server);
-        editor.putString(SHARED_PREF_EMAIL_KEY, account.email);
-        editor.putString(SHARED_PREF_TOKEN_KEY, account.token);
-        editor.commit();
-    }
-
-    private void clearDataFromSharedPreferences(Account account) {
-        SharedPreferences sharedPref = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        
-        String latestServer = sharedPref.getString(SHARED_PREF_SERVER_KEY, null);
-        String latestEmail = sharedPref.getString(SHARED_PREF_EMAIL_KEY, null);
-        // update cache data of settings module
-        String settingsServer = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER, null);
-        String settingsEmail = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL, null);
-        
-        if (account.server.equals(latestServer) && account.email.equals(latestEmail)) {
-            editor.putString(SHARED_PREF_SERVER_KEY, null);
-            editor.putString(SHARED_PREF_EMAIL_KEY, null);
-            editor.putString(SHARED_PREF_TOKEN_KEY, null);
-            editor.commit();
-        }
-        if (account.server.equals(settingsServer) && account.email.equals(settingsEmail)) {
-            SettingsManager.instance().clearCameraUploadInfo();
-        }
     }
 
     private void startFilesActivity(Account account) {
         Intent intent = new Intent(this, BrowserActivity.class);
-        intent.putExtra("server", account.server);
-        intent.putExtra("email", account.email);
-        intent.putExtra("token", account.token);
-
-        writeToSharedPreferences(account);
+        intent.putExtra(AccountManager.SHARED_PREF_SERVER_KEY, account.server);
+        intent.putExtra(AccountManager.SHARED_PREF_EMAIL_KEY, account.email);
+        intent.putExtra(AccountManager.SHARED_PREF_TOKEN_KEY, account.token);
 
         startActivity(intent);
         finish();
@@ -228,20 +217,14 @@ public class AccountsActivity extends SherlockFragmentActivity {
             return true;
         case R.id.delete:
             account = adapter.getItem((int)info.id);
-            // stop camera upload service
-            if (SettingsManager.instance().getCameraUploadAccountEmail() != null) {
-                if (SettingsManager.instance().getCameraUploadAccountEmail().equals(account.getEmail())
-                        && 
-                        SettingsManager.instance().getCameraUploadAccountServer().equals(account.getServer())) {
-                    Intent cameraUploadIntent = new Intent(this, CameraUploadService.class);
-                    stopService(cameraUploadIntent);
-                }
-            }
-            accountManager.deleteAccount(account);
+
+            accountManager.stopCamerUploadServiceByAccount(account);
+            accountManager.deleteAccountFromDB(account);
             if (mMonitorService != null) {
                 mMonitorService.removeAccount(account);
             }
-            clearDataFromSharedPreferences(account);
+            accountManager.deleteAccountFromSharedPreference(account);
+            accountManager.deleteCameraUploadSettingsByAccount(account);
 
             refreshView();
             return true;
@@ -294,4 +277,116 @@ public class AccountsActivity extends SherlockFragmentActivity {
             return builder.show();
         }
     }
+
+    /**
+     * asynchronously load avatars
+     *
+     * @param avatarSize set a avatar size in one of 24*24, 32*32, 48*48, 64*64, 72*72, 96*96
+     */
+    public void loadAvatarUrls(int avatarSize) {
+
+        LoadAvatarUrlsTask task = new LoadAvatarUrlsTask(avatarSize);
+
+        ConcurrentAsyncTask.execute(task);
+
+    }
+
+    private class LoadAvatarUrlsTask extends AsyncTask<Void, Void, List<Avatar>> {
+
+        private static final int LOAD_AVATAR_FAILED_UNKNOW_ERROR = 0;
+        private static final int LOAD_AVATAR_FAILED_NETWORK_DOWN = 1;
+        private static final int LOAD_AVATAR_SUCCESSFULLY = 2;
+        private static final int LOAD_AVATAR_USE_CACHE = 3;
+
+        private int loadAvatarStatus = -1;
+
+        private int avatarSize;
+        private List<Avatar> avatars;
+        private SeafConnection httpConnection;
+
+        public LoadAvatarUrlsTask(int avatarSize) {
+            this.avatarSize = avatarSize;
+            this.avatars = Lists.newArrayList();
+        }
+
+        @Override
+        protected List<Avatar> doInBackground(Void... params) {
+
+            if (!Utils.isNetworkOn()) {
+                // use cached avatars
+                avatars = avatarManager.getAvatarList();
+                loadAvatarStatus = LOAD_AVATAR_FAILED_NETWORK_DOWN;
+                return avatars;
+            }
+
+            avatars = avatarManager.getAvatarList();
+
+            if (!avatarManager.isNeedToLoadNewAvatars()) {
+                loadAvatarStatus = LOAD_AVATAR_USE_CACHE;
+                return avatars;
+            }
+            // contains accounts who don`t have avatars yet
+            List<Account> acts = avatarManager.getAccountsWithoutAvatars();
+
+            // contains new avatars in order to persist them to database
+            List<Avatar> newAvatars = new ArrayList<Avatar>(acts.size());
+
+            // load avatars from server
+            for (Account account : acts) {
+                httpConnection = new SeafConnection(account);
+
+                String avatarRawData = null;
+                try {
+                    avatarRawData = httpConnection.getAvatar(account.getEmail(), avatarSize);
+                } catch (SeafException e) {
+                    loadAvatarStatus = LOAD_AVATAR_FAILED_UNKNOW_ERROR;
+                    return avatars;
+                }
+
+                Avatar avatar = avatarManager.parseAvatar(avatarRawData);
+                avatar.setSignature(account.getSignature());
+
+                avatars.add(avatar);
+
+                newAvatars.add(avatar);
+            }
+
+            loadAvatarStatus = LOAD_AVATAR_SUCCESSFULLY;
+
+            // save new added avatars to database
+            avatarManager.saveAvatarList(newAvatars);
+
+            return avatars;
+        }
+
+        @Override
+        protected void onPostExecute(List<Avatar> avatars) {
+            if (avatars == null) {
+                return;
+            }
+
+            // set avatars url to adapter
+            adapter.setAvatars((ArrayList<Avatar>) avatars);
+
+            // notify adapter data changed
+            adapter.notifyDataSetChanged();
+
+            switch (loadAvatarStatus) {
+                case LOAD_AVATAR_FAILED_NETWORK_DOWN:
+                    Toast.makeText(AccountsActivity.this, getString(R.string.network_down), Toast.LENGTH_SHORT).show();
+                    break;
+                case LOAD_AVATAR_FAILED_UNKNOW_ERROR:
+                    Toast.makeText(AccountsActivity.this, getString(R.string.unknow_error), Toast.LENGTH_SHORT).show();
+                    break;
+                case LOAD_AVATAR_USE_CACHE:
+                    break;
+                case LOAD_AVATAR_SUCCESSFULLY:
+                    break;
+                default:
+                    break;
+            }
+
+        }
+    }
+
 }

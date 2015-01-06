@@ -47,3 +47,4 @@ key.properties
 # Misc
 .DS_Store
 app/seed.txt
+out/

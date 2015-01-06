@@ -44,7 +44,6 @@ public class SslConfirmDialog extends DialogFragment {
     private TextView serialNumberText;
     private TextView notBeforeText;
     private TextView notAfterText;
-    private CheckBox rememberChoiceCheckbox;
 
     public SslConfirmDialog() {
     }
@@ -68,7 +67,6 @@ public class SslConfirmDialog extends DialogFragment {
         serialNumberText = (TextView) view.findViewById(R.id.serial_number);
         notBeforeText = (TextView) view.findViewById(R.id.not_before);
         notAfterText = (TextView) view.findViewById(R.id.not_after);
-        rememberChoiceCheckbox = (CheckBox)view.findViewById(R.id.remember_choice);
 
         String host = null;
 
@@ -101,16 +99,12 @@ public class SslConfirmDialog extends DialogFragment {
         serialNumberText.setText(getActivity().getString(R.string.serial_number, certInfo.getSerialNumber()));
         notBeforeText.setText(getActivity().getString(R.string.not_before, certInfo.getNotBefore().toLocaleString()));
         notAfterText.setText(getActivity().getString(R.string.not_after, certInfo.getNotAfter().toLocaleString()));
-        builder.setCustomTitle(inflater.inflate(R.layout.custom_ssl_confirm_title_view, null));
-        builder.setDividerColor(getResources().getString(R.color.orange));
-        builder.setView(view);
 
         builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Log.d(DEBUG_TAG, "listener.onAccepted is called");
-                listener.onAccepted(rememberChoiceCheckbox.isChecked());
-                Log.d(DEBUG_TAG, "checbox is " + rememberChoiceCheckbox.isChecked());
+                listener.onAccepted(true);
             }
         });
         
@@ -121,10 +115,9 @@ public class SslConfirmDialog extends DialogFragment {
                 listener.onRejected();
             }
         });
-
-        Dialog dialog = builder.create();
-
-        return dialog;
+        builder.setView(view);
+        
+        return builder.show();
     }
 
     @Override

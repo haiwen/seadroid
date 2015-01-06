@@ -1,10 +1,16 @@
 package com.seafile.seadroid2;
 
+import java.io.File;
+
+import android.util.Log;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.data.DatabaseHelper;
 import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.util.Utils;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
@@ -13,11 +19,11 @@ import com.seafile.seadroid2.gesturelock.LockPatternUtils;
  * Access the app settings
  */
 public final class SettingsManager {
-    private static final String DEBGUG_TAG = "SettingsManager";
+    private static final String DEBUG_TAG = "SettingsManager";
 
     // Global variables
     private SharedPreferences sharedPref = SeadroidApplication.getAppContext()
-            .getSharedPreferences(AccountsActivity.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+            .getSharedPreferences(AccountManager.SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
     private SharedPreferences.Editor editor = sharedPref.edit();
     private static SettingsManager instance;
@@ -27,6 +33,11 @@ public final class SettingsManager {
 
     private SharedPreferences settingsSharedPref = PreferenceManager
             .getDefaultSharedPreferences(SeadroidApplication.getAppContext());
+
+    // Account
+    public static final String SETTINGS_ACCOUNT_INFO_KEY = "account_info_user_key";
+    public static final String SETTINGS_ACCOUNT_SPACE_KEY = "account_info_space_key";
+    public static final String SETTINGS_ACCOUNT_SIGN_OUT_KEY = "account_sign_out_key";
 
     // Gesture Lock
     public static final String GESTURE_LOCK_SWITCH_KEY = "gesture_lock_switch_key";
@@ -47,6 +58,11 @@ public final class SettingsManager {
 
     // About tab
     public static final String SETTINGS_ABOUT_VERSION_KEY = "settings_about_version_key";
+    public static final String SETTINGS_ABOUT_AUTHOR_KEY = "settings_about_author_key";
+
+    // Cache
+    public static final String SETTINGS_CACHE_SIZE_KEY = "settings_cache_info_key";
+    public static final String SETTINGS_CLEAR_CACHE_KEY = "settings_clear_cache_key";
 
     public static long lock_timestamp = 0;
     public static final long LOCK_EXPIRATION_MSECS = 5 * 60 * 1000;
@@ -126,7 +142,7 @@ public final class SettingsManager {
         editor.commit();
     }
 
-    public boolean checkNetworkStatus() {
+    public boolean checkCameraUploadNetworkAvailable() {
         if (!Utils.isNetworkOn()) {
             return false;
         }
@@ -161,5 +177,21 @@ public final class SettingsManager {
 
     public String getCameraUploadAccountToken() {
         return sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN, null);
+    }
+
+    /**
+     * get current login Account instance
+     * 
+     * @return Account if has, otherwise, returns null.
+     */
+    public Account getCurrentAccount() {
+        AccountManager accountMgr = new AccountManager(
+                SeadroidApplication.getAppContext());
+        return accountMgr.getCurrentAccount();
+    }
+
+    public void delCachesByActSignature(Account account) {
+        DatabaseHelper dbHelper = DatabaseHelper.getDatabaseHelper();
+        dbHelper.delCachesBySignature(account);
     }
 }
