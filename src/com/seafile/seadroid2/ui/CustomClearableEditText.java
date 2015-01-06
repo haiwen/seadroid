@@ -118,9 +118,9 @@ public class CustomClearableEditText extends RelativeLayout {
             edit_text.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
             edit_text.setHint("email");
         } else if (type.equals(INPUT_TYPE_PASSWORD)) {
+            edit_text.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
             edit_text.setTransformationMethod(PasswordTransformationMethod.getInstance());
             edit_text.setHint("password");
-
         }
     }
 
