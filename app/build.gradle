@@ -1,16 +1,4 @@
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:0.14.4'
-    }
-}
 apply plugin: 'com.android.application'
-
-repositories {
-    jcenter()
-}
 
 /*
  * Gets the version name from the latest Git tag
