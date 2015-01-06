@@ -352,17 +352,20 @@ public class ReposFragment extends SherlockListFragment {
 
         mRefreshType = REFRESH_ON_CLICK;
         if (nav.inRepo()) {
-            final SeafDirent dirent = (SeafDirent)adapter.getItem(position - 1);
-            if (dirent.isDir()) {
-                String currentPath = nav.getDirPath();
-                String newPath = currentPath.endsWith("/") ?
-                        currentPath + dirent.name : currentPath + "/" + dirent.name;
-                nav.setDir(newPath, dirent.id);
-                refreshView();
-                mActivity.setUpButtonTitle(dirent.name);
-            } else {
-                mActivity.onFileSelected(dirent);
-            }
+            if (adapter.getItem(position - 1) instanceof SeafDirent) {
+                final SeafDirent dirent = (SeafDirent) adapter.getItem(position - 1);
+                if (dirent.isDir()) {
+                    String currentPath = nav.getDirPath();
+                    String newPath = currentPath.endsWith("/") ?
+                            currentPath + dirent.name : currentPath + "/" + dirent.name;
+                    nav.setDir(newPath, dirent.id);
+                    refreshView();
+                    mActivity.setUpButtonTitle(dirent.name);
+                } else {
+                    mActivity.onFileSelected(dirent);
+                }
+            } else
+                return;
         } else {
             nav.setRepoID(repo.id);
             nav.setRepoName(repo.getName());
