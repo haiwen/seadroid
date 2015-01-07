@@ -222,6 +222,10 @@ public class StarredFragment extends SherlockListFragment {
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(List<SeafStarredFile> starredFiles) {
+            if (mActivity == null)
+                // this occurs if user navigation to another activity
+                return;
+
             if (mRefreshType == REFRESH_ON_RESUME || mRefreshType == REFRESH_ON_OVERFLOW_MENU){
                 showLoading(false);
             } else if (mRefreshType == REFRESH_ON_PULL) {
@@ -230,9 +234,6 @@ public class StarredFragment extends SherlockListFragment {
                 getDataManager().saveLastPullToRefreshTime(System.currentTimeMillis(), DataManager.PULL_TO_REFRESH_LAST_TIME_FOR_STARRED_FRAGMENT);
             }
 
-            if (mActivity == null)
-                // this occurs if user navigation to another activity
-                return;
 
             if (err != null) {
                 showError(getString(R.string.error_when_load_starred));
