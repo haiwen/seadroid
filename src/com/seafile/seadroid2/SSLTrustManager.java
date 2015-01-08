@@ -17,6 +17,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import android.os.Build;
 import android.util.Log;
 
 import com.google.common.collect.ImmutableList;
@@ -94,10 +95,8 @@ public final class SSLTrustManager {
         }
 
         try {
-            SSLContext context = SSLContext.getInstance("TLS");
             TrustManager[] mgrs = getTrustManagers(account);
-            context.init(null, mgrs, new SecureRandom());
-            factory = context.getSocketFactory();
+            factory = new SSLSeafileSocketFactory(null, mgrs, new SecureRandom());
             Log.d(DEBUG_TAG, "a SSLSocketFactory is created:" + factory);
         } catch (Exception e) {
             Log.e(DEBUG_TAG, "error when create SSLSocketFactory", e);
