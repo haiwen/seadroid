@@ -54,6 +54,8 @@ public class SeafileMonitor {
     public synchronized void onFileDownloaded(Account account, String repoID, String repoName,
             String pathInRepo, String localPath) {
         SeafileObserver observer = observers.get(account);
+        if (observer == null)
+            return;
         observer.watchDownloadedFile(repoID, repoName, pathInRepo, localPath);
     }
 
