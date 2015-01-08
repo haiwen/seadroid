@@ -453,6 +453,10 @@ public class ReposFragment extends SherlockListFragment {
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(List<SeafRepo> rs) {
+            if (mActivity == null)
+                // this occurs if user navigation to another activity
+                return;
+
             if (mRefreshType == REFRESH_ON_CLICK
                     || mRefreshType == REFRESH_ON_OVERFLOW_MENU
                     || mRefreshType == REFRESH_ON_RESUME) {
@@ -463,9 +467,6 @@ public class ReposFragment extends SherlockListFragment {
                 getDataManager().saveLastPullToRefreshTime(System.currentTimeMillis(), DataManager.PULL_TO_REFRESH_LAST_TIME_FOR_REPOS_FRAGMENT);
                 mPullToRefreshStopRefreshing = 0;
             }
-            if (mActivity == null)
-                // this occurs if user navigation to another activity
-                return;
 
             if (getNavContext().inRepo()) {
                 // this occurs if user already navigate into a repo
@@ -613,6 +614,10 @@ public class ReposFragment extends SherlockListFragment {
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(List<SeafDirent> dirents) {
+            if (mActivity == null)
+                // this occurs if user navigation to another activity
+                return;
+
             if (mRefreshType == REFRESH_ON_CLICK
                     || mRefreshType == REFRESH_ON_OVERFLOW_MENU
                     || mRefreshType == REFRESH_ON_RESUME) {
@@ -623,9 +628,6 @@ public class ReposFragment extends SherlockListFragment {
                 getDataManager().saveLastPullToRefreshTime(System.currentTimeMillis(), DataManager.PULL_TO_REFRESH_LAST_TIME_FOR_REPOS_FRAGMENT);
                 mPullToRefreshStopRefreshing = 0;
             }
-            if (mActivity == null)
-                // this occurs if user navigation to another activity
-                return;
 
             NavContext nav = mActivity.getNavContext();
             if (!myRepoID.equals(nav.getRepoID()) || !myPath.equals(nav.getDirPath())) {
