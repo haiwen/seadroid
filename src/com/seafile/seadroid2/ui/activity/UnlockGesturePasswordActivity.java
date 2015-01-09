@@ -3,6 +3,7 @@ package com.seafile.seadroid2.ui.activity;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -20,8 +21,6 @@ import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.gesturelock.LockPatternView;
 import com.seafile.seadroid2.gesturelock.LockPatternView.Cell;
-import com.seafile.seadroid2.gesturelock.LockPatternView.DisplayMode;
-import com.seafile.seadroid2.gesturelock.LockPatternView.OnPatternListener;
 
 
 public class UnlockGesturePasswordActivity extends Activity {
@@ -69,6 +68,17 @@ public class UnlockGesturePasswordActivity extends Activity {
         super.onDestroy();
         if (mCountdownTimer != null)
             mCountdownTimer.cancel();
+    }
+
+    @Override
+    public void onBackPressed() {
+        // stop default action (finishing the current activity) to be executed.
+        // super.onBackPressed();
+        Intent i = new Intent();
+        i.setAction(Intent.ACTION_MAIN);
+        i.addCategory(Intent.CATEGORY_HOME);
+        startActivity(i);
+        finish();
     }
 
     private Runnable mClearPatternRunnable = new Runnable() {
