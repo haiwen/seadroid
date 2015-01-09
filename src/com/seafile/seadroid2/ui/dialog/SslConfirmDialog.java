@@ -90,15 +90,26 @@ public class SslConfirmDialog extends DialogFragment {
             msg = getActivity().getString(R.string.ssl_confirm_cert_changed, host);
         }
         messageText.setText(msg);
-        CertificateInfo certInfo = new CertificateInfo(cert);
-        commonNameText.setText(certInfo.getSubjectName());
-        // String[] subjAltNames = certInfo.getSubjectAltNames();
-        // altSubjNamesText.setText((subjAltNames.length > 0) ? StringUtils.join(subjAltNames, ", ") : "—");
-        sha1Text.setText(getActivity().getString(R.string.sha1, certInfo.getSignature("SHA-1")));
-        md5Text.setText(getActivity().getString(R.string.md5, certInfo.getSignature("MD5")));
-        serialNumberText.setText(getActivity().getString(R.string.serial_number, certInfo.getSerialNumber()));
-        notBeforeText.setText(getActivity().getString(R.string.not_before, certInfo.getNotBefore().toLocaleString()));
-        notAfterText.setText(getActivity().getString(R.string.not_after, certInfo.getNotAfter().toLocaleString()));
+
+        if (cert != null) {
+            CertificateInfo certInfo = new CertificateInfo(cert);
+            commonNameText.setText(certInfo.getSubjectName());
+            // String[] subjAltNames = certInfo.getSubjectAltNames();
+            // altSubjNamesText.setText((subjAltNames.length > 0) ? StringUtils.join(subjAltNames, ", ") : "—");
+            sha1Text.setText(getActivity().getString(R.string.sha1, certInfo.getSignature("SHA-1")));
+            md5Text.setText(getActivity().getString(R.string.md5, certInfo.getSignature("MD5")));
+            serialNumberText.setText(getActivity().getString(R.string.serial_number, certInfo.getSerialNumber()));
+            notBeforeText.setText(getActivity().getString(R.string.not_before, certInfo.getNotBefore().toLocaleString()));
+            notAfterText.setText(getActivity().getString(R.string.not_after, certInfo.getNotAfter().toLocaleString()));
+        } else {
+            String not_available = getActivity().getString(R.string.not_available);
+            commonNameText.setText(not_available);
+            sha1Text.setText(not_available);
+            md5Text.setText(not_available);
+            serialNumberText.setText(not_available);
+            notBeforeText.setText(not_available);
+            notAfterText.setText(not_available);
+        }
 
         builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override

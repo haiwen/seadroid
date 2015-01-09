@@ -166,6 +166,7 @@
     <string name="period_of_validity">Period of Validity</string>
     <string name="sha1">SHA-1 %s</string>
     <string name="md5">MD5 %s</string>
+    <string name="not_available">not available</string>
     <string name="serial_number">Serial number %s</string>
     <string name="not_before">Valid from %s</string>
     <string name="not_after">Valid until %s</string>
