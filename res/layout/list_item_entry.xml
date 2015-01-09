@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="fill_parent"
-                android:layout_height="48dp"
-                android:padding="10dp">
+                android:layout_height="@dimen/lv_item_height"
+                android:padding="@dimen/lv_item_padding">
 
     <ImageView
             android:id="@+id/list_item_icon"
-            android:layout_width="60dp"
+            android:layout_width="@dimen/lv_icon_width"
             android:layout_height="fill_parent"
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
@@ -15,7 +15,7 @@
 
     <ImageView
             android:id="@+id/list_item_action"
-            android:layout_width="60dp"
+            android:layout_width="@dimen/lv_iv_action_width"
             android:layout_height="fill_parent"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
@@ -30,10 +30,10 @@
             android:layout_toRightOf="@id/list_item_icon"
             android:gravity="left"
             android:lines="1"
-            android:paddingLeft="8dp"
+            android:paddingLeft="@dimen/lv_title_padding_left"
             android:singleLine="true"
-            android:textColor="#282828"
-            android:textSize="14sp"/>
+            android:textColor="@color/lv_title_color"
+            android:textSize="@dimen/lv_title_txt_size"/>
 
     <TextView
             android:id="@+id/list_item_subtitle"
@@ -43,8 +43,8 @@
             android:layout_below="@id/list_item_title"
             android:layout_toLeftOf="@+id/list_item_action"
             android:gravity="left"
-            android:paddingLeft="8dp"
-            android:textColor="#555555"
-            android:textSize="12sp"/>
+            android:paddingLeft="@dimen/lv_subtitle_padding_left"
+            android:textColor="@color/lv_subtitle_color"
+            android:textSize="@dimen/lv_subtitle_txt_size"/>
 
 </RelativeLayout>
