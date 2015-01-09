@@ -43,6 +43,7 @@
         <item>Private Seafile Server</item>
         <item>SeaCloud.cc</item>
         <item>cloud.seafile.com</item>
+        <item>Shibboleth Login</item>
     </string-array>
     <string name="network_down">No network connection</string>
     <string name="unknow_error">Unknown error</string>
@@ -277,6 +278,7 @@
     <string name="pull_to_refresh_last_update_minutes_ago">&#160;minutes ago</string>
     <string name="pull_to_refresh_last_update_hours_ago">&#160;hours ago</string>
 
+    <!-- storage access framework -->
     <string name="saf_open_file_exception">Could not open file %s.</string>
     <string name="saf_open_directory_exception">Can not open directory.</string>
     <string name="saf_file_not_cached_exception">File %s not cached.</string>
@@ -284,4 +286,13 @@
     <string name="saf_file_not_downloaded_exception">Could not download file %s from server.</string>
     <string name="saf_write_diretory_exception">Can not open directory for reading/writing.</string>
     <string name="saf_account_not_found_exception">Could not find Seafile account.</string>
+
+    <!-- shibboleth SSO -->
+    <string name="shib_server_url_empty">Server is empty!</string>
+    <string name="shib_server_incorrect_prefix">Server should starts with either http:// or https://</string>
+    <string name="shib_load_page_error">Error: </string>
+    <string name="shib_login_title">Shibboleth Login</string>
+    <string name="shib_add_https_prefix">Append Http(s) prefix</string>
+    <string name="shib_server_hint">Input server...</string>
+    <string name="shib_actionbar_title">Login with Shibboleth</string>
 </resources>

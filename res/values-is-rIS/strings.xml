@@ -38,11 +38,6 @@
     <item>Annað</item>
   </string-array>
   <string name="choose_server">Veldu Seafile Þjón</string>
-  <string-array name="choose_server_array">
-    <item>Eginn Seafile Þjónn</item>
-    <item>SeaCloud.cc</item>
-    <item>cloud.seafile.com</item>
-  </string-array>
   <string name="network_down">Engin nettenging</string>
   <string name="invalid_server_address">Rangt vistfang</string>
   <string name="err_server_andress_empty">Vistfang þjóns má ekki vanta</string>
@@ -234,6 +229,7 @@
   <string name="pull_to_refresh_pull_label">Dragðu til að endurglæða...</string>
   <string name="pull_to_refresh_release_label">Slepptu til að endurglæða...</string>
   <string name="pull_to_refresh_refreshing_label">Hleð inn...</string>
+  <!--storage access framework-->
   <string name="saf_open_file_exception">Gat ekki optað skrá %s.</string>
   <string name="saf_open_directory_exception">Get ekki opnað skráasafn.</string>
   <string name="saf_file_not_cached_exception">Skrá %s hefur ekki verið sett í flýtimynni.</string>
@@ -241,4 +237,5 @@
   <string name="saf_file_not_downloaded_exception">gat ekki halað niður skrá %s af þjóni.</string>
   <string name="saf_write_diretory_exception">Gat ekki opnað skráasafn fyrir lestur/skrift.</string>
   <string name="saf_account_not_found_exception">gat ekki fundið Seafile reikning.</string>
+  <!--shibboleth SSO-->
 </resources>

@@ -38,11 +38,6 @@
     <item>Другое</item>
   </string-array>
   <string name="choose_server">Выберите сервер Seafile</string>
-  <string-array name="choose_server_array">
-    <item>Приватный сервер Seafile</item>
-    <item>SeaCloud.cc</item>
-    <item>cloud.seafile.com</item>
-  </string-array>
   <string name="network_down">Нет соединения с сетью</string>
   <string name="invalid_server_address">Неправильный адрес сервера</string>
   <string name="err_server_andress_empty">Адрес сервера не может быть пустым</string>
@@ -183,6 +178,13 @@
   <string name="cannot_move_folder_to_subfolder">Вы не можете переместить папку в эту подпапку</string>
   <string name="cancel">Отмена</string>
   <string name="confirm">Подтвердить</string>
+  <string name="settings_account">Аккаунт</string>
+  <string name="settings_account_info_title">Инфо о пользователе</string>
+  <string name="settings_account_info_load_data">Загрузка...</string>
+  <string name="settings_account_space_title">Использовано пространства</string>
+  <string name="settings_account_sign_out_title">Выйти</string>
+  <string name="settings_account_sign_out_hint">Нажмите, чтобы выйти</string>
+  <string name="settings_account_sign_out_confirm">Вы хотите выйти?</string>
   <string name="security">Безопасность</string>
   <string name="gesture_lock">Защита жестом</string>
   <string name="gesture_lock_on">Защита жестом включена</string>
@@ -230,10 +232,33 @@
   <string name="settings_camera_upload_library_not_found">Выбранная библиотека не существует</string>
   <string name="settings_about_title">О ПРИЛОЖЕНИИ</string>
   <string name="settings_about_version_title">Версия</string>
+  <string name="settings_about_author_title">Об авторе</string>
+  <string name="settings_about_author_info">
+<![CDATA[
+<h5>Seafile Andoird Client</h5>
+<p>%s</p>
+<h5>Свяжитесь с нами</h5>
+<p>
+Twitter: Seafile<br>
+Email: support@seafile.com<br>
+</p>
+<h5>Contribution</h5>
+<p>https://github.com/haiwen/seadroid.git</P>
+<h5>Copyright ©2013-2014 Seafile Ltd.</h5>
+]]></string>
+  <string name="settings_advance_feature_title">ДОПОЛНИТЕЛЬНЫЕ ФУНКЦИИ</string>
+  <string name="settings_cache_title">Размер кэша</string>
+  <string name="settings_clear_cache_title">Очистить кэш</string>
+  <string name="settings_cache_empty">0 КБ</string>
   <!--pull to refresh-->
   <string name="pull_to_refresh_pull_label">Потяните, чтобы обновить...</string>
   <string name="pull_to_refresh_release_label">Отпустите, чтобы обновить...</string>
   <string name="pull_to_refresh_refreshing_label">Загрузка...</string>
+  <string name="pull_to_refresh_last_update">Последнее обновление:</string>
+  <string name="pull_to_refresh_last_update_seconds_ago">несколько секунд назад</string>
+  <string name="pull_to_refresh_last_update_minutes_ago">несколько минут назад</string>
+  <string name="pull_to_refresh_last_update_hours_ago">несколько часов назад</string>
+  <!--storage access framework-->
   <string name="saf_open_file_exception">Не возможно открыть файл %s.</string>
   <string name="saf_open_directory_exception">Не возможно открыть папку.</string>
   <string name="saf_file_not_cached_exception">Файл %s не кэширован.</string>
@@ -241,4 +266,5 @@
   <string name="saf_file_not_downloaded_exception">Не возможно загрузить с сервера файл %s.</string>
   <string name="saf_write_diretory_exception">Не возможно открыть папку для чтения/записи.</string>
   <string name="saf_account_not_found_exception">Не возможно найти аккаунт Seafile.</string>
+  <!--shibboleth SSO-->
 </resources>
