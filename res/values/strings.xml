@@ -205,7 +205,7 @@
     <string name="lockscreen_access_pattern_cleared">Pattern cleared</string>
     <string name="lockscreen_access_pattern_cell_added">Pattern cell added</string>
     <string name="lockscreen_access_pattern_detected">Pattern detected</string>
-    <string name="lockscreen_access_pattern_passwd_forget">Forget password</string>
+    <string name="lockscreen_access_pattern_passwd_forget">Forgot password</string>
     <string name="lockscreen_access_pattern_failure">Failed 5 times, please wait for 30 seconds before trying</string>
     <string name="lockscreen_access_pattern_failure_left_try_seconds">You can retry %d seconds later</string>
     <string name="lockscreen_access_pattern_failure_left_try_times">Incorrect pattern, you can try another %d times</string>
