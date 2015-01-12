@@ -84,8 +84,7 @@ public class AvatarDBHelper extends SQLiteOpenHelper {
 
         boolean hasAvatar = false;
 
-        cursor.moveToFirst();
-        if (cursor.moveToNext())
+        if (cursor.moveToFirst())
             hasAvatar = true;
 
         cursor.close();
@@ -105,15 +104,19 @@ public class AvatarDBHelper extends SQLiteOpenHelper {
         );
 
         List<Avatar> avatars = new ArrayList<Avatar>();
-        cursor.moveToFirst();
-        while (cursor.moveToNext()) {
+
+        if (!cursor.moveToFirst())
+            return avatars;
+
+        do {
             Avatar avatar = new Avatar();
             avatar.setSignature(cursor.getString(0));
             avatar.setUrl(cursor.getString(1));
             avatar.setMtime(cursor.getInt(2));
             /*avatar.setIs_default(cursor.getInt(3) == 1);*/
             avatars.add(avatar);
-        }
+        } while (cursor.moveToNext());
+
         cursor.close();
         return avatars;
     }

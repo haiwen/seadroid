@@ -7,6 +7,7 @@ import java.util.List;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -117,7 +118,7 @@ public class AccountAdapter extends BaseAdapter {
             options = new DisplayImageOptions.Builder()
             .extraForDownloader(account)
             .showStubImage(R.drawable.default_avatar)
-            .delayBeforeLoading(1000)
+            // .delayBeforeLoading(1000)
             .showImageOnLoading(R.drawable.default_avatar)
             .showImageForEmptyUri(R.drawable.default_avatar)
             .showImageOnFail(R.drawable.default_avatar)
