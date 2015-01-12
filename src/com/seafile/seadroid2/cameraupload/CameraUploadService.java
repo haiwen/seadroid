@@ -185,6 +185,15 @@ public class CameraUploadService extends Service {
         @Override
         public void onChange(boolean selfChange) {
             super.onChange(selfChange);
+            isNetworkAvailable = settingsMgr.checkCameraUploadNetworkAvailable();
+            if (!isNetworkAvailable) {
+                // do nothing until network connection available
+                return;
+            }
+            if (!isRemoteCameraUploadRepoValid) {
+                return;
+            }
+
             ConcurrentAsyncTask.execute(new CameraEventReceiverTask());
         }
     }
