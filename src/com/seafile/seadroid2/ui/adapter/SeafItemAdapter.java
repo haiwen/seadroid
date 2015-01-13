@@ -134,10 +134,10 @@ public class SeafItemAdapter extends BaseAdapter {
         } else {
             viewHolder = (Viewholder) convertView.getTag();
         }
-        viewHolder.title.setTextSize(16);
+        /*viewHolder.title.setTextSize(16);
         viewHolder.subtitle.setTextSize(12);
         viewHolder.title.setPadding(12, 2, 10, 2);
-        viewHolder.subtitle.setPadding(12, 2, 10, 2);
+        viewHolder.subtitle.setPadding(12, 2, 10, 2);*/
         viewHolder.title.setText(repo.getTitle());
         viewHolder.subtitle.setText(repo.getSubtitle());
         viewHolder.icon.setImageResource(repo.getIcon());

@@ -14,9 +14,9 @@
     <dimen name="lv_icon_width">60dp</dimen>
     <dimen name="lv_iv_action_width">60dp</dimen>
     <dimen name="lv_title_padding_left">12dp</dimen>
-    <dimen name="lv_title_txt_size">20sp</dimen>
-    <dimen name="lv_subtitle_padding_left">12dp</dimen>
+    <dimen name="lv_title_txt_size">18sp</dimen>
     <dimen name="lv_subtitle_txt_size">16sp</dimen>
+    <dimen name="lv_subtitle_padding_left">12dp</dimen>
 
     <dimen name="lv_act_icon_width">70dp</dimen> <!-- Account -->
     <dimen name="lv_act_icon_height">70dp</dimen>
@@ -32,21 +32,30 @@
     <dimen name="lv_act_subtitle_margin_bottom">10sp</dimen>
     <dimen name="lv_act_subtitle_txt_size">20sp</dimen>
 
-    <dimen name="long_btn_height">60dp</dimen>
-    <dimen name="long_btn_txt_size">24sp</dimen>
+    <dimen name="long_btn_height">80dp</dimen>
+    <dimen name="long_btn_txt_size">30sp</dimen>
 
     <dimen name="btn_txt_size">24sp</dimen>
 
+    <dimen name="cb_btn_txt_size">22sp</dimen>
+    <dimen name="et_txt_size">22dp</dimen>
+    <dimen name="et_margin_bottom">10dp</dimen>
+    <dimen name="clearable_et_btn_width">30dp</dimen>
+    <dimen name="clearable_et_btn_height">30dp</dimen>
+
     <dimen name="dialog_title_margin_top">10dp</dimen>
     <dimen name="dialog_title_margin_bottom">3dp</dimen>
-    <dimen name="dialog_title_txt_size">24sp</dimen>
-    <dimen name="dialog_lv_txt_size">18sp</dimen>
-    <dimen name="dialog_msg_txt_size">18sp</dimen>
+    <dimen name="dialog_title_txt_size">26sp</dimen>
+    <dimen name="dialog_lv_txt_size">22sp</dimen>
+    <dimen name="dialog_msg_txt_size">20sp</dimen>
     <dimen name="dialog_msg_title_txt_size">18sp</dimen>
     <dimen name="dialog_error_txt_size">16sp</dimen>
-    <dimen name="dialog_btn_txt_size">16sp</dimen>
+    <dimen name="dialog_btn_txt_size">20sp</dimen>
     <dimen name="dialog_msg_progressbar_height">30dp</dimen>
-    <dimen name="dialog_et_txt_size">18sp</dimen>
+    <dimen name="dialog_et_txt_size">20sp</dimen>
+
+    <dimen name="ptr_tv_tip_txt_size">18sp</dimen>
+    <dimen name="ptr_tv_label_txt_size">16sp</dimen>
 
     <dimen name="preference_fragment_padding_bottom">0dp</dimen>
     <dimen name="preference_fragment_padding_side">16dp</dimen>

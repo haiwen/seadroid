@@ -15,6 +15,7 @@
     	android:layout_height="wrap_content"
     	android:gravity="center"
     	android:textSize="@dimen/dialog_msg_txt_size"
+		android:textColor="@color/black"
     	android:text="@string/delete_file"
     />
 

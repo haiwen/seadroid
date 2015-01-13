@@ -3,6 +3,7 @@ package com.seafile.seadroid2.ui.fragment;
 import java.io.File;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.*;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
@@ -16,7 +17,9 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Html;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.seafile.seadroid2.*;
@@ -230,7 +233,11 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
                     dialog.dismiss();
                 }
             });
-            builder.show();
+            final AlertDialog dialog = builder.show();
+            Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            okButton.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.dialog_btn_txt_size));
+            Button cancelButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+            cancelButton.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.dialog_btn_txt_size));
 
         } else if (preference.getKey().equals(SettingsManager.GESTURE_LOCK_SWITCH_KEY)) {
 
@@ -267,7 +274,7 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
             this.startActivityForResult(intent, SettingsManager.CHOOSE_CAMERA_UPLOAD_REPO_REQUEST);
         } else if(preference.getKey().equals(SettingsManager.SETTINGS_ABOUT_AUTHOR_KEY)) {
             SeafileStyleDialogBuilder builder = new SeafileStyleDialogBuilder(mActivity);
-            builder.setIcon(R.drawable.icon);            
+            // builder.setIcon(R.drawable.icon);
             builder.setTitle(mActivity.getResources().getString(R.string.app_name));
             builder.setMessage(Html.fromHtml(getString(R.string.settings_about_author_info, versionName)));
             builder.show();

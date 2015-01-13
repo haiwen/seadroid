@@ -13,6 +13,7 @@
             android:layout_marginTop="@dimen/cb_padding_top"
             android:onClick="onHttpsCheckboxClicked"
             android:button="@drawable/checkbox_btn_holo_light"
+            android:textSize="@dimen/cb_btn_txt_size"
             android:text="@string/accounts_https_hint"/>
 
     <LinearLayout
@@ -29,7 +30,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/et_margin_left"
                 android:layout_marginRight="@dimen/et_margin_right"
+                android:layout_marginBottom="@dimen/et_margin_bottom"
                 android:hint="@string/server_hint"
+                android:textSize="@dimen/et_txt_size"
                 android:background="@drawable/edit_text_holo_light"
                 android:inputType="textUri"/>
 
@@ -37,6 +40,7 @@
                 android:id="@+id/email_address"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/et_margin_bottom"
                 android:layout_marginLeft="@dimen/auto_complete_ed_margin_left"
                 android:layout_marginRight="@dimen/auto_complete_ed_margin_right"/>
 
@@ -44,6 +48,7 @@
                 android:id="@+id/password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/et_margin_bottom"
                 android:layout_marginLeft="@dimen/auto_complete_ed_margin_left"
                 android:layout_marginRight="@dimen/auto_complete_ed_margin_right"/>
     </LinearLayout>

@@ -14,7 +14,8 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textSize="20sp"
+            android:textSize="@dimen/dialog_msg_txt_size"
+            android:textColor="@color/black"
             android:text="@string/settings_clear_cache_hint"
             />
 

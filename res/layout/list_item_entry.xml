@@ -2,7 +2,10 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="fill_parent"
                 android:layout_height="@dimen/lv_item_height"
-                android:padding="@dimen/lv_item_padding">
+                android:paddingTop="@dimen/lv_item_padding_top"
+                android:paddingBottom="@dimen/lv_item_padding_bottom"
+                android:paddingLeft="@dimen/lv_item_padding_left"
+                android:paddingRight="@dimen/lv_item_padding_right">
 
     <ImageView
             android:id="@+id/list_item_icon"
@@ -30,6 +33,7 @@
             android:layout_toRightOf="@id/list_item_icon"
             android:gravity="left"
             android:lines="1"
+            android:paddingTop="@dimen/lv_title_padding_top"
             android:paddingLeft="@dimen/lv_title_padding_left"
             android:singleLine="true"
             android:textColor="@color/lv_title_color"
@@ -43,6 +47,8 @@
             android:layout_below="@id/list_item_title"
             android:layout_toLeftOf="@+id/list_item_action"
             android:gravity="left"
+            android:lines="1"
+            android:singleLine="true"
             android:paddingLeft="@dimen/lv_subtitle_padding_left"
             android:textColor="@color/lv_subtitle_color"
             android:textSize="@dimen/lv_subtitle_txt_size"/>

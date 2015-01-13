@@ -9,16 +9,17 @@
                android:src="@drawable/shibboleth"
                android:layout_marginTop="15dp"
                android:layout_marginBottom="10dp"
-               android:layout_marginLeft="15dp"
-               android:layout_marginRight="15dp"/>
+               android:layout_marginLeft="@dimen/et_margin_left"
+               android:layout_marginRight="@dimen/et_margin_right"/>
     <TextView android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:text="@string/shib_login_title"
-              android:layout_marginTop="0dp"
+              android:layout_marginTop="@dimen/tv_subtitle_margin_top"
               android:layout_marginBottom="10dp"
-              android:layout_marginLeft="15dp"
-              android:layout_marginRight="15dp"
+              android:layout_marginLeft="@dimen/et_margin_left"
+              android:layout_marginRight="@dimen/et_margin_right"
               android:textColor="@color/orange"
+              android:textSize="@dimen/tv_subtitle_txt_size"
               android:gravity="center_horizontal"
               android:textAppearance="?android:attr/textAppearanceMedium"/>
 
@@ -26,11 +27,12 @@
             android:id="@+id/shibboleth_http_cb"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginLeft="@dimen/cb_padding_left"
+            android:layout_marginStart="@dimen/cb_padding_left"
+            android:layout_marginTop="@dimen/cb_padding_top"
             android:onClick="onHttpsCheckboxClicked"
             android:button="@drawable/checkbox_btn_holo_light"
+            android:textSize="@dimen/cb_btn_txt_size"
             android:text="@string/shib_add_https_prefix" />
 
     <EditText
