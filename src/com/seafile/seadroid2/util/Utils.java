@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
 
+import android.text.TextUtils;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -595,4 +596,18 @@ public class Utils {
         return totalSize;
     }
 
+    public static String assembleUserName(String email, String server) {
+        if (email == null || server == null)
+            return null;
+
+        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(server))
+            return "";
+
+        // strip port, like :8000 in 192.168.1.116:8000
+        if (server.indexOf(":") != -1)
+            server = server.substring(0, server.indexOf(':'));
+        String info = String.format("%s (%s)", email, server);
+        info = info.replaceAll("[^\\w\\d\\.@\\(\\) ]", "_");
+        return info;
+    }
 }
