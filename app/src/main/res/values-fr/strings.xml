@@ -38,11 +38,6 @@
     <item>Autres</item>
   </string-array>
   <string name="choose_server">Choisir un serveur Seafile</string>
-  <string-array name="choose_server_array">
-    <item>Serveur Seafile privé</item>
-    <item>SeaCloud.cc</item>
-    <item>cloud.seafile.com</item>
-  </string-array>
   <string name="network_down">Absence de connexion réseau</string>
   <string name="invalid_server_address">Nom de serveur invalide</string>
   <string name="err_server_andress_empty">Le nom de serveur ne peut pas être vide</string>
@@ -80,7 +75,7 @@
   <string name="wait">Patientez</string>
   <string name="image_gallery_NoImageView_text">Aucune image disponible</string>
   <string name="pick_photo_video_title">Choisir les photos/vidéos à transférer</string>
-  <string name="select_upload_items">sélection des items à transférer</string>
+  <string name="select_upload_items">sélection des éléments à transférer</string>
   <string name="n_upload_items_selected">%d items sélectionnés</string>
   <string name="dir_name_empty">Veuillez saisir le nom du dossier</string>
   <string name="file_name_empty">Veuillez saisir le nom du fichier</string>
@@ -255,7 +250,6 @@
   <string name="settings_advance_feature_title">FONCTIONNALITÉ AVANCÉE</string>
   <string name="settings_cache_title">Taille du cache</string>
   <string name="settings_clear_cache_title">Effacer le cache</string>
-  <string name="settings_clear_cache_hint">Voulez-vous vraiment effacer le cache ?</string>
   <string name="settings_cache_empty">0 KB</string>
   <!--pull to refresh-->
   <string name="pull_to_refresh_pull_label">Appuyer pour rafraichir...</string>
@@ -265,6 +259,7 @@
   <string name="pull_to_refresh_last_update_seconds_ago">secondes</string>
   <string name="pull_to_refresh_last_update_minutes_ago">minutes</string>
   <string name="pull_to_refresh_last_update_hours_ago">heures</string>
+  <!--storage access framework-->
   <string name="saf_open_file_exception">Impossible d\'ouvrir le fichier %s.</string>
   <string name="saf_open_directory_exception">Impossible d\'ouvrir le répertoire</string>
   <string name="saf_file_not_cached_exception">Le fichier %s n\'est pas en cache</string>
@@ -272,4 +267,5 @@
   <string name="saf_file_not_downloaded_exception">Impossible de télécharger le fichier %s depuis le serveur.</string>
   <string name="saf_write_diretory_exception">Impossible d\'ouvrir le répertoire en lecture/écriture.</string>
   <string name="saf_account_not_found_exception">Impossible de trouver un compte Seafile.</string>
+  <!--shibboleth SSO-->
 </resources>

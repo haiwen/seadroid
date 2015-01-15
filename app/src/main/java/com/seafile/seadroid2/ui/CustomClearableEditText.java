@@ -8,7 +8,6 @@ import android.text.method.PasswordTransformationMethod;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.inputmethod.InputMethodInfo;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.AutoCompleteTextView;
@@ -113,15 +112,25 @@ public class CustomClearableEditText extends RelativeLayout {
         edit_text.setError(errorMessage);
     }
 
+    public void setDisplayHintText(String text) {
+        edit_text.setHint(text);
+    }
     public void setInputType(String type) {
         if (type.equals(INPUT_TYPE_EMAIL)) {
             edit_text.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-            edit_text.setHint("email");
+            edit_text.setHint(R.string.email_hint);
         } else if (type.equals(INPUT_TYPE_PASSWORD)) {
+            edit_text.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
             edit_text.setTransformationMethod(PasswordTransformationMethod.getInstance());
-            edit_text.setHint("password");
-
+            edit_text.setHint(R.string.passwd_hint);
         }
     }
 
+    public int getSelectionStart() {
+        return edit_text.getSelectionStart();
+    }
+
+    public void setSelection(int offset, int offset1) {
+        edit_text.setSelection(offset, offset1);
+    }
 }

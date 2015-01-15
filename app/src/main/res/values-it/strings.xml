@@ -37,11 +37,6 @@
     <item>Altro</item>
   </string-array>
   <string name="choose_server">Scegli un Server Seafile</string>
-  <string-array name="choose_server_array">
-    <item>Server Privato Seafile</item>
-    <item>SeaCloud.cc</item>
-    <item>cloud.seafile.com</item>
-  </string-array>
   <string name="network_down">Nessun connessione disponibile</string>
   <string name="invalid_server_address">Indirizzo server non valido</string>
   <string name="err_server_andress_empty">L\'indirizzo del server non può essere vuoto </string>
@@ -189,4 +184,6 @@
   <string name="settings_start">Abilita Upload della Fotocamera</string>
   <string name="settings_camera_upload_library_not_found">La libreria selezionata non esiste</string>
   <!--pull to refresh-->
+  <!--storage access framework-->
+  <!--shibboleth SSO-->
 </resources>

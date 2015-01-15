@@ -38,11 +38,6 @@
     <item>Más</item>
   </string-array>
   <string name="choose_server">Seafile szerver választás</string>
-  <string-array name="choose_server_array">
-    <item>Saját Seafile szerver</item>
-    <item>SeaCloud.cc</item>
-    <item>cloud.seafile.com</item>
-  </string-array>
   <string name="network_down">Nincs hálózati kapcsolat</string>
   <string name="invalid_server_address">Hibás szerver cím</string>
   <string name="err_server_andress_empty">Szerver cím nem lehet üres</string>
@@ -183,6 +178,13 @@
   <string name="cannot_move_folder_to_subfolder">A könyvtár nem mozgatható az alkönyvtárába</string>
   <string name="cancel">Mégse</string>
   <string name="confirm">Megerősít</string>
+  <string name="settings_account">Fiók</string>
+  <string name="settings_account_info_title">Felhasználói információ</string>
+  <string name="settings_account_info_load_data">betöltés...</string>
+  <string name="settings_account_space_title">Felhasznált hely</string>
+  <string name="settings_account_sign_out_title">Kijelentkezés</string>
+  <string name="settings_account_sign_out_hint">Koppints a kilépéshez</string>
+  <string name="settings_account_sign_out_confirm">Ki szeretnél lépni?</string>
   <string name="security">Biztonság</string>
   <string name="gesture_lock">Képernyőminta lezárás</string>
   <string name="gesture_lock_on">Képernyőmintával lezárva</string>
@@ -230,10 +232,34 @@
   <string name="settings_camera_upload_library_not_found">A kiválasztott kötet nem létezik.</string>
   <string name="settings_about_title">Névjegy</string>
   <string name="settings_about_version_title">Alkalmazás verzió</string>
+  <string name="settings_about_author_title">Névjegy</string>
+  <string name="settings_about_author_info">
+        <![CDATA[
+        <h5>Seafile Andoird Client</h5>
+        <p>%s</p>
+        <h5>Contact Us</h5>
+        <p>
+            Twitter: Seafile<br>
+            Email: support@seafile.com<br>
+        </p>
+        <h5>Contribution</h5>
+        <p>https://github.com/haiwen/seadroid.git</P>
+        <h5>Copyright ©2013-2014 Seafile Ltd.</h5>
+        ]]>
+    </string>
+  <string name="settings_advance_feature_title">HALADÓ LEHETŐSÉGEK</string>
+  <string name="settings_cache_title">Gyorsítótár mérete</string>
+  <string name="settings_clear_cache_title">Gyorsítótár törlése</string>
+  <string name="settings_cache_empty">0 KB</string>
   <!--pull to refresh-->
   <string name="pull_to_refresh_pull_label">Frissítéshez húzza ezt le...</string>
   <string name="pull_to_refresh_release_label">Frissítéshez engedje el...</string>
   <string name="pull_to_refresh_refreshing_label">Betöltés...</string>
+  <string name="pull_to_refresh_last_update">Utolsó frissítés :</string>
+  <string name="pull_to_refresh_last_update_seconds_ago"> másodperce</string>
+  <string name="pull_to_refresh_last_update_minutes_ago"> perce</string>
+  <string name="pull_to_refresh_last_update_hours_ago"> órája</string>
+  <!--storage access framework-->
   <string name="saf_open_file_exception">%s fájlt nem lehet megnyitni.</string>
   <string name="saf_open_directory_exception">Könyvtárat nem lehet megnyitni.</string>
   <string name="saf_file_not_cached_exception">%s fájl nincs gyorsítótárazva.</string>
@@ -241,4 +267,5 @@
   <string name="saf_file_not_downloaded_exception">%s fájlt nem lehet letölteni a szerverről.</string>
   <string name="saf_write_diretory_exception">A könyvtár nem nyitható meg írásra/olvasásra.</string>
   <string name="saf_account_not_found_exception">Nem található Seafile fiók.</string>
+  <!--shibboleth SSO-->
 </resources>

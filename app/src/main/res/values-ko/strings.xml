@@ -38,11 +38,6 @@
     <item>기타</item>
   </string-array>
   <string name="choose_server">Seafile 서버를 선택하세요</string>
-  <string-array name="choose_server_array">
-    <item>개인 Seafile 서버</item>
-    <item>SeaCloud.cc</item>
-    <item>cloud.seafile.com</item>
-  </string-array>
   <string name="network_down">네트워크 연결 상태가 아닙니다</string>
   <string name="invalid_server_address">잘못된 서버 주소입니다</string>
   <string name="err_server_andress_empty">서버 주소를 비워둘 수 없습니다</string>
@@ -160,6 +155,7 @@
   <string name="ssl_confirm">%s 보안 인증서를 신뢰할 수 없습니다. 계속할까요?</string>
   <string name="ssl_confirm_cert_changed">%s에서 잘못된 보안 인증서를 사용합니다. 연결이 안전하지 않습니다. 계속할까요?</string>
   <string name="ssl_confirm_title">신뢰할 수 없는 연결</string>
+  <string name="issued_to">발행</string>
   <string name="finger_prints">지문</string>
   <string name="period_of_validity">유효 기간</string>
   <string name="sha1">SHA-1 %s</string>
@@ -182,6 +178,13 @@
   <string name="cannot_move_folder_to_subfolder">폴더를 이 폴더의 하위 폴더로 이동할 수 없습니다</string>
   <string name="cancel">취소</string>
   <string name="confirm">확인</string>
+  <string name="settings_account">계정</string>
+  <string name="settings_account_info_title">사용자 정보</string>
+  <string name="settings_account_info_load_data">불러오는 중...</string>
+  <string name="settings_account_space_title">사용 공간</string>
+  <string name="settings_account_sign_out_title">로그아웃</string>
+  <string name="settings_account_sign_out_hint">로그아웃 하려면 클릭</string>
+  <string name="settings_account_sign_out_confirm">로그아웃 하시겠습니까?</string>
   <string name="security">보안</string>
   <string name="gesture_lock">제스처 잠금</string>
   <string name="gesture_lock_on">제스처 잠금 켬</string>
@@ -229,10 +232,34 @@
   <string name="settings_camera_upload_library_not_found">선택한 라이브러리가 없습니다</string>
   <string name="settings_about_title">정보</string>
   <string name="settings_about_version_title">앱 버전</string>
+  <string name="settings_about_author_title">저작자 정보</string>
+  <string name="settings_about_author_info">
+        <![CDATA[
+        <h5>Seafile 안드로이드 클라이언트</h5>
+        <p>%s</p>
+        <h5>연락처</h5>
+        <p>
+            트위터: Seafile<br>
+            전자메일: support@seafile.com<br>
+        </p>
+        <h5>기여하기</h5>
+        <p>https://github.com/haiwen/seadroid.git</P>
+        <h5>Copyright ©2013-2014 Seafile Ltd.</h5>
+        ]]>
+    </string>
+  <string name="settings_advance_feature_title">고급 기능</string>
+  <string name="settings_cache_title">캐시 크기</string>
+  <string name="settings_clear_cache_title">캐시 비우기</string>
+  <string name="settings_cache_empty">0 KB</string>
   <!--pull to refresh-->
   <string name="pull_to_refresh_pull_label">새로 고치려면 당기십시오...</string>
   <string name="pull_to_refresh_release_label">새로 고치려면 놓으십시오...</string>
   <string name="pull_to_refresh_refreshing_label">불러오는 중...</string>
+  <string name="pull_to_refresh_last_update">최종 업데이트 :</string>
+  <string name="pull_to_refresh_last_update_seconds_ago">초 전</string>
+  <string name="pull_to_refresh_last_update_minutes_ago">분 전</string>
+  <string name="pull_to_refresh_last_update_hours_ago">시간 전</string>
+  <!--storage access framework-->
   <string name="saf_open_file_exception">%s 파일을 열 수 없습니다.</string>
   <string name="saf_open_directory_exception">디렉터리를 열 수 없습니다.</string>
   <string name="saf_file_not_cached_exception">%s 파일을 캐시에 저장하지 않았습니다.</string>
@@ -240,4 +267,5 @@
   <string name="saf_file_not_downloaded_exception">서버에서 %s 파일을 다운로드할 수 없습니다.</string>
   <string name="saf_write_diretory_exception">읽고 쓸 디렉터리를 열 수 없습니다.</string>
   <string name="saf_account_not_found_exception">Seafile 계정을 찾을 수 없습니다.</string>
+  <!--shibboleth SSO-->
 </resources>

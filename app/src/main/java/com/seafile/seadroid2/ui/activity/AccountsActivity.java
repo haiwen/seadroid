@@ -241,6 +241,7 @@ public class AccountsActivity extends SherlockFragmentActivity {
     public static final int PRIVATE_SERVER = 0;
     public static final int SEACLOUD_CC = 1;
     public static final int CLOUD_SEAFILE_COM = 2;
+    public static final int SHIBBOLETH_LOGIN = 3;
 
     public static class CreateAccountChoiceDialog extends DialogFragment {
         // final Context context = SeadroidApplication.getAppContext();
@@ -267,6 +268,10 @@ public class AccountsActivity extends SherlockFragmentActivity {
                                     case CLOUD_SEAFILE_COM:
                                         intent = new Intent(getActivity(), AccountDetailActivity.class);
                                         intent.putExtra("server", "https://cloud.seafile.com");
+                                        startActivity(intent);
+                                        break;
+                                    case SHIBBOLETH_LOGIN:
+                                        intent = new Intent(getActivity(), ShibbolethActivity.class);
                                         startActivity(intent);
                                         break;
                                     default:

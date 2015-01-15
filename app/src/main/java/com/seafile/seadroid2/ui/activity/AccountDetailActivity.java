@@ -102,7 +102,23 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
     }
-    
+
+    @Override
+    protected void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putString("email", emailText.getText().toString());
+        savedInstanceState.putString("password", passwdText.getText().toString());
+
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        emailText.setText((String) savedInstanceState.get("email"));
+        passwdText.setText((String) savedInstanceState.get("password"));
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
          switch (item.getItemId()) {

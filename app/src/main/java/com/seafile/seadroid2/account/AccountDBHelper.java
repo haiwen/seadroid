@@ -2,6 +2,7 @@ package com.seafile.seadroid2.account;
 
 import java.util.List;
 
+import android.database.DatabaseUtils;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.provider.AccountNotifier;
 

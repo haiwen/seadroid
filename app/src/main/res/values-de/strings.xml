@@ -38,11 +38,6 @@
     <item>Andere</item>
   </string-array>
   <string name="choose_server">Bitte einen Seafile-Server auswählen</string>
-  <string-array name="choose_server_array">
-    <item>Privater Seafile-Server</item>
-    <item>SeaCloud.cc</item>
-    <item>cloud.seafile.com</item>
-  </string-array>
   <string name="network_down">Keine Netzwerkverbindung</string>
   <string name="invalid_server_address">Ungültige Serveradresse</string>
   <string name="err_server_andress_empty">Serveradresse darf nicht leer sein</string>
@@ -183,6 +178,13 @@
   <string name="cannot_move_folder_to_subfolder">Sie können keinen Ordner in einen Unterordner verschieben</string>
   <string name="cancel">Abbrechen</string>
   <string name="confirm">Bestätigen</string>
+  <string name="settings_account">Konto</string>
+  <string name="settings_account_info_title">Benutzer Information</string>
+  <string name="settings_account_info_load_data">lade...</string>
+  <string name="settings_account_space_title">Benutzter Speicherplatz</string>
+  <string name="settings_account_sign_out_title">Abmelden</string>
+  <string name="settings_account_sign_out_hint">Zum Abmelden klicken</string>
+  <string name="settings_account_sign_out_confirm">Möchten Sie sich wirklich abmelden?</string>
   <string name="security">Sicherheit</string>
   <string name="gesture_lock">Bewegungssperre</string>
   <string name="gesture_lock_on">Bewegungssperre an</string>
@@ -230,10 +232,33 @@
   <string name="settings_camera_upload_library_not_found">Die ausgewählte Bibliothek ist nicht vorhanden</string>
   <string name="settings_about_title">ÜBER</string>
   <string name="settings_about_version_title">App Version</string>
+  <string name="settings_about_author_title">Über den Autor</string>
+  <string name="settings_about_author_info">
+<![CDATA[
+<h5>Seafile Andoird Client</h5>
+<p>%s</p>
+<h5>Kontakt</h5>
+<p>
+Twitter: Seafile<br>
+Email: support@seafile.com<br>
+</p>
+<h5>Mitwirkung</h5>
+<p>https://github.com/haiwen/seadroid.git</P>
+<h5>Copyright ©2013-2014 Seafile Ltd.</h5>
+]]></string>
+  <string name="settings_advance_feature_title">ERWEITERTE FUNKTIONEN</string>
+  <string name="settings_cache_title">Größe des Cache</string>
+  <string name="settings_clear_cache_title">Cache löschen</string>
+  <string name="settings_cache_empty">0 KB</string>
   <!--pull to refresh-->
   <string name="pull_to_refresh_pull_label">Zum Aktualisieren ziehen</string>
   <string name="pull_to_refresh_release_label">Zum Aktualisieren loslassen...</string>
   <string name="pull_to_refresh_refreshing_label">Lade...</string>
+  <string name="pull_to_refresh_last_update">Zuletzt aktualisiert:</string>
+  <string name="pull_to_refresh_last_update_seconds_ago"> Sekunden her</string>
+  <string name="pull_to_refresh_last_update_minutes_ago"> Minuten her</string>
+  <string name="pull_to_refresh_last_update_hours_ago"> Stunden her</string>
+  <!--storage access framework-->
   <string name="saf_open_file_exception">Datei %s konnte nicht geöffnet werden.</string>
   <string name="saf_open_directory_exception">Das Verzeichnis kann nicht geöffnet werden.</string>
   <string name="saf_file_not_cached_exception">Datei %s wurde nicht gecached.</string>
@@ -241,4 +266,5 @@
   <string name="saf_file_not_downloaded_exception">Datei %s konnte nicht vom Server heruntergeladen werden.</string>
   <string name="saf_write_diretory_exception">Das Verzeichnis konnte nicht zum Lesen oder Schreiben geöffnet werden.</string>
   <string name="saf_account_not_found_exception">Das Seafile Konto wurde nicht gefunden.</string>
+  <!--shibboleth SSO-->
 </resources>
