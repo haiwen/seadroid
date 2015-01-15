@@ -33,7 +33,6 @@ dependencies {
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
     compile project(':libraries:NewQuickAction')
     compile project(':libraries:MarkdownView')
-    compile project(':libraries:PullToRefresh')
 }
 
 android {

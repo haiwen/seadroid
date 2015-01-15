@@ -1,1 +1,1 @@
-include ':app', ':libraries:NewQuickAction', ':libraries:MarkdownView', 'libraries:PullToRefresh'
+include ':app', ':libraries:NewQuickAction', ':libraries:MarkdownView'
