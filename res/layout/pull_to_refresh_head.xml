@@ -59,7 +59,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/pull_to_refresh_pull_label"
                     android:textStyle="bold"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/ptr_tv_tip_txt_size"
                     android:textColor="@color/black"/>
 
             <TextView
@@ -67,7 +67,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="18dp"
                     android:textColor="@color/black"
-                    android:textSize="12sp"/>
+                    android:textSize="@dimen/ptr_tv_label_txt_size"/>
 
         </LinearLayout>
     </RelativeLayout>

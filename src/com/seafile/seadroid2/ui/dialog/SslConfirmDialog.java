@@ -5,13 +5,16 @@ import java.net.URL;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.text.Html;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -127,8 +130,13 @@ public class SslConfirmDialog extends DialogFragment {
             }
         });
         builder.setView(view);
-        
-        return builder.show();
+        final AlertDialog dialog = builder.show();
+        Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        okButton.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.dialog_btn_txt_size));
+        Button cancelButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+        cancelButton.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.dialog_btn_txt_size));
+
+        return dialog;
     }
 
     @Override

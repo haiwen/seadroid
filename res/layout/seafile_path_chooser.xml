@@ -76,16 +76,17 @@
         android:gravity="center_horizontal"
         android:layout_alignParentBottom="true"
         android:background="@color/light_grey"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp">
+        android:paddingLeft="@dimen/footer_margin_left"
+        android:paddingRight="@dimen/footer_margin_right"
+        android:paddingTop="@dimen/footer_margin_top"
+        android:paddingBottom="@dimen/footer_margin_bottom">
        <Button
             android:id="@+id/cancel"
             android:layout_width="wrap_content"
-            android:layout_height="60dp"
+            android:layout_height="@dimen/btn_height"
             android:layout_weight="0.4"
             android:text="@string/cancel"
+            android:textSize="@dimen/btn_txt_size"
             android:textColor="@color/light_black"
             android:gravity="center"
             android:background="@drawable/cancel_btn_default_holo_light"
@@ -100,11 +101,12 @@
         <Button
             android:id="@+id/ok"
             android:layout_width="wrap_content"
-            android:layout_height="60dp"
+            android:layout_height="@dimen/btn_height"
             android:layout_weight="0.4"
             android:text="@string/ok"
             android:textColor="@color/white"
             android:gravity="center"
+            android:textSize="@dimen/btn_txt_size"
           	android:background="@drawable/confirm_btn_default_holo_light"            
             />
         

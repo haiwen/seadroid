@@ -16,17 +16,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="10dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginBottom="@dimen/dialog_title_margin_bottom"
+            android:layout_marginTop="@dimen/dialog_title_margin_top"
+            android:textSize="@dimen/dialog_title_txt_size"
             android:text="@string/ssl_confirm_title"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@color/orange" />
+            android:textColor="@color/seafile_orange" />
 
         <ImageView
             android:id="@+id/dialog_custom_title_divider"
             android:layout_width="match_parent"
             android:layout_height="2dp"
-            android:background="@color/orange" />
+            android:background="@color/seafile_orange" />
     </LinearLayout>
 
     <TextView
@@ -35,7 +36,7 @@
         android:layout_height="wrap_content"
         android:padding="10dp"
         android:textColor="@color/black"
-        android:textSize="18sp" />
+        android:textSize="@dimen/dialog_msg_txt_size" />
 
     <LinearLayout
         android:id="@+id/cert_details"
@@ -59,7 +60,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/issued_to"
                 android:textColor="@color/black"
-                android:textSize="16sp"
+                android:textSize="@dimen/dialog_msg_title_txt_size"
                 android:textStyle="bold" />
 
             <TextView
@@ -81,7 +82,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/finger_prints"
                     android:textColor="@color/black"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/dialog_msg_title_txt_size"
                     android:textStyle="bold" />
 
                 <TextView
@@ -120,7 +121,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/period_of_validity"
                 android:textColor="@color/black"
-                android:textSize="16sp"
+                android:textSize="@dimen/dialog_msg_title_txt_size"
                 android:textStyle="bold" />
 
             <TextView
