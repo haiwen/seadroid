@@ -235,6 +235,15 @@ public class AccountsActivity extends SherlockFragmentActivity {
 
     @Override
     public void onBackPressed() {
+        Account account = accountManager.getCurrentAccount();
+        if (account == null) {
+            // force exit when current account was deleted
+            Intent i = new Intent();
+            i.setAction(Intent.ACTION_MAIN);
+            i.addCategory(Intent.CATEGORY_HOME);
+            startActivity(i);
+            finish();
+        }
         super.onBackPressed();
     }
 
