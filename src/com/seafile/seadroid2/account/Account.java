@@ -5,6 +5,7 @@ import android.os.Parcelable;
 import android.util.Log;
 
 import com.google.common.base.Objects;
+import com.seafile.seadroid2.util.Utils;
 
 public class Account implements Parcelable {
     private static final String DEBUG_TAG = "Account";
@@ -90,6 +91,11 @@ public class Account implements Parcelable {
     
     public String getName() {
         return email.substring(0, email.indexOf("@")) + "@" + getServerHost();
+    }
+
+    public String getDisplayName() {
+        String server = Utils.stripSlashes(getServerHost());
+        return Utils.assembleUserName(email, server);
     }
 
     @Override

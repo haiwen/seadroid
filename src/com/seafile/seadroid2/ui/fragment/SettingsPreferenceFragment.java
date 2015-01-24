@@ -8,8 +8,6 @@ import android.content.*;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Looper;
-import android.os.Message;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
@@ -22,6 +20,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.common.collect.Maps;
 import com.seafile.seadroid2.*;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
@@ -31,7 +30,6 @@ import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
 import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.gallery.Util;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
@@ -45,12 +43,17 @@ import com.seafile.seadroid2.util.Utils;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.util.Map;
 
 public class SettingsPreferenceFragment extends CustomPreferenceFragment implements
         OnPreferenceChangeListener, OnPreferenceClickListener {
     private static final String DEBUG_TAG = "SettingsPreferenceFragment";
 
     public static final String EXTRA_CAMERA_UPLOAD = "com.seafile.seadroid2.camera.upload";
+
+    // Account Info
+    private static Map<String, AccountInfo> accountInfoMap = Maps.newHashMap();
+
     private Preference actInfoPref;
     private Preference spaceAvailablePref;
     private Preference signOutPref;
@@ -106,6 +109,11 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
         super.onCreate(savedInstanceState);
 
         Account account = accountMgr.getCurrentAccount();
+        if (!Utils.isNetworkOn()) {
+            showToast(R.string.network_down);
+            return;
+        }
+
         ConcurrentAsyncTask.execute(new RequestAccountInfoTask(), account);
 
     }
@@ -119,11 +127,19 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
 
         // Account
         actInfoPref = findPreference(SettingsManager.SETTINGS_ACCOUNT_INFO_KEY);
-        // AccountInfo actInfo = accountMgr.getCurrentAccountInfo();
         spaceAvailablePref = findPreference(SettingsManager.SETTINGS_ACCOUNT_SPACE_KEY);
+
+        String identifier = getCurrentUserIdentifier();
+        String signature = accountMgr.getCurrentAccount().getSignature();
+        AccountInfo info = getAccountInfoBySignature(signature);
+        if (info != null) {
+            String spaceUsed = info.getSpaceUsed();
+            spaceAvailablePref.setSummary(spaceUsed);
+        }
+
+        actInfoPref.setSummary(identifier);
         signOutPref = findPreference(SettingsManager.SETTINGS_ACCOUNT_SIGN_OUT_KEY);
         signOutPref.setOnPreferenceClickListener(this);
-
 
         // Gesture Lock
         gestureLockSwitch = (CheckBoxPreference) findPreference(SettingsManager.GESTURE_LOCK_SWITCH_KEY);
@@ -413,6 +429,11 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
     class RequestAccountInfoTask extends AsyncTask<Account, Void, AccountInfo> {
 
         @Override
+        protected void onPreExecute() {
+            mActivity.setSupportProgressBarIndeterminateVisibility(true);
+        }
+
+        @Override
         protected AccountInfo doInBackground(Account... params) {
             AccountInfo accountInfo = null;
 
@@ -433,21 +454,44 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
                 e.printStackTrace();
             }
 
-            if (accountInfo == null) return null;
-
-            accountInfo.setServer(account.getServer());
+            if (accountInfo != null)
+                accountInfo.setServer(account.getServer());
 
             return accountInfo;
         }
 
         @Override
         protected void onPostExecute(AccountInfo accountInfo) {
+            mActivity.setSupportProgressBarIndeterminateVisibility(false);
+
             if (accountInfo == null) return;
+
             // update Account info settings
-            actInfoPref.setSummary(accountInfo.getEmail());
-            String spaceUsage = Utils.readableFileSize(accountInfo.getUsage()) + "/" + Utils.readableFileSize(accountInfo.getTotal());
+            actInfoPref.setSummary(getCurrentUserIdentifier());
+            String spaceUsage = accountInfo.getSpaceUsed();
             spaceAvailablePref.setSummary(spaceUsage);
+            saveAccountInfo(accountMgr.getCurrentAccount().getSignature(), accountInfo);
         }
+    }
+
+    public String getCurrentUserIdentifier() {
+        Account account = settingsMgr.getCurrentAccount();
+
+        if (account == null)
+            return "";
+
+        return account.getDisplayName();
+    }
+
+    public void saveAccountInfo(String signature, AccountInfo accountInfo) {
+        accountInfoMap.put(signature, accountInfo);
+    }
+
+    public AccountInfo getAccountInfoBySignature(String signature) {
+        if (accountInfoMap.containsKey(signature))
+            return accountInfoMap.get(signature);
+        else
+            return null;
     }
 
     private void calculateCacheSize() {
