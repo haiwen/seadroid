@@ -16,7 +16,9 @@ import com.seafile.seadroid2.gesturelock.AppLockManager;
 
 public class SeadroidApplication extends Application {
     private static Context context;
-    
+
+    public static String CUSTOM_FONT_ROBOTO_PATH = "fonts/Roboto/Roboto-Bold.ttf";
+
     public void onCreate() {
         super.onCreate();
         SeadroidApplication.context = getApplicationContext();

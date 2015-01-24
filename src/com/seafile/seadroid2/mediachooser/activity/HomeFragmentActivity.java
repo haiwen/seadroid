@@ -18,6 +18,7 @@ package com.seafile.seadroid2.mediachooser.activity;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -30,12 +31,14 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.*;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.mediachooser.MediaChooser;
 import com.seafile.seadroid2.mediachooser.MediaChooserConstants;
 import com.seafile.seadroid2.mediachooser.fragment.ImageFragment;
@@ -104,8 +107,23 @@ public class HomeFragmentActivity extends SherlockFragmentActivity implements Im
             public void onPageScrolled(int arg0, float arg1, int arg2) {}
         });
 
+        applyCustomFont();
+
         mCancelBtn.setOnClickListener(clickListener);
         mUploadBtn.setOnClickListener(clickListener);
+    }
+
+    private void applyCustomFont() {
+        ViewGroup vg = (ViewGroup) mIndicator.getChildAt(0);
+        int vgChildCount = vg.getChildCount();
+        for (int j = 0; j < vgChildCount; j++) {
+            View vgChild = vg.getChildAt(j);
+            if (vgChild instanceof TextView) {
+                Typeface face = Typeface.createFromAsset(getAssets(), SeadroidApplication.CUSTOM_FONT_ROBOTO_PATH);
+                ((TextView) vgChild).setTypeface(face);
+            }
+        }
+
     }
 
     private void updateSelectionStatus(int count) {
@@ -144,6 +162,7 @@ public class HomeFragmentActivity extends SherlockFragmentActivity implements Im
 
         mSelectionStatus.setText(status);
         mIndicator.notifyDataSetChanged();
+        applyCustomFont();
     }
 
     class ChooserTabsAdapter extends FragmentPagerAdapter {
