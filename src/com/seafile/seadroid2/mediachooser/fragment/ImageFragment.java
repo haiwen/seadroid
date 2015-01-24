@@ -24,9 +24,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
@@ -202,9 +200,13 @@ public class ImageFragment extends Fragment {
                     mSelectedItems.add(galleryModel.url.toString());
                     MediaChooserConstants.SELECTED_MEDIA_COUNT++;
 
+                    startActionModeForImageFragment();
                 } else {
                     mSelectedItems.remove(galleryModel.url.toString().trim());
                     MediaChooserConstants.SELECTED_MEDIA_COUNT--;
+
+                    if(mActionMode != null)
+                        mActionMode.setTitle(mSelectedItems.size() + " selected");
                 }
 
                 if (mCallback != null) {
@@ -216,6 +218,20 @@ public class ImageFragment extends Fragment {
 
             }
         });
+    }
+
+    private void startActionModeForImageFragment() {
+
+        if (mSelectedItems.size() > 0 && mActionMode == null)
+            // there are some selected items, start the actionMode
+            mActionMode = getActivity().startActionMode(new ActionModeCallback());
+        else if (mSelectedItems.size() <= 0 && mActionMode != null)
+            // there no selected items, finish the actionMode
+            mActionMode.finish();
+
+        if(mActionMode != null)
+            mActionMode.setTitle(mSelectedItems.size() + " selected");
+
     }
 
     public void selectAll() {
@@ -253,5 +269,41 @@ public class ImageFragment extends Fragment {
         } else {
             initPhoneImages();
         }
+    }
+
+    private ActionMode mActionMode;
+
+    private class ActionModeCallback implements ActionMode.Callback {
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            // inflate contextual menu
+            mode.getMenuInflater().inflate(R.menu.media_chooser_context_menu, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            MenuItem menu_selectAll = menu.findItem(R.id.select_all);
+            return true;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.select_all:
+                    selectAll();
+                    break;
+            }
+            // close action mode
+            mode.finish();
+            return true;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            mActionMode = null;
+        }
+
     }
 }
