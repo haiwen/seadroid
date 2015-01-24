@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content">
+
+    <ImageView
+            android:id="@+id/imageViewFromMediaChooserBucketRowView"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:background="@null"
+            android:contentDescription="@null"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_loading"/>
+
+    <TextView
+            android:id="@+id/nameTextViewFromMediaChooserBucketRowView"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:background="#88666666"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:maxLines="1"
+            android:text="Video"
+            android:textColor="@android:color/white"
+            android:textSize="20sp"/>
+
+</FrameLayout>

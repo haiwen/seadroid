@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+            android:id="@+id/video_capture"
+            android:icon="@drawable/media_chooser_video"
+            android:showAsAction="ifRoom"
+            android:title="@string/media_chooser_video" />
+    <item
+            android:id="@+id/photo_capture"
+            android:icon="@drawable/media_chooser_camera"
+            android:showAsAction="ifRoom"
+            android:title="@string/media_chooser_camera" />
+
+</menu>

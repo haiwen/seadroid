@@ -56,6 +56,8 @@ import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SeafStarredFile;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
+import com.seafile.seadroid2.mediachooser.MediaChooser;
+import com.seafile.seadroid2.mediachooser.MediaChooserConstants;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.transfer.*;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
@@ -298,6 +300,12 @@ public class BrowserActivity extends SherlockFragmentActivity
         Intent monitorIntent = new Intent(this, FileMonitorService.class);
         startService(monitorIntent);
 
+        IntentFilter videoIntentFilter = new IntentFilter(MediaChooser.VIDEO_SELECTED_ACTION_FROM_MEDIA_CHOOSER);
+        LocalBroadcastManager.getInstance(this).registerReceiver(mVideoBroadcastReceiver, videoIntentFilter);
+
+        IntentFilter imageIntentFilter = new IntentFilter(MediaChooser.IMAGE_SELECTED_ACTION_FROM_MEDIA_CHOOSER);
+        LocalBroadcastManager.getInstance(this).registerReceiver(mImageBroadcastReceiver, imageIntentFilter);
+
     }
 
     class SeafileTabsAdapter extends FragmentPagerAdapter implements
@@ -511,6 +519,12 @@ public class BrowserActivity extends SherlockFragmentActivity
             unbindService(mConnection);
             txService = null;
         }
+
+        if (mVideoBroadcastReceiver != null)
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(mVideoBroadcastReceiver);
+
+        if (mImageBroadcastReceiver != null)
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(mImageBroadcastReceiver);
 
         super.onDestroy();
     }
@@ -842,6 +856,36 @@ public class BrowserActivity extends SherlockFragmentActivity
         UploadChoiceDialog dialog = new UploadChoiceDialog();
         dialog.show(getSupportFragmentManager(), PICK_FILE_DIALOG_FRAGMENT_TAG);
     }
+
+    BroadcastReceiver mVideoBroadcastReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ArrayList<String> paths = intent.getStringArrayListExtra(MediaChooserConstants.MEDIA_SELECTED_LIST);
+            if (paths == null)
+                return;
+            showToast(getString(R.string.added_to_upload_tasks));
+            for (String path : paths) {
+                addUploadTask(navContext.getRepoID(),
+                        navContext.getRepoName(), navContext.getDirPath(), path);
+            }
+        }
+    };
+
+    private BroadcastReceiver mImageBroadcastReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ArrayList<String> paths = intent.getStringArrayListExtra(MediaChooserConstants.MEDIA_SELECTED_LIST);
+            if (paths == null)
+                return;
+            showToast(getString(R.string.added_to_upload_tasks));
+            for (String path : paths) {
+                addUploadTask(navContext.getRepoID(),
+                        navContext.getRepoName(), navContext.getDirPath(), path);
+            }
+        }
+    };
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

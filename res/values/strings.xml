@@ -332,4 +332,23 @@
     <!-- star a file -->
     <string name="star_file_succeed">File starred successfully</string>
     <string name="star_file_failed">File starred failed</string>
+
+    <!-- Media Chooser -->
+    <string name="media_chooser_camera">Camera</string>
+    <string name="media_chooser_video">Video</string>
+    <string name="media_chooser_images_tab">Images</string>
+    <string name="media_chooser_videos_tab">Videos</string>
+    <string name="media_chooser_max_limit_reach_error">Max limit 10 file</string>
+    <string name="media_chooser_max_limit_file">Max limit</string>
+    <string name="media_chooser_please_wait">Please wait</string>
+    <string name="media_chooser_refreshing">Refreshing&#8230;</string>
+    <string name="media_chooser_file_size_exeeded">The file size exceeds the maximum limit of</string>
+    <string name="media_chooser_selected_file_size">Selected media size is </string>
+    <string name="media_chooser_mb">MB</string>
+    <string name="media_chooser_plaese_select_file">Please select a file</string>
+    <string name="media_chooser_file">file</string>
+    <string name="media_chooser_files">files</string>
+    <string name="media_chooser_no_media_file_available">No media file available</string>
+    <string name="media_chooser_images_selected">Images (%d)</string>
+    <string name="media_chooser_videos_selected">Videos (%d)</string>
 </resources>

@@ -10,7 +10,8 @@ import android.support.v4.app.DialogFragment;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
-import com.seafile.seadroid2.gallery.MultipleImageSelectionActivity;
+import com.seafile.seadroid2.mediachooser.MediaChooser;
+import com.seafile.seadroid2.mediachooser.activity.HomeFragmentActivity;
 import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.util.Utils;
@@ -35,9 +36,11 @@ public class UploadChoiceDialog extends DialogFragment {
                             getActivity().startActivityForResult(intent, BrowserActivity.PICK_FILES_REQUEST);
                             break;
                         case 1:
-                            // photos
-                            intent = new Intent(ctx, MultipleImageSelectionActivity.class);
-                            getActivity().startActivityForResult(intent, BrowserActivity.PICK_PHOTOS_VIDEOS_REQUEST);
+                            // photos & videos
+                            MediaChooser.setSelectionLimit(20);
+                            //MediaChooser.showOnlyImageTab();
+                            Intent bIntent = new Intent(ctx, HomeFragmentActivity.class);
+                            getActivity().startActivity(bIntent);
                             break;
                         case 2:
                             // thirdparty file chooser
