@@ -218,6 +218,29 @@ public class ImageFragment extends Fragment {
         });
     }
 
+    public void selectAll() {
+        mSelectedItems.clear();
+        MediaChooserConstants.SELECTED_MEDIA_COUNT = 0;
+
+        if (mGalleryModelList.isEmpty())
+            return;
+
+        for (MediaModel mediaModel : mGalleryModelList) {
+            MediaChooserConstants.SELECTED_MEDIA_COUNT++;
+            mediaModel.status = true;
+            mSelectedItems.add(mediaModel.url.toString());
+        }
+        mImageAdapter.notifyDataSetChanged();
+
+        if (mCallback != null) {
+            mCallback.onImageSelected(mSelectedItems.size());
+            Intent intent = new Intent();
+            intent.putStringArrayListExtra(MediaChooserConstants.MEDIA_SELECTED_LIST, mSelectedItems);
+            getActivity().setResult(Activity.RESULT_OK, intent);
+        }
+
+    }
+
     public ArrayList<String> getSelectedImageList() {
         return mSelectedItems;
     }

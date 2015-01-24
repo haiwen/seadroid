@@ -234,6 +234,29 @@ public class VideoFragment extends Fragment implements OnScrollListener {
 
     }
 
+    public void selectAll() {
+        mSelectedItems.clear();
+        MediaChooserConstants.SELECTED_MEDIA_COUNT = 0;
+
+        if (mGalleryModelList.isEmpty())
+            return;
+
+        for (MediaModel mediaModel : mGalleryModelList) {
+            MediaChooserConstants.SELECTED_MEDIA_COUNT++;
+            mediaModel.status = true;
+            mSelectedItems.add(mediaModel.url.toString());
+        }
+        mVideoAdapter.notifyDataSetChanged();
+
+        if (mCallback != null) {
+            mCallback.onVideoSelected(mSelectedItems.size());
+            Intent intent = new Intent();
+            intent.putStringArrayListExtra(MediaChooserConstants.MEDIA_SELECTED_LIST, mSelectedItems);
+            getActivity().setResult(Activity.RESULT_OK, intent);
+        }
+
+    }
+
     public void addItem(String item) {
         if (mVideoAdapter != null) {
             MediaModel model = new MediaModel(item, false);
