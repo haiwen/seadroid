@@ -234,7 +234,7 @@ public class ImageFragment extends Fragment {
 
     }
 
-    public void selectAll() {
+    public void selectAll(boolean select) {
         mSelectedItems.clear();
         MediaChooserConstants.SELECTED_MEDIA_COUNT = 0;
 
@@ -242,9 +242,12 @@ public class ImageFragment extends Fragment {
             return;
 
         for (MediaModel mediaModel : mGalleryModelList) {
-            MediaChooserConstants.SELECTED_MEDIA_COUNT++;
-            mediaModel.status = true;
-            mSelectedItems.add(mediaModel.url.toString());
+            if (select) {
+                MediaChooserConstants.SELECTED_MEDIA_COUNT++;
+                mediaModel.status = true;
+                mSelectedItems.add(mediaModel.url.toString());
+            } else
+                mediaModel.status = false;
         }
         mImageAdapter.notifyDataSetChanged();
 
@@ -255,6 +258,8 @@ public class ImageFragment extends Fragment {
             getActivity().setResult(Activity.RESULT_OK, intent);
         }
 
+        if(mActionMode != null)
+            mActionMode.setTitle(mSelectedItems.size() + " selected");
     }
 
     public ArrayList<String> getSelectedImageList() {
@@ -269,6 +274,11 @@ public class ImageFragment extends Fragment {
         } else {
             initPhoneImages();
         }
+    }
+
+    public void finishActionModeIfOn() {
+        if (mActionMode != null)
+            mActionMode.finish();
     }
 
     private ActionMode mActionMode;
@@ -292,11 +302,14 @@ public class ImageFragment extends Fragment {
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.select_all:
-                    selectAll();
+                    if (mGalleryModelList.size() != mSelectedItems.size())
+                        selectAll(true);
+                    else
+                        selectAll(false);
                     break;
             }
             // close action mode
-            mode.finish();
+            // mode.finish();
             return true;
         }
 

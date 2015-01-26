@@ -98,6 +98,11 @@ public class HomeFragmentActivity extends SherlockFragmentActivity implements Im
                     mSelectionStatus.setText(getResources().getString(R.string.select_upload_items));
                 else
                     mSelectionStatus.setText(String.format(getResources().getString(R.string.n_upload_items_selected), total));
+
+                if (position == 0)
+                    ((VideoFragment) mAdapter.getItem(1)).finishActionModeIfOn();
+                else
+                    ((ImageFragment) mAdapter.getItem(0)).finishActionModeIfOn();
             }
 
             @Override

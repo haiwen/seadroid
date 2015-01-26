@@ -24,9 +24,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
@@ -56,6 +54,7 @@ public class VideoFragment extends Fragment implements OnScrollListener {
     private View mView;
     private OnVideoSelectedListener mCallback;
 
+    private ActionMode mActionMode;
 
     // Container Activity must implement this interface
     public interface OnVideoSelectedListener {
@@ -217,9 +216,13 @@ public class VideoFragment extends Fragment implements OnScrollListener {
                     mSelectedItems.add(galleryModel.url.toString());
                     MediaChooserConstants.SELECTED_MEDIA_COUNT++;
 
+                    startActionModeForVideoFragment();
                 } else {
                     mSelectedItems.remove(galleryModel.url.toString().trim());
                     MediaChooserConstants.SELECTED_MEDIA_COUNT--;
+
+                    if(mActionMode != null)
+                        mActionMode.setTitle(mSelectedItems.size() + " selected");
                 }
 
                 if (mCallback != null) {
@@ -234,7 +237,26 @@ public class VideoFragment extends Fragment implements OnScrollListener {
 
     }
 
-    public void selectAll() {
+    private void startActionModeForVideoFragment() {
+
+        if (mSelectedItems.size() > 0 && mActionMode == null)
+            // there are some selected items, start the actionMode
+            mActionMode = getActivity().startActionMode(new ActionModeCallback());
+        else if (mSelectedItems.size() <= 0 && mActionMode != null)
+            // there no selected items, finish the actionMode
+            mActionMode.finish();
+
+        if(mActionMode != null)
+            mActionMode.setTitle(mSelectedItems.size() + " selected");
+
+    }
+
+    public void finishActionModeIfOn() {
+        if (mActionMode != null)
+            mActionMode.finish();
+    }
+
+    public void selectAll(boolean select) {
         mSelectedItems.clear();
         MediaChooserConstants.SELECTED_MEDIA_COUNT = 0;
 
@@ -242,9 +264,12 @@ public class VideoFragment extends Fragment implements OnScrollListener {
             return;
 
         for (MediaModel mediaModel : mGalleryModelList) {
-            MediaChooserConstants.SELECTED_MEDIA_COUNT++;
-            mediaModel.status = true;
-            mSelectedItems.add(mediaModel.url.toString());
+            if (select) {
+                MediaChooserConstants.SELECTED_MEDIA_COUNT++;
+                mediaModel.status = true;
+                mSelectedItems.add(mediaModel.url.toString());
+            } else
+                mediaModel.status = false;
         }
         mVideoAdapter.notifyDataSetChanged();
 
@@ -280,7 +305,7 @@ public class VideoFragment extends Fragment implements OnScrollListener {
     }
 
     public void onScrollStateChanged(AbsListView view, int scrollState) {
-        //		if (view.getId() == android.R.id.list) {
+        //  if (view.getId() == android.R.id.list) {
         if (view == mVideoGridView) {
             // Set scrolling to true only if the user has flinged the
             // ListView away, hence we skip downloading a series
@@ -303,6 +328,42 @@ public class VideoFragment extends Fragment implements OnScrollListener {
 
     }
 
+    private class ActionModeCallback implements ActionMode.Callback {
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            // inflate contextual menu
+            mode.getMenuInflater().inflate(R.menu.media_chooser_context_menu, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            MenuItem menu_selectAll = menu.findItem(R.id.select_all);
+            return true;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.select_all:
+                    if (mGalleryModelList.size() != mSelectedItems.size())
+                        selectAll(true);
+                    else
+                        selectAll(false);
+                    break;
+            }
+            // close action mode
+            // mode.finish();
+            return true;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            mActionMode = null;
+        }
+
+    }
 
 }
 
