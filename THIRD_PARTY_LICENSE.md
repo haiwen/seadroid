@@ -48,3 +48,7 @@ The third party software included and used by this project is:
    Licensed under the GNU Affero General Public License, Version 3.0.  
    Placed at package com.seafile.seadroid2.provider.  
    See https://github.com/forouher/seadroid/tree/feature/documentprovider
+
+ * App passcode library for Android, master branch
+   Dual licensed under MIT, and GPL.
+   See https://github.com/wordpress-mobile/Android-PasscodeLock
