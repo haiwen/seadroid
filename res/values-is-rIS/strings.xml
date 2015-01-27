@@ -29,7 +29,6 @@
   <string name="activities">Hreyfingar</string>
   <string name="pick_upload_type">Hlaða upp</string>
   <string name="accounts_https_hint">https</string>
-  <string name="upload_tasks">Upphlaðið</string>
   <string name="accounts">Reikningar</string>
   <string name="settings">Stillingar</string>
   <string-array name="pick_upload_array">
@@ -238,4 +237,5 @@
   <string name="saf_write_diretory_exception">Gat ekki opnað skráasafn fyrir lestur/skrift.</string>
   <string name="saf_account_not_found_exception">gat ekki fundið Seafile reikning.</string>
   <!--shibboleth SSO-->
+  <!--Transfer List-->
 </resources>

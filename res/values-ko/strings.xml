@@ -29,7 +29,7 @@
   <string name="activities">활동</string>
   <string name="pick_upload_type">업로드</string>
   <string name="accounts_https_hint">https</string>
-  <string name="upload_tasks">업로드</string>
+  <string name="transfer_tasks">전송 목록</string>
   <string name="accounts">계정</string>
   <string name="settings">설정</string>
   <string-array name="pick_upload_array">
@@ -38,7 +38,14 @@
     <item>기타</item>
   </string-array>
   <string name="choose_server">Seafile 서버를 선택하세요</string>
+  <string-array name="choose_server_array">
+    <item>개인 Seafile 서버</item>
+    <item>SeaCloud.cc</item>
+    <item>cloud.seafile.com</item>
+    <item>Shibboleth 로그인</item>
+  </string-array>
   <string name="network_down">네트워크 연결 상태가 아닙니다</string>
+  <string name="unknow_error">알 수 없는 오류</string>
   <string name="invalid_server_address">잘못된 서버 주소입니다</string>
   <string name="err_server_andress_empty">서버 주소를 비워둘 수 없습니다</string>
   <string name="err_email_empty">전자메일은 비워둘 수 없습니다</string>
@@ -54,6 +61,7 @@
   <string name="task_cancel">취소</string>
   <string name="task_retry">다시 시도</string>
   <string name="task_remove">제거</string>
+  <string name="task_remove_all_cancelled">취소한 모든 항목 제거</string>
   <string name="task_remove_all_finished">완료한 항목 제거</string>
   <string name="file_action_download">다운로드</string>
   <string name="file_action_remove_cache">캐시 제거</string>
@@ -98,6 +106,7 @@
   <string name="load_libraries_fail">라이브러리 불러오기에 실패했습니다</string>
   <string name="load_dir_fail">이 폴더의 내용 불러오기에 실패했습니다.</string>
   <string name="not_supported_share">이 공유 형식은 지원하지 않습니다</string>
+  <string name="download_folder">다운로드 폴더</string>
   <string name="create_new_file">새 파일 만들기</string>
   <string name="create_new_dir">새 폴더 만들기</string>
   <string name="camera">여기에 사진 넣기</string>
@@ -109,6 +118,7 @@
   <string name="library_not_found">라이브러리를 삭제했습니다.</string>
   <string name="export_file">이 파일 내보내기</string>
   <string name="no_upload_tasks">업로드 작업이 없습니다</string>
+  <string name="no_download_tasks">다운로드 작업이 없습니다</string>
   <string name="seahub_url_hint">참고: 서버 주소에 포트를 포함해야 합니다. 예, www.example.com:8000</string>
   <string name="copy_link">링크 복사</string>
   <string name="share_file_link">이 파일 링크 공유</string>
@@ -133,6 +143,8 @@
   <string name="tabs_library">라이브러리</string>
   <string name="tabs_activity">활동</string>
   <string name="tabs_starred">별표 표시</string>
+  <string name="tabs_downloads">다운로드 목록</string>
+  <string name="tabs_uploads">업로드 목록</string>
   <string name="provide_password">\"%s\" 라이브러리에 대한 암호를 입력하세요</string>
   <string name="upload_waiting">기다리는 중</string>
   <string name="upload_finished">끝냈습니다</string>
@@ -250,6 +262,9 @@
   <string name="settings_advance_feature_title">고급 기능</string>
   <string name="settings_cache_title">캐시 크기</string>
   <string name="settings_clear_cache_title">캐시 비우기</string>
+  <string name="settings_clear_cache_hint">캐시를 비우시겠습니까?</string>
+  <string name="settings_clear_cache_success">캐시를 완전히 비웠습니다</string>
+  <string name="settings_clear_cache_failed">캐시 비우기를 실패했습니다</string>
   <string name="settings_cache_empty">0 KB</string>
   <!--pull to refresh-->
   <string name="pull_to_refresh_pull_label">새로 고치려면 당기십시오...</string>
@@ -268,4 +283,14 @@
   <string name="saf_write_diretory_exception">읽고 쓸 디렉터리를 열 수 없습니다.</string>
   <string name="saf_account_not_found_exception">Seafile 계정을 찾을 수 없습니다.</string>
   <!--shibboleth SSO-->
+  <string name="shib_server_url_empty">서버가 비어있습니다!</string>
+  <string name="shib_server_incorrect_prefix">서버 주소는 http:// 또는 https:// 로 시작해야합니다</string>
+  <string name="shib_load_page_error">오류:</string>
+  <string name="shib_login_title">Shibboleth 로그인</string>
+  <string name="shib_add_https_prefix">http(s) 접두어 추가</string>
+  <string name="shib_server_hint">서버 입력...</string>
+  <string name="shib_actionbar_title">Shibboleth 로그인</string>
+  <!--Transfer List-->
+  <string name="transfer_list_network_error">네트워크 연결에 오류가 발생했으니, 나중에 시도하십시오!</string>
+  <string name="transfer_list_cancel_all">모두 취소</string>
 </resources>

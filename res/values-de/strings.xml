@@ -29,7 +29,6 @@
   <string name="activities">Aktivitäten</string>
   <string name="pick_upload_type">Hochladen</string>
   <string name="accounts_https_hint">HTTPS</string>
-  <string name="upload_tasks">Übertragungen</string>
   <string name="accounts">Konten</string>
   <string name="settings">Einstellungen</string>
   <string-array name="pick_upload_array">
@@ -267,4 +266,5 @@ Email: support@seafile.com<br>
   <string name="saf_write_diretory_exception">Das Verzeichnis konnte nicht zum Lesen oder Schreiben geöffnet werden.</string>
   <string name="saf_account_not_found_exception">Das Seafile Konto wurde nicht gefunden.</string>
   <!--shibboleth SSO-->
+  <!--Transfer List-->
 </resources>

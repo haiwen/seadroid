@@ -29,7 +29,7 @@
   <string name="activities">Actividades</string>
   <string name="pick_upload_type">Subir</string>
   <string name="accounts_https_hint">https</string>
-  <string name="upload_tasks">Subidas</string>
+  <string name="transfer_tasks">Lista de transferencias</string>
   <string name="accounts">Cuentas</string>
   <string name="settings">Configuración</string>
   <string-array name="pick_upload_array">
@@ -38,7 +38,14 @@
     <item>Otro</item>
   </string-array>
   <string name="choose_server">Elija un Servidor Seafile</string>
+  <string-array name="choose_server_array">
+    <item>Servidor Seafile Privado</item>
+    <item>SeaCloud.cc</item>
+    <item>cloud.seafile.com</item>
+    <item>Sesión con Shibboleth</item>
+  </string-array>
   <string name="network_down">Sin conexión de red</string>
+  <string name="unknow_error">Error desconocido</string>
   <string name="invalid_server_address">Dirección de servidor inválida</string>
   <string name="err_server_andress_empty">La dirección del servidor no puede estar vacía</string>
   <string name="err_email_empty">Email no puede estar vacio</string>
@@ -54,6 +61,7 @@
   <string name="task_cancel">Cancelar</string>
   <string name="task_retry">Reintentar</string>
   <string name="task_remove">Remover</string>
+  <string name="task_remove_all_cancelled">Remover tareas canceladas</string>
   <string name="task_remove_all_finished">Remover todas las finalizadas</string>
   <string name="file_action_download">Descargar</string>
   <string name="file_action_remove_cache">Remover Caché</string>
@@ -98,6 +106,7 @@
   <string name="load_libraries_fail">Falla al cargar bibliotecas</string>
   <string name="load_dir_fail">Falla al cargar el contenido de esta carpeta</string>
   <string name="not_supported_share">Este tipo de recurso compartido no es compatible</string>
+  <string name="download_folder">Carpeta de descarga</string>
   <string name="create_new_file">Crear un nuevo archivo</string>
   <string name="create_new_dir">Crear una nueva carpeta</string>
   <string name="camera">Tomar una foto aquí</string>
@@ -109,6 +118,7 @@
   <string name="library_not_found">La biblioteca ha sido eliminada.</string>
   <string name="export_file">Exportar este archivo</string>
   <string name="no_upload_tasks">Aún no hay tareas de subida</string>
+  <string name="no_download_tasks">No hay tareas de descarga</string>
   <string name="seahub_url_hint">Nota: la dirección del servidor debe incluir el puerto. Por ejemplo, www.example.com:8000</string>
   <string name="copy_link">Copiar enlace</string>
   <string name="share_file_link">Compartir un enlace a este archivo</string>
@@ -133,6 +143,8 @@
   <string name="tabs_library">Bibliotecas</string>
   <string name="tabs_activity">Actividades</string>
   <string name="tabs_starred">Favoritos</string>
+  <string name="tabs_downloads">Lista de descarga</string>
+  <string name="tabs_uploads">Lista de subida</string>
   <string name="provide_password">Provea la contraseña para la biblioteca \"%s\"</string>
   <string name="upload_waiting">Esperando</string>
   <string name="upload_finished">Finalizado</string>
@@ -194,7 +206,7 @@
   <string name="lockscreen_access_pattern_cleared">Patrón borrado</string>
   <string name="lockscreen_access_pattern_cell_added">Celda agregada</string>
   <string name="lockscreen_access_pattern_detected">Patrón detectado</string>
-  <string name="lockscreen_access_pattern_passwd_forget">Olvidar contraseña</string>
+  <string name="lockscreen_access_pattern_passwd_forget">Olvidé la contraseña</string>
   <string name="lockscreen_access_pattern_failure">Falló 5 veces, por favor espere 30 segundos antes de intentar</string>
   <string name="lockscreen_access_pattern_failure_left_try_seconds">Puede reintentar en %d segundos</string>
   <string name="lockscreen_access_pattern_failure_left_try_times">Patrón incorrecto, puede intentar %d veces más</string>
@@ -250,6 +262,9 @@
   <string name="settings_advance_feature_title">FUNCIÓN AVANZADA</string>
   <string name="settings_cache_title">Tamaño del caché</string>
   <string name="settings_clear_cache_title">Borrar caché</string>
+  <string name="settings_clear_cache_hint">¿Desea borrar el caché?</string>
+  <string name="settings_clear_cache_success">Caché borrado con éxito</string>
+  <string name="settings_clear_cache_failed">Falló borrar el caché</string>
   <string name="settings_cache_empty">0 KB</string>
   <!--pull to refresh-->
   <string name="pull_to_refresh_pull_label">Tire para actualizar...</string>
@@ -268,4 +283,14 @@
   <string name="saf_write_diretory_exception">No se puede abrir la carpeta para leer/escribir.</string>
   <string name="saf_account_not_found_exception">No se pudo hallar la cuenta de Seafile.</string>
   <!--shibboleth SSO-->
+  <string name="shib_server_url_empty">¡El servidor está vacío!</string>
+  <string name="shib_server_incorrect_prefix">El servidor debería comenzar con http:// o https://</string>
+  <string name="shib_load_page_error">Error:</string>
+  <string name="shib_login_title">Inicio de sesión con Shibboleth</string>
+  <string name="shib_add_https_prefix">Agregar prefijo http(s)</string>
+  <string name="shib_server_hint">Ingrese servidor...</string>
+  <string name="shib_actionbar_title">Iniciar sesión con Shibboleth</string>
+  <!--Transfer List-->
+  <string name="transfer_list_network_error">Error de conexión de red, por favor intente más tarde.</string>
+  <string name="transfer_list_cancel_all">Cancelar todas las tareas</string>
 </resources>

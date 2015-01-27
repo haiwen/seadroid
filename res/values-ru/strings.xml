@@ -29,7 +29,6 @@
   <string name="activities">Активность</string>
   <string name="pick_upload_type">Загрузить</string>
   <string name="accounts_https_hint">https</string>
-  <string name="upload_tasks">Загрузки</string>
   <string name="accounts">Аккаунты</string>
   <string name="settings">Настройки</string>
   <string-array name="pick_upload_array">
@@ -267,4 +266,5 @@ Email: support@seafile.com<br>
   <string name="saf_write_diretory_exception">Не возможно открыть папку для чтения/записи.</string>
   <string name="saf_account_not_found_exception">Не возможно найти аккаунт Seafile.</string>
   <!--shibboleth SSO-->
+  <!--Transfer List-->
 </resources>

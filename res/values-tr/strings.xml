@@ -29,16 +29,23 @@
   <string name="activities">Etkinlikler</string>
   <string name="pick_upload_type">Yükle</string>
   <string name="accounts_https_hint">https</string>
-  <string name="upload_tasks">Yüklemeler</string>
+  <string name="transfer_tasks">Transfer Listesi</string>
   <string name="accounts">Hesaplar</string>
   <string name="settings">Ayarlar</string>
   <string-array name="pick_upload_array">
     <item>Dosya</item>
-    <item>Fotoğreflar/Videolar</item>
+    <item>Fotoğraflar/Videolar</item>
     <item>Diğer</item>
   </string-array>
   <string name="choose_server">Bir Seafile Sunucusu Seçin</string>
+  <string-array name="choose_server_array">
+    <item>Private Seafile Server</item>
+    <item>SeaCloud.cc</item>
+    <item>cloud.seafile.com</item>
+    <item>Shibboleth Login</item>
+  </string-array>
   <string name="network_down">Ağ bağlantısı yok</string>
+  <string name="unknow_error">Bilinmeyen hata</string>
   <string name="invalid_server_address">Geçersiz sunucu adresi</string>
   <string name="err_server_andress_empty">Sunucu adresi boş bırakılamaz</string>
   <string name="err_email_empty">Eposta boş bırakılamaz</string>
@@ -54,6 +61,7 @@
   <string name="task_cancel">İptal et</string>
   <string name="task_retry">Tekrar dene</string>
   <string name="task_remove">Kaldır</string>
+  <string name="task_remove_all_cancelled">Hepsini kaldır işlemi iptal edildi</string>
   <string name="task_remove_all_finished">Bitenlerin hepsini kaldır</string>
   <string name="file_action_download">İndir</string>
   <string name="file_action_remove_cache">Ön belleği kaldır</string>
@@ -88,7 +96,7 @@
   <string name="no_repo">Henüz bir kütüphaneniz yok</string>
   <string name="no_app_available">Uygulama bulunamıyor</string>
   <string name="add_to_seafile">Seafile\'a ekle</string>
-  <string name="ok">OK</string>
+  <string name="ok">Tamam</string>
   <string name="no_account">Lütfen önce bir Seafile hesabı kurun</string>
   <string name="no_library">Henüz hiç kütüphaneniz yok</string>
   <string name="choose_an_account">Hesap seç</string>
@@ -98,6 +106,7 @@
   <string name="load_libraries_fail">Kütüphaneleri yükleme başarısız</string>
   <string name="load_dir_fail">Bu klasörün içeriğini yükleme başarısız</string>
   <string name="not_supported_share">Bu tip paylaşım desteklenmiyor</string>
+  <string name="download_folder">Klasörü indir</string>
   <string name="create_new_file">Yeni dosya oluştur</string>
   <string name="create_new_dir">Yeni klasör oluştur</string>
   <string name="camera">Burada fotoğraf çek</string>
@@ -108,7 +117,8 @@
   <string name="file_size">dosya boyutu</string>
   <string name="library_not_found">Kütüphane silindi</string>
   <string name="export_file">Dosyayı dışa aktar</string>
-  <string name="no_upload_tasks">Henüz hiç yükeme görevi yok</string>
+  <string name="no_upload_tasks">Henüz hiç yükleme görevi yok</string>
+  <string name="no_download_tasks">Henüz hiç indirme görevi yok</string>
   <string name="seahub_url_hint">Not: Sunucu adresi portu içermelidir. Örneğin, www.alanadi.com:8000</string>
   <string name="copy_link">Bağlantıyı kopyala</string>
   <string name="share_file_link">Bu dosyaya bir bağlantı paylaş</string>
@@ -126,13 +136,15 @@
   </string-array>
   <string name="drawer_open">Soldan açılan menüyü Aç</string>
   <string name="drawer_close">Soldan açılan menüyü kapat</string>
-  <string name="no_starred_file">Henüz yıldızlanmış dosya yok</string>
+  <string name="no_starred_file">Henüz yıldızlı dosya yok</string>
   <string name="added_to_upload_tasks">Seçilmiş dosyalar yükleme görev listesine eklendi</string>
   <string name="added_photo_to_upload_tasks">Fotoğraf yükleniyor</string>
   <string name="take_photo_successfully">Fotoğraf çekme başarılı</string>
   <string name="tabs_library">Kütüphaneler</string>
   <string name="tabs_activity">Etkinlikler</string>
   <string name="tabs_starred">Yıldızlı</string>
+  <string name="tabs_downloads">İndirme Listesi</string>
+  <string name="tabs_uploads">Yükleme Listesi</string>
   <string name="provide_password">\"%s\" kütüphanesi için şifreyi giriniz</string>
   <string name="upload_waiting">Bekliyor</string>
   <string name="upload_finished">Bitti</string>
@@ -201,7 +213,7 @@
   <string name="lockscreen_access_pattern_failure_not_long_enough">Bağlantı noktaları yeterli uzunlukta değil, lütfen tekrar deneyin</string>
   <string name="lockpattern_retry_button_text">Tekrar dene</string>
   <string name="lockpattern_continue_button_text">Sonraki</string>
-  <string name="lockpattern_confirm_button_text">OK</string>
+  <string name="lockpattern_confirm_button_text">Tamam</string>
   <string name="lockpattern_recording_intro_header">Lütfen İşaret Kilidi Desenini çizin</string>
   <string name="lockpattern_settings_help_how_to_record">İşaret Kilidi Deseninin nasıl çizileceğini öğren</string>
   <string name="lockpattern_recording_incorrect_too_short">En az 4 nokta bağlantılayın, tekrar deneyin!</string>
@@ -221,7 +233,7 @@
   <string name="settings_camera_upload_info_title">Kamera Fotoğrafı Yükle</string>
   <string name="settings_camera_upload_info">%d fotoğraf(lar)ı şuraya yükle\u0020</string>
   <string name="settings_wifi_down">Wi-Fi kullanılamıyor</string>
-  <string name="settings_startUpService">Yükleme Serşvşsş başladı</string>
+  <string name="settings_startUpService">Yükleme Servisi başladı</string>
   <string name="settings_stopUpService">Yükleme Servisi durdu</string>
   <string name="settings_allow_mobile_connections">2G/3G/4G Bağlantılarına izin ver</string>
   <string name="settings_default_wifi_connection">Wi-Fi sadece varsayılan olarak kullanılsın</string>
@@ -250,6 +262,9 @@
   <string name="settings_advance_feature_title">GELİŞMİŞ ÖZELLİKLER</string>
   <string name="settings_cache_title">Ön bellek boyutu</string>
   <string name="settings_clear_cache_title">Ön belleği temizle</string>
+  <string name="settings_clear_cache_hint">Ön belleği temizlemek istiyor musunuz?</string>
+  <string name="settings_clear_cache_success">Ön bellek başarıyla temizlendi.</string>
+  <string name="settings_clear_cache_failed">Ön bellek temizleme başarısız.</string>
   <string name="settings_cache_empty">0 KB</string>
   <!--pull to refresh-->
   <string name="pull_to_refresh_pull_label">Yenilemek için çek...</string>
@@ -262,10 +277,20 @@
   <!--storage access framework-->
   <string name="saf_open_file_exception">%s dosyasını açamadı.</string>
   <string name="saf_open_directory_exception">Dizini açamıyor.</string>
-  <string name="saf_file_not_cached_exception">%s dosyasy ön belleklenmemiş</string>
+  <string name="saf_file_not_cached_exception">%s dosyası ön belleklenmemiş</string>
   <string name="saf_thumbnail_not_found_exception">%s küçük resmi bulunamadı/açılamadı</string>
-  <string name="saf_file_not_downloaded_exception">%s dosyasy sunucudan indirilemiyor.</string>
+  <string name="saf_file_not_downloaded_exception">%s dosyası sunucudan indirilemiyor.</string>
   <string name="saf_write_diretory_exception">Dizin okuma/yazma için açılamıyor</string>
   <string name="saf_account_not_found_exception">Seafile hesabı bulunamadı.</string>
   <!--shibboleth SSO-->
+  <string name="shib_server_url_empty">Sunucu boş!</string>
+  <string name="shib_server_incorrect_prefix">Sunucu adresi http:// ya da https:// ile başlamalı.</string>
+  <string name="shib_load_page_error">Hata:</string>
+  <string name="shib_login_title">Shibboleth Girişi</string>
+  <string name="shib_add_https_prefix">Http(s) ön eki iliştir. </string>
+  <string name="shib_server_hint">Sunucu girişi</string>
+  <string name="shib_actionbar_title">Shibboleth ile giriş yap</string>
+  <!--Transfer List-->
+  <string name="transfer_list_network_error">Ağ bağlantı hatası, lütfen daha sonra tekrar deneyin!</string>
+  <string name="transfer_list_cancel_all">Hepsini iptal et</string>
 </resources>

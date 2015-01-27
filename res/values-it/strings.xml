@@ -28,7 +28,6 @@
   <string name="cached">Cachata</string>
   <string name="activities">Attività</string>
   <string name="pick_upload_type">Carica</string>
-  <string name="upload_tasks">Caricamenti</string>
   <string name="accounts">Account</string>
   <string name="settings">Impostazioni</string>
   <string-array name="pick_upload_array">
@@ -186,4 +185,5 @@
   <!--pull to refresh-->
   <!--storage access framework-->
   <!--shibboleth SSO-->
+  <!--Transfer List-->
 </resources>

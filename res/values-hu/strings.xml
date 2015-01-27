@@ -29,7 +29,7 @@
   <string name="activities">Tevékenységek</string>
   <string name="pick_upload_type">Feltölt</string>
   <string name="accounts_https_hint">https</string>
-  <string name="upload_tasks">Feltöltések</string>
+  <string name="transfer_tasks">Átviteli lista</string>
   <string name="accounts">Fiókok</string>
   <string name="settings">Beállítások</string>
   <string-array name="pick_upload_array">
@@ -38,7 +38,14 @@
     <item>Más</item>
   </string-array>
   <string name="choose_server">Seafile szerver választás</string>
+  <string-array name="choose_server_array">
+    <item>Saját Seafile Server</item>
+    <item>SeaCloud.cc</item>
+    <item>cloud.seafile.com</item>
+    <item>Shibboleth bejelentkezés</item>
+  </string-array>
   <string name="network_down">Nincs hálózati kapcsolat</string>
+  <string name="unknow_error">Ismeretlen hiba</string>
   <string name="invalid_server_address">Hibás szerver cím</string>
   <string name="err_server_andress_empty">Szerver cím nem lehet üres</string>
   <string name="err_email_empty">Az email cím nem lehet üres</string>
@@ -54,6 +61,7 @@
   <string name="task_cancel">Mégse</string>
   <string name="task_retry">Újra</string>
   <string name="task_remove">Töröl</string>
+  <string name="task_remove_all_cancelled">Minden megszakítottat töröl</string>
   <string name="task_remove_all_finished">Minden elkészültet töröl</string>
   <string name="file_action_download">Letöltés</string>
   <string name="file_action_remove_cache">Gyorsítótár törlése</string>
@@ -98,6 +106,7 @@
   <string name="load_libraries_fail">Hiba a kötetek letöltésénél</string>
   <string name="load_dir_fail">Hiba a könyvtár tartalmának betöltésénél</string>
   <string name="not_supported_share">Ez a megosztás típus nem támogatott</string>
+  <string name="download_folder">Könyvtár letöltés</string>
   <string name="create_new_file">Új fájl létrehozása</string>
   <string name="create_new_dir">Új könyvtár létrehozása</string>
   <string name="camera">Fénykép ide</string>
@@ -109,6 +118,7 @@
   <string name="library_not_found">Ez a kötet törölve lett.</string>
   <string name="export_file">Fájl exportálása</string>
   <string name="no_upload_tasks">Nincs feltöltési feladat</string>
+  <string name="no_download_tasks">Nincs letöltési feladat</string>
   <string name="seahub_url_hint">Megj.: A szerver cím tartalmazhat portszámot. Például, www.example.com:8000</string>
   <string name="copy_link">Link másolása</string>
   <string name="share_file_link">Link megosztása ehhez a fájlhoz</string>
@@ -133,6 +143,8 @@
   <string name="tabs_library">Kötetek</string>
   <string name="tabs_activity">Tevékenységek</string>
   <string name="tabs_starred">Csillagozott</string>
+  <string name="tabs_downloads">Letöltési lista</string>
+  <string name="tabs_uploads">Feltöltési lista</string>
   <string name="provide_password">Jelszó megadása ehhez: \"%s\"</string>
   <string name="upload_waiting">Vár</string>
   <string name="upload_finished">Kész</string>
@@ -250,6 +262,9 @@
   <string name="settings_advance_feature_title">HALADÓ LEHETŐSÉGEK</string>
   <string name="settings_cache_title">Gyorsítótár mérete</string>
   <string name="settings_clear_cache_title">Gyorsítótár törlése</string>
+  <string name="settings_clear_cache_hint">Biztos, hogy törli a gyorsítótárat?</string>
+  <string name="settings_clear_cache_success">Gyorsítótár törlése sikeres</string>
+  <string name="settings_clear_cache_failed">Gyorsítótár törlése sikertelen</string>
   <string name="settings_cache_empty">0 KB</string>
   <!--pull to refresh-->
   <string name="pull_to_refresh_pull_label">Frissítéshez húzza ezt le...</string>
@@ -268,4 +283,14 @@
   <string name="saf_write_diretory_exception">A könyvtár nem nyitható meg írásra/olvasásra.</string>
   <string name="saf_account_not_found_exception">Nem található Seafile fiók.</string>
   <!--shibboleth SSO-->
+  <string name="shib_server_url_empty">A szerver üres!</string>
+  <string name="shib_server_incorrect_prefix">A szerver címnek http://-rel vagy https://-rel kell kezdődnie</string>
+  <string name="shib_load_page_error">Hiba:</string>
+  <string name="shib_login_title">Shibboleth belépés</string>
+  <string name="shib_add_https_prefix">Http(s) előtag hozzáadása</string>
+  <string name="shib_server_hint">Szerver...</string>
+  <string name="shib_actionbar_title">Belépés Shibboleth-tel</string>
+  <!--Transfer List-->
+  <string name="transfer_list_network_error">Hálózati hiba, próbálja meg később!</string>
+  <string name="transfer_list_cancel_all">Mindet megszakít</string>
 </resources>
