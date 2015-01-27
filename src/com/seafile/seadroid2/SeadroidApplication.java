@@ -12,6 +12,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.seafile.seadroid2.avatar.AuthImageDownloader;
 import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.gesturelock.AppLockManager;
 
 public class SeadroidApplication extends Application {
     private static Context context;
@@ -20,6 +21,9 @@ public class SeadroidApplication extends Application {
         super.onCreate();
         SeadroidApplication.context = getApplicationContext();
         initImageLoader(getApplicationContext());
+
+        // set gesture lock if available
+        AppLockManager.getInstance().enableDefaultAppLockIfAvailable(this);
     }
     
     public static Context getAppContext() {
