@@ -448,6 +448,11 @@ public class BrowserActivity extends SherlockFragmentActivity
     public void onStart() {
         Log.d(DEBUG_TAG, "onStart");
         super.onStart();
+        if (android.os.Build.VERSION.SDK_INT < 14
+                && SettingsManager.instance().isGestureLockRequired()) {
+            Intent intent = new Intent(this, UnlockGesturePasswordActivity.class);
+            startActivity(intent);
+        }
 
         if (mTransferReceiver == null) {
             mTransferReceiver = new TransferReceiver();

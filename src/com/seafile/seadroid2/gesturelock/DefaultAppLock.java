@@ -28,6 +28,9 @@ public class DefaultAppLock extends AbstractAppLock {
 
     private Application currentApp; //Keep a reference to the app that invoked the locker
     private SettingsManager settingsMgr;
+    /** by default, the returned map uses equality comparisons (the equals method) to determine equality for keys or values.
+     * However, if weakKeys() was specified, the map uses identity (==) comparisons instead for keys.
+     * Likewise, if weakValues() or softValues() was specified, the map uses identity (==) comparisons for values. */
     private static ConcurrentMap<Object, Long> mCheckedActivities = new MapMaker()
             .weakKeys()
             .makeMap();
@@ -85,6 +88,9 @@ public class DefaultAppLock extends AbstractAppLock {
     public void onActivityResumed(Activity activity) {
         Log.d(DEBUG_TAG, "onActivityResumed");
 
+        /** just compare fully-qualified names to determine if two classes being equal
+         * even if they've been loaded by different classloaders,
+         * possibly from different locations */
         if (activity.getClass() == UnlockGesturePasswordActivity.class)
             return;
 
