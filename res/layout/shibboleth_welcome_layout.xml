@@ -18,7 +18,7 @@
               android:layout_marginBottom="10dp"
               android:layout_marginLeft="@dimen/et_margin_left"
               android:layout_marginRight="@dimen/et_margin_right"
-              android:textColor="@color/orange"
+              android:textColor="@color/theme_color"
               android:textSize="@dimen/tv_subtitle_txt_size"
               android:gravity="center_horizontal"
               android:textAppearance="?android:attr/textAppearanceMedium"/>
