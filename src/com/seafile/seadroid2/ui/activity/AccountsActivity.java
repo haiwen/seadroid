@@ -360,6 +360,9 @@ public class AccountsActivity extends SherlockFragmentActivity {
                 }
 
                 Avatar avatar = avatarManager.parseAvatar(avatarRawData);
+                if (avatar == null)
+                    continue;
+
                 avatar.setSignature(account.getSignature());
 
                 avatars.add(avatar);
