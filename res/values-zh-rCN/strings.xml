@@ -262,7 +262,7 @@
   <string name="shib_server_incorrect_prefix">地址应该以http://或https://开头</string>
   <string name="shib_load_page_error">错误：</string>
   <string name="shib_login_title">Shibboleth登录</string>
-  <string name="shib_add_https_prefix">添加http(s)前缀</string>
+  <string name="shib_add_https_prefix">添加https前缀</string>
   <string name="shib_server_hint">请输入地址...</string>
   <string name="shib_actionbar_title">Shibboleth登录</string>
 </resources>
