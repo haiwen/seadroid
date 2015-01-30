@@ -33,7 +33,7 @@
             android:onClick="onHttpsCheckboxClicked"
             android:button="@drawable/checkbox_btn_holo_light"
             android:textSize="@dimen/cb_btn_txt_size"
-            android:text="@string/shib_add_https_prefix" />
+            android:text="@string/accounts_https_hint" />
 
     <EditText
             android:id="@+id/shibboleth_server_url_et"
