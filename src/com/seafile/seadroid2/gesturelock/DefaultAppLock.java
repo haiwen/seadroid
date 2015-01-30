@@ -45,10 +45,8 @@ public class DefaultAppLock extends AbstractAppLock {
         if (android.os.Build.VERSION.SDK_INT < 14)
             return;
 
-        if (isPasswordLocked()) {
-            currentApp.unregisterActivityLifecycleCallbacks(this);
-            currentApp.registerActivityLifecycleCallbacks(this);
-        }
+        currentApp.unregisterActivityLifecycleCallbacks(this);
+        currentApp.registerActivityLifecycleCallbacks(this);
     }
 
     @Override
