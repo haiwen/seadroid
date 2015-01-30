@@ -42,8 +42,8 @@
             android:hint="@string/shib_server_hint"
             android:inputType="textUri"
             android:background="@drawable/edit_text_holo_light"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"/>
+            android:layout_marginLeft="@dimen/et_margin_left"
+            android:layout_marginRight="@dimen/et_margin_right"/>
 
     <LinearLayout
             android:layout_width="match_parent"
@@ -56,14 +56,14 @@
         <Button
                 android:id="@+id/shibboleth_next_btn"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_marginLeft="30dp"
-                android:layout_marginRight="30dp"
+                android:layout_height="@dimen/long_btn_height"
+                android:layout_marginLeft="@dimen/long_btn_margin_left"
+                android:layout_marginRight="@dimen/long_btn_margin_right"
                 android:onClick="login"
                 android:background="@drawable/confirm_btn_default_holo_light"
                 android:text="@string/lockpattern_continue_button_text"
                 android:textColor="@color/white"
-                android:textSize="18sp"/>
+                android:textSize="@dimen/long_btn_txt_size"/>
     </LinearLayout>
 
 </LinearLayout>

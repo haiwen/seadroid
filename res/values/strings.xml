@@ -296,4 +296,5 @@
     <string name="shib_add_https_prefix">Append Https prefix</string>
     <string name="shib_server_hint">Input server...</string>
     <string name="shib_actionbar_title">Login with Shibboleth</string>
+    <string name="shib_loading">loading...</string>
 </resources>

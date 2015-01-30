@@ -18,7 +18,7 @@
         <TextView android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:textAppearance="?android:attr/textAppearanceSmall"
-                  android:text="loading..."
+                  android:text="@string/shib_loading"
                   android:paddingTop="4dip"
                   android:singleLine="true"/>
 
