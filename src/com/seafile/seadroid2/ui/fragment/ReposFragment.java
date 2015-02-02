@@ -9,6 +9,7 @@ import java.util.Map;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -59,6 +60,8 @@ public class ReposFragment extends SherlockListFragment {
     private View mProgressContainer;
     private View mListContainer;
     private TextView mErrorText;
+
+    private final Handler mTimer = new Handler();
 
     private DataManager getDataManager() {
         return mActivity.getDataManager();
@@ -129,6 +132,7 @@ public class ReposFragment extends SherlockListFragment {
     public void onStop() {
         Log.d(DEBUG_TAG, "ReposFragment onStop");
         super.onStop();
+        stopTimer();
     }
 
     @Override
@@ -180,6 +184,8 @@ public class ReposFragment extends SherlockListFragment {
     }
 
     public void navToReposView(boolean forceRefresh) {
+        stopTimer();
+
         mPullToRefreshStopRefreshing ++;
 
         if (mPullToRefreshStopRefreshing >1) {
@@ -205,6 +211,8 @@ public class ReposFragment extends SherlockListFragment {
     }
 
     public void navToDirectory(boolean forceRefresh) {
+        startTimer();
+
         mPullToRefreshStopRefreshing ++;
 
         if (mPullToRefreshStopRefreshing > 1) {
@@ -248,7 +256,28 @@ public class ReposFragment extends SherlockListFragment {
                 nav.getRepoID(),
                 nav.getDirPath());
     }
-    
+
+
+    // refresh download list by mTimer
+    public void startTimer() {
+        Log.d(DEBUG_TAG, "timer started");
+        mTimer.postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                adapter.setDownloadTaskList(mActivity.getTransferService().getAllDownloadTaskInfos());
+                adapter.notifyDataSetChanged();
+                Log.d(DEBUG_TAG, "timer post refresh signal " + System.currentTimeMillis());
+                mTimer.postDelayed(this, 1 * 1000);
+            }
+        }, 1 * 1000);
+    }
+
+    public void stopTimer() {
+        Log.d(DEBUG_TAG, "timer stopped");
+        mTimer.removeCallbacksAndMessages(null);
+    }
+
     /**
      * calculate if repo refresh time is expired, the expiration is 10 mins 
      */

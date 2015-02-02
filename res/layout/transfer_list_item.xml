@@ -5,60 +5,61 @@
     android:padding="10dp" >
 
     <ImageView
-        android:id="@+id/upload_file_icon"
+        android:id="@+id/transfer_file_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_alignParentLeft="true"
         android:paddingRight="10dp" />
     <TextView
-        android:id="@+id/upload_target_path"
+        android:id="@+id/transfer_target_path"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@id/upload_file_icon"
-        android:layout_toRightOf="@id/upload_file_icon"
+        android:layout_alignTop="@id/transfer_file_icon"
+        android:layout_toRightOf="@id/transfer_file_icon"
         android:lines="1"
         android:singleLine="true"
-        android:textSize="14dp" />
+        android:textSize="@dimen/lv_subtitle_txt_size" />
     <TextView
-        android:id="@+id/upload_file_name"
+        android:id="@+id/transfer_file_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/upload_target_path"
-        android:layout_alignLeft="@id/upload_target_path"
+        android:layout_below="@id/transfer_target_path"
+        android:layout_alignLeft="@id/transfer_target_path"
         android:lines="1"
         android:singleLine="true"
         android:textColor="@color/black"
-        android:textSize="18dp" />
+        android:textSize="@dimen/lv_title_txt_size" />
     <TextView
-        android:id="@+id/upload_file_size"
+        android:id="@+id/transfer_file_state"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/upload_file_name"
-        android:layout_alignLeft="@id/upload_file_name"
+        android:layout_below="@id/transfer_file_name"
+        android:layout_alignLeft="@id/transfer_file_name"
         android:paddingTop="4dp"
+        android:paddingRight="20dp"
         android:lines="1"
         android:singleLine="true"
-        android:textSize="12dp" />
+        android:textSize="@dimen/lv_download_state_txt_size" />
     <ProgressBar
-        android:id="@+id/upload_file_progress_bar"
+        android:id="@+id/transfer_file_progress_bar"
         android:layout_width="fill_parent"
         android:layout_height="6dp"
-        android:layout_below="@id/upload_file_size"
-        android:layout_alignLeft="@id/upload_file_size"
+        android:layout_below="@id/transfer_file_state"
+        android:layout_alignLeft="@id/transfer_file_state"
         android:layout_marginTop="5dp"
         android:layout_marginRight="5dp"
         style="@android:style/Widget.ProgressBar.Horizontal" />
     <TextView
-        android:id="@+id/upload_file_state"
+        android:id="@+id/transfer_file_size"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/upload_file_size"
-        android:layout_alignBottom="@id/upload_file_size"
-        android:paddingLeft="20dp"
+        android:layout_toRightOf="@id/transfer_file_state"
+        android:layout_alignBottom="@id/transfer_file_state"
+        android:paddingLeft="0dp"
         android:lines="1"
         android:singleLine="true"
         android:textColor="@color/black"
-        android:textSize="13dp" />
+        android:textSize="@dimen/lv_download_state_txt_size" />
 
 </RelativeLayout>

@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.List;
 
+import android.widget.ProgressBar;
 import net.londatiga.android.ActionItem;
 import net.londatiga.android.QuickAction;
 import android.content.res.Resources;
@@ -27,6 +29,7 @@ import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafGroup;
 import com.seafile.seadroid2.data.SeafItem;
 import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.util.Utils;
 
@@ -35,6 +38,9 @@ public class SeafItemAdapter extends BaseAdapter {
     private ArrayList<SeafItem> items;
     private BrowserActivity mActivity;
     private boolean repoIsEncrypted;
+
+    /** DownloadTask instance container **/
+    private List<DownloadTaskInfo> mDownloadTaskInfos;
 
     public SeafItemAdapter(BrowserActivity activity) {
         this.mActivity = activity;
@@ -58,6 +64,48 @@ public class SeafItemAdapter extends BaseAdapter {
     @Override
     public boolean isEmpty() {
         return items.isEmpty();
+    }
+
+    /**
+     * DownloadTask list should not be empty
+     * 
+     * @return true if files added to download list, false otherwise
+     */
+    public boolean isDownloadTaskListEmpty() {
+        if (mDownloadTaskInfos == null || mDownloadTaskInfos.isEmpty()) {
+            return true;
+        }
+        return false; 
+    }
+
+    /**
+     * To refresh download status icons of {@link com.seafile.seadroid2.ui.fragment.ReposFragment #mPullRefreshListView} instantly,
+     * use this method to update data set.
+     * <p>
+     * This method should be called after the download folder button was clicked.
+     * 
+     * @param downloadTaskInfos
+     */
+    public void setDownloadTaskList(List<DownloadTaskInfo> downloadTaskInfos) {
+        this.mDownloadTaskInfos = downloadTaskInfos;
+    }
+
+    /**
+     * To refresh download status icon of one specific item of {@link com.seafile.seadroid2.ui.fragment.ReposFragment #mPullRefreshListView} instantly,
+     * use this method to update data set.
+     * 
+     * @param downloadTaskInfo
+     */
+    public void setDownloadTask(DownloadTaskInfo downloadTaskInfo) {
+        if (mDownloadTaskInfos == null) {
+            mDownloadTaskInfos = Lists.newArrayList();
+        }
+        // remove old data
+        if (mDownloadTaskInfos.contains(downloadTaskInfo)) {
+            mDownloadTaskInfos.remove(downloadTaskInfo);
+        }
+
+        mDownloadTaskInfos.add(downloadTaskInfo);
     }
 
     public void addEntry(SeafItem entry) {
@@ -129,15 +177,15 @@ public class SeafItemAdapter extends BaseAdapter {
             TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
             ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
             ImageView action = (ImageView) view.findViewById(R.id.list_item_action);
-            viewHolder = new Viewholder(title, subtitle, icon, action);
+            ImageView downloadStatusIcon = (ImageView) view.findViewById(R.id.list_item_download_status_icon);
+            ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.list_item_download_status_progressbar);
+            viewHolder = new Viewholder(title, subtitle, icon, action, downloadStatusIcon, progressBar);
             view.setTag(viewHolder);
         } else {
             viewHolder = (Viewholder) convertView.getTag();
         }
-        /*viewHolder.title.setTextSize(16);
-        viewHolder.subtitle.setTextSize(12);
-        viewHolder.title.setPadding(12, 2, 10, 2);
-        viewHolder.subtitle.setPadding(12, 2, 10, 2);*/
+        viewHolder.downloadStatusIcon.setVisibility(View.GONE);
+        viewHolder.progressBar.setVisibility(View.GONE);
         viewHolder.title.setText(repo.getTitle());
         viewHolder.subtitle.setText(repo.getSubtitle());
         viewHolder.icon.setImageResource(repo.getIcon());
@@ -162,7 +210,9 @@ public class SeafItemAdapter extends BaseAdapter {
             TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
             ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
             ImageView action = (ImageView) view.findViewById(R.id.list_item_action);
-            viewHolder = new Viewholder(title, subtitle, icon, action);
+            ImageView downloadStatusIcon = (ImageView) view.findViewById(R.id.list_item_download_status_icon);
+            ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.list_item_download_status_progressbar);
+            viewHolder = new Viewholder(title, subtitle, icon, action, downloadStatusIcon, progressBar);
             view.setTag(viewHolder);
         } else {
             viewHolder = (Viewholder) convertView.getTag();
@@ -170,17 +220,34 @@ public class SeafItemAdapter extends BaseAdapter {
 
         viewHolder.title.setText(dirent.getTitle());
         if (dirent.isDir()) {
+            viewHolder.downloadStatusIcon.setVisibility(View.GONE);
+            viewHolder.progressBar.setVisibility(View.GONE);
+
             viewHolder.subtitle.setText(dirent.getSubtitle());
             viewHolder.icon.setImageResource(dirent.getIcon());
             viewHolder.action.setVisibility(View.VISIBLE);
             setDirAction(dirent, viewHolder, position);
         } else {
+            viewHolder.downloadStatusIcon.setVisibility(View.GONE);
             setFileView(dirent, viewHolder, position);
         }
 
         return view;
     }
 
+    /**
+     * use to refresh view of {@link com.seafile.seadroid2.ui.fragment.ReposFragment #mPullRefreshListView}
+     * <p>
+     * <h5>when to show download status icons</h5>
+     * if the dirent is a file and already cached, show cached icon.</br>
+     * if the dirent is a file and waiting to download, show downloading icon.</br>
+     * if the dirent is a file and is downloading, show indeterminate progressbar.</br>
+     * ignore directories and repos.</br>
+     * 
+     * @param dirent
+     * @param viewHolder
+     * @param position
+     */
     private void setFileView(SeafDirent dirent, Viewholder viewHolder, int position) {
         NavContext nav = mActivity.getNavContext();
         DataManager dataManager = mActivity.getDataManager();
@@ -196,9 +263,12 @@ public class SeafItemAdapter extends BaseAdapter {
             subtitle = dirent.getSubtitle();
             if (cf != null) {
                 cacheExists = true;
-                subtitle += "," + mActivity.getString(R.string.cached);
             }
+            // show file download finished
+            viewHolder.downloadStatusIcon.setVisibility(View.VISIBLE);
+            viewHolder.downloadStatusIcon.setImageResource(R.drawable.list_item_download_finished);
             viewHolder.subtitle.setText(subtitle);
+            viewHolder.progressBar.setVisibility(View.GONE);
 
             if (Utils.isViewableImage(file.getName())) {
                 setImageThumbNail(file, dirent, dataManager, viewHolder);
@@ -206,6 +276,43 @@ public class SeafItemAdapter extends BaseAdapter {
                 viewHolder.icon.setImageResource(dirent.getIcon());
 
         } else {
+            int downloadStatusIcon = R.drawable.list_item_download_waiting;
+            if (mDownloadTaskInfos != null) {
+                for (DownloadTaskInfo downloadTaskInfo : mDownloadTaskInfos) {
+                    // use repoID and path to identify the task
+                    if (downloadTaskInfo.repoID.equals(repoID)
+                            && downloadTaskInfo.pathInRepo.equals(filePath)) {
+                        switch (downloadTaskInfo.state) {
+                            case INIT:
+                            case CANCELLED:
+                            case FAILED:
+                                downloadStatusIcon = R.drawable.list_item_download_waiting;
+                                viewHolder.downloadStatusIcon.setVisibility(View.VISIBLE);
+                                viewHolder.progressBar.setVisibility(View.GONE);
+                                break;
+                            case TRANSFERRING:
+                                viewHolder.downloadStatusIcon.setVisibility(View.GONE);
+
+                                viewHolder.progressBar.setVisibility(View.VISIBLE);
+
+                                break;
+                            case FINISHED:
+                                downloadStatusIcon = R.drawable.list_item_download_finished;
+                                viewHolder.downloadStatusIcon.setVisibility(View.VISIBLE);
+                                viewHolder.progressBar.setVisibility(View.GONE);
+                                break;
+                            default:
+                                downloadStatusIcon = R.drawable.list_item_download_waiting;
+                                break;
+                        }
+                    }
+                }
+            } else {
+                viewHolder.downloadStatusIcon.setVisibility(View.GONE);
+                viewHolder.progressBar.setVisibility(View.GONE);
+            }
+
+            viewHolder.downloadStatusIcon.setImageResource(downloadStatusIcon);
             viewHolder.subtitle.setText(dirent.getSubtitle());
             viewHolder.icon.setImageResource(dirent.getIcon());
         }
@@ -228,8 +335,8 @@ public class SeafItemAdapter extends BaseAdapter {
                 final int THUMBNAIL_SIZE = DataManager.caculateThumbnailSizeOfDevice();
                 try {
                     // setImageURI does not work correctly under high screen density
-                    //viewHolder.icon.setScaleType(ImageView.ScaleType.FIT_XY);
-                    //viewHolder.icon.setImageURI(Uri.fromFile(thumbFile));
+                    // viewHolder.icon.setScaleType(ImageView.ScaleType.FIT_XY);
+                    // viewHolder.icon.setImageURI(Uri.fromFile(thumbFile));
                     imageBitmap = BitmapFactory.decodeStream(new FileInputStream(thumbFile));
                     imageBitmap = Bitmap.createScaledBitmap(imageBitmap, THUMBNAIL_SIZE,
                             THUMBNAIL_SIZE, false);
@@ -253,12 +360,17 @@ public class SeafItemAdapter extends BaseAdapter {
             TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
             ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
             ImageView action = (ImageView) view.findViewById(R.id.list_item_action);
-            viewHolder = new Viewholder(title, subtitle, icon, action);
+            ImageView downloadStatusIcon = (ImageView) view.findViewById(R.id.list_item_download_status_icon);
+            ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.list_item_download_status_progressbar);
+            viewHolder = new Viewholder(title, subtitle, icon, action, downloadStatusIcon, progressBar);
             view.setTag(viewHolder);
         } else {
             viewHolder = (Viewholder) convertView.getTag();
         }
 
+        viewHolder.downloadStatusIcon.setVisibility(View.VISIBLE);
+        viewHolder.downloadStatusIcon.setImageResource(R.drawable.list_item_download_finished);
+        viewHolder.progressBar.setVisibility(View.GONE);
         viewHolder.title.setText(item.getTitle());
         viewHolder.subtitle.setText(item.getSubtitle());
         viewHolder.icon.setImageResource(item.getIcon());
@@ -282,14 +394,17 @@ public class SeafItemAdapter extends BaseAdapter {
 
     private class Viewholder {
         TextView title, subtitle;
-        ImageView icon, action;
+        ImageView icon, action, downloadStatusIcon; // downloadStatusIcon used to show file downloading status, it is invisible by default
+        ProgressBar progressBar;
 
-        public Viewholder(TextView title, TextView subtitle, ImageView icon, ImageView action) {
+        public Viewholder(TextView title, TextView subtitle, ImageView icon, ImageView action, ImageView downloadStatusIcon, ProgressBar progressBar) {
             super();
             this.icon = icon;
             this.action = action;
             this.title = title;
             this.subtitle = subtitle;
+            this.downloadStatusIcon = downloadStatusIcon;
+            this.progressBar = progressBar;
         }
     }
 

@@ -79,14 +79,8 @@ public class CameraUploadService extends Service {
     }
 
     private void cancelUploadTasks(){
-        List<UploadTaskInfo> cameraUploadsTasksList =  mTransferService.getAllUploadTaskInfos();
-        for (UploadTaskInfo uploadTaskInfo : cameraUploadsTasksList) {
-            // use isCopyToLocal as a flag to mark a camera photo upload task if false
-            // mark a file upload task if true
-            if (!uploadTaskInfo.isCopyToLocal) {
-                mTransferService.cancelUploadTask(uploadTaskInfo.taskID);
-            }
-        }
+
+        mTransferService.cancelAllCameraUploadTasks();
         Intent localIntent = new Intent(TransferService.BROADCAST_ACTION).putExtra("type",
                 BROADCAST_CAMERA_UPLOAD_SERVICE_STOPPED);
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);
@@ -141,7 +135,7 @@ public class CameraUploadService extends Service {
             mTransferService = binder.getService();
 
             for (PendingUploadInfo info : pendingUploads) {
-               mTransferService.addUploadTask(account, info.repoID,
+               mTransferService.addTaskToUploadQue(account, info.repoID,
                                         info.repoName, info.targetDir,
                                         info.localFilePath, info.isUpdate, info.isCopyToLocal);
             }
@@ -154,11 +148,11 @@ public class CameraUploadService extends Service {
         }
     };
 
-    private void addUploadCameraPhotoTask(String repoID, String repoName, String targetDir, String localFilePath) {
+    private void addCameraUploadTask(String repoID, String repoName, String targetDir, String localFilePath) {
         if (mTransferService != null) {
             // set the last parameter "isUpdate" to true to stop copying file into sd-card
             // if passed "false" will cause OOM when uploading photos
-            mTransferService.addUploadTask(account, repoID, repoName, targetDir, localFilePath, false, false);
+            mTransferService.addTaskToUploadQue(account, repoID, repoName, targetDir, localFilePath, false, false);
         } else {
             PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, false, false);
             pendingUploads.add(info);
@@ -260,7 +254,7 @@ public class CameraUploadService extends Service {
                 SeafCachedPhoto cp = cUploadManager.getCachedPhoto(repoName, repoId, DIR, path);
                 if (cp == null) {
                     // add photos to uploading queue
-                    addUploadCameraPhotoTask(repoId, repoName, CAMERA_UPLOAD_REMOTE_PARENTDIR + CAMERA_UPLOAD_REMOTE_DIR, photo.getAbsolutePath());
+                    addCameraUploadTask(repoId, repoName, CAMERA_UPLOAD_REMOTE_PARENTDIR + CAMERA_UPLOAD_REMOTE_DIR, photo.getAbsolutePath());
                 }
             }
         }
@@ -281,7 +275,7 @@ public class CameraUploadService extends Service {
             SeafCachedPhoto cachePhoto = cUploadManager.getCachedPhoto(repoName, repoId, DIR,
                     photo.getName());
             if (cachePhoto == null) {
-                addUploadCameraPhotoTask(repoId, repoName, CAMERA_UPLOAD_REMOTE_PARENTDIR
+                addCameraUploadTask(repoId, repoName, CAMERA_UPLOAD_REMOTE_PARENTDIR
                         + CAMERA_UPLOAD_REMOTE_DIR, photo.getAbsolutePath());
             }
         }
