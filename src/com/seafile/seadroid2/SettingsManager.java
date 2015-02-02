@@ -181,7 +181,7 @@ public final class SettingsManager {
 
     /**
      * get current login Account instance
-     * 
+     *
      * @return Account if has, otherwise, returns null.
      */
     public Account getCurrentAccount() {

@@ -45,7 +45,6 @@ public class DefaultAppLock extends AbstractAppLock {
         if (android.os.Build.VERSION.SDK_INT < 14)
             return;
 
-        currentApp.unregisterActivityLifecycleCallbacks(this);
         currentApp.registerActivityLifecycleCallbacks(this);
     }
 
@@ -57,11 +56,6 @@ public class DefaultAppLock extends AbstractAppLock {
         currentApp.unregisterActivityLifecycleCallbacks(this);
     }
 
-    //Check if we need to show the lock screen at startup
-    public boolean isPasswordLocked() {
-        return SettingsManager.instance().isGestureLockEnabled();
-    }
-
     @Override
     public void onActivityPaused(Activity activity) {
         Log.d(DEBUG_TAG, "onActivityPaused");
@@ -71,6 +65,7 @@ public class DefaultAppLock extends AbstractAppLock {
 
         if (!isActiviyBeingChecked(activity)) {
             settingsMgr.saveGestureLockTimeStamp();
+
         }
     }
 
@@ -92,19 +87,13 @@ public class DefaultAppLock extends AbstractAppLock {
         if (activity.getClass() == UnlockGesturePasswordActivity.class)
             return;
 
-        if (mustShowUnlockSceen()) {
+        if (settingsMgr.isGestureLockRequired()) {
             mCheckedActivities.put(activity, System.currentTimeMillis());
             Intent i = new Intent(activity, UnlockGesturePasswordActivity.class);
             activity.startActivity(i);
         }
 
     }
-
-    private boolean mustShowUnlockSceen() {
-
-        return settingsMgr.isGestureLockRequired();
-    }
-
 
     @Override
     public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
