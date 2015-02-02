@@ -74,37 +74,37 @@ public class SeafileStyleDialogBuilder extends AlertDialog.Builder {
         mDivider = mDialogView.findViewById(R.id.titleDivider);
         mCustom = (FrameLayout) mDialogView.findViewById(R.id.customPanel);
         mContext = context;
-	}
-    
+    }
+
     /**
-     * Use this method to reference the whole dialog view, i.e. when inflating a custom 
+     * Use this method to reference the whole dialog view, i.e. when inflating a custom
      * view with {@link #setCustomView(int, Context)} and you want to find an id from the
      * inflated layout.
-     * 
-     *   example: 
-     *   
+     *
+     *   example:
+     *
      *   CheckBox showAgain = (CheckBox) myQustomDialogBuilder.getDialogView().findViewById(R.id.inflated_checkbox);
      *   if (!showAgain.isChecked()) {
-     *   	// do something
+     *      // do something
      *   }
-     *   
+     *
      * @return the qustom dialog view
      */
     public View getDialogView() {
         return mDialogView;
     }
 
-    /** 
+    /**
      * Use this method to color the divider between the title and content.
      * Will not display if no title is set.
-     * 
+     *
      * @param colorString for passing "#ffffff"
      */
     public SeafileStyleDialogBuilder setDividerColor(String colorString) {
         mDivider.setBackgroundColor(Color.parseColor(colorString));
         return this;
     }
- 
+
     @Override
     public SeafileStyleDialogBuilder setTitle(CharSequence text) {
         mTitle.setText(text);
@@ -142,12 +142,12 @@ public class SeafileStyleDialogBuilder extends AlertDialog.Builder {
         mIcon.setImageDrawable(icon);
         return this;
     }
-    
+
     /**
      * This allows you to specify a custom layout for the area below the title divider bar
      * in the dialog. As an example you can look at example_ip_address_layout.xml and how
      * I added it in TestDialogActivity.java
-     * 
+     *
      * @param resId  of the layout you would like to add
      * @param context
      */
@@ -180,13 +180,13 @@ public class SeafileStyleDialogBuilder extends AlertDialog.Builder {
             final DialogInterface.OnClickListener listener) {
         return (SeafileStyleDialogBuilder) setItems(items, null, listener);
     }
-    
+
     public Builder setItems(int itemsId, int[] disabledOptions,
             final DialogInterface.OnClickListener listener) {
         CharSequence[] items = mContext.getResources().getTextArray(itemsId);
         return setItems(items, disabledOptions, listener);
     }
-    
+
     public Builder setItems(CharSequence[] items, int[] disabledOptions, final DialogInterface.OnClickListener listener) {
         LinearLayout itemList = (LinearLayout) mDialogView.findViewById(R.id.items_list);
 
@@ -194,14 +194,14 @@ public class SeafileStyleDialogBuilder extends AlertDialog.Builder {
             final int currentItem = i;
             TextView listItem = inflateItem(items[i].toString());
             View divider = inflateDivider();
-            
+
             if (disabledOptions != null) {
                 final boolean enabled = isEnabled(i, disabledOptions);
                 listItem.setEnabled(enabled);
                 if (!enabled)
                     listItem.setTextColor(Color.GRAY);
             }
-            
+
             itemList.addView(listItem);
             if (i+1 != items.length) itemList.addView(divider);
             if (listener != null) {
@@ -307,7 +307,7 @@ public class SeafileStyleDialogBuilder extends AlertDialog.Builder {
         View listDivider = View.inflate(mContext, R.layout.seafile_dialog_items_divider, null);
         return listDivider;
     }
-    
+
     @Override
     public AlertDialog show() {
         if (mTitle.getText().equals(""))
