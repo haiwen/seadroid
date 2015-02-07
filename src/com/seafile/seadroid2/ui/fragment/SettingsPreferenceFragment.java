@@ -31,6 +31,7 @@ import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
+import com.seafile.seadroid2.transfer.TransferManager;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.activity.AccountsActivity;
@@ -90,7 +91,7 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
         LocalBroadcastManager
                 .getInstance(mActivity)
                 .registerReceiver(transferReceiver,
-                        new IntentFilter(TransferService.BROADCAST_ACTION));
+                        new IntentFilter(TransferManager.BROADCAST_ACTION));
     }
 
     @Override
@@ -197,7 +198,7 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
         LocalBroadcastManager
         .getInstance(getActivity().getApplicationContext())
         .registerReceiver(transferReceiver,
-                new IntentFilter(TransferService.BROADCAST_ACTION));
+                new IntentFilter(TransferManager.BROADCAST_ACTION));
 
     }
 

@@ -31,6 +31,8 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
+import com.seafile.seadroid2.transfer.DownloadTaskManager;
+import com.seafile.seadroid2.transfer.TransferManager;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.ui.dialog.OpenAsDialog;
@@ -193,7 +195,7 @@ public class FileActivity extends SherlockFragmentActivity {
 
     private void onTransferSericeConnected() {
         // Register broadcast receiver
-        IntentFilter filter = new IntentFilter(TransferService.BROADCAST_ACTION);
+        IntentFilter filter = new IntentFilter(TransferManager.BROADCAST_ACTION);
         mTransferReceiver = new TransferReceiver();
         LocalBroadcastManager.getInstance(this).registerReceiver(mTransferReceiver, filter);
 
@@ -313,11 +315,11 @@ public class FileActivity extends SherlockFragmentActivity {
             if (info == null) {
                 Log.w(DEBUG_TAG, "download info is null");
             }
-            if (type.equals(TransferService.BROADCAST_FILE_DOWNLOAD_PROGRESS)) {
+            if (type.equals(DownloadTaskManager.BROADCAST_FILE_DOWNLOAD_PROGRESS)) {
                 onFileDownloadProgress(info);
-            } else if (type.equals(TransferService.BROADCAST_FILE_DOWNLOAD_SUCCESS)) {
+            } else if (type.equals(DownloadTaskManager.BROADCAST_FILE_DOWNLOAD_SUCCESS)) {
                 onFileDownloaded(info);
-            } else if (type.equals(TransferService.BROADCAST_FILE_DOWNLOAD_FAILED)) {
+            } else if (type.equals(DownloadTaskManager.BROADCAST_FILE_DOWNLOAD_FAILED)) {
                 onFileDownloadFailed(info);
             }
         }

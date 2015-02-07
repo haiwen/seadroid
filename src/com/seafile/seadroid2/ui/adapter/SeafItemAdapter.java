@@ -67,19 +67,7 @@ public class SeafItemAdapter extends BaseAdapter {
     }
 
     /**
-     * DownloadTask list should not be empty
-     * 
-     * @return true if files added to download list, false otherwise
-     */
-    public boolean isDownloadTaskListEmpty() {
-        if (mDownloadTaskInfos == null || mDownloadTaskInfos.isEmpty()) {
-            return true;
-        }
-        return false; 
-    }
-
-    /**
-     * To refresh download status icons of {@link com.seafile.seadroid2.ui.fragment.ReposFragment #mPullRefreshListView} instantly,
+     * To refresh downloading status of {@link com.seafile.seadroid2.ui.fragment.ReposFragment #mPullRefreshListView},
      * use this method to update data set.
      * <p>
      * This method should be called after the download folder button was clicked.
@@ -88,24 +76,6 @@ public class SeafItemAdapter extends BaseAdapter {
      */
     public void setDownloadTaskList(List<DownloadTaskInfo> downloadTaskInfos) {
         this.mDownloadTaskInfos = downloadTaskInfos;
-    }
-
-    /**
-     * To refresh download status icon of one specific item of {@link com.seafile.seadroid2.ui.fragment.ReposFragment #mPullRefreshListView} instantly,
-     * use this method to update data set.
-     * 
-     * @param downloadTaskInfo
-     */
-    public void setDownloadTask(DownloadTaskInfo downloadTaskInfo) {
-        if (mDownloadTaskInfos == null) {
-            mDownloadTaskInfos = Lists.newArrayList();
-        }
-        // remove old data
-        if (mDownloadTaskInfos.contains(downloadTaskInfo)) {
-            mDownloadTaskInfos.remove(downloadTaskInfo);
-        }
-
-        mDownloadTaskInfos.add(downloadTaskInfo);
     }
 
     public void addEntry(SeafItem entry) {

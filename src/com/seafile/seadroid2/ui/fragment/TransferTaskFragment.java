@@ -8,6 +8,7 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,12 +23,15 @@ import com.seafile.seadroid2.transfer.*;
 import com.seafile.seadroid2.ui.activity.TransferActivity;
 import com.seafile.seadroid2.ui.adapter.TransferTaskAdapter;
 
+import java.util.List;
+
 /**
  * Base class for transfer task fragments
  *
  * Created by Logan on 14/12/22.
  */
 public abstract class TransferTaskFragment extends SherlockListFragment {
+    private String DEBUG_TAG = "TransferTaskFragment";
 
     protected TransferTaskAdapter adapter;
     protected TransferActivity mActivity = null;
@@ -70,16 +74,20 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
         mActivity.bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
-    ServiceConnection mConnection = new ServiceConnection() {
+    private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
-            TransferService.TransferBinder binder = (TransferService.TransferBinder) service;
-            txService = binder.getService();
-            setUpTransferList(txService);
-            refreshView();
-
             // Toast.makeText(mActivity, "Stop loading animations", Toast.LENGTH_LONG).show();
             showLoading(false);
+
+            TransferService.TransferBinder binder = (TransferService.TransferBinder) service;
+            txService = binder.getService();
+            if (isNeedUpdateProgress()) {
+                mTransferTaskListView.setVisibility(View.VISIBLE);
+                emptyView.setVisibility(View.GONE);
+                setUpTransferList();
+                startTimer();
+            }
         }
 
         @Override
@@ -88,17 +96,18 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
         }
     };
 
-    abstract void setUpTransferList(TransferService txService);
+    protected abstract List<? extends TransferTaskInfo> getTransferTaskInfos();
+
+    protected abstract void setUpTransferList();
 
     @Override
     public void onResume() {
         super.onResume();
-        // refreshView();
-        if (isNeedUpdateProgress())
-            startTimer();
+        mTransferTaskListView.setVisibility(View.GONE);
+        emptyView.setVisibility(View.VISIBLE);
     }
 
-    abstract boolean isNeedUpdateProgress();
+    protected abstract boolean isNeedUpdateProgress();
 
     @Override
     public void onStop() {
@@ -111,13 +120,23 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
     }
 
     // refresh list by mTimer
-    abstract void startTimer();
+    private void startTimer() {
+        Log.d(DEBUG_TAG, "timer started");
+        mTimer.postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                adapter.setTransferTaskInfos(getTransferTaskInfos());
+                adapter.notifyDataSetChanged();
+                Log.d(DEBUG_TAG, "timer post refresh signal " + System.currentTimeMillis());
+                mTimer.postDelayed(this, 1 * 1000);
+            }
+        }, 1 * 1000);
+    }
 
     public void stopTimer() {
         mTimer.removeCallbacksAndMessages(null);
     }
-
-    abstract void refreshView();
 
     private void showLoading(boolean show) {
         if (mActivity == null)

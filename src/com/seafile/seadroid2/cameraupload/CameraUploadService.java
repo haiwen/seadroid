@@ -28,10 +28,8 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.SeafCachedPhoto;
-import com.seafile.seadroid2.transfer.PendingUploadInfo;
-import com.seafile.seadroid2.transfer.TransferService;
+import com.seafile.seadroid2.transfer.*;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
-import com.seafile.seadroid2.transfer.UploadTaskInfo;
 import com.seafile.seadroid2.util.CameraUploadUtil;
 
 public class CameraUploadService extends Service {
@@ -75,13 +73,13 @@ public class CameraUploadService extends Service {
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI, false,
                 cameraUploadObserver);
         LocalBroadcastManager.getInstance(this).registerReceiver(transferReceiver,
-                new IntentFilter(TransferService.BROADCAST_ACTION));
+                new IntentFilter(TransferManager.BROADCAST_ACTION));
     }
 
     private void cancelUploadTasks(){
 
         mTransferService.cancelAllCameraUploadTasks();
-        Intent localIntent = new Intent(TransferService.BROADCAST_ACTION).putExtra("type",
+        Intent localIntent = new Intent(TransferManager.BROADCAST_ACTION).putExtra("type",
                 BROADCAST_CAMERA_UPLOAD_SERVICE_STOPPED);
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);
     }
@@ -241,7 +239,7 @@ public class CameraUploadService extends Service {
                     // do nothing until network connection available
                 }
                 if (isNetworkAvailable && !isRemoteCameraUploadRepoValid) {
-                    localIntent = new Intent(TransferService.BROADCAST_ACTION).putExtra("type",
+                    localIntent = new Intent(TransferManager.BROADCAST_ACTION).putExtra("type",
                             BROADCAST_CAMERA_UPLOAD_LIBRARY_NOT_FOUND);
                     LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);
                 }
@@ -295,7 +293,7 @@ public class CameraUploadService extends Service {
             }
             List<String> list = Lists.newArrayList();
 
-            if (type.equals(TransferService.BROADCAST_FILE_UPLOAD_SUCCESS)) {
+            if (type.equals(UploadTaskManager.BROADCAST_FILE_UPLOAD_SUCCESS)) {
                 int taskID = intent.getIntExtra("taskID", 0);
                 UploadTaskInfo info = mTransferService.getUploadTaskInfo(taskID);
 

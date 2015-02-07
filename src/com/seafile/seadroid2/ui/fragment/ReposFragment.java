@@ -61,6 +61,7 @@ public class ReposFragment extends SherlockListFragment {
     private View mListContainer;
     private TextView mErrorText;
 
+    private boolean isTimerStarted;
     private final Handler mTimer = new Handler();
 
     private DataManager getDataManager() {
@@ -260,6 +261,10 @@ public class ReposFragment extends SherlockListFragment {
 
     // refresh download list by mTimer
     public void startTimer() {
+        if (isTimerStarted)
+            return;
+
+        isTimerStarted = true;
         Log.d(DEBUG_TAG, "timer started");
         mTimer.postDelayed(new Runnable() {
 
@@ -276,6 +281,7 @@ public class ReposFragment extends SherlockListFragment {
     public void stopTimer() {
         Log.d(DEBUG_TAG, "timer stopped");
         mTimer.removeCallbacksAndMessages(null);
+        isTimerStarted = false;
     }
 
     /**

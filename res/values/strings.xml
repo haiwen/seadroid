@@ -305,4 +305,6 @@
     <string name="transfer_list_cancel_all">Cancel all</string>
     <string name="transfer_tabs_downloads">Download List</string>
     <string name="transfer_tabs_uploads">Upload List</string>
+    <string name="transfer_download_no_task">All files has been downloaded</string>
+    <string name="transfer_download_started">Starting to download %d files</string>
 </resources>

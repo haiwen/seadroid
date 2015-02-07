@@ -99,7 +99,7 @@ public class TransferActivity extends SherlockFragmentActivity {
             return true;
         case R.id.cancel_transfer_tasks:
             if (currentPosition == 0) {
-                getDownloadTaskFragment().cancelDownloadTasks();
+                getDownloadTaskFragment().cancelAllDownloadTasks();
                 
             } else getUploadTaskFragment().cancelUploadTasks();
             

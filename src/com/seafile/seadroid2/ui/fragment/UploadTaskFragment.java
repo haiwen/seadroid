@@ -1,12 +1,12 @@
 package com.seafile.seadroid2.ui.fragment;
 
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.transfer.*;
+import com.seafile.seadroid2.transfer.TaskState;
+import com.seafile.seadroid2.transfer.TransferTaskInfo;
+import com.seafile.seadroid2.transfer.UploadTaskInfo;
 import com.seafile.seadroid2.ui.adapter.TransferTaskAdapter;
 
 import java.util.List;
@@ -19,8 +19,6 @@ import java.util.List;
 public class UploadTaskFragment extends TransferTaskFragment {
     private static final String DEBUG_TAG = "UploadTaskFragment";
 
-    private boolean isUploadListVisible;
-
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -30,72 +28,21 @@ public class UploadTaskFragment extends TransferTaskFragment {
     }
 
     @Override
-    void setUpTransferList(TransferService txService) {
+    protected List<? extends TransferTaskInfo> getTransferTaskInfos() {
+        return txService.getAllUploadTaskInfos();
+    }
+
+    @Override
+    protected void setUpTransferList() {
         List<UploadTaskInfo> infos = txService.getAllUploadTaskInfos();
-        adapter = new TransferTaskAdapter(mActivity, infos, null);
+        adapter = new TransferTaskAdapter(mActivity, infos);
         adapter.setCurrentTab(TransferTaskAdapter.UPLOAD_LIST_TAB);
         mTransferTaskListView.setAdapter(adapter);
     }
 
     @Override
-    public void onResume() {
-        isUploadListVisible = true;
-        super.onResume();
-    }
-
-    boolean isNeedUpdateProgress() {
-        // first upload list should at foreground
-        if (!isUploadListVisible) {
-            return false;
-        }
-
-        // second there are some upload tasks
-        if(txService == null)
-            return false;
-
-        if (!txService.isUploading())
-            return false;
-
-        return true;
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        isUploadListVisible = false;
-    }
-
-    // refresh upload list by mTimer
-    void startTimer() {
-        Log.d(DEBUG_TAG, "timer started");
-        mTimer.postDelayed(new Runnable() {
-
-            @Override
-            public void run() {
-                adapter.setUploadTaskInfos(txService.getAllUploadTaskInfos());
-                adapter.notifyDataSetChanged();
-                Log.d(DEBUG_TAG, "timer post refresh signal " + System.currentTimeMillis());
-                mTimer.postDelayed(this, 1 * 1000);
-            }
-        }, 1 * 1000);
-    }
-
-    void refreshView() {
-
-        List<UploadTaskInfo> infos = txService.getAllUploadTaskInfos();
-        if (infos == null || infos.isEmpty()) {
-            mTransferTaskListView.setVisibility(View.GONE);
-            emptyView.setVisibility(View.VISIBLE);
-        } else {
-            if (isNeedUpdateProgress())
-                startTimer();
-
-            mTransferTaskListView.setVisibility(View.VISIBLE);
-            emptyView.setVisibility(View.GONE);
-            adapter.setUploadTaskInfos(infos);
-            adapter.notifyDataSetChanged();
-        }
-
+    protected boolean isNeedUpdateProgress() {
+        return !txService.getAllUploadTaskInfos().isEmpty();
     }
 
     @Override
@@ -109,50 +56,39 @@ public class UploadTaskFragment extends TransferTaskFragment {
 
             ListView listView = mTransferTaskListView;
             UploadTaskInfo taskInfo = (UploadTaskInfo) listView.getItemAtPosition(info.position);
-            TransferManager.TaskState state = taskInfo.state;
+            TaskState state = taskInfo.state;
             int taskID = taskInfo.taskID;
-
-            boolean needRefresh = false;
 
             switch (item.getItemId()) {
                 case R.id.cancel:
-                    if (state == TransferManager.TaskState.INIT || state == TransferManager.TaskState.TRANSFERRING) {
-                        // txService.cancelUploadTask(taskID);
+                    if (state == TaskState.INIT || state == TaskState.TRANSFERRING) {
                         txService.cancelUploadTaskInQue(taskID);
-                        needRefresh = true;
                     }
                     break;
                 case R.id.retry:
-                    if (state == TransferManager.TaskState.FAILED || state == TransferManager.TaskState.CANCELLED) {
+                    if (state == TaskState.FAILED || state == TaskState.CANCELLED) {
                         txService.retryUploadTask(taskID);
-                        needRefresh = true;
                     }
                     break;
                 case R.id.remove:
-                    if (state == TransferManager.TaskState.FINISHED || state == TransferManager.TaskState.FAILED || state == TransferManager.TaskState.CANCELLED) {
+                    if (state == TaskState.FINISHED || state == TaskState.FAILED || state == TaskState.CANCELLED) {
                         txService.removeUploadTask(taskID);
-                        needRefresh = true;
                     }
                     break;
                 case R.id.remove_all_cancelled:
-                    if (state == TransferManager.TaskState.CANCELLED) {
-                        txService.removeAllUploadTasksByState(TransferManager.TaskState.CANCELLED);
-                        needRefresh = true;
+                    if (state == TaskState.CANCELLED) {
+                        txService.removeAllUploadTasksByState(TaskState.CANCELLED);
                     }
                     break;
                 case R.id.remove_all_finished:
-                    if (state == TransferManager.TaskState.FINISHED) {
-                        txService.removeFinishedUploadTasks();
-                        needRefresh = true;
+                    if (state == TaskState.FINISHED) {
+                        txService.removeAllUploadTasksByState(TaskState.FINISHED);
                     }
                     break;
                 default:
                     return super.onContextItemSelected(item);
             }
 
-            if (needRefresh) {
-                refreshView();
-            }
             return true;
         }
         else
@@ -169,10 +105,5 @@ public class UploadTaskFragment extends TransferTaskFragment {
         if (txService != null) {
             txService.cancelAllUploadTasks();
         }
-
-        refreshView();
-
-        // stop timer
-        stopTimer();
     }
 }

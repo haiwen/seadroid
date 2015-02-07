@@ -24,7 +24,6 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
@@ -456,7 +455,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             mTransferReceiver = new TransferReceiver();
         }
 
-        IntentFilter filter = new IntentFilter(TransferService.BROADCAST_ACTION);
+        IntentFilter filter = new IntentFilter(TransferManager.BROADCAST_ACTION);
         LocalBroadcastManager.getInstance(this).registerReceiver(mTransferReceiver, filter);
     }
 
@@ -949,10 +948,9 @@ public class BrowserActivity extends SherlockFragmentActivity
             return;
         }
 
-        String fileName = direntName;
         final String repoName = navContext.getRepoName();
         final String repoID = navContext.getRepoID();
-        final String filePath = Utils.pathJoin(navContext.getDirPath(), fileName);
+        final String filePath = Utils.pathJoin(navContext.getDirPath(), direntName);
         ConcurrentAsyncTask.execute(new DownloadDirTask(), repoName, repoID, filePath);
         // Log.d(DEBUG_TAG, "download >> " + repoName + navContext.getDirPath());
 
@@ -960,9 +958,10 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     private class DownloadDirTask extends AsyncTask<String, Void, List<SeafDirent> > {
 
-        String repoName;
-        String repoID;
-        String filePath;
+        private String repoName;
+        private String repoID;
+        private String filePath;
+        private int fileCount;
 
         SeafException err = null;
 
@@ -977,24 +976,17 @@ public class BrowserActivity extends SherlockFragmentActivity
             repoID = params[1];
             filePath = params[2];
 
+            List<SeafDirent> dirents;
             try {
-                return dataManager.getDirentsFromServer(repoID, filePath);
+                dirents = dataManager.getDirentsFromServer(repoID, filePath);
             } catch (SeafException e) {
                 err = e;
                 e.printStackTrace();
                 return null;
             }
-        }
 
-        @Override
-        protected void onPostExecute(List<SeafDirent> dirents) {
-
-            if (dirents == null) {
-                if (err != null)
-                    showToast(R.string.transfer_list_network_error);
-
-                return;
-            }
+            if (dirents == null)
+                return null;
 
             for (SeafDirent seafDirent : dirents) {
                 if (!seafDirent.isDir()) {
@@ -1003,16 +995,39 @@ public class BrowserActivity extends SherlockFragmentActivity
                                                                           Utils.pathJoin(filePath, 
                                                                                           seafDirent.name), 
                                                                           seafDirent.id);
-                    if (localCachedFile == null) {
-                        // Log.d(DEBUG_TAG, Utils.pathJoin(repoName, filePath, seafDirent.name));
-                        txService.addTaskToDownloadQue(account,
-                                repoName,
-                                repoID,
-                                Utils.pathJoin(filePath,
-                                        seafDirent.name));
+                    if (localCachedFile != null) {
+                        continue;
                     }
+
+                    // Log.d(DEBUG_TAG, Utils.pathJoin(repoName, filePath, seafDirent.name));
+                    txService.addTaskToDownloadQue(account,
+                            repoName,
+                            repoID,
+                            Utils.pathJoin(filePath,
+                                    seafDirent.name));
                 }
+
             }
+
+            fileCount = txService.getDownloadingFileCountByPath(repoID, filePath);
+
+            return dirents;
+
+        }
+
+        @Override
+        protected void onPostExecute(List<SeafDirent> dirents) {
+            if (dirents == null) {
+                if (err != null)
+                    showToast(R.string.transfer_list_network_error);
+                return;
+            }
+
+            if (fileCount == 0)
+                showToast(R.string.transfer_download_no_task);
+            else
+                showToast(getString(R.string.transfer_download_started, fileCount));
+
             // set download tasks info to adapter in order to update download progress in UI thread
             getReposFragment().getAdapter().setDownloadTaskList(txService.getDownloadTaskInfosByPath(repoID, filePath));
             getReposFragment().getAdapter().notifyDataSetChanged();
@@ -1492,16 +1507,16 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         public void onReceive(Context context, Intent intent) {
             String type = intent.getStringExtra("type");
-            if (type.equals(TransferService.BROADCAST_FILE_DOWNLOAD_PROGRESS)) {
+            if (type.equals(DownloadTaskManager.BROADCAST_FILE_DOWNLOAD_PROGRESS)) {
                 int taskID = intent.getIntExtra("taskID", 0);
                 onFileDownloadProgress(taskID);
-            } else if (type.equals(TransferService.BROADCAST_FILE_DOWNLOAD_FAILED)) {
+            } else if (type.equals(DownloadTaskManager.BROADCAST_FILE_DOWNLOAD_FAILED)) {
                 int taskID = intent.getIntExtra("taskID", 0);
                 onFileDownloadFailed(taskID);
-            } else if (type.equals(TransferService.BROADCAST_FILE_UPLOAD_SUCCESS)) {
+            } else if (type.equals(UploadTaskManager.BROADCAST_FILE_UPLOAD_SUCCESS)) {
                 int taskID = intent.getIntExtra("taskID", 0);
                 onFileUploaded(taskID);
-            } else if (type.equals(TransferService.BROADCAST_FILE_UPLOAD_FAILED)) {
+            } else if (type.equals(UploadTaskManager.BROADCAST_FILE_UPLOAD_FAILED)) {
                 int taskID = intent.getIntExtra("taskID", 0);
                 onFileUploadFailed(taskID);
             }

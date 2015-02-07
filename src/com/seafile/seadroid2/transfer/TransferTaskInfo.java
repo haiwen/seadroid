@@ -2,12 +2,13 @@ package com.seafile.seadroid2.transfer;
 
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.transfer.TransferManager.TaskState;
 
-/*
- *  base class for {@link DownloadTaskInfo} and {@link UploadTaskInfo}
+/**
+ * Base class
+ * <p/>
+ * reference for override equals and hashcode, http://www.javaranch.com/journal/2002/10/equalhash.html
  */
-public class TransferTaskInfo{
+public class TransferTaskInfo {
     public final Account account;
     public final int taskID;
     public final TaskState state;
@@ -17,15 +18,15 @@ public class TransferTaskInfo{
     public final SeafException err;
 
     /**
-     * Construct a Transfer Task Info instance
+     * Constructor
      *
-     * @param account Current login Account instance
-     * @param taskID TransferTask id
-     * @param state TransferTask state, value is one of INIT, TRANSFERRING, FINISHED, CANCELLED, FAILED of {@link TaskState}
-     * @param repoID Repository id
-     * @param repoName Repository name
+     * @param account   Current login Account instance
+     * @param taskID    TransferTask id
+     * @param state     TransferTask state, value is one of INIT, TRANSFERRING, FINISHED, CANCELLED, FAILED of {@link TaskState}
+     * @param repoID    Repository id
+     * @param repoName  Repository name
      * @param localPath Local path
-     * @param err Exception instance of {@link SeafException}
+     * @param err       Exception instance of {@link SeafException}
      */
     public TransferTaskInfo(Account account, int taskID, TaskState state, String repoID,
                             String repoName, String localPath,
@@ -41,15 +42,14 @@ public class TransferTaskInfo{
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof TransferTaskInfo))
-            return false;
         if (obj == this)
             return true;
-
+        if ((obj == null) || (obj.getClass() != this.getClass()))
+            return false;
         TransferTaskInfo tti = (TransferTaskInfo) obj;
-        return tti.account.getSignature().equals(account.getSignature())
-                && Integer.compare(tti.taskID, taskID) == 0
-                && tti.repoID.equals(repoID);
+        return (account.getSignature() == tti.account.getSignature() || (account.getSignature() != null && account.getSignature().equals(tti.account.getSignature())))
+                && (repoID == tti.repoID || (repoID != null && repoID.equals(tti.repoID)))
+                && (localFilePath == tti.localFilePath || (localFilePath != null && localFilePath.equals(tti.localFilePath)));
     }
 
     @Override
@@ -60,6 +60,10 @@ public class TransferTaskInfo{
 
     @Override
     public int hashCode() {
-        return String.format("%s%s%d", taskID, repoName, localFilePath).hashCode();
+        int hash = 7;
+        hash = 31 * hash + (account.getSignature() == null ? 0 : account.getSignature().hashCode());
+        hash = 31 * hash + (repoID == null ? 0 : repoID.hashCode());
+        hash = 31 * hash + (localFilePath == null ? 0 : localFilePath.hashCode());
+        return hash;
     }
 }

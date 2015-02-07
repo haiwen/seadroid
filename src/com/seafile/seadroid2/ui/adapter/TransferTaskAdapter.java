@@ -1,10 +1,5 @@
 package com.seafile.seadroid2.ui.adapter;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-
 import android.content.Context;
 import android.graphics.Color;
 import android.view.LayoutInflater;
@@ -14,14 +9,16 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
-import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.TransferTaskInfo;
 import com.seafile.seadroid2.transfer.UploadTaskInfo;
 import com.seafile.seadroid2.ui.activity.TransferActivity;
 import com.seafile.seadroid2.util.Utils;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /*
  * Adapter class for both uploading and downloading tasks
@@ -30,8 +27,7 @@ public class TransferTaskAdapter extends BaseAdapter {
 
     private static final String DEBUG_TAG = "TransferTaskAdapter";
 
-    private List<UploadTaskInfo> mUploadTaskInfos;
-    private List<DownloadTaskInfo> mDownloadTaskInfos;
+    private List<? extends TransferTaskInfo> mTransferTaskInfos;
     private Context mContext;
     /**  0 mark as Download Task, 1 mark as Upload Task, the same convention with {@link TransferActivity #currentPosition} */
     private int mTransferTaskType = -1;
@@ -46,14 +42,11 @@ public class TransferTaskAdapter extends BaseAdapter {
      * set {@link TransferTaskAdapter #mTransferTaskType} 0 to mark as Download Task, 1 mark to mark as Upload Task</br>
      * 
      * @param context
-     * @param uploadTaskInfos
-     * @param downloadTaskInfos
+     * @param transferTaskInfos
      */
     public TransferTaskAdapter(Context context,
-                               List<? extends TransferTaskInfo> uploadTaskInfos,
-                               List<? extends TransferTaskInfo> downloadTaskInfos) {
-        this.mUploadTaskInfos = (List<UploadTaskInfo>) uploadTaskInfos;
-        this.mDownloadTaskInfos = (List<DownloadTaskInfo>) downloadTaskInfos;
+                               List<? extends TransferTaskInfo> transferTaskInfos) {
+        this.mTransferTaskInfos = transferTaskInfos;
         this.mContext = context;
     }
 
@@ -89,46 +82,24 @@ public class TransferTaskAdapter extends BaseAdapter {
         }
     }
 
-    public void setUploadTaskInfos(List<UploadTaskInfo> infos) {
-        mUploadTaskInfos = infos;
-        Collections.sort(mUploadTaskInfos, new TaskInfoComparator());
+    public void setTransferTaskInfos(List<? extends TransferTaskInfo> infos) {
+        mTransferTaskInfos = infos;
+        Collections.sort(mTransferTaskInfos, new TaskInfoComparator());
     }
 
-    public void setDownloadTaskInfos(List<DownloadTaskInfo> infos) {
-        mDownloadTaskInfos = infos;
-        Collections.sort(mDownloadTaskInfos, new TaskInfoComparator());
-    }
-    
     @Override
     public int getCount() {
-        if (mTransferTaskType == 0) {
-            return mDownloadTaskInfos.size();
-        } else if (mTransferTaskType == 1) {
-            return mUploadTaskInfos.size();
-        }
-        return -1;
+        return mTransferTaskInfos.size();
     }
 
     @Override
     public boolean isEmpty() {
-        if (mTransferTaskType == 0) {
-            return mDownloadTaskInfos.isEmpty();
-        } else if (mTransferTaskType == 1) {
-            return mUploadTaskInfos.isEmpty();
-        }
-
-        return true;
+        return mTransferTaskInfos.isEmpty();
     }
 
     @Override
     public TransferTaskInfo getItem(int position) {
-        if (mTransferTaskType == 0) {
-            return mDownloadTaskInfos.get(position);
-        } else if (mTransferTaskType == 1) {
-            return mUploadTaskInfos.get(position);
-        }
-
-        return null;
+        return mTransferTaskInfos.get(position);
     }
 
     @Override
@@ -215,9 +186,9 @@ public class TransferTaskAdapter extends BaseAdapter {
             viewHolder = (Viewholder) convertView.getTag();
         }
         
-        int iconID = 0;
+        int iconID;
         if (mTransferTaskType == 0) {
-            DownloadTaskInfo taskInfo = mDownloadTaskInfos.get(position);
+            DownloadTaskInfo taskInfo = (DownloadTaskInfo) mTransferTaskInfos.get(position);
             iconID = Utils.getFileIcon(taskInfo.pathInRepo);
             // the three fileds is not dynamic
             viewHolder.icon.setImageResource(iconID);
@@ -225,7 +196,7 @@ public class TransferTaskAdapter extends BaseAdapter {
             viewHolder.fileName.setText(Utils.fileNameFromPath(taskInfo.pathInRepo));
             updateTaskView(taskInfo, viewHolder);
         } else if (mTransferTaskType == 1) {
-            UploadTaskInfo taskInfo = mUploadTaskInfos.get(position);
+            UploadTaskInfo taskInfo = (UploadTaskInfo) mTransferTaskInfos.get(position);
             iconID = Utils.getFileIcon(taskInfo.localFilePath);
             String fullpath = taskInfo.repoName + taskInfo.parentDir;
             // the three fileds is not dynamic

@@ -2,8 +2,9 @@ package com.seafile.seadroid2.transfer;
 
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.transfer.TransferManager.TaskState;
-
+/**
+ *  download task info
+ */
 public class DownloadTaskInfo extends TransferTaskInfo {
 
     public final String pathInRepo;
