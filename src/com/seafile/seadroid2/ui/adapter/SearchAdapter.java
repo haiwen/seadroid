@@ -8,9 +8,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.data.SeafItem;
+import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SearchedFile;
 import com.seafile.seadroid2.ui.activity.SearchActivity;
+import com.seafile.seadroid2.util.Utils;
 
 import java.util.List;
 
@@ -49,7 +50,7 @@ public class SearchAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        SeafItem item = items.get(position);
+        SearchedFile item = items.get(position);
         View view = convertView;
         Viewholder viewHolder;
 
@@ -67,13 +68,22 @@ public class SearchAdapter extends BaseAdapter {
         }
 
         viewHolder.icon.setImageResource(item.getIcon());
-        viewHolder.path.setText(((SearchedFile)item).getPath());
+        viewHolder.path.setText(filePath(item));
         viewHolder.title.setText(item.getTitle());
         viewHolder.subtitle.setText(item.getSubtitle());
 
         //setFileView((SeafDirent)item, viewHolder, position);
 
         return view;
+    }
+
+    private String filePath(SearchedFile searchedFile) {
+        String parentPath = Utils.getParentPath(searchedFile.getPath());
+        SeafRepo seafRepo = mActivity.getDataManager().getCachedRepoByID(searchedFile.getRepoID());
+        if (seafRepo != null)
+            return Utils.pathJoin(seafRepo.getName(), parentPath);
+        else
+            return parentPath;
     }
 
     public void notifyChanged() {

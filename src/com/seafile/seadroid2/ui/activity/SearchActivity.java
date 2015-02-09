@@ -239,6 +239,15 @@ public class SearchActivity extends SherlockFragmentActivity implements View.OnC
         }
     }
 
+    public DataManager getDataManager() {
+        if (dataManager == null) {
+            AccountManager accountManager = new AccountManager(this);
+            account = accountManager.getCurrentAccount();
+            dataManager = new DataManager(account);
+        }
+        return dataManager;
+    }
+
     private void showLoading(boolean show) {
         if (show) {
             mProgressContainer.startAnimation(AnimationUtils.loadAnimation(
