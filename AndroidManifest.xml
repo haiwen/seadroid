@@ -17,31 +17,26 @@
 
         <activity android:name="com.seafile.seadroid2.ui.activity.AccountsActivity"
                   android:launchMode="singleTop"
-                  android:screenOrientation="portrait"
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>
 
         <activity android:name="com.seafile.seadroid2.ui.activity.ShibbolethActivity"
-                  android:screenOrientation="portrait"
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>
 
         <activity android:name="com.seafile.seadroid2.ui.activity.ShibbolethAuthorizeActivity"
-                  android:screenOrientation="portrait"
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>
 
         <activity android:name="com.seafile.seadroid2.ui.activity.SettingsActivity"
-                  android:screenOrientation="portrait"
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>
         
         <activity android:name="com.seafile.seadroid2.ui.activity.BrowserActivity"
-                  android:screenOrientation="portrait"
                   android:label="@string/app_name"
                   android:theme="@style/Theme.SeafileTheme"
                   android:launchMode="singleTask">
@@ -84,7 +79,6 @@
         <!-- MultipleImageSelectionActivity uses the default theme, instead of
              ActionBarSherlock -->
         <activity android:name="com.seafile.seadroid2.gallery.MultipleImageSelectionActivity"
-                  android:screenOrientation="portrait"
                   android:theme="@android:style/Theme"
                   android:label="@string/app_name">
         </activity>
@@ -106,31 +100,26 @@
         </activity>
 
         <activity android:name="com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity"
-                  android:screenOrientation="portrait"
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>
 
         <activity android:name="com.seafile.seadroid2.ui.activity.FileActivity"
-                  android:screenOrientation="portrait"
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>
 
         <activity android:name="com.seafile.seadroid2.fileschooser.MultiFileChooserActivity"
-                  android:screenOrientation="portrait"
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>
 
         <activity android:name="com.seafile.seadroid2.ui.activity.TransferActivity"
-                  android:screenOrientation="portrait"
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>
 
         <activity android:name="com.seafile.seadroid2.ui.activity.SearchActivity"
-                android:screenOrientation="portrait"
                 android:theme="@style/Theme.SeafileTheme"
                 android:label="@string/app_name">
             <intent-filter>
