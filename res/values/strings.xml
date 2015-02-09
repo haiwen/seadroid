@@ -307,4 +307,12 @@
     <string name="transfer_tabs_uploads">Upload List</string>
     <string name="transfer_download_no_task">All files has been downloaded</string>
     <string name="transfer_download_started">Starting to download %d files</string>
+
+    <!-- Search -->
+    <string name="search_menu_item">Search</string>
+    <string name="search_bar_hint">Searching...</string>
+    <string name="search_txt_empty">Please input keywords</string>
+    <string name="search_content_empty">Can not find the searched data</string>
+    <string name="search_server_not_support">Search not supported on server</string>
+    <string name="search_open_dir_not_support">Sorry, open folder not supported yet!</string>
 </resources>

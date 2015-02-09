@@ -273,6 +273,16 @@ public class BrowserActivity extends SherlockFragmentActivity
             }
         }
 
+        String repoID = intent.getStringExtra("repoID");
+        String repoName = intent.getStringExtra("repoName");
+        String path = intent.getStringExtra("path");
+        String dirID = intent.getStringExtra("dirID");
+        if (repoID != null) {
+            navContext.setRepoID(repoID);
+            navContext.setRepoName(repoName);
+            navContext.setDir(path, dirID);
+        }
+
         // enable ActionBar app icon to behave as action back
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -527,6 +537,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem menuSearch = menu.findItem(R.id.search);
         MenuItem menuUpload = menu.findItem(R.id.upload);
         MenuItem menuRefresh = menu.findItem(R.id.refresh);
         MenuItem menuDownloadFolder = menu.findItem(R.id.download_folder);
@@ -622,6 +633,10 @@ public class BrowserActivity extends SherlockFragmentActivity
             if (navContext.inRepo()) {
                 onBackPressed();
             }
+            return true;
+        case R.id.search:
+            Intent searchIntent = new Intent(this, SearchActivity.class);
+            startActivity(searchIntent);
             return true;
         case R.id.upload:
             pickFile();

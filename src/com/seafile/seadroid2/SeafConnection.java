@@ -260,6 +260,30 @@ public class SeafConnection {
             throw SeafException.networkException;
         }
     }
+
+    public String searchLibraries(String query, int page) throws SeafException {
+
+        try {
+            Map<String, Object> params = Maps.newHashMap();
+            params.put("q", encodeUriComponent(query));
+
+            if (page > 0)
+                params.put("per_page", page);
+
+            HttpRequest req = prepareApiGetRequest("api2/search/", params);
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+            String result = new String(req.bytes(), "UTF-8");
+            return result;
+        } catch (SeafException e) {
+            throw e;
+        } catch (HttpRequestException e) {
+            throw getSeafExceptionFromHttpRequestException(e);
+        } catch (IOException e) {
+            throw SeafException.networkException;
+        }
+
+    }
+
     private static String encodeUriComponent(String src) throws UnsupportedEncodingException {
         return URLEncoder.encode(src, "UTF-8");
     }

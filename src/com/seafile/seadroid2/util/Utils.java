@@ -27,8 +27,12 @@ import java.util.List;
 import java.util.TreeMap;
 
 import android.text.TextUtils;
+import android.util.JsonToken;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -74,10 +78,24 @@ public class Utils {
         }
     }
 
+    public static JSONArray parseJsonArrayByKey(String json, String key) throws JSONException {
+        if (json == null) {
+            // the caller should not give null
+            Log.w(DEBUG_TAG, "null in parseJsonArrayByKey");
+            return null;
+        }
+
+        String value = new JSONObject(json).optString(key);
+        if (!TextUtils.isEmpty(value))
+            return parseJsonArray(value);
+        else
+            return null;
+    }
+
     public static JSONArray parseJsonArray(String json) {
         if (json == null) {
          // the caller should not give null
-            Log.w(DEBUG_TAG, "null in parseJsonObject");
+            Log.w(DEBUG_TAG, "null in parseJsonArray");
             return null;
         }
 
@@ -609,5 +627,13 @@ public class Utils {
         String info = String.format("%s (%s)", email, server);
         info = info.replaceAll("[^\\w\\d\\.@\\(\\) ]", "_");
         return info;
+    }
+
+    public static void hideSoftKeyboard(View view) {
+        if (view == null)
+            return;
+        ((InputMethodManager) SeadroidApplication.getAppContext().getSystemService(
+                Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(
+                view.getWindowToken(), 0);
     }
 }

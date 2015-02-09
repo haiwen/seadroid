@@ -2,6 +2,11 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <item android:id="@+id/search"
+          android:visible="true"
+          android:icon="@drawable/search"
+          android:title="@string/search_menu_item"
+          android:showAsAction="always"/>
 
     <!-- More -->
     <item
