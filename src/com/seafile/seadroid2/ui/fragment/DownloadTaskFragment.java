@@ -15,7 +15,6 @@ import java.util.List;
 /**
  * Download tasks fragments
  *
- * Created by Logan on 14/12/22.
  */
 public class DownloadTaskFragment extends TransferTaskFragment {
     private static final String DEBUG_TAG = "DownloadTaskFragment";

@@ -17,7 +17,6 @@ import com.seafile.seadroid2.R;
 /**
  * Shibboleth welcome page
  * <p/>
- * Created by Logan on 14/12/23.
  */
 public class ShibbolethActivity extends SherlockFragmentActivity {
     public static final String DEBUG_TAG = "ShibbolethActivity";

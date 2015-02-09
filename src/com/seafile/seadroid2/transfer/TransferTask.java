@@ -11,7 +11,6 @@ import java.io.File;
  * <p/>
  * reference for override equals and hashcode, http://www.javaranch.com/journal/2002/10/equalhash.html
  * <p/>
- * Created by Logan on 15/2/5.
  */
 public abstract class TransferTask extends AsyncTask<Void, Long, File> {
 

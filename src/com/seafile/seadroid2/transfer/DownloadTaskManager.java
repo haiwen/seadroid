@@ -14,7 +14,6 @@ import java.util.List;
 /**
  * Download task manager
  * <p/>
- * Created by Logan on 15/2/4.
  */
 public class DownloadTaskManager extends TransferManager implements DownloadStateListener {
     private static final String DEBUG_TAG = "DownloadTaskManager";

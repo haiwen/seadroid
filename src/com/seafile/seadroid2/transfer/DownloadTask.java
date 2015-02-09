@@ -10,7 +10,6 @@ import java.io.File;
 /**
  * Download task
  *
- * Created by Logan on 15/2/3.
  */
 public class DownloadTask extends TransferTask {
 

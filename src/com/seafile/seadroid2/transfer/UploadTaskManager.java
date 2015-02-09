@@ -10,7 +10,6 @@ import java.util.List;
 /**
  * Upload task manager
  * <p/>
- * Created by Logan on 15/2/4.
  */
 public class UploadTaskManager extends TransferManager implements UploadStateListener {
     private static final String DEBUG_TAG = "UploadTaskManager";

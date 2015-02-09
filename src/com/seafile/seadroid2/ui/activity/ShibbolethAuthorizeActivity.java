@@ -23,7 +23,6 @@ import com.seafile.seadroid2.util.Utils;
  * Shibboleth Authorize page
  * use cookie to get authorized data
  * <p/>
- * Created by Logan on 14/12/23.
  */
 public class ShibbolethAuthorizeActivity extends SherlockFragmentActivity {
     public static final String DEBUG_TAG = "ShibbolethAuthorizeActivity";

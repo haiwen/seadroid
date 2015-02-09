@@ -11,7 +11,6 @@ import java.io.File;
 /**
  * Upload task
  *
- * Created by Logan on 15/2/3.
  */
 public class UploadTask extends TransferTask {
     public static final String DEBUG_TAG = "UploadTask";

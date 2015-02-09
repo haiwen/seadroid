@@ -28,7 +28,6 @@ import java.util.List;
 /**
  * Base class for transfer task fragments
  *
- * Created by Logan on 14/12/22.
  */
 public abstract class TransferTaskFragment extends SherlockListFragment {
     private String DEBUG_TAG = "TransferTaskFragment";
