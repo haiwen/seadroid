@@ -477,10 +477,11 @@ public class DataManager {
     }
 
     /**
-     * In two cases we need to visit the server for dirents
+     * In three cases we need to visit the server for dirents
      *
      * 1. No cached dirents
      * 2. User clicks "refresh" button.
+     * 3. Download all dirents within a folder
      *
      * In the second case, the local cache may still be valid.
      */

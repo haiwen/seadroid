@@ -29,7 +29,7 @@
     <string name="activities">Activities</string>
     <string name="pick_upload_type">Upload</string>
     <string name="accounts_https_hint">https</string>
-    <string name="upload_tasks">Uploads</string>
+    <string name="transfer_tasks">Transfer List</string>
     <string name="accounts">Accounts</string>
     <string name="settings">Settings</string>
     
@@ -62,6 +62,7 @@
     <string name="task_cancel">Cancel</string>
     <string name="task_retry">Retry</string>
     <string name="task_remove">Remove</string>
+    <string name="task_remove_all_cancelled">Remove all cancelled</string>
     <string name="task_remove_all_finished">Remove all finished</string>
     <string name="file_action_download">Download</string>
     <string name="file_action_remove_cache">Remove Cache</string>
@@ -106,6 +107,7 @@
     <string name="load_libraries_fail">Failed to load libraries</string>
     <string name="load_dir_fail">Failed to load contents of this folder</string>
     <string name="not_supported_share">This type of share is not supported</string>
+    <string name="download_folder">Download folder</string>
     <string name="create_new_file">Create a new file</string>
     <string name="create_new_dir">Create a new folder</string>
     <string name="camera">Take a photo here</string>
@@ -117,6 +119,7 @@
     <string name="library_not_found">The library have been deleted.</string>
     <string name="export_file">Export this file</string>
     <string name="no_upload_tasks">No upload tasks yet</string>
+    <string name="no_download_tasks">No download tasks yet</string>
     <string name="seahub_url_hint">Note: Server address should contain the port. For example, www.example.com:8000</string>
     <string name="copy_link">Copy link</string>
     <string name="share_file_link">Share a link to this file</string>
@@ -296,4 +299,12 @@
     <string name="shib_server_hint">Input server...</string>
     <string name="shib_actionbar_title">Login with Shibboleth</string>
     <string name="shib_loading">loading...</string>
+
+    <!-- Transfer List -->
+    <string name="transfer_list_network_error">Network connection error, please try again later!</string>
+    <string name="transfer_list_cancel_all">Cancel all</string>
+    <string name="transfer_tabs_downloads">Download List</string>
+    <string name="transfer_tabs_uploads">Upload List</string>
+    <string name="transfer_download_no_task">All files has been downloaded</string>
+    <string name="transfer_download_started">Starting to download %d files</string>
 </resources>

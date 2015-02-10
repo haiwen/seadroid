@@ -22,6 +22,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -47,11 +48,7 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.google.common.collect.Lists;
-import com.seafile.seadroid2.NavContext;
-import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SeafConnection;
-import com.seafile.seadroid2.SeafException;
-import com.seafile.seadroid2.SettingsManager;
+import com.seafile.seadroid2.*;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
@@ -61,13 +58,9 @@ import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SeafStarredFile;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 import com.seafile.seadroid2.monitor.FileMonitorService;
-import com.seafile.seadroid2.transfer.DownloadTaskInfo;
-import com.seafile.seadroid2.transfer.PendingUploadInfo;
-import com.seafile.seadroid2.transfer.TransferService;
+import com.seafile.seadroid2.transfer.*;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
-import com.seafile.seadroid2.transfer.UploadTaskInfo;
 import com.seafile.seadroid2.ui.CopyMoveContext;
-import com.seafile.seadroid2.ui.adapter.UploadTasksAdapter;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
 import com.seafile.seadroid2.ui.dialog.CopyMoveDialog;
 import com.seafile.seadroid2.ui.dialog.DeleteFileDialog;
@@ -142,7 +135,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     public void addUpdateTask(String repoID, String repoName, String targetDir, String localFilePath) {
         if (txService != null) {
-            txService.addUploadTask(account, repoID, repoName, targetDir, localFilePath, true, true);
+            txService.addTaskToUploadQue(account, repoID, repoName, targetDir, localFilePath, true, true);
         } else {
             PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, true, true);
             pendingUploads.add(info);
@@ -151,7 +144,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     private void addUploadTask(String repoID, String repoName, String targetDir, String localFilePath) {
         if (txService != null) {
-            txService.addUploadTask(account, repoID, repoName, targetDir, localFilePath, false, true);
+            txService.addTaskToUploadQue(account, repoID, repoName, targetDir, localFilePath, false, true);
         } else {
             PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, false, true);
             pendingUploads.add(info);
@@ -431,9 +424,13 @@ public class BrowserActivity extends SherlockFragmentActivity
             Log.d(DEBUG_TAG, "bind TransferService");
 
             for (PendingUploadInfo info : pendingUploads) {
-                txService.addUploadTask(account, info.repoID,
-                                        info.repoName, info.targetDir,
-                                        info.localFilePath, info.isUpdate, info.isCopyToLocal);
+                txService.addTaskToUploadQue(account,
+                                            info.repoID,
+                                            info.repoName,
+                                            info.targetDir,
+                                            info.localFilePath,
+                                            info.isUpdate,
+                                            info.isCopyToLocal);
             }
             pendingUploads.clear();
         }
@@ -458,7 +455,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             mTransferReceiver = new TransferReceiver();
         }
 
-        IntentFilter filter = new IntentFilter(TransferService.BROADCAST_ACTION);
+        IntentFilter filter = new IntentFilter(TransferManager.BROADCAST_ACTION);
         LocalBroadcastManager.getInstance(this).registerReceiver(mTransferReceiver, filter);
     }
 
@@ -532,39 +529,44 @@ public class BrowserActivity extends SherlockFragmentActivity
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem menuUpload = menu.findItem(R.id.upload);
         MenuItem menuRefresh = menu.findItem(R.id.refresh);
+        MenuItem menuDownloadFolder = menu.findItem(R.id.download_folder);
         MenuItem menuNewDir = menu.findItem(R.id.newdir);
         MenuItem menuNewFile = menu.findItem(R.id.newfile);
         MenuItem menuCamera = menu.findItem(R.id.camera);
-        MenuItem menuUploadTasks = menu.findItem(R.id.upload_tasks);
+        MenuItem menuTransferTasks = menu.findItem(R.id.transfer_tasks);
         MenuItem menuAccounts = menu.findItem(R.id.accounts);
         MenuItem menuSettings = menu.findItem(R.id.settings);
 
         // Libraries Tab
         if (currentPosition == 0) {
             menuUpload.setVisible(true);
+            menuDownloadFolder.setVisible(true);
             if (navContext.inRepo() && hasRepoWritePermission()) {
                 menuUpload.setEnabled(true);
-            }
-            else
+                menuDownloadFolder.setEnabled(true);
+            } else {
                 menuUpload.setEnabled(false);
+                menuDownloadFolder.setEnabled(false);
+            }
         } else {
             menuUpload.setVisible(false);
+            menuDownloadFolder.setVisible(false);
         }
 
         // Libraries Tab
         if (currentPosition == 0) {
             menuRefresh.setVisible(true);
-            menuUploadTasks.setVisible(true);
+            menuTransferTasks.setVisible(true);
             menuAccounts.setVisible(true);
             menuSettings.setVisible(true);
         } else if (currentPosition == 2) { // ACTIVITY_TAB
             menuRefresh.setVisible(true);
-            menuUploadTasks.setVisible(true);
+            menuTransferTasks.setVisible(true);
             menuAccounts.setVisible(true);
             menuSettings.setVisible(true);
         } else {
             menuRefresh.setVisible(false);
-            menuUploadTasks.setVisible(false);
+            menuTransferTasks.setVisible(false);
             menuAccounts.setVisible(false);
             menuSettings.setVisible(false);
         }
@@ -592,7 +594,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             menuNewDir.setVisible(false);
             menuNewFile.setVisible(false);
             menuCamera.setVisible(false);
-            menuUploadTasks.setVisible(false);
+            menuTransferTasks.setVisible(false);
             menuAccounts.setVisible(false);
             menuSettings.setVisible(false);
         }
@@ -604,23 +606,12 @@ public class BrowserActivity extends SherlockFragmentActivity
             menuNewFile.setVisible(false);
             menuCamera.setVisible(false);
             menuRefresh.setVisible(true);
-            menuUploadTasks.setVisible(true);
+            menuTransferTasks.setVisible(true);
             menuAccounts.setVisible(true);
             menuSettings.setVisible(true);
         }
 
         return true;
-    }
-
-    public static UploadTasksAdapter uploadTasksAdapter;
-
-    private List<UploadTaskInfo> getUploadTaskInfos() {
-        if (txService == null) {
-            // In case the service is not ready
-            return Lists.newArrayList();
-        }
-
-        return txService.getAllUploadTaskInfos();
     }
 
     @Override
@@ -635,9 +626,8 @@ public class BrowserActivity extends SherlockFragmentActivity
         case R.id.upload:
             pickFile();
             return true;
-        case R.id.upload_tasks:
-            Intent newIntent = new Intent(this, UploadTasksActivity.class);
-            uploadTasksAdapter = new UploadTasksAdapter(this, getUploadTaskInfos());
+        case R.id.transfer_tasks:
+            Intent newIntent = new Intent(this, TransferActivity.class);
             newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(newIntent);
             return true;
@@ -675,6 +665,10 @@ public class BrowserActivity extends SherlockFragmentActivity
                 getStarredFragment().refresh();
             }
             return true;
+        case R.id.download_folder:
+            String parentPath = Utils.getParentPath(navContext.getDirPath());
+            downloadDir(parentPath);
+            break;
         case R.id.newdir:
             showNewDirDialog();
             return true;
@@ -948,6 +942,98 @@ public class BrowserActivity extends SherlockFragmentActivity
         startFileActivity(repoName, repoID, filePath);
     }
 
+    public void downloadDir(String direntName) {
+        if (!Utils.isNetworkOn()) {
+            showToast(R.string.network_down);
+            return;
+        }
+
+        final String repoName = navContext.getRepoName();
+        final String repoID = navContext.getRepoID();
+        final String filePath = Utils.pathJoin(navContext.getDirPath(), direntName);
+        ConcurrentAsyncTask.execute(new DownloadDirTask(), repoName, repoID, filePath);
+        // Log.d(DEBUG_TAG, "download >> " + repoName + navContext.getDirPath());
+
+    }
+
+    private class DownloadDirTask extends AsyncTask<String, Void, List<SeafDirent> > {
+
+        private String repoName;
+        private String repoID;
+        private String filePath;
+        private int fileCount;
+
+        SeafException err = null;
+
+        @Override
+        protected List<SeafDirent> doInBackground(String... params) {
+            if (params.length != 3) {
+                Log.d(DEBUG_TAG, "Wrong params to LoadDirTask");
+                return null;
+            }
+
+            repoName = params[0];
+            repoID = params[1];
+            filePath = params[2];
+
+            List<SeafDirent> dirents;
+            try {
+                dirents = dataManager.getDirentsFromServer(repoID, filePath);
+            } catch (SeafException e) {
+                err = e;
+                e.printStackTrace();
+                return null;
+            }
+
+            if (dirents == null)
+                return null;
+
+            for (SeafDirent seafDirent : dirents) {
+                if (!seafDirent.isDir()) {
+                    File localCachedFile = dataManager.getLocalCachedFile(repoName, 
+                                                                          repoID, 
+                                                                          Utils.pathJoin(filePath, 
+                                                                                          seafDirent.name), 
+                                                                          seafDirent.id);
+                    if (localCachedFile != null) {
+                        continue;
+                    }
+
+                    // Log.d(DEBUG_TAG, Utils.pathJoin(repoName, filePath, seafDirent.name));
+                    txService.addTaskToDownloadQue(account,
+                            repoName,
+                            repoID,
+                            Utils.pathJoin(filePath,
+                                    seafDirent.name));
+                }
+
+            }
+
+            fileCount = txService.getDownloadingFileCountByPath(repoID, filePath);
+
+            return dirents;
+
+        }
+
+        @Override
+        protected void onPostExecute(List<SeafDirent> dirents) {
+            if (dirents == null) {
+                if (err != null)
+                    showToast(R.string.transfer_list_network_error);
+                return;
+            }
+
+            if (fileCount == 0)
+                showToast(R.string.transfer_download_no_task);
+            else
+                showToast(getString(R.string.transfer_download_started, fileCount));
+
+            // set download tasks info to adapter in order to update download progress in UI thread
+            getReposFragment().getAdapter().setDownloadTaskList(txService.getDownloadTaskInfosByPath(repoID, filePath));
+            getReposFragment().getAdapter().notifyDataSetChanged();
+        }
+    }
+
     private void startFileActivity(String repoName, String repoID, String filePath) {
         int taskID = txService.addDownloadTask(account, repoName, repoID, filePath);
         Intent intent = new Intent(this, FileActivity.class);
@@ -1097,8 +1183,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                     startActivity(sendIntent);
                     return;
                 }
-                fetchFileAndExport(appInfo, sendIntent, repoName, repoID,
-                                   path);
+                fetchFileAndExport(appInfo, sendIntent, repoName, repoID, path);
             }
 
         });
@@ -1130,6 +1215,8 @@ public class BrowserActivity extends SherlockFragmentActivity
     /**
      * Share a file. Generating a file share link and send the link to someone
      * through some app.
+     * @param repoID
+     * @param path
      */
     public void shareFile(String repoID, String path) {
         chooseShareApp(repoID, path, false);
@@ -1308,6 +1395,56 @@ public class BrowserActivity extends SherlockFragmentActivity
         dialog.show(getSupportFragmentManager(), "DialogFragment");
     }
 
+    private void onFileDownloadProgress(int taskID) {
+        if (txService == null) {
+            return;
+        }
+
+        DownloadTaskInfo info = txService.getDownloadTaskInfo(taskID);
+        if (fetchFileDialog != null && fetchFileDialog.getTaskID() == taskID) {
+                fetchFileDialog.handleDownloadTaskInfo(info);
+        }
+    }
+
+    private void onFileDownloadFailed(int taskID) {
+        if (txService == null) {
+            return;
+        }
+
+        DownloadTaskInfo info = txService.getDownloadTaskInfo(taskID);
+        if (fetchFileDialog != null && fetchFileDialog.getTaskID() == taskID) {
+                fetchFileDialog.handleDownloadTaskInfo(info);
+            return;
+        }
+
+        SeafException err = info.err;
+        final String repoName = info.repoName;
+        final String repoID = info.repoID;
+        final String path = info.pathInRepo;
+
+        if (err != null
+                && err.getCode() == SeafConnection.HTTP_STATUS_REPO_PASSWORD_REQUIRED) {
+            if (currentPosition == 0
+                    && repoID.equals(navContext.getRepoID())
+                    && Utils.getParentPath(path)
+                            .equals(navContext.getDirPath())) {
+                showPasswordDialog(repoName, repoID,
+                        new TaskDialog.TaskDialogListener() {
+                            @Override
+                            public void onTaskSuccess() {
+                                txService.addDownloadTask(account, 
+                                                          repoName, 
+                                                          repoID, 
+                                                          path);
+                            }
+                        });
+                return;
+            }
+        }
+
+        showToast(getString(R.string.download_failed) + " " + Utils.fileNameFromPath(path));
+    }
+
     private void onFileUploaded(int taskID) {
         if (txService == null) {
             return;
@@ -1332,67 +1469,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
         UploadTaskInfo info = txService.getUploadTaskInfo(taskID);
         showToast(getString(R.string.upload_failed) + " " + Utils.fileNameFromPath(info.localFilePath));
-    }
-
-    private void onFileDownloadProgress(int taskID) {
-        if (txService == null) {
-            return;
-        }
-
-        DownloadTaskInfo info = txService.getDownloadTaskInfo(taskID);
-        if (fetchFileDialog != null && fetchFileDialog.getTaskID() == taskID) {
-                fetchFileDialog.handleDownloadTaskInfo(info);
-        }
-    }
-
-    private void onFileDownloaded(int taskID) {
-        if (txService == null) {
-            return;
-        }
-
-        DownloadTaskInfo info = txService.getDownloadTaskInfo(taskID);
-        if (fetchFileDialog != null && fetchFileDialog.getTaskID() == taskID) {
-            fetchFileDialog.handleDownloadTaskInfo(info);
-        } else {
-            if (currentPosition == 0
-                && info.repoID.equals(navContext.getRepoID())
-                && Utils.getParentPath(info.pathInRepo).equals(navContext.getDirPath())) {
-                getReposFragment().getAdapter().notifyChanged();
-            }
-        }
-    }
-
-    private void onFileDownloadFailed(int taskID) {
-        if (txService == null) {
-            return;
-        }
-
-        DownloadTaskInfo info = txService.getDownloadTaskInfo(taskID);
-        if (fetchFileDialog != null && fetchFileDialog.getTaskID() == taskID) {
-            fetchFileDialog.handleDownloadTaskInfo(info);
-            return;
-        }
-
-        SeafException err = info.err;
-        final String repoName = info.repoName;
-        final String repoID = info.repoID;
-        final String path = info.pathInRepo;
-
-        if (err != null && err.getCode() == SeafConnection.HTTP_STATUS_REPO_PASSWORD_REQUIRED) {
-            if (currentPosition == 0
-                && repoID.equals(navContext.getRepoID())
-                && Utils.getParentPath(path).equals(navContext.getDirPath())) {
-                showPasswordDialog(repoName, repoID, new TaskDialog.TaskDialogListener() {
-                    @Override
-                    public void onTaskSuccess() {
-                        txService.addDownloadTask(account, repoName, repoID, path);
-                    }
-                });
-                return;
-            }
-        }
-
-        showToast(getString(R.string.download_failed) + " " + Utils.fileNameFromPath(path));
     }
 
     public PasswordDialog showPasswordDialog(String repoName, String repoID,
@@ -1424,7 +1500,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         return super.onKeyUp(keycode, e);
     }
 
-
     // for receive broadcast from TransferService
     private class TransferReceiver extends BroadcastReceiver {
 
@@ -1432,26 +1507,18 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         public void onReceive(Context context, Intent intent) {
             String type = intent.getStringExtra("type");
-            if (type.equals(TransferService.BROADCAST_FILE_DOWNLOAD_PROGRESS)) {
+            if (type.equals(DownloadTaskManager.BROADCAST_FILE_DOWNLOAD_PROGRESS)) {
                 int taskID = intent.getIntExtra("taskID", 0);
                 onFileDownloadProgress(taskID);
-
-            } else if (type.equals(TransferService.BROADCAST_FILE_DOWNLOAD_SUCCESS)) {
-                int taskID = intent.getIntExtra("taskID", 0);
-                onFileDownloaded(taskID);
-
-            } else if (type.equals(TransferService.BROADCAST_FILE_DOWNLOAD_FAILED)) {
+            } else if (type.equals(DownloadTaskManager.BROADCAST_FILE_DOWNLOAD_FAILED)) {
                 int taskID = intent.getIntExtra("taskID", 0);
                 onFileDownloadFailed(taskID);
-
-            } else if (type.equals(TransferService.BROADCAST_FILE_UPLOAD_SUCCESS)) {
+            } else if (type.equals(UploadTaskManager.BROADCAST_FILE_UPLOAD_SUCCESS)) {
                 int taskID = intent.getIntExtra("taskID", 0);
                 onFileUploaded(taskID);
-
-            } else if (type.equals(TransferService.BROADCAST_FILE_UPLOAD_FAILED)) {
+            } else if (type.equals(UploadTaskManager.BROADCAST_FILE_UPLOAD_FAILED)) {
                 int taskID = intent.getIntExtra("taskID", 0);
                 onFileUploadFailed(taskID);
-
             }
         }
 

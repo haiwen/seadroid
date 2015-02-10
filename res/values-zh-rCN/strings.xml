@@ -134,6 +134,8 @@
   <string name="tabs_library">资料库</string>
   <string name="tabs_activity">最近修改</string>
   <string name="tabs_starred">星标文件</string>
+  <string name="transfer_tabs_downloads">下载列表</string>
+  <string name="transfer_tabs_uploads">上传列表</string>
   <string name="provide_password">请提供资料库\"%s\"的密码</string>
   <string name="upload_waiting">等待中. . .</string>
   <string name="upload_finished">已完成</string>

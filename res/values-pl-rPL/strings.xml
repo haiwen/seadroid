@@ -133,6 +133,8 @@
   <string name="tabs_library">Biblioteki</string>
   <string name="tabs_activity">Aktywność</string>
   <string name="tabs_starred">Ulubione</string>
+  <string name="transfer_tabs_downloads">Lista pobierania</string>
+  <string name="transfer_tabs_uploads">Lista wysyłania</string>
   <string name="provide_password">Podaj hasło do biblioteki \"%s\"</string>
   <string name="upload_waiting">Oczekiwanie</string>
   <string name="upload_finished">Zakończono</string>

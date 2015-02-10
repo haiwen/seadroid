@@ -7,7 +7,6 @@ import org.json.JSONObject;
 /**
  * This class used to manage Account information
  *
- * Created by Logan on 14/12/8.
  */
 public class AccountInfo {
     private static final String DEBUG_TAG = "AccountInfo";

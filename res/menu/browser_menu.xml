@@ -19,7 +19,12 @@
         android:visible="false"
         android:title="@string/refresh"
         android:showAsAction="ifRoom"/>
-        
+
+        <item android:id="@+id/download_folder"
+              android:visible="false"
+              android:title="@string/download_folder"
+              android:showAsAction="never"/>
+
         <item android:id="@+id/newdir"
               android:visible="false"
               android:title="@string/create_new_dir"
@@ -35,9 +40,9 @@
               android:title="@string/camera"
               android:showAsAction="never"/>
 
-	    <item android:id="@+id/upload_tasks"
+	    <item android:id="@+id/transfer_tasks"
               android:visible="false"
-              android:title="@string/upload_tasks"
+              android:title="@string/transfer_tasks"
               android:showAsAction="never"/>
 
 	    <item android:id="@+id/accounts"

@@ -14,9 +14,7 @@ import android.util.Log;
 
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.transfer.DownloadTaskInfo;
-import com.seafile.seadroid2.transfer.TransferService;
-import com.seafile.seadroid2.transfer.UploadTaskInfo;
+import com.seafile.seadroid2.transfer.*;
 
 /**
  * Monitor changes of local cached files, and upload them through TransferService if modified
@@ -67,7 +65,7 @@ public class FileMonitorService extends Service {
         bindService(bindIntent, mTransferConnection, Context.BIND_AUTO_CREATE);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(transferReceiver,
-                new IntentFilter(TransferService.BROADCAST_ACTION));
+                new IntentFilter(TransferManager.BROADCAST_ACTION));
     }
 
     @Override
@@ -126,7 +124,7 @@ public class FileMonitorService extends Service {
                 return;
             }
 
-            if (type.equals(TransferService.BROADCAST_FILE_DOWNLOAD_SUCCESS)) {
+            if (type.equals(DownloadTaskManager.BROADCAST_FILE_DOWNLOAD_SUCCESS)) {
                 int taskID = intent.getIntExtra("taskID", 0);
                 DownloadTaskInfo info = mTransferService.getDownloadTaskInfo(taskID);
                 if (info != null) {
@@ -135,7 +133,7 @@ public class FileMonitorService extends Service {
                                 info.pathInRepo, info.localFilePath);
                     }
                 }
-            } else if (type.equals(TransferService.BROADCAST_FILE_UPLOAD_SUCCESS)) {
+            } else if (type.equals(UploadTaskManager.BROADCAST_FILE_UPLOAD_SUCCESS)) {
                 int taskID = intent.getIntExtra("taskID", 0);
                 UploadTaskInfo info = mTransferService.getUploadTaskInfo(taskID);
 
@@ -143,7 +141,7 @@ public class FileMonitorService extends Service {
                     updateMgr.onFileUpdateSuccess(info.account, info.repoID, info.repoName,
                             info.parentDir, info.localFilePath);
                 }
-            } else if (type.equals(TransferService.BROADCAST_FILE_UPLOAD_FAILED)) {
+            } else if (type.equals(UploadTaskManager.BROADCAST_FILE_UPLOAD_FAILED)) {
                 int taskID = intent.getIntExtra("taskID", 0);
                 UploadTaskInfo info = mTransferService.getUploadTaskInfo(taskID);
 

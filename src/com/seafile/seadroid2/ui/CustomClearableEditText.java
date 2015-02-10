@@ -18,7 +18,6 @@ import com.seafile.seadroid2.R;
  * clearable EditText, also supports auto complete text typing.<br/>
  * if want to use auto complete feature, should set data source to it.
  *
- * Created by Logan on 14/12/11.
  */
 public class CustomClearableEditText extends RelativeLayout {
 

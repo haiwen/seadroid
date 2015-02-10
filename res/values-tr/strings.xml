@@ -133,6 +133,8 @@
   <string name="tabs_library">Kütüphaneler</string>
   <string name="tabs_activity">Etkinlikler</string>
   <string name="tabs_starred">Yıldızlı</string>
+  <string name="transfer_tabs_downloads">İndirme Listesi</string>
+  <string name="transfer_tabs_uploads">Yükleme Listesi</string>
   <string name="provide_password">\"%s\" kütüphanesi için şifreyi giriniz</string>
   <string name="upload_waiting">Bekliyor</string>
   <string name="upload_finished">Bitti</string>

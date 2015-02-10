@@ -28,10 +28,8 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.SeafCachedPhoto;
-import com.seafile.seadroid2.transfer.PendingUploadInfo;
-import com.seafile.seadroid2.transfer.TransferService;
+import com.seafile.seadroid2.transfer.*;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
-import com.seafile.seadroid2.transfer.UploadTaskInfo;
 import com.seafile.seadroid2.util.CameraUploadUtil;
 
 public class CameraUploadService extends Service {
@@ -75,19 +73,13 @@ public class CameraUploadService extends Service {
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI, false,
                 cameraUploadObserver);
         LocalBroadcastManager.getInstance(this).registerReceiver(transferReceiver,
-                new IntentFilter(TransferService.BROADCAST_ACTION));
+                new IntentFilter(TransferManager.BROADCAST_ACTION));
     }
 
     private void cancelUploadTasks(){
-        List<UploadTaskInfo> cameraUploadsTasksList =  mTransferService.getAllUploadTaskInfos();
-        for (UploadTaskInfo uploadTaskInfo : cameraUploadsTasksList) {
-            // use isCopyToLocal as a flag to mark a camera photo upload task if false
-            // mark a file upload task if true
-            if (!uploadTaskInfo.isCopyToLocal) {
-                mTransferService.cancelUploadTask(uploadTaskInfo.taskID);
-            }
-        }
-        Intent localIntent = new Intent(TransferService.BROADCAST_ACTION).putExtra("type",
+
+        mTransferService.cancelAllCameraUploadTasks();
+        Intent localIntent = new Intent(TransferManager.BROADCAST_ACTION).putExtra("type",
                 BROADCAST_CAMERA_UPLOAD_SERVICE_STOPPED);
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);
     }
@@ -141,7 +133,7 @@ public class CameraUploadService extends Service {
             mTransferService = binder.getService();
 
             for (PendingUploadInfo info : pendingUploads) {
-               mTransferService.addUploadTask(account, info.repoID,
+               mTransferService.addTaskToUploadQue(account, info.repoID,
                                         info.repoName, info.targetDir,
                                         info.localFilePath, info.isUpdate, info.isCopyToLocal);
             }
@@ -154,11 +146,11 @@ public class CameraUploadService extends Service {
         }
     };
 
-    private void addUploadCameraPhotoTask(String repoID, String repoName, String targetDir, String localFilePath) {
+    private void addCameraUploadTask(String repoID, String repoName, String targetDir, String localFilePath) {
         if (mTransferService != null) {
             // set the last parameter "isUpdate" to true to stop copying file into sd-card
             // if passed "false" will cause OOM when uploading photos
-            mTransferService.addUploadTask(account, repoID, repoName, targetDir, localFilePath, false, false);
+            mTransferService.addTaskToUploadQue(account, repoID, repoName, targetDir, localFilePath, false, false);
         } else {
             PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, false, false);
             pendingUploads.add(info);
@@ -247,7 +239,7 @@ public class CameraUploadService extends Service {
                     // do nothing until network connection available
                 }
                 if (isNetworkAvailable && !isRemoteCameraUploadRepoValid) {
-                    localIntent = new Intent(TransferService.BROADCAST_ACTION).putExtra("type",
+                    localIntent = new Intent(TransferManager.BROADCAST_ACTION).putExtra("type",
                             BROADCAST_CAMERA_UPLOAD_LIBRARY_NOT_FOUND);
                     LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);
                 }
@@ -260,7 +252,7 @@ public class CameraUploadService extends Service {
                 SeafCachedPhoto cp = cUploadManager.getCachedPhoto(repoName, repoId, DIR, path);
                 if (cp == null) {
                     // add photos to uploading queue
-                    addUploadCameraPhotoTask(repoId, repoName, CAMERA_UPLOAD_REMOTE_PARENTDIR + CAMERA_UPLOAD_REMOTE_DIR, photo.getAbsolutePath());
+                    addCameraUploadTask(repoId, repoName, CAMERA_UPLOAD_REMOTE_PARENTDIR + CAMERA_UPLOAD_REMOTE_DIR, photo.getAbsolutePath());
                 }
             }
         }
@@ -281,7 +273,7 @@ public class CameraUploadService extends Service {
             SeafCachedPhoto cachePhoto = cUploadManager.getCachedPhoto(repoName, repoId, DIR,
                     photo.getName());
             if (cachePhoto == null) {
-                addUploadCameraPhotoTask(repoId, repoName, CAMERA_UPLOAD_REMOTE_PARENTDIR
+                addCameraUploadTask(repoId, repoName, CAMERA_UPLOAD_REMOTE_PARENTDIR
                         + CAMERA_UPLOAD_REMOTE_DIR, photo.getAbsolutePath());
             }
         }
@@ -301,7 +293,7 @@ public class CameraUploadService extends Service {
             }
             List<String> list = Lists.newArrayList();
 
-            if (type.equals(TransferService.BROADCAST_FILE_UPLOAD_SUCCESS)) {
+            if (type.equals(UploadTaskManager.BROADCAST_FILE_UPLOAD_SUCCESS)) {
                 int taskID = intent.getIntExtra("taskID", 0);
                 UploadTaskInfo info = mTransferService.getUploadTaskInfo(taskID);
 

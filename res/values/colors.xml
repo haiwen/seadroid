@@ -29,7 +29,7 @@
     <color name="tv_subtitle_color">#888</color>
 
     <!-- Content -->
-	<color name="lv_title_color">#282828</color>
+    <color name="lv_title_color">#282828</color>
     <color name="lv_subtitle_color">#555555</color>
 
     <!-- Footer -->

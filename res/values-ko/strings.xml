@@ -133,6 +133,8 @@
   <string name="tabs_library">라이브러리</string>
   <string name="tabs_activity">활동</string>
   <string name="tabs_starred">별표 표시</string>
+  <string name="transfer_tabs_downloads">다운로드 목록</string>
+  <string name="transfer_tabs_uploads">업로드 목록</string>
   <string name="provide_password">\"%s\" 라이브러리에 대한 암호를 입력하세요</string>
   <string name="upload_waiting">기다리는 중</string>
   <string name="upload_finished">끝냈습니다</string>

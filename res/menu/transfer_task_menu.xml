@@ -13,6 +13,10 @@
         android:visible="true"
         android:title="@string/task_remove" />
 
+    <item android:id="@+id/remove_all_cancelled"
+          android:visible="true"
+          android:title="@string/task_remove_all_cancelled"/>
+
     <item android:id="@+id/remove_all_finished"
         android:visible="true"
         android:title="@string/task_remove_all_finished" />
