@@ -27,6 +27,7 @@ import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SearchedFile;
 import com.seafile.seadroid2.transfer.TransferService;
+import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.adapter.SearchAdapter;
 import com.seafile.seadroid2.ui.dialog.OpenAsDialog;
 import com.seafile.seadroid2.util.Utils;
@@ -146,7 +147,7 @@ public class SearchActivity extends SherlockFragmentActivity implements View.OnC
         // server only supports 100 search result right now
         page = 100;
         if (!Utils.isNetworkOn()) {
-            showToast(R.string.network_down);
+            ToastUtils.show(this, R.string.network_down);
             mMessageContainer.setVisibility(View.VISIBLE);
             return;
         } else
@@ -160,7 +161,7 @@ public class SearchActivity extends SherlockFragmentActivity implements View.OnC
 
             Utils.hideSoftKeyboard(mTextField);
         } else {
-            showToast(R.string.search_txt_empty);
+            ToastUtils.show(this, R.string.search_txt_empty);
         }
     }
 
@@ -213,7 +214,7 @@ public class SearchActivity extends SherlockFragmentActivity implements View.OnC
                     mErrorText.setVisibility(View.VISIBLE);
 
                     if (seafException.getCode() == 404)
-                        showToast(R.string.search_server_not_support);
+                        ToastUtils.show(SearchActivity.this, R.string.search_server_not_support);
 
                     Log.d(DEBUG_TAG, seafException.getMessage() + " code " + seafException.getCode());
                 } else {
@@ -226,7 +227,7 @@ public class SearchActivity extends SherlockFragmentActivity implements View.OnC
 
             if (result.size() == 0) {
                 mMessageContainer.setVisibility(View.VISIBLE);
-                showToast(R.string.search_content_empty);
+                ToastUtils.show(SearchActivity.this, R.string.search_content_empty);
                 return;
             }
 
@@ -321,7 +322,7 @@ public class SearchActivity extends SherlockFragmentActivity implements View.OnC
 
         if (searchedFile.isDir()) {
             if (seafRepo == null) {
-                showToast("Couldn't find this library. It may be deleted");
+                ToastUtils.show(this, "Couldn't find this library. It may be deleted");
                 return;
             }
             showRepo(repoID, repoName, filePath, null);
@@ -363,7 +364,7 @@ public class SearchActivity extends SherlockFragmentActivity implements View.OnC
         String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
 
         if (suffix.length() == 0) {
-            showToast(R.string.unknown_file_type);
+            ToastUtils.show(this, R.string.unknown_file_type);
             return;
         }
 
@@ -391,16 +392,6 @@ public class SearchActivity extends SherlockFragmentActivity implements View.OnC
         Intent intent = new Intent(this, MarkdownActivity.class);
         intent.putExtra("path", path);
         startActivity(intent);
-    }
-
-    public void showToast(int id) {
-        showToast(getString(id));
-    }
-
-    public void showToast(CharSequence msg) {
-        Context context = getApplicationContext();
-        Toast toast = Toast.makeText(context, msg, Toast.LENGTH_SHORT);
-        toast.show();
     }
 
     ServiceConnection mConnection = new ServiceConnection() {
