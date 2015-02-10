@@ -33,6 +33,7 @@ import com.seafile.seadroid2.data.SeafGroup;
 import com.seafile.seadroid2.data.SeafItem;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.ui.PullToRefreshListView;
+import com.seafile.seadroid2.util.ToastUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
@@ -692,7 +693,7 @@ public class ReposFragment extends SherlockListFragment {
                 if (err.getCode() == SeafConnection.HTTP_STATUS_REPO_PASSWORD_REQUIRED) {
                     showPasswordDialog();
                 } else if (err.getCode() == HttpURLConnection.HTTP_NOT_FOUND) {
-                    mActivity.showToast(String.format("The folder \"%s\" was deleted", myPath));
+                    ToastUtils.show(mActivity, String.format("The folder \"%s\" was deleted", myPath));
                 } else {
                     Log.d(DEBUG_TAG, "failed to load dirents: " + err.getMessage());
                     err.printStackTrace();

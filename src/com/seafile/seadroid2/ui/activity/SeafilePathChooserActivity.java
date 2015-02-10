@@ -3,7 +3,6 @@ package com.seafile.seadroid2.ui.activity;
 import java.net.HttpURLConnection;
 import java.util.List;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -15,7 +14,6 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -33,6 +31,7 @@ import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.util.ToastUtils;
 import com.seafile.seadroid2.ui.adapter.AccountAdapter;
 import com.seafile.seadroid2.ui.adapter.DirentsAdapter;
 import com.seafile.seadroid2.ui.adapter.ReposAdapter;
@@ -500,16 +499,6 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
         passwordDialog.show(getSupportFragmentManager(), PASSWORD_DIALOG_FRAGMENT_TAG);
     }
 
-    public void showToast(CharSequence msg) {
-        Context context = getApplicationContext();
-        Toast toast = Toast.makeText(context, msg, Toast.LENGTH_SHORT);
-        toast.show();
-    }
-
-    public void showToast(int id) {
-        showToast(getString(id));
-    }
-
     private void showLoading(boolean loading) {
         clearError();
         if (loading) {
@@ -728,7 +717,7 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
                 if (retCode == SeafConnection.HTTP_STATUS_REPO_PASSWORD_REQUIRED) {
                     showPasswordDialog();
                 } else if (retCode == HttpURLConnection.HTTP_NOT_FOUND) {
-                    showToast(String.format("The folder \"%s\" was deleted", dirPath));
+                    ToastUtils.show(SeafilePathChooserActivity.this, String.format("The folder \"%s\" was deleted", dirPath));
                 } else {
                     Log.d(DEBUG_TAG, "failed to load dirents: " + err.getMessage());
                     err.printStackTrace();

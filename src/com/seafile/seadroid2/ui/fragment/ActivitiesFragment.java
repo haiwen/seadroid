@@ -33,6 +33,7 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.seafile.seadroid2.util.ToastUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.CertsManager;
 import com.seafile.seadroid2.ui.activity.FileActivity;
@@ -163,7 +164,7 @@ public class ActivitiesFragment extends SherlockFragment {
         SeafRepo repo = getBrowserActivity().getDataManager().getCachedRepoByID(repoID);
 
         if (repo == null) {
-            getBrowserActivity().showToast("Couldn't find this library. It may be deleted");
+            ToastUtils.show(getBrowserActivity(), "Couldn't find this library. It may be deleted");
             return;
         }
 
@@ -181,7 +182,7 @@ public class ActivitiesFragment extends SherlockFragment {
         SeafRepo repo = getBrowserActivity().getDataManager().getCachedRepoByID(repoID);
 
         if (repo == null) {
-            getBrowserActivity().showToast(R.string.library_not_found);
+            ToastUtils.show(getBrowserActivity(), R.string.library_not_found);
             return;
         }
         int taskID = getBrowserActivity().getTransferService().addDownloadTask(getBrowserActivity().getAccount(), repo.getName(), repoID, path);
@@ -222,7 +223,7 @@ public class ActivitiesFragment extends SherlockFragment {
                 handler.proceed();
             } else {
                 Log.d(DEBUG_TAG, "cert is not trusted");
-                mActivity.showToast(R.string.ssl_error);
+                ToastUtils.show(mActivity, R.string.ssl_error);
                 showPageLoading(false);
             }
         }

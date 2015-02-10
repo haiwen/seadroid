@@ -31,6 +31,7 @@ import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.transfer.*;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.ui.dialog.OpenAsDialog;
+import com.seafile.seadroid2.util.ToastUtils;
 import com.seafile.seadroid2.ui.dialog.PasswordDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.util.Utils;

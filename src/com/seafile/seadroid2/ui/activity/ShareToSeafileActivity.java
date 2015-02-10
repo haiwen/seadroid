@@ -11,15 +11,14 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.MediaStore.Images;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.R.string;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
+import com.seafile.seadroid2.util.ToastUtils;
 import com.seafile.seadroid2.util.Utils;
 
 import java.util.ArrayList;
@@ -54,7 +53,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
         }
         
         if (localPath == null || localPath.size() == 0) {
-            showToast(R.string.not_supported_share);
+            ToastUtils.show(this, R.string.not_supported_share);
             finish();
             return;
         }
@@ -117,7 +116,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
                             path, false, false);
                     Log.d(DEBUG_TAG, path + " uploaded");
                 }
-                showToast(R.string.upload_started);
+                ToastUtils.show(ShareToSeafileActivity.this, R.string.upload_started);
                 finish();
             }
 
@@ -137,7 +136,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
         }
         if (resultCode == RESULT_OK) {
             if (!Utils.isNetworkOn()) {
-                showToast(R.string.network_down);
+                ToastUtils.show(this, R.string.network_down);
                 return;
             }
             dstData = data;
@@ -166,15 +165,5 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
             Log.d(DEBUG_TAG, "finish!");
             finish();
         }
-    }
-
-    public void showToast(CharSequence msg) {
-        Context context = getApplicationContext();
-        Toast toast = Toast.makeText(context, msg, Toast.LENGTH_SHORT);
-        toast.show();
-    }
-
-    public void showToast(int id) {
-        showToast(getString(id));
     }
 }

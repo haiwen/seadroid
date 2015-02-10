@@ -19,7 +19,7 @@ import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.gesturelock.LockPatternView;
 import com.seafile.seadroid2.gesturelock.LockPatternView.Cell;
 import com.seafile.seadroid2.gesturelock.LockPatternView.DisplayMode;
-import com.seafile.seadroid2.gesturelock.LockPatternView.OnPatternListener;
+import com.seafile.seadroid2.util.ToastUtils;
 
 public class CreateGesturePasswordActivity extends Activity implements
         OnClickListener {
@@ -145,16 +145,6 @@ public class CreateGesturePasswordActivity extends Activity implements
     }
     SettingsManager settingsMgr = SettingsManager.instance();
     
-    private void showToast(CharSequence message) {
-        if (null == mToast) {
-            mToast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
-        } else {
-            mToast.setText(message);
-        }
-
-        mToast.show();
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -415,7 +405,7 @@ public class CreateGesturePasswordActivity extends Activity implements
         LockPatternUtils mLockPatternUtils = new LockPatternUtils(this);
         mLockPatternUtils.saveLockPattern(mChosenPattern);
         settingsMgr.setupGestureLock();
-        showToast(getResources().getString(R.string.lockpattern_pattern_toast_saved));
+        ToastUtils.show(this, getResources().getString(R.string.lockpattern_pattern_toast_saved));
         finish();
     }
 }

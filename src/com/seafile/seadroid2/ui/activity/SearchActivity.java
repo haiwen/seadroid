@@ -27,9 +27,9 @@ import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SearchedFile;
 import com.seafile.seadroid2.transfer.TransferService;
-import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.adapter.SearchAdapter;
 import com.seafile.seadroid2.ui.dialog.OpenAsDialog;
+import com.seafile.seadroid2.util.ToastUtils;
 import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;
@@ -322,11 +322,11 @@ public class SearchActivity extends SherlockFragmentActivity implements View.OnC
 
         if (searchedFile.isDir()) {
             if (seafRepo == null) {
-                ToastUtils.show(this, "Couldn't find this library. It may be deleted");
+                ToastUtils.show(this, R.string.search_library_not_found);
                 return;
             }
             showRepo(repoID, repoName, filePath, null);
-            //showToast(R.string.search_open_dir_not_support);
+            // search_open_dir_not_support
             return;
         }
 

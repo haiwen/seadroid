@@ -1,27 +1,21 @@
 package com.seafile.seadroid2.ui.activity;
 
-import java.io.File;
-
-import us.feras.mdv.MarkdownView;
 import android.content.ActivityNotFoundException;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.widget.Toast;
-
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.R.id;
-import com.seafile.seadroid2.R.layout;
-import com.seafile.seadroid2.R.menu;
-import com.seafile.seadroid2.R.string;
+import com.seafile.seadroid2.util.ToastUtils;
 import com.seafile.seadroid2.util.Utils;
+import us.feras.mdv.MarkdownView;
+
+import java.io.File;
 
 /*
  * For showing markdown files
@@ -105,14 +99,9 @@ public class MarkdownActivity extends SherlockActivity {
             try {
                 startActivity(editAsText);
             } catch (ActivityNotFoundException e) {
-                showToast(getString(R.string.activity_not_found));
+                ToastUtils.show(this, getString(R.string.activity_not_found));
             }
         }
     }
 
-    private void showToast(CharSequence msg) {
-        Context context = getApplicationContext();
-        Toast toast = Toast.makeText(context, msg, Toast.LENGTH_SHORT);
-        toast.show();
-    }
 }
