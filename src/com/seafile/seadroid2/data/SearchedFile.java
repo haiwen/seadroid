@@ -7,13 +7,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * Instance of Searched result, includes files, folders, etc.
- *
+ * Searched file entity
  */
 public class SearchedFile implements SeafItem {
     private static final String DEBUG_TAG = "SearchedFile";
 
-    public enum FileType { DIR, FILE }
+    public enum FileType {DIR, FILE}
     private String name;
     private String repoID;
     private long mtime;

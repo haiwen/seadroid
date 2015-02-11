@@ -803,14 +803,14 @@ public class DataManager {
     }
 
     /**
-     * search from server
+     * search on server
      *
      * @param query query text
      * @param page pass 0 to disable page loading
      * @return
      * @throws SeafException
      */
-    public ArrayList<SearchedFile> search(String query, int page) throws SeafException{
+    public ArrayList<SearchedFile> search(String query, int page) throws SeafException {
         String json = sc.searchLibraries(query, page);
         return parseSearchResult(json);
     }

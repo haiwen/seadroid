@@ -33,7 +33,7 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
-import com.seafile.seadroid2.util.ToastUtils;
+import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.CertsManager;
 import com.seafile.seadroid2.ui.activity.FileActivity;

@@ -1,40 +1,32 @@
 package com.seafile.seadroid2.ui.activity;
 
-import java.io.File;
-import java.net.HttpURLConnection;
-
-import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
-import android.webkit.MimeTypeMap;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
-
+import android.widget.*;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.transfer.*;
+import com.seafile.seadroid2.transfer.DownloadTaskInfo;
+import com.seafile.seadroid2.transfer.TaskState;
+import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
-import com.seafile.seadroid2.ui.dialog.OpenAsDialog;
-import com.seafile.seadroid2.util.ToastUtils;
+import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.dialog.PasswordDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.util.Utils;
+
+import java.io.File;
+import java.net.HttpURLConnection;
 
 /**
  * Display a file
@@ -92,6 +84,7 @@ public class FileActivity extends SherlockFragmentActivity {
 
     @Override
     protected void onStart() {
+        Log.d(DEBUG_TAG, "onStart");
         super.onStart();
         if (mTransferService != null) {
             startTimer();
@@ -100,6 +93,7 @@ public class FileActivity extends SherlockFragmentActivity {
 
     @Override
     protected void onStop() {
+        Log.d(DEBUG_TAG, "onStop");
         super.onStop();
         stopTimer();
     }
@@ -137,50 +131,6 @@ public class FileActivity extends SherlockFragmentActivity {
                 finish();
             }
         });
-    }
-
-    private void startMarkdownActivity(String path) {
-        Intent intent = new Intent(this, MarkdownActivity.class);
-        intent.putExtra("path", path);
-        startActivity(intent);
-    }
-
-    private void showFile() {
-        File file = mDataManager.getLocalRepoFile(mRepoName, mRepoID, mFilePath);
-        String name = file.getName();
-        String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
-
-        if (suffix.length() == 0) {
-            showToast(R.string.unknown_file_type);
-            return;
-        }
-
-        // Open markdown files in MarkdownActivity
-        if (suffix.endsWith("md") || suffix.endsWith("markdown")) {
-            startMarkdownActivity(file.getPath());
-            finish();
-            overridePendingTransition(0, 0);
-            return;
-        }
-
-        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
-        Intent open = new Intent(Intent.ACTION_VIEW);
-        open.setDataAndType((Uri.fromFile(file)), mime);
-
-        try {
-            startActivity(open);
-            finish();
-            return;
-        } catch (ActivityNotFoundException e) {
-            new OpenAsDialog(file) {
-                @Override
-                public void onDismiss(DialogInterface dialog) {
-                    finish();
-                }
-            }.show(getSupportFragmentManager(), "OpenAsDialog");
-            return;
-        }
-
     }
 
     private void onTransferServiceConnected() {
@@ -230,7 +180,10 @@ public class FileActivity extends SherlockFragmentActivity {
         mProgressText.setVisibility(View.GONE);
         mButtonCancel.setVisibility(View.GONE);
 
-        showFile();
+        File file = mDataManager.getLocalRepoFile(mRepoName, mRepoID, mFilePath);
+        if (file != null && timerStarted)
+            WidgetUtils.showFile(this, file);
+        stopTimer();
     }
 
     private void onFileDownloadFailed(DownloadTaskInfo info) {
@@ -292,6 +245,9 @@ public class FileActivity extends SherlockFragmentActivity {
 
             @Override
             public void run() {
+                if (mTransferService == null)
+                    return;
+
                 DownloadTaskInfo downloadTaskInfo = mTransferService.getDownloadTaskInfo(mTaskID);
                 if (downloadTaskInfo.state == TaskState.INIT
                         || downloadTaskInfo.state == TaskState.TRANSFERRING)

@@ -1,7 +1,6 @@
 package com.seafile.seadroid2.ui.activity;
 
 import android.content.*;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -13,7 +12,6 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
-import android.webkit.MimeTypeMap;
 import android.widget.*;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
@@ -27,9 +25,9 @@ import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SearchedFile;
 import com.seafile.seadroid2.transfer.TransferService;
+import com.seafile.seadroid2.ui.WidgetUtils;
+import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.adapter.SearchAdapter;
-import com.seafile.seadroid2.ui.dialog.OpenAsDialog;
-import com.seafile.seadroid2.util.ToastUtils;
 import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;
@@ -144,7 +142,7 @@ public class SearchActivity extends SherlockFragmentActivity implements View.OnC
     }
 
     private void handleSearch(int page) {
-        // server only supports 100 search result right now
+        // TODO page loading instead of only display top 100 search result
         page = 100;
         if (!Utils.isNetworkOn()) {
             ToastUtils.show(this, R.string.network_down);
@@ -325,14 +323,13 @@ public class SearchActivity extends SherlockFragmentActivity implements View.OnC
                 ToastUtils.show(this, R.string.search_library_not_found);
                 return;
             }
-            showRepo(repoID, repoName, filePath, null);
-            // search_open_dir_not_support
+            WidgetUtils.showRepo(this, repoID, repoName, filePath, null);
             return;
         }
 
         File localFile = dataManager.getLocalCachedFile(repoName, repoID, filePath, null);
         if (localFile != null) {
-            showFile(localFile);
+            WidgetUtils.showFile(this, localFile);
             return;
         }
 
@@ -347,50 +344,6 @@ public class SearchActivity extends SherlockFragmentActivity implements View.OnC
         intent.putExtra("filePath", filePath);
         intent.putExtra("account", account);
         intent.putExtra("taskID", taskID);
-        startActivity(intent);
-    }
-
-    private void showRepo(String repoID, String repoName, String path, String dirID) {
-        Intent intent = new Intent(this, BrowserActivity.class);
-        intent.putExtra("repoID", repoID);
-        intent.putExtra("repoName", repoName);
-        intent.putExtra("path", path);
-        intent.putExtra("dirID", dirID);
-        startActivity(intent);
-    }
-
-    public void showFile(File file) {
-        String name = file.getName();
-        String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
-
-        if (suffix.length() == 0) {
-            ToastUtils.show(this, R.string.unknown_file_type);
-            return;
-        }
-
-        if (suffix.endsWith("md") || suffix.endsWith("markdown")) {
-            startMarkdownActivity(file.getPath());
-            return;
-        }
-
-        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
-        Intent open = new Intent(Intent.ACTION_VIEW);
-        open.setDataAndType((Uri.fromFile(file)), mime);
-
-        try {
-            startActivity(open);
-            return;
-        } catch (ActivityNotFoundException e) {
-            new OpenAsDialog(file).show(getSupportFragmentManager(), "OpenAsDialog");
-            //showToast(R.string.activity_not_found);
-            return;
-        }
-
-    }
-
-    private void startMarkdownActivity(String path) {
-        Intent intent = new Intent(this, MarkdownActivity.class);
-        intent.putExtra("path", path);
         startActivity(intent);
     }
 

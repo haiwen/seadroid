@@ -72,8 +72,6 @@ public class SearchAdapter extends BaseAdapter {
         viewHolder.title.setText(item.getTitle());
         viewHolder.subtitle.setText(item.getSubtitle());
 
-        //setFileView((SeafDirent)item, viewHolder, position);
-
         return view;
     }
 
