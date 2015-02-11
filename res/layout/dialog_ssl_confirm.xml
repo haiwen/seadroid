@@ -21,13 +21,13 @@
             android:textSize="@dimen/dialog_title_txt_size"
             android:text="@string/ssl_confirm_title"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@color/seafile_orange" />
+            android:textColor="@color/dialog_theme_color" />
 
         <ImageView
             android:id="@+id/dialog_custom_title_divider"
             android:layout_width="match_parent"
             android:layout_height="2dp"
-            android:background="@color/seafile_orange" />
+            android:background="@color/dialog_theme_color" />
     </LinearLayout>
 
     <TextView

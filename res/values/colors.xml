@@ -8,7 +8,7 @@
     <color name="light_grey">#BDBDBD</color>
     <color name="light_blue">#33B5E5</color>
     <color name="light_black">#333333</color>
-    <color name="orange">#F57900</color>
+    <color name="theme_color">#F57900</color>
     <color name="transparent">#00000000</color>
     <color name="half_transparent">#80FFFFFF</color>
     <color name="half_transparent_black">#80000000</color>
@@ -16,12 +16,9 @@
     <color name="actionbar_text">#FFFFFF</color>
     <color name="actionbar_text_shadow">#000000</color>
 
-    <color name="actionbar_grad_start">#FAB220</color>
-    <color name="actionbar_grad_end">#F17D00</color>
-
     <color name="grey_gradient_start">#1B1B1B</color>
     <color name="grey_gradient_stop">#323232</color>
-    <color name="seafile_orange">#FEAC74</color>
+    <color name="dialog_theme_color">#FEAC74</color>
     <color name="list_divider">#BAB9BA</color>
 
     <!-- Title -->
