@@ -97,7 +97,7 @@ public class HomeFragmentActivity extends SherlockFragmentActivity implements Im
                 if (total == 0)
                     mSelectionStatus.setText(getResources().getString(R.string.select_upload_items));
                 else
-                    mSelectionStatus.setText(String.format(getResources().getString(R.string.n_upload_items_selected), total));
+                    mSelectionStatus.setText(getResources().getQuantityString(R.plurals.n_upload_items_selected, total));
 
                 if (position == 0)
                     ((VideoFragment) mAdapter.getItem(1)).finishActionModeIfOn();
@@ -146,7 +146,7 @@ public class HomeFragmentActivity extends SherlockFragmentActivity implements Im
             if (count + mVideoSelectedCounts == 0)
                 status = getResources().getString(R.string.select_upload_items);
             else
-                status = String.format(getResources().getString(R.string.n_upload_items_selected), count + mVideoSelectedCounts);
+                status = getResources().getQuantityString(R.plurals.n_upload_items_selected, count + mVideoSelectedCounts, count + mVideoSelectedCounts);
 
             mAdapter.setImageTabTitle(dynamicTitle);
         } else {
@@ -160,7 +160,7 @@ public class HomeFragmentActivity extends SherlockFragmentActivity implements Im
             if (count + mImageSelectedCounts == 0)
                 status = getResources().getString(R.string.select_upload_items);
             else
-                status = String.format(getResources().getString(R.string.n_upload_items_selected), count + mImageSelectedCounts);
+                status = getResources().getQuantityString(R.plurals.n_upload_items_selected, count + mImageSelectedCounts, count + mImageSelectedCounts);
 
             mAdapter.setVideoTabTitle(dynamicTitle);
         }
