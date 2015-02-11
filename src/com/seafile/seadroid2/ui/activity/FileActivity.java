@@ -54,6 +54,7 @@ public class FileActivity extends SherlockFragmentActivity {
 
     private int mTaskID = -1;
     private TransferService mTransferService;
+    private boolean isTimerStarted;
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
@@ -89,21 +90,30 @@ public class FileActivity extends SherlockFragmentActivity {
     }
 
     @Override
-    protected void onStop() {
-        Log.d(DEBUG_TAG, "onStop");
-        super.onStop();
+    protected void onStart() {
+        super.onStart();
+        if (mTransferService != null && !isTimerStarted) {
+            isTimerStarted = true;
+            startTimer();
+        }
+    }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
         stopTimer();
+        isTimerStarted = false;
     }
 
     @Override
     protected void onDestroy() {
+        Log.d(DEBUG_TAG, "onDestroy");
+        super.onDestroy();
         if (mTransferService != null) {
             unbindService(mConnection);
             mTransferService = null;
         }
 
-        super.onDestroy();
     }
 
     private void initWidgets() {
@@ -178,7 +188,11 @@ public class FileActivity extends SherlockFragmentActivity {
         mProgressBar.setVisibility(View.VISIBLE);
         mProgressBar.setIndeterminate(true);
         mProgressText.setVisibility(View.VISIBLE);
-        startTimer();
+
+        if (!isTimerStarted) {
+            isTimerStarted = true;
+            startTimer();
+        }
     }
 
     @Override
@@ -238,6 +252,8 @@ public class FileActivity extends SherlockFragmentActivity {
         } else {
             showToast("Failed to download file \"" + fileName);
         }
+        stopTimer();
+        isTimerStarted = false;
     }
 
     private void handlePassword() {
@@ -283,8 +299,11 @@ public class FileActivity extends SherlockFragmentActivity {
                     onFileDownloadProgress(downloadTaskInfo);
                 else if (downloadTaskInfo.state == TaskState.FAILED)
                     onFileDownloadFailed(downloadTaskInfo);
-                else
+                else if (downloadTaskInfo.state == TaskState.FINISHED)
                     onFileDownloaded();
+                else if (downloadTaskInfo.state == TaskState.CANCELLED)
+                    // do nothing when cancelled
+
                 Log.d(DEBUG_TAG, "timer post refresh signal " + System.currentTimeMillis());
                 mTimer.postDelayed(this, 1 * 1000);
             }
