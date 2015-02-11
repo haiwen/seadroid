@@ -29,14 +29,18 @@ public class DownloadTaskManager extends TransferManager implements DownloadStat
     public int addTask(Account account, String repoName, String repoID, String path) {
         TransferTask task = new DownloadTask(++notificationID, account,
                 repoName, repoID, path, this);
+        TransferTask oldTask = null;
         if (allTaskList.contains(task)) {
-            if (task.getState().equals(TaskState.CANCELLED)
-                    || task.getState().equals(TaskState.FAILED)
-                    || task.getState().equals(TaskState.FINISHED)) {
-                allTaskList.remove(task);
+            oldTask = allTaskList.get(allTaskList.indexOf(task));
+        }
+        if (oldTask != null) {
+            if (oldTask.getState().equals(TaskState.CANCELLED)
+                    || oldTask.getState().equals(TaskState.FAILED)
+                    || oldTask.getState().equals(TaskState.FINISHED)) {
+                allTaskList.remove(oldTask);
             } else {
                 // return taskID of old task
-                return allTaskList.get(allTaskList.indexOf(task)).getTaskID();
+                return oldTask.getTaskID();
             }
         }
         allTaskList.add(task);
