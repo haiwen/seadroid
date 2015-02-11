@@ -54,7 +54,7 @@ public class FileActivity extends SherlockFragmentActivity {
 
     private int mTaskID = -1;
     private TransferService mTransferService;
-    private boolean isTimerStarted;
+    private boolean timerStarted;
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
@@ -92,8 +92,7 @@ public class FileActivity extends SherlockFragmentActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        if (mTransferService != null && !isTimerStarted) {
-            isTimerStarted = true;
+        if (mTransferService != null) {
             startTimer();
         }
     }
@@ -102,7 +101,6 @@ public class FileActivity extends SherlockFragmentActivity {
     protected void onStop() {
         super.onStop();
         stopTimer();
-        isTimerStarted = false;
     }
 
     @Override
@@ -189,10 +187,7 @@ public class FileActivity extends SherlockFragmentActivity {
         mProgressBar.setIndeterminate(true);
         mProgressText.setVisibility(View.VISIBLE);
 
-        if (!isTimerStarted) {
-            isTimerStarted = true;
-            startTimer();
-        }
+        startTimer();
     }
 
     @Override
@@ -253,7 +248,6 @@ public class FileActivity extends SherlockFragmentActivity {
             showToast("Failed to download file \"" + fileName);
         }
         stopTimer();
-        isTimerStarted = false;
     }
 
     private void handlePassword() {
@@ -288,6 +282,10 @@ public class FileActivity extends SherlockFragmentActivity {
 
 
     public void startTimer() {
+        if (timerStarted) {
+            return;
+        }
+        timerStarted = true;
         Log.d(DEBUG_TAG, "timer started");
         mTimer.postDelayed(new Runnable() {
 
@@ -311,6 +309,10 @@ public class FileActivity extends SherlockFragmentActivity {
     }
 
     public void stopTimer() {
+        if (!timerStarted) {
+            return;
+        }
+        timerStarted = false;
         Log.d(DEBUG_TAG, "timer stopped");
         mTimer.removeCallbacksAndMessages(null);
     }
