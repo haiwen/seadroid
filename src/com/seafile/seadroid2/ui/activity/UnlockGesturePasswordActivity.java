@@ -105,8 +105,8 @@ public class UnlockGesturePasswordActivity extends Activity {
                             - mFailedPatternAttemptsSinceLastTimeout;
                     if (retry >= 0) {
                         if (retry == 0)
-                            ToastUtils.show(UnlockGesturePasswordActivity.this, getResources().getString(R.string.lockscreen_access_pattern_failure));
-                        mHeadTextView.setText(getResources().getString(R.string.lockscreen_access_pattern_failure_left_try_times, retry));
+                        ToastUtils.show(UnlockGesturePasswordActivity.this, getResources().getString(R.string.lockscreen_access_pattern_failure));
+                        mHeadTextView.setText(getResources().getQuantityString(R.plurals.lockscreen_access_pattern_failure_left_try_times, retry, retry));
                         mHeadTextView.setTextColor(Color.RED);
                         mHeadTextView.startAnimation(mShakeAnim);
                     }
@@ -143,7 +143,7 @@ public class UnlockGesturePasswordActivity extends Activity {
                 public void onTick(long millisUntilFinished) {
                     int secondsRemaining = (int) (millisUntilFinished / 1000) - 1;
                     if (secondsRemaining > 0) {
-                        mHeadTextView.setText(getResources().getString(R.string.lockscreen_access_pattern_failure_left_try_seconds, secondsRemaining));
+                        mHeadTextView.setText(getResources().getQuantityString(R.plurals.lockscreen_access_pattern_failure_left_try_seconds, secondsRemaining, secondsRemaining));
                     } else {
                         mHeadTextView.setText(R.string.lockscreen_access_pattern_hint);
                         mHeadTextView.setTextColor(Color.WHITE);

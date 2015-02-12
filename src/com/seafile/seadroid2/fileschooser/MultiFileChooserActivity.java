@@ -141,8 +141,7 @@ OnBackStackChangedListener {
         if (nSelected == 0) {
             status = getResources().getString(R.string.select_upload_files);
         } else {
-            status = String.format(getResources().getString(R.string.n_upload_files_selected),
-                                   nSelected);
+            status = getResources().getQuantityString(R.plurals.n_upload_files_selected, nSelected, nSelected);
         }
         mFooterFragment.getStatusView().setText(status);
     }
