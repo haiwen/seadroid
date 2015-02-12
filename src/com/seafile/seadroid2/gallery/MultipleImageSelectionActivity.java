@@ -585,8 +585,7 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
         if (nSelected == 0) {
             status = getResources().getString(R.string.select_upload_items);
         } else {
-            status = String.format(getResources().getString(R.string.n_upload_items_selected),
-                                   nSelected);
+            status = getResources().getQuantityString(R.plurals.n_upload_items_selected, nSelected, nSelected);
         }
         mSelectionStatus.setText(status);
     }
