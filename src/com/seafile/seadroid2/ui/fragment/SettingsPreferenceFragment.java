@@ -32,8 +32,8 @@ import com.seafile.seadroid2.cameraupload.CameraUploadService;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.transfer.TransferManager;
-import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
+import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.ui.activity.CreateGesturePasswordActivity;
 import com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity;
@@ -111,7 +111,7 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
 
         Account account = accountMgr.getCurrentAccount();
         if (!Utils.isNetworkOn()) {
-            showToast(R.string.network_down);
+            ToastUtils.show(mActivity, R.string.network_down);
             return;
         }
 
@@ -331,16 +331,6 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
         return false;
     }
 
-    public void showToast(CharSequence msg) {
-        Context context = getActivity().getApplicationContext();
-        Toast toast = Toast.makeText(context, msg, Toast.LENGTH_SHORT);
-        toast.show();
-    }
-
-    public void showToast(int id) {
-        showToast(getString(id));
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
@@ -415,11 +405,11 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
                 cameraUploadSwitch.setChecked(false);
                 cameraUploadRepo.setEnabled(false);
                 startCameraUploadService(false);
-                showToast(R.string.settings_camera_upload_library_not_found);
+                ToastUtils.show(mActivity, R.string.settings_camera_upload_library_not_found);
             } else if (type.equals(CameraUploadService.BROADCAST_CAMERA_UPLOAD_SERVICE_STARTED)) {
-                // showToast(R.string.settings_startUpService);
+                // settings_startUpService);
             } else if (type.equals(CameraUploadService.BROADCAST_CAMERA_UPLOAD_SERVICE_STOPPED)) {
-                // showToast(R.string.settings_stopUpService);
+                // settings_stopUpService);
             }
         }
     };

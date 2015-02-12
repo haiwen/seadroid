@@ -10,7 +10,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import android.text.TextUtils;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.fileschooser.SelectableFile;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -800,4 +802,35 @@ public class DataManager {
         return sb.toString();
     }
 
+    /**
+     * search on server
+     *
+     * @param query query text
+     * @param page pass 0 to disable page loading
+     * @return
+     * @throws SeafException
+     */
+    public ArrayList<SearchedFile> search(String query, int page) throws SeafException {
+        String json = sc.searchLibraries(query, page);
+        return parseSearchResult(json);
+    }
+
+    private ArrayList<SearchedFile> parseSearchResult(String json) {
+        try {
+            JSONArray array = Utils.parseJsonArrayByKey(json, "results");
+            if (array == null)
+                return null;
+
+            ArrayList<SearchedFile> searchedFiles = Lists.newArrayList();
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject obj = array.getJSONObject(i);
+                SearchedFile sf = SearchedFile.fromJson(obj);
+                if (sf != null)
+                    searchedFiles.add(sf);
+            }
+            return searchedFiles;
+        } catch (JSONException e) {
+            return null;
+        }
+    }
 }

@@ -39,7 +39,6 @@ import android.text.ClipboardManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.webkit.MimeTypeMap;
-import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -61,6 +60,7 @@ import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.transfer.*;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.ui.CopyMoveContext;
+import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
 import com.seafile.seadroid2.ui.dialog.CopyMoveDialog;
 import com.seafile.seadroid2.ui.dialog.DeleteFileDialog;
@@ -271,6 +271,16 @@ public class BrowserActivity extends SherlockFragmentActivity
                 navContext.setRepoName(repoName);
                 navContext.setDir(path, dirID);
             }
+        }
+
+        String repoID = intent.getStringExtra("repoID");
+        String repoName = intent.getStringExtra("repoName");
+        String path = intent.getStringExtra("path");
+        String dirID = intent.getStringExtra("dirID");
+        if (repoID != null) {
+            navContext.setRepoID(repoID);
+            navContext.setRepoName(repoName);
+            navContext.setDir(path, dirID);
         }
 
         // enable ActionBar app icon to behave as action back
@@ -527,6 +537,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem menuSearch = menu.findItem(R.id.search);
         MenuItem menuUpload = menu.findItem(R.id.upload);
         MenuItem menuRefresh = menu.findItem(R.id.refresh);
         MenuItem menuDownloadFolder = menu.findItem(R.id.download_folder);
@@ -623,6 +634,10 @@ public class BrowserActivity extends SherlockFragmentActivity
                 onBackPressed();
             }
             return true;
+        case R.id.search:
+            Intent searchIntent = new Intent(this, SearchActivity.class);
+            startActivity(searchIntent);
+            return true;
         case R.id.upload:
             pickFile();
             return true;
@@ -638,7 +653,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             return true;
         case R.id.refresh:
             if (!Utils.isNetworkOn()) {
-                showToast(R.string.network_down);
+                ToastUtils.show(this, R.string.network_down);
                 return true;
             }
             if (currentPosition == 0) {
@@ -715,7 +730,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     private void showNewDirDialog() {
         if (!hasRepoWritePermission()) {
-            showToast(R.string.library_read_only);
+            ToastUtils.show(this, R.string.library_read_only);
             return;
         }
 
@@ -724,7 +739,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
-                showToast("Sucessfully created folder " + dialog.getNewDirName());
+                ToastUtils.show(BrowserActivity.this, "Sucessfully created folder " + dialog.getNewDirName());
                 ReposFragment reposFragment = getReposFragment();
                 if (currentPosition == 0 && reposFragment != null) {
                     reposFragment.refreshView();
@@ -736,7 +751,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     private void showNewFileDialog() {
         if (!hasRepoWritePermission()) {
-            showToast(R.string.library_read_only);
+            ToastUtils.show(this, R.string.library_read_only);
             return;
         }
 
@@ -745,7 +760,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
-                showToast("Sucessfully created file " + dialog.getNewFileName());
+                ToastUtils.show(BrowserActivity.this, "Sucessfully created file " + dialog.getNewFileName());
                 ReposFragment reposFragment = getReposFragment();
                 if (currentPosition == 0 && reposFragment != null) {
                     reposFragment.refreshView();
@@ -786,16 +801,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         startActivityForResult(imageCaptureIntent, TAKE_PHOTO_REQUEST);
     }
 
-    public void showToast(CharSequence msg) {
-        Context context = getApplicationContext();
-        Toast toast = Toast.makeText(context, msg, Toast.LENGTH_SHORT);
-        toast.show();
-    }
-
-    public void showToast(int id) {
-        showToast(getString(id));
-    }
-
     public void enableUpButton() {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
@@ -830,7 +835,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     void pickFile() {
         if (!hasRepoWritePermission()) {
-            showToast(R.string.library_read_only);
+            ToastUtils.show(this, R.string.library_read_only);
             return;
         }
 
@@ -846,7 +851,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                 String[] paths = data.getStringArrayExtra(MultiFileChooserActivity.MULTI_FILES_PATHS);
                 if (paths == null)
                     return;
-                showToast(getString(R.string.added_to_upload_tasks));
+                ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
                 for (String path : paths) {
                     addUploadTask(navContext.getRepoID(),
                         navContext.getRepoName(), navContext.getDirPath(), path);
@@ -858,7 +863,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                 ArrayList<String> paths = data.getStringArrayListExtra("photos");
                 if (paths == null)
                     return;
-                showToast(getString(R.string.added_to_upload_tasks));
+                ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
                 for (String path : paths) {
                     addUploadTask(navContext.getRepoID(),
                         navContext.getRepoName(), navContext.getDirPath(), path);
@@ -868,7 +873,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         case PICK_FILE_REQUEST:
             if (resultCode == RESULT_OK) {
                 if (!Utils.isNetworkOn()) {
-                    showToast(R.string.network_down);
+                    ToastUtils.show(this, R.string.network_down);
                     return;
                 }
 
@@ -881,12 +886,12 @@ public class BrowserActivity extends SherlockFragmentActivity
                     return;
                 }
                 if(path == null) {
-                    showToast("Unable to upload, no path available");
+                    ToastUtils.show(this, "Unable to upload, no path available");
                     Log.i(DEBUG_TAG, "Pick file request did not return a path");
                     return;
                 }
-                showToast(getString(R.string.added_to_upload_tasks));
-                //showToast(getString(R.string.upload) + " " + Utils.fileNameFromPath(path));
+                ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
+                //ToastUtils.show(this, getString(R.string.upload) + " " + Utils.fileNameFromPath(path));
                 addUploadTask(navContext.getRepoID(),
                     navContext.getRepoName(), navContext.getDirPath(), path);
             }
@@ -894,7 +899,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         case CHOOSE_COPY_MOVE_DEST_REQUEST:
             if (resultCode == RESULT_OK) {
                 if (!Utils.isNetworkOn()) {
-                    showToast(R.string.network_down);
+                    ToastUtils.show(this, R.string.network_down);
                     return;
                 }
 
@@ -903,18 +908,18 @@ public class BrowserActivity extends SherlockFragmentActivity
             break;
         case TAKE_PHOTO_REQUEST:
             if (resultCode == RESULT_OK) {
-                showToast(getString(R.string.take_photo_successfully));
+                ToastUtils.show(this, getString(R.string.take_photo_successfully));
                 if (!Utils.isNetworkOn()) {
-                    showToast(R.string.network_down);
+                    ToastUtils.show(this, R.string.network_down);
                     return;
                 }
 
                 if(strImgPath == null) {
-                    showToast("Unable to upload, no path available");
+                    ToastUtils.show(this, "Unable to upload, no path available");
                     Log.i(DEBUG_TAG, "Pick file request did not return a path");
                     return;
                 }
-                showToast(getString(R.string.added_to_upload_tasks));
+                ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
                 addUploadTask(navContext.getRepoID(),
                         navContext.getRepoName(), navContext.getDirPath(), strImgPath);
             }
@@ -944,7 +949,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     public void downloadDir(String direntName) {
         if (!Utils.isNetworkOn()) {
-            showToast(R.string.network_down);
+            ToastUtils.show(this, R.string.network_down);
             return;
         }
 
@@ -1019,14 +1024,14 @@ public class BrowserActivity extends SherlockFragmentActivity
         protected void onPostExecute(List<SeafDirent> dirents) {
             if (dirents == null) {
                 if (err != null)
-                    showToast(R.string.transfer_list_network_error);
+                    ToastUtils.show(BrowserActivity.this, R.string.transfer_list_network_error);
                 return;
             }
 
             if (fileCount == 0)
-                showToast(R.string.transfer_download_no_task);
+                ToastUtils.show(BrowserActivity.this, R.string.transfer_download_no_task);
             else
-                showToast(getString(R.string.transfer_download_started, fileCount));
+                ToastUtils.show(BrowserActivity.this, getString(R.string.transfer_download_started, fileCount));
 
             // set download tasks info to adapter in order to update download progress in UI thread
             getReposFragment().getAdapter().setDownloadTaskList(txService.getDownloadTaskInfosByPath(repoID, filePath));
@@ -1111,7 +1116,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
 
         if (suffix.length() == 0) {
-            showToast(R.string.unknown_file_type);
+            ToastUtils.show(this, R.string.unknown_file_type);
             return;
         }
 
@@ -1129,7 +1134,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             return;
         } catch (ActivityNotFoundException e) {
             new OpenAsDialog(file).show(getSupportFragmentManager(), "OpenAsDialog");
-            //showToast(R.string.activity_not_found);
+            //ToastUtils.show(this, R.string.activity_not_found);
             return;
         }
 
@@ -1164,7 +1169,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         List<ResolveInfo> infos = getAppsByIntent(sendIntent);
 
         if (infos.isEmpty()) {
-            showToast(R.string.no_app_available);
+            ToastUtils.show(this, R.string.no_app_available);
             return;
         }
 
@@ -1271,7 +1276,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                         clipboard.setText(gdialog.getLink());
                         // ClipData clip = ClipData.newPlainText("seafile shared link", gdialog.getLink());
                         // clipboard.setPrimaryClip(clip);
-                        showToast(R.string.link_ready_to_be_pasted);
+                        ToastUtils.show(BrowserActivity.this, R.string.link_ready_to_be_pasted);
                     }
                 });
                 gdialog.show(getSupportFragmentManager(), "DialogFragment");
@@ -1313,7 +1318,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
-                showToast(R.string.rename_successful);
+                ToastUtils.show(BrowserActivity.this, R.string.rename_successful);
                 ReposFragment reposFragment = getReposFragment();
                 if (currentPosition == 0 && reposFragment != null) {
                     reposFragment.refreshView();
@@ -1337,7 +1342,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
-                showToast(R.string.delete_successful);
+                ToastUtils.show(BrowserActivity.this, R.string.delete_successful);
                 ReposFragment reposFragment = getReposFragment();
                 if (currentPosition == 0 && reposFragment != null) {
                     reposFragment.refreshView();
@@ -1371,9 +1376,9 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     private void doCopyMove() {
         if (!copyMoveContext.checkCopyMoveToSubfolder()) {
-            showToast(copyMoveContext.isCopy()
-                      ? R.string.cannot_copy_folder_to_subfolder
-                      : R.string.cannot_move_folder_to_subfolder);
+            ToastUtils.show(this, copyMoveContext.isCopy()
+                    ? R.string.cannot_copy_folder_to_subfolder
+                    : R.string.cannot_move_folder_to_subfolder);
             return;
         }
         final CopyMoveDialog dialog = new CopyMoveDialog();
@@ -1381,9 +1386,9 @@ public class BrowserActivity extends SherlockFragmentActivity
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
-                showToast(copyMoveContext.isCopy()
-                          ? R.string.copied_successfully
-                          : R.string.moved_successfully);
+                ToastUtils.show(BrowserActivity.this, copyMoveContext.isCopy()
+                        ? R.string.copied_successfully
+                        : R.string.moved_successfully);
                 if (copyMoveContext.isMove()) {
                     ReposFragment reposFragment = getReposFragment();
                     if (currentPosition == 0 && reposFragment != null) {
@@ -1442,7 +1447,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             }
         }
 
-        showToast(getString(R.string.download_failed) + " " + Utils.fileNameFromPath(path));
+        ToastUtils.show(this, getString(R.string.download_failed) + " " + Utils.fileNameFromPath(path));
     }
 
     private void onFileUploaded(int taskID) {
@@ -1459,7 +1464,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                 && dir.equals(navContext.getDirPath())) {
             getReposFragment().refreshView(true);
             String verb = getString(info.isUpdate ? R.string.updated : R.string.uploaded);
-            showToast(verb + " " + Utils.fileNameFromPath(info.localFilePath));
+            ToastUtils.show(this, verb + " " + Utils.fileNameFromPath(info.localFilePath));
         }
     }
 
@@ -1468,7 +1473,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             return;
         }
         UploadTaskInfo info = txService.getUploadTaskInfo(taskID);
-        showToast(getString(R.string.upload_failed) + " " + Utils.fileNameFromPath(info.localFilePath));
+        ToastUtils.show(this, getString(R.string.upload_failed) + " " + Utils.fileNameFromPath(info.localFilePath));
     }
 
     public PasswordDialog showPasswordDialog(String repoName, String repoID,

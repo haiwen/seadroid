@@ -18,8 +18,8 @@ import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.TransferService;
+import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
-import com.seafile.seadroid2.ui.dialog.TaskDialog.TaskDialogListener;
 import com.seafile.seadroid2.util.Utils;
 
 /**
@@ -113,12 +113,12 @@ public class FetchFileDialog extends DialogFragment {
         String fileName = Utils.fileNameFromPath(path);
         if (err.getCode() == HttpURLConnection.HTTP_NOT_FOUND) {
             getDialog().dismiss();
-            getBrowserActivity().showToast("The file \"" + fileName + "\" has been deleted");
+            ToastUtils.show(getBrowserActivity(), "The file \"" + fileName + "\" has been deleted");
         } else if (err.getCode() == SeafConnection.HTTP_STATUS_REPO_PASSWORD_REQUIRED) {
             handlePassword();
         } else {
             getDialog().dismiss();
-            getBrowserActivity().showToast("Failed to download file \"" + fileName);
+            ToastUtils.show(getBrowserActivity(), "Failed to download file \"" + fileName);
             if (mListener != null) {
                 mListener.onFailure(err);
             }
