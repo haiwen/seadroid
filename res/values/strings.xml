@@ -222,7 +222,7 @@
     <string name="lockpattern_pattern_entered_header">Pattern saved</string>
     <string name="lockpattern_need_to_draw">Please draw Gesture Lock pattern</string>
     <string name="lockpattern_need_to_confirm">Please confirm your pattern</string>
-    <string name="lockpattern_need_to_unlock_wrong">Pattern didn't match. Try again.</string>
+    <string name="lockpattern_need_to_unlock_wrong">Pattern didn\'t match. Try again.</string>
     <string name="lockpattern_pattern_confirmed_header">Tap OK to save your pattern</string>
     <string name="lockpattern_recording_inprogress">Release finger when finished drawing</string>
     <string name="lockpattern_pattern_toast_saved">Gesture Lock Pattern successfully saved</string>
