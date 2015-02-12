@@ -357,15 +357,15 @@ public class Utils {
             SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
             return fmt.format(d);
         } else if (days > 0) {
-            return days + SeadroidApplication.getAppContext().getString(R.string.days_ago);
+            return SeadroidApplication.getAppContext().getString(R.string.days_ago, days);
         } else if (seconds >= 60 * 60) {
             long hours = seconds / 3600;
-            return hours + SeadroidApplication.getAppContext().getString(R.string.hours_ago);
+            return SeadroidApplication.getAppContext().getString(R.string.hours_ago, hours);
         } else if (seconds >= 60) {
             long minutes = seconds / 60;
-            return minutes + SeadroidApplication.getAppContext().getString(R.string.minutes_ago);
+            return SeadroidApplication.getAppContext().getString(R.string.minutes_ago, minutes);
         } else if (seconds > 0) {
-            return seconds + SeadroidApplication.getAppContext().getString(R.string.seconds_ago);
+            return SeadroidApplication.getAppContext().getString(R.string.seconds_ago, seconds);
         } else {
             return SeadroidApplication.getAppContext().getString(R.string.just_now);
         }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name">Seafile</string>
     <string name="app_url">http://seafile.com</string>
     <string name="welcome_to_seafile">Welcome to Seafile</string>
@@ -85,7 +85,11 @@
     <string name="image_gallery_NoImageView_text">No image found</string>
     <string name="pick_photo_video_title">Choose photos/videos to upload</string>
     <string name="select_upload_items">Select items to upload</string>
-    <string name="n_upload_items_selected">%d items selected</string>
+    <plurals name="n_upload_items_selected">
+        <item quantity="one"><xliff:g id="number_of_selected">%1$d</xliff:g> item selected</item>
+        <item quantity="other"><xliff:g id="numbers_of_selected">%1$d</xliff:g> items selected</item>
+    </plurals>
+
     <string name="dir_name_empty">Please enter the name of the folder</string>
     <string name="file_name_empty">Please enter the name of the file</string>
     <string name="password_empty">Please enter the password</string>
@@ -149,17 +153,20 @@
     <string name="upload_finished">Finished</string>
     <string name="upload_cancelled">Cancelled</string>
     <string name="upload_failed">Failed</string>
-    <string name="days_ago">&#160;days ago</string>
-    <string name="hours_ago">&#160;hours ago</string>
-    <string name="minutes_ago">&#160;minutes ago</string>
-    <string name="seconds_ago">&#160;seconds ago</string>
+    <string name="days_ago">%d days ago</string>
+    <string name="hours_ago">%d hours ago</string>
+    <string name="minutes_ago">%d minutes ago</string>
+    <string name="seconds_ago">%d seconds ago</string>
     <string name="just_now">Just now</string>
     <string name="error_when_load_starred">Error when loading starred files</string>
     <string name="open_as">Open as</string>
     <string name="select_upload_files">Select files to upload</string>
     <string name="storage_removed">Storage was removed</string>
     <string name="error_selecting_file">Error when selecting file</string>
-    <string name="n_upload_files_selected">%d file(s) selected</string>
+    <plurals name="n_upload_files_selected">
+        <item quantity="one"><xliff:g id="number_of_selected">%1$d</xliff:g> file selected</item>
+        <item quantity="other"><xliff:g id="numbers_of_selected">%1$d</xliff:g> files selected</item>
+    </plurals>
     <string name="empty_folder">Empty folder</string>
     <string name="choose_file">Choose a file</string>
     <string name="ssl_error">Security check failed</string>
@@ -193,7 +200,7 @@
 
     <string name="settings_account">Account</string>
     <string name="settings_account_info_title">User info</string>
-    <string name="settings_account_info_load_data">loading...</string>
+    <string name="settings_account_info_load_data">loading&#8230;</string>
     <string name="settings_account_space_title">Space used</string>
     <string name="settings_account_sign_out_title">Sign out</string>
     <string name="settings_account_sign_out_hint">Click to sign out</string>
@@ -210,9 +217,15 @@
     <string name="lockscreen_access_pattern_detected">Pattern detected</string>
     <string name="lockscreen_access_pattern_passwd_forget">Forgot password</string>
     <string name="lockscreen_access_pattern_failure">Failed 5 times, please wait 30 seconds before trying</string>
-    <string name="lockscreen_access_pattern_failure_left_try_seconds">You can retry %d seconds later</string>
-    <string name="lockscreen_access_pattern_failure_left_try_times">Incorrect pattern, you can try another %d times</string>
-    <string name="lockscreen_access_pattern_failure_not_long_enough">Linking points not long enough, please try again</string>
+    <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
+        <item quantity="one">You can retry <xliff:g id="second">%1$d</xliff:g> second later</item>
+        <item quantity="other">You can retry <xliff:g id="seconds">%1$d</xliff:g> seconds later</item>
+    </plurals>
+    <plurals name="lockscreen_access_pattern_failure_left_try_times">
+        <item quantity="one">Incorrect pattern, you can try another <xliff:g id="time">%1$d</xliff:g> time</item>
+        <item quantity="other">Incorrect pattern, you can try another <xliff:g id="times">%1$d</xliff:g> times</item>
+    </plurals>
+    <string name="lockscreen_access_pattern_failure_not_long_enough">Linking points not long enough, pelase try again</string>
     <string name="lockpattern_retry_button_text">Retry</string>
     <string name="lockpattern_continue_button_text">Next</string>
     <string name="lockpattern_confirm_button_text">OK</string>
@@ -274,13 +287,13 @@
     <string name="settings_cache_empty">0 KB</string>
 
     <!-- pull to refresh -->
-    <string name="pull_to_refresh_pull_label">Pull to refresh…</string>
-    <string name="pull_to_refresh_release_label">Release to refresh…</string>
-    <string name="pull_to_refresh_refreshing_label">Loading…</string>
+    <string name="pull_to_refresh_pull_label">Pull to refresh&#8230;</string>
+    <string name="pull_to_refresh_release_label">Release to refresh&#8230;</string>
+    <string name="pull_to_refresh_refreshing_label">Loading&#8230;</string>
     <string name="pull_to_refresh_last_update">Last update:&#160;</string>
-    <string name="pull_to_refresh_last_update_seconds_ago">&#160;seconds ago</string>
-    <string name="pull_to_refresh_last_update_minutes_ago">&#160;minutes ago</string>
-    <string name="pull_to_refresh_last_update_hours_ago">&#160;hours ago</string>
+    <string name="pull_to_refresh_last_update_seconds_ago">%d seconds ago</string>
+    <string name="pull_to_refresh_last_update_minutes_ago">%d minutes ago</string>
+    <string name="pull_to_refresh_last_update_hours_ago">%d hours ago</string>
 
     <!-- storage access framework -->
     <string name="saf_open_file_exception">Could not open file %s.</string>
@@ -296,9 +309,9 @@
     <string name="shib_server_incorrect_prefix">Server should starts with either http:// or https://</string>
     <string name="shib_load_page_error">Error:&#160;</string>
     <string name="shib_login_title">Shibboleth Login</string>
-    <string name="shib_server_hint">Input server...</string>
+    <string name="shib_server_hint">Input server&#8230;</string>
     <string name="shib_actionbar_title">Login with Shibboleth</string>
-    <string name="shib_loading">loading...</string>
+    <string name="shib_loading">loading&#8230;</string>
 
     <!-- Transfer List -->
     <string name="transfer_list_network_error">Network connection error, please try again later!</string>

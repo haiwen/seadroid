@@ -781,7 +781,7 @@ public class DataManager {
         sb.append(SeadroidApplication.getAppContext().getString(R.string.pull_to_refresh_last_update));
 
         if (seconds < 60) {
-            sb.append(seconds + SeadroidApplication.getAppContext().getString(R.string.pull_to_refresh_last_update_seconds_ago));
+            sb.append(SeadroidApplication.getAppContext().getString(R.string.pull_to_refresh_last_update_seconds_ago, seconds));
         } else {
             int minutes = (seconds / 60);
             if (minutes > 60) {
@@ -790,11 +790,11 @@ public class DataManager {
                     Date date = new Date(lastUpdate);
                     sb.append(ptrDataFormat.format(date));
                 } else {
-                    sb.append(hours + SeadroidApplication.getAppContext().getString(R.string.pull_to_refresh_last_update_hours_ago));
+                    sb.append(SeadroidApplication.getAppContext().getString(R.string.pull_to_refresh_last_update_hours_ago, hours));
                 }
 
             } else {
-                sb.append(minutes + SeadroidApplication.getAppContext().getString(R.string.pull_to_refresh_last_update_minutes_ago));
+                sb.append(SeadroidApplication.getAppContext().getString(R.string.pull_to_refresh_last_update_minutes_ago, minutes));
             }
         }
         return sb.toString();
