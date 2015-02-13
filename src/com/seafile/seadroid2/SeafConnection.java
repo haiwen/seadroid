@@ -1,13 +1,22 @@
 package com.seafile.seadroid2;
 
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +30,8 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.provider.Settings.Secure;
 import android.util.Log;
@@ -129,6 +140,17 @@ public class SeafConnection {
         req.header("Authorization", "Token " + account.token);
 
         return prepareHttpsCheck(req);
+    }
+
+    private String encodeThumbnailFilePath(String path) throws UnsupportedEncodingException {
+
+        // This is kinda hacky. Not sure what the proper encoding function would be.
+        String pathEnc = "";
+        for(String s: path.split("/")) {
+            pathEnc += "/"+URLEncoder.encode(s, "UTF-8");
+            pathEnc = pathEnc.replaceAll("\\+", "%20");
+        }
+        return pathEnc;
     }
 
     /**
@@ -361,6 +383,33 @@ public class SeafConnection {
             } else {
                 throw SeafException.illFormatException;
             }
+        } catch (SeafException e) {
+            throw e;
+        } catch (UnsupportedEncodingException e) {
+            throw SeafException.encodingException;
+        } catch (IOException e) {
+            throw SeafException.networkException;
+        } catch (HttpRequestException e) {
+            throw getSeafExceptionFromHttpRequestException(e);
+        }
+    }
+
+    public byte[] getThumbnail(String repoID, String path, int sizeHint) throws SeafException {
+        try {
+
+            String pathEnc = encodeThumbnailFilePath(path);
+
+            String apiPath = String.format("api2/repos/%s/thumbnail/%s", repoID, pathEnc);
+            Map<String, Object> params = Maps.newHashMap();
+            params.put("s", sizeHint);
+            HttpRequest req = prepareApiGetRequest(apiPath, params);
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            req.receive(stream);
+
+            return stream.toByteArray();
+
         } catch (SeafException e) {
             throw e;
         } catch (UnsupportedEncodingException e) {
@@ -1031,4 +1080,5 @@ public class SeafConnection {
             return SeafException.networkException;
         }
     }
+
 }
