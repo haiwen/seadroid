@@ -1,7 +1,6 @@
 package com.seafile.seadroid2.transfer;
 
 import android.os.AsyncTask;
-import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 
 import java.io.File;

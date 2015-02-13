@@ -2,8 +2,8 @@ package com.seafile.seadroid2.cameraupload;
 
 import java.util.List;
 
-import com.seafile.seadroid2.ConcurrentAsyncTask;
-import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.util.ConcurrentAsyncTask;
+import com.seafile.seadroid2.transfer.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafCachedPhoto;

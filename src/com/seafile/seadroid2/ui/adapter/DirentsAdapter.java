@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.util.SeadroidApplication;
 import com.seafile.seadroid2.data.SeafDirent;
 
 public class DirentsAdapter extends BaseAdapter {

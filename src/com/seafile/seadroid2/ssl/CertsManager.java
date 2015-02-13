@@ -1,4 +1,4 @@
-package com.seafile.seadroid2;
+package com.seafile.seadroid2.ssl;
 
 import java.security.cert.X509Certificate;
 import java.util.List;
@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 
 /**
  * Save the ssl certificates the user has confirmed to trust

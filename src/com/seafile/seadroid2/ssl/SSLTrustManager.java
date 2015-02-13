@@ -1,4 +1,4 @@
-package com.seafile.seadroid2;
+package com.seafile.seadroid2.ssl;
 
 import java.security.KeyStore;
 import java.security.KeyStoreException;

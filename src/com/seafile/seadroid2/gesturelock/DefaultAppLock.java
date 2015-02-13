@@ -11,13 +11,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import com.google.common.collect.MapMaker;
-import com.google.common.collect.Maps;
-import com.seafile.seadroid2.SettingsManager;
+import com.seafile.seadroid2.ui.SettingsManager;
 import com.seafile.seadroid2.ui.activity.UnlockGesturePasswordActivity;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 /**

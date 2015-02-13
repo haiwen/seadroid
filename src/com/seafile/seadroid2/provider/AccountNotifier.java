@@ -19,9 +19,9 @@ package com.seafile.seadroid2.provider;
 
 import android.content.Context;
 import android.net.Uri;
-
-import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.util.SeadroidApplication;
 import com.seafile.seadroid2.util.Utils;
+
 
 /**
  * Helper class over which the AccountDBHelper can notify the DocumentProvider that the account

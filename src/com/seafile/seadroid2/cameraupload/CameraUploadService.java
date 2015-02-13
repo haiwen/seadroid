@@ -23,9 +23,9 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.google.common.collect.Lists;
-import com.seafile.seadroid2.ConcurrentAsyncTask;
-import com.seafile.seadroid2.SeafException;
-import com.seafile.seadroid2.SettingsManager;
+import com.seafile.seadroid2.util.ConcurrentAsyncTask;
+import com.seafile.seadroid2.transfer.SeafException;
+import com.seafile.seadroid2.ui.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.SeafCachedPhoto;
 import com.seafile.seadroid2.transfer.*;

@@ -2,9 +2,8 @@ package com.seafile.seadroid2.transfer;
 
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import com.google.common.collect.Lists;
-import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.util.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.notification.UploadNotificationProvider;
 

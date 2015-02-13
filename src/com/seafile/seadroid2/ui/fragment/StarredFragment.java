@@ -14,9 +14,9 @@ import android.widget.TextView;
 
 import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockListFragment;
-import com.seafile.seadroid2.ConcurrentAsyncTask;
+import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.transfer.SeafException;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafStarredFile;
 import com.seafile.seadroid2.ui.PullToRefreshListView;

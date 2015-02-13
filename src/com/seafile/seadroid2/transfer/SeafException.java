@@ -1,4 +1,4 @@
-package com.seafile.seadroid2;
+package com.seafile.seadroid2.transfer;
 
 import com.google.common.base.Objects;
 

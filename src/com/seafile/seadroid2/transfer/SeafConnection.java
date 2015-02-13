@@ -1,4 +1,4 @@
-package com.seafile.seadroid2;
+package com.seafile.seadroid2.transfer;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,6 +14,8 @@ import java.util.Map;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLHandshakeException;
 
+import com.seafile.seadroid2.ssl.SSLTrustManager;
+import com.seafile.seadroid2.util.SeadroidApplication;
 import org.json.JSONException;
 import org.json.JSONObject;
 

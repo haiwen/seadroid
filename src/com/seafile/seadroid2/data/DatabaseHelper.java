@@ -12,7 +12,7 @@ import android.util.Log;
 import android.util.Pair;
 
 import com.google.common.collect.Lists;
-import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.util.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
