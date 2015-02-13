@@ -3,15 +3,22 @@ package com.seafile.seadroid2.ui.adapter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.graphics.drawable.BitmapDrawable;
+import android.util.Log;
 import android.widget.ProgressBar;
 import net.londatiga.android.ActionItem;
 import net.londatiga.android.QuickAction;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -31,6 +38,7 @@ import com.seafile.seadroid2.data.SeafItem;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
+import com.seafile.seadroid2.util.ThumbnailHelper;
 import com.seafile.seadroid2.util.Utils;
 
 public class SeafItemAdapter extends BaseAdapter {
@@ -39,12 +47,15 @@ public class SeafItemAdapter extends BaseAdapter {
     private BrowserActivity mActivity;
     private boolean repoIsEncrypted;
 
+    private ThumbnailHelper tnh;
+
     /** DownloadTask instance container **/
     private List<DownloadTaskInfo> mDownloadTaskInfos;
 
     public SeafItemAdapter(BrowserActivity activity) {
         this.mActivity = activity;
         items = Lists.newArrayList();
+        tnh = new ThumbnailHelper();
     }
 
     private static final int ACTION_ID_DOWNLOAD = 0;
@@ -240,11 +251,6 @@ public class SeafItemAdapter extends BaseAdapter {
             viewHolder.subtitle.setText(subtitle);
             viewHolder.progressBar.setVisibility(View.GONE);
 
-            if (Utils.isViewableImage(file.getName())) {
-                setImageThumbNail(file, dirent, dataManager, viewHolder);
-            } else
-                viewHolder.icon.setImageResource(dirent.getIcon());
-
         } else {
             int downloadStatusIcon = R.drawable.list_item_download_waiting;
             if (mDownloadTaskInfos != null) {
@@ -284,41 +290,17 @@ public class SeafItemAdapter extends BaseAdapter {
 
             viewHolder.downloadStatusIcon.setImageResource(downloadStatusIcon);
             viewHolder.subtitle.setText(dirent.getSubtitle());
+        }
+
+        if (Utils.isViewableImage(file.getName())) {
+            tnh.addThumbnailAsync(dataManager, viewHolder.icon, repoName, repoID, filePath);
+        } else {
             viewHolder.icon.setImageResource(dirent.getIcon());
         }
 
         setFileAction(dirent, viewHolder, position, cacheExists);
     }
 
-    private void setImageThumbNail(File file, SeafDirent dirent,
-            DataManager dataManager, Viewholder viewHolder) {
-        if (file.length() < DataManager.MAX_DIRECT_SHOW_THUMB) {
-            Bitmap imageBitmap = dataManager.getThumbnail(file);
-            if (imageBitmap != null)
-                viewHolder.icon.setImageBitmap(imageBitmap);
-            else
-                viewHolder.icon.setImageResource(dirent.getIcon());
-        } else {
-            File thumbFile = DataManager.getThumbFile(dirent.id);
-            if (thumbFile.exists()) {
-                Bitmap imageBitmap;
-                final int THUMBNAIL_SIZE = DataManager.caculateThumbnailSizeOfDevice();
-                try {
-                    // setImageURI does not work correctly under high screen density
-                    // viewHolder.icon.setScaleType(ImageView.ScaleType.FIT_XY);
-                    // viewHolder.icon.setImageURI(Uri.fromFile(thumbFile));
-                    imageBitmap = BitmapFactory.decodeStream(new FileInputStream(thumbFile));
-                    imageBitmap = Bitmap.createScaledBitmap(imageBitmap, THUMBNAIL_SIZE,
-                            THUMBNAIL_SIZE, false);
-                    viewHolder.icon.setImageBitmap(imageBitmap);
-                } catch (FileNotFoundException e) {
-                    viewHolder.icon.setImageResource(dirent.getIcon());
-                }
-            } else {
-                viewHolder.icon.setImageResource(dirent.getIcon());
-            }
-        }
-    }
 
     private View getCacheView(SeafCachedFile item, View convertView, ViewGroup parent) {
         View view = convertView;

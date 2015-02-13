@@ -2,14 +2,18 @@ package com.seafile.seadroid2.data;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import android.graphics.Bitmap;
 import android.text.TextUtils;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.fileschooser.SelectableFile;
@@ -17,7 +21,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.graphics.Bitmap;
 import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -33,9 +36,6 @@ import com.seafile.seadroid2.util.BitmapUtil;
 import com.seafile.seadroid2.util.Utils;
 
 public class DataManager {
-    public static final int MAX_GEN_CACHE_THUMB = 1000000;  // Only generate thumb cache for files less than 1MB
-    public static final int MAX_DIRECT_SHOW_THUMB = 100000;  // directly show thumb
-
     private static final String DEBUG_TAG = "DataManager";
     private static final long SET_PASSWORD_INTERVAL = 59 * 60 * 1000; // 59 min
     // private static final long SET_PASSWORD_INTERVAL = 5 * 1000; // 5s
@@ -81,7 +81,7 @@ public class DataManager {
     }
 
     public static String getThumbDirectory() {
-        String root = SeadroidApplication.getAppContext().getFilesDir().getAbsolutePath();
+        String root = SeadroidApplication.getAppContext().getCacheDir().getAbsolutePath();
         File tmpDir = new File(root + "/" + "thumb");
         return getDirectoryCreateIfNeeded(tmpDir);
     }
@@ -136,55 +136,66 @@ public class DataManager {
         return new File(getExternalCacheDirectory() + "/avatar");
     }
 
-    public void calculateThumbnail(String repoName, String repoID, String path, String oid) {
-        final int THUMBNAIL_SIZE = caculateThumbnailSizeOfDevice();
-        FileOutputStream out = null;
-        try {
-            File file = getLocalRepoFile(repoName, repoID, path);
-            if (!file.exists())
-                return;
-            // if (file.length() > MAX_GEN_CACHE_THUMB)
-            //     return;
+    public boolean isThumbnailCached(String repoID, String path, int sizeHint) {
 
-            Bitmap imageBitmap = BitmapUtil.calculateThumbnail(file.getPath(), THUMBNAIL_SIZE);
-            if (imageBitmap == null) {
-                return;
-            }
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-            byte[] byteArray = baos.toByteArray();
-            File thumb = getThumbFile(oid);
-            out = new FileOutputStream(thumb);
-            out.write(byteArray);
-        } catch (IOException e) {
-            Log.i(DEBUG_TAG, "Failed to write thumbnail : " + e.getMessage());
-        } finally {
-            try {
-                if(out != null) {
-                    out.close();
-                }
-            }
-            catch(IOException ioe) {
-            }
+        String hashedFilename = Utils.hashString(repoID + path + sizeHint);
+        File thumb = getThumbFile(hashedFilename);
+        return thumb.exists();
+    }
+
+    public byte[] calculateThumbnail(File file, int size) {
+        Bitmap imageBitmap = BitmapUtil.calculateThumbnail(file.getPath(), size);
+        if (imageBitmap == null) {
+            return null;
         }
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        return baos.toByteArray();
     }
 
     /**
-     * Caculate the thumbnail of an image directly when its size is less than {@link #MAX_DIRECT_SHOW_THUMB}
+     * fetch image thumbnail from seafile server
      */
-    public Bitmap getThumbnail(File file) {
+    public File getThumbnail(String repoName, String repoID, String path, int sizeHint) {
+        String hashedFilename = Utils.hashString(repoID + path + sizeHint);
+        File thumb = getThumbFile(hashedFilename);
+
         try {
-            if (!file.exists())
-                return null;
+            if (thumb.createNewFile()) {
 
-            final int THUMBNAIL_SIZE = caculateThumbnailSizeOfDevice();
+                File file = getLocalRepoFile(repoName, repoID, path);
+                if (file.exists()) {
+                    byte[] img = calculateThumbnail(file, sizeHint);
 
-            return BitmapUtil.calculateThumbnail(file.getPath(), THUMBNAIL_SIZE);
-        } catch (Exception ex) {
-            return null;
+                    FileOutputStream out = new FileOutputStream(thumb);
+                    out.write(img);
+                    out.close();
+
+                } else {
+                    // TODO: what if the file on the server has changed?
+
+                    Log.d(DEBUG_TAG, "Downloading thumbnail "+path);
+
+                    byte[] img = sc.getThumbnail(repoID, path, sizeHint);
+
+                    FileOutputStream out = new FileOutputStream(thumb);
+                    out.write(img);
+                    out.close();
+
+                    Log.d(DEBUG_TAG, "Downloaded thumbnail "+path);
+                }
+            }
+
+            return thumb;
+
+        } catch (SeafException e) {
+            thumb.delete();
+            return new File("");
+        } catch (IOException e) {
+            thumb.delete();
+            return new File("");
         }
     }
-
 
     public static int caculateThumbnailSizeOfDevice() {
         DisplayMetrics metrics = SeadroidApplication.getAppContext().getResources().getDisplayMetrics();

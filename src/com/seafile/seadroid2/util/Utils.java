@@ -15,6 +15,8 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -627,6 +629,31 @@ public class Utils {
         String info = String.format("%s (%s)", email, server);
         info = info.replaceAll("[^\\w\\d\\.@\\(\\) ]", "_");
         return info;
+    }
+
+    final private static char[] hexArray = "0123456789ABCDEF".toCharArray();
+    public static String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for ( int j = 0; j < bytes.length; j++ ) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+        }
+        return new String(hexChars);
+    }
+
+    /**
+     * Convert an arbitrarily long string into a 64 char hex string.
+     *
+     */
+    public static String hashString(String in)  {
+        try {
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+            messageDigest.update(in.getBytes());
+            return bytesToHex(messageDigest.digest()).toLowerCase();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e); // should never happen
+        }
     }
 
     public static void hideSoftKeyboard(View view) {
