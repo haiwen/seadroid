@@ -293,7 +293,6 @@ public class SeafileProvider extends DocumentsProvider {
                     .getResources()
                     .getString(R.string.saf_open_directory_exception));
         }
-        SeafRepo repo = dm.getCachedRepoByID(repoId); // we can assume that the repo is cached because the client has already seen it
 
         String path = DocumentIdParser.getPathFromId(documentId);
 
@@ -301,24 +300,9 @@ public class SeafileProvider extends DocumentsProvider {
             // open the file. this might involve talking to the seafile server. this will hang until
             // it is done.
 
-            SeafCachedFile seaFile = dm.getCachedFile(repo.getName(), repoId, path);
-            if (seaFile == null)
-                throw new FileNotFoundException(SeadroidApplication
-                        .getAppContext()
-                        .getResources()
-                        .getString(R.string.saf_file_not_cached_exception,
-                                documentId));
-
-            File file = dm.getLocalCachedFile(repo.getName(), repo.getID(), seaFile.path, seaFile.fileID);
-            if (file == null)
-                throw new FileNotFoundException(SeadroidApplication
-                        .getAppContext()
-                        .getResources()
-                        .getString(R.string.saf_file_not_cached_exception,
-                                documentId));
-
-            Bitmap bmp = dm.getThumbnail(file);
-            if (bmp == null) {
+            SeafRepo repo = dm.getCachedRepoByID(repoId);
+            File thumb = dm.getThumbnail(repo.getName(), repoId, path, sizeHint.x);
+            if (!thumb.exists()) {
                 throw new FileNotFoundException(SeadroidApplication
                         .getAppContext()
                         .getResources()
@@ -326,13 +310,9 @@ public class SeafileProvider extends DocumentsProvider {
                                 documentId));
             }
 
-            ParcelFileDescriptor[] pair = ParcelFileDescriptor.createPipe();
-            FileOutputStream fileStream = new FileOutputStream(pair[1].getFileDescriptor());
+            ParcelFileDescriptor pfd = makeParcelFileDescriptor(thumb, "r");
 
-            bmp.compress(Bitmap.CompressFormat.PNG, 100, fileStream);
-            fileStream.close();
-
-            return new AssetFileDescriptor(pair[0], 0, AssetFileDescriptor.UNKNOWN_LENGTH);
+            return new AssetFileDescriptor(pfd, 0, thumb.length());
 
         } catch (IOException e) {
             throw new FileNotFoundException(SeadroidApplication.getAppContext()
@@ -500,7 +480,7 @@ public class SeafileProvider extends DocumentsProvider {
 
         int flags = 0;
         // only offer a thumbnail if the file is an image and it is cached.
-        if (dm.getCachedFile(null, repoId, fullPath) != null && mimeType.startsWith("image/")) {
+        if (mimeType.startsWith("image/")) {
             // Allow the image to be represented by a thumbnail rather than an icon
             flags |= Document.FLAG_SUPPORTS_THUMBNAIL;
         }
