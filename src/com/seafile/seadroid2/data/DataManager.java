@@ -161,29 +161,27 @@ public class DataManager {
         File thumb = getThumbFile(hashedFilename);
 
         try {
+
+            // TODO: what if the file on the server has changed?
             if (thumb.createNewFile()) {
 
                 File file = getLocalRepoFile(repoName, repoID, path);
+                byte[] img = null;
+
                 if (file.exists()) {
-                    byte[] img = calculateThumbnail(file, sizeHint);
-
-                    FileOutputStream out = new FileOutputStream(thumb);
-                    out.write(img);
-                    out.close();
-
+                    img = calculateThumbnail(file, sizeHint);
                 } else {
-                    // TODO: what if the file on the server has changed?
-
                     Log.d(DEBUG_TAG, "Downloading thumbnail "+path);
-
-                    byte[] img = sc.getThumbnail(repoID, path, sizeHint);
-
-                    FileOutputStream out = new FileOutputStream(thumb);
-                    out.write(img);
-                    out.close();
-
+                    img = sc.getThumbnail(repoID, path, sizeHint);
                     Log.d(DEBUG_TAG, "Downloaded thumbnail "+path);
                 }
+
+                if (img != null) {
+                    FileOutputStream out = new FileOutputStream(thumb);
+                    out.write(img);
+                    out.close();
+                }
+
             }
 
             return thumb;
