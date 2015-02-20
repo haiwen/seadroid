@@ -28,7 +28,10 @@ public class AuthImageDownloader extends BaseImageDownloader {
             throws IOException {
         HttpRequest req = HttpRequest.get(imageUri, null, false)
             .readTimeout(readTimeout)
-            .connectTimeout(connectTimeout);
+            .connectTimeout(connectTimeout)
+            .followRedirects(true)
+            .header("Authorization", "Token " + ((Account)extra).token);
+
         HttpURLConnection conn = req.getConnection();
 
         if (conn instanceof HttpsURLConnection) {
