@@ -26,6 +26,7 @@ import android.database.MatrixCursor;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CancellationSignal;
@@ -36,6 +37,9 @@ import android.provider.DocumentsContract.Document;
 import android.provider.DocumentsContract.Root;
 import android.provider.DocumentsProvider;
 import android.util.Log;
+
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
@@ -43,9 +47,9 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountDBHelper;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.ProgressMonitor;
-import com.seafile.seadroid2.data.SeafCachedFile;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -295,24 +299,43 @@ public class SeafileProvider extends DocumentsProvider {
         }
 
         String path = DocumentIdParser.getPathFromId(documentId);
+        SeafRepo repo = dm.getCachedRepoByID(repoId);
 
         try {
             // open the file. this might involve talking to the seafile server. this will hang until
             // it is done.
 
-            SeafRepo repo = dm.getCachedRepoByID(repoId);
-            File thumb = dm.getThumbnail(repo.getName(), repoId, path, sizeHint.x);
-            if (!thumb.exists()) {
-                throw new FileNotFoundException(SeadroidApplication
-                        .getAppContext()
-                        .getResources()
-                        .getString(R.string.saf_thumbnail_not_found_exception,
-                                documentId));
-            }
+            DisplayImageOptions options = new DisplayImageOptions.Builder()
+                    .extraForDownloader(dm.getAccount())
+                    .cacheInMemory(true)
+                    .cacheOnDisk(true)
+                    .considerExifParams(true)
+                    .build();
 
-            ParcelFileDescriptor pfd = makeParcelFileDescriptor(thumb, "r");
+            String url = dm.getThumbnailLink(repo.getName(), repoId, path, sizeHint.x);
 
-            return new AssetFileDescriptor(pfd, 0, thumb.length());
+            final Bitmap bmp = ImageLoader.getInstance().loadImageSync(url, options);
+            final ParcelFileDescriptor[] pair = ParcelFileDescriptor.createPipe();
+
+            // writing into the file descriptor might block, so do it in another thread
+            new AsyncTask<Void, Void, Void>() {
+                protected Void doInBackground(Void... v) {
+                    try {
+                        FileOutputStream fileStream = new FileOutputStream(pair[1].getFileDescriptor());
+
+                        bmp.compress(Bitmap.CompressFormat.PNG, 100, fileStream);
+                        fileStream.close();
+
+                    } catch (IOException e) {
+                        Log.d(getClass().getSimpleName(), "could not transfer thumbnail.");
+                    }
+
+                    return null;
+                }
+
+            }.execute();
+
+            return new AssetFileDescriptor(pair[0], 0, AssetFileDescriptor.UNKNOWN_LENGTH);
 
         } catch (IOException e) {
             throw new FileNotFoundException(SeadroidApplication.getAppContext()

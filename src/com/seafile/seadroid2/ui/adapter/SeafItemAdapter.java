@@ -1,24 +1,16 @@
 package com.seafile.seadroid2.ui.adapter;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
-import android.graphics.drawable.BitmapDrawable;
-import android.util.Log;
+import android.graphics.Bitmap;
 import android.widget.ProgressBar;
 import net.londatiga.android.ActionItem;
 import net.londatiga.android.QuickAction;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -28,6 +20,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.common.collect.Lists;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
+import com.nostra13.universalimageloader.core.process.BitmapProcessor;
 import com.seafile.seadroid2.NavContext;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.data.DataManager;
@@ -38,7 +36,6 @@ import com.seafile.seadroid2.data.SeafItem;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
-import com.seafile.seadroid2.util.ThumbnailHelper;
 import com.seafile.seadroid2.util.Utils;
 
 public class SeafItemAdapter extends BaseAdapter {
@@ -47,7 +44,13 @@ public class SeafItemAdapter extends BaseAdapter {
     private BrowserActivity mActivity;
     private boolean repoIsEncrypted;
 
-    private ThumbnailHelper tnh;
+    private DisplayImageOptions iconOptions = new DisplayImageOptions.Builder()
+            .delayBeforeLoading(0)
+            .resetViewBeforeLoading(true)
+            .cacheInMemory(true)
+            .cacheOnDisk(false)
+            .build();
+
 
     /** DownloadTask instance container **/
     private List<DownloadTaskInfo> mDownloadTaskInfos;
@@ -55,7 +58,6 @@ public class SeafItemAdapter extends BaseAdapter {
     public SeafItemAdapter(BrowserActivity activity) {
         this.mActivity = activity;
         items = Lists.newArrayList();
-        tnh = new ThumbnailHelper();
     }
 
     private static final int ACTION_ID_DOWNLOAD = 0;
@@ -169,7 +171,7 @@ public class SeafItemAdapter extends BaseAdapter {
         viewHolder.progressBar.setVisibility(View.GONE);
         viewHolder.title.setText(repo.getTitle());
         viewHolder.subtitle.setText(repo.getSubtitle());
-        viewHolder.icon.setImageResource(repo.getIcon());
+        ImageLoader.getInstance().displayImage("drawable://" + repo.getIcon(), viewHolder.icon, iconOptions);
         viewHolder.action.setVisibility(View.INVISIBLE);
         return view;
     }
@@ -205,7 +207,7 @@ public class SeafItemAdapter extends BaseAdapter {
             viewHolder.progressBar.setVisibility(View.GONE);
 
             viewHolder.subtitle.setText(dirent.getSubtitle());
-            viewHolder.icon.setImageResource(dirent.getIcon());
+            ImageLoader.getInstance().displayImage("drawable://" + dirent.getIcon(), viewHolder.icon, iconOptions);
             viewHolder.action.setVisibility(View.VISIBLE);
             setDirAction(dirent, viewHolder, position);
         } else {
@@ -293,14 +295,60 @@ public class SeafItemAdapter extends BaseAdapter {
         }
 
         if (Utils.isViewableImage(file.getName())) {
-            tnh.addThumbnailAsync(dataManager, viewHolder.icon, repoName, repoID, filePath);
+            DisplayImageOptions options = new DisplayImageOptions.Builder()
+                    .extraForDownloader(dataManager.getAccount())
+                    .delayBeforeLoading(500)
+                    .resetViewBeforeLoading(true)
+                    .showImageOnLoading(R.drawable.file_image)
+                    .showImageForEmptyUri(R.drawable.file_image)
+                    .showImageOnFail(R.drawable.file_image)
+                    .cacheInMemory(true)
+                    .cacheOnDisk(true)
+                    .considerExifParams(true)
+                    .preProcessor(new BitmapProcessor() {
+                        @Override
+                        public Bitmap process(Bitmap bmp) {
+                            //  if we use cached files as thumbs, we have to resize them
+                            int target_x, target_y;
+                            if (bmp.getWidth() > bmp.getHeight()) {
+                                target_x = DataManager.caculateThumbnailSizeOfDevice();
+                                target_y = (int) (1.0 * bmp.getHeight() / bmp.getWidth() * target_x);
+                            } else {
+                                target_y = DataManager.caculateThumbnailSizeOfDevice();
+                                target_x = (int) (1.0 * bmp.getWidth() / bmp.getHeight() * target_y);
+                            }
+                            return Bitmap.createScaledBitmap(bmp, target_x, target_y, false);
+                        }
+                    })
+                    .build();
+
+            ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
+            String url = dataManager.getThumbnailLink(repoName, repoID, filePath, DataManager.caculateThumbnailSizeOfDevice());
+            ImageLoader.getInstance().displayImage(url, viewHolder.icon, options, animateFirstListener);
         } else {
-            viewHolder.icon.setImageResource(dirent.getIcon());
+            ImageLoader.getInstance().displayImage("drawable://" + dirent.getIcon(), viewHolder.icon, iconOptions);
         }
 
         setFileAction(dirent, viewHolder, position, cacheExists);
     }
 
+    /**
+     * Do a fancy fade-in of thumbnails.
+     */
+    private static class AnimateFirstDisplayListener extends SimpleImageLoadingListener {
+        static final List<String> displayedImages = Collections.synchronizedList(new LinkedList<String>());
+        @Override
+        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+            if (loadedImage != null) {
+                ImageView imageView = (ImageView) view;
+                boolean firstDisplay = !displayedImages.contains(imageUri);
+                if (firstDisplay) {
+                    FadeInBitmapDisplayer.animate(imageView, 1000);
+                    displayedImages.add(imageUri);
+                }
+            }
+        }
+    }
 
     private View getCacheView(SeafCachedFile item, View convertView, ViewGroup parent) {
         View view = convertView;
@@ -325,7 +373,7 @@ public class SeafItemAdapter extends BaseAdapter {
         viewHolder.progressBar.setVisibility(View.GONE);
         viewHolder.title.setText(item.getTitle());
         viewHolder.subtitle.setText(item.getSubtitle());
-        viewHolder.icon.setImageResource(item.getIcon());
+        ImageLoader.getInstance().displayImage("drawable://" + item.getIcon(), viewHolder.icon, iconOptions);
         viewHolder.action.setVisibility(View.INVISIBLE);
         return view;
     }

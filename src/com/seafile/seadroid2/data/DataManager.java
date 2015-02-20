@@ -1,22 +1,14 @@
 package com.seafile.seadroid2.data;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import android.graphics.Bitmap;
-import android.text.TextUtils;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.fileschooser.SelectableFile;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,7 +24,6 @@ import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.util.BitmapUtil;
 import com.seafile.seadroid2.util.Utils;
 
 public class DataManager {
@@ -122,76 +113,23 @@ public class DataManager {
         return new File(p);
     }
 
-    public static File getThumbFile(String oid) {
-        String p = Utils.pathJoin(getThumbDirectory(), oid + ".png");
-        return new File(p);
-    }
-
     // Obtain a cache file for storing a directory with oid
     public static File getFileForDirentsCache(String oid) {
         return new File(getExternalCacheDirectory() + "/" + oid);
     }
     
-    public static File getAvatarCacheDirectory() {
-        return new File(getExternalCacheDirectory() + "/avatar");
+    public static File getImageCacheDirectory() {
+        return new File(getExternalCacheDirectory() + "/images");
     }
 
-    public boolean isThumbnailCached(String repoID, String path, int sizeHint) {
+    public String getThumbnailLink(String repoName, String repoID, String filePath, int size) {
+        File file = getLocalRepoFile(repoName, repoID, filePath);
 
-        String hashedFilename = Utils.hashString(repoID + path + sizeHint);
-        File thumb = getThumbFile(hashedFilename);
-        return thumb.exists();
-    }
-
-    public byte[] calculateThumbnail(File file, int size) {
-        Bitmap imageBitmap = BitmapUtil.calculateThumbnail(file.getPath(), size);
-        if (imageBitmap == null) {
-            return null;
-        }
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-        return baos.toByteArray();
-    }
-
-    /**
-     * fetch image thumbnail from seafile server
-     */
-    public File getThumbnail(String repoName, String repoID, String path, int sizeHint) {
-        String hashedFilename = Utils.hashString(repoID + path + sizeHint);
-        File thumb = getThumbFile(hashedFilename);
-
-        try {
-
-            // TODO: what if the file on the server has changed?
-            if (thumb.createNewFile()) {
-
-                File file = getLocalRepoFile(repoName, repoID, path);
-                byte[] img = null;
-
-                if (file.exists()) {
-                    img = calculateThumbnail(file, sizeHint);
-                } else {
-                    Log.d(DEBUG_TAG, "Downloading thumbnail "+path);
-                    img = sc.getThumbnail(repoID, path, sizeHint);
-                    Log.d(DEBUG_TAG, "Downloaded thumbnail "+path);
-                }
-
-                if (img != null) {
-                    FileOutputStream out = new FileOutputStream(thumb);
-                    out.write(img);
-                    out.close();
-                }
-
-            }
-
-            return thumb;
-
-        } catch (SeafException e) {
-            thumb.delete();
-            return new File("");
-        } catch (IOException e) {
-            thumb.delete();
-            return new File("");
+        // use locally cached file if available
+        if (file.exists()) {
+            return "file://"+file.getAbsolutePath();
+        } else {
+            return sc.getThumbnailLink(repoID, filePath, size);
         }
     }
 
