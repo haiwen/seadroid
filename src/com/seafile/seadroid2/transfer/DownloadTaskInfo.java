@@ -33,4 +33,21 @@ public class DownloadTaskInfo extends TransferTaskInfo {
         this.fileSize = fileSize;
         this.finished = finished;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || (obj.getClass() != this.getClass()))
+            return false;
+
+        DownloadTaskInfo a = (DownloadTaskInfo)obj;
+        if (!super.equals(a))
+            return false;
+
+        if (a.pathInRepo == null)
+            return false;
+
+        return a.pathInRepo.equals(this.pathInRepo) && a.fileSize==this.fileSize && a.finished==this.finished;
+    }
 }

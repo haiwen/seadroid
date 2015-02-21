@@ -272,7 +272,6 @@ public class ReposFragment extends SherlockListFragment {
             @Override
             public void run() {
                 adapter.setDownloadTaskList(mActivity.getTransferService().getAllDownloadTaskInfos());
-                adapter.notifyDataSetChanged();
                 Log.d(DEBUG_TAG, "timer post refresh signal " + System.currentTimeMillis());
                 mTimer.postDelayed(this, 1 * 1000);
             }

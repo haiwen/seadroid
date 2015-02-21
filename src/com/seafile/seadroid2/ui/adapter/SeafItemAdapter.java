@@ -85,10 +85,23 @@ public class SeafItemAdapter extends BaseAdapter {
      * <p>
      * This method should be called after the download folder button was clicked.
      * 
-     * @param downloadTaskInfos
+     * @param newList
      */
-    public void setDownloadTaskList(List<DownloadTaskInfo> downloadTaskInfos) {
-        this.mDownloadTaskInfos = downloadTaskInfos;
+    public void setDownloadTaskList(List<DownloadTaskInfo> newList) {
+
+        if (this.mDownloadTaskInfos == null || newList.size() != this.mDownloadTaskInfos.size()) {
+            this.mDownloadTaskInfos = newList;
+            notifyDataSetChanged();
+            return;
+        }
+        for (int i=0; i<newList.size(); i++) {
+            if (!newList.get(i).equals(this.mDownloadTaskInfos.get(i))) {
+                this.mDownloadTaskInfos = newList;
+                notifyDataSetChanged();
+                return;
+            }
+        }
+
     }
 
     public void addEntry(SeafItem entry) {
