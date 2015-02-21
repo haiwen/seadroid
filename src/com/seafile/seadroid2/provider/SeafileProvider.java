@@ -113,7 +113,7 @@ public class SeafileProvider extends DocumentsProvider {
 
             row.add(Root.COLUMN_ROOT_ID, a.getServerHost());
             row.add(Root.COLUMN_ICON, R.drawable.ic_launcher);
-            row.add(Root.COLUMN_FLAGS, 0);
+            row.add(Root.COLUMN_FLAGS, Root.FLAG_SUPPORTS_IS_CHILD);
             row.add(Root.COLUMN_TITLE, a.getName());
             row.add(Root.COLUMN_DOCUMENT_ID, a.getServer());
         }
@@ -248,6 +248,11 @@ public class SeafileProvider extends DocumentsProvider {
 
 
         return(result);
+    }
+
+    @Override
+    public boolean isChildDocument(String parentId, String documentId) {
+        return documentId.startsWith(parentId);
     }
 
     @Override
