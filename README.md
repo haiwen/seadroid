@@ -2,8 +2,26 @@
 
 ## Build the APK
 
+* Make sure you have installed Java Development Kit 6 or 7
 * Make sure you have installed [Maven](http://maven.apache.org/) 3.1.1+
-* Build the apk by:
+* Make sure you have installed the [Android SDK](http://developer.android.com/sdk/index.html) then:
+
+```
+export ANDROID_HOME=<android SDK location>
+export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
+echo "y" | android update sdk -a --filter tools,platform-tools,build-tools-20.0.0,android-19 --no-ui --force
+```
+
+* Install [Maven Android SDK Deployer](https://github.com/simpligility/maven-android-sdk-deployer) with:
+
+```
+cd /tmp/
+git clone https://github.com/mosabua/maven-android-sdk-deployer.git
+cd maven-android-sdk-deployer
+mvn clean install -pl platforms/android-19
+```
+
+* Return in `seadroid` directory and build the APK with:
 
 ```
 mvn clean package
