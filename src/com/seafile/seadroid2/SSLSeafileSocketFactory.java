@@ -122,8 +122,7 @@ public class SSLSeafileSocketFactory extends SSLSocketFactory {
                     "DHE-RSA-AES256-SHA",
                     "DHE-DSS-AES128-SHA",
                     "AES128-SHA",
-                    "AES256-SHA",
-                    "RC4-SHA"
+                    "AES256-SHA"
             };
         } else {
             preferredCiphers = new String[] {
@@ -138,13 +137,10 @@ public class SSLSeafileSocketFactory extends SSLSocketFactory {
                     "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
                     "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
                     "TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
-                    "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
-                    "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA",
 
                     // backward compatibility. offers no forward security.
                     "TLS_RSA_WITH_AES_128_CBC_SHA",
                     "TLS_RSA_WITH_AES_256_CBC_SHA",
-                    "SSL_RSA_WITH_RC4_128_SHA",
 
                     // RFC 5746
                     "TLS_EMPTY_RENEGOTIATION_INFO_SCSV"
