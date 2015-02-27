@@ -134,8 +134,8 @@ public class SeafConnection {
 
         // This is kinda hacky. Not sure what the proper encoding function would be.
         String pathEnc = "";
-        for(String s: path.split("/")) {
-            pathEnc += "/"+URLEncoder.encode(s, "UTF-8");
+        for (String s : path.split("/")) {
+            pathEnc += "/" + URLEncoder.encode(s, "UTF-8");
             pathEnc = pathEnc.replaceAll("\\+", "%20");
         }
         return pathEnc;
@@ -385,7 +385,7 @@ public class SeafConnection {
     public String getThumbnailLink(String repoID, String path, int size) {
         try {
             String pathEnc = encodeThumbnailFilePath(path);
-            return account.getServer()+String.format("api2/repos/%s/thumbnail/%s?s=%s", repoID, pathEnc, size);
+            return account.getServer() + String.format("api2/repos/%s/thumbnail/%s?s=%s", repoID, pathEnc, size);
         } catch (UnsupportedEncodingException e) {
             return null;
         }
@@ -1051,5 +1051,4 @@ public class SeafConnection {
             return SeafException.networkException;
         }
     }
-
 }

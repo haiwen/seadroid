@@ -118,8 +118,8 @@ public class DataManager {
         return new File(getExternalCacheDirectory() + "/" + oid);
     }
     
-    public static File getImageCacheDirectory() {
-        return new File(getExternalCacheDirectory() + "/images");
+    public static File getThumbnailCacheDirectory() {
+        return new File(getExternalCacheDirectory() + "/thumbnails");
     }
 
     public String getThumbnailLink(String repoName, String repoID, String filePath, int size) {
@@ -127,7 +127,7 @@ public class DataManager {
 
         // use locally cached file if available
         if (file.exists()) {
-            return "file://"+file.getAbsolutePath();
+            return "file://" + file.getAbsolutePath();
         } else {
             return sc.getThumbnailLink(repoID, filePath, size);
         }
