@@ -318,8 +318,8 @@ public class SeafileProvider extends DocumentsProvider {
             final ParcelFileDescriptor[] pair = ParcelFileDescriptor.createPipe();
 
             // writing into the file descriptor might block, so do it in another thread
-            new AsyncTask<Void, Void, Void>() {
-                protected Void doInBackground(Void... v) {
+            new Thread() {
+                public void run() {
                     try {
                         FileOutputStream fileStream = new FileOutputStream(pair[1].getFileDescriptor());
 
@@ -329,11 +329,9 @@ public class SeafileProvider extends DocumentsProvider {
                     } catch (IOException e) {
                         Log.d(getClass().getSimpleName(), "could not transfer thumbnail.");
                     }
-
-                    return null;
                 }
 
-            }.execute();
+            }.start();
 
             return new AssetFileDescriptor(pair[0], 0, AssetFileDescriptor.UNKNOWN_LENGTH);
 
