@@ -6,8 +6,8 @@
 
         <ImageView
                 android:id="@+id/list_item_icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="@dimen/lv_icon_width"
+                android:layout_height="@dimen/lv_item_height"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"/>

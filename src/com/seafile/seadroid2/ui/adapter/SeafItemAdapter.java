@@ -28,6 +28,7 @@ import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListene
 import com.nostra13.universalimageloader.core.process.BitmapProcessor;
 import com.seafile.seadroid2.NavContext;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafCachedFile;
 import com.seafile.seadroid2.data.SeafDirent;
@@ -318,25 +319,10 @@ public class SeafItemAdapter extends BaseAdapter {
                     .cacheInMemory(true)
                     .cacheOnDisk(true)
                     .considerExifParams(true)
-                    .preProcessor(new BitmapProcessor() {
-                        @Override
-                        public Bitmap process(Bitmap bmp) {
-                            //  if we use cached files as thumbs, we have to resize them
-                            int target_x, target_y;
-                            if (bmp.getWidth() > bmp.getHeight()) {
-                                target_x = DataManager.caculateThumbnailSizeOfDevice();
-                                target_y = (int) (1.0 * bmp.getHeight() / bmp.getWidth() * target_x);
-                            } else {
-                                target_y = DataManager.caculateThumbnailSizeOfDevice();
-                                target_x = (int) (1.0 * bmp.getWidth() / bmp.getHeight() * target_y);
-                            }
-                            return Bitmap.createScaledBitmap(bmp, target_x, target_y, false);
-                        }
-                    })
                     .build();
 
             ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
-            String url = dataManager.getThumbnailLink(repoName, repoID, filePath, DataManager.caculateThumbnailSizeOfDevice());
+            String url = dataManager.getThumbnailLink(repoName, repoID, filePath, getThumbnailWidth());
             ImageLoader.getInstance().displayImage(url, viewHolder.icon, options, animateFirstListener);
         } else {
             ImageLoader.getInstance().displayImage("drawable://" + dirent.getIcon(), viewHolder.icon, iconOptions);
@@ -604,6 +590,10 @@ public class SeafItemAdapter extends BaseAdapter {
 
         mQuickAction.mAnimateTrack(false);
         return mQuickAction;
+    }
+
+    private int getThumbnailWidth() {
+        return (int) SeadroidApplication.getAppContext().getResources().getDimension(R.dimen.lv_icon_width);
     }
 
     public void setEncryptedRepo(boolean encrypted) {

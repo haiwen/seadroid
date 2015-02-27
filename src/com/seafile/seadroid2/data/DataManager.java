@@ -14,7 +14,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.os.Environment;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
 
@@ -130,23 +129,6 @@ public class DataManager {
             return "file://" + file.getAbsolutePath();
         } else {
             return sc.getThumbnailLink(repoID, filePath, size);
-        }
-    }
-
-    public static int caculateThumbnailSizeOfDevice() {
-        DisplayMetrics metrics = SeadroidApplication.getAppContext().getResources().getDisplayMetrics();
-
-        switch(metrics.densityDpi) {
-        case DisplayMetrics.DENSITY_LOW:
-            return 36;
-        case DisplayMetrics.DENSITY_MEDIUM:
-            return 48;
-        case DisplayMetrics.DENSITY_HIGH:
-            return 72;
-        case DisplayMetrics.DENSITY_XHIGH:
-            return 96;
-        default:
-            return 36;
         }
     }
 
