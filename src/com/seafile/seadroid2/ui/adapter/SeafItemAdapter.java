@@ -55,6 +55,7 @@ public class SeafItemAdapter extends BaseAdapter {
     private static final int ACTION_ID_SHARE = 5;
     private static final int ACTION_ID_COPY = 6;
     private static final int ACTION_ID_MOVE = 7;
+    private static final int ACTION_ID_STAR = 8;
 
     @Override
     public int getCount() {
@@ -414,7 +415,7 @@ public class SeafItemAdapter extends BaseAdapter {
         final QuickAction mQuickAction = new QuickAction(mActivity);
         Resources resources = mActivity.getResources();
         ActionItem shareAction, downloadAction, updateAction, exportAction, renameAction, deleteAction,
-               copyAction, moveAction;
+               copyAction, moveAction, starAction;
 
         if (!repoIsEncrypted) {
             shareAction = new ActionItem(ACTION_ID_SHARE,
@@ -463,6 +464,11 @@ public class SeafItemAdapter extends BaseAdapter {
             mQuickAction.addActionItem(downloadAction);
         }
 
+        starAction = new ActionItem(ACTION_ID_STAR,
+                resources.getString(R.string.file_action_star),
+                resources.getDrawable(R.drawable.action_star));
+        mQuickAction.addActionItem(starAction);
+
         //setup the action item click listener
         mQuickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
             @Override
@@ -499,6 +505,9 @@ public class SeafItemAdapter extends BaseAdapter {
                     break;
                 case ACTION_ID_MOVE:
                     mActivity.moveFile(repoID, repoName, dir, filename, false);
+                    break;
+                case ACTION_ID_STAR:
+                    mActivity.starFile(repoID, dir, filename);
                     break;
                 }
             }

@@ -20,6 +20,7 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafStarredFile;
 import com.seafile.seadroid2.ui.PullToRefreshListView;
+import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.adapter.StarredItemAdapter;
 import com.seafile.seadroid2.util.Utils;
@@ -190,6 +191,17 @@ public class StarredFragment extends SherlockListFragment {
         mActivity.onStarredFileSelected(starredFile);
     }
 
+    public void doStarFile(String repoID, String path, String filename) {
+
+        if (!Utils.isNetworkOn()) {
+            ToastUtils.show(mActivity, R.string.network_down);
+            return;
+        }
+
+        String p = Utils.pathJoin(path, filename);
+        ConcurrentAsyncTask.execute(new StarFileTask(repoID, p));
+    }
+
     private class LoadStarredFilesTask extends AsyncTask<Void, Void, List<SeafStarredFile> > {
 
         SeafException err = null;
@@ -249,5 +261,36 @@ public class StarredFragment extends SherlockListFragment {
         }
     }
 
+    class StarFileTask extends AsyncTask<Void, Void, Void> {
+        private String repoId;
+        private String path;
+        private SeafException err;
 
+        public StarFileTask(String repoId, String path) {
+            this.repoId = repoId;
+            this.path = path;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            try {
+                mActivity.getDataManager().star(repoId, path);
+            } catch (SeafException e) {
+                err = e;
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void v) {
+            if (err != null) {
+                ToastUtils.show(mActivity, R.string.star_file_failed);
+                return;
+            }
+
+            ToastUtils.show(mActivity, R.string.star_file_succeed);
+        }
+    }
 }

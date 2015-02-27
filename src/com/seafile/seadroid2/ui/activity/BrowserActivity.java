@@ -1360,6 +1360,10 @@ public class BrowserActivity extends SherlockFragmentActivity
         chooseCopyMoveDest(srcRepoId, srcRepoName, srcDir, srcFn, isdir, CopyMoveContext.OP.MOVE);
     }
 
+    public void starFile(String srcRepoId, String srcDir, String srcFn) {
+        getStarredFragment().doStarFile(srcRepoId, srcDir, srcFn);
+    }
+
     private void chooseCopyMoveDest(String repoID, String repoName, String path,
                                     String filename, boolean isdir, CopyMoveContext.OP op) {
         copyMoveContext = new CopyMoveContext(repoID, repoName, path, filename,

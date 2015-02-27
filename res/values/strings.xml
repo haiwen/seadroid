@@ -64,6 +64,7 @@
     <string name="task_remove">Remove</string>
     <string name="task_remove_all_cancelled">Remove all cancelled</string>
     <string name="task_remove_all_finished">Remove all finished</string>
+    <string name="file_action_star">Star</string>
     <string name="file_action_download">Download</string>
     <string name="file_action_remove_cache">Remove Cache</string>
     <string name="file_action_update">Upload</string>
@@ -315,4 +316,8 @@
     <string name="search_content_empty">Nothing was found</string>
     <string name="search_server_not_support">Oops, Search was not supported on this server!</string>
     <string name="search_library_not_found">Couldn\'t find this library. It may be deleted</string>
+
+    <!-- star a file -->
+    <string name="star_file_succeed">File starred successfully</string>
+    <string name="star_file_failed">File starred failed</string>
 </resources>
