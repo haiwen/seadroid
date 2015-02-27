@@ -41,13 +41,13 @@ public class DownloadTaskInfo extends TransferTaskInfo {
         if (obj == null || (obj.getClass() != this.getClass()))
             return false;
 
-        DownloadTaskInfo a = (DownloadTaskInfo)obj;
+        DownloadTaskInfo a = (DownloadTaskInfo) obj;
         if (!super.equals(a))
             return false;
 
         if (a.pathInRepo == null)
             return false;
 
-        return a.pathInRepo.equals(this.pathInRepo) && a.fileSize==this.fileSize && a.finished==this.finished;
+        return a.pathInRepo.equals(this.pathInRepo) && a.fileSize == this.fileSize && a.finished == this.finished;
     }
 }

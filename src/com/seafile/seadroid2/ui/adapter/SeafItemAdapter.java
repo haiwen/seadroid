@@ -94,7 +94,7 @@ public class SeafItemAdapter extends BaseAdapter {
             notifyDataSetChanged();
             return;
         }
-        for (int i=0; i<newList.size(); i++) {
+        for (int i = 0; i < newList.size(); i++) {
             if (!newList.get(i).equals(this.mDownloadTaskInfos.get(i))) {
                 this.mDownloadTaskInfos = newList;
                 notifyDataSetChanged();

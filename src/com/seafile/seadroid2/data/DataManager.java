@@ -127,7 +127,7 @@ public class DataManager {
 
         // use locally cached file if available
         if (file.exists()) {
-            return "file://"+file.getAbsolutePath();
+            return "file://" + file.getAbsolutePath();
         } else {
             return sc.getThumbnailLink(repoID, filePath, size);
         }
