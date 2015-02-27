@@ -118,8 +118,8 @@ public class DataManager {
         return new File(getExternalCacheDirectory() + "/" + oid);
     }
     
-    public static File getImageCacheDirectory() {
-        return new File(getExternalCacheDirectory() + "/images");
+    public static File getThumbnailCacheDirectory() {
+        return new File(getExternalCacheDirectory() + "/thumbnails");
     }
 
     public String getThumbnailLink(String repoName, String repoID, String filePath, int size) {
