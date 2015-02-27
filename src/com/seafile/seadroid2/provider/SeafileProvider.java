@@ -317,6 +317,12 @@ public class SeafileProvider extends DocumentsProvider {
             final Bitmap bmp = ImageLoader.getInstance().loadImageSync(url, options);
             final ParcelFileDescriptor[] pair = ParcelFileDescriptor.createPipe();
 
+            if (bmp == null) {
+                throw new FileNotFoundException(SeadroidApplication.getAppContext()
+                        .getResources()
+                        .getString(R.string.saf_open_file_exception, documentId));
+            }
+
             // writing into the file descriptor might block, so do it in another thread
             new Thread() {
                 public void run() {
