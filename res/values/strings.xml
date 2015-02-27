@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name">Seafile</string>
-    <string name="app_url">http://seafile.com</string>
+    <string name="app_name" translatable="false">Seafile</string>
+    <string name="app_url" translatable="false">http://seafile.com</string>
     <string name="welcome_to_seafile">Welcome to Seafile</string>
     <string name="select_account">Choose an account to start</string>
     <string name="edit_account">Edit</string>
@@ -28,7 +28,7 @@
     <string name="cached">Cached</string>
     <string name="activities">Activities</string>
     <string name="pick_upload_type">Upload</string>
-    <string name="accounts_https_hint">https</string>
+    <string name="accounts_https_hint" translatable="false">https</string>
     <string name="transfer_tasks">Transfer List</string>
     <string name="accounts">Accounts</string>
     <string name="settings">Settings</string>
