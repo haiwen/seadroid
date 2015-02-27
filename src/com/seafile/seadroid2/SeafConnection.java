@@ -888,6 +888,22 @@ public class SeafConnection {
         }
     }
 
+    public void star(String repoID, String path) throws SeafException {
+        try {
+            HttpRequest req = prepareApiPostRequest("api2/starredfiles/", true, null);
+
+            req.form("repo_id", repoID);
+            req.form("p", path);
+
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_CREATED);
+
+        } catch (SeafException e) {
+            throw e;
+        } catch (HttpRequestException e) {
+            throw getSeafExceptionFromHttpRequestException(e);
+        }
+    }
+
     public Pair<String, String> rename(String repoID, String path,
                                        String newName, boolean isdir) throws SeafException {
         try {

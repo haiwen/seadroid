@@ -635,6 +635,10 @@ public class DataManager {
         }
     }
 
+    public void star(String repoID, String path) throws SeafException {
+        sc.star(repoID, path);
+    }
+
     public void rename(String repoID, String path, String newName, boolean isdir) throws SeafException {
         Pair<String, String> ret = sc.rename(repoID, path, newName, isdir);
         if (ret == null) {
