@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="app_name">Seafile</string>
-    <string name="app_url">http://seafile.com</string>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name" translatable="false">Seafile</string>
+    <string name="app_url" translatable="false">http://seafile.com</string>
     <string name="welcome_to_seafile">Welcome to Seafile</string>
     <string name="select_account">Choose an account to start</string>
     <string name="edit_account">Edit</string>
@@ -20,7 +20,7 @@
     <string name="redownload_file">Download again</string>
     <string name="cancel_download">Cancel</string>
     <string name="unknown_file_type">Unknown file type</string>
-    <string name="activity_not_found">Can not find App to open this file</string>
+    <string name="activity_not_found">Can\`t find App to open this file</string>
     <string name="refresh">Refresh</string>
     <string name="add_account">Add Account</string>
     <string name="personal">Personal</string>
@@ -28,7 +28,7 @@
     <string name="cached">Cached</string>
     <string name="activities">Activities</string>
     <string name="pick_upload_type">Upload</string>
-    <string name="accounts_https_hint">https</string>
+    <string name="accounts_https_hint" translatable="false">https</string>
     <string name="transfer_tasks">Transfer List</string>
     <string name="accounts">Accounts</string>
     <string name="settings">Settings</string>
@@ -48,9 +48,9 @@
     <string name="network_down">No network connection</string>
     <string name="unknow_error">Unknown error</string>
     <string name="invalid_server_address">Invalid server address</string>
-    <string name="err_server_andress_empty">Server address can not be empty</string>
-    <string name="err_email_empty">Email can not be empty</string>
-    <string name="err_passwd_empty">Password can not be empty</string>
+    <string name="err_server_andress_empty">Server address can\`t be empty</string>
+    <string name="err_email_empty">Email can\`t be empty</string>
+    <string name="err_passwd_empty">Password can\`t be empty</string>
     <string name="err_login_failed">Login failed</string>
     <string name="err_wrong_user_or_passwd">Email or password error</string>
     <string name="upload">Upload</string>
@@ -83,10 +83,14 @@
         <item>Other</item>
     </string-array>
     <string name="wait">Wait</string>
-    <string name="image_gallery_NoImageView_text">No image Found</string>
+    <string name="image_gallery_NoImageView_text">No image found</string>
     <string name="pick_photo_video_title">Choose photos/videos to upload</string>
-    <string name="select_upload_items">select items to upload</string>
-    <string name="n_upload_items_selected">%d items selected</string>
+    <string name="select_upload_items">Select items to upload</string>
+    <plurals name="n_upload_items_selected">
+        <item quantity="one"><xliff:g id="number_of_selected">%1$d</xliff:g> item selected</item>
+        <item quantity="other"><xliff:g id="numbers_of_selected">%1$d</xliff:g> items selected</item>
+    </plurals>
+
     <string name="dir_name_empty">Please enter the name of the folder</string>
     <string name="file_name_empty">Please enter the name of the file</string>
     <string name="password_empty">Please enter the password</string>
@@ -99,12 +103,12 @@
     <string name="no_app_available">No app can be found</string>
     <string name="add_to_seafile">Add to Seafile</string>
     <string name="ok">OK</string>
-    <string name="no_account">Please setup an account in Seafile first</string>
+    <string name="no_account">Please set up an account in Seafile first</string>
     <string name="no_library">You have no library yet</string>
     <string name="choose_an_account">Choose an account</string>
     <string name="choose_a_library">Choose a library</string>
     <string name="choose_a_folder">Choose a folder</string>
-    <string name="load_accounts_fail">Failed to load seafile accounts</string>
+    <string name="load_accounts_fail">Failed to load Seafile accounts</string>
     <string name="load_libraries_fail">Failed to load libraries</string>
     <string name="load_dir_fail">Failed to load contents of this folder</string>
     <string name="not_supported_share">This type of share is not supported</string>
@@ -117,7 +121,7 @@
     <string name="last_modified">last modified</string>
     <string name="file_modified">modified</string>
     <string name="file_size">file size</string>
-    <string name="library_not_found">The library have been deleted.</string>
+    <string name="library_not_found">The library has been deleted.</string>
     <string name="export_file">Export this file</string>
     <string name="no_upload_tasks">No upload tasks yet</string>
     <string name="no_download_tasks">No download tasks yet</string>
@@ -139,7 +143,7 @@
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     <string name="no_starred_file">No starred file yet</string>
-    <string name="added_to_upload_tasks">The selected file(s) is added to the upload tasks list.</string>
+    <string name="added_to_upload_tasks">The selected file(s) have been added to the upload tasks list.</string>
     <string name="added_photo_to_upload_tasks">The photo is being uploaded</string>
     <string name="take_photo_successfully">Take Photo successfully</string>
     <string name="tabs_library">Libraries</string>
@@ -150,25 +154,28 @@
     <string name="upload_finished">Finished</string>
     <string name="upload_cancelled">Cancelled</string>
     <string name="upload_failed">Failed</string>
-    <string name="days_ago"> days ago</string>
-    <string name="hours_ago"> hours ago</string>
-    <string name="minutes_ago"> minutes ago</string>
-    <string name="seconds_ago"> seconds ago</string>
+    <string name="days_ago">%d days ago</string>
+    <string name="hours_ago">%d hours ago</string>
+    <string name="minutes_ago">%d minutes ago</string>
+    <string name="seconds_ago">%d seconds ago</string>
     <string name="just_now">Just now</string>
     <string name="error_when_load_starred">Error when loading starred files</string>
     <string name="open_as">Open as</string>
-    <string name="select_upload_files">select files to upload</string>
+    <string name="select_upload_files">Select files to upload</string>
     <string name="storage_removed">Storage was removed</string>
     <string name="error_selecting_file">Error when selecting file</string>
-    <string name="n_upload_files_selected">%d file(s) selected</string>
+    <plurals name="n_upload_files_selected">
+        <item quantity="one"><xliff:g id="number_of_selected">%1$d</xliff:g> file selected</item>
+        <item quantity="other"><xliff:g id="numbers_of_selected">%1$d</xliff:g> files selected</item>
+    </plurals>
     <string name="empty_folder">Empty folder</string>
     <string name="choose_file">Choose a file</string>
-    <string name="ssl_error">security check failed</string>
+    <string name="ssl_error">Security check failed</string>
     <string name="ssl_confirm">The security certificate of %s is not trusted. Do you want to continue?</string>
     <string name="ssl_confirm_cert_changed">%s uses an invalid security certificate. The connection is not secure. Do you want to continue?</string>
     <string name="ssl_confirm_title">Untrusted Connection</string>
     <string name="issued_to">Issued To</string>
-    <string name="finger_prints">Finger Prints</string>
+    <string name="finger_prints">Fingerprints</string>
     <string name="period_of_validity">Period of Validity</string>
     <string name="sha1">SHA-1 %s</string>
     <string name="md5">MD5 %s</string>
@@ -179,14 +186,14 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="remember_my_choice">Remember my choice</string>
-    <string name="copied_successfully">Copied Successfully</string>
-    <string name="moved_successfully">Moved Successfully</string>
+    <string name="copied_successfully">Copied successfully</string>
+    <string name="moved_successfully">Moved successfully</string>
     <string name="internal_server_error">Internal Server Error</string>
     <string name="copy_file_ing">Copying file</string>
     <string name="move_file_ing">Moving file</string>
     <string name="copy_folder_ing">Copying folder</string>
     <string name="move_folder_ing">Moving folder</string>
-    <string name="upload_started">upload is started</string>
+    <string name="upload_started">Upload is started</string>
     <string name="cannot_copy_folder_to_subfolder">You can\'t copy a folder to its subfolder</string>
     <string name="cannot_move_folder_to_subfolder">You can\'t move a folder to its subfolder</string>
     <string name="cancel">Cancel</string>
@@ -194,7 +201,7 @@
 
     <string name="settings_account">Account</string>
     <string name="settings_account_info_title">User info</string>
-    <string name="settings_account_info_load_data">loading...</string>
+    <string name="settings_account_info_load_data">loading&#8230;</string>
     <string name="settings_account_space_title">Space used</string>
     <string name="settings_account_sign_out_title">Sign out</string>
     <string name="settings_account_sign_out_hint">Click to sign out</string>
@@ -210,22 +217,28 @@
     <string name="lockscreen_access_pattern_cell_added">Pattern cell added</string>
     <string name="lockscreen_access_pattern_detected">Pattern detected</string>
     <string name="lockscreen_access_pattern_passwd_forget">Forgot password</string>
-    <string name="lockscreen_access_pattern_failure">Failed 5 times, please wait for 30 seconds before trying</string>
-    <string name="lockscreen_access_pattern_failure_left_try_seconds">You can retry %d seconds later</string>
-    <string name="lockscreen_access_pattern_failure_left_try_times">Incorrect pattern, you can try another %d times</string>
+    <string name="lockscreen_access_pattern_failure">Failed 5 times, please wait 30 seconds before trying</string>
+    <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
+        <item quantity="one">You can retry <xliff:g id="second">%1$d</xliff:g> second later</item>
+        <item quantity="other">You can retry <xliff:g id="seconds">%1$d</xliff:g> seconds later</item>
+    </plurals>
+    <plurals name="lockscreen_access_pattern_failure_left_try_times">
+        <item quantity="one">Incorrect pattern, you can try another <xliff:g id="time">%1$d</xliff:g> time</item>
+        <item quantity="other">Incorrect pattern, you can try another <xliff:g id="times">%1$d</xliff:g> times</item>
+    </plurals>
     <string name="lockscreen_access_pattern_failure_not_long_enough">Linking points not long enough, pelase try again</string>
     <string name="lockpattern_retry_button_text">Retry</string>
     <string name="lockpattern_continue_button_text">Next</string>
     <string name="lockpattern_confirm_button_text">OK</string>
     <string name="lockpattern_recording_intro_header">Please draw Gesture Lock Pattern</string>
     <string name="lockpattern_settings_help_how_to_record">Learn how to draw Gesture Lock Pattern</string>
-    <string name="lockpattern_recording_incorrect_too_short">Link at least 4 points, try again!</string>
+    <string name="lockpattern_recording_incorrect_too_short">Swipe across at least 4 points, try again!</string>
     <string name="lockpattern_pattern_entered_header">Pattern saved</string>
     <string name="lockpattern_need_to_draw">Please draw Gesture Lock pattern</string>
     <string name="lockpattern_need_to_confirm">Please confirm your pattern</string>
-    <string name="lockpattern_need_to_unlock_wrong">Pattern not match, try again!</string>
-    <string name="lockpattern_pattern_confirmed_header">Confirm to save your pattern</string>
-    <string name="lockpattern_recording_inprogress">Move away your firgure after drawing"</string>
+    <string name="lockpattern_need_to_unlock_wrong">Pattern didn\'t match. Try again.</string>
+    <string name="lockpattern_pattern_confirmed_header">Tap OK to save your pattern</string>
+    <string name="lockpattern_recording_inprogress">Release finger when finished drawing</string>
     <string name="lockpattern_pattern_toast_saved">Gesture Lock Pattern successfully saved</string>
     
      <!--  Strings for possible PreferenceActivity Back/Next buttons -->
@@ -253,7 +266,7 @@
     <string name="settings_about_author_title">About Author</string>
     <string name="settings_about_author_info">
         <![CDATA[
-        <h5>Seafile Andoird Client</h5>
+        <h5>Seafile Android Client</h5>
         <p>%s</p>
         <h5>Contact Us</h5>
         <p>
@@ -266,40 +279,40 @@
         ]]>
     </string>
 
-    <string name="settings_advance_feature_title">ADVANCE FEATURE</string>    
+    <string name="settings_advance_feature_title">ADVANCED FEATURE</string>    
     <string name="settings_cache_title">Cache size</string>
     <string name="settings_clear_cache_title">Clear cache</string>
     <string name="settings_clear_cache_hint">Do you want to clear cache?</string>
-    <string name="settings_clear_cache_success">Clear cache successfully</string>
-    <string name="settings_clear_cache_failed">Clear cache failed</string>
+    <string name="settings_clear_cache_success">Cache cleared successfully</string>
+    <string name="settings_clear_cache_failed">Cache cleared failed</string>
     <string name="settings_cache_empty">0 KB</string>
 
     <!-- pull to refresh -->
-    <string name="pull_to_refresh_pull_label">Pull to refresh…</string>
-    <string name="pull_to_refresh_release_label">Release to refresh…</string>
-    <string name="pull_to_refresh_refreshing_label">Loading…</string>
-    <string name="pull_to_refresh_last_update">Last update :&#160;</string>
-    <string name="pull_to_refresh_last_update_seconds_ago">&#160;seconds ago</string>
-    <string name="pull_to_refresh_last_update_minutes_ago">&#160;minutes ago</string>
-    <string name="pull_to_refresh_last_update_hours_ago">&#160;hours ago</string>
+    <string name="pull_to_refresh_pull_label">Pull to refresh&#8230;</string>
+    <string name="pull_to_refresh_release_label">Release to refresh&#8230;</string>
+    <string name="pull_to_refresh_refreshing_label">Loading&#8230;</string>
+    <string name="pull_to_refresh_last_update">Last update:&#160;</string>
+    <string name="pull_to_refresh_last_update_seconds_ago">%d seconds ago</string>
+    <string name="pull_to_refresh_last_update_minutes_ago">%d minutes ago</string>
+    <string name="pull_to_refresh_last_update_hours_ago">%d hours ago</string>
 
     <!-- storage access framework -->
-    <string name="saf_open_file_exception">Could not open file %s.</string>
-    <string name="saf_open_directory_exception">Can not open directory.</string>
+    <string name="saf_open_file_exception">Couldn\'t open file %s.</string>
+    <string name="saf_open_directory_exception">Can\`t open directory.</string>
     <string name="saf_file_not_cached_exception">File %s not cached.</string>
-    <string name="saf_thumbnail_not_found_exception">Could not find/open thumbnail %s.</string>
-    <string name="saf_file_not_downloaded_exception">Could not download file %s from server.</string>
-    <string name="saf_write_diretory_exception">Can not open directory for reading/writing.</string>
-    <string name="saf_account_not_found_exception">Could not find Seafile account.</string>
+    <string name="saf_thumbnail_not_found_exception">Couldn\'t find/open thumbnail %s.</string>
+    <string name="saf_file_not_downloaded_exception">Couldn\'t download file %s from server.</string>
+    <string name="saf_write_diretory_exception">Can\`t open directory for reading/writing.</string>
+    <string name="saf_account_not_found_exception">Couldn\'t find Seafile account.</string>
 
     <!-- shibboleth SSO -->
     <string name="shib_server_url_empty">Server is empty!</string>
     <string name="shib_server_incorrect_prefix">Server should starts with either http:// or https://</string>
-    <string name="shib_load_page_error">Error: </string>
+    <string name="shib_load_page_error">Error:&#160;</string>
     <string name="shib_login_title">Shibboleth Login</string>
-    <string name="shib_server_hint">Input server...</string>
+    <string name="shib_server_hint">Input server&#8230;</string>
     <string name="shib_actionbar_title">Login with Shibboleth</string>
-    <string name="shib_loading">loading...</string>
+    <string name="shib_loading">loading&#8230;</string>
 
     <!-- Transfer List -->
     <string name="transfer_list_network_error">Network connection error, please try again later!</string>
@@ -314,7 +327,7 @@
     <string name="search_bar_hint">Searching&#8230;</string>
     <string name="search_txt_empty">Please input keywords</string>
     <string name="search_content_empty">Nothing was found</string>
-    <string name="search_server_not_support">Oops, Search was not supported on this server!</string>
+    <string name="search_server_not_support">Oops, search was not supported on this server!</string>
     <string name="search_library_not_found">Couldn\'t find this library. It may be deleted</string>
 
     <!-- star a file -->
