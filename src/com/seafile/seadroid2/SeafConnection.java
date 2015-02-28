@@ -385,6 +385,7 @@ public class SeafConnection {
     public String getThumbnailLink(String repoID, String path, int size) {
         try {
             String pathEnc = encodeThumbnailFilePath(path);
+            // TODO: If there is a "?" in the path, this will break
             return account.getServer() + String.format("api2/repos/%s/thumbnail/%s?s=%s", repoID, pathEnc, size);
         } catch (UnsupportedEncodingException e) {
             return null;
