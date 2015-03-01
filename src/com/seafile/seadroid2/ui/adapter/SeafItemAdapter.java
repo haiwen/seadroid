@@ -25,7 +25,6 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
-import com.nostra13.universalimageloader.core.process.BitmapProcessor;
 import com.seafile.seadroid2.NavContext;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
@@ -323,7 +322,10 @@ public class SeafItemAdapter extends BaseAdapter {
 
             ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
             String url = dataManager.getThumbnailLink(repoName, repoID, filePath, getThumbnailWidth());
-            ImageLoader.getInstance().displayImage(url, viewHolder.icon, options, animateFirstListener);
+            if (url == null) {
+                ImageLoader.getInstance().displayImage("drawable://" + dirent.getIcon(), viewHolder.icon, iconOptions);
+            } else
+                ImageLoader.getInstance().displayImage(url, viewHolder.icon, options, animateFirstListener);
         } else {
             ImageLoader.getInstance().displayImage("drawable://" + dirent.getIcon(), viewHolder.icon, iconOptions);
         }

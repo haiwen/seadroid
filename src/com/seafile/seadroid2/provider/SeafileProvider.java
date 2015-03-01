@@ -299,7 +299,6 @@ public class SeafileProvider extends DocumentsProvider {
         }
 
         String path = DocumentIdParser.getPathFromId(documentId);
-        SeafRepo repo = dm.getCachedRepoByID(repoId);
 
         try {
             // open the file. this might involve talking to the seafile server. this will hang until
@@ -312,7 +311,9 @@ public class SeafileProvider extends DocumentsProvider {
                     .considerExifParams(true)
                     .build();
 
-            String url = dm.getThumbnailLink(repo.getName(), repoId, path, sizeHint.x);
+            String url = dm.getThumbnailLink(repoId, path, sizeHint.x);
+            if (url == null)
+                return null;
 
             final Bitmap bmp = ImageLoader.getInstance().loadImageSync(url, options);
             final ParcelFileDescriptor[] pair = ParcelFileDescriptor.createPipe();

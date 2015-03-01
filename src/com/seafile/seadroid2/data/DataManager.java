@@ -132,6 +132,14 @@ public class DataManager {
         }
     }
 
+    public String getThumbnailLink(String repoID, String filePath, int size) {
+        SeafRepo repo = getCachedRepoByID(repoID);
+        if (repo != null)
+            return getThumbnailLink(repo.getName(), repoID, filePath, size);
+        else
+            return null;
+    }
+
     public Account getAccount() {
         return account;
     }
