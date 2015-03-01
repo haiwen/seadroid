@@ -90,12 +90,11 @@ public class SeafItemAdapter extends BaseAdapter {
         }
         for (int i = 0; i < newList.size(); i++) {
             if (!newList.get(i).equals(this.mDownloadTaskInfos.get(i))) {
-                this.mDownloadTaskInfos = newList;
-                notifyDataSetChanged();
-                return;
+                break;
             }
         }
-
+        this.mDownloadTaskInfos = newList;
+        notifyDataSetChanged();
     }
 
     public void addEntry(SeafItem entry) {
