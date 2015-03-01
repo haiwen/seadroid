@@ -1,5 +1,9 @@
 # Seafile Android Client [![Build Status](https://secure.travis-ci.org/haiwen/seadroid.png?branch=master)](http://travis-ci.org/haiwen/seadroid)
 
+The application has been published onto Google Play for easy access:
+
+[![Get it on Google Play](http://www.android.com/images/brand/get_it_on_play_logo_small.png)](https://play.google.com/store/apps/details?id=com.seafile.seadroid2)
+
 ## Build the APK
 
 * Make sure you have installed Java Development Kit 6 or 7
@@ -29,7 +33,7 @@ mvn clean package
 
 You will get `target/seadroid.apk` after the build finishes.
 
-## Develop in Eclipse
+## Develop in Intellij IDEA/Eclipse
 
 ### Android Dependencies
 
@@ -55,7 +59,7 @@ You will get `target/seadroid.apk` after the build finishes.
     - [guava-17.0.jar](http://search.maven.org/remotecontent?filepath=com/google/guava/guava/17.0/guava-17.0.jar)
     - [universal-image-loader-1.9.3.jar](https://raw.githubusercontent.com/nostra13/Android-Universal-Image-Loader/master/downloads/universal-image-loader-1.9.3.jar)
 
-Now you can build seadroid in eclipse.
+Now you can build seadroid in Intellij IDEA/Eclipse.
 
 ## Internationalization
 
