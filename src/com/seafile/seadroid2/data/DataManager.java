@@ -2,6 +2,8 @@ package com.seafile.seadroid2.data;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -121,6 +123,17 @@ public class DataManager {
         return new File(getExternalCacheDirectory() + "/thumbnails");
     }
 
+    private String encodeThumbnailFilePath(String path) throws UnsupportedEncodingException {
+
+        // This is kinda hacky. Not sure what the proper encoding function would be.
+        String pathEnc = "";
+        for (String s : path.split("/")) {
+            pathEnc += "/" + URLEncoder.encode(s, "UTF-8");
+            pathEnc = pathEnc.replaceAll("\\+", "%20");
+        }
+        return pathEnc;
+    }
+
     public String getThumbnailLink(String repoName, String repoID, String filePath, int size) {
         File file = getLocalRepoFile(repoName, repoID, filePath);
 
@@ -128,7 +141,14 @@ public class DataManager {
         if (file.exists()) {
             return "file://" + file.getAbsolutePath();
         } else {
-            return sc.getThumbnailLink(repoID, filePath, size);
+            try {
+                String pathEnc = encodeThumbnailFilePath(filePath);
+                // TODO: If there is a "?" in the path, this will break
+                return account.getServer() + String.format("api2/repos/%s/thumbnail/%s?s=%s", repoID, pathEnc, size);
+            } catch (UnsupportedEncodingException e) {
+                return null;
+            }
+
         }
     }
 

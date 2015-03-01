@@ -130,17 +130,6 @@ public class SeafConnection {
         return prepareHttpsCheck(req);
     }
 
-    private String encodeThumbnailFilePath(String path) throws UnsupportedEncodingException {
-
-        // This is kinda hacky. Not sure what the proper encoding function would be.
-        String pathEnc = "";
-        for (String s : path.split("/")) {
-            pathEnc += "/" + URLEncoder.encode(s, "UTF-8");
-            pathEnc = pathEnc.replaceAll("\\+", "%20");
-        }
-        return pathEnc;
-    }
-
     /**
      * Login into the server
      * @return true if login success, false otherwise
@@ -380,17 +369,6 @@ public class SeafConnection {
         } catch (HttpRequestException e) {
             throw getSeafExceptionFromHttpRequestException(e);
         }
-    }
-
-    public String getThumbnailLink(String repoID, String path, int size) {
-        try {
-            String pathEnc = encodeThumbnailFilePath(path);
-            // TODO: If there is a "?" in the path, this will break
-            return account.getServer() + String.format("api2/repos/%s/thumbnail/%s?s=%s", repoID, pathEnc, size);
-        } catch (UnsupportedEncodingException e) {
-            return null;
-        }
-
     }
 
     private File getFileFromLink(String dlink, String path, String localPath,
