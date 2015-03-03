@@ -197,8 +197,8 @@
   <string name="settings_camera_upload_info_title">Kamera Fotoğrafı Yükle</string>
   <string name="settings_camera_upload_info">%d fotoğraf(lar)ı şuraya yükle\u0020</string>
   <string name="settings_wifi_down">Wi-Fi kullanılamıyor</string>
-  <string name="settings_startUpService">Yükleme Servisi başladı</string>
-  <string name="settings_stopUpService">Yükleme Servisi durdu</string>
+  <string name="settings_start_upload_service">Yükleme Serşvşsş başladı</string>
+  <string name="settings_stop_upload_service">Yükleme Servisi durdu</string>
   <string name="settings_allow_mobile_connections">2G/3G/4G Bağlantılarına izin ver</string>
   <string name="settings_default_wifi_connection">Wi-Fi sadece varsayılan olarak kullanılsın</string>
   <string name="settings_use_mobile_connections">2G/3G/4G bağlantılarına izin verildi</string>

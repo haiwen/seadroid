@@ -34,8 +34,8 @@
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="camera_upload_switch_key"
-            android:summaryOff="@string/settings_stopUpService"
-            android:summaryOn="@string/settings_startUpService"
+            android:summaryOff="@string/settings_stop_upload_service"
+            android:summaryOn="@string/settings_start_upload_service"
             android:title="@string/settings_start" 
             android:layout="@layout/seafile_checkbox_layout" >
         </CheckBoxPreference>

@@ -247,8 +247,8 @@
     
     <string name="settings_camera_upload_info_title">Camera Photo Upload</string>
     <string name="settings_camera_upload_info">upload %d photo(s) to\u0020</string>
-    <string name="settings_startUpService">Upload Service started</string>
-    <string name="settings_stopUpService">Upload Service stopped</string>    
+    <string name="settings_start_upload_service">Upload service started</string>
+    <string name="settings_stop_upload_service">Upload service stopped</string>
     <string name="settings_allow_mobile_connections">Allow 2G/3G/4G Connections</string>    
     <string name="settings_default_wifi_connection">Use Wi-Fi only by default</string>    
     <string name="settings_use_mobile_connections">2G/3G/4G connections allowed</string>    

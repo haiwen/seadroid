@@ -242,8 +242,8 @@
   <string name="settings_camera_upload_info_title">Subir Foto de Cámara </string>
   <string name="settings_camera_upload_info">subir %d foto(s) a\u0020</string>
   <string name="settings_wifi_down">Wi-Fi no disponible</string>
-  <string name="settings_startUpService">Servicio de Subida iniciado</string>
-  <string name="settings_stopUpService">Servicio de Subida detenido</string>
+  <string name="settings_start_upload_service">Servicio de Subida iniciado</string>
+  <string name="settings_stop_upload_service">Servicio de Subida detenido</string>
   <string name="settings_allow_mobile_connections">Permitir conexiones 2G/3G/4G</string>
   <string name="settings_default_wifi_connection">Usar solamente Wi-Fi de forma predeterminada</string>
   <string name="settings_use_mobile_connections">Conexiones 2G/3G/4G permitidas</string>
