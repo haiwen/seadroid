@@ -8,6 +8,8 @@ import java.util.List;
 
 import android.graphics.Bitmap;
 import android.widget.ProgressBar;
+import com.seafile.seadroid2.ui.AnimateFirstDisplayListener;
+import com.seafile.seadroid2.ui.WidgetUtils;
 import net.londatiga.android.ActionItem;
 import net.londatiga.android.QuickAction;
 import android.content.res.Resources;
@@ -43,14 +45,6 @@ public class SeafItemAdapter extends BaseAdapter {
     private ArrayList<SeafItem> items;
     private BrowserActivity mActivity;
     private boolean repoIsEncrypted;
-
-    private DisplayImageOptions iconOptions = new DisplayImageOptions.Builder()
-            .delayBeforeLoading(0)
-            .resetViewBeforeLoading(true)
-            .cacheInMemory(true)
-            .cacheOnDisk(false)
-            .build();
-
 
     /** DownloadTask instance container **/
     private List<DownloadTaskInfo> mDownloadTaskInfos;
@@ -184,7 +178,7 @@ public class SeafItemAdapter extends BaseAdapter {
         viewHolder.progressBar.setVisibility(View.GONE);
         viewHolder.title.setText(repo.getTitle());
         viewHolder.subtitle.setText(repo.getSubtitle());
-        ImageLoader.getInstance().displayImage("drawable://" + repo.getIcon(), viewHolder.icon, iconOptions);
+        ImageLoader.getInstance().displayImage("drawable://" + repo.getIcon(), viewHolder.icon, WidgetUtils.iconOptions);
         viewHolder.action.setVisibility(View.INVISIBLE);
         return view;
     }
@@ -220,7 +214,7 @@ public class SeafItemAdapter extends BaseAdapter {
             viewHolder.progressBar.setVisibility(View.GONE);
 
             viewHolder.subtitle.setText(dirent.getSubtitle());
-            ImageLoader.getInstance().displayImage("drawable://" + dirent.getIcon(), viewHolder.icon, iconOptions);
+            ImageLoader.getInstance().displayImage("drawable://" + dirent.getIcon(), viewHolder.icon, WidgetUtils.iconOptions);
             viewHolder.action.setVisibility(View.VISIBLE);
             setDirAction(dirent, viewHolder, position);
         } else {
@@ -323,32 +317,14 @@ public class SeafItemAdapter extends BaseAdapter {
             ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
             String url = dataManager.getThumbnailLink(repoName, repoID, filePath, getThumbnailWidth());
             if (url == null) {
-                ImageLoader.getInstance().displayImage("drawable://" + dirent.getIcon(), viewHolder.icon, iconOptions);
+                ImageLoader.getInstance().displayImage("drawable://" + dirent.getIcon(), viewHolder.icon, WidgetUtils.iconOptions);
             } else
                 ImageLoader.getInstance().displayImage(url, viewHolder.icon, options, animateFirstListener);
         } else {
-            ImageLoader.getInstance().displayImage("drawable://" + dirent.getIcon(), viewHolder.icon, iconOptions);
+            ImageLoader.getInstance().displayImage("drawable://" + dirent.getIcon(), viewHolder.icon, WidgetUtils.iconOptions);
         }
 
         setFileAction(dirent, viewHolder, position, cacheExists);
-    }
-
-    /**
-     * Do a fancy fade-in of thumbnails.
-     */
-    private static class AnimateFirstDisplayListener extends SimpleImageLoadingListener {
-        static final List<String> displayedImages = Collections.synchronizedList(new LinkedList<String>());
-        @Override
-        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-            if (loadedImage != null) {
-                ImageView imageView = (ImageView) view;
-                boolean firstDisplay = !displayedImages.contains(imageUri);
-                if (firstDisplay) {
-                    FadeInBitmapDisplayer.animate(imageView, 1000);
-                    displayedImages.add(imageUri);
-                }
-            }
-        }
     }
 
     private View getCacheView(SeafCachedFile item, View convertView, ViewGroup parent) {
@@ -374,7 +350,7 @@ public class SeafItemAdapter extends BaseAdapter {
         viewHolder.progressBar.setVisibility(View.GONE);
         viewHolder.title.setText(item.getTitle());
         viewHolder.subtitle.setText(item.getSubtitle());
-        ImageLoader.getInstance().displayImage("drawable://" + item.getIcon(), viewHolder.icon, iconOptions);
+        ImageLoader.getInstance().displayImage("drawable://" + item.getIcon(), viewHolder.icon, WidgetUtils.iconOptions);
         viewHolder.action.setVisibility(View.INVISIBLE);
         return view;
     }
