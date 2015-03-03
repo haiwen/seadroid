@@ -238,8 +238,8 @@
   <string name="settings_camera_upload_info_title">카메라 사진 업로드</string>
   <string name="settings_camera_upload_info">사진 %d장 다음에 업로드\u0020</string>
   <string name="settings_wifi_down">Wi-Fi를 사용할 수 없습니다</string>
-  <string name="settings_startUpService">업로드 서비스를 시작했습니다</string>
-  <string name="settings_stopUpService">업로드 서비스를 멈추었습니다</string>
+  <string name="settings_start_upload_service">업로드 서비스를 시작했습니다</string>
+  <string name="settings_stop_upload_service">업로드 서비스를 멈추었습니다</string>
   <string name="settings_allow_mobile_connections">2G/3G/4G 연결 허용</string>
   <string name="settings_default_wifi_connection">기본적으로 무선랜 연결만 사용</string>
   <string name="settings_use_mobile_connections">2G/3G/4G 연결을 허용했습니다</string>

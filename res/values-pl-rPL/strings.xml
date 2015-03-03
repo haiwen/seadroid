@@ -246,8 +246,8 @@
   <string name="settings_camera_upload_info_title">Automatyczna kopia zdjęć</string>
   <string name="settings_camera_upload_info">prześlij %d zdjęć do\u0020</string>
   <string name="settings_wifi_down">Sieć Wi-Fi jest niedostępna</string>
-  <string name="settings_startUpService">Usługa przesyłania uruchomiona</string>
-  <string name="settings_stopUpService">Usługa przesyłania zatrzymana</string>
+  <string name="settings_start_upload_service">Usługa przesyłania uruchomiona</string>
+  <string name="settings_stop_upload_service">Usługa przesyłania zatrzymana</string>
   <string name="settings_allow_mobile_connections">Dopuść połączenia 2G/3G/4G</string>
   <string name="settings_default_wifi_connection">Domyślnie używaj tylko Wi-Fi</string>
   <string name="settings_use_mobile_connections">połączenia 2G/3G/4G dozwolone</string>

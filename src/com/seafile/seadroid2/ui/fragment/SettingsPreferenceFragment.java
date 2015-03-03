@@ -407,9 +407,9 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
                 startCameraUploadService(false);
                 ToastUtils.show(mActivity, R.string.settings_camera_upload_library_not_found);
             } else if (type.equals(CameraUploadService.BROADCAST_CAMERA_UPLOAD_SERVICE_STARTED)) {
-                // settings_startUpService);
+                // settings_start_upload_service);
             } else if (type.equals(CameraUploadService.BROADCAST_CAMERA_UPLOAD_SERVICE_STOPPED)) {
-                // settings_stopUpService);
+                // settings_stop_upload_service);
             }
         }
     };

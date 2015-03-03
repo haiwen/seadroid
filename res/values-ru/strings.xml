@@ -197,8 +197,8 @@
   <string name="settings_camera_upload_info_title">Загрузка фото с камеры</string>
   <string name="settings_camera_upload_info">загрузить %d фото в\u0020</string>
   <string name="settings_wifi_down">Wi-Fi соединение не доступно</string>
-  <string name="settings_startUpService">Сервис загрузки запущен</string>
-  <string name="settings_stopUpService">Сервис загрузки остановлен</string>
+  <string name="settings_start_upload_service">Сервис загрузки запущен</string>
+  <string name="settings_stop_upload_service">Сервис загрузки остановлен</string>
   <string name="settings_allow_mobile_connections">Разрешить 2G/3G/4G соединения</string>
   <string name="settings_default_wifi_connection">По умолчанию использовать только Wi-Fi</string>
   <string name="settings_use_mobile_connections">2G/3G/4G соединения разрешены</string>

@@ -180,8 +180,8 @@
   <string name="settings_camera_upload_info_title">Hlaða Upp Myndum Myndavélar</string>
   <string name="settings_camera_upload_info">hlaða upp %d mynd(um) til\u0020</string>
   <string name="settings_wifi_down">Þráðlaust net ekki tiltækt</string>
-  <string name="settings_startUpService">Upphleðsluþjónusta komin í gang</string>
-  <string name="settings_stopUpService">Upphleðsluþjónusta stöðvuð</string>
+  <string name="settings_start_upload_service">Upphleðsluþjónusta komin í gang</string>
+  <string name="settings_stop_upload_service">Upphleðsluþjónusta stöðvuð</string>
   <string name="settings_allow_mobile_connections">Leyfa 2G/3G/4G Tengingar</string>
   <string name="settings_default_wifi_connection">Nota aðeins þráðlaust net sem sjálfgefið</string>
   <string name="settings_use_mobile_connections">2G/3G/4G tengingar leyfðar</string>

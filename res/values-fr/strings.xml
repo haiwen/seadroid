@@ -200,8 +200,8 @@
   <string name="settings_camera_upload_info_title">Envoi des photos</string>
   <string name="settings_camera_upload_info">envoyer %d photo(s) vers\u0020</string>
   <string name="settings_wifi_down">Wifi non disponible</string>
-  <string name="settings_startUpService">Service d\'envoi démarré </string>
-  <string name="settings_stopUpService">Service d\'envoi arrêté </string>
+  <string name="settings_start_upload_service">Service d\'envoi démarré </string>
+  <string name="settings_stop_upload_service">Service d\'envoi arrêté </string>
   <string name="settings_allow_mobile_connections">Activer les connexions 2G/3G/4G </string>
   <string name="settings_default_wifi_connection">Par défaut seul le WI-FI est utilisé</string>
   <string name="settings_use_mobile_connections">Connexions 2G/3G/4G activées</string>

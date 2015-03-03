@@ -242,8 +242,8 @@
   <string name="settings_camera_upload_info_title">Kamerafoto hochladen</string>
   <string name="settings_camera_upload_info">%d Foto(s) hochladen auf\u0020</string>
   <string name="settings_wifi_down">WLAN nicht verfügbar</string>
-  <string name="settings_startUpService">Hochladen gestartet</string>
-  <string name="settings_stopUpService">Hochladen angehalten</string>
+  <string name="settings_start_upload_service">Hochladen gestartet</string>
+  <string name="settings_stop_upload_service">Hochladen angehalten</string>
   <string name="settings_allow_mobile_connections">2G/3G/4G Verbindung erlauben</string>
   <string name="settings_default_wifi_connection">Standarmäßig nur Wi-Fi Verbindung verwenden</string>
   <string name="settings_use_mobile_connections">2G/3G/4G Verbindung erlaubt</string>
