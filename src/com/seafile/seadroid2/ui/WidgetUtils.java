@@ -7,7 +7,9 @@ import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.webkit.MimeTypeMap;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.activity.MarkdownActivity;
 import com.seafile.seadroid2.ui.dialog.OpenAsDialog;
@@ -71,6 +73,17 @@ public class WidgetUtils {
         intent.putExtra("path", path);
         context.startActivity(intent);
     }
+
+    public static int getThumbnailWidth() {
+        return (int) SeadroidApplication.getAppContext().getResources().getDimension(R.dimen.lv_icon_width);
+    }
+
+    public static DisplayImageOptions iconOptions = new DisplayImageOptions.Builder()
+            .delayBeforeLoading(0)
+            .resetViewBeforeLoading(true)
+            .cacheInMemory(true)
+            .cacheOnDisk(false)
+            .build();
 
 
 }
