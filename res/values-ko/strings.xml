@@ -1,7 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="app_name">Seafile</string>
-  <string name="app_url">http://seafile.com</string>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <string name="welcome_to_seafile">환영합니다. Seafile입니다.</string>
   <string name="select_account">시작할 계정을 선택하세요</string>
   <string name="edit_account">편집</string>
@@ -28,8 +26,7 @@
   <string name="cached">캐시함</string>
   <string name="activities">활동</string>
   <string name="pick_upload_type">업로드</string>
-  <string name="accounts_https_hint">https</string>
-  <string name="upload_tasks">업로드</string>
+  <string name="transfer_tasks">전송 목록</string>
   <string name="accounts">계정</string>
   <string name="settings">설정</string>
   <string-array name="pick_upload_array">
@@ -38,11 +35,18 @@
     <item>기타</item>
   </string-array>
   <string name="choose_server">Seafile 서버를 선택하세요</string>
+  <string-array name="choose_server_array">
+    <item>개인 Seafile 서버</item>
+    <item>SeaCloud.cc</item>
+    <item>cloud.seafile.com</item>
+    <item>Shibboleth 로그인</item>
+  </string-array>
   <string name="network_down">네트워크 연결 상태가 아닙니다</string>
+  <string name="unknow_error">알 수 없는 오류</string>
   <string name="invalid_server_address">잘못된 서버 주소입니다</string>
-  <string name="err_server_andress_empty">서버 주소를 비워둘 수 없습니다</string>
-  <string name="err_email_empty">전자메일은 비워둘 수 없습니다</string>
-  <string name="err_passwd_empty">암호는 비워둘 수 없습니다</string>
+  <string name="err_server_andress_empty">서버 주소를 비우면 안됩니다</string>
+  <string name="err_email_empty">전자메일 주소를 비우면 안됩니다</string>
+  <string name="err_passwd_empty">암호를 비우면 안됩니다</string>
   <string name="err_login_failed">로그인에 실패했습니다</string>
   <string name="err_wrong_user_or_passwd">전자메일 또는 암호 오류</string>
   <string name="upload">업로드</string>
@@ -54,7 +58,9 @@
   <string name="task_cancel">취소</string>
   <string name="task_retry">다시 시도</string>
   <string name="task_remove">제거</string>
+  <string name="task_remove_all_cancelled">취소한 모든 항목 제거</string>
   <string name="task_remove_all_finished">완료한 항목 제거</string>
+  <string name="file_action_star">별 표시</string>
   <string name="file_action_download">다운로드</string>
   <string name="file_action_remove_cache">캐시 제거</string>
   <string name="file_action_update">업로드</string>
@@ -73,10 +79,12 @@
     <item>기타</item>
   </string-array>
   <string name="wait">대기</string>
-  <string name="image_gallery_NoImageView_text">그림이 없습니다</string>
+  <string name="image_gallery_NoImageView_text">그림 없음</string>
   <string name="pick_photo_video_title">업로드할 사진/동영상을 선택하세요</string>
-  <string name="select_upload_items">업로드할 항목을 선택하세요</string>
-  <string name="n_upload_items_selected">선택한 항목 %d개</string>
+  <string name="select_upload_items">업로드할 항목을 선택하십시오</string>
+  <plurals name="n_upload_items_selected">
+    <item quantity="other">항목 <xliff:g id="numbers_of_selected">%1$d</xliff:g>개 선택</item>
+  </plurals>
   <string name="dir_name_empty">폴더 이름을 입력하세요</string>
   <string name="file_name_empty">파일 이름을 입력하세요</string>
   <string name="password_empty">암호를 입력하세요</string>
@@ -89,7 +97,7 @@
   <string name="no_app_available">앱을 찾을 수 없습니다</string>
   <string name="add_to_seafile">Seafile에 추가</string>
   <string name="ok">확인</string>
-  <string name="no_account">먼저 Seafile에서 계정을 설정해주세요</string>
+  <string name="no_account">우선 Seafile 계정을 설정하십시오</string>
   <string name="no_library">아직 라이브러리가 없습니다</string>
   <string name="choose_an_account">계정 만들기</string>
   <string name="choose_a_library">라이브러리 만들기</string>
@@ -98,6 +106,7 @@
   <string name="load_libraries_fail">라이브러리 불러오기에 실패했습니다</string>
   <string name="load_dir_fail">이 폴더의 내용 불러오기에 실패했습니다.</string>
   <string name="not_supported_share">이 공유 형식은 지원하지 않습니다</string>
+  <string name="download_folder">다운로드 폴더</string>
   <string name="create_new_file">새 파일 만들기</string>
   <string name="create_new_dir">새 폴더 만들기</string>
   <string name="camera">여기에 사진 넣기</string>
@@ -106,9 +115,10 @@
   <string name="last_modified">최근 수정</string>
   <string name="file_modified">수정함</string>
   <string name="file_size">파일 크기</string>
-  <string name="library_not_found">라이브러리를 삭제했습니다.</string>
+  <string name="library_not_found">라이브러리를 이미 삭제했습니다.</string>
   <string name="export_file">이 파일 내보내기</string>
   <string name="no_upload_tasks">업로드 작업이 없습니다</string>
+  <string name="no_download_tasks">다운로드 작업이 없습니다</string>
   <string name="seahub_url_hint">참고: 서버 주소에 포트를 포함해야 합니다. 예, www.example.com:8000</string>
   <string name="copy_link">링크 복사</string>
   <string name="share_file_link">이 파일 링크 공유</string>
@@ -127,33 +137,33 @@
   <string name="drawer_open">탐색 드로어 열기</string>
   <string name="drawer_close">탐색 드로어 닫기</string>
   <string name="no_starred_file">별표 표시한 파일이 없습니다</string>
-  <string name="added_to_upload_tasks">선택한 파일(들)을 업로드 작업 목록에 추가했습니다.</string>
+  <string name="added_to_upload_tasks">선택한 파일을 업로드 작업 목록에 추가했습니다.</string>
   <string name="added_photo_to_upload_tasks">사진을 업로드하는 중입니다.</string>
   <string name="take_photo_successfully">사진을 잘 찍었습니다</string>
   <string name="tabs_library">라이브러리</string>
   <string name="tabs_activity">활동</string>
   <string name="tabs_starred">별표 표시</string>
-  <string name="transfer_tabs_downloads">다운로드 목록</string>
-  <string name="transfer_tabs_uploads">업로드 목록</string>
   <string name="provide_password">\"%s\" 라이브러리에 대한 암호를 입력하세요</string>
   <string name="upload_waiting">기다리는 중</string>
   <string name="upload_finished">끝냈습니다</string>
   <string name="upload_cancelled">취소했습니다</string>
   <string name="upload_failed">실패했습니다</string>
-  <string name="days_ago">일 전</string>
-  <string name="hours_ago">시간 전</string>
-  <string name="minutes_ago">분 전</string>
-  <string name="seconds_ago">초 전</string>
+  <string name="days_ago">%d일 전</string>
+  <string name="hours_ago">%d시간 전</string>
+  <string name="minutes_ago">%d분 전</string>
+  <string name="seconds_ago">%d초 전</string>
   <string name="just_now">지금</string>
   <string name="error_when_load_starred">별표 표시한 파일을 불러오는 중 오류가 생겼습니다</string>
   <string name="open_as">다른 앱으로 열기</string>
-  <string name="select_upload_files">업로드할 파일을 선택하세요</string>
+  <string name="select_upload_files">업로드할 파일을 선택하십시오</string>
   <string name="storage_removed">저장소를 제거했습니다</string>
   <string name="error_selecting_file">파일을 선택하는 중 오류가 생겼습니다</string>
-  <string name="n_upload_files_selected">선택한 파일(들) %d개</string>
+  <plurals name="n_upload_files_selected">
+    <item quantity="other">파일 <xliff:g id="numbers_of_selected">%1$d</xliff:g>개 선택함</item>
+  </plurals>
   <string name="empty_folder">빈 폴더</string>
   <string name="choose_file">파일 선택</string>
-  <string name="ssl_error">보안 검사에 실패했습니다</string>
+  <string name="ssl_error">보안 검사 실패</string>
   <string name="ssl_confirm">%s 보안 인증서를 신뢰할 수 없습니다. 계속할까요?</string>
   <string name="ssl_confirm_cert_changed">%s에서 잘못된 보안 인증서를 사용합니다. 연결이 안전하지 않습니다. 계속할까요?</string>
   <string name="ssl_confirm_title">신뢰할 수 없는 연결</string>
@@ -162,6 +172,7 @@
   <string name="period_of_validity">유효 기간</string>
   <string name="sha1">SHA-1 %s</string>
   <string name="md5">MD5 %s</string>
+  <string name="not_available">사용할 수 없음</string>
   <string name="serial_number">일련 번호 %s</string>
   <string name="not_before">%s(으)로부터 유효함</string>
   <string name="not_after">%s까지 유효함</string>
@@ -197,22 +208,26 @@
   <string name="lockscreen_access_pattern_cell_added">패턴 셀을 추가했습니다</string>
   <string name="lockscreen_access_pattern_detected">패턴을 감지했습니다</string>
   <string name="lockscreen_access_pattern_passwd_forget">암호를 잊었습니다</string>
-  <string name="lockscreen_access_pattern_failure">5번 실패한 경우, 30초 대기 후 다시 시도하십시오</string>
-  <string name="lockscreen_access_pattern_failure_left_try_seconds">%d초 후 다시 시도할 수 있습니다.</string>
-  <string name="lockscreen_access_pattern_failure_left_try_times">잘못된 패턴입니다. %d번 다시 시도할 수 있습니다</string>
+  <string name="lockscreen_access_pattern_failure">5회 실패했으니, 다시 시도 전 30초를 기다리십시오</string>
+  <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
+    <item quantity="other"><xliff:g id="seconds">%1$d</xliff:g>초후 다시 시도할 수 있습니다</item>
+  </plurals>
+  <plurals name="lockscreen_access_pattern_failure_left_try_times">
+    <item quantity="other">잘못된 패턴입니다. <xliff:g id="times">%1$d</xliff:g>회 시도할 수 있습니다</item>
+  </plurals>
   <string name="lockscreen_access_pattern_failure_not_long_enough">연결 점이 충분히 길지 않습니다. 다시 시도하십시오</string>
   <string name="lockpattern_retry_button_text">다시 시도</string>
   <string name="lockpattern_continue_button_text">다음</string>
   <string name="lockpattern_confirm_button_text">확인</string>
   <string name="lockpattern_recording_intro_header">제스처 잠금 패턴을 그리십시오</string>
   <string name="lockpattern_settings_help_how_to_record">제스처 잠금 패턴을 그리는 방법을 알아보십시오</string>
-  <string name="lockpattern_recording_incorrect_too_short">최소한 점 4개를 연결해야 합니다. 다시 시도하십시오!</string>
+  <string name="lockpattern_recording_incorrect_too_short">네 점 이상 스쳐야 합니다. 다시 해보세요!</string>
   <string name="lockpattern_pattern_entered_header">패턴을 저장했습니다</string>
   <string name="lockpattern_need_to_draw">제스처 잠금 패턴을 그리십시오</string>
   <string name="lockpattern_need_to_confirm">패턴 사용을 수락하십시오</string>
-  <string name="lockpattern_need_to_unlock_wrong">패턴이 일치하지 않습니다. 다시 시도하십시오!</string>
-  <string name="lockpattern_pattern_confirmed_header">패턴 저장 확인</string>
-  <string name="lockpattern_recording_inprogress">그린 후 손가락을 떼십시오</string>
+  <string name="lockpattern_need_to_unlock_wrong">패턴이 일치하지 않습니다. 다시 해보세요.</string>
+  <string name="lockpattern_pattern_confirmed_header">패턴을 저장하려면 확인을 탭하십시오</string>
+  <string name="lockpattern_recording_inprogress">패턴 그리기가 끝났으면 손가락을 떼십시오</string>
   <string name="lockpattern_pattern_toast_saved">제스처 잠금 패턴을 성공적으로 저장했습니다</string>
   <!--Strings for possible PreferenceActivity Back/Next buttons-->
   <string name="back_button_label">뒤로</string>
@@ -241,10 +256,10 @@
         <p>%s</p>
         <h5>연락처</h5>
         <p>
-            트위터: Seafile<br>
+            트  위  터: Seafile<br>
             전자메일: support@seafile.com<br>
         </p>
-        <h5>기여하기</h5>
+        <h5>참여하기</h5>
         <p>https://github.com/haiwen/seadroid.git</P>
         <h5>Copyright ©2013-2014 Seafile Ltd.</h5>
         ]]>
@@ -252,22 +267,49 @@
   <string name="settings_advance_feature_title">고급 기능</string>
   <string name="settings_cache_title">캐시 크기</string>
   <string name="settings_clear_cache_title">캐시 비우기</string>
+  <string name="settings_clear_cache_hint">캐시를 비우시겠습니까?</string>
+  <string name="settings_clear_cache_success">캐시를 성공적으로 비웠습니다</string>
+  <string name="settings_clear_cache_failed">캐시 비우기에 실패했습니다</string>
   <string name="settings_cache_empty">0 KB</string>
   <!--pull to refresh-->
   <string name="pull_to_refresh_pull_label">새로 고치려면 당기십시오...</string>
   <string name="pull_to_refresh_release_label">새로 고치려면 놓으십시오...</string>
   <string name="pull_to_refresh_refreshing_label">불러오는 중...</string>
-  <string name="pull_to_refresh_last_update">최종 업데이트 :</string>
-  <string name="pull_to_refresh_last_update_seconds_ago">초 전</string>
-  <string name="pull_to_refresh_last_update_minutes_ago">분 전</string>
-  <string name="pull_to_refresh_last_update_hours_ago">시간 전</string>
+  <string name="pull_to_refresh_last_update">마지막 업데이트:</string>
+  <string name="pull_to_refresh_last_update_seconds_ago">%d초 전</string>
+  <string name="pull_to_refresh_last_update_minutes_ago">%d분 전</string>
+  <string name="pull_to_refresh_last_update_hours_ago">%d시간 전</string>
   <!--storage access framework-->
   <string name="saf_open_file_exception">%s 파일을 열 수 없습니다.</string>
   <string name="saf_open_directory_exception">디렉터리를 열 수 없습니다.</string>
   <string name="saf_file_not_cached_exception">%s 파일을 캐시에 저장하지 않았습니다.</string>
-  <string name="saf_thumbnail_not_found_exception">%s 미리보기 그림을 찾거나 열 수 없습니다.</string>
+  <string name="saf_thumbnail_not_found_exception">%s 미리보기를 찾거나 열 수 없습니다.</string>
   <string name="saf_file_not_downloaded_exception">서버에서 %s 파일을 다운로드할 수 없습니다.</string>
-  <string name="saf_write_diretory_exception">읽고 쓸 디렉터리를 열 수 없습니다.</string>
+  <string name="saf_write_diretory_exception">읽기/쓰기 목적으로 디렉터리를 열 수 없습니다.</string>
   <string name="saf_account_not_found_exception">Seafile 계정을 찾을 수 없습니다.</string>
   <!--shibboleth SSO-->
+  <string name="shib_server_url_empty">서버가 비어있습니다!</string>
+  <string name="shib_server_incorrect_prefix">서버 주소는 http:// 또는 https:// 로 시작해야합니다</string>
+  <string name="shib_load_page_error">오류:</string>
+  <string name="shib_login_title">Shibboleth 로그인</string>
+  <string name="shib_server_hint">입력 서버...</string>
+  <string name="shib_actionbar_title">Shibboleth 로그인</string>
+  <string name="shib_loading">불러오는 중...</string>
+  <!--Transfer List-->
+  <string name="transfer_list_network_error">네트워크 연결에 오류가 발생했으니, 나중에 시도하십시오!</string>
+  <string name="transfer_list_cancel_all">모두 취소</string>
+  <string name="transfer_tabs_downloads">다운로드 목록</string>
+  <string name="transfer_tabs_uploads">업로드 목록</string>
+  <string name="transfer_download_no_task">모든 파일을 다운로드했습니다</string>
+  <string name="transfer_download_started">파일 %d개 다운로드 시작 중</string>
+  <!--Search-->
+  <string name="search_menu_item">검색</string>
+  <string name="search_bar_hint">검색 중...</string>
+  <string name="search_txt_empty">단어를 입력하십시오</string>
+  <string name="search_content_empty">찾은 항목이 없습니다</string>
+  <string name="search_server_not_support">아잌후, 서버에서 검색을 지원하지 않습니다!</string>
+  <string name="search_library_not_found">이 라이브러리를 찾을 수 없습니다. 삭제된 것 같습니다</string>
+  <!--star a file-->
+  <string name="star_file_succeed">성공적으로 파일에 별표 표시했습니다</string>
+  <string name="star_file_failed">파일 별표 표시에 실패했습니다</string>
 </resources>

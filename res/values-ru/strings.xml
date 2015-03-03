@@ -1,7 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="app_name">Seafile</string>
-  <string name="app_url">http://seafile.com</string>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <string name="welcome_to_seafile">Добро пожаловать в Seafile</string>
   <string name="select_account">Чтобы начать, выберите аккаунт</string>
   <string name="edit_account">Редактировать</string>
@@ -20,7 +18,6 @@
   <string name="redownload_file">Скачать еще раз</string>
   <string name="cancel_download">Отмена</string>
   <string name="unknown_file_type">Неизвестный тип файла</string>
-  <string name="activity_not_found">Не возможно найти приложение для открытия этого файла</string>
   <string name="refresh">Обновить</string>
   <string name="add_account">Добавить аккаунт</string>
   <string name="personal">Личные</string>
@@ -28,8 +25,7 @@
   <string name="cached">Кэшированы</string>
   <string name="activities">Активность</string>
   <string name="pick_upload_type">Загрузить</string>
-  <string name="accounts_https_hint">https</string>
-  <string name="upload_tasks">Загрузки</string>
+  <string name="transfer_tasks">Список передачи</string>
   <string name="accounts">Аккаунты</string>
   <string name="settings">Настройки</string>
   <string-array name="pick_upload_array">
@@ -38,11 +34,15 @@
     <item>Другое</item>
   </string-array>
   <string name="choose_server">Выберите сервер Seafile</string>
+  <string-array name="choose_server_array">
+    <item>Приватный сервер Seafile</item>
+    <item>SeaCloud.cc</item>
+    <item>cloud.seafile.com</item>
+    <item>Shibboleth Login</item>
+  </string-array>
   <string name="network_down">Нет соединения с сетью</string>
+  <string name="unknow_error">Неизвестная ошибка</string>
   <string name="invalid_server_address">Неправильный адрес сервера</string>
-  <string name="err_server_andress_empty">Адрес сервера не может быть пустым</string>
-  <string name="err_email_empty">Email не может быть пустым</string>
-  <string name="err_passwd_empty">Пароль не может быть пустым</string>
   <string name="err_login_failed">Вход не удался</string>
   <string name="err_wrong_user_or_passwd">Ошибка Email или пароля</string>
   <string name="upload">Загрузить</string>
@@ -54,6 +54,7 @@
   <string name="task_cancel">Отмена</string>
   <string name="task_retry">Повторить</string>
   <string name="task_remove">Удалить</string>
+  <string name="task_remove_all_cancelled">Удалить все отмененные</string>
   <string name="task_remove_all_finished">Удалить все завершенные</string>
   <string name="file_action_download">Скачать</string>
   <string name="file_action_remove_cache">Удалить кэш</string>
@@ -73,10 +74,7 @@
     <item>Другое</item>
   </string-array>
   <string name="wait">Подождите</string>
-  <string name="image_gallery_NoImageView_text">Не найдено ни одно изображение</string>
   <string name="pick_photo_video_title">Выберите фото/видео для загрузки</string>
-  <string name="select_upload_items">выбрать элементы для загрузки</string>
-  <string name="n_upload_items_selected">%d выбранных элементов</string>
   <string name="dir_name_empty">Пожалуйста, введите имя папки</string>
   <string name="file_name_empty">Пожалуйста, введите имя файла</string>
   <string name="password_empty">Пожалуйста, введите пароль</string>
@@ -89,15 +87,14 @@
   <string name="no_app_available">Не найдено ни одно приложение</string>
   <string name="add_to_seafile">Добавить в Seafile</string>
   <string name="ok">ОК</string>
-  <string name="no_account">Пожалуйста, сначала добавьте аккаунт в Seafile</string>
   <string name="no_library">У вас еще нет библиотек</string>
   <string name="choose_an_account">Выберите аккаунт</string>
   <string name="choose_a_library">Выберите библиотеку</string>
   <string name="choose_a_folder">Выберите папку</string>
-  <string name="load_accounts_fail">Не удалось загрузить аккаунты Seafile</string>
   <string name="load_libraries_fail">Не удалось загрузить библиотеки</string>
   <string name="load_dir_fail">Не удалось загрузить содержимое этой папки</string>
   <string name="not_supported_share">Этот тип обмена не поддерживается</string>
+  <string name="download_folder">Скачать папку</string>
   <string name="create_new_file">Создать новый файл</string>
   <string name="create_new_dir">Создать новую папку</string>
   <string name="camera">Сделать фотографию</string>
@@ -106,9 +103,9 @@
   <string name="last_modified">последний раз изменено</string>
   <string name="file_modified">изменено</string>
   <string name="file_size">размер файла</string>
-  <string name="library_not_found">Библиотека было удалена.</string>
   <string name="export_file">Экспортировать этот файл</string>
   <string name="no_upload_tasks">Пока нет задач на загрузку</string>
+  <string name="no_download_tasks">Пока нет задач на загрузку</string>
   <string name="seahub_url_hint">Примечание: Адрес сервера должен содержать порт. Например, www.example.com:8000</string>
   <string name="copy_link">Копировать ссылку</string>
   <string name="share_file_link">Поделиться ссылкой на этот файл</string>
@@ -127,7 +124,6 @@
   <string name="drawer_open">Открыть строку навигации</string>
   <string name="drawer_close">Закрыть строку навигации</string>
   <string name="no_starred_file">Пока нет помеченных файлов</string>
-  <string name="added_to_upload_tasks">Выбранный файл(ы) добавлен к списку задач на загрузку.</string>
   <string name="added_photo_to_upload_tasks">Фото загружается</string>
   <string name="take_photo_successfully">Фото успешно сделано</string>
   <string name="tabs_library">Библиотеки</string>
@@ -138,25 +134,17 @@
   <string name="upload_finished">Завершенные</string>
   <string name="upload_cancelled">Отмененные</string>
   <string name="upload_failed">Проваленные</string>
-  <string name="days_ago">дней осталось</string>
-  <string name="hours_ago">часов осталось</string>
-  <string name="minutes_ago">минут осталось</string>
-  <string name="seconds_ago">секунд осталось</string>
   <string name="just_now">Прямо сейчас</string>
   <string name="error_when_load_starred">Ошибка загрузки помеченных файлов</string>
   <string name="open_as">Открыть как</string>
-  <string name="select_upload_files">выбрать файлы для загрузки</string>
   <string name="storage_removed">Хранилище было удалено</string>
   <string name="error_selecting_file">Ошибка при выборе файла</string>
-  <string name="n_upload_files_selected">%d файл(ов) выбраны</string>
   <string name="empty_folder">Пустая папка</string>
   <string name="choose_file">Выбрать файл</string>
-  <string name="ssl_error">проверка безопасности не удалась</string>
   <string name="ssl_confirm">Сертификат безопасности %s недоверенный. Вы хотите продолжить?</string>
   <string name="ssl_confirm_cert_changed">%s использований неправильного сертификата безопасности. Соединение не безопасное. Вы хотите продолжить?</string>
   <string name="ssl_confirm_title">Недоверенное соединение</string>
   <string name="issued_to">Выдано</string>
-  <string name="finger_prints">Отпечатки пальцев</string>
   <string name="period_of_validity">Срок действия</string>
   <string name="sha1">SHA-1 %s</string>
   <string name="md5">MD5 %s</string>
@@ -166,21 +154,17 @@
   <string name="yes">Да</string>
   <string name="no">Нет</string>
   <string name="remember_my_choice">Запомнить мой выбор</string>
-  <string name="copied_successfully">Успешно скопировано</string>
-  <string name="moved_successfully">Успешно перемещено</string>
   <string name="internal_server_error">Внутренняя ошибка сервера</string>
   <string name="copy_file_ing">Копирование файла</string>
   <string name="move_file_ing">Перемещение файла</string>
   <string name="copy_folder_ing">Копирование папки</string>
   <string name="move_folder_ing">Перемещение папки</string>
-  <string name="upload_started">загрузка началась</string>
   <string name="cannot_copy_folder_to_subfolder">Вы не можете скопировать папку в эту подпапку</string>
   <string name="cannot_move_folder_to_subfolder">Вы не можете переместить папку в эту подпапку</string>
   <string name="cancel">Отмена</string>
   <string name="confirm">Подтвердить</string>
   <string name="settings_account">Аккаунт</string>
   <string name="settings_account_info_title">Инфо о пользователе</string>
-  <string name="settings_account_info_load_data">Загрузка...</string>
   <string name="settings_account_space_title">Использовано пространства</string>
   <string name="settings_account_sign_out_title">Выйти</string>
   <string name="settings_account_sign_out_hint">Нажмите, чтобы выйти</string>
@@ -194,23 +178,15 @@
   <string name="lockscreen_access_pattern_cleared">Модель очищена</string>
   <string name="lockscreen_access_pattern_cell_added">Ячейка модели добавлена</string>
   <string name="lockscreen_access_pattern_detected">Модель обраружена</string>
-  <string name="lockscreen_access_pattern_passwd_forget">Забыл пароль</string>
-  <string name="lockscreen_access_pattern_failure">Не удалось 5 раз, пожалуйста, 30 секунд перед тем, как попробовать еще раз</string>
-  <string name="lockscreen_access_pattern_failure_left_try_seconds">Вы можете повторить через %d секунд</string>
-  <string name="lockscreen_access_pattern_failure_left_try_times">Не правильная модель, вы можете попробовать еще %d раз</string>
   <string name="lockscreen_access_pattern_failure_not_long_enough">Соединяйте точки не так долго, попробуйте еще раз</string>
   <string name="lockpattern_retry_button_text">Повторить</string>
   <string name="lockpattern_continue_button_text">Далее</string>
   <string name="lockpattern_confirm_button_text">ОК</string>
   <string name="lockpattern_recording_intro_header">Пожалуйста, нарисуйте модель защиты жестом</string>
   <string name="lockpattern_settings_help_how_to_record">Как нарисовать модель защиты жестом</string>
-  <string name="lockpattern_recording_incorrect_too_short">Соедините хотя бы 4 точки, попробуйте еще раз!</string>
   <string name="lockpattern_pattern_entered_header">Модель сохранена</string>
   <string name="lockpattern_need_to_draw">Пожалуйста, нарисуйте модель защиты жестом</string>
   <string name="lockpattern_need_to_confirm">Пожалуйста, подтвердите модель защиты жестом</string>
-  <string name="lockpattern_need_to_unlock_wrong">Модель не совпадает, попробуйте еще раз!</string>
-  <string name="lockpattern_pattern_confirmed_header">Подтвердите сохранение вашей модели</string>
-  <string name="lockpattern_recording_inprogress">Уберите ваш палец после того, как вы нарисовали</string>
   <string name="lockpattern_pattern_toast_saved">Защита жестом успешно сохранена</string>
   <!--Strings for possible PreferenceActivity Back/Next buttons-->
   <string name="back_button_label">Назад</string>
@@ -233,38 +209,22 @@
   <string name="settings_about_title">О ПРИЛОЖЕНИИ</string>
   <string name="settings_about_version_title">Версия</string>
   <string name="settings_about_author_title">Об авторе</string>
-  <string name="settings_about_author_info">
-<![CDATA[
-<h5>Seafile Andoird Client</h5>
-<p>%s</p>
-<h5>Свяжитесь с нами</h5>
-<p>
-Twitter: Seafile<br>
-Email: support@seafile.com<br>
-</p>
-<h5>Contribution</h5>
-<p>https://github.com/haiwen/seadroid.git</P>
-<h5>Copyright ©2013-2014 Seafile Ltd.</h5>
-]]></string>
-  <string name="settings_advance_feature_title">ДОПОЛНИТЕЛЬНЫЕ ФУНКЦИИ</string>
   <string name="settings_cache_title">Размер кэша</string>
   <string name="settings_clear_cache_title">Очистить кэш</string>
+  <string name="settings_clear_cache_hint">Вы хотите очистить кэш?</string>
   <string name="settings_cache_empty">0 КБ</string>
   <!--pull to refresh-->
   <string name="pull_to_refresh_pull_label">Потяните, чтобы обновить...</string>
   <string name="pull_to_refresh_release_label">Отпустите, чтобы обновить...</string>
   <string name="pull_to_refresh_refreshing_label">Загрузка...</string>
-  <string name="pull_to_refresh_last_update">Последнее обновление:</string>
-  <string name="pull_to_refresh_last_update_seconds_ago">несколько секунд назад</string>
-  <string name="pull_to_refresh_last_update_minutes_ago">несколько минут назад</string>
-  <string name="pull_to_refresh_last_update_hours_ago">несколько часов назад</string>
   <!--storage access framework-->
-  <string name="saf_open_file_exception">Не возможно открыть файл %s.</string>
-  <string name="saf_open_directory_exception">Не возможно открыть папку.</string>
   <string name="saf_file_not_cached_exception">Файл %s не кэширован.</string>
-  <string name="saf_thumbnail_not_found_exception">Не возможно найти/открыть миниатюру файла %s.</string>
-  <string name="saf_file_not_downloaded_exception">Не возможно загрузить с сервера файл %s.</string>
-  <string name="saf_write_diretory_exception">Не возможно открыть папку для чтения/записи.</string>
-  <string name="saf_account_not_found_exception">Не возможно найти аккаунт Seafile.</string>
   <!--shibboleth SSO-->
+  <string name="shib_server_url_empty">Сервер пустой!</string>
+  <string name="shib_server_incorrect_prefix">Сервер должен начинаться с http:// или https://</string>
+  <!--Transfer List-->
+  <string name="transfer_list_network_error">Ошибка подключения к сети, пожалуйста, повторите позже!</string>
+  <string name="transfer_list_cancel_all">Отменить все</string>
+  <!--Search-->
+  <!--star a file-->
 </resources>

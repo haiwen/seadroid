@@ -1,7 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="app_name">Seafile</string>
-  <string name="app_url">http://seafile.com</string>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <string name="welcome_to_seafile">Seafile\'a Hoşgeldiniz</string>
   <string name="select_account">Başlamak için bir hesap seçin</string>
   <string name="edit_account">Düzenle</string>
@@ -20,7 +18,6 @@
   <string name="redownload_file">Tekrar indir</string>
   <string name="cancel_download">İptal et</string>
   <string name="unknown_file_type">Bilinmeyen dosya tipi</string>
-  <string name="activity_not_found">Bu dosyayı açmak için uygulama bulamıyor</string>
   <string name="refresh">Yenile</string>
   <string name="add_account">Hesap ekle</string>
   <string name="personal">Kişisel</string>
@@ -28,21 +25,24 @@
   <string name="cached">Önbellekte</string>
   <string name="activities">Etkinlikler</string>
   <string name="pick_upload_type">Yükle</string>
-  <string name="accounts_https_hint">https</string>
-  <string name="upload_tasks">Yüklemeler</string>
+  <string name="transfer_tasks">Transfer Listesi</string>
   <string name="accounts">Hesaplar</string>
   <string name="settings">Ayarlar</string>
   <string-array name="pick_upload_array">
     <item>Dosya</item>
-    <item>Fotoğreflar/Videolar</item>
+    <item>Fotoğraflar/Videolar</item>
     <item>Diğer</item>
   </string-array>
   <string name="choose_server">Bir Seafile Sunucusu Seçin</string>
+  <string-array name="choose_server_array">
+    <item>Private Seafile Server</item>
+    <item>SeaCloud.cc</item>
+    <item>cloud.seafile.com</item>
+    <item>Shibboleth Login</item>
+  </string-array>
   <string name="network_down">Ağ bağlantısı yok</string>
+  <string name="unknow_error">Bilinmeyen hata</string>
   <string name="invalid_server_address">Geçersiz sunucu adresi</string>
-  <string name="err_server_andress_empty">Sunucu adresi boş bırakılamaz</string>
-  <string name="err_email_empty">Eposta boş bırakılamaz</string>
-  <string name="err_passwd_empty">Şifre boş bırakılamaz</string>
   <string name="err_login_failed">Giriş başarısız</string>
   <string name="err_wrong_user_or_passwd">Eposta veya şifre hatalı</string>
   <string name="upload">Yükle</string>
@@ -54,6 +54,7 @@
   <string name="task_cancel">İptal et</string>
   <string name="task_retry">Tekrar dene</string>
   <string name="task_remove">Kaldır</string>
+  <string name="task_remove_all_cancelled">Hepsini kaldır işlemi iptal edildi</string>
   <string name="task_remove_all_finished">Bitenlerin hepsini kaldır</string>
   <string name="file_action_download">İndir</string>
   <string name="file_action_remove_cache">Ön belleği kaldır</string>
@@ -73,31 +74,27 @@
     <item>Diğer</item>
   </string-array>
   <string name="wait">Bekle</string>
-  <string name="image_gallery_NoImageView_text">Görsel bulunamadı</string>
   <string name="pick_photo_video_title">Lütfen yüklemek için fotoğraf/video seçin</string>
-  <string name="select_upload_items">yüklemek için öğeleri seçin</string>
-  <string name="n_upload_items_selected">%d öğe seçildi</string>
   <string name="dir_name_empty">Lütfen klasör adını girin</string>
   <string name="file_name_empty">Lütfen dosya adını girin</string>
   <string name="password_empty">Lütfen şifreyi girin</string>
   <string name="wrong_password">yanlış şifre</string>
   <string name="library_read_only">Bu kütüphane salt okunur</string>
   <string name="error_when_load_dirents">Klasörü yüklerken hata</string>
-  <string name="error_when_load_repos">klasörleri yüklerken hata</string>
+  <string name="error_when_load_repos">Klasörleri yüklerken hata</string>
   <string name="dir_empty">Bu klasör boş</string>
   <string name="no_repo">Henüz bir kütüphaneniz yok</string>
   <string name="no_app_available">Uygulama bulunamıyor</string>
   <string name="add_to_seafile">Seafile\'a ekle</string>
-  <string name="ok">OK</string>
-  <string name="no_account">Lütfen önce bir Seafile hesabı kurun</string>
+  <string name="ok">Tamam</string>
   <string name="no_library">Henüz hiç kütüphaneniz yok</string>
   <string name="choose_an_account">Hesap seç</string>
   <string name="choose_a_library">Kütüphane seç</string>
   <string name="choose_a_folder">Klasör seç</string>
-  <string name="load_accounts_fail">Seafile hesaplarını yükleme başarısız</string>
   <string name="load_libraries_fail">Kütüphaneleri yükleme başarısız</string>
   <string name="load_dir_fail">Bu klasörün içeriğini yükleme başarısız</string>
   <string name="not_supported_share">Bu tip paylaşım desteklenmiyor</string>
+  <string name="download_folder">Klasörü indir</string>
   <string name="create_new_file">Yeni dosya oluştur</string>
   <string name="create_new_dir">Yeni klasör oluştur</string>
   <string name="camera">Burada fotoğraf çek</string>
@@ -106,9 +103,9 @@
   <string name="last_modified">en son değiştirme</string>
   <string name="file_modified">değiştirildi</string>
   <string name="file_size">dosya boyutu</string>
-  <string name="library_not_found">Kütüphane silindi</string>
   <string name="export_file">Dosyayı dışa aktar</string>
-  <string name="no_upload_tasks">Henüz hiç yükeme görevi yok</string>
+  <string name="no_upload_tasks">Henüz hiç yükleme görevi yok</string>
+  <string name="no_download_tasks">Henüz hiç indirme görevi yok</string>
   <string name="seahub_url_hint">Not: Sunucu adresi portu içermelidir. Örneğin, www.alanadi.com:8000</string>
   <string name="copy_link">Bağlantıyı kopyala</string>
   <string name="share_file_link">Bu dosyaya bir bağlantı paylaş</string>
@@ -126,39 +123,28 @@
   </string-array>
   <string name="drawer_open">Soldan açılan menüyü Aç</string>
   <string name="drawer_close">Soldan açılan menüyü kapat</string>
-  <string name="no_starred_file">Henüz yıldızlanmış dosya yok</string>
-  <string name="added_to_upload_tasks">Seçilmiş dosyalar yükleme görev listesine eklendi</string>
+  <string name="no_starred_file">Henüz yıldızlı dosya yok</string>
   <string name="added_photo_to_upload_tasks">Fotoğraf yükleniyor</string>
   <string name="take_photo_successfully">Fotoğraf çekme başarılı</string>
   <string name="tabs_library">Kütüphaneler</string>
   <string name="tabs_activity">Etkinlikler</string>
   <string name="tabs_starred">Yıldızlı</string>
-  <string name="transfer_tabs_downloads">İndirme Listesi</string>
-  <string name="transfer_tabs_uploads">Yükleme Listesi</string>
   <string name="provide_password">\"%s\" kütüphanesi için şifreyi giriniz</string>
   <string name="upload_waiting">Bekliyor</string>
   <string name="upload_finished">Bitti</string>
   <string name="upload_cancelled">İptal edildi</string>
   <string name="upload_failed">Başarısız oldu</string>
-  <string name="days_ago">gün önce</string>
-  <string name="hours_ago">saat önce</string>
-  <string name="minutes_ago">dakika önce</string>
-  <string name="seconds_ago">saniye önce</string>
   <string name="just_now">hemen şimdi</string>
   <string name="error_when_load_starred">Yıldızlı dosyaları yüklerken hata</string>
   <string name="open_as">Şöyle aç</string>
-  <string name="select_upload_files">yüklenecek dosyaları seç</string>
   <string name="storage_removed">Bellek kaldırıldı</string>
   <string name="error_selecting_file">Dosya seçerken hata</string>
-  <string name="n_upload_files_selected">%d dosya seçildi</string>
   <string name="empty_folder">Boş klasör</string>
   <string name="choose_file">Bir dosya seç</string>
-  <string name="ssl_error">güvenlik kontrolü başarısız oldu</string>
   <string name="ssl_confirm">%s güvenlik sertifikası güvenilir değil. Devam etmek istiyor musunuz?</string>
   <string name="ssl_confirm_cert_changed">%s geçersiz bir güvenlik sertifikası kullanıyor. Bağlantı güvenli değil. Devam etmek istiyor musunuz?</string>
   <string name="ssl_confirm_title">Güvenilmeyen Bağlantı</string>
   <string name="issued_to">Verilen kişi ya da kuruluş</string>
-  <string name="finger_prints">Parmak İzleri</string>
   <string name="period_of_validity">Geçerlilik Süresi</string>
   <string name="sha1">SHA-1 %s</string>
   <string name="md5">MD5 %s</string>
@@ -168,25 +154,21 @@
   <string name="yes">Evet</string>
   <string name="no">Hayır</string>
   <string name="remember_my_choice">Seçimimi hatırla</string>
-  <string name="copied_successfully">Başarıyla Kopyalandı</string>
-  <string name="moved_successfully">Başarıyla Taşındı</string>
   <string name="internal_server_error">İç sunucu hatası</string>
   <string name="copy_file_ing">Dosyayı kopyalıyor</string>
   <string name="move_file_ing">Dosyayı taşıyor</string>
   <string name="copy_folder_ing">Klasörü kopyalıyor</string>
   <string name="move_folder_ing">Klasörü taşıyor</string>
-  <string name="upload_started">yükleme başlatılıyor</string>
   <string name="cannot_copy_folder_to_subfolder">Bir klasörü ona ait bir alt klasöre kopyalayamazsınız.</string>
   <string name="cannot_move_folder_to_subfolder">Bir klasörü ona ait bir alt klasöre taşıyamazsınız</string>
   <string name="cancel">İptal et</string>
   <string name="confirm">Onayla</string>
   <string name="settings_account">Hesap</string>
   <string name="settings_account_info_title">Kullanıcı Bilgileri</string>
-  <string name="settings_account_info_load_data">yüklüyor</string>
   <string name="settings_account_space_title">Kullanılan alan</string>
   <string name="settings_account_sign_out_title">Çıkış yap</string>
   <string name="settings_account_sign_out_hint">Çıkış yapmak için tıklayın</string>
-  <string name="settings_account_sign_out_confirm">Çıkş yapmak istiyor musunuz?</string>
+  <string name="settings_account_sign_out_confirm">Çıkış yapmak istiyor musunuz?</string>
   <string name="security">Güvenlik</string>
   <string name="gesture_lock">İşaret kilidi</string>
   <string name="gesture_lock_on">İşaret kilidi açık</string>
@@ -196,23 +178,15 @@
   <string name="lockscreen_access_pattern_cleared">Desen silindi</string>
   <string name="lockscreen_access_pattern_cell_added">Desen hücresi eklendi</string>
   <string name="lockscreen_access_pattern_detected">Desen algılandı</string>
-  <string name="lockscreen_access_pattern_passwd_forget">Şifreyi unuttum</string>
-  <string name="lockscreen_access_pattern_failure">5 kez başarısız oldu, lütfen tekrar denemeden önce 30 saniye bekleyin</string>
-  <string name="lockscreen_access_pattern_failure_left_try_seconds">%d saniye sonra tekrar deneyin</string>
-  <string name="lockscreen_access_pattern_failure_left_try_times">Hatalı model, %d kez daha deneyebilirsiniz</string>
   <string name="lockscreen_access_pattern_failure_not_long_enough">Bağlantı noktaları yeterli uzunlukta değil, lütfen tekrar deneyin</string>
   <string name="lockpattern_retry_button_text">Tekrar dene</string>
   <string name="lockpattern_continue_button_text">Sonraki</string>
-  <string name="lockpattern_confirm_button_text">OK</string>
+  <string name="lockpattern_confirm_button_text">Tamam</string>
   <string name="lockpattern_recording_intro_header">Lütfen İşaret Kilidi Desenini çizin</string>
   <string name="lockpattern_settings_help_how_to_record">İşaret Kilidi Deseninin nasıl çizileceğini öğren</string>
-  <string name="lockpattern_recording_incorrect_too_short">En az 4 nokta bağlantılayın, tekrar deneyin!</string>
   <string name="lockpattern_pattern_entered_header">Desen kaydedildi</string>
   <string name="lockpattern_need_to_draw">Lütfen İşaret Kilidi desenini çizin</string>
   <string name="lockpattern_need_to_confirm">Lütfen deseninizi onaylayın</string>
-  <string name="lockpattern_need_to_unlock_wrong">Desen eşleşmiyor, tekrar deneyin</string>
-  <string name="lockpattern_pattern_confirmed_header">Deseni kaydetmek için onaylayın</string>
-  <string name="lockpattern_recording_inprogress">Çizdikten sonra şekli kaldırın</string>
   <string name="lockpattern_pattern_toast_saved">İşaret Kilidi Deseni başarıyla kaydedildi</string>
   <!--Strings for possible PreferenceActivity Back/Next buttons-->
   <string name="back_button_label">Geri</string>
@@ -223,7 +197,7 @@
   <string name="settings_camera_upload_info_title">Kamera Fotoğrafı Yükle</string>
   <string name="settings_camera_upload_info">%d fotoğraf(lar)ı şuraya yükle\u0020</string>
   <string name="settings_wifi_down">Wi-Fi kullanılamıyor</string>
-  <string name="settings_startUpService">Yükleme Serşvşsş başladı</string>
+  <string name="settings_startUpService">Yükleme Servisi başladı</string>
   <string name="settings_stopUpService">Yükleme Servisi durdu</string>
   <string name="settings_allow_mobile_connections">2G/3G/4G Bağlantılarına izin ver</string>
   <string name="settings_default_wifi_connection">Wi-Fi sadece varsayılan olarak kullanılsın</string>
@@ -235,39 +209,28 @@
   <string name="settings_about_title">HAKKINDA</string>
   <string name="settings_about_version_title">Uygulama Versiyonu</string>
   <string name="settings_about_author_title">Yazar Hakkında</string>
-  <string name="settings_about_author_info">
-        <![CDATA[
-        <h5>Seafile Android Client</h5>
-        <p>%s</p>
-        <h5>İletişim</h5>
-        <p>
-            Twitter: Seafile<br>
-            Email: support@seafile.com<br>
-        </p>
-        <h5>Katılım</h5>
-        <p>https://github.com/haiwen/seadroid.git</P>
-        <h5>Copyright ©2013-2014 Seafile Ltd.</h5>
-        ]]>
-    </string>
-  <string name="settings_advance_feature_title">GELİŞMİŞ ÖZELLİKLER</string>
   <string name="settings_cache_title">Ön bellek boyutu</string>
   <string name="settings_clear_cache_title">Ön belleği temizle</string>
+  <string name="settings_clear_cache_hint">Ön belleği temizlemek istiyor musunuz?</string>
   <string name="settings_cache_empty">0 KB</string>
   <!--pull to refresh-->
   <string name="pull_to_refresh_pull_label">Yenilemek için çek...</string>
   <string name="pull_to_refresh_release_label">Yenilemek için bırakın...</string>
   <string name="pull_to_refresh_refreshing_label">Yükleniyor...</string>
-  <string name="pull_to_refresh_last_update">En son güncelleme:</string>
-  <string name="pull_to_refresh_last_update_seconds_ago">saniye önce</string>
-  <string name="pull_to_refresh_last_update_minutes_ago">dakika önce</string>
-  <string name="pull_to_refresh_last_update_hours_ago">saat önce</string>
   <!--storage access framework-->
-  <string name="saf_open_file_exception">%s dosyasını açamadı.</string>
-  <string name="saf_open_directory_exception">Dizini açamıyor.</string>
-  <string name="saf_file_not_cached_exception">%s dosyasy ön belleklenmemiş</string>
-  <string name="saf_thumbnail_not_found_exception">%s küçük resmi bulunamadı/açılamadı</string>
-  <string name="saf_file_not_downloaded_exception">%s dosyasy sunucudan indirilemiyor.</string>
-  <string name="saf_write_diretory_exception">Dizin okuma/yazma için açılamıyor</string>
-  <string name="saf_account_not_found_exception">Seafile hesabı bulunamadı.</string>
+  <string name="saf_file_not_cached_exception">%s dosyası ön belleklenmemiş</string>
   <!--shibboleth SSO-->
+  <string name="shib_server_url_empty">Sunucu boş!</string>
+  <string name="shib_server_incorrect_prefix">Sunucu adresi http:// ya da https:// ile başlamalı.</string>
+  <string name="shib_login_title">Shibboleth Girişi</string>
+  <string name="shib_actionbar_title">Shibboleth ile giriş yap</string>
+  <!--Transfer List-->
+  <string name="transfer_list_network_error">Ağ bağlantı hatası, lütfen daha sonra tekrar deneyin!</string>
+  <string name="transfer_list_cancel_all">Hepsini iptal et</string>
+  <string name="transfer_tabs_downloads">Listeyi indir</string>
+  <string name="transfer_tabs_uploads">Yükleme Listesi</string>
+  <string name="transfer_download_no_task">Bütün dosyalar indirildi</string>
+  <string name="transfer_download_started">%d dosyalarını indirmeye başlıyor</string>
+  <!--Search-->
+  <!--star a file-->
 </resources>

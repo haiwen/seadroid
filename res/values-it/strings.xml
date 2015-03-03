@@ -1,7 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="app_name">Seafile</string>
-  <string name="app_url">http://seafile.com</string>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <string name="welcome_to_seafile">Benvenuto in Seafile</string>
   <string name="select_account">Scegli un account per iniziare</string>
   <string name="edit_account">Modifica</string>
@@ -20,7 +18,6 @@
   <string name="redownload_file">Scarica nuovamente</string>
   <string name="cancel_download">Annulla</string>
   <string name="unknown_file_type">Tipo file sconosciuto</string>
-  <string name="activity_not_found">Impossibile trovare un App per aprire questo file</string>
   <string name="refresh">Aggiorna</string>
   <string name="add_account">Aggiungi Account</string>
   <string name="personal">Personale</string>
@@ -28,7 +25,6 @@
   <string name="cached">Cachata</string>
   <string name="activities">Attività</string>
   <string name="pick_upload_type">Carica</string>
-  <string name="upload_tasks">Caricamenti</string>
   <string name="accounts">Account</string>
   <string name="settings">Impostazioni</string>
   <string-array name="pick_upload_array">
@@ -39,7 +35,6 @@
   <string name="choose_server">Scegli un Server Seafile</string>
   <string name="network_down">Nessun connessione disponibile</string>
   <string name="invalid_server_address">Indirizzo server non valido</string>
-  <string name="err_server_andress_empty">L\'indirizzo del server non può essere vuoto </string>
   <string name="err_login_failed">Login fallito</string>
   <string name="err_wrong_user_or_passwd">Email o password errati</string>
   <string name="upload">Carica</string>
@@ -70,10 +65,7 @@
     <item>Altro</item>
   </string-array>
   <string name="wait">Attendi</string>
-  <string name="image_gallery_NoImageView_text">Nessun immagini trovata</string>
   <string name="pick_photo_video_title">Scegli foto/video da caricare</string>
-  <string name="select_upload_items">seleziona elementi da caricare</string>
-  <string name="n_upload_items_selected">%d elementi selezionati</string>
   <string name="dir_name_empty">Inserisci il nome della cartella</string>
   <string name="file_name_empty">Inserisci il nome del file</string>
   <string name="password_empty">Inserisci la password</string>
@@ -86,12 +78,10 @@
   <string name="no_app_available">Nessun app trovata</string>
   <string name="add_to_seafile">Aggiungi a Seafile</string>
   <string name="ok">OK</string>
-  <string name="no_account">Prima configura un account in Seafile</string>
   <string name="no_library">Non hai ancora librerie</string>
   <string name="choose_an_account">Scegli un account</string>
   <string name="choose_a_library">Scegli una libreria</string>
   <string name="choose_a_folder">Scegli una cartella</string>
-  <string name="load_accounts_fail">Impossibile caricare gli account seafile</string>
   <string name="load_libraries_fail">Impossibile caricare le librerie</string>
   <string name="load_dir_fail">Impossibile caricare il contenuto di questa cartella</string>
   <string name="not_supported_share">Questo tipo di condivisione non è supportato</string>
@@ -103,7 +93,6 @@
   <string name="last_modified">ultima modifica</string>
   <string name="file_modified">modificato</string>
   <string name="file_size">dimensione file</string>
-  <string name="library_not_found">Questa libreria è stata cancellata.</string>
   <string name="export_file">Esporta questo file</string>
   <string name="no_upload_tasks">No ci sono ancora caricamenti attivi</string>
   <string name="seahub_url_hint">Nota: l\'indirizzo del Server dovrebbe contenere la porta. Per esempio, www.example.com:8000</string>
@@ -124,7 +113,6 @@
   <string name="drawer_open">Apri il cassetto di navigazione</string>
   <string name="drawer_close">Chiudi il cassetto di navigazione</string>
   <string name="no_starred_file">Non ci sono ancora file preferiti</string>
-  <string name="added_to_upload_tasks">Il/i file selezionati sono stati aggiunti alla lista dei caricamenti</string>
   <string name="added_photo_to_upload_tasks">La foto è in caricamento</string>
   <string name="take_photo_successfully">Foto scattata correttamente</string>
   <string name="tabs_library">Librerie</string>
@@ -135,34 +123,24 @@
   <string name="upload_finished">Completato</string>
   <string name="upload_cancelled">Annullato</string>
   <string name="upload_failed">Fallito</string>
-  <string name="days_ago">giorni fa</string>
-  <string name="hours_ago">ore fa</string>
-  <string name="minutes_ago">minuti fa</string>
-  <string name="seconds_ago">secondi fa</string>
   <string name="just_now">Appena adesso</string>
   <string name="error_when_load_starred">Errore nel caricamento dei file preferiti</string>
   <string name="open_as">Apri come</string>
-  <string name="select_upload_files">seleziona file da caricare</string>
   <string name="storage_removed">La memoria è stata rimossa</string>
   <string name="error_selecting_file">Errore nella selezione del file</string>
-  <string name="n_upload_files_selected">%d file selezionato/i</string>
   <string name="empty_folder">Cartella vuota</string>
   <string name="choose_file">Scegli un file</string>
-  <string name="ssl_error">controllo di sicurezza fallito</string>
   <string name="ssl_confirm">Il certificato di sicurezza di %s non è fidato. Vuoi continuare?</string>
   <string name="ssl_confirm_cert_changed">%s usa un certificato di sicurezza non valido. La connessione non è sicura. Vuoi continuare?</string>
   <string name="ssl_confirm_title">Connessione Insicura</string>
   <string name="yes">Sì</string>
   <string name="no">No</string>
   <string name="remember_my_choice">Ricorda la mia scelta</string>
-  <string name="copied_successfully">Copiato/i Correttamente</string>
-  <string name="moved_successfully">Mosso/i Correttamente</string>
   <string name="internal_server_error">Errore Interno del Server</string>
   <string name="copy_file_ing">Copia file in corso</string>
   <string name="move_file_ing">Spostamento file in corso</string>
   <string name="copy_folder_ing">Copia cartella in corso</string>
   <string name="move_folder_ing">Spostamento cartella in corso</string>
-  <string name="upload_started">il caricamento è iniziato</string>
   <string name="cannot_copy_folder_to_subfolder">Non puoi copiare una cartella in una sua sottocartella</string>
   <string name="cannot_move_folder_to_subfolder">Non puoi spostare una cartella in una sua sottocartella</string>
   <string name="cancel">Annulla</string>
@@ -186,4 +164,7 @@
   <!--pull to refresh-->
   <!--storage access framework-->
   <!--shibboleth SSO-->
+  <!--Transfer List-->
+  <!--Search-->
+  <!--star a file-->
 </resources>

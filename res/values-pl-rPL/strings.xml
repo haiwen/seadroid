@@ -1,7 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="app_name">Seafile</string>
-  <string name="app_url">http://seafile.com</string>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <string name="welcome_to_seafile">Witamy w Seafile</string>
   <string name="select_account">Wybierz konto</string>
   <string name="edit_account">Edytuj</string>
@@ -20,7 +18,7 @@
   <string name="redownload_file">Pobierz ponownie</string>
   <string name="cancel_download">Anuluj</string>
   <string name="unknown_file_type">Nieznany typ pliku</string>
-  <string name="activity_not_found">Nie można odnaleźć aplikacji do otwarcia tego pliku</string>
+  <string name="activity_not_found">Nie można odnaleźć aplikacji do otworzenia tego pliku</string>
   <string name="refresh">Odśwież</string>
   <string name="add_account">Dodaj konto</string>
   <string name="personal">Osobiste</string>
@@ -28,8 +26,7 @@
   <string name="cached">W pamięci podręcznej</string>
   <string name="activities">Aktywność</string>
   <string name="pick_upload_type">Prześlij</string>
-  <string name="accounts_https_hint">https</string>
-  <string name="upload_tasks">Transfery</string>
+  <string name="transfer_tasks">Lista transferów</string>
   <string name="accounts">Konta</string>
   <string name="settings">Ustawienia</string>
   <string-array name="pick_upload_array">
@@ -38,10 +35,17 @@
     <item>Inne</item>
   </string-array>
   <string name="choose_server">Wybierz serwer Seafile</string>
+  <string-array name="choose_server_array">
+    <item>Prywatny serwer Seafile</item>
+    <item>SeaCloud.cc</item>
+    <item>cloud.seafile.com</item>
+    <item>Logowanie Shibboleth</item>
+  </string-array>
   <string name="network_down">Brak połączenia z siecią</string>
+  <string name="unknow_error">Nieznany błąd</string>
   <string name="invalid_server_address">Nieprawidłowy adres serwera</string>
   <string name="err_server_andress_empty">Adres serwera nie może być pusty</string>
-  <string name="err_email_empty">Email nie może być pusty</string>
+  <string name="err_email_empty">Adres e-mail nie może być pusty</string>
   <string name="err_passwd_empty">Hasło nie może być puste</string>
   <string name="err_login_failed">Nieudane logowanie</string>
   <string name="err_wrong_user_or_passwd">Nieprawidłowy adres e-mail lub hasło</string>
@@ -54,7 +58,9 @@
   <string name="task_cancel">Anuluj</string>
   <string name="task_retry">Ponów</string>
   <string name="task_remove">Skasuj</string>
+  <string name="task_remove_all_cancelled">Usuń wszystkie anulowane</string>
   <string name="task_remove_all_finished">Skasuj wszystkie zakończone</string>
+  <string name="file_action_star">Ulubione</string>
   <string name="file_action_download">Pobierz</string>
   <string name="file_action_remove_cache">Wyczyść pamięć podręczną</string>
   <string name="file_action_update">Prześlij</string>
@@ -75,8 +81,12 @@
   <string name="wait">Czekaj</string>
   <string name="image_gallery_NoImageView_text">Nie znaleziono obrazu</string>
   <string name="pick_photo_video_title">Wybierz zdjęcia/wideo do przesłania</string>
-  <string name="select_upload_items">wybierz elementy do przesłania</string>
-  <string name="n_upload_items_selected">zaznaczono %d elementów</string>
+  <string name="select_upload_items">Wybierz elementy do przesłania</string>
+  <plurals name="n_upload_items_selected">
+    <item quantity="one">zaznaczono <xliff:g id="number_of_selected">%1$d</xliff:g> element</item>
+    <item quantity="few">zaznaczono <xliff:g id="numbers_of_selected">%1$d</xliff:g> elementy</item>
+    <item quantity="other">zaznaczono <xliff:g id="numbers_of_selected">%1$d</xliff:g> elementów</item>
+  </plurals>
   <string name="dir_name_empty">Podaj nazwę folderu</string>
   <string name="file_name_empty">Podaj nazwę pliku</string>
   <string name="password_empty">Podaj hasło</string>
@@ -94,10 +104,11 @@
   <string name="choose_an_account">Wybierz konto</string>
   <string name="choose_a_library">Wybierz bibliotekę</string>
   <string name="choose_a_folder">Wybierz folder</string>
-  <string name="load_accounts_fail">Nie udało się wczytać kont seafile</string>
+  <string name="load_accounts_fail">Nie udało się wczytać kont Seafile</string>
   <string name="load_libraries_fail">Nie udało się wczytać bibliotek</string>
   <string name="load_dir_fail">Nie udało się wczytać zawartości tego folderu</string>
   <string name="not_supported_share">Ten rodzaj udziału nie jest obsługiwany</string>
+  <string name="download_folder">Folder pobierania</string>
   <string name="create_new_file">Utwórz nowy plik</string>
   <string name="create_new_dir">Utwórz nowy folder</string>
   <string name="camera">Zrób zdjęcie</string>
@@ -109,6 +120,7 @@
   <string name="library_not_found">Biblioteka została usunięta.</string>
   <string name="export_file">Wyeksportuj ten plik</string>
   <string name="no_upload_tasks">Brak zadań przesyłania</string>
+  <string name="no_download_tasks">Brak zadań pobierania</string>
   <string name="seahub_url_hint">Uwaga: Adres serwera powinien zawierać port. Dla przykładu, www.example.com:8000</string>
   <string name="copy_link">Kopiuj odsyłacz</string>
   <string name="share_file_link">Udostępnij łącze do tego pliku</string>
@@ -127,33 +139,35 @@
   <string name="drawer_open">Otwórz panel nawigacyjny</string>
   <string name="drawer_close">Zamknij panel nawigacyjny</string>
   <string name="no_starred_file">Brak ulubionych plików</string>
-  <string name="added_to_upload_tasks">Wybrany plik jest dodany do kolejki przesyłania.</string>
+  <string name="added_to_upload_tasks">Wybrane pliki zostały dodane do kolejki przesyłania.</string>
   <string name="added_photo_to_upload_tasks">Zdjęcie jest przesyłane</string>
   <string name="take_photo_successfully">Zdjęcie zrobiono pomyślnie</string>
   <string name="tabs_library">Biblioteki</string>
   <string name="tabs_activity">Aktywność</string>
   <string name="tabs_starred">Ulubione</string>
-  <string name="transfer_tabs_downloads">Lista pobierania</string>
-  <string name="transfer_tabs_uploads">Lista wysyłania</string>
   <string name="provide_password">Podaj hasło do biblioteki \"%s\"</string>
   <string name="upload_waiting">Oczekiwanie</string>
   <string name="upload_finished">Zakończono</string>
   <string name="upload_cancelled">Anulowane</string>
   <string name="upload_failed">Niepowodzenie</string>
-  <string name="days_ago">dni temu</string>
-  <string name="hours_ago">godzin temu</string>
-  <string name="minutes_ago">minut temu</string>
-  <string name="seconds_ago">sekund temu</string>
+  <string name="days_ago">%d dni temu</string>
+  <string name="hours_ago">%d godzin temu</string>
+  <string name="minutes_ago">%d minut temu</string>
+  <string name="seconds_ago">%d sekundy temu</string>
   <string name="just_now">Przed chwilą</string>
   <string name="error_when_load_starred">Błąd podczas wczytywania ulubionych plików</string>
   <string name="open_as">Otwórz jako</string>
-  <string name="select_upload_files">wybierz pliki do przesłania</string>
+  <string name="select_upload_files">Wybierz pliki do przesłania</string>
   <string name="storage_removed">Magazyn został usunięty</string>
   <string name="error_selecting_file">Błąd podczas wybierania pliku</string>
-  <string name="n_upload_files_selected">wybrano %d plik(ów)</string>
+  <plurals name="n_upload_files_selected">
+    <item quantity="one">wybrano <xliff:g id="number_of_selected">%1$d</xliff:g> plik</item>
+    <item quantity="few">wybrano <xliff:g id="number_of_selected">%1$d</xliff:g> pliki</item>
+    <item quantity="other">wybrano <xliff:g id="number_of_selected">%1$d</xliff:g> plików</item>
+  </plurals>
   <string name="empty_folder">Pusty folder</string>
   <string name="choose_file">Wybierz plik</string>
-  <string name="ssl_error">niepowodzenie kontroli bezpieczeństwa</string>
+  <string name="ssl_error">Niepowodzenie kontroli bezpieczeństwa</string>
   <string name="ssl_confirm">Certyfikat bezpieczeństwa %s nie jest zaufany. Czy chcesz kontynuować?</string>
   <string name="ssl_confirm_cert_changed">%s używa nieprawidłowego certyfikatu bezpieczeństwa. Połączenie nie jest bezpieczne. Czy chcesz kontynuować?</string>
   <string name="ssl_confirm_title">Niezaufane połączenie</string>
@@ -162,6 +176,7 @@
   <string name="period_of_validity">Okres ważności</string>
   <string name="sha1">SHA-1 %s</string>
   <string name="md5">MD5 %s</string>
+  <string name="not_available">niedostępne</string>
   <string name="serial_number">Numer seryjny %s</string>
   <string name="not_before">Ważny od %s</string>
   <string name="not_after">Ważny do %s</string>
@@ -175,7 +190,7 @@
   <string name="move_file_ing">Przenoszenie pliku</string>
   <string name="copy_folder_ing">Kopiowanie folderu</string>
   <string name="move_folder_ing">Przenoszenie folderu</string>
-  <string name="upload_started">przesyłanie rozpoczęte</string>
+  <string name="upload_started">Przesyłanie rozpoczęte</string>
   <string name="cannot_copy_folder_to_subfolder">Nie można skopiować folderu do jego podfolderu</string>
   <string name="cannot_move_folder_to_subfolder">Nie można przenieść folderu do jego podfolderu</string>
   <string name="cancel">Anuluj</string>
@@ -185,7 +200,7 @@
   <string name="settings_account_info_load_data">wczytywanie...</string>
   <string name="settings_account_space_title">Wykorzystane miejsce</string>
   <string name="settings_account_sign_out_title">Wyloguj się</string>
-  <string name="settings_account_sign_out_hint">Kliknij, aby się wylogować</string>
+  <string name="settings_account_sign_out_hint">Naciśnij, aby się wylogować</string>
   <string name="settings_account_sign_out_confirm">Czy chcesz się wylogować?</string>
   <string name="security">Bezpieczeństwo</string>
   <string name="gesture_lock">Blokada gestem</string>
@@ -196,23 +211,31 @@
   <string name="lockscreen_access_pattern_cleared">Wzorzec wyczyszczony</string>
   <string name="lockscreen_access_pattern_cell_added">Dodano komórkę wzoru</string>
   <string name="lockscreen_access_pattern_detected">Wykryto wzór</string>
-  <string name="lockscreen_access_pattern_passwd_forget">Zapomnij hasło</string>
-  <string name="lockscreen_access_pattern_failure">Pociągnij, aby odświeżyć...</string>
-  <string name="lockscreen_access_pattern_failure_left_try_seconds">Możesz spróbować ponownie po %d sekundach</string>
-  <string name="lockscreen_access_pattern_failure_left_try_times">Nieprawidłowy wzór, możesz spróbować ponownie %d razy</string>
+  <string name="lockscreen_access_pattern_passwd_forget">Zapomniałem hasła</string>
+  <string name="lockscreen_access_pattern_failure">Pięciokrotne niepowodzenie, proszę odczekać 30 sekund przed ponowną próbą</string>
+  <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
+    <item quantity="one">Możesz spróbować ponownie za <xliff:g id="second">%1$d</xliff:g> sekundę</item>
+    <item quantity="few">Możesz spróbować ponownie za <xliff:g id="second">%1$d</xliff:g> sekundy</item>
+    <item quantity="other">Możesz spróbować ponownie za <xliff:g id="second">%1$d</xliff:g> sekund</item>
+  </plurals>
+  <plurals name="lockscreen_access_pattern_failure_left_try_times">
+    <item quantity="one">Nieprawidłowy wzór, możesz spróbować ponownie <xliff:g id="times">%1$d</xliff:g> raz</item>
+    <item quantity="few">Nieprawidłowy wzór, możesz spróbować ponownie <xliff:g id="times">%1$d</xliff:g> razy</item>
+    <item quantity="other">Nieprawidłowy wzór, możesz spróbować ponownie <xliff:g id="times">%1$d</xliff:g> razy</item>
+  </plurals>
   <string name="lockscreen_access_pattern_failure_not_long_enough">Połączenie punktów jest zbyt krótkie, spróbuj ponownie</string>
   <string name="lockpattern_retry_button_text">Ponów</string>
   <string name="lockpattern_continue_button_text">Dalej</string>
   <string name="lockpattern_confirm_button_text">OK</string>
   <string name="lockpattern_recording_intro_header">Narysuj wzór blokady</string>
   <string name="lockpattern_settings_help_how_to_record">Dowiedz się jak rysować wzór blokady</string>
-  <string name="lockpattern_recording_incorrect_too_short">Połącz przynajmniej 4 punkty, spróbuj ponownie!</string>
+  <string name="lockpattern_recording_incorrect_too_short">Przeciągnij przez przynajmniej 4 punkty, spróbuj ponownie!</string>
   <string name="lockpattern_pattern_entered_header">Wzór zapisany</string>
   <string name="lockpattern_need_to_draw">Narysuj wzór blokady</string>
   <string name="lockpattern_need_to_confirm">Potwierdź swój wzór</string>
-  <string name="lockpattern_need_to_unlock_wrong">Wzór nie pasuje, spróbuj ponownie!</string>
-  <string name="lockpattern_pattern_confirmed_header">Potwierdź, aby zapisać swój wzór</string>
-  <string name="lockpattern_recording_inprogress">Odsuń palec od ekranu po zakończeniu rysowania</string>
+  <string name="lockpattern_need_to_unlock_wrong">Nieprawidłowy wzór. Spróbuj ponownie.</string>
+  <string name="lockpattern_pattern_confirmed_header">Dotknij OK, aby zapisać swój wzór</string>
+  <string name="lockpattern_recording_inprogress">Odsuń palec po skończeniu rysowania</string>
   <string name="lockpattern_pattern_toast_saved">Wzór blokady zapisano pomyślnie</string>
   <!--Strings for possible PreferenceActivity Back/Next buttons-->
   <string name="back_button_label">Wstecz</string>
@@ -237,7 +260,7 @@
   <string name="settings_about_author_title">O autorze</string>
   <string name="settings_about_author_info">
         <![CDATA[
-        <h5>Seafile Android Client</h5>
+        <h5>Klient Seafile dla Androida</h5>
         <p>%s</p>
         <h5>Kontakt</h5>
         <p>
@@ -252,22 +275,49 @@
   <string name="settings_advance_feature_title">ZAAWANSOWANE</string>
   <string name="settings_cache_title">Rozmiar pamięci podręcznej</string>
   <string name="settings_clear_cache_title">Wyczyść pamięć podręczną</string>
+  <string name="settings_clear_cache_hint">Czy chcesz wyczyścić pamięć podręczną?</string>
+  <string name="settings_clear_cache_success">Pomyślnie wyczyszczono pamięć podręczną</string>
+  <string name="settings_clear_cache_failed">Nie udało się wyczyścić pamięci podręcznej</string>
   <string name="settings_cache_empty">0 KB</string>
   <!--pull to refresh-->
   <string name="pull_to_refresh_pull_label">Pociągnij, aby odświeżyć...</string>
   <string name="pull_to_refresh_release_label">Puść, aby odświeżyć...</string>
   <string name="pull_to_refresh_refreshing_label">Wczytywanie...</string>
-  <string name="pull_to_refresh_last_update">Zaktualizowano :</string>
-  <string name="pull_to_refresh_last_update_seconds_ago">sekundy temu</string>
-  <string name="pull_to_refresh_last_update_minutes_ago">minuty temu</string>
-  <string name="pull_to_refresh_last_update_hours_ago">godziny temu</string>
+  <string name="pull_to_refresh_last_update">Ostatnia aktualizacja:</string>
+  <string name="pull_to_refresh_last_update_seconds_ago">%d sekund temu</string>
+  <string name="pull_to_refresh_last_update_minutes_ago">%d minut temu</string>
+  <string name="pull_to_refresh_last_update_hours_ago">%d godzin temu</string>
   <!--storage access framework-->
   <string name="saf_open_file_exception">Nie można otworzyć pliku %s.</string>
-  <string name="saf_open_directory_exception">Nie można otworzyć folderu.</string>
+  <string name="saf_open_directory_exception">Nie można otworzyć katalogu.</string>
   <string name="saf_file_not_cached_exception">Plik %s nie jest buforowany.</string>
   <string name="saf_thumbnail_not_found_exception">Nie można odnaleźć/otworzyć miniatury %s.</string>
   <string name="saf_file_not_downloaded_exception">Nie można pobrać pliku %s z serwera.</string>
   <string name="saf_write_diretory_exception">Nie można otworzyć katalogu do odczytu/zapisu.</string>
-  <string name="saf_account_not_found_exception">Nie można odnaleźć konta Seafile.</string>
+  <string name="saf_account_not_found_exception">Nie można odnaleźć konta Seafile.</string>
   <!--shibboleth SSO-->
+  <string name="shib_server_url_empty">Serwer jest pusty!</string>
+  <string name="shib_server_incorrect_prefix">Adres serwera musi się zaczynać od http:// lub https://</string>
+  <string name="shib_load_page_error">Błąd:</string>
+  <string name="shib_login_title">Logowanie Shibboleth</string>
+  <string name="shib_server_hint">Serwer wejściowy...</string>
+  <string name="shib_actionbar_title">Zaloguj z Shibboleth</string>
+  <string name="shib_loading">wczytywanie...</string>
+  <!--Transfer List-->
+  <string name="transfer_list_network_error">Błąd połączenia sieciowego, proszę spróbować później!</string>
+  <string name="transfer_list_cancel_all">Anuluj wszystko</string>
+  <string name="transfer_tabs_downloads">Lista pobierań</string>
+  <string name="transfer_tabs_uploads">Lista przesyłań</string>
+  <string name="transfer_download_no_task">Wszystkie pliki zostały pobrane</string>
+  <string name="transfer_download_started">Rozpoczynanie pobierania %d plików</string>
+  <!--Search-->
+  <string name="search_menu_item">Szukaj</string>
+  <string name="search_bar_hint">Wyszukiwanie...</string>
+  <string name="search_txt_empty">Podaj słowa kluczowe</string>
+  <string name="search_content_empty">Nic nie znaleziono</string>
+  <string name="search_server_not_support">Ups, wyszukiwanie nie było obsługiwane na tym serwerze!</string>
+  <string name="search_library_not_found">Nie można odnaleźć tej biblioteki. Mogła zostać usunięta.</string>
+  <!--star a file-->
+  <string name="star_file_succeed">Plik został oznaczony gwiazdką</string>
+  <string name="star_file_failed">Nie udało się oznaczyć pliku gwiazdką</string>
 </resources>

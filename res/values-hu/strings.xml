@@ -1,7 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="app_name">Seafile</string>
-  <string name="app_url">http://seafile.com</string>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <string name="welcome_to_seafile">Üdvözlöm a Seafile-ban</string>
   <string name="select_account">Válasszon egy fiókot</string>
   <string name="edit_account">Szerkeszt</string>
@@ -28,8 +26,7 @@
   <string name="cached">Gyorsítótárazva</string>
   <string name="activities">Tevékenységek</string>
   <string name="pick_upload_type">Feltölt</string>
-  <string name="accounts_https_hint">https</string>
-  <string name="upload_tasks">Feltöltések</string>
+  <string name="transfer_tasks">Átviteli lista</string>
   <string name="accounts">Fiókok</string>
   <string name="settings">Beállítások</string>
   <string-array name="pick_upload_array">
@@ -38,7 +35,14 @@
     <item>Más</item>
   </string-array>
   <string name="choose_server">Seafile szerver választás</string>
+  <string-array name="choose_server_array">
+    <item>Saját Seafile Server</item>
+    <item>SeaCloud.cc</item>
+    <item>cloud.seafile.com</item>
+    <item>Shibboleth bejelentkezés</item>
+  </string-array>
   <string name="network_down">Nincs hálózati kapcsolat</string>
+  <string name="unknow_error">Ismeretlen hiba</string>
   <string name="invalid_server_address">Hibás szerver cím</string>
   <string name="err_server_andress_empty">Szerver cím nem lehet üres</string>
   <string name="err_email_empty">Az email cím nem lehet üres</string>
@@ -54,7 +58,9 @@
   <string name="task_cancel">Mégse</string>
   <string name="task_retry">Újra</string>
   <string name="task_remove">Töröl</string>
+  <string name="task_remove_all_cancelled">Minden megszakítottat töröl</string>
   <string name="task_remove_all_finished">Minden elkészültet töröl</string>
+  <string name="file_action_star">Kedvenc</string>
   <string name="file_action_download">Letöltés</string>
   <string name="file_action_remove_cache">Gyorsítótár törlése</string>
   <string name="file_action_update">Feltölt</string>
@@ -75,8 +81,11 @@
   <string name="wait">Várakozik</string>
   <string name="image_gallery_NoImageView_text">Kép nem található</string>
   <string name="pick_photo_video_title">Fotó/videó választás feltöltéshez</string>
-  <string name="select_upload_items">elemek kiválasztása feltöltéshez</string>
-  <string name="n_upload_items_selected">%d db kiválasztva</string>
+  <string name="select_upload_items">Elemek kiválasztása feltöltéshez</string>
+  <plurals name="n_upload_items_selected">
+    <item quantity="one"><xliff:g id="number_of_selected">%1$d</xliff:g> elem kijelölve</item>
+    <item quantity="other"><xliff:g id="numbers_of_selected">%1$d</xliff:g> elem kijelölve</item>
+  </plurals>
   <string name="dir_name_empty">Adja meg a könyvtár nevét</string>
   <string name="file_name_empty">Adja meg a fájl nevét</string>
   <string name="password_empty">Adja meg a jelszót</string>
@@ -98,6 +107,7 @@
   <string name="load_libraries_fail">Hiba a kötetek letöltésénél</string>
   <string name="load_dir_fail">Hiba a könyvtár tartalmának betöltésénél</string>
   <string name="not_supported_share">Ez a megosztás típus nem támogatott</string>
+  <string name="download_folder">Könyvtár letöltés</string>
   <string name="create_new_file">Új fájl létrehozása</string>
   <string name="create_new_dir">Új könyvtár létrehozása</string>
   <string name="camera">Fénykép ide</string>
@@ -109,6 +119,7 @@
   <string name="library_not_found">Ez a kötet törölve lett.</string>
   <string name="export_file">Fájl exportálása</string>
   <string name="no_upload_tasks">Nincs feltöltési feladat</string>
+  <string name="no_download_tasks">Nincs letöltési feladat</string>
   <string name="seahub_url_hint">Megj.: A szerver cím tartalmazhat portszámot. Például, www.example.com:8000</string>
   <string name="copy_link">Link másolása</string>
   <string name="share_file_link">Link megosztása ehhez a fájlhoz</string>
@@ -126,34 +137,35 @@
   </string-array>
   <string name="drawer_open">Navigációs menü megnyitása</string>
   <string name="drawer_close">Navigációs menü bezárása</string>
-  <string name="no_starred_file">Jelenleg nincsenek csillagozott fájlok</string>
+  <string name="no_starred_file">Jelenleg nincsenek kedvenc fájlok</string>
   <string name="added_to_upload_tasks">A kiválasztott fájlok a feltöltési feladatokhoz lettek adva.</string>
   <string name="added_photo_to_upload_tasks">Fénykép feltöltés alatt</string>
   <string name="take_photo_successfully">Sikeres fénykép készítés</string>
   <string name="tabs_library">Kötetek</string>
   <string name="tabs_activity">Tevékenységek</string>
-  <string name="tabs_starred">Csillagozott</string>
-  <string name="transfer_tabs_downloads">Letöltési lista</string>
-  <string name="transfer_tabs_uploads">Feltöltési lista</string>
+  <string name="tabs_starred">Kedvencek</string>
   <string name="provide_password">Jelszó megadása ehhez: \"%s\"</string>
   <string name="upload_waiting">Vár</string>
   <string name="upload_finished">Kész</string>
   <string name="upload_cancelled">Megszakítva</string>
   <string name="upload_failed">Hibás</string>
-  <string name="days_ago"> napja</string>
-  <string name="hours_ago"> órája</string>
-  <string name="minutes_ago"> perce</string>
-  <string name="seconds_ago"> másodperce</string>
+  <string name="days_ago">%d napja</string>
+  <string name="hours_ago">%d órája</string>
+  <string name="minutes_ago">%d perce</string>
+  <string name="seconds_ago">%d másodperce</string>
   <string name="just_now">most</string>
-  <string name="error_when_load_starred">Hiba a csillagozott fájlok betöltésénél</string>
+  <string name="error_when_load_starred">Hiba a kedvenc fájlok betöltésénél</string>
   <string name="open_as">Megnyitás mint</string>
-  <string name="select_upload_files">fájlok kiválasztása feltöltéshez</string>
+  <string name="select_upload_files">Fájlok kiválasztása feltöltéshez</string>
   <string name="storage_removed">Eltávolították a tárolót</string>
   <string name="error_selecting_file">Hiba a fájlok kiválasztásánál</string>
-  <string name="n_upload_files_selected">%d db fájl kiválasztva</string>
+  <plurals name="n_upload_files_selected">
+    <item quantity="one"><xliff:g id="number_of_selected">%1$d</xliff:g> fájl kijelölve</item>
+    <item quantity="other"><xliff:g id="numbers_of_selected">%1$d</xliff:g> fájl kijelölve</item>
+  </plurals>
   <string name="empty_folder">Üres könyvtár</string>
   <string name="choose_file">Fájl kiválasztása</string>
-  <string name="ssl_error">a biztonsági vizsgálat sikertelen</string>
+  <string name="ssl_error">A biztonsági vizsgálat sikertelen</string>
   <string name="ssl_confirm">A biztonsági tanúsítvány: %s , nem megbízható. Így is folytatja?</string>
   <string name="ssl_confirm_cert_changed">%s érvénytelen biztonsági tanúsítványt használ. A kapcsolat nem biztonságos. Így is folytatja?</string>
   <string name="ssl_confirm_title">Nem megbízható kapcsolat</string>
@@ -162,6 +174,7 @@
   <string name="period_of_validity">Érvényesség ideje</string>
   <string name="sha1">SHA-1 %s</string>
   <string name="md5">MD5 %s</string>
+  <string name="not_available">nem érhető el</string>
   <string name="serial_number">Sorozatszám %s</string>
   <string name="not_before">Innentől érvényes: %s</string>
   <string name="not_after">Eddig érvényes: %s</string>
@@ -175,7 +188,7 @@
   <string name="move_file_ing">Fájl mozgatás</string>
   <string name="copy_folder_ing">Könyvtár másolás</string>
   <string name="move_folder_ing">Könyvtár mozgatása</string>
-  <string name="upload_started">feltöltés elindítva</string>
+  <string name="upload_started">Feltöltés elindítva</string>
   <string name="cannot_copy_folder_to_subfolder">A könyvtár nem másolható az alkönyvtárába</string>
   <string name="cannot_move_folder_to_subfolder">A könyvtár nem mozgatható az alkönyvtárába</string>
   <string name="cancel">Mégse</string>
@@ -196,10 +209,16 @@
   <string name="lockscreen_access_pattern_cleared">Minta törölve</string>
   <string name="lockscreen_access_pattern_cell_added">Pont hozzáadva</string>
   <string name="lockscreen_access_pattern_detected">Minta megtalálva</string>
-  <string name="lockscreen_access_pattern_passwd_forget">Jelszó elfelejtése</string>
+  <string name="lockscreen_access_pattern_passwd_forget">Jelszó elfelejtve</string>
   <string name="lockscreen_access_pattern_failure">5 hibás próbálkozás, várjon 30 másodpercet mielőtt újra próbálja</string>
-  <string name="lockscreen_access_pattern_failure_left_try_seconds">%d másodperc múlva újra megpróbálhatja</string>
-  <string name="lockscreen_access_pattern_failure_left_try_times">Hibás minta, még %d alkalommal probálkozhat</string>
+  <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
+    <item quantity="one"><xliff:g id="second">%1$d</xliff:g> másodperc múlva újra próbálkozhat</item>
+    <item quantity="other"> <xliff:g id="seconds">%1$d</xliff:g> másodperc múlva újra próbálkozhat</item>
+  </plurals>
+  <plurals name="lockscreen_access_pattern_failure_left_try_times">
+    <item quantity="one">Hibás minta, még <xliff:g id="time">%1$d</xliff:g> alkalommal probálkozhat</item>
+    <item quantity="other">Hibás minta, még <xliff:g id="times">%1$d</xliff:g> alkalommal probálkozhat</item>
+  </plurals>
   <string name="lockscreen_access_pattern_failure_not_long_enough">Nincs elég pont összekötve, próbálja újra</string>
   <string name="lockpattern_retry_button_text">Újra</string>
   <string name="lockpattern_continue_button_text">Következő</string>
@@ -211,8 +230,8 @@
   <string name="lockpattern_need_to_draw">Rajzold le a képernyőmintát</string>
   <string name="lockpattern_need_to_confirm">Kérem erősítse meg a mintát</string>
   <string name="lockpattern_need_to_unlock_wrong">A minták nem egyeznek, ismételje meg!</string>
-  <string name="lockpattern_pattern_confirmed_header">A mentéshez erősítse meg a mintát</string>
-  <string name="lockpattern_recording_inprogress">Rajzolás után vegye el az ujját\"</string>
+  <string name="lockpattern_pattern_confirmed_header">Koppintson az OK-ra a minta elmentéséhez</string>
+  <string name="lockpattern_recording_inprogress">Emelje fel az ujját ha a rajzolást befejezte</string>
   <string name="lockpattern_pattern_toast_saved">Képernyőminta sikeresen elmentve</string>
   <!--Strings for possible PreferenceActivity Back/Next buttons-->
   <string name="back_button_label">Vissza</string>
@@ -241,26 +260,29 @@
         <p>%s</p>
         <h5>Contact Us</h5>
         <p>
-            Twitter: Seafile<br>
-            Email: support@seafile.com<br>
+        Twitter: Seafile<br>
+        Email: support@seafile.com<br>
         </p>
         <h5>Contribution</h5>
         <p>https://github.com/haiwen/seadroid.git</P>
         <h5>Copyright ©2013-2014 Seafile Ltd.</h5>
         ]]>
     </string>
-  <string name="settings_advance_feature_title">HALADÓ LEHETŐSÉGEK</string>
+  <string name="settings_advance_feature_title">HALADÓ BEÁLLÍTÁSOK</string>
   <string name="settings_cache_title">Gyorsítótár mérete</string>
   <string name="settings_clear_cache_title">Gyorsítótár törlése</string>
+  <string name="settings_clear_cache_hint">Biztos, hogy törli a gyorsítótárat?</string>
+  <string name="settings_clear_cache_success">Gyorsítótár sikeresen törölve</string>
+  <string name="settings_clear_cache_failed">Gyorsítótár törlése sikertelen</string>
   <string name="settings_cache_empty">0 KB</string>
   <!--pull to refresh-->
   <string name="pull_to_refresh_pull_label">Frissítéshez húzza ezt le...</string>
   <string name="pull_to_refresh_release_label">Frissítéshez engedje el...</string>
   <string name="pull_to_refresh_refreshing_label">Betöltés...</string>
-  <string name="pull_to_refresh_last_update">Utolsó frissítés :</string>
-  <string name="pull_to_refresh_last_update_seconds_ago"> másodperce</string>
-  <string name="pull_to_refresh_last_update_minutes_ago"> perce</string>
-  <string name="pull_to_refresh_last_update_hours_ago"> órája</string>
+  <string name="pull_to_refresh_last_update">Utolsó frissítés:</string>
+  <string name="pull_to_refresh_last_update_seconds_ago">%d másodperce</string>
+  <string name="pull_to_refresh_last_update_minutes_ago">%d perce</string>
+  <string name="pull_to_refresh_last_update_hours_ago">%d órája</string>
   <!--storage access framework-->
   <string name="saf_open_file_exception">%s fájlt nem lehet megnyitni.</string>
   <string name="saf_open_directory_exception">Könyvtárat nem lehet megnyitni.</string>
@@ -270,4 +292,28 @@
   <string name="saf_write_diretory_exception">A könyvtár nem nyitható meg írásra/olvasásra.</string>
   <string name="saf_account_not_found_exception">Nem található Seafile fiók.</string>
   <!--shibboleth SSO-->
+  <string name="shib_server_url_empty">A szerver üres!</string>
+  <string name="shib_server_incorrect_prefix">A szerver címnek http://-rel vagy https://-rel kell kezdődnie</string>
+  <string name="shib_load_page_error">Hiba:</string>
+  <string name="shib_login_title">Shibboleth belépés</string>
+  <string name="shib_server_hint">Szerver...</string>
+  <string name="shib_actionbar_title">Belépés Shibboleth-tel</string>
+  <string name="shib_loading">betöltés...</string>
+  <!--Transfer List-->
+  <string name="transfer_list_network_error">Hálózati hiba, próbálja meg később!</string>
+  <string name="transfer_list_cancel_all">Mindet megszakít</string>
+  <string name="transfer_tabs_downloads">Letöltési lista</string>
+  <string name="transfer_tabs_uploads">Feltöltési lista</string>
+  <string name="transfer_download_no_task">Minden fájl letöltve</string>
+  <string name="transfer_download_started">%d fájl letöltésének elkezdése</string>
+  <!--Search-->
+  <string name="search_menu_item">Keres</string>
+  <string name="search_bar_hint">Keresés...</string>
+  <string name="search_txt_empty">Adja meg a kulcsszavakat</string>
+  <string name="search_content_empty">Semmi sem található</string>
+  <string name="search_server_not_support">Hoppá, a keresés nem támogatott ezen a szerveren!</string>
+  <string name="search_library_not_found">Nem található a kötet. Lehet, hogy törölve lett</string>
+  <!--star a file-->
+  <string name="star_file_succeed">Fájl sikeresen felvéve a kedvencek közé</string>
+  <string name="star_file_failed">A fájlt nem sikerült felvenni a kedvencek közé</string>
 </resources>

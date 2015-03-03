@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="welcome_to_seafile">Velkommen til Seafile</string>
+  <string name="select_account">Velg en konto for å starte</string>
+  <string name="edit_account">Redigere</string>
+  <string name="delete_account">Slette</string>
+  <string name="delete">Slette</string>
+  <string name="delete_file">Er du sikker på at du vil slette denne filen eller mappen?</string>
+  <string name="delete_successful">Slettingen var vellykket</string>
+  <string name="delete_file_f">Slett fil</string>
+  <string name="delete_dir">Slett mappe</string>
+  <string name="server_hint">Vertsmaskin, slik som cloud.seafile.com</string>
+  <string name="email_hint">E-post</string>
+  <string name="passwd_hint">Passord</string>
+  <!--Strings for possible PreferenceActivity Back/Next buttons-->
+  <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
+  <!--pull to refresh-->
+  <!--storage access framework-->
+  <!--shibboleth SSO-->
+  <!--Transfer List-->
+  <!--Search-->
+  <!--star a file-->
+</resources>
