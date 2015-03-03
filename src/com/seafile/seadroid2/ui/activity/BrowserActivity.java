@@ -1031,7 +1031,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             if (fileCount == 0)
                 ToastUtils.show(BrowserActivity.this, R.string.transfer_download_no_task);
             else
-                ToastUtils.show(BrowserActivity.this, getString(R.string.transfer_download_started, fileCount));
+                ToastUtils.show(BrowserActivity.this, getResources().getQuantityString(R.plurals.transfer_download_started, fileCount, fileCount));
 
             // set download tasks info to adapter in order to update download progress in UI thread
             getReposFragment().getAdapter().setDownloadTaskList(txService.getDownloadTaskInfosByPath(repoID, filePath));

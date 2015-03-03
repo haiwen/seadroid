@@ -320,7 +320,10 @@
     <string name="transfer_tabs_downloads">Download List</string>
     <string name="transfer_tabs_uploads">Upload List</string>
     <string name="transfer_download_no_task">All files has been downloaded</string>
-    <string name="transfer_download_started">Starting to download %d files</string>
+    <plurals name="transfer_download_started">
+        <item quantity="one">Starting to download <xliff:g id="download_file">%1$d</xliff:g> file</item>
+        <item quantity="other">Starting to download <xliff:g id="download_files">%1$d</xliff:g> files</item>
+    </plurals>
 
     <!-- Search -->
     <string name="search_menu_item">Search</string>
