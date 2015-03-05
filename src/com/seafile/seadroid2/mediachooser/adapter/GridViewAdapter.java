@@ -13,12 +13,12 @@ import com.seafile.seadroid2.mediachooser.MediaModel;
 import com.seafile.seadroid2.mediachooser.async.ImageLoadAsync;
 import com.seafile.seadroid2.mediachooser.async.MediaAsync;
 import com.seafile.seadroid2.mediachooser.async.VideoLoadAsync;
-import com.seafile.seadroid2.mediachooser.fragment.VideoFragment;
+import com.seafile.seadroid2.mediachooser.fragment.MultiVideoSelectionFragment;
 
 import java.util.List;
 
 public class GridViewAdapter extends ArrayAdapter<MediaModel> {
-    public VideoFragment videoFragment;
+    public MultiVideoSelectionFragment videoFragment;
 
     private Context mContext;
     private List<MediaModel> mGalleryModelList;

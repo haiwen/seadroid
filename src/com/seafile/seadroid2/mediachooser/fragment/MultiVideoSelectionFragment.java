@@ -23,7 +23,7 @@ import com.seafile.seadroid2.mediachooser.adapter.GridViewAdapter;
 import java.io.File;
 import java.util.ArrayList;
 
-public class VideoFragment extends Fragment implements OnScrollListener {
+public class MultiVideoSelectionFragment extends Fragment implements OnScrollListener {
 
     private final static Uri MEDIA_EXTERNAL_CONTENT_URI = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
     private final static String MEDIA_DATA = MediaStore.Video.Media.DATA;
@@ -62,7 +62,7 @@ public class VideoFragment extends Fragment implements OnScrollListener {
         super.onCreate(savedInstanceState);
     }
 
-    public VideoFragment() {
+    public MultiVideoSelectionFragment() {
         setRetainInstance(true);
     }
 

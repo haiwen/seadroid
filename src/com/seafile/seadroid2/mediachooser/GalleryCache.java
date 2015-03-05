@@ -10,7 +10,7 @@ import android.widget.ImageView;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.mediachooser.adapter.BucketGridAdapter;
 import com.seafile.seadroid2.mediachooser.adapter.GridViewAdapter;
-import com.seafile.seadroid2.mediachooser.fragment.VideoFragment;
+import com.seafile.seadroid2.mediachooser.fragment.MultiVideoSelectionFragment;
 
 import java.util.ArrayList;
 
@@ -77,8 +77,8 @@ public class GalleryCache {
             imageView.setImageResource(R.drawable.ic_loading);
             //			imageView.setImageResource(R.drawable.transprent_drawable);
             if (!isScrolling && !mCurrentTasks.contains(imageKey)) {
-                if (mainActivity instanceof VideoFragment) {
-                    BitmapLoaderTask task = new BitmapLoaderTask(imageKey, ((VideoFragment) mainActivity).getAdapter());
+                if (mainActivity instanceof MultiVideoSelectionFragment) {
+                    BitmapLoaderTask task = new BitmapLoaderTask(imageKey, ((MultiVideoSelectionFragment) mainActivity).getAdapter());
                     task.execute();
 
                 } /*else if (mainActivity instanceof BucketVideoFragment) {

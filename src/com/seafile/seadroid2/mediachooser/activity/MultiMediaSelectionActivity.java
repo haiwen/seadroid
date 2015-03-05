@@ -26,7 +26,7 @@ import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.mediachooser.MediaChooser;
 import com.seafile.seadroid2.mediachooser.MediaChooserConstants;
 import com.seafile.seadroid2.mediachooser.fragment.MultiImageSelectionFragment;
-import com.seafile.seadroid2.mediachooser.fragment.VideoFragment;
+import com.seafile.seadroid2.mediachooser.fragment.MultiVideoSelectionFragment;
 import com.viewpagerindicator.TabPageIndicator;
 
 import java.io.File;
@@ -35,7 +35,7 @@ import java.util.Date;
 
 
 public class MultiMediaSelectionActivity extends SherlockFragmentActivity implements MultiImageSelectionFragment.OnImageSelectedListener,
-        VideoFragment.OnVideoSelectedListener {
+        MultiVideoSelectionFragment.OnVideoSelectedListener {
 
     private ChooserTabsAdapter mAdapter;
     private ViewPager mPager;
@@ -84,7 +84,7 @@ public class MultiMediaSelectionActivity extends SherlockFragmentActivity implem
                     mSelectionStatus.setText(getResources().getQuantityString(R.plurals.n_upload_items_selected, total));
 
                 if (position == 0)
-                    ((VideoFragment) mAdapter.getItem(1)).finishActionModeIfOn();
+                    ((MultiVideoSelectionFragment) mAdapter.getItem(1)).finishActionModeIfOn();
                 else
                     ((MultiImageSelectionFragment) mAdapter.getItem(0)).finishActionModeIfOn();
             }
@@ -157,7 +157,7 @@ public class MultiMediaSelectionActivity extends SherlockFragmentActivity implem
     class ChooserTabsAdapter extends FragmentPagerAdapter {
 
         private MultiImageSelectionFragment imageFragment;
-        private VideoFragment videoFragment;
+        private MultiVideoSelectionFragment videoFragment;
 
         private String imageTabTitle;
         private String videoTabTitle;
@@ -187,7 +187,7 @@ public class MultiMediaSelectionActivity extends SherlockFragmentActivity implem
                     return imageFragment;
                 case 1:
                     if (videoFragment == null) {
-                        videoFragment = new VideoFragment();
+                        videoFragment = new MultiVideoSelectionFragment();
                     }
                     return videoFragment;
                 default:
@@ -267,7 +267,7 @@ public class MultiMediaSelectionActivity extends SherlockFragmentActivity implem
             if (view == mUploadBtn) {
 
                 MultiImageSelectionFragment imageFragment = (MultiImageSelectionFragment) mAdapter.getItem(0);
-                VideoFragment videoFragment = (VideoFragment) mAdapter.getItem(1);
+                MultiVideoSelectionFragment videoFragment = (MultiVideoSelectionFragment) mAdapter.getItem(1);
 
                 if (videoFragment != null || imageFragment != null) {
 
@@ -347,10 +347,10 @@ public class MultiMediaSelectionActivity extends SherlockFragmentActivity implem
                     public void run() {
                         //Do something after 5000ms
                         String fileUriString = fileUri.toString().replaceFirst("file:///", "/").trim();
-                        VideoFragment videoFragment = (VideoFragment) mAdapter.getItem(1);
+                        MultiVideoSelectionFragment videoFragment = (MultiVideoSelectionFragment) mAdapter.getItem(1);
                         //
                         if (videoFragment == null) {
-                            VideoFragment newVideoFragment = new VideoFragment();
+                            MultiVideoSelectionFragment newVideoFragment = new MultiVideoSelectionFragment();
                             newVideoFragment.addItem(fileUriString);
 
                         } else {
