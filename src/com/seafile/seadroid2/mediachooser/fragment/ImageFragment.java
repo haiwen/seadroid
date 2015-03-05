@@ -33,7 +33,9 @@ import android.widget.Toast;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.mediachooser.MediaChooserConstants;
 import com.seafile.seadroid2.mediachooser.MediaModel;
+import com.seafile.seadroid2.mediachooser.activity.HomeFragmentActivity;
 import com.seafile.seadroid2.mediachooser.adapter.GridViewAdapter;
+import com.seafile.seadroid2.ui.ToastUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -47,6 +49,7 @@ public class ImageFragment extends Fragment {
     private OnImageSelectedListener mCallback;
     private GridViewAdapter mImageAdapter;
     private Cursor mImageCursor;
+    private HomeFragmentActivity mActivity;
 
 
     // Container Activity must implement this interface
@@ -57,7 +60,7 @@ public class ImageFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-
+        mActivity = (HomeFragmentActivity) getActivity();
         // This makes sure that the container activity has implemented
         // the callback interface. If not, it throws an exception
         try {
@@ -90,7 +93,7 @@ public class ImageFragment extends Fragment {
         } else {
             ((ViewGroup) mView.getParent()).removeView(mView);
             if (mImageAdapter == null || mImageAdapter.getCount() == 0) {
-                Toast.makeText(getActivity(), getActivity().getString(R.string.media_chooser_no_media_file_available), Toast.LENGTH_SHORT).show();
+                ToastUtils.show(mActivity, R.string.media_chooser_no_media_file_available);
             }
         }
 
@@ -106,7 +109,11 @@ public class ImageFragment extends Fragment {
             searchParams = "bucket_display_name = \"" + bucket + "\"";
 
             final String[] columns = {MediaStore.Images.Media.DATA, MediaStore.Images.Media._ID};
-            mImageCursor = getActivity().getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, searchParams, null, orderBy + " DESC");
+            mImageCursor = mActivity.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    columns,
+                    searchParams,
+                    null,
+                    orderBy + " DESC");
 
             setAdapter(mImageCursor);
         } catch (Exception e) {
@@ -118,7 +125,11 @@ public class ImageFragment extends Fragment {
         try {
             final String orderBy = MediaStore.Images.Media.DATE_TAKEN;
             final String[] columns = {MediaStore.Images.Media.DATA, MediaStore.Images.Media._ID};
-            mImageCursor = getActivity().getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, null, null, orderBy + " DESC");
+            mImageCursor = mActivity.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    columns,
+                    null,
+                    null,
+                    orderBy + " DESC");
 
             setAdapter(mImageCursor);
         } catch (Exception e) {
@@ -141,10 +152,10 @@ public class ImageFragment extends Fragment {
             }
 
 
-            mImageAdapter = new GridViewAdapter(getActivity(), 0, mGalleryModelList, false);
+            mImageAdapter = new GridViewAdapter(mActivity, 0, mGalleryModelList, false);
             mImageGridView.setAdapter(mImageAdapter);
         } else {
-            Toast.makeText(getActivity(), getActivity().getString(R.string.media_chooser_no_media_file_available), Toast.LENGTH_SHORT).show();
+            ToastUtils.show(mActivity, R.string.media_chooser_no_media_file_available);
         }
 
         mImageGridView.setOnItemLongClickListener(new OnItemLongClickListener() {
@@ -153,7 +164,7 @@ public class ImageFragment extends Fragment {
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 
                 GridViewAdapter adapter = (GridViewAdapter) parent.getAdapter();
-                MediaModel galleryModel = (MediaModel) adapter.getItem(position);
+                MediaModel galleryModel = adapter.getItem(position);
                 File file = new File(galleryModel.url);
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setDataAndType(Uri.fromFile(file), "image/*");
@@ -169,22 +180,22 @@ public class ImageFragment extends Fragment {
                                     View view, int position, long id) {
                 // update the mStatus of each category in the adapter
                 GridViewAdapter adapter = (GridViewAdapter) parent.getAdapter();
-                MediaModel galleryModel = (MediaModel) adapter.getItem(position);
+                MediaModel galleryModel = adapter.getItem(position);
 
 
                 if (!galleryModel.status) {
                     long size = MediaChooserConstants.ChekcMediaFileSize(new File(galleryModel.url.toString()), false);
                     if (size != 0) {
-                        Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.media_chooser_file_size_exeeded) + "  " + MediaChooserConstants.SELECTED_IMAGE_SIZE_IN_MB + " " + getActivity().getResources().getString(R.string.media_chooser_mb), Toast.LENGTH_SHORT).show();
+                        ToastUtils.show(mActivity, mActivity.getResources().getString(R.string.media_chooser_file_size_exeeded) + "  " + MediaChooserConstants.SELECTED_IMAGE_SIZE_IN_MB + " " + mActivity.getResources().getString(R.string.media_chooser_mb));
                         return;
                     }
 
                     if ((MediaChooserConstants.MAX_MEDIA_LIMIT == MediaChooserConstants.SELECTED_MEDIA_COUNT)) {
                         if (MediaChooserConstants.SELECTED_MEDIA_COUNT < 2) {
-                            Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.media_chooser_max_limit_file) + "  " + MediaChooserConstants.SELECTED_MEDIA_COUNT + " " + getActivity().getResources().getString(R.string.media_chooser_file), Toast.LENGTH_SHORT).show();
+                            ToastUtils.show(mActivity, mActivity.getResources().getString(R.string.media_chooser_max_limit_file) + "  " + MediaChooserConstants.SELECTED_MEDIA_COUNT + " " + mActivity.getResources().getString(R.string.media_chooser_file));
                             return;
                         } else {
-                            Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.media_chooser_max_limit_file) + "  " + MediaChooserConstants.SELECTED_MEDIA_COUNT + " " + getActivity().getResources().getString(R.string.media_chooser_files), Toast.LENGTH_SHORT).show();
+                            ToastUtils.show(mActivity, mActivity.getResources().getString(R.string.media_chooser_max_limit_file) + "  " + MediaChooserConstants.SELECTED_MEDIA_COUNT + " " + mActivity.getResources().getString(R.string.media_chooser_files));
                             return;
                         }
 
@@ -213,7 +224,7 @@ public class ImageFragment extends Fragment {
                     mCallback.onImageSelected(mSelectedItems.size());
                     Intent intent = new Intent();
                     intent.putStringArrayListExtra(MediaChooserConstants.MEDIA_SELECTED_LIST, mSelectedItems);
-                    getActivity().setResult(Activity.RESULT_OK, intent);
+                    mActivity.setResult(Activity.RESULT_OK, intent);
                 }
 
             }
@@ -224,7 +235,7 @@ public class ImageFragment extends Fragment {
 
         if (mSelectedItems.size() > 0 && mActionMode == null)
             // there are some selected items, start the actionMode
-            mActionMode = getActivity().startActionMode(new ActionModeCallback());
+            mActionMode = mActivity.startActionMode(new ActionModeCallback());
         else if (mSelectedItems.size() <= 0 && mActionMode != null)
             // there no selected items, finish the actionMode
             mActionMode.finish();
@@ -255,7 +266,7 @@ public class ImageFragment extends Fragment {
             mCallback.onImageSelected(mSelectedItems.size());
             Intent intent = new Intent();
             intent.putStringArrayListExtra(MediaChooserConstants.MEDIA_SELECTED_LIST, mSelectedItems);
-            getActivity().setResult(Activity.RESULT_OK, intent);
+            mActivity.setResult(Activity.RESULT_OK, intent);
         }
 
         if(mActionMode != null)
