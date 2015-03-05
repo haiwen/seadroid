@@ -268,6 +268,9 @@ public class CameraUploadService extends Service {
 
         @Override
         protected void onPostExecute(File photo) {
+            if (photo == null)
+                return;
+
             String detectLog = "detected " + photo.getName();
             Log.d(DEBUG_TAG, detectLog);
             SeafCachedPhoto cachePhoto = cUploadManager.getCachedPhoto(repoName, repoId, DIR,
