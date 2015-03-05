@@ -12,11 +12,10 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.GridView;
-import android.widget.Toast;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.mediachooser.MediaChooserConstants;
 import com.seafile.seadroid2.mediachooser.MediaModel;
-import com.seafile.seadroid2.mediachooser.activity.HomeFragmentActivity;
+import com.seafile.seadroid2.mediachooser.activity.MultiMediaSelectionActivity;
 import com.seafile.seadroid2.mediachooser.adapter.GridViewAdapter;
 import com.seafile.seadroid2.ui.ToastUtils;
 
@@ -32,7 +31,7 @@ public class ImageFragment extends Fragment {
     private OnImageSelectedListener mCallback;
     private GridViewAdapter mImageAdapter;
     private Cursor mImageCursor;
-    private HomeFragmentActivity mActivity;
+    private MultiMediaSelectionActivity mActivity;
 
 
     // Container Activity must implement this interface
@@ -43,7 +42,7 @@ public class ImageFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        mActivity = (HomeFragmentActivity) getActivity();
+        mActivity = (MultiMediaSelectionActivity) getActivity();
         // This makes sure that the container activity has implemented
         // the callback interface. If not, it throws an exception
         try {

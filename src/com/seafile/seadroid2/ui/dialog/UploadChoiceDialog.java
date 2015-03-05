@@ -11,7 +11,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 import com.seafile.seadroid2.mediachooser.MediaChooser;
-import com.seafile.seadroid2.mediachooser.activity.HomeFragmentActivity;
+import com.seafile.seadroid2.mediachooser.activity.MultiMediaSelectionActivity;
 import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.util.Utils;
@@ -39,7 +39,7 @@ public class UploadChoiceDialog extends DialogFragment {
                             // photos & videos
                             MediaChooser.setSelectionLimit(20);
                             //MediaChooser.showOnlyImageTab();
-                            Intent bIntent = new Intent(ctx, HomeFragmentActivity.class);
+                            Intent bIntent = new Intent(ctx, MultiMediaSelectionActivity.class);
                             getActivity().startActivity(bIntent);
                             break;
                         case 2:

@@ -34,7 +34,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 
-public class HomeFragmentActivity extends SherlockFragmentActivity implements ImageFragment.OnImageSelectedListener,
+public class MultiMediaSelectionActivity extends SherlockFragmentActivity implements ImageFragment.OnImageSelectedListener,
         VideoFragment.OnVideoSelectedListener {
 
     private ChooserTabsAdapter mAdapter;
@@ -276,7 +276,7 @@ public class HomeFragmentActivity extends SherlockFragmentActivity implements Im
                             Intent videoIntent = new Intent();
                             videoIntent.setAction(MediaChooser.VIDEO_SELECTED_ACTION_FROM_MEDIA_CHOOSER);
                             videoIntent.putStringArrayListExtra(MediaChooserConstants.MEDIA_SELECTED_LIST, videoFragment.getSelectedVideoList());
-                            LocalBroadcastManager.getInstance(HomeFragmentActivity.this).sendBroadcast(videoIntent);
+                            LocalBroadcastManager.getInstance(MultiMediaSelectionActivity.this).sendBroadcast(videoIntent);
                         }
                     }
 
@@ -285,13 +285,13 @@ public class HomeFragmentActivity extends SherlockFragmentActivity implements Im
                             Intent imageIntent = new Intent();
                             imageIntent.setAction(MediaChooser.IMAGE_SELECTED_ACTION_FROM_MEDIA_CHOOSER);
                             imageIntent.putStringArrayListExtra(MediaChooserConstants.MEDIA_SELECTED_LIST, imageFragment.getSelectedImageList());
-                            LocalBroadcastManager.getInstance(HomeFragmentActivity.this).sendBroadcast(imageIntent);
+                            LocalBroadcastManager.getInstance(MultiMediaSelectionActivity.this).sendBroadcast(imageIntent);
                         }
                     }
 
                     finish();
                 } else {
-                    Toast.makeText(HomeFragmentActivity.this, getString(R.string.media_chooser_plaese_select_file), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MultiMediaSelectionActivity.this, getString(R.string.media_chooser_plaese_select_file), Toast.LENGTH_SHORT).show();
                 }
 
             } else if (view == mCancelBtn) {
@@ -340,7 +340,7 @@ public class HomeFragmentActivity extends SherlockFragmentActivity implements Im
             if (resultCode == RESULT_OK) {
 
                 sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, fileUri));
-                final AlertDialog alertDialog = MediaChooserConstants.getDialog(HomeFragmentActivity.this).create();
+                final AlertDialog alertDialog = MediaChooserConstants.getDialog(MultiMediaSelectionActivity.this).create();
                 alertDialog.show();
                 handler.postDelayed(new Runnable() {
                     @Override
@@ -371,7 +371,7 @@ public class HomeFragmentActivity extends SherlockFragmentActivity implements Im
 
                 sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, fileUri));
 
-                final AlertDialog alertDialog = MediaChooserConstants.getDialog(HomeFragmentActivity.this).create();
+                final AlertDialog alertDialog = MediaChooserConstants.getDialog(MultiMediaSelectionActivity.this).create();
                 alertDialog.show();
                 handler.postDelayed(new Runnable() {
                     @Override
