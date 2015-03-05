@@ -864,7 +864,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             ArrayList<String> paths = intent.getStringArrayListExtra(MediaChooserConstants.MEDIA_SELECTED_LIST);
             if (paths == null)
                 return;
-            showToast(getString(R.string.added_to_upload_tasks));
+            ToastUtils.show(BrowserActivity.this, R.string.added_to_upload_tasks);
             for (String path : paths) {
                 addUploadTask(navContext.getRepoID(),
                         navContext.getRepoName(), navContext.getDirPath(), path);
@@ -879,7 +879,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             ArrayList<String> paths = intent.getStringArrayListExtra(MediaChooserConstants.MEDIA_SELECTED_LIST);
             if (paths == null)
                 return;
-            showToast(getString(R.string.added_to_upload_tasks));
+            ToastUtils.show(BrowserActivity.this, R.string.added_to_upload_tasks);
             for (String path : paths) {
                 addUploadTask(navContext.getRepoID(),
                         navContext.getRepoName(), navContext.getDirPath(), path);
