@@ -22,8 +22,7 @@ import com.seafile.seadroid2.ui.ToastUtils;
 import java.io.File;
 import java.util.ArrayList;
 
-
-public class ImageFragment extends Fragment {
+public class MultiImageSelectionFragment extends Fragment {
     private ArrayList<String> mSelectedItems = new ArrayList<String>();
     private ArrayList<MediaModel> mGalleryModelList;
     private GridView mImageGridView;
@@ -52,7 +51,7 @@ public class ImageFragment extends Fragment {
         }
     }
 
-    public ImageFragment() {
+    public MultiImageSelectionFragment() {
         setRetainInstance(true);
     }
 
