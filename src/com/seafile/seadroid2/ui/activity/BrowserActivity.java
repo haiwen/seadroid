@@ -222,7 +222,11 @@ public class BrowserActivity extends SherlockFragmentActivity
             public void onPageSelected(final int position) {
                 currentPosition = position;
                 supportInvalidateOptionsMenu();
-                disableUpButton();
+                if (currentPosition != 0) {
+                    disableUpButton();
+                } else if (navContext.inRepo()) {
+                    enableUpButton();
+                }
             }
 
             @Override
