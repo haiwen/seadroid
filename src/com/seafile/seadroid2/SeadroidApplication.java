@@ -32,7 +32,7 @@ public class SeadroidApplication extends Application {
     
     public static void initImageLoader(Context context) {
         
-        File cacheDir = DataManager.getAvatarCacheDirectory();
+        File cacheDir = DataManager.getThumbnailCacheDirectory();
         // This configuration tuning is custom. You can tune every option, you may tune some of them,
         // or you can create default configuration by
         //  ImageLoaderConfiguration.createDefault(this);

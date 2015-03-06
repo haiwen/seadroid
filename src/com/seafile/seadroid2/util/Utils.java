@@ -27,10 +27,8 @@ import java.util.List;
 import java.util.TreeMap;
 
 import android.text.TextUtils;
-import android.util.JsonToken;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

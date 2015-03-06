@@ -272,7 +272,6 @@ public class ReposFragment extends SherlockListFragment {
             @Override
             public void run() {
                 adapter.setDownloadTaskList(mActivity.getTransferService().getAllDownloadTaskInfos());
-                adapter.notifyDataSetChanged();
                 Log.d(DEBUG_TAG, "timer post refresh signal " + System.currentTimeMillis());
                 mTimer.postDelayed(this, 1 * 1000);
             }
@@ -336,13 +335,6 @@ public class ReposFragment extends SherlockListFragment {
             final String repoName = nav.getRepoName();
             final String repoID = nav.getRepoID();
             final String dirPath = nav.getDirPath();
-            // scheduleThumbnailTask(repoName, repoID, dirPath, dirents);
-            ConcurrentAsyncTask.execute(new Runnable() {
-                @Override
-                public void run() {
-                    scheduleThumbnailTask(repoName, repoID, dirPath, dirents);
-                }
-            });
 
             adapter.notifyChanged();
             mPullRefreshListView.setVisibility(View.VISIBLE);
@@ -724,64 +716,4 @@ public class ReposFragment extends SherlockListFragment {
             }
         });
     }
-
-    private void scheduleThumbnailTask(String repoName, String repoID,
-            String path, List<SeafDirent> dirents) {
-        ArrayList<SeafDirent> needThumb = Lists.newArrayList();
-        for (SeafDirent dirent : dirents) {
-            if (dirent.isDir())
-                continue;
-            if (Utils.isViewableImage(dirent.name)) {
-                String p = Utils.pathJoin(path, dirent.name);
-                File file = mActivity.getDataManager().getLocalRepoFile(repoName, repoID, p);
-                if (file.exists()) {
-                    // if (file.length() > 1000000)
-                    //     continue;
-
-                    File thumb = DataManager.getThumbFile(dirent.id);
-                    if (!thumb.exists())
-                        needThumb.add(dirent);
-                }
-            }
-        }
-        if (needThumb.size() != 0) {
-            ConcurrentAsyncTask.execute(new ThumbnailTask(repoName, repoID, path, needThumb));
-        }
-    }
-
-    private class ThumbnailTask extends AsyncTask<Void, Void, Void > {
-
-        List<SeafDirent> dirents;
-        private String repoName;
-        private String repoID;
-        private String dir;
-
-        public ThumbnailTask(String repoName, String repoID, String dir, List<SeafDirent> dirents) {
-            this.dirents = dirents;
-            this.repoName = repoName;
-            this.repoID = repoID;
-            this.dir = dir;
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            for (SeafDirent dirent : dirents) {
-                String path = Utils.pathJoin(dir, dirent.name);
-                mActivity.getDataManager().calculateThumbnail(repoName, repoID, path, dirent.id);
-            }
-            return null;
-        }
-
-        // onPostExecute displays the results of the AsyncTask.
-        @Override
-        protected void onPostExecute(Void v) {
-            if (mActivity == null)
-                // this occurs if user navigation to another activity
-                return;
-
-            adapter.notifyChanged();
-        }
-
-    }
-
 }

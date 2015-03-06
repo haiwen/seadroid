@@ -1035,7 +1035,6 @@ public class BrowserActivity extends SherlockFragmentActivity
 
             // set download tasks info to adapter in order to update download progress in UI thread
             getReposFragment().getAdapter().setDownloadTaskList(txService.getDownloadTaskInfosByPath(repoID, filePath));
-            getReposFragment().getAdapter().notifyDataSetChanged();
         }
     }
 

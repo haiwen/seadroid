@@ -1,25 +1,21 @@
 package com.seafile.seadroid2.data;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import android.text.TextUtils;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.fileschooser.SelectableFile;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.graphics.Bitmap;
 import android.os.Environment;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
 
@@ -29,13 +25,9 @@ import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.util.BitmapUtil;
 import com.seafile.seadroid2.util.Utils;
 
 public class DataManager {
-    public static final int MAX_GEN_CACHE_THUMB = 1000000;  // Only generate thumb cache for files less than 1MB
-    public static final int MAX_DIRECT_SHOW_THUMB = 100000;  // directly show thumb
-
     private static final String DEBUG_TAG = "DataManager";
     private static final long SET_PASSWORD_INTERVAL = 59 * 60 * 1000; // 59 min
     // private static final long SET_PASSWORD_INTERVAL = 5 * 1000; // 5s
@@ -81,7 +73,7 @@ public class DataManager {
     }
 
     public static String getThumbDirectory() {
-        String root = SeadroidApplication.getAppContext().getFilesDir().getAbsolutePath();
+        String root = SeadroidApplication.getAppContext().getCacheDir().getAbsolutePath();
         File tmpDir = new File(root + "/" + "thumb");
         return getDirectoryCreateIfNeeded(tmpDir);
     }
@@ -122,85 +114,50 @@ public class DataManager {
         return new File(p);
     }
 
-    public static File getThumbFile(String oid) {
-        String p = Utils.pathJoin(getThumbDirectory(), oid + ".png");
-        return new File(p);
-    }
-
     // Obtain a cache file for storing a directory with oid
     public static File getFileForDirentsCache(String oid) {
         return new File(getExternalCacheDirectory() + "/" + oid);
     }
     
-    public static File getAvatarCacheDirectory() {
-        return new File(getExternalCacheDirectory() + "/avatar");
+    public static File getThumbnailCacheDirectory() {
+        return new File(getExternalCacheDirectory() + "/thumbnails");
     }
 
-    public void calculateThumbnail(String repoName, String repoID, String path, String oid) {
-        final int THUMBNAIL_SIZE = caculateThumbnailSizeOfDevice();
-        FileOutputStream out = null;
-        try {
-            File file = getLocalRepoFile(repoName, repoID, path);
-            if (!file.exists())
-                return;
-            // if (file.length() > MAX_GEN_CACHE_THUMB)
-            //     return;
+    private String encodeThumbnailFilePath(String path) throws UnsupportedEncodingException {
 
-            Bitmap imageBitmap = BitmapUtil.calculateThumbnail(file.getPath(), THUMBNAIL_SIZE);
-            if (imageBitmap == null) {
-                return;
-            }
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-            byte[] byteArray = baos.toByteArray();
-            File thumb = getThumbFile(oid);
-            out = new FileOutputStream(thumb);
-            out.write(byteArray);
-        } catch (IOException e) {
-            Log.i(DEBUG_TAG, "Failed to write thumbnail : " + e.getMessage());
-        } finally {
+        // This is kinda hacky. Not sure what the proper encoding function would be.
+        String pathEnc = "";
+        for (String s : path.split("/")) {
+            pathEnc += "/" + URLEncoder.encode(s, "UTF-8");
+            pathEnc = pathEnc.replaceAll("\\+", "%20");
+        }
+        return pathEnc;
+    }
+
+    public String getThumbnailLink(String repoName, String repoID, String filePath, int size) {
+        File file = getLocalRepoFile(repoName, repoID, filePath);
+
+        // use locally cached file if available
+        if (file.exists()) {
+            return "file://" + file.getAbsolutePath();
+        } else {
             try {
-                if(out != null) {
-                    out.close();
-                }
-            }
-            catch(IOException ioe) {
-            }
-        }
-    }
-
-    /**
-     * Caculate the thumbnail of an image directly when its size is less than {@link #MAX_DIRECT_SHOW_THUMB}
-     */
-    public Bitmap getThumbnail(File file) {
-        try {
-            if (!file.exists())
+                String pathEnc = encodeThumbnailFilePath(filePath);
+                // TODO: If there is a "?" in the path, this will break
+                return account.getServer() + String.format("api2/repos/%s/thumbnail/%s?s=%s", repoID, pathEnc, size);
+            } catch (UnsupportedEncodingException e) {
                 return null;
+            }
 
-            final int THUMBNAIL_SIZE = caculateThumbnailSizeOfDevice();
-
-            return BitmapUtil.calculateThumbnail(file.getPath(), THUMBNAIL_SIZE);
-        } catch (Exception ex) {
-            return null;
         }
     }
 
-
-    public static int caculateThumbnailSizeOfDevice() {
-        DisplayMetrics metrics = SeadroidApplication.getAppContext().getResources().getDisplayMetrics();
-
-        switch(metrics.densityDpi) {
-        case DisplayMetrics.DENSITY_LOW:
-            return 36;
-        case DisplayMetrics.DENSITY_MEDIUM:
-            return 48;
-        case DisplayMetrics.DENSITY_HIGH:
-            return 72;
-        case DisplayMetrics.DENSITY_XHIGH:
-            return 96;
-        default:
-            return 36;
-        }
+    public String getThumbnailLink(String repoID, String filePath, int size) {
+        SeafRepo repo = getCachedRepoByID(repoID);
+        if (repo != null)
+            return getThumbnailLink(repo.getName(), repoID, filePath, size);
+        else
+            return null;
     }
 
     public Account getAccount() {
