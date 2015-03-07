@@ -19,13 +19,6 @@
 
 package com.seafile.seadroid2.provider;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import android.annotation.TargetApi;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
@@ -33,6 +26,7 @@ import android.database.MatrixCursor;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CancellationSignal;
@@ -55,6 +49,13 @@ import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.ProgressMonitor;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * DocumentProvider for the Storage Access Framework.
@@ -83,7 +84,9 @@ public class SeafileProvider extends DocumentsProvider {
                     Document.COLUMN_DISPLAY_NAME,
                     Document.COLUMN_LAST_MODIFIED,
                     Document.COLUMN_FLAGS,
-                    Document.COLUMN_SIZE
+                    Document.COLUMN_SIZE,
+                    Document.COLUMN_ICON,
+                    Document.COLUMN_SUMMARY
             };
     
     /** we remember the last documentId queried so we don't run into a loop while doing Async lookups. */
@@ -482,13 +485,25 @@ public class SeafileProvider extends DocumentsProvider {
     private void includeRepo(MatrixCursor result, Account account, SeafRepo repo) {
         String docId = DocumentIdParser.buildId(account, repo.getID(), null);
 
+        int flags = 0;
+        if (repo.hasWritePermission()) {
+            flags |= Document.FLAG_DIR_SUPPORTS_CREATE;
+        }
+
         final MatrixCursor.RowBuilder row = result.newRow();
         row.add(Document.COLUMN_DOCUMENT_ID, docId);
         row.add(Document.COLUMN_DISPLAY_NAME, repo.getTitle());
-        row.add(Document.COLUMN_SIZE, repo.size);
-        row.add(Document.COLUMN_MIME_TYPE, DocumentsContract.Document.MIME_TYPE_DIR);
+        row.add(Document.COLUMN_SUMMARY, repo.description);
         row.add(Document.COLUMN_LAST_MODIFIED, repo.mtime * 1000);
-        row.add(Document.COLUMN_FLAGS, 0);
+        row.add(Document.COLUMN_FLAGS, flags);
+        row.add(Document.COLUMN_ICON, repo.getIcon());
+        row.add(Document.COLUMN_SIZE, repo.size);
+
+        if (repo.encrypted) {
+            row.add(Document.COLUMN_MIME_TYPE, null); // undocumented: will grey out the entry
+        } else {
+            row.add(Document.COLUMN_MIME_TYPE, Document.MIME_TYPE_DIR);
+        }
     }
 
     /**
@@ -501,22 +516,32 @@ public class SeafileProvider extends DocumentsProvider {
      * @param entry the seafile dirent to add
      */
     private void includeDirent(MatrixCursor result, DataManager dm, String repoId, String parentPath, SeafDirent entry) {
-        String fullPath = parentPath + ProviderUtil.PATH_SEPERATOR + entry.getTitle();
+        String fullPath = Utils.pathJoin(parentPath, entry.getTitle());
+
         String docId = DocumentIdParser.buildId(dm.getAccount(), repoId, fullPath);
 
         final String mimeType = ProviderUtil.getTypeForFile(docId, entry.isDir());
 
         int flags = 0;
-        // only offer a thumbnail if the file is an image and it is cached.
+        // only offer a thumbnail if the file is an image
         if (mimeType.startsWith("image/")) {
-            // Allow the image to be represented by a thumbnail rather than an icon
             flags |= Document.FLAG_SUPPORTS_THUMBNAIL;
+        }
+
+        SeafRepo repo = dm.getCachedRepoByID(repoId);
+        if (repo.hasWritePermission()) {
+            if (entry.isDir()) {
+                flags |= Document.FLAG_DIR_SUPPORTS_CREATE;
+            } else {
+                flags |= Document.FLAG_SUPPORTS_WRITE;
+            }
         }
 
         final MatrixCursor.RowBuilder row = result.newRow();
         row.add(Document.COLUMN_DOCUMENT_ID, docId);
         row.add(Document.COLUMN_DISPLAY_NAME, entry.getTitle());
         row.add(Document.COLUMN_SIZE, entry.size);
+        row.add(Document.COLUMN_SUMMARY, null);
         row.add(Document.COLUMN_MIME_TYPE, mimeType);
         row.add(Document.COLUMN_LAST_MODIFIED, entry.mtime * 1000);
         row.add(Document.COLUMN_FLAGS, flags);
