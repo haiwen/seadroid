@@ -27,9 +27,9 @@ import java.io.FileNotFoundException;
 /**
  * Helper class to create and parse DocumentIds for the DocumentProvider
  *
- * Format: ServerName::::RepoId::::Path
+ * Format: FullServerServerSignature::RepoId::Path
  * Example:
- * https://server.com/seafile/::::550e8400-e29b-11d4-a716-446655440000::::/dir/file.jpg
+ * email@adress.com@https://server.com/seafile/::::550e8400-e29b-11d4-a716-446655440000::::/dir/file.jpg
  *
  * the separation using "::::" is arbitrary. Is has to be something, that is neither in an URL
  * nor in a repoId UUID.
@@ -58,7 +58,7 @@ public class DocumentIdParser {
         if (list.length > 0) {
             String server = list[0];
             for (Account a: AccountDBHelper.getDatabaseHelper(context).getAccountList()) {
-                if (a.getServer().equals(server)) {
+                if (a.getFullSignature().equals(server)) {
                     return a;
                 }
             }
@@ -109,11 +109,11 @@ public class DocumentIdParser {
      */
     public static String buildId(Account a, String repoId, String path) {
         if (repoId != null && path != null)
-            return a.getServer() + DOC_SEPERATOR + repoId + DOC_SEPERATOR + path;
+            return a.getFullSignature() + DOC_SEPERATOR + repoId + DOC_SEPERATOR + path;
         else if (repoId != null)
-            return a.getServer() + DOC_SEPERATOR + repoId;
+            return a.getFullSignature() + DOC_SEPERATOR + repoId;
         else
-            return a.getServer();
+            return a.getFullSignature();
     }
 
 }
