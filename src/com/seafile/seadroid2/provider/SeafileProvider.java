@@ -208,10 +208,14 @@ public class SeafileProvider extends DocumentsProvider {
             // in this case, the repository is known. the user wants the entries of a specific
             // directory in the given repository.
 
-            String path = DocumentIdParser.getPathFromId(parentDocumentId);
+            SeafRepo repo = dm.getCachedRepoByID(repoId);
+
+            // encrypted repos are not supported (we can't ask the user for the passphrase)
+            if (repo.encrypted) {
+                throw new FileNotFoundException();
+            }
 
             MatrixCursor result;
-
 
             // fetch new dirents in the background
             if (!parentDocumentId.equals(lastQueriedDocumentId)) {
