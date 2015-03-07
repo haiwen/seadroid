@@ -39,6 +39,7 @@ public class DocumentIdParser {
 
     /** used to separate serverName, RepoId and Path. */
     private static final String DOC_SEPERATOR = "::::";
+    private static final String STARRED_FILE_REPO_ID = "starred-file-magic-repo";
 
     Context context;
 
@@ -117,4 +118,11 @@ public class DocumentIdParser {
             return a.getFullSignature();
     }
 
+    public static String buildStarredFilesId(Account a) {
+        return a.getFullSignature() + DOC_SEPERATOR + STARRED_FILE_REPO_ID;
+    }
+
+    public static boolean isStarredFiles(String documentId) {
+        return getRepoIdFromId(documentId).equals(STARRED_FILE_REPO_ID);
+    }
 }
