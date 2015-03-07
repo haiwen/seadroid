@@ -26,7 +26,6 @@ import android.database.MatrixCursor;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CancellationSignal;
@@ -49,6 +48,8 @@ import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.ProgressMonitor;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.data.SeafStarredFile;
+import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -56,6 +57,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * DocumentProvider for the Storage Access Framework.
@@ -94,9 +99,23 @@ public class SeafileProvider extends DocumentsProvider {
 
     private DocumentIdParser docIdParser;
 
+    private static final int KEEP_ALIVE_TIME = 1;
+    private static final TimeUnit KEEP_ALIVE_TIME_UNIT = TimeUnit.SECONDS;
+    private static int NUMBER_OF_CORES =
+            Runtime.getRuntime().availableProcessors();
+    private final BlockingQueue<Runnable> mDecodeWorkQueue = new LinkedBlockingQueue<Runnable>();
+    private ThreadPoolExecutor threadPoolExecutor;
+
     @Override
     public boolean onCreate() {
         docIdParser = new DocumentIdParser(getContext());
+
+        threadPoolExecutor = new ThreadPoolExecutor(
+                NUMBER_OF_CORES,       // Initial pool size
+                NUMBER_OF_CORES,       // Max pool size
+                KEEP_ALIVE_TIME,
+                KEEP_ALIVE_TIME_UNIT,
+                mDecodeWorkQueue);
 
         return true;
     }
@@ -559,10 +578,11 @@ public class SeafileProvider extends DocumentsProvider {
      * @param result Cursor object over which to signal the client.
      */
     private void fetchDirentAsync(final DataManager dm, final String repoId, final String path, MatrixCursor result) {
-        final Uri uri = DocumentsContract.buildChildDocumentsUri(ProviderUtil.AUTHORITY, dm.getAccount().getServerHost() + repoId + path);
+        final Uri uri = DocumentsContract.buildChildDocumentsUri(ProviderUtil.AUTHORITY,docIdParser.buildId(dm.getAccount(),repoId, path));
         result.setNotificationUri(getContext().getContentResolver(), uri);
 
-        new Thread(new Runnable() {
+        threadPoolExecutor.execute(new Runnable() {
+            @Override
             public void run() {
                 try {
                     // fetch the dirents from the server
@@ -588,10 +608,11 @@ public class SeafileProvider extends DocumentsProvider {
      * @param result Cursor object over which to signal the client.
      */
     private void fetchReposAsync(final DataManager dm, MatrixCursor result) {
-        final Uri uri = DocumentsContract.buildChildDocumentsUri(ProviderUtil.AUTHORITY, dm.getAccount().getServerHost());
+        final Uri uri = DocumentsContract.buildChildDocumentsUri(ProviderUtil.AUTHORITY, docIdParser.buildId(dm.getAccount(), null, null));
         result.setNotificationUri(getContext().getContentResolver(), uri);
 
-        new Thread(new Runnable() {
+        threadPoolExecutor.execute(new Runnable() {
+            @Override
             public void run() {
                 try {
                     // fetch new repositories from the server
@@ -600,11 +621,10 @@ public class SeafileProvider extends DocumentsProvider {
                 } catch (SeafException e) {
                     Log.e(getClass().getSimpleName(), "Exception while querying server", e);
                 }
-                // notify the client in any case.
-                // XXX: the API is unclear about this. we could also let him wait forever.
+                // notify the SAF to to do a new queryChildDocuments
                 getContext().getContentResolver().notifyChange(uri, null);
             }
-        }).start();
+        });
     }
 
     /**
