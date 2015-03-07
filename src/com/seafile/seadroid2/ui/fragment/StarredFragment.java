@@ -214,6 +214,10 @@ public class StarredFragment extends SherlockListFragment {
 
         @Override
         protected void onPreExecute() {
+            List<SeafStarredFile> starredFiles = dataManager.getCachedStarredFiles();
+            if (starredFiles != null)
+                updateAdapterWithStarredFiles(starredFiles);
+
             if (mRefreshType != REFRESH_ON_PULL)
                 showLoading(true);
         }
