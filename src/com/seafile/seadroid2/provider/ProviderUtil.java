@@ -67,8 +67,11 @@ public class ProviderUtil {
      * @returns the parent directory.
      */
     public static String getParentDirFromPath(String path) {
-        int lastSlash = path.lastIndexOf('/');
-        return path.substring(0, lastSlash);
+        int lastSlash = path.lastIndexOf(ProviderUtil.PATH_SEPERATOR);
+        if (lastSlash == 0)
+            return ProviderUtil.PATH_SEPERATOR;
+        else
+            return path.substring(0, lastSlash);
     }
 
     /**
@@ -79,7 +82,7 @@ public class ProviderUtil {
      * @returns the filename.
      */
     public static String getFileNameFromPath(String path) {
-        int lastSlash = path.lastIndexOf('/');
+        int lastSlash = path.lastIndexOf(ProviderUtil.PATH_SEPERATOR);
         return path.substring(lastSlash + 1);
     }
 

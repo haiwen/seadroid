@@ -94,7 +94,8 @@ public class DocumentIdParser {
         String[] list = documentId.split(DOC_SEPERATOR, 3);
         if (list.length>2) {
             String path = list[2];
-            return path;
+            if (path.length()>0)
+                return path;
         }
         return ProviderUtil.PATH_SEPERATOR;
     }
