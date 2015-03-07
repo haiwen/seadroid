@@ -123,6 +123,14 @@ public class TransferService extends Service {
         return downloadTaskManager.getTaskInfoListByPath(repoID, dir);
     }
 
+    public long getDownloadTotalSizeByPath(String repoID, String dir) {
+        return downloadTaskManager.getDownloadTotalSizeByPath(repoID, dir);
+    }
+
+    public long getDownloadedSizeByPath(String repoID, String dir) {
+        return downloadTaskManager.getDownloadedFileSizeByPath(repoID, dir);
+    }
+
     public void removeDownloadTask(int taskID) {
         downloadTaskManager.removeInAllTaskList(taskID);
     }

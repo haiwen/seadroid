@@ -1,32 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="vertical"
-	android:layout_width="fill_parent"
-	android:layout_height="fill_parent"
-	android:padding="5dp">
-	<ImageView
-		android:src="@drawable/icon"
-		android:layout_width="wrap_content"
-		android:id="@+id/download_icon"
-		android:layout_height="wrap_content"
-		android:layout_alignParentTop="true"
-		android:layout_alignParentLeft="true"></ImageView>
-	<TextView
-		android:text="TextView"
-		android:layout_height="wrap_content"
-		android:layout_alignTop="@+id/download_icon"
-		android:layout_toRightOf="@+id/download_icon"
-		android:layout_width="fill_parent"
-		android:id="@+id/tv_download_title"
-		android:layout_marginLeft="6dp"
-		android:textColor="@color/grey"></TextView>
-	<ProgressBar
-		style="?android:attr/progressBarStyleHorizontal"
-		android:layout_height="wrap_content"
-		android:layout_below="@+id/tv_download_title"
-		android:layout_alignLeft="@+id/tv_download_title"
-		android:layout_width="fill_parent"
-		android:layout_marginTop="5dp"
-		android:id="@+id/pb_download_progressbar"></ProgressBar>
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/notificationbar_container_padding">
+    <ImageView
+            android:id="@+id/notification_bar_icon_iv"
+            android:src="@drawable/notification_bar_downloading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginLeft="@dimen/notificationbar_margin_left"
+            android:layout_alignParentLeft="true"/>
+    <TextView
+            android:id="@+id/notification_bar_title_tv"
+            android:text="downloading files"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/notification_bar_icon_iv"
+            android:layout_width="wrap_content"
+            android:textSize="@dimen/notificationbar_title_txt_size"
+            android:layout_marginLeft="@dimen/notificationbar_margin_left"/>
+    <TextView
+            android:id="@+id/notification_bar_time_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/notificationbar_title_txt_size"
+            android:layout_alignParentRight="true"
+            android:text="15:25"/>
+    <ProgressBar
+            android:id="@+id/notification_bar_progressbar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/notification_bar_title_tv"
+            android:layout_alignLeft="@+id/notification_bar_title_tv"
+            android:layout_width="fill_parent"/>
+    <TextView
+            android:id="@+id/notification_bar_directory_info_tv"
+            android:text="Private Lib/Camera Uploads"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_marginTop="@dimen/notificationbar_margin_top"
+            android:textSize="@dimen/notificationbar_sutitle_txt_size"
+            android:layout_below="@id/notification_bar_progressbar"
+            android:layout_toRightOf="@id/notification_bar_icon_iv"
+            android:layout_marginLeft="@dimen/notificationbar_margin_left"/>
+
+    <TextView
+            android:id="@+id/notification_bar_size_info_tv"
+            android:text="209 MB/527 MB"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:textSize="@dimen/notificationbar_sutitle_txt_size"
+            android:layout_below="@id/notification_bar_progressbar"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="@dimen/notificationbar_margin_top"
+            android:layout_marginLeft="@dimen/notificationbar_margin_left"/>
+
 </RelativeLayout>

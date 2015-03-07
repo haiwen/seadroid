@@ -30,6 +30,7 @@ import android.os.Build;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
+import android.text.format.DateFormat;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import org.json.JSONArray;
@@ -355,6 +356,10 @@ public class Utils {
      */
     public static String stripSlashes(String a) {
         return a.replaceAll("^[/]*|[/]*$", "");
+    }
+
+    public static String getCurrentHourMinute() {
+        return (String) DateFormat.format("hh:mm", new Date());
     }
 
     /**

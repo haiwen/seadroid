@@ -376,4 +376,11 @@
     <string name="star_file_succeed">File starred successfully</string>
     <string name="star_file_failed">File starred failed</string>
 
+    <!-- notification bar -->
+    <string name="notification_bar_title_upload_started">Uploading files&#8230;</string>
+    <string name="notification_bar_title_download_started">Downloading files&#8230;</string>
+    <string name="notification_bar_uploading_photo_info">Uploading %1$d photos for you.</string>
+    <string name="notification_bar_downloading_files_info">Downloading %1$d of %2$d files for you</string>
+    <string name="notification_bar_downloading_files_complete">Download completed</string>
+
 </resources>
