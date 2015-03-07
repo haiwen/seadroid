@@ -221,9 +221,7 @@ public class SeafileProvider extends DocumentsProvider {
             if (!parentDocumentId.equals(lastQueriedDocumentId)) {
 
                 lastQueriedDocumentId = parentDocumentId;
-
                 result = createCursor(netProjection, true);
-
                 fetchDirentAsync(dm, repoId, path, result);
 
             } else {
@@ -233,7 +231,6 @@ public class SeafileProvider extends DocumentsProvider {
             // in the meantime return cached ones
             List<SeafDirent> dirents = dm.getCachedDirents(repoId, path);
             if (dirents != null) {
-
                 for (SeafDirent d : dirents) {
                     includeDirent(result, dm, repoId, path, d);
                 }
@@ -258,7 +255,6 @@ public class SeafileProvider extends DocumentsProvider {
         String repoId = DocumentIdParser.getRepoIdFromId(documentId);
         if (repoId.isEmpty()) {
             // the user has asked for the root, that contains all the repositories as children.
-            // we don't have much to say about that "directory".
 
             includeRoot(result, dm.getAccount());
             return result;
@@ -278,13 +274,12 @@ public class SeafileProvider extends DocumentsProvider {
             // about the repository itself, not some directory in it.
             includeRepo(result, dm.getAccount(), repo);
         } else {
-            // the generic case. a query about a file/directory in a repository.
+            // the general case. a query about a file/directory in a repository.
 
             // again we only use cached info in this function. that shouldn't be an issue, as
             // very likely there has been a SeafileProvider.queryChildDocuments() call just moments
             // earlier.
 
-            // the file might not be cached. try to find the file in the dirent of its parent directory.
             String parentPath = ProviderUtil.getParentDirFromPath(path);
             List<SeafDirent> dirents = dm.getCachedDirents(repo.getID(), parentPath);
             List<SeafStarredFile> starredFiles = dm.getCachedStarredFiles();
@@ -310,8 +305,7 @@ public class SeafileProvider extends DocumentsProvider {
             }
         }
 
-
-        return(result);
+        return result;
     }
 
     @Override
@@ -324,7 +318,6 @@ public class SeafileProvider extends DocumentsProvider {
                                              String mode,
                                              final CancellationSignal signal)
             throws FileNotFoundException {
-
 
         DataManager dm = createDataManager(documentId);
 
@@ -543,6 +536,7 @@ public class SeafileProvider extends DocumentsProvider {
                                 SeafRepo repo, 
                                 String path)
             throws FileNotFoundException {
+
         try {
             // fetch the file from the Seafile server.
             File f = dm.getFile(repo.getName(), repo.getID(), path, new ProgressMonitor() {
@@ -762,8 +756,7 @@ public class SeafileProvider extends DocumentsProvider {
                 } catch (SeafException e) {
                     Log.e(getClass().getSimpleName(), "Exception while querying server", e);
                 }
-                // notify the client in any case.
-                // XXX: the API is unclear about this. we could also let him wait forever.
+                // notify the SAF to to do a new queryChildDocuments
                 getContext().getContentResolver().notifyChange(uri, null);
             }
         });
@@ -801,7 +794,7 @@ public class SeafileProvider extends DocumentsProvider {
     /**
      * Create a new DataManager (which gives us access to the Seafile cache and server).
      *
-     * @param documentId documentId, must contain at least a serverName.
+     * @param documentId documentId, must contain at least the account
      * @return dataManager object.
      * @throws FileNotFoundException if documentId is bogus or the account does not exist.
      */
