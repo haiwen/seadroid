@@ -417,6 +417,53 @@ public class SeafileProvider extends DocumentsProvider {
         }
     }
 
+    @Override
+    public String createDocument (String parentDocumentId, String mimeType, String displayName) throws FileNotFoundException {
+        Log.d(getClass().getSimpleName(), "createDocument: " + parentDocumentId + "; " + mimeType + "; " + displayName);
+
+        String repoId = DocumentIdParser.getRepoIdFromId(parentDocumentId);
+        if (repoId.isEmpty()) {
+            throw new FileNotFoundException();
+        }
+
+        String parentPath = DocumentIdParser.getPathFromId(parentDocumentId);
+        DataManager dm = createDataManager(parentDocumentId);
+
+        try {
+
+            dm.getReposFromServer(); // refresh cache
+            SeafRepo repo = dm.getCachedRepoByID(repoId);
+
+            List<SeafDirent> list = dm.getDirentsFromServer(repoId, parentPath);
+
+            // first check if target already exist. if yes, abort
+            for (SeafDirent e: list) {
+                if (e.getTitle().equals(displayName)) {
+                    throw new SeafException(0, "File exists already");
+                }
+            }
+
+            if (repo == null || !repo.hasWritePermission()) {
+                throw new SeafException(0, "Repo not found or no write perms");
+            } else if (mimeType == null) {
+                throw new SeafException(0, "Bad mime type given by caller");
+            } else if (mimeType.equals(Document.MIME_TYPE_DIR)) {
+                dm.createNewDir(repoId, parentPath, displayName);
+            } else {
+                dm.createNewFile(repoId, parentPath, displayName);
+            }
+
+            // update parent dirent cache
+            dm.getDirentsFromServer(repoId, parentPath);
+
+            return DocumentIdParser.buildId(dm.getAccount(), repoId, Utils.pathJoin(parentPath, displayName));
+
+        } catch (SeafException e) {
+            Log.d(getClass().getSimpleName(), "could not create file/dir", e);
+            throw new FileNotFoundException();
+        }
+    }
+
     /**
      * Create a MatrixCursor with the option to enable the extraLoading flag.
      *
