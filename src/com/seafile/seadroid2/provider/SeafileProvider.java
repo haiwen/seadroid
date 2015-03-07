@@ -329,25 +329,25 @@ public class SeafileProvider extends DocumentsProvider {
         DataManager dm = createDataManager(documentId);
 
         String repoId = DocumentIdParser.getRepoIdFromId(documentId);
-        if (repoId.isEmpty()) {
-            throw new FileNotFoundException("Cannot open directory.");
-        }
         SeafRepo repo = dm.getCachedRepoByID(repoId); // we can assume that the repo is cached because the client has already seen it
+        if (repo==null)
+            throw new FileNotFoundException();
 
-        String path = DocumentIdParser.getPathFromId(documentId);
-
+        // TODO: to workaround bugs in clients, maybe do this in the thread pool and wait for the result?
         try {
-            // open the file. this might involve talking to the seafile server. this will hang unti
+            String path = docIdParser.getPathFromId(documentId);
+
+            // open the file. this might involve talking to the seafile server. this will hang until
             // it is done.
             final File f = getFile(signal, dm, repo, path);
 
             // return the file to the client.
-            return makeParcelFileDescriptor(f, mode);
+            String parentPath = ProviderUtil.getParentDirFromPath(path);
+            return makeParcelFileDescriptor(dm, repo.getName(), repoId, parentPath, f, mode);
 
         } catch (IOException e) {
-            throw new FileNotFoundException(SeadroidApplication.getAppContext()
-                    .getResources()
-                    .getString(R.string.saf_open_file_exception, documentId));
+            Log.d(getClass().getSimpleName(), "could not open file", e);
+            throw new FileNotFoundException();
         }
     }
 
@@ -443,7 +443,9 @@ public class SeafileProvider extends DocumentsProvider {
      * @return a ParcelFileDescriptor
      * @throws IOException
      */
-    private ParcelFileDescriptor makeParcelFileDescriptor(File file, String mode) throws IOException {
+    private ParcelFileDescriptor makeParcelFileDescriptor(final DataManager dm, final String repoName,
+                                                          final String repoID, final String parentDir,
+                                                          final File file, final String mode) throws IOException {
         final int accessMode = ParcelFileDescriptor.parseMode(mode);
 
         Handler handler = new Handler(getContext().getMainLooper());
@@ -451,8 +453,26 @@ public class SeafileProvider extends DocumentsProvider {
         return ParcelFileDescriptor.open(file, accessMode, handler,
                 new ParcelFileDescriptor.OnCloseListener() {
                     @Override
-                    public void onClose(IOException e) {
-                        // TODO: if the file has been modified, it can now be uploaded to the server.
+                    public void onClose(final IOException e) {
+                        Log.d(getClass().getSimpleName(), "uploading file: " + repoID + "; " + file.getPath() + "; " + parentDir + "; e="+e);
+
+                        if (mode.equals("r") || e != null) {
+                            return;
+                        }
+
+                        threadPoolExecutor.execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    dm.updateFile(repoName, repoID, parentDir, file.getPath(), null, false);
+
+                                    // update cache for parent dir
+                                    dm.getDirentsFromServer(repoID, parentDir);
+                                } catch (SeafException e1) {
+                                    Log.d(getClass().getSimpleName(), "could not upload file: ", e1);
+                                }
+                            }
+                        });
                     }
 
                 });
@@ -469,7 +489,6 @@ public class SeafileProvider extends DocumentsProvider {
      * @param repo The repository where the file lies
      * @param path File path
      * @return
-     * @throws com.seafile.seadroid2.SeafException
      * @throws FileNotFoundException
      */
     private static File getFile(final CancellationSignal signal,
@@ -495,29 +514,18 @@ public class SeafileProvider extends DocumentsProvider {
             });
 
             if (f == null) {
-                throw new FileNotFoundException(SeadroidApplication
-                        .getAppContext()
-                        .getResources()
-                        .getString(R.string.saf_file_not_downloaded_exception,
-                                path));
+                throw new FileNotFoundException();
             }
 
             if (f.isDirectory()) {
-                throw new FileNotFoundException(SeadroidApplication
-                        .getAppContext().getResources()
-                        .getString(R.string.saf_write_diretory_exception));
+                throw new FileNotFoundException();
             }
 
             return f;
 
         } catch (SeafException e) {
-            throw new FileNotFoundException(SeadroidApplication
-                    .getAppContext()
-                    .getResources()
-                    .getString(R.string.saf_file_not_downloaded_exception,
-                            path));
+            throw new FileNotFoundException();
         }
-
     }
 
     /**
