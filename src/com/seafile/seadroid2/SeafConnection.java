@@ -526,7 +526,7 @@ public class SeafConnection {
             if (msg != null)
                 Log.d(DEBUG_TAG, msg);
             else
-                Log.d(DEBUG_TAG, "get upload link error");
+                Log.d(DEBUG_TAG, "get upload link error", e);
             throw SeafException.unknownException;
         }
     }
