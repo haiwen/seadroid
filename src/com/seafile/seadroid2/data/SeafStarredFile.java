@@ -37,6 +37,14 @@ public class SeafStarredFile implements SeafItem {
         }
     }
 
+    public long getSize() {
+        return size;
+    }
+
+    public long getMtime() {
+        return mtime;
+    }
+
     public boolean isDir() {
         return (type == FileType.DIR);
     }

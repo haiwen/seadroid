@@ -155,6 +155,7 @@ public class SeafileProvider extends DocumentsProvider {
         DataManager dm = createDataManager(parentDocumentId);
 
         String repoId = DocumentIdParser.getRepoIdFromId(parentDocumentId);
+        String path = DocumentIdParser.getPathFromId(parentDocumentId);
 
         if (repoId.isEmpty()) {
             // in this case the user is asking for a list of repositories
@@ -173,10 +174,32 @@ public class SeafileProvider extends DocumentsProvider {
             }
 
             // in the meantime, return the cached repos
+            includeStarredFilesRepo(result, dm.getAccount());
             List<SeafRepo> repoList = dm.getReposFromCache();
             if (repoList != null) {
                 for (SeafRepo repo : repoList) {
                     includeRepo(result, dm.getAccount(), repo);
+                }
+            }
+            return result;
+
+        } else if (DocumentIdParser.isStarredFiles(parentDocumentId)) {
+            // the user is asking for the list of starred files
+
+            MatrixCursor result;
+            if (!parentDocumentId.equals(lastQueriedDocumentId)) {
+                result = createCursor(netProjection, true);
+                lastQueriedDocumentId = parentDocumentId;
+                fetchStarredAsync(dm, result);
+            } else {
+                result = createCursor(netProjection, false);
+
+            }
+
+            List<SeafStarredFile> starredFiles = dm.getCachedStarredFiles();
+            if (starredFiles != null) {
+                for (SeafStarredFile d : starredFiles) {
+                    includeStarredFileDirent(result, dm, d);
                 }
             }
             return result;
@@ -239,10 +262,14 @@ public class SeafileProvider extends DocumentsProvider {
 
         // the android API asks us to be quick, so just use the cache.
         SeafRepo repo = dm.getCachedRepoByID(repoId);
+        if (repo==null)
+            throw new FileNotFoundException();
 
         String path = DocumentIdParser.getPathFromId(documentId);
 
-        if (path.equals(ProviderUtil.PATH_SEPERATOR)) {
+        if (docIdParser.isStarredFiles(documentId)) {
+            includeStarredFilesRepo(result, dm.getAccount());
+        } else if (path.equals(ProviderUtil.PATH_SEPERATOR)) {
             // this is the base of the repository. this is special, as we give back the information
             // about the repository itself, not some directory in it.
             includeRepo(result, dm.getAccount(), repo);
@@ -256,9 +283,25 @@ public class SeafileProvider extends DocumentsProvider {
             // the file might not be cached. try to find the file in the dirent of its parent directory.
             String parentPath = ProviderUtil.getParentDirFromPath(path);
             List<SeafDirent> dirents = dm.getCachedDirents(repo.getID(), parentPath);
-            for (SeafDirent entry: dirents) {
-                if (entry.getTitle().equals(ProviderUtil.getFileNameFromPath(path))) {
-                    includeDirent(result, dm, repo.getID(), parentPath, entry);
+            List<SeafStarredFile> starredFiles = dm.getCachedStarredFiles();
+
+            if (dirents != null) {
+                // the file is in the dirent of the parent directory
+
+                // look for the requested file in the dirents of the parent dir
+                for (SeafDirent entry : dirents) {
+                    if (entry.getTitle().equals(ProviderUtil.getFileNameFromPath(path))) {
+                        includeDirent(result, dm, repo.getID(), parentPath, entry);
+                    }
+                }
+            } else if (starredFiles != null) {
+                //maybe the requested file is a starred file?
+
+                // look for the requested file in the list of starred files
+                for(SeafStarredFile file: starredFiles) {
+                    if (file.getPath().equals(path)) {
+                        includeStarredFileDirent(result, dm, file);
+                    }
                 }
             }
         }
@@ -525,6 +568,19 @@ public class SeafileProvider extends DocumentsProvider {
         }
     }
 
+    private void includeStarredFilesRepo(MatrixCursor result, Account account) {
+        String docId = DocumentIdParser.buildStarredFilesId(account);
+
+        final MatrixCursor.RowBuilder row = result.newRow();
+        row.add(Document.COLUMN_DOCUMENT_ID, docId);
+
+        row.add(Document.COLUMN_DISPLAY_NAME,SeadroidApplication.getAppContext()
+                .getResources().getString(R.string.tabs_starred));
+        row.add(Document.COLUMN_MIME_TYPE, Document.MIME_TYPE_DIR);
+        row.add(Document.COLUMN_ICON, R.drawable.star_normal);
+        row.add(Document.COLUMN_FLAGS, 0);
+    }
+
     /**
      * add a dirent to the cursor.
      *
@@ -565,7 +621,35 @@ public class SeafileProvider extends DocumentsProvider {
         row.add(Document.COLUMN_LAST_MODIFIED, entry.mtime * 1000);
         row.add(Document.COLUMN_FLAGS, flags);
     }
-    
+
+    /**
+     * add a dirent to the cursor.
+     *
+     * @param result the cursor to write the row into.
+     * @param dm the dataMamager that belongs to the repo.
+     * @param entry the seafile dirent to add
+     */
+    private void includeStarredFileDirent(MatrixCursor result, DataManager dm, SeafStarredFile entry) {
+        String docId = DocumentIdParser.buildId(dm.getAccount(), entry.getRepoID(), entry.getPath());
+
+        final String mimeType = ProviderUtil.getTypeForFile(docId, entry.isDir());
+
+        int flags = 0;
+        // only offer a thumbnail if the file is an image
+        if (mimeType.startsWith("image/")) {
+            flags |= Document.FLAG_SUPPORTS_THUMBNAIL;
+        }
+
+        final MatrixCursor.RowBuilder row = result.newRow();
+        row.add(Document.COLUMN_DOCUMENT_ID, docId);
+        row.add(Document.COLUMN_DISPLAY_NAME, entry.getTitle());
+        row.add(Document.COLUMN_SIZE, entry.getSize());
+        row.add(Document.COLUMN_SUMMARY, null);
+        row.add(Document.COLUMN_MIME_TYPE, mimeType);
+        row.add(Document.COLUMN_LAST_MODIFIED, entry.getMtime() * 1000);
+        row.add(Document.COLUMN_FLAGS, flags);
+    }
+
     /**
      * Fetches a dirent (list of entries of a directory) from Seafile asynchronously.
      *
@@ -591,11 +675,39 @@ public class SeafileProvider extends DocumentsProvider {
                 } catch (SeafException e) {
                     Log.e(getClass().getSimpleName(), "Exception while querying server", e);
                 }
+                // notify the SAF to to do a new queryChildDocuments
+                getContext().getContentResolver().notifyChange(uri, null);
+            }
+        });
+    }
+
+    /**
+     * Fetches starred files from Seafile asynchronously.
+     *
+     * This will return nothing. It will only signal the client over the MatrixCursor. The client
+     * will then recall DocumentProvider.queryChildDocuments() again.
+     *
+     * @param dm the dataManager to be used.
+     * @param result Cursor object over which to signal the client.
+     */
+    private void fetchStarredAsync(final DataManager dm, MatrixCursor result) {
+        final Uri uri = DocumentsContract.buildChildDocumentsUri(ProviderUtil.AUTHORITY, docIdParser.buildStarredFilesId(dm.getAccount()));
+        result.setNotificationUri(getContext().getContentResolver(), uri);
+
+        threadPoolExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    dm.getStarredFiles();
+
+                } catch (SeafException e) {
+                    Log.e(getClass().getSimpleName(), "Exception while querying server", e);
+                }
                 // notify the client in any case.
                 // XXX: the API is unclear about this. we could also let him wait forever.
                 getContext().getContentResolver().notifyChange(uri, null);
             }
-        }).start();
+        });
     }
 
     /**
