@@ -19,8 +19,6 @@ package com.seafile.seadroid2.provider;
 
 import android.content.Context;
 
-import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountDBHelper;
 
@@ -65,9 +63,7 @@ public class DocumentIdParser {
                 }
             }
         }
-        throw new FileNotFoundException(SeadroidApplication.getAppContext()
-                .getResources()
-                .getString(R.string.saf_account_not_found_exception));
+        throw new FileNotFoundException();
     }
 
     /**
