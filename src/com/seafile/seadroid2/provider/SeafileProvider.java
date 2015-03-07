@@ -73,6 +73,7 @@ public class SeafileProvider extends DocumentsProvider {
             Root.COLUMN_FLAGS,
             Root.COLUMN_TITLE,
             Root.COLUMN_DOCUMENT_ID,
+            Root.COLUMN_SUMMARY,
             Root.COLUMN_ICON
     };
 
@@ -109,13 +110,7 @@ public class SeafileProvider extends DocumentsProvider {
 
         // add a Root for every Seafile account we have.
         for(Account a: AccountDBHelper.getDatabaseHelper(getContext()).getAccountList()) {
-            MatrixCursor.RowBuilder row = result.newRow();
-
-            row.add(Root.COLUMN_ROOT_ID, a.getServerHost());
-            row.add(Root.COLUMN_ICON, R.drawable.ic_launcher);
-            row.add(Root.COLUMN_FLAGS, Root.FLAG_SUPPORTS_IS_CHILD);
-            row.add(Root.COLUMN_TITLE, a.getName());
-            row.add(Root.COLUMN_DOCUMENT_ID, a.getServer());
+            includeRoot(result, a);
         }
 
         // notification uri for the event, that the account list has changed
@@ -468,12 +463,13 @@ public class SeafileProvider extends DocumentsProvider {
         String docId = DocumentIdParser.buildId(account, null, null);
 
         final MatrixCursor.RowBuilder row = result.newRow();
-        row.add(Document.COLUMN_DOCUMENT_ID, docId);
-        row.add(Document.COLUMN_DISPLAY_NAME, account.getServerHost());
-        row.add(Document.COLUMN_SIZE, 0);
-        row.add(Document.COLUMN_MIME_TYPE, DocumentsContract.Document.MIME_TYPE_DIR);
-        row.add(Document.COLUMN_LAST_MODIFIED, 0);
-        row.add(Document.COLUMN_FLAGS, 0);
+
+        row.add(Root.COLUMN_ROOT_ID, docId);
+        row.add(Root.COLUMN_DOCUMENT_ID, docId);
+        row.add(Root.COLUMN_ICON, R.drawable.ic_launcher);
+        row.add(Root.COLUMN_FLAGS, Root.FLAG_SUPPORTS_IS_CHILD | Root.FLAG_SUPPORTS_CREATE);
+        row.add(Root.COLUMN_TITLE, account.getServerHost());
+        row.add(Root.COLUMN_SUMMARY, account.getEmail());
     }
 
     /**
