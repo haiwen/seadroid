@@ -58,6 +58,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -314,31 +317,42 @@ public class SeafileProvider extends DocumentsProvider {
     }
 
     @Override
-    public ParcelFileDescriptor openDocument(String documentId,
-                                             String mode,
+    public ParcelFileDescriptor openDocument(final String documentId,
+                                             final String mode,
                                              final CancellationSignal signal)
             throws FileNotFoundException {
 
-        DataManager dm = createDataManager(documentId);
-
-        String repoId = DocumentIdParser.getRepoIdFromId(documentId);
-        SeafRepo repo = dm.getCachedRepoByID(repoId); // we can assume that the repo is cached because the client has already seen it
-        if (repo==null)
-            throw new FileNotFoundException();
-
-        // TODO: to workaround bugs in clients, maybe do this in the thread pool and wait for the result?
         try {
-            String path = docIdParser.getPathFromId(documentId);
-
             // open the file. this might involve talking to the seafile server. this will hang until
             // it is done.
-            final File f = getFile(signal, dm, repo, path);
+            Future<ParcelFileDescriptor> future = threadPoolExecutor.submit(new Callable<ParcelFileDescriptor>() {
 
-            // return the file to the client.
-            String parentPath = ProviderUtil.getParentDirFromPath(path);
-            return makeParcelFileDescriptor(dm, repo.getName(), repoId, parentPath, f, mode);
+                @Override
+                public ParcelFileDescriptor call() throws Exception {
 
-        } catch (IOException e) {
+                    String path = docIdParser.getPathFromId(documentId);
+                    DataManager dm = createDataManager(documentId);
+                    String repoId = DocumentIdParser.getRepoIdFromId(documentId);
+
+                    // we can assume that the repo is cached because the client has already seen it
+                    SeafRepo repo = dm.getCachedRepoByID(repoId);
+                    if (repo==null)
+                        throw new FileNotFoundException();
+
+                    File f = getFile(signal, dm, repo, path);
+
+                    // return the file to the client.
+                    String parentPath = ProviderUtil.getParentDirFromPath(path);
+                    return makeParcelFileDescriptor(dm, repo.getName(), repoId, parentPath, f, mode);
+                }
+            });
+
+            return future.get();
+
+        } catch (InterruptedException e) {
+            Log.d(getClass().getSimpleName(), "could not open file", e);
+            throw new FileNotFoundException();
+        } catch (ExecutionException e) {
             Log.d(getClass().getSimpleName(), "could not open file", e);
             throw new FileNotFoundException();
         }
