@@ -68,13 +68,13 @@ import java.util.concurrent.TimeUnit;
 /**
  * DocumentProvider for the Storage Access Framework.
  *
- * It depends on API level 19.
+ * It depends on API level 19 and supports API level 21.
  *
  * This Provider gives access to other Apps to browse, read and write all files
  * contained in Seafile repositories.
  *
  */
-@TargetApi(Build.VERSION_CODES.KITKAT)
+@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class SeafileProvider extends DocumentsProvider {
 
     private static final String[] SUPPORTED_ROOT_PROJECTION = new String[] {

@@ -18,7 +18,7 @@ See [Contributors Graph](https://github.com/haiwen/seadroid/graphs/contributors)
 ```
 export ANDROID_HOME=<android SDK location>
 export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
-echo "y" | android update sdk -a --filter tools,platform-tools,build-tools-20.0.0,android-19 --no-ui --force
+echo "y" | android update sdk -a --filter tools,platform-tools,build-tools-21.1.2,android-21 --no-ui --force
 ```
 
 * Install [Maven Android SDK Deployer](https://github.com/simpligility/maven-android-sdk-deployer) with:
@@ -27,7 +27,7 @@ echo "y" | android update sdk -a --filter tools,platform-tools,build-tools-20.0.
 cd /tmp/
 git clone https://github.com/mosabua/maven-android-sdk-deployer.git
 cd maven-android-sdk-deployer
-mvn clean install -pl platforms/android-19
+mvn clean install -pl platforms/android-21
 ```
 
 * Return in `seadroid` directory and build the APK with:
