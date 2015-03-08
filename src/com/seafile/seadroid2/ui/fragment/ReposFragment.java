@@ -183,7 +183,7 @@ public class ReposFragment extends SherlockListFragment {
     }
 
     public void navToReposView(boolean forceRefresh) {
-        stopTimer();
+        //stopTimer();
 
         mPullToRefreshStopRefreshing ++;
 
@@ -210,7 +210,6 @@ public class ReposFragment extends SherlockListFragment {
     }
 
     public void navToDirectory(boolean forceRefresh) {
-        stopTimer();
         startTimerByPath(getNavContext().getRepoName(), getNavContext().getRepoID(), getNavContext().getDirPath());
 
         mPullToRefreshStopRefreshing ++;
@@ -257,12 +256,7 @@ public class ReposFragment extends SherlockListFragment {
                 nav.getDirPath());
     }
 
-    private String mCurrentRepoID, mCurrentDir;
-
     public void startTimerByPath(final String repoName, String repoID, final String dir) {
-        mCurrentRepoID = repoID;
-        mCurrentDir = dir;
-
         if (isTimerStarted)
             return;
 
@@ -272,10 +266,10 @@ public class ReposFragment extends SherlockListFragment {
 
             @Override
             public void run() {
-                adapter.setDownloadTaskList(mActivity.getTransferService().getDownloadTaskInfosByPath(mCurrentRepoID, mCurrentDir));
-                int downloadingCount = mActivity.getTransferService().getDownloadingFileCountByPath(mCurrentRepoID, mCurrentDir);
-                long downloadedSize = mActivity.getTransferService().getDownloadedSizeByPath(mCurrentRepoID, mCurrentDir);
-                mActivity.notifyDownloadProgress(repoName, dir, downloadingCount, downloadedSize);
+                adapter.setDownloadTaskList(mActivity.getTransferService().getDownloadTaskInfosByPath(mActivity.getCurrentRepoID(), mActivity.getCurrentDir()));
+                int downloadingCount = mActivity.getTransferService().getDownloadingFileCountByPath(mActivity.getCurrentRepoID(), mActivity.getCurrentDir());
+                long downloadedSize = mActivity.getTransferService().getDownloadedSizeByPath(mActivity.getCurrentRepoID(), mActivity.getCurrentDir());
+                mActivity.notifyDownloadProgress(mActivity.getCurrentRepoName(), mActivity.getCurrentDir(), downloadingCount, downloadedSize);
                 // Log.d(DEBUG_TAG, "timer post refresh signal " + System.currentTimeMillis());
                 mTimer.postDelayed(this, 1 * 1000);
             }

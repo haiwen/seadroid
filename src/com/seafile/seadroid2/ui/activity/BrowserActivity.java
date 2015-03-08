@@ -1149,9 +1149,9 @@ public class BrowserActivity extends SherlockFragmentActivity
     private int notifyCount;
 
     public void notifyDownloadProgress(String repoName, String dir, int downloadingCount, long downloadedSize) {
-        // download complete
         if (downloadingCount == 0 && totalCount != 0) {
             if (++notifyCount > 1)
+                // download complete or cancelled
                 return;
         }
 
@@ -1238,9 +1238,25 @@ public class BrowserActivity extends SherlockFragmentActivity
                 //notifyDownloadProgress(fileCount);
             }
 
+            mCurrentRepoID = repoID;
+            mCurrentRepoName = repoName;
+            mCurrentDir = filePath;
             // set download tasks info to adapter in order to update download progress in UI thread
             getReposFragment().getAdapter().setDownloadTaskList(txService.getDownloadTaskInfosByPath(repoID, dirPath));
         }
+    }
+    private String mCurrentRepoName, mCurrentRepoID, mCurrentDir;
+
+    public String getCurrentRepoID() {
+        return mCurrentRepoID;
+    }
+
+    public String getCurrentRepoName() {
+        return mCurrentRepoName;
+    }
+
+    public String getCurrentDir() {
+        return mCurrentDir;
     }
 
     private void startFileActivity(String repoName, String repoID, String filePath) {

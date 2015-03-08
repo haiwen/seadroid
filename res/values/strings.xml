@@ -382,5 +382,6 @@
     <string name="notification_bar_uploading_photo_info">Uploading %1$d photos for you.</string>
     <string name="notification_bar_downloading_files_info">Downloading %1$d of %2$d files for you</string>
     <string name="notification_bar_downloading_files_complete">Download completed</string>
+    <string name="notification_bar_downloading_files_cancelled">Download cancelled</string>
 
 </resources>
