@@ -257,6 +257,7 @@ public class ReposFragment extends SherlockListFragment {
                 nav.getDirPath());
     }
 
+    // refresh download list by mTimer
     public void startTimer() {
         if (isTimerStarted)
             return;
@@ -267,15 +268,15 @@ public class ReposFragment extends SherlockListFragment {
 
             @Override
             public void run() {
-                TransferService tx = mActivity.getTransferService();
+                TransferService ts = mActivity.getTransferService();
                 String repoID = mActivity.getCurrentRepoID();
                 String repoName = mActivity.getCurrentRepoName();
                 String currentDir = mActivity.getCurrentDir();
 
-                adapter.setDownloadTaskList(tx.getDownloadTaskInfosByPath(repoID, currentDir));
+                adapter.setDownloadTaskList(ts.getDownloadTaskInfosByPath(repoID, currentDir));
 
-                int downloadingCount = tx.getDownloadingFileCountByPath(repoID, currentDir);
-                long downloadedSize = tx.getDownloadedSizeByPath(repoID, currentDir);
+                int downloadingCount = ts.getDownloadingFileCountByPath(repoID, currentDir);
+                long downloadedSize = ts.getDownloadedSizeByPath(repoID, currentDir);
                 mActivity.notifyDownloadProgress(repoName, currentDir, downloadingCount, downloadedSize);
                 // Log.d(DEBUG_TAG, "timer post refresh signal " + System.currentTimeMillis());
                 mTimer.postDelayed(this, 1 * 1000);

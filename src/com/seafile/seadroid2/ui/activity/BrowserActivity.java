@@ -138,7 +138,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     private Notification notification;
     private NotificationManager notificationManager;
     private int totalCount;
-    private int totalSize;
+    private long totalSize;
     private int notifyCount;
     private String mCurrentRepoName, mCurrentRepoID, mCurrentDir;
 
@@ -323,7 +323,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         // configure the intent
         Intent tIntent = new Intent(this, TransferActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, tIntent, 0);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), WidgetUtils.NOTIFICATION_DOWNLOAD_PROGRESS_BAR_ID, tIntent, 0);
 
         notification = new Notification(R.drawable.notification_bar_downloading, getString(R.string.notification_bar_title_download_started), System.currentTimeMillis());
         notification.flags = notification.flags | Notification.FLAG_AUTO_CANCEL;
@@ -1144,8 +1144,11 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         final String repoName = navContext.getRepoName();
         final String repoID = navContext.getRepoID();
+
+        totalCount = notifyCount = 0;
+        totalSize = 0l;
+
         ConcurrentAsyncTask.execute(new DownloadDirTask(), repoName, repoID, dirPath);
-        totalCount = totalSize = notifyCount = 0;
     }
 
     public void notifyDownloadProgress(String repoName, String dir, int downloadingCount, long downloadedSize) {
@@ -1164,7 +1167,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         private String repoID;
         private String dirPath;
         private int fileCount;
-        private int fileSize;
+        private long fileTotalSize;
 
         SeafException err = null;
 
@@ -1202,8 +1205,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                         continue;
                     }
 
-                    // Log.d(DEBUG_TAG, Utils.pathJoin(repoName, dirPath, seafDirent.name));
-                    fileSize += seafDirent.size;
+                    fileTotalSize += seafDirent.size;
 
                     txService.addTaskToDownloadQue(account,
                             repoName,
@@ -1234,13 +1236,13 @@ public class BrowserActivity extends SherlockFragmentActivity
             else {
                 // ToastUtils.show(BrowserActivity.this, getResources().getQuantityString(R.plurals.transfer_download_started, fileCount, fileCount));
                 totalCount = fileCount;
-                totalSize = fileSize;
+                totalSize = fileTotalSize;
                 //notifyDownloadProgress(fileCount);
             }
 
             mCurrentRepoID = repoID;
             mCurrentRepoName = repoName;
-            mCurrentDir = filePath;
+            mCurrentDir = dirPath;
             // set download tasks info to adapter in order to update download progress in UI thread
             getReposFragment().getAdapter().setDownloadTaskList(txService.getDownloadTaskInfosByPath(repoID, dirPath));
         }
