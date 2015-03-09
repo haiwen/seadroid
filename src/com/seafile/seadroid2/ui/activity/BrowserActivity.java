@@ -137,6 +137,10 @@ public class BrowserActivity extends SherlockFragmentActivity
     // configure the notification
     private Notification notification;
     private NotificationManager notificationManager;
+    private int totalCount;
+    private int totalSize;
+    private int notifyCount;
+    private String mCurrentRepoName, mCurrentRepoID, mCurrentDir;
 
     private Intent copyMoveIntent;
 
@@ -323,7 +327,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         notification = new Notification(R.drawable.notification_bar_downloading, getString(R.string.notification_bar_title_download_started), System.currentTimeMillis());
         notification.flags = notification.flags | Notification.FLAG_AUTO_CANCEL;
-        notification.contentView = new RemoteViews(getApplicationContext().getPackageName(), R.layout.download_progress);
+        notification.contentView = new RemoteViews(getApplicationContext().getPackageName(), R.layout.notification_bar_download_progress);
         notification.contentIntent = pendingIntent;
 
         notificationManager = (NotificationManager) getApplicationContext().getSystemService(getApplicationContext().NOTIFICATION_SERVICE);
@@ -1144,10 +1148,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         totalCount = totalSize = notifyCount = 0;
     }
 
-    private int totalCount;
-    private int totalSize;
-    private int notifyCount;
-
     public void notifyDownloadProgress(String repoName, String dir, int downloadingCount, long downloadedSize) {
         if (downloadingCount == 0 && totalCount != 0) {
             if (++notifyCount > 1)
@@ -1245,7 +1245,6 @@ public class BrowserActivity extends SherlockFragmentActivity
             getReposFragment().getAdapter().setDownloadTaskList(txService.getDownloadTaskInfosByPath(repoID, dirPath));
         }
     }
-    private String mCurrentRepoName, mCurrentRepoID, mCurrentDir;
 
     public String getCurrentRepoID() {
         return mCurrentRepoID;

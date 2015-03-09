@@ -29,6 +29,7 @@ import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafGroup;
 import com.seafile.seadroid2.data.SeafItem;
 import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.ui.PullToRefreshListView;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
@@ -210,7 +211,7 @@ public class ReposFragment extends SherlockListFragment {
     }
 
     public void navToDirectory(boolean forceRefresh) {
-        startTimerByPath(getNavContext().getRepoName(), getNavContext().getRepoID(), getNavContext().getDirPath());
+        startTimer();
 
         mPullToRefreshStopRefreshing ++;
 
@@ -256,7 +257,7 @@ public class ReposFragment extends SherlockListFragment {
                 nav.getDirPath());
     }
 
-    public void startTimerByPath(final String repoName, String repoID, final String dir) {
+    public void startTimer() {
         if (isTimerStarted)
             return;
 
@@ -266,10 +267,16 @@ public class ReposFragment extends SherlockListFragment {
 
             @Override
             public void run() {
-                adapter.setDownloadTaskList(mActivity.getTransferService().getDownloadTaskInfosByPath(mActivity.getCurrentRepoID(), mActivity.getCurrentDir()));
-                int downloadingCount = mActivity.getTransferService().getDownloadingFileCountByPath(mActivity.getCurrentRepoID(), mActivity.getCurrentDir());
-                long downloadedSize = mActivity.getTransferService().getDownloadedSizeByPath(mActivity.getCurrentRepoID(), mActivity.getCurrentDir());
-                mActivity.notifyDownloadProgress(mActivity.getCurrentRepoName(), mActivity.getCurrentDir(), downloadingCount, downloadedSize);
+                TransferService tx = mActivity.getTransferService();
+                String repoID = mActivity.getCurrentRepoID();
+                String repoName = mActivity.getCurrentRepoName();
+                String currentDir = mActivity.getCurrentDir();
+
+                adapter.setDownloadTaskList(tx.getDownloadTaskInfosByPath(repoID, currentDir));
+
+                int downloadingCount = tx.getDownloadingFileCountByPath(repoID, currentDir);
+                long downloadedSize = tx.getDownloadedSizeByPath(repoID, currentDir);
+                mActivity.notifyDownloadProgress(repoName, currentDir, downloadingCount, downloadedSize);
                 // Log.d(DEBUG_TAG, "timer post refresh signal " + System.currentTimeMillis());
                 mTimer.postDelayed(this, 1 * 1000);
             }
