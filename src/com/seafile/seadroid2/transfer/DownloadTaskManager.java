@@ -69,9 +69,6 @@ public class DownloadTaskManager extends TransferManager implements DownloadStat
         long totalSize = 0l;
         List<DownloadTaskInfo> list = getTaskInfoListByPath(repoID, dir);
         for(DownloadTaskInfo dti : list) {
-            if (dti.state.equals(TaskState.INIT)
-                    || dti.state.equals(TaskState.TRANSFERRING)
-                    || dti.state.equals(TaskState.FINISHED))
             totalSize += dti.fileSize;
         }
 
