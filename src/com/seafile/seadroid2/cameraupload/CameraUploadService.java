@@ -111,6 +111,13 @@ public class CameraUploadService extends Service {
             cUploadManager = new CameraUploadManager(account);
         }
 
+        isNetworkAvailable = settingsMgr.checkCameraUploadNetworkAvailable();
+        // ensure network is available
+        if (!isNetworkAvailable) {
+            // do nothing until network connection available
+            return START_STICKY;
+        }
+
         if (isCameraUploadEnabled) {
             ConcurrentAsyncTask.execute(new PhotoUploadTask());
         }
@@ -203,14 +210,9 @@ public class CameraUploadService extends Service {
         return photo;
     }
 
-    private class PhotoUploadTask extends AsyncTask<Void, Void, List<File>> {
+    private class PhotoUploadTask extends AsyncTask<Void, Void, Void> {
         @Override
-        protected List<File> doInBackground(Void... params) {
-            isNetworkAvailable = settingsMgr.checkCameraUploadNetworkAvailable();
-            // ensure network is available
-            if (!isNetworkAvailable) {
-                return null;
-            }
+        protected Void doInBackground(Void... params) {
 
             // ensure remote camera upload library exists
             try {
@@ -228,33 +230,32 @@ public class CameraUploadService extends Service {
                 e.printStackTrace();
             }
 
-            return CameraUploadUtil.getAllPhotosAbsolutePathList();
+            List<File> pathList = CameraUploadUtil.getAllPhotosAbsolutePathList();
+
+            if (pathList != null) {
+                for (File photo : pathList) {
+                    String path = photo.getName();
+                    // use local database to detect duplicate upload
+                    SeafCachedPhoto cp = cUploadManager.getCachedPhoto(repoName, repoId, DIR, path);
+                    if (cp == null) {
+                        // add photos to uploading queue
+                        addCameraUploadTask(repoId, repoName, CAMERA_UPLOAD_REMOTE_PARENTDIR + CAMERA_UPLOAD_REMOTE_DIR, photo.getAbsolutePath());
+                    }
+                }
+
+            }
+
+            return null;
         }
 
         @Override
-        protected void onPostExecute(List<File> result) {
-            Intent localIntent;
-            if (result == null) {
-                if (!isNetworkAvailable) {
-                    // do nothing until network connection available
-                }
-                if (isNetworkAvailable && !isRemoteCameraUploadRepoValid) {
-                    localIntent = new Intent(TransferManager.BROADCAST_ACTION).putExtra("type",
-                            BROADCAST_CAMERA_UPLOAD_LIBRARY_NOT_FOUND);
-                    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);
-                }
-                return;
+        protected void onPostExecute(Void v) {
+            if (!isRemoteCameraUploadRepoValid) {
+                Intent localIntent = new Intent(TransferManager.BROADCAST_ACTION).putExtra("type",
+                        BROADCAST_CAMERA_UPLOAD_LIBRARY_NOT_FOUND);
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);
             }
 
-            for (File photo : result) {
-                String path = photo.getName();
-                // use local database to detect duplicate upload
-                SeafCachedPhoto cp = cUploadManager.getCachedPhoto(repoName, repoId, DIR, path);
-                if (cp == null) {
-                    // add photos to uploading queue
-                    addCameraUploadTask(repoId, repoName, CAMERA_UPLOAD_REMOTE_PARENTDIR + CAMERA_UPLOAD_REMOTE_DIR, photo.getAbsolutePath());
-                }
-            }
         }
     }
 
