@@ -76,6 +76,7 @@ import java.util.concurrent.TimeUnit;
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class SeafileProvider extends DocumentsProvider {
+    public static final String DEBUG_TAG = "SeafileProvider";
 
     private static final String[] SUPPORTED_ROOT_PROJECTION = new String[] {
             Root.COLUMN_ROOT_ID,
@@ -131,7 +132,7 @@ public class SeafileProvider extends DocumentsProvider {
                 netProjection(projection, SUPPORTED_ROOT_PROJECTION);
         MatrixCursor result=new MatrixCursor(netProjection);
 
-        Log.d(getClass().getSimpleName(), "queryRoots()");
+        Log.d(DEBUG_TAG, "queryRoots()");
 
         // add a Root for every Seafile account we have.
         for(Account a: AccountDBHelper.getDatabaseHelper(getContext()).getAccountList()) {
@@ -150,7 +151,7 @@ public class SeafileProvider extends DocumentsProvider {
                                       String sortOrder)
             throws FileNotFoundException {
 
-        Log.d(getClass().getSimpleName(), "queryChildDocuments: " + parentDocumentId);
+        Log.d(DEBUG_TAG, "queryChildDocuments: " + parentDocumentId);
 
         String[] netProjection = 
                 netProjection(projection, SUPPORTED_DOCUMENT_PROJECTION);
@@ -247,7 +248,7 @@ public class SeafileProvider extends DocumentsProvider {
     @Override
     public Cursor queryDocument(String documentId, String[] projection) throws FileNotFoundException {
 
-        Log.d(getClass().getSimpleName(), "queryDocument: " + documentId);
+        Log.d(DEBUG_TAG, "queryDocument: " + documentId);
 
         String[] netProjection = 
                 netProjection(projection, SUPPORTED_DOCUMENT_PROJECTION);
@@ -350,10 +351,10 @@ public class SeafileProvider extends DocumentsProvider {
             return future.get();
 
         } catch (InterruptedException e) {
-            Log.d(getClass().getSimpleName(), "could not open file", e);
+            Log.d(DEBUG_TAG, "could not open file", e);
             throw new FileNotFoundException();
         } catch (ExecutionException e) {
-            Log.d(getClass().getSimpleName(), "could not open file", e);
+            Log.d(DEBUG_TAG, "could not open file", e);
             throw new FileNotFoundException();
         }
     }
@@ -410,7 +411,7 @@ public class SeafileProvider extends DocumentsProvider {
                         fileStream.close();
 
                     } catch (IOException e) {
-                        Log.d(getClass().getSimpleName(), "could not transfer thumbnail.");
+                        Log.d(DEBUG_TAG, "could not transfer thumbnail.");
                     }
                 }
 
@@ -419,14 +420,14 @@ public class SeafileProvider extends DocumentsProvider {
             return new AssetFileDescriptor(pair[0], 0, AssetFileDescriptor.UNKNOWN_LENGTH);
 
         } catch (IOException e) {
-            Log.d(getClass().getSimpleName(), "could not fetch thumbnail", e);
+            Log.d(DEBUG_TAG, "could not fetch thumbnail", e);
             throw new FileNotFoundException();
         }
     }
 
     @Override
     public String createDocument (String parentDocumentId, String mimeType, String displayName) throws FileNotFoundException {
-        Log.d(getClass().getSimpleName(), "createDocument: " + parentDocumentId + "; " + mimeType + "; " + displayName);
+        Log.d(DEBUG_TAG, "createDocument: " + parentDocumentId + "; " + mimeType + "; " + displayName);
 
         String repoId = DocumentIdParser.getRepoIdFromId(parentDocumentId);
         if (repoId.isEmpty()) {
@@ -466,7 +467,7 @@ public class SeafileProvider extends DocumentsProvider {
             return DocumentIdParser.buildId(dm.getAccount(), repoId, Utils.pathJoin(parentPath, displayName));
 
         } catch (SeafException e) {
-            Log.d(getClass().getSimpleName(), "could not create file/dir", e);
+            Log.d(DEBUG_TAG, "could not create file/dir", e);
             throw new FileNotFoundException();
         }
     }
@@ -508,7 +509,7 @@ public class SeafileProvider extends DocumentsProvider {
                 new ParcelFileDescriptor.OnCloseListener() {
                     @Override
                     public void onClose(final IOException e) {
-                        Log.d(getClass().getSimpleName(), "uploading file: " + repoID + "; " + file.getPath() + "; " + parentDir + "; e="+e);
+                        Log.d(DEBUG_TAG, "uploading file: " + repoID + "; " + file.getPath() + "; " + parentDir + "; e="+e);
 
                         if (mode.equals("r") || e != null) {
                             return;
@@ -523,7 +524,7 @@ public class SeafileProvider extends DocumentsProvider {
                                     // update cache for parent dir
                                     dm.getDirentsFromServer(repoID, parentDir);
                                 } catch (SeafException e1) {
-                                    Log.d(getClass().getSimpleName(), "could not upload file: ", e1);
+                                    Log.d(DEBUG_TAG, "could not upload file: ", e1);
                                 }
                             }
                         });

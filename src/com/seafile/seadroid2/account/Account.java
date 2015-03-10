@@ -90,7 +90,7 @@ public class Account implements Parcelable {
     }
 
     public String getFullSignature() {
-        return email+"@"+server;
+        return email + "@" + server;
     }
 
     public String getName() {
