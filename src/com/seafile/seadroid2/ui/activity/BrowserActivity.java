@@ -685,8 +685,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             }
             return true;
         case R.id.download_folder:
-            String parentPath = Utils.getParentPath(navContext.getDirPath());
-            downloadDir(parentPath);
+            downloadDir(navContext.getDirPath());
             break;
         case R.id.newdir:
             showNewDirDialog();
@@ -959,9 +958,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         final String repoName = navContext.getRepoName();
         final String repoID = navContext.getRepoID();
-        final String filePath = Utils.pathJoin(navContext.getDirPath(), direntName);
-        ConcurrentAsyncTask.execute(new DownloadDirTask(), repoName, repoID, filePath);
-        // Log.d(DEBUG_TAG, "download >> " + repoName + navContext.getDirPath());
+        ConcurrentAsyncTask.execute(new DownloadDirTask(), repoName, repoID, direntName);
 
     }
 
@@ -1027,8 +1024,9 @@ public class BrowserActivity extends SherlockFragmentActivity
         @Override
         protected void onPostExecute(List<SeafDirent> dirents) {
             if (dirents == null) {
-                if (err != null)
+                if (err != null) {
                     ToastUtils.show(BrowserActivity.this, R.string.transfer_list_network_error);
+                }
                 return;
             }
 
