@@ -143,8 +143,7 @@ public class DataManager {
         } else {
             try {
                 String pathEnc = encodeThumbnailFilePath(filePath);
-                // TODO: If there is a "?" in the path, this will break
-                return account.getServer() + String.format("api2/repos/%s/thumbnail/%s?s=%s", repoID, pathEnc, size);
+                return account.getServer() + String.format("api2/repos/%s/thumbnail/?p=%s&size=%s", repoID, pathEnc, size);
             } catch (UnsupportedEncodingException e) {
                 return null;
             }
