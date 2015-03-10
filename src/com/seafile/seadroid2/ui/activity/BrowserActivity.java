@@ -950,7 +950,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         startFileActivity(repoName, repoID, filePath);
     }
 
-    public void downloadDir(String direntName) {
+    public void downloadDir(String dirPath) {
         if (!Utils.isNetworkOn()) {
             ToastUtils.show(this, R.string.network_down);
             return;
@@ -958,7 +958,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         final String repoName = navContext.getRepoName();
         final String repoID = navContext.getRepoID();
-        ConcurrentAsyncTask.execute(new DownloadDirTask(), repoName, repoID, direntName);
+        ConcurrentAsyncTask.execute(new DownloadDirTask(), repoName, repoID, dirPath);
 
     }
 
@@ -966,7 +966,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         private String repoName;
         private String repoID;
-        private String filePath;
+        private String dirPath;
         private int fileCount;
 
         SeafException err = null;
@@ -980,11 +980,11 @@ public class BrowserActivity extends SherlockFragmentActivity
 
             repoName = params[0];
             repoID = params[1];
-            filePath = params[2];
+            dirPath = params[2];
 
             List<SeafDirent> dirents;
             try {
-                dirents = dataManager.getDirentsFromServer(repoID, filePath);
+                dirents = dataManager.getDirentsFromServer(repoID, dirPath);
             } catch (SeafException e) {
                 err = e;
                 e.printStackTrace();
@@ -998,24 +998,24 @@ public class BrowserActivity extends SherlockFragmentActivity
                 if (!seafDirent.isDir()) {
                     File localCachedFile = dataManager.getLocalCachedFile(repoName, 
                                                                           repoID, 
-                                                                          Utils.pathJoin(filePath, 
+                                                                          Utils.pathJoin(dirPath,
                                                                                           seafDirent.name), 
                                                                           seafDirent.id);
                     if (localCachedFile != null) {
                         continue;
                     }
 
-                    // Log.d(DEBUG_TAG, Utils.pathJoin(repoName, filePath, seafDirent.name));
+                    // Log.d(DEBUG_TAG, Utils.pathJoin(repoName, dirPath, seafDirent.name));
                     txService.addTaskToDownloadQue(account,
                             repoName,
                             repoID,
-                            Utils.pathJoin(filePath,
+                            Utils.pathJoin(dirPath,
                                     seafDirent.name));
                 }
 
             }
 
-            fileCount = txService.getDownloadingFileCountByPath(repoID, filePath);
+            fileCount = txService.getDownloadingFileCountByPath(repoID, dirPath);
 
             return dirents;
 
@@ -1036,7 +1036,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                 ToastUtils.show(BrowserActivity.this, getResources().getQuantityString(R.plurals.transfer_download_started, fileCount, fileCount));
 
             // set download tasks info to adapter in order to update download progress in UI thread
-            getReposFragment().getAdapter().setDownloadTaskList(txService.getDownloadTaskInfosByPath(repoID, filePath));
+            getReposFragment().getAdapter().setDownloadTaskList(txService.getDownloadTaskInfosByPath(repoID, dirPath));
         }
     }
 
