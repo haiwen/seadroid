@@ -1407,27 +1407,12 @@ public class BrowserActivity extends SherlockFragmentActivity
         dialog.show(getSupportFragmentManager(), "DialogFragment");
     }
 
-    private void onFileDownloadProgress(int taskID) {
-        if (txService == null) {
-            return;
-        }
-
-        DownloadTaskInfo info = txService.getDownloadTaskInfo(taskID);
-        if (fetchFileDialog != null && fetchFileDialog.getTaskID() == taskID) {
-                fetchFileDialog.handleDownloadTaskInfo(info);
-        }
-    }
-
     private void onFileDownloadFailed(int taskID) {
         if (txService == null) {
             return;
         }
 
         DownloadTaskInfo info = txService.getDownloadTaskInfo(taskID);
-        if (fetchFileDialog != null && fetchFileDialog.getTaskID() == taskID) {
-                fetchFileDialog.handleDownloadTaskInfo(info);
-            return;
-        }
 
         SeafException err = info.err;
         final String repoName = info.repoName;
@@ -1519,10 +1504,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         public void onReceive(Context context, Intent intent) {
             String type = intent.getStringExtra("type");
-            if (type.equals(DownloadTaskManager.BROADCAST_FILE_DOWNLOAD_PROGRESS)) {
-                int taskID = intent.getIntExtra("taskID", 0);
-                onFileDownloadProgress(taskID);
-            } else if (type.equals(DownloadTaskManager.BROADCAST_FILE_DOWNLOAD_FAILED)) {
+            if (type.equals(DownloadTaskManager.BROADCAST_FILE_DOWNLOAD_FAILED)) {
                 int taskID = intent.getIntExtra("taskID", 0);
                 onFileDownloadFailed(taskID);
             } else if (type.equals(UploadTaskManager.BROADCAST_FILE_UPLOAD_SUCCESS)) {
