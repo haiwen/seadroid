@@ -717,6 +717,18 @@ public class DataManager {
         return true;
     }
 
+    public boolean isStarredFilesRefreshTimeout() {
+        if (!direntsRefreshTimeMap.containsKey(PULL_TO_REFRESH_LAST_TIME_FOR_STARRED_FRAGMENT)) {
+            return true;
+        }
+        long lastRefreshTime = direntsRefreshTimeMap.get(PULL_TO_REFRESH_LAST_TIME_FOR_STARRED_FRAGMENT);
+
+        if (Utils.now() < lastRefreshTime + REFRESH_EXPIRATION_MSECS) {
+            return false;
+        }
+        return true;
+    }
+
     public void setDirsRefreshTimeStamp(String repoID, String path) {
         direntsRefreshTimeMap.put(Utils.pathJoin(repoID, path), Utils.now());
     }
