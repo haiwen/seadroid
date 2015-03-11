@@ -123,17 +123,6 @@ public class DataManager {
         return new File(getExternalCacheDirectory() + "/thumbnails");
     }
 
-    private String encodeThumbnailFilePath(String path) throws UnsupportedEncodingException {
-
-        // This is kinda hacky. Not sure what the proper encoding function would be.
-        String pathEnc = "";
-        for (String s : path.split("/")) {
-            pathEnc += "/" + URLEncoder.encode(s, "UTF-8");
-            pathEnc = pathEnc.replaceAll("\\+", "%20");
-        }
-        return pathEnc;
-    }
-
     public String getThumbnailLink(String repoName, String repoID, String filePath, int size) {
         File file = getLocalRepoFile(repoName, repoID, filePath);
 
@@ -142,7 +131,7 @@ public class DataManager {
             return "file://" + file.getAbsolutePath();
         } else {
             try {
-                String pathEnc = encodeThumbnailFilePath(filePath);
+                String pathEnc = URLEncoder.encode(filePath, "UTF-8");
                 return account.getServer() + String.format("api2/repos/%s/thumbnail/?p=%s&size=%s", repoID, pathEnc, size);
             } catch (UnsupportedEncodingException e) {
                 return null;
