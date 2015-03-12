@@ -55,6 +55,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -487,7 +488,7 @@ public class SeafileProvider extends DocumentsProvider {
         row.add(Document.COLUMN_DISPLAY_NAME, repo.getTitle());
         row.add(Document.COLUMN_SIZE, repo.size);
         row.add(Document.COLUMN_MIME_TYPE, DocumentsContract.Document.MIME_TYPE_DIR);
-        row.add(Document.COLUMN_LAST_MODIFIED, repo.mtime.getTime() * 1000);
+        row.add(Document.COLUMN_LAST_MODIFIED, new Date(repo.mtime).getTime() * 1000);
         row.add(Document.COLUMN_FLAGS, 0);
     }
 
