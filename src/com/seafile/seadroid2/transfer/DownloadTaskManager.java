@@ -69,8 +69,7 @@ public class DownloadTaskManager extends TransferManager implements DownloadStat
      * get all download task info under a specific directory.
      *
      * @param repoID
-     * @param dir    valid dir should be something like this "/DIRNAME/", instead of "/DIRNAME",
-     *               in order to ensure the param being consistent with its caller
+     * @param dir
      * @return List<DownloadTaskInfo>
      */
     public List<DownloadTaskInfo> getTaskInfoListByPath(String repoID, String dir) {
@@ -80,14 +79,8 @@ public class DownloadTaskManager extends TransferManager implements DownloadStat
                 continue;
 
             String parentDir = Utils.getParentPath(task.getPath());
-            String validDir;
 
-            if (!parentDir.equals("/"))
-                validDir = parentDir + "/";
-            else
-                validDir = parentDir;
-
-            if (validDir.equals(dir))
+            if (parentDir.equals(dir))
                 infos.add(((DownloadTask) task).getTaskInfo());
         }
 
