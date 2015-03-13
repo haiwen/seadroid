@@ -1,9 +1,5 @@
 package com.seafile.seadroid2;
 
-import java.io.File;
-
-import android.util.Log;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -11,7 +7,6 @@ import android.preference.PreferenceManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.DatabaseHelper;
-import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.util.Utils;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 
