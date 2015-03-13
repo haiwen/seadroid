@@ -325,7 +325,7 @@ public class SeafileProvider extends DocumentsProvider {
 
         // open the file. this might involve talking to the seafile server. this will hang until
         // it is done.
-        Future<ParcelFileDescriptor> future = threadPoolExecutor.submit(new Callable<ParcelFileDescriptor>() {
+        final Future<ParcelFileDescriptor> future = threadPoolExecutor.submit(new Callable<ParcelFileDescriptor>() {
 
             @Override
             public ParcelFileDescriptor call() throws Exception {
@@ -347,10 +347,18 @@ public class SeafileProvider extends DocumentsProvider {
             }
         });
 
+        signal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
+            @Override
+            public void onCancel() {
+                Log.d(DEBUG_TAG, "openDocument cancelling download");
+                future.cancel(true);
+            }
+        });
+
         try {
             return future.get();
         } catch (InterruptedException e) {
-            Log.d(DEBUG_TAG, "could not open file", e);
+            Log.d(DEBUG_TAG, "openDocument cancelled download");
             throw new FileNotFoundException();
         } catch (ExecutionException e) {
             Log.d(DEBUG_TAG, "could not open file", e);
