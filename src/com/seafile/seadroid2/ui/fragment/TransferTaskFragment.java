@@ -68,9 +68,6 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
         // Toast.makeText(mActivity, "Loading animations", Toast.LENGTH_LONG).show();
         showLoading(true);
 
-        // bind transfer service
-        Intent bIntent = new Intent(mActivity, TransferService.class);
-        mActivity.bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -104,6 +101,14 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
         super.onResume();
         mTransferTaskListView.setVisibility(View.GONE);
         emptyView.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // bind transfer service
+        Intent bIntent = new Intent(mActivity, TransferService.class);
+        mActivity.bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
     protected abstract boolean isNeedUpdateProgress();
