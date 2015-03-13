@@ -7,6 +7,7 @@ import com.seafile.seadroid2.ConcurrentAsyncTask;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Manages file downloading and uploading.
@@ -27,15 +28,15 @@ public abstract class TransferManager {
     /**
      * contains all transfer tasks, including failed, cancelled, finished, transferring, waiting tasks.
      */
-    protected List<TransferTask> allTaskList = Lists.newArrayList();
+    protected List<TransferTask> allTaskList = new CopyOnWriteArrayList();
     /**
      * contains currently transferring tasks
      */
-    protected List<TransferTask> transferringList = Lists.newArrayList();
+    protected List<TransferTask> transferringList = new CopyOnWriteArrayList();
     /**
      * contains waiting tasks
      */
-    protected List<TransferTask> waitingList = Lists.newArrayList();
+    protected List<TransferTask> waitingList = new CopyOnWriteArrayList();
 
     protected TransferTask getTask(int taskID) {
         for (TransferTask task : allTaskList) {
