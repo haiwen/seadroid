@@ -1,7 +1,10 @@
 package com.seafile.seadroid2.ui.activity;
 
 import java.io.File;
-import java.net.URISyntaxException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,12 +24,14 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -82,6 +87,8 @@ import com.seafile.seadroid2.ui.fragment.StarredFragment;
 import com.seafile.seadroid2.util.Utils;
 import com.viewpagerindicator.IconPagerAdapter;
 import com.viewpagerindicator.TabPageIndicator;
+
+import org.apache.commons.io.IOUtils;
 
 public class BrowserActivity extends SherlockFragmentActivity
         implements ReposFragment.OnFileSelectedListener, StarredFragment.OnStarredFileSelectedListener, OnBackStackChangedListener {
@@ -875,28 +882,48 @@ public class BrowserActivity extends SherlockFragmentActivity
             break;
         case PICK_FILE_REQUEST:
             if (resultCode == RESULT_OK) {
-                if (!Utils.isNetworkOn()) {
-                    ToastUtils.show(this, R.string.network_down);
-                    return;
-                }
 
-                Uri uri = data.getData();
-                String path;
-                try {
-                    path = Utils.getPath(this, uri);
-                } catch (URISyntaxException e) {
-                    e.printStackTrace();
-                    return;
-                }
-                if(path == null) {
-                    ToastUtils.show(this, "Unable to upload, no path available");
-                    Log.i(DEBUG_TAG, "Pick file request did not return a path");
-                    return;
-                }
-                ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
-                //ToastUtils.show(this, getString(R.string.upload) + " " + Utils.fileNameFromPath(path));
-                addUploadTask(navContext.getRepoID(),
-                    navContext.getRepoName(), navContext.getDirPath(), path);
+                Log.i(DEBUG_TAG, "Got uri: "+data.getData());
+
+                new AsyncTask<Uri, Void, File>() {
+
+                    @Override
+                    protected File doInBackground(Uri... params) {
+                        try {
+                            Uri uri = params[0];
+                            File tempDir = new File(DataManager.getExternalTempDirectory(), "upload-"+System.currentTimeMillis());
+                            tempDir.mkdir();
+                            File tempFile = new File(tempDir, getFilenamefromUri(uri));
+                            if (!tempFile.createNewFile()) {
+                                Log.i(DEBUG_TAG, "Temp file already exists: "+tempFile);
+                                return null;
+                            }
+
+                            InputStream in = getContentResolver().openInputStream(uri);
+                            OutputStream out = new FileOutputStream(tempFile);
+                            IOUtils.copy(in, out);
+                            in.close();
+                            out.close();
+
+                            return tempFile;
+                        } catch (IOException e) {
+                            Log.i(DEBUG_TAG, "Could not open requested document", e);
+                            return null;
+                        }
+                    }
+
+                    @Override
+                    protected void onPostExecute(File file) {
+                        if (file == null) {
+                            ToastUtils.show(BrowserActivity.this, "Unable to upload, no path available");
+                            return;
+                        }
+                        ToastUtils.show(BrowserActivity.this, getString(R.string.added_to_upload_tasks));
+                        //ToastUtils.show(this, getString(R.string.upload) + " " + Utils.fileNameFromPath(path));
+                        addUploadTask(navContext.getRepoID(),
+                                navContext.getRepoName(), navContext.getDirPath(), file.getAbsolutePath());
+                    }
+                }.execute(data.getData());
             }
             break;
         case CHOOSE_COPY_MOVE_DEST_REQUEST:
@@ -929,6 +956,26 @@ public class BrowserActivity extends SherlockFragmentActivity
             break;
         default:
              break;
+        }
+    }
+
+    private String getFilenamefromUri(Uri uri) {
+
+        // TODO: query depends on API level 16
+        Cursor cursor = getContentResolver()
+                .query(uri, null, null, null, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+
+            // Note it's called "Display Name".  This is
+            // provider-specific, and might not necessarily be the file name.
+            String displayName = cursor.getString(
+                    cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+
+            cursor.close();
+            return displayName;
+        } else {
+            return "unknown filename";
         }
     }
 
