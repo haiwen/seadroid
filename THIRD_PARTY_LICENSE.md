@@ -52,3 +52,9 @@ The third party software included and used by this project is:
  * App passcode library for Android, master branch
    Dual licensed under MIT, and GPL.
    See https://github.com/wordpress-mobile/Android-PasscodeLock
+
+ * Media Chooser, master branch
+   Copyright 2013 learnNcode (learnncode@gmail.com)
+   Licensed under the Apache License, Version 2.0.
+   Placed at package com.seafile.seadroid2.mediachooser.
+   See https://github.com/learnNcode/MediaChooser

@@ -29,6 +29,14 @@
     <color name="lv_title_color">#282828</color>
     <color name="lv_subtitle_color">#555555</color>
 
+    <!-- Media Chooser -->
+    <color name="headerbar_color">#ffffff</color>
+    <color name="tabs_color">#ffffff</color>
+    <color name="tabs_title_color">#ffffff</color>
+    <color name="headerbar_title_color">#000000</color>
+    <color name="headerbar_selected_tab_color">#f57900</color>
+
+
     <!-- Footer -->
 
 </resources>

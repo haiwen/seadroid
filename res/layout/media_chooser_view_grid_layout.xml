@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridView xmlns:android="http://schemas.android.com/apk/res/android"
+          android:id="@+id/gridViewFromMediaChooser"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:background="@android:color/white"
+          android:cacheColorHint="#00000000"
+          android:choiceMode="multipleChoice"
+          android:columnWidth="100dp"
+          android:drawSelectorOnTop="false"
+          android:gravity="center"
+          android:horizontalSpacing="2dp"
+          android:listSelector="@android:color/black"
+          android:numColumns="4"
+          android:paddingLeft="1dp"
+          android:paddingRight="1dp"
+          android:paddingTop="2dp"
+          android:stretchMode="columnWidth"
+          android:verticalSpacing="2dp">
+
+</GridView>

@@ -192,8 +192,8 @@
     <string name="copy_folder_ing">Copying folder</string>
     <string name="move_folder_ing">Moving folder</string>
     <string name="upload_started">Upload is started</string>
-    <string name="cannot_copy_folder_to_subfolder">You can\'t copy a folder to its subfolder</string>
-    <string name="cannot_move_folder_to_subfolder">You can\'t move a folder to its subfolder</string>
+    <string name="cannot_copy_folder_to_subfolder">You can\`t copy a folder to its subfolder</string>
+    <string name="cannot_move_folder_to_subfolder">You can\`t move a folder to its subfolder</string>
     <string name="cancel">Cancel</string>
     <string name="confirm">Confirm</string>
 
@@ -234,7 +234,7 @@
     <string name="lockpattern_pattern_entered_header">Pattern saved</string>
     <string name="lockpattern_need_to_draw">Please draw Gesture Lock pattern</string>
     <string name="lockpattern_need_to_confirm">Please confirm your pattern</string>
-    <string name="lockpattern_need_to_unlock_wrong">Pattern didn\'t match. Try again.</string>
+    <string name="lockpattern_need_to_unlock_wrong">Pattern didn\`t match. Try again.</string>
     <string name="lockpattern_pattern_confirmed_header">Tap OK to save your pattern</string>
     <string name="lockpattern_recording_inprogress">Release finger when finished drawing</string>
     <string name="lockpattern_pattern_toast_saved">Gesture Lock Pattern successfully saved</string>
@@ -293,13 +293,13 @@
     <string name="pull_to_refresh_last_update_hours_ago">%d hours ago</string>
 
     <!-- storage access framework -->
-    <string name="saf_open_file_exception">Couldn\'t open file %s.</string>
+    <string name="saf_open_file_exception">Couldn\`t open file %s.</string>
     <string name="saf_open_directory_exception">Can\`t open directory.</string>
     <string name="saf_file_not_cached_exception">File %s not cached.</string>
-    <string name="saf_thumbnail_not_found_exception">Couldn\'t find/open thumbnail %s.</string>
-    <string name="saf_file_not_downloaded_exception">Couldn\'t download file %s from server.</string>
+    <string name="saf_thumbnail_not_found_exception">Couldn\`t find/open thumbnail %s.</string>
+    <string name="saf_file_not_downloaded_exception">Couldn\`t download file %s from server.</string>
     <string name="saf_write_diretory_exception">Can\`t open directory for reading/writing.</string>
-    <string name="saf_account_not_found_exception">Couldn\'t find Seafile account.</string>
+    <string name="saf_account_not_found_exception">Couldn\`t find Seafile account.</string>
 
     <!-- shibboleth SSO -->
     <string name="shib_server_url_empty">Server is empty!</string>
@@ -327,9 +327,28 @@
     <string name="search_txt_empty">Please input keywords</string>
     <string name="search_content_empty">Nothing was found</string>
     <string name="search_server_not_support">Oops, search was not supported on this server!</string>
-    <string name="search_library_not_found">Couldn\'t find this library. It may be deleted</string>
+    <string name="search_library_not_found">Couldn\`t find this library. It may be deleted</string>
 
     <!-- star a file -->
     <string name="star_file_succeed">File starred successfully</string>
     <string name="star_file_failed">File starred failed</string>
+
+    <!-- Media Chooser -->
+    <string name="media_chooser_camera">Camera</string>
+    <string name="media_chooser_video">Video</string>
+    <string name="media_chooser_images_tab">Images</string>
+    <string name="media_chooser_videos_tab">Videos</string>
+    <string name="media_chooser_max_limit_reach_error">Max limit 10 file</string>
+    <string name="media_chooser_max_limit_file">Max limit</string>
+    <string name="media_chooser_please_wait">Please wait</string>
+    <string name="media_chooser_refreshing">Refreshing&#8230;</string>
+    <string name="media_chooser_file_size_exeeded">The file size exceeds the maximum limit of</string>
+    <string name="media_chooser_selected_file_size">Selected media size is </string>
+    <string name="media_chooser_mb">MB</string>
+    <string name="media_chooser_plaese_select_file">Please select a file</string>
+    <string name="media_chooser_file">file</string>
+    <string name="media_chooser_files">files</string>
+    <string name="media_chooser_no_media_file_available">No media file available</string>
+    <string name="media_chooser_images_selected">Images (<xliff:g id="number_of_sessions">%1$d</xliff:g>)</string>
+    <string name="media_chooser_videos_selected">Videos (<xliff:g id="number_of_sessions">%1$d</xliff:g>)</string>
 </resources>
