@@ -365,6 +365,8 @@ public class SeafileProvider extends DocumentsProvider {
                                                      CancellationSignal signal)
             throws FileNotFoundException {
 
+        Log.d(DEBUG_TAG, "openDocumentThumbnail(): " + documentId);
+
         String repoId = DocumentIdParser.getRepoIdFromId(documentId);
         if (repoId.isEmpty()) {
             throw new FileNotFoundException();
@@ -390,37 +392,45 @@ public class SeafileProvider extends DocumentsProvider {
         if (url == null)
             throw new FileNotFoundException();
 
-        try {
-            final ParcelFileDescriptor[] pair = ParcelFileDescriptor.createPipe();
+        // do thumbnail download in another thread to avoid possible network access in UI thread
+        final Future<AssetFileDescriptor> future = threadPoolExecutor.submit(new Callable<AssetFileDescriptor>() {
 
-            // writing into the file descriptor might block, so do it in another thread
-            threadPoolExecutor.execute(new Runnable() {
-                public void run() {
+            @Override
+            public AssetFileDescriptor call() throws Exception {
 
-                    try {
-                        // load the file. this might involve talking to the seafile server. this will hang until
-                        // it is done.
-                        Bitmap bmp = ImageLoader.getInstance().loadImageSync(url, options);
+                ParcelFileDescriptor[] pair = ParcelFileDescriptor.createPipe();
 
-                        if (bmp == null)
-                           return;
+                // load the file. this might involve talking to the seafile server. this will hang until
+                // it is done.
+                Bitmap bmp = ImageLoader.getInstance().loadImageSync(url, options);
 
-                        FileOutputStream fileStream = new FileOutputStream(pair[1].getFileDescriptor());
-
-                        bmp.compress(Bitmap.CompressFormat.PNG, 100, fileStream);
-                        fileStream.close();
-
-                    } catch (IOException e) {
-                        Log.d(DEBUG_TAG, "could not transfer thumbnail.");
-                    }
+                if (bmp == null) {
+                    return null;
                 }
+                FileOutputStream fileStream = new FileOutputStream(pair[1].getFileDescriptor());
 
-            });
+                bmp.compress(Bitmap.CompressFormat.PNG, 100, fileStream);
+                fileStream.close();
 
-            return new AssetFileDescriptor(pair[0], 0, AssetFileDescriptor.UNKNOWN_LENGTH);
+                return new AssetFileDescriptor(pair[0], 0, AssetFileDescriptor.UNKNOWN_LENGTH);
+            }
+        });
 
-        } catch (IOException e) {
-            Log.d(DEBUG_TAG, "could not fetch thumbnail", e);
+        signal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
+            @Override
+            public void onCancel() {
+                Log.d(DEBUG_TAG, "openDocumentThumbnail cancelling download");
+                future.cancel(true);
+            }
+        });
+
+        try {
+            return future.get();
+        } catch (InterruptedException e) {
+            Log.d(DEBUG_TAG, "openDocumentThumbnail cancelled download");
+            throw new FileNotFoundException();
+        } catch (ExecutionException e) {
+            Log.d(DEBUG_TAG, "openDocumentThumbnail error during download", e);
             throw new FileNotFoundException();
         }
     }
