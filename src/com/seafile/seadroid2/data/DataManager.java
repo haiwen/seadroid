@@ -148,6 +148,19 @@ public class DataManager {
             return null;
     }
 
+    public ServerInfo getServerInfo() throws IOException, SeafException, JSONException {
+        String json = sc.getServerInfo();
+        return parseServerInfo(json);
+    }
+
+    private ServerInfo parseServerInfo(String json) throws JSONException {
+        JSONObject object = Utils.parseJsonObject(json);
+        if (object == null)
+            return null;
+
+        return ServerInfo.fromJson(object);
+    }
+
     public Account getAccount() {
         return account;
     }

@@ -5,12 +5,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
@@ -52,15 +50,15 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.seafile.seadroid2.*;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
-import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.data.SeafDirent;
-import com.seafile.seadroid2.data.SeafRepo;
-import com.seafile.seadroid2.data.SeafStarredFile;
+import com.seafile.seadroid2.data.*;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
+import com.seafile.seadroid2.gallery.Util;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.transfer.*;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
@@ -87,6 +85,7 @@ import com.seafile.seadroid2.ui.fragment.StarredFragment;
 import com.seafile.seadroid2.util.Utils;
 import com.viewpagerindicator.IconPagerAdapter;
 import com.viewpagerindicator.TabPageIndicator;
+import org.json.JSONException;
 
 import org.apache.commons.io.IOUtils;
 
@@ -112,7 +111,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         R.drawable.tab_activity
     };
     private int currentPosition = 0;
-    private FragmentPagerAdapter adapter;
+    private SeafileTabsAdapter adapter;
     private ViewPager pager;
     private TabPageIndicator indicator;
 
@@ -129,8 +128,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     AppChoiceDialog appChoiceDialog = null;
 
     private Menu overFlowMenu;
-
-    
+    private MenuItem menuSearch;
 
     private Intent copyMoveIntent;
 
@@ -309,6 +307,76 @@ public class BrowserActivity extends SherlockFragmentActivity
         Intent monitorIntent = new Intent(this, FileMonitorService.class);
         startService(monitorIntent);
 
+        fetchServerInfo();
+    }
+
+    private void fetchServerInfo() {
+        boolean proEdition = isServerProEdition();
+        if (proEdition)
+            return;
+        else {
+            // hide Activity tab and search menu
+            adapter.hideActivityTab();
+            indicator.notifyDataSetChanged();
+            adapter.notifyDataSetChanged();
+            // hide search menu
+            if (menuSearch != null)
+                menuSearch.setVisible(false);
+        }
+
+        if (!Utils.isNetworkOn())
+            return;
+
+        ConcurrentAsyncTask.execute(new FetchServerInfoTask());
+    }
+
+    class FetchServerInfoTask extends AsyncTask<Void, Void, ServerInfo> {
+
+        @Override
+        protected ServerInfo doInBackground(Void... params) {
+            try {
+                return dataManager.getServerInfo();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (SeafException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(ServerInfo serverInfo) {
+            //super.onPostExecute(aVoid);
+            if (serverInfo == null)
+                return;
+
+            if (serverInfo.isProEdition()) {
+                // hide Activity tab and search menu
+                adapter.unHideActivityTab();
+                indicator.notifyDataSetChanged();
+                adapter.notifyDataSetChanged();
+                // hide search menu
+                if (menuSearch != null)
+                    menuSearch.setVisible(true);
+            }
+
+            saveServerProEdition(account.getServer(), serverInfo.isProEdition());
+        }
+    }
+
+    private static Map<String, Boolean> serverInfoMap = Maps.newHashMap();
+
+    private void saveServerProEdition(String serverIdentifier, boolean isPorEdition) {
+        serverInfoMap.put(serverIdentifier, isPorEdition);
+    }
+
+    private boolean isServerProEdition() {
+        if (!serverInfoMap.containsKey(account.getServer()))
+            return false;
+        else
+            return serverInfoMap.get(account.getServer());
     }
 
     class SeafileTabsAdapter extends FragmentPagerAdapter implements
@@ -320,29 +388,38 @@ public class BrowserActivity extends SherlockFragmentActivity
         private ReposFragment reposFragment = null;
         private ActivitiesFragment activitieFragment = null;
         private StarredFragment starredFragment = null;
+        private boolean isHideActivityTab;
+
+        public void hideActivityTab() {
+            this.isHideActivityTab = true;
+        }
+
+        public void unHideActivityTab() {
+            this.isHideActivityTab = false;
+        }
 
         @Override
         public Fragment getItem(int position) {
-            switch (position) {
-                case 0:
+                switch (position) {
+                    case 0:
 
-                    if (reposFragment == null) {
-                        reposFragment = new ReposFragment();
-                    }
-                    return reposFragment;
-                case 1:
-                    if (starredFragment == null) {
-                        starredFragment = new StarredFragment();
-                    }
-                    return starredFragment;
-                case 2:
-                    if (activitieFragment == null) {
-                        activitieFragment = new ActivitiesFragment();
-                    }
-                    return activitieFragment;
-                default:
-                    return new Fragment();
-            }
+                        if (reposFragment == null) {
+                            reposFragment = new ReposFragment();
+                        }
+                        return reposFragment;
+                    case 1:
+                        if (starredFragment == null) {
+                            starredFragment = new StarredFragment();
+                        }
+                        return starredFragment;
+                    case 2:
+                        if (activitieFragment == null) {
+                            activitieFragment = new ActivitiesFragment();
+                        }
+                        return activitieFragment;
+                    default:
+                        return new Fragment();
+                }
         }
 
         @Override
@@ -367,13 +444,19 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         @Override
         public int getCount() {
-            return ICONS.length;
+            if (!isHideActivityTab)
+                return ICONS.length;
+            else
+                return 2;
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
+        fetchServerInfo();
+
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         boolean isUploadStart = settings.getBoolean(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY, false);
         if (!isUploadStart) {
@@ -546,9 +629,10 @@ public class BrowserActivity extends SherlockFragmentActivity
         overFlowMenu = menu;
         return true;
     }
+
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        MenuItem menuSearch = menu.findItem(R.id.search);
+        menuSearch = menu.findItem(R.id.search);
         MenuItem menuUpload = menu.findItem(R.id.upload);
         MenuItem menuRefresh = menu.findItem(R.id.refresh);
         MenuItem menuDownloadFolder = menu.findItem(R.id.download_folder);
@@ -632,6 +716,9 @@ public class BrowserActivity extends SherlockFragmentActivity
             menuAccounts.setVisible(true);
             menuSettings.setVisible(true);
         }
+
+        if (!isServerProEdition())
+            menuSearch.setVisible(false);
 
         return true;
     }

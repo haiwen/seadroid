@@ -202,6 +202,16 @@ public class SeafConnection {
         return result;
     }
 
+    public String getServerInfo() throws IOException, SeafException {
+        String apiPath = String.format("api2/server-info/");
+
+        HttpRequest req = prepareApiGetRequest(apiPath);
+        checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+        String result = new String(req.bytes(), "UTF-8");
+
+        return result;
+    }
+
     public boolean doLogin() throws SeafException {
         try {
             return realLogin();
