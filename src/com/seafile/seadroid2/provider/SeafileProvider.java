@@ -347,13 +347,15 @@ public class SeafileProvider extends DocumentsProvider {
             }
         });
 
-        signal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
-            @Override
-            public void onCancel() {
-                Log.d(DEBUG_TAG, "openDocument cancelling download");
-                future.cancel(true);
-            }
-        });
+        if (signal != null) {
+            signal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
+                @Override
+                public void onCancel() {
+                    Log.d(DEBUG_TAG, "openDocument cancelling download");
+                    future.cancel(true);
+                }
+            });
+        }
 
         try {
             return future.get();
@@ -423,13 +425,15 @@ public class SeafileProvider extends DocumentsProvider {
             }
         });
 
-        signal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
-            @Override
-            public void onCancel() {
-                Log.d(DEBUG_TAG, "openDocumentThumbnail cancelling download");
-                future.cancel(true);
-            }
-        });
+        if (signal != null) {
+            signal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
+                @Override
+                public void onCancel() {
+                    Log.d(DEBUG_TAG, "openDocumentThumbnail cancelling download");
+                    future.cancel(true);
+                }
+            });
+        }
 
         try {
             return future.get();
