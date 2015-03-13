@@ -38,7 +38,7 @@
   <string-array name="choose_server_array">
     <item>Privater Seafile Server</item>
     <item>SeaCloud.cc</item>
-    <item>cloud.seafile.com</item>
+    <item>Cloud.mein-seafile.de</item>
     <item>Shibboleth Login</item>
   </string-array>
   <string name="network_down">Keine Netzwerkverbindung</string>
