@@ -323,33 +323,32 @@ public class SeafileProvider extends DocumentsProvider {
                                              final CancellationSignal signal)
             throws FileNotFoundException {
 
+        // open the file. this might involve talking to the seafile server. this will hang until
+        // it is done.
+        Future<ParcelFileDescriptor> future = threadPoolExecutor.submit(new Callable<ParcelFileDescriptor>() {
+
+            @Override
+            public ParcelFileDescriptor call() throws Exception {
+
+                String path = docIdParser.getPathFromId(documentId);
+                DataManager dm = createDataManager(documentId);
+                String repoId = DocumentIdParser.getRepoIdFromId(documentId);
+
+                // we can assume that the repo is cached because the client has already seen it
+                SeafRepo repo = dm.getCachedRepoByID(repoId);
+                if (repo == null)
+                    throw new FileNotFoundException();
+
+                File f = getFile(signal, dm, repo, path);
+
+                // return the file to the client.
+                String parentPath = ProviderUtil.getParentDirFromPath(path);
+                return makeParcelFileDescriptor(dm, repo.getName(), repoId, parentPath, f, mode);
+            }
+        });
+
         try {
-            // open the file. this might involve talking to the seafile server. this will hang until
-            // it is done.
-            Future<ParcelFileDescriptor> future = threadPoolExecutor.submit(new Callable<ParcelFileDescriptor>() {
-
-                @Override
-                public ParcelFileDescriptor call() throws Exception {
-
-                    String path = docIdParser.getPathFromId(documentId);
-                    DataManager dm = createDataManager(documentId);
-                    String repoId = DocumentIdParser.getRepoIdFromId(documentId);
-
-                    // we can assume that the repo is cached because the client has already seen it
-                    SeafRepo repo = dm.getCachedRepoByID(repoId);
-                    if (repo==null)
-                        throw new FileNotFoundException();
-
-                    File f = getFile(signal, dm, repo, path);
-
-                    // return the file to the client.
-                    String parentPath = ProviderUtil.getParentDirFromPath(path);
-                    return makeParcelFileDescriptor(dm, repo.getName(), repoId, parentPath, f, mode);
-                }
-            });
-
             return future.get();
-
         } catch (InterruptedException e) {
             Log.d(DEBUG_TAG, "could not open file", e);
             throw new FileNotFoundException();
@@ -360,7 +359,7 @@ public class SeafileProvider extends DocumentsProvider {
     }
 
     @Override
-    public AssetFileDescriptor openDocumentThumbnail(final String documentId,
+    public AssetFileDescriptor openDocumentThumbnail(String documentId,
                                                      Point sizeHint,
                                                      CancellationSignal signal)
             throws FileNotFoundException {
