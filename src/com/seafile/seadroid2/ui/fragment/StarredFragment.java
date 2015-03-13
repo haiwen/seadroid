@@ -135,7 +135,10 @@ public class StarredFragment extends SherlockListFragment {
         }
         List<SeafStarredFile> starredFiles = getDataManager().getCachedStarredFiles();
         boolean refreshTimeout = getDataManager().isStarredFilesRefreshTimeout();
-        if (mRefreshType==REFRESH_ON_PULL || starredFiles == null || refreshTimeout)  {
+        if (mRefreshType == REFRESH_ON_PULL
+                || mRefreshType == REFRESH_ON_OVERFLOW_MENU
+                || starredFiles == null
+                || refreshTimeout)  {
             ConcurrentAsyncTask.execute(new LoadStarredFilesTask(getDataManager()));
         } else {
             updateAdapterWithStarredFiles(starredFiles);
