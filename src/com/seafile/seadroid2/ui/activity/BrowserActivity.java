@@ -849,8 +849,15 @@ public class BrowserActivity extends SherlockFragmentActivity
             return;
         }
 
-        UploadChoiceDialog dialog = new UploadChoiceDialog();
-        dialog.show(getSupportFragmentManager(), PICK_FILE_DIALOG_FRAGMENT_TAG);
+        // Starting with kitkat (or earlier?), the document picker has integrated image and local file support
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            UploadChoiceDialog dialog = new UploadChoiceDialog();
+            dialog.show(getSupportFragmentManager(), PICK_FILE_DIALOG_FRAGMENT_TAG);
+        } else {
+            Intent target = Utils.createGetContentIntent();
+            Intent intent = Intent.createChooser(target, getString(R.string.choose_file));
+            startActivityForResult(intent, BrowserActivity.PICK_FILE_REQUEST);
+        }
     }
 
     @Override
