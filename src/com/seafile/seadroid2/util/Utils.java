@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
 
+import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -491,6 +492,25 @@ public class Utils {
         // Only return URIs that can be opened with ContentResolver
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         return intent;
+    }
+
+    public static String getFilenamefromUri(Context context, Uri uri) {
+
+        Cursor cursor = context.getContentResolver()
+                .query(uri, null, null, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+
+            // Note it's called "Display Name".  This is
+            // provider-specific, and might not necessarily be the file name.
+            String displayName = cursor.getString(
+                    cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+
+            cursor.close();
+            return displayName;
+        } else {
+            return "unknown filename";
+        }
     }
 
     public static String getPath(Context context, Uri uri) throws URISyntaxException {
