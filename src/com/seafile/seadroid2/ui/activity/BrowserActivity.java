@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,14 +25,13 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
-import android.provider.OpenableColumns;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -893,7 +893,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                             Uri uri = params[0];
                             File tempDir = new File(DataManager.getExternalTempDirectory(), "upload-"+System.currentTimeMillis());
                             tempDir.mkdir();
-                            File tempFile = new File(tempDir, getFilenamefromUri(uri));
+                            File tempFile = new File(tempDir, Utils.getFilenamefromUri(BrowserActivity.this, uri));
                             if (!tempFile.createNewFile()) {
                                 Log.i(DEBUG_TAG, "Temp file already exists: "+tempFile);
                                 return null;
@@ -924,6 +924,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                                 navContext.getRepoName(), navContext.getDirPath(), file.getAbsolutePath());
                     }
                 }.execute(data.getData());
+
             }
             break;
         case CHOOSE_COPY_MOVE_DEST_REQUEST:
@@ -956,26 +957,6 @@ public class BrowserActivity extends SherlockFragmentActivity
             break;
         default:
              break;
-        }
-    }
-
-    private String getFilenamefromUri(Uri uri) {
-
-        // TODO: query depends on API level 16
-        Cursor cursor = getContentResolver()
-                .query(uri, null, null, null, null, null);
-
-        if (cursor != null && cursor.moveToFirst()) {
-
-            // Note it's called "Display Name".  This is
-            // provider-specific, and might not necessarily be the file name.
-            String displayName = cursor.getString(
-                    cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-
-            cursor.close();
-            return displayName;
-        } else {
-            return "unknown filename";
         }
     }
 
