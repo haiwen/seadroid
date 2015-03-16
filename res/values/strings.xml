@@ -300,6 +300,8 @@
     <string name="saf_file_not_downloaded_exception">Couldn\'t download file %s from server.</string>
     <string name="saf_write_diretory_exception">Can\`t open directory for reading/writing.</string>
     <string name="saf_account_not_found_exception">Couldn\'t find Seafile account.</string>
+    <string name="saf_upload_path_not_available">Unable to upload, no path available</string>
+    <string name="saf_failed_to_create_directory">Could not create directory %s</string>
 
     <!-- shibboleth SSO -->
     <string name="shib_server_url_empty">Server is empty!</string>

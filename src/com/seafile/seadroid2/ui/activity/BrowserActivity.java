@@ -889,49 +889,8 @@ public class BrowserActivity extends SherlockFragmentActivity
             break;
         case PICK_FILE_REQUEST:
             if (resultCode == RESULT_OK) {
-
-                Log.i(DEBUG_TAG, "Got uri: "+data.getData());
-
-                new AsyncTask<Uri, Void, File>() {
-
-                    @Override
-                    protected File doInBackground(Uri... params) {
-                        try {
-                            Uri uri = params[0];
-                            File tempDir = new File(DataManager.getExternalTempDirectory(), "upload-"+System.currentTimeMillis());
-                            tempDir.mkdir();
-                            File tempFile = new File(tempDir, Utils.getFilenamefromUri(BrowserActivity.this, uri));
-                            if (!tempFile.createNewFile()) {
-                                Log.i(DEBUG_TAG, "Temp file already exists: "+tempFile);
-                                return null;
-                            }
-
-                            InputStream in = getContentResolver().openInputStream(uri);
-                            OutputStream out = new FileOutputStream(tempFile);
-                            IOUtils.copy(in, out);
-                            in.close();
-                            out.close();
-
-                            return tempFile;
-                        } catch (IOException e) {
-                            Log.i(DEBUG_TAG, "Could not open requested document", e);
-                            return null;
-                        }
-                    }
-
-                    @Override
-                    protected void onPostExecute(File file) {
-                        if (file == null) {
-                            ToastUtils.show(BrowserActivity.this, "Unable to upload, no path available");
-                            return;
-                        }
-                        ToastUtils.show(BrowserActivity.this, getString(R.string.added_to_upload_tasks));
-                        //ToastUtils.show(this, getString(R.string.upload) + " " + Utils.fileNameFromPath(path));
-                        addUploadTask(navContext.getRepoID(),
-                                navContext.getRepoName(), navContext.getDirPath(), file.getAbsolutePath());
-                    }
-                }.execute(data.getData());
-
+                Log.d(DEBUG_TAG, "Got uri: " + data.getData());
+                ConcurrentAsyncTask.execute(new SAFLoadRemoteFileTask(), data.getData());
             }
             break;
         case CHOOSE_COPY_MOVE_DEST_REQUEST:
@@ -966,6 +925,56 @@ public class BrowserActivity extends SherlockFragmentActivity
              break;
         }
     }
+
+    class SAFLoadRemoteFileTask extends AsyncTask<Uri, Void, File> {
+
+        @Override
+        protected File doInBackground(Uri... params) {
+            if (params == null || params.length == 0)
+                return null;
+
+            try {
+                Uri uri = params[0];
+                File tempDir = new File(DataManager.getExternalTempDirectory(), "saf_temp");
+                if (!tempDir.exists()) {
+                    if (!tempDir.mkdir()) {
+                        throw new RuntimeException(getString(R.string.saf_failed_to_create_directory, tempDir.getAbsolutePath()));
+                    }
+                }
+
+                File tempFile = new File(tempDir, Utils.getFilenamefromUri(BrowserActivity.this, uri));
+                if (!tempFile.createNewFile()) {
+                    Log.d(DEBUG_TAG, "Temp file already exists: " + tempFile);
+                    return null;
+                }
+
+                InputStream in = getContentResolver().openInputStream(uri);
+                OutputStream out = new FileOutputStream(tempFile);
+                IOUtils.copy(in, out);
+                in.close();
+                out.close();
+
+                return tempFile;
+            } catch (IOException e) {
+                Log.d(DEBUG_TAG, "Could not open requested document", e);
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(File file) {
+            if (file == null) {
+                ToastUtils.show(BrowserActivity.this, R.string.saf_upload_path_not_available);
+                return;
+            }
+
+            ToastUtils.show(BrowserActivity.this, getString(R.string.added_to_upload_tasks));
+            addUploadTask(navContext.getRepoID(),
+                    navContext.getRepoName(), navContext.getDirPath(), file.getAbsolutePath());
+        }
+    }
+
+
 
     /***************  Navigation *************/
 
