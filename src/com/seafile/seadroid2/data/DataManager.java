@@ -459,9 +459,17 @@ public class DataManager {
 
     public List<SeafStarredFile> getStarredFiles() throws SeafException {
         String starredFiles = sc.getStarredFiles();
-        Log.v(DEBUG_TAG, "Get starred files : " + starredFiles);
+        Log.v(DEBUG_TAG, "Save starred files: " + starredFiles);
+        dbHelper.saveCachedStarredFiles(account,starredFiles);
         return parseStarredFiles(starredFiles);
     }
+
+    public List<SeafStarredFile> getCachedStarredFiles() {
+        String starredFiles = dbHelper.getCachedStarredFiles(account);
+        Log.v(DEBUG_TAG, "Get cached starred files: " + starredFiles);
+        return parseStarredFiles(starredFiles);
+    }
+
 
     public SeafCachedFile getCachedFile(String repoName, String repoID, String path) {
         SeafCachedFile cf = dbHelper.getFileCacheItem(repoID, path, this);
@@ -690,6 +698,18 @@ public class DataManager {
             return true;
         }
         long lastRefreshTime = direntsRefreshTimeMap.get(Utils.pathJoin(repoID, path));
+
+        if (Utils.now() < lastRefreshTime + REFRESH_EXPIRATION_MSECS) {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean isStarredFilesRefreshTimeout() {
+        if (!direntsRefreshTimeMap.containsKey(PULL_TO_REFRESH_LAST_TIME_FOR_STARRED_FRAGMENT)) {
+            return true;
+        }
+        long lastRefreshTime = direntsRefreshTimeMap.get(PULL_TO_REFRESH_LAST_TIME_FOR_STARRED_FRAGMENT);
 
         if (Utils.now() < lastRefreshTime + REFRESH_EXPIRATION_MSECS) {
             return false;

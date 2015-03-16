@@ -133,7 +133,16 @@ public class StarredFragment extends SherlockListFragment {
             mPullRefreshListView.onRefreshComplete();
             Toast.makeText(mActivity, getString(R.string.network_down), Toast.LENGTH_SHORT).show();
         }
-        ConcurrentAsyncTask.execute(new LoadStarredFilesTask(getDataManager()));
+        List<SeafStarredFile> starredFiles = getDataManager().getCachedStarredFiles();
+        boolean refreshTimeout = getDataManager().isStarredFilesRefreshTimeout();
+        if (mRefreshType == REFRESH_ON_PULL
+                || mRefreshType == REFRESH_ON_OVERFLOW_MENU
+                || starredFiles == null
+                || refreshTimeout)  {
+            ConcurrentAsyncTask.execute(new LoadStarredFilesTask(getDataManager()));
+        } else {
+            updateAdapterWithStarredFiles(starredFiles);
+        }
         //mActivity.supportInvalidateOptionsMenu();
     }
 
