@@ -78,8 +78,9 @@ public class AutoUpdateManager implements Runnable, CachedFileChangedListener {
             @Override
             public void run() {
                 for (AutoUpdateInfo info : infos) {
+                    String targetName = new File(info.localPath).getName();
                     txService.addUploadTask(info.account, info.repoID, info.repoName,
-                            info.parentDir, info.localPath, true, true);
+                            info.parentDir, info.localPath, targetName, true, true);
                 }
             }
         });
