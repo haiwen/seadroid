@@ -28,15 +28,15 @@ public abstract class TransferManager {
     /**
      * contains all transfer tasks, including failed, cancelled, finished, transferring, waiting tasks.
      */
-    protected List<TransferTask> allTaskList = new CopyOnWriteArrayList();
+    protected List<TransferTask> allTaskList = Lists.newArrayList();
     /**
      * contains currently transferring tasks
      */
-    protected List<TransferTask> transferringList = new CopyOnWriteArrayList();
+    protected List<TransferTask> transferringList = Lists.newArrayList();
     /**
      * contains waiting tasks
      */
-    protected List<TransferTask> waitingList = new CopyOnWriteArrayList();
+    protected List<TransferTask> waitingList = Lists.newArrayList();
 
     protected TransferTask getTask(int taskID) {
         for (TransferTask task : allTaskList) {
