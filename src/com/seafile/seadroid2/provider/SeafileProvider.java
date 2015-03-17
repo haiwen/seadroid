@@ -20,6 +20,10 @@
 package com.seafile.seadroid2.provider;
 
 import android.annotation.TargetApi;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.database.MatrixCursor;
@@ -30,6 +34,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.provider.DocumentsContract.Document;
@@ -49,6 +54,7 @@ import com.seafile.seadroid2.data.ProgressMonitor;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SeafStarredFile;
+import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;
@@ -110,6 +116,26 @@ public class SeafileProvider extends DocumentsProvider {
     private final BlockingQueue<Runnable> mDecodeWorkQueue = new LinkedBlockingQueue<Runnable>();
     private ThreadPoolExecutor threadPoolExecutor;
 
+    private TransferService txService = null;
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            TransferService.TransferBinder binder = (TransferService.TransferBinder) service;
+
+            synchronized (this) {
+                txService = binder.getService();
+                notifyAll();
+            }
+            Log.d(DEBUG_TAG, "bind TransferService");
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            txService = null;
+        }
+    };
+
     @Override
     public boolean onCreate() {
         docIdParser = new DocumentIdParser(getContext());
@@ -120,6 +146,10 @@ public class SeafileProvider extends DocumentsProvider {
                 KEEP_ALIVE_TIME,
                 KEEP_ALIVE_TIME_UNIT,
                 mDecodeWorkQueue);
+
+        Intent bIntent = new Intent(getContext(), TransferService.class);
+        getContext().bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
+        Log.d(DEBUG_TAG, "try bind TransferService");
 
         return true;
     }
@@ -540,11 +570,26 @@ public class SeafileProvider extends DocumentsProvider {
                             @Override
                             public void run() {
                                 try {
-                                    dm.updateFile(repoName, repoID, parentDir, file.getPath(), null, false);
+
+                                    // wait for the service to bind
+                                    synchronized (mConnection) {
+                                        if (txService == null)
+                                            mConnection.wait();
+                                    }
+
+                                    txService.addTaskToUploadQue(dm.getAccount(),
+                                            repoID,
+                                            repoName,
+                                            parentDir,
+                                            file.getPath(),
+                                            true,
+                                            false);
 
                                     // update cache for parent dir
                                     dm.getDirentsFromServer(repoID, parentDir);
                                 } catch (SeafException e1) {
+                                    Log.d(DEBUG_TAG, "could not upload file: ", e1);
+                                } catch (InterruptedException e1) {
                                     Log.d(DEBUG_TAG, "could not upload file: ", e1);
                                 }
                             }
