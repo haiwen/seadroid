@@ -141,19 +141,20 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
 
     public void addUpdateTask(String repoID, String repoName, String targetDir, String localFilePath) {
+        String targetName = new File(localFilePath).getName();
         if (txService != null) {
-            txService.addTaskToUploadQue(account, repoID, repoName, targetDir, localFilePath, true, true);
+            txService.addTaskToUploadQue(account, repoID, repoName, targetDir, localFilePath, targetName, true, true);
         } else {
-            PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, true, true);
+            PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, targetName, true, true);
             pendingUploads.add(info);
         }
     }
 
-    private void addUploadTask(String repoID, String repoName, String targetDir, String localFilePath) {
+    private void addUploadTask(String repoID, String repoName, String targetDir, String localFilePath, String targetName) {
         if (txService != null) {
-            txService.addTaskToUploadQue(account, repoID, repoName, targetDir, localFilePath, false, true);
+            txService.addTaskToUploadQue(account, repoID, repoName, targetDir, localFilePath, targetName, false, true);
         } else {
-            PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, false, true);
+            PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, targetName, false, true);
             pendingUploads.add(info);
         }
     }
@@ -450,6 +451,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                                             info.repoName,
                                             info.targetDir,
                                             info.localFilePath,
+                                            info.targetName,
                                             info.isUpdate,
                                             info.isCopyToLocal);
             }
@@ -870,8 +872,9 @@ public class BrowserActivity extends SherlockFragmentActivity
                     return;
                 ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
                 for (String path : paths) {
+                    String targetName = new File(path).getName();
                     addUploadTask(navContext.getRepoID(),
-                        navContext.getRepoName(), navContext.getDirPath(), path);
+                        navContext.getRepoName(), navContext.getDirPath(), path, targetName);
                 }
             }
             break;
@@ -882,8 +885,9 @@ public class BrowserActivity extends SherlockFragmentActivity
                     return;
                 ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
                 for (String path : paths) {
+                    String targetName = new File(path).getName();
                     addUploadTask(navContext.getRepoID(),
-                        navContext.getRepoName(), navContext.getDirPath(), path);
+                        navContext.getRepoName(), navContext.getDirPath(), path, targetName);
                 }
             }
             break;
@@ -917,8 +921,9 @@ public class BrowserActivity extends SherlockFragmentActivity
                     return;
                 }
                 ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
+                String targetName = new File(strImgPath).getName();
                 addUploadTask(navContext.getRepoID(),
-                        navContext.getRepoName(), navContext.getDirPath(), strImgPath);
+                        navContext.getRepoName(), navContext.getDirPath(), strImgPath, targetName);
             }
             break;
         default:
@@ -926,10 +931,10 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
     }
 
-    class SAFLoadRemoteFileTask extends AsyncTask<Uri, Void, File> {
+    class SAFLoadRemoteFileTask extends AsyncTask<Uri, Void, String[]> {
 
         @Override
-        protected File doInBackground(Uri... params) {
+        protected String[] doInBackground(Uri... params) {
             if (params == null || params.length == 0)
                 return null;
 
@@ -942,7 +947,8 @@ public class BrowserActivity extends SherlockFragmentActivity
                     }
                 }
 
-                File tempFile = new File(tempDir, Utils.getFilenamefromUri(BrowserActivity.this, uri));
+                String targetName = Utils.getFilenamefromUri(BrowserActivity.this ,uri);
+                File tempFile = new File(tempDir, "upload-" + System.currentTimeMillis());
                 if (!tempFile.createNewFile()) {
                     Log.d(DEBUG_TAG, "Temp file already exists: " + tempFile);
                     return null;
@@ -954,7 +960,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                 in.close();
                 out.close();
 
-                return tempFile;
+                return new String[] {tempFile.getAbsolutePath(), targetName};
             } catch (IOException e) {
                 Log.d(DEBUG_TAG, "Could not open requested document", e);
                 return null;
@@ -962,15 +968,19 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
 
         @Override
-        protected void onPostExecute(File file) {
-            if (file == null) {
+        protected void onPostExecute(String... params) {
+
+            if (params == null) {
                 ToastUtils.show(BrowserActivity.this, R.string.saf_upload_path_not_available);
                 return;
             }
 
+            File file = new File(params[0]);
+            String targetName = params[1];
+
             ToastUtils.show(BrowserActivity.this, getString(R.string.added_to_upload_tasks));
             addUploadTask(navContext.getRepoID(),
-                    navContext.getRepoName(), navContext.getDirPath(), file.getAbsolutePath());
+                    navContext.getRepoName(), navContext.getDirPath(), file.getAbsolutePath(), targetName);
         }
     }
 

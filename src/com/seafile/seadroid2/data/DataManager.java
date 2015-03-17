@@ -500,24 +500,24 @@ public class DataManager {
         sc.setPassword(repoID, passwd);
     }
 
-    public void uploadFile(String repoName, String repoID, String dir, String filePath,
+    public void uploadFile(String repoName, String repoID, String dir, String filePath, String targetName,
             ProgressMonitor monitor, boolean isCopyToLocal) throws SeafException {
-        uploadFileCommon(repoName, repoID, dir, filePath, monitor, false, isCopyToLocal);
+        uploadFileCommon(repoName, repoID, dir, filePath, targetName, monitor, false, isCopyToLocal);
     }
 
-    public void updateFile(String repoName, String repoID, String dir, String filePath,
+    public void updateFile(String repoName, String repoID, String dir, String filePath, String targetName,
             ProgressMonitor monitor, boolean isCopyToLocal) throws SeafException {
-        uploadFileCommon(repoName, repoID, dir, filePath, monitor, true, isCopyToLocal);
+        uploadFileCommon(repoName, repoID, dir, filePath, targetName, monitor, true, isCopyToLocal);
     }
 
     private void uploadFileCommon(String repoName, String repoID, String dir,
-                                  String filePath, ProgressMonitor monitor,
+                                  String filePath, String targetName, ProgressMonitor monitor,
                                   boolean isUpdate, boolean isCopyToLocal) throws SeafException {
         String newFileID = null;
         if (isUpdate) {
-            newFileID  = sc.updateFile(repoID, dir, filePath, monitor);
+            newFileID  = sc.updateFile(repoID, dir, filePath, targetName, monitor);
         } else {
-            newFileID  = sc.uploadFile(repoID, dir, filePath, monitor);
+            newFileID  = sc.uploadFile(repoID, dir, filePath, targetName, monitor);
         }
 
         if (newFileID == null || newFileID.length() == 0) {
@@ -525,7 +525,7 @@ public class DataManager {
         }
 
         File srcFile = new File(filePath);
-        String path = Utils.pathJoin(dir, srcFile.getName());
+        String path = Utils.pathJoin(dir, targetName);
         File fileInRepo = getLocalRepoFile(repoName, repoID, path);
 
         if (isCopyToLocal) {
