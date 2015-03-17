@@ -72,13 +72,15 @@ public abstract class TransferManager {
     protected void addTaskToQue(TransferTask task) {
         if (!hasInQue(task)) {
             // remove the cancelled or failed task if any
-            allTaskList.remove(task);
+            synchronized (this) {
+                allTaskList.remove(task);
 
-            // add new created task
-            allTaskList.add(task);
+                // add new created task
+                allTaskList.add(task);
 
-            // Log.d(DEBUG_TAG, "add Que  " + taskID + " " + repoName + path);
-            waitingList.add(task);
+                // Log.d(DEBUG_TAG, "add Que  " + taskID + " " + repoName + path);
+                waitingList.add(task);
+            }
             doNext();
         }
     }
@@ -88,10 +90,12 @@ public abstract class TransferManager {
                 && transferringList.size() < TRANSFER_MAX_COUNT) {
             Log.d(DEBUG_TAG, "do next!");
 
-            TransferTask task = waitingList.remove(0);
-            transferringList.add(task);
+            synchronized (this) {
+                TransferTask task = waitingList.remove(0);
+                transferringList.add(task);
 
-            ConcurrentAsyncTask.execute(task);
+                ConcurrentAsyncTask.execute(task);
+            }
         }
     }
 
@@ -112,22 +116,28 @@ public abstract class TransferManager {
             return;
 
         if (!waitingList.isEmpty()) {
-            waitingList.remove(toCancel);
+            synchronized (this) {
+                waitingList.remove(toCancel);
+            }
         }
 
         if (!transferringList.isEmpty()) {
-            transferringList.remove(toCancel);
+            synchronized (this) {
+                transferringList.remove(toCancel);
+            }
         }
     }
 
     public void removeInAllTaskList(int taskID) {
         TransferTask task = getTask(taskID);
         if (task != null) {
-            allTaskList.remove(task);
+            synchronized (this) {
+                allTaskList.remove(task);
+            }
         }
     }
 
-    public void removeByState(TaskState taskState) {
+    public synchronized void removeByState(TaskState taskState) {
         Iterator<TransferTask> iter = allTaskList.iterator();
         while (iter.hasNext()) {
             TransferTask task = iter.next();
@@ -144,7 +154,7 @@ public abstract class TransferManager {
         }
     }
 
-    public List<? extends TransferTaskInfo> getAllTaskInfoList() {
+    public synchronized List<? extends TransferTaskInfo> getAllTaskInfoList() {
         ArrayList<TransferTaskInfo> infos = Lists.newArrayList();
         for (TransferTask task : allTaskList) {
             infos.add(task.getTaskInfo());
