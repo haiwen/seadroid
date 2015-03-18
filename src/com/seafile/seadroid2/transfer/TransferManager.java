@@ -38,7 +38,7 @@ public abstract class TransferManager {
      */
     protected List<TransferTask> waitingList = Lists.newArrayList();
 
-    protected TransferTask getTask(int taskID) {
+    protected synchronized TransferTask getTask(int taskID) {
         for (TransferTask task : allTaskList) {
             if (task.getTaskID() == taskID) {
                 return task;
@@ -56,7 +56,7 @@ public abstract class TransferManager {
         return null;
     }
 
-    private boolean hasInQue(TransferTask transferTask) {
+    private synchronized boolean hasInQue(TransferTask transferTask) {
         if (waitingList.contains(transferTask)) {
             // Log.d(DEBUG_TAG, "in  Que  " + taskID + " " + repoName + path + "in waiting list");
             return true;
@@ -85,17 +85,15 @@ public abstract class TransferManager {
         }
     }
 
-    public void doNext() {
+    public synchronized void doNext() {
         if (!waitingList.isEmpty()
                 && transferringList.size() < TRANSFER_MAX_COUNT) {
             Log.d(DEBUG_TAG, "do next!");
 
-            synchronized (this) {
-                TransferTask task = waitingList.remove(0);
-                transferringList.add(task);
+            TransferTask task = waitingList.remove(0);
+            transferringList.add(task);
 
-                ConcurrentAsyncTask.execute(task);
-            }
+            ConcurrentAsyncTask.execute(task);
         }
     }
 
@@ -109,22 +107,18 @@ public abstract class TransferManager {
         remove(taskID);
     }
 
-    protected void remove(int taskID) {
+    protected synchronized void remove(int taskID) {
 
         TransferTask toCancel = getTask(taskID);
         if (toCancel == null)
             return;
 
         if (!waitingList.isEmpty()) {
-            synchronized (this) {
-                waitingList.remove(toCancel);
-            }
+            waitingList.remove(toCancel);
         }
 
         if (!transferringList.isEmpty()) {
-            synchronized (this) {
-                transferringList.remove(toCancel);
-            }
+            transferringList.remove(toCancel);
         }
     }
 
