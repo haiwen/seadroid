@@ -2,6 +2,7 @@ package com.seafile.seadroid2.data;
 
 import java.util.Date;
 
+import com.seafile.seadroid2.util.Utils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -16,7 +17,7 @@ public class SeafRepo implements SeafItem {
     public String name;
     public String description;
     public String owner;
-    public Date mtime;    // the last modification time
+    public long mtime;    // the last modification time
 
     public boolean isGroupRepo;
     public boolean encrypted;
@@ -33,8 +34,7 @@ public class SeafRepo implements SeafItem {
             repo.description = obj.getString("desc");
             repo.owner = obj.getString("owner");
             repo.permission = obj.getString("permission");
-            long mt = obj.getLong("mtime");
-            repo.mtime = new Date(mt);
+            repo.mtime = obj.getLong("mtime");
             repo.encrypted = obj.getBoolean("encrypted");
             repo.root = obj.getString("root");
             repo.size = obj.getLong("size");
@@ -70,7 +70,7 @@ public class SeafRepo implements SeafItem {
 
     @Override
     public String getSubtitle() {
-        return description;
+        return Utils.translateCommitTime(mtime * 1000);
     }
 
     @Override
