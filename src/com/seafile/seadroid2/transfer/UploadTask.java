@@ -16,7 +16,6 @@ public class UploadTask extends TransferTask {
     public static final String DEBUG_TAG = "UploadTask";
 
     private String dir;   // parent dir
-    private String targetName;
     private boolean isUpdate;  // true if update an existing file
     private boolean isCopyToLocal; // false to turn off copy operation
     private UploadStateListener uploadStateListener;
@@ -24,14 +23,13 @@ public class UploadTask extends TransferTask {
     private DataManager dataManager;
 
     public UploadTask(int taskID, Account account, String repoID, String repoName,
-                      String dir, String filePath, String targetName, boolean isUpdate,
-                      boolean isCopyToLocal, UploadStateListener uploadStateListener) {
+                      String dir, String filePath, boolean isUpdate, boolean isCopyToLocal,
+                      UploadStateListener uploadStateListener) {
         super(taskID, account, repoName, repoID, filePath);
         this.dir = dir;
         this.isUpdate = isUpdate;
         this.isCopyToLocal = isCopyToLocal;
         this.uploadStateListener = uploadStateListener;
-        this.targetName = targetName;
 
         this.totalSize = new File(filePath).length();
         this.finished = 0;
@@ -82,10 +80,10 @@ public class UploadTask extends TransferTask {
                 }
             };
             if (isUpdate) {
-                dataManager.updateFile(repoName, repoID, dir, path, targetName, monitor, isCopyToLocal);
+                dataManager.updateFile(repoName, repoID, dir, path, monitor, isCopyToLocal);
             } else {
                 Log.d(DEBUG_TAG, "Upload path: " + path);
-                dataManager.uploadFile(repoName, repoID, dir, path, targetName, monitor, isCopyToLocal);
+                dataManager.uploadFile(repoName, repoID, dir, path, monitor, isCopyToLocal);
             }
         } catch (SeafException e) {
             Log.d(DEBUG_TAG, "Upload exception " + e.getCode() + " " + e.getMessage());
@@ -118,10 +116,6 @@ public class UploadTask extends TransferTask {
 
     public String getDir() {
         return dir;
-    }
-
-    public String getTargetName() {
-        return targetName;
     }
 
     public boolean isCopyToLocal() {

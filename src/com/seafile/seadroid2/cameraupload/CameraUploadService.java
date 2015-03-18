@@ -142,8 +142,7 @@ public class CameraUploadService extends Service {
             for (PendingUploadInfo info : pendingUploads) {
                mTransferService.addTaskToUploadQue(account, info.repoID,
                                         info.repoName, info.targetDir,
-                                        info.localFilePath, info.targetName,
-                                        info.isUpdate, info.isCopyToLocal);
+                                        info.localFilePath, info.isUpdate, info.isCopyToLocal);
             }
             pendingUploads.clear();
         }
@@ -155,13 +154,12 @@ public class CameraUploadService extends Service {
     };
 
     private void addCameraUploadTask(String repoID, String repoName, String targetDir, String localFilePath) {
-        String targetName = new File(localFilePath).getName();
         if (mTransferService != null) {
             // set the last parameter "isUpdate" to true to stop copying file into sd-card
             // if passed "false" will cause OOM when uploading photos
-            mTransferService.addTaskToUploadQue(account, repoID, repoName, targetDir, localFilePath, targetName, false, false);
+            mTransferService.addTaskToUploadQue(account, repoID, repoName, targetDir, localFilePath, false, false);
         } else {
-            PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, targetName, false, false);
+            PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, false, false);
             pendingUploads.add(info);
         }
     }

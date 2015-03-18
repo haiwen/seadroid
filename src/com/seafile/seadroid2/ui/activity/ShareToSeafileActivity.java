@@ -21,7 +21,6 @@ import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.util.Utils;
 
-import java.io.File;
 import java.util.ArrayList;
 
 public class ShareToSeafileActivity extends SherlockFragmentActivity {
@@ -113,9 +112,8 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
                 TransferBinder binder = (TransferBinder) service;
                 mTxService = binder.getService();
                 for (String path : localPath) {
-                    String targetName = new File(path).getName();
                     mTxService.addUploadTask(account, repoID, repoName, targetDir,
-                            path, targetName, false, false);
+                            path, false, false);
                     Log.d(DEBUG_TAG, path + " uploaded");
                 }
                 ToastUtils.show(ShareToSeafileActivity.this, R.string.upload_started);

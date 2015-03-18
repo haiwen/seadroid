@@ -517,30 +517,30 @@ public class SeafConnection {
     /**
      * Upload a file to update an existing file
      */
-    public String updateFile(String repoID, String dir, String filePath, String targetName, ProgressMonitor monitor)
+    public String updateFile(String repoID, String dir, String filePath, ProgressMonitor monitor)
                                 throws SeafException {
         try {
             String url = getUploadLink(repoID, true);
-            return uploadFileCommon(url, repoID, dir, filePath, targetName, monitor, true);
+            return uploadFileCommon(url, repoID, dir, filePath, monitor, true);
         } catch (SeafException e) {
             // do again
             String url = getUploadLink(repoID, true);
-            return uploadFileCommon(url, repoID, dir, filePath, targetName, monitor, true);
+            return uploadFileCommon(url, repoID, dir, filePath, monitor, true);
         }
     }
 
     /**
      * Upload a new file
      */
-    public String uploadFile(String repoID, String dir, String filePath, String targetName, ProgressMonitor monitor)
+    public String uploadFile(String repoID, String dir, String filePath, ProgressMonitor monitor)
                             throws SeafException {
         try {
             String url = getUploadLink(repoID, false);
-            return uploadFileCommon(url, repoID, dir, filePath, targetName, monitor, false);
+            return uploadFileCommon(url, repoID, dir, filePath, monitor, false);
         } catch (SeafException e) {
             // do again
             String url = getUploadLink(repoID, false);
-            return uploadFileCommon(url, repoID, dir, filePath, targetName, monitor, false);
+            return uploadFileCommon(url, repoID, dir, filePath, monitor, false);
         }
     }
 
@@ -552,7 +552,7 @@ public class SeafConnection {
      * Upload a file to seafile httpserver
      */
     private String uploadFileCommon(String link, String repoID, String dir,
-                                     String filePath, String targetName, ProgressMonitor monitor, boolean update)
+                                     String filePath, ProgressMonitor monitor, boolean update)
                                         throws SeafException {
 
         try {
@@ -586,7 +586,7 @@ public class SeafConnection {
                 builder.append("Content-Disposition: form-data; name=\"target_file\"" + CRLF);
                 // line 3, an empty line
                 builder.append(CRLF);
-                String targetFilePath = Utils.pathJoin(dir, targetName);
+                String targetFilePath = Utils.pathJoin(dir, file.getName());
                 // line 4
                 builder.append(targetFilePath + CRLF);
                 targetFileParam = builder.toString().getBytes("UTF-8");
@@ -609,7 +609,7 @@ public class SeafConnection {
             // line 1
             String l1 = TWO_HYPENS + BOUNDARY + CRLF;
             // line 2,
-            String contentDisposition = "Content-Disposition: form-data; name=\"file\";filename=\"" + targetName + "\"" + CRLF;
+            String contentDisposition = "Content-Disposition: form-data; name=\"file\";filename=\"" + file.getName() + "\"" + CRLF;
             byte[] l2 = contentDisposition.getBytes("UTF-8");
             // line 3
             String l3 = "Content-Type: text/plain" + CRLF;
