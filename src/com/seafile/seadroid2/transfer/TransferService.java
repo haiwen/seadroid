@@ -46,8 +46,8 @@ public class TransferService extends Service {
 
     // -------------------------- upload task --------------------//
     public void addTaskToUploadQue(Account account, String repoID, String repoName, String dir,
-                             String filePath, String targetName, boolean isUpdate, boolean isCopyToLocal) {
-        uploadTaskManager.addTaskToQue(account, repoID, repoName, dir, filePath, targetName, isUpdate, isCopyToLocal);
+                             String filePath, boolean isUpdate, boolean isCopyToLocal) {
+        uploadTaskManager.addTaskToQue(account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal);
     }
 
     /**
@@ -64,8 +64,8 @@ public class TransferService extends Service {
      * @return
      */
     public void addUploadTask(Account account, String repoID, String repoName, String dir,
-            String filePath, String targetName, boolean isUpdate, boolean isCopyToLocal) {
-        addTaskToUploadQue(account, repoID, repoName, dir, filePath, targetName, isUpdate, isCopyToLocal);
+            String filePath, boolean isUpdate, boolean isCopyToLocal) {
+        addTaskToUploadQue(account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal);
     }
 
     public UploadTaskInfo getUploadTaskInfo(int taskID) {

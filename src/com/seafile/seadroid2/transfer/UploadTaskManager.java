@@ -19,9 +19,9 @@ public class UploadTaskManager extends TransferManager implements UploadStateLis
     public static final String BROADCAST_FILE_UPLOAD_PROGRESS = "uploadProgress";
     public static final String BROADCAST_FILE_UPLOAD_CANCELLED = "uploadCancelled";
 
-    public void addTaskToQue(Account account, String repoID, String repoName, String dir, String filePath, String targetName, boolean isUpdate, boolean isCopyToLocal) {
+    public void addTaskToQue(Account account, String repoID, String repoName, String dir, String filePath, boolean isUpdate, boolean isCopyToLocal) {
         // create a new one to avoid IllegalStateException
-        UploadTask task = new UploadTask(++notificationID, account, repoID, repoName, dir, filePath, targetName, isUpdate, isCopyToLocal, this);
+        UploadTask task = new UploadTask(++notificationID, account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal, this);
         addTaskToQue(task);
     }
 
@@ -40,7 +40,7 @@ public class UploadTaskManager extends TransferManager implements UploadStateLis
         UploadTask task = (UploadTask) getTask(taskID);
         if (task == null || !task.canRetry())
             return;
-        addTaskToQue(task.getAccount(), task.getRepoID(), task.getRepoName(), task.getDir(), task.getPath(), task.getTargetName(), task.isUpdate(), task.isCopyToLocal());
+        addTaskToQue(task.getAccount(), task.getRepoID(), task.getRepoName(), task.getDir(), task.getPath(), task.isUpdate(), task.isCopyToLocal());
     }
 
     // -------------------------- listener method --------------------//
