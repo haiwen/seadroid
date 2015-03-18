@@ -42,7 +42,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.text.ClipboardManager;
 import android.util.Log;
-import android.util.Pair;
 import android.view.KeyEvent;
 import android.webkit.MimeTypeMap;
 
@@ -932,10 +931,10 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
     }
 
-    class SAFLoadRemoteFileTask extends AsyncTask<Uri, Void, Pair<File, String>> {
+    class SAFLoadRemoteFileTask extends AsyncTask<Uri, Void, String[]> {
 
         @Override
-        protected Pair<File, String> doInBackground(Uri... params) {
+        protected String[] doInBackground(Uri... params) {
             if (params == null || params.length == 0)
                 return null;
 
@@ -961,7 +960,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                 in.close();
                 out.close();
 
-                return new Pair<File, String>(tempFile, targetName);
+                return new String[] {tempFile.getAbsolutePath(), targetName};
             } catch (IOException e) {
                 Log.d(DEBUG_TAG, "Could not open requested document", e);
                 return null;
@@ -969,15 +968,15 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
 
         @Override
-        protected void onPostExecute(Pair<File, String> params) {
+        protected void onPostExecute(String... params) {
 
             if (params == null) {
                 ToastUtils.show(BrowserActivity.this, R.string.saf_upload_path_not_available);
                 return;
             }
 
-            File file = params.first;
-            String targetName = params.second;
+            File file = new File(params[0]);
+            String targetName = params[1];
 
             ToastUtils.show(BrowserActivity.this, getString(R.string.added_to_upload_tasks));
             addUploadTask(navContext.getRepoID(),
