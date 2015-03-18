@@ -19,6 +19,13 @@
 
 package com.seafile.seadroid2.provider;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import android.annotation.TargetApi;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
@@ -26,7 +33,6 @@ import android.database.MatrixCursor;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CancellationSignal;
@@ -49,14 +55,6 @@ import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.ProgressMonitor;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * DocumentProvider for the Storage Access Framework.
@@ -488,7 +486,7 @@ public class SeafileProvider extends DocumentsProvider {
         row.add(Document.COLUMN_DISPLAY_NAME, repo.getTitle());
         row.add(Document.COLUMN_SIZE, repo.size);
         row.add(Document.COLUMN_MIME_TYPE, DocumentsContract.Document.MIME_TYPE_DIR);
-        row.add(Document.COLUMN_LAST_MODIFIED, new Date(repo.mtime).getTime() * 1000);
+        row.add(Document.COLUMN_LAST_MODIFIED, repo.mtime * 1000);
         row.add(Document.COLUMN_FLAGS, 0);
     }
 
