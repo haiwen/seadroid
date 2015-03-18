@@ -939,10 +939,6 @@ public class BrowserActivity extends SherlockFragmentActivity
             if (params == null || params.length == 0)
                 return null;
 
-            InputStream in = null;
-            OutputStream out = null;
-            Pair<File, String> ret = null;
-
             try {
                 Uri uri = params[0];
                 File tempDir = new File(DataManager.getExternalTempDirectory(), "saf_temp");
@@ -955,23 +951,21 @@ public class BrowserActivity extends SherlockFragmentActivity
                 String targetName = Utils.getFilenamefromUri(BrowserActivity.this ,uri);
                 File tempFile = new File(tempDir, "upload-" + System.currentTimeMillis());
                 if (!tempFile.createNewFile()) {
-                    throw new RuntimeException("could not create temporary file");
+                    Log.d(DEBUG_TAG, "Temp file already exists: " + tempFile);
+                    return null;
                 }
 
-                in = getContentResolver().openInputStream(uri);
-                out = new FileOutputStream(tempFile);
+                InputStream in = getContentResolver().openInputStream(uri);
+                OutputStream out = new FileOutputStream(tempFile);
                 IOUtils.copy(in, out);
+                in.close();
+                out.close();
 
-                ret = new Pair<File, String>(tempFile, targetName);
+                return new Pair<File, String>(tempFile, targetName);
             } catch (IOException e) {
                 Log.d(DEBUG_TAG, "Could not open requested document", e);
-            } catch (RuntimeException e) {
-                Log.d(DEBUG_TAG, "Could not open requested document", e);
-            } finally {
-                IOUtils.closeQuietly(in);
-                IOUtils.closeQuietly(out);
+                return null;
             }
-            return ret;
         }
 
         @Override
