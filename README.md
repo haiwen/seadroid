@@ -4,6 +4,11 @@ The application has been published onto Google Play for easy access:
 
 [![Get it on Google Play](http://www.android.com/images/brand/get_it_on_play_logo_small.png)](https://play.google.com/store/apps/details?id=com.seafile.seadroid2)
 
+
+## Contributors
+
+See [Contributors Graph](https://github.com/haiwen/seadroid/graphs/contributors)
+
 ## Build the APK
 
 * Make sure you have installed Java Development Kit 6 or 7
