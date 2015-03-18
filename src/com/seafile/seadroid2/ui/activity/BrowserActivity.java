@@ -933,32 +933,39 @@ public class BrowserActivity extends SherlockFragmentActivity
             if (params == null || params.length == 0)
                 return null;
 
+            Uri uri = params[0];
+            File tempDir = new File(DataManager.getExternalTempDirectory(), "saf_temp");
+            File tempFile = new File(tempDir, Utils.getFilenamefromUri(BrowserActivity.this, uri));
+
+            InputStream in = null;
+            OutputStream out = null;
+
             try {
-                Uri uri = params[0];
-                File tempDir = new File(DataManager.getExternalTempDirectory(), "saf_temp");
                 if (!tempDir.exists()) {
                     if (!tempDir.mkdir()) {
                         throw new RuntimeException(getString(R.string.saf_failed_to_create_directory, tempDir.getAbsolutePath()));
                     }
                 }
 
-                File tempFile = new File(tempDir, Utils.getFilenamefromUri(BrowserActivity.this, uri));
                 if (!tempFile.createNewFile()) {
-                    Log.d(DEBUG_TAG, "Temp file already exists: " + tempFile);
-                    return null;
+                    throw new RuntimeException("could not create temporary file");
                 }
 
-                InputStream in = getContentResolver().openInputStream(uri);
-                OutputStream out = new FileOutputStream(tempFile);
+                in = getContentResolver().openInputStream(uri);
+                out = new FileOutputStream(tempFile);
                 IOUtils.copy(in, out);
-                in.close();
-                out.close();
 
-                return tempFile;
             } catch (IOException e) {
                 Log.d(DEBUG_TAG, "Could not open requested document", e);
-                return null;
+                tempFile = null;
+            } catch (RuntimeException e) {
+                Log.d(DEBUG_TAG, "Could not open requested document", e);
+                tempFile = null;
+            } finally {
+                IOUtils.closeQuietly(in);
+                IOUtils.closeQuietly(out);
             }
+            return tempFile;
         }
 
         @Override
