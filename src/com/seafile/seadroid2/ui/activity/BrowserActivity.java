@@ -50,15 +50,12 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.seafile.seadroid2.*;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
 import com.seafile.seadroid2.data.*;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
-import com.seafile.seadroid2.gallery.Util;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.transfer.*;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
@@ -105,7 +102,8 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "password_fragment";
     public static final String CHOOSE_APP_DIALOG_FRAGMENT_TAG = "choose_app_fragment";
     public static final String PICK_FILE_DIALOG_FRAGMENT_TAG = "pick_file_fragment";
-    
+
+    private static ArrayList<ServerInfo> serverInfoList = Lists.newArrayList();
     private static final int[] ICONS = new int[] {
         R.drawable.tab_library, R.drawable.tab_starred,
         R.drawable.tab_activity
@@ -311,8 +309,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
 
     private void fetchServerInfo() {
-        boolean proEdition = isServerProEdition();
-        if (proEdition)
+        if (isServerProEdition())
             return;
         else {
             // hide Activity tab and search menu
@@ -348,7 +345,6 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         @Override
         protected void onPostExecute(ServerInfo serverInfo) {
-            //super.onPostExecute(aVoid);
             if (serverInfo == null)
                 return;
 
@@ -362,21 +358,28 @@ public class BrowserActivity extends SherlockFragmentActivity
                     menuSearch.setVisible(true);
             }
 
-            saveServerProEdition(account.getServer(), serverInfo.isProEdition());
+            serverInfo.setUrl(account.getServer());
+            saveServerProEdition(serverInfo);
         }
     }
 
-    private static Map<String, Boolean> serverInfoMap = Maps.newHashMap();
-
-    private void saveServerProEdition(String serverIdentifier, boolean isPorEdition) {
-        serverInfoMap.put(serverIdentifier, isPorEdition);
+    private void saveServerProEdition(ServerInfo serverInfo) {
+        if (!serverInfoList.contains(serverInfo))
+            serverInfoList.add(serverInfo);
     }
 
     private boolean isServerProEdition() {
-        if (!serverInfoMap.containsKey(account.getServer()))
+        if (serverInfoList.isEmpty()
+                || account == null)
             return false;
-        else
-            return serverInfoMap.get(account.getServer());
+
+        for (ServerInfo si : serverInfoList) {
+            if (si.getUrl().equals(account.getServer()))
+                return si.isProEdition();
+        }
+
+        return false;
+
     }
 
     class SeafileTabsAdapter extends FragmentPagerAdapter implements
@@ -454,8 +457,6 @@ public class BrowserActivity extends SherlockFragmentActivity
     @Override
     protected void onResume() {
         super.onResume();
-
-        fetchServerInfo();
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         boolean isUploadStart = settings.getBoolean(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY, false);
