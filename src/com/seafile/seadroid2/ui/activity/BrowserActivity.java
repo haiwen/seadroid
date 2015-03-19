@@ -1,6 +1,10 @@
 package com.seafile.seadroid2.ui.activity;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -23,6 +27,7 @@ import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -82,6 +87,8 @@ import com.seafile.seadroid2.ui.fragment.StarredFragment;
 import com.seafile.seadroid2.util.Utils;
 import com.viewpagerindicator.IconPagerAdapter;
 import com.viewpagerindicator.TabPageIndicator;
+
+import org.apache.commons.io.IOUtils;
 
 public class BrowserActivity extends SherlockFragmentActivity
         implements ReposFragment.OnFileSelectedListener, StarredFragment.OnStarredFileSelectedListener, OnBackStackChangedListener {
@@ -842,8 +849,15 @@ public class BrowserActivity extends SherlockFragmentActivity
             return;
         }
 
-        UploadChoiceDialog dialog = new UploadChoiceDialog();
-        dialog.show(getSupportFragmentManager(), PICK_FILE_DIALOG_FRAGMENT_TAG);
+        // Starting with kitkat (or earlier?), the document picker has integrated image and local file support
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            UploadChoiceDialog dialog = new UploadChoiceDialog();
+            dialog.show(getSupportFragmentManager(), PICK_FILE_DIALOG_FRAGMENT_TAG);
+        } else {
+            Intent target = Utils.createGetContentIntent();
+            Intent intent = Intent.createChooser(target, getString(R.string.choose_file));
+            startActivityForResult(intent, BrowserActivity.PICK_FILE_REQUEST);
+        }
     }
 
     @Override
@@ -875,28 +889,8 @@ public class BrowserActivity extends SherlockFragmentActivity
             break;
         case PICK_FILE_REQUEST:
             if (resultCode == RESULT_OK) {
-                if (!Utils.isNetworkOn()) {
-                    ToastUtils.show(this, R.string.network_down);
-                    return;
-                }
-
-                Uri uri = data.getData();
-                String path;
-                try {
-                    path = Utils.getPath(this, uri);
-                } catch (URISyntaxException e) {
-                    e.printStackTrace();
-                    return;
-                }
-                if(path == null) {
-                    ToastUtils.show(this, "Unable to upload, no path available");
-                    Log.i(DEBUG_TAG, "Pick file request did not return a path");
-                    return;
-                }
-                ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
-                //ToastUtils.show(this, getString(R.string.upload) + " " + Utils.fileNameFromPath(path));
-                addUploadTask(navContext.getRepoID(),
-                    navContext.getRepoName(), navContext.getDirPath(), path);
+                Log.d(DEBUG_TAG, "Got uri: " + data.getData());
+                ConcurrentAsyncTask.execute(new SAFLoadRemoteFileTask(), data.getData());
             }
             break;
         case CHOOSE_COPY_MOVE_DEST_REQUEST:
@@ -931,6 +925,63 @@ public class BrowserActivity extends SherlockFragmentActivity
              break;
         }
     }
+
+    class SAFLoadRemoteFileTask extends AsyncTask<Uri, Void, File> {
+
+        @Override
+        protected File doInBackground(Uri... params) {
+            if (params == null || params.length == 0)
+                return null;
+
+            Uri uri = params[0];
+            File tempDir = new File(DataManager.getExternalTempDirectory(), "saf_temp");
+            File tempFile = new File(tempDir, Utils.getFilenamefromUri(BrowserActivity.this, uri));
+
+            InputStream in = null;
+            OutputStream out = null;
+
+            try {
+                if (!tempDir.exists()) {
+                    if (!tempDir.mkdir()) {
+                        throw new RuntimeException(getString(R.string.saf_failed_to_create_directory, tempDir.getAbsolutePath()));
+                    }
+                }
+
+                if (!tempFile.createNewFile()) {
+                    throw new RuntimeException("could not create temporary file");
+                }
+
+                in = getContentResolver().openInputStream(uri);
+                out = new FileOutputStream(tempFile);
+                IOUtils.copy(in, out);
+
+            } catch (IOException e) {
+                Log.d(DEBUG_TAG, "Could not open requested document", e);
+                tempFile = null;
+            } catch (RuntimeException e) {
+                Log.d(DEBUG_TAG, "Could not open requested document", e);
+                tempFile = null;
+            } finally {
+                IOUtils.closeQuietly(in);
+                IOUtils.closeQuietly(out);
+            }
+            return tempFile;
+        }
+
+        @Override
+        protected void onPostExecute(File file) {
+            if (file == null) {
+                ToastUtils.show(BrowserActivity.this, R.string.saf_upload_path_not_available);
+                return;
+            }
+
+            ToastUtils.show(BrowserActivity.this, getString(R.string.added_to_upload_tasks));
+            addUploadTask(navContext.getRepoID(),
+                    navContext.getRepoName(), navContext.getDirPath(), file.getAbsolutePath());
+        }
+    }
+
+
 
     /***************  Navigation *************/
 
