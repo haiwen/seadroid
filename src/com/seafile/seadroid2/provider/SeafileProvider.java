@@ -65,6 +65,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -392,6 +393,9 @@ public class SeafileProvider extends DocumentsProvider {
         } catch (InterruptedException e) {
             Log.d(DEBUG_TAG, "openDocument cancelled download");
             throw new FileNotFoundException();
+        } catch (CancellationException e) {
+            Log.d(DEBUG_TAG, "openDocumentThumbnail cancelled download");
+            throw new FileNotFoundException();
         } catch (ExecutionException e) {
             Log.d(DEBUG_TAG, "could not open file", e);
             throw new FileNotFoundException();
@@ -468,6 +472,9 @@ public class SeafileProvider extends DocumentsProvider {
         try {
             return future.get();
         } catch (InterruptedException e) {
+            Log.d(DEBUG_TAG, "openDocumentThumbnail cancelled download");
+            throw new FileNotFoundException();
+        } catch (CancellationException e) {
             Log.d(DEBUG_TAG, "openDocumentThumbnail cancelled download");
             throw new FileNotFoundException();
         } catch (ExecutionException e) {
