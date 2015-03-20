@@ -251,7 +251,7 @@ public class SeafileProvider extends DocumentsProvider {
 
         Log.d(DEBUG_TAG, "queryDocument: " + documentId);
 
-        String[] netProjection = 
+        String[] netProjection =
                 netProjection(projection, SUPPORTED_DOCUMENT_PROJECTION);
         MatrixCursor result = new MatrixCursor(netProjection);
 
@@ -267,7 +267,7 @@ public class SeafileProvider extends DocumentsProvider {
 
         // the android API asks us to be quick, so just use the cache.
         SeafRepo repo = dm.getCachedRepoByID(repoId);
-        if (repo==null)
+        if (repo == null)
             throw new FileNotFoundException();
 
         String path = DocumentIdParser.getPathFromId(documentId);
@@ -475,14 +475,15 @@ public class SeafileProvider extends DocumentsProvider {
             // first check if target already exist. if yes, abort
             for (SeafDirent e: list) {
                 if (e.getTitle().equals(displayName)) {
-                    throw new SeafException(0, "File exists already");
+                    throw new SeafException(0, SeadroidApplication.getAppContext().getString(R.string.saf_file_exist));
                 }
             }
 
             if (repo == null || !repo.hasWritePermission()) {
-                throw new SeafException(0, "Repo not found or no write perms");
+                throw new SeafException(0, SeadroidApplication.getAppContext().getString(R.string.saf_write_diretory_exception));
             } else if (mimeType == null) {
-                throw new SeafException(0, "Bad mime type given by caller");
+                // bad mime type given by caller
+                throw new SeafException(0, SeadroidApplication.getAppContext().getString(R.string.saf_bad_mime_type));
             } else if (mimeType.equals(Document.MIME_TYPE_DIR)) {
                 dm.createNewDir(repoId, parentPath, displayName);
             } else {
@@ -769,7 +770,7 @@ public class SeafileProvider extends DocumentsProvider {
                     dm.getDirentsFromServer(repoId, path);
 
                 } catch (SeafException e) {
-                    Log.e(getClass().getSimpleName(), "Exception while querying server", e);
+                    Log.e(DEBUG_TAG, "Exception while querying server", e);
                 }
                 // notify the SAF to to do a new queryChildDocuments
                 getContext().getContentResolver().notifyChange(uri, null);
@@ -797,7 +798,7 @@ public class SeafileProvider extends DocumentsProvider {
                     dm.getStarredFiles();
 
                 } catch (SeafException e) {
-                    Log.e(getClass().getSimpleName(), "Exception while querying server", e);
+                    Log.e(DEBUG_TAG, "Exception while querying server", e);
                 }
                 // notify the SAF to to do a new queryChildDocuments
                 getContext().getContentResolver().notifyChange(uri, null);
@@ -826,7 +827,7 @@ public class SeafileProvider extends DocumentsProvider {
                     dm.getReposFromServer();
 
                 } catch (SeafException e) {
-                    Log.e(getClass().getSimpleName(), "Exception while querying server", e);
+                    Log.e(DEBUG_TAG, "Exception while querying server", e);
                 }
                 // notify the SAF to to do a new queryChildDocuments
                 getContext().getContentResolver().notifyChange(uri, null);
