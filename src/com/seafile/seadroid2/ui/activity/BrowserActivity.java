@@ -80,6 +80,7 @@ import com.seafile.seadroid2.ui.fragment.ActivitiesFragment;
 import com.seafile.seadroid2.ui.fragment.ReposFragment;
 import com.seafile.seadroid2.ui.fragment.StarredFragment;
 import com.seafile.seadroid2.util.Utils;
+import com.seafile.seadroid2.util.UtilsJellyBean;
 import com.viewpagerindicator.IconPagerAdapter;
 import com.viewpagerindicator.TabPageIndicator;
 import org.json.JSONException;
@@ -977,8 +978,17 @@ public class BrowserActivity extends SherlockFragmentActivity
             break;
         case PICK_FILE_REQUEST:
             if (resultCode == RESULT_OK) {
-                Log.d(DEBUG_TAG, "Got uri: " + data.getData());
-                ConcurrentAsyncTask.execute(new SAFLoadRemoteFileTask(), data.getData());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    List<Uri> uriList = UtilsJellyBean.extractUriListFromIntent(data);
+                    for (Uri uri: uriList) {
+                        Log.d(DEBUG_TAG, "Got uri: " + uri);
+                        ConcurrentAsyncTask.execute(new SAFLoadRemoteFileTask(), uri);
+                    }
+                } else {
+                    Uri uri = data.getData();
+                    Log.d(DEBUG_TAG, "Got uri: " + uri);
+                    ConcurrentAsyncTask.execute(new SAFLoadRemoteFileTask(), uri);
+                }
             }
             break;
         case CHOOSE_COPY_MOVE_DEST_REQUEST:
