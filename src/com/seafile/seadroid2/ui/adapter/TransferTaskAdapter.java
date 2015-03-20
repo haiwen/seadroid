@@ -70,32 +70,51 @@ public class TransferTaskAdapter extends BaseAdapter {
         int failedHeaderCount = 0;
         int finishedHeaderCount = 0;
 
+        int transferringTotal = 0;
+        int waitingTotal = 0;
+        int cancelledTotal = 0;
+        int failedTotal = 0;
+        int finishedTotal = 0;
+
+        for (TransferTaskInfo tti : mTransferTaskInfos) {
+            if (tti.state.equals(TaskState.TRANSFERRING))
+                transferringTotal++;
+            else if (tti.state.equals(TaskState.INIT))
+                waitingTotal++;
+            else if (tti.state.equals(TaskState.CANCELLED))
+                cancelledTotal++;
+            else if (tti.state.equals(TaskState.FAILED))
+                failedTotal++;
+            else if (tti.state.equals(TaskState.FINISHED))
+                finishedTotal++;
+        }
+
         items.clear();
 
         for (TransferTaskInfo tti : mTransferTaskInfos) {
             if (tti.state.equals(TaskState.TRANSFERRING)
                     && transferringHeaderCount == 0) {
-                items.add(new TransferSectionHeader(TaskState.TRANSFERRING));
+                items.add(new TransferSectionHeader(TaskState.TRANSFERRING, transferringTotal));
                 items.add(tti);
                 transferringHeaderCount++;
             } else if (tti.state.equals(TaskState.INIT)
                     && waitingHeaderCount == 0) {
-                items.add(new TransferSectionHeader(TaskState.INIT));
+                items.add(new TransferSectionHeader(TaskState.INIT, waitingTotal));
                 items.add(tti);
                 waitingHeaderCount++;
             } else if (tti.state.equals(TaskState.CANCELLED)
                     && cancelledHeaderCount == 0) {
-                items.add(new TransferSectionHeader(TaskState.CANCELLED));
+                items.add(new TransferSectionHeader(TaskState.CANCELLED, cancelledTotal));
                 items.add(tti);
                 cancelledHeaderCount++;
             } else if (tti.state.equals(TaskState.FAILED)
                     && failedHeaderCount == 0) {
-                items.add(new TransferSectionHeader(TaskState.FAILED));
+                items.add(new TransferSectionHeader(TaskState.FAILED, failedTotal));
                 items.add(tti);
                 failedHeaderCount++;
             } else if (tti.state.equals(TaskState.FINISHED)
                     && finishedHeaderCount == 0) {
-                items.add(new TransferSectionHeader(TaskState.FINISHED));
+                items.add(new TransferSectionHeader(TaskState.FINISHED, finishedTotal));
                 items.add(tti);
                 finishedHeaderCount++;
             } else

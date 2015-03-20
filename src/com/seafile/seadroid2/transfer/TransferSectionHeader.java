@@ -11,9 +11,11 @@ import com.seafile.seadroid2.R;
 public class TransferSectionHeader implements TransferItem {
 
     private TaskState taskState;
+    private int count;
 
-    public TransferSectionHeader(TaskState taskState) {
+    public TransferSectionHeader(TaskState taskState, int count) {
         this.taskState = taskState;
+        this.count = count;
     }
 
     @Override
@@ -31,7 +33,7 @@ public class TransferSectionHeader implements TransferItem {
         }
 
         TextView tv = (TextView) view.findViewById(R.id.listview_section_header_txt);
-        tv.setText(taskState.toString());
+        tv.setText(taskState.toString() + " (" + count + ")");
 
         return view;
     }
