@@ -496,6 +496,8 @@ public class Utils {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             // Allow user to select multiple files
             intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+            // only show local document providers
+            intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
         }
         return intent;
     }
