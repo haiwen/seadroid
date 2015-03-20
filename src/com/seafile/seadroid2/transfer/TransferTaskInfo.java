@@ -1,14 +1,23 @@
 package com.seafile.seadroid2.transfer;
 
+import android.graphics.Color;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.util.Utils;
 
 /**
  * Base class
  * <p/>
  * reference for override equals and hashcode, http://www.javaranch.com/journal/2002/10/equalhash.html
  */
-public class TransferTaskInfo {
+public abstract class TransferTaskInfo implements TransferItem {
     public final Account account;
     public final int taskID;
     public final TaskState state;
@@ -65,5 +74,51 @@ public class TransferTaskInfo {
         hash = 31 * hash + (repoID == null ? 0 : repoID.hashCode());
         hash = 31 * hash + (localFilePath == null ? 0 : localFilePath.hashCode());
         return hash;
+    }
+
+    public int getViewType() {
+        return 1;
+    }
+
+    @Override
+    public View getView(LayoutInflater inflater, View convertView) {
+        View view = convertView;
+        Viewholder viewHolder;
+
+        if (convertView == null) {
+            view = LayoutInflater.from(SeadroidApplication.getAppContext()).inflate(R.layout.transfer_list_item, null);
+            ImageView icon = (ImageView) view.findViewById(R.id.transfer_file_icon);
+            TextView state = (TextView) view.findViewById(R.id.transfer_file_state);
+            TextView targetPath = (TextView) view.findViewById(R.id.transfer_target_path);
+            TextView fileName = (TextView) view.findViewById(R.id.transfer_file_name);
+            TextView fileSize = (TextView) view.findViewById(R.id.transfer_file_size);
+            ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.transfer_file_progress_bar);
+            viewHolder = new Viewholder(icon, state, targetPath, fileName, fileSize, progressBar);
+            view.setTag(viewHolder);
+        } else {
+            viewHolder = (Viewholder) convertView.getTag();
+        }
+
+        updateTaskView(viewHolder);
+
+        return view;
+    }
+
+    protected abstract void updateTaskView(Viewholder viewHolder);
+
+    class Viewholder {
+        ImageView icon;
+        TextView targetPath, fileName, fileSize, state;
+        ProgressBar progressBar;
+
+        public Viewholder(ImageView icon, TextView state, TextView targetPath,
+                          TextView fileName, TextView fileSize, ProgressBar progressBar) {
+            this.icon = icon;
+            this.state = state;
+            this.targetPath = targetPath;
+            this.fileName = fileName;
+            this.fileSize = fileSize;
+            this.progressBar = progressBar;
+        }
     }
 }

@@ -33,9 +33,7 @@ public class UploadTaskFragment extends TransferTaskFragment {
 
     @Override
     protected void setUpTransferList() {
-        List<UploadTaskInfo> infos = txService.getAllUploadTaskInfos();
-        adapter = new TransferTaskAdapter(mActivity, infos);
-        adapter.setCurrentTab(TransferTaskAdapter.UPLOAD_LIST_TAB);
+        adapter = new TransferTaskAdapter(mActivity);
         mTransferTaskListView.setAdapter(adapter);
     }
 
