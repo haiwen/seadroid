@@ -980,10 +980,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             if (resultCode == RESULT_OK) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                     List<Uri> uriList = UtilsJellyBean.extractUriListFromIntent(data);
-                    for (Uri uri: uriList) {
-                        Log.d(DEBUG_TAG, "Got uri: " + uri);
-                        ConcurrentAsyncTask.execute(new SAFLoadRemoteFileTask(), uri);
-                    }
+                    ConcurrentAsyncTask.execute(new SAFLoadRemoteFileTask(), uriList.toArray(new Uri[]{}));
                 } else {
                     Uri uri = data.getData();
                     Log.d(DEBUG_TAG, "Got uri: " + uri);
@@ -1024,58 +1021,62 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
     }
 
-    class SAFLoadRemoteFileTask extends AsyncTask<Uri, Void, File> {
+    class SAFLoadRemoteFileTask extends AsyncTask<Uri, Void, File[]> {
 
         @Override
-        protected File doInBackground(Uri... params) {
-            if (params == null || params.length == 0)
+        protected File[] doInBackground(Uri... uriList) {
+            if (uriList == null)
                 return null;
 
-            Uri uri = params[0];
-            File tempDir = new File(DataManager.getExternalTempDirectory(), "saf_temp");
-            File tempFile = new File(tempDir, Utils.getFilenamefromUri(BrowserActivity.this, uri));
+            List<File> fileList = new ArrayList<File>();
+            for (Uri uri: uriList) {
+                File tempDir = new File(DataManager.getExternalTempDirectory(), "saf_temp");
+                File tempFile = new File(tempDir, Utils.getFilenamefromUri(BrowserActivity.this, uri));
 
-            InputStream in = null;
-            OutputStream out = null;
+                InputStream in = null;
+                OutputStream out = null;
 
-            try {
-                if (!tempDir.exists()) {
-                    if (!tempDir.mkdir()) {
-                        throw new RuntimeException(getString(R.string.saf_failed_to_create_directory, tempDir.getAbsolutePath()));
+                try {
+                    if (!tempDir.exists()) {
+                        if (!tempDir.mkdir()) {
+                            throw new RuntimeException(getString(R.string.saf_failed_to_create_directory, tempDir.getAbsolutePath()));
+                        }
                     }
+
+                    if (!tempFile.createNewFile()) {
+                        throw new RuntimeException("could not create temporary file");
+                    }
+
+                    in = getContentResolver().openInputStream(uri);
+                    out = new FileOutputStream(tempFile);
+                    IOUtils.copy(in, out);
+
+                } catch (IOException e) {
+                    Log.d(DEBUG_TAG, "Could not open requested document", e);
+                    tempFile = null;
+                } catch (RuntimeException e) {
+                    Log.d(DEBUG_TAG, "Could not open requested document", e);
+                    tempFile = null;
+                } finally {
+                    IOUtils.closeQuietly(in);
+                    IOUtils.closeQuietly(out);
                 }
-
-                if (!tempFile.createNewFile()) {
-                    throw new RuntimeException("could not create temporary file");
-                }
-
-                in = getContentResolver().openInputStream(uri);
-                out = new FileOutputStream(tempFile);
-                IOUtils.copy(in, out);
-
-            } catch (IOException e) {
-                Log.d(DEBUG_TAG, "Could not open requested document", e);
-                tempFile = null;
-            } catch (RuntimeException e) {
-                Log.d(DEBUG_TAG, "Could not open requested document", e);
-                tempFile = null;
-            } finally {
-                IOUtils.closeQuietly(in);
-                IOUtils.closeQuietly(out);
+                fileList.add(tempFile);
             }
-            return tempFile;
+            return fileList.toArray(new File[]{});
         }
 
         @Override
-        protected void onPostExecute(File file) {
-            if (file == null) {
-                ToastUtils.show(BrowserActivity.this, R.string.saf_upload_path_not_available);
-                return;
+        protected void onPostExecute(File... fileList) {
+            for (File file: fileList) {
+                if (file == null) {
+                    ToastUtils.show(BrowserActivity.this, R.string.saf_upload_path_not_available);
+                } else {
+                    ToastUtils.show(BrowserActivity.this, getString(R.string.added_to_upload_tasks));
+                    addUploadTask(navContext.getRepoID(),
+                            navContext.getRepoName(), navContext.getDirPath(), file.getAbsolutePath());
+                }
             }
-
-            ToastUtils.show(BrowserActivity.this, getString(R.string.added_to_upload_tasks));
-            addUploadTask(navContext.getRepoID(),
-                    navContext.getRepoName(), navContext.getDirPath(), file.getAbsolutePath());
         }
     }
 
