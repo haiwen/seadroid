@@ -980,11 +980,18 @@ public class BrowserActivity extends SherlockFragmentActivity
             if (resultCode == RESULT_OK) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                     List<Uri> uriList = UtilsJellyBean.extractUriListFromIntent(data);
-                    ConcurrentAsyncTask.execute(new SAFLoadRemoteFileTask(), uriList.toArray(new Uri[]{}));
+                    if (uriList.size() > 0) {
+                        ConcurrentAsyncTask.execute(new SAFLoadRemoteFileTask(), uriList.toArray(new Uri[]{}));
+                    } else {
+                        ToastUtils.show(BrowserActivity.this, R.string.saf_upload_path_not_available);
+                    }
                 } else {
                     Uri uri = data.getData();
-                    Log.d(DEBUG_TAG, "Got uri: " + uri);
-                    ConcurrentAsyncTask.execute(new SAFLoadRemoteFileTask(), uri);
+                    if (uri != null) {
+                        ConcurrentAsyncTask.execute(new SAFLoadRemoteFileTask(), uri);
+                    } else {
+                        ToastUtils.show(BrowserActivity.this, R.string.saf_upload_path_not_available);
+                    }
                 }
             }
             break;
@@ -1032,6 +1039,8 @@ public class BrowserActivity extends SherlockFragmentActivity
             for (Uri uri: uriList) {
                 File tempDir = new File(DataManager.getExternalTempDirectory(), "saf_temp");
                 File tempFile = new File(tempDir, Utils.getFilenamefromUri(BrowserActivity.this, uri));
+
+                Log.d(DEBUG_TAG, "Uploading file from uri: " + uri);
 
                 InputStream in = null;
                 OutputStream out = null;
