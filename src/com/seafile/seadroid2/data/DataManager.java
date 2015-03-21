@@ -60,9 +60,26 @@ public class DataManager {
             if (!extDir.exists()) {
                 extDir.mkdirs();
             }
+            createMediaIgnoreFile(extDir);
             return extDir.getAbsolutePath();
         } else {
             throw new RuntimeException("External Storage is currently not available");
+        }
+    }
+
+    /**
+     * Tell the Android Gallery to ignore these directories
+     *
+     * @param extDir
+     */
+    private static void createMediaIgnoreFile(File extDir) {
+        File extDirnomedia = new File(extDir, ".nomedia");
+        if (!extDirnomedia.exists()) {
+            try {
+                extDirnomedia.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException("Could not create marker file ", e);
+            }
         }
     }
 
