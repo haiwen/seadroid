@@ -1037,7 +1037,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
             List<File> fileList = new ArrayList<File>();
             for (Uri uri: uriList) {
-                File tempDir = new File(DataManager.getExternalTempDirectory(), "saf_temp");
+                File tempDir = new File(DataManager.getExternalTempDirectory(), "saf_temp" + "/" + "upload-"+System.currentTimeMillis());
                 File tempFile = new File(tempDir, Utils.getFilenamefromUri(BrowserActivity.this, uri));
 
                 Log.d(DEBUG_TAG, "Uploading file from uri: " + uri);
@@ -1047,7 +1047,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
                 try {
                     if (!tempDir.exists()) {
-                        if (!tempDir.mkdir()) {
+                        if (!tempDir.mkdirs()) {
                             throw new RuntimeException(getString(R.string.saf_failed_to_create_directory, tempDir.getAbsolutePath()));
                         }
                     }
