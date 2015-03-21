@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
 
+import android.os.Build;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.view.View;
@@ -491,6 +492,13 @@ public class Utils {
         intent.setType("*/*");
         // Only return URIs that can be opened with ContentResolver
         intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            // Allow user to select multiple files
+            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+            // only show local document providers
+            intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+        }
         return intent;
     }
 
