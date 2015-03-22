@@ -494,6 +494,9 @@ public class DataManager {
     }
 
     public void addCachedFile(String repoName, String repoID, String path, String fileID, File file) {
+        // notify Android Gallery that a new file has appeared
+        Utils.notifyAndroidGalleryFileChange(file);
+
         SeafCachedFile item = new SeafCachedFile();
         item.repoName = repoName;
         item.repoID = repoID;
