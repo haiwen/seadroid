@@ -1046,11 +1046,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                 OutputStream out = null;
 
                 try {
-                    if (!tempDir.exists()) {
-                        if (!tempDir.mkdirs()) {
-                            throw new RuntimeException(getString(R.string.saf_failed_to_create_directory, tempDir.getAbsolutePath()));
-                        }
-                    }
+                    tempDir.mkdirs();
 
                     if (!tempFile.createNewFile()) {
                         throw new RuntimeException("could not create temporary file");
