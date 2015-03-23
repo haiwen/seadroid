@@ -148,7 +148,7 @@ public class DataManager {
             return null;
     }
 
-    public ServerInfo getServerInfo() throws IOException, SeafException, JSONException {
+    public ServerInfo getServerInfo() throws SeafException, JSONException {
         String json = sc.getServerInfo();
         return parseServerInfo(json);
     }

@@ -202,13 +202,20 @@ public class SeafConnection {
         return result;
     }
 
-    public String getServerInfo() throws IOException, SeafException {
-        String apiPath = String.format("api2/server-info/");
+    public String getServerInfo() throws SeafException {
 
-        HttpRequest req = prepareApiGetRequest(apiPath);
-        checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
-        String result = new String(req.bytes(), "UTF-8");
-
+        String result;
+        try {
+            HttpRequest  req = prepareApiGetRequest("api2/server-info/");
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+            result = new String(req.bytes(), "UTF-8");
+        } catch (SeafException e) {
+            throw e;
+        } catch (HttpRequestException e) {
+            throw getSeafExceptionFromHttpRequestException(e);
+        } catch (IOException e) {
+            throw SeafException.networkException;
+        }
         return result;
     }
 
