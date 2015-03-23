@@ -329,15 +329,14 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
 
     class FetchServerInfoTask extends AsyncTask<Void, Void, ServerInfo> {
+        private SeafException err;
 
         @Override
         protected ServerInfo doInBackground(Void... params) {
             try {
                 return dataManager.getServerInfo();
-            } catch (IOException e) {
-                e.printStackTrace();
             } catch (SeafException e) {
-                e.printStackTrace();
+                err = e;
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -346,8 +345,11 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         @Override
         protected void onPostExecute(ServerInfo serverInfo) {
-            if (serverInfo == null)
+            if (serverInfo == null) {
+                if (err != null)
+                    ToastUtils.show(BrowserActivity.this, err.getMessage());
                 return;
+            }
 
             if (serverInfo.isProEdition()) {
                 // hide Activity tab and search menu
