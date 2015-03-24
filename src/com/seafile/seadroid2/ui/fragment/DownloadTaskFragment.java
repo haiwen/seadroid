@@ -36,9 +36,7 @@ public class DownloadTaskFragment extends TransferTaskFragment {
     protected void setUpTransferList() {
 
         Log.d(DEBUG_TAG, "bind TransferService");
-        List<DownloadTaskInfo> infos = txService.getAllDownloadTaskInfos();
-        adapter = new TransferTaskAdapter(mActivity, infos);
-        adapter.setCurrentTab(TransferTaskAdapter.DOWNLOAD_LIST_TAB);
+        adapter = new TransferTaskAdapter(mActivity);
         mTransferTaskListView.setAdapter(adapter);
 
     }

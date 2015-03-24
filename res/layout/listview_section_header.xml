@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="20dp"
+        android:background="@color/whitegrey"
+        android:padding="10dp">
+
+    <TextView
+            android:id="@+id/listview_section_header_txt"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Subtitle"
+            android:textColor="@color/lv_subtitle_color"
+            android:textSize="@dimen/lv_subtitle_txt_size" />
+</RelativeLayout>
