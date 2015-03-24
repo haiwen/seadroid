@@ -1,7 +1,7 @@
 package com.seafile.seadroid2.transfer;
 
 /**
- *
+ * Interface for transfer items
  */
 import android.view.LayoutInflater;
 import android.view.View;

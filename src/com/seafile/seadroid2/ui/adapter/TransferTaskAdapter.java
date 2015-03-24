@@ -19,6 +19,7 @@ public class TransferTaskAdapter extends BaseAdapter {
     private static final String DEBUG_TAG = "TransferTaskAdapter";
 
     private LayoutInflater mInflater;
+    public enum TransferViewType {TRANSFER_VIEW_ITEM, TRANSFER_SECTION_HEADER}
 
     /**
      * Constructor of {@link TransferTaskAdapter}
