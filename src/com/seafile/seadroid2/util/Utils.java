@@ -615,6 +615,13 @@ public class Utils {
         fileOrDirectory.renameTo(renamedFile);
         renamedFile.delete();
 
+        // notify Android Gallery that this file is gone
+        notifyAndroidGalleryFileChange(fileOrDirectory);
+    }
+
+    public static void notifyAndroidGalleryFileChange(File file) {
+        Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file));
+        SeadroidApplication.getAppContext().sendBroadcast(intent);
     }
 
     /**
