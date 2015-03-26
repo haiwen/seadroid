@@ -26,11 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
 
-import android.os.Build;
-import android.provider.OpenableColumns;
-import android.text.TextUtils;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,7 +40,12 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.DetailedState;
 import android.net.Uri;
+import android.os.Build;
+import android.provider.OpenableColumns;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
 
 import com.google.common.collect.Lists;

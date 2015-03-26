@@ -8,12 +8,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 import android.util.Pair;
 
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.util.LogUtils;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DEBUG_TAG = "DatabaseHelper";
@@ -405,7 +405,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 account.getEmail(), account.getServerNoProtocol(),
                 repoName, repoID, dir);
 
-        Log.d(DEBUG_TAG, log);
+        LogUtils.d(DEBUG_TAG, log);
 
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();

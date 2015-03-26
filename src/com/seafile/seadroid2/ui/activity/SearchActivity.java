@@ -1,18 +1,31 @@
 package com.seafile.seadroid2.ui.activity;
 
-import android.content.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
-import android.widget.*;
+import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
+
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.common.collect.Lists;
@@ -25,14 +38,11 @@ import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SearchedFile;
 import com.seafile.seadroid2.transfer.TransferService;
-import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.ToastUtils;
+import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.adapter.SearchAdapter;
+import com.seafile.seadroid2.util.LogUtils;
 import com.seafile.seadroid2.util.Utils;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Search Activity
@@ -89,7 +99,7 @@ public class SearchActivity extends SherlockFragmentActivity implements View.OnC
 
     @Override
     protected void onDestroy() {
-        Log.d(DEBUG_TAG, "onDestroy is called");
+        LogUtils.d(DEBUG_TAG, "onDestroy is called");
         if (txService != null) {
             unbindService(mConnection);
             txService = null;
@@ -106,7 +116,7 @@ public class SearchActivity extends SherlockFragmentActivity implements View.OnC
         // bind transfer service
         Intent bIntent = new Intent(this, TransferService.class);
         bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
-        Log.d(DEBUG_TAG, "try bind TransferService");
+        LogUtils.d(DEBUG_TAG, "try bind TransferService");
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -214,7 +224,7 @@ public class SearchActivity extends SherlockFragmentActivity implements View.OnC
                     if (seafException.getCode() == 404)
                         ToastUtils.show(SearchActivity.this, R.string.search_server_not_support);
 
-                    Log.d(DEBUG_TAG, seafException.getMessage() + " code " + seafException.getCode());
+                    LogUtils.d(DEBUG_TAG, seafException.getMessage() + " code " + seafException.getCode());
                 } else {
                     mEmptyText.setVisibility(View.VISIBLE);
                     mErrorText.setVisibility(View.GONE);
@@ -352,7 +362,7 @@ public class SearchActivity extends SherlockFragmentActivity implements View.OnC
         public void onServiceConnected(ComponentName className, IBinder service) {
             TransferService.TransferBinder binder = (TransferService.TransferBinder) service;
             txService = binder.getService();
-            Log.d(DEBUG_TAG, "bind TransferService");
+            LogUtils.d(DEBUG_TAG, "bind TransferService");
         }
 
         @Override

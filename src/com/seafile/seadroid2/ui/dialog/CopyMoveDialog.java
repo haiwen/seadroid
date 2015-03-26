@@ -10,7 +10,6 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.ui.CopyMoveContext;
-import com.seafile.seadroid2.ui.dialog.TaskDialog.Task;
 
 class CopyMoveTask extends TaskDialog.Task {
     private DataManager dataManager;

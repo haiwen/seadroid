@@ -9,7 +9,6 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.ui.dialog.TaskDialog.Task;
 
 class GetShareLinkTask extends TaskDialog.Task {
     String repoID;

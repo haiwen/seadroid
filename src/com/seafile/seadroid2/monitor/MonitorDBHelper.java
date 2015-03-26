@@ -1,9 +1,6 @@
 package com.seafile.seadroid2.monitor;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -12,13 +9,13 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.util.LogUtils;
 
 public class MonitorDBHelper extends SQLiteOpenHelper {
     private static final String DEBUG_TAG = "MonitorDBHelper";
@@ -157,7 +154,7 @@ public class MonitorDBHelper extends SQLiteOpenHelper {
 
         c.close();
 
-        Log.d(DEBUG_TAG, String.format("loaded %d auto update info", infos.size()));
+        LogUtils.d(DEBUG_TAG, String.format("loaded %d auto update info", infos.size()));
         return infos;
     }
 

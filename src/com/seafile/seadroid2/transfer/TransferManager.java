@@ -1,13 +1,12 @@
 package com.seafile.seadroid2.transfer;
 
-import android.util.Log;
-import com.google.common.collect.Lists;
-import com.seafile.seadroid2.ConcurrentAsyncTask;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+
+import com.google.common.collect.Lists;
+import com.seafile.seadroid2.ConcurrentAsyncTask;
+import com.seafile.seadroid2.util.LogUtils;
 
 /**
  * Manages file downloading and uploading.
@@ -58,12 +57,12 @@ public abstract class TransferManager {
 
     private synchronized boolean hasInQue(TransferTask transferTask) {
         if (waitingList.contains(transferTask)) {
-            // Log.d(DEBUG_TAG, "in  Que  " + taskID + " " + repoName + path + "in waiting list");
+            // LogUtils.d(DEBUG_TAG, "in  Que  " + taskID + " " + repoName + path + "in waiting list");
             return true;
         }
 
         if (transferringList.contains(transferTask)) {
-            // Log.d(DEBUG_TAG, "in  Que  " + taskID + " " + repoName + path + " in downloading list");
+            // LogUtils.d(DEBUG_TAG, "in  Que  " + taskID + " " + repoName + path + " in downloading list");
             return true;
         }
         return false;
@@ -78,7 +77,7 @@ public abstract class TransferManager {
                 // add new created task
                 allTaskList.add(task);
 
-                // Log.d(DEBUG_TAG, "add Que  " + taskID + " " + repoName + path);
+                // LogUtils.d(DEBUG_TAG, "add Que  " + taskID + " " + repoName + path);
                 waitingList.add(task);
             }
             doNext();
@@ -88,7 +87,7 @@ public abstract class TransferManager {
     public synchronized void doNext() {
         if (!waitingList.isEmpty()
                 && transferringList.size() < TRANSFER_MAX_COUNT) {
-            Log.d(DEBUG_TAG, "do next!");
+            LogUtils.d(DEBUG_TAG, "do next!");
 
             TransferTask task = waitingList.remove(0);
             transferringList.add(task);

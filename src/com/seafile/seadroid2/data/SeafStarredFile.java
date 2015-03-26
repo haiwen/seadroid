@@ -3,9 +3,8 @@ package com.seafile.seadroid2.data;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.util.Log;
-
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.util.LogUtils;
 import com.seafile.seadroid2.util.Utils;
 
 public class SeafStarredFile implements SeafItem {
@@ -32,7 +31,7 @@ public class SeafStarredFile implements SeafItem {
                 starredFile.type = FileType.DIR;
             return starredFile;
         } catch (JSONException e) {
-            Log.d(DEBUG_TAG, e.getMessage());
+            LogUtils.d(DEBUG_TAG, e.getMessage());
             return null;
         }
     }

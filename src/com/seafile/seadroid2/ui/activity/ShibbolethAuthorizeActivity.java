@@ -3,7 +3,6 @@ package com.seafile.seadroid2.ui.activity;
 import android.content.Intent;
 import android.net.http.SslError;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.webkit.CookieManager;
@@ -12,11 +11,13 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.ui.ToastUtils;
+import com.seafile.seadroid2.util.LogUtils;
 import com.seafile.seadroid2.util.Utils;
 
 /**
@@ -53,7 +54,7 @@ public class ShibbolethAuthorizeActivity extends SherlockFragmentActivity {
     }
 
     private void openAuthorizePage(String url) {
-        Log.d(DEBUG_TAG, "server url is " + url);
+        LogUtils.d(DEBUG_TAG, "server url is " + url);
 
         if (!Utils.isNetworkOn()) {
             ToastUtils.show(this, getString(R.string.network_down));
@@ -101,7 +102,7 @@ public class ShibbolethAuthorizeActivity extends SherlockFragmentActivity {
 
         @Override
         public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
-            Log.d(DEBUG_TAG, "onReceivedSslError " + error.getCertificate().toString());
+            LogUtils.d(DEBUG_TAG, "onReceivedSslError " + error.getCertificate().toString());
 
             // Ignore SSL certificate validate
             handler.proceed();
@@ -109,7 +110,7 @@ public class ShibbolethAuthorizeActivity extends SherlockFragmentActivity {
 
         @Override
         public void onPageFinished(WebView webView, String url) {
-            Log.d(DEBUG_TAG, "onPageFinished " + url);
+            LogUtils.d(DEBUG_TAG, "onPageFinished " + url);
             showPageLoading(false);
 
             String cookie = getCookie(url, SEAHUB_SHIB_COOKIE_NAME);
@@ -162,8 +163,8 @@ public class ShibbolethAuthorizeActivity extends SherlockFragmentActivity {
         if (email.isEmpty() || token.isEmpty())
             return null;
 
-        Log.d(DEBUG_TAG, "email: " + email);
-        Log.d(DEBUG_TAG, "token: " + token);
+        LogUtils.d(DEBUG_TAG, "email: " + email);
+        LogUtils.d(DEBUG_TAG, "token: " + token);
 
         return new Account(url, email, null, token);
     }
@@ -178,7 +179,7 @@ public class ShibbolethAuthorizeActivity extends SherlockFragmentActivity {
         if (cookies == null)
             return null;
 
-        Log.d(DEBUG_TAG, "All the cookies in a string:" + cookies);
+        LogUtils.d(DEBUG_TAG, "All the cookies in a string:" + cookies);
 
         String[] allCookies = cookies.split(";");
 

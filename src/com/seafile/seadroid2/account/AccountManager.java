@@ -1,17 +1,14 @@
 package com.seafile.seadroid2.account;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import com.seafile.seadroid2.SettingsManager;
-import com.seafile.seadroid2.cameraupload.CameraUploadService;
-import com.seafile.seadroid2.util.Utils;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * Account Manager.<br>
@@ -19,6 +16,9 @@ import org.json.JSONObject;
  *
  */
 import com.google.common.collect.Lists;
+import com.seafile.seadroid2.SettingsManager;
+import com.seafile.seadroid2.cameraupload.CameraUploadService;
+import com.seafile.seadroid2.util.Utils;
 
 public class AccountManager {
     @SuppressWarnings("unused")

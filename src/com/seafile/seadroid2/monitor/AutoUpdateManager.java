@@ -15,6 +15,7 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.SeafCachedFile;
 import com.seafile.seadroid2.transfer.TransferService;
+import com.seafile.seadroid2.util.LogUtils;
 import com.seafile.seadroid2.util.Utils;
 
 /**
@@ -92,7 +93,7 @@ public class AutoUpdateManager implements Runnable, CachedFileChangedListener {
             String parentDir, String localPath) {
         // This file has already been updated on server, so we abort auto update task
         if (removeAutoUpdateInfo(account, repoID, repoName, parentDir, localPath)) {
-            Log.d(DEBUG_TAG, "auto updated " + localPath);
+            LogUtils.d(DEBUG_TAG, "auto updated " + localPath);
         }
     }
 
@@ -104,7 +105,7 @@ public class AutoUpdateManager implements Runnable, CachedFileChangedListener {
 
         // This file has already been removed on server, so we abort the auto update task
         if (removeAutoUpdateInfo(account, repoID, repoName, parentDir, localPath)) {
-            Log.d(DEBUG_TAG, String.format("failed to auto update %s, error %s", localPath, e));
+            LogUtils.d(DEBUG_TAG, String.format("failed to auto update %s, error %s", localPath, e));
         }
     }
 
@@ -133,7 +134,7 @@ public class AutoUpdateManager implements Runnable, CachedFileChangedListener {
     private void scheduleUpdateTasks() {
         int size = infos.size();
         if (!Utils.isNetworkOn()) {
-            Log.d(DEBUG_TAG, "network is not available, " + size + " in queue");
+            LogUtils.d(DEBUG_TAG, "network is not available, " + size + " in queue");
             return;
         }
 

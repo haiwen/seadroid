@@ -6,7 +6,6 @@ import java.util.List;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
@@ -38,6 +37,7 @@ import com.seafile.seadroid2.ui.adapter.ReposAdapter;
 import com.seafile.seadroid2.ui.dialog.PasswordDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.ui.fragment.SettingsPreferenceFragment;
+import com.seafile.seadroid2.util.LogUtils;
 import com.seafile.seadroid2.util.Utils;
 
 /**
@@ -171,7 +171,7 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
 
     @Override
     protected void onDestroy() {
-        Log.d(DEBUG_TAG, "onDestroy is called");
+        LogUtils.d(DEBUG_TAG, "onDestroy is called");
 
         if (mLoadReposTask != null
             && mLoadReposTask.getStatus() != AsyncTask.Status.FINISHED) {
@@ -622,7 +622,7 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
             if (err != null || accounts == null) {
                 setErrorMessage(R.string.load_accounts_fail);
                 if (err != null) {
-                    Log.d(DEBUG_TAG, "failed to load accounts: " + err.getMessage());
+                    LogUtils.d(DEBUG_TAG, "failed to load accounts: " + err.getMessage());
                 }
                 return;
             }
@@ -673,7 +673,7 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
             showLoading(false);
             if (err != null || repos == null) {
                 setErrorMessage(R.string.load_libraries_fail);
-                Log.d(DEBUG_TAG, "failed to load repos: " + (err != null ? err.getMessage() : " no error present"));
+                LogUtils.d(DEBUG_TAG, "failed to load repos: " + (err != null ? err.getMessage() : " no error present"));
                 return;
             }
 
@@ -719,7 +719,7 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
                 } else if (retCode == HttpURLConnection.HTTP_NOT_FOUND) {
                     ToastUtils.show(SeafilePathChooserActivity.this, String.format("The folder \"%s\" was deleted", dirPath));
                 } else {
-                    Log.d(DEBUG_TAG, "failed to load dirents: " + err.getMessage());
+                    LogUtils.d(DEBUG_TAG, "failed to load dirents: " + err.getMessage());
                     err.printStackTrace();
                     setErrorMessage(R.string.load_dir_fail);
                 }
@@ -727,7 +727,7 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
             }
 
             if (dirents == null) {
-                Log.d(DEBUG_TAG, "failed to load dirents: no error present");
+                LogUtils.d(DEBUG_TAG, "failed to load dirents: no error present");
                 setErrorMessage(R.string.load_dir_fail);
                 return;
             }

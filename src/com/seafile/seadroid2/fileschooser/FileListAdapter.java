@@ -2,9 +2,6 @@ package com.seafile.seadroid2.fileschooser;
 
 import java.util.List;
 
-import com.google.common.collect.Lists;
-import com.seafile.seadroid2.R;
-
 import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +10,9 @@ import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.google.common.collect.Lists;
+import com.seafile.seadroid2.R;
 
 public class FileListAdapter extends BaseAdapter {
 

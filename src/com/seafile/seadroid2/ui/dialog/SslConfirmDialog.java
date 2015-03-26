@@ -10,22 +10,19 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.text.Html;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.seafile.seadroid2.CertsManager;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SSLTrustManager;
 import com.seafile.seadroid2.SSLTrustManager.SslFailureReason;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.CertificateInfo;
 import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
+import com.seafile.seadroid2.util.LogUtils;
 
 
 public class SslConfirmDialog extends DialogFragment {
@@ -117,7 +114,7 @@ public class SslConfirmDialog extends DialogFragment {
         builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Log.d(DEBUG_TAG, "listener.onAccepted is called");
+                LogUtils.d(DEBUG_TAG, "listener.onAccepted is called");
                 listener.onAccepted(true);
             }
         });
@@ -125,7 +122,7 @@ public class SslConfirmDialog extends DialogFragment {
         builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Log.d(DEBUG_TAG, "listener.onRejected is called");
+                LogUtils.d(DEBUG_TAG, "listener.onRejected is called");
                 listener.onRejected();
             }
         });
@@ -141,7 +138,7 @@ public class SslConfirmDialog extends DialogFragment {
 
     @Override
     public void onCancel(DialogInterface dialog) {
-        Log.d(DEBUG_TAG, "listener.onRejected is called");
+        LogUtils.d(DEBUG_TAG, "listener.onRejected is called");
         listener.onRejected();
     }
 }

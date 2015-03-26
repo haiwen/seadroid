@@ -1,9 +1,9 @@
 package com.seafile.seadroid2.gallery;
 
+import java.util.HashMap;
+
 import android.content.ContentResolver;
 import android.net.Uri;
-
-import java.util.HashMap;
 
 /**
  * An implementation of interface <code>IImageList</code> which contains only

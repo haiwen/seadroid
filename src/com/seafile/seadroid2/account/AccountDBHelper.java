@@ -2,15 +2,14 @@ package com.seafile.seadroid2.account;
 
 import java.util.List;
 
-import android.database.DatabaseUtils;
-import com.google.common.collect.Lists;
-import com.seafile.seadroid2.provider.AccountNotifier;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import com.google.common.collect.Lists;
+import com.seafile.seadroid2.provider.AccountNotifier;
 
 /*
  * Account database helper

@@ -1,12 +1,12 @@
 package com.seafile.seadroid2.transfer;
 
-import android.util.Log;
+import java.io.File;
+
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.ProgressMonitor;
-
-import java.io.File;
+import com.seafile.seadroid2.util.LogUtils;
 
 /**
  * Upload task
@@ -60,7 +60,7 @@ public class UploadTask extends TransferTask {
     @Override
     protected void onProgressUpdate(Long... values) {
         long uploaded = values[0];
-        Log.d(DEBUG_TAG, "Uploaded " + uploaded);
+        LogUtils.d(DEBUG_TAG, "Uploaded " + uploaded);
         this.finished = uploaded;
         uploadStateListener.onFileUploadProgress(taskID);
     }
@@ -82,11 +82,11 @@ public class UploadTask extends TransferTask {
             if (isUpdate) {
                 dataManager.updateFile(repoName, repoID, dir, path, monitor, isCopyToLocal);
             } else {
-                Log.d(DEBUG_TAG, "Upload path: " + path);
+                LogUtils.d(DEBUG_TAG, "Upload path: " + path);
                 dataManager.uploadFile(repoName, repoID, dir, path, monitor, isCopyToLocal);
             }
         } catch (SeafException e) {
-            Log.d(DEBUG_TAG, "Upload exception " + e.getCode() + " " + e.getMessage());
+            LogUtils.d(DEBUG_TAG, "Upload exception " + e.getCode() + " " + e.getMessage());
             err = e;
         }
 

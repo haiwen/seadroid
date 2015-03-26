@@ -15,14 +15,17 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
-import android.widget.*;
+import android.view.Window;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
 import com.seafile.seadroid2.CertsManager;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
@@ -32,6 +35,7 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.ui.CustomClearableEditText;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
+import com.seafile.seadroid2.util.LogUtils;
 
 public class AccountDetailActivity extends SherlockFragmentActivity {
     private static final String DEBUG_TAG = "AccountDetailActivity";
@@ -180,7 +184,7 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
         serverText.setOnFocusChangeListener(new View.OnFocusChangeListener () {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                Log.d(DEBUG_TAG, "serverText has focus: " + (hasFocus ? "yes" : "no"));
+                LogUtils.d(DEBUG_TAG, "serverText has focus: " + (hasFocus ? "yes" : "no"));
                 serverTextHasFocus = hasFocus;
             }
         });
@@ -256,7 +260,7 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
                 serverURL = cleanServerURL(serverURL, isHttps);
             } catch (MalformedURLException e) {
                 statusView.setText(R.string.invalid_server_address);
-                Log.d(DEBUG_TAG, "Invalid URL " + serverURL);
+                LogUtils.d(DEBUG_TAG, "Invalid URL " + serverURL);
                 return;
             }
 

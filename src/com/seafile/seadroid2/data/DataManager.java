@@ -10,7 +10,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import com.seafile.seadroid2.R;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,6 +20,7 @@ import android.util.Pair;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
@@ -341,7 +341,7 @@ public class DataManager {
         }
 
         String json = sc.getRepos();
-        //Log.d(DEBUG_TAG, "get repos from server " + json);
+        //LogUtils.d(DEBUG_TAG, "get repos from server " + json);
         if (json == null)
             return null;
 

@@ -1,15 +1,16 @@
 package com.seafile.seadroid2.ui.fragment;
 
+import java.util.List;
+
 import android.os.Bundle;
 import android.widget.AdapterView;
 import android.widget.ListView;
+
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.transfer.TaskState;
 import com.seafile.seadroid2.transfer.TransferTaskInfo;
 import com.seafile.seadroid2.transfer.UploadTaskInfo;
 import com.seafile.seadroid2.ui.adapter.TransferTaskAdapter;
-
-import java.util.List;
 
 /**
  * Upload tasks fragments

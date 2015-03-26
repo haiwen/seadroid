@@ -1,7 +1,9 @@
 package com.seafile.seadroid2.gallery;
 
-import java.util.HashMap;
+import static com.seafile.seadroid2.gallery.Util.assertTrue;
+
 import java.lang.reflect.Field;
+import java.util.HashMap;
 
 import android.app.Activity;
 import android.content.Context;
@@ -15,16 +17,14 @@ import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.view.GestureDetector.SimpleOnGestureListener;
 import android.widget.Scroller;
-import static com.seafile.seadroid2.gallery.Util.assertTrue;
 
 import com.google.common.collect.Maps;
-import com.seafile.seadroid2.R;
 
 
 class GridViewSpecial extends View {

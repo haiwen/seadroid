@@ -19,7 +19,6 @@ import android.net.http.SslCertificate;
 import android.net.http.SslCertificate.DName;
 import android.net.http.SslError;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,14 +32,15 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
-import com.seafile.seadroid2.ui.ToastUtils;
-import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.CertsManager;
-import com.seafile.seadroid2.ui.activity.FileActivity;
 import com.seafile.seadroid2.NavContext;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.ui.ToastUtils;
+import com.seafile.seadroid2.ui.activity.BrowserActivity;
+import com.seafile.seadroid2.ui.activity.FileActivity;
+import com.seafile.seadroid2.util.LogUtils;
 
 public class ActivitiesFragment extends SherlockFragment {
     private static final String DEBUG_TAG = "ActivitiesFragment";
@@ -54,7 +54,7 @@ public class ActivitiesFragment extends SherlockFragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        Log.d(DEBUG_TAG, "ActivitiesFragment Attached");
+        LogUtils.d(DEBUG_TAG, "ActivitiesFragment Attached");
     }
 
     @Override
@@ -74,7 +74,7 @@ public class ActivitiesFragment extends SherlockFragment {
 
     @Override
     public void onPause() {
-        Log.d(DEBUG_TAG, "onPause");
+        LogUtils.d(DEBUG_TAG, "onPause");
         super.onPause();
 
         if (webView != null) {
@@ -84,7 +84,7 @@ public class ActivitiesFragment extends SherlockFragment {
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        Log.d(DEBUG_TAG, "onActivityCreated");
+        LogUtils.d(DEBUG_TAG, "onActivityCreated");
 
         mWebViewContainer = (FrameLayout)getView().findViewById(R.id.webViewContainer);
         mProgressContainer = getView().findViewById(R.id.progressContainer);
@@ -219,10 +219,10 @@ public class ActivitiesFragment extends SherlockFragment {
             X509Certificate savedCert = CertsManager.instance().getCertificate(account);
 
             if (isSameCert(sslCert, savedCert)) {
-                Log.d(DEBUG_TAG, "trust this cert");
+                LogUtils.d(DEBUG_TAG, "trust this cert");
                 handler.proceed();
             } else {
-                Log.d(DEBUG_TAG, "cert is not trusted");
+                LogUtils.d(DEBUG_TAG, "cert is not trusted");
                 ToastUtils.show(mActivity, R.string.ssl_error);
                 showPageLoading(false);
             }
@@ -230,7 +230,7 @@ public class ActivitiesFragment extends SherlockFragment {
 
         @Override
         public boolean shouldOverrideUrlLoading(WebView webView, String url) {
-            Log.d(DEBUG_TAG, "loading url " + url);
+            LogUtils.d(DEBUG_TAG, "loading url " + url);
             String API_URL_PREFIX= "api://";
             if (!url.startsWith(API_URL_PREFIX)) {
                 return false;
@@ -262,7 +262,7 @@ public class ActivitiesFragment extends SherlockFragment {
 
         @Override
         public void onPageFinished(WebView webView, String url) {
-            Log.d(DEBUG_TAG, "onPageFinished " + url);
+            LogUtils.d(DEBUG_TAG, "onPageFinished " + url);
             if (getBrowserActivity() != null) {
                 String js = String.format("javascript:setToken('%s')",
                                           getBrowserActivity().getAccount().getToken());
@@ -282,7 +282,7 @@ public class ActivitiesFragment extends SherlockFragment {
         // For debug js
         @Override
         public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
-            Log.d(DEBUG_TAG, "alert: " + message);
+            LogUtils.d(DEBUG_TAG, "alert: " + message);
             return super.onJsAlert(view, url, message, result);
         }
     }

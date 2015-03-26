@@ -17,14 +17,14 @@
 
 package com.seafile.seadroid2.provider;
 
+import java.io.FileNotFoundException;
+
 import android.content.Context;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountDBHelper;
-
-import java.io.FileNotFoundException;
 
 /**
  * Helper class to create and parse DocumentIds for the DocumentProvider

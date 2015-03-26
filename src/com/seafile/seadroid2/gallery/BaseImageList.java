@@ -1,13 +1,13 @@
 package com.seafile.seadroid2.gallery;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * A collection of <code>BaseImage</code>s.

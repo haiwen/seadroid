@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.ui.fragment;
 
+import java.util.List;
+
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -8,7 +10,6 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,13 +18,14 @@ import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.transfer.*;
+import com.seafile.seadroid2.transfer.TransferService;
+import com.seafile.seadroid2.transfer.TransferTaskInfo;
 import com.seafile.seadroid2.ui.activity.TransferActivity;
 import com.seafile.seadroid2.ui.adapter.TransferTaskAdapter;
-
-import java.util.List;
+import com.seafile.seadroid2.util.LogUtils;
 
 /**
  * Base class for transfer task fragments
@@ -125,14 +127,14 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
 
     // refresh list by mTimer
     private void startTimer() {
-        Log.d(DEBUG_TAG, "timer started");
+        LogUtils.d(DEBUG_TAG, "timer started");
         mTimer.postDelayed(new Runnable() {
 
             @Override
             public void run() {
                 adapter.setTransferTaskInfos(getTransferTaskInfos());
                 adapter.notifyDataSetChanged();
-                Log.d(DEBUG_TAG, "timer post refresh signal " + System.currentTimeMillis());
+                LogUtils.d(DEBUG_TAG, "timer post refresh signal " + System.currentTimeMillis());
                 mTimer.postDelayed(this, 1 * 1000);
             }
         }, 1 * 1000);

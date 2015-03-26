@@ -22,8 +22,6 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
-import com.seafile.seadroid2.ui.fragment.CustomPreferenceFragment;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -31,6 +29,8 @@ import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.util.Log;
+
+import com.seafile.seadroid2.ui.fragment.CustomPreferenceFragment;
 
 /**
  * Unofficial PreferenceFragment compatibility layer for Android 1.6 and up.

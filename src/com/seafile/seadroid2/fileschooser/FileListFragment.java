@@ -2,16 +2,16 @@ package com.seafile.seadroid2.fileschooser;
 
 import java.util.List;
 
-import com.seafile.seadroid2.R;
-
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
+
+import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.util.LogUtils;
 
 public class FileListFragment extends ListFragment implements
 LoaderManager.LoaderCallbacks<List<SelectableFile>> {
@@ -34,7 +34,7 @@ LoaderManager.LoaderCallbacks<List<SelectableFile>> {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(LOG_TAG, "onCreate");
+        LogUtils.d(LOG_TAG, "onCreate");
         mFileListAdapter = new FileListAdapter(getActivity());
         mPath = getArguments() != null ? getArguments().getString(
                 MultiFileChooserActivity.PATH) : Environment
@@ -68,7 +68,7 @@ LoaderManager.LoaderCallbacks<List<SelectableFile>> {
 
     @Override
     public void onPause () {
-        Log.d(LOG_TAG, "onPause");
+        LogUtils.d(LOG_TAG, "onPause");
         super.onPause();
     }
 

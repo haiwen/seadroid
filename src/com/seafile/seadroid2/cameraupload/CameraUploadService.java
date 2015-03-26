@@ -20,7 +20,6 @@ import android.os.IBinder;
 import android.provider.MediaStore;
 import android.provider.MediaStore.MediaColumns;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
@@ -28,9 +27,14 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.SeafCachedPhoto;
-import com.seafile.seadroid2.transfer.*;
+import com.seafile.seadroid2.transfer.PendingUploadInfo;
+import com.seafile.seadroid2.transfer.TransferManager;
+import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
+import com.seafile.seadroid2.transfer.UploadTaskInfo;
+import com.seafile.seadroid2.transfer.UploadTaskManager;
 import com.seafile.seadroid2.util.CameraUploadUtil;
+import com.seafile.seadroid2.util.LogUtils;
 
 public class CameraUploadService extends Service {
     private static final String DEBUG_TAG = "CameraUploadService";
@@ -59,13 +63,13 @@ public class CameraUploadService extends Service {
 
     @Override
     public void onCreate() {
-        Log.d(DEBUG_TAG, "onCreate");
+        LogUtils.d(DEBUG_TAG, "onCreate");
         
         settingsMgr = SettingsManager.instance();
         // bind transfer service
         Intent bIntent = new Intent(this, TransferService.class);
         bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
-        Log.d(DEBUG_TAG, "try bind TransferService");
+        LogUtils.d(DEBUG_TAG, "try bind TransferService");
 
         this.getApplicationContext()
         .getContentResolver()
@@ -86,7 +90,7 @@ public class CameraUploadService extends Service {
 
     @Override
     public void onDestroy() {
-        Log.d(DEBUG_TAG, "onDestroy");
+        LogUtils.d(DEBUG_TAG, "onDestroy");
         cancelUploadTasks();
         this.getApplicationContext().getContentResolver()
         .unregisterContentObserver(cameraUploadObserver);
@@ -102,7 +106,7 @@ public class CameraUploadService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(DEBUG_TAG, "onStartCommand");
+        LogUtils.d(DEBUG_TAG, "onStartCommand");
 
         initParams();
         if (repoId != null && accountEmail != null) {
@@ -166,7 +170,7 @@ public class CameraUploadService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d(DEBUG_TAG, "onBind");
+        LogUtils.d(DEBUG_TAG, "onBind");
         return mBinder;
     }
 
@@ -273,7 +277,7 @@ public class CameraUploadService extends Service {
                 return;
 
             String detectLog = "detected " + photo.getName();
-            Log.d(DEBUG_TAG, detectLog);
+            LogUtils.d(DEBUG_TAG, detectLog);
             SeafCachedPhoto cachePhoto = cUploadManager.getCachedPhoto(repoName, repoId, DIR,
                     photo.getName());
             if (cachePhoto == null) {

@@ -17,6 +17,8 @@ import android.content.SharedPreferences.Editor;
 import android.os.FileObserver;
 import android.util.Log;
 
+import com.seafile.seadroid2.util.LogUtils;
+
 public class LockPasswordUtils {
     private static final String TAG = "LockPasswordUtils";
     private final static String LOCK_PASSWORD_SALT_FILE = "password_salt";
@@ -37,7 +39,7 @@ public class LockPasswordUtils {
         @Override
         public void onEvent(int event, String path) {
             if (LOCK_PASSWORD_FILE.equals(path)) {
-                Log.d(TAG, "lock password file changed");
+                LogUtils.d(TAG, "lock password file changed");
                 sHaveNonZeroPasswordFile
                         .set(sLockPasswordFilename.length() > 0);
             }

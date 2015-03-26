@@ -2,9 +2,9 @@ package com.seafile.seadroid2.account;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import com.google.common.base.Objects;
+import com.seafile.seadroid2.util.LogUtils;
 import com.seafile.seadroid2.util.Utils;
 
 public class Account implements Parcelable {
@@ -128,7 +128,7 @@ public class Account implements Parcelable {
         passwd = in.readString();
         token = in.readString();
 
-        Log.d(DEBUG_TAG, String.format("%s %s %s %s", server, email, passwd, token));
+        LogUtils.d(DEBUG_TAG, String.format("%s %s %s %s", server, email, passwd, token));
     }
 
     @Override

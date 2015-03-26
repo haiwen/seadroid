@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.gallery;
 
+import java.io.IOException;
+
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.graphics.Bitmap;
@@ -10,8 +12,6 @@ import android.provider.BaseColumns;
 import android.provider.MediaStore.Images;
 import android.provider.MediaStore.Images.ImageColumns;
 import android.util.Log;
-
-import java.io.IOException;
 
 /**
  * The class for normal images in gallery.

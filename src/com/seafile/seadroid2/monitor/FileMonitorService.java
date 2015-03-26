@@ -10,11 +10,16 @@ import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.transfer.*;
+import com.seafile.seadroid2.transfer.DownloadTaskInfo;
+import com.seafile.seadroid2.transfer.DownloadTaskManager;
+import com.seafile.seadroid2.transfer.TransferManager;
+import com.seafile.seadroid2.transfer.TransferService;
+import com.seafile.seadroid2.transfer.UploadTaskInfo;
+import com.seafile.seadroid2.transfer.UploadTaskManager;
+import com.seafile.seadroid2.util.LogUtils;
 
 /**
  * Monitor changes of local cached files, and upload them through TransferService if modified
@@ -29,7 +34,7 @@ public class FileMonitorService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(DEBUG_TAG, "onStartCommand called.");
+        LogUtils.d(DEBUG_TAG, "onStartCommand called.");
 
         if (monitor == null) {
             monitor = new SeafileMonitor(updateMgr);
@@ -53,13 +58,13 @@ public class FileMonitorService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d(DEBUG_TAG, "onBind");
+        LogUtils.d(DEBUG_TAG, "onBind");
         return mBinder;
     }
 
     @Override
     public void onCreate() {
-        Log.d(DEBUG_TAG, "onCreate");
+        LogUtils.d(DEBUG_TAG, "onCreate");
 
         Intent bindIntent = new Intent(this, TransferService.class);
         bindService(bindIntent, mTransferConnection, Context.BIND_AUTO_CREATE);
@@ -70,7 +75,7 @@ public class FileMonitorService extends Service {
 
     @Override
     public void onDestroy() {
-        Log.d(DEBUG_TAG, "onDestroy");
+        LogUtils.d(DEBUG_TAG, "onDestroy");
 
         updateMgr.stop();
 
@@ -78,7 +83,7 @@ public class FileMonitorService extends Service {
             try {
                 monitor.stop();
             } catch (Exception e) {
-                Log.d(DEBUG_TAG, "failed to stop file monitor");
+                LogUtils.d(DEBUG_TAG, "failed to stop file monitor");
             }
         }
 
@@ -91,7 +96,7 @@ public class FileMonitorService extends Service {
     }
 
     public void removeAccount(Account account) {
-        Log.d(DEBUG_TAG, account.email);
+        LogUtils.d(DEBUG_TAG, account.email);
         monitor.stopMonitorFilesForAccount(account);
     }
 

@@ -3,7 +3,7 @@ package com.seafile.seadroid2.util;
 import android.util.Log;
 
 /**
- *
+ * Log Utils
  */
 public class LogUtils {
 

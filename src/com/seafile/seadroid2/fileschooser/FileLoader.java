@@ -3,12 +3,12 @@ package com.seafile.seadroid2.fileschooser;
 import java.io.File;
 import java.util.List;
 
-import com.google.common.collect.Lists;
-import com.seafile.seadroid2.util.Utils;
-
 import android.content.Context;
 import android.os.FileObserver;
 import android.support.v4.content.AsyncTaskLoader;
+
+import com.google.common.collect.Lists;
+import com.seafile.seadroid2.util.Utils;
 
 public class FileLoader extends AsyncTaskLoader<List<SelectableFile>> {
 

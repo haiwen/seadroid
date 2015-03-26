@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +20,7 @@ import android.widget.TextView;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.util.LogUtils;
 
 
 /**
@@ -107,11 +107,11 @@ public abstract class TaskDialog extends DialogFragment {
 
     @Override
     public void onStop() {
-        Log.d(DEBUG_TAG, "onStop");
+        LogUtils.d(DEBUG_TAG, "onStop");
         super.onStop();
 
         if (task != null && task.getStatus() != AsyncTask.Status.FINISHED) {
-            Log.d(DEBUG_TAG, "cancel the task");
+            LogUtils.d(DEBUG_TAG, "cancel the task");
             task.cancel(true);
         }
 

@@ -1,10 +1,18 @@
 package com.seafile.seadroid2.ui.fragment;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Map;
+
+import org.json.JSONException;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.*;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -14,16 +22,16 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Html;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.common.collect.Maps;
-import com.seafile.seadroid2.*;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeafConnection;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
@@ -40,11 +48,8 @@ import com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity;
 import com.seafile.seadroid2.ui.activity.SettingsActivity;
 import com.seafile.seadroid2.ui.dialog.ClearCacheTaskDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog.TaskDialogListener;
+import com.seafile.seadroid2.util.LogUtils;
 import com.seafile.seadroid2.util.Utils;
-import org.json.JSONException;
-
-import java.io.IOException;
-import java.util.Map;
 
 public class SettingsPreferenceFragment extends CustomPreferenceFragment implements
         OnPreferenceChangeListener, OnPreferenceClickListener {
@@ -78,7 +83,7 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
 
     @Override
     public void onAttach(Activity activity) {
-        Log.d(DEBUG_TAG, "onAttach");
+        LogUtils.d(DEBUG_TAG, "onAttach");
         super.onAttach(activity);
 
         // global variables
@@ -96,7 +101,7 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
 
     @Override
     public void onDetach() {
-        Log.d(DEBUG_TAG, "onDetach");
+        LogUtils.d(DEBUG_TAG, "onDetach");
         super.onDetach();
 
         LocalBroadcastManager
@@ -106,7 +111,7 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
     }
 
     public void onCreate(Bundle savedInstanceState) {
-        Log.d(DEBUG_TAG, "onCreate");
+        LogUtils.d(DEBUG_TAG, "onCreate");
         super.onCreate(savedInstanceState);
 
         Account account = accountMgr.getCurrentAccount();
@@ -121,7 +126,7 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        Log.d(DEBUG_TAG, "onViewCreated");
+        LogUtils.d(DEBUG_TAG, "onViewCreated");
         super.onViewCreated(view, savedInstanceState);
 
         addPreferencesFromResource(R.xml.settings);

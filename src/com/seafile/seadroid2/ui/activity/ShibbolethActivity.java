@@ -4,15 +4,16 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.util.LogUtils;
 
 /**
  * Shibboleth welcome page
@@ -85,7 +86,7 @@ public class ShibbolethActivity extends SherlockFragmentActivity {
         mServerUrlEt.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                Log.d(DEBUG_TAG, "serverText has focus: " + (hasFocus ? "yes" : "no"));
+                LogUtils.d(DEBUG_TAG, "serverText has focus: " + (hasFocus ? "yes" : "no"));
             }
         });
 

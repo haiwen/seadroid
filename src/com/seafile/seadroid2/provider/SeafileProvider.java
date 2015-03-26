@@ -55,6 +55,7 @@ import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.ProgressMonitor;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.util.LogUtils;
 
 /**
  * DocumentProvider for the Storage Access Framework.
@@ -105,7 +106,7 @@ public class SeafileProvider extends DocumentsProvider {
                 netProjection(projection, SUPPORTED_ROOT_PROJECTION);
         MatrixCursor result=new MatrixCursor(netProjection);
 
-        Log.d(getClass().getSimpleName(), "queryRoots()");
+        LogUtils.d(getClass().getSimpleName(), "queryRoots()");
 
         // add a Root for every Seafile account we have.
         for(Account a: AccountDBHelper.getDatabaseHelper(getContext()).getAccountList()) {
@@ -130,7 +131,7 @@ public class SeafileProvider extends DocumentsProvider {
                                       String sortOrder)
             throws FileNotFoundException {
 
-        Log.d(getClass().getSimpleName(), "queryChildDocuments: " + parentDocumentId);
+        LogUtils.d(getClass().getSimpleName(), "queryChildDocuments: " + parentDocumentId);
 
         String[] netProjection = 
                 netProjection(projection, SUPPORTED_DOCUMENT_PROJECTION);
@@ -203,7 +204,7 @@ public class SeafileProvider extends DocumentsProvider {
     @Override
     public Cursor queryDocument(String documentId, String[] projection) throws FileNotFoundException {
 
-        Log.d(getClass().getSimpleName(), "queryDocument: " + documentId);
+        LogUtils.d(getClass().getSimpleName(), "queryDocument: " + documentId);
 
         String[] netProjection = 
                 netProjection(projection, SUPPORTED_DOCUMENT_PROJECTION);
@@ -333,7 +334,7 @@ public class SeafileProvider extends DocumentsProvider {
                         fileStream.close();
 
                     } catch (IOException e) {
-                        Log.d(getClass().getSimpleName(), "could not transfer thumbnail.");
+                        LogUtils.d(getClass().getSimpleName(), "could not transfer thumbnail.");
                     }
                 }
 

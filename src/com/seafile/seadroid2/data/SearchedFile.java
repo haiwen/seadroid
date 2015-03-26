@@ -1,10 +1,11 @@
 package com.seafile.seadroid2.data;
 
-import android.util.Log;
-import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.util.Utils;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.util.LogUtils;
+import com.seafile.seadroid2.util.Utils;
 
 /**
  * Searched file entity
@@ -35,7 +36,7 @@ public class SearchedFile implements SeafItem {
 
             return searchedFile;
         } catch (JSONException e) {
-            Log.d(DEBUG_TAG, searchedFile.path + e.getMessage());
+            LogUtils.d(DEBUG_TAG, searchedFile.path + e.getMessage());
             return null;
         }
     }

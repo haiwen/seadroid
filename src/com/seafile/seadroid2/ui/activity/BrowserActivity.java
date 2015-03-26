@@ -5,10 +5,20 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.Window;
+import org.apache.commons.io.IOUtils;
+import org.json.JSONException;
 
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
@@ -30,9 +40,9 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
-import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
@@ -43,25 +53,35 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.webkit.MimeTypeMap;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
 import com.google.common.collect.Lists;
-import com.seafile.seadroid2.*;
+import com.seafile.seadroid2.ConcurrentAsyncTask;
+import com.seafile.seadroid2.NavContext;
+import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeafConnection;
+import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
-import com.seafile.seadroid2.data.*;
+import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.SeafDirent;
+import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.data.SeafStarredFile;
+import com.seafile.seadroid2.data.ServerInfo;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 import com.seafile.seadroid2.monitor.FileMonitorService;
-import com.seafile.seadroid2.transfer.*;
+import com.seafile.seadroid2.transfer.DownloadTaskInfo;
+import com.seafile.seadroid2.transfer.DownloadTaskManager;
+import com.seafile.seadroid2.transfer.PendingUploadInfo;
+import com.seafile.seadroid2.transfer.TransferManager;
+import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
+import com.seafile.seadroid2.transfer.UploadTaskInfo;
+import com.seafile.seadroid2.transfer.UploadTaskManager;
 import com.seafile.seadroid2.ui.CopyMoveContext;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
+import com.seafile.seadroid2.ui.dialog.AppChoiceDialog.CustomAction;
 import com.seafile.seadroid2.ui.dialog.CopyMoveDialog;
 import com.seafile.seadroid2.ui.dialog.DeleteFileDialog;
 import com.seafile.seadroid2.ui.dialog.FetchFileDialog;
@@ -73,19 +93,16 @@ import com.seafile.seadroid2.ui.dialog.PasswordDialog;
 import com.seafile.seadroid2.ui.dialog.RenameFileDialog;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
-import com.seafile.seadroid2.ui.dialog.UploadChoiceDialog;
-import com.seafile.seadroid2.ui.dialog.AppChoiceDialog.CustomAction;
 import com.seafile.seadroid2.ui.dialog.TaskDialog.TaskDialogListener;
+import com.seafile.seadroid2.ui.dialog.UploadChoiceDialog;
 import com.seafile.seadroid2.ui.fragment.ActivitiesFragment;
 import com.seafile.seadroid2.ui.fragment.ReposFragment;
 import com.seafile.seadroid2.ui.fragment.StarredFragment;
+import com.seafile.seadroid2.util.LogUtils;
 import com.seafile.seadroid2.util.Utils;
 import com.seafile.seadroid2.util.UtilsJellyBean;
 import com.viewpagerindicator.IconPagerAdapter;
 import com.viewpagerindicator.TabPageIndicator;
-import org.json.JSONException;
-
-import org.apache.commons.io.IOUtils;
 
 public class BrowserActivity extends SherlockFragmentActivity
         implements ReposFragment.OnFileSelectedListener, StarredFragment.OnStarredFileSelectedListener, OnBackStackChangedListener {
@@ -185,7 +202,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         String email = intent.getStringExtra(AccountManager.SHARED_PREF_EMAIL_KEY);
         String token = intent.getStringExtra(AccountManager.SHARED_PREF_TOKEN_KEY);
         account = new Account(server, email, null, token);
-        Log.d(DEBUG_TAG, "browser activity onCreate " + server + " " + email);
+        LogUtils.d(DEBUG_TAG, "browser activity onCreate " + server + " " + email);
 
         if (server == null) {
             AccountManager accountManager = new AccountManager(this);
@@ -245,7 +262,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         });
 
         if (savedInstanceState != null) {
-            Log.d(DEBUG_TAG, "savedInstanceState is not null");
+            LogUtils.d(DEBUG_TAG, "savedInstanceState is not null");
             fetchFileDialog = (FetchFileDialog)
                     getSupportFragmentManager().findFragmentByTag(OPEN_FILE_DIALOG_FRAGMENT_TAG);
 
@@ -262,12 +279,12 @@ public class BrowserActivity extends SherlockFragmentActivity
                 getSupportFragmentManager().findFragmentByTag(SslConfirmDialog.FRAGMENT_TAG);
 
             if (sslConfirmDlg != null) {
-                Log.d(DEBUG_TAG, "sslConfirmDlg is not null");
+                LogUtils.d(DEBUG_TAG, "sslConfirmDlg is not null");
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 ft.detach(sslConfirmDlg);
                 ft.commit();
             } else {
-                Log.d(DEBUG_TAG, "sslConfirmDlg is null");
+                LogUtils.d(DEBUG_TAG, "sslConfirmDlg is null");
             }
 
             String repoID = savedInstanceState.getString("repoID");
@@ -296,12 +313,12 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         Intent txIntent = new Intent(this, TransferService.class);
         startService(txIntent);
-        Log.d(DEBUG_TAG, "start TransferService");
+        LogUtils.d(DEBUG_TAG, "start TransferService");
 
         // bind transfer service
         Intent bIntent = new Intent(this, TransferService.class);
         bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
-        Log.d(DEBUG_TAG, "try bind TransferService");
+        LogUtils.d(DEBUG_TAG, "try bind TransferService");
 
         Intent monitorIntent = new Intent(this, FileMonitorService.class);
         startService(monitorIntent);
@@ -467,7 +484,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             return;
         }
         if (isCameraUploadServiceRunning("com.seafile.seadroid2.sync.CameraUploadService")) {
-            Log.d(DEBUG_TAG, "service running...");
+            LogUtils.d(DEBUG_TAG, "service running...");
             // even camera upload service is running, still can`t return.
             // because running state does not guarantee UploadFragment to only show uploading progress, it may show unexpected info like "no upload tasks".
             // 1. when OS under memory pressure, nothing upload even service state is running
@@ -475,7 +492,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
             // return;
         }
-        Log.d(DEBUG_TAG, "start service explicitly on Resume method");
+        LogUtils.d(DEBUG_TAG, "start service explicitly on Resume method");
         Intent cameraUploadIntent = new Intent(this, CameraUploadService.class);
         startService(cameraUploadIntent);
     }
@@ -529,7 +546,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         public void onServiceConnected(ComponentName className, IBinder service) {
             TransferBinder binder = (TransferBinder) service;
             txService = binder.getService();
-            Log.d(DEBUG_TAG, "bind TransferService");
+            LogUtils.d(DEBUG_TAG, "bind TransferService");
 
             for (PendingUploadInfo info : pendingUploads) {
                 txService.addTaskToUploadQue(account,
@@ -551,7 +568,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     @Override
     public void onStart() {
-        Log.d(DEBUG_TAG, "onStart");
+        LogUtils.d(DEBUG_TAG, "onStart");
         super.onStart();
         if (android.os.Build.VERSION.SDK_INT < 14
                 && SettingsManager.instance().isGestureLockRequired()) {
@@ -569,19 +586,19 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     @Override
     protected void onPause() {
-        Log.d(DEBUG_TAG, "onPause");
+        LogUtils.d(DEBUG_TAG, "onPause");
         super.onPause();
     }
 
     @Override
     public void onRestart() {
-        Log.d(DEBUG_TAG, "onRestart");
+        LogUtils.d(DEBUG_TAG, "onRestart");
         super.onRestart();
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
-        Log.d(DEBUG_TAG, "onNewIntent");
+        LogUtils.d(DEBUG_TAG, "onNewIntent");
         String server = intent.getStringExtra("server");
         String email = intent.getStringExtra("email");
 
@@ -594,7 +611,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     @Override
     protected void onStop() {
-        Log.d(DEBUG_TAG, "onStop");
+        LogUtils.d(DEBUG_TAG, "onStop");
         super.onStop();
 
         if (mTransferReceiver != null) {
@@ -604,7 +621,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     @Override
     protected void onDestroy() {
-        Log.d(DEBUG_TAG, "onDestroy is called");
+        LogUtils.d(DEBUG_TAG, "onDestroy is called");
         if (txService != null) {
             unbindService(mConnection);
             txService = null;
@@ -615,7 +632,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        Log.d(DEBUG_TAG, "onSaveInstanceState");
+        LogUtils.d(DEBUG_TAG, "onSaveInstanceState");
         super.onSaveInstanceState(outState);
         //outState.putInt("tab", getSupportActionBar().getSelectedNavigationIndex());
         if (navContext.getRepoID() != null) {
@@ -1042,7 +1059,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                 File tempDir = new File(DataManager.getExternalTempDirectory(), "saf_temp" + "/" + "upload-"+System.currentTimeMillis());
                 File tempFile = new File(tempDir, Utils.getFilenamefromUri(BrowserActivity.this, uri));
 
-                Log.d(DEBUG_TAG, "Uploading file from uri: " + uri);
+                LogUtils.d(DEBUG_TAG, "Uploading file from uri: " + uri);
 
                 InputStream in = null;
                 OutputStream out = null;
@@ -1059,10 +1076,10 @@ public class BrowserActivity extends SherlockFragmentActivity
                     IOUtils.copy(in, out);
 
                 } catch (IOException e) {
-                    Log.d(DEBUG_TAG, "Could not open requested document", e);
+                    LogUtils.d(DEBUG_TAG, "Could not open requested document", e);
                     tempFile = null;
                 } catch (RuntimeException e) {
-                    Log.d(DEBUG_TAG, "Could not open requested document", e);
+                    LogUtils.d(DEBUG_TAG, "Could not open requested document", e);
                     tempFile = null;
                 } finally {
                     IOUtils.closeQuietly(in);
@@ -1131,7 +1148,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         @Override
         protected List<SeafDirent> doInBackground(String... params) {
             if (params.length != 3) {
-                Log.d(DEBUG_TAG, "Wrong params to LoadDirTask");
+                LogUtils.d(DEBUG_TAG, "Wrong params to LoadDirTask");
                 return null;
             }
 
@@ -1162,7 +1179,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                         continue;
                     }
 
-                    // Log.d(DEBUG_TAG, Utils.pathJoin(repoName, dirPath, seafDirent.name));
+                    // LogUtils.d(DEBUG_TAG, Utils.pathJoin(repoName, dirPath, seafDirent.name));
                     txService.addTaskToDownloadQue(account,
                             repoName,
                             repoID,

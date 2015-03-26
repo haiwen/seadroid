@@ -28,7 +28,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -38,6 +37,7 @@ import android.widget.TextView;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.util.LogUtils;
 
 public class MultipleImageSelectionActivity extends NoSearchActivity implements
         GridViewSpecial.Listener, GridViewSpecial.DrawAdapter {
@@ -595,7 +595,7 @@ public class MultipleImageSelectionActivity extends NoSearchActivity implements
             mMultiSelected.remove(image);
         }
 
-        Log.d(TAG, "add/remove: " + image.getDataPath());
+        LogUtils.d(TAG, "add/remove: " + image.getDataPath());
 
         updateSelectionStatus();
         mGvs.invalidate();

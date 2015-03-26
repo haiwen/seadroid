@@ -16,10 +16,6 @@
 
 package com.seafile.seadroid2.ui.fragment;
 
-import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.ui.CustomPreferenceManagerCompat;
-import com.seafile.seadroid2.ui.CustomPreferenceManagerCompat.OnPreferenceTreeClickListener;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -35,6 +31,9 @@ import android.view.View;
 import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 import android.widget.ListView;
+
+import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.ui.CustomPreferenceManagerCompat;
 
 /**
  * Unofficial PreferenceFragment compatibility layer for Android 1.6 and up.
