@@ -49,7 +49,7 @@ public abstract class BaseImageList implements IImageList {
             invalidateCursor();
         } catch (IllegalStateException e) {
             // IllegalStateException may be thrown if the cursor is stale.
-            Log.e(TAG, "Caught exception while deactivating cursor.", e);
+            LogUtils.e(TAG, "Caught exception while deactivating cursor.", e);
         }
         mContentResolver = null;
         if (mCursor != null) {
@@ -65,7 +65,7 @@ public abstract class BaseImageList implements IImageList {
             // does our uri already have an id (single image query)?
             // if so just return it
             long existingId = ContentUris.parseId(mBaseUri);
-            if (existingId != id) Log.e(TAG, "id mismatch");
+            if (existingId != id) LogUtils.e(TAG, "id mismatch");
             return mBaseUri;
         } catch (NumberFormatException ex) {
             // otherwise tack on the id

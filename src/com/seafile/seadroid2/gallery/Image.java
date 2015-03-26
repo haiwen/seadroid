@@ -73,7 +73,7 @@ public class Image extends BaseImage implements IImage {
         try {
             mExif = new ExifInterface(mDataPath);
         } catch (IOException ex) {
-            Log.e(TAG, "cannot read exif", ex);
+            LogUtils.e(TAG, "cannot read exif", ex);
         }
     }
 
@@ -108,7 +108,7 @@ public class Image extends BaseImage implements IImage {
                     Integer.toString(orientation));
             saveExifData();
         } catch (Exception ex) {
-            Log.e(TAG, "unable to save exif data with new orientation "
+            LogUtils.e(TAG, "unable to save exif data with new orientation "
                     + fullSizeImageUri(), ex);
         }
     }

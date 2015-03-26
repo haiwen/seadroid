@@ -153,7 +153,7 @@ public abstract class BaseImage implements IImage {
             b = BitmapManager.instance().getThumbnail(mContentResolver, id,
                     Images.Thumbnails.MICRO_KIND, null, false);
         } catch (Throwable ex) {
-            Log.e(TAG, "miniThumbBitmap got exception", ex);
+            LogUtils.e(TAG, "miniThumbBitmap got exception", ex);
             return null;
         }
         if (b != null) {

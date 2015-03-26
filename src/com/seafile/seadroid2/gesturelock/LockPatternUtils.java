@@ -161,10 +161,10 @@ public class LockPatternUtils {
         } catch (FileNotFoundException fnfe) {
             // Cant do much, unless we want to fail over to using the settings
             // provider
-            Log.e(TAG, "Unable to save lock pattern to " + sLockPatternFilename);
+            LogUtils.e(TAG, "Unable to save lock pattern to " + sLockPatternFilename);
         } catch (IOException ioe) {
             // Cant do much
-            Log.e(TAG, "Unable to save lock pattern to " + sLockPatternFilename);
+            LogUtils.e(TAG, "Unable to save lock pattern to " + sLockPatternFilename);
         }
     }
 

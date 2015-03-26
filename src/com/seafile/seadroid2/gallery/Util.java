@@ -298,7 +298,7 @@ public class Util {
             options.inPreferredConfig = Bitmap.Config.ARGB_8888;
             return BitmapManager.instance().decodeFileDescriptor(fd, options);
         } catch (OutOfMemoryError ex) {
-            Log.e(TAG, "Got oom exception ", ex);
+            LogUtils.e(TAG, "Got oom exception ", ex);
             return null;
         } finally {
             closeSilently(pfd);

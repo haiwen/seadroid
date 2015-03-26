@@ -70,9 +70,9 @@ public final class SSLTrustManager {
                 }
             }
         } catch (NoSuchAlgorithmException e) {
-            Log.e(DEBUG_TAG, "Unable to get X509 Trust Manager ", e);
+            LogUtils.e(DEBUG_TAG, "Unable to get X509 Trust Manager ", e);
         } catch (KeyStoreException e) {
-            Log.e(DEBUG_TAG, "Key Store exception while initializing TrustManagerFactory ", e);
+            LogUtils.e(DEBUG_TAG, "Key Store exception while initializing TrustManagerFactory ", e);
         }
     }
 
@@ -98,7 +98,7 @@ public final class SSLTrustManager {
             factory = new SSLSeafileSocketFactory(null, mgrs, new SecureRandom());
             LogUtils.d(DEBUG_TAG, "a SSLSocketFactory is created:" + factory);
         } catch (Exception e) {
-            Log.e(DEBUG_TAG, "error when create SSLSocketFactory", e);
+            LogUtils.e(DEBUG_TAG, "error when create SSLSocketFactory", e);
         }
 
         if (factory != null) {

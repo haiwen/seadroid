@@ -31,6 +31,10 @@ public class LogUtils {
         Log.e(DEBUG_TAG, message);
     }
 
+    public static void e(String DEBUG_TAG, String message, Exception e) {
+        Log.e(DEBUG_TAG, message, e);
+    }
+
     public static void wtf(String DEBUG_TAG, String message) {
         Log.wtf(DEBUG_TAG, message);
     }

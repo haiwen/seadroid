@@ -76,7 +76,7 @@ class UriImage implements IImage {
                     pfdInput, useNative);
             return b;
         } catch (Exception ex) {
-            Log.e(TAG, "got exception decoding bitmap ", ex);
+            LogUtils.e(TAG, "got exception decoding bitmap ", ex);
             return null;
         }
     }

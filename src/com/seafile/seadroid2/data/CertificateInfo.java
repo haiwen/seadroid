@@ -75,7 +75,7 @@ public class CertificateInfo {
                 sig += Integer.toHexString(b & 0xFF);
             return sig;
         } catch (Exception e) {
-            Log.e(DEBUG_TAG, "Couldn't calculate certificate digest", e);
+            LogUtils.e(DEBUG_TAG, "Couldn't calculate certificate digest", e);
             return e.getMessage();
         }
     }

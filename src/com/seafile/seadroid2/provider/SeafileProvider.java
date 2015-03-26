@@ -544,7 +544,7 @@ public class SeafileProvider extends DocumentsProvider {
                     dm.getDirentsFromServer(repoId, path);
 
                 } catch (SeafException e) {
-                    Log.e(getClass().getSimpleName(), "Exception while querying server", e);
+                    LogUtils.e(getClass().getSimpleName(), "Exception while querying server", e);
                 }
                 // notify the client in any case.
                 // XXX: the API is unclear about this. we could also let him wait forever.
@@ -573,7 +573,7 @@ public class SeafileProvider extends DocumentsProvider {
                     dm.getReposFromServer();
 
                 } catch (SeafException e) {
-                    Log.e(getClass().getSimpleName(), "Exception while querying server", e);
+                    LogUtils.e(getClass().getSimpleName(), "Exception while querying server", e);
                 }
                 // notify the client in any case.
                 // XXX: the API is unclear about this. we could also let him wait forever.
