@@ -1,5 +1,7 @@
 # Seafile Android Client [![Build Status](https://secure.travis-ci.org/haiwen/seadroid.png?branch=master)](http://travis-ci.org/haiwen/seadroid)
 
+[![Join the chat at https://gitter.im/haiwen/seadroid](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/haiwen/seadroid?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 The application has been published onto Google Play for easy access:
 
 [![Get it on Google Play](http://www.android.com/images/brand/get_it_on_play_logo_small.png)](https://play.google.com/store/apps/details?id=com.seafile.seadroid2)
