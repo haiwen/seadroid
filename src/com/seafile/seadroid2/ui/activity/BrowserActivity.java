@@ -980,6 +980,11 @@ public class BrowserActivity extends SherlockFragmentActivity
             break;
         case PICK_FILE_REQUEST:
             if (resultCode == RESULT_OK) {
+                if (!Utils.isNetworkOn()) {
+                    ToastUtils.show(this, R.string.network_down);
+                    return;
+                }
+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                     List<Uri> uriList = UtilsJellyBean.extractUriListFromIntent(data);
                     if (uriList.size() > 0) {
