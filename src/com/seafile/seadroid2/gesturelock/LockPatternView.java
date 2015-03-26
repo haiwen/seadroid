@@ -41,11 +41,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
 
-import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.util.LogUtils;
 
 
-/**
+    /**
  * Displays and detects the user's unlock attempt, which is a drag of a finger
  * across 9 regions of the screen.
  *
@@ -508,7 +508,7 @@ public class LockPatternView extends View {
             viewWidth = Math.min(viewWidth, viewHeight);
             break;
         }
-        Log.v(TAG, "LockPatternView dimensions: " + viewWidth + "x"
+        LogUtils.v(TAG, "LockPatternView dimensions: " + viewWidth + "x"
                 + viewHeight);
         setMeasuredDimension(viewWidth, viewHeight);
     }

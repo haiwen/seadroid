@@ -17,6 +17,8 @@ import android.content.SharedPreferences.Editor;
 import android.os.FileObserver;
 import android.util.Log;
 
+import com.seafile.seadroid2.util.LogUtils;
+
 public class LockPasswordUtils {
     private static final String TAG = "LockPasswordUtils";
     private final static String LOCK_PASSWORD_SALT_FILE = "password_salt";
@@ -37,7 +39,7 @@ public class LockPasswordUtils {
         @Override
         public void onEvent(int event, String path) {
             if (LOCK_PASSWORD_FILE.equals(path)) {
-                Log.d(TAG, "lock password file changed");
+                LogUtils.d(TAG, "lock password file changed");
                 sHaveNonZeroPasswordFile
                         .set(sLockPasswordFilename.length() > 0);
             }
@@ -134,11 +136,11 @@ public class LockPasswordUtils {
         } catch (FileNotFoundException fnfe) {
             // Cant do much, unless we want to fail over to using the settings
             // provider
-            Log.e(TAG, "Unable to save lock pattern to "
+            LogUtils.e(TAG, "Unable to save lock pattern to "
                     + sLockPasswordFilename);
         } catch (IOException ioe) {
             // Cant do much
-            Log.e(TAG, "Unable to save lock pattern to "
+            LogUtils.e(TAG, "Unable to save lock pattern to "
                     + sLockPasswordFilename);
         }
     }
@@ -195,7 +197,7 @@ public class LockPasswordUtils {
                     saltedPassword);
             hashed = (toHex(sha1) + toHex(md5)).getBytes();
         } catch (NoSuchAlgorithmException e) {
-            Log.w(TAG, "Failed to encode string because of missing algorithm: "
+            LogUtils.w(TAG, "Failed to encode string because of missing algorithm: "
                     + algo);
         }
         return hashed;
@@ -207,7 +209,7 @@ public class LockPasswordUtils {
             try {
                 salt = SecureRandom.getInstance("SHA1PRNG").nextLong();
                 setLong(LOCK_PASSWORD_SALT_KEY, salt);
-                Log.v(TAG, "Initialized lock password salt");
+                LogUtils.v(TAG, "Initialized lock password salt");
             } catch (NoSuchAlgorithmException e) {
                 // Throw an exception rather than storing a password we'll never
                 // be able to recover

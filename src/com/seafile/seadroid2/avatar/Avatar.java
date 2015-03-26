@@ -4,8 +4,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.google.common.base.Objects;
-
-import android.util.Log;
+import com.seafile.seadroid2.util.LogUtils;
 
 public class Avatar {
     private static final String DEBUG_TAG = "Avatar";
@@ -24,7 +23,7 @@ public class Avatar {
             
             return avatar;
         } catch (JSONException e) {
-            Log.d(DEBUG_TAG, e.getMessage());
+            LogUtils.d(DEBUG_TAG, e.getMessage());
             return null;
         }
     }

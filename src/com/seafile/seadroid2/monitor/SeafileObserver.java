@@ -13,6 +13,7 @@ import com.google.common.collect.Maps;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafCachedFile;
+import com.seafile.seadroid2.util.LogUtils;
 import com.seafile.seadroid2.util.Utils;
 
 public class SeafileObserver implements FileAlterationListener {
@@ -52,7 +53,7 @@ public class SeafileObserver implements FileAlterationListener {
                 watchedFiles.put(file.getPath(), cached);
             }
         }
-        Log.d(DEBUG_TAG, "watching files, # total watched " + watchedFiles.size());
+        LogUtils.d(DEBUG_TAG, "watching files, # total watched " + watchedFiles.size());
     }
 
     public void watchDownloadedFile(String repoID, String repoName, String pathInRepo,
@@ -65,7 +66,7 @@ public class SeafileObserver implements FileAlterationListener {
         cacheInfo.path = pathInRepo;
         watchedFiles.put(localpath, cacheInfo);
 
-        Log.d(DEBUG_TAG, "start watch downloaded file " + pathInRepo + ", # total watched " + watchedFiles.size());
+        LogUtils.d(DEBUG_TAG, "start watch downloaded file " + pathInRepo + ", # total watched " + watchedFiles.size());
     }
 
     public void setAccount(Account account) {
@@ -95,17 +96,17 @@ public class SeafileObserver implements FileAlterationListener {
 
     @Override
     public void onDirectoryChange(File directory) {
-        Log.v(DEBUG_TAG, directory.getPath() + " was modified!");
+        LogUtils.v(DEBUG_TAG, directory.getPath() + " was modified!");
     }
 
     @Override
     public void onDirectoryCreate(File directory) {
-        Log.v(DEBUG_TAG, directory.getPath() + " was created!");
+        LogUtils.v(DEBUG_TAG, directory.getPath() + " was created!");
     }
 
     @Override
     public void onDirectoryDelete(File directory) {
-        Log.v(DEBUG_TAG, directory.getPath() + " was deleted!");
+        LogUtils.v(DEBUG_TAG, directory.getPath() + " was deleted!");
     }
 
     @Override
@@ -113,14 +114,14 @@ public class SeafileObserver implements FileAlterationListener {
         String path = file.getPath();
 
         if (recentDownloadedFiles.isRecentDownloadedFiles(path)) {
-            Log.d(DEBUG_TAG, "ignore change signal for recent downloaded file " + path);
+            LogUtils.d(DEBUG_TAG, "ignore change signal for recent downloaded file " + path);
             return;
         }
         else {
             recentDownloadedFiles.removeRecentDownloadedFile(path);
         }
 
-        Log.d(DEBUG_TAG, path + " was modified!");
+        LogUtils.d(DEBUG_TAG, path + " was modified!");
         SeafCachedFile cachedFile = watchedFiles.get(path);
         if (cachedFile != null) {
             listener.onCachedFiledChanged(account, cachedFile, file);
@@ -129,26 +130,26 @@ public class SeafileObserver implements FileAlterationListener {
 
     @Override
     public void onFileCreate(File file) {
-        Log.v(DEBUG_TAG, file.getPath() + " was created!");
+        LogUtils.v(DEBUG_TAG, file.getPath() + " was created!");
     }
 
     @Override
     public void onFileDelete(File file) {
-        Log.v(DEBUG_TAG, file.getPath() + " was deleted!");
+        LogUtils.v(DEBUG_TAG, file.getPath() + " was deleted!");
         String path = file.getPath();
         watchedFiles.remove(path);
         recentDownloadedFiles.removeRecentDownloadedFile(path);
-        Log.d(DEBUG_TAG, "now watching files, # total watched " + watchedFiles.size());
+        LogUtils.d(DEBUG_TAG, "now watching files, # total watched " + watchedFiles.size());
     }
 
     @Override
     public void onStart(FileAlterationObserver fao) {
-        Log.v(DEBUG_TAG, fao.toString() + " start checking event!");
+        LogUtils.v(DEBUG_TAG, fao.toString() + " start checking event!");
     }
 
     @Override
     public void onStop(FileAlterationObserver fao) {
-        Log.v(DEBUG_TAG, fao.toString() + " finished checking event!");
+        LogUtils.v(DEBUG_TAG, fao.toString() + " finished checking event!");
     }
 
     /**
@@ -179,7 +180,7 @@ public class SeafileObserver implements FileAlterationListener {
 
         public void removeRecentDownloadedFile(String filePath) {
             recentDownloadedFiles.remove(filePath);
-            Log.d(DEBUG_TAG, "remove recent file, # total watched " + recentDownloadedFiles.size());
+            LogUtils.d(DEBUG_TAG, "remove recent file, # total watched " + recentDownloadedFiles.size());
         }
     }
 }

@@ -1,16 +1,17 @@
 package com.seafile.seadroid2.ui.fragment;
 
+import java.util.List;
+
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.AdapterView;
 import android.widget.ListView;
+
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.TaskState;
 import com.seafile.seadroid2.transfer.TransferTaskInfo;
 import com.seafile.seadroid2.ui.adapter.TransferTaskAdapter;
-
-import java.util.List;
+import com.seafile.seadroid2.util.LogUtils;
 
 /**
  * Download tasks fragments
@@ -21,7 +22,7 @@ public class DownloadTaskFragment extends TransferTaskFragment {
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-        Log.d(DEBUG_TAG, "onActivityCreated");
+        LogUtils.d(DEBUG_TAG, "onActivityCreated");
         super.onActivityCreated(savedInstanceState);
 
         emptyView.setText(getString(R.string.no_download_tasks));
@@ -35,7 +36,7 @@ public class DownloadTaskFragment extends TransferTaskFragment {
     @Override
     protected void setUpTransferList() {
 
-        Log.d(DEBUG_TAG, "bind TransferService");
+        LogUtils.d(DEBUG_TAG, "bind TransferService");
         List<DownloadTaskInfo> infos = txService.getAllDownloadTaskInfos();
         adapter = new TransferTaskAdapter(mActivity, infos);
         adapter.setCurrentTab(TransferTaskAdapter.DOWNLOAD_LIST_TAB);

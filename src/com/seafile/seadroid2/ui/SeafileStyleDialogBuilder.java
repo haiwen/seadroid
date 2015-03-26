@@ -16,8 +16,6 @@ package com.seafile.seadroid2.ui;
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-import com.seafile.seadroid2.R;
-
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
@@ -38,6 +36,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
+
+import com.seafile.seadroid2.R;
 
 /**
  * base class for unifying dialog styles

@@ -28,6 +28,7 @@ import android.util.Log;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.seafile.seadroid2.util.LogUtils;
 
 /**
  * ImageManager is used to retrieve and store images
@@ -177,7 +178,7 @@ public class ImageManager {
             Environment.getExternalStorageDirectory().toString()
             + "/DCIM/100ANDRO");
         if ((!nnnAAAAA.exists()) && (!nnnAAAAA.mkdir())) {
-            Log.e(TAG, "create NNNAAAAA file: " + nnnAAAAA.getPath()
+            LogUtils.e(TAG, "create NNNAAAAA file: " + nnnAAAAA.getPath()
                     + " failed");
         }
     }
@@ -241,10 +242,10 @@ public class ImageManager {
                 degree[0] = getExifOrientation(filePath);
             }
         } catch (FileNotFoundException ex) {
-            Log.w(TAG, ex);
+            LogUtils.w(TAG, ex);
             return null;
         } catch (IOException ex) {
-            Log.w(TAG, ex);
+            LogUtils.w(TAG, ex);
             return null;
         } finally {
             Util.closeSilently(outputStream);
@@ -276,7 +277,7 @@ public class ImageManager {
         try {
             exif = new ExifInterface(filepath);
         } catch (IOException ex) {
-            Log.e(TAG, "cannot read exif", ex);
+            LogUtils.e(TAG, "cannot read exif", ex);
         }
         if (exif != null) {
             int orientation = exif.getAttributeInt(

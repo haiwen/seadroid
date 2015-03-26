@@ -1,11 +1,11 @@
 package com.seafile.seadroid2.transfer;
 
+import java.io.File;
+
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.ProgressMonitor;
-
-import java.io.File;
 
 /**
  * Download task

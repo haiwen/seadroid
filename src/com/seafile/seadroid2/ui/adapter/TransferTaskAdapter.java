@@ -1,5 +1,9 @@
 package com.seafile.seadroid2.ui.adapter;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.view.LayoutInflater;
@@ -9,16 +13,13 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.TransferTaskInfo;
 import com.seafile.seadroid2.transfer.UploadTaskInfo;
 import com.seafile.seadroid2.ui.activity.TransferActivity;
 import com.seafile.seadroid2.util.Utils;
-
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 /*
  * Adapter class for both uploading and downloading tasks

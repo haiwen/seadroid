@@ -1,15 +1,16 @@
 package com.seafile.seadroid2.gallery;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+
 import android.content.ContentResolver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import com.seafile.seadroid2.util.LogUtils;
 
 class UriImage implements IImage {
     private static final String TAG = "UriImage";
@@ -76,7 +77,7 @@ class UriImage implements IImage {
                     pfdInput, useNative);
             return b;
         } catch (Exception ex) {
-            Log.e(TAG, "got exception decoding bitmap ", ex);
+            LogUtils.e(TAG, "got exception decoding bitmap ", ex);
             return null;
         }
     }

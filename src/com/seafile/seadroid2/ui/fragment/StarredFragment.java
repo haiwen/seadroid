@@ -11,8 +11,8 @@ import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import android.widget.Toast;
+
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;

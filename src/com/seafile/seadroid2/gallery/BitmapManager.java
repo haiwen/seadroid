@@ -1,14 +1,15 @@
 package com.seafile.seadroid2.gallery;
 
+import java.io.FileDescriptor;
+import java.util.WeakHashMap;
+
 import android.content.ContentResolver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.provider.MediaStore.Images;
 import android.provider.MediaStore.Video;
-import android.util.Log;
 
-import java.io.FileDescriptor;
-import java.util.WeakHashMap;
+import com.seafile.seadroid2.util.LogUtils;
 
 /**
  * This class provides several utilities to cancel bitmap decoding.
@@ -125,7 +126,7 @@ public class BitmapManager {
         ThreadStatus status = getOrCreateThreadStatus(t);
 
         if (!canThreadDecoding(t)) {
-            Log.d(TAG, "Thread " + t + " is not allowed to decode.");
+            LogUtils.d(TAG, "Thread " + t + " is not allowed to decode.");
             return null;
         }
 
@@ -166,7 +167,7 @@ public class BitmapManager {
 
         Thread thread = Thread.currentThread();
         if (!canThreadDecoding(thread)) {
-            Log.d(TAG, "Thread " + thread + " is not allowed to decode.");
+            LogUtils.d(TAG, "Thread " + thread + " is not allowed to decode.");
             return null;
         }
 

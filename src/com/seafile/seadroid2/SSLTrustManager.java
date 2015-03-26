@@ -12,18 +12,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import android.os.Build;
 import android.util.Log;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.util.LogUtils;
 
 public final class SSLTrustManager {
     public enum SslFailureReason {
@@ -71,9 +70,9 @@ public final class SSLTrustManager {
                 }
             }
         } catch (NoSuchAlgorithmException e) {
-            Log.e(DEBUG_TAG, "Unable to get X509 Trust Manager ", e);
+            LogUtils.e(DEBUG_TAG, "Unable to get X509 Trust Manager ", e);
         } catch (KeyStoreException e) {
-            Log.e(DEBUG_TAG, "Key Store exception while initializing TrustManagerFactory ", e);
+            LogUtils.e(DEBUG_TAG, "Key Store exception while initializing TrustManagerFactory ", e);
         }
     }
 
@@ -97,9 +96,9 @@ public final class SSLTrustManager {
         try {
             TrustManager[] mgrs = getTrustManagers(account);
             factory = new SSLSeafileSocketFactory(null, mgrs, new SecureRandom());
-            Log.d(DEBUG_TAG, "a SSLSocketFactory is created:" + factory);
+            LogUtils.d(DEBUG_TAG, "a SSLSocketFactory is created:" + factory);
         } catch (Exception e) {
-            Log.e(DEBUG_TAG, "error when create SSLSocketFactory", e);
+            LogUtils.e(DEBUG_TAG, "error when create SSLSocketFactory", e);
         }
 
         if (factory != null) {
@@ -184,7 +183,7 @@ public final class SSLTrustManager {
 
         public SecureX509TrustManager(Account account) {
             this.account = account;
-            Log.d(DEBUG_TAG, "a SecureX509TrustManager is created:" + hashCode());
+            LogUtils.d(DEBUG_TAG, "a SecureX509TrustManager is created:" + hashCode());
         }
 
         public List<X509Certificate> getServerCertsChain() {
@@ -235,19 +234,19 @@ public final class SSLTrustManager {
 
             X509Certificate savedCert = CertsManager.instance().getCertificate(account);
             if (savedCert == null) {
-                Log.d(DEBUG_TAG, "no saved cert for " + account.server);
+                LogUtils.d(DEBUG_TAG, "no saved cert for " + account.server);
                 reason = SslFailureReason.CERT_NOT_TRUSTED;
                 throw new CertificateException();
             } else if (savedCert.equals(cert)) {
                 // The user has confirmed to trust this certificate
-                Log.d(DEBUG_TAG, "the cert of " + account.server + " is trusted");
+                LogUtils.d(DEBUG_TAG, "the cert of " + account.server + " is trusted");
                 return;
             } else {
                 // The certificate is different from the one user confirmed to trust,
                 // This may be either:
                 // 1. The server admin has changed its cert
                 // 2. The user is under security attak
-                Log.d(DEBUG_TAG, "the cert of " + account.server + " has changed");
+                LogUtils.d(DEBUG_TAG, "the cert of " + account.server + " has changed");
                 reason = SslFailureReason.CERT_CHANGED;
                 throw new CertificateException();
             }
@@ -259,7 +258,7 @@ public final class SSLTrustManager {
 
         @Override
         protected void finalize() {
-            Log.d(DEBUG_TAG, "a SecureX509TrustManager is finalized:" + hashCode());
+            LogUtils.d(DEBUG_TAG, "a SecureX509TrustManager is finalized:" + hashCode());
         }
     }
     

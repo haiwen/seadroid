@@ -26,11 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
 
-import android.os.Build;
-import android.provider.OpenableColumns;
-import android.text.TextUtils;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,7 +40,12 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.DetailedState;
 import android.net.Uri;
+import android.os.Build;
+import android.provider.OpenableColumns;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
 
 import com.google.common.collect.Lists;
@@ -67,7 +67,7 @@ public class Utils {
     public static JSONObject parseJsonObject(String json) {
         if (json == null) {
             // the caller should not give null
-            Log.w(DEBUG_TAG, "null in parseJsonObject");
+            LogUtils.w(DEBUG_TAG, "null in parseJsonObject");
             return null;
         }
 
@@ -81,7 +81,7 @@ public class Utils {
     public static JSONArray parseJsonArrayByKey(String json, String key) throws JSONException {
         if (json == null) {
             // the caller should not give null
-            Log.w(DEBUG_TAG, "null in parseJsonArrayByKey");
+            LogUtils.w(DEBUG_TAG, "null in parseJsonArrayByKey");
             return null;
         }
 
@@ -95,7 +95,7 @@ public class Utils {
     public static JSONArray parseJsonArray(String json) {
         if (json == null) {
          // the caller should not give null
-            Log.w(DEBUG_TAG, "null in parseJsonArray");
+            LogUtils.w(DEBUG_TAG, "null in parseJsonArray");
             return null;
         }
 
@@ -158,7 +158,7 @@ public class Utils {
     public static String getParentPath(String path) {
         if (path == null) {
             // the caller should not give null
-            Log.w(DEBUG_TAG, "null in getParentPath");
+            LogUtils.w(DEBUG_TAG, "null in getParentPath");
             return null;
         }
 
@@ -172,7 +172,7 @@ public class Utils {
     public static String fileNameFromPath(String path) {
         if (path == null) {
             // the caller should not give null
-            Log.w(DEBUG_TAG, "null in getParentPath");
+            LogUtils.w(DEBUG_TAG, "null in getParentPath");
             return null;
         }
 

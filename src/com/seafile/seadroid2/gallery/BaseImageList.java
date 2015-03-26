@@ -1,13 +1,14 @@
 package com.seafile.seadroid2.gallery;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.seafile.seadroid2.util.LogUtils;
 
 /**
  * A collection of <code>BaseImage</code>s.
@@ -35,7 +36,7 @@ public abstract class BaseImageList implements IImageList {
         mCursor = createCursor();
 
         if (mCursor == null) {
-            Log.w(TAG, "createCursor returns null.");
+            LogUtils.w(TAG, "createCursor returns null.");
         }
 
         // TODO: We need to clear the cache because we may "reopen" the image
@@ -49,7 +50,7 @@ public abstract class BaseImageList implements IImageList {
             invalidateCursor();
         } catch (IllegalStateException e) {
             // IllegalStateException may be thrown if the cursor is stale.
-            Log.e(TAG, "Caught exception while deactivating cursor.", e);
+            LogUtils.e(TAG, "Caught exception while deactivating cursor.", e);
         }
         mContentResolver = null;
         if (mCursor != null) {
@@ -65,7 +66,7 @@ public abstract class BaseImageList implements IImageList {
             // does our uri already have an id (single image query)?
             // if so just return it
             long existingId = ContentUris.parseId(mBaseUri);
-            if (existingId != id) Log.e(TAG, "id mismatch");
+            if (existingId != id) LogUtils.e(TAG, "id mismatch");
             return mBaseUri;
         } catch (NumberFormatException ex) {
             // otherwise tack on the id
@@ -171,7 +172,7 @@ public abstract class BaseImageList implements IImageList {
         try {
             matchId = ContentUris.parseId(uri);
         } catch (NumberFormatException ex) {
-            Log.i(TAG, "fail to get id in: " + uri, ex);
+            LogUtils.e(TAG, "fail to get id in: " + uri, ex);
             return null;
         }
         // TODO: design a better method to get URI of specified ID

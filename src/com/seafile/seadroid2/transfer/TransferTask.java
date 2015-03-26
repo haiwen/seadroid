@@ -1,10 +1,11 @@
 package com.seafile.seadroid2.transfer;
 
+import java.io.File;
+
 import android.os.AsyncTask;
+
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
-
-import java.io.File;
 
 /**
  * Base class for transferring data

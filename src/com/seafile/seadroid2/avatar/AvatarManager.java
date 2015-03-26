@@ -1,13 +1,14 @@
 package com.seafile.seadroid2.avatar;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.account.AccountManager;
 import org.json.JSONObject;
 
 import com.google.common.collect.Lists;
+import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.util.Utils;
 
 /**

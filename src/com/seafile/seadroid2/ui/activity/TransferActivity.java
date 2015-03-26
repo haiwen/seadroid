@@ -6,18 +6,19 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
-import android.util.Log;
 import android.view.KeyEvent;
+
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.ui.adapter.TransferTaskAdapter;
 import com.seafile.seadroid2.ui.fragment.DownloadTaskFragment;
 import com.seafile.seadroid2.ui.fragment.UploadTaskFragment;
+import com.seafile.seadroid2.util.LogUtils;
 import com.viewpagerindicator.TabPageIndicator;
-import com.seafile.seadroid2.ui.adapter.TransferTaskAdapter;
 
 public class TransferActivity extends SherlockFragmentActivity {
     private static final String DEBUG_TAG = "TransferActivity";
@@ -44,7 +45,7 @@ public class TransferActivity extends SherlockFragmentActivity {
         indicator.setOnPageChangeListener(new OnPageChangeListener() {
             @Override
             public void onPageSelected(final int position) {
-                Log.d(DEBUG_TAG, "current tab index " + position);
+                LogUtils.d(DEBUG_TAG, "current tab index " + position);
                 currentPosition = position;
                 supportInvalidateOptionsMenu();
                 pager.setCurrentItem(position);

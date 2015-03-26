@@ -1,8 +1,6 @@
 package com.seafile.seadroid2.fileschooser;
 
 
-import com.seafile.seadroid2.R;
-
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -10,6 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.seafile.seadroid2.R;
 
 public class FileFooterFragment extends Fragment {
 

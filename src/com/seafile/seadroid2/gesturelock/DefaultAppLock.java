@@ -5,20 +5,17 @@
  */
 package com.seafile.seadroid2.gesturelock;
 
+import java.util.concurrent.ConcurrentMap;
+
 import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+
 import com.google.common.collect.MapMaker;
-import com.google.common.collect.Maps;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.ui.activity.UnlockGesturePasswordActivity;
-
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
+import com.seafile.seadroid2.util.LogUtils;
 
 /**
  * Implementation of AppLock
@@ -58,7 +55,7 @@ public class DefaultAppLock extends AbstractAppLock {
 
     @Override
     public void onActivityPaused(Activity activity) {
-        Log.d(DEBUG_TAG, "onActivityPaused");
+        LogUtils.d(DEBUG_TAG, "onActivityPaused");
 
         if (activity.getClass() == UnlockGesturePasswordActivity.class)
             return;
@@ -79,7 +76,7 @@ public class DefaultAppLock extends AbstractAppLock {
 
     @Override
     public void onActivityResumed(Activity activity) {
-        Log.d(DEBUG_TAG, "onActivityResumed");
+        LogUtils.d(DEBUG_TAG, "onActivityResumed");
 
         /** just compare fully-qualified names to determine if two classes being equal
          * even if they've been loaded by different classloaders,

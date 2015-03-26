@@ -10,7 +10,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.util.LogUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,6 +21,7 @@ import android.util.Pair;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
@@ -290,7 +291,7 @@ public class DataManager {
             }
             return repos;
         } catch (JSONException e) {
-            Log.w(DEBUG_TAG, "repos: parse json error");
+            LogUtils.w(DEBUG_TAG, "repos: parse json error");
             return null;
         } catch (Exception e) {
             // other exception, for example ClassCastException
@@ -341,7 +342,7 @@ public class DataManager {
         }
 
         String json = sc.getRepos();
-        //Log.d(DEBUG_TAG, "get repos from server " + json);
+        //LogUtils.d(DEBUG_TAG, "get repos from server " + json);
         if (json == null)
             return null;
 
@@ -472,14 +473,14 @@ public class DataManager {
 
     public List<SeafStarredFile> getStarredFiles() throws SeafException {
         String starredFiles = sc.getStarredFiles();
-        Log.v(DEBUG_TAG, "Save starred files: " + starredFiles);
+        LogUtils.v(DEBUG_TAG, "Save starred files: " + starredFiles);
         dbHelper.saveCachedStarredFiles(account,starredFiles);
         return parseStarredFiles(starredFiles);
     }
 
     public List<SeafStarredFile> getCachedStarredFiles() {
         String starredFiles = dbHelper.getCachedStarredFiles(account);
-        Log.v(DEBUG_TAG, "Get cached starred files: " + starredFiles);
+        LogUtils.v(DEBUG_TAG, "Get cached starred files: " + starredFiles);
         return parseStarredFiles(starredFiles);
     }
 

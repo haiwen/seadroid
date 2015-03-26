@@ -1,13 +1,14 @@
 package com.seafile.seadroid2.transfer;
 
+import java.util.List;
+
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
-import android.util.Log;
-import com.seafile.seadroid2.account.Account;
 
-import java.util.List;
+import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.util.LogUtils;
 
 public class TransferService extends Service {
     private static final String DEBUG_TAG = "TransferService";
@@ -24,7 +25,7 @@ public class TransferService extends Service {
 
     @Override
     public void onDestroy() {
-        Log.d(DEBUG_TAG, "onDestroy");
+        LogUtils.d(DEBUG_TAG, "onDestroy");
     }
 
     @Override
@@ -40,7 +41,7 @@ public class TransferService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        // Log.d(DEBUG_TAG, "onBind");
+        // LogUtils.d(DEBUG_TAG, "onBind");
         return mBinder;
     }
 

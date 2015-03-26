@@ -4,10 +4,9 @@ import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Map;
 
-import android.util.Log;
-
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.util.LogUtils;
 
 /**
  * Save the ssl certificates the user has confirmed to trust
@@ -47,7 +46,7 @@ public final class CertsManager {
             });
         }
 
-        Log.d(DEBUG_TAG, "saved cert for account " + account);
+        LogUtils.d(DEBUG_TAG, "saved cert for account " + account);
     }
 
     public X509Certificate getCertificate(Account account) {

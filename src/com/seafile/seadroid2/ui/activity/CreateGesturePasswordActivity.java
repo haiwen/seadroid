@@ -20,6 +20,7 @@ import com.seafile.seadroid2.gesturelock.LockPatternView;
 import com.seafile.seadroid2.gesturelock.LockPatternView.Cell;
 import com.seafile.seadroid2.gesturelock.LockPatternView.DisplayMode;
 import com.seafile.seadroid2.ui.ToastUtils;
+import com.seafile.seadroid2.util.LogUtils;
 
 public class CreateGesturePasswordActivity extends Activity implements
         OnClickListener {
@@ -199,9 +200,9 @@ public class CreateGesturePasswordActivity extends Activity implements
     private void updatePreviewViews() {
         if (mChosenPattern == null)
             return;
-        Log.i("way", "result = " + mChosenPattern.toString());
+        LogUtils.i("way", "result = " + mChosenPattern.toString());
         for (LockPatternView.Cell cell : mChosenPattern) {
-            Log.i("way", "cell.getRow() = " + cell.getRow()
+            LogUtils.i("way", "cell.getRow() = " + cell.getRow()
                     + ", cell.getColumn() = " + cell.getColumn());
             mPreviewViews[cell.getRow()][cell.getColumn()]
                     .setBackgroundResource(R.drawable.gesture_create_grid_selected);

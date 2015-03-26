@@ -1,12 +1,12 @@
 package com.seafile.seadroid2.gallery;
 
-import android.net.Uri;
-
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.PriorityQueue;
+
+import android.net.Uri;
 
 import com.google.common.collect.Maps;
 

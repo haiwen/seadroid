@@ -8,7 +8,6 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.DialogFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -19,10 +18,10 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
-import com.seafile.seadroid2.transfer.TransferManager;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
+import com.seafile.seadroid2.util.LogUtils;
 import com.seafile.seadroid2.util.Utils;
 
 /**
@@ -85,21 +84,21 @@ public class FetchFileDialog extends DialogFragment {
     }
 
     public void startTimer() {
-        Log.d(DEBUG_TAG, "timer started");
+        LogUtils.d(DEBUG_TAG, "timer started");
         mTimer.postDelayed(new Runnable() {
 
             @Override
             public void run() {
                 DownloadTaskInfo downloadTaskInfo = getBrowserActivity().getTransferService().getDownloadTaskInfo(taskID);
                 handleDownloadTaskInfo(downloadTaskInfo);
-                Log.d(DEBUG_TAG, "timer post refresh signal " + System.currentTimeMillis());
+                LogUtils.d(DEBUG_TAG, "timer post refresh signal " + System.currentTimeMillis());
                 mTimer.postDelayed(this, 1 * 1000);
             }
         }, 1 * 1000);
     }
 
     public void stopTimer() {
-        Log.d(DEBUG_TAG, "timer stopped");
+        LogUtils.d(DEBUG_TAG, "timer stopped");
         mTimer.removeCallbacksAndMessages(null);
     }
 

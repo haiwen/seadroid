@@ -1,5 +1,8 @@
 package com.seafile.seadroid2.gallery;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import android.content.ContentResolver;
 import android.graphics.Bitmap;
 import android.media.ThumbnailUtils;
@@ -7,9 +10,7 @@ import android.net.Uri;
 import android.provider.MediaStore.Images;
 import android.provider.MediaStore.Video;
 import android.util.Log;
-
-import java.io.IOException;
-import java.io.InputStream;
+import com.seafile.seadroid2.util.LogUtils;
 
 /**
  * Represents a particular video and provides access to the underlying data and
@@ -94,7 +95,7 @@ public class VideoObject extends BaseImage implements IImage {
             return BitmapManager.instance().getThumbnail(mContentResolver,
                     id, Images.Thumbnails.MICRO_KIND, null, true);
         } catch (Throwable ex) {
-            Log.e(TAG, "miniThumbBitmap got exception", ex);
+            LogUtils.e(TAG, "miniThumbBitmap got exception", ex);
             return null;
         }
     }

@@ -1,8 +1,9 @@
 package com.seafile.seadroid2.data;
 
-import com.google.common.base.Objects;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.google.common.base.Objects;
 
 /**
  * Server info entity

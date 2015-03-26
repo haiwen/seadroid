@@ -11,6 +11,7 @@ import com.google.common.collect.Maps;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.util.LogUtils;
 
 public class SeafileMonitor {
     private static final String DEBUG_TAG = "SeafileMonitor";
@@ -83,9 +84,9 @@ public class SeafileMonitor {
 
         try {
             start();
-            Log.d(DEBUG_TAG, "monitor started");
+            LogUtils.d(DEBUG_TAG, "monitor started");
         } catch (Exception e) {
-            Log.w(DEBUG_TAG, "failed to start file monitor");
+            LogUtils.w(DEBUG_TAG, "failed to start file monitor");
             throw new RuntimeException("failed to start file monitor");
         }
     }

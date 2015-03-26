@@ -1,14 +1,15 @@
 package com.seafile.seadroid2.ui;
 
-import android.graphics.Bitmap;
-import android.view.View;
-import android.widget.ImageView;
-import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
-import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
-
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+
+import android.graphics.Bitmap;
+import android.view.View;
+import android.widget.ImageView;
+
+import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 /**
  * Do a fancy fade-in of thumbnails.

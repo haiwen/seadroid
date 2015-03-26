@@ -9,9 +9,10 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.RelativeLayout;
+
 import com.seafile.seadroid2.R;
 
 /**

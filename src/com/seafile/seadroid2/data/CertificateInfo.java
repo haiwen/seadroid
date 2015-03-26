@@ -12,6 +12,7 @@ import javax.security.auth.x500.X500Principal;
 import android.util.Log;
 
 import com.google.common.collect.Lists;
+import com.seafile.seadroid2.util.LogUtils;
 
 /*
  * 
@@ -51,13 +52,13 @@ public class CertificateInfo {
                         value = (String) asn1Name.get(1);
                     } catch (Exception e) {
                         value = "?";
-                        Log.w(DEBUG_TAG, "Couldn't cast alternative subject name to String", e);
+                        LogUtils.w(DEBUG_TAG, "Couldn't cast alternative subject name to String", e);
                     }
                     altNames.add(value + " [" + type + "]");
                 }
             return altNames.toArray(new String[0]);
         } catch (CertificateParsingException e) {
-            Log.w(DEBUG_TAG, "Couldn't parse Subject Alternative Names from certificate", e);
+            LogUtils.w(DEBUG_TAG, "Couldn't parse Subject Alternative Names from certificate", e);
             return null;
         }
     }
@@ -75,7 +76,7 @@ public class CertificateInfo {
                 sig += Integer.toHexString(b & 0xFF);
             return sig;
         } catch (Exception e) {
-            Log.e(DEBUG_TAG, "Couldn't calculate certificate digest", e);
+            LogUtils.e(DEBUG_TAG, "Couldn't calculate certificate digest", e);
             return e.getMessage();
         }
     }

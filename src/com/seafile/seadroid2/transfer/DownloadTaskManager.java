@@ -1,15 +1,16 @@
 package com.seafile.seadroid2.transfer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
+
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.util.Utils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Download task manager

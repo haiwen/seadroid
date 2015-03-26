@@ -9,9 +9,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.*;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.app.DialogFragment;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -22,7 +23,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ListView;
 
-import android.widget.Toast;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
@@ -38,6 +38,7 @@ import com.seafile.seadroid2.avatar.AvatarManager;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.adapter.AccountAdapter;
+import com.seafile.seadroid2.util.LogUtils;
 import com.seafile.seadroid2.util.Utils;
 
 
@@ -68,7 +69,7 @@ public class AccountsActivity extends SherlockFragmentActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        Log.d(DEBUG_TAG, "AccountsActivity.onCreate is called");
+        LogUtils.d(DEBUG_TAG, "AccountsActivity.onCreate is called");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start);
 
@@ -119,7 +120,7 @@ public class AccountsActivity extends SherlockFragmentActivity {
 
     @Override
     public void onStart() {
-        Log.d(DEBUG_TAG, "onStart");
+        LogUtils.d(DEBUG_TAG, "onStart");
         super.onStart();
         Intent bIntent = new Intent(this, FileMonitorService.class);
         bindService(bIntent, mMonitorConnection, Context.BIND_AUTO_CREATE);
@@ -127,13 +128,13 @@ public class AccountsActivity extends SherlockFragmentActivity {
 
     @Override
     public void onStop() {
-        Log.d(DEBUG_TAG, "onStop");
+        LogUtils.d(DEBUG_TAG, "onStop");
         super.onStop();
     }
 
     @Override
     protected void onDestroy() {
-        Log.d(DEBUG_TAG, "onDestroy");
+        LogUtils.d(DEBUG_TAG, "onDestroy");
         super.onDestroy();
         if (mMonitorService != null) {
             unbindService(mMonitorConnection);
@@ -145,7 +146,7 @@ public class AccountsActivity extends SherlockFragmentActivity {
     // it will be shown.
     @Override
     public void onResume() {
-        Log.d(DEBUG_TAG, "onResume");
+        LogUtils.d(DEBUG_TAG, "onResume");
         super.onResume();
 
         refreshView();
@@ -170,7 +171,7 @@ public class AccountsActivity extends SherlockFragmentActivity {
     }
 
     private void refreshView() {
-        Log.d(DEBUG_TAG, "refreshView");
+        LogUtils.d(DEBUG_TAG, "refreshView");
         accounts = accountManager.getAccountList();
         adapter.clear();
         adapter.setItems(accounts);

@@ -1,11 +1,12 @@
 package com.seafile.seadroid2.transfer;
 
+import java.util.List;
+
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
+
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
-
-import java.util.List;
 
 /**
  * Upload task manager

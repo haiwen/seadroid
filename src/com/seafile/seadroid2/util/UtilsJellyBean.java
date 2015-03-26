@@ -1,13 +1,13 @@
 package com.seafile.seadroid2.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.annotation.TargetApi;
 import android.content.ClipData;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Utils that depend on JellyBean API (16)

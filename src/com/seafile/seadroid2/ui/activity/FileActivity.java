@@ -1,5 +1,8 @@
 package com.seafile.seadroid2.ui.activity;
 
+import java.io.File;
+import java.net.HttpURLConnection;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -7,9 +10,13 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.util.Log;
 import android.view.View;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
@@ -23,10 +30,8 @@ import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.dialog.PasswordDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
+import com.seafile.seadroid2.util.LogUtils;
 import com.seafile.seadroid2.util.Utils;
-
-import java.io.File;
-import java.net.HttpURLConnection;
 
 /**
  * Display a file
@@ -51,7 +56,7 @@ public class FileActivity extends SherlockFragmentActivity {
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
-            Log.d(DEBUG_TAG, "TransferService connected");
+            LogUtils.d(DEBUG_TAG, "TransferService connected");
 
             TransferBinder binder = (TransferBinder) service;
             mTransferService = binder.getService();
@@ -84,7 +89,7 @@ public class FileActivity extends SherlockFragmentActivity {
 
     @Override
     protected void onStart() {
-        Log.d(DEBUG_TAG, "onStart");
+        LogUtils.d(DEBUG_TAG, "onStart");
         super.onStart();
         if (mTransferService != null) {
             startTimer();
@@ -93,14 +98,14 @@ public class FileActivity extends SherlockFragmentActivity {
 
     @Override
     protected void onStop() {
-        Log.d(DEBUG_TAG, "onStop");
+        LogUtils.d(DEBUG_TAG, "onStop");
         super.onStop();
         stopTimer();
     }
 
     @Override
     protected void onDestroy() {
-        Log.d(DEBUG_TAG, "onDestroy");
+        LogUtils.d(DEBUG_TAG, "onDestroy");
         super.onDestroy();
         if (mTransferService != null) {
             unbindService(mConnection);
@@ -149,12 +154,12 @@ public class FileActivity extends SherlockFragmentActivity {
     private void bindTransferService() {
         Intent txIntent = new Intent(this, TransferService.class);
         startService(txIntent);
-        Log.d(DEBUG_TAG, "start TransferService");
+        LogUtils.d(DEBUG_TAG, "start TransferService");
 
         // bind transfer service
         // Intent bIntent = new Intent(this, TransferService.class);
         bindService(txIntent, mConnection, Context.BIND_AUTO_CREATE);
-        Log.d(DEBUG_TAG, "try bind TransferService");
+        LogUtils.d(DEBUG_TAG, "try bind TransferService");
     }
 
     private void onFileDownloadProgress(DownloadTaskInfo info) {
@@ -240,7 +245,7 @@ public class FileActivity extends SherlockFragmentActivity {
             return;
         }
         timerStarted = true;
-        Log.d(DEBUG_TAG, "timer started");
+        LogUtils.d(DEBUG_TAG, "timer started");
         mTimer.postDelayed(new Runnable() {
 
             @Override
@@ -259,7 +264,7 @@ public class FileActivity extends SherlockFragmentActivity {
                 else if (downloadTaskInfo.state == TaskState.CANCELLED)
                     // do nothing when cancelled
 
-                Log.d(DEBUG_TAG, "timer post refresh signal " + System.currentTimeMillis());
+                LogUtils.d(DEBUG_TAG, "timer post refresh signal " + System.currentTimeMillis());
                 mTimer.postDelayed(this, 1 * 1000);
             }
         }, 1 * 1000);
@@ -270,7 +275,7 @@ public class FileActivity extends SherlockFragmentActivity {
             return;
         }
         timerStarted = false;
-        Log.d(DEBUG_TAG, "timer stopped");
+        LogUtils.d(DEBUG_TAG, "timer stopped");
         mTimer.removeCallbacksAndMessages(null);
     }
 }

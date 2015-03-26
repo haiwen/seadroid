@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.ui.activity;
 
+import java.util.ArrayList;
+
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -19,9 +21,8 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.ui.ToastUtils;
+import com.seafile.seadroid2.util.LogUtils;
 import com.seafile.seadroid2.util.Utils;
-
-import java.util.ArrayList;
 
 public class ShareToSeafileActivity extends SherlockFragmentActivity {
     private static final String DEBUG_TAG = "ShareToSeafileActivity";
@@ -58,7 +59,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
             return;
         }
 
-        Log.d(DEBUG_TAG, "share " + localPath);
+        LogUtils.d(DEBUG_TAG, "share " + localPath);
         Intent chooserIntent = new Intent(this, SeafilePathChooserActivity.class);
         startActivityForResult(chooserIntent, CHOOSE_COPY_MOVE_DEST_REQUEST);
     }
@@ -83,7 +84,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
 
     @Override
     protected void onDestroy() {
-        Log.d(DEBUG_TAG, "onDestroy is called");
+        LogUtils.d(DEBUG_TAG, "onDestroy is called");
         if (mTxService != null) {
             unbindService(mConnection);
             mTxService = null;
@@ -101,7 +102,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
         // start transfer service
         Intent txIntent = new Intent(this, TransferService.class);
         startService(txIntent);
-        Log.d(DEBUG_TAG, "start TransferService");
+        LogUtils.d(DEBUG_TAG, "start TransferService");
 
         // bind transfer service
         Intent bIntent = new Intent(this, TransferService.class);
@@ -114,7 +115,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
                 for (String path : localPath) {
                     mTxService.addUploadTask(account, repoID, repoName, targetDir,
                             path, false, false);
-                    Log.d(DEBUG_TAG, path + " uploaded");
+                    LogUtils.d(DEBUG_TAG, path + " uploaded");
                 }
                 ToastUtils.show(ShareToSeafileActivity.this, R.string.upload_started);
                 finish();
@@ -126,7 +127,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
             }
         };
         bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
-        Log.d(DEBUG_TAG, "try bind TransferService");
+        LogUtils.d(DEBUG_TAG, "try bind TransferService");
     }
 
     @Override
@@ -140,7 +141,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
                 return;
             }
             dstData = data;
-            Log.i(DEBUG_TAG, "CHOOSE_COPY_MOVE_DEST_REQUEST returns");
+            LogUtils.i(DEBUG_TAG, "CHOOSE_COPY_MOVE_DEST_REQUEST returns");
         }
         isFinishActivity =true;
     }
@@ -157,12 +158,12 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
             dstDir = dstData.getStringExtra(SeafilePathChooserActivity.DATA_DIR);
             account = (Account)dstData.getParcelableExtra(SeafilePathChooserActivity.DATA_ACCOUNT);
             addUploadTask(account, dstRepoName, dstRepoId, dstDir, localPath);
-            Log.d(DEBUG_TAG, "dstRepoName: " + dstRepoName);
-            Log.d(DEBUG_TAG, "dstDir: " + dstDir);
+            LogUtils.d(DEBUG_TAG, "dstRepoName: " + dstRepoName);
+            LogUtils.d(DEBUG_TAG, "dstDir: " + dstDir);
         }
 
         if(isFinishActivity) {
-            Log.d(DEBUG_TAG, "finish!");
+            LogUtils.d(DEBUG_TAG, "finish!");
             finish();
         }
     }

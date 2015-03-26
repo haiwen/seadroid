@@ -1,8 +1,6 @@
 package com.seafile.seadroid2.ui.fragment;
 
-import java.io.File;
 import java.net.HttpURLConnection;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +17,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
-import com.google.common.collect.Lists;
 import com.seafile.seadroid2.CertsManager;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.NavContext;
@@ -38,6 +35,7 @@ import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
+import com.seafile.seadroid2.util.LogUtils;
 import com.seafile.seadroid2.util.Utils;
 
 
@@ -84,7 +82,7 @@ public class ReposFragment extends SherlockListFragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        Log.d(DEBUG_TAG, "ReposFragment Attached");
+        LogUtils.d(DEBUG_TAG, "ReposFragment Attached");
         mActivity = (BrowserActivity)activity;
     }
 
@@ -115,7 +113,7 @@ public class ReposFragment extends SherlockListFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        Log.d(DEBUG_TAG, "ReposFragment onActivityCreated");
+        LogUtils.d(DEBUG_TAG, "ReposFragment onActivityCreated");
         adapter = new SeafItemAdapter(mActivity);
         
         // You can also just use setListAdapter(mAdapter) or
@@ -126,13 +124,13 @@ public class ReposFragment extends SherlockListFragment {
 
     @Override
     public void onStart() {
-        Log.d(DEBUG_TAG, "ReposFragment onStart");
+        LogUtils.d(DEBUG_TAG, "ReposFragment onStart");
         super.onStart();
     }
 
     @Override
     public void onStop() {
-        Log.d(DEBUG_TAG, "ReposFragment onStop");
+        LogUtils.d(DEBUG_TAG, "ReposFragment onStop");
         super.onStop();
         stopTimer();
     }
@@ -140,7 +138,7 @@ public class ReposFragment extends SherlockListFragment {
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(DEBUG_TAG, "ReposFragment onResume");
+        LogUtils.d(DEBUG_TAG, "ReposFragment onResume");
         // refresh the view (loading data)
         refreshView();
         mRefreshType = REFRESH_ON_RESUME;
@@ -154,7 +152,7 @@ public class ReposFragment extends SherlockListFragment {
     @Override
     public void onDetach() {
         mActivity = null;
-        Log.d(DEBUG_TAG, "ReposFragment detached");
+        LogUtils.d(DEBUG_TAG, "ReposFragment detached");
         super.onDetach();
     }
     
@@ -266,20 +264,20 @@ public class ReposFragment extends SherlockListFragment {
             return;
 
         isTimerStarted = true;
-        Log.d(DEBUG_TAG, "timer started");
+        LogUtils.d(DEBUG_TAG, "timer started");
         mTimer.postDelayed(new Runnable() {
 
             @Override
             public void run() {
                 adapter.setDownloadTaskList(mActivity.getTransferService().getAllDownloadTaskInfos());
-                Log.d(DEBUG_TAG, "timer post refresh signal " + System.currentTimeMillis());
+                LogUtils.d(DEBUG_TAG, "timer post refresh signal " + System.currentTimeMillis());
                 mTimer.postDelayed(this, 1 * 1000);
             }
         }, 1 * 1000);
     }
 
     public void stopTimer() {
-        Log.d(DEBUG_TAG, "timer stopped");
+        LogUtils.d(DEBUG_TAG, "timer stopped");
         mTimer.removeCallbacksAndMessages(null);
         isTimerStarted = false;
     }
@@ -523,7 +521,7 @@ public class ReposFragment extends SherlockListFragment {
 
             if (err != null) {
                 err.printStackTrace();
-                Log.i(DEBUG_TAG, "failed to load repos: " + err.getMessage());
+                LogUtils.i(DEBUG_TAG, "failed to load repos: " + err.getMessage());
                 showError(R.string.error_when_load_repos);
                 return;
             }
@@ -532,7 +530,7 @@ public class ReposFragment extends SherlockListFragment {
                 getDataManager().setReposRefreshTimeStamp();
                 updateAdapterWithRepos(rs);
             } else {
-                Log.i(DEBUG_TAG, "failed to load repos");
+                LogUtils.i(DEBUG_TAG, "failed to load repos");
                 showError(R.string.error_when_load_repos);
             }
         }
@@ -601,7 +599,7 @@ public class ReposFragment extends SherlockListFragment {
         @Override
         protected List<SeafDirent> doInBackground(String... params) {
             if (params.length != 3) {
-                Log.d(DEBUG_TAG, "Wrong params to LoadDirTask");
+                LogUtils.d(DEBUG_TAG, "Wrong params to LoadDirTask");
                 return null;
             }
 
@@ -687,7 +685,7 @@ public class ReposFragment extends SherlockListFragment {
                 } else if (err.getCode() == HttpURLConnection.HTTP_NOT_FOUND) {
                     ToastUtils.show(mActivity, String.format("The folder \"%s\" was deleted", myPath));
                 } else {
-                    Log.d(DEBUG_TAG, "failed to load dirents: " + err.getMessage());
+                    LogUtils.d(DEBUG_TAG, "failed to load dirents: " + err.getMessage());
                     err.printStackTrace();
                     showError(R.string.error_when_load_dirents);
                 }
@@ -696,7 +694,7 @@ public class ReposFragment extends SherlockListFragment {
 
             if (dirents == null) {
                 showError(R.string.error_when_load_dirents);
-                Log.i(DEBUG_TAG, "failed to load dir");
+                LogUtils.i(DEBUG_TAG, "failed to load dir");
                 return;
             }
             getDataManager().setDirsRefreshTimeStamp(myRepoID, myPath);

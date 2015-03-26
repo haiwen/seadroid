@@ -18,6 +18,7 @@ import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import com.seafile.seadroid2.util.LogUtils;
 
 /**
  * Collection of utility functions used in this package.
@@ -298,7 +299,7 @@ public class Util {
             options.inPreferredConfig = Bitmap.Config.ARGB_8888;
             return BitmapManager.instance().decodeFileDescriptor(fd, options);
         } catch (OutOfMemoryError ex) {
-            Log.e(TAG, "Got oom exception ", ex);
+            LogUtils.e(TAG, "Got oom exception ", ex);
             return null;
         } finally {
             closeSilently(pfd);

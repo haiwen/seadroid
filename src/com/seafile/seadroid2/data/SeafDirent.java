@@ -5,9 +5,8 @@ import java.io.Serializable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.util.Log;
-
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.util.LogUtils;
 import com.seafile.seadroid2.util.Utils;
 
 public class SeafDirent implements SeafItem, Serializable {
@@ -37,7 +36,7 @@ public class SeafDirent implements SeafItem, Serializable {
                 dirent.type = DirentType.DIR;
             return dirent;
         } catch (JSONException e) {
-            Log.d(DEBUG_TAG, e.getMessage());
+            LogUtils.d(DEBUG_TAG, e.getMessage());
             return null;
         }
     }

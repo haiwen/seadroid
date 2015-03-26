@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.gallery;
 
+import java.io.IOException;
+
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.graphics.Bitmap;
@@ -10,8 +12,7 @@ import android.provider.BaseColumns;
 import android.provider.MediaStore.Images;
 import android.provider.MediaStore.Images.ImageColumns;
 import android.util.Log;
-
-import java.io.IOException;
+import com.seafile.seadroid2.util.LogUtils;
 
 /**
  * The class for normal images in gallery.
@@ -73,7 +74,7 @@ public class Image extends BaseImage implements IImage {
         try {
             mExif = new ExifInterface(mDataPath);
         } catch (IOException ex) {
-            Log.e(TAG, "cannot read exif", ex);
+            LogUtils.e(TAG, "cannot read exif", ex);
         }
     }
 
@@ -108,7 +109,7 @@ public class Image extends BaseImage implements IImage {
                     Integer.toString(orientation));
             saveExifData();
         } catch (Exception ex) {
-            Log.e(TAG, "unable to save exif data with new orientation "
+            LogUtils.e(TAG, "unable to save exif data with new orientation "
                     + fullSizeImageUri(), ex);
         }
     }

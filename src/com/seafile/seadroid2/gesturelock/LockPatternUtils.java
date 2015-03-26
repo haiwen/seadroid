@@ -15,6 +15,8 @@ import android.content.Context;
 import android.os.FileObserver;
 import android.util.Log;
 
+import com.seafile.seadroid2.util.LogUtils;
+
 /**
  * Gesture Lock encrypt, decrypt utility
  * 
@@ -58,9 +60,9 @@ public class LockPatternUtils {
 
         @Override
         public void onEvent(int event, String path) {
-            Log.d(TAG, "file path" + path);
+            LogUtils.d(TAG, "file path" + path);
             if (LOCK_PATTERN_FILE.equals(path)) {
-                Log.d(TAG, "lock pattern file changed");
+                LogUtils.d(TAG, "lock pattern file changed");
                 sHaveNonZeroPatternFile.set(sLockPatternFilename.length() > 0);
             }
         }
@@ -159,10 +161,10 @@ public class LockPatternUtils {
         } catch (FileNotFoundException fnfe) {
             // Cant do much, unless we want to fail over to using the settings
             // provider
-            Log.e(TAG, "Unable to save lock pattern to " + sLockPatternFilename);
+            LogUtils.e(TAG, "Unable to save lock pattern to " + sLockPatternFilename);
         } catch (IOException ioe) {
             // Cant do much
-            Log.e(TAG, "Unable to save lock pattern to " + sLockPatternFilename);
+            LogUtils.e(TAG, "Unable to save lock pattern to " + sLockPatternFilename);
         }
     }
 

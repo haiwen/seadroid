@@ -1,10 +1,10 @@
 package com.seafile.seadroid2.gallery;
 
+import java.util.ArrayList;
+
 import android.content.ContentResolver;
 import android.graphics.Bitmap;
 import android.os.Handler;
-
-import java.util.ArrayList;
 
 import com.google.common.collect.Lists;
 

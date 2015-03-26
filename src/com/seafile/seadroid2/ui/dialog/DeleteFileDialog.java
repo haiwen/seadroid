@@ -9,8 +9,6 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.ui.dialog.TaskDialog.Task;
-import com.seafile.seadroid2.util.Utils;
 
 class DeleteTask extends TaskDialog.Task {
     String repoID;
