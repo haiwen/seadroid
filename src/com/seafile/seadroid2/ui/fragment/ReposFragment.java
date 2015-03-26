@@ -521,7 +521,7 @@ public class ReposFragment extends SherlockListFragment {
 
             if (err != null) {
                 err.printStackTrace();
-                Log.i(DEBUG_TAG, "failed to load repos: " + err.getMessage());
+                LogUtils.i(DEBUG_TAG, "failed to load repos: " + err.getMessage());
                 showError(R.string.error_when_load_repos);
                 return;
             }
@@ -530,7 +530,7 @@ public class ReposFragment extends SherlockListFragment {
                 getDataManager().setReposRefreshTimeStamp();
                 updateAdapterWithRepos(rs);
             } else {
-                Log.i(DEBUG_TAG, "failed to load repos");
+                LogUtils.i(DEBUG_TAG, "failed to load repos");
                 showError(R.string.error_when_load_repos);
             }
         }
@@ -694,7 +694,7 @@ public class ReposFragment extends SherlockListFragment {
 
             if (dirents == null) {
                 showError(R.string.error_when_load_dirents);
-                Log.i(DEBUG_TAG, "failed to load dir");
+                LogUtils.i(DEBUG_TAG, "failed to load dir");
                 return;
             }
             getDataManager().setDirsRefreshTimeStamp(myRepoID, myPath);

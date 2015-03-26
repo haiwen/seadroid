@@ -171,7 +171,7 @@ public abstract class BaseImageList implements IImageList {
         try {
             matchId = ContentUris.parseId(uri);
         } catch (NumberFormatException ex) {
-            Log.i(TAG, "fail to get id in: " + uri, ex);
+            LogUtils.i(TAG, "fail to get id in: " + uri, ex);
             return null;
         }
         // TODO: design a better method to get URI of specified ID

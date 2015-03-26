@@ -141,7 +141,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
                 return;
             }
             dstData = data;
-            Log.i(DEBUG_TAG, "CHOOSE_COPY_MOVE_DEST_REQUEST returns");
+            LogUtils.i(DEBUG_TAG, "CHOOSE_COPY_MOVE_DEST_REQUEST returns");
         }
         isFinishActivity =true;
     }
