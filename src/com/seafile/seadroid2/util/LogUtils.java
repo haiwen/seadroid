@@ -2,6 +2,9 @@ package com.seafile.seadroid2.util;
 
 import android.util.Log;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 /**
  * Log Utils
  */
@@ -27,11 +30,31 @@ public class LogUtils {
         Log.w(DEBUG_TAG, message);
     }
 
+    public static void w(String DEBUG_TAG, FileNotFoundException e) {
+        Log.w(DEBUG_TAG, e);
+    }
+
+    public static void w(String DEBUG_TAG, IOException e) {
+        Log.w(DEBUG_TAG, e);
+    }
+
+    public static void w(String DEBUG_TAG, String message, Exception e) {
+        Log.w(DEBUG_TAG, message, e);
+    }
+
     public static void e(String DEBUG_TAG, String message) {
         Log.e(DEBUG_TAG, message);
     }
 
+    public static void e(String DEBUG_TAG, String message, Throwable throwable) {
+        Log.e(DEBUG_TAG, message, throwable);
+    }
+
     public static void e(String DEBUG_TAG, String message, Exception e) {
+        Log.e(DEBUG_TAG, message, e);
+    }
+
+    public static void e(String DEBUG_TAG, String message, OutOfMemoryError e) {
         Log.e(DEBUG_TAG, message, e);
     }
 

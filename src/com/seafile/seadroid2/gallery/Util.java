@@ -18,6 +18,7 @@ import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import com.seafile.seadroid2.util.LogUtils;
 
 /**
  * Collection of utility functions used in this package.

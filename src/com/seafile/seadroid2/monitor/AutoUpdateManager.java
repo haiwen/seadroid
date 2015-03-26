@@ -142,7 +142,7 @@ public class AutoUpdateManager implements Runnable, CachedFileChangedListener {
             return;
         }
 
-        Log.v(DEBUG_TAG, String.format("check auto upload tasks, %d in queue", size));
+        LogUtils.v(DEBUG_TAG, String.format("check auto upload tasks, %d in queue", size));
 
         List<AutoUpdateInfo> infosList;
         synchronized (infos) {

@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.provider.MediaStore.Images;
 import android.provider.MediaStore.Video;
 import android.util.Log;
+import com.seafile.seadroid2.util.LogUtils;
 
 /**
  * Represents a particular video and provides access to the underlying data and

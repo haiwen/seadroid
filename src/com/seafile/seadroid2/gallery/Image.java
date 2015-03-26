@@ -12,6 +12,7 @@ import android.provider.BaseColumns;
 import android.provider.MediaStore.Images;
 import android.provider.MediaStore.Images.ImageColumns;
 import android.util.Log;
+import com.seafile.seadroid2.util.LogUtils;
 
 /**
  * The class for normal images in gallery.

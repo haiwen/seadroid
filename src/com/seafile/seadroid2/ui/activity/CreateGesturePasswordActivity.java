@@ -20,6 +20,7 @@ import com.seafile.seadroid2.gesturelock.LockPatternView;
 import com.seafile.seadroid2.gesturelock.LockPatternView.Cell;
 import com.seafile.seadroid2.gesturelock.LockPatternView.DisplayMode;
 import com.seafile.seadroid2.ui.ToastUtils;
+import com.seafile.seadroid2.util.LogUtils;
 
 public class CreateGesturePasswordActivity extends Activity implements
         OnClickListener {

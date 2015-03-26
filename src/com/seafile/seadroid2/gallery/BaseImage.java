@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore.Images;
 import android.util.Log;
+import com.seafile.seadroid2.util.LogUtils;
 
 /**
  * Represents a particular image and provides access to the underlying bitmap

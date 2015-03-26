@@ -8,6 +8,7 @@ import android.content.ContentUris;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
+import com.seafile.seadroid2.util.LogUtils;
 
 /**
  * A collection of <code>BaseImage</code>s.
@@ -171,7 +172,7 @@ public abstract class BaseImageList implements IImageList {
         try {
             matchId = ContentUris.parseId(uri);
         } catch (NumberFormatException ex) {
-            LogUtils.i(TAG, "fail to get id in: " + uri, ex);
+            LogUtils.e(TAG, "fail to get id in: " + uri, ex);
             return null;
         }
         // TODO: design a better method to get URI of specified ID

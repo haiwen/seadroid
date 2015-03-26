@@ -31,6 +31,7 @@ import android.preference.PreferenceScreen;
 import android.util.Log;
 
 import com.seafile.seadroid2.ui.fragment.CustomPreferenceFragment;
+import com.seafile.seadroid2.util.LogUtils;
 
 /**
  * Unofficial PreferenceFragment compatibility layer for Android 1.6 and up.

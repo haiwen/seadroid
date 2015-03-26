@@ -209,7 +209,7 @@ public class LockPasswordUtils {
             try {
                 salt = SecureRandom.getInstance("SHA1PRNG").nextLong();
                 setLong(LOCK_PASSWORD_SALT_KEY, salt);
-                Log.v(TAG, "Initialized lock password salt");
+                LogUtils.v(TAG, "Initialized lock password salt");
             } catch (NoSuchAlgorithmException e) {
                 // Throw an exception rather than storing a password we'll never
                 // be able to recover

@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
+import com.seafile.seadroid2.util.LogUtils;
 
 class UriImage implements IImage {
     private static final String TAG = "UriImage";

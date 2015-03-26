@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.seafile.seadroid2.util.LogUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -472,14 +473,14 @@ public class DataManager {
 
     public List<SeafStarredFile> getStarredFiles() throws SeafException {
         String starredFiles = sc.getStarredFiles();
-        Log.v(DEBUG_TAG, "Save starred files: " + starredFiles);
+        LogUtils.v(DEBUG_TAG, "Save starred files: " + starredFiles);
         dbHelper.saveCachedStarredFiles(account,starredFiles);
         return parseStarredFiles(starredFiles);
     }
 
     public List<SeafStarredFile> getCachedStarredFiles() {
         String starredFiles = dbHelper.getCachedStarredFiles(account);
-        Log.v(DEBUG_TAG, "Get cached starred files: " + starredFiles);
+        LogUtils.v(DEBUG_TAG, "Get cached starred files: " + starredFiles);
         return parseStarredFiles(starredFiles);
     }
 

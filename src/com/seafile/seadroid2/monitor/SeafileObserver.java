@@ -96,17 +96,17 @@ public class SeafileObserver implements FileAlterationListener {
 
     @Override
     public void onDirectoryChange(File directory) {
-        Log.v(DEBUG_TAG, directory.getPath() + " was modified!");
+        LogUtils.v(DEBUG_TAG, directory.getPath() + " was modified!");
     }
 
     @Override
     public void onDirectoryCreate(File directory) {
-        Log.v(DEBUG_TAG, directory.getPath() + " was created!");
+        LogUtils.v(DEBUG_TAG, directory.getPath() + " was created!");
     }
 
     @Override
     public void onDirectoryDelete(File directory) {
-        Log.v(DEBUG_TAG, directory.getPath() + " was deleted!");
+        LogUtils.v(DEBUG_TAG, directory.getPath() + " was deleted!");
     }
 
     @Override
@@ -130,12 +130,12 @@ public class SeafileObserver implements FileAlterationListener {
 
     @Override
     public void onFileCreate(File file) {
-        Log.v(DEBUG_TAG, file.getPath() + " was created!");
+        LogUtils.v(DEBUG_TAG, file.getPath() + " was created!");
     }
 
     @Override
     public void onFileDelete(File file) {
-        Log.v(DEBUG_TAG, file.getPath() + " was deleted!");
+        LogUtils.v(DEBUG_TAG, file.getPath() + " was deleted!");
         String path = file.getPath();
         watchedFiles.remove(path);
         recentDownloadedFiles.removeRecentDownloadedFile(path);
@@ -144,12 +144,12 @@ public class SeafileObserver implements FileAlterationListener {
 
     @Override
     public void onStart(FileAlterationObserver fao) {
-        Log.v(DEBUG_TAG, fao.toString() + " start checking event!");
+        LogUtils.v(DEBUG_TAG, fao.toString() + " start checking event!");
     }
 
     @Override
     public void onStop(FileAlterationObserver fao) {
-        Log.v(DEBUG_TAG, fao.toString() + " finished checking event!");
+        LogUtils.v(DEBUG_TAG, fao.toString() + " finished checking event!");
     }
 
     /**

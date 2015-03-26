@@ -12,6 +12,7 @@ import javax.security.auth.x500.X500Principal;
 import android.util.Log;
 
 import com.google.common.collect.Lists;
+import com.seafile.seadroid2.util.LogUtils;
 
 /*
  * 

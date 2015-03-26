@@ -68,7 +68,7 @@ public class CameraUploadUtil {
                 }
                 return false;
             } catch (SecurityException e) {
-                Log.v("debug", "Access Denied");
+                LogUtils.v("debug", "Access Denied");
                 return false;
             }
         }
