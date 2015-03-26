@@ -68,7 +68,7 @@ public class CustomPreferenceManagerCompat {
             c.setAccessible(true);
             return c.newInstance(activity, firstRequestCode);
         } catch (Exception e) {
-            Log.w(TAG, "Couldn't call constructor PreferenceManager by reflection", e);
+            LogUtils.w(TAG, "Couldn't call constructor PreferenceManager by reflection", e);
         }
         return null;
 }
@@ -110,7 +110,7 @@ public class CustomPreferenceManagerCompat {
                 onPreferenceTreeClickListener.set(manager, null);
             }
         } catch (Exception e) {
-            Log.w(TAG, "Couldn't set PreferenceManager.mOnPreferenceTreeClickListener by reflection", e);
+            LogUtils.w(TAG, "Couldn't set PreferenceManager.mOnPreferenceTreeClickListener by reflection", e);
         }
     }
 
@@ -136,7 +136,7 @@ public class CustomPreferenceManagerCompat {
             PreferenceScreen prefScreen = (PreferenceScreen) m.invoke(manager, intent, screen);
             return prefScreen;
         } catch (Exception e) {
-            Log.w(TAG, "Couldn't call PreferenceManager.inflateFromIntent by reflection", e);
+            LogUtils.w(TAG, "Couldn't call PreferenceManager.inflateFromIntent by reflection", e);
         }
         return null;
     }
@@ -160,7 +160,7 @@ public class CustomPreferenceManagerCompat {
             PreferenceScreen prefScreen = (PreferenceScreen) m.invoke(manager, activity, resId, screen);
             return prefScreen;
         } catch (Exception e) {
-            Log.w(TAG, "Couldn't call PreferenceManager.inflateFromResource by reflection", e);
+            LogUtils.w(TAG, "Couldn't call PreferenceManager.inflateFromResource by reflection", e);
         }
         return null;
     }
@@ -177,7 +177,7 @@ public class CustomPreferenceManagerCompat {
             m.setAccessible(true);
             return (PreferenceScreen) m.invoke(manager);
         } catch (Exception e) {
-            Log.w(TAG, "Couldn't call PreferenceManager.getPreferenceScreen by reflection", e);
+            LogUtils.w(TAG, "Couldn't call PreferenceManager.getPreferenceScreen by reflection", e);
         }
         return null;
     }
@@ -192,7 +192,7 @@ public class CustomPreferenceManagerCompat {
             m.setAccessible(true);
             m.invoke(manager, requestCode, resultCode, data);
         } catch (Exception e) {
-            Log.w(TAG, "Couldn't call PreferenceManager.dispatchActivityResult by reflection", e);
+            LogUtils.w(TAG, "Couldn't call PreferenceManager.dispatchActivityResult by reflection", e);
         }
     }
 
@@ -206,7 +206,7 @@ public class CustomPreferenceManagerCompat {
             m.setAccessible(true);
             m.invoke(manager);
         } catch (Exception e) {
-            Log.w(TAG, "Couldn't call PreferenceManager.dispatchActivityStop by reflection", e);
+            LogUtils.w(TAG, "Couldn't call PreferenceManager.dispatchActivityStop by reflection", e);
         }
     }
 
@@ -220,7 +220,7 @@ public class CustomPreferenceManagerCompat {
             m.setAccessible(true);
             m.invoke(manager);
         } catch (Exception e) {
-            Log.w(TAG, "Couldn't call PreferenceManager.dispatchActivityDestroy by reflection", e);
+            LogUtils.w(TAG, "Couldn't call PreferenceManager.dispatchActivityDestroy by reflection", e);
         }
     }
 
@@ -236,7 +236,7 @@ public class CustomPreferenceManagerCompat {
             m.setAccessible(true);
             return ((Boolean) m.invoke(manager, screen));
         } catch (Exception e) {
-            Log.w(TAG, "Couldn't call PreferenceManager.setPreferences by reflection", e);
+            LogUtils.w(TAG, "Couldn't call PreferenceManager.setPreferences by reflection", e);
         }
         return false;
     }

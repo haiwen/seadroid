@@ -86,7 +86,7 @@ public class SeafileMonitor {
             start();
             LogUtils.d(DEBUG_TAG, "monitor started");
         } catch (Exception e) {
-            Log.w(DEBUG_TAG, "failed to start file monitor");
+            LogUtils.w(DEBUG_TAG, "failed to start file monitor");
             throw new RuntimeException("failed to start file monitor");
         }
     }

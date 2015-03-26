@@ -290,7 +290,7 @@ public class DataManager {
             }
             return repos;
         } catch (JSONException e) {
-            Log.w(DEBUG_TAG, "repos: parse json error");
+            LogUtils.w(DEBUG_TAG, "repos: parse json error");
             return null;
         } catch (Exception e) {
             // other exception, for example ClassCastException

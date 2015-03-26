@@ -51,13 +51,13 @@ public class CertificateInfo {
                         value = (String) asn1Name.get(1);
                     } catch (Exception e) {
                         value = "?";
-                        Log.w(DEBUG_TAG, "Couldn't cast alternative subject name to String", e);
+                        LogUtils.w(DEBUG_TAG, "Couldn't cast alternative subject name to String", e);
                     }
                     altNames.add(value + " [" + type + "]");
                 }
             return altNames.toArray(new String[0]);
         } catch (CertificateParsingException e) {
-            Log.w(DEBUG_TAG, "Couldn't parse Subject Alternative Names from certificate", e);
+            LogUtils.w(DEBUG_TAG, "Couldn't parse Subject Alternative Names from certificate", e);
             return null;
         }
     }

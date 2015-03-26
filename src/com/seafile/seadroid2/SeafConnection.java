@@ -426,7 +426,7 @@ public class SeafConnection {
             }
 
             if (!tmp.renameTo(file)) {
-                Log.w(DEBUG_TAG, "Rename file error");
+                LogUtils.w(DEBUG_TAG, "Rename file error");
                 return null;
             }
             return file;

@@ -35,7 +35,7 @@ public abstract class BaseImageList implements IImageList {
         mCursor = createCursor();
 
         if (mCursor == null) {
-            Log.w(TAG, "createCursor returns null.");
+            LogUtils.w(TAG, "createCursor returns null.");
         }
 
         // TODO: We need to clear the cache because we may "reopen" the image

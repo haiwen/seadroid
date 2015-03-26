@@ -197,7 +197,7 @@ public class LockPasswordUtils {
                     saltedPassword);
             hashed = (toHex(sha1) + toHex(md5)).getBytes();
         } catch (NoSuchAlgorithmException e) {
-            Log.w(TAG, "Failed to encode string because of missing algorithm: "
+            LogUtils.w(TAG, "Failed to encode string because of missing algorithm: "
                     + algo);
         }
         return hashed;

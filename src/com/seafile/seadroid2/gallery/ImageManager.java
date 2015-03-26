@@ -241,10 +241,10 @@ public class ImageManager {
                 degree[0] = getExifOrientation(filePath);
             }
         } catch (FileNotFoundException ex) {
-            Log.w(TAG, ex);
+            LogUtils.w(TAG, ex);
             return null;
         } catch (IOException ex) {
-            Log.w(TAG, ex);
+            LogUtils.w(TAG, ex);
             return null;
         } finally {
             Util.closeSilently(outputStream);

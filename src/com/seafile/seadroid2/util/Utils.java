@@ -67,7 +67,7 @@ public class Utils {
     public static JSONObject parseJsonObject(String json) {
         if (json == null) {
             // the caller should not give null
-            Log.w(DEBUG_TAG, "null in parseJsonObject");
+            LogUtils.w(DEBUG_TAG, "null in parseJsonObject");
             return null;
         }
 
@@ -81,7 +81,7 @@ public class Utils {
     public static JSONArray parseJsonArrayByKey(String json, String key) throws JSONException {
         if (json == null) {
             // the caller should not give null
-            Log.w(DEBUG_TAG, "null in parseJsonArrayByKey");
+            LogUtils.w(DEBUG_TAG, "null in parseJsonArrayByKey");
             return null;
         }
 
@@ -95,7 +95,7 @@ public class Utils {
     public static JSONArray parseJsonArray(String json) {
         if (json == null) {
          // the caller should not give null
-            Log.w(DEBUG_TAG, "null in parseJsonArray");
+            LogUtils.w(DEBUG_TAG, "null in parseJsonArray");
             return null;
         }
 
@@ -158,7 +158,7 @@ public class Utils {
     public static String getParentPath(String path) {
         if (path == null) {
             // the caller should not give null
-            Log.w(DEBUG_TAG, "null in getParentPath");
+            LogUtils.w(DEBUG_TAG, "null in getParentPath");
             return null;
         }
 
@@ -172,7 +172,7 @@ public class Utils {
     public static String fileNameFromPath(String path) {
         if (path == null) {
             // the caller should not give null
-            Log.w(DEBUG_TAG, "null in getParentPath");
+            LogUtils.w(DEBUG_TAG, "null in getParentPath");
             return null;
         }
 
