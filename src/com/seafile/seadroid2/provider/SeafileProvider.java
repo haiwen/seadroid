@@ -51,6 +51,8 @@ import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SeafStarredFile;
 import com.seafile.seadroid2.util.Utils;
 
+import org.apache.commons.io.IOUtils;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -385,7 +387,7 @@ public class SeafileProvider extends DocumentsProvider {
             throw new FileNotFoundException();
         }
 
-        final String mimeType = ProviderUtil.getTypeForFile(documentId, false);
+        String mimeType = ProviderUtil.getTypeForFile(documentId, false);
         if (!mimeType.startsWith("image/")) {
             throw new FileNotFoundException();
         }
@@ -401,31 +403,35 @@ public class SeafileProvider extends DocumentsProvider {
                 .considerExifParams(true)
                 .build();
 
+        final ParcelFileDescriptor[] pair;
+        try {
+            pair = ParcelFileDescriptor.createReliablePipe();
+        } catch (IOException e) {
+            throw new FileNotFoundException();
+        }
+
         final String url = dm.getThumbnailLink(repoId, path, sizeHint.x);
         if (url == null)
             throw new FileNotFoundException();
 
         // do thumbnail download in another thread to avoid possible network access in UI thread
-        final Future<AssetFileDescriptor> future = threadPoolExecutor.submit(new Callable<AssetFileDescriptor>() {
+        final Future future = threadPoolExecutor.submit(new Runnable() {
 
             @Override
-            public AssetFileDescriptor call() throws Exception {
+            public void run() {
+                try {
+                    FileOutputStream fileStream = new FileOutputStream(pair[1].getFileDescriptor());
 
-                ParcelFileDescriptor[] pair = ParcelFileDescriptor.createPipe();
+                    // load the file. this might involve talking to the seafile server. this will hang until
+                    // it is done.
+                    Bitmap bmp = ImageLoader.getInstance().loadImageSync(url, options);
 
-                // load the file. this might involve talking to the seafile server. this will hang until
-                // it is done.
-                Bitmap bmp = ImageLoader.getInstance().loadImageSync(url, options);
-
-                if (bmp == null) {
-                    return null;
+                    if (bmp != null) {
+                        bmp.compress(Bitmap.CompressFormat.PNG, 100, fileStream);
+                    }
+                } finally {
+                    IOUtils.closeQuietly(pair[1]);
                 }
-                FileOutputStream fileStream = new FileOutputStream(pair[1].getFileDescriptor());
-
-                bmp.compress(Bitmap.CompressFormat.PNG, 100, fileStream);
-                fileStream.close();
-
-                return new AssetFileDescriptor(pair[0], 0, AssetFileDescriptor.UNKNOWN_LENGTH);
             }
         });
 
@@ -433,24 +439,14 @@ public class SeafileProvider extends DocumentsProvider {
             signal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
                 @Override
                 public void onCancel() {
-                    Log.d(DEBUG_TAG, "openDocumentThumbnail cancelling download");
+                    Log.d(DEBUG_TAG, "openDocumentThumbnail() cancelling download");
                     future.cancel(true);
+                    IOUtils.closeQuietly(pair[1]);
                 }
             });
         }
 
-        try {
-            return future.get();
-        } catch (InterruptedException e) {
-            Log.d(DEBUG_TAG, "openDocumentThumbnail cancelled download");
-            throw new FileNotFoundException();
-        } catch (CancellationException e) {
-            Log.d(DEBUG_TAG, "openDocumentThumbnail cancelled download");
-            throw new FileNotFoundException();
-        } catch (ExecutionException e) {
-            Log.d(DEBUG_TAG, "openDocumentThumbnail error during download", e);
-            throw new FileNotFoundException();
-        }
+        return new AssetFileDescriptor(pair[0], 0, AssetFileDescriptor.UNKNOWN_LENGTH);
     }
 
     @Override
