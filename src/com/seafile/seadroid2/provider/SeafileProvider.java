@@ -471,6 +471,9 @@ public class SeafileProvider extends DocumentsProvider {
             SeafRepo repo = dm.getCachedRepoByID(repoId);
 
             List<SeafDirent> list = dm.getDirentsFromServer(repoId, parentPath);
+            if (list == null) {
+                throw new SeafException(0, SeadroidApplication.getAppContext().getString(R.string.saf_write_diretory_exception));
+            }
 
             // first check if target already exist. if yes, abort
             for (SeafDirent e: list) {
