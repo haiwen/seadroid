@@ -261,9 +261,9 @@ public class SeafileProvider extends DocumentsProvider {
 
         String repoId = DocumentIdParser.getRepoIdFromId(documentId);
         if (repoId.isEmpty()) {
-            // the user has asked for the root, that contains all the repositories as children.
+            // the user has asked for the base document_id for a root
 
-            includeRoot(result, dm.getAccount());
+            includeDocIdRoot(result, dm.getAccount());
             return result;
         }
 
@@ -628,15 +628,35 @@ public class SeafileProvider extends DocumentsProvider {
      */
     private void includeRoot(MatrixCursor result, Account account) {
         String docId = DocumentIdParser.buildId(account, null, null);
+        String rootId = DocumentIdParser.buildRootId(account);
 
         final MatrixCursor.RowBuilder row = result.newRow();
 
-        row.add(Root.COLUMN_ROOT_ID, docId);
+        row.add(Root.COLUMN_ROOT_ID, rootId);
         row.add(Root.COLUMN_DOCUMENT_ID, docId);
         row.add(Root.COLUMN_ICON, R.drawable.ic_launcher);
         row.add(Root.COLUMN_FLAGS, Root.FLAG_SUPPORTS_IS_CHILD | Root.FLAG_SUPPORTS_CREATE);
         row.add(Root.COLUMN_TITLE, account.getServerHost());
         row.add(Root.COLUMN_SUMMARY, account.getEmail());
+    }
+
+    /**
+     * Add a cursor entry for the account base document_id.
+     *
+     * @param result the cursor to write the row into.
+     * @param account the account to add.
+     */
+    private void includeDocIdRoot(MatrixCursor result, Account account) {
+        String docId = DocumentIdParser.buildId(account, null, null);
+
+        final MatrixCursor.RowBuilder row = result.newRow();
+        row.add(Document.COLUMN_DOCUMENT_ID, docId);
+        row.add(Document.COLUMN_DISPLAY_NAME,account.getServerHost());
+        row.add(Document.COLUMN_LAST_MODIFIED, null);
+        row.add(Document.COLUMN_FLAGS, 0);
+        row.add(Document.COLUMN_ICON, R.drawable.ic_launcher);
+        row.add(Document.COLUMN_SIZE, null);
+        row.add(Document.COLUMN_MIME_TYPE, Document.MIME_TYPE_DIR);
     }
 
     /**

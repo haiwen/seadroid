@@ -40,6 +40,7 @@ public class DocumentIdParser {
     /** used to separate serverName, RepoId and Path. */
     private static final String DOC_SEPERATOR = "::::";
     private static final String STARRED_FILE_REPO_ID = "starred-file-magic-repo";
+    private static final String ROOT_REPO_ID = "root-magic-repo";
 
     Context context;
 
@@ -118,8 +119,22 @@ public class DocumentIdParser {
             return a.getFullSignature();
     }
 
+    /**
+     * create a documentId based on an account, a repoId and a file path.
+     *
+     * @param a the account object. must not be null.
+     * @returns a documentId
+     */
+    public static String buildRootId(Account a) {
+        return a.getFullSignature() + DOC_SEPERATOR + ROOT_REPO_ID;
+    }
+
     public static String buildStarredFilesId(Account a) {
         return a.getFullSignature() + DOC_SEPERATOR + STARRED_FILE_REPO_ID;
+    }
+
+    public static boolean isRoot(String documentId) {
+        return getRepoIdFromId(documentId).equals(ROOT_REPO_ID);
     }
 
     public static boolean isStarredFiles(String documentId) {
