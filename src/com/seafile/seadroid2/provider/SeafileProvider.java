@@ -797,6 +797,14 @@ public class SeafileProvider extends DocumentsProvider {
                 } catch (SeafException e) {
                     Log.e(DEBUG_TAG, "Exception while querying server", e);
                 }
+
+                // The notification has to be sent only *after* queryChildDocuments has
+                // finished. To be safe, wait a bit.
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e1) {
+                }
+
                 // notify the SAF to to do a new queryChildDocuments
                 getContext().getContentResolver().notifyChange(uri, null);
             }
@@ -825,6 +833,14 @@ public class SeafileProvider extends DocumentsProvider {
                 } catch (SeafException e) {
                     Log.e(DEBUG_TAG, "Exception while querying server", e);
                 }
+
+                // The notification has to be sent only *after* queryChildDocuments has
+                // finished. To be safe, wait a bit.
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e1) {
+                }
+
                 // notify the SAF to to do a new queryChildDocuments
                 getContext().getContentResolver().notifyChange(uri, null);
             }
@@ -854,6 +870,14 @@ public class SeafileProvider extends DocumentsProvider {
                 } catch (SeafException e) {
                     Log.e(DEBUG_TAG, "Exception while querying server", e);
                 }
+
+                // The notification has to be sent only *after* queryChildDocuments has
+                // finished. To be safe, wait a bit.
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e1) {
+                }
+
                 // notify the SAF to to do a new queryChildDocuments
                 getContext().getContentResolver().notifyChange(uri, null);
             }
