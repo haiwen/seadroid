@@ -59,9 +59,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -106,6 +108,8 @@ public class SeafileProvider extends DocumentsProvider {
 
     private DocumentIdParser docIdParser;
 
+    private Map<Account, Boolean> isReachable = new ConcurrentHashMap<Account, Boolean>();
+
     private static final int KEEP_ALIVE_TIME = 1;
     private static final TimeUnit KEEP_ALIVE_TIME_UNIT = TimeUnit.SECONDS;
     private static int NUMBER_OF_CORES =
@@ -140,6 +144,7 @@ public class SeafileProvider extends DocumentsProvider {
         // add a Root for every Seafile account we have.
         for(Account a: AccountDBHelper.getDatabaseHelper(getContext()).getAccountList()) {
             includeRoot(result, a);
+            isReachable.put(a, false);
         }
 
         // notification uri for the event, that the account list has changed
@@ -171,13 +176,13 @@ public class SeafileProvider extends DocumentsProvider {
 
             // fetch a new repo list in the background
             if (!parentDocumentId.equals(lastQueriedDocumentId)) {
-                result = createCursor(netProjection, true);
+                result = createCursor(netProjection, true, isReachable.get(dm.getAccount()));
                 lastQueriedDocumentId = parentDocumentId;
 
                 fetchReposAsync(dm, result);
 
             } else {
-                result = createCursor(netProjection, false);
+                result = createCursor(netProjection, false, isReachable.get(dm.getAccount()));
             }
 
             // in the meantime, return the cached repos
@@ -195,11 +200,11 @@ public class SeafileProvider extends DocumentsProvider {
 
             MatrixCursor result;
             if (!parentDocumentId.equals(lastQueriedDocumentId)) {
-                result = createCursor(netProjection, true);
+                result = createCursor(netProjection, true, isReachable.get(dm.getAccount()));
                 lastQueriedDocumentId = parentDocumentId;
                 fetchStarredAsync(dm, result);
             } else {
-                result = createCursor(netProjection, false);
+                result = createCursor(netProjection, false, isReachable.get(dm.getAccount()));
 
             }
 
@@ -228,11 +233,11 @@ public class SeafileProvider extends DocumentsProvider {
             if (!parentDocumentId.equals(lastQueriedDocumentId)) {
 
                 lastQueriedDocumentId = parentDocumentId;
-                result = createCursor(netProjection, true);
+                result = createCursor(netProjection, true, isReachable.get(dm.getAccount()));
                 fetchDirentAsync(dm, repoId, path, result);
 
             } else {
-                result = createCursor(netProjection, false);
+                result = createCursor(netProjection, false, isReachable.get(dm.getAccount()));
             }
 
             // in the meantime return cached ones
@@ -513,12 +518,16 @@ public class SeafileProvider extends DocumentsProvider {
      * @param extraLoading if true, the client will expect that more entries will arrive shortly.
      * @return the Cursor object
      */
-    private static MatrixCursor createCursor(String[] netProjection, final boolean extraLoading) {
+    private static MatrixCursor createCursor(String[] netProjection, final boolean extraLoading,
+                                             final boolean isReachable) {
         return new MatrixCursor(netProjection) {
             @Override
             public Bundle getExtras () {
                 Bundle b = new Bundle();
                 b.putBoolean(DocumentsContract.EXTRA_LOADING, extraLoading);
+                if (!extraLoading && !isReachable) {
+                    b.putString(DocumentsContract.EXTRA_ERROR, "Could not connect with server");
+                }
                 return b;
             }
         };
@@ -683,7 +692,7 @@ public class SeafileProvider extends DocumentsProvider {
         row.add(Document.COLUMN_ICON, repo.getIcon());
         row.add(Document.COLUMN_SIZE, repo.size);
 
-        if (repo.encrypted) {
+        if (repo.encrypted || !this.isReachable.get(account)) {
             row.add(Document.COLUMN_MIME_TYPE, null); // undocumented: will grey out the entry
         } else {
             row.add(Document.COLUMN_MIME_TYPE, Document.MIME_TYPE_DIR);
@@ -698,9 +707,15 @@ public class SeafileProvider extends DocumentsProvider {
 
         row.add(Document.COLUMN_DISPLAY_NAME,SeadroidApplication.getAppContext()
                 .getResources().getString(R.string.tabs_starred));
-        row.add(Document.COLUMN_MIME_TYPE, Document.MIME_TYPE_DIR);
         row.add(Document.COLUMN_ICON, R.drawable.star_normal);
         row.add(Document.COLUMN_FLAGS, 0);
+
+        if (!this.isReachable.get(account)) {
+            row.add(Document.COLUMN_MIME_TYPE, null); // undocumented: will grey out the entry
+        } else {
+            row.add(Document.COLUMN_MIME_TYPE, Document.MIME_TYPE_DIR);
+        }
+
     }
 
     /**
@@ -739,9 +754,15 @@ public class SeafileProvider extends DocumentsProvider {
         row.add(Document.COLUMN_DISPLAY_NAME, entry.getTitle());
         row.add(Document.COLUMN_SIZE, entry.size);
         row.add(Document.COLUMN_SUMMARY, null);
-        row.add(Document.COLUMN_MIME_TYPE, mimeType);
         row.add(Document.COLUMN_LAST_MODIFIED, entry.mtime * 1000);
         row.add(Document.COLUMN_FLAGS, flags);
+
+        if (!this.isReachable.get(dm.getAccount())) {
+            row.add(Document.COLUMN_MIME_TYPE, null); // undocumented: will grey out the entry
+        } else {
+            row.add(Document.COLUMN_MIME_TYPE, mimeType);
+        }
+
     }
 
     /**
@@ -767,9 +788,15 @@ public class SeafileProvider extends DocumentsProvider {
         row.add(Document.COLUMN_DISPLAY_NAME, entry.getTitle());
         row.add(Document.COLUMN_SIZE, entry.getSize());
         row.add(Document.COLUMN_SUMMARY, null);
-        row.add(Document.COLUMN_MIME_TYPE, mimeType);
         row.add(Document.COLUMN_LAST_MODIFIED, entry.getMtime() * 1000);
         row.add(Document.COLUMN_FLAGS, flags);
+
+        if (!this.isReachable.get(dm.getAccount())) {
+            row.add(Document.COLUMN_MIME_TYPE, null); // undocumented: will grey out the entry
+        } else {
+            row.add(Document.COLUMN_MIME_TYPE, mimeType);
+        }
+
     }
 
     /**
@@ -793,9 +820,11 @@ public class SeafileProvider extends DocumentsProvider {
                 try {
                     // fetch the dirents from the server
                     dm.getDirentsFromServer(repoId, path);
+                    isReachable.put(dm.getAccount(), true);
 
                 } catch (SeafException e) {
-                    Log.e(DEBUG_TAG, "Exception while querying server", e);
+                    Log.e(DEBUG_TAG, "Exception while querying dirents", e);
+                    isReachable.put(dm.getAccount(), false);
                 }
 
                 // The notification has to be sent only *after* queryChildDocuments has
@@ -829,9 +858,11 @@ public class SeafileProvider extends DocumentsProvider {
             public void run() {
                 try {
                     dm.getStarredFiles();
+                    isReachable.put(dm.getAccount(), true);
 
                 } catch (SeafException e) {
-                    Log.e(DEBUG_TAG, "Exception while querying server", e);
+                    Log.e(DEBUG_TAG, "Exception while querying starred files", e);
+                    isReachable.put(dm.getAccount(), false);
                 }
 
                 // The notification has to be sent only *after* queryChildDocuments has
@@ -866,9 +897,11 @@ public class SeafileProvider extends DocumentsProvider {
                 try {
                     // fetch new repositories from the server
                     dm.getReposFromServer();
+                    isReachable.put(dm.getAccount(), true);
 
                 } catch (SeafException e) {
-                    Log.e(DEBUG_TAG, "Exception while querying server", e);
+                    Log.e(DEBUG_TAG, "Exception while querying repos", e);
+                    isReachable.put(dm.getAccount(), false);
                 }
 
                 // The notification has to be sent only *after* queryChildDocuments has
