@@ -326,6 +326,9 @@ public class SeafileProvider extends DocumentsProvider {
                                              final CancellationSignal signal)
             throws FileNotFoundException {
 
+        if (!Utils.isNetworkOn())
+            throw new FileNotFoundException();
+
         // open the file. this might involve talking to the seafile server. this will hang until
         // it is done.
         final Future<ParcelFileDescriptor> future = threadPoolExecutor.submit(new Callable<ParcelFileDescriptor>() {
@@ -452,6 +455,9 @@ public class SeafileProvider extends DocumentsProvider {
     @Override
     public String createDocument (String parentDocumentId, String mimeType, String displayName) throws FileNotFoundException {
         Log.d(DEBUG_TAG, "createDocument: " + parentDocumentId + "; " + mimeType + "; " + displayName);
+
+        if (!Utils.isNetworkOn())
+            throw new FileNotFoundException();
 
         String repoId = DocumentIdParser.getRepoIdFromId(parentDocumentId);
         if (repoId.isEmpty()) {
