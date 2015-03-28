@@ -103,8 +103,8 @@ public class SeafileProvider extends DocumentsProvider {
                     Document.COLUMN_SUMMARY
             };
     
-    /** we remember the last documentId queried so we don't run into a loop while doing Async lookups. */
-    private String lastQueriedDocumentId = null;
+    /** this flag is used to avoid infinite loops due to background refreshes */
+    private boolean returnCachedData = false;
 
     private DocumentIdParser docIdParser;
 
@@ -175,14 +175,13 @@ public class SeafileProvider extends DocumentsProvider {
             MatrixCursor result;
 
             // fetch a new repo list in the background
-            if (!parentDocumentId.equals(lastQueriedDocumentId)) {
+            if (!returnCachedData) {
                 result = createCursor(netProjection, true, isReachable.get(dm.getAccount()));
-                lastQueriedDocumentId = parentDocumentId;
-
+                returnCachedData = true;
                 fetchReposAsync(dm, result);
-
             } else {
                 result = createCursor(netProjection, false, isReachable.get(dm.getAccount()));
+                returnCachedData = false;
             }
 
             // in the meantime, return the cached repos
@@ -199,13 +198,13 @@ public class SeafileProvider extends DocumentsProvider {
             // the user is asking for the list of starred files
 
             MatrixCursor result;
-            if (!parentDocumentId.equals(lastQueriedDocumentId)) {
+            if (!returnCachedData) {
                 result = createCursor(netProjection, true, isReachable.get(dm.getAccount()));
-                lastQueriedDocumentId = parentDocumentId;
+                returnCachedData = true;
                 fetchStarredAsync(dm, result);
             } else {
                 result = createCursor(netProjection, false, isReachable.get(dm.getAccount()));
-
+                returnCachedData = false;
             }
 
             List<SeafStarredFile> starredFiles = dm.getCachedStarredFiles();
@@ -230,14 +229,13 @@ public class SeafileProvider extends DocumentsProvider {
             MatrixCursor result;
 
             // fetch new dirents in the background
-            if (!parentDocumentId.equals(lastQueriedDocumentId)) {
-
-                lastQueriedDocumentId = parentDocumentId;
+            if (!returnCachedData) {
                 result = createCursor(netProjection, true, isReachable.get(dm.getAccount()));
+                returnCachedData = true;
                 fetchDirentAsync(dm, repoId, path, result);
-
             } else {
                 result = createCursor(netProjection, false, isReachable.get(dm.getAccount()));
+                returnCachedData = false;
             }
 
             // in the meantime return cached ones
