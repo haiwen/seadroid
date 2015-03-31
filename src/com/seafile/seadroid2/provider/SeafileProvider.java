@@ -279,7 +279,7 @@ public class SeafileProvider extends DocumentsProvider {
 
         if (docIdParser.isStarredFiles(documentId)) {
             includeStarredFilesRepo(result, dm.getAccount());
-        } else if (path.equals(ProviderUtil.PATH_SEPERATOR)) {
+        } else if (path.equals(Utils.PATH_SEPERATOR)) {
             // this is the base of the repository. this is special, as we give back the information
             // about the repository itself, not some directory in it.
             includeRepo(result, dm.getAccount(), repo);
@@ -290,7 +290,7 @@ public class SeafileProvider extends DocumentsProvider {
             // very likely there has been a SeafileProvider.queryChildDocuments() call just moments
             // earlier.
 
-            String parentPath = ProviderUtil.getParentDirFromPath(path);
+            String parentPath = Utils.getParentPath(path);
             List<SeafDirent> dirents = dm.getCachedDirents(repo.getID(), parentPath);
             List<SeafStarredFile> starredFiles = dm.getCachedStarredFiles();
 
@@ -299,7 +299,7 @@ public class SeafileProvider extends DocumentsProvider {
 
                 // look for the requested file in the dirents of the parent dir
                 for (SeafDirent entry : dirents) {
-                    if (entry.getTitle().equals(ProviderUtil.getFileNameFromPath(path))) {
+                    if (entry.getTitle().equals(Utils.fileNameFromPath(path))) {
                         includeDirent(result, dm, repo.getID(), parentPath, entry);
                     }
                 }
@@ -351,7 +351,7 @@ public class SeafileProvider extends DocumentsProvider {
                 File f = getFile(signal, dm, repo, path);
 
                 // return the file to the client.
-                String parentPath = ProviderUtil.getParentDirFromPath(path);
+                String parentPath = Utils.getParentPath(path);
                 return makeParcelFileDescriptor(dm, repo.getName(), repoId, parentPath, f, mode);
             }
         });
@@ -393,7 +393,7 @@ public class SeafileProvider extends DocumentsProvider {
             throw new FileNotFoundException();
         }
 
-        String mimeType = ProviderUtil.getTypeForFile(documentId, false);
+        String mimeType = Utils.getFileMimeType(documentId);
         if (!mimeType.startsWith("image/")) {
             throw new FileNotFoundException();
         }
@@ -690,7 +690,7 @@ public class SeafileProvider extends DocumentsProvider {
         row.add(Document.COLUMN_ICON, repo.getIcon());
         row.add(Document.COLUMN_SIZE, repo.size);
 
-        if (repo.encrypted || !this.isReachable.get(account)) {
+        if (repo.encrypted || !isReachable.get(account)) {
             row.add(Document.COLUMN_MIME_TYPE, null); // undocumented: will grey out the entry
         } else {
             row.add(Document.COLUMN_MIME_TYPE, Document.MIME_TYPE_DIR);
@@ -708,7 +708,7 @@ public class SeafileProvider extends DocumentsProvider {
         row.add(Document.COLUMN_ICON, R.drawable.star_normal);
         row.add(Document.COLUMN_FLAGS, 0);
 
-        if (!this.isReachable.get(account)) {
+        if (!isReachable.get(account)) {
             row.add(Document.COLUMN_MIME_TYPE, null); // undocumented: will grey out the entry
         } else {
             row.add(Document.COLUMN_MIME_TYPE, Document.MIME_TYPE_DIR);
@@ -730,7 +730,11 @@ public class SeafileProvider extends DocumentsProvider {
 
         String docId = DocumentIdParser.buildId(dm.getAccount(), repoId, fullPath);
 
-        final String mimeType = ProviderUtil.getTypeForFile(docId, entry.isDir());
+        String mimeType;
+        if (entry.isDir())
+            mimeType = DocumentsContract.Document.MIME_TYPE_DIR;
+        else
+            mimeType = Utils.getFileMimeType(docId);
 
         int flags = 0;
         // only offer a thumbnail if the file is an image
@@ -755,7 +759,7 @@ public class SeafileProvider extends DocumentsProvider {
         row.add(Document.COLUMN_LAST_MODIFIED, entry.mtime * 1000);
         row.add(Document.COLUMN_FLAGS, flags);
 
-        if (!this.isReachable.get(dm.getAccount())) {
+        if (!isReachable.get(dm.getAccount())) {
             row.add(Document.COLUMN_MIME_TYPE, null); // undocumented: will grey out the entry
         } else {
             row.add(Document.COLUMN_MIME_TYPE, mimeType);
@@ -773,7 +777,11 @@ public class SeafileProvider extends DocumentsProvider {
     private void includeStarredFileDirent(MatrixCursor result, DataManager dm, SeafStarredFile entry) {
         String docId = DocumentIdParser.buildId(dm.getAccount(), entry.getRepoID(), entry.getPath());
 
-        final String mimeType = ProviderUtil.getTypeForFile(docId, entry.isDir());
+        String mimeType;
+        if (entry.isDir())
+            mimeType = DocumentsContract.Document.MIME_TYPE_DIR;
+         else
+            mimeType = Utils.getFileMimeType(docId);
 
         int flags = 0;
         // only offer a thumbnail if the file is an image
@@ -789,7 +797,7 @@ public class SeafileProvider extends DocumentsProvider {
         row.add(Document.COLUMN_LAST_MODIFIED, entry.getMtime() * 1000);
         row.add(Document.COLUMN_FLAGS, flags);
 
-        if (!this.isReachable.get(dm.getAccount())) {
+        if (!isReachable.get(dm.getAccount())) {
             row.add(Document.COLUMN_MIME_TYPE, null); // undocumented: will grey out the entry
         } else {
             row.add(Document.COLUMN_MIME_TYPE, mimeType);
@@ -809,7 +817,7 @@ public class SeafileProvider extends DocumentsProvider {
      * @param result Cursor object over which to signal the client.
      */
     private void fetchDirentAsync(final DataManager dm, final String repoId, final String path, MatrixCursor result) {
-        final Uri uri = DocumentsContract.buildChildDocumentsUri(ProviderUtil.AUTHORITY,docIdParser.buildId(dm.getAccount(),repoId, path));
+        final Uri uri = DocumentsContract.buildChildDocumentsUri(Utils.AUTHORITY,docIdParser.buildId(dm.getAccount(),repoId, path));
         result.setNotificationUri(getContext().getContentResolver(), uri);
 
         threadPoolExecutor.execute(new Runnable() {
@@ -848,7 +856,7 @@ public class SeafileProvider extends DocumentsProvider {
      * @param result Cursor object over which to signal the client.
      */
     private void fetchStarredAsync(final DataManager dm, MatrixCursor result) {
-        final Uri uri = DocumentsContract.buildChildDocumentsUri(ProviderUtil.AUTHORITY, docIdParser.buildStarredFilesId(dm.getAccount()));
+        final Uri uri = DocumentsContract.buildChildDocumentsUri(Utils.AUTHORITY, docIdParser.buildStarredFilesId(dm.getAccount()));
         result.setNotificationUri(getContext().getContentResolver(), uri);
 
         threadPoolExecutor.execute(new Runnable() {
@@ -886,7 +894,7 @@ public class SeafileProvider extends DocumentsProvider {
      * @param result Cursor object over which to signal the client.
      */
     private void fetchReposAsync(final DataManager dm, MatrixCursor result) {
-        final Uri uri = DocumentsContract.buildChildDocumentsUri(ProviderUtil.AUTHORITY, docIdParser.buildId(dm.getAccount(), null, null));
+        final Uri uri = DocumentsContract.buildChildDocumentsUri(Utils.AUTHORITY, docIdParser.buildId(dm.getAccount(), null, null));
         result.setNotificationUri(getContext().getContentResolver(), uri);
 
         threadPoolExecutor.execute(new Runnable() {

@@ -21,6 +21,7 @@ import android.content.Context;
 
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountDBHelper;
+import com.seafile.seadroid2.util.Utils;
 
 import java.io.FileNotFoundException;
 
@@ -99,7 +100,7 @@ public class DocumentIdParser {
             if (path.length() > 0)
                 return path;
         }
-        return ProviderUtil.PATH_SEPERATOR;
+        return Utils.PATH_SEPERATOR;
     }
 
     /**

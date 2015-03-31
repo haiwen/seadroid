@@ -21,6 +21,7 @@ import android.content.Context;
 import android.net.Uri;
 
 import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.util.Utils;
 
 /**
  * Helper class over which the AccountDBHelper can notify the DocumentProvider that the account
@@ -37,7 +38,7 @@ public class AccountNotifier {
      * However that would bump the API level to 19. Therefore we build the identical RootsUri by hand.
      */
     public static final Uri NOTIFICATION_URI = new Uri.Builder().scheme("content").
-            authority(ProviderUtil.AUTHORITY).appendEncodedPath("root").build();
+            authority(Utils.AUTHORITY).appendEncodedPath("root").build();
 
     public static void notifyProvider() {
         Context c = SeadroidApplication.getAppContext();
