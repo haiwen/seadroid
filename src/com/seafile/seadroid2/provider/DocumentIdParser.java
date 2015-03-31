@@ -19,8 +19,6 @@ package com.seafile.seadroid2.provider;
 
 import android.content.Context;
 
-import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountDBHelper;
 
@@ -29,9 +27,9 @@ import java.io.FileNotFoundException;
 /**
  * Helper class to create and parse DocumentIds for the DocumentProvider
  *
- * Format: ServerName::::RepoId::::Path
+ * Format: FullServerServerSignature::RepoId::Path
  * Example:
- * https://server.com/seafile/::::550e8400-e29b-11d4-a716-446655440000::::/dir/file.jpg
+ * email@adress.com@https://server.com/seafile/::::550e8400-e29b-11d4-a716-446655440000::::/dir/file.jpg
  *
  * the separation using "::::" is arbitrary. Is has to be something, that is neither in an URL
  * nor in a repoId UUID.
@@ -41,6 +39,8 @@ public class DocumentIdParser {
 
     /** used to separate serverName, RepoId and Path. */
     private static final String DOC_SEPERATOR = "::::";
+    private static final String STARRED_FILE_REPO_ID = "starred-file-magic-repo";
+    private static final String ROOT_REPO_ID = "root-magic-repo";
 
     Context context;
 
@@ -60,14 +60,12 @@ public class DocumentIdParser {
         if (list.length > 0) {
             String server = list[0];
             for (Account a: AccountDBHelper.getDatabaseHelper(context).getAccountList()) {
-                if (a.getServer().equals(server)) {
+                if (a.getFullSignature().equals(server)) {
                     return a;
                 }
             }
         }
-        throw new FileNotFoundException(SeadroidApplication.getAppContext()
-                .getResources()
-                .getString(R.string.saf_account_not_found_exception));
+        throw new FileNotFoundException();
     }
 
     /**
@@ -96,9 +94,10 @@ public class DocumentIdParser {
      */
     public static String getPathFromId(String documentId) {
         String[] list = documentId.split(DOC_SEPERATOR, 3);
-        if (list.length>2) {
+        if (list.length > 2) {
             String path = list[2];
-            return path;
+            if (path.length() > 0)
+                return path;
         }
         return ProviderUtil.PATH_SEPERATOR;
     }
@@ -113,11 +112,32 @@ public class DocumentIdParser {
      */
     public static String buildId(Account a, String repoId, String path) {
         if (repoId != null && path != null)
-            return a.getServer() + DOC_SEPERATOR + repoId + DOC_SEPERATOR + path;
+            return a.getFullSignature() + DOC_SEPERATOR + repoId + DOC_SEPERATOR + path;
         else if (repoId != null)
-            return a.getServer() + DOC_SEPERATOR + repoId;
+            return a.getFullSignature() + DOC_SEPERATOR + repoId;
         else
-            return a.getServer();
+            return a.getFullSignature();
     }
 
+    /**
+     * create a documentId based on an account, a repoId and a file path.
+     *
+     * @param a the account object. must not be null.
+     * @returns a documentId
+     */
+    public static String buildRootId(Account a) {
+        return a.getFullSignature() + DOC_SEPERATOR + ROOT_REPO_ID;
+    }
+
+    public static String buildStarredFilesId(Account a) {
+        return a.getFullSignature() + DOC_SEPERATOR + STARRED_FILE_REPO_ID;
+    }
+
+    public static boolean isRoot(String documentId) {
+        return getRepoIdFromId(documentId).equals(ROOT_REPO_ID);
+    }
+
+    public static boolean isStarredFiles(String documentId) {
+        return getRepoIdFromId(documentId).equals(STARRED_FILE_REPO_ID);
+    }
 }

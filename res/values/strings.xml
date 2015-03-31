@@ -302,6 +302,8 @@
     <string name="saf_account_not_found_exception">Couldn\'t find Seafile account.</string>
     <string name="saf_upload_path_not_available">Unable to upload, no path available</string>
     <string name="saf_failed_to_create_directory">Could not create directory %s</string>
+    <string name="saf_file_exist">File exists already</string>
+    <string name="saf_bad_mime_type">Bad request type</string>
 
     <!-- shibboleth SSO -->
     <string name="shib_server_url_empty">Server is empty!</string>

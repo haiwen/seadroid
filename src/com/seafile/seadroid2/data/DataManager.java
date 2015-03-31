@@ -473,7 +473,7 @@ public class DataManager {
     public List<SeafStarredFile> getStarredFiles() throws SeafException {
         String starredFiles = sc.getStarredFiles();
         Log.v(DEBUG_TAG, "Save starred files: " + starredFiles);
-        dbHelper.saveCachedStarredFiles(account,starredFiles);
+        dbHelper.saveCachedStarredFiles(account, starredFiles);
         return parseStarredFiles(starredFiles);
     }
 

@@ -43,6 +43,7 @@ public class AccountDBHelper extends SQLiteOpenHelper {
             return dbHelper;
         dbHelper = new AccountDBHelper(context);
         dbHelper.database = dbHelper.getWritableDatabase();
+        AccountNotifier.notifyProvider();
         return dbHelper;
     }
 
