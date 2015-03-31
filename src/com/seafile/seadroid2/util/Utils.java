@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.TreeMap;
 
 import android.os.Build;
+import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.view.View;
@@ -57,6 +58,8 @@ import com.seafile.seadroid2.fileschooser.SelectableFile;
 
 public class Utils {
     public static final String MIME_APPLICATION_OCTET_STREAM = "application/octet-stream";
+    public static final String AUTHORITY = "com.seafile.seadroid2";
+    public static final String PATH_SEPERATOR = "/";
     public static final String NOGROUP = "$nogroup";
     private static final String DEBUG_TAG = "Utils";
     private static final String HIDDEN_PREFIX = ".";
