@@ -63,8 +63,12 @@ public final class SettingsManager {
     public static final String SETTINGS_ABOUT_AUTHOR_KEY = "settings_about_author_key";
 
     // Cache
+    public static final String SETTINGS_CACHE_CATEGORY_KEY = "category_cache_key";
     public static final String SETTINGS_CACHE_SIZE_KEY = "settings_cache_info_key";
     public static final String SETTINGS_CLEAR_CACHE_KEY = "settings_clear_cache_key";
+    public static final String SETTINGS_CUSTOM_CACHE_DIRECTORY_KEY = "settings_custom_cache_directory_key";
+    public static final String SETTINGS_CUSTOM_CACHE_DIRECTORY_PATH = "settings_custom_cache_directory_path";
+    public static final int CHOOSE_CACHE_DOWNLOAD_DIRECTORY_REQUEST = 3;
 
     public static long lock_timestamp = 0;
     public static final long LOCK_EXPIRATION_MSECS = 5 * 60 * 1000;
@@ -167,6 +171,23 @@ public final class SettingsManager {
 
     public boolean isVideosUploadAllowed() {
         return settingsSharedPref.getBoolean(CAMERA_UPLOAD_ALLOW_VIDEOS_SWITCH_KEY, false);
+    }
+
+    public boolean isCustomCacheDirectory() {
+        return settingsSharedPref.getBoolean(SETTINGS_CUSTOM_CACHE_DIRECTORY_KEY, false);
+    }
+
+    public void saveCustomCacheDirectory(boolean isCustom) {
+        settingsSharedPref.edit().putBoolean(SETTINGS_CUSTOM_CACHE_DIRECTORY_KEY, isCustom).commit();
+    }
+
+    public String getCustomCachedPath() {
+        return settingsSharedPref.getString(SETTINGS_CUSTOM_CACHE_DIRECTORY_PATH, null);
+
+    }
+
+    public void saveCustomCachedPath(String path) {
+        settingsSharedPref.edit().putString(SETTINGS_CUSTOM_CACHE_DIRECTORY_PATH, path).commit();
     }
 
     public void saveDataPlanAllowed(boolean isAllowed) {
