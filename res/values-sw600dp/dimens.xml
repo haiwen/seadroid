@@ -41,6 +41,9 @@
     <dimen name="btn_txt_size">24sp</dimen>
 
     <dimen name="cb_btn_txt_size">22sp</dimen>
+
+    <dimen name="rb_margin_top">10dp</dimen> <!-- RadioButton -->
+
     <dimen name="et_txt_size">22dp</dimen>
     <dimen name="et_margin_bottom">10dp</dimen>
     <dimen name="clearable_et_btn_width">30dp</dimen>
