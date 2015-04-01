@@ -1,5 +1,20 @@
 package com.seafile.seadroid2.data;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import com.seafile.seadroid2.*;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.os.Environment;
 import android.util.Log;
 import android.util.Pair;
@@ -11,19 +26,6 @@ import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.util.Utils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 public class DataManager {
     private static final String DEBUG_TAG = "DataManager";
@@ -207,7 +209,13 @@ public class DataManager {
             server = server.substring(0, server.indexOf(':'));
         String p = String.format("%s (%s)", username, server);
         p = p.replaceAll("[^\\w\\d\\.@\\(\\) ]", "_");
-        String accountDir = Utils.pathJoin(getExternalRootDirectory(), p);
+
+        String accountDir;
+        if(!SettingsManager.instance().isCustomCacheDirectory())
+            accountDir = Utils.pathJoin(getExternalRootDirectory(), p);
+        else
+            accountDir = Utils.pathJoin(SettingsManager.instance().getCustomCachedPath(), p);
+
         return accountDir;
     }
 

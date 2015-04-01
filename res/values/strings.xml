@@ -338,6 +338,9 @@
 
     <string name="settings_advance_feature_title">ADVANCED FEATURE</string>    
     <string name="settings_cache_title">Cache size</string>
+    <string name="settings_custom_cache_directory_title">Custom cache folder</string>
+    <string name="settings_custom_cache_directory_on">Use default directory</string>
+    <string name="settings_custom_cache_directory_off">Pick cache directory</string>
     <string name="settings_clear_cache_title">Clear cache</string>
     <string name="settings_clear_cache_hint">Do you want to clear cache?</string>
     <string name="settings_clear_cache_success">Cache cleared successfully</string>

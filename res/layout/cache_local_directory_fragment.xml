@@ -1,0 +1,46 @@
+<RelativeLayout android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                android:background="@color/white">
+
+    <TextView
+            android:id="@+id/cache_local_library_header_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="@dimen/tv_title_margin_left"
+            android:layout_marginTop="@dimen/tv_title_margin_top"
+            android:text="@string/settings_custom_cache_directory_title"
+            android:textColor="@color/tv_title_color"
+            android:textSize="@dimen/tv_title_txt_size"/>
+
+    <RelativeLayout
+            android:id="@+id/cache_local_directory_list_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="@dimen/section_margin_top"
+            android:layout_marginBottom="5dp"
+            android:layout_above="@+id/cache_local_directory_btn"
+            android:layout_below="@id/cache_local_library_header_tv">
+
+    </RelativeLayout>
+
+    <Button android:id="@+id/cache_local_directory_btn"
+            android:layout_marginTop="@dimen/long_btn_padding_top"
+            android:layout_marginBottom="@dimen/long_btn_padding_bottom"
+            android:layout_marginLeft="@dimen/long_btn_margin_left"
+            android:layout_marginRight="@dimen/long_btn_margin_right"
+            android:text="@string/confirm"
+            android:textSize="@dimen/long_btn_txt_size"
+            android:textColor="@color/white"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/long_btn_height"
+            android:background="@drawable/confirm_btn_default_holo_light"
+            android:layout_alignParentBottom="true"/>
+
+</RelativeLayout>
