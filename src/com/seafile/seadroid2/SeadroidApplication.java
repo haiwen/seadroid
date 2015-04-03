@@ -5,6 +5,7 @@ import java.io.File;
 import android.app.Application;
 import android.content.Context;
 
+import android.util.Log;
 import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -15,6 +16,8 @@ import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.gesturelock.AppLockManager;
 
 public class SeadroidApplication extends Application {
+    public static final String DEBUG_TAG = "SeadroidApplication";
+
     private static Context context;
     
     public void onCreate() {
@@ -31,8 +34,13 @@ public class SeadroidApplication extends Application {
     }
     
     public static void initImageLoader(Context context) {
-        
-        File cacheDir = DataManager.getThumbnailCacheDirectory();
+
+        File cacheDir = null;
+        try {
+            cacheDir = DataManager.getThumbnailCacheDirectory();
+        } catch (SeafException e) {
+            Log.e(DEBUG_TAG, "error message " + e.getMessage() + " error code " + e.getCode());
+        }
         // This configuration tuning is custom. You can tune every option, you may tune some of them,
         // or you can create default configuration by
         //  ImageLoaderConfiguration.createDefault(this);

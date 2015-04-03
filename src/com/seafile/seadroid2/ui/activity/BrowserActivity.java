@@ -1044,7 +1044,12 @@ public class BrowserActivity extends SherlockFragmentActivity
 
             List<File> fileList = new ArrayList<File>();
             for (Uri uri: uriList) {
-                File tempDir = new File(DataManager.getExternalTempDirectory(), "saf_temp" + "/" + "upload-"+System.currentTimeMillis());
+                File tempDir = null;
+                try {
+                    tempDir = new File(DataManager.getExternalTempDirectory(), "saf_temp" + "/" + "upload-"+System.currentTimeMillis());
+                } catch (SeafException e) {
+                    Log.e(DEBUG_TAG, "error message " + e.getMessage() + " error code " + e.getCode());
+                }
                 File tempFile = new File(tempDir, Utils.getFilenamefromUri(BrowserActivity.this, uri));
 
                 Log.d(DEBUG_TAG, "Uploading file from uri: " + uri);

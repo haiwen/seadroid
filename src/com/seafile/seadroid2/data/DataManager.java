@@ -86,19 +86,19 @@ public class DataManager {
         }
     }
 
-    public static String getExternalTempDirectory() {
+    public static String getExternalTempDirectory() throws SeafException {
         String root = getExternalRootDirectory();
         File tmpDir = new File(root + "/" + "temp");
         return getDirectoryCreateIfNeeded(tmpDir);
     }
 
-    public static String getThumbDirectory() {
+    public static String getThumbDirectory() throws SeafException {
         String root = SeadroidApplication.getAppContext().getCacheDir().getAbsolutePath();
         File tmpDir = new File(root + "/" + "thumb");
         return getDirectoryCreateIfNeeded(tmpDir);
     }
 
-    public static String getExternalCacheDirectory() {
+    public static String getExternalCacheDirectory() throws SeafException {
         String root = getExternalRootDirectory();
         File tmpDir = new File(root + "/" + "cache");
         return getDirectoryCreateIfNeeded(tmpDir);
@@ -134,17 +134,17 @@ public class DataManager {
         return new File(p);
     }
 
-    public static File getTempFile(String path, String oid) {
+    public static File getTempFile(String path, String oid) throws SeafException {
         String p = getExternalTempDirectory() + "/" + constructFileName(path, oid);
         return new File(p);
     }
 
     // Obtain a cache file for storing a directory with oid
-    public static File getFileForDirentsCache(String oid) {
+    public static File getFileForDirentsCache(String oid) throws SeafException {
         return new File(getExternalCacheDirectory() + "/" + oid);
     }
     
-    public static File getThumbnailCacheDirectory() {
+    public static File getThumbnailCacheDirectory() throws SeafException {
         return new File(getExternalCacheDirectory() + "/thumbnails");
     }
 
@@ -190,7 +190,7 @@ public class DataManager {
         return account;
     }
 
-    private File getFileForReposCache() {
+    private File getFileForReposCache() throws SeafException {
         String filename = "repos-" + (account.server + account.email).hashCode() + ".dat";
         return new File(getExternalCacheDirectory() + "/" + filename);
     }
@@ -332,7 +332,9 @@ public class DataManager {
     }
 
     public SeafRepo getCachedRepoByID(String id) {
-        List<SeafRepo> cachedRepos = getReposFromCache();
+        List<SeafRepo> cachedRepos = null;
+        cachedRepos = getReposFromCache();
+
         if (cachedRepos == null) {
             return null;
         }
@@ -350,7 +352,12 @@ public class DataManager {
         if (reposCache != null)
             return reposCache;
 
-        File cache = getFileForReposCache();
+        File cache = null;
+        try {
+            cache = getFileForReposCache();
+        } catch (SeafException e) {
+            Log.e(DEBUG_TAG, "error message " + e.getMessage() + " error code " + e.getCode());
+        }
         if (cache.exists()) {
             String json = Utils.readFile(cache);
             reposCache = parseRepos(json);

@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui.adapter;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SearchedFile;
 import com.seafile.seadroid2.ui.activity.SearchActivity;
@@ -20,6 +22,7 @@ import java.util.List;
  *
  */
 public class SearchAdapter extends BaseAdapter {
+    public static final String DEBUG_TAG = "SearchAdapter";
 
     private List<SearchedFile> items;
     private SearchActivity mActivity;
