@@ -39,7 +39,9 @@ public class SeafileMonitor {
 
     public synchronized void stopMonitorFilesForAccount(Account account) {
         SeafileObserver fileObserver = observers.get(account);
-        removeObserver(fileObserver);
+        if (fileObserver != null)
+            removeObserver(fileObserver);
+
         observers.remove(account);
     }
 
