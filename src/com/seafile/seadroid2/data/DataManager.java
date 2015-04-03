@@ -54,6 +54,26 @@ public class DataManager {
         dbHelper = DatabaseHelper.getDatabaseHelper();
     }
 
+
+    /** Checks if external storage is available for read and write */
+    public static boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            return true;
+        }
+        return false;
+    }
+
+    /** Checks if external storage is available to at least read */
+    public static boolean isExternalStorageReadable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state) ||
+                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+            return true;
+        }
+        return false;
+    }
+
     public static String getExternalRootDirectory() {
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             File extDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Seafile/");
@@ -84,11 +104,16 @@ public class DataManager {
         return getDirectoryCreateIfNeeded(tmpDir);
     }
 
-    private static String getDirectoryCreateIfNeeded(File dir) {
+    private static String getDirectoryCreateIfNeeded(File dir) throws SeafException {
         if (dir.exists()) {
             return dir.getAbsolutePath();
         } else {
-            dir.mkdirs();
+            if (isExternalStorageWritable())
+                dir.mkdirs();
+            else {
+                Log.e(DEBUG_TAG, "External Storage is currently not available");
+                throw SeafException.externalStorageUnavailableException;
+            }
         }
         return dir.getAbsolutePath();
     }

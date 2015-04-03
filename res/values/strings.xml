@@ -98,6 +98,7 @@
     <string name="library_read_only">This library is read-only</string>
     <string name="error_when_load_dirents">Error when loading the folder</string>
     <string name="error_when_load_repos">Error when loading libraries</string>
+    <string name="error_when_write_external_storage">External Storage is currently not available</string>
     <string name="dir_empty">This folder is empty</string>
     <string name="no_repo">You have no libraries yet</string>
     <string name="no_app_available">No app can be found</string>
