@@ -180,15 +180,15 @@
   <string name="settings_camera_upload_info_title">Hlaða Upp Myndum Myndavélar</string>
   <string name="settings_camera_upload_info">hlaða upp %d mynd(um) til\u0020</string>
   <string name="settings_wifi_down">Þráðlaust net ekki tiltækt</string>
-  <string name="settings_start_upload_service">Upphleðsluþjónusta komin í gang</string>
-  <string name="settings_stop_upload_service">Upphleðsluþjónusta stöðvuð</string>
-  <string name="settings_allow_mobile_connections">Leyfa 2G/3G/4G Tengingar</string>
-  <string name="settings_default_wifi_connection">Nota aðeins þráðlaust net sem sjálfgefið</string>
-  <string name="settings_use_mobile_connections">2G/3G/4G tengingar leyfðar</string>
-  <string name="settings_repo">Breyta Upphleðslusafni</string>
-  <string name="settings_hint">Vinsamlegast veldu safn fyrst</string>
-  <string name="settings_start">Kveikja á Myndavélaupphleðslu</string>
-  <string name="settings_camera_upload_library_not_found">Valda safnið er ekki til</string>
+  <string name="settings_camera_upload_service_started">Upphleðsluþjónusta komin í gang</string>
+  <string name="settings_camera_upload_service_stopped">Upphleðsluþjónusta stöðvuð</string>
+  <string name="settings_camera_upload_allow_data_plan">Leyfa 2G/3G/4G Tengingar</string>
+  <string name="settings_camera_upload_default_wifi">Nota aðeins þráðlaust net sem sjálfgefið</string>
+  <string name="settings_camera_upload_data_plan_allowed">2G/3G/4G tengingar leyfðar</string>
+  <string name="settings_camera_upload_change_repo_title">Breyta Upphleðslusafni</string>
+  <string name="settings_camera_upload_repo_hint">Vinsamlegast veldu safn fyrst</string>
+  <string name="settings_camera_upload_turn_on">Kveikja á Myndavélaupphleðslu</string>
+  <string name="settings_camera_upload_lib_not_found">Valda safnið er ekki til</string>
   <string name="settings_about_title">UM</string>
   <string name="settings_about_version_title">App Útgáfa</string>
   <!--pull to refresh-->

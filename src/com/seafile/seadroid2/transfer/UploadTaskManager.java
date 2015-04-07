@@ -20,6 +20,9 @@ public class UploadTaskManager extends TransferManager implements UploadStateLis
     public static final String BROADCAST_FILE_UPLOAD_CANCELLED = "uploadCancelled";
 
     public void addTaskToQue(Account account, String repoID, String repoName, String dir, String filePath, boolean isUpdate, boolean isCopyToLocal) {
+        if (repoID == null || repoName == null)
+            return;
+
         // create a new one to avoid IllegalStateException
         UploadTask task = new UploadTask(++notificationID, account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal, this);
         addTaskToQue(task);

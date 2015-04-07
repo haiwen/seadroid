@@ -28,9 +28,11 @@
     <!-- Title -->
     <dimen name="tv_title_txt_size">28sp</dimen> <!-- TextView -->
     <dimen name="tv_subtitle_txt_size">16sp</dimen>
-    <dimen name="tv_title_margin_top">10dp</dimen>
+    <dimen name="tv_title_margin_top">20dp</dimen>
     <dimen name="tv_subtitle_margin_top">10dp</dimen>
+    <dimen name="tv_title_margin_left">20dp</dimen>
 
+    <dimen name="section_margin_top">5dp</dimen>
 
     <!-- Content -->
     <dimen name="lv_margin_top">10dp</dimen> <!-- ListView -->
@@ -68,6 +70,7 @@
     <dimen name="lv_act_subtitle_margin_top">0sp</dimen>
     <dimen name="lv_act_subtitle_margin_bottom">5sp</dimen>
     <dimen name="lv_act_subtitle_txt_size">16sp</dimen>
+    <dimen name="lv_divider_height">1dp</dimen>
 
     <dimen name="cb_padding_left">20dp</dimen> <!-- CheckBox -->
     <dimen name="cb_padding_top">10dp</dimen>

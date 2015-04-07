@@ -109,7 +109,8 @@ public class CameraUploadService extends Service {
             isCameraUploadEnabled = true;
             account = new Account(accountServer, accountEmail, null, accountToken);
             cUploadManager = new CameraUploadManager(account);
-        }
+        } else
+            isCameraUploadEnabled = false;
 
         isNetworkAvailable = settingsMgr.checkCameraUploadNetworkAvailable();
         // ensure network is available
@@ -156,7 +157,6 @@ public class CameraUploadService extends Service {
     private void addCameraUploadTask(String repoID, String repoName, String targetDir, String localFilePath) {
         if (mTransferService != null) {
             // set the last parameter "isUpdate" to true to stop copying file into sd-card
-            // if passed "false" will cause OOM when uploading photos
             mTransferService.addTaskToUploadQue(account, repoID, repoName, targetDir, localFilePath, false, false);
         } else {
             PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, false, false);
@@ -230,7 +230,13 @@ public class CameraUploadService extends Service {
                 e.printStackTrace();
             }
 
-            List<File> pathList = CameraUploadUtil.getAllPhotosAbsolutePathList();
+            boolean isVideosAllowed = settingsMgr.isVideosUploadAllowed();
+            List<File> pathList;
+
+            if (settingsMgr.isCustomScanDir()) {
+                pathList = CameraUploadUtil.getCustomPathList(isVideosAllowed);
+            } else
+                pathList = CameraUploadUtil.getAutoScannedPathList(isVideosAllowed);
 
             if (pathList != null) {
                 for (File photo : pathList) {
@@ -273,10 +279,40 @@ public class CameraUploadService extends Service {
                 return;
 
             String detectLog = "detected " + photo.getName();
+
+            boolean isVideosAllowed = settingsMgr.isVideosUploadAllowed();
+            boolean isCustomScan = settingsMgr.isCustomScanDir();
+
+            // only upload files under some specific folders
+            boolean isPathValid = CameraUploadUtil.isPathValid(photo, isVideosAllowed, isCustomScan);
+            Log.d(DEBUG_TAG, "path "
+                    + photo.getAbsolutePath()
+                    + " isVideoAllowed "
+                    + isVideosAllowed
+                    + " isCustomScan "
+                    + isCustomScan
+                    + " isPathValid "
+                    + isPathValid);
+
+            if (!isPathValid)
+                return;
+
+            boolean isFileTypeValid = false;
+            // only upload photos or videos if allowed to
+            if ((CameraUploadUtil.isVideoType(photo.getName()) && isVideosAllowed)
+                    || CameraUploadUtil.isImageType(photo.getName())) {
+                isFileTypeValid = true;
+            }
+
             Log.d(DEBUG_TAG, detectLog);
+
+            if (repoName == null || repoId == null)
+                return;
+
             SeafCachedPhoto cachePhoto = cUploadManager.getCachedPhoto(repoName, repoId, DIR,
                     photo.getName());
-            if (cachePhoto == null) {
+            if (cachePhoto == null
+                    && isFileTypeValid) {
                 addCameraUploadTask(repoId, repoName, CAMERA_UPLOAD_REMOTE_PARENTDIR
                         + CAMERA_UPLOAD_REMOTE_DIR, photo.getAbsolutePath());
             }

@@ -24,7 +24,7 @@ public class CameraUploadManager {
 
     public CameraUploadManager(Account act) {
         account = act;
-        dbHelper = CameraUploadDBHelper.getCameraUploadDBHelper();
+        dbHelper = CameraUploadDBHelper.getInstance();
         mDataManager = new DataManager(act);
     }
 

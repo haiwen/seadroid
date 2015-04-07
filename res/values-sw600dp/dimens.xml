@@ -3,9 +3,10 @@
     <!-- Title -->
     <dimen name="tv_title_txt_size">45sp</dimen>
     <dimen name="tv_subtitle_txt_size">24sp</dimen>
-    <dimen name="tv_title_margin_top">10dp</dimen>
+    <dimen name="tv_title_margin_top">30dp</dimen>
     <dimen name="tv_subtitle_margin_top">10dp</dimen>
 
+    <dimen name="section_margin_top">25dp</dimen>
 
     <!-- Content -->
     <dimen name="tv_txt_size">14sp</dimen>
