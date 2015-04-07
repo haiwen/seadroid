@@ -142,7 +142,7 @@ public class ReposFragment extends SherlockListFragment {
         super.onResume();
         Log.d(DEBUG_TAG, "ReposFragment onResume");
         // refresh the view (loading data)
-        refresh();
+        refreshView();
         mRefreshType = REFRESH_ON_RESUME;
     }
 
