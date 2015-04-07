@@ -17,6 +17,7 @@ import java.util.List;
  */
 public abstract class ReposAdapter extends BaseAdapter {
 
+    protected List<SeafRepo> repos = Lists.newArrayList();
     protected boolean onlyShowWritableRepos;
     protected String encryptedRepoId;
 
@@ -32,6 +33,20 @@ public abstract class ReposAdapter extends BaseAdapter {
 
     public boolean areAllReposSelectable() {
         return false;
+    }
+
+    public void setRepos(List<SeafRepo> seafRepos) {
+        repos.clear();
+        for (SeafRepo repo: seafRepos) {
+            if (onlyShowWritableRepos && !repo.hasWritePermission()) {
+                continue;
+            }
+            if (encryptedRepoId != null && !repo.id.equals(encryptedRepoId)) {
+                continue;
+            }
+            repos.add(repo);
+        }
+        notifyDataSetChanged();
     }
 
     protected abstract int getChildLayout();
