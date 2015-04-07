@@ -52,3 +52,8 @@ The third party software included and used by this project is:
  * App passcode library for Android, master branch
    Dual licensed under MIT, and GPL.
    See https://github.com/wordpress-mobile/Android-PasscodeLock
+
+ * Jams Music Player, master branch
+   Copyright (C) 2014 Saravan Pantha.
+   Licensed under the Apache License, Version 2.0.
+   See https://github.com/psaravan/JamsMusicPlayer/tree/master/jamsMusicPlayer/src/main/java/com/jams/music/player/WelcomeActivity

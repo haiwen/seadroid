@@ -1,0 +1,52 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/white">
+
+    <TextView
+        android:id="@+id/cuc_ready_title_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="@dimen/tv_title_margin_left"
+        android:layout_marginTop="@dimen/tv_title_margin_top"
+        android:text="@string/settings_cuc_finish_title"
+        android:textSize="@dimen/tv_title_txt_size"
+        android:textColor="@color/tv_title_color" />
+
+    <TextView
+        android:id="@+id/cuc_ready_info_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/cuc_ready_title_tv"
+        android:layout_below="@+id/cuc_ready_title_tv"
+        android:layout_marginTop="@dimen/section_margin_top"
+        android:text="@string/settings_cuc_ready"
+        android:textColor="@color/tv_subtitle_color"
+        android:layout_marginRight="30dp"
+        android:textSize="@dimen/tv_subtitle_txt_size" />
+
+    <TextView
+        android:id="@+id/cuc_click_to_finish_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/cuc_ready_info_tv"
+        android:layout_below="@+id/cuc_ready_info_tv"
+        android:layout_marginTop="20dp"
+        android:text="@string/settings_cuc_click_btn"
+        android:textSize="@dimen/tv_subtitle_txt_size"
+        android:textColor="@color/tv_subtitle_color" />
+
+    <Button android:id="@+id/cuc_click_to_finish_btn"
+            android:layout_below="@+id/cuc_click_to_finish_tv"
+            android:layout_marginTop="@dimen/section_margin_top"
+            android:layout_marginLeft="@dimen/long_btn_margin_left"
+            android:layout_marginRight="@dimen/long_btn_margin_right"
+            android:text="@string/confirm"
+            android:textSize="@dimen/long_btn_txt_size"
+            android:textColor="@color/white"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/long_btn_height"
+            android:background="@drawable/confirm_btn_default_holo_light"/>
+</RelativeLayout>

@@ -28,6 +28,8 @@ import android.util.Log;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.seafile.seadroid2.cameraupload.CameraUploadDBHelper;
+import com.seafile.seadroid2.util.Utils;
 
 /**
  * ImageManager is used to retrieve and store images
@@ -125,7 +127,12 @@ public class ImageManager {
 
     private static List<String> allBucketIds;
 
-    public static List<String> getAllPath(){
+    public static List<String> getCustomDirList() {
+        // query database for selected paths
+        return CameraUploadDBHelper.getInstance().getCustomDirList();
+    }
+
+    public static List<String> getAutoScannedPathList() {
         String[] paths = {
                 "/DCIM",
                 "/DCIM/Camera",
@@ -134,13 +141,13 @@ public class ImageManager {
                 "/external_sd/DCIM",
                 "/external_sd/DCIM/Camera",
                 "/external_sd/DCIM/100MEDIA"
-            };
+        };
 
-            List<String> pathList = Lists.newArrayList();
-            for (String path : paths) {
-                String fullPath = Environment.getExternalStorageDirectory().toString() + path;
-                pathList.add(fullPath);
-            }
+        List<String> pathList = Lists.newArrayList();
+        for (String path : paths) {
+            String fullPath = Utils.pathJoin(Environment.getExternalStorageDirectory().getAbsolutePath(), path);
+            pathList.add(fullPath);
+        }
         return pathList;
     }
     

@@ -156,11 +156,11 @@
   <string name="settings_camera_upload_info_title">Caricamento Foto di Fotocamera</string>
   <string name="settings_camera_upload_info">caricato(e) %d foto in \u0020</string>
   <string name="settings_wifi_down">Wi-Fi non disponibile</string>
-  <string name="settings_start_upload_service">Servizio di Upload avviato</string>
-  <string name="settings_stop_upload_service">Servizio di Upload fermato</string>
-  <string name="settings_hint">Per favore scegli prima una libreria</string>
-  <string name="settings_start">Abilita Upload della Fotocamera</string>
-  <string name="settings_camera_upload_library_not_found">La libreria selezionata non esiste</string>
+  <string name="settings_camera_upload_service_started">Servizio di Upload avviato</string>
+  <string name="settings_camera_upload_service_stopped">Servizio di Upload fermato</string>
+  <string name="settings_camera_upload_repo_hint">Per favore scegli prima una libreria</string>
+  <string name="settings_camera_upload_turn_on">Abilita Upload della Fotocamera</string>
+  <string name="settings_camera_upload_lib_not_found">La libreria selezionata non esiste</string>
   <!--pull to refresh-->
   <!--storage access framework-->
   <!--shibboleth SSO-->
