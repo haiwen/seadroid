@@ -40,6 +40,7 @@ public class SeadroidApplication extends Application {
             cacheDir = DataManager.getThumbnailCacheDirectory();
         } catch (SeafException e) {
             Log.e(DEBUG_TAG, "error message " + e.getMessage() + " error code " + e.getCode());
+            return;
         }
         // This configuration tuning is custom. You can tune every option, you may tune some of them,
         // or you can create default configuration by

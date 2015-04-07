@@ -358,7 +358,7 @@ public class DataManager {
         } catch (SeafException e) {
             Log.e(DEBUG_TAG, "error message " + e.getMessage() + " error code " + e.getCode());
         }
-        if (cache.exists()) {
+        if (cache != null && cache.exists()) {
             String json = Utils.readFile(cache);
             reposCache = parseRepos(json);
             return reposCache;
