@@ -12,12 +12,9 @@ import java.util.List;
  */
 public class SeafReposAdapter extends ReposAdapter {
 
-    private List<SeafRepo> repos = Lists.newArrayList();
-
     public SeafReposAdapter(boolean onlyShowWritableRepos, String encryptedRepoId) {
         super(onlyShowWritableRepos, encryptedRepoId);
     }
-
 
     @Override
     public int getCount() {
@@ -36,20 +33,6 @@ public class SeafReposAdapter extends ReposAdapter {
     @Override
     public SeafRepo getItem(int position) {
         return repos.get(position);
-    }
-
-    public void setRepos(List<SeafRepo> repos) {
-        repos.clear();
-        for (SeafRepo repo: repos) {
-            if (onlyShowWritableRepos && !repo.hasWritePermission()) {
-                continue;
-            }
-            if (encryptedRepoId != null && !repo.id.equals(encryptedRepoId)) {
-                continue;
-            }
-            this.repos.add(repo);
-        }
-        notifyDataSetChanged();
     }
 
     @Override

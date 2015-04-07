@@ -218,7 +218,7 @@ public class CloudLibrarySelectionFragment extends Fragment {
                 mCurrentDir = getString(R.string.settings_cuc_remote_lib_repo, repo.name);
                 setCurrentDirText(mCurrentDir);
                 SeafRepo seafRepo = getReposAdapter().getItem(position);
-                onRepoSelected(mAccount, seafRepo, true);
+                onRepoSelected(mAccount, seafRepo);
                 break;
             case STEP_CHOOSE_DIR:
                 SeafDirent dirent = getDirentsAdapter().getItem(position);
@@ -235,9 +235,9 @@ public class CloudLibrarySelectionFragment extends Fragment {
         }
     }
 
-    private void onRepoSelected(Account account, SeafRepo seafRepo, boolean isChecked) {
+    private void onRepoSelected(Account account, SeafRepo seafRepo) {
         mActivity.saveCameraUploadInfo(account, seafRepo);
-        getReposAdapter().setRepo(seafRepo, isChecked);
+        getReposAdapter().setSelectedRepo(seafRepo);
         getReposAdapter().notifyDataSetChanged();
     }
 
