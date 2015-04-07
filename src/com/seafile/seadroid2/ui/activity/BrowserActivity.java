@@ -1625,7 +1625,8 @@ public class BrowserActivity extends SherlockFragmentActivity
             return;
         }
         UploadTaskInfo info = txService.getUploadTaskInfo(taskID);
-        ToastUtils.show(this, getString(R.string.upload_failed) + " " + Utils.fileNameFromPath(info.localFilePath));
+        if (info != null)
+            ToastUtils.show(this, getString(R.string.upload_failed) + " " + Utils.fileNameFromPath(info.localFilePath));
     }
 
     public PasswordDialog showPasswordDialog(String repoName, String repoID,
