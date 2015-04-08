@@ -38,8 +38,8 @@
   <string-array name="choose_server_array">
     <item>Saját Seafile Server</item>
     <item>SeaCloud.cc</item>
-    <item>cloud.seafile.com</item>
-    <item>Shibboleth bejelentkezés</item>
+    <item>Cloud.mein-seafile.de</item>
+    <item>Shibboleth Login</item>
   </string-array>
   <string name="network_down">Nincs hálózati kapcsolat</string>
   <string name="unknow_error">Ismeretlen hiba</string>
@@ -135,16 +135,14 @@
     <item>Fiókok</item>
     <item>Fénykép mentések</item>
   </string-array>
-  <string name="drawer_open">Navigációs menü megnyitása</string>
-  <string name="drawer_close">Navigációs menü bezárása</string>
   <string name="no_starred_file">Jelenleg nincsenek kedvenc fájlok</string>
-  <string name="added_to_upload_tasks">A kiválasztott fájlok a feltöltési feladatokhoz lettek adva.</string>
-  <string name="added_photo_to_upload_tasks">Fénykép feltöltés alatt</string>
+  <string name="added_to_upload_tasks">Feltöltés elindítva</string>
+  <string name="added_photo_to_upload_tasks">Fénykép feltöltés elindítva</string>
   <string name="take_photo_successfully">Sikeres fénykép készítés</string>
   <string name="tabs_library">Kötetek</string>
   <string name="tabs_activity">Tevékenységek</string>
   <string name="tabs_starred">Kedvencek</string>
-  <string name="provide_password">Jelszó megadása ehhez: \"%s\"</string>
+  <string name="provide_password">Jelszó megadása ehhez: "%s"</string>
   <string name="upload_waiting">Vár</string>
   <string name="upload_finished">Kész</string>
   <string name="upload_cancelled">Megszakítva</string>
@@ -238,19 +236,55 @@
   <string name="next_button_label">Következő</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">Kihagy</string>
-  <string name="settings_camera_upload_duplicate">már feltöltve</string>
+  <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Fénykép feltöltés</string>
-  <string name="settings_camera_upload_info">%d fénykép feltöltése ide: \u0020</string>
-  <string name="settings_wifi_down">Nem érhető el a Wi-Fi</string>
   <string name="settings_camera_upload_service_started">Feltöltési szolgáltatás elindítva</string>
   <string name="settings_camera_upload_service_stopped">Feltöltési szolgáltatás leállítva</string>
-  <string name="settings_camera_upload_allow_data_plan">2G/3G/4G kapcsolatok engedélyezése</string>
+  <string name="settings_camera_upload_allow_data_plan">Mobil internet engedélyezés</string>
+  <string name="settings_camera_upload_allow_videos">Videó feltöltés engedélyezés</string>
   <string name="settings_camera_upload_default_wifi">Alapesetben csak Wi-Fi használata</string>
-  <string name="settings_camera_upload_data_plan_allowed">2G/3G/4G kapcsolat engedélyezve</string>
+  <string name="settings_camera_upload_data_plan_allowed">Mobil internet engedélyezve</string>
+  <string name="settings_camera_upload_default_photos">Alapesetben csak fényképeket tölt fel</string>
+  <string name="settings_camera_upload_videos_allowed">Videókat is</string>
   <string name="settings_camera_upload_change_repo_title">Feltöltési kötet megváltoztatása</string>
   <string name="settings_camera_upload_repo_hint">Először a kötetet kell kiválasztani</string>
   <string name="settings_camera_upload_turn_on">Fényképezőgép feltöltés bekapcsolása</string>
+  <string name="settings_camera_upload_choose_dir">Helyi könyvtár kiválasztása</string>
+  <string name="settings_camera_upload_dir_auto_scan">Alapesetben keresse a fényképeket</string>
+  <string name="settings_camera_upload_dir_custom">Keresés a kiválasztott könyvtárakban</string>
   <string name="settings_camera_upload_lib_not_found">A kiválasztott kötet nem létezik.</string>
+  <string name="settings_camera_upload_advanced_feature_title">Haladó beállítások</string>
+  <string name="settings_camera_upload_advanced_feature_subtitle">Egyéni feltöltési beállítások</string>
+  <string name="settings_camera_upload_advanced_custom_directories">Egyéni feltöltési könyvtár</string>
+  <string name="settings_camera_upload_advanced_custom_directories_on">Fényképek könyvtárának kiválasztása</string>
+  <string name="settings_camera_upload_advanced_custom_directories_off">Automatikus keresés az eszközön</string>
+  <!--Camera Upload Configuration View-->
+  <string name="settings_cuc_title">Beállítási segéd</string>
+  <string name="settings_cuc_welcome_text">Köszönjük, hogy a kamera feltöltési segédet használja.\nA kamera feltöltési szolgáltatás elindításához átvezetjük a kezdő lépéseken.\n\nTovábblépéshez húzza jobbra.</string>
+  <string name="settings_cuc_network_title">Hogyan lehet feltölteni</string>
+  <string name="settings_cuc_network_wifi">Csak Wi-Fi</string>
+  <string name="settings_cuc_network_data_plan">Wi-Fi vagy mobil net</string>
+  <string name="settings_cuc_option_hint">Válassza ki a preferált beállítást. \nEzeket a beállításokat később bármikor megváltoztathatja. \n\nTovábblépéshez húzza balra.</string>
+  <string name="settings_cuc_type_title">Mit tölt fel</string>
+  <string name="settings_cuc_type_photo">Csak fénykép</string>
+  <string name="settings_cuc_type_video">Fénykép és videó</string>
+  <string name="settings_cuc_local_dir_title">Helyi könyvtár kiválasztása</string>
+  <plurals name="settings_cuc_local_dir_items">
+    <item quantity="one"><xliff:g id="cuc_item">%1$d</xliff:g> elem</item>
+    <item quantity="other"><xliff:g id="cuc_items">%1$d</xliff:g> elem</item>
+  </plurals>
+  <string name="settings_cuc_remote_lib_title">Kötet kiválasztása</string>
+  <string name="settings_cuc_remote_lib_account">Fiók kiválasztása</string>
+  <string name="settings_cuc_remote_lib_repo">%s kiválasztva</string>
+  <string name="settings_cuc_upload_to_parent_folder">Egy könyvtárral feljebb</string>
+  <string name="settings_cuc_auto_scan">Minden fénykép az eszközön</string>
+  <string name="settings_cuc_pick_dir">Fényképek könyvtárának kiválasztása</string>
+  <string name="settings_cuc_remote_lib_hint">Válassza ki a preferált fiókot és kötetet. \nEzeket a beállításokat később bármikor megváltoztathatja. \n\nTovábblépéshez húzza balra.</string>
+  <string name="settings_cuc_finish_title">Kész</string>
+  <string name="settings_cuc_ready">A Seafile most elkezdi feltölteni a kiválasztott könyvtárakból a fájlokat. \nBezárhatja az alkalmazást.</string>
+  <string name="settings_cuc_swipe_left">Továbblépéshez húzza balra.</string>
+  <string name="settings_cuc_click_btn">A konfigurációs segéd bezárásához koppintson.</string>
+  <string name="settings_cuc_loading">betöltés...</string>
   <string name="settings_about_title">Névjegy</string>
   <string name="settings_about_version_title">Alkalmazás verzió</string>
   <string name="settings_about_author_title">Névjegy</string>
@@ -265,7 +299,7 @@
         </p>
         <h5>Contribution</h5>
         <p>https://github.com/haiwen/seadroid.git</P>
-        <h5>Copyright ©2013-2014 Seafile Ltd.</h5>
+        <h5>Copyright ©2013-2015 Seafile Ltd.</h5>
         ]]>
     </string>
   <string name="settings_advance_feature_title">HALADÓ BEÁLLÍTÁSOK</string>
@@ -291,6 +325,10 @@
   <string name="saf_file_not_downloaded_exception">%s fájlt nem lehet letölteni a szerverről.</string>
   <string name="saf_write_diretory_exception">A könyvtár nem nyitható meg írásra/olvasásra.</string>
   <string name="saf_account_not_found_exception">Nem található Seafile fiók.</string>
+  <string name="saf_upload_path_not_available">Nem lehet feltölteni, nem létező útvonal</string>
+  <string name="saf_failed_to_create_directory">Nem lehet létrehozni a könyvtárat: %s</string>
+  <string name="saf_file_exist">A fájl már létezik</string>
+  <string name="saf_bad_mime_type">Hibás fájl típus kérés</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">A szerver üres!</string>
   <string name="shib_server_incorrect_prefix">A szerver címnek http://-rel vagy https://-rel kell kezdődnie</string>
@@ -305,7 +343,10 @@
   <string name="transfer_tabs_downloads">Letöltési lista</string>
   <string name="transfer_tabs_uploads">Feltöltési lista</string>
   <string name="transfer_download_no_task">Minden fájl letöltve</string>
-  <string name="transfer_download_started">%d fájl letöltésének elkezdése</string>
+  <plurals name="transfer_download_started">
+    <item quantity="one"><xliff:g id="download_file">%1$d</xliff:g> fájl letöltése elindul</item>
+    <item quantity="other"><xliff:g id="download_files">%1$d</xliff:g> fájl letöltése elindul</item>
+  </plurals>
   <!--Search-->
   <string name="search_menu_item">Keres</string>
   <string name="search_bar_hint">Keresés...</string>
@@ -316,4 +357,19 @@
   <!--star a file-->
   <string name="star_file_succeed">Fájl sikeresen felvéve a kedvencek közé</string>
   <string name="star_file_failed">A fájlt nem sikerült felvenni a kedvencek közé</string>
+  <!--notification bar-->
+  <string name="notification_upload_started_title">Fájlok feltöltése...</string>
+  <string name="notification_download_started_title">Fájlok letöltése...</string>
+  <string name="notification_upload_completed">Feltöltés befejeződött</string>
+  <string name="notification_upload_cancelled">Feltöltés megszakítva</string>
+  <plurals name="notification_upload_info">
+    <item quantity="one">Fájl feltöltése, %1$d fájl van vissza (%2$d%%)</item>
+    <item quantity="other">Fájlok feltöltése, %1$d fájl van vissza (%2$d%%)</item>
+  </plurals>
+  <plurals name="notification_download_info">
+    <item quantity="one">Fájl letöltése, %1$d fájl van vissza (%2$d%%)</item>
+    <item quantity="other">Fájlok letöltése, %1$d fájl van vissza (%2$d%%)</item>
+  </plurals>
+  <string name="notification_download_completed">Letöltés kész</string>
+  <string name="notification_download_cancelled">Letöltés megszakítva</string>
 </resources>

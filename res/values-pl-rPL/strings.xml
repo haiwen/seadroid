@@ -38,7 +38,7 @@
   <string-array name="choose_server_array">
     <item>Prywatny serwer Seafile</item>
     <item>SeaCloud.cc</item>
-    <item>cloud.seafile.com</item>
+    <item>Cloud.mein-seafile.de</item>
     <item>Logowanie Shibboleth</item>
   </string-array>
   <string name="network_down">Brak połączenia z siecią</string>
@@ -62,7 +62,7 @@
   <string name="task_remove_all_finished">Skasuj wszystkie zakończone</string>
   <string name="file_action_star">Ulubione</string>
   <string name="file_action_download">Pobierz</string>
-  <string name="file_action_remove_cache">Wyczyść pamięć podręczną</string>
+  <string name="file_action_remove_cache">Opróżnij pamięć podręczną</string>
   <string name="file_action_update">Prześlij</string>
   <string name="file_action_share">Udostępnij</string>
   <string name="file_action_export">Wyeksportuj</string>
@@ -136,16 +136,14 @@
     <item>Konta</item>
     <item>Kopia zapasowa zdjęć</item>
   </string-array>
-  <string name="drawer_open">Otwórz panel nawigacyjny</string>
-  <string name="drawer_close">Zamknij panel nawigacyjny</string>
   <string name="no_starred_file">Brak ulubionych plików</string>
-  <string name="added_to_upload_tasks">Wybrane pliki zostały dodane do kolejki przesyłania.</string>
-  <string name="added_photo_to_upload_tasks">Zdjęcie jest przesyłane</string>
+  <string name="added_to_upload_tasks">Rozpoczęto przesyłanie</string>
+  <string name="added_photo_to_upload_tasks">Rozpoczęto przesyłanie zdjęć</string>
   <string name="take_photo_successfully">Zdjęcie zrobiono pomyślnie</string>
   <string name="tabs_library">Biblioteki</string>
   <string name="tabs_activity">Aktywność</string>
   <string name="tabs_starred">Ulubione</string>
-  <string name="provide_password">Podaj hasło do biblioteki \"%s\"</string>
+  <string name="provide_password">Podaj hasło do biblioteki "%s"</string>
   <string name="upload_waiting">Oczekiwanie</string>
   <string name="upload_finished">Zakończono</string>
   <string name="upload_cancelled">Anulowane</string>
@@ -200,7 +198,7 @@
   <string name="settings_account_info_load_data">wczytywanie...</string>
   <string name="settings_account_space_title">Wykorzystane miejsce</string>
   <string name="settings_account_sign_out_title">Wyloguj się</string>
-  <string name="settings_account_sign_out_hint">Naciśnij, aby się wylogować</string>
+  <string name="settings_account_sign_out_hint">Dotknij, aby się wylogować</string>
   <string name="settings_account_sign_out_confirm">Czy chcesz się wylogować?</string>
   <string name="security">Bezpieczeństwo</string>
   <string name="gesture_lock">Blokada gestem</string>
@@ -227,34 +225,71 @@
   <string name="lockpattern_retry_button_text">Ponów</string>
   <string name="lockpattern_continue_button_text">Dalej</string>
   <string name="lockpattern_confirm_button_text">OK</string>
-  <string name="lockpattern_recording_intro_header">Narysuj wzór blokady</string>
-  <string name="lockpattern_settings_help_how_to_record">Dowiedz się jak rysować wzór blokady</string>
+  <string name="lockpattern_recording_intro_header">Narysuj swój wzór blokady</string>
+  <string name="lockpattern_settings_help_how_to_record">Zobacz jak się rysuje wzór blokady</string>
   <string name="lockpattern_recording_incorrect_too_short">Przeciągnij przez przynajmniej 4 punkty, spróbuj ponownie!</string>
-  <string name="lockpattern_pattern_entered_header">Wzór zapisany</string>
+  <string name="lockpattern_pattern_entered_header">Wzór został zapisany</string>
   <string name="lockpattern_need_to_draw">Narysuj wzór blokady</string>
   <string name="lockpattern_need_to_confirm">Potwierdź swój wzór</string>
   <string name="lockpattern_need_to_unlock_wrong">Nieprawidłowy wzór. Spróbuj ponownie.</string>
   <string name="lockpattern_pattern_confirmed_header">Dotknij OK, aby zapisać swój wzór</string>
   <string name="lockpattern_recording_inprogress">Odsuń palec po skończeniu rysowania</string>
-  <string name="lockpattern_pattern_toast_saved">Wzór blokady zapisano pomyślnie</string>
+  <string name="lockpattern_pattern_toast_saved">Zapisano wzór blokady</string>
   <!--Strings for possible PreferenceActivity Back/Next buttons-->
   <string name="back_button_label">Wstecz</string>
   <string name="next_button_label">Dalej</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">Pomiń</string>
-  <string name="settings_camera_upload_duplicate">już przesłane</string>
+  <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Automatyczna kopia zdjęć</string>
-  <string name="settings_camera_upload_info">prześlij %d zdjęć do\u0020</string>
-  <string name="settings_wifi_down">Sieć Wi-Fi jest niedostępna</string>
-  <string name="settings_camera_upload_service_started">Usługa przesyłania uruchomiona</string>
-  <string name="settings_camera_upload_service_stopped">Usługa przesyłania zatrzymana</string>
-  <string name="settings_camera_upload_allow_data_plan">Dopuść połączenia 2G/3G/4G</string>
+  <string name="settings_camera_upload_service_started">Usługa przesyłania jest uruchomiona</string>
+  <string name="settings_camera_upload_service_stopped">Usługa przesyłania jest zatrzymana</string>
+  <string name="settings_camera_upload_allow_data_plan">Pozwól na transmisję komórkową</string>
+  <string name="settings_camera_upload_allow_videos">Pozwól na przesyłanie wideo</string>
   <string name="settings_camera_upload_default_wifi">Domyślnie używaj tylko Wi-Fi</string>
-  <string name="settings_camera_upload_data_plan_allowed">połączenia 2G/3G/4G dozwolone</string>
-  <string name="settings_camera_upload_change_repo_title">Zmień bibliotekę przesyłania</string>
-  <string name="settings_camera_upload_repo_hint">Najpierw wskaż bibliotekę</string>
-  <string name="settings_camera_upload_turn_on">Włącz przesyłanie zdjęć z aparatu</string>
+  <string name="settings_camera_upload_data_plan_allowed">Transmisja komórkowa włączona</string>
+  <string name="settings_camera_upload_default_photos">Domyślnie przesyłaj tylko zdjęcia</string>
+  <string name="settings_camera_upload_videos_allowed">Dołącz wideo</string>
+  <string name="settings_camera_upload_change_repo_title">Biblioteka przesyłania</string>
+  <string name="settings_camera_upload_repo_hint">Proszę najpierw wybrać bibliotekę</string>
+  <string name="settings_camera_upload_turn_on">Przesyłaj zdjęcia z aparatu</string>
+  <string name="settings_camera_upload_choose_dir">Zmień foldery lokalne</string>
+  <string name="settings_camera_upload_dir_auto_scan">Domyślnie skanuj zdjęcia automatycznie</string>
+  <string name="settings_camera_upload_dir_custom">Skanuj wybrane foldery</string>
   <string name="settings_camera_upload_lib_not_found">Wybrana biblioteka nie istnieje</string>
+  <string name="settings_camera_upload_advanced_feature_title">Zaawansowane</string>
+  <string name="settings_camera_upload_advanced_feature_subtitle">Dostosuj opcje przesyłania</string>
+  <string name="settings_camera_upload_advanced_custom_directories">Dostosuj foldery przesyłania</string>
+  <string name="settings_camera_upload_advanced_custom_directories_on">Wybierz foldery ze zdjęciami</string>
+  <string name="settings_camera_upload_advanced_custom_directories_off">Automatycznie skanuj urządzenie</string>
+  <!--Camera Upload Configuration View-->
+  <string name="settings_cuc_title">Asystent konfiguracji</string>
+  <string name="settings_cuc_welcome_text">Dziękujemy za używanie asystenta konfiguracji, który pomoże Ci rozpocząć przesyłanie zdjęć z aparatu. W tym celu zostaniesz przeprowadzony przez kilka kroków początkowych.\n\n Przesuń w lewo, aby kontynuować.</string>
+  <string name="settings_cuc_network_title">Jak przesyłać</string>
+  <string name="settings_cuc_network_wifi">Tylko Wi-Fi</string>
+  <string name="settings_cuc_network_data_plan">Wi-Fi lub transmisja komórkowa</string>
+  <string name="settings_cuc_option_hint">Wskaż swoje preferencje.\nMożesz je później zmienić w Ustawieniach.\n\nPrzesuń w lewo, aby kontynować.</string>
+  <string name="settings_cuc_type_title">Co przesyłać</string>
+  <string name="settings_cuc_type_photo">Tylko zdjęcia</string>
+  <string name="settings_cuc_type_video">Zdjęcia i wideo</string>
+  <string name="settings_cuc_local_dir_title">Wybierz foldery lokalne</string>
+  <plurals name="settings_cuc_local_dir_items">
+    <item quantity="one"><xliff:g id="cuc_item">%1$d</xliff:g> element</item>
+    <item quantity="few"><xliff:g id="cuc_item">%1$d</xliff:g> elementy</item>
+    <item quantity="other"><xliff:g id="cuc_items">%1$d</xliff:g> elementów</item>
+  </plurals>
+  <string name="settings_cuc_remote_lib_title">Wybierz zdalną bibliotekę</string>
+  <string name="settings_cuc_remote_lib_account">Wybierz konto</string>
+  <string name="settings_cuc_remote_lib_repo">%s został wybrany</string>
+  <string name="settings_cuc_upload_to_parent_folder">W górę do folderu nadrzędnego</string>
+  <string name="settings_cuc_auto_scan">Weź wszystkie zdjęcia z urządzenia</string>
+  <string name="settings_cuc_pick_dir">Pozwól mi wybrać foldery ze zdjęciami</string>
+  <string name="settings_cuc_remote_lib_hint">Wybierz preferowane konto i bibliotekę.\nMożesz to później zmienić w ustawieniach.\n\nPrzesuń w lewo, aby kontynuować.</string>
+  <string name="settings_cuc_finish_title">Zakończ</string>
+  <string name="settings_cuc_ready">Seafile prześle teraz pliki z wybranych folderów.\nMożesz w tym czasie śmiało zamknąć aplikację.</string>
+  <string name="settings_cuc_swipe_left">Przesuń w lewo, aby kontynuować.</string>
+  <string name="settings_cuc_click_btn">Kliknij, aby zamknąć asystenta konfiguracji.</string>
+  <string name="settings_cuc_loading">wczytywanie...</string>
   <string name="settings_about_title">O PROGRAMIE</string>
   <string name="settings_about_version_title">Wersja aplikacji</string>
   <string name="settings_about_author_title">O autorze</string>
@@ -269,12 +304,12 @@
         </p>
         <h5>Contribution</h5>
         <p>https://github.com/haiwen/seadroid.git</P>
-        <h5>Copyright ©2013-2014 Seafile Ltd.</h5>
+        <h5>Copyright ©2013-2015 Seafile Ltd.</h5>
         ]]>
     </string>
   <string name="settings_advance_feature_title">ZAAWANSOWANE</string>
-  <string name="settings_cache_title">Rozmiar pamięci podręcznej</string>
-  <string name="settings_clear_cache_title">Wyczyść pamięć podręczną</string>
+  <string name="settings_cache_title">Pamięć podręczna</string>
+  <string name="settings_clear_cache_title">Opróżnij pamięć podręczną</string>
   <string name="settings_clear_cache_hint">Czy chcesz wyczyścić pamięć podręczną?</string>
   <string name="settings_clear_cache_success">Pomyślnie wyczyszczono pamięć podręczną</string>
   <string name="settings_clear_cache_failed">Nie udało się wyczyścić pamięci podręcznej</string>
@@ -295,6 +330,10 @@
   <string name="saf_file_not_downloaded_exception">Nie można pobrać pliku %s z serwera.</string>
   <string name="saf_write_diretory_exception">Nie można otworzyć katalogu do odczytu/zapisu.</string>
   <string name="saf_account_not_found_exception">Nie można odnaleźć konta Seafile.</string>
+  <string name="saf_upload_path_not_available">Nie można przesłać, ścieżka niedostępna</string>
+  <string name="saf_failed_to_create_directory">Nie można utworzyć folderu %s</string>
+  <string name="saf_file_exist">Plik już istnieje</string>
+  <string name="saf_bad_mime_type">Zły typ żądania</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">Serwer jest pusty!</string>
   <string name="shib_server_incorrect_prefix">Adres serwera musi się zaczynać od http:// lub https://</string>
@@ -309,7 +348,11 @@
   <string name="transfer_tabs_downloads">Lista pobierań</string>
   <string name="transfer_tabs_uploads">Lista przesyłań</string>
   <string name="transfer_download_no_task">Wszystkie pliki zostały pobrane</string>
-  <string name="transfer_download_started">Rozpoczynanie pobierania %d plików</string>
+  <plurals name="transfer_download_started">
+    <item quantity="one">Rozpoczynanie pobierania <xliff:g id="download_files">%1$d</xliff:g> pliku</item>
+    <item quantity="few">Rozpoczynanie pobierania <xliff:g id="download_files">%1$d</xliff:g> plików</item>
+    <item quantity="other">Rozpoczynanie pobierania <xliff:g id="download_files">%1$d</xliff:g> plików</item>
+  </plurals>
   <!--Search-->
   <string name="search_menu_item">Szukaj</string>
   <string name="search_bar_hint">Wyszukiwanie...</string>
@@ -320,4 +363,21 @@
   <!--star a file-->
   <string name="star_file_succeed">Plik został oznaczony gwiazdką</string>
   <string name="star_file_failed">Nie udało się oznaczyć pliku gwiazdką</string>
+  <!--notification bar-->
+  <string name="notification_upload_started_title">Przesyłanie plików...</string>
+  <string name="notification_download_started_title">Pobieranie plików...</string>
+  <string name="notification_upload_completed">Przesyłanie zakończone</string>
+  <string name="notification_upload_cancelled">Przesyłanie anulowane</string>
+  <plurals name="notification_upload_info">
+    <item quantity="one">Przesyłanie pliku, pozostał %1$d plik (%2$d%%)</item>
+    <item quantity="few">Przesyłanie pliku, pozostały %1$d pliki (%2$d%%)</item>
+    <item quantity="other">Przesyłanie pliku, pozostało %1$d plików (%2$d%%)</item>
+  </plurals>
+  <plurals name="notification_download_info">
+    <item quantity="one">Pobieranie pliku, pozostał %1$d plik (%2$d%%)</item>
+    <item quantity="few">Pobieranie pliku, pozostały %1$d pliki (%2$d%%)</item>
+    <item quantity="other">Pobieranie pliku, pozostało %1$d plików (%2$d%%)</item>
+  </plurals>
+  <string name="notification_download_completed">Pobieranie zakończone</string>
+  <string name="notification_download_cancelled">Pobieranie anulowane</string>
 </resources>

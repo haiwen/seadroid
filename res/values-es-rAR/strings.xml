@@ -36,10 +36,10 @@
   </string-array>
   <string name="choose_server">Elija un Servidor Seafile</string>
   <string-array name="choose_server_array">
-    <item>Servidor Seafile Privado</item>
+    <item>Servidor Privado Seafile</item>
     <item>SeaCloud.cc</item>
-    <item>cloud.seafile.com</item>
-    <item>Sesión con Shibboleth</item>
+    <item>Cloud.mein-seafile.de</item>
+    <item>Iniciar Sesión con Shibboleth</item>
   </string-array>
   <string name="network_down">Sin conexión de red</string>
   <string name="unknow_error">Error desconocido</string>
@@ -107,7 +107,7 @@
   <string name="load_libraries_fail">Falla al cargar bibliotecas</string>
   <string name="load_dir_fail">Falla al cargar el contenido de esta carpeta</string>
   <string name="not_supported_share">Este tipo de recurso compartido no es compatible</string>
-  <string name="download_folder">Carpeta de descarga</string>
+  <string name="download_folder">Descargar carpeta</string>
   <string name="create_new_file">Crear un nuevo archivo</string>
   <string name="create_new_dir">Crear una nueva carpeta</string>
   <string name="camera">Tomar una foto aquí</string>
@@ -135,16 +135,14 @@
     <item>Cuentas</item>
     <item>Backup Fotos</item>
   </string-array>
-  <string name="drawer_open">Abrir caja de navegación</string>
-  <string name="drawer_close">Cerrar caja de navegación</string>
   <string name="no_starred_file">Aún no hay archivos favoritos</string>
-  <string name="added_to_upload_tasks">El(los) archivo(s) seleccionado(s) se ha(n) agregado a la lista de tareas de subida.</string>
-  <string name="added_photo_to_upload_tasks">La foto esta siendo subida</string>
-  <string name="take_photo_successfully">Tomar Foto con éxito</string>
+  <string name="added_to_upload_tasks">Subida iniciada</string>
+  <string name="added_photo_to_upload_tasks">Subida de fotos iniciada</string>
+  <string name="take_photo_successfully">Tomar foto con éxito</string>
   <string name="tabs_library">Bibliotecas</string>
   <string name="tabs_activity">Actividades</string>
   <string name="tabs_starred">Favoritos</string>
-  <string name="provide_password">Provea la contraseña para la biblioteca \"%s\"</string>
+  <string name="provide_password">Provea la contraseña para la biblioteca "%s"</string>
   <string name="upload_waiting">Esperando</string>
   <string name="upload_finished">Finalizado</string>
   <string name="upload_cancelled">Cancelado</string>
@@ -238,19 +236,55 @@
   <string name="next_button_label">Siguiente</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">Saltear</string>
-  <string name="settings_camera_upload_duplicate">ya subido</string>
+  <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Subir Foto de Cámara </string>
-  <string name="settings_camera_upload_info">subir %d foto(s) a\u0020</string>
-  <string name="settings_wifi_down">Wi-Fi no disponible</string>
-  <string name="settings_camera_upload_service_started">Servicio de Subida iniciado</string>
-  <string name="settings_camera_upload_service_stopped">Servicio de Subida detenido</string>
-  <string name="settings_camera_upload_allow_data_plan">Permitir conexiones 2G/3G/4G</string>
-  <string name="settings_camera_upload_default_wifi">Usar solamente Wi-Fi de forma predeterminada</string>
-  <string name="settings_camera_upload_data_plan_allowed">Conexiones 2G/3G/4G permitidas</string>
-  <string name="settings_camera_upload_change_repo_title">Cambiar la biblioteca de subida</string>
-  <string name="settings_camera_upload_repo_hint">Por favor primero elija una biblioteca</string>
-  <string name="settings_camera_upload_turn_on">Activar Subida de Cámara</string>
+  <string name="settings_camera_upload_service_started">Servicio de subida iniciado</string>
+  <string name="settings_camera_upload_service_stopped">Servicio de subida detenido</string>
+  <string name="settings_camera_upload_allow_data_plan">Permitir plan de datos</string>
+  <string name="settings_camera_upload_allow_videos">Permitir subida de videos</string>
+  <string name="settings_camera_upload_default_wifi">Usar sólo Wi-Fi de forma predeterminada</string>
+  <string name="settings_camera_upload_data_plan_allowed">Plan de datos permitido</string>
+  <string name="settings_camera_upload_default_photos">Subir sólo fotos de forma predeterminada</string>
+  <string name="settings_camera_upload_videos_allowed">Videos incluídos</string>
+  <string name="settings_camera_upload_change_repo_title">Cambiar biblioteca de subida</string>
+  <string name="settings_camera_upload_repo_hint">Por favor, primero escoja una biblioteca</string>
+  <string name="settings_camera_upload_turn_on">Activar subida de cámara</string>
+  <string name="settings_camera_upload_choose_dir">Cambiar carpetas locales</string>
+  <string name="settings_camera_upload_dir_auto_scan">Examinar fotos automáticamente de forma predeterminada</string>
+  <string name="settings_camera_upload_dir_custom">Examinar carpetas seleccionadas</string>
   <string name="settings_camera_upload_lib_not_found">La biblioteca seleccionada no existe</string>
+  <string name="settings_camera_upload_advanced_feature_title">Opciones Avanzadas</string>
+  <string name="settings_camera_upload_advanced_feature_subtitle">Opciones de subida personalizadas</string>
+  <string name="settings_camera_upload_advanced_custom_directories">Carpetas de subida personalizadas</string>
+  <string name="settings_camera_upload_advanced_custom_directories_on">Escojer carpeta de fotos</string>
+  <string name="settings_camera_upload_advanced_custom_directories_off">Examinar automáticamente el dispositivo</string>
+  <!--Camera Upload Configuration View-->
+  <string name="settings_cuc_title">Ayuda de configuración</string>
+  <string name="settings_cuc_welcome_text">Gracias por usar la ayuda para configurar la subida de cámara. \nPara ayudarlo a preparar el servicio de subida de cámara, será guiado en los pasos iniciales. \n\nDeslice a la izquierda para continuar.</string>
+  <string name="settings_cuc_network_title">Como subir</string>
+  <string name="settings_cuc_network_wifi">Sólo Wi-Fi</string>
+  <string name="settings_cuc_network_data_plan">Wi-Fi o plan de datos</string>
+  <string name="settings_cuc_option_hint">Elija su opción preferida.  \nLuego puede cambiar estas opciones en Configuración. \n\nDeslice a la izquierda para continuar.</string>
+  <string name="settings_cuc_type_title">Que subir</string>
+  <string name="settings_cuc_type_photo">Sólo fotos</string>
+  <string name="settings_cuc_type_video">Fotos y videos</string>
+  <string name="settings_cuc_local_dir_title">Seleccionar carpetas locales</string>
+  <plurals name="settings_cuc_local_dir_items">
+    <item quantity="one"><xliff:g id="cuc_item">%1$d</xliff:g> ítem</item>
+    <item quantity="other"><xliff:g id="cuc_items">%1$d</xliff:g> items</item>
+  </plurals>
+  <string name="settings_cuc_remote_lib_title">Seleccionar biblioteca remota</string>
+  <string name="settings_cuc_remote_lib_account">Escoja una cuenta</string>
+  <string name="settings_cuc_remote_lib_repo">%s fue seleccionada</string>
+  <string name="settings_cuc_upload_to_parent_folder">Arriba a carpeta superior</string>
+  <string name="settings_cuc_auto_scan">Obtener todas las fotos en el dispositivo</string>
+  <string name="settings_cuc_pick_dir">Permitirme elegir las carpetas de fotos</string>
+  <string name="settings_cuc_remote_lib_hint">Escoja su cuenta y biblioteca preferidas. \nLuego puede cambiar estas opciones en Configuración. \n\nDeslice a la izquierda para continuar.</string>
+  <string name="settings_cuc_finish_title">Terminar</string>
+  <string name="settings_cuc_ready">Ahora Seafile subirá los archivos de las carpetas seleccionadas. \nPuede cerrar la app durante este proceso.</string>
+  <string name="settings_cuc_swipe_left">Deslice a la izquierda para continuar.</string>
+  <string name="settings_cuc_click_btn">Click para cerrar la ayuda de configuración.</string>
+  <string name="settings_cuc_loading">cargando...</string>
   <string name="settings_about_title">ACERCA DE</string>
   <string name="settings_about_version_title">App Version</string>
   <string name="settings_about_author_title">Acerca del Autor</string>
@@ -265,7 +299,7 @@
         </p>
         <h5>Contribuir</h5>
         <p>https://github.com/haiwen/seadroid.git</P>
-        <h5>Copyright ©2013-2014 Seafile Ltd.</h5>
+        <h5>Copyright ©2013-2015 Seafile Ltd.</h5>
         ]]>
     </string>
   <string name="settings_advance_feature_title">FUNCIÓN AVANZADA</string>
@@ -291,6 +325,10 @@
   <string name="saf_file_not_downloaded_exception">No se pudo descargar el archivo %s desde el servidor.</string>
   <string name="saf_write_diretory_exception">No se puede abrir la carpeta para leer/escribir.</string>
   <string name="saf_account_not_found_exception">No se pudo hallar la cuenta de Seafile.</string>
+  <string name="saf_upload_path_not_available">No es posible subir, no hay ruta disponible</string>
+  <string name="saf_failed_to_create_directory">No se pudo crear la carpeta %s</string>
+  <string name="saf_file_exist">El archivo ya existe</string>
+  <string name="saf_bad_mime_type">Tipo de solicitud incorrecto</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">¡El servidor está vacío!</string>
   <string name="shib_server_incorrect_prefix">El servidor debería comenzar con http:// o https://</string>
@@ -305,7 +343,10 @@
   <string name="transfer_tabs_downloads">Lista de descarga</string>
   <string name="transfer_tabs_uploads">Lista de subida</string>
   <string name="transfer_download_no_task">Todos los archivos han sido descargados</string>
-  <string name="transfer_download_started">Iniciando la descarga de %d archivos</string>
+  <plurals name="transfer_download_started">
+    <item quantity="one">Iniciando descarga de <xliff:g id="download_file">%1$d</xliff:g> archivo</item>
+    <item quantity="other">Iniciando descarga de <xliff:g id="download_files">%1$d</xliff:g> archivos</item>
+  </plurals>
   <!--Search-->
   <string name="search_menu_item">Buscar</string>
   <string name="search_bar_hint">Buscando...</string>
@@ -316,4 +357,19 @@
   <!--star a file-->
   <string name="star_file_succeed">Archivo marcado con éxito</string>
   <string name="star_file_failed">Falló marcar archivo</string>
+  <!--notification bar-->
+  <string name="notification_upload_started_title">Subiendo archivos...</string>
+  <string name="notification_download_started_title">Descargando archivos...</string>
+  <string name="notification_upload_completed">Subida finalizada</string>
+  <string name="notification_upload_cancelled">Subida cancelada</string>
+  <plurals name="notification_upload_info">
+    <item quantity="one">Subiendo archivos, resta %1$d archivo (%2$d%%)</item>
+    <item quantity="other">Subiendo archivos, restan %1$d archivos (%2$d%%)</item>
+  </plurals>
+  <plurals name="notification_download_info">
+    <item quantity="one">Descargando archivos, resta  %1$d archivo (%2$d%%)</item>
+    <item quantity="other">Descargando archivos, restan %1$d archivos (%2$d%%)</item>
+  </plurals>
+  <string name="notification_download_completed">Descarga finalizada</string>
+  <string name="notification_download_cancelled">Descarga cancelada</string>
 </resources>
