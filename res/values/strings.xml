@@ -244,19 +244,58 @@
     <string name="next_button_label">Next</string>
     <!-- Optional button to Skip a PreferenceActivity [CHAR LIMIT=20] -->
     <string name="skip_button_label">Skip</string>
-    
+
+    <!-- Camera Upload Preference -->
     <string name="settings_camera_upload_info_title">Camera Photo Upload</string>
-    <string name="settings_camera_upload_info">upload %d photo(s) to\u0020</string>
-    <string name="settings_start_upload_service">Upload service started</string>
-    <string name="settings_stop_upload_service">Upload service stopped</string>
-    <string name="settings_allow_mobile_connections">Allow 2G/3G/4G Connections</string>    
-    <string name="settings_default_wifi_connection">Use Wi-Fi only by default</string>    
-    <string name="settings_use_mobile_connections">2G/3G/4G connections allowed</string>    
-    <string name="settings_repo">Change Upload Library</string>    
-    <string name="settings_hint">Please choose a library first</string>    
-    <string name="settings_start">Turn on Camera Upload</string>    
-    <string name="settings_camera_upload_library_not_found">The selected library does not exist</string>
-    
+    <string name="settings_camera_upload_service_started">Upload service started</string>
+    <string name="settings_camera_upload_service_stopped">Upload service stopped</string>
+    <string name="settings_camera_upload_allow_data_plan">Allow Data Plan</string>
+    <string name="settings_camera_upload_allow_videos">Allow Videos Upload</string>
+    <string name="settings_camera_upload_default_wifi">Use Wi-Fi only by default</string>
+    <string name="settings_camera_upload_data_plan_allowed">Data plan allowed</string>
+    <string name="settings_camera_upload_default_photos">Upload photos only by default</string>
+    <string name="settings_camera_upload_videos_allowed">Videos included</string>
+    <string name="settings_camera_upload_change_repo_title">Change Upload Library</string>
+    <string name="settings_camera_upload_repo_hint">Please choose a library first</string>
+    <string name="settings_camera_upload_turn_on">Turn on Camera Upload</string>
+    <string name="settings_camera_upload_choose_dir">Change Local Folders</string>
+    <string name="settings_camera_upload_dir_auto_scan">Auto scan photos by default</string>
+    <string name="settings_camera_upload_dir_custom">Scan selected folders</string>
+    <string name="settings_camera_upload_lib_not_found">The selected library does not exist</string>
+    <string name="settings_camera_upload_advanced_feature_title">Advanced Options</string>
+    <string name="settings_camera_upload_advanced_feature_subtitle">Custom upload options</string>
+    <string name="settings_camera_upload_advanced_custom_directories">Custom Upload Folders</string>
+    <string name="settings_camera_upload_advanced_custom_directories_on">Pick photo folders</string>
+    <string name="settings_camera_upload_advanced_custom_directories_off">Auto scan device</string>
+
+    <!-- Camera Upload Configuration View -->
+    <string name="settings_cuc_title">Configuration Helper</string>
+    <string name="settings_cuc_welcome_text">Thanks for using camera upload configuration helper. \nTo help you get started with the camera upload service, you\'ll be guided through a few initial steps. \n\nSwipe left to continue.</string>
+    <string name="settings_cuc_network_title">How to upload</string>
+    <string name="settings_cuc_network_wifi">Wi-Fi only</string>
+    <string name="settings_cuc_network_data_plan">Wi-Fi or data plan</string>
+    <string name="settings_cuc_option_hint">Choose your preferred option. \nYou can change these options later in Settings. \n\nSwipe left to continue.</string>
+    <string name="settings_cuc_type_title">What to upload</string>
+    <string name="settings_cuc_type_photo">Photos only</string>
+    <string name="settings_cuc_type_video">Photos and videos</string>
+    <string name="settings_cuc_local_dir_title">Select Local Folders</string>
+    <plurals name="settings_cuc_local_dir_items">
+        <item quantity="one"><xliff:g id="cuc_item">%1$d</xliff:g> item</item>
+        <item quantity="other"><xliff:g id="cuc_items">%1$d</xliff:g> items</item>
+    </plurals>
+    <string name="settings_cuc_remote_lib_title">Select Remote Library</string>
+    <string name="settings_cuc_remote_lib_account">Choose an account</string>
+    <string name="settings_cuc_remote_lib_repo">%s was selected</string>
+    <string name="settings_cuc_upload_to_parent_folder">Up to Parent Folder</string>
+    <string name="settings_cuc_auto_scan">Get all photos on device</string>
+    <string name="settings_cuc_pick_dir">Let me pick my photo folders</string>
+    <string name="settings_cuc_remote_lib_hint">Choose your preferred account and library. \nYou can change these options later in Settings. \n\nSwipe left to continue.</string>
+    <string name="settings_cuc_finish_title">Finish</string>
+    <string name="settings_cuc_ready">Seafile will now uploading files from your selected folders. \nFeel free to close the app during this process.</string>
+    <string name="settings_cuc_swipe_left">Swipe left to continue.</string>
+    <string name="settings_cuc_click_btn">Click to close the configuration helper.</string>
+    <string name="settings_cuc_loading">loading&#8230;</string>
+
     <string name="settings_about_title">ABOUT</string>
     <string name="settings_about_version_title">App Version</string>
     <string name="settings_about_author_title">About Author</string>
@@ -336,4 +375,5 @@
     <!-- star a file -->
     <string name="star_file_succeed">File starred successfully</string>
     <string name="star_file_failed">File starred failed</string>
+
 </resources>

@@ -12,6 +12,8 @@ import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
+import android.preference.PreferenceCategory;
+import android.preference.PreferenceScreen;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Html;
 import android.util.Log;
@@ -29,6 +31,7 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
+import com.seafile.seadroid2.cameraupload.CameraUploadConfigActivity;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.transfer.TransferManager;
@@ -50,7 +53,9 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
         OnPreferenceChangeListener, OnPreferenceClickListener {
     private static final String DEBUG_TAG = "SettingsPreferenceFragment";
 
-    public static final String EXTRA_CAMERA_UPLOAD = "com.seafile.seadroid2.camera.upload";
+    public static final String CAMERA_UPLOAD_BOTH_PAGES = "com.seafile.seadroid2.camera.upload";
+    public static final String CAMERA_UPLOAD_REMOTE_LIBRARY = "com.seafile.seadroid2.camera.upload.library";
+    public static final String CAMERA_UPLOAD_LOCAL_DIRECTORIES = "com.seafile.seadroid2.camera.upload.directories";
 
     // Account Info
     private static Map<String, AccountInfo> accountInfoMap = Maps.newHashMap();
@@ -59,9 +64,15 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
     private Preference spaceAvailablePref;
     private Preference signOutPref;
     private CheckBoxPreference gestureLockSwitch;
+    private PreferenceCategory cameraUploadCategory;
+    private PreferenceScreen cameraUploadAdvancedScreen;
+    private PreferenceCategory cameraUploadAdvancedCategory;
     private CheckBoxPreference cameraUploadSwitch;
     private CheckBoxPreference allowMobileConnections;
+    private CheckBoxPreference allowVideoUpload;
+    private CheckBoxPreference cameraUploadCustomDirSwitch;
     private Preference cameraUploadRepo;
+    private Preference cameraLocalDirectories;
     private Preference versionName;
     private Preference authorInfo;
     private Preference cacheSizePrf;
@@ -69,8 +80,10 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
     private SettingsActivity mActivity;
     private Intent cameraUploadIntent;
     private boolean isUploadEnabled;
-    private Intent mCameraUploadRepoChooserData;
+    private boolean isCustomUploadDirectoriesEnabled;
+    private Intent cUploadIntent;
     private String repoName;
+    private String customDirs;
     private String appVersion;
     private SettingsManager settingsMgr;
     private AccountManager accountMgr;
@@ -149,31 +162,51 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
         gestureLockSwitch.setChecked(settingsMgr.isGestureLockEnabled());
 
         // Camera Upload
+        cameraUploadCategory = (PreferenceCategory) findPreference(SettingsManager.CAMERA_UPLOAD_CATEGORY_KEY);
+        cameraUploadAdvancedScreen = (PreferenceScreen) findPreference(SettingsManager.CAMERA_UPLOAD_ADVANCED_SCREEN_KEY);
+        cameraUploadAdvancedCategory = (PreferenceCategory) findPreference(SettingsManager.CAMERA_UPLOAD_ADVANCED_CATEGORY_KEY);
         cameraUploadSwitch = (CheckBoxPreference) findPreference(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY);
         cameraUploadRepo = findPreference(SettingsManager.CAMERA_UPLOAD_REPO_KEY);
-        allowMobileConnections = (CheckBoxPreference) findPreference(SettingsManager.ALLOW_MOBILE_CONNECTIONS_SWITCH_KEY);
+        cameraLocalDirectories = findPreference(SettingsManager.CAMERA_UPLOAD_DIRECTORY_KEY);
+        allowMobileConnections = (CheckBoxPreference) findPreference(SettingsManager.CAMERA_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY);
+        allowVideoUpload = (CheckBoxPreference) findPreference(SettingsManager.CAMERA_UPLOAD_ALLOW_VIDEOS_SWITCH_KEY);
+        cameraUploadCustomDirSwitch = (CheckBoxPreference) findPreference(SettingsManager.CAMERA_UPLOAD_CUSTOM_DIRECTORIES_KEY);
+        cameraUploadAdvancedCategory.setOnPreferenceClickListener(this);
+        cameraUploadCategory.setOnPreferenceClickListener(this);
         cameraUploadSwitch.setOnPreferenceClickListener(this);
         cameraUploadRepo.setOnPreferenceClickListener(this);
+        cameraLocalDirectories.setOnPreferenceClickListener(this);
         allowMobileConnections.setOnPreferenceClickListener(this);
+        allowVideoUpload.setOnPreferenceClickListener(this);
+        cameraUploadCustomDirSwitch.setOnPreferenceClickListener(this);
 
         cameraUploadIntent = new Intent(mActivity, CameraUploadService.class);
         repoName = settingsMgr.getCameraUploadRepoName();
+        customDirs = settingsMgr.getLocalDirPath();
 
         if (repoName != null) {
             cameraUploadRepo.setSummary(repoName);
             cameraUploadRepo.setDefaultValue(repoName);
         } else {
             cameraUploadSwitch.setChecked(false);
-            allowMobileConnections.setEnabled(false);
-            cameraUploadRepo.setEnabled(false);
+            cameraUploadCategory.removePreference(cameraUploadRepo);
+            cameraUploadCategory.removePreference(cameraUploadAdvancedScreen);
         }
 
         if (!cameraUploadSwitch.isChecked()) {
-            allowMobileConnections.setEnabled(false);
-            cameraUploadRepo.setEnabled(false);
+            cameraUploadCategory.removePreference(cameraUploadRepo);
+            cameraUploadCategory.removePreference(cameraUploadAdvancedScreen);
         } else {
-            allowMobileConnections.setEnabled(true);
-            cameraUploadRepo.setEnabled(true);
+            cameraUploadCategory.addPreference(cameraUploadRepo);
+            cameraUploadCategory.addPreference(cameraUploadAdvancedScreen);
+        }
+
+        if (customDirs != null) {
+            cameraUploadAdvancedCategory.addPreference(cameraLocalDirectories);
+            cameraLocalDirectories.setSummary(customDirs);
+        } else {
+            cameraUploadAdvancedCategory.removePreference(cameraLocalDirectories);
+            cameraUploadCustomDirSwitch.setChecked(false);
         }
 
         // About
@@ -206,6 +239,15 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
     public void onResume() {
         super.onResume();
         gestureLockSwitch.setChecked(settingsMgr.isGestureLockEnabled());
+        allowMobileConnections.setChecked(settingsMgr.isDataPlanAllowed());
+        allowVideoUpload.setChecked(settingsMgr.isVideosUploadAllowed());
+        if (!settingsMgr.isCustomScanDir())
+            cameraUploadAdvancedCategory.removePreference(cameraLocalDirectories);
+        else {
+            cameraUploadAdvancedCategory.addPreference(cameraLocalDirectories);
+            if (settingsMgr.getLocalDirPath() != null)
+                cameraLocalDirectories.setSummary(settingsMgr.getLocalDirPath());
+        }
     }
 
     @Override
@@ -271,24 +313,40 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
         } else if (preference.getKey().equals(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY)) {
             isUploadEnabled = settingsMgr.isCameraUploadEnabled();
             if (!isUploadEnabled) {
-                cameraUploadRepo.setEnabled(false);
-                allowMobileConnections.setEnabled(false);
+                cameraUploadCategory.removePreference(cameraUploadRepo);
+                cameraUploadCategory.removePreference(cameraUploadAdvancedScreen);
                 startCameraUploadService(false);
             } else {
-                allowMobileConnections.setEnabled(true);
-                cameraUploadRepo.setEnabled(true);
+                cameraUploadCategory.addPreference(cameraUploadRepo);
+                cameraUploadCategory.addPreference(cameraUploadAdvancedScreen);
                 startCameraUploadService(true);
             }
-        } else if (preference.getKey().equals(SettingsManager.ALLOW_MOBILE_CONNECTIONS_SWITCH_KEY)) {
+        } else if (preference.getKey().equals(SettingsManager.CAMERA_UPLOAD_ALLOW_DATA_PLAN_SWITCH_KEY)) {
             // user does not allow mobile connections, stop camera upload service
             if (!settingsMgr.checkCameraUploadNetworkAvailable()) {
                 startCameraUploadService(false);
             }
+        } else if (preference.getKey().equals(SettingsManager.CAMERA_UPLOAD_ALLOW_VIDEOS_SWITCH_KEY)) {
+            settingsMgr.saveVideosAllowed(allowVideoUpload.isChecked());
+        } else if (preference.getKey().equals(SettingsManager.CAMERA_UPLOAD_CUSTOM_DIRECTORIES_KEY)) {
+            isCustomUploadDirectoriesEnabled = settingsMgr.isCustomScanDir();
+            if (!isCustomUploadDirectoriesEnabled) {
+                cameraUploadAdvancedCategory.removePreference(cameraLocalDirectories);
+                scanCustomDirs(false);
+            } else {
+                cameraUploadAdvancedCategory.addPreference(cameraLocalDirectories);
+                scanCustomDirs(true);
+            }
         } else if (preference.getKey().equals(SettingsManager.CAMERA_UPLOAD_REPO_KEY)) {
-            // Pop-up window to let user choose remote library
-            Intent intent = new Intent(mActivity, SeafilePathChooserActivity.class);
-            intent.putExtra(EXTRA_CAMERA_UPLOAD, true);
-            this.startActivityForResult(intent, SettingsManager.CHOOSE_CAMERA_UPLOAD_REPO_REQUEST);
+            // choose remote library
+            Intent intent = new Intent(mActivity, CameraUploadConfigActivity.class);
+            intent.putExtra(CAMERA_UPLOAD_REMOTE_LIBRARY, true);
+            startActivityForResult(intent, SettingsManager.CHOOSE_CAMERA_UPLOAD_REQUEST);
+        } else if (preference.getKey().equals(SettingsManager.CAMERA_UPLOAD_DIRECTORY_KEY)) {
+            // choose local directories
+            Intent intent = new Intent(mActivity, CameraUploadConfigActivity.class);
+            intent.putExtra(CAMERA_UPLOAD_LOCAL_DIRECTORIES, true);
+            startActivityForResult(intent, SettingsManager.CHOOSE_CAMERA_UPLOAD_REQUEST);
         } else if(preference.getKey().equals(SettingsManager.SETTINGS_ABOUT_AUTHOR_KEY)) {
             SeafileStyleDialogBuilder builder = new SeafileStyleDialogBuilder(mActivity);
             // builder.setIcon(R.drawable.icon);
@@ -335,29 +393,52 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
 
-        case SettingsManager.CHOOSE_CAMERA_UPLOAD_REPO_REQUEST:
+        case SettingsManager.CHOOSE_CAMERA_UPLOAD_REQUEST:
             if (resultCode == Activity.RESULT_OK) {
-                mCameraUploadRepoChooserData = data;
-                if (mCameraUploadRepoChooserData == null) {
+                if (data == null) {
                     return;
                 }
-                // stop camera upload service
-                startCameraUploadService(false);
-                String repoName = mCameraUploadRepoChooserData.getStringExtra(SeafilePathChooserActivity.DATA_REPO_NAME);
-                String repoId = mCameraUploadRepoChooserData.getStringExtra(SeafilePathChooserActivity.DATA_REPO_ID);
-                String dir = mCameraUploadRepoChooserData.getStringExtra(SeafilePathChooserActivity.DATA_DIR);
-                Account account = mCameraUploadRepoChooserData.getParcelableExtra(SeafilePathChooserActivity.DATA_ACCOUNT);
-                settingsMgr.saveCameraUploadRepoInfo(repoId, repoName, dir, account);
-                this.repoName = repoName;
-                cameraUploadRepo.setSummary(repoName);
-                cameraUploadRepo.setDefaultValue(repoName);
-                settingsMgr.saveCameraUploadRepoName(repoName);
-                // start camera upload service
-                startCameraUploadService(true);
-            } else if (resultCode == Activity.RESULT_CANCELED && repoName == null) { // repoName is null when first initialized
-                cameraUploadSwitch.setChecked(false);
-                allowMobileConnections.setEnabled(false);
-                cameraUploadRepo.setEnabled(false);
+                cUploadIntent = data;
+                repoName = cUploadIntent.getStringExtra(SeafilePathChooserActivity.DATA_REPO_NAME);
+                String repoId = cUploadIntent.getStringExtra(SeafilePathChooserActivity.DATA_REPO_ID);
+                if (repoName != null && repoId != null) {
+                    // stop camera upload service
+                    startCameraUploadService(false);
+                    String dir = cUploadIntent.getStringExtra(SeafilePathChooserActivity.DATA_DIR);
+                    Account account = cUploadIntent.getParcelableExtra(SeafilePathChooserActivity.DATA_ACCOUNT);
+                    settingsMgr.saveCameraUploadRepoInfo(repoId, repoName, dir, account);
+                    cameraUploadRepo.setSummary(repoName);
+                    settingsMgr.saveCameraUploadRepoName(repoName);
+                    // start camera upload service
+                    startCameraUploadService(true);
+                    cameraUploadCategory.addPreference(cameraUploadRepo);
+                    cameraUploadCategory.addPreference(cameraUploadAdvancedScreen);
+                }
+
+                if (!settingsMgr.isCustomScanDir()) {
+                    cameraUploadCustomDirSwitch.setChecked(false);
+                    cameraUploadAdvancedCategory.removePreference(cameraLocalDirectories);
+                } else {
+
+                    customDirs = cUploadIntent.getStringExtra(SeafilePathChooserActivity.DATA_DIRECTORY_PATH);
+                    if (customDirs != null) {
+                        cameraLocalDirectories.setSummary(customDirs);
+                        cameraUploadAdvancedCategory.addPreference(cameraLocalDirectories);
+                        cameraUploadCustomDirSwitch.setChecked(settingsMgr.isCustomScanDir());
+                    }
+                }
+            } else if (resultCode == Activity.RESULT_CANCELED) {
+                if (repoName == null) {
+                    cameraUploadSwitch.setChecked(false);
+
+                    cameraUploadCategory.removePreference(cameraUploadRepo);
+                    cameraUploadCategory.removePreference(cameraUploadAdvancedScreen);
+                }
+
+                if (customDirs == null) {
+                    cameraUploadCustomDirSwitch.setChecked(false);
+                    cameraUploadAdvancedCategory.removePreference(cameraLocalDirectories);
+                }
             }
            break;
 
@@ -367,7 +448,7 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
 
     }
 
-    private void startCameraUploadService(Boolean isStart) {
+    private void startCameraUploadService(boolean isStart) {
         if (!isStart) {
             // stop camera upload service
             mActivity.stopService(cameraUploadIntent);
@@ -375,17 +456,31 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
             if (repoName != null) {
                 // show remote library name
                 cameraUploadRepo.setSummary(repoName);
+                //start service
+                mActivity.startService(cameraUploadIntent);
             } else {
                 // Pop-up window to let user choose remote library
-                Intent intent = new Intent(mActivity, SeafilePathChooserActivity.class);
-                intent.putExtra(EXTRA_CAMERA_UPLOAD, true);
-                this.startActivityForResult(intent, SettingsManager.CHOOSE_CAMERA_UPLOAD_REPO_REQUEST);
+                Intent intent = new Intent(mActivity, CameraUploadConfigActivity.class);
+                intent.putExtra(CAMERA_UPLOAD_BOTH_PAGES, true);
+                startActivityForResult(intent, SettingsManager.CHOOSE_CAMERA_UPLOAD_REQUEST);
                 return;
             }
 
-            //start service
-            mActivity.startService(cameraUploadIntent);
         }
+    }
+
+    private void scanCustomDirs(boolean isCustomScanOn) {
+        if (!isCustomScanOn)
+            return;
+
+        if (customDirs != null) {
+            cameraLocalDirectories.setSummary(customDirs);
+            return;
+        }
+
+        Intent intent = new Intent(mActivity, CameraUploadConfigActivity.class);
+        intent.putExtra(CAMERA_UPLOAD_LOCAL_DIRECTORIES, true);
+        startActivityForResult(intent, SettingsManager.CHOOSE_CAMERA_UPLOAD_REQUEST);
     }
 
     private BroadcastReceiver transferReceiver = new BroadcastReceiver() {
@@ -400,16 +495,16 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
 
             if (type.equals(CameraUploadService.BROADCAST_CAMERA_UPLOAD_LIBRARY_NOT_FOUND)) {
                 repoName = null;
-                cameraUploadRepo.setSummary(R.string.settings_hint);
+                cameraUploadRepo.setSummary(R.string.settings_camera_upload_repo_hint);
                 settingsMgr.saveCameraUploadRepoName(null);
                 cameraUploadSwitch.setChecked(false);
                 cameraUploadRepo.setEnabled(false);
                 startCameraUploadService(false);
-                ToastUtils.show(mActivity, R.string.settings_camera_upload_library_not_found);
+                ToastUtils.show(mActivity, R.string.settings_camera_upload_lib_not_found);
             } else if (type.equals(CameraUploadService.BROADCAST_CAMERA_UPLOAD_SERVICE_STARTED)) {
-                // settings_start_upload_service);
+                // settings_camera_upload_service_started);
             } else if (type.equals(CameraUploadService.BROADCAST_CAMERA_UPLOAD_SERVICE_STOPPED)) {
-                // settings_stop_upload_service);
+                // settings_camera_upload_service_stopped);
             }
         }
     };

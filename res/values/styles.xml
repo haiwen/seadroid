@@ -84,6 +84,7 @@
         <item name="logo">@drawable/icon</item>
         <item name="android:listViewStyle">@style/SeafileListStyle</item>
         <item name="vpiTabPageIndicatorStyle">@style/CustomTabPageIndicator</item>
+        <item name="android:radioButtonStyle">@style/RadioButton</item>
     </style>
 
     <style name="SeafileListStyle" parent="@android:style/Widget.ListView">
@@ -102,6 +103,10 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_gravity">center_vertical</item>
+    </style>
+
+    <style name="RadioButton" parent="@android:style/Widget.CompoundButton.RadioButton">
+        <item name="android:button">@drawable/btn_radio_holo_light</item>
     </style>
 
 </resources>

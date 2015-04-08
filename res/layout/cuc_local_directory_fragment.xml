@@ -1,0 +1,72 @@
+<RelativeLayout android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                android:background="@color/white">
+
+    <TextView
+            android:id="@+id/cuc_local_library_header_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="@dimen/tv_title_margin_left"
+            android:layout_marginTop="@dimen/tv_title_margin_top"
+            android:text="@string/settings_cuc_local_dir_title"
+            android:textColor="@color/tv_title_color"
+            android:textSize="@dimen/tv_title_txt_size"/>
+
+    <RadioGroup
+            android:id="@+id/cuc_local_directory_radio_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checkedButton="@+id/cuc_local_directory_auto_scan_rb"
+            android:layout_alignLeft="@+id/cuc_local_library_header_tv"
+            android:layout_below="@+id/cuc_local_library_header_tv"
+            android:layout_marginTop="@dimen/section_margin_top" >
+
+        <RadioButton
+                android:id="@+id/cuc_local_directory_auto_scan_rb"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/settings_cuc_auto_scan"
+                android:textSize="@dimen/tv_subtitle_txt_size"/>
+
+        <RadioButton
+                android:id="@+id/cuc_local_directory_pick_folders_rb"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_cuc_pick_dir"
+                android:textSize="@dimen/tv_subtitle_txt_size"/>
+    </RadioGroup>
+
+    <RelativeLayout
+            android:id="@+id/cuc_local_directory_list_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="@dimen/section_margin_top"
+            android:layout_marginBottom="5dp"
+            android:layout_above="@+id/cuc_local_directory_btn"
+            android:layout_below="@+id/cuc_local_directory_radio_group">
+
+    </RelativeLayout>
+
+    <Button android:id="@+id/cuc_local_directory_btn"
+            android:layout_marginTop="@dimen/long_btn_padding_top"
+            android:layout_marginBottom="@dimen/long_btn_padding_bottom"
+            android:layout_marginLeft="@dimen/long_btn_margin_left"
+            android:layout_marginRight="@dimen/long_btn_margin_right"
+            android:text="@string/confirm"
+            android:visibility="gone"
+            android:textSize="@dimen/long_btn_txt_size"
+            android:textColor="@color/white"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/long_btn_height"
+            android:background="@drawable/confirm_btn_default_holo_light"
+            android:layout_alignParentBottom="true"/>
+
+</RelativeLayout>

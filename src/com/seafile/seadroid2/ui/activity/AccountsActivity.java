@@ -38,6 +38,7 @@ import com.seafile.seadroid2.avatar.AvatarManager;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.adapter.AccountAdapter;
+import com.seafile.seadroid2.ui.adapter.SeafAccountAdapter;
 import com.seafile.seadroid2.util.Utils;
 
 
@@ -88,7 +89,7 @@ public class AccountsActivity extends SherlockFragmentActivity {
         });
         accountsView.addFooterView(footerView, null, true);
         accountsView.setFooterDividersEnabled(false);
-        adapter = new AccountAdapter(this);
+        adapter = new SeafAccountAdapter(this);
         accountsView.setAdapter(adapter);
         accountsView.setOnItemClickListener(new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position,
