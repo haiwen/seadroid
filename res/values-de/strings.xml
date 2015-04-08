@@ -45,7 +45,7 @@
   <string name="unknow_error">Unbekannter Fehler</string>
   <string name="invalid_server_address">Ungültige Serveradresse</string>
   <string name="err_server_andress_empty">Serveradresse darf nicht leer sein</string>
-  <string name="err_email_empty">Emailadresse darf nicht leer sein</string>
+  <string name="err_email_empty">E-Mail-Adresse darf nicht leer sein</string>
   <string name="err_passwd_empty">Passwort darf nicht leer sein</string>
   <string name="err_login_failed">Anmeldung fehlgeschlagen</string>
   <string name="err_wrong_user_or_passwd">Ungültige E-Mail-Adresse oder Passwort</string>
@@ -84,7 +84,7 @@
   <string name="select_upload_items">Elemente zum Hochladen auswählen</string>
   <plurals name="n_upload_items_selected">
     <item quantity="one"><xliff:g id="number_of_selected">%1$d</xliff:g> Element ausgewählt</item>
-    <item quantity="other"><xliff:g id="numbers_of_selected">%1$d</xliff:g> Element ausgewählt</item>
+    <item quantity="other"><xliff:g id="numbers_of_selected">%1$d</xliff:g> Elemente ausgewählt</item>
   </plurals>
   <string name="dir_name_empty">Bitte den Namen des Ordners eingeben</string>
   <string name="file_name_empty">Bitte den Namen der Datei eingeben</string>
@@ -107,7 +107,7 @@
   <string name="load_libraries_fail">Bibliotheken konnten nicht geladen werden</string>
   <string name="load_dir_fail">Der Inhalt des Ordners konnte nicht geladen werden</string>
   <string name="not_supported_share">Diese Art der Freigabe wird nicht unterstützt</string>
-  <string name="download_folder">Download Ordner</string>
+  <string name="download_folder">Übertragungsordner</string>
   <string name="create_new_file">Eine neue Datei anlegen</string>
   <string name="create_new_dir">Einen neuen Ordner anlegen</string>
   <string name="camera">Neues Foto hier aufnehmen</string>
@@ -135,11 +135,9 @@
     <item>Konten</item>
     <item>Fotos sichern</item>
   </string-array>
-  <string name="drawer_open">Navigationsschublade öffnen</string>
-  <string name="drawer_close">Navigationsschublade schließen</string>
   <string name="no_starred_file">Sie favorisieren derzeit keine Dateien</string>
-  <string name="added_to_upload_tasks">Die ausgewählten Datei(en) wurden zum Hochladen hinzugefügt.</string>
-  <string name="added_photo_to_upload_tasks">Das Foto wird hochgeladen</string>
+  <string name="added_to_upload_tasks">Hochladen wurde gestartet</string>
+  <string name="added_photo_to_upload_tasks">Fotohochladen wurde gestartet</string>
   <string name="take_photo_successfully">Foto erfolgreich aufgenommen</string>
   <string name="tabs_library">Bibliotheken </string>
   <string name="tabs_activity">Aktivitäten</string>
@@ -154,7 +152,7 @@
   <string name="minutes_ago">vor %d Minuten</string>
   <string name="seconds_ago">vor %d Sekunden</string>
   <string name="just_now">Gerade eben</string>
-  <string name="error_when_load_starred">Fehler beim laden der favorisieren Dateien</string>
+  <string name="error_when_load_starred">Fehler beim laden der favorisierten Dateien</string>
   <string name="open_as">Öffnen als</string>
   <string name="select_upload_files">Dateien zum Hochladen auswählen</string>
   <string name="storage_removed">Speicher wurde entfernt</string>
@@ -194,8 +192,8 @@
   <string name="cancel">Abbrechen</string>
   <string name="confirm">Bestätigen</string>
   <string name="settings_account">Konto</string>
-  <string name="settings_account_info_title">Benutzer Information</string>
-  <string name="settings_account_info_load_data">Lade...</string>
+  <string name="settings_account_info_title">Benutzerinformation</string>
+  <string name="settings_account_info_load_data">Ladevorgang …</string>
   <string name="settings_account_space_title">Benutzter Speicherplatz</string>
   <string name="settings_account_sign_out_title">Abmelden</string>
   <string name="settings_account_sign_out_hint">Zum Abmelden klicken</string>
@@ -204,7 +202,7 @@
   <string name="gesture_lock">Bewegungssperre</string>
   <string name="gesture_lock_on">Bewegungssperre an</string>
   <string name="gesture_lock_off">Bewegungssperre aus</string>
-  <string name="lockscreen_access_pattern_hint">Zeichnen Sie ein Entsperrmuster</string>
+  <string name="lockscreen_access_pattern_hint">Bitte ein Entsperrmuster zeichnen</string>
   <string name="lockscreen_access_pattern_start">Bitte fangen Sie an zu zeichnen</string>
   <string name="lockscreen_access_pattern_cleared">Muster gelöscht</string>
   <string name="lockscreen_access_pattern_cell_added">Entsperrmuster hinzugefügt</string>
@@ -212,7 +210,7 @@
   <string name="lockscreen_access_pattern_passwd_forget">Passwort vergessen</string>
   <string name="lockscreen_access_pattern_failure">5 fehlerhafte Eingaben - bitte warten Sie 30 Sekunden bevor Sie es wieder versuchen</string>
   <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
-    <item quantity="one">Sie können es in <xliff:g id="second">%1$d</xliff:g> Sekunde nochmal versuchen</item>
+    <item quantity="one">Sie können es in <xliff:g id="seconds">%1$d</xliff:g> Sekunde nochmal versuchen</item>
     <item quantity="other">Sie können es in <xliff:g id="seconds">%1$d</xliff:g> Sekunden nochmal versuchen</item>
   </plurals>
   <plurals name="lockscreen_access_pattern_failure_left_try_times">
@@ -223,11 +221,11 @@
   <string name="lockpattern_retry_button_text">Wiederholen</string>
   <string name="lockpattern_continue_button_text">Weiter</string>
   <string name="lockpattern_confirm_button_text">OK</string>
-  <string name="lockpattern_recording_intro_header">Zeichnen Sie ein Entsperrmuster</string>
+  <string name="lockpattern_recording_intro_header">Bitte ein Entsperrmuster zeichnen</string>
   <string name="lockpattern_settings_help_how_to_record">So zeichnen Sie ein Entsperrmuster</string>
   <string name="lockpattern_recording_incorrect_too_short">Wischen Sie über mindestens 4 Punkte!</string>
   <string name="lockpattern_pattern_entered_header">Muster gespeichert</string>
-  <string name="lockpattern_need_to_draw">Bitte zeichnen Sie ein Entsperrmuster</string>
+  <string name="lockpattern_need_to_draw">Bitte ein Entsperrmuster zeichnen</string>
   <string name="lockpattern_need_to_confirm">Bitte bestätigen Sie Ihr Muster</string>
   <string name="lockpattern_need_to_unlock_wrong">Das Muster stimmt nicht überein, versuchen Sie es nochmal!</string>
   <string name="lockpattern_pattern_confirmed_header">OK drücken, um das Muster zu speichern</string>
@@ -238,47 +236,83 @@
   <string name="next_button_label">Weiter</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">Überspringen</string>
-  <string name="settings_camera_upload_duplicate">bereits hochgeladen</string>
+  <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Kamerafoto hochladen</string>
-  <string name="settings_camera_upload_info">%d Foto(s) hochladen auf\u0020</string>
-  <string name="settings_wifi_down">WLAN nicht verfügbar</string>
-  <string name="settings_camera_upload_service_started">Hochladen gestartet</string>
-  <string name="settings_camera_upload_service_stopped">Hochladen angehalten</string>
-  <string name="settings_camera_upload_allow_data_plan">2G/3G/4G Verbindung erlauben</string>
-  <string name="settings_camera_upload_default_wifi">Standarmäßig nur Wi-Fi Verbindung verwenden</string>
-  <string name="settings_camera_upload_data_plan_allowed">2G/3G/4G Verbindung erlaubt</string>
-  <string name="settings_camera_upload_change_repo_title">Upload Bibliothek ändern</string>
+  <string name="settings_camera_upload_service_started">Upload-Dienst gestartet</string>
+  <string name="settings_camera_upload_service_stopped">Upload-Dienst gestoppt.</string>
+  <string name="settings_camera_upload_allow_data_plan">Mobilfunknetz erlauben</string>
+  <string name="settings_camera_upload_allow_videos">Videos hochladen</string>
+  <string name="settings_camera_upload_default_wifi">Standardmäßig nur Wi-Fi Verbindung verwenden</string>
+  <string name="settings_camera_upload_data_plan_allowed">Mobilfunknetz erlaubt</string>
+  <string name="settings_camera_upload_default_photos">Standardmäßig nur Bilder hochladen</string>
+  <string name="settings_camera_upload_videos_allowed">inklusive Videos</string>
+  <string name="settings_camera_upload_change_repo_title">Zielbibliothek ändern</string>
   <string name="settings_camera_upload_repo_hint">Bitte zuerst eine Bibliothek auswählen</string>
-  <string name="settings_camera_upload_turn_on">Kamerahochladen anschalten</string>
+  <string name="settings_camera_upload_turn_on">Kamera Upload aktivieren</string>
+  <string name="settings_camera_upload_choose_dir">Lokalen Ordner ändern</string>
+  <string name="settings_camera_upload_dir_auto_scan">standardmäßig nach Bildern durchsuchen</string>
+  <string name="settings_camera_upload_dir_custom">ausgewählte Ordner durchsuchen</string>
   <string name="settings_camera_upload_lib_not_found">Die ausgewählte Bibliothek ist nicht vorhanden</string>
+  <string name="settings_camera_upload_advanced_feature_title">Erweiterte Einstellungen</string>
+  <string name="settings_camera_upload_advanced_feature_subtitle">Einstellungen für Upload anpassen</string>
+  <string name="settings_camera_upload_advanced_custom_directories">Ordner für Upload anpassen</string>
+  <string name="settings_camera_upload_advanced_custom_directories_on">Bilderordner auswählen</string>
+  <string name="settings_camera_upload_advanced_custom_directories_off">Gerät automatisch durchsuchen</string>
+  <!--Camera Upload Configuration View-->
+  <string name="settings_cuc_title">Einrichtungsassistent</string>
+  <string name="settings_cuc_welcome_text">Danke für die Benutzung des Einrichtungsassistenten. Nach wenigen Schritten ist der Kamera Upload eingerichtet. Nach links wischen, um fortzufahren.</string>
+  <string name="settings_cuc_network_title">Anleitung für den Upload</string>
+  <string name="settings_cuc_network_wifi">nur über Wi-Fi</string>
+  <string name="settings_cuc_network_data_plan">Wi-Fi oder Mobilfunknetz</string>
+  <string name="settings_cuc_option_hint">Bitte die gewünschte Option auswählen. Diese kann später in den Einstellungen geändert werden. Nach links wischen, um fortzufahren.</string>
+  <string name="settings_cuc_type_title">Was soll hochgeladen werden</string>
+  <string name="settings_cuc_type_photo">nur Bilder</string>
+  <string name="settings_cuc_type_video">Bilder und Videos</string>
+  <string name="settings_cuc_local_dir_title">Lokale Ordner auswählen</string>
+  <plurals name="settings_cuc_local_dir_items">
+    <item quantity="one"><xliff:g id="cuc_item">%1$d</xliff:g> Element</item>
+    <item quantity="other"><xliff:g id="cuc_item">%1$d</xliff:g> Elemente</item>
+  </plurals>
+  <string name="settings_cuc_remote_lib_title">Entfernte Bibliothek auswählen</string>
+  <string name="settings_cuc_remote_lib_account">Account auswählen</string>
+  <string name="settings_cuc_remote_lib_repo">%s wurde ausgewählt</string>
+  <string name="settings_cuc_upload_to_parent_folder">höheres Verzeichnis</string>
+  <string name="settings_cuc_auto_scan">alle Bilder auf dem Gerät</string>
+  <string name="settings_cuc_pick_dir">Bilderordner auswählen</string>
+  <string name="settings_cuc_remote_lib_hint">Bitte den bevorzugten Account und die Bibliothek auswählen. Diese können später in den Einstellungen geändert werden. Nach links wischen, um fortzufahren.</string>
+  <string name="settings_cuc_finish_title">Beendet</string>
+  <string name="settings_cuc_ready">Seafile wird nun die Bilder aus den ausgewählten Ordnern hochladen. Die App kann während des Prozesses geschlossen werden.</string>
+  <string name="settings_cuc_swipe_left">Nach links wischen, um fortzufahren.</string>
+  <string name="settings_cuc_click_btn">Tippen, um den Einrichtungsassistenten zu schließen.</string>
+  <string name="settings_cuc_loading">laden...</string>
   <string name="settings_about_title">ÜBER</string>
-  <string name="settings_about_version_title">App Version</string>
+  <string name="settings_about_version_title">Appversion</string>
   <string name="settings_about_author_title">Über den Autor</string>
   <string name="settings_about_author_info">
         <![CDATA[
-        <h5>Seafile Android Client</h5>
+        <h5>Seafile-Android-Programm</h5>
         <p>%s</p>
         <h5>Kontakt</h5>
         <p>
             Twitter: Seafile<br>
-            Email: support@seafile.com<br>
+            E-Mail: support@seafile.com<br>
         </p>
-        <h5>Mitwirkung</h5>
+        <h5>Mitwirken</h5>
         <p>https://github.com/haiwen/seadroid.git</P>
-        <h5>Copyright ©2013-2014 Seafile Ltd.</h5>
+        <h5>Urheberrecht ©2013-2015 Seafile Ltd.</h5>
         ]]>
     </string>
   <string name="settings_advance_feature_title">ERWEITERTE FUNKTIONEN</string>
-  <string name="settings_cache_title">Größe des Cache</string>
-  <string name="settings_clear_cache_title">Cache löschen</string>
-  <string name="settings_clear_cache_hint">Möchten Sie den Cache löschen?</string>
-  <string name="settings_clear_cache_success">Cache erfolgreich gelöscht</string>
-  <string name="settings_clear_cache_failed">Löschen des Cache fehlgeschlagen</string>
+  <string name="settings_cache_title">Größe des Zwischenspeichers</string>
+  <string name="settings_clear_cache_title">Zwischenspeicher löschen</string>
+  <string name="settings_clear_cache_hint">Möchten Sie den Zwischenspeicher löschen?</string>
+  <string name="settings_clear_cache_success">Zwischenspeicher erfolgreich gelöscht</string>
+  <string name="settings_clear_cache_failed">Löschen des Zwischenspeichers fehlgeschlagen</string>
   <string name="settings_cache_empty">0 KB</string>
   <!--pull to refresh-->
-  <string name="pull_to_refresh_pull_label">Zum Aktualisieren ziehen</string>
-  <string name="pull_to_refresh_release_label">Zum Aktualisieren loslassen...</string>
-  <string name="pull_to_refresh_refreshing_label">Lade...</string>
+  <string name="pull_to_refresh_pull_label">Zum Aktualisieren ziehen …</string>
+  <string name="pull_to_refresh_release_label">Zum Aktualisieren loslassen …</string>
+  <string name="pull_to_refresh_refreshing_label">Ladevorgang …</string>
   <string name="pull_to_refresh_last_update">Zuletzt aktualisiert:</string>
   <string name="pull_to_refresh_last_update_seconds_ago">vor %d Sekunden</string>
   <string name="pull_to_refresh_last_update_minutes_ago">vor %d Minuten</string>
@@ -286,34 +320,56 @@
   <!--storage access framework-->
   <string name="saf_open_file_exception">Datei %s konnte nicht geöffnet werden.</string>
   <string name="saf_open_directory_exception">Das Verzeichnis kann nicht geöffnet werden.</string>
-  <string name="saf_file_not_cached_exception">Datei %s wurde nicht gecached.</string>
-  <string name="saf_thumbnail_not_found_exception">Konnte Vorschaubild %s nicht finden/öffnen.</string>
+  <string name="saf_file_not_cached_exception">Datei %s wurde nicht zwischengespeichert.</string>
+  <string name="saf_thumbnail_not_found_exception">Vorschaubild %s konnte nicht gefunden/geöffnet werden.</string>
   <string name="saf_file_not_downloaded_exception">Datei %s konnte nicht vom Server heruntergeladen werden.</string>
   <string name="saf_write_diretory_exception">Das Verzeichnis konnte nicht zum Lesen oder Schreiben geöffnet werden.</string>
-  <string name="saf_account_not_found_exception">Das Seafile Konto wurde nicht gefunden.</string>
+  <string name="saf_account_not_found_exception">Das Seafile-Konto konnte nicht gefunden werden.</string>
+  <string name="saf_upload_path_not_available">Hochladen nicht möglich, Pfad nicht gefunden</string>
+  <string name="saf_failed_to_create_directory">Konnte Verzeichnis %s nicht anlegen</string>
+  <string name="saf_file_exist">Datei existiert bereits</string>
+  <string name="saf_bad_mime_type">bad request type</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">Server-Feld ist leer!</string>
   <string name="shib_server_incorrect_prefix">Server sollte mit http:// oder https:// beginnen</string>
   <string name="shib_load_page_error">Fehler:</string>
-  <string name="shib_login_title">Shibboleth Login</string>
-  <string name="shib_server_hint">Eingangsserver...</string>
-  <string name="shib_actionbar_title">Login via Shibboleth</string>
-  <string name="shib_loading">Lade...</string>
+  <string name="shib_login_title">Shibboleth-Anmeldung</string>
+  <string name="shib_server_hint">Eingangsserver …</string>
+  <string name="shib_actionbar_title">Mit Shibboleth anmelden</string>
+  <string name="shib_loading">Ladevorgang …</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">Problem bei der Netzwerkverbindung. Bitte versuchen Sie es später nochmal!</string>
   <string name="transfer_list_cancel_all">Alle abbrechen</string>
   <string name="transfer_tabs_downloads">Liste der Downloads</string>
   <string name="transfer_tabs_uploads">Liste der Uploads</string>
   <string name="transfer_download_no_task">Alle Dateien wurden herunter geladen</string>
-  <string name="transfer_download_started">Beginne %d Datei(en) herunterzuladen</string>
+  <plurals name="transfer_download_started">
+    <item quantity="one"><xliff:g id="download_files">%1$d</xliff:g> wird heruntergeladen</item>
+    <item quantity="other"><xliff:g id="download_files">%1$d</xliff:g> wird heruntergeladen</item>
+  </plurals>
   <!--Search-->
   <string name="search_menu_item">Suchen</string>
-  <string name="search_bar_hint">Suche...</string>
+  <string name="search_bar_hint">Suchvorgang …</string>
   <string name="search_txt_empty">Bitte Suchbegriffe eingeben</string>
   <string name="search_content_empty">Keine Suchergebnisse</string>
-  <string name="search_server_not_support">Ups, Suche wird von diesem Server nicht unterstützt!</string>
-  <string name="search_library_not_found">Konnte diese Bibliothek nicht finden. Vielleicht wurde sie gelöscht</string>
+  <string name="search_server_not_support">Huch, das Suchen wird von diesem Server nicht unterstützt!</string>
+  <string name="search_library_not_found">Diese Bibliothek konnte nicht gefunden werden. Vielleicht wurde sie gelöscht</string>
   <!--star a file-->
   <string name="star_file_succeed">Datei erfolgreich favorisiert</string>
   <string name="star_file_failed">Datei konnte nicht favorisiert werden</string>
+  <!--notification bar-->
+  <string name="notification_upload_started_title">Dateien werden hochgeladen...</string>
+  <string name="notification_download_started_title">Dateien werden heruntergeladen...</string>
+  <string name="notification_upload_completed">Upload abgeschlossen</string>
+  <string name="notification_upload_cancelled">Upload abgebrochen</string>
+  <plurals name="notification_upload_info">
+    <item quantity="one">Lade Dateien hoch, %1$d Datei verbleibend (%2$d%%)</item>
+    <item quantity="other">Lade Dateien hoch, %1$d Dateien verbleibend (%2$d%%)</item>
+  </plurals>
+  <plurals name="notification_download_info">
+    <item quantity="one">Lade Dateien herunter, %1$d Datei verbleibend (%2$d%%)</item>
+    <item quantity="other">Lade Dateien hoch, %1$d Dateien verbleibend (%2$d%%)</item>
+  </plurals>
+  <string name="notification_download_completed">Download abgeschlossen</string>
+  <string name="notification_download_cancelled">Download abgebrochen</string>
 </resources>

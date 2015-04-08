@@ -1,5 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="welcome_to_seafile">歡迎使用Seafile</string>
+  <string name="select_account">請選擇一個帳戶開始使用</string>
+  <string name="edit_account">編輯帳戶</string>
+  <string name="delete_account">刪除帳戶</string>
+  <string name="delete">刪除</string>
+  <string name="delete_file">確定要刪除文件或文件夾嗎？</string>
   <!--Strings for possible PreferenceActivity Back/Next buttons-->
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <!--Camera Upload Preference-->

@@ -110,15 +110,11 @@
     <item>Account</item>
     <item>Backup Foto</item>
   </string-array>
-  <string name="drawer_open">Apri il cassetto di navigazione</string>
-  <string name="drawer_close">Chiudi il cassetto di navigazione</string>
   <string name="no_starred_file">Non ci sono ancora file preferiti</string>
-  <string name="added_photo_to_upload_tasks">La foto è in caricamento</string>
-  <string name="take_photo_successfully">Foto scattata correttamente</string>
   <string name="tabs_library">Librerie</string>
   <string name="tabs_activity">Attività</string>
   <string name="tabs_starred">Preferiti</string>
-  <string name="provide_password">Inserisci la password per la libreria \"%s\"</string>
+  <string name="provide_password">Inserisci la password per la libreria "%s"</string>
   <string name="upload_waiting">Attendi</string>
   <string name="upload_finished">Completato</string>
   <string name="upload_cancelled">Annullato</string>
@@ -152,19 +148,14 @@
   <string name="lockscreen_access_pattern_cleared">Pattern pulito</string>
   <!--Strings for possible PreferenceActivity Back/Next buttons-->
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
-  <string name="settings_camera_upload_duplicate">già caricato</string>
+  <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Caricamento Foto di Fotocamera</string>
-  <string name="settings_camera_upload_info">caricato(e) %d foto in \u0020</string>
-  <string name="settings_wifi_down">Wi-Fi non disponibile</string>
-  <string name="settings_camera_upload_service_started">Servizio di Upload avviato</string>
-  <string name="settings_camera_upload_service_stopped">Servizio di Upload fermato</string>
-  <string name="settings_camera_upload_repo_hint">Per favore scegli prima una libreria</string>
-  <string name="settings_camera_upload_turn_on">Abilita Upload della Fotocamera</string>
-  <string name="settings_camera_upload_lib_not_found">La libreria selezionata non esiste</string>
+  <!--Camera Upload Configuration View-->
   <!--pull to refresh-->
   <!--storage access framework-->
   <!--shibboleth SSO-->
   <!--Transfer List-->
   <!--Search-->
   <!--star a file-->
+  <!--notification bar-->
 </resources>

@@ -2,10 +2,13 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <!--Strings for possible PreferenceActivity Back/Next buttons-->
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
+  <!--Camera Upload Preference-->
+  <!--Camera Upload Configuration View-->
   <!--pull to refresh-->
   <!--storage access framework-->
   <!--shibboleth SSO-->
   <!--Transfer List-->
   <!--Search-->
   <!--star a file-->
+  <!--notification bar-->
 </resources>
