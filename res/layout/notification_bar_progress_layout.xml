@@ -15,7 +15,6 @@
             android:layout_alignParentLeft="true"/>
     <TextView
             android:id="@+id/notification_bar_title_tv"
-            android:text="downloading files"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@+id/notification_bar_icon_iv"
             android:layout_width="wrap_content"
@@ -26,33 +25,23 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="@dimen/notificationbar_title_txt_size"
-            android:layout_alignParentRight="true"
-            android:text="15:25"/>
-    <ProgressBar
-            android:id="@+id/notification_bar_progressbar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/notification_bar_title_tv"
-            android:layout_alignLeft="@+id/notification_bar_title_tv"
-            android:layout_width="fill_parent"/>
+            android:layout_alignParentRight="true"/>
     <TextView
             android:id="@+id/notification_bar_directory_info_tv"
-            android:text="Private Lib/Camera Uploads"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:layout_marginTop="@dimen/notificationbar_margin_top"
             android:textSize="@dimen/notificationbar_sutitle_txt_size"
-            android:layout_below="@id/notification_bar_progressbar"
+            android:layout_below="@id/notification_bar_title_tv"
             android:layout_toRightOf="@id/notification_bar_icon_iv"
             android:layout_marginLeft="@dimen/notificationbar_margin_left"/>
 
     <TextView
             android:id="@+id/notification_bar_size_info_tv"
-            android:text="209 MB/527 MB"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:textSize="@dimen/notificationbar_sutitle_txt_size"
-            android:layout_below="@id/notification_bar_progressbar"
+            android:layout_below="@id/notification_bar_time_tv"
             android:layout_alignParentRight="true"
             android:layout_marginTop="@dimen/notificationbar_margin_top"
             android:layout_marginLeft="@dimen/notificationbar_margin_left"/>

@@ -1,26 +1,20 @@
 package com.seafile.seadroid2.ui;
 
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.webkit.MimeTypeMap;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.gallery.Util;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.activity.MarkdownActivity;
 import com.seafile.seadroid2.ui.dialog.OpenAsDialog;
-import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;
-import java.text.DateFormat;
 
 /**
  * Activity Utils
@@ -90,63 +84,5 @@ public class WidgetUtils {
             .cacheInMemory(true)
             .cacheOnDisk(false)
             .build();
-
-    public static final int NOTIFICATION_DOWNLOAD_PROGRESS_BAR_ID = 1;
-
-    private static int times = 0;
-    public static void notifyDownloadProgress(Notification notification, NotificationManager notificationManager, String repoName, String dir, int totalCount, int downloadingCount, long totalSize, long downloadedSize) {
-        String strDownlodedSize = Utils.readableFileSize(downloadedSize);
-        String strTotalSize = Utils.readableFileSize(totalSize);
-
-        Log.d("WidgetUtils", "downloading " + (totalCount - downloadingCount + 1) + "/" + totalCount + "   " + strDownlodedSize + "/" + strTotalSize + " " + ++times + " times");
-        if (totalCount == 0) {
-            notificationManager.cancel(NOTIFICATION_DOWNLOAD_PROGRESS_BAR_ID);
-            return;
-        }
-
-        // downloading
-        if (downloadingCount > 0) {
-            notification.contentView.setTextViewText(R.id.notification_bar_title_tv,
-                    String.format(SeadroidApplication.getAppContext().getString(R.string.notification_bar_downloading_files_info), totalCount - downloadingCount + 1, totalCount));
-            notification.contentView.setImageViewResource(R.id.notification_bar_icon_iv, R.drawable.notification_bar_downloading);
-            notification.contentView.setTextViewText(R.id.notification_bar_time_tv, Utils.getCurrentHourMinute());
-            notification.contentView.setTextViewText(R.id.notification_bar_directory_info_tv, Utils.pathJoin(repoName, dir));
-            notification.contentView.setTextViewText(R.id.notification_bar_size_info_tv,
-                    strDownlodedSize + "/" + strTotalSize);
-            notification.contentView.setProgressBar(R.id.notification_bar_progressbar, 100, (int) (downloadedSize * 100 / totalSize), false);
-            notification.flags = Notification.FLAG_ONGOING_EVENT;
-        }
-
-        // download completed
-        // downloadedSize doensnt equal totalSize even when download completed, actually they are like 21571614/21571617 (downloadedSize/totalSize)
-        if (downloadingCount == 0 && strDownlodedSize.equals(strTotalSize) && totalSize > 0) {
-            //Log.d("WidgetUtils", "downloading " + (totalCount - downloadingCount + 1) + "/" + totalCount + "   " + Utils.readableFileSize(downloadedSize) + "/" + Utils.readableFileSize(totalSize) + " " + ++times + " times");
-            notification.contentView.setTextViewText(R.id.notification_bar_title_tv,
-                    SeadroidApplication.getAppContext().getString(R.string.notification_bar_downloading_files_complete));
-            notification.contentView.setImageViewResource(R.id.notification_bar_icon_iv, R.drawable.notification_bar_done);
-            notification.contentView.setTextViewText(R.id.notification_bar_time_tv, Utils.getCurrentHourMinute());
-            notification.contentView.setTextViewText(R.id.notification_bar_directory_info_tv, Utils.pathJoin(repoName, dir));
-            notification.contentView.setTextViewText(R.id.notification_bar_size_info_tv,
-                    strDownlodedSize + "/" + strTotalSize);
-            notification.contentView.setProgressBar(R.id.notification_bar_progressbar, 100, 100, false);
-            notification.flags = Notification.FLAG_AUTO_CANCEL;
-        }
-
-        // download cancelled
-        if (downloadingCount == 0 && !strDownlodedSize.equals(strTotalSize) && totalSize > 0) {
-            //Log.d("WidgetUtils", "downloading " + (totalCount - downloadingCount + 1) + "/" + totalCount + "   " + Utils.readableFileSize(downloadedSize) + "/" + Utils.readableFileSize(totalSize) + " " + ++times + " times");
-            notification.contentView.setTextViewText(R.id.notification_bar_title_tv,
-                    SeadroidApplication.getAppContext().getString(R.string.notification_bar_downloading_files_cancelled));
-            notification.contentView.setImageViewResource(R.id.notification_bar_icon_iv, R.drawable.notification_bar_downloading);
-            notification.contentView.setTextViewText(R.id.notification_bar_time_tv, Utils.getCurrentHourMinute());
-            notification.contentView.setTextViewText(R.id.notification_bar_directory_info_tv, Utils.pathJoin(repoName, dir));
-            notification.contentView.setTextViewText(R.id.notification_bar_size_info_tv,
-                    strDownlodedSize + "/" + strTotalSize);
-            notification.contentView.setProgressBar(R.id.notification_bar_progressbar, 100, (int) (downloadedSize * 100 / totalSize), false);
-            notification.flags = Notification.FLAG_AUTO_CANCEL;
-        }
-
-        notificationManager.notify(NOTIFICATION_DOWNLOAD_PROGRESS_BAR_ID, notification);
-    }
 
 }

@@ -5,16 +5,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -46,7 +41,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.webkit.MimeTypeMap;
 
-import android.widget.RemoteViews;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
@@ -61,11 +55,11 @@ import com.seafile.seadroid2.cameraupload.CameraUploadService;
 import com.seafile.seadroid2.data.*;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 import com.seafile.seadroid2.monitor.FileMonitorService;
+import com.seafile.seadroid2.ui.NotificationUtils;
 import com.seafile.seadroid2.transfer.*;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.ui.CopyMoveContext;
 import com.seafile.seadroid2.ui.ToastUtils;
-import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
 import com.seafile.seadroid2.ui.dialog.CopyMoveDialog;
 import com.seafile.seadroid2.ui.dialog.DeleteFileDialog;
@@ -134,12 +128,12 @@ public class BrowserActivity extends SherlockFragmentActivity
     private Menu overFlowMenu;
     private MenuItem menuSearch;
 
-    // configure the notification
-    private Notification notification;
-    private NotificationManager notificationManager;
-    private int totalCount;
-    private long totalSize;
-    private int notifyCount;
+    private int downloadTotalCount;
+    private int uploadTotalCount;
+    private long downloadTotalSize;
+    private long uploadTotalSize;
+    private int downloadNotifyCount;
+    private int uploadNotifyCount;
     private String mCurrentRepoName, mCurrentRepoID, mCurrentDir;
 
     private Intent copyMoveIntent;
@@ -320,17 +314,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         startService(monitorIntent);
 
         fetchServerInfo();
-
-        // configure the intent
-        Intent tIntent = new Intent(this, TransferActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), WidgetUtils.NOTIFICATION_DOWNLOAD_PROGRESS_BAR_ID, tIntent, 0);
-
-        notification = new Notification(R.drawable.notification_bar_downloading, getString(R.string.notification_bar_title_download_started), System.currentTimeMillis());
-        notification.flags = notification.flags | Notification.FLAG_AUTO_CANCEL;
-        notification.contentView = new RemoteViews(getApplicationContext().getPackageName(), R.layout.notification_bar_download_progress);
-        notification.contentIntent = pendingIntent;
-
-        notificationManager = (NotificationManager) getApplicationContext().getSystemService(getApplicationContext().NOTIFICATION_SERVICE);
     }
 
     private void fetchServerInfo() {
@@ -624,6 +607,9 @@ public class BrowserActivity extends SherlockFragmentActivity
         if (mTransferReceiver != null) {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(mTransferReceiver);
         }
+
+        NotificationUtils.cancelDownloadNotificaiton();
+        NotificationUtils.cancelUpoloadNotificaiton();
     }
 
     @Override
@@ -983,10 +969,12 @@ public class BrowserActivity extends SherlockFragmentActivity
                 String[] paths = data.getStringArrayExtra(MultiFileChooserActivity.MULTI_FILES_PATHS);
                 if (paths == null)
                     return;
-                ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
+                // ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
+                resetUploadNotification();
                 for (String path : paths) {
-                    addUploadTask(navContext.getRepoID(),
-                        navContext.getRepoName(), navContext.getDirPath(), path);
+                    addUploadTask(mCurrentRepoID, mCurrentRepoName, mCurrentDir, path);
+                    uploadTotalSize += new File(path).length();
+                    uploadTotalCount++;
                 }
             }
             break;
@@ -995,10 +983,12 @@ public class BrowserActivity extends SherlockFragmentActivity
                 ArrayList<String> paths = data.getStringArrayListExtra("photos");
                 if (paths == null)
                     return;
-                ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
+                // ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
+                resetUploadNotification();
                 for (String path : paths) {
-                    addUploadTask(navContext.getRepoID(),
-                        navContext.getRepoName(), navContext.getDirPath(), path);
+                    addUploadTask(mCurrentRepoID, mCurrentRepoName, mCurrentDir, path);
+                    uploadTotalSize += new File(path).length();
+                    uploadTotalCount++;
                 }
             }
             break;
@@ -1049,9 +1039,11 @@ public class BrowserActivity extends SherlockFragmentActivity
                     Log.i(DEBUG_TAG, "Pick file request did not return a path");
                     return;
                 }
-                ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
-                addUploadTask(navContext.getRepoID(),
-                        navContext.getRepoName(), navContext.getDirPath(), strImgPath);
+                // ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
+                resetUploadNotification();
+                addUploadTask(mCurrentRepoID, mCurrentRepoName, mCurrentDir, strImgPath);
+                uploadTotalSize += new File(navContext.getDirPath()).length();
+                uploadTotalCount++;
             }
             break;
         default:
@@ -1111,8 +1103,12 @@ public class BrowserActivity extends SherlockFragmentActivity
                     ToastUtils.show(BrowserActivity.this, getString(R.string.added_to_upload_tasks));
                     addUploadTask(navContext.getRepoID(),
                             navContext.getRepoName(), navContext.getDirPath(), file.getAbsolutePath());
+                    resetUploadNotification();
+                    uploadTotalSize = file.length();
+                    uploadTotalCount++;
                 }
             }
+
         }
     }
 
@@ -1145,20 +1141,54 @@ public class BrowserActivity extends SherlockFragmentActivity
         final String repoName = navContext.getRepoName();
         final String repoID = navContext.getRepoID();
 
-        totalCount = notifyCount = 0;
-        totalSize = 0l;
+        downloadTotalCount = downloadNotifyCount = 0;
+        downloadTotalSize = 0l;
 
         ConcurrentAsyncTask.execute(new DownloadDirTask(), repoName, repoID, dirPath);
     }
 
+    private void resetUploadNotification() {
+        uploadTotalSize = 0l;
+        uploadTotalCount = 0;
+        uploadNotifyCount = 0;
+        mCurrentRepoID = navContext.getRepoID();
+        mCurrentRepoName = navContext.getRepoName();
+        mCurrentDir = navContext.getDirPath();
+    }
+
+    public void notifyUploadProgress(String repoName, String dir, int uploadingCount, long uploadedSize) {
+        if (uploadingCount == 0 && uploadTotalCount != 0) {
+            if (++uploadNotifyCount > 1)
+                // upload complete or cancelled
+                return;
+        }
+
+        // uploadedSize will larger than totalSize when auto refresh after done uploading a file,
+        // so use totalSize > uploadedSize to exclude this condition
+        if (uploadedSize > uploadTotalSize)
+            return;
+
+        NotificationUtils.notifyUploadProgress(repoName,
+                dir,
+                uploadTotalCount,
+                uploadingCount,
+                uploadTotalSize,
+                uploadedSize);
+    }
+
     public void notifyDownloadProgress(String repoName, String dir, int downloadingCount, long downloadedSize) {
-        if (downloadingCount == 0 && totalCount != 0) {
-            if (++notifyCount > 1)
+        if (downloadingCount == 0 && downloadTotalCount != 0) {
+            if (++downloadNotifyCount > 1)
                 // download complete or cancelled
                 return;
         }
 
-        WidgetUtils.notifyDownloadProgress(notification, notificationManager, repoName,  dir, totalCount, downloadingCount, totalSize, downloadedSize);
+        NotificationUtils.notifyDownloadProgress(repoName,
+                dir,
+                downloadTotalCount,
+                downloadingCount,
+                downloadTotalSize,
+                downloadedSize);
     }
 
     private class DownloadDirTask extends AsyncTask<String, Void, List<SeafDirent> > {
@@ -1235,8 +1265,8 @@ public class BrowserActivity extends SherlockFragmentActivity
                 ToastUtils.show(BrowserActivity.this, R.string.transfer_download_no_task);
             else {
                 // ToastUtils.show(BrowserActivity.this, getResources().getQuantityString(R.plurals.transfer_download_started, fileCount, fileCount));
-                totalCount = fileCount;
-                totalSize = fileTotalSize;
+                downloadTotalCount = fileCount;
+                downloadTotalSize = fileTotalSize;
                 //notifyDownloadProgress(fileCount);
             }
 
@@ -1657,7 +1687,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             }
         }
 
-        ToastUtils.show(this, getString(R.string.download_failed) + " " + Utils.fileNameFromPath(path));
+        ToastUtils.show(this, getString(R.string.download_failed));
     }
 
     private void onFileUploaded(int taskID) {
@@ -1673,18 +1703,15 @@ public class BrowserActivity extends SherlockFragmentActivity
                 && repoID.equals(navContext.getRepoID())
                 && dir.equals(navContext.getDirPath())) {
             getReposFragment().refreshView(true);
-            String verb = getString(info.isUpdate ? R.string.updated : R.string.uploaded);
-            ToastUtils.show(this, verb + " " + Utils.fileNameFromPath(info.localFilePath));
+            // String verb = getString(info.isUpdate ? R.string.updated : R.string.uploaded);
+            // ToastUtils.show(this, verb + " " + Utils.fileNameFromPath(info.localFilePath));
         }
     }
 
+    private int intShowErrorTime;
     private void onFileUploadFailed(int taskID) {
-        if (txService == null) {
-            return;
-        }
-        UploadTaskInfo info = txService.getUploadTaskInfo(taskID);
-        if (info != null)
-            ToastUtils.show(this, getString(R.string.upload_failed) + " " + Utils.fileNameFromPath(info.localFilePath));
+        if (++ intShowErrorTime <= 1)
+            ToastUtils.show(this, getString(R.string.upload_failed));
     }
 
     public PasswordDialog showPasswordDialog(String repoName, String repoID,

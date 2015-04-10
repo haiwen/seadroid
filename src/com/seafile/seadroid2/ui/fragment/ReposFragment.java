@@ -257,7 +257,7 @@ public class ReposFragment extends SherlockListFragment {
                 nav.getDirPath());
     }
 
-    // refresh download list by mTimer
+    // refresh list by mTimer
     public void startTimer() {
         if (isTimerStarted)
             return;
@@ -278,6 +278,11 @@ public class ReposFragment extends SherlockListFragment {
                 int downloadingCount = ts.getDownloadingFileCountByPath(repoID, currentDir);
                 long downloadedSize = ts.getDownloadedSizeByPath(repoID, currentDir);
                 mActivity.notifyDownloadProgress(repoName, currentDir, downloadingCount, downloadedSize);
+
+                int uploadingCount = ts.getUploadingFileCountByPath(repoID, currentDir);
+                long uploadedSize = ts.getUploadedSizeByPath(repoID, currentDir);
+                mActivity.notifyUploadProgress(repoName, currentDir, uploadingCount, uploadedSize);
+
                 // Log.d(DEBUG_TAG, "timer post refresh signal " + System.currentTimeMillis());
                 mTimer.postDelayed(this, 1 * 1000);
             }

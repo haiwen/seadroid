@@ -2,9 +2,12 @@ package com.seafile.seadroid2.transfer;
 
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
+import com.google.common.collect.Lists;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.util.Utils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,6 +40,61 @@ public class UploadTaskManager extends TransferManager implements UploadStateLis
                 cancel(uploadTaskInfo.taskID);
             }
         }
+    }
+
+    /**
+     * get all upload task info under a specific directory.
+     *
+     * @param repoID
+     * @param dir
+     * @return List<UploadTaskInfo>
+     */
+    private List<UploadTaskInfo> getTaskInfoListByPath(String repoID, String dir) {
+        ArrayList<UploadTaskInfo> infos = Lists.newArrayList();
+        for (TransferTask task : allTaskList) {
+            if (!task.getRepoID().equals(repoID))
+                continue;
+
+            UploadTaskInfo uti = (UploadTaskInfo) getTaskInfo(task.getTaskID());
+            if (dir.equals(uti.parentDir))
+                infos.add(((UploadTask) task).getTaskInfo());
+        }
+
+        return infos;
+    }
+
+    public long getUploadedFileSizeByPath(String repoID, String dir) {
+        long uploadedSize = 0l;
+        List<UploadTaskInfo> list = getTaskInfoListByPath(repoID, dir);
+        for (UploadTaskInfo uti : list) {
+            if (uti.state.equals(TaskState.FINISHED))
+                uploadedSize += uti.totalSize;
+            else if (uti.state.equals(TaskState.TRANSFERRING))
+                uploadedSize += uti.uploadedSize;
+        }
+        return uploadedSize;
+    }
+
+    public int getUploadingFileCountByPath(String repoID, String dir) {
+        List<UploadTaskInfo> taskInfos = getTaskInfoListByPath(repoID, dir);
+        int count = 0;
+        for (UploadTaskInfo uti : taskInfos) {
+            if (uti.state.equals(TaskState.INIT)
+                    || uti.state.equals(TaskState.TRANSFERRING))
+                count++;
+        }
+        return count;
+    }
+
+    public int getUploadingFileCount() {
+        List<UploadTaskInfo> taskInfos = (List<UploadTaskInfo>) getAllTaskInfoList();
+        int count = 0;
+        for (UploadTaskInfo uti : taskInfos) {
+            if (uti.state.equals(TaskState.INIT)
+                    || uti.state.equals(TaskState.TRANSFERRING))
+                count++;
+        }
+        return count;
     }
 
     public void retry(int taskID) {
