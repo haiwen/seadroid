@@ -1322,6 +1322,9 @@ public class BrowserActivity extends SherlockFragmentActivity
             new OpenAsDialog(file).show(getSupportFragmentManager(), "OpenAsDialog");
             //ToastUtils.show(this, R.string.activity_not_found);
             return;
+        } catch (SecurityException e) {
+            new OpenAsDialog(file).show(getSupportFragmentManager(), "OpenAsDialog");
+            return;
         }
 
     }
