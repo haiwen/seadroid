@@ -316,11 +316,17 @@
 
     <string name="settings_advance_feature_title">ADVANCED FEATURE</string>    
     <string name="settings_cache_title">Cache size</string>
+    <string name="settings_custom_cache_directory_title">Custom cache folder</string>
+    <string name="settings_custom_cache_directory_on">Use default directory</string>
+    <string name="settings_custom_cache_directory_off">Pick cache directory</string>
     <string name="settings_clear_cache_title">Clear cache</string>
     <string name="settings_clear_cache_hint">Do you want to clear cache?</string>
     <string name="settings_clear_cache_success">Cache cleared successfully</string>
     <string name="settings_clear_cache_failed">Cache cleared failed</string>
     <string name="settings_cache_empty">0 KB</string>
+    <string name="settings_storage_not_available">External storage is not available</string>
+    <string name="settings_failed_write_data">Permission denied to access the selected folder</string>
+    <string name="settings_select">Select</string>
 
     <!-- pull to refresh -->
     <string name="pull_to_refresh_pull_label">Pull to refresh&#8230;</string>

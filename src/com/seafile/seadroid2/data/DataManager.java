@@ -10,7 +10,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,9 +21,6 @@ import android.util.Pair;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.SeafConnection;
-import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.util.Utils;
 
@@ -55,8 +52,12 @@ public class DataManager {
     }
 
     public static String getExternalRootDirectory() {
-        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-            File extDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Seafile/");
+        if (isExternalStorageWritable()) {
+            File extDir;
+            if(!SettingsManager.instance().isCustomCacheDirectory())
+                extDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Seafile/");
+            else
+                extDir = new File(SettingsManager.instance().getCustomCachedPath()  + "/Seafile/");
             if (!extDir.exists()) {
                 extDir.mkdirs();
             }
@@ -204,7 +205,9 @@ public class DataManager {
             server = server.substring(0, server.indexOf(':'));
         String p = String.format("%s (%s)", username, server);
         p = p.replaceAll("[^\\w\\d\\.@\\(\\) ]", "_");
+
         String accountDir = Utils.pathJoin(getExternalRootDirectory(), p);
+
         return accountDir;
     }
 
@@ -221,10 +224,16 @@ public class DataManager {
         if (path != null) {
             // Has record in database
             repoDir = new File(path);
-            if (!repoDir.exists()) {
-                if (!repoDir.mkdirs()) {
-                    throw new RuntimeException("Could not create library directory " + path);
+            if (isExternalStorageWritable()) {
+                if (!repoDir.exists()) {
+                    if (!repoDir.mkdirs()) {
+                        Log.e(DEBUG_TAG, "Could not create repo directory " + path);
+                        throw new RuntimeException("Could not create library directory " + path);
+                    }
                 }
+            } else {
+                Log.e(DEBUG_TAG, "external storage is not ready");
+                throw new RuntimeException("external storage is not ready");
             }
             return path;
         }
@@ -246,14 +255,39 @@ public class DataManager {
             i++;
         }
 
-        if (!repoDir.mkdirs()) {
-            throw new RuntimeException("Could not create repo directory " + path);
+        if (isExternalStorageWritable()) {
+            if (!repoDir.mkdirs()) {
+                Log.e(DEBUG_TAG, "Could not create repo directory " + path);
+                throw new RuntimeException("Could not create repo directory " + path);
+            }
+        } else {
+            Log.e(DEBUG_TAG, "external storage is not ready");
+            throw new RuntimeException("external storage is not ready");
         }
 
         // Save the new mapping in database
         dbHelper.saveRepoDirMapping(account, repoName, repoID, path);
 
         return repoDir.getPath();
+    }
+
+    /** Checks if external storage is available for read and write */
+    public static boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            return true;
+        }
+        return false;
+    }
+
+    /** Checks if external storage is available to at least read */
+    public boolean isExternalStorageReadable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state) ||
+                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+            return true;
+        }
+        return false;
     }
 
     /**

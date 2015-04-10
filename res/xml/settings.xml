@@ -99,11 +99,25 @@
                 android:title="@string/settings_about_author_title" />
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/settings_advance_feature_title" >
+    <PreferenceCategory
+            android:key="category_cache_key"
+            android:title="@string/settings_advance_feature_title" >
         <Preference
             android:key="settings_cache_info_key"
             android:enabled="false"
             android:title="@string/settings_cache_title" />
+        <CheckBoxPreference
+                android:defaultValue="false"
+                android:key="settings_custom_cache_directory_key"
+                android:summaryOff="@string/settings_custom_cache_directory_off"
+                android:summaryOn="@string/settings_custom_cache_directory_on"
+                android:title="@string/settings_custom_cache_directory_title"
+                android:layout="@layout/seafile_checkbox_layout" >
+        </CheckBoxPreference>
+        <Preference
+            android:key="settings_custom_cache_directory_path"
+            android:title="@string/settings_custom_cache_directory_title"
+            android:summary="@string/settings_custom_cache_directory_title" />
         <Preference
             android:key="settings_clear_cache_key"
             android:title="@string/settings_clear_cache_title" />

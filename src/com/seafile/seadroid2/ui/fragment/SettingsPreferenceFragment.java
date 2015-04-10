@@ -30,6 +30,7 @@ import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.cache.CacheDirectoryActivity;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
 import com.seafile.seadroid2.cameraupload.CameraUploadConfigActivity;
 import com.seafile.seadroid2.data.DataManager;
@@ -56,6 +57,8 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
     public static final String CAMERA_UPLOAD_BOTH_PAGES = "com.seafile.seadroid2.camera.upload";
     public static final String CAMERA_UPLOAD_REMOTE_LIBRARY = "com.seafile.seadroid2.camera.upload.library";
     public static final String CAMERA_UPLOAD_LOCAL_DIRECTORIES = "com.seafile.seadroid2.camera.upload.directories";
+    // custom cache download directory
+    public static final String CACHE_DOWNLOAD_LOCAL_DIRECTORIE = "com.seafile.seadroid2.cache.download.directory";
 
     // Account Info
     private static Map<String, AccountInfo> accountInfoMap = Maps.newHashMap();
@@ -76,11 +79,15 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
     private Preference versionName;
     private Preference authorInfo;
     private Preference cacheSizePrf;
+    private PreferenceCategory cacheCategory;
+    private CheckBoxPreference customCachePathSwitch;
+    private Preference customCachePath;
     private Preference clearCache;
     private SettingsActivity mActivity;
     private Intent cameraUploadIntent;
     private boolean isUploadEnabled;
     private boolean isCustomUploadDirectoriesEnabled;
+    private String cachedDirectory;
     private Intent cUploadIntent;
     private String repoName;
     private String customDirs;
@@ -183,6 +190,7 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
         cameraUploadIntent = new Intent(mActivity, CameraUploadService.class);
         repoName = settingsMgr.getCameraUploadRepoName();
         customDirs = settingsMgr.getLocalDirPath();
+        cachedDirectory = settingsMgr.getCustomCachedPath();
 
         if (repoName != null) {
             cameraUploadRepo.setSummary(repoName);
@@ -221,7 +229,18 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
         authorInfo = findPreference(SettingsManager.SETTINGS_ABOUT_AUTHOR_KEY);
         authorInfo.setOnPreferenceClickListener(this);
         // Cache
+        cacheCategory = (PreferenceCategory) findPreference(SettingsManager.SETTINGS_CACHE_CATEGORY_KEY);
         cacheSizePrf = findPreference(SettingsManager.SETTINGS_CACHE_SIZE_KEY);
+        customCachePathSwitch = (CheckBoxPreference) findPreference(SettingsManager.SETTINGS_CUSTOM_CACHE_DIRECTORY_KEY);
+        customCachePath = findPreference(SettingsManager.SETTINGS_CUSTOM_CACHE_DIRECTORY_PATH);
+        customCachePathSwitch.setOnPreferenceClickListener(this);
+        customCachePath.setOnPreferenceClickListener(this);
+        if (cachedDirectory != null) {
+            cacheCategory.addPreference(customCachePath);
+        } else {
+            cacheCategory.removePreference(customCachePath);
+        }
+
         calculateCacheSize();
 
         // Clear cache
@@ -247,6 +266,14 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
             cameraUploadAdvancedCategory.addPreference(cameraLocalDirectories);
             if (settingsMgr.getLocalDirPath() != null)
                 cameraLocalDirectories.setSummary(settingsMgr.getLocalDirPath());
+        }
+
+        if (!settingsMgr.isCustomCacheDirectory())
+            cacheCategory.removePreference(customCachePath);
+        else {
+            cacheCategory.addPreference(customCachePath);
+            if (settingsMgr.getCustomCachedPath() != null)
+                customCachePath.setSummary(settingsMgr.getCustomCachedPath());
         }
     }
 
@@ -353,10 +380,31 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
             builder.setTitle(mActivity.getResources().getString(R.string.app_name));
             builder.setMessage(Html.fromHtml(getString(R.string.settings_about_author_info, versionName)));
             builder.show();
+        } else if (preference.getKey().equals(SettingsManager.SETTINGS_CUSTOM_CACHE_DIRECTORY_KEY)) {
+            if (!settingsMgr.isCustomCacheDirectory()) {
+                cacheCategory.removePreference(customCachePath);
+            } else {
+                cacheCategory.addPreference(customCachePath);
+                customCacheDirectory();
+            }
+
+        } else if (preference.getKey().equals(SettingsManager.SETTINGS_CUSTOM_CACHE_DIRECTORY_PATH)) {
+            Intent intent = new Intent(mActivity, CacheDirectoryActivity.class);
+            startActivityForResult(intent, SettingsManager.CHOOSE_CACHE_DOWNLOAD_DIRECTORY_REQUEST);
         } else if (preference.getKey().equals(SettingsManager.SETTINGS_CLEAR_CACHE_KEY)) {
             clearCache();
         }
         return true;
+    }
+
+    private void customCacheDirectory() {
+        if (cachedDirectory != null) {
+            customCachePath.setSummary(cachedDirectory);
+            return;
+        }
+
+        Intent intent = new Intent(mActivity, CacheDirectoryActivity.class);
+        startActivityForResult(intent, SettingsManager.CHOOSE_CACHE_DOWNLOAD_DIRECTORY_REQUEST);
     }
 
     private void clearCache() {
@@ -442,6 +490,28 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
             }
            break;
 
+        case SettingsManager.CHOOSE_CACHE_DOWNLOAD_DIRECTORY_REQUEST:
+            if (resultCode == Activity.RESULT_OK) {
+                if (data == null) {
+                    return;
+                }
+
+                cachedDirectory = data.getStringExtra(SettingsPreferenceFragment.CACHE_DOWNLOAD_LOCAL_DIRECTORIE);
+                if (cachedDirectory != null) {
+                    customCachePath.setSummary(cachedDirectory);
+                    cacheCategory.addPreference(customCachePath);
+                    customCachePathSwitch.setChecked(true);
+                    settingsMgr.saveCustomCacheDirectory(true);
+                    settingsMgr.saveCustomCachedPath(cachedDirectory);
+                } else {
+                    cacheCategory.removePreference(customCachePath);
+                    customCachePathSwitch.setChecked(false);
+                    settingsMgr.saveCustomCacheDirectory(false);
+                }
+            } else if (resultCode == Activity.RESULT_CANCELED) {
+
+            }
+            break;
         default:
             break;
         }
