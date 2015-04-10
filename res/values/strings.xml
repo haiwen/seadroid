@@ -376,4 +376,20 @@
     <string name="star_file_succeed">File starred successfully</string>
     <string name="star_file_failed">File starred failed</string>
 
+    <!-- notification bar -->
+    <string name="notification_upload_started_title">Uploading files&#8230;</string>
+    <string name="notification_download_started_title">Downloading files&#8230;</string>
+    <string name="notification_upload_completed">Upload completed</string>
+    <string name="notification_upload_cancelled">Upload cancelled</string>
+    <plurals name="notification_upload_info">
+        <item quantity="one">Uploading file, %1$d file left (%2$d%%)</item>
+        <item quantity="other">Uploading files, %1$d files left (%2$d%%)</item>
+    </plurals>
+    <plurals name="notification_download_info">
+        <item quantity="one">Downloading file, %1$d file left (%2$d%%)</item>
+        <item quantity="other">Downloading files, %1$d files left (%2$d%%)</item>
+    </plurals>
+    <string name="notification_download_completed">Download completed</string>
+    <string name="notification_download_cancelled">Download cancelled</string>
+
 </resources>

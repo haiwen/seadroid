@@ -14,7 +14,6 @@ import java.util.List;
 
 /**
  * Download tasks fragments
- *
  */
 public class DownloadTaskFragment extends TransferTaskFragment {
     private static final String DEBUG_TAG = "DownloadTaskFragment";
@@ -92,8 +91,7 @@ public class DownloadTaskFragment extends TransferTaskFragment {
             }
 
             return true;
-        }
-        else
+        } else
             return false;
     }
 

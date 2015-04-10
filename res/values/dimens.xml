@@ -23,6 +23,13 @@
     <integer name="preference_fragment_scrollbarStyle">0x02000000</integer>
     <!-- outsideOverlay -->
 
+    <!-- Notificaiton bar -->
+    <dimen name="notificationbar_title_txt_size">16sp</dimen>
+    <dimen name="notificationbar_sutitle_txt_size">14sp</dimen>
+    <dimen name="notificationbar_container_padding">5dp</dimen>
+    <dimen name="notificationbar_margin_left">5dp</dimen>
+    <dimen name="notificationbar_margin_top">0dp</dimen>
+
     <!-- Header -->
 
     <!-- Title -->
@@ -117,7 +124,6 @@
 
     <dimen name="ptr_tv_tip_txt_size">16sp</dimen>
     <dimen name="ptr_tv_label_txt_size">12sp</dimen>
-
 
     <dimen name="preference_fragment_padding_bottom">0dp</dimen>
     <dimen name="preference_fragment_padding_side">16dp</dimen>

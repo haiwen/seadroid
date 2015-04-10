@@ -76,6 +76,18 @@ public class TransferService extends Service {
         return (List<UploadTaskInfo>) uploadTaskManager.getAllTaskInfoList();
     }
 
+    public int getUploadingFileCountByPath(String repoID, String dir) {
+        return uploadTaskManager.getUploadingFileCountByPath(repoID, dir);
+    }
+
+    public long getUploadedSizeByPath(String repoID, String dir) {
+        return uploadTaskManager.getUploadedFileSizeByPath(repoID, dir);
+    }
+
+    public int getUploadingFileCount() {
+        return uploadTaskManager.getUploadingFileCount();
+    }
+
     public void removeAllUploadTasksByState(TaskState taskState) {
         uploadTaskManager.removeByState(taskState);
 
@@ -121,6 +133,14 @@ public class TransferService extends Service {
 
     public List<DownloadTaskInfo> getDownloadTaskInfosByPath(String repoID, String dir) {
         return downloadTaskManager.getTaskInfoListByPath(repoID, dir);
+    }
+
+    public int getDownloadingFileCount() {
+        return downloadTaskManager.getDownloadingFileCount();
+    }
+
+    public long getDownloadedSizeByPath(String repoID, String dir) {
+        return downloadTaskManager.getDownloadedFileSizeByPath(repoID, dir);
     }
 
     public void removeDownloadTask(int taskID) {

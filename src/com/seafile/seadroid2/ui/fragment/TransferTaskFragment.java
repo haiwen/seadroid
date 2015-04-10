@@ -132,7 +132,7 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
             public void run() {
                 adapter.setTransferTaskInfos(getTransferTaskInfos());
                 adapter.notifyDataSetChanged();
-                Log.d(DEBUG_TAG, "timer post refresh signal " + System.currentTimeMillis());
+                //Log.d(DEBUG_TAG, "timer post refresh signal " + System.currentTimeMillis());
                 mTimer.postDelayed(this, 1 * 1000);
             }
         }, 1 * 1000);

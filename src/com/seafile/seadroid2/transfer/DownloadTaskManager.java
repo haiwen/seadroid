@@ -65,6 +65,29 @@ public class DownloadTaskManager extends TransferManager implements DownloadStat
         return count;
     }
 
+    public int getDownloadingFileCount() {
+        List<DownloadTaskInfo> downloadTaskInfos = (List<DownloadTaskInfo>) getAllTaskInfoList();
+        int count = 0;
+        for (DownloadTaskInfo downloadTaskInfo : downloadTaskInfos) {
+            if (downloadTaskInfo.state.equals(TaskState.INIT)
+                    || downloadTaskInfo.state.equals(TaskState.TRANSFERRING))
+                count++;
+        }
+        return count;
+    }
+
+    public long getDownloadedFileSizeByPath(String repoID, String dir) {
+        long downloadedSize = 0l;
+        List<DownloadTaskInfo> list = getTaskInfoListByPath(repoID, dir);
+        for (DownloadTaskInfo dti : list) {
+            if (dti.state.equals(TaskState.FINISHED))
+                downloadedSize += dti.fileSize;
+            else if (dti.state.equals(TaskState.TRANSFERRING))
+                downloadedSize += dti.finished;
+        }
+        return downloadedSize;
+    }
+
     /**
      * get all download task info under a specific directory.
      *

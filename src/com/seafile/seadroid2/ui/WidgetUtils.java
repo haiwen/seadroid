@@ -85,5 +85,4 @@ public class WidgetUtils {
             .cacheOnDisk(false)
             .build();
 
-
 }
