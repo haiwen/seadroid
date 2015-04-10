@@ -35,7 +35,7 @@
             android:layout_marginBottom="@dimen/long_btn_padding_bottom"
             android:layout_marginLeft="@dimen/long_btn_margin_left"
             android:layout_marginRight="@dimen/long_btn_margin_right"
-            android:text="@string/confirm"
+            android:text="@string/settings_select"
             android:textSize="@dimen/long_btn_txt_size"
             android:textColor="@color/white"
             android:layout_width="match_parent"

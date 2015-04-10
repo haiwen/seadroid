@@ -267,6 +267,14 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
             if (settingsMgr.getLocalDirPath() != null)
                 cameraLocalDirectories.setSummary(settingsMgr.getLocalDirPath());
         }
+
+        if (!settingsMgr.isCustomCacheDirectory())
+            cacheCategory.removePreference(customCachePath);
+        else {
+            cacheCategory.addPreference(customCachePath);
+            if (settingsMgr.getCustomCachedPath() != null)
+                customCachePath.setSummary(settingsMgr.getCustomCachedPath());
+        }
     }
 
     @Override

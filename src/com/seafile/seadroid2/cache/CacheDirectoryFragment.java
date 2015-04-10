@@ -8,6 +8,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.ui.ToastUtils;
+
+import java.io.File;
 
 /**
  *
@@ -38,6 +42,18 @@ public class CacheDirectoryFragment extends Fragment {
     private View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            if (!DataManager.isExternalStorageWritable()) {
+                ToastUtils.show(mActivity, R.string.settings_storage_not_available);
+                return;
+            } else {
+                File customDir = new File(mSelectionFragment.getmCurrentDir() + "/Seafile");
+                if (!customDir.exists()) {
+                    if (!customDir.mkdirs()) {
+                        ToastUtils.show(mActivity, R.string.settings_failed_write_data);
+                        return;
+                    }
+                }
+            }
             mActivity.saveCacheDirectory(mSelectionFragment.getmCurrentDir());
             mActivity.finish();
         }
