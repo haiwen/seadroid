@@ -30,11 +30,6 @@
               android:title="@string/download_folder"
               android:showAsAction="never"/>
 
-        <item android:id="@+id/download_folder_recursively"
-              android:visible="false"
-              android:title="@string/download_folder_recursively"
-              android:showAsAction="never"/>
-
         <item android:id="@+id/newdir"
               android:visible="false"
               android:title="@string/create_new_dir"

@@ -10,14 +10,7 @@ import java.util.*;
 
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
-import android.content.ActivityNotFoundException;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
@@ -58,6 +51,7 @@ import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.transfer.*;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.ui.CopyMoveContext;
+import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
 import com.seafile.seadroid2.ui.dialog.CopyMoveDialog;
@@ -638,7 +632,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         MenuItem menuUpload = menu.findItem(R.id.upload);
         MenuItem menuRefresh = menu.findItem(R.id.refresh);
         MenuItem menuDownloadFolder = menu.findItem(R.id.download_folder);
-        MenuItem menuDownloadFolderRecursively = menu.findItem(R.id.download_folder_recursively);
         MenuItem menuNewDir = menu.findItem(R.id.newdir);
         MenuItem menuNewFile = menu.findItem(R.id.newfile);
         MenuItem menuCamera = menu.findItem(R.id.camera);
@@ -650,20 +643,16 @@ public class BrowserActivity extends SherlockFragmentActivity
         if (currentPosition == 0) {
             menuUpload.setVisible(true);
             menuDownloadFolder.setVisible(true);
-            menuDownloadFolderRecursively.setVisible(true);
             if (navContext.inRepo() && hasRepoWritePermission()) {
                 menuUpload.setEnabled(true);
                 menuDownloadFolder.setEnabled(true);
-                menuDownloadFolderRecursively.setEnabled(true);
             } else {
                 menuUpload.setEnabled(false);
                 menuDownloadFolder.setEnabled(false);
-                menuDownloadFolderRecursively.setEnabled(false);
             }
         } else {
             menuUpload.setVisible(false);
             menuDownloadFolder.setVisible(false);
-            menuDownloadFolderRecursively.setVisible(false);
         }
 
         // Libraries Tab
@@ -786,10 +775,17 @@ public class BrowserActivity extends SherlockFragmentActivity
             }
             return true;
         case R.id.download_folder:
-            downloadDir(navContext.getDirPath(), false);
-            break;
-        case R.id.download_folder_recursively:
-            downloadDir(navContext.getDirPath(), true);
+            final SeafileStyleDialogBuilder builder = new SeafileStyleDialogBuilder(this);
+            builder.setTitle(getString(R.string.download_folder_title));
+            builder.setItems(R.array.download_folder_options_array, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    if (which == 0) // download folder
+                        downloadDir(navContext.getDirPath(), false);
+                    else if (which == 1) // download folder and subfolders
+                        downloadDir(navContext.getDirPath(), true);
+                }
+            }).show();
             break;
         case R.id.newdir:
             showNewDirDialog();
@@ -1154,8 +1150,8 @@ public class BrowserActivity extends SherlockFragmentActivity
 
             fileCount = 0;
 
-            ArrayList<String> dirPaths = new ArrayList<String>();
-            ArrayList<SeafDirent> dirents = new ArrayList<SeafDirent>();
+            ArrayList<String> dirPaths = Lists.newArrayList();
+            ArrayList<SeafDirent> dirents = Lists.newArrayList();
 
             dirPaths.add(dirPath);
 
