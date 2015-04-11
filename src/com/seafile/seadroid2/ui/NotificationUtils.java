@@ -155,7 +155,10 @@ public class NotificationUtils extends Notification {
 
         // downloading
         if (downloadingCount > 0) {
-            long progress = downloadedSize * 100 / totalSize;
+            long progress = 100;
+            if (totalSize != 0) {
+                progress = downloadedSize * 100 / totalSize;
+            }
             downloadNotification.contentView.setTextViewText(R.id.notification_bar_title_tv,
                     String.format(SeadroidApplication.getAppContext().getResources().getQuantityString(R.plurals.notification_download_info, downloadingCount),
                             downloadingCount,

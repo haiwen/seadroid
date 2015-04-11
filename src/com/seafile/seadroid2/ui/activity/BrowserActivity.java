@@ -650,6 +650,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         MenuItem menuUpload = menu.findItem(R.id.upload);
         MenuItem menuRefresh = menu.findItem(R.id.refresh);
         MenuItem menuDownloadFolder = menu.findItem(R.id.download_folder);
+        MenuItem menuDownloadFolderRecursively = menu.findItem(R.id.download_folder_recursively);
         MenuItem menuNewDir = menu.findItem(R.id.newdir);
         MenuItem menuNewFile = menu.findItem(R.id.newfile);
         MenuItem menuCamera = menu.findItem(R.id.camera);
@@ -661,16 +662,20 @@ public class BrowserActivity extends SherlockFragmentActivity
         if (currentPosition == 0) {
             menuUpload.setVisible(true);
             menuDownloadFolder.setVisible(true);
+            menuDownloadFolderRecursively.setVisible(true);
             if (navContext.inRepo() && hasRepoWritePermission()) {
                 menuUpload.setEnabled(true);
                 menuDownloadFolder.setEnabled(true);
+                menuDownloadFolderRecursively.setEnabled(true);
             } else {
                 menuUpload.setEnabled(false);
                 menuDownloadFolder.setEnabled(false);
+                menuDownloadFolderRecursively.setEnabled(false);
             }
         } else {
             menuUpload.setVisible(false);
             menuDownloadFolder.setVisible(false);
+            menuDownloadFolderRecursively.setVisible(false);
         }
 
         // Libraries Tab
@@ -793,7 +798,10 @@ public class BrowserActivity extends SherlockFragmentActivity
             }
             return true;
         case R.id.download_folder:
-            downloadDir(navContext.getDirPath());
+            downloadDir(navContext.getDirPath(), false);
+            break;
+        case R.id.download_folder_recursively:
+            downloadDir(navContext.getDirPath(), true);
             break;
         case R.id.newdir:
             showNewDirDialog();
@@ -1132,7 +1140,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         startFileActivity(repoName, repoID, filePath);
     }
 
-    public void downloadDir(String dirPath) {
+    public void downloadDir(String dirPath, boolean recurse) {
         if (!Utils.isNetworkOn()) {
             ToastUtils.show(this, R.string.network_down);
             return;
@@ -1144,7 +1152,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         downloadTotalCount = downloadNotifyCount = 0;
         downloadTotalSize = 0l;
 
-        ConcurrentAsyncTask.execute(new DownloadDirTask(), repoName, repoID, dirPath);
+        ConcurrentAsyncTask.execute(new DownloadDirTask(), repoName, repoID, dirPath, String.valueOf(recurse));
     }
 
     private void resetUploadNotification() {
@@ -1198,12 +1206,13 @@ public class BrowserActivity extends SherlockFragmentActivity
         private String dirPath;
         private int fileCount;
         private long fileTotalSize;
+        private boolean recurse;
 
         SeafException err = null;
 
         @Override
         protected List<SeafDirent> doInBackground(String... params) {
-            if (params.length != 3) {
+            if (params.length != 4) {
                 Log.d(DEBUG_TAG, "Wrong params to LoadDirTask");
                 return null;
             }
@@ -1211,42 +1220,59 @@ public class BrowserActivity extends SherlockFragmentActivity
             repoName = params[0];
             repoID = params[1];
             dirPath = params[2];
+            recurse = Boolean.valueOf(params[3]);
 
-            List<SeafDirent> dirents;
-            try {
-                dirents = dataManager.getDirentsFromServer(repoID, dirPath);
-            } catch (SeafException e) {
-                err = e;
-                e.printStackTrace();
-                return null;
+            fileCount = 0;
+
+            ArrayList<String> dirPaths = new ArrayList<String>();
+            ArrayList<SeafDirent> dirents = new ArrayList<SeafDirent>();
+
+            dirPaths.add(dirPath);
+
+            for (int i = 0; i < dirPaths.size(); i ++) {
+
+              List<SeafDirent> currentDirents;
+              try {
+                  currentDirents = dataManager.getDirentsFromServer(repoID, dirPaths.get(i));
+              } catch (SeafException e) {
+                  err = e;
+                  e.printStackTrace();
+                  return null;
+              }
+
+              if (currentDirents == null)
+                  continue;
+
+              for (SeafDirent seafDirent : currentDirents) {
+                  if (seafDirent.isDir()) {
+                      if (recurse) {
+                          dirPaths.add(Utils.pathJoin(dirPath, seafDirent.name));
+                      }
+                  } else {
+                      File localCachedFile = dataManager.getLocalCachedFile(repoName,
+                                                                            repoID,
+                                                                            Utils.pathJoin(dirPaths.get(i),
+                                                                                            seafDirent.name),
+                                                                            seafDirent.id);
+                      if (localCachedFile != null) {
+                          continue;
+                      }
+
+                      fileTotalSize += seafDirent.size;
+
+                      txService.addTaskToDownloadQue(account,
+                              repoName,
+                              repoID,
+                              Utils.pathJoin(dirPaths.get(i),
+                                      seafDirent.name));
+                  }
+
+              }
+
+              fileCount += txService.getDownloadingFileCountByPath(repoID, dirPath);
+              dirents.addAll(currentDirents);
+
             }
-
-            if (dirents == null)
-                return null;
-
-            for (SeafDirent seafDirent : dirents) {
-                if (!seafDirent.isDir()) {
-                    File localCachedFile = dataManager.getLocalCachedFile(repoName,
-                                                                          repoID, 
-                                                                          Utils.pathJoin(dirPath,
-                                                                                          seafDirent.name), 
-                                                                          seafDirent.id);
-                    if (localCachedFile != null) {
-                        continue;
-                    }
-
-                    fileTotalSize += seafDirent.size;
-
-                    txService.addTaskToDownloadQue(account,
-                            repoName,
-                            repoID,
-                            Utils.pathJoin(dirPath,
-                                    seafDirent.name));
-                }
-
-            }
-
-            fileCount = txService.getDownloadingFileCountByPath(repoID, dirPath);
 
             return dirents;
 
@@ -1386,6 +1412,9 @@ public class BrowserActivity extends SherlockFragmentActivity
         } catch (ActivityNotFoundException e) {
             new OpenAsDialog(file).show(getSupportFragmentManager(), "OpenAsDialog");
             //ToastUtils.show(this, R.string.activity_not_found);
+            return;
+        } catch (SecurityException e) {
+            new OpenAsDialog(file).show(getSupportFragmentManager(), "OpenAsDialog");
             return;
         }
 
