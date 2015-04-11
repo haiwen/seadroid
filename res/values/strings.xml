@@ -113,7 +113,11 @@
     <string name="load_dir_fail">Failed to load contents of this folder</string>
     <string name="not_supported_share">This type of share is not supported</string>
     <string name="download_folder">Download folder</string>
-    <string name="download_folder_recursively">Download folder recursively</string>
+    <string name="download_folder_title">Choose your preffered option</string>
+    <string-array name="download_folder_options_array">
+        <item>Download folder</item>
+        <item>Download folder and subfolders</item>
+    </string-array>
     <string name="create_new_file">Create a new file</string>
     <string name="create_new_dir">Create a new folder</string>
     <string name="camera">Take a photo here</string>
