@@ -272,7 +272,13 @@ public class SearchActivity extends SherlockFragmentActivity implements View.OnC
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             final SearchedFile searchedFile = (SearchedFile) mAdapter.getItem(position);
-            onSearchedFileSelected(searchedFile);
+            try {
+                onSearchedFileSelected(searchedFile);
+            } catch (SeafException e) {
+                Log.e(DEBUG_TAG, "error message " + e.getMessage() + " error code " + e.getCode());
+                if (e.getCode() == 7)
+                    ToastUtils.show(SearchActivity.this, getString(R.string.error_when_write_external_storage));
+            }
         }
     }
 
@@ -312,7 +318,7 @@ public class SearchActivity extends SherlockFragmentActivity implements View.OnC
         }
     }
 
-    public void onSearchedFileSelected(SearchedFile searchedFile) {
+    public void onSearchedFileSelected(SearchedFile searchedFile) throws SeafException {
         final String repoID = searchedFile.getRepoID();
         SeafRepo seafRepo = dataManager.getCachedRepoByID(repoID);
         final String repoName = seafRepo.getName();

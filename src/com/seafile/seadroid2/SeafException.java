@@ -15,6 +15,7 @@ public class SeafException extends Exception {
     public static final SeafException illFormatException = new SeafException(4, "Ill-formatted Response");
     public static final SeafException sslException = new SeafException(5, "not trusted SSL server");
     public static final SeafException userCancelledException = new SeafException(6, "operation canclled by user");
+    public static final SeafException externalStorageUnavailableException = new SeafException(7, "External Storage Unavailable");
 
     public SeafException(int code, String msg) {
         super(msg);

@@ -222,7 +222,11 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
         authorInfo.setOnPreferenceClickListener(this);
         // Cache
         cacheSizePrf = findPreference(SettingsManager.SETTINGS_CACHE_SIZE_KEY);
-        calculateCacheSize();
+        try {
+            calculateCacheSize();
+        } catch (SeafException e) {
+            Log.e(DEBUG_TAG, "error message " + e.getMessage() + " error code " + e.getCode());
+        }
 
         // Clear cache
         clearCache = findPreference(SettingsManager.SETTINGS_CLEAR_CACHE_KEY);
@@ -354,12 +358,16 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
             builder.setMessage(Html.fromHtml(getString(R.string.settings_about_author_info, versionName)));
             builder.show();
         } else if (preference.getKey().equals(SettingsManager.SETTINGS_CLEAR_CACHE_KEY)) {
-            clearCache();
+            try {
+                clearCache();
+            } catch (SeafException e) {
+                Log.e(DEBUG_TAG, "error message " + e.getMessage() + " error code " + e.getCode());
+            }
         }
         return true;
     }
 
-    private void clearCache() {
+    private void clearCache() throws SeafException {
         String filesDir = dataMgr.getAccountDir();
         String cacheDir = DataManager.getExternalCacheDirectory();
         String tempDir = DataManager.getExternalTempDirectory();
@@ -580,7 +588,7 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
             return null;
     }
 
-    private void calculateCacheSize() {
+    private void calculateCacheSize() throws SeafException {
         String filesDir = dataMgr.getAccountDir();
         String cacheDir = DataManager.getExternalCacheDirectory();
         String tempDir = DataManager.getExternalTempDirectory();
