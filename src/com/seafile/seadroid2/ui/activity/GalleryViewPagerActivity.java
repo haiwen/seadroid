@@ -20,39 +20,36 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.AttributeSet;
 import android.util.Log;
-import android.util.Xml;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import com.actionbarsherlock.internal.view.menu.MenuView;
 import com.google.common.collect.Lists;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafCachedFile;
 import com.seafile.seadroid2.data.SeafDirent;
-import com.seafile.seadroid2.transfer.*;
+import com.seafile.seadroid2.transfer.DownloadStateListener;
+import com.seafile.seadroid2.transfer.DownloadTask;
+import com.seafile.seadroid2.transfer.DownloadTaskInfo;
+import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.util.Utils;
 import uk.co.senab.photoview.PhotoView;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,13 +65,14 @@ public class GalleryViewPagerActivity extends Activity {
     public static final String DEBUG_TAG = "GalleryViewPagerActivity";
 
     private static final String ISLOCKED_ARG = "isLocked";
-
     private ViewPager mViewPager;
     private MenuItem menuLockItem;
     private Account account;
     private DataManager dataManager;
     private TransferService txService;
-    ServiceConnection mConnection = new ServiceConnection() {
+    private ArrayList<SeafDirent> dirents;
+    private int taskID = 1000000000;
+    private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
             TransferService.TransferBinder binder = (TransferService.TransferBinder) service;
@@ -92,7 +90,7 @@ public class GalleryViewPagerActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_pager);
-        mViewPager = (HackyViewPager) findViewById(R.id.view_pager);
+        mViewPager = (HackyViewPager) findViewById(R.id.gallery_view_pager);
         setContentView(mViewPager);
 
         repoName = getIntent().getStringExtra("repoName");
@@ -122,11 +120,12 @@ public class GalleryViewPagerActivity extends Activity {
 
         ConcurrentAsyncTask.execute(new DownloadPicsByPathTask(), repoName, repoID, dirPath);
     }
+
     private String repoName;
     private String repoID;
     private String dirPath;
 
-    private class DownloadPicsByPathTask extends AsyncTask<String, Void, ArrayList<SeafDirent> > {
+    private class DownloadPicsByPathTask extends AsyncTask<String, Void, ArrayList<SeafDirent>> {
         SeafException err = null;
 
         @Override
@@ -161,13 +160,12 @@ public class GalleryViewPagerActivity extends Activity {
             for (SeafDirent seafDirent : dirents) {
                 if (!seafDirent.isDir()
                         && Utils.isViewableImage(seafDirent.name)) { // only cache image type files
-                        seafDirents.add(seafDirent);
+                    seafDirents.add(seafDirent);
                 }
 
             }
 
             return seafDirents;
-
         }
 
         @Override
@@ -175,21 +173,18 @@ public class GalleryViewPagerActivity extends Activity {
             dirents = seafDirents;
             if (seafDirents.isEmpty())
                 return;
-
-            //Log.d(DEBUG_TAG, "finished loading dirents, size is " + seafDirents.size());
-
             mViewPager.setAdapter(new SamplePagerAdapter(seafDirents, repoName, repoID, dirPath, account));
 
         }
     }
 
-    ArrayList<SeafDirent> dirents;
     class SamplePagerAdapter extends PagerAdapter {
         private ArrayList<SeafDirent> dirents;
         private String repoName;
         private String repoId;
         private String dirPath;
         private Account mAccount;
+
         public SamplePagerAdapter(ArrayList<SeafDirent> seafDirents, String name, String id, String path, Account account) {
             dirents = seafDirents;
             repoName = name;
@@ -210,11 +205,9 @@ public class GalleryViewPagerActivity extends Activity {
             if (scf != null) {
                 final File cachedFile = dataManager.getLocalCachedFile(repoName, repoId, Utils.pathJoin(dirPath, dirents.get(position).name), scf.fileID);
                 if (cachedFile != null) {
-                    //Log.d(DEBUG_TAG, "display cached image on SD card " + cachedFile.getAbsolutePath());
                     ImageLoader.getInstance().displayImage("file://" + cachedFile.getAbsolutePath(), photoView);
                 }
             } else {
-                //Log.d(DEBUG_TAG, "download image from server " + Utils.pathJoin(dirPath, dirents.get(position).name));
 
                 // load the image
                 final DownloadTask dt = new DownloadTask(
@@ -224,38 +217,43 @@ public class GalleryViewPagerActivity extends Activity {
                         repoId,
                         Utils.pathJoin(dirPath, dirents.get(position).name),
                         new DownloadStateListener() {
-                    @Override
-                    public void onFileDownloadProgress(int taskID) {
-                        Log.d(DEBUG_TAG, "download progress " + taskID);
-                        if (txService != null
-                                && txService.getDownloadTaskInfo(taskID) != null)
-                            Log.d(DEBUG_TAG, "download images " + txService.getDownloadTaskInfo(taskID).finished);
-                    }
+                            @Override
+                            public void onFileDownloadProgress(int taskID) {
+                                if (txService == null)
+                                    return;
+                                DownloadTaskInfo dti = txService.getDownloadTaskInfo(taskID);
+                                if (dti == null)
+                                    return;
 
-                    @Override
-                    public void onFileDownloaded(int taskID) {
-                        Log.d(DEBUG_TAG, "downloaded " + taskID);
+                                if (dti.fileSize == 0)
+                                    return;
+                                Log.d(DEBUG_TAG, "download progress " + (int) (dti.finished * 100 / dti.fileSize));
+                            }
 
-                        if (txService != null) {
-                            Log.d(DEBUG_TAG, "transfer service is not null");
-                            DownloadTaskInfo dti = txService.getDownloadTaskInfo(taskID);
-                            if (dti == null)
-                                return;
+                            @Override
+                            public void onFileDownloaded(int taskID) {
 
-                            Log.d(DEBUG_TAG, "finished download image " + txService.getDownloadTaskInfo(taskID).localFilePath);
-                            ImageLoader.getInstance().displayImage("file://" + dti.localFilePath, photoView);
-                        }
-                    }
+                                if (txService == null)
+                                    return;
 
-                    @Override
-                    public void onFileDownloadFailed(int taskID) {
-                        Log.d(DEBUG_TAG, "failed " + taskID);
+                                DownloadTaskInfo dti = txService.getDownloadTaskInfo(taskID);
+                                if (dti == null)
+                                    return;
 
-                        if (txService != null
-                                && txService.getDownloadTaskInfo(taskID) != null)
-                            Log.e(DEBUG_TAG, "failed download image " + txService.getDownloadTaskInfo(taskID).pathInRepo);
-                    }
-                });
+                                ImageLoader.getInstance().displayImage("file://" + dti.localFilePath, photoView);
+                            }
+
+                            @Override
+                            public void onFileDownloadFailed(int taskID) {
+                                if (txService == null)
+                                    return;
+                                DownloadTaskInfo dti = txService.getDownloadTaskInfo(taskID);
+                                if (dti == null)
+                                    return;
+
+                                Log.e(DEBUG_TAG, "failed download image " + dti.pathInRepo);
+                            }
+                        });
 
                 txService.addDownloadTask(dt);
             }
@@ -277,8 +275,6 @@ public class GalleryViewPagerActivity extends Activity {
         }
 
     }
-
-    private int taskID = 1000000000;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
