@@ -55,11 +55,34 @@ public class DownloadTaskManager extends TransferManager implements DownloadStat
         return task.getTaskID();
     }
 
-    public int addTaskToQue(Account account, String repoName, String repoID, String path) {
+    /**
+     * Add a new download task.
+     * call this method to execute a task immediately.
+     */
+    public int addTask(DownloadTask task) {
+        TransferTask oldTask = null;
+        if (allTaskList.contains(task)) {
+            oldTask = allTaskList.get(allTaskList.indexOf(task));
+        }
+        if (oldTask != null) {
+            if (oldTask.getState().equals(TaskState.CANCELLED)
+                    || oldTask.getState().equals(TaskState.FAILED)
+                    || oldTask.getState().equals(TaskState.FINISHED)) {
+                allTaskList.remove(oldTask);
+            } else {
+                // return taskID of old task
+                return oldTask.getTaskID();
+            }
+        }
+        allTaskList.add(task);
+        ConcurrentAsyncTask.execute(task);
+        return task.getTaskID();
+    }
+
+    public void addTaskToQue(Account account, String repoName, String repoID, String path) {
         // create a new one to avoid IllegalStateException
         DownloadTask downloadTask = new DownloadTask(++notificationID, account, repoName, repoID, path, this);
         addTaskToQue(downloadTask);
-        return notificationID;
     }
 
     public int getDownloadingFileCountByPath(String repoID, String dir) {

@@ -132,6 +132,11 @@
                   android:label="@string/app_name">
         </activity>
 
+        <activity android:name="com.seafile.seadroid2.ui.activity.GalleryViewPagerActivity"
+                  android:theme="@style/Theme.SeafileTheme"
+                  android:label="@string/app_name">
+        </activity>
+
         <provider
             android:name="com.seafile.seadroid2.provider.SeafileProvider"
             android:authorities="com.seafile.seadroid2"
