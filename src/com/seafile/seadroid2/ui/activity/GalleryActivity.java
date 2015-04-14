@@ -39,11 +39,11 @@ public class GalleryActivity extends Activity {
     private TextView mPageCount;
     private TransferService txService;
     private DataManager dataMgr;
-    private ArrayList<SeafDirent> mDirents;
     private Account mAccount;
     private String repoName;
     private String repoID;
     private String dirPath;
+    private ArrayList<SeafDirent> mDirents = Lists.newArrayList();
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
@@ -104,6 +104,20 @@ public class GalleryActivity extends Activity {
     private void requestPhotoInfos(String repoName, String repoID, String dirPath) {
         if (!Utils.isNetworkOn()) {
             ToastUtils.show(this, R.string.network_down);
+            // display cached photos in gallery
+            for (SeafDirent seafDirent : dataMgr.getCachedDirents(repoID, dirPath)) {
+                if (!seafDirent.isDir()
+                        && Utils.isViewableImage(seafDirent.name)) { // only cache image type files
+                    mDirents.add(seafDirent);
+                }
+
+            }
+
+            if (mDirents.isEmpty())
+                return;
+            mViewPager.setAdapter(new GalleryAdapter(GalleryActivity.this,
+                    dataMgr, mDirents, repoName, repoID, dirPath));
+
             return;
         }
 
