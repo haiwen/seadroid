@@ -1,18 +1,3 @@
-/*******************************************************************************
- * Copyright 2011, 2012 Chris Banes.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *******************************************************************************/
 package com.seafile.seadroid2.ui.activity;
 
 import android.app.Activity;
@@ -27,7 +12,6 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.*;
-import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.TextView;
 import com.google.common.collect.Lists;
@@ -53,22 +37,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Lock/Unlock button is added to the ActionBar.
- * Use it to temporarily disable ViewPager navigation in order to correctly interact with ImageView by gestures.
- * Lock/Unlock state of ViewPager is saved and restored on configuration changes.
- * <p/>
- * Julia Zudikova
+ * Gallery Activity for supporting a gallery to browse photos.
+ * Support local and cloud photos, it will downloaded first in second case
  */
+public class GalleryActivity extends Activity {
+    public static final String DEBUG_TAG = "GalleryActivity";
 
-public class PhotoGalleryActivity extends Activity {
-    public static final String DEBUG_TAG = "GalleryViewPagerActivity";
-
-    private static final String ISLOCKED_ARG = "isLocked";
     private ViewPager mViewPager;
-    private MenuItem menuLockItem;
     private TextView mPageIndex;
-    private TextView mTotalPage;
-
+    private TextView mPageCount;
     private Account account;
     private DataManager dataManager;
     private TransferService txService;
@@ -79,7 +56,7 @@ public class PhotoGalleryActivity extends Activity {
         public void onServiceConnected(ComponentName className, IBinder service) {
             TransferService.TransferBinder binder = (TransferService.TransferBinder) service;
             txService = binder.getService();
-            Log.d(DEBUG_TAG, "bind TransferService");
+            //Log.d(DEBUG_TAG, "bind TransferService");
         }
 
         @Override
@@ -91,12 +68,12 @@ public class PhotoGalleryActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.photo_gallery_activity_layout);
+        setContentView(R.layout.gallery_activity_layout);
 
         if (getActionBar() != null)
             getActionBar().hide();
 
-        mViewPager = (HackyViewPager) findViewById(R.id.gallery_view_pager);
+        mViewPager = (HackyViewPager) findViewById(R.id.gallery_pager);
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -104,22 +81,18 @@ public class PhotoGalleryActivity extends Activity {
                     return;
 
                 mPageIndex.setText(String.valueOf(position + 1));
-                mTotalPage.setText(String.valueOf(dirents.size()));
+                mPageCount.setText(String.valueOf(dirents.size()));
             }
 
             @Override
-            public void onPageSelected(int position) {
-
-            }
+            public void onPageSelected(int position) {}
 
             @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
+            public void onPageScrollStateChanged(int state) {}
         });
 
-        mPageIndex = (TextView) findViewById(R.id.gallery_current_page_index);
-        mTotalPage = (TextView) findViewById(R.id.gallery_total_page_count);
+        mPageIndex = (TextView) findViewById(R.id.gallery_page_index);
+        mPageCount = (TextView) findViewById(R.id.gallery_page_count);
 
         repoName = getIntent().getStringExtra("repoName");
         repoID = getIntent().getStringExtra("repoId");
@@ -129,15 +102,10 @@ public class PhotoGalleryActivity extends Activity {
 
         fetchPicsOriginalUrls(repoName, repoID, dirPath);
 
-        if (savedInstanceState != null) {
-            boolean isLocked = savedInstanceState.getBoolean(ISLOCKED_ARG, false);
-            ((HackyViewPager) mViewPager).setLocked(isLocked);
-        }
-
         // bind transfer service
         Intent bIntent = new Intent(this, TransferService.class);
         bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
-        Log.d(DEBUG_TAG, "try bind TransferService");
+        //Log.d(DEBUG_TAG, "try bind TransferService");
     }
 
     private void fetchPicsOriginalUrls(String repoName, String repoID, String dirPath) {
@@ -155,11 +123,6 @@ public class PhotoGalleryActivity extends Activity {
 
     private class DownloadPicsByPathTask extends AsyncTask<String, Void, ArrayList<SeafDirent>> {
         SeafException err = null;
-
-        @Override
-        protected void onPreExecute() {
-            //Log.d(DEBUG_TAG, "loading dirents");
-        }
 
         @Override
         protected ArrayList<SeafDirent> doInBackground(String... params) {
@@ -205,7 +168,6 @@ public class PhotoGalleryActivity extends Activity {
         }
     }
 
-    //private static HashMap<Integer, ProgressWheel> progressWheels = Maps.newHashMap();
     class SamplePagerAdapter extends PagerAdapter {
         private ArrayList<SeafDirent> dirents;
         private String repoName;
@@ -233,10 +195,6 @@ public class PhotoGalleryActivity extends Activity {
             View contentView = inflater.inflate(R.layout.gallery_view_item, container, false);
             final PhotoView photoView = (PhotoView) contentView.findViewById(R.id.gallery_photoview);
             final ProgressWheel pw = (ProgressWheel) contentView.findViewById(R.id.pw_spinner);
-            /*final TextView pageIndex = (TextView) contentView.findViewById(R.id.gallery_item_current_page_index);
-            final TextView totalPage = (TextView) contentView.findViewById(R.id.gallery_item_total_page_count);
-            pageIndex.setText(String.valueOf(position + 1));
-            totalPage.setText(String.valueOf(dirents.size()));*/
             final SeafCachedFile scf = dataManager.getCachedFile(repoName, repoId, Utils.pathJoin(dirPath, dirents.get(position).name));
             if (scf != null) {
                 final File cachedFile = dataManager.getLocalCachedFile(repoName, repoId, Utils.pathJoin(dirPath, dirents.get(position).name), scf.fileID);
@@ -264,11 +222,8 @@ public class PhotoGalleryActivity extends Activity {
                                 if (dti.fileSize == 0)
                                     return;
                                 Log.d(DEBUG_TAG, "download progress " + (int) (dti.finished * 360 / dti.fileSize));
-                                /*if (progressWheels.get(taskID) == null)
-                                    return;*/
                                 pw.setProgress((int) (dti.finished * 360 / dti.fileSize));
                                 pw.setVisibility(View.VISIBLE);
-                                //photoView.setVisibility(View.GONE);
                             }
 
                             @Override
@@ -281,12 +236,9 @@ public class PhotoGalleryActivity extends Activity {
                                 if (dti == null)
                                     return;
 
-                                /*if (progressWheels.get(taskID) == null)
-                                    return;*/
                                 pw.setProgress(360);
                                 pw.setVisibility(View.GONE);
                                 ImageLoader.getInstance().displayImage("file://" + dti.localFilePath, photoView);
-                                //photoView.setVisibility(View.VISIBLE);
                             }
 
                             @Override
@@ -301,9 +253,8 @@ public class PhotoGalleryActivity extends Activity {
                             }
                         });
 
-                // task id
+                // must use this method in order to be consistent with other modules
                 txService.addDownloadTask(dt);
-                //progressWheels.put(dt.getTaskID(), pw);
 
             }
 
@@ -323,57 +274,6 @@ public class PhotoGalleryActivity extends Activity {
             return view == object;
         }
 
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.viewpager_menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        menuLockItem = menu.findItem(R.id.menu_lock);
-        toggleLockBtnTitle();
-        menuLockItem.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                toggleViewPagerScrolling();
-                toggleLockBtnTitle();
-                return true;
-            }
-        });
-
-        return super.onPrepareOptionsMenu(menu);
-    }
-
-    private void toggleViewPagerScrolling() {
-        if (isViewPagerActive()) {
-            ((HackyViewPager) mViewPager).toggleLock();
-        }
-    }
-
-    private void toggleLockBtnTitle() {
-        boolean isLocked = false;
-        if (isViewPagerActive()) {
-            isLocked = ((HackyViewPager) mViewPager).isLocked();
-        }
-        String title = (isLocked) ? getString(R.string.menu_unlock) : getString(R.string.menu_lock);
-        if (menuLockItem != null) {
-            menuLockItem.setTitle(title);
-        }
-    }
-
-    private boolean isViewPagerActive() {
-        return (mViewPager != null && mViewPager instanceof HackyViewPager);
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        if (isViewPagerActive()) {
-            outState.putBoolean(ISLOCKED_ARG, ((HackyViewPager) mViewPager).isLocked());
-        }
-        super.onSaveInstanceState(outState);
     }
 
     @Override

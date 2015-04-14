@@ -31,7 +31,7 @@ import com.seafile.seadroid2.ui.PullToRefreshListView;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
-import com.seafile.seadroid2.ui.activity.PhotoGalleryActivity;
+import com.seafile.seadroid2.ui.activity.GalleryActivity;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
@@ -409,7 +409,7 @@ public class ReposFragment extends SherlockListFragment {
     }
 
     public void browsePhotoInGallery(String dirPath) {
-        Intent intent = new Intent(mActivity, PhotoGalleryActivity.class);
+        Intent intent = new Intent(mActivity, GalleryActivity.class);
         intent.putExtra("repoName", getNavContext().getRepoName());
         intent.putExtra("repoId", getNavContext().getRepoID());
         intent.putExtra("path", dirPath);
