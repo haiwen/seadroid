@@ -26,12 +26,10 @@ import android.os.IBinder;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.*;
 import android.view.MenuItem.OnMenuItemClickListener;
-import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.LinearLayout;
 import com.google.common.collect.Lists;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
@@ -184,6 +182,7 @@ public class GalleryViewPagerActivity extends Activity {
         private String repoId;
         private String dirPath;
         private Account mAccount;
+        private LayoutInflater inflater;
 
         public SamplePagerAdapter(ArrayList<SeafDirent> seafDirents, String name, String id, String path, Account account) {
             dirents = seafDirents;
@@ -191,6 +190,7 @@ public class GalleryViewPagerActivity extends Activity {
             dirPath = path;
             repoId = id;
             mAccount = account;
+            inflater = getLayoutInflater();
         }
 
         @Override
@@ -200,7 +200,9 @@ public class GalleryViewPagerActivity extends Activity {
 
         @Override
         public View instantiateItem(ViewGroup container, int position) {
-            final PhotoView photoView = new PhotoView(container.getContext());
+            View contentView = inflater.inflate(R.layout.gallery_view_item, container, false);
+            final PhotoView photoView = (PhotoView) contentView.findViewById(R.id.gallery_photoview);
+            final LinearLayout progress = (LinearLayout) contentView.findViewById(R.id.gallery_progressContainer);
             final SeafCachedFile scf = dataManager.getCachedFile(repoName, repoId, Utils.pathJoin(dirPath, dirents.get(position).name));
             if (scf != null) {
                 final File cachedFile = dataManager.getLocalCachedFile(repoName, repoId, Utils.pathJoin(dirPath, dirents.get(position).name), scf.fileID);
@@ -228,6 +230,8 @@ public class GalleryViewPagerActivity extends Activity {
                                 if (dti.fileSize == 0)
                                     return;
                                 Log.d(DEBUG_TAG, "download progress " + (int) (dti.finished * 100 / dti.fileSize));
+                                progress.setVisibility(View.VISIBLE);
+                                photoView.setVisibility(View.GONE);
                             }
 
                             @Override
@@ -241,6 +245,8 @@ public class GalleryViewPagerActivity extends Activity {
                                     return;
 
                                 ImageLoader.getInstance().displayImage("file://" + dti.localFilePath, photoView);
+                                progress.setVisibility(View.GONE);
+                                photoView.setVisibility(View.VISIBLE);
                             }
 
                             @Override
@@ -259,9 +265,9 @@ public class GalleryViewPagerActivity extends Activity {
             }
 
             // Now just add PhotoView to ViewPager and return it
-            container.addView(photoView, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+            container.addView(contentView, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 
-            return photoView;
+            return contentView;
         }
 
         @Override
