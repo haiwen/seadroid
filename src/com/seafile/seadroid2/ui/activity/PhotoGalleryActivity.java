@@ -29,9 +29,7 @@ import android.util.Log;
 import android.view.*;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.LinearLayout;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
@@ -51,7 +49,6 @@ import uk.co.senab.photoview.PhotoView;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -62,7 +59,7 @@ import java.util.List;
  * Julia Zudikova
  */
 
-public class GalleryViewPagerActivity extends Activity {
+public class PhotoGalleryActivity extends Activity {
     public static final String DEBUG_TAG = "GalleryViewPagerActivity";
 
     private static final String ISLOCKED_ARG = "isLocked";
@@ -90,9 +87,9 @@ public class GalleryViewPagerActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_view_pager);
+        setContentView(R.layout.gallery_view_pager);
         mViewPager = (HackyViewPager) findViewById(R.id.gallery_view_pager);
-        setContentView(mViewPager);
+        //setContentView(mViewPager);
 
         repoName = getIntent().getStringExtra("repoName");
         repoID = getIntent().getStringExtra("repoId");
