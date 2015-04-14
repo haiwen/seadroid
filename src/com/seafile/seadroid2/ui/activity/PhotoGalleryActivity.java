@@ -29,6 +29,7 @@ import android.util.Log;
 import android.view.*;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.TextView;
 import com.google.common.collect.Lists;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
@@ -65,6 +66,9 @@ public class PhotoGalleryActivity extends Activity {
     private static final String ISLOCKED_ARG = "isLocked";
     private ViewPager mViewPager;
     private MenuItem menuLockItem;
+    private TextView mPageIndex;
+    private TextView mTotalPage;
+
     private Account account;
     private DataManager dataManager;
     private TransferService txService;
@@ -87,9 +91,35 @@ public class PhotoGalleryActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.gallery_view_pager);
+        setContentView(R.layout.photo_gallery_activity_layout);
+
+        if (getActionBar() != null)
+            getActionBar().hide();
+
         mViewPager = (HackyViewPager) findViewById(R.id.gallery_view_pager);
-        //setContentView(mViewPager);
+        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                if (dirents == null)
+                    return;
+
+                mPageIndex.setText(String.valueOf(position + 1));
+                mTotalPage.setText(String.valueOf(dirents.size()));
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+
+        mPageIndex = (TextView) findViewById(R.id.gallery_current_page_index);
+        mTotalPage = (TextView) findViewById(R.id.gallery_total_page_count);
 
         repoName = getIntent().getStringExtra("repoName");
         repoID = getIntent().getStringExtra("repoId");
@@ -172,7 +202,6 @@ public class PhotoGalleryActivity extends Activity {
             if (seafDirents.isEmpty())
                 return;
             mViewPager.setAdapter(new SamplePagerAdapter(seafDirents, repoName, repoID, dirPath, account));
-
         }
     }
 
@@ -204,6 +233,10 @@ public class PhotoGalleryActivity extends Activity {
             View contentView = inflater.inflate(R.layout.gallery_view_item, container, false);
             final PhotoView photoView = (PhotoView) contentView.findViewById(R.id.gallery_photoview);
             final ProgressWheel pw = (ProgressWheel) contentView.findViewById(R.id.pw_spinner);
+            /*final TextView pageIndex = (TextView) contentView.findViewById(R.id.gallery_item_current_page_index);
+            final TextView totalPage = (TextView) contentView.findViewById(R.id.gallery_item_total_page_count);
+            pageIndex.setText(String.valueOf(position + 1));
+            totalPage.setText(String.valueOf(dirents.size()));*/
             final SeafCachedFile scf = dataManager.getCachedFile(repoName, repoId, Utils.pathJoin(dirPath, dirents.get(position).name));
             if (scf != null) {
                 final File cachedFile = dataManager.getLocalCachedFile(repoName, repoId, Utils.pathJoin(dirPath, dirents.get(position).name), scf.fileID);

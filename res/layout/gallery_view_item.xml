@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
              xmlns:ProgressWheel="http://schemas.android.com/apk/res-auto"
              android:layout_width="fill_parent"
              android:layout_height="fill_parent"
              android:padding="1dip">
+
 
     <uk.co.senab.photoview.PhotoView
             android:id="@+id/gallery_photoview"
@@ -18,7 +19,7 @@
             android:layout_width="200dp"
             android:layout_height="200dp"
             android:visibility="gone"
-            android:layout_centerInParent="true"
+            android:layout_gravity="center"
             ProgressWheel:text="loading..."
             ProgressWheel:textColor="#222"
             ProgressWheel:textSize="14sp"
@@ -28,4 +29,52 @@
             ProgressWheel:barWidth="5dp"
             ProgressWheel:rimWidth="2dp" />
 
-</RelativeLayout>
+<!--
+    <LinearLayout
+            android:fitsSystemWindows="true"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_gravity="right|bottom"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="@dimen/index_text_margin_bottom"
+            android:gravity="bottom"
+            android:id="@+id/position_layout"
+            android:orientation="horizontal"
+            android:baselineAligned="true">
+
+        <TextView
+                android:id="@+id/gallery_item_current_page_index"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="1"
+                android:textColor="@color/white"
+                android:shadowColor="@color/dark_gray"
+                android:shadowDy="1"
+                android:shadowRadius="1"
+                android:textSize="35sp"/>
+
+        <TextView
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="/"
+                android:shadowColor="@color/dark_gray"
+                android:shadowDy="1"
+                android:shadowRadius="1"
+                android:textColor="@color/white"
+                android:textSize="24sp"/>
+
+        <TextView
+                android:id="@+id/gallery_item_total_page_count"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="9"
+                android:shadowColor="@color/dark_gray"
+                android:shadowDy="1"
+                android:shadowRadius="1"
+                android:textColor="@color/white"
+                android:textSize="24sp"/>
+
+    </LinearLayout>
+-->
+
+</FrameLayout>
