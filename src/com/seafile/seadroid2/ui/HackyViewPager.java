@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.ui.activity;
+package com.seafile.seadroid2.ui;
 
 import android.content.Context;
 import android.support.v4.view.ViewPager;

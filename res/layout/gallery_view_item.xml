@@ -14,7 +14,7 @@
             android:adjustViewBounds="false"
             />
 
-    <com.todddavies.components.progressbar.ProgressWheel
+    <com.seafile.seadroid2.ui.ProgressWheel
             android:id="@+id/pw_spinner"
             android:layout_width="200dp"
             android:layout_height="200dp"

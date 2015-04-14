@@ -393,7 +393,7 @@ public class ReposFragment extends SherlockListFragment {
                     mActivity.setUpButtonTitle(dirent.name);
                 } else {
                     if (Utils.isViewableImage(dirent.name)) {
-                        browsePhotoInGallery(nav.getDirPath());
+                        browsePhotosInGallery(nav.getDirPath());
                         return;
                     }
                     mActivity.onFileSelected(dirent);
@@ -408,7 +408,7 @@ public class ReposFragment extends SherlockListFragment {
         }
     }
 
-    public void browsePhotoInGallery(String dirPath) {
+    public void browsePhotosInGallery(String dirPath) {
         Intent intent = new Intent(mActivity, GalleryActivity.class);
         intent.putExtra("repoName", getNavContext().getRepoName());
         intent.putExtra("repoId", getNavContext().getRepoID());
