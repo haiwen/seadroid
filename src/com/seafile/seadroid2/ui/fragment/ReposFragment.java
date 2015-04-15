@@ -402,7 +402,7 @@ public class ReposFragment extends SherlockListFragment {
                 return;
         } else {
             nav.setRepoID(repo.id);
-                nav.setRepoName(repo.getName());
+            nav.setRepoName(repo.getName());
             nav.setDir("/", repo.root);
             refreshView();
         }

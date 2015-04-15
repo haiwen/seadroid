@@ -21,6 +21,7 @@ import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.ui.HackyViewPager;
 import com.seafile.seadroid2.ui.ToastUtils;
+import com.seafile.seadroid2.ui.ZoomOutPageTransformer;
 import com.seafile.seadroid2.ui.adapter.GalleryAdapter;
 import com.seafile.seadroid2.util.Utils;
 
@@ -69,6 +70,8 @@ public class GalleryActivity extends Activity {
             getActionBar().hide();
 
         mViewPager = (HackyViewPager) findViewById(R.id.gallery_pager);
+        mViewPager.setPageTransformer(true, new ZoomOutPageTransformer());
+
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -76,7 +79,6 @@ public class GalleryActivity extends Activity {
                     return;
 
                 mPageIndex.setText(String.valueOf(position + 1));
-                mPageCount.setText(String.valueOf(mDirents.size()));
                 mPageName.setText(mDirents.get(position).name);
             }
 
