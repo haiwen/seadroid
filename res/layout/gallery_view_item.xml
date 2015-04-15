@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:ProgressWheel="http://schemas.android.com/apk/res-auto"
              android:layout_width="fill_parent"
              android:layout_height="fill_parent"
              android:padding="1dip">
@@ -14,19 +13,34 @@
             android:adjustViewBounds="false"
             />
 
-    <com.seafile.seadroid2.ui.ProgressWheel
-            android:id="@+id/pw_spinner"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:visibility="gone"
-            android:layout_gravity="center"
-            ProgressWheel:text="loading..."
-            ProgressWheel:textColor="#222"
-            ProgressWheel:textSize="14sp"
-            ProgressWheel:rimColor="@color/tv_subtitle_color"
-            ProgressWheel:barLength="60dp"
-            ProgressWheel:barColor="@color/tv_title_color"
-            ProgressWheel:barWidth="5dp"
-            ProgressWheel:rimWidth="2dp" />
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center">
+
+        <TextView
+                android:id="@+id/gallery_progress_text"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:paddingBottom="4dp"
+                android:lines="1"
+                android:visibility="gone"
+                android:singleLine="true"
+                android:textColor="@color/white"
+                android:textSize="12dp" />
+
+        <ProgressBar
+                android:id="@+id/gallery_progress_bar"
+                android:layout_width="fill_parent"
+                android:layout_height="6dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:indeterminate="true"
+                android:visibility="gone"
+                style="@android:style/Widget.ProgressBar.Horizontal" />
+
+    </LinearLayout>
 
 </FrameLayout>

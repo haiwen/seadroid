@@ -5,6 +5,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.data.DataManager;
@@ -60,7 +62,8 @@ public class GalleryAdapter extends PagerAdapter {
     public View instantiateItem(ViewGroup container, int position) {
         View contentView = inflater.inflate(R.layout.gallery_view_item, container, false);
         final PhotoView photoView = (PhotoView) contentView.findViewById(R.id.gallery_photoview);
-        final ProgressWheel pw = (ProgressWheel) contentView.findViewById(R.id.pw_spinner);
+        final TextView progressText = (TextView) contentView.findViewById(R.id.gallery_progress_text);
+        final ProgressBar progressBar = (ProgressBar) contentView.findViewById(R.id.gallery_progress_bar);
         final SeafCachedFile scf = dataMgr.getCachedFile(repoName, repoId, Utils.pathJoin(dirPath, dirents.get(position).name));
         if (scf != null) {
             final File cachedFile = dataMgr.getLocalCachedFile(repoName, repoId, Utils.pathJoin(dirPath, dirents.get(position).name), scf.fileID);
@@ -87,9 +90,12 @@ public class GalleryAdapter extends PagerAdapter {
 
                             if (dti.fileSize == 0)
                                 return;
-                            Log.d(DEBUG_TAG, "download progress " + (int) (dti.finished * 360 / dti.fileSize));
-                            pw.setProgress((int) (dti.finished * 360 / dti.fileSize));
-                            pw.setVisibility(View.VISIBLE);
+                            //Log.d(DEBUG_TAG, "download progress " + (int) (dti.finished * 360 / dti.fileSize));
+                            progressText.setText(Utils.readableFileSize(dti.finished) + "/" + Utils.readableFileSize(dti.fileSize));
+                            progressText.setVisibility(View.VISIBLE);
+                            progressBar.setVisibility(View.VISIBLE);
+                            progressBar.setIndeterminate(false);
+                            progressBar.setProgress((int) (dti.finished * 100 / dti.fileSize));
                         }
 
                         @Override
@@ -102,8 +108,10 @@ public class GalleryAdapter extends PagerAdapter {
                             if (dti == null)
                                 return;
 
-                            pw.setProgress(360);
-                            pw.setVisibility(View.GONE);
+                            progressText.setText(Utils.readableFileSize(dti.finished) + "/" + Utils.readableFileSize(dti.fileSize));
+                            progressText.setVisibility(View.GONE);
+                            progressBar.setVisibility(View.GONE);
+                            progressBar.setProgress(100);
                             ImageLoader.getInstance().displayImage("file://" + dti.localFilePath, photoView);
                         }
 
@@ -114,7 +122,8 @@ public class GalleryAdapter extends PagerAdapter {
                             DownloadTaskInfo dti = mActivity.getTxService().getDownloadTaskInfo(taskID);
                             if (dti == null)
                                 return;
-
+                            progressText.setVisibility(View.GONE);
+                            progressBar.setVisibility(View.GONE);
                             Log.e(DEBUG_TAG, "failed download image " + dti.pathInRepo);
                         }
                     });
