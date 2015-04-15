@@ -43,6 +43,7 @@ public class GalleryActivity extends Activity {
     private String repoName;
     private String repoID;
     private String dirPath;
+    private String fileName;
     private ArrayList<SeafDirent> mDirents = Lists.newArrayList();
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
@@ -91,9 +92,10 @@ public class GalleryActivity extends Activity {
         repoID = getIntent().getStringExtra("repoId");
         dirPath = getIntent().getStringExtra("path");
         mAccount = getIntent().getParcelableExtra("account");
+        fileName = getIntent().getStringExtra("fileName");
         dataMgr = new DataManager(mAccount);
 
-        requestPhotoInfos(repoName, repoID, dirPath);
+        requestPhotoInfos(repoName, repoID, dirPath, fileName);
 
         // bind transfer service
         Intent bIntent = new Intent(this, TransferService.class);
@@ -101,7 +103,7 @@ public class GalleryActivity extends Activity {
         //Log.d(DEBUG_TAG, "try bind TransferService");
     }
 
-    private void requestPhotoInfos(String repoName, String repoID, String dirPath) {
+    private void requestPhotoInfos(String repoName, String repoID, String dirPath, String fileName) {
         if (!Utils.isNetworkOn()) {
             ToastUtils.show(this, R.string.network_down);
             // display cached photos in gallery
@@ -118,7 +120,16 @@ public class GalleryActivity extends Activity {
             mViewPager.setAdapter(new GalleryAdapter(GalleryActivity.this,
                     dataMgr, mDirents, repoName, repoID, dirPath));
 
+            for (int i = 0; i< mDirents.size(); i++) {
+                if (mDirents.get(i).name.equals(fileName)) {
+                    mViewPager.setCurrentItem(i);
+                    mPageIndex.setText(String.valueOf(i + 1));
+                    mPageCount.setText(String.valueOf(mDirents.size()));
+                    break;
+                }
+            }
             return;
+
         }
 
         ConcurrentAsyncTask.execute(new DownloadPicsByPathTask(), repoName, repoID, dirPath);
@@ -169,6 +180,17 @@ public class GalleryActivity extends Activity {
                 return;
             mViewPager.setAdapter(new GalleryAdapter(GalleryActivity.this,
                     dataMgr, seafDirents, repoName, repoID, dirPath));
+            for (int i = 0; i< mDirents.size(); i++) {
+                if (mDirents.get(i).name.equals(fileName)) {
+                    Log.d(DEBUG_TAG, "current index " + i);
+                    Log.d(DEBUG_TAG, "current file name " + fileName);
+                    mViewPager.setCurrentItem(i);
+                    mPageIndex.setText(String.valueOf(i + 1));
+                    mPageCount.setText(String.valueOf(mDirents.size()));
+                    break;
+                }
+            }
+
         }
     }
 
