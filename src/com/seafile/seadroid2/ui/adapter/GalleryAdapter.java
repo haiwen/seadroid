@@ -67,7 +67,7 @@ public class GalleryAdapter extends PagerAdapter {
     }
 
     @Override
-    public View instantiateItem(ViewGroup container, int position) {
+    public View instantiateItem(ViewGroup container, final int position) {
         View contentView = inflater.inflate(R.layout.gallery_view_item, container, false);
         final PhotoView photoView = (PhotoView) contentView.findViewById(R.id.gallery_photoview);
         final TextView progressText = (TextView) contentView.findViewById(R.id.gallery_progress_text);
@@ -98,7 +98,6 @@ public class GalleryAdapter extends PagerAdapter {
 
                             if (dti.fileSize == 0)
                                 return;
-                            //Log.d(DEBUG_TAG, "download progress " + (int) (dti.finished * 360 / dti.fileSize));
                             progressText.setText(Utils.readableFileSize(dti.finished) + "/" + Utils.readableFileSize(dti.fileSize));
                             progressText.setVisibility(View.VISIBLE);
                             progressBar.setVisibility(View.VISIBLE);
@@ -120,6 +119,7 @@ public class GalleryAdapter extends PagerAdapter {
                             progressText.setVisibility(View.GONE);
                             progressBar.setVisibility(View.GONE);
                             progressBar.setProgress(100);
+                            Log.d(DEBUG_TAG, "UIL display " + position + " " + dti.localFilePath);
                             ImageLoader.getInstance().displayImage("file://" + dti.localFilePath, photoView);
                         }
 
@@ -141,7 +141,6 @@ public class GalleryAdapter extends PagerAdapter {
 
         }
 
-        // Now just add PhotoView to ViewPager and return it
         container.addView(contentView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
         return contentView;

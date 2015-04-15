@@ -151,7 +151,7 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
             spaceAvailablePref.setSummary(spaceUsed);
         }
 
-        //actInfoPref.setSummary(identifier);
+        actInfoPref.setSummary(identifier);
         signOutPref = findPreference(SettingsManager.SETTINGS_ACCOUNT_SIGN_OUT_KEY);
         signOutPref.setOnPreferenceClickListener(this);
 
