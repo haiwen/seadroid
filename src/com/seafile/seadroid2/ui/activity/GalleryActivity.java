@@ -71,6 +71,7 @@ public class GalleryActivity extends Activity {
 
         mViewPager = (HackyViewPager) findViewById(R.id.gallery_pager);
         mViewPager.setPageTransformer(true, new ZoomOutPageTransformer());
+        mViewPager.setOffscreenPageLimit(1);
 
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override

@@ -29,7 +29,8 @@ import java.util.ArrayList;
 public class GalleryAdapter extends PagerAdapter {
     public static final String DEBUG_TAG = "GalleryAdapter";
 
-    private int taskID = 1000000000;
+    /** task id must be unique among different activity lifecycle, otherwise can`t track the downloadTask */
+    private int taskID = (int) System.currentTimeMillis();
     private GalleryActivity mActivity;
     private DataManager dataMgr;
     private ArrayList<SeafDirent> dirents;
@@ -119,7 +120,6 @@ public class GalleryAdapter extends PagerAdapter {
                             progressText.setVisibility(View.GONE);
                             progressBar.setVisibility(View.GONE);
                             progressBar.setProgress(100);
-                            Log.d(DEBUG_TAG, "UIL display " + position + " " + dti.localFilePath);
                             ImageLoader.getInstance().displayImage("file://" + dti.localFilePath, photoView);
                         }
 
@@ -136,7 +136,7 @@ public class GalleryAdapter extends PagerAdapter {
                         }
                     });
 
-            // must use this method in order to be consistent with other modules
+            // must use this method to keep consistent with other modules
             mActivity.getTxService().addDownloadTask(dt);
 
         }
