@@ -25,7 +25,6 @@
         <TextView
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
-                android:text="1"
                 android:id="@+id/gallery_page_index"
                 android:textColor="@color/white"
                 android:shadowColor="@color/dark_gray"
@@ -46,13 +45,35 @@
         <TextView
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
-                android:text="9"
                 android:id="@+id/gallery_page_count"
                 android:shadowColor="@color/dark_gray"
                 android:shadowDy="1"
                 android:shadowRadius="1"
                 android:textColor="@color/white"
                 android:textSize="24sp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+            android:fitsSystemWindows="true"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_gravity="left|bottom"
+            android:layout_marginLeft="8dp"
+            android:layout_marginBottom="@dimen/index_text_margin_bottom"
+            android:gravity="bottom"
+            android:orientation="horizontal"
+            android:baselineAligned="true">
+
+        <TextView
+                android:id="@+id/gallery_page_name"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:shadowColor="@color/dark_gray"
+                android:shadowDy="1"
+                android:shadowRadius="1"
+                android:textColor="@color/white"
+                android:textSize="14sp"/>
 
     </LinearLayout>
 

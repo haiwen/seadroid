@@ -37,6 +37,7 @@ public class GalleryActivity extends Activity {
     private ViewPager mViewPager;
     private TextView mPageIndex;
     private TextView mPageCount;
+    private TextView mPageName;
     private TransferService txService;
     private DataManager dataMgr;
     private Account mAccount;
@@ -76,6 +77,7 @@ public class GalleryActivity extends Activity {
 
                 mPageIndex.setText(String.valueOf(position + 1));
                 mPageCount.setText(String.valueOf(mDirents.size()));
+                mPageName.setText(mDirents.get(position).name);
             }
 
             @Override
@@ -87,6 +89,7 @@ public class GalleryActivity extends Activity {
 
         mPageIndex = (TextView) findViewById(R.id.gallery_page_index);
         mPageCount = (TextView) findViewById(R.id.gallery_page_count);
+        mPageName = (TextView) findViewById(R.id.gallery_page_name);
 
         repoName = getIntent().getStringExtra("repoName");
         repoID = getIntent().getStringExtra("repoId");
@@ -125,6 +128,7 @@ public class GalleryActivity extends Activity {
                     mViewPager.setCurrentItem(i);
                     mPageIndex.setText(String.valueOf(i + 1));
                     mPageCount.setText(String.valueOf(mDirents.size()));
+                    mPageName.setText(fileName);
                     break;
                 }
             }
@@ -187,6 +191,7 @@ public class GalleryActivity extends Activity {
                     mViewPager.setCurrentItem(i);
                     mPageIndex.setText(String.valueOf(i + 1));
                     mPageCount.setText(String.valueOf(mDirents.size()));
+                    mPageName.setText(fileName);
                     break;
                 }
             }
