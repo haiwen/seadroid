@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.data.DataManager;
@@ -15,7 +16,6 @@ import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.transfer.DownloadStateListener;
 import com.seafile.seadroid2.transfer.DownloadTask;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
-import com.seafile.seadroid2.ui.ProgressWheel;
 import com.seafile.seadroid2.ui.activity.GalleryActivity;
 import com.seafile.seadroid2.util.Utils;
 import uk.co.senab.photoview.PhotoView;
@@ -53,6 +53,14 @@ public class GalleryAdapter extends PagerAdapter {
         inflater = context.getLayoutInflater();
     }
 
+    DisplayImageOptions options = new DisplayImageOptions.Builder()
+            .showImageOnLoading(R.drawable.gallery_loading)
+            .showImageForEmptyUri(R.drawable.gallery_loading)
+            .showImageOnFail(R.drawable.gallery_loading)
+            .cacheOnDisk(true)
+            .considerExifParams(true)
+            .build();
+
     @Override
     public int getCount() {
         return dirents.size();
@@ -68,7 +76,7 @@ public class GalleryAdapter extends PagerAdapter {
         if (scf != null) {
             final File cachedFile = dataMgr.getLocalCachedFile(repoName, repoId, Utils.pathJoin(dirPath, dirents.get(position).name), scf.fileID);
             if (cachedFile != null) {
-                ImageLoader.getInstance().displayImage("file://" + cachedFile.getAbsolutePath(), photoView);
+                ImageLoader.getInstance().displayImage("file://" + cachedFile.getAbsolutePath(), photoView, options);
             }
         } else {
 
