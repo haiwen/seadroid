@@ -347,6 +347,14 @@ public class SettingsFragment extends CustomPreferenceFragment {
             }
         });
 
+        // Other
+        findPreference(SettingsManager.SETTINGS_OTHER_CLICK_TO_CLOSE_GALLERY).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                return true;
+            }
+        });
+
         LocalBroadcastManager
         .getInstance(getActivity().getApplicationContext())
         .registerReceiver(transferReceiver,
