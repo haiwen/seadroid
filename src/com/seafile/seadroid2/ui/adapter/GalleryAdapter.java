@@ -1,24 +1,29 @@
 package com.seafile.seadroid2.ui.adapter;
 
+import android.graphics.drawable.BitmapDrawable;
 import android.support.v4.view.PagerAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafCachedFile;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.transfer.DownloadStateListener;
 import com.seafile.seadroid2.transfer.DownloadTask;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
+import com.seafile.seadroid2.ui.AnimationRect;
 import com.seafile.seadroid2.ui.activity.GalleryActivity;
 import com.seafile.seadroid2.util.Utils;
 import uk.co.senab.photoview.PhotoView;
+import uk.co.senab.photoview.PhotoViewAttacher;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -58,6 +63,7 @@ public class GalleryAdapter extends PagerAdapter {
             .showImageOnLoading(R.drawable.gallery_loading)
             .showImageForEmptyUri(R.drawable.gallery_loading)
             .showImageOnFail(R.drawable.gallery_loading)
+            .cacheInMemory(true)
             .cacheOnDisk(true)
             .considerExifParams(true)
             .build();
@@ -73,6 +79,7 @@ public class GalleryAdapter extends PagerAdapter {
         final PhotoView photoView = (PhotoView) contentView.findViewById(R.id.gallery_photoview);
         final TextView progressText = (TextView) contentView.findViewById(R.id.gallery_progress_text);
         final ProgressBar progressBar = (ProgressBar) contentView.findViewById(R.id.gallery_progress_bar);
+        final ImageView animationView = (ImageView) contentView.findViewById(R.id.gallery_animation);
         final SeafCachedFile scf = dataMgr.getCachedFile(repoName, repoId, Utils.pathJoin(dirPath, dirents.get(position).name));
         if (scf != null) {
             final File cachedFile = dataMgr.getLocalCachedFile(repoName, repoId, Utils.pathJoin(dirPath, dirents.get(position).name), scf.fileID);
@@ -139,6 +146,25 @@ public class GalleryAdapter extends PagerAdapter {
             // must use this method to keep consistent with other modules
             mActivity.getTxService().addDownloadTask(dt);
 
+        }
+        final AnimationRect rect = AnimationRect.buildFromImageView(animationView);
+        if (SettingsManager.instance().isClickToCloseGalleryEnabled()) {
+            photoView.setOnPhotoTapListener(new PhotoViewAttacher.OnPhotoTapListener() {
+                @Override
+                public void onPhotoTap(View view, float x, float y) {
+
+                    if (rect == null
+                            || photoView == null
+                            || (!(photoView.getDrawable() instanceof BitmapDrawable))) {
+                        mActivity.finish();
+                        return;
+                    }
+
+                    mActivity.animateClose(photoView, rect);
+
+                }
+
+            });
         }
 
         container.addView(contentView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);

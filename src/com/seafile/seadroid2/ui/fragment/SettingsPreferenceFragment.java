@@ -77,6 +77,7 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
     private Preference authorInfo;
     private Preference cacheSizePrf;
     private Preference clearCache;
+    private CheckBoxPreference clickToCloseGalleryPref;
     private SettingsActivity mActivity;
     private Intent cameraUploadIntent;
     private boolean isUploadEnabled;
@@ -227,6 +228,15 @@ public class SettingsPreferenceFragment extends CustomPreferenceFragment impleme
         // Clear cache
         clearCache = findPreference(SettingsManager.SETTINGS_CLEAR_CACHE_KEY);
         clearCache.setOnPreferenceClickListener(this);
+
+        // Other
+        clickToCloseGalleryPref = (CheckBoxPreference) findPreference(SettingsManager.SETTINGS_OTHER_CLICK_TO_CLOSE_GALLERY);
+        clickToCloseGalleryPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                return true;
+            }
+        });
 
         LocalBroadcastManager
         .getInstance(getActivity().getApplicationContext())

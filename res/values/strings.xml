@@ -326,6 +326,10 @@
     <string name="settings_clear_cache_success">Cache cleared successfully</string>
     <string name="settings_clear_cache_failed">Cache cleared failed</string>
     <string name="settings_cache_empty">0 KB</string>
+    <string name="settings_other_title">OTHER</string>
+    <string name="settings_click_to_close_gallery_title">Click to close gallery</string>
+    <string name="settings_click_to_close_gallery_on">Close gallery by single tap</string>
+    <string name="settings_click_to_close_gallery_off">off</string>
 
     <!-- pull to refresh -->
     <string name="pull_to_refresh_pull_label">Pull to refresh&#8230;</string>

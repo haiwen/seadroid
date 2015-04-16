@@ -1,15 +1,22 @@
 package com.seafile.seadroid2.ui.activity;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Point;
+import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.View;
+import android.view.animation.DecelerateInterpolator;
+import android.widget.ImageView;
 import android.widget.TextView;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
@@ -19,11 +26,13 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.transfer.TransferService;
+import com.seafile.seadroid2.ui.AnimationRect;
 import com.seafile.seadroid2.ui.HackyViewPager;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.ZoomOutPageTransformer;
 import com.seafile.seadroid2.ui.adapter.GalleryAdapter;
 import com.seafile.seadroid2.util.Utils;
+import uk.co.senab.photoview.PhotoView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +45,7 @@ public class GalleryActivity extends Activity {
     public static final String DEBUG_TAG = "GalleryActivity";
 
     private ViewPager mViewPager;
+    private ImageView animationView;
     private TextView mPageIndex;
     private TextView mPageCount;
     private TextView mPageName;
@@ -93,6 +103,7 @@ public class GalleryActivity extends Activity {
         mPageIndex = (TextView) findViewById(R.id.gallery_page_index);
         mPageCount = (TextView) findViewById(R.id.gallery_page_count);
         mPageName = (TextView) findViewById(R.id.gallery_page_name);
+        animationView = (ImageView) findViewById(R.id.gallery_animation);
 
         repoName = getIntent().getStringExtra("repoName");
         repoID = getIntent().getStringExtra("repoId");
@@ -140,6 +151,56 @@ public class GalleryActivity extends Activity {
         }
 
         ConcurrentAsyncTask.execute(new DownloadPicsByPathTask(), repoName, repoID, dirPath);
+    }
+
+    public void animateClose(PhotoView imageView, AnimationRect animationRect) {
+        mPageIndex.setVisibility(View.INVISIBLE);
+        animationView.setImageDrawable(imageView.getDrawable());
+
+        mViewPager.setVisibility(View.INVISIBLE);
+
+        final Rect startBounds = new Rect(animationRect.scaledBitmapRect);
+        final Rect finalBounds = new Rect();
+        final Point globalOffset = new Point();
+
+        animationView.getGlobalVisibleRect(finalBounds, globalOffset);
+
+        startBounds.offset(-globalOffset.x, -globalOffset.y);
+        finalBounds.offset(-globalOffset.x, -globalOffset.y);
+
+        float startScale;
+        if ((float) finalBounds.width() / finalBounds.height()
+                > (float) startBounds.width() / startBounds.height()) {
+            // Extend start bounds horizontally
+            startScale = (float) startBounds.height() / finalBounds.height();
+            float startWidth = startScale * finalBounds.width();
+            float deltaWidth = (startWidth - startBounds.width()) / 2;
+            startBounds.left -= deltaWidth;
+            startBounds.right += deltaWidth;
+        } else {
+            // Extend start bounds vertically
+            startScale = (float) startBounds.width() / finalBounds.width();
+            float startHeight = startScale * finalBounds.height();
+            float deltaHeight = (startHeight - startBounds.height()) / 2;
+            startBounds.top -= deltaHeight;
+            startBounds.bottom += deltaHeight;
+        }
+
+        animationView.setPivotX(0f);
+        animationView.setPivotY(0f);
+
+        final float startScaleFinal = startScale;
+
+        animationView.animate().setInterpolator(new DecelerateInterpolator()).x(startBounds.left)
+                .y(startBounds.top).scaleY(startScaleFinal).scaleX(startScaleFinal).setDuration(300)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        GalleryActivity.this.finish();
+                        overridePendingTransition(0, 0);
+                    }
+                }).start();
     }
 
     private class DownloadPicsByPathTask extends AsyncTask<String, Void, ArrayList<SeafDirent>> {

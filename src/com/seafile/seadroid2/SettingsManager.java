@@ -66,6 +66,9 @@ public final class SettingsManager {
     public static final String SETTINGS_CACHE_SIZE_KEY = "settings_cache_info_key";
     public static final String SETTINGS_CLEAR_CACHE_KEY = "settings_clear_cache_key";
 
+    // Others
+    public static final String SETTINGS_OTHER_CLICK_TO_CLOSE_GALLERY = "settings_click_to_close_gallery_key";
+
     public static long lock_timestamp = 0;
     public static final long LOCK_EXPIRATION_MSECS = 5 * 60 * 1000;
 
@@ -189,6 +192,14 @@ public final class SettingsManager {
 
     public boolean isCustomScanDir() {
         return settingsSharedPref.getBoolean(CAMERA_UPLOAD_CUSTOM_DIRECTORIES_KEY, false);
+    }
+
+    public void saveClickToCloseGallery(boolean enable) {
+        settingsSharedPref.edit().putBoolean(SETTINGS_OTHER_CLICK_TO_CLOSE_GALLERY, enable).commit();
+    }
+
+    public boolean isClickToCloseGalleryEnabled() {
+        return settingsSharedPref.getBoolean(SETTINGS_OTHER_CLICK_TO_CLOSE_GALLERY, false);
     }
 
     public String getCameraUploadRepoId() {
