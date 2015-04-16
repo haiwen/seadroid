@@ -116,11 +116,6 @@ public final class SettingsManager {
         lock_timestamp = System.currentTimeMillis();
     }
 
-    public void saveCameraUploadRepoName(String repoName) {
-        editor.putString(SHARED_PREF_CAMERA_UPLOAD_REPO_NAME, repoName);
-        editor.commit();
-    }
-
     public String getCameraUploadRepoName() {
         return sharedPref.getString(SHARED_PREF_CAMERA_UPLOAD_REPO_NAME, null);
     }
@@ -156,6 +151,9 @@ public final class SettingsManager {
         return true;
     }
 
+    public void saveCameraUploadEnabled(boolean isEnabled) {
+        settingsSharedPref.edit().putBoolean(CAMERA_UPLOAD_SWITCH_KEY, isEnabled).commit();
+    }
 
     public boolean isCameraUploadEnabled() {
         return settingsSharedPref.getBoolean(CAMERA_UPLOAD_SWITCH_KEY, false);
