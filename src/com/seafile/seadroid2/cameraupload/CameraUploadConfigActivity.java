@@ -1,6 +1,5 @@
 package com.seafile.seadroid2.cameraupload;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -8,7 +7,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
-import android.util.Log;
 import android.view.View;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.google.common.collect.Lists;
@@ -17,7 +15,7 @@ import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity;
-import com.seafile.seadroid2.ui.fragment.SettingsPreferenceFragment;
+import com.seafile.seadroid2.ui.fragment.SettingsFragment;
 import com.viewpagerindicator.LinePageIndicator;
 
 import java.util.HashMap;
@@ -57,9 +55,9 @@ public class CameraUploadConfigActivity extends SherlockFragmentActivity {
         if (getSupportActionBar() != null)
             getSupportActionBar().hide();
 
-        isChooseBothPages = getIntent().getBooleanExtra(SettingsPreferenceFragment.CAMERA_UPLOAD_BOTH_PAGES, false);
-        isChooseLibPage = getIntent().getBooleanExtra(SettingsPreferenceFragment.CAMERA_UPLOAD_REMOTE_LIBRARY, false);
-        isChooseDirPage = getIntent().getBooleanExtra(SettingsPreferenceFragment.CAMERA_UPLOAD_LOCAL_DIRECTORIES, false);
+        isChooseBothPages = getIntent().getBooleanExtra(SettingsFragment.CAMERA_UPLOAD_BOTH_PAGES, false);
+        isChooseLibPage = getIntent().getBooleanExtra(SettingsFragment.CAMERA_UPLOAD_REMOTE_LIBRARY, false);
+        isChooseDirPage = getIntent().getBooleanExtra(SettingsFragment.CAMERA_UPLOAD_LOCAL_DIRECTORIES, false);
 
         mViewPager = (ViewPager) findViewById(R.id.cuc_pager);
 

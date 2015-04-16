@@ -48,8 +48,8 @@ import org.json.JSONException;
 import java.io.IOException;
 import java.util.Map;
 
-public class SettingsPreferenceFragment extends CustomPreferenceFragment {
-    private static final String DEBUG_TAG = "SettingsPreferenceFragment";
+public class SettingsFragment extends CustomPreferenceFragment {
+    private static final String DEBUG_TAG = "SettingsFragment";
 
     public static final String CAMERA_UPLOAD_BOTH_PAGES = "com.seafile.seadroid2.camera.upload";
     public static final String CAMERA_UPLOAD_REMOTE_LIBRARY = "com.seafile.seadroid2.camera.upload.library";
