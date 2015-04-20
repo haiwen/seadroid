@@ -78,7 +78,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
-                    android:divider="@drawable/lv_divider_inset"
+                    android:divider="@drawable/lv_divider_inset_small"
                     android:dividerHeight="@dimen/lv_divider_height"
                     android:drawSelectorOnTop="true"/>
         </LinearLayout>
