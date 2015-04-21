@@ -1,6 +1,8 @@
 package com.seafile.seadroid2.ui.fragment;
 
 import java.net.HttpURLConnection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -313,9 +315,26 @@ public class ReposFragment extends SherlockListFragment {
         return false;
     }
 
+    private class RepoMTimeComparator implements Comparator<SeafRepo> {
+
+        @Override
+        public int compare(SeafRepo itemA, SeafRepo itemB) {
+            return (int) (itemB.mtime - itemA.mtime);
+        }
+    }
+
+    private class DirentMTimeComparator implements Comparator<SeafDirent> {
+
+        @Override
+        public int compare(SeafDirent itemA, SeafDirent itemB) {
+            return (int) (itemB.mtime - itemA.mtime);
+        }
+    }
+
     private void updateAdapterWithRepos(List<SeafRepo> repos) {
         adapter.clear();
         if (repos.size() > 0) {
+            Collections.sort(repos, new RepoMTimeComparator());
             addReposToAdapter(repos);
             adapter.notifyChanged();
             mPullRefreshListView.setVisibility(View.VISIBLE);
@@ -330,6 +349,7 @@ public class ReposFragment extends SherlockListFragment {
     private void updateAdapterWithDirents(final List<SeafDirent> dirents) {
         adapter.clear();
         if (dirents.size() > 0) {
+            Collections.sort(dirents, new DirentMTimeComparator());
             for (SeafDirent dirent : dirents) {
                 adapter.add(dirent);
             }
