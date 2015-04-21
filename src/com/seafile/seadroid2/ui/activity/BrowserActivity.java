@@ -93,7 +93,6 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final String CHOOSE_APP_DIALOG_FRAGMENT_TAG = "choose_app_fragment";
     public static final String PICK_FILE_DIALOG_FRAGMENT_TAG = "pick_file_fragment";
 
-    private static ArrayList<ServerInfo> serverInfoList = Lists.newArrayList();
     private static final int[] ICONS = new int[] {
         R.drawable.tab_library, R.drawable.tab_starred,
         R.drawable.tab_activity
@@ -302,7 +301,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
 
     private void fetchServerInfo() {
-        if (isServerProEdition())
+        if (serverProEdition())
             return;
         else {
             // hide Activity tab and search menu
@@ -354,27 +353,24 @@ public class BrowserActivity extends SherlockFragmentActivity
             }
 
             serverInfo.setUrl(account.getServer());
-            saveServerProEdition(serverInfo);
+            saveServerInfo(serverInfo);
         }
     }
 
-    private void saveServerProEdition(ServerInfo serverInfo) {
-        if (!serverInfoList.contains(serverInfo))
-            serverInfoList.add(serverInfo);
+    private void saveServerInfo(ServerInfo serverInfo) {
+        ServerInfoDBHelper.getInstance().saveServerInfo(serverInfo);
     }
 
-    private boolean isServerProEdition() {
-        if (serverInfoList.isEmpty()
-                || account == null)
-            return false;
+    private ServerInfo getServerInfo() {
+        return ServerInfoDBHelper.getInstance().getServerInfo(account.getServer());
+    }
 
-        for (ServerInfo si : serverInfoList) {
-            if (si.getUrl().equals(account.getServer()))
-                return si.isProEdition();
-        }
+    private boolean serverProEdition() {
+        ServerInfo serverInfo = getServerInfo();
+        if (serverInfo != null)
+            return serverInfo.isProEdition();
 
         return false;
-
     }
 
     class SeafileTabsAdapter extends FragmentPagerAdapter implements
@@ -712,7 +708,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             menuSettings.setVisible(true);
         }
 
-        if (!isServerProEdition())
+        if (!serverProEdition())
             menuSearch.setVisible(false);
 
         return true;

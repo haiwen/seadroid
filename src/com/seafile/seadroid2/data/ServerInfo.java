@@ -14,12 +14,26 @@ public class ServerInfo {
     private String features;
     private boolean isProEdition;
 
+    public ServerInfo(String url, String version, String features) {
+        this.url = url;
+        this.version = version;
+        this.features = features;
+    }
+
     public String getVersion() {
         return version;
     }
 
+    public String getFeatures() {
+        return features;
+    }
+
     public boolean isProEdition() {
         return isProEdition;
+    }
+
+    public void setProEdition(boolean isProEdition) {
+        this.isProEdition = isProEdition;
     }
 
     public String getUrl() {
@@ -30,15 +44,14 @@ public class ServerInfo {
         this.url = url;
     }
 
-    static ServerInfo fromJson(JSONObject obj) throws JSONException {
-        ServerInfo serverInfo = new ServerInfo();
-        serverInfo.version = obj.optString("version");
-        serverInfo.features = obj.optString("features");
+    public static ServerInfo fromJson(JSONObject obj) throws JSONException {
+        String version = obj.optString("version");
+        String features = obj.optString("features");
+        String url = "not applicable";
+        ServerInfo serverInfo = new ServerInfo(url, version, features);
         /** raw data goes like this, ["seafile-basic","seafile-pro","office-preview"] */
-        if (serverInfo.features.contains("seafile-pro"))
-            serverInfo.isProEdition = true;
+        serverInfo.setProEdition(features.contains("seafile-pro"));
 
-        serverInfo.url = "not applicable";
         return serverInfo;
     }
 
