@@ -18,12 +18,15 @@ import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.actionbarsherlock.app.SherlockActivity;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.SeafCachedFile;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.ui.AnimationRect;
@@ -34,14 +37,17 @@ import com.seafile.seadroid2.ui.adapter.GalleryAdapter;
 import com.seafile.seadroid2.util.Utils;
 import uk.co.senab.photoview.PhotoView;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A gallery of images with sliding, zooming, multi-touch and single touch support
  * Local cached images will be shown directly, while cloud images will be asynchronously downloaded first
  */
-public class GalleryActivity extends Activity {
+public class GalleryActivity extends SherlockActivity {
     public static final String DEBUG_TAG = "GalleryActivity";
 
     private ViewPager mViewPager;
@@ -56,7 +62,8 @@ public class GalleryActivity extends Activity {
     private String repoID;
     private String dirPath;
     private String fileName;
-    private ArrayList<SeafDirent> mDirents = Lists.newArrayList();
+    private ArrayList<String> mThumbnailLinks = Lists.newArrayList();
+    private HashMap<String, String> mThumbnailFileNameMap = Maps.newHashMap();
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
@@ -76,8 +83,8 @@ public class GalleryActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gallery_activity_layout);
 
-        if (getActionBar() != null)
-            getActionBar().hide();
+        if (getSupportActionBar() != null)
+            getSupportActionBar().hide();
 
         mViewPager = (HackyViewPager) findViewById(R.id.gallery_pager);
         mViewPager.setPageTransformer(true, new ZoomOutPageTransformer());
@@ -86,11 +93,13 @@ public class GalleryActivity extends Activity {
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                if (mDirents == null)
+                if (mThumbnailLinks == null)
                     return;
 
                 mPageIndex.setText(String.valueOf(position + 1));
-                mPageName.setText(mDirents.get(position).name);
+                String currentLink = mThumbnailLinks.get(position);
+                if (mThumbnailFileNameMap.containsKey(currentLink))
+                    mPageName.setText(mThumbnailFileNameMap.get(currentLink));
             }
 
             @Override
@@ -127,25 +136,34 @@ public class GalleryActivity extends Activity {
             for (SeafDirent seafDirent : dataMgr.getCachedDirents(repoID, dirPath)) {
                 if (!seafDirent.isDir()
                         && Utils.isViewableImage(seafDirent.name)) { // only cache image type files
-                    mDirents.add(seafDirent);
+                    //TODO may getrepocachedFile is better
+                    final SeafCachedFile scf = dataMgr.getCachedFile(repoName, repoID, Utils.pathJoin(dirPath, seafDirent.name));
+                    if (scf != null) {
+                        final File cachedFile = dataMgr.getLocalCachedFile(repoName, repoID, Utils.pathJoin(dirPath, seafDirent.name), scf.fileID);
+                        if (cachedFile != null) {
+                            // Log.d(DEBUG_TAG, "add cached url file://" + cachedFile.getAbsolutePath());
+                            String thumbnailLink = "file://" + cachedFile.getAbsolutePath();
+                            mThumbnailLinks.add(thumbnailLink);
+                            mThumbnailFileNameMap.put(thumbnailLink, cachedFile.getName());
+                        }
+                    }
                 }
 
             }
 
-            if (mDirents.isEmpty())
+            if (mThumbnailLinks.isEmpty())
                 return;
-            mViewPager.setAdapter(new GalleryAdapter(GalleryActivity.this,
-                    dataMgr, mDirents, repoName, repoID, dirPath));
+            mViewPager.setAdapter(new GalleryAdapter(GalleryActivity.this, mAccount, mThumbnailLinks));
 
-            for (int i = 0; i< mDirents.size(); i++) {
-                if (mDirents.get(i).name.equals(fileName)) {
+            for (int i = 0; i < mThumbnailLinks.size(); i++) {
+                if (Utils.fileNameFromPath(mThumbnailLinks.get(i)).equals(fileName)) {
                     mViewPager.setCurrentItem(i);
                     mPageIndex.setText(String.valueOf(i + 1));
-                    mPageCount.setText(String.valueOf(mDirents.size()));
                     mPageName.setText(fileName);
                     break;
                 }
             }
+            mPageCount.setText(String.valueOf(mThumbnailLinks.size()));
             return;
 
         }
@@ -203,11 +221,11 @@ public class GalleryActivity extends Activity {
                 }).start();
     }
 
-    private class DownloadPicsByPathTask extends AsyncTask<String, Void, ArrayList<SeafDirent>> {
+    private class DownloadPicsByPathTask extends AsyncTask<String, Void, ArrayList<String>> {
         SeafException err = null;
 
         @Override
-        protected ArrayList<SeafDirent> doInBackground(String... params) {
+        protected ArrayList<String> doInBackground(String... params) {
             if (params.length != 3) {
                 Log.e(DEBUG_TAG, "Wrong params to LoadDirTask");
                 return null;
@@ -229,36 +247,47 @@ public class GalleryActivity extends Activity {
             if (dirents == null)
                 return null;
 
-            ArrayList<SeafDirent> seafDirents = Lists.newArrayList();
+            ArrayList<String> tLinks = Lists.newArrayList();
             for (SeafDirent seafDirent : dirents) {
                 if (!seafDirent.isDir()
                         && Utils.isViewableImage(seafDirent.name)) { // only cache image type files
-                    seafDirents.add(seafDirent);
+                    String thumbnailLink = dataMgr.getThumbnailLink(repoID, Utils.pathJoin(dirPath, seafDirent.name), 800);
+                    // Log.d(DEBUG_TAG, "add remote url " + thumbnailLink);
+                    if(thumbnailLink != null) {
+                        tLinks.add(thumbnailLink);
+                        mThumbnailFileNameMap.put(thumbnailLink, seafDirent.name);
+                    }
+
                 }
 
             }
 
-            return seafDirents;
+            return tLinks;
         }
 
         @Override
-        protected void onPostExecute(ArrayList<SeafDirent> seafDirents) {
-            mDirents = seafDirents;
-            if (seafDirents.isEmpty())
+        protected void onPostExecute(ArrayList<String> thumbnailLinks) {
+            if (thumbnailLinks.isEmpty())
                 return;
-            mViewPager.setAdapter(new GalleryAdapter(GalleryActivity.this,
-                    dataMgr, seafDirents, repoName, repoID, dirPath));
-            for (int i = 0; i< mDirents.size(); i++) {
-                if (mDirents.get(i).name.equals(fileName)) {
+
+            if (fileName == null)
+                return;
+
+            mThumbnailLinks = thumbnailLinks;
+            mViewPager.setAdapter(new GalleryAdapter(GalleryActivity.this, mAccount, thumbnailLinks));
+            for (int i = 0; i< mThumbnailLinks.size(); i++) {
+                String key = mThumbnailLinks.get(i);
+                if (mThumbnailFileNameMap.containsKey(key)
+                        && mThumbnailFileNameMap.get(key).equals(fileName)) {
                     Log.d(DEBUG_TAG, "current index " + i);
                     Log.d(DEBUG_TAG, "current file name " + fileName);
                     mViewPager.setCurrentItem(i);
                     mPageIndex.setText(String.valueOf(i + 1));
-                    mPageCount.setText(String.valueOf(mDirents.size()));
                     mPageName.setText(fileName);
                     break;
                 }
             }
+            mPageCount.setText(String.valueOf(mThumbnailLinks.size()));
 
         }
     }

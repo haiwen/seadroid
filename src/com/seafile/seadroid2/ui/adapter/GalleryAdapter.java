@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui.adapter;
 
+import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v4.view.PagerAdapter;
 import android.util.Log;
@@ -11,21 +12,19 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.assist.ImageSize;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingProgressListener;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
-import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.data.SeafCachedFile;
-import com.seafile.seadroid2.data.SeafDirent;
-import com.seafile.seadroid2.transfer.DownloadStateListener;
-import com.seafile.seadroid2.transfer.DownloadTask;
-import com.seafile.seadroid2.transfer.DownloadTaskInfo;
+import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.ui.AnimationRect;
 import com.seafile.seadroid2.ui.activity.GalleryActivity;
 import com.seafile.seadroid2.util.Utils;
 import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
-import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -34,43 +33,30 @@ import java.util.ArrayList;
 public class GalleryAdapter extends PagerAdapter {
     public static final String DEBUG_TAG = "GalleryAdapter";
 
-    /** task id must be unique among different activity lifecycle, otherwise can`t track the downloadTask */
-    private int taskID = (int) System.currentTimeMillis();
     private GalleryActivity mActivity;
-    private DataManager dataMgr;
-    private ArrayList<SeafDirent> dirents;
-    private String repoName;
-    private String repoId;
-    private String dirPath;
+    private ArrayList<String> urls;
     private LayoutInflater inflater;
+    private DisplayImageOptions options;
 
-    public GalleryAdapter(GalleryActivity context,
-                          DataManager dataManager,
-                          ArrayList<SeafDirent> seafDirents,
-                          String name,
-                          String id,
-                          String path) {
+    public GalleryAdapter(GalleryActivity context, Account account,
+                          ArrayList<String> photoUrls) {
         mActivity = context;
-        dataMgr = dataManager;
-        dirents = seafDirents;
-        repoName = name;
-        dirPath = path;
-        repoId = id;
+        urls = photoUrls;
         inflater = context.getLayoutInflater();
+        options = new DisplayImageOptions.Builder()
+                //.showImageOnLoading(R.drawable.gallery_loading)
+                .showImageForEmptyUri(R.drawable.gallery_loading)
+                .showImageOnFail(R.drawable.gallery_loading)
+                .cacheInMemory(true)
+                .cacheOnDisk(true)
+                .considerExifParams(true)
+                .extraForDownloader(account)
+                .build();
     }
-
-    DisplayImageOptions options = new DisplayImageOptions.Builder()
-            .showImageOnLoading(R.drawable.gallery_loading)
-            .showImageForEmptyUri(R.drawable.gallery_loading)
-            .showImageOnFail(R.drawable.gallery_loading)
-            .cacheInMemory(true)
-            .cacheOnDisk(true)
-            .considerExifParams(true)
-            .build();
 
     @Override
     public int getCount() {
-        return dirents.size();
+        return urls.size();
     }
 
     @Override
@@ -80,73 +66,49 @@ public class GalleryAdapter extends PagerAdapter {
         final TextView progressText = (TextView) contentView.findViewById(R.id.gallery_progress_text);
         final ProgressBar progressBar = (ProgressBar) contentView.findViewById(R.id.gallery_progress_bar);
         final ImageView animationView = (ImageView) contentView.findViewById(R.id.gallery_animation);
-        final SeafCachedFile scf = dataMgr.getCachedFile(repoName, repoId, Utils.pathJoin(dirPath, dirents.get(position).name));
-        if (scf != null) {
-            final File cachedFile = dataMgr.getLocalCachedFile(repoName, repoId, Utils.pathJoin(dirPath, dirents.get(position).name), scf.fileID);
-            if (cachedFile != null) {
-                ImageLoader.getInstance().displayImage("file://" + cachedFile.getAbsolutePath(), photoView, options);
+        ImageLoader.getInstance().displayImage(urls.get(position), photoView, options, new ImageLoadingListener() {
+            @Override
+            public void onLoadingStarted(String s, View view) {
+                //Log.d(DEBUG_TAG, "ImageLoadingListener >> onLoadingStarted");
+                progressBar.setProgress(0);
+                progressBar.setVisibility(View.VISIBLE);
             }
-        } else {
 
-            // load the image
-            final DownloadTask dt = new DownloadTask(
-                    ++taskID,
-                    dataMgr.getAccount(),
-                    repoName,
-                    repoId,
-                    Utils.pathJoin(dirPath, dirents.get(position).name),
-                    new DownloadStateListener() {
-                        @Override
-                        public void onFileDownloadProgress(int taskID) {
-                            if (mActivity.getTxService() == null)
-                                return;
-                            DownloadTaskInfo dti = mActivity.getTxService().getDownloadTaskInfo(taskID);
-                            if (dti == null)
-                                return;
+            @Override
+            public void onLoadingFailed(String s, View view, FailReason failReason) {
+                //Log.d(DEBUG_TAG, "ImageLoadingListener >> onLoadingFailed");
+                progressBar.setProgress(0);
+                progressBar.setVisibility(View.INVISIBLE);
+                progressText.setVisibility(View.INVISIBLE);
+            }
 
-                            if (dti.fileSize == 0)
-                                return;
-                            progressText.setText(Utils.readableFileSize(dti.finished) + "/" + Utils.readableFileSize(dti.fileSize));
-                            progressText.setVisibility(View.VISIBLE);
-                            progressBar.setVisibility(View.VISIBLE);
-                            progressBar.setIndeterminate(false);
-                            progressBar.setProgress((int) (dti.finished * 100 / dti.fileSize));
-                        }
+            @Override
+            public void onLoadingComplete(String s, View view, Bitmap bitmap) {
+                //Log.d(DEBUG_TAG, "ImageLoadingListener >> onLoadingComplete");
+                progressBar.setProgress(100);
+                progressBar.setVisibility(View.INVISIBLE);
+                progressText.setVisibility(View.INVISIBLE);
+            }
 
-                        @Override
-                        public void onFileDownloaded(int taskID) {
+            @Override
+            public void onLoadingCancelled(String s, View view) {
+                //Log.d(DEBUG_TAG, "ImageLoadingListener >> onLoadingCancelled");
+                progressBar.setProgress(0);
+                progressBar.setVisibility(View.INVISIBLE);
+                progressText.setVisibility(View.INVISIBLE);
 
-                            if (mActivity.getTxService() == null)
-                                return;
-
-                            DownloadTaskInfo dti = mActivity.getTxService().getDownloadTaskInfo(taskID);
-                            if (dti == null)
-                                return;
-
-                            progressText.setText(Utils.readableFileSize(dti.finished) + "/" + Utils.readableFileSize(dti.fileSize));
-                            progressText.setVisibility(View.GONE);
-                            progressBar.setVisibility(View.GONE);
-                            progressBar.setProgress(100);
-                            ImageLoader.getInstance().displayImage("file://" + dti.localFilePath, photoView);
-                        }
-
-                        @Override
-                        public void onFileDownloadFailed(int taskID) {
-                            if (mActivity.getTxService() == null)
-                                return;
-                            DownloadTaskInfo dti = mActivity.getTxService().getDownloadTaskInfo(taskID);
-                            if (dti == null)
-                                return;
-                            progressText.setVisibility(View.GONE);
-                            progressBar.setVisibility(View.GONE);
-                            Log.e(DEBUG_TAG, "failed download image " + dti.pathInRepo);
-                        }
-                    });
-
-            // must use this method to keep consistent with other modules
-            mActivity.getTxService().addDownloadTask(dt);
-
-        }
+            }
+        }, new ImageLoadingProgressListener() {
+            @Override
+            public void onProgressUpdate(String s, View view, int i, int i1) {
+                //Log.d(DEBUG_TAG, "ImageLoadingProgressListener >> onProgressUpdate >> s " + s + " i " + i + " i1 " + i1);
+                progressText.setText(Utils.readableFileSize(i)+ "/" + Utils.readableFileSize(i1));
+                progressText.setVisibility(View.VISIBLE);
+                progressBar.setIndeterminate(false);
+                progressBar.setProgress(i * 100 / i1);
+                progressBar.setVisibility(View.VISIBLE);
+            }
+        });
         final AnimationRect rect = AnimationRect.buildFromImageView(animationView);
         if (SettingsManager.instance().isClickToCloseGalleryEnabled()) {
             photoView.setOnPhotoTapListener(new PhotoViewAttacher.OnPhotoTapListener() {
