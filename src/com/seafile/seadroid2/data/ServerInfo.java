@@ -1,13 +1,15 @@
 package com.seafile.seadroid2.data;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import com.google.common.base.Objects;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * Server info entity
+ * Value type that represents a ServerInfo.
  */
-public class ServerInfo {
+public class ServerInfo implements Parcelable{
 
     private String url;
     private String version;
@@ -83,4 +85,15 @@ public class ServerInfo {
                 .toString();
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(url);
+        dest.writeString(version);
+        dest.writeString(features);
+    }
 }

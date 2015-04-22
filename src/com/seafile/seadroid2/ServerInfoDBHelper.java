@@ -9,7 +9,7 @@ import android.util.Log;
 import com.seafile.seadroid2.data.ServerInfo;
 
 /**
- * Database of server info
+ * A helper class to manage server info database creation and version management.
  */
 public class ServerInfoDBHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.
@@ -19,8 +19,8 @@ public class ServerInfoDBHelper extends SQLiteOpenHelper {
     private static final String TABLE_NAME = "ServerInfo";
 
     private static final String COLUMN_URL = "url";
-    public static final String COLUMN_FEATURE = "feature";
     private static final String COLUMN_VERSION = "version";
+    private static final String COLUMN_FEATURE = "feature";
 
     private static final String CREATE_TABLE_SQL = "CREATE TABLE " + TABLE_NAME + " ("
             + COLUMN_URL + " VARCHAR(255) PRIMARY KEY, " + COLUMN_VERSION + " TEXT, " + COLUMN_FEATURE + " TEXT " + ")";
