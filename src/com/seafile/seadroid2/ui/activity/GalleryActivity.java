@@ -55,7 +55,6 @@ public class GalleryActivity extends SherlockActivity {
     private TextView mPageIndex;
     private TextView mPageCount;
     private TextView mPageName;
-    private TransferService txService;
     private DataManager dataMgr;
     private Account mAccount;
     private String repoName;
@@ -64,19 +63,6 @@ public class GalleryActivity extends SherlockActivity {
     private String fileName;
     private ArrayList<String> mThumbnailLinks = Lists.newArrayList();
     private HashMap<String, String> mThumbnailFileNameMap = Maps.newHashMap();
-    private ServiceConnection mConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            TransferService.TransferBinder binder = (TransferService.TransferBinder) service;
-            txService = binder.getService();
-            //Log.d(DEBUG_TAG, "bind TransferService");
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            txService = null;
-        }
-    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -122,11 +108,6 @@ public class GalleryActivity extends SherlockActivity {
         dataMgr = new DataManager(mAccount);
 
         requestPhotoInfos(repoName, repoID, dirPath, fileName);
-
-        // bind transfer service
-        Intent bIntent = new Intent(this, TransferService.class);
-        bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
-        //Log.d(DEBUG_TAG, "try bind TransferService");
     }
 
     private void requestPhotoInfos(String repoName, String repoID, String dirPath, String fileName) {
@@ -148,7 +129,6 @@ public class GalleryActivity extends SherlockActivity {
                         }
                     }
                 }
-
             }
 
             if (mThumbnailLinks.isEmpty())
@@ -257,11 +237,8 @@ public class GalleryActivity extends SherlockActivity {
                         tLinks.add(thumbnailLink);
                         mThumbnailFileNameMap.put(thumbnailLink, seafDirent.name);
                     }
-
                 }
-
             }
-
             return tLinks;
         }
 
@@ -288,24 +265,7 @@ public class GalleryActivity extends SherlockActivity {
                 }
             }
             mPageCount.setText(String.valueOf(mThumbnailLinks.size()));
-
         }
-    }
-
-
-
-    @Override
-    protected void onDestroy() {
-        if (txService != null) {
-            unbindService(mConnection);
-            txService = null;
-        }
-
-        super.onDestroy();
-    }
-
-    public TransferService getTxService() {
-        return txService;
     }
 }
 
