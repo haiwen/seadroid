@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item
+            android:id="@+id/gallery_delete"
+            android:showAsAction="ifRoom"
+            android:icon="@drawable/action_delete"
+            android:title="@string/file_action_delete"
+            android:visible="true">
+    </item>
+    <item
+            android:id="@+id/gallery_star"
+            android:showAsAction="ifRoom"
+            android:icon="@drawable/action_star"
+            android:title="@string/file_action_star"
+            android:visible="true">
+    </item>
+    <item
+            android:id="@+id/gallery_share"
+            android:showAsAction="ifRoom"
+            android:icon="@drawable/action_share"
+            android:title="@string/file_action_share"
+            android:visible="true">
+    </item>
+    <item
+            android:id="@+id/gallery_overflow_menu"
+            android:icon="@drawable/ic_action_overflow"
+            android:title="More"
+            android:showAsAction="always">
+        <menu>
+
+            <item
+                    android:id="@+id/gallery_export"
+                    android:showAsAction="ifRoom"
+                    android:icon="@drawable/action_export"
+                    android:title="@string/file_action_export"
+                    android:visible="true">
+            </item>
+        </menu>
+    </item>
+</menu>
