@@ -1609,6 +1609,10 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         UploadTaskInfo info = txService.getUploadTaskInfo(taskID);
 
+        if(info == null) {
+            return;
+        }
+
         String repoID = info.repoID;
         String dir = info.parentDir;
         if (currentPosition == 0
