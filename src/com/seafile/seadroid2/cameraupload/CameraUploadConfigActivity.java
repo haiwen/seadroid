@@ -3,12 +3,12 @@ package com.seafile.seadroid2.cameraupload;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.View;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * Camera upload configuration helper
  */
-public class CameraUploadConfigActivity extends FragmentActivity {
+public class CameraUploadConfigActivity extends SherlockFragmentActivity {
     public static final String DEBUG_TAG = "CameraUploadConfigActivity";
 
     private ViewPager mViewPager;
@@ -52,8 +52,8 @@ public class CameraUploadConfigActivity extends FragmentActivity {
 
         setContentView(R.layout.cuc_activity_layout);
 
-        if (getActionBar() != null)
-            getActionBar().hide();
+        if (getSupportActionBar() != null)
+            getSupportActionBar().hide();
 
         isChooseBothPages = getIntent().getBooleanExtra(SettingsFragment.CAMERA_UPLOAD_BOTH_PAGES, false);
         isChooseLibPage = getIntent().getBooleanExtra(SettingsFragment.CAMERA_UPLOAD_REMOTE_LIBRARY, false);
