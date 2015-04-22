@@ -35,7 +35,7 @@ import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.adapter.*;
 import com.seafile.seadroid2.ui.dialog.PasswordDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
-import com.seafile.seadroid2.ui.fragment.SettingsPreferenceFragment;
+import com.seafile.seadroid2.ui.fragment.SettingsFragment;
 import com.seafile.seadroid2.util.Utils;
 
 /**
@@ -114,7 +114,7 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
         mListContainer = findViewById(R.id.listContainer);
         mProgressContainer = findViewById(R.id.progressContainer);
         mContentArea = findViewById(R.id.content);
-        isOnlyChooseRepo = intent.getBooleanExtra(SettingsPreferenceFragment.CAMERA_UPLOAD_BOTH_PAGES, false);
+        isOnlyChooseRepo = intent.getBooleanExtra(SettingsFragment.CAMERA_UPLOAD_BOTH_PAGES, false);
         if (isOnlyChooseRepo) {
             mOkButton.setVisibility(View.GONE);
             mTransparentSpace.setVisibility(View.GONE);

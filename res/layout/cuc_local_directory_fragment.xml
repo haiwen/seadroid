@@ -36,6 +36,7 @@
                 android:id="@+id/cuc_local_directory_pick_folders_rb"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/rb_margin_top"
                 android:text="@string/settings_cuc_pick_dir"
                 android:textSize="@dimen/tv_subtitle_txt_size"/>
     </RadioGroup>

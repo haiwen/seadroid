@@ -83,6 +83,8 @@
     <dimen name="cb_padding_top">10dp</dimen>
     <dimen name="cb_btn_txt_size">16sp</dimen>
 
+    <dimen name="rb_margin_top">5dp</dimen> <!-- RadioButton -->
+
     <dimen name="form_padding_top">0dp</dimen> <!-- Login Form -->
     <dimen name="form_padding_bottom">7dp</dimen>
 
