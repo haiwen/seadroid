@@ -38,8 +38,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Gallery Activity for supporting a gallery to browse photos.
- * Support local and cloud photos, it will downloaded first in second case
+ * A gallery of images with sliding, zooming, multi-touch and single touch support
+ * Local cached images will be shown directly, while cloud images will be asynchronously downloaded first
  */
 public class GalleryActivity extends Activity {
     public static final String DEBUG_TAG = "GalleryActivity";
