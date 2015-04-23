@@ -1363,9 +1363,9 @@ public class BrowserActivity extends SherlockFragmentActivity
             return;
         }
 
-        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
+        String mime = Intent.normalizeMimeType(suffix);
         Intent open = new Intent(Intent.ACTION_VIEW);
-        open.setDataAndType((Uri.fromFile(file)), mime);
+        open.setDataAndTypeAndNormalize((Uri.fromFile(file)), mime);
 
         try {
             startActivity(open);
