@@ -38,23 +38,23 @@ public class OpenAsDialog extends DialogFragment {
                         Intent intent = new Intent(Intent.ACTION_VIEW);
                         switch (which) {
                         case OPEN_AS_TEXT:
-                            intent.setDataAndType((Uri.fromFile(file)), "text/*");
+                            intent.setDataAndTypeAndNormalize((Uri.fromFile(file)), "text/*");
                             startActivity(intent);
                             break;
                         case OPEN_AS_AUDIO:
-                            intent.setDataAndType((Uri.fromFile(file)), "audio/*");
+                            intent.setDataAndTypeAndNormalize((Uri.fromFile(file)), "audio/*");
                             startActivity(intent);
                             break;
                         case OPEN_AS_VIDEO:
-                            intent.setDataAndType((Uri.fromFile(file)), "video/*");
+                            intent.setDataAndTypeAndNormalize((Uri.fromFile(file)), "video/*");
                             startActivity(intent);
                             break;
                         case OPEN_AS_IMAGE:
-                            intent.setDataAndType((Uri.fromFile(file)), "image/*");
+                            intent.setDataAndTypeAndNormalize((Uri.fromFile(file)), "image/*");
                             startActivity(intent);
                             break;
                         case OPEN_AS_OTHER:
-                            intent.setDataAndType((Uri.fromFile(file)), "*/*");
+                            intent.setDataAndTypeAndNormalize((Uri.fromFile(file)), "*/*");
                             startActivity(intent);
                         default:
                             break;
