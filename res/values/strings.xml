@@ -57,8 +57,6 @@
     <string name="uploaded">Uploaded</string>
     <string name="updated">Updated</string>
     <string name="download_failed">Download failed</string>
-    <string name="trust_https_server">The certification is not issued by a trusted organization, do you want to continue?</string>
-    <string name="upload_to">upload to: </string>
     <string name="task_cancel">Cancel</string>
     <string name="task_retry">Retry</string>
     <string name="task_remove">Remove</string>
