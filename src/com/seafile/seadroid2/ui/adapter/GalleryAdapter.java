@@ -56,7 +56,7 @@ public class GalleryAdapter extends PagerAdapter {
         return mPhotoLinks.size();
     }
 
-    public String getItem(int position){
+    public String getItem(int position) {
         return mPhotoLinks.get(position);
     }
 

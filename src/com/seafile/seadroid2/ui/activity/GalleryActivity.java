@@ -48,9 +48,9 @@ public class GalleryActivity extends SherlockFragmentActivity {
 
     private ViewPager mViewPager;
     private ImageView animationView;
-    private TextView mPageIndexTxt;
-    private TextView mPageCountTxt;
-    private TextView mPageName;
+    private TextView mPageIndexTextView;
+    private TextView mPageCountTextView;
+    private TextView mPageNameTextView;
     private DataManager dataMgr;
     private Account mAccount;
     private String repoName;
@@ -80,12 +80,13 @@ public class GalleryActivity extends SherlockFragmentActivity {
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                mPageIndexTxt.setText(String.valueOf(position + 1));
+                // page index starting from 1 instead of 0 in user interface, so plus one here
+                mPageIndexTextView.setText(String.valueOf(position + 1));
                 mPageIndex = position;
                 String linkKey = mGalleryAdapter.getItem(position);
                 if (mThumbnailFileNameMap.containsKey(linkKey)) {
                     currentDrient = mThumbnailFileNameMap.get(linkKey);
-                    mPageName.setText(currentDrient.name);
+                    mPageNameTextView.setText(currentDrient.name);
                 }
             }
 
@@ -96,9 +97,9 @@ public class GalleryActivity extends SherlockFragmentActivity {
             public void onPageScrollStateChanged(int state) {}
         });
 
-        mPageIndexTxt = (TextView) findViewById(R.id.gallery_page_index);
-        mPageCountTxt = (TextView) findViewById(R.id.gallery_page_count);
-        mPageName = (TextView) findViewById(R.id.gallery_page_name);
+        mPageIndexTextView = (TextView) findViewById(R.id.gallery_page_index);
+        mPageCountTextView = (TextView) findViewById(R.id.gallery_page_count);
+        mPageNameTextView = (TextView) findViewById(R.id.gallery_page_name);
         animationView = (ImageView) findViewById(R.id.gallery_animation);
 
         repoName = getIntent().getStringExtra("repoName");
@@ -116,7 +117,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
     }
 
     public void animateClose(PhotoView imageView, AnimationRect animationRect) {
-        mPageIndexTxt.setVisibility(View.INVISIBLE);
+        mPageIndexTextView.setVisibility(View.INVISIBLE);
         animationView.setImageDrawable(imageView.getDrawable());
 
         mViewPager.setVisibility(View.INVISIBLE);
@@ -170,7 +171,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
         private ArrayList<String> mThumbnailLinks = Lists.newArrayList();
         private SeafException err = null;
 
-        public ArrayList<String> getmThumbnailLinks() {
+        public ArrayList<String> getThumbnailLinks() {
             return mThumbnailLinks;
         }
 
@@ -236,9 +237,9 @@ public class GalleryActivity extends SherlockFragmentActivity {
                     Log.d(DEBUG_TAG, "current index " + i);
                     Log.d(DEBUG_TAG, "current file name " + fileName);
                     mViewPager.setCurrentItem(i);
-                    mPageIndexTxt.setText(String.valueOf(i + 1));
+                    mPageIndexTextView.setText(String.valueOf(i + 1));
                     mPageIndex = i;
-                    mPageName.setText(fileName);
+                    mPageNameTextView.setText(fileName);
                     String linkKey = mGalleryAdapter.getItem(i);
                     if (mThumbnailFileNameMap.containsKey(linkKey)) {
                         currentDrient = mThumbnailFileNameMap.get(linkKey);
@@ -246,7 +247,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
                     break;
                 }
             }
-            mPageCountTxt.setText(String.valueOf(links.size()));
+            mPageCountTextView.setText(String.valueOf(links.size()));
         }
     }
 
@@ -303,16 +304,37 @@ public class GalleryActivity extends SherlockFragmentActivity {
     }
 
     /**
-     * auto do right slide to the next page if has,
-     * auto do left slide if no pages left on the right side,
-     * quit the gallery otherwise
+     * slide to next page if there are pages left on the right side of the current one,
+     * slide to previous page if not,
+     * quit the gallery if both cases were not met
      */
     private void slidePage() {
-        ArrayList<String>  links = mLinksTask.getmThumbnailLinks();
+        ArrayList<String> links = mLinksTask.getThumbnailLinks();
         links.remove(mPageIndex);
         mGalleryAdapter.setItems(links);
         mGalleryAdapter.notifyDataSetChanged();
-        mPageCountTxt.setText(String.valueOf(links.size()));
+        mPageCountTextView.setText(String.valueOf(links.size()));
+
+        if (links.size() == 0) {
+            finish();
+            return;
+        }
+
+        if (mPageIndex > links.size() - 1) {
+            // slide to previous page
+            mPageIndex = links.size() - 1;
+            // page index starting from 1 instead of 0 in user interface, so plus one here
+            mPageIndexTextView.setText(String.valueOf(mPageIndex + 1));
+        }
+
+        Log.d(DEBUG_TAG, "pageIndex " + mPageIndex);
+        String linkKey = mGalleryAdapter.getItem(mPageIndex);
+        if (mThumbnailFileNameMap.containsKey(linkKey)) {
+            currentDrient = mThumbnailFileNameMap.get(linkKey);
+            // update file name in gallery view
+            mPageNameTextView.setText(currentDrient.name);
+        }
+
     }
 }
 
