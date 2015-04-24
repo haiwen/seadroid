@@ -271,10 +271,11 @@ public class GalleryActivity extends SherlockFragmentActivity {
                 if (currentDrient == null)
                     return false;
 
-                Log.d(DEBUG_TAG, "delete " + repoName + Utils.pathJoin(dirPath, currentDrient.name));
+                //Log.d(DEBUG_TAG, "delete " + repoName + Utils.pathJoin(dirPath, currentDrient.name));
                 deleteFile(repoID, Utils.pathJoin(dirPath, currentDrient.name));
                 return true;
             case R.id.gallery_star:
+                starFile(repoID, dirPath, currentDrient.name);
                 return true;
             case R.id.gallery_share:
                 return true;
@@ -301,6 +302,57 @@ public class GalleryActivity extends SherlockFragmentActivity {
             }
         });
         dialog.show(getSupportFragmentManager(), "DialogFragment");
+    }
+
+    public void starFile(String repoId, String dir, String fileName) {
+        doStarFile(repoId, dir, fileName);
+    }
+
+    private void doStarFile(String repoID, String path, String filename) {
+
+        if (!Utils.isNetworkOn()) {
+            ToastUtils.show(this, R.string.network_down);
+            return;
+        }
+
+        String p = Utils.pathJoin(path, filename);
+        ConcurrentAsyncTask.execute(new StarFileTask(repoID, p));
+    }
+
+    class StarFileTask extends AsyncTask<Void, Void, Void> {
+        private String repoId;
+        private String path;
+        private SeafException err;
+
+        public StarFileTask(String repoId, String path) {
+            this.repoId = repoId;
+            this.path = path;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            if (dataMgr == null)
+                return null;
+
+            try {
+                dataMgr.star(repoId, path);
+            } catch (SeafException e) {
+                err = e;
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void v) {
+            if (err != null) {
+                ToastUtils.show(GalleryActivity.this, R.string.star_file_failed);
+                return;
+            }
+
+            ToastUtils.show(GalleryActivity.this, R.string.star_file_succeed);
+        }
     }
 
     /**
