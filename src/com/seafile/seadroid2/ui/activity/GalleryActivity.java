@@ -167,7 +167,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
     }
 
     private class RequestPhotoLinksTask extends AsyncTask<String, Void, ArrayList<String>> {
-        SeafException err = null;
+        private SeafException err = null;
 
         @Override
         protected ArrayList<String> doInBackground(String... params) {
@@ -209,8 +209,13 @@ public class GalleryActivity extends SherlockFragmentActivity {
         @Override
         protected void onPostExecute(ArrayList<String> thumbnailLinks) {
             if (thumbnailLinks == null
-                    || thumbnailLinks.isEmpty())
+                    || thumbnailLinks.isEmpty()) {
+                if (err != null) {
+                    ToastUtils.show(GalleryActivity.this, R.string.gallery_load_photos_error);
+                    Log.e(DEBUG_TAG, "error message " + err.getMessage() + " error code " + err.getCode());
+                }
                 return;
+            }
 
             if (fileName == null)
                 return;
@@ -263,7 +268,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
                     return false;
 
                 Log.d(DEBUG_TAG, "delete " + repoName + Utils.pathJoin(dirPath, currentDrient.name));
-                deleteFile(repoID, repoName, Utils.pathJoin(dirPath, currentDrient.name));
+                deleteFile(repoID, Utils.pathJoin(dirPath, currentDrient.name));
                 return true;
             case R.id.gallery_star:
                 return true;
@@ -277,13 +282,13 @@ public class GalleryActivity extends SherlockFragmentActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void deleteFile(String repoID, String repoName, String path) {
-        doDelete(repoID, repoName, path, false);
+    public void deleteFile(String repoID, String path) {
+        doDelete(repoID, path, false);
     }
 
-    private void doDelete(String repoID, String repoName, String path, boolean isdir) {
+    private void doDelete(String repoID, String path, boolean isDir) {
         final DeleteFileDialog dialog = new DeleteFileDialog();
-        dialog.init(repoID, path, isdir, mAccount);
+        dialog.init(repoID, path, isDir, mAccount);
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
