@@ -236,7 +236,7 @@ public final class SSLTrustManager {
             // where as the DefaultHostnameVerifier will always try to lookup IP addresses via the DNS.
             X509HostnameVerifier mHostnameVerifier = new BrowserCompatHostnameVerifier();
             try {
-                mHostnameVerifier.verify(account.server, cert);
+                mHostnameVerifier.verify(account.getServerHost(), cert);
             } catch (SSLException e) {
                 throw new CertificateException();
             }
