@@ -24,7 +24,6 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.data.SeafCachedFile;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.ui.AnimationRect;
 import com.seafile.seadroid2.ui.HackyViewPager;
@@ -36,9 +35,9 @@ import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.util.Utils;
 import uk.co.senab.photoview.PhotoView;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * A gallery of images with sliding, zooming, multi-touch and single touch support
@@ -58,11 +57,12 @@ public class GalleryActivity extends SherlockFragmentActivity {
     private String repoID;
     private String dirPath;
     private String fileName;
-    private ArrayList<String> mThumbnailLinks = Lists.newArrayList();
-    private ArrayList<SeafDirent> seafDirents = Lists.newArrayList();
     private SeafDirent currentDrient;
     private int mPageIndex;
     private GalleryAdapter mGalleryAdapter;
+    /** hold thumbnails links which will be used to load thumbnails in gallery */
+    private ArrayList<String> mThumbnailLinks = Lists.newArrayList();
+    /** mapping thumbnail link to seafDirent in order to display photo name */
     private HashMap<String, SeafDirent> mThumbnailFileNameMap = Maps.newHashMap();
 
     @Override
@@ -81,17 +81,12 @@ public class GalleryActivity extends SherlockFragmentActivity {
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                if (mThumbnailLinks == null)
-                    return;
-
                 mPageIndexTxt.setText(String.valueOf(position + 1));
                 mPageIndex = position;
-                String currentLink = mThumbnailLinks.get(position);
-                if (mThumbnailFileNameMap.containsKey(currentLink))
-                    mPageName.setText(mThumbnailFileNameMap.get(currentLink).name);
                 String linkKey = mGalleryAdapter.getItem(position);
                 if (mThumbnailFileNameMap.containsKey(linkKey)) {
                     currentDrient = mThumbnailFileNameMap.get(linkKey);
+                    mPageName.setText(currentDrient.name);
                 }
             }
 
@@ -114,50 +109,11 @@ public class GalleryActivity extends SherlockFragmentActivity {
         fileName = getIntent().getStringExtra("fileName");
         dataMgr = new DataManager(mAccount);
 
-        requestPhotoInfos(repoName, repoID, dirPath, fileName);
+        showGallery(repoName, repoID, dirPath, fileName);
     }
 
-    private void requestPhotoInfos(String repoName, String repoID, String dirPath, String fileName) {
-        if (!Utils.isNetworkOn()) {
-            ToastUtils.show(this, R.string.network_down);
-            // display cached photos in gallery
-            seafDirents = (ArrayList<SeafDirent>) dataMgr.getCachedDirents(repoID, dirPath);
-            for (SeafDirent seafDirent : seafDirents) {
-                if (!seafDirent.isDir()
-                        && Utils.isViewableImage(seafDirent.name)) { // only cache image type files
-                    final File cachedFile = dataMgr.getLocalRepoFile(repoName, repoID, Utils.pathJoin(dirPath, seafDirent.name));
-                    if (cachedFile != null) {
-                        // Log.d(DEBUG_TAG, "add cached url file://" + cachedFile.getAbsolutePath());
-                        String thumbnailLink = "file://" + cachedFile.getAbsolutePath();
-                        mThumbnailLinks.add(thumbnailLink);
-                        mThumbnailFileNameMap.put(thumbnailLink, seafDirent);
-                    }
-                }
-            }
-
-            if (mThumbnailLinks.isEmpty())
-                return;
-            mGalleryAdapter = new GalleryAdapter(GalleryActivity.this, mAccount, mThumbnailLinks);
-            mViewPager.setAdapter(mGalleryAdapter);
-
-            // dynamically navigate to the starting page index selected by user
-            // by default the starting page index is 0
-            for (int i = 0; i < mThumbnailLinks.size(); i++) {
-                if (Utils.fileNameFromPath(mThumbnailLinks.get(i)).equals(fileName)) {
-                    mViewPager.setCurrentItem(i);
-                    mPageIndexTxt.setText(String.valueOf(i + 1));
-                    mPageIndex = i;
-                    mPageName.setText(fileName);
-                    currentDrient = seafDirents.get(i);
-                    break;
-                }
-            }
-            mPageCountTxt.setText(String.valueOf(mThumbnailLinks.size()));
-            return;
-
-        }
-
-        ConcurrentAsyncTask.execute(new DownloadPicsByPathTask(), repoName, repoID, dirPath);
+    private void showGallery(String repoName, String repoID, String dirPath, String fileName) {
+        ConcurrentAsyncTask.execute(new RequestPhotoLinksTask(), repoName, repoID, dirPath);
     }
 
     public void animateClose(PhotoView imageView, AnimationRect animationRect) {
@@ -210,7 +166,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
                 }).start();
     }
 
-    private class DownloadPicsByPathTask extends AsyncTask<String, Void, ArrayList<String>> {
+    private class RequestPhotoLinksTask extends AsyncTask<String, Void, ArrayList<String>> {
         SeafException err = null;
 
         @Override
@@ -224,11 +180,11 @@ public class GalleryActivity extends SherlockFragmentActivity {
             repoID = params[1];
             dirPath = params[2];
 
+            List<SeafDirent> seafDirents;
             try {
-                seafDirents = (ArrayList<SeafDirent>) dataMgr.getDirentsFromServer(repoID, dirPath);
+                seafDirents = dataMgr.getDirentsFromServer(repoID, dirPath);
             } catch (SeafException e) {
                 err = e;
-                e.printStackTrace();
                 return null;
             }
 
@@ -332,13 +288,18 @@ public class GalleryActivity extends SherlockFragmentActivity {
             @Override
             public void onTaskSuccess() {
                 ToastUtils.show(GalleryActivity.this, R.string.delete_successful);
-                slideToNext();
+                slidePage();
             }
         });
         dialog.show(getSupportFragmentManager(), "DialogFragment");
     }
 
-    private void slideToNext() {
+    /**
+     * auto do right slide to the next page if has,
+     * auto do left slide if no pages left on the right side,
+     * quit the gallery otherwise
+     */
+    private void slidePage() {
         mThumbnailLinks.remove(mPageIndex);
         mGalleryAdapter.setItems(mThumbnailLinks);
         mGalleryAdapter.notifyDataSetChanged();
