@@ -108,15 +108,4 @@
             android:key="settings_clear_cache_key"
             android:title="@string/settings_clear_cache_title" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="@string/settings_other_title" >
-        <CheckBoxPreference
-                android:key="settings_click_to_close_gallery_key"
-                android:title="@string/settings_click_to_close_gallery_title"
-                android:defaultValue="true"
-                android:summaryOn="@string/settings_click_to_close_gallery_on"
-                android:summaryOff="@string/settings_click_to_close_gallery_off"
-                android:layout="@layout/seafile_checkbox_layout">
-        </CheckBoxPreference>
-
-    </PreferenceCategory>
 </PreferenceScreen>

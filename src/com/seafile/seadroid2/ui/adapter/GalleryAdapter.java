@@ -114,25 +114,13 @@ public class GalleryAdapter extends PagerAdapter {
                 progressBar.setVisibility(View.VISIBLE);
             }
         });
-        final AnimationRect rect = AnimationRect.buildFromImageView(animationView);
-        if (SettingsManager.instance().isClickToCloseGalleryEnabled()) {
-            photoView.setOnPhotoTapListener(new PhotoViewAttacher.OnPhotoTapListener() {
-                @Override
-                public void onPhotoTap(View view, float x, float y) {
 
-                    if (rect == null
-                            || photoView == null
-                            || (!(photoView.getDrawable() instanceof BitmapDrawable))) {
-                        mActivity.finish();
-                        return;
-                    }
-
-                    mActivity.animateClose(photoView, rect);
-
-                }
-
-            });
-        }
+        photoView.setOnPhotoTapListener(new PhotoViewAttacher.OnPhotoTapListener() {
+            @Override
+            public void onPhotoTap(View view, float x, float y) {
+                mActivity.hideOrShowActionBar();
+            }
+        });
 
         container.addView(contentView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 

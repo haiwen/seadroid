@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
              android:layout_width="fill_parent"
-             android:layout_height="fill_parent">
-
+             android:layout_height="fill_parent"
+             android:layout_above="@+id/gallery_pager">
 
     <com.seafile.seadroid2.ui.HackyViewPager xmlns:android="http://schemas.android.com/apk/res/android"
-                                                      android:id="@+id/gallery_pager"
-                                                      android:layout_width="match_parent"
-                                                      android:layout_height="match_parent"
-                                                      android:background="@color/black"/>
+                                             android:id="@+id/gallery_pager"
+                                             android:layout_width="match_parent"
+                                             android:layout_height="match_parent"
+                                             android:background="@color/black"/>
 
     <LinearLayout
             android:fitsSystemWindows="true"
@@ -74,6 +74,32 @@
                 android:shadowRadius="1"
                 android:textColor="@color/white"
                 android:textSize="14sp"/>
+
+    </LinearLayout>
+
+    <LinearLayout android:id="@+id/gallery_tool_bar"
+                  android:fitsSystemWindows="true"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal"
+                  android:padding="20dp"
+                  android:gravity="top|right"
+                  android:visibility="gone"
+                  android:background="@color/black">
+        <ImageView android:id="@+id/gallery_delete_photo"
+                   android:layout_width="60dp"
+                   android:layout_height="60dp"
+                   android:layout_marginRight="20dp"
+                   android:src="@drawable/action_delete"/>
+        <ImageView android:id="@+id/gallery_star_photo"
+                   android:layout_marginRight="20dp"
+                   android:layout_width="60dp"
+                   android:layout_height="60dp"
+                   android:src="@drawable/action_star"/>
+        <ImageView android:id="@+id/gallery_share_photo"
+                   android:layout_width="60dp"
+                   android:layout_height="60dp"
+                   android:src="@drawable/action_share"/>
 
     </LinearLayout>
 

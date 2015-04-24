@@ -1,13 +1,8 @@
 package com.seafile.seadroid2.ui.activity;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.graphics.Point;
-import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
@@ -15,12 +10,10 @@ import android.text.ClipboardManager;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -30,7 +23,6 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
-import com.seafile.seadroid2.ui.AnimationRect;
 import com.seafile.seadroid2.ui.HackyViewPager;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.ZoomOutPageTransformer;
@@ -40,11 +32,9 @@ import com.seafile.seadroid2.ui.dialog.DeleteFileDialog;
 import com.seafile.seadroid2.ui.dialog.GetShareLinkDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.util.Utils;
-import uk.co.senab.photoview.PhotoView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -59,6 +49,10 @@ public class GalleryActivity extends SherlockFragmentActivity {
     private TextView mPageIndexTextView;
     private TextView mPageCountTextView;
     private TextView mPageNameTextView;
+    private ImageView mDeleteBtn;
+    private ImageView mStarBtn;
+    private ImageView mShareBtn;
+    private LinearLayout mToolbar;
     private DataManager dataMgr;
     private Account mAccount;
     private String repoName;
@@ -72,15 +66,41 @@ public class GalleryActivity extends SherlockFragmentActivity {
     /** mapping thumbnail link to seafDirent in order to display photo name */
     private HashMap<String, SeafDirent> mThumbnailFileNameMap = Maps.newHashMap();
 
+    private static boolean showToolBar = true;
+    private View.OnClickListener onClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()) {
+                case R.id.gallery_delete_photo:
+                    if (currentDrient == null)
+                        return;
+                    deleteFile(repoID, Utils.pathJoin(dirPath, currentDrient.name));
+                    break;
+                case R.id.gallery_star_photo:
+                    starFile(repoID, dirPath, currentDrient.name);
+                    break;
+                case R.id.gallery_share_photo:
+                    shareFile(repoID, Utils.pathJoin(dirPath, currentDrient.name));
+                    break;
+            }
+        }
+    };
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.gallery_activity_layout);
+        if (getSupportActionBar() != null)
+            getSupportActionBar().hide();
 
-        /*if (getSupportActionBar() != null)
-            getSupportActionBar().hide();*/
-
+        mDeleteBtn = (ImageView) findViewById(R.id.gallery_delete_photo);
+        mStarBtn = (ImageView) findViewById(R.id.gallery_star_photo);
+        mShareBtn = (ImageView) findViewById(R.id.gallery_share_photo);
+        mToolbar = (LinearLayout) findViewById(R.id.gallery_tool_bar);
+        mDeleteBtn.setOnClickListener(onClickListener);
+        mStarBtn.setOnClickListener(onClickListener);
+        mShareBtn.setOnClickListener(onClickListener);
         mViewPager = (HackyViewPager) findViewById(R.id.gallery_pager);
         mViewPager.setPageTransformer(true, new ZoomOutPageTransformer());
         mViewPager.setOffscreenPageLimit(1);
@@ -122,56 +142,6 @@ public class GalleryActivity extends SherlockFragmentActivity {
 
     private void showGallery(String repoName, String repoID, String dirPath, String fileName) {
         ConcurrentAsyncTask.execute(mLinksTask, repoName, repoID, dirPath);
-    }
-
-    public void animateClose(PhotoView imageView, AnimationRect animationRect) {
-        mPageIndexTextView.setVisibility(View.INVISIBLE);
-        animationView.setImageDrawable(imageView.getDrawable());
-
-        mViewPager.setVisibility(View.INVISIBLE);
-
-        final Rect startBounds = new Rect(animationRect.scaledBitmapRect);
-        final Rect finalBounds = new Rect();
-        final Point globalOffset = new Point();
-
-        animationView.getGlobalVisibleRect(finalBounds, globalOffset);
-
-        startBounds.offset(-globalOffset.x, -globalOffset.y);
-        finalBounds.offset(-globalOffset.x, -globalOffset.y);
-
-        float startScale;
-        if ((float) finalBounds.width() / finalBounds.height()
-                > (float) startBounds.width() / startBounds.height()) {
-            // Extend start bounds horizontally
-            startScale = (float) startBounds.height() / finalBounds.height();
-            float startWidth = startScale * finalBounds.width();
-            float deltaWidth = (startWidth - startBounds.width()) / 2;
-            startBounds.left -= deltaWidth;
-            startBounds.right += deltaWidth;
-        } else {
-            // Extend start bounds vertically
-            startScale = (float) startBounds.width() / finalBounds.width();
-            float startHeight = startScale * finalBounds.height();
-            float deltaHeight = (startHeight - startBounds.height()) / 2;
-            startBounds.top -= deltaHeight;
-            startBounds.bottom += deltaHeight;
-        }
-
-        animationView.setPivotX(0f);
-        animationView.setPivotY(0f);
-
-        final float startScaleFinal = startScale;
-
-        animationView.animate().setInterpolator(new DecelerateInterpolator()).x(startBounds.left)
-                .y(startBounds.top).scaleY(startScaleFinal).scaleX(startScaleFinal).setDuration(300)
-                .setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        super.onAnimationEnd(animation);
-                        GalleryActivity.this.finish();
-                        overridePendingTransition(0, 0);
-                    }
-                }).start();
     }
 
     private class RequestPhotoLinksTask extends AsyncTask<String, Void, ArrayList<String>> {
@@ -259,41 +229,16 @@ public class GalleryActivity extends SherlockFragmentActivity {
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getSupportMenuInflater();
-        inflater.inflate(R.menu.gallery_menu, menu);
-        //overFlowMenu = menu;
-        return true;
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.gallery_delete:
-                if (currentDrient == null)
-                    return false;
-
-                //Log.d(DEBUG_TAG, "delete " + repoName + Utils.pathJoin(dirPath, currentDrient.name));
-                deleteFile(repoID, Utils.pathJoin(dirPath, currentDrient.name));
-                return true;
-            case R.id.gallery_star:
-                starFile(repoID, dirPath, currentDrient.name);
-                return true;
-            case R.id.gallery_share:
-                shareFile(repoID, Utils.pathJoin(dirPath, currentDrient.name));
-                return true;
-            case R.id.gallery_export:
-                return true;
-            case R.id.gallery_overflow_menu:
-                return true;
+    public void hideOrShowActionBar() {
+        if (!showToolBar) {
+            mToolbar.setVisibility(View.GONE);
+            showToolBar = !showToolBar;
         }
-        return super.onOptionsItemSelected(item);
+        else {
+            mToolbar.setVisibility(View.VISIBLE);
+            showToolBar = !showToolBar;
+        }
+
     }
 
     private void deleteFile(String repoID, String path) {
@@ -386,8 +331,6 @@ public class GalleryActivity extends SherlockFragmentActivity {
         });
         dialog.show(getSupportFragmentManager(), BrowserActivity.CHOOSE_APP_DIALOG_FRAGMENT_TAG);
     }
-
-
 
     class StarFileTask extends AsyncTask<Void, Void, Void> {
         private String repoId;
