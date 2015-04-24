@@ -65,11 +65,6 @@ public class GalleryAdapter extends PagerAdapter {
     }
 
     @Override
-    public int getItemPosition(Object object) {
-        return POSITION_NONE;
-    }
-
-    @Override
     public View instantiateItem(ViewGroup container, final int position) {
         View contentView = inflater.inflate(R.layout.gallery_view_item, container, false);
         final PhotoView photoView = (PhotoView) contentView.findViewById(R.id.gallery_photoview);
@@ -142,6 +137,16 @@ public class GalleryAdapter extends PagerAdapter {
         container.addView(contentView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
         return contentView;
+    }
+
+    /**
+     * when you call notifyDataSetChanged(),
+     * the view pager will remove all views and reload them all.
+     * As so the reload effect is obtained.
+     */
+    @Override
+    public int getItemPosition(Object object) {
+        return POSITION_NONE;
     }
 
     @Override

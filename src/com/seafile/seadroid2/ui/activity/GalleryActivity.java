@@ -125,16 +125,12 @@ public class GalleryActivity extends SherlockFragmentActivity {
             for (SeafDirent seafDirent : seafDirents) {
                 if (!seafDirent.isDir()
                         && Utils.isViewableImage(seafDirent.name)) { // only cache image type files
-                    //TODO may getrepocachedFile is better
-                    final SeafCachedFile scf = dataMgr.getCachedFile(repoName, repoID, Utils.pathJoin(dirPath, seafDirent.name));
-                    if (scf != null) {
-                        final File cachedFile = dataMgr.getLocalCachedFile(repoName, repoID, Utils.pathJoin(dirPath, seafDirent.name), scf.fileID);
-                        if (cachedFile != null) {
-                            // Log.d(DEBUG_TAG, "add cached url file://" + cachedFile.getAbsolutePath());
-                            String thumbnailLink = "file://" + cachedFile.getAbsolutePath();
-                            mThumbnailLinks.add(thumbnailLink);
-                            mThumbnailFileNameMap.put(thumbnailLink, seafDirent);
-                        }
+                    final File cachedFile = dataMgr.getLocalRepoFile(repoName, repoID, Utils.pathJoin(dirPath, seafDirent.name));
+                    if (cachedFile != null) {
+                        // Log.d(DEBUG_TAG, "add cached url file://" + cachedFile.getAbsolutePath());
+                        String thumbnailLink = "file://" + cachedFile.getAbsolutePath();
+                        mThumbnailLinks.add(thumbnailLink);
+                        mThumbnailFileNameMap.put(thumbnailLink, seafDirent);
                     }
                 }
             }
@@ -144,6 +140,8 @@ public class GalleryActivity extends SherlockFragmentActivity {
             mGalleryAdapter = new GalleryAdapter(GalleryActivity.this, mAccount, mThumbnailLinks);
             mViewPager.setAdapter(mGalleryAdapter);
 
+            // dynamically navigate to the starting page index selected by user
+            // by default the starting page index is 0
             for (int i = 0; i < mThumbnailLinks.size(); i++) {
                 if (Utils.fileNameFromPath(mThumbnailLinks.get(i)).equals(fileName)) {
                     mViewPager.setCurrentItem(i);
@@ -264,6 +262,9 @@ public class GalleryActivity extends SherlockFragmentActivity {
             mThumbnailLinks = thumbnailLinks;
             mGalleryAdapter = new GalleryAdapter(GalleryActivity.this, mAccount, thumbnailLinks);
             mViewPager.setAdapter(mGalleryAdapter);
+
+            // dynamically navigate to the starting page index selected by user
+            // by default the starting page index is 0
             for (int i = 0; i< mThumbnailLinks.size(); i++) {
                 String key = mThumbnailLinks.get(i);
                 if (mThumbnailFileNameMap.containsKey(key)
