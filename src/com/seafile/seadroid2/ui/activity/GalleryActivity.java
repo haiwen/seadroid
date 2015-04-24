@@ -2,11 +2,16 @@ package com.seafile.seadroid2.ui.activity;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.text.ClipboardManager;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -30,13 +35,16 @@ import com.seafile.seadroid2.ui.HackyViewPager;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.ZoomOutPageTransformer;
 import com.seafile.seadroid2.ui.adapter.GalleryAdapter;
+import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
 import com.seafile.seadroid2.ui.dialog.DeleteFileDialog;
+import com.seafile.seadroid2.ui.dialog.GetShareLinkDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.util.Utils;
 import uk.co.senab.photoview.PhotoView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -278,6 +286,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
                 starFile(repoID, dirPath, currentDrient.name);
                 return true;
             case R.id.gallery_share:
+                shareFile(repoID, Utils.pathJoin(dirPath, currentDrient.name));
                 return true;
             case R.id.gallery_export:
                 return true;
@@ -287,7 +296,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void deleteFile(String repoID, String path) {
+    private void deleteFile(String repoID, String path) {
         doDelete(repoID, path, false);
     }
 
@@ -304,7 +313,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
         dialog.show(getSupportFragmentManager(), "DialogFragment");
     }
 
-    public void starFile(String repoId, String dir, String fileName) {
+    private void starFile(String repoId, String dir, String fileName) {
         doStarFile(repoId, dir, fileName);
     }
 
@@ -318,6 +327,67 @@ public class GalleryActivity extends SherlockFragmentActivity {
         String p = Utils.pathJoin(path, filename);
         ConcurrentAsyncTask.execute(new StarFileTask(repoID, p));
     }
+
+    private void shareFile(String repoID, String path) {
+        chooseShareApp(repoID, path, false);
+    }
+
+    private void chooseShareApp(final String repoID, final String path, final boolean isdir) {
+        final Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+
+        // Get a list of apps
+        List<ResolveInfo> infos = Utils.getAppsByIntent(shareIntent);
+
+        String title = getString(isdir ? R.string.share_dir_link : R.string.share_file_link);
+
+        AppChoiceDialog dialog = new AppChoiceDialog();
+        dialog.addCustomAction(0, getResources().getDrawable(R.drawable.copy_link),
+                getString(R.string.copy_link));
+        dialog.init(title, infos, new AppChoiceDialog.OnItemSelectedListener() {
+            @Override
+            public void onCustomActionSelected(AppChoiceDialog.CustomAction action) {
+                final GetShareLinkDialog gdialog = new GetShareLinkDialog();
+                gdialog.init(repoID, path, isdir, mAccount);
+                gdialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
+                    @Override
+                    @SuppressWarnings("deprecation")
+                    public void onTaskSuccess() {
+                        ClipboardManager clipboard = (ClipboardManager)
+                                getSystemService(Context.CLIPBOARD_SERVICE);
+                        clipboard.setText(gdialog.getLink());
+                        // ClipData clip = ClipData.newPlainText("seafile shared link", gdialog.getLink());
+                        // clipboard.setPrimaryClip(clip);
+                        ToastUtils.show(GalleryActivity.this, R.string.link_ready_to_be_pasted);
+                    }
+                });
+                gdialog.show(getSupportFragmentManager(), "DialogFragment");
+            }
+
+            @Override
+            public void onAppSelected(ResolveInfo appInfo) {
+                String className = appInfo.activityInfo.name;
+                String packageName = appInfo.activityInfo.packageName;
+                shareIntent.setClassName(packageName, className);
+
+                final GetShareLinkDialog gdialog = new GetShareLinkDialog();
+                gdialog.init(repoID, path, isdir, mAccount);
+                gdialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
+                    @Override
+                    public void onTaskSuccess() {
+                        shareIntent.putExtra(Intent.EXTRA_TEXT, gdialog.getLink());
+                        startActivity(shareIntent);
+                    }
+                });
+                gdialog.show(getSupportFragmentManager(), "DialogFragment");
+            }
+
+        });
+        dialog.show(getSupportFragmentManager(), BrowserActivity.CHOOSE_APP_DIALOG_FRAGMENT_TAG);
+    }
+
+
 
     class StarFileTask extends AsyncTask<Void, Void, Void> {
         private String repoId;
