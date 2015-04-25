@@ -82,23 +82,23 @@
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
                   android:orientation="horizontal"
-                  android:padding="20dp"
+                  android:padding="@dimen/gallery_padding"
                   android:gravity="top|right"
-                  android:visibility="gone"
+                  android:visibility="visible"
                   android:background="@color/black">
         <ImageView android:id="@+id/gallery_delete_photo"
-                   android:layout_width="60dp"
-                   android:layout_height="60dp"
-                   android:layout_marginRight="20dp"
+                   android:layout_width="@dimen/gallery_icon_width"
+                   android:layout_height="@dimen/gallery_icon_height"
+                   android:layout_marginRight="@dimen/gallery_icon_margin_right"
                    android:src="@drawable/action_delete"/>
         <ImageView android:id="@+id/gallery_star_photo"
-                   android:layout_marginRight="20dp"
-                   android:layout_width="60dp"
-                   android:layout_height="60dp"
+                   android:layout_width="@dimen/gallery_icon_width"
+                   android:layout_height="@dimen/gallery_icon_height"
+                   android:layout_marginRight="@dimen/gallery_icon_margin_right"
                    android:src="@drawable/action_star"/>
         <ImageView android:id="@+id/gallery_share_photo"
-                   android:layout_width="60dp"
-                   android:layout_height="60dp"
+                   android:layout_width="@dimen/gallery_icon_width"
+                   android:layout_height="@dimen/gallery_icon_height"
                    android:src="@drawable/action_share"/>
 
     </LinearLayout>

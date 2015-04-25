@@ -132,6 +132,12 @@
 
     <dimen name="index_text_margin_bottom">8dp</dimen>
 
+    <!-- Gallery -->
+    <dimen name="gallery_padding">10dp</dimen>
+    <dimen name="gallery_icon_width">40dp</dimen>
+    <dimen name="gallery_icon_height">40dp</dimen>
+    <dimen name="gallery_icon_margin_right">10dp</dimen>
+
     <!-- Footer -->
     <dimen name="footer_margin_left">20dp</dimen>
     <dimen name="footer_margin_right">20dp</dimen>

@@ -66,6 +66,11 @@
     <dimen name="preference_fragment_padding_bottom">0dp</dimen>
     <dimen name="preference_fragment_padding_side">32dp</dimen>
 
+    <!-- Gallery -->
+    <dimen name="gallery_icon_width">60dp</dimen>
+    <dimen name="gallery_icon_height">60dp</dimen>
+    <dimen name="gallery_icon_margin_right">15dp</dimen>
+
     <!-- Footer -->
 
 </resources>
