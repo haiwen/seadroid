@@ -108,6 +108,11 @@
   <string name="load_dir_fail">Échec du chargement du contenu de ce dossier</string>
   <string name="not_supported_share">Ce type de partage n\'est pas supporté</string>
   <string name="download_folder">Télécharger le dossier</string>
+  <string name="download_folder_title">Choisissez votre option préférée</string>
+  <string-array name="download_folder_options_array">
+    <item>Dossier de téléchargement</item>
+    <item>Dossier de téléchargement et sous dossiers</item>
+  </string-array>
   <string name="create_new_file">Créer un nouveau fichier</string>
   <string name="create_new_dir">Créer un nouveau dossier</string>
   <string name="camera">Prendre une photo</string>
