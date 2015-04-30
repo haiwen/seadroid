@@ -14,7 +14,9 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -671,5 +673,18 @@ public class Utils {
         ((InputMethodManager) SeadroidApplication.getAppContext().getSystemService(
                 Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(
                 view.getWindowToken(), 0);
+    }
+
+    public static String cleanServerURL(String serverURL) throws MalformedURLException {
+        if (!serverURL.endsWith("/")) {
+            serverURL = serverURL + "/";
+        }
+
+        // XXX: android 4.0.3 ~ 4.0.4 can't handle urls with underscore (_) in the host field.
+        // See https://github.com/nostra13/Android-Universal-Image-Loader/issues/256 , and
+        // https://code.google.com/p/android/issues/detail?id=24924
+        //
+        new URL(serverURL); // will throw MalformedURLException if serverURL not valid
+        return serverURL;
     }
 }
