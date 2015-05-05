@@ -144,19 +144,28 @@ public class TransferTaskAdapter extends BaseAdapter {
             viewHolder.progressBar.setVisibility(View.VISIBLE);
             break;
         case FINISHED:
-            stateStr = mContext.getString(R.string.upload_finished);
+            if (mTransferTaskType == 0)
+                stateStr = mContext.getString(R.string.download_finished);
+            else if (mTransferTaskType == 1)
+                stateStr = mContext.getString(R.string.upload_finished);
             stateColor = Color.BLACK;
             viewHolder.fileSize.setVisibility(View.VISIBLE);
             viewHolder.progressBar.setVisibility(View.INVISIBLE);
             break;
         case CANCELLED:
-            stateStr = mContext.getString(R.string.upload_cancelled);
+            if (mTransferTaskType == 0)
+                stateStr = mContext.getString(R.string.download_cancelled);
+            else if (mTransferTaskType == 1)
+                stateStr = mContext.getString(R.string.upload_cancelled);
             stateColor = Color.RED;
             viewHolder.fileSize.setVisibility(View.INVISIBLE);
             viewHolder.progressBar.setVisibility(View.INVISIBLE);
             break;
         case FAILED:
-            stateStr = mContext.getString(R.string.upload_failed);
+            if (mTransferTaskType == 0)
+                stateStr = mContext.getString(R.string.download_failed);
+            else if (mTransferTaskType == 1)
+                stateStr = mContext.getString(R.string.upload_failed);
             stateColor = Color.RED;
             viewHolder.fileSize.setVisibility(View.INVISIBLE);
             viewHolder.progressBar.setVisibility(View.INVISIBLE);
