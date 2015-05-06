@@ -4,30 +4,6 @@
              android:layout_height="fill_parent"
              android:layout_above="@+id/gallery_pager">
 
-    <LinearLayout android:id="@+id/gallery_progressContainer"
-                  android:orientation="vertical"
-                  android:layout_width="match_parent"
-                  android:layout_height="match_parent"
-                  android:background="@color/black"
-                  android:visibility="gone"
-                  android:gravity="center">
-
-        <ProgressBar style="?android:attr/progressBarStyleLarge"
-                     android:layout_width="wrap_content"
-                     android:layout_height="wrap_content" />
-        <TextView android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:textAppearance="?android:attr/textAppearanceSmall"
-                  android:paddingTop="4dip"
-                  android:singleLine="true" />
-
-    </LinearLayout>
-
-    <LinearLayout android:id="@+id/gallery_container"
-                  android:layout_width="fill_parent"
-                  android:layout_height="fill_parent"
-                  android:orientation="vertical">
-
         <com.seafile.seadroid2.ui.HackyViewPager xmlns:android="http://schemas.android.com/apk/res/android"
                                                  android:id="@+id/gallery_pager"
                                                  android:layout_width="match_parent"
@@ -41,7 +17,7 @@
                 android:layout_gravity="right|bottom"
                 android:layout_marginRight="8dp"
                 android:layout_marginBottom="@dimen/index_text_margin_bottom"
-                android:gravity="bottom"
+                android:gravity="top"
                 android:id="@+id/position_layout"
                 android:orientation="horizontal"
                 android:baselineAligned="true">
@@ -126,6 +102,19 @@
                        android:src="@drawable/action_share"/>
 
         </LinearLayout>
-    </LinearLayout>
 
+    <FrameLayout android:id="@+id/gallery_progressContainer"
+                  android:orientation="vertical"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:background="@color/black"
+                  android:visibility="gone"
+                  android:layout_gravity="center_vertical">
+
+        <ProgressBar style="?android:attr/progressBarStyleLarge"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_gravity="center_horizontal"/>
+
+    </FrameLayout>
 </FrameLayout>

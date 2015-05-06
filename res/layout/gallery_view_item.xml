@@ -19,28 +19,12 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center">
 
-        <TextView
-                android:id="@+id/gallery_progress_text"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:paddingBottom="4dp"
-                android:lines="1"
-                android:visibility="gone"
-                android:singleLine="true"
-                android:textColor="@color/white"
-                android:textSize="12dp" />
-
-        <ProgressBar
-                android:id="@+id/gallery_progress_bar"
-                android:layout_width="fill_parent"
-                android:layout_height="6dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
-                android:indeterminate="true"
-                android:visibility="gone"
-                style="@android:style/Widget.ProgressBar.Horizontal" />
-
+        <ProgressBar style="?android:attr/progressBarStyleLarge"
+                     android:id="@+id/gallery_progress_bar"
+                     android:visibility="gone"
+                     android:layout_gravity="center_horizontal"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content" />
     </LinearLayout>
 
     <ImageView

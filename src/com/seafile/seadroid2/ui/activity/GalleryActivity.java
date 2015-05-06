@@ -11,11 +11,11 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.MenuItem;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
@@ -50,8 +50,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
     private TextView mPageIndexTextView;
     private TextView mPageCountTextView;
     private TextView mPageNameTextView;
-    private LinearLayout mProgressView;
-    private LinearLayout mGalleryView;
+    private FrameLayout mProgressView;
     private ImageView mDeleteBtn;
     private ImageView mStarBtn;
     private ImageView mShareBtn;
@@ -97,8 +96,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
         if (getSupportActionBar() != null)
             getSupportActionBar().hide();
 
-        mProgressView = (LinearLayout) findViewById(R.id.gallery_progressContainer);
-        mGalleryView = (LinearLayout) findViewById(R.id.gallery_container);
+        mProgressView = (FrameLayout) findViewById(R.id.gallery_progressContainer);
         mDeleteBtn = (ImageView) findViewById(R.id.gallery_delete_photo);
         mStarBtn = (ImageView) findViewById(R.id.gallery_star_photo);
         mShareBtn = (ImageView) findViewById(R.id.gallery_share_photo);
@@ -414,23 +412,15 @@ public class GalleryActivity extends SherlockFragmentActivity {
     }
 
     private void showLoading(boolean show) {
-        //mErrorText.setVisibility(View.GONE);
         if (show) {
             mProgressView.startAnimation(AnimationUtils.loadAnimation(
                     this, android.R.anim.fade_in));
-            mGalleryView.startAnimation(AnimationUtils.loadAnimation(
-                    this, android.R.anim.fade_out));
 
             mProgressView.setVisibility(View.VISIBLE);
-            mGalleryView.setVisibility(View.INVISIBLE);
         } else {
             mProgressView.startAnimation(AnimationUtils.loadAnimation(
                     this, android.R.anim.fade_out));
-            mGalleryView.startAnimation(AnimationUtils.loadAnimation(
-                    this, android.R.anim.fade_in));
-
             mProgressView.setVisibility(View.GONE);
-            mGalleryView.setVisibility(View.VISIBLE);
         }
     }
 

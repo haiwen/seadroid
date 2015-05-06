@@ -1,25 +1,20 @@
 package com.seafile.seadroid2.ui.adapter;
 
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.support.v4.view.PagerAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingProgressListener;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.ui.AnimationRect;
 import com.seafile.seadroid2.ui.activity.GalleryActivity;
-import com.seafile.seadroid2.util.Utils;
 import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
@@ -68,49 +63,39 @@ public class GalleryAdapter extends PagerAdapter {
     public View instantiateItem(ViewGroup container, final int position) {
         View contentView = inflater.inflate(R.layout.gallery_view_item, container, false);
         final PhotoView photoView = (PhotoView) contentView.findViewById(R.id.gallery_photoview);
-        final TextView progressText = (TextView) contentView.findViewById(R.id.gallery_progress_text);
         final ProgressBar progressBar = (ProgressBar) contentView.findViewById(R.id.gallery_progress_bar);
         final ImageView animationView = (ImageView) contentView.findViewById(R.id.gallery_animation);
         ImageLoader.getInstance().displayImage(mPhotoLinks.get(position), photoView, options, new ImageLoadingListener() {
             @Override
             public void onLoadingStarted(String s, View view) {
                 //Log.d(DEBUG_TAG, "ImageLoadingListener >> onLoadingStarted");
-                progressBar.setProgress(0);
                 progressBar.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onLoadingFailed(String s, View view, FailReason failReason) {
                 //Log.d(DEBUG_TAG, "ImageLoadingListener >> onLoadingFailed");
-                progressBar.setProgress(0);
                 progressBar.setVisibility(View.INVISIBLE);
-                progressText.setVisibility(View.INVISIBLE);
             }
 
             @Override
             public void onLoadingComplete(String s, View view, Bitmap bitmap) {
                 //Log.d(DEBUG_TAG, "ImageLoadingListener >> onLoadingComplete");
-                progressBar.setProgress(100);
                 progressBar.setVisibility(View.INVISIBLE);
-                progressText.setVisibility(View.INVISIBLE);
             }
 
             @Override
             public void onLoadingCancelled(String s, View view) {
                 //Log.d(DEBUG_TAG, "ImageLoadingListener >> onLoadingCancelled");
-                progressBar.setProgress(0);
                 progressBar.setVisibility(View.INVISIBLE);
-                progressText.setVisibility(View.INVISIBLE);
 
             }
         }, new ImageLoadingProgressListener() {
             @Override
             public void onProgressUpdate(String s, View view, int i, int i1) {
-                //Log.d(DEBUG_TAG, "ImageLoadingProgressListener >> onProgressUpdate >> s " + s + " i " + i + " i1 " + i1);
-                progressText.setText(Utils.readableFileSize(i)+ "/" + Utils.readableFileSize(i1));
-                progressText.setVisibility(View.VISIBLE);
-                progressBar.setIndeterminate(false);
-                progressBar.setProgress(i * 100 / i1);
+                // There isn`t any way to get the actual loading bytes and total bytes with which
+                // could show the progress bar with precise percent
+                // see https://github.com/nostra13/Android-Universal-Image-Loader/issues/402 for details
                 progressBar.setVisibility(View.VISIBLE);
             }
         });
