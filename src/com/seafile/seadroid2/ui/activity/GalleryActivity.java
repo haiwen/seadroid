@@ -10,6 +10,7 @@ import android.text.ClipboardManager;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -49,6 +50,8 @@ public class GalleryActivity extends SherlockFragmentActivity {
     private TextView mPageIndexTextView;
     private TextView mPageCountTextView;
     private TextView mPageNameTextView;
+    private LinearLayout mProgressView;
+    private LinearLayout mGalleryView;
     private ImageView mDeleteBtn;
     private ImageView mStarBtn;
     private ImageView mShareBtn;
@@ -94,6 +97,8 @@ public class GalleryActivity extends SherlockFragmentActivity {
         if (getSupportActionBar() != null)
             getSupportActionBar().hide();
 
+        mProgressView = (LinearLayout) findViewById(R.id.gallery_progressContainer);
+        mGalleryView = (LinearLayout) findViewById(R.id.gallery_container);
         mDeleteBtn = (ImageView) findViewById(R.id.gallery_delete_photo);
         mStarBtn = (ImageView) findViewById(R.id.gallery_star_photo);
         mShareBtn = (ImageView) findViewById(R.id.gallery_share_photo);
@@ -154,6 +159,11 @@ public class GalleryActivity extends SherlockFragmentActivity {
         }
 
         @Override
+        protected void onPreExecute() {
+            showLoading(true);
+        }
+
+        @Override
         protected ArrayList<String> doInBackground(String... params) {
             if (params.length != 3) {
                 Log.e(DEBUG_TAG, "Wrong params to RequestPhotoLinksTask");
@@ -192,6 +202,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
 
         @Override
         protected void onPostExecute(ArrayList<String> links) {
+            showLoading(false);
             if (links == null
                     || links.isEmpty()
                     || fileName == null) {
@@ -401,5 +412,27 @@ public class GalleryActivity extends SherlockFragmentActivity {
         }
 
     }
+
+    private void showLoading(boolean show) {
+        //mErrorText.setVisibility(View.GONE);
+        if (show) {
+            mProgressView.startAnimation(AnimationUtils.loadAnimation(
+                    this, android.R.anim.fade_in));
+            mGalleryView.startAnimation(AnimationUtils.loadAnimation(
+                    this, android.R.anim.fade_out));
+
+            mProgressView.setVisibility(View.VISIBLE);
+            mGalleryView.setVisibility(View.INVISIBLE);
+        } else {
+            mProgressView.startAnimation(AnimationUtils.loadAnimation(
+                    this, android.R.anim.fade_out));
+            mGalleryView.startAnimation(AnimationUtils.loadAnimation(
+                    this, android.R.anim.fade_in));
+
+            mProgressView.setVisibility(View.GONE);
+            mGalleryView.setVisibility(View.VISIBLE);
+        }
+    }
+
 }
 
