@@ -409,6 +409,10 @@ public class ReposFragment extends SherlockListFragment {
     }
 
     public void browsePhotosInGallery(String dirPath, String fileName) {
+        if (!Utils.isNetworkOn()) {
+            ToastUtils.show(mActivity, R.string.network_down);
+            return;
+        }
         Intent intent = new Intent(mActivity, GalleryActivity.class);
         intent.putExtra("repoName", getNavContext().getRepoName());
         intent.putExtra("repoId", getNavContext().getRepoID());
