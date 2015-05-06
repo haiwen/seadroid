@@ -47,6 +47,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
 
     private ViewPager mViewPager;
     private ImageView animationView;
+    private LinearLayout mPageIndexContainer;
     private TextView mPageIndexTextView;
     private TextView mPageCountTextView;
     private TextView mPageNameTextView;
@@ -128,6 +129,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
             public void onPageScrollStateChanged(int state) {}
         });
 
+        mPageIndexContainer = (LinearLayout) findViewById(R.id.page_index_container);
         mPageIndexTextView = (TextView) findViewById(R.id.gallery_page_index);
         mPageCountTextView = (TextView) findViewById(R.id.gallery_page_count);
         mPageNameTextView = (TextView) findViewById(R.id.gallery_page_name);
@@ -241,10 +243,14 @@ public class GalleryActivity extends SherlockFragmentActivity {
     public void hideOrShowActionBar() {
         if (!showToolBar) {
             mToolbar.setVisibility(View.GONE);
+            mPageIndexContainer.setVisibility(View.GONE);
+            mPageNameTextView.setVisibility(View.GONE);
             showToolBar = !showToolBar;
         }
         else {
             mToolbar.setVisibility(View.VISIBLE);
+            mPageIndexContainer.setVisibility(View.VISIBLE);
+            mPageNameTextView.setVisibility(View.VISIBLE);
             showToolBar = !showToolBar;
         }
 
