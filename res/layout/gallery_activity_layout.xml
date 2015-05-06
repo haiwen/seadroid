@@ -84,7 +84,7 @@
                   android:orientation="horizontal"
                   android:padding="@dimen/gallery_padding"
                   android:gravity="top|right"
-                  android:visibility="visible"
+                  android:visibility="gone"
                   android:background="@color/black">
         <ImageView android:id="@+id/gallery_delete_photo"
                    android:layout_width="@dimen/gallery_icon_width"
