@@ -670,6 +670,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         // Libraries Tab
         if (currentPosition == 0) {
+            menuSort.setVisible(true);
             menuUpload.setVisible(true);
             menuDownloadFolder.setVisible(true);
             if (navContext.inRepo() && hasRepoWritePermission()) {
@@ -680,22 +681,26 @@ public class BrowserActivity extends SherlockFragmentActivity
                 menuDownloadFolder.setEnabled(false);
             }
         } else {
+            menuSort.setVisible(false);
             menuUpload.setVisible(false);
             menuDownloadFolder.setVisible(false);
         }
 
         // Libraries Tab
         if (currentPosition == 0) {
+            menuSort.setVisible(true);
             menuRefresh.setVisible(true);
             menuTransferTasks.setVisible(true);
             menuAccounts.setVisible(true);
             menuSettings.setVisible(true);
         } else if (currentPosition == 2) { // ACTIVITY_TAB
+            menuSort.setVisible(false);
             menuRefresh.setVisible(true);
             menuTransferTasks.setVisible(true);
             menuAccounts.setVisible(true);
             menuSettings.setVisible(true);
         } else {
+            menuSort.setVisible(false);
             menuRefresh.setVisible(false);
             menuTransferTasks.setVisible(false);
             menuAccounts.setVisible(false);
@@ -883,9 +888,11 @@ public class BrowserActivity extends SherlockFragmentActivity
                                             switch (which) {
                                                 case SORT_BY_NAME:
                                                     ToastUtils.show(BrowserActivity.this, "sort by name");
+                                                    sortByName();
                                                     break;
                                                 case SORT_BY_MODIFICATION_TIME:
                                                     ToastUtils.show(BrowserActivity.this, "sort by modification time");
+                                                    sortByTime();
                                                     break;
                                                 default:
                                                     return;
@@ -893,6 +900,47 @@ public class BrowserActivity extends SherlockFragmentActivity
                                         }
                                     });
             return builder.show();
+        }
+    }
+
+    private void sortByName() {
+        if (currentPosition == 0) {
+            if (navContext.inRepo()) {
+                SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
+                /*if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
+                    String password = DataManager.getRepoPassword(repo.id);
+                    showPasswordDialog(repo.name, repo.id,
+                            new TaskDialog.TaskDialogListener() {
+                                @Override
+                                public void onTaskSuccess() {
+                                    getReposFragment().sortDirentsByName();
+                                }
+                            }, password);
+
+                }*/
+                getReposFragment().sortDirentsByName();
+            } else
+                getReposFragment().sortReposByName();
+        }
+    }
+    private void sortByTime() {
+        if (currentPosition == 0) {
+            if (navContext.inRepo()) {
+                SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
+                /*if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
+                    String password = DataManager.getRepoPassword(repo.id);
+                    showPasswordDialog(repo.name, repo.id,
+                            new TaskDialog.TaskDialogListener() {
+                                @Override
+                                public void onTaskSuccess() {
+                                    getReposFragment().sortDirentsByTime();
+                                }
+                            }, password);
+
+                }*/
+                getReposFragment().sortDirentsByTime();
+            } else
+                getReposFragment().sortRepoByTime();
         }
     }
 
