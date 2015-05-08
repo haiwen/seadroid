@@ -2,6 +2,12 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <item android:id="@+id/sort"
+          android:visible="true"
+          android:icon="@drawable/sort"
+          android:title="@string/sort_menu_item"
+          android:showAsAction="always"/>
+
     <item android:id="@+id/search"
           android:visible="true"
           android:icon="@drawable/search"
