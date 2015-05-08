@@ -331,10 +331,63 @@ public class ReposFragment extends SherlockListFragment {
         }
     }
 
+    private class RepoNameComparator implements Comparator<SeafRepo> {
+
+        @Override
+        public int compare(SeafRepo itemA, SeafRepo itemB) {
+            return itemA.name.toLowerCase().compareTo(itemB.name.toLowerCase());
+        }
+    }
+
+    private class DirentNameComparator implements Comparator<SeafDirent> {
+
+        @Override
+        public int compare(SeafDirent itemA, SeafDirent itemB) {
+            return itemA.name.toLowerCase().compareTo(itemB.name.toLowerCase());
+        }
+    }
+
+    public void sortReposByName() {
+        List<SeafRepo> repos = getDataManager().getReposFromCache();
+        if (repos != null
+                && repos.size() > 1) {
+            Collections.sort(repos, new RepoNameComparator());
+            updateAdapterWithRepos(repos);
+        }
+    }
+
+    public void sortDirentsByName() {
+        List<SeafDirent> dirents = getDataManager().getCachedDirents(
+                getNavContext().getRepoID(), getNavContext().getDirPath());
+        if (dirents != null
+                && dirents.size() > 1) {
+            Collections.sort(dirents, new DirentNameComparator());
+            updateAdapterWithDirents(dirents);
+        }
+    }
+
+    public void sortRepoByTime() {
+        List<SeafRepo> repos = getDataManager().getReposFromCache();
+        if (repos != null
+                && repos.size() > 1) {
+            Collections.sort(repos, new RepoMTimeComparator());
+            updateAdapterWithRepos(repos);
+        }
+    }
+
+    public void sortDirentsByTime() {
+        List<SeafDirent> dirents = getDataManager().getCachedDirents(
+                getNavContext().getRepoID(), getNavContext().getDirPath());
+        if (dirents != null
+                && dirents.size() > 1) {
+            Collections.sort(dirents, new DirentMTimeComparator());
+            updateAdapterWithDirents(dirents);
+        }
+    }
+
     private void updateAdapterWithRepos(List<SeafRepo> repos) {
         adapter.clear();
         if (repos.size() > 0) {
-            Collections.sort(repos, new RepoMTimeComparator());
             addReposToAdapter(repos);
             adapter.notifyChanged();
             mPullRefreshListView.setVisibility(View.VISIBLE);
@@ -349,7 +402,6 @@ public class ReposFragment extends SherlockListFragment {
     private void updateAdapterWithDirents(final List<SeafDirent> dirents) {
         adapter.clear();
         if (dirents.size() > 0) {
-            Collections.sort(dirents, new DirentMTimeComparator());
             for (SeafDirent dirent : dirents) {
                 adapter.add(dirent);
             }
