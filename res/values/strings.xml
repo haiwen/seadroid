@@ -369,6 +369,14 @@
         <item quantity="other">Starting to download <xliff:g id="download_files">%1$d</xliff:g> files</item>
     </plurals>
 
+    <!-- Sort -->
+    <string name="sort_menu_item">Sort</string>
+    <string name="sort_files">Sort files</string>
+    <array name="sort_files_options_array">
+        <item>Sort by name</item>
+        <item>Sort by time</item>
+    </array>
+
     <!-- Search -->
     <string name="search_menu_item">Search</string>
     <string name="search_bar_hint">Searching&#8230;</string>

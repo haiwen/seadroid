@@ -10,6 +10,7 @@ import java.util.*;
 
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
+import android.app.Dialog;
 import android.content.*;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -54,6 +55,8 @@ import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.ui.CopyMoveContext;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.WidgetUtils;
+import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
+import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
 import com.seafile.seadroid2.ui.dialog.CopyMoveDialog;
 import com.seafile.seadroid2.ui.dialog.DeleteFileDialog;
@@ -654,6 +657,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menuSearch = menu.findItem(R.id.search);
+        MenuItem menuSort = menu.findItem(R.id.sort);
         MenuItem menuUpload = menu.findItem(R.id.upload);
         MenuItem menuRefresh = menu.findItem(R.id.refresh);
         MenuItem menuDownloadFolder = menu.findItem(R.id.download_folder);
@@ -752,6 +756,9 @@ public class BrowserActivity extends SherlockFragmentActivity
             if (navContext.inRepo()) {
                 onBackPressed();
             }
+            return true;
+        case R.id.sort:
+            showSortFilesDialog();
             return true;
         case R.id.search:
             Intent searchIntent = new Intent(this, SearchActivity.class);
@@ -854,6 +861,39 @@ public class BrowserActivity extends SherlockFragmentActivity
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+    }
+
+    private void showSortFilesDialog() {
+        new SortFilesDialog().show(getSupportFragmentManager(), "sort files");
+    }
+
+    public static final int SORT_BY_NAME = 0;
+    public static final int SORT_BY_MODIFICATION_TIME = 1;
+
+    public class SortFilesDialog extends DialogFragment {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            SeafileStyleDialogBuilder builder =
+                    new SeafileStyleDialogBuilder(getActivity()).
+                            setTitle(getResources().getString(R.string.sort_files)).
+                            setItems(R.array.sort_files_options_array,
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            switch (which) {
+                                                case SORT_BY_NAME:
+                                                    ToastUtils.show(BrowserActivity.this, "sort by name");
+                                                    break;
+                                                case SORT_BY_MODIFICATION_TIME:
+                                                    ToastUtils.show(BrowserActivity.this, "sort by modification time");
+                                                    break;
+                                                default:
+                                                    return;
+                                            }
+                                        }
+                                    });
+            return builder.show();
+        }
     }
 
     private void showNewDirDialog() {
