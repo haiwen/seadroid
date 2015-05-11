@@ -962,7 +962,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                     return;
                 // ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
                 for (String path : paths) {
-                    addUploadTask(mCurrentRepoID, mCurrentRepoName, mCurrentDir, path);
+                    addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), path);
                 }
             }
             break;
@@ -973,7 +973,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                     return;
                 // ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
                 for (String path : paths) {
-                    addUploadTask(mCurrentRepoID, mCurrentRepoName, mCurrentDir, path);
+                    addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), path);
                 }
             }
             break;
@@ -1025,7 +1025,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                     return;
                 }
                 // ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
-                addUploadTask(mCurrentRepoID, mCurrentRepoName, mCurrentDir, strImgPath);
+                addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), strImgPath);
 
             }
             break;
