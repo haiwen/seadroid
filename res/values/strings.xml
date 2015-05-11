@@ -57,8 +57,6 @@
     <string name="uploaded">Uploaded</string>
     <string name="updated">Updated</string>
     <string name="download_failed">Download failed</string>
-    <string name="trust_https_server">The certification is not issued by a trusted organization, do you want to continue?</string>
-    <string name="upload_to">upload to: </string>
     <string name="task_cancel">Cancel</string>
     <string name="task_retry">Retry</string>
     <string name="task_remove">Remove</string>
@@ -113,7 +111,7 @@
     <string name="load_dir_fail">Failed to load contents of this folder</string>
     <string name="not_supported_share">This type of share is not supported</string>
     <string name="download_folder">Download folder</string>
-    <string name="download_folder_title">Choose your preffered option</string>
+    <string name="download_folder_title">Choose your preferred option</string>
     <string-array name="download_folder_options_array">
         <item>Download folder</item>
         <item>Download folder and subfolders</item>
@@ -385,16 +383,14 @@
     <string name="notification_upload_started_title">Uploading files&#8230;</string>
     <string name="notification_download_started_title">Downloading files&#8230;</string>
     <string name="notification_upload_completed">Upload completed</string>
-    <string name="notification_upload_cancelled">Upload cancelled</string>
     <plurals name="notification_upload_info">
-        <item quantity="one">Uploading file, %1$d file left (%2$d%%)</item>
-        <item quantity="other">Uploading files, %1$d files left (%2$d%%)</item>
+        <item quantity="one">Uploading %1$d file (%2$d%%)</item>
+        <item quantity="other">Uploading %1$d files (%2$d%%)</item>
     </plurals>
     <plurals name="notification_download_info">
-        <item quantity="one">Downloading file, %1$d file left (%2$d%%)</item>
-        <item quantity="other">Downloading files, %1$d files left (%2$d%%)</item>
+        <item quantity="one">Downloading %1$d file (%2$d%%)</item>
+        <item quantity="other">Downloading %1$d files (%2$d%%)</item>
     </plurals>
     <string name="notification_download_completed">Download completed</string>
-    <string name="notification_download_cancelled">Download cancelled</string>
 
 </resources>

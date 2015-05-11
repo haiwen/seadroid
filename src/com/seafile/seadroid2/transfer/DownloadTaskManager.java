@@ -2,13 +2,18 @@ package com.seafile.seadroid2.transfer;
 
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.util.Utils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -21,6 +26,8 @@ public class DownloadTaskManager extends TransferManager implements DownloadStat
     public static final String BROADCAST_FILE_DOWNLOAD_SUCCESS = "downloaded";
     public static final String BROADCAST_FILE_DOWNLOAD_FAILED = "downloadFailed";
     public static final String BROADCAST_FILE_DOWNLOAD_PROGRESS = "downloadProgress";
+
+    private static DownloadNotificationProvider mNotifProvider;
 
     /**
      * Add a new download task.
@@ -48,10 +55,11 @@ public class DownloadTaskManager extends TransferManager implements DownloadStat
         return task.getTaskID();
     }
 
-    public void addTaskToQue(Account account, String repoName, String repoID, String path) {
+    public int addTaskToQue(Account account, String repoName, String repoID, String path) {
         // create a new one to avoid IllegalStateException
         DownloadTask downloadTask = new DownloadTask(++notificationID, account, repoName, repoID, path, this);
         addTaskToQue(downloadTask);
+        return notificationID;
     }
 
     public int getDownloadingFileCountByPath(String repoID, String dir) {
@@ -63,29 +71,6 @@ public class DownloadTaskManager extends TransferManager implements DownloadStat
                 count++;
         }
         return count;
-    }
-
-    public int getDownloadingFileCount() {
-        List<DownloadTaskInfo> downloadTaskInfos = (List<DownloadTaskInfo>) getAllTaskInfoList();
-        int count = 0;
-        for (DownloadTaskInfo downloadTaskInfo : downloadTaskInfos) {
-            if (downloadTaskInfo.state.equals(TaskState.INIT)
-                    || downloadTaskInfo.state.equals(TaskState.TRANSFERRING))
-                count++;
-        }
-        return count;
-    }
-
-    public long getDownloadedFileSizeByPath(String repoID, String dir) {
-        long downloadedSize = 0l;
-        List<DownloadTaskInfo> list = getTaskInfoListByPath(repoID, dir);
-        for (DownloadTaskInfo dti : list) {
-            if (dti.state.equals(TaskState.FINISHED))
-                downloadedSize += dti.fileSize;
-            else if (dti.state.equals(TaskState.TRANSFERRING))
-                downloadedSize += dti.finished;
-        }
-        return downloadedSize;
     }
 
     /**
@@ -102,9 +87,26 @@ public class DownloadTaskManager extends TransferManager implements DownloadStat
                 continue;
 
             String parentDir = Utils.getParentPath(task.getPath());
-
             if (parentDir.equals(dir))
                 infos.add(((DownloadTask) task).getTaskInfo());
+        }
+
+        return infos;
+    }
+
+    /**
+     * get all download task info under a specific repo.
+     *
+     * @param repoID
+     * @return List<DownloadTaskInfo>
+     */
+    public List<DownloadTaskInfo> getTaskInfoListByRepo(String repoID) {
+        ArrayList<DownloadTaskInfo> infos = Lists.newArrayList();
+        for (TransferTask task : allTaskList) {
+            if (!task.getRepoID().equals(repoID))
+                continue;
+
+            infos.add(((DownloadTask) task).getTaskInfo());
         }
 
         return infos;
@@ -117,12 +119,42 @@ public class DownloadTaskManager extends TransferManager implements DownloadStat
         addTaskToQue(task.getAccount(), task.getRepoName(), task.getRepoID(), task.getPath());
     }
 
+    private void notifyProgress(int taskID) {
+        DownloadTaskInfo info = (DownloadTaskInfo) getTaskInfo(taskID);
+        if (info == null)
+            return;
+
+        if (mNotifProvider != null)
+            mNotifProvider.updateNotification();
+    }
+
+    public void saveNotifProvider(DownloadNotificationProvider provider) {
+        mNotifProvider = provider;
+    }
+
+    public boolean hasNotifProvider() {
+        return mNotifProvider != null;
+    }
+
+    public DownloadNotificationProvider getNotifProvider() {
+        if (hasNotifProvider())
+            return mNotifProvider;
+        else
+            return null;
+    }
+
+    public void cancelAllDownloadNotification() {
+        if (mNotifProvider != null)
+            mNotifProvider.cancelNotification();
+    }
+
     // -------------------------- listener method --------------------//
     @Override
     public void onFileDownloadProgress(int taskID) {
         Intent localIntent = new Intent(BROADCAST_ACTION).putExtra("type",
                 BROADCAST_FILE_DOWNLOAD_PROGRESS).putExtra("taskID", taskID);
         LocalBroadcastManager.getInstance(SeadroidApplication.getAppContext()).sendBroadcast(localIntent);
+        notifyProgress(taskID);
     }
 
     @Override
@@ -132,6 +164,7 @@ public class DownloadTaskManager extends TransferManager implements DownloadStat
         Intent localIntent = new Intent(BROADCAST_ACTION).putExtra("type",
                 BROADCAST_FILE_DOWNLOAD_SUCCESS).putExtra("taskID", taskID);
         LocalBroadcastManager.getInstance(SeadroidApplication.getAppContext()).sendBroadcast(localIntent);
+        notifyProgress(taskID);
     }
 
     @Override
@@ -141,5 +174,6 @@ public class DownloadTaskManager extends TransferManager implements DownloadStat
         Intent localIntent = new Intent(BROADCAST_ACTION).putExtra("type",
                 BROADCAST_FILE_DOWNLOAD_FAILED).putExtra("taskID", taskID);
         LocalBroadcastManager.getInstance(SeadroidApplication.getAppContext()).sendBroadcast(localIntent);
+        notifyProgress(taskID);
     }
 }

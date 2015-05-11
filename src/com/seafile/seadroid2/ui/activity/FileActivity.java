@@ -16,6 +16,7 @@ import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.TaskState;
 import com.seafile.seadroid2.transfer.TransferService;
@@ -173,6 +174,17 @@ public class FileActivity extends SherlockFragmentActivity {
         String txt = Utils.readableFileSize(finished) + " / " + Utils.readableFileSize(fileSize);
 
         mProgressText.setText(txt);
+
+        if (!mTransferService.hasDownloadNotifProvider()) {
+            DownloadNotificationProvider provider = new DownloadNotificationProvider(
+                    mTransferService.getDownloadTaskManager(),
+                    mTransferService,
+                    fileSize);
+            mTransferService.saveDownloadNotifProvider(provider);
+        } else {
+            // if the notificationManager mapping the repoID exist, update its data set
+            mTransferService.getDownloadNotifProvider().updateTotalSize(fileSize);
+        }
     }
 
     private void onFileDownloaded() {

@@ -15,7 +15,9 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.ui.NotificationUtils;
+import com.seafile.seadroid2.notification.BaseNotificationProvider;
+import com.seafile.seadroid2.notification.DownloadNotificationProvider;
+import com.seafile.seadroid2.notification.UploadNotificationProvider;
 import com.seafile.seadroid2.ui.adapter.TransferTaskAdapter;
 import com.seafile.seadroid2.ui.fragment.DownloadTaskFragment;
 import com.seafile.seadroid2.ui.fragment.UploadTaskFragment;
@@ -36,13 +38,13 @@ public class TransferActivity extends SherlockFragmentActivity {
     protected void onNewIntent(Intent intent) {
         Bundle extras = intent.getExtras();
         if (extras != null) {
-            if (extras.containsKey(NotificationUtils.NOTIFICATION_MESSAGE_KEY)) {
+            if (extras.containsKey(BaseNotificationProvider.NOTIFICATION_MESSAGE_KEY)) {
                 // extract the extra-data in the Notification
-                String msg = extras.getString(NotificationUtils.NOTIFICATION_MESSAGE_KEY);
-                if (msg.equals(NotificationUtils.NOTIFICATION_OPEN_DOWNLOAD_TAB)) {
+                String msg = extras.getString(BaseNotificationProvider.NOTIFICATION_MESSAGE_KEY);
+                if (msg.equals(DownloadNotificationProvider.NOTIFICATION_OPEN_DOWNLOAD_TAB)) {
                     currentPosition = 0;
                     indicator.setCurrentItem(0);
-                } else if (msg.equals(NotificationUtils.NOTIFICATION_OPEN_UPLOAD_TAB)) {
+                } else if (msg.equals(BaseNotificationProvider.NOTIFICATION_OPEN_UPLOAD_TAB)) {
                     currentPosition = 1;
                     indicator.setCurrentItem(1);
                 }
