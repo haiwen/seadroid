@@ -145,6 +145,52 @@ public class GalleryActivity extends SherlockFragmentActivity {
     }
 
     private void showGallery(String repoName, String repoID, String dirPath, String fileName) {
+        if (!Utils.isNetworkOn()) {
+            // show cached images
+            List<SeafDirent> seafDirents = dataMgr.getCachedDirents(repoID, dirPath);
+            if (seafDirents == null)
+                return;
+
+            ArrayList<String> links = Lists.newArrayList();
+            for (SeafDirent seafDirent : seafDirents) {
+                if (!seafDirent.isDir()
+                        && Utils.isViewableImage(seafDirent.name)) { // only cache image type files
+                    String link = dataMgr.getThumbnailLink(repoID, Utils.pathJoin(dirPath, seafDirent.name), 800);
+                    // Log.d(DEBUG_TAG, "add remote url " + thumbnailLink);
+                    if (link != null) {
+                        links.add(link);
+                        mThumbnailFileNameMap.put(link, seafDirent);
+                    }
+                }
+            }
+
+            mGalleryAdapter = new GalleryAdapter(GalleryActivity.this, mAccount, links);
+            mViewPager.setAdapter(mGalleryAdapter);
+
+            // dynamically navigate to the starting page index selected by user
+            // by default the starting page index is 0
+            for (int i = 0; i < links.size(); i++) {
+                String key = links.get(i);
+                if (mThumbnailFileNameMap.containsKey(key)
+                        && mThumbnailFileNameMap.get(key).name.equals(fileName)) {
+                    Log.d(DEBUG_TAG, "current index " + i);
+                    Log.d(DEBUG_TAG, "current file name " + fileName);
+                    mViewPager.setCurrentItem(i);
+                    mPageIndexTextView.setText(String.valueOf(i + 1));
+                    mPageIndex = i;
+                    mPageNameTextView.setText(fileName);
+                    String linkKey = mGalleryAdapter.getItem(i);
+                    if (mThumbnailFileNameMap.containsKey(linkKey)) {
+                        currentDrient = mThumbnailFileNameMap.get(linkKey);
+                    }
+                    break;
+                }
+            }
+            mPageCountTextView.setText(String.valueOf(links.size()));
+
+            return;
+        }
+
         ConcurrentAsyncTask.execute(mLinksTask, repoName, repoID, dirPath);
     }
 
