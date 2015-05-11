@@ -24,7 +24,6 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
-import com.seafile.seadroid2.ui.HackyViewPager;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.ZoomOutPageTransformer;
 import com.seafile.seadroid2.ui.adapter.GalleryAdapter;
@@ -105,7 +104,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
         mDeleteBtn.setOnClickListener(onClickListener);
         mStarBtn.setOnClickListener(onClickListener);
         mShareBtn.setOnClickListener(onClickListener);
-        mViewPager = (HackyViewPager) findViewById(R.id.gallery_pager);
+        mViewPager = (ViewPager) findViewById(R.id.gallery_pager);
         mViewPager.setPageTransformer(true, new ZoomOutPageTransformer());
         mViewPager.setOffscreenPageLimit(1);
 
