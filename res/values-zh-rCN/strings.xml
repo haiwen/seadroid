@@ -356,10 +356,10 @@
   <string name="notification_upload_completed">上传完成</string>
   <string name="notification_upload_cancelled">上传取消</string>
   <plurals name="notification_upload_info">
-    <item quantity="other">文件上传中，剩余%1$d个(%2$d%%)</item>
+    <item quantity="other">正在上传%1$d个文件(%2$d%%)</item>
   </plurals>
   <plurals name="notification_download_info">
-    <item quantity="other">文件下载中，剩余%1$d个(%2$d%%)</item>
+    <item quantity="other">正在下载%1$d个文件(%2$d%%)</item>
   </plurals>
   <string name="notification_download_completed">下载完成</string>
   <string name="notification_download_cancelled">下载取消</string>

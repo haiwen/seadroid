@@ -1,10 +1,15 @@
 package com.seafile.seadroid2.transfer;
 
+import android.app.NotificationManager;
 import android.util.Log;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
+import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.util.Utils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -156,4 +161,5 @@ public abstract class TransferManager {
 
         return infos;
     }
+
 }

@@ -21,11 +21,8 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.support.v4.app.*;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
@@ -48,12 +45,11 @@ import com.seafile.seadroid2.cameraupload.CameraUploadService;
 import com.seafile.seadroid2.data.*;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 import com.seafile.seadroid2.monitor.FileMonitorService;
-import com.seafile.seadroid2.ui.NotificationUtils;
+import com.seafile.seadroid2.notification.DownloadNotificationProvider;
+import com.seafile.seadroid2.notification.UploadNotificationProvider;
+import com.seafile.seadroid2.ui.*;
 import com.seafile.seadroid2.transfer.*;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
-import com.seafile.seadroid2.ui.CopyMoveContext;
-import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
-import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
 import com.seafile.seadroid2.ui.dialog.CopyMoveDialog;
 import com.seafile.seadroid2.ui.dialog.DeleteFileDialog;
@@ -122,12 +118,6 @@ public class BrowserActivity extends SherlockFragmentActivity
     private Menu overFlowMenu;
     private MenuItem menuSearch;
 
-    private int downloadTotalCount;
-    private int uploadTotalCount;
-    private long downloadTotalSize;
-    private long uploadTotalSize;
-    private int downloadNotifyCount;
-    private int uploadNotifyCount;
     private String mCurrentRepoName, mCurrentRepoID, mCurrentDir;
 
     private Intent copyMoveIntent;
@@ -147,12 +137,13 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
     }
 
-    private void addUploadTask(String repoID, String repoName, String targetDir, String localFilePath) {
+    private int addUploadTask(String repoID, String repoName, String targetDir, String localFilePath) {
         if (txService != null) {
-            txService.addTaskToUploadQue(account, repoID, repoName, targetDir, localFilePath, false, true);
+            return txService.addTaskToUploadQue(account, repoID, repoName, targetDir, localFilePath, false, true);
         } else {
             PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, false, true);
             pendingUploads.add(info);
+            return 0;
         }
     }
 
@@ -179,7 +170,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.tabs_main);
-        
+
         // Get the message from the intent
         Intent intent = getIntent();
         String server = intent.getStringExtra(AccountManager.SHARED_PREF_SERVER_KEY);
@@ -601,9 +592,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         if (mTransferReceiver != null) {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(mTransferReceiver);
         }
-
-        NotificationUtils.cancelDownloadNotificaiton();
-        NotificationUtils.cancelUpoloadNotificaiton();
     }
 
     @Override
@@ -613,7 +601,6 @@ public class BrowserActivity extends SherlockFragmentActivity
             unbindService(mConnection);
             txService = null;
         }
-
         super.onDestroy();
     }
 
@@ -974,11 +961,8 @@ public class BrowserActivity extends SherlockFragmentActivity
                 if (paths == null)
                     return;
                 // ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
-                resetUploadNotification();
                 for (String path : paths) {
                     addUploadTask(mCurrentRepoID, mCurrentRepoName, mCurrentDir, path);
-                    uploadTotalSize += new File(path).length();
-                    uploadTotalCount++;
                 }
             }
             break;
@@ -988,11 +972,8 @@ public class BrowserActivity extends SherlockFragmentActivity
                 if (paths == null)
                     return;
                 // ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
-                resetUploadNotification();
                 for (String path : paths) {
                     addUploadTask(mCurrentRepoID, mCurrentRepoName, mCurrentDir, path);
-                    uploadTotalSize += new File(path).length();
-                    uploadTotalCount++;
                 }
             }
             break;
@@ -1044,10 +1025,8 @@ public class BrowserActivity extends SherlockFragmentActivity
                     return;
                 }
                 // ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
-                resetUploadNotification();
                 addUploadTask(mCurrentRepoID, mCurrentRepoName, mCurrentDir, strImgPath);
-                uploadTotalSize += new File(navContext.getDirPath()).length();
-                uploadTotalCount++;
+
             }
             break;
         default:
@@ -1067,7 +1046,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                 File tempDir = new File(DataManager.getExternalTempDirectory(), "saf_temp" + "/" + "upload-"+System.currentTimeMillis());
                 File tempFile = new File(tempDir, Utils.getFilenamefromUri(BrowserActivity.this, uri));
 
-                Log.d(DEBUG_TAG, "Uploading file from uri: " + uri);
+                // Log.d(DEBUG_TAG, "Uploading file from uri: " + uri);
 
                 InputStream in = null;
                 OutputStream out = null;
@@ -1100,23 +1079,37 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         @Override
         protected void onPostExecute(File... fileList) {
+            long totalSize = 0l;
+            ArrayList<Integer> taskIDList = Lists.newArrayList();
+
             for (File file: fileList) {
                 if (file == null) {
                     ToastUtils.show(BrowserActivity.this, R.string.saf_upload_path_not_available);
                 } else {
-                    ToastUtils.show(BrowserActivity.this, getString(R.string.added_to_upload_tasks));
-                    addUploadTask(navContext.getRepoID(),
+                    int taskID = addUploadTask(navContext.getRepoID(),
                             navContext.getRepoName(), navContext.getDirPath(), file.getAbsolutePath());
-                    resetUploadNotification();
-                    uploadTotalSize = file.length();
-                    uploadTotalCount++;
+                    totalSize += file.length();
+                    taskIDList.add(taskID);
                 }
             }
 
+            if (txService == null)
+                return;
+
+            if (!txService.hasUploadNotifProvider()) {
+                UploadNotificationProvider provider = new UploadNotificationProvider(
+                        txService.getUploadTaskManager(),
+                        txService,
+                        totalSize);
+                txService.saveUploadNotifProvider(provider);
+            } else {
+                // if the notificationManager mapping the repoID exist, update its data set
+                txService.getUploadNotifProvider().updateTotalSize(totalSize);
+            }
+
+
         }
     }
-
-
 
     /***************  Navigation *************/
 
@@ -1145,54 +1138,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         final String repoName = navContext.getRepoName();
         final String repoID = navContext.getRepoID();
 
-        downloadTotalCount = downloadNotifyCount = 0;
-        downloadTotalSize = 0l;
-
         ConcurrentAsyncTask.execute(new DownloadDirTask(), repoName, repoID, dirPath, String.valueOf(recurse));
-    }
-
-    private void resetUploadNotification() {
-        uploadTotalSize = 0l;
-        uploadTotalCount = 0;
-        uploadNotifyCount = 0;
-        mCurrentRepoID = navContext.getRepoID();
-        mCurrentRepoName = navContext.getRepoName();
-        mCurrentDir = navContext.getDirPath();
-    }
-
-    public void notifyUploadProgress(String repoName, String dir, int uploadingCount, long uploadedSize) {
-        if (uploadingCount == 0 && uploadTotalCount != 0) {
-            if (++uploadNotifyCount > 1)
-                // upload complete or cancelled
-                return;
-        }
-
-        // uploadedSize will larger than totalSize when auto refresh after done uploading a file,
-        // so use totalSize > uploadedSize to exclude this condition
-        if (uploadedSize > uploadTotalSize)
-            return;
-
-        NotificationUtils.notifyUploadProgress(repoName,
-                dir,
-                uploadTotalCount,
-                uploadingCount,
-                uploadTotalSize,
-                uploadedSize);
-    }
-
-    public void notifyDownloadProgress(String repoName, String dir, int downloadingCount, long downloadedSize) {
-        if (downloadingCount == 0 && downloadTotalCount != 0) {
-            if (++downloadNotifyCount > 1)
-                // download complete or cancelled
-                return;
-        }
-
-        NotificationUtils.notifyDownloadProgress(repoName,
-                dir,
-                downloadTotalCount,
-                downloadingCount,
-                downloadTotalSize,
-                downloadedSize);
     }
 
     private class DownloadDirTask extends AsyncTask<String, Void, List<SeafDirent> > {
@@ -1203,8 +1149,9 @@ public class BrowserActivity extends SherlockFragmentActivity
         private int fileCount;
         private long fileTotalSize;
         private boolean recurse;
-
-        SeafException err = null;
+        private ArrayList<String> dirPaths = Lists.newArrayList();
+        private ArrayList<Integer> taskIDList = Lists.newArrayList();
+        private SeafException err = null;
 
         @Override
         protected List<SeafDirent> doInBackground(String... params) {
@@ -1218,14 +1165,11 @@ public class BrowserActivity extends SherlockFragmentActivity
             dirPath = params[2];
             recurse = Boolean.valueOf(params[3]);
 
-            fileCount = 0;
-
-            ArrayList<String> dirPaths = Lists.newArrayList();
             ArrayList<SeafDirent> dirents = Lists.newArrayList();
 
             dirPaths.add(dirPath);
 
-            for (int i = 0; i < dirPaths.size(); i ++) {
+            for (int i = 0; i < dirPaths.size(); i++) {
 
               List<SeafDirent> currentDirents;
               try {
@@ -1242,7 +1186,7 @@ public class BrowserActivity extends SherlockFragmentActivity
               for (SeafDirent seafDirent : currentDirents) {
                   if (seafDirent.isDir()) {
                       if (recurse) {
-                          dirPaths.add(Utils.pathJoin(dirPath, seafDirent.name));
+                          dirPaths.add(Utils.pathJoin(dirPath, dirPaths.get(i), seafDirent.name));
                       }
                   } else {
                       File localCachedFile = dataManager.getLocalCachedFile(repoName,
@@ -1256,16 +1200,17 @@ public class BrowserActivity extends SherlockFragmentActivity
 
                       fileTotalSize += seafDirent.size;
 
-                      txService.addTaskToDownloadQue(account,
+                      int taskID = txService.addTaskToDownloadQue(account,
                               repoName,
                               repoID,
                               Utils.pathJoin(dirPaths.get(i),
                                       seafDirent.name));
+                      taskIDList.add(taskID);
                   }
 
               }
 
-              fileCount += txService.getDownloadingFileCountByPath(repoID, dirPath);
+              fileCount += txService.getDownloadingFileCountByPath(repoID, dirPaths.get(i));
               dirents.addAll(currentDirents);
 
             }
@@ -1286,10 +1231,16 @@ public class BrowserActivity extends SherlockFragmentActivity
             if (fileCount == 0)
                 ToastUtils.show(BrowserActivity.this, R.string.transfer_download_no_task);
             else {
-                // ToastUtils.show(BrowserActivity.this, getResources().getQuantityString(R.plurals.transfer_download_started, fileCount, fileCount));
-                downloadTotalCount = fileCount;
-                downloadTotalSize = fileTotalSize;
-                //notifyDownloadProgress(fileCount);
+                if (!txService.hasDownloadNotifProvider()) {
+                    DownloadNotificationProvider provider = new DownloadNotificationProvider(txService.getDownloadTaskManager(),
+                            txService,
+                            fileTotalSize);
+                    txService.saveDownloadNotifProvider(provider);
+                } else {
+                    // if the notificationManager mapping the repoID exist, update its data set
+                    txService.getDownloadNotifProvider().updateTotalSize(fileTotalSize);
+                }
+
             }
 
             mCurrentRepoID = repoID;
@@ -1537,7 +1488,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         AppChoiceDialog dialog = new AppChoiceDialog();
         dialog.addCustomAction(0, getResources().getDrawable(R.drawable.copy_link),
-                               getString(R.string.copy_link));
+                getString(R.string.copy_link));
         dialog.init(title, infos, new AppChoiceDialog.OnItemSelectedListener() {
             @Override
             public void onCustomActionSelected(CustomAction action) {
@@ -1548,7 +1499,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                     @SuppressWarnings("deprecation")
                     public void onTaskSuccess() {
                         ClipboardManager clipboard = (ClipboardManager)
-                            getSystemService(Context.CLIPBOARD_SERVICE);
+                                getSystemService(Context.CLIPBOARD_SERVICE);
                         clipboard.setText(gdialog.getLink());
                         // ClipData clip = ClipData.newPlainText("seafile shared link", gdialog.getLink());
                         // clipboard.setPrimaryClip(clip);
@@ -1686,8 +1637,10 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
 
         DownloadTaskInfo info = txService.getDownloadTaskInfo(taskID);
+        if (info == null)
+            return;
 
-        SeafException err = info.err;
+        final SeafException err = info.err;
         final String repoName = info.repoName;
         final String repoID = info.repoID;
         final String path = info.pathInRepo;
@@ -1722,7 +1675,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         UploadTaskInfo info = txService.getUploadTaskInfo(taskID);
 
-        if(info == null) {
+        if (info == null) {
             return;
         }
 

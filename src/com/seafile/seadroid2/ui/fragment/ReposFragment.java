@@ -275,14 +275,6 @@ public class ReposFragment extends SherlockListFragment {
 
                 adapter.setDownloadTaskList(ts.getDownloadTaskInfosByPath(repoID, currentDir));
 
-                int downloadingCount = ts.getDownloadingFileCountByPath(repoID, currentDir);
-                long downloadedSize = ts.getDownloadedSizeByPath(repoID, currentDir);
-                mActivity.notifyDownloadProgress(repoName, currentDir, downloadingCount, downloadedSize);
-
-                int uploadingCount = ts.getUploadingFileCountByPath(repoID, currentDir);
-                long uploadedSize = ts.getUploadedSizeByPath(repoID, currentDir);
-                mActivity.notifyUploadProgress(repoName, currentDir, uploadingCount, uploadedSize);
-
                 // Log.d(DEBUG_TAG, "timer post refresh signal " + System.currentTimeMillis());
                 mTimer.postDelayed(this, 1 * 1000);
             }
