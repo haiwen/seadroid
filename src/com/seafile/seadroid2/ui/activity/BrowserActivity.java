@@ -1150,7 +1150,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         private long fileTotalSize;
         private boolean recurse;
         private ArrayList<String> dirPaths = Lists.newArrayList();
-        private ArrayList<Integer> taskIDList = Lists.newArrayList();
         private SeafException err = null;
 
         @Override
@@ -1169,49 +1168,47 @@ public class BrowserActivity extends SherlockFragmentActivity
 
             dirPaths.add(dirPath);
 
+            // don`t use for each loop here
             for (int i = 0; i < dirPaths.size(); i++) {
 
-              List<SeafDirent> currentDirents;
-              try {
-                  currentDirents = dataManager.getDirentsFromServer(repoID, dirPaths.get(i));
-              } catch (SeafException e) {
-                  err = e;
-                  e.printStackTrace();
-                  return null;
-              }
+                List<SeafDirent> currentDirents;
+                try {
+                    currentDirents = dataManager.getDirentsFromServer(repoID, dirPaths.get(i));
+                } catch (SeafException e) {
+                    err = e;
+                    e.printStackTrace();
+                    return null;
+                }
 
-              if (currentDirents == null)
-                  continue;
+                if (currentDirents == null)
+                    continue;
 
-              for (SeafDirent seafDirent : currentDirents) {
-                  if (seafDirent.isDir()) {
-                      if (recurse) {
-                          dirPaths.add(Utils.pathJoin(dirPath, dirPaths.get(i), seafDirent.name));
-                      }
-                  } else {
-                      File localCachedFile = dataManager.getLocalCachedFile(repoName,
-                                                                            repoID,
-                                                                            Utils.pathJoin(dirPaths.get(i),
-                                                                                            seafDirent.name),
-                                                                            seafDirent.id);
-                      if (localCachedFile != null) {
-                          continue;
-                      }
+                for (SeafDirent seafDirent : currentDirents) {
+                    if (seafDirent.isDir()) {
+                        if (recurse) {
+                            dirPaths.add(Utils.pathJoin(dirPaths.get(i), seafDirent.name));
+                        }
+                    } else {
+                        File localCachedFile = dataManager.getLocalCachedFile(repoName,
+                                repoID,
+                                Utils.pathJoin(dirPaths.get(i),
+                                        seafDirent.name),
+                                seafDirent.id);
+                        if (localCachedFile != null) {
+                            continue;
+                        }
 
-                      fileTotalSize += seafDirent.size;
+                        fileTotalSize += seafDirent.size;
 
-                      int taskID = txService.addTaskToDownloadQue(account,
-                              repoName,
-                              repoID,
-                              Utils.pathJoin(dirPaths.get(i),
-                                      seafDirent.name));
-                      taskIDList.add(taskID);
-                  }
+                        txService.addTaskToDownloadQue(account,
+                                repoName,
+                                repoID,
+                                Utils.pathJoin(dirPaths.get(i),
+                                        seafDirent.name));
+                        fileCount++;
+                    }
 
-              }
-
-              fileCount += txService.getDownloadingFileCountByPath(repoID, dirPaths.get(i));
-              dirents.addAll(currentDirents);
+                }
 
             }
 
