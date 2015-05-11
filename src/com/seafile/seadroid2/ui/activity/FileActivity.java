@@ -183,7 +183,7 @@ public class FileActivity extends SherlockFragmentActivity {
             mTransferService.saveDownloadNotifProvider(provider);
         } else {
             // if the notificationManager mapping the repoID exist, update its data set
-            mTransferService.getDownloadNotifProvider().updateTotalSize(fileSize);
+            // mTransferService.getDownloadNotifProvider().updateTotalSize(fileSize);
         }
     }
 
