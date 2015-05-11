@@ -1200,6 +1200,11 @@ public class BrowserActivity extends SherlockFragmentActivity
 
                         fileTotalSize += seafDirent.size;
 
+                        // txService maybe null if layout orientation has changed
+                        // e.g. landscape and portrait switch
+                        if (txService == null)
+                            return null;
+
                         txService.addTaskToDownloadQue(account,
                                 repoName,
                                 repoID,
