@@ -182,6 +182,10 @@ public class TransferService extends Service {
         cancelDownloadTaskInQue(taskID);
     }
 
+    public void cancelNotification() {
+        downloadTaskManager.cancelAllDownloadNotification();
+    }
+
     public void cancelDownloadTaskInQue(int taskID) {
         downloadTaskManager.cancel(taskID);
         downloadTaskManager.doNext();

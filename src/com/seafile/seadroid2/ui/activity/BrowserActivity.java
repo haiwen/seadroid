@@ -960,7 +960,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                 String[] paths = data.getStringArrayExtra(MultiFileChooserActivity.MULTI_FILES_PATHS);
                 if (paths == null)
                     return;
-                // ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
+                ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
                 for (String path : paths) {
                     addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), path);
                 }
@@ -971,7 +971,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                 ArrayList<String> paths = data.getStringArrayListExtra("photos");
                 if (paths == null)
                     return;
-                // ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
+                ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
                 for (String path : paths) {
                     addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), path);
                 }
@@ -1024,7 +1024,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                     Log.i(DEBUG_TAG, "Pick file request did not return a path");
                     return;
                 }
-                // ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
+                ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
                 addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), strImgPath);
 
             }
@@ -1079,7 +1079,6 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         @Override
         protected void onPostExecute(File... fileList) {
-            long totalSize = 0l;
             ArrayList<Integer> taskIDList = Lists.newArrayList();
 
             for (File file: fileList) {
@@ -1088,7 +1087,6 @@ public class BrowserActivity extends SherlockFragmentActivity
                 } else {
                     int taskID = addUploadTask(navContext.getRepoID(),
                             navContext.getRepoName(), navContext.getDirPath(), file.getAbsolutePath());
-                    totalSize += file.length();
                     taskIDList.add(taskID);
                 }
             }
@@ -1099,15 +1097,9 @@ public class BrowserActivity extends SherlockFragmentActivity
             if (!txService.hasUploadNotifProvider()) {
                 UploadNotificationProvider provider = new UploadNotificationProvider(
                         txService.getUploadTaskManager(),
-                        txService,
-                        totalSize);
+                        txService);
                 txService.saveUploadNotifProvider(provider);
-            } else {
-                // if the notificationManager mapping the repoID exist, update its data set
-                txService.getUploadNotifProvider().updateTotalSize(totalSize);
             }
-
-
         }
     }
 
@@ -1147,7 +1139,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         private String repoID;
         private String dirPath;
         private int fileCount;
-        private long fileTotalSize;
         private boolean recurse;
         private ArrayList<String> dirPaths = Lists.newArrayList();
         private SeafException err = null;
@@ -1198,8 +1189,6 @@ public class BrowserActivity extends SherlockFragmentActivity
                             continue;
                         }
 
-                        fileTotalSize += seafDirent.size;
-
                         // txService maybe null if layout orientation has changed
                         // e.g. landscape and portrait switch
                         if (txService == null)
@@ -1233,14 +1222,11 @@ public class BrowserActivity extends SherlockFragmentActivity
             if (fileCount == 0)
                 ToastUtils.show(BrowserActivity.this, R.string.transfer_download_no_task);
             else {
+                ToastUtils.show(BrowserActivity.this, getResources().getQuantityString(R.plurals.transfer_download_started, fileCount, fileCount));
                 if (!txService.hasDownloadNotifProvider()) {
                     DownloadNotificationProvider provider = new DownloadNotificationProvider(txService.getDownloadTaskManager(),
-                            txService,
-                            fileTotalSize);
+                            txService);
                     txService.saveDownloadNotifProvider(provider);
-                } else {
-                    // if the notificationManager mapping the repoID exist, update its data set
-                    txService.getDownloadNotifProvider().updateTotalSize(fileTotalSize);
                 }
 
             }
@@ -1687,8 +1673,8 @@ public class BrowserActivity extends SherlockFragmentActivity
                 && repoID.equals(navContext.getRepoID())
                 && dir.equals(navContext.getDirPath())) {
             getReposFragment().refreshView(true);
-            // String verb = getString(info.isUpdate ? R.string.updated : R.string.uploaded);
-            // ToastUtils.show(this, verb + " " + Utils.fileNameFromPath(info.localFilePath));
+            String verb = getString(info.isUpdate ? R.string.updated : R.string.uploaded);
+            ToastUtils.show(this, verb + " " + Utils.fileNameFromPath(info.localFilePath));
         }
     }
 

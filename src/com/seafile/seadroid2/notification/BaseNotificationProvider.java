@@ -35,14 +35,11 @@ public abstract class BaseNotificationProvider {
 
     protected TransferManager txMgr;
     protected TransferService txService;
-    protected long totalSize;
 
     public BaseNotificationProvider(TransferManager transferManager,
-                                    TransferService transferService,
-                                    long totalSize) {
+                                    TransferService transferService) {
         this.txMgr = transferManager;
         this.txService = transferService;
-        this.totalSize = totalSize;
     }
 
     /**
@@ -82,7 +79,7 @@ public abstract class BaseNotificationProvider {
         String progressInfo = getProgressInfo();
         String notifTitle = getNotificationTitle();
         int notifId = getNotificationID();
-        int progress = getNotificationProgress();
+        int progress = getProgress();
 
         if (getState().equals(NotificationState.NOTIFICATION_STATE_PROGRESS)) {
             notifyProgress(notifId, notifTitle, progressInfo, progress);
@@ -196,30 +193,13 @@ public abstract class BaseNotificationProvider {
      */
     protected abstract String getProgressInfo();
 
-    private int getNotificationProgress() {
-        // avoid ArithmeticException
-        if (totalSize == 0l)
-            return 0;
-
-        return (int) (getFinishedSize() * 100 / totalSize);
-    }
-
     /**
-     * get summary size of transferred files
+     * get progress of transferred files
      *
      * @return
-     *          summary size
+     *          progress
      */
-    protected abstract long getFinishedSize();
-
-    /**
-     * update data
-     *
-     * @param size
-     */
-    public void updateTotalSize(long size) {
-        totalSize += size;
-    }
+    protected abstract int getProgress();
 
     /**
      * Clear notification from notification area

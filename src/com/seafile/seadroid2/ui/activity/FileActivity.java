@@ -128,6 +128,7 @@ public class FileActivity extends SherlockFragmentActivity {
             public void onClick(View view) {
                 if (mTaskID > 0) {
                     mTransferService.cancelDownloadTask(mTaskID);
+                    mTransferService.cancelNotification();
                 }
                 finish();
             }
@@ -178,8 +179,7 @@ public class FileActivity extends SherlockFragmentActivity {
         if (!mTransferService.hasDownloadNotifProvider()) {
             DownloadNotificationProvider provider = new DownloadNotificationProvider(
                     mTransferService.getDownloadTaskManager(),
-                    mTransferService,
-                    fileSize);
+                    mTransferService);
             mTransferService.saveDownloadNotifProvider(provider);
         } else {
             // if the notificationManager mapping the repoID exist, update its data set
