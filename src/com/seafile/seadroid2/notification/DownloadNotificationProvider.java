@@ -49,10 +49,11 @@ public class DownloadNotificationProvider extends BaseNotificationProvider {
                     downloadingCount++;
             }
             if (downloadingCount != 0)
-                progressStatus = String.format(SeadroidApplication.getAppContext().getResources().
-                                getQuantityString(R.plurals.notification_download_info, downloadingCount),
-                        downloadingCount,
-                        getFinishedSize() * 100 / totalSize);
+                progressStatus = SeadroidApplication.getAppContext().getResources().
+                        getQuantityString(R.plurals.notification_download_info,
+                                downloadingCount,
+                                downloadingCount,
+                                getFinishedSize() * 100 / totalSize);
         }
         return progressStatus;
     }
