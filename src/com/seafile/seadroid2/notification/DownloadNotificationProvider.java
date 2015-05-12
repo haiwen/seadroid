@@ -20,18 +20,15 @@ import java.util.List;
 public class DownloadNotificationProvider extends BaseNotificationProvider {
 
     public DownloadNotificationProvider(DownloadTaskManager downloadTaskManager,
-                                        TransferService transferService,
-                                        long totalSize) {
-        super(downloadTaskManager, transferService, totalSize);
+                                        TransferService transferService) {
+        super(downloadTaskManager, transferService);
     }
 
     @Override
     protected String getProgressInfo() {
         String progressStatus = "";
 
-        // avoid ArithmeticException
-        if (totalSize == 0
-                || txService == null)
+        if (txService == null)
             return progressStatus;
 
         // failed or cancelled tasks won`t be shown in notification state
@@ -53,7 +50,7 @@ public class DownloadNotificationProvider extends BaseNotificationProvider {
                         getQuantityString(R.plurals.notification_download_info,
                                 downloadingCount,
                                 downloadingCount,
-                                getFinishedSize() * 100 / totalSize);
+                                getProgress());
         }
         return progressStatus;
     }
@@ -121,18 +118,24 @@ public class DownloadNotificationProvider extends BaseNotificationProvider {
     }
 
     @Override
-    protected long getFinishedSize() {
+    protected int getProgress() {
         long downloadedSize = 0l;
+        long totalSize = 0l;
         if (txService == null)
-            return downloadedSize;
+            return 0;
 
         List<DownloadTaskInfo> infos = txService.getAllDownloadTaskInfos();
         for (DownloadTaskInfo info : infos) {
             if (info == null)
                 continue;
             downloadedSize += info.finished;
+            totalSize += info.fileSize;
         }
-        return downloadedSize;
+
+        // avoid ArithmeticException
+        if (totalSize == 0l)
+            return 0;
+        return (int) (downloadedSize * 100 / totalSize);
     }
 
 }

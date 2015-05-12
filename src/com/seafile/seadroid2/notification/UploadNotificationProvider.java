@@ -20,9 +20,8 @@ import java.util.List;
 public class UploadNotificationProvider extends BaseNotificationProvider {
 
     public UploadNotificationProvider(UploadTaskManager uploadTaskManager,
-                                      TransferService transferService,
-                                      long totalSize) {
-        super(uploadTaskManager, transferService, totalSize);
+                                      TransferService transferService) {
+        super(uploadTaskManager, transferService);
 
     }
 
@@ -30,9 +29,7 @@ public class UploadNotificationProvider extends BaseNotificationProvider {
     protected String getProgressInfo() {
         String progressStatus = "";
 
-        // avoid ArithmeticException
-        if (totalSize == 0
-                || txService == null)
+        if (txService == null)
             return progressStatus;
 
         // failed or cancelled tasks won`t be shown in notification state
@@ -51,10 +48,11 @@ public class UploadNotificationProvider extends BaseNotificationProvider {
             }
 
             if (uploadingCount != 0)
-                progressStatus = String.format(SeadroidApplication.getAppContext().getResources().
-                                getQuantityString(R.plurals.notification_upload_info, uploadingCount),
-                        uploadingCount,
-                        getFinishedSize() * 100 / totalSize);
+                progressStatus = SeadroidApplication.getAppContext().getResources().
+                                getQuantityString(R.plurals.notification_upload_info,
+                                        uploadingCount,
+                                        uploadingCount,
+                                        getProgress());
         }
         return progressStatus;
     }
@@ -83,18 +81,24 @@ public class UploadNotificationProvider extends BaseNotificationProvider {
     }
 
     @Override
-    protected long getFinishedSize() {
+    protected int getProgress() {
         long uploadedSize = 0l;
+        long totalSize = 0l;
         if (txService == null)
-            return uploadedSize;
+            return 0;
 
         List<UploadTaskInfo> infos = txService.getNoneCameraUploadTaskInfos();
         for (UploadTaskInfo info : infos) {
             if (info == null)
                 continue;
             uploadedSize += info.uploadedSize;
+            totalSize += info.totalSize;
         }
-        return uploadedSize;
+
+        if (totalSize == 0)
+            return 0;
+
+        return (int) (uploadedSize * 100 / totalSize);
     }
 
     @Override

@@ -1079,7 +1079,6 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         @Override
         protected void onPostExecute(File... fileList) {
-            long totalSize = 0l;
             ArrayList<Integer> taskIDList = Lists.newArrayList();
 
             for (File file: fileList) {
@@ -1088,7 +1087,6 @@ public class BrowserActivity extends SherlockFragmentActivity
                 } else {
                     int taskID = addUploadTask(navContext.getRepoID(),
                             navContext.getRepoName(), navContext.getDirPath(), file.getAbsolutePath());
-                    totalSize += file.length();
                     taskIDList.add(taskID);
                 }
             }
@@ -1099,15 +1097,9 @@ public class BrowserActivity extends SherlockFragmentActivity
             if (!txService.hasUploadNotifProvider()) {
                 UploadNotificationProvider provider = new UploadNotificationProvider(
                         txService.getUploadTaskManager(),
-                        txService,
-                        totalSize);
+                        txService);
                 txService.saveUploadNotifProvider(provider);
-            } else {
-                // if the notificationManager mapping the repoID exist, update its data set
-                txService.getUploadNotifProvider().updateTotalSize(totalSize);
             }
-
-
         }
     }
 
@@ -1147,7 +1139,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         private String repoID;
         private String dirPath;
         private int fileCount;
-        private long fileTotalSize;
         private boolean recurse;
         private ArrayList<String> dirPaths = Lists.newArrayList();
         private SeafException err = null;
@@ -1198,8 +1189,6 @@ public class BrowserActivity extends SherlockFragmentActivity
                             continue;
                         }
 
-                        fileTotalSize += seafDirent.size;
-
                         // txService maybe null if layout orientation has changed
                         // e.g. landscape and portrait switch
                         if (txService == null)
@@ -1235,12 +1224,8 @@ public class BrowserActivity extends SherlockFragmentActivity
             else {
                 if (!txService.hasDownloadNotifProvider()) {
                     DownloadNotificationProvider provider = new DownloadNotificationProvider(txService.getDownloadTaskManager(),
-                            txService,
-                            fileTotalSize);
+                            txService);
                     txService.saveDownloadNotifProvider(provider);
-                } else {
-                    // if the notificationManager mapping the repoID exist, update its data set
-                    txService.getDownloadNotifProvider().updateTotalSize(fileTotalSize);
                 }
 
             }
