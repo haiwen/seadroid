@@ -128,6 +128,7 @@ public class FileActivity extends SherlockFragmentActivity {
             public void onClick(View view) {
                 if (mTaskID > 0) {
                     mTransferService.cancelDownloadTask(mTaskID);
+                    mTransferService.cancelNotification();
                 }
                 finish();
             }
