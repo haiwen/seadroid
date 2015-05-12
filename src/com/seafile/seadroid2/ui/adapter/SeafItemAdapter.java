@@ -244,6 +244,9 @@ public class SeafItemAdapter extends BaseAdapter {
         String repoName = nav.getRepoName();
         String repoID = nav.getRepoID();
         String filePath = Utils.pathJoin(nav.getDirPath(), dirent.name);
+        if (repoName == null || repoID == null)
+            return;
+
         File file = dataManager.getLocalRepoFile(repoName, repoID, filePath);
         boolean cacheExists = false;
 
