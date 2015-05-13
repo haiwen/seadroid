@@ -87,7 +87,7 @@
                       android:padding="@dimen/gallery_padding"
                       android:gravity="top|right"
                       android:visibility="gone"
-                      android:background="@color/black">
+                      android:background="@color/transparent">
             <ImageView android:id="@+id/gallery_delete_photo"
                        android:layout_width="@dimen/gallery_icon_width"
                        android:layout_height="@dimen/gallery_icon_height"
@@ -109,7 +109,7 @@
                   android:orientation="vertical"
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
-                  android:background="@color/black"
+                  android:background="@color/transparent"
                   android:visibility="gone"
                   android:layout_gravity="center_vertical">
 
