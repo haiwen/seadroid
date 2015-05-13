@@ -64,7 +64,6 @@ public class GalleryAdapter extends PagerAdapter {
         View contentView = inflater.inflate(R.layout.gallery_view_item, container, false);
         final PhotoView photoView = (PhotoView) contentView.findViewById(R.id.gallery_photoview);
         final ProgressBar progressBar = (ProgressBar) contentView.findViewById(R.id.gallery_progress_bar);
-        final ImageView animationView = (ImageView) contentView.findViewById(R.id.gallery_animation);
         ImageLoader.getInstance().displayImage(mPhotoLinks.get(position), photoView, options, new ImageLoadingListener() {
             @Override
             public void onLoadingStarted(String s, View view) {

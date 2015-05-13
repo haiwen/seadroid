@@ -45,7 +45,6 @@ public class GalleryActivity extends SherlockFragmentActivity {
     public static final String DEBUG_TAG = "GalleryActivity";
 
     private ViewPager mViewPager;
-    private ImageView animationView;
     private LinearLayout mPageIndexContainer;
     private TextView mPageIndexTextView;
     private TextView mPageCountTextView;
@@ -132,7 +131,6 @@ public class GalleryActivity extends SherlockFragmentActivity {
         mPageIndexTextView = (TextView) findViewById(R.id.gallery_page_index);
         mPageCountTextView = (TextView) findViewById(R.id.gallery_page_count);
         mPageNameTextView = (TextView) findViewById(R.id.gallery_page_name);
-        animationView = (ImageView) findViewById(R.id.gallery_animation);
 
         repoName = getIntent().getStringExtra("repoName");
         repoID = getIntent().getStringExtra("repoId");
