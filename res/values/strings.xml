@@ -53,6 +53,7 @@
     <string name="err_passwd_empty">Password can\`t be empty</string>
     <string name="err_login_failed">Login failed</string>
     <string name="err_wrong_user_or_passwd">Email or password error</string>
+    <string name="err_token_expired">Authentication expired, please login again</string>
     <string name="upload">Upload</string>
     <string name="uploaded">Uploaded</string>
     <string name="updated">Updated</string>

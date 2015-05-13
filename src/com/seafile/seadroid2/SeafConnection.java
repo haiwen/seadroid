@@ -39,6 +39,8 @@ import com.seafile.seadroid2.util.Utils;
  */
 public class SeafConnection {
     public static final int HTTP_STATUS_REPO_PASSWORD_REQUIRED = 440;
+    /** When token expired, will receive 401 from server, login again */
+    public static final int HTTP_STATUS_UNAUTHORIZED = 401;
 
     private static final String DEBUG_TAG = "SeafConnection";
     private static final int CONNECTION_TIMEOUT = 15000;
