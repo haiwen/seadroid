@@ -171,8 +171,8 @@ public class GalleryActivity extends SherlockFragmentActivity {
                 String key = links.get(i);
                 if (mThumbLinkAndSeafDirentMap.containsKey(key)
                         && mThumbLinkAndSeafDirentMap.get(key).name.equals(fileName)) {
-                    Log.d(DEBUG_TAG, "current index " + i);
-                    Log.d(DEBUG_TAG, "current file name " + fileName);
+                    // Log.d(DEBUG_TAG, "current index " + i);
+                    // Log.d(DEBUG_TAG, "current file name " + fileName);
                     mViewPager.setCurrentItem(i);
                     mPageIndexTextView.setText(String.valueOf(i + 1));
                     mPageIndex = i;
@@ -266,8 +266,8 @@ public class GalleryActivity extends SherlockFragmentActivity {
                 String key = links.get(i);
                 if (mThumbLinkAndSeafDirentMap.containsKey(key)
                         && mThumbLinkAndSeafDirentMap.get(key).name.equals(fileName)) {
-                    Log.d(DEBUG_TAG, "current index " + i);
-                    Log.d(DEBUG_TAG, "current file name " + fileName);
+                    // Log.d(DEBUG_TAG, "current index " + i);
+                    // Log.d(DEBUG_TAG, "current file name " + fileName);
                     mViewPager.setCurrentItem(i);
                     mPageIndexTextView.setText(String.valueOf(i + 1));
                     mPageIndex = i;
@@ -289,8 +289,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
             mPageIndexContainer.setVisibility(View.GONE);
             mPageNameTextView.setVisibility(View.GONE);
             showToolBar = !showToolBar;
-        }
-        else {
+        } else {
             mToolbar.setVisibility(View.VISIBLE);
             mPageIndexContainer.setVisibility(View.VISIBLE);
             mPageNameTextView.setVisibility(View.VISIBLE);
@@ -450,7 +449,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
             mPageIndexTextView.setText(String.valueOf(mPageIndex + 1));
         }
 
-        Log.d(DEBUG_TAG, "pageIndex " + mPageIndex);
+        // Log.d(DEBUG_TAG, "pageIndex " + mPageIndex);
         String linkKey = mGalleryAdapter.getItem(mPageIndex);
         if (mThumbLinkAndSeafDirentMap.containsKey(linkKey)) {
             currentDirent = mThumbLinkAndSeafDirentMap.get(linkKey);
