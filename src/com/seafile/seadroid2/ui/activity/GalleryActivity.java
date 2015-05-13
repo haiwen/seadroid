@@ -61,12 +61,12 @@ public class GalleryActivity extends SherlockFragmentActivity {
     private String repoID;
     private String dirPath;
     private String fileName;
-    private SeafDirent currentDrient;
+    private SeafDirent currentDirent;
     private int mPageIndex;
     private GalleryAdapter mGalleryAdapter;
     private final RequestPhotoLinksTask mLinksTask = new RequestPhotoLinksTask();
     /** mapping thumbnail link to seafDirent in order to display photo name */
-    private HashMap<String, SeafDirent> mThumbnailFileNameMap = Maps.newHashMap();
+    private HashMap<String, SeafDirent> mThumbLinkAndSeafDirentMap = Maps.newHashMap();
 
     private static boolean showToolBar = true;
     private View.OnClickListener onClickListener = new View.OnClickListener() {
@@ -74,15 +74,15 @@ public class GalleryActivity extends SherlockFragmentActivity {
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.gallery_delete_photo:
-                    if (currentDrient == null)
+                    if (currentDirent == null)
                         return;
-                    deleteFile(repoID, Utils.pathJoin(dirPath, currentDrient.name));
+                    deleteFile(repoID, Utils.pathJoin(dirPath, currentDirent.name));
                     break;
                 case R.id.gallery_star_photo:
-                    starFile(repoID, dirPath, currentDrient.name);
+                    starFile(repoID, dirPath, currentDirent.name);
                     break;
                 case R.id.gallery_share_photo:
-                    shareFile(repoID, Utils.pathJoin(dirPath, currentDrient.name));
+                    shareFile(repoID, Utils.pathJoin(dirPath, currentDirent.name));
                     break;
             }
         }
@@ -115,9 +115,9 @@ public class GalleryActivity extends SherlockFragmentActivity {
                 mPageIndexTextView.setText(String.valueOf(position + 1));
                 mPageIndex = position;
                 String linkKey = mGalleryAdapter.getItem(position);
-                if (mThumbnailFileNameMap.containsKey(linkKey)) {
-                    currentDrient = mThumbnailFileNameMap.get(linkKey);
-                    mPageNameTextView.setText(currentDrient.name);
+                if (mThumbLinkAndSeafDirentMap.containsKey(linkKey)) {
+                    currentDirent = mThumbLinkAndSeafDirentMap.get(linkKey);
+                    mPageNameTextView.setText(currentDirent.name);
                 }
             }
 
@@ -159,7 +159,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
                     // Log.d(DEBUG_TAG, "add remote url " + thumbnailLink);
                     if (link != null) {
                         links.add(link);
-                        mThumbnailFileNameMap.put(link, seafDirent);
+                        mThumbLinkAndSeafDirentMap.put(link, seafDirent);
                     }
                 }
             }
@@ -171,8 +171,8 @@ public class GalleryActivity extends SherlockFragmentActivity {
             // by default the starting page index is 0
             for (int i = 0; i < links.size(); i++) {
                 String key = links.get(i);
-                if (mThumbnailFileNameMap.containsKey(key)
-                        && mThumbnailFileNameMap.get(key).name.equals(fileName)) {
+                if (mThumbLinkAndSeafDirentMap.containsKey(key)
+                        && mThumbLinkAndSeafDirentMap.get(key).name.equals(fileName)) {
                     Log.d(DEBUG_TAG, "current index " + i);
                     Log.d(DEBUG_TAG, "current file name " + fileName);
                     mViewPager.setCurrentItem(i);
@@ -180,8 +180,8 @@ public class GalleryActivity extends SherlockFragmentActivity {
                     mPageIndex = i;
                     mPageNameTextView.setText(fileName);
                     String linkKey = mGalleryAdapter.getItem(i);
-                    if (mThumbnailFileNameMap.containsKey(linkKey)) {
-                        currentDrient = mThumbnailFileNameMap.get(linkKey);
+                    if (mThumbLinkAndSeafDirentMap.containsKey(linkKey)) {
+                        currentDirent = mThumbLinkAndSeafDirentMap.get(linkKey);
                     }
                     break;
                 }
@@ -238,7 +238,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
                     // Log.d(DEBUG_TAG, "add remote url " + thumbnailLink);
                     if(link != null) {
                         links.add(link);
-                        mThumbnailFileNameMap.put(link, seafDirent);
+                        mThumbLinkAndSeafDirentMap.put(link, seafDirent);
                     }
                 }
             }
@@ -266,8 +266,8 @@ public class GalleryActivity extends SherlockFragmentActivity {
             // by default the starting page index is 0
             for (int i = 0; i< links.size(); i++) {
                 String key = links.get(i);
-                if (mThumbnailFileNameMap.containsKey(key)
-                        && mThumbnailFileNameMap.get(key).name.equals(fileName)) {
+                if (mThumbLinkAndSeafDirentMap.containsKey(key)
+                        && mThumbLinkAndSeafDirentMap.get(key).name.equals(fileName)) {
                     Log.d(DEBUG_TAG, "current index " + i);
                     Log.d(DEBUG_TAG, "current file name " + fileName);
                     mViewPager.setCurrentItem(i);
@@ -275,8 +275,8 @@ public class GalleryActivity extends SherlockFragmentActivity {
                     mPageIndex = i;
                     mPageNameTextView.setText(fileName);
                     String linkKey = mGalleryAdapter.getItem(i);
-                    if (mThumbnailFileNameMap.containsKey(linkKey)) {
-                        currentDrient = mThumbnailFileNameMap.get(linkKey);
+                    if (mThumbLinkAndSeafDirentMap.containsKey(linkKey)) {
+                        currentDirent = mThumbLinkAndSeafDirentMap.get(linkKey);
                     }
                     break;
                 }
@@ -454,10 +454,10 @@ public class GalleryActivity extends SherlockFragmentActivity {
 
         Log.d(DEBUG_TAG, "pageIndex " + mPageIndex);
         String linkKey = mGalleryAdapter.getItem(mPageIndex);
-        if (mThumbnailFileNameMap.containsKey(linkKey)) {
-            currentDrient = mThumbnailFileNameMap.get(linkKey);
+        if (mThumbLinkAndSeafDirentMap.containsKey(linkKey)) {
+            currentDirent = mThumbLinkAndSeafDirentMap.get(linkKey);
             // update file name in gallery view
-            mPageNameTextView.setText(currentDrient.name);
+            mPageNameTextView.setText(currentDirent.name);
         }
 
     }
