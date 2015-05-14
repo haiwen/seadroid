@@ -103,7 +103,6 @@
     <string name="add_to_seafile">Add to Seafile</string>
     <string name="ok">OK</string>
     <string name="no_account">Please set up an account in Seafile first</string>
-    <string name="no_library">You have no library yet</string>
     <string name="choose_an_account">Choose an account</string>
     <string name="choose_a_library">Choose a library</string>
     <string name="choose_a_folder">Choose a folder</string>
