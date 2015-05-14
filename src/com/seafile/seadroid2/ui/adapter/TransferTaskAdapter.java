@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-/*
+/**
  * Adapter class for both uploading and downloading tasks
  */
 public class TransferTaskAdapter extends BaseAdapter {
@@ -52,7 +52,7 @@ public class TransferTaskAdapter extends BaseAdapter {
         this.mTransferTaskType = type;
     }
 
-    /*
+    /**
      * sort transfer list by task state, INIT goes to above, FINISHED goes to bottom.
      */
     private class TaskInfoComparator implements Comparator<TransferTaskInfo> {
