@@ -316,10 +316,10 @@ public class BrowserActivity extends SherlockFragmentActivity
         if (!Utils.isNetworkOn())
             return;
 
-        ConcurrentAsyncTask.execute(new FetchServerInfoTask());
+        ConcurrentAsyncTask.execute(new RequestServerInfoTask());
     }
 
-    class FetchServerInfoTask extends AsyncTask<Void, Void, ServerInfo> {
+    class RequestServerInfoTask extends AsyncTask<Void, Void, ServerInfo> {
         private SeafException err;
 
         @Override
@@ -329,7 +329,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             } catch (SeafException e) {
                 err = e;
             } catch (JSONException e) {
-                e.printStackTrace();
+                Log.e(DEBUG_TAG, "JSONException " + e.getMessage());
             }
             return null;
         }
