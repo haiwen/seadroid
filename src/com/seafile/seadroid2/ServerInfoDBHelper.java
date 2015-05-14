@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.seafile.seadroid2.data.ServerInfo;
 
 /**
- * A helper class to manage server info database creation and version management.
+ * A helper class to manage {@link #DATABASE_NAME} database creation and version management.
  */
 public class ServerInfoDBHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.
