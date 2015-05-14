@@ -58,8 +58,6 @@ public class ServerInfoDBHelper extends SQLiteOpenHelper {
     }
 
     public ServerInfo getServerInfo(String url) {
-        if (url == null) return null;
-
         String[] projection = {COLUMN_URL, COLUMN_VERSION, COLUMN_FEATURE};
 
         Cursor c = database.query(TABLE_NAME,

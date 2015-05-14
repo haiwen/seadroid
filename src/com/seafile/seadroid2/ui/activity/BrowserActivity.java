@@ -297,11 +297,11 @@ public class BrowserActivity extends SherlockFragmentActivity
         Intent monitorIntent = new Intent(this, FileMonitorService.class);
         startService(monitorIntent);
 
-        fetchServerInfo();
+        requestServerInfo();
     }
 
-    private void fetchServerInfo() {
-        if (serverProEdition())
+    private void requestServerInfo() {
+        if (checkServerProEdition())
             return;
         else {
             // hide Activity tab and search menu
@@ -361,16 +361,15 @@ public class BrowserActivity extends SherlockFragmentActivity
         ServerInfoDBHelper.getInstance().saveServerInfo(serverInfo);
     }
 
-    private ServerInfo getServerInfo() {
-        return ServerInfoDBHelper.getInstance().getServerInfo(account.getServer());
-    }
+    private boolean checkServerProEdition() {
+        if (account.getServer() == null)
+            return false;
 
-    private boolean serverProEdition() {
-        ServerInfo serverInfo = getServerInfo();
-        if (serverInfo != null)
-            return serverInfo.isProEdition();
+        ServerInfo serverInfo = ServerInfoDBHelper.getInstance().getServerInfo(account.getServer());
+        if (serverInfo == null)
+            return false;
 
-        return false;
+        return serverInfo.isProEdition();
     }
 
     class SeafileTabsAdapter extends FragmentPagerAdapter implements
@@ -708,7 +707,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             menuSettings.setVisible(true);
         }
 
-        if (!serverProEdition())
+        if (!checkServerProEdition())
             menuSearch.setVisible(false);
 
         return true;
