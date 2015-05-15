@@ -385,7 +385,7 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
 
     private void chooseRepo(boolean forceRefresh) {
         mStep = STEP_CHOOSE_REPO;
-        mEmptyText.setText(R.string.no_library);
+        mEmptyText.setText(R.string.no_repo);
 
         setListAdapter(getReposAdapter());
         mOkButton.setVisibility(View.GONE);

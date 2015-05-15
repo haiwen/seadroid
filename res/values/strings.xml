@@ -62,11 +62,10 @@
     <string name="task_cancel">Cancel</string>
     <string name="task_retry">Retry</string>
     <string name="task_remove">Remove</string>
-    <string name="task_remove_all_cancelled">Remove all cancelled</string>
-    <string name="task_remove_all_finished">Remove all finished</string>
+    <string name="task_remove_all_cancelled">Remove all cancelled tasks</string>
+    <string name="task_remove_all_finished">Remove all finished tasks </string>
     <string name="file_action_star">Star</string>
     <string name="file_action_download">Download</string>
-    <string name="file_action_remove_cache">Remove Cache</string>
     <string name="file_action_update">Upload</string>
     <string name="file_action_share">Share</string>
     <string name="file_action_export">Export</string>
@@ -104,7 +103,6 @@
     <string name="add_to_seafile">Add to Seafile</string>
     <string name="ok">OK</string>
     <string name="no_account">Please set up an account in Seafile first</string>
-    <string name="no_library">You have no library yet</string>
     <string name="choose_an_account">Choose an account</string>
     <string name="choose_a_library">Choose a library</string>
     <string name="choose_a_folder">Choose a folder</string>
