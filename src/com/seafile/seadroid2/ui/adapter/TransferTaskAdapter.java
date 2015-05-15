@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-/*
+/**
  * Adapter class for both uploading and downloading tasks
  */
 public class TransferTaskAdapter extends BaseAdapter {
@@ -29,10 +29,8 @@ public class TransferTaskAdapter extends BaseAdapter {
 
     private List<? extends TransferTaskInfo> mTransferTaskInfos;
     private Context mContext;
-    /**  0 mark as Download Task, 1 mark as Upload Task, the same convention with {@link TransferActivity #currentPosition} */
-    private int mTransferTaskType = -1;
-    public static final int DOWNLOAD_LIST_TAB = 0;
-    public static final int UPLOAD_LIST_TAB = 1;
+    private TaskType mTransferTaskType;
+    public enum TaskType {DOWNLOAD_TASK, UPLOAD_TASK}
 
     /**
      * Constructor of {@link TransferTaskAdapter}
@@ -50,11 +48,11 @@ public class TransferTaskAdapter extends BaseAdapter {
         this.mContext = context;
     }
 
-    public void setCurrentTab(int whichTab) {
-        this.mTransferTaskType = whichTab;
+    public void setCurrentTab(TaskType type) {
+        this.mTransferTaskType = type;
     }
 
-    /*
+    /**
      * sort transfer list by task state, INIT goes to above, FINISHED goes to bottom.
      */
     private class TaskInfoComparator implements Comparator<TransferTaskInfo> {
@@ -112,11 +110,11 @@ public class TransferTaskAdapter extends BaseAdapter {
         int stateColor = R.color.light_black;
         long totalSize = 0l;
         long transferedSize = 0l;
-        if (mTransferTaskType == 0) {
+        if (mTransferTaskType.equals(TaskType.DOWNLOAD_TASK)) {
             DownloadTaskInfo dti = (DownloadTaskInfo) info;
             totalSize = dti.fileSize;
             transferedSize = dti.finished;
-        } else if (mTransferTaskType == 1) {
+        } else if (mTransferTaskType.equals(TaskType.UPLOAD_TASK)) {
             UploadTaskInfo uti = (UploadTaskInfo) info;
             totalSize = uti.totalSize;
             transferedSize = uti.uploadedSize;
@@ -144,19 +142,28 @@ public class TransferTaskAdapter extends BaseAdapter {
             viewHolder.progressBar.setVisibility(View.VISIBLE);
             break;
         case FINISHED:
-            stateStr = mContext.getString(R.string.upload_finished);
+            if (mTransferTaskType.equals(TaskType.DOWNLOAD_TASK))
+                stateStr = mContext.getString(R.string.download_finished);
+            else if (mTransferTaskType.equals(TaskType.UPLOAD_TASK))
+                stateStr = mContext.getString(R.string.upload_finished);
             stateColor = Color.BLACK;
             viewHolder.fileSize.setVisibility(View.VISIBLE);
             viewHolder.progressBar.setVisibility(View.INVISIBLE);
             break;
         case CANCELLED:
-            stateStr = mContext.getString(R.string.upload_cancelled);
+            if (mTransferTaskType.equals(TaskType.DOWNLOAD_TASK))
+                stateStr = mContext.getString(R.string.download_cancelled);
+            else if (mTransferTaskType.equals(TaskType.UPLOAD_TASK))
+                stateStr = mContext.getString(R.string.upload_cancelled);
             stateColor = Color.RED;
             viewHolder.fileSize.setVisibility(View.INVISIBLE);
             viewHolder.progressBar.setVisibility(View.INVISIBLE);
             break;
         case FAILED:
-            stateStr = mContext.getString(R.string.upload_failed);
+            if (mTransferTaskType.equals(TaskType.DOWNLOAD_TASK))
+                stateStr = mContext.getString(R.string.download_failed);
+            else if (mTransferTaskType.equals(TaskType.UPLOAD_TASK))
+                stateStr = mContext.getString(R.string.upload_failed);
             stateColor = Color.RED;
             viewHolder.fileSize.setVisibility(View.INVISIBLE);
             viewHolder.progressBar.setVisibility(View.INVISIBLE);
@@ -187,7 +194,7 @@ public class TransferTaskAdapter extends BaseAdapter {
         }
         
         int iconID;
-        if (mTransferTaskType == 0) {
+        if (mTransferTaskType.equals(TaskType.DOWNLOAD_TASK)) {
             DownloadTaskInfo taskInfo = (DownloadTaskInfo) mTransferTaskInfos.get(position);
             iconID = Utils.getFileIcon(taskInfo.pathInRepo);
             // the three fileds is not dynamic
@@ -195,7 +202,7 @@ public class TransferTaskAdapter extends BaseAdapter {
             viewHolder.targetPath.setText(Utils.pathJoin(taskInfo.repoName, Utils.getParentPath(taskInfo.pathInRepo)));
             viewHolder.fileName.setText(Utils.fileNameFromPath(taskInfo.pathInRepo));
             updateTaskView(taskInfo, viewHolder);
-        } else if (mTransferTaskType == 1) {
+        } else if (mTransferTaskType.equals(TaskType.UPLOAD_TASK)) {
             UploadTaskInfo taskInfo = (UploadTaskInfo) mTransferTaskInfos.get(position);
             iconID = Utils.getFileIcon(taskInfo.localFilePath);
             String fullpath = taskInfo.repoName + taskInfo.parentDir;
