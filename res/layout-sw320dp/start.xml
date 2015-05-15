@@ -30,6 +30,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_marginTop="@dimen/lv_margin_top"
-        android:divider="@null"
-        />
+        android:divider="@drawable/lv_divider_inset_normal"
+        android:footerDividersEnabled="false"
+            />
 </LinearLayout>
