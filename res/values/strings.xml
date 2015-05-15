@@ -385,7 +385,7 @@
     <!-- notification bar -->
     <string name="notification_upload_started_title">Uploading files&#8230;</string>
     <string name="notification_download_started_title">Downloading files&#8230;</string>
-    <string name="notification_upload_completed">Upload completed</string>
+    <string name="notification_upload_completed">Upload finished</string>
     <plurals name="notification_upload_info">
         <item quantity="one">Uploading <xliff:g id="uploading_file">%1$d</xliff:g> file (%2$d%%)</item>
         <item quantity="other">Uploading <xliff:g id="uploading_file">%1$d</xliff:g> files (%2$d%%)</item>
@@ -394,6 +394,9 @@
         <item quantity="one">Downloading <xliff:g id="downloading_file">%1$d</xliff:g> file (%2$d%%)</item>
         <item quantity="other">Downloading <xliff:g id="downloading_file">%1$d</xliff:g> files (%2$d%%)</item>
     </plurals>
-    <string name="notification_download_completed">Download completed</string>
+    <string name="notification_download_completed">Download finished</string>
+    <string name="notification_camera_upload_title">Upload photos&#8230;</string>
+    <string name="notification_camera_Upload_info">It may take a while</string>
+    <string name="notification_camera_upload_completed">Upload photos finished</string>
 
 </resources>

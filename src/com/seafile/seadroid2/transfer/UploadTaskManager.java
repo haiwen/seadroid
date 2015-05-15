@@ -2,10 +2,10 @@ package com.seafile.seadroid2.transfer;
 
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.notification.CameraUploadNotificationProvider;
 import com.seafile.seadroid2.notification.UploadNotificationProvider;
 
 import java.util.List;
@@ -23,6 +23,8 @@ public class UploadTaskManager extends TransferManager implements UploadStateLis
     public static final String BROADCAST_FILE_UPLOAD_CANCELLED = "uploadCancelled";
 
     private static UploadNotificationProvider mNotifyProvider;
+    /** camera upload notification provider */
+    private static CameraUploadNotificationProvider mCameraUploadNotifyProvider;
 
     public int addTaskToQue(Account account, String repoID, String repoName, String dir, String filePath, boolean isUpdate, boolean isCopyToLocal) {
         if (repoID == null || repoName == null)
@@ -72,10 +74,14 @@ public class UploadTaskManager extends TransferManager implements UploadStateLis
         if (info == null)
             return;
 
-        // use isCopyToLocal as a flag to mark a camera photo upload task if false
-        // mark a file upload task if true
-        if (!info.isCopyToLocal)
+        // use isCopyToLocal as a flag to mark a camera photo upload task if false,
+        // mark a file upload task, otherwise.
+        if (!info.isCopyToLocal) {
+            if (mCameraUploadNotifyProvider != null) {
+                mCameraUploadNotifyProvider.updateNotification();
+            }
             return;
+        }
 
         //Log.d(DEBUG_TAG, "notify key " + info.repoID);
         if (mNotifyProvider != null) {
@@ -84,12 +90,42 @@ public class UploadTaskManager extends TransferManager implements UploadStateLis
 
     }
 
+    /**
+     * save {@link com.seafile.seadroid2.notification.UploadNotificationProvider} instance for normal files uploading
+     * @param provider
+     */
     public void saveUploadNotifProvider(UploadNotificationProvider provider) {
         mNotifyProvider = provider;
     }
 
+    /**
+     * save {@link com.seafile.seadroid2.notification.CameraUploadNotificationProvider} instance for camera uploading
+     * @param provider
+     */
+    public void saveCameraUploadNotifProvider(CameraUploadNotificationProvider provider) {
+        mCameraUploadNotifyProvider = provider;
+    }
+
+    /**
+     * check existence of the {@link com.seafile.seadroid2.notification.UploadNotificationProvider} instance for normal files uploading
+     *
+     * @return
+     *          false, if null.
+     *          true, otherwise.
+     */
     public boolean hasNotifProvider() {
         return mNotifyProvider != null;
+    }
+
+    /**
+     * check existence of the {@link com.seafile.seadroid2.notification.CameraUploadNotificationProvider} instance for camera files uploading
+     *
+     * @return
+     *          false, if null.
+     *          true, otherwise.
+     */
+    public boolean hasCameraUploadNotifProvider() {
+        return mCameraUploadNotifyProvider != null;
     }
 
     public UploadNotificationProvider getNotifProvider() {

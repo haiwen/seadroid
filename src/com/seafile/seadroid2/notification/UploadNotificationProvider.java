@@ -8,7 +8,6 @@ import com.seafile.seadroid2.transfer.TaskState;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.UploadTaskInfo;
 import com.seafile.seadroid2.transfer.UploadTaskManager;
-import com.seafile.seadroid2.ui.CustomNotificationBuilder;
 import com.seafile.seadroid2.ui.activity.TransferActivity;
 
 import java.util.List;
@@ -59,13 +58,13 @@ public class UploadNotificationProvider extends BaseNotificationProvider {
 
     @Override
     protected void notifyStarted() {
-        Intent dIntent = new Intent(SeadroidApplication.getAppContext(), TransferActivity.class);
-        dIntent.putExtra(NOTIFICATION_MESSAGE_KEY, NOTIFICATION_OPEN_UPLOAD_TAB);
-        dIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        Intent uIntent = new Intent(SeadroidApplication.getAppContext(), TransferActivity.class);
+        uIntent.putExtra(NOTIFICATION_MESSAGE_KEY, NOTIFICATION_OPEN_UPLOAD_TAB);
+        uIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         PendingIntent uPendingIntent = PendingIntent.getActivity(SeadroidApplication.getAppContext(),
                 (int) System.currentTimeMillis(),
-                dIntent,
+                uIntent,
                 0);
         mNotifBuilder = CustomNotificationBuilder.getNotificationBuilder(SeadroidApplication.getAppContext())
                 .setSmallIcon(R.drawable.icon)
@@ -77,7 +76,7 @@ public class UploadNotificationProvider extends BaseNotificationProvider {
 
         // Make this service run in the foreground, supplying the ongoing
         // notification to be shown to the user while in this state.
-        txService.startForeground(NOTIFICATION_ID_UPLOAD, mNotifBuilder.build());
+        txService.startForeground(NOTIFICATION_ID_NORMAR_UPLOAD, mNotifBuilder.build());
     }
 
     @Override
@@ -132,7 +131,7 @@ public class UploadNotificationProvider extends BaseNotificationProvider {
 
     @Override
     protected int getNotificationID() {
-        return NOTIFICATION_ID_UPLOAD;
+        return NOTIFICATION_ID_NORMAR_UPLOAD;
     }
 
     @Override

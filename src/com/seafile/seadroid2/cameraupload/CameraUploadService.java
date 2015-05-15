@@ -1,16 +1,7 @@
 package com.seafile.seadroid2.cameraupload;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
+import android.content.*;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -21,17 +12,25 @@ import android.provider.MediaStore;
 import android.provider.MediaStore.MediaColumns;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.SeafCachedPhoto;
+import com.seafile.seadroid2.notification.CameraUploadNotificationProvider;
 import com.seafile.seadroid2.transfer.*;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.util.CameraUploadUtil;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+/**
+ * Puts the camera upload service in a foreground state, where the system considers it to be
+ * something the user is actively aware of and thus not a candidate for killing
+ * when low on memory.
+ */
 public class CameraUploadService extends Service {
     private static final String DEBUG_TAG = "CameraUploadService";
 
@@ -77,7 +76,6 @@ public class CameraUploadService extends Service {
     }
 
     private void cancelUploadTasks(){
-
         mTransferService.cancelAllCameraUploadTasks();
         Intent localIntent = new Intent(TransferManager.BROADCAST_ACTION).putExtra("type",
                 BROADCAST_CAMERA_UPLOAD_SERVICE_STOPPED);
@@ -121,6 +119,13 @@ public class CameraUploadService extends Service {
 
         if (isCameraUploadEnabled) {
             ConcurrentAsyncTask.execute(new PhotoUploadTask());
+        }
+
+        if (mTransferService != null
+                && !mTransferService.hasCameraUploadNotifProvider()) {
+            CameraUploadNotificationProvider provider = new CameraUploadNotificationProvider(mTransferService.getUploadTaskManager(),
+                    mTransferService);
+            mTransferService.saveCameraUploadNotifProvider(provider);
         }
 
         return START_STICKY;
@@ -285,14 +290,14 @@ public class CameraUploadService extends Service {
 
             // only upload files under some specific folders
             boolean isPathValid = CameraUploadUtil.isPathValid(photo, isVideosAllowed, isCustomScan);
-            Log.d(DEBUG_TAG, "path "
+            /*Log.d(DEBUG_TAG, "path "
                     + photo.getAbsolutePath()
                     + " isVideoAllowed "
                     + isVideosAllowed
                     + " isCustomScan "
                     + isCustomScan
                     + " isPathValid "
-                    + isPathValid);
+                    + isPathValid);*/
 
             if (!isPathValid)
                 return;

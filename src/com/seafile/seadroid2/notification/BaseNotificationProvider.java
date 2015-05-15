@@ -31,7 +31,8 @@ public abstract class BaseNotificationProvider {
     public static final String NOTIFICATION_OPEN_UPLOAD_TAB = "open upload tab notification";
 
     public static final int NOTIFICATION_ID_DOWNLOAD = 1;
-    public static final int NOTIFICATION_ID_UPLOAD = 2;
+    public static final int NOTIFICATION_ID_NORMAR_UPLOAD = 2;
+    public static final int NOTIFICATION_ID_CAMERA_UPLOAD = 3;
 
     protected TransferManager txMgr;
     protected TransferService txService;
