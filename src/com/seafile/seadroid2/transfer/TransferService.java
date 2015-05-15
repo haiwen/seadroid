@@ -6,6 +6,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.notification.CameraUploadNotificationProvider;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.notification.UploadNotificationProvider;
 
@@ -59,6 +60,20 @@ public class TransferService extends Service {
 
         List<DownloadTaskInfo> dInfos = getAllDownloadTaskInfos();
         for (DownloadTaskInfo info : dInfos) {
+            if (info.state.equals(TaskState.INIT)
+                    || info.state.equals(TaskState.TRANSFERRING))
+                return true;
+        }
+
+        return false;
+    }
+
+    public boolean cameraUploadServiecRunning() {
+        List<UploadTaskInfo> uInfos = getAllUploadTaskInfos();
+        for (UploadTaskInfo info : uInfos) {
+            if (info.isCopyToLocal)
+                continue;
+
             if (info.state.equals(TaskState.INIT)
                     || info.state.equals(TaskState.TRANSFERRING))
                 return true;
@@ -198,12 +213,42 @@ public class TransferService extends Service {
 
     // -------------------------- upload notification --------------------//
 
+    /**
+     * save {@link com.seafile.seadroid2.notification.UploadNotificationProvider} instance for normal files uploading
+     * @param provider
+     */
     public void saveUploadNotifProvider(UploadNotificationProvider provider) {
         uploadTaskManager.saveUploadNotifProvider(provider);
     }
 
+    /**
+     * save {@link com.seafile.seadroid2.notification.CameraUploadNotificationProvider} instance for camera files uploading
+     * @param provider
+     */
+    public void saveCameraUploadNotifProvider(CameraUploadNotificationProvider provider) {
+        uploadTaskManager.saveCameraUploadNotifProvider(provider);
+    }
+
+    /**
+     * check existence of the {@link com.seafile.seadroid2.notification.UploadNotificationProvider} instance for normal files uploading
+     *
+     * @return
+     *          true, if exist.
+     *          false, otherwise.
+     */
     public boolean hasUploadNotifProvider() {
         return uploadTaskManager.hasNotifProvider();
+    }
+
+    /**
+     * check existence of the {@link com.seafile.seadroid2.notification.CameraUploadNotificationProvider} instance for camera files uploading
+     *
+     * @return
+     *          true, if exist.
+     *          false, otherwise.
+     */
+    public boolean hasCameraUploadNotifProvider() {
+        return uploadTaskManager.hasCameraUploadNotifProvider();
     }
 
     public UploadNotificationProvider getUploadNotifProvider() {

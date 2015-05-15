@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.ui;
+package com.seafile.seadroid2.notification;
 
 import android.app.Notification;
 import android.content.Context;
