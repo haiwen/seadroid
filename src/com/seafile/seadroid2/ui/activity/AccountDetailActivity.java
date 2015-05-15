@@ -227,8 +227,8 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
 
     /** Called when the user clicks the Login button */
     public void login(View view) {
-        String serverURL = serverText.getText().toString();
-        String email = emailText.getText().toString();
+        String serverURL = serverText.getText().toString().trim();
+        String email = emailText.getText().toString().trim();
         String passwd = passwdText.getText().toString();
         boolean isHttps = httpsCheckBox.isChecked();
 
