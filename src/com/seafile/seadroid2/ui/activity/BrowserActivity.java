@@ -301,13 +301,19 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
 
     private void requestServerInfo() {
-        if (checkServerProEdition())
-            return;
-        else {
-            // hide Activity tab and search menu
+        if (checkServerProEdition()) {
+            // show Activities Tab
+        } else {
+            // hide Activity tab
             adapter.hideActivityTab();
             indicator.notifyDataSetChanged();
             adapter.notifyDataSetChanged();
+
+        }
+
+        if (checkSearchEnabled()) {
+            // show search menu
+        } else {
             // hide search menu
             if (menuSearch != null)
                 menuSearch.setVisible(false);
@@ -342,12 +348,15 @@ public class BrowserActivity extends SherlockFragmentActivity
                 return;
             }
 
-            if (serverInfo.isProEdition()) {
-                // hide Activity tab and search menu
+            if (serverInfo.proEdition()) {
+                // show Activity tab
                 adapter.unHideActivityTab();
                 indicator.notifyDataSetChanged();
                 adapter.notifyDataSetChanged();
-                // hide search menu
+            }
+
+            if (serverInfo.searchEnabled()) {
+                // show search menu
                 if (menuSearch != null)
                     menuSearch.setVisible(true);
             }
@@ -361,6 +370,13 @@ public class BrowserActivity extends SherlockFragmentActivity
         ServerInfoDBHelper.getInstance().saveServerInfo(serverInfo);
     }
 
+    /**
+     * check if server is pro edition
+     *
+     * @return
+     *          true, if server is pro edition
+     *          false, otherwise.
+     */
     private boolean checkServerProEdition() {
         if (account.getServer() == null)
             return false;
@@ -369,7 +385,25 @@ public class BrowserActivity extends SherlockFragmentActivity
         if (serverInfo == null)
             return false;
 
-        return serverInfo.isProEdition();
+        return serverInfo.proEdition();
+    }
+
+    /**
+     * check if server supports searching feature
+     *
+     * @return
+     *          true, if search enabled
+     *          false, otherwise.
+     */
+    private boolean checkSearchEnabled() {
+        if (account.getServer() == null)
+            return false;
+
+        ServerInfo serverInfo = ServerInfoDBHelper.getInstance().getServerInfo(account.getServer());
+        if (serverInfo == null)
+            return false;
+
+        return serverInfo.searchEnabled();
     }
 
     class SeafileTabsAdapter extends FragmentPagerAdapter implements

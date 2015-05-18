@@ -14,7 +14,8 @@ public class ServerInfo implements Parcelable{
     private String url;
     private String version;
     private String features;
-    private boolean isProEdition;
+    private boolean proEdition;
+    private boolean searchEnabled;
 
     public ServerInfo(String url, String version, String features) {
         this.url = url;
@@ -30,12 +31,20 @@ public class ServerInfo implements Parcelable{
         return features;
     }
 
-    public boolean isProEdition() {
-        return isProEdition;
+    public boolean proEdition() {
+        return proEdition;
     }
 
-    public void setProEdition(boolean isProEdition) {
-        this.isProEdition = isProEdition;
+    public void setProEdition(boolean proEdition) {
+        this.proEdition = proEdition;
+    }
+
+    public boolean searchEnabled() {
+        return searchEnabled;
+    }
+
+    public void setSearchEnabled(boolean searchEnabled) {
+        this.searchEnabled = searchEnabled;
     }
 
     public String getUrl() {
@@ -56,8 +65,9 @@ public class ServerInfo implements Parcelable{
          * If url assignment was not handled by a future maintainer, an error may occur */
         String url = "not applicable";
         ServerInfo serverInfo = new ServerInfo(url, version, features);
-        // raw data goes like this, ["seafile-basic","seafile-pro","office-preview"]
+        // raw data goes like "features":["seafile-basic","seafile-pro","office-preview","file-search"]
         serverInfo.setProEdition(features.contains("seafile-pro"));
+        serverInfo.setSearchEnabled(features.contains("file-search"));
 
         return serverInfo;
     }
