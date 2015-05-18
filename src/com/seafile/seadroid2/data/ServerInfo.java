@@ -49,9 +49,14 @@ public class ServerInfo implements Parcelable{
     public static ServerInfo fromJson(JSONObject obj) throws JSONException {
         String version = obj.optString("version");
         String features = obj.optString("features");
+        /* actually there is no url node in responded json data
+         * but it is useful to use url to represent the server,
+         * so url should be explicitly assigned a valid value by calling {@link #setUrl}
+         * instead of using the hard coded value.
+         * If url assignment was not handled by a future maintainer, an error may occur */
         String url = "not applicable";
         ServerInfo serverInfo = new ServerInfo(url, version, features);
-        /** raw data goes like this, ["seafile-basic","seafile-pro","office-preview"] */
+        // raw data goes like this, ["seafile-basic","seafile-pro","office-preview"]
         serverInfo.setProEdition(features.contains("seafile-pro"));
 
         return serverInfo;

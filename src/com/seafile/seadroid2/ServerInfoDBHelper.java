@@ -11,7 +11,7 @@ import com.seafile.seadroid2.data.ServerInfo;
  * A helper class to manage {@link #DATABASE_NAME} database creation and version management.
  */
 public class ServerInfoDBHelper extends SQLiteOpenHelper {
-    // If you change the database schema, you must increment the database version.
+    // If you change the database schema, you must increase the database version.
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "server.db";
 
