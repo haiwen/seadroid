@@ -531,7 +531,7 @@ public class ReposFragment extends SherlockListFragment {
             }
 
             if (err != null) {
-                if (err.getCode() == SeafConnection.HTTP_STATUS_UNAUTHORIZED) {
+                if (err.getCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
                     // Token expired, should login again
                     ToastUtils.show(mActivity, R.string.err_token_expired);
                     logoutWhenTokenExpired();
@@ -698,7 +698,7 @@ public class ReposFragment extends SherlockListFragment {
             if (err != null) {
                 if (err.getCode() == SeafConnection.HTTP_STATUS_REPO_PASSWORD_REQUIRED) {
                     showPasswordDialog();
-                } else if (err.getCode() == SeafConnection.HTTP_STATUS_UNAUTHORIZED) {
+                } else if (err.getCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
                     // Token expired, should login again
                     ToastUtils.show(mActivity, R.string.err_token_expired);
                     logoutWhenTokenExpired();
