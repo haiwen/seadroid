@@ -361,6 +361,8 @@
     <!-- Transfer List -->
     <string name="transfer_list_network_error">Network connection error, please try again later!</string>
     <string name="transfer_list_cancel_all">Cancel all</string>
+    <string name="transfer_list_restart_failed_tasks">Restart failed tasks</string>
+    <string name="transfer_list_restart_cancelled_tasks">Restart cancelled tasks</string>
     <string name="transfer_tabs_downloads">Download List</string>
     <string name="transfer_tabs_uploads">Upload List</string>
     <string name="transfer_download_no_task">All files has been downloaded</string>
