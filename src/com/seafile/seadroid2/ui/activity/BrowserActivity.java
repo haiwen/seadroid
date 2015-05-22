@@ -884,10 +884,10 @@ public class BrowserActivity extends SherlockFragmentActivity
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
                                             switch (which) {
-                                                case SeafItemAdapter.SORT_BY_NAME:
+                                                case 0: // sort by name
                                                     sortFilesByType(SeafItemAdapter.SORT_BY_NAME);
                                                     break;
-                                                case SeafItemAdapter.SORT_BY_MODIFICATION_TIME:
+                                                case 1: // sort by modification time
                                                     sortFilesByType(SeafItemAdapter.SORT_BY_MODIFICATION_TIME);
                                                     break;
                                                 default:
