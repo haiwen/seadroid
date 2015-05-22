@@ -149,23 +149,21 @@ public class GalleryActivity extends SherlockFragmentActivity {
             if (seafDirents == null)
                 return;
 
-            ArrayList<String> links = Lists.newArrayList();
             for (SeafDirent seafDirent : seafDirents) {
                 if (!seafDirent.isDir()
                         && Utils.isViewableImage(seafDirent.name)) { // only cache image type files
                     String link = dataMgr.getThumbnailLink(repoID, Utils.pathJoin(dirPath, seafDirent.name), 800);
                     // Log.d(DEBUG_TAG, "add remote url " + thumbnailLink);
                     if (link != null) {
-                        links.add(link);
                         mThumbLinkAndSeafDirentMap.put(link, seafDirent);
                     }
                 }
             }
 
-            mGalleryAdapter = new GalleryAdapter(GalleryActivity.this, mAccount, links);
+            mGalleryAdapter = new GalleryAdapter(GalleryActivity.this, mAccount, (ArrayList<String>) mThumbLinkAndSeafDirentMap.keySet());
             mViewPager.setAdapter(mGalleryAdapter);
 
-            navToSelectedPage(links);
+            navToSelectedPage((ArrayList<String>) mThumbLinkAndSeafDirentMap.keySet());
             return;
         }
 
@@ -208,19 +206,17 @@ public class GalleryActivity extends SherlockFragmentActivity {
             if (seafDirents == null)
                 return null;
 
-            ArrayList<String> links = Lists.newArrayList();
             for (SeafDirent seafDirent : seafDirents) {
                 if (!seafDirent.isDir()
                         && Utils.isViewableImage(seafDirent.name)) { // only cache image type files
                     String link = dataMgr.getThumbnailLink(repoID, Utils.pathJoin(dirPath, seafDirent.name), 800);
                     // Log.d(DEBUG_TAG, "add remote url " + thumbnailLink);
                     if(link != null) {
-                        links.add(link);
                         mThumbLinkAndSeafDirentMap.put(link, seafDirent);
                     }
                 }
             }
-            return links;
+            return (ArrayList<String>) mThumbLinkAndSeafDirentMap.keySet();
         }
 
         @Override
