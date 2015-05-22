@@ -322,10 +322,12 @@ public class ReposFragment extends SherlockListFragment {
 
     public void sortByName() {
         adapter.sortByType(SeafItemAdapter.SORT_BY_NAME);
+        adapter.notifyDataSetChanged();
     }
 
     public void sortByTime() {
         adapter.sortByType(SeafItemAdapter.SORT_BY_MODIFICATION_TIME);
+        adapter.notifyDataSetChanged();
     }
 
     private void updateAdapterWithRepos(List<SeafRepo> repos) {

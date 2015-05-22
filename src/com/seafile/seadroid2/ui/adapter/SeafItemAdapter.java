@@ -54,8 +54,8 @@ public class SeafItemAdapter extends BaseAdapter {
     private static final int ACTION_ID_MOVE = 7;
     private static final int ACTION_ID_STAR = 8;
 
-    public static final int SORT_BY_NAME = 0;
-    public static final int SORT_BY_MODIFICATION_TIME = 1;
+    public static final int SORT_BY_NAME = 9;
+    public static final int SORT_BY_MODIFICATION_TIME = 10;
 
     @Override
     public int getCount() {
