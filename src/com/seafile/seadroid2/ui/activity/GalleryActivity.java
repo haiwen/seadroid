@@ -165,27 +165,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
             mGalleryAdapter = new GalleryAdapter(GalleryActivity.this, mAccount, links);
             mViewPager.setAdapter(mGalleryAdapter);
 
-            // dynamically navigate to the starting page index selected by user
-            // by default the starting page index is 0
-            for (int i = 0; i < links.size(); i++) {
-                String key = links.get(i);
-                if (mThumbLinkAndSeafDirentMap.containsKey(key)
-                        && mThumbLinkAndSeafDirentMap.get(key).name.equals(fileName)) {
-                    // Log.d(DEBUG_TAG, "current index " + i);
-                    // Log.d(DEBUG_TAG, "current file name " + fileName);
-                    mViewPager.setCurrentItem(i);
-                    mPageIndexTextView.setText(String.valueOf(i + 1));
-                    mPageIndex = i;
-                    mPageNameTextView.setText(fileName);
-                    String linkKey = mGalleryAdapter.getItem(i);
-                    if (mThumbLinkAndSeafDirentMap.containsKey(linkKey)) {
-                        currentDirent = mThumbLinkAndSeafDirentMap.get(linkKey);
-                    }
-                    break;
-                }
-            }
-            mPageCountTextView.setText(String.valueOf(links.size()));
-
+            navToSelectedPage(links);
             return;
         }
 
@@ -260,27 +240,36 @@ public class GalleryActivity extends SherlockFragmentActivity {
             mGalleryAdapter = new GalleryAdapter(GalleryActivity.this, mAccount, links);
             mViewPager.setAdapter(mGalleryAdapter);
 
-            // dynamically navigate to the starting page index selected by user
-            // by default the starting page index is 0
-            for (int i = 0; i< links.size(); i++) {
-                String key = links.get(i);
-                if (mThumbLinkAndSeafDirentMap.containsKey(key)
-                        && mThumbLinkAndSeafDirentMap.get(key).name.equals(fileName)) {
-                    // Log.d(DEBUG_TAG, "current index " + i);
-                    // Log.d(DEBUG_TAG, "current file name " + fileName);
-                    mViewPager.setCurrentItem(i);
-                    mPageIndexTextView.setText(String.valueOf(i + 1));
-                    mPageIndex = i;
-                    mPageNameTextView.setText(fileName);
-                    String linkKey = mGalleryAdapter.getItem(i);
-                    if (mThumbLinkAndSeafDirentMap.containsKey(linkKey)) {
-                        currentDirent = mThumbLinkAndSeafDirentMap.get(linkKey);
-                    }
-                    break;
-                }
-            }
-            mPageCountTextView.setText(String.valueOf(links.size()));
+            navToSelectedPage(links);
         }
+    }
+
+    /**
+     * dynamically navigate to the starting page index selected by user
+     * by default the starting page index is 0
+     *
+     * @param links
+     */
+    private void navToSelectedPage(ArrayList<String> links) {
+        for (int i = 0; i< links.size(); i++) {
+            String key = links.get(i);
+            if (mThumbLinkAndSeafDirentMap.containsKey(key)
+                    && mThumbLinkAndSeafDirentMap.get(key).name.equals(fileName)) {
+                // Log.d(DEBUG_TAG, "current index " + i);
+                // Log.d(DEBUG_TAG, "current file name " + fileName);
+                mViewPager.setCurrentItem(i);
+                mPageIndexTextView.setText(String.valueOf(i + 1));
+                mPageIndex = i;
+                mPageNameTextView.setText(fileName);
+                String linkKey = mGalleryAdapter.getItem(i);
+                if (mThumbLinkAndSeafDirentMap.containsKey(linkKey)) {
+                    currentDirent = mThumbLinkAndSeafDirentMap.get(linkKey);
+                }
+                break;
+            }
+        }
+        mPageCountTextView.setText(String.valueOf(links.size()));
+
     }
 
     public void hideOrShowActionBar() {
