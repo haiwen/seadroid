@@ -25,6 +25,7 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.ui.ToastUtils;
+import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.ZoomOutPageTransformer;
 import com.seafile.seadroid2.ui.adapter.GalleryAdapter;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
@@ -316,62 +317,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
     }
 
     private void shareFile(String repoID, String path) {
-        chooseShareApp(repoID, path, false);
-    }
-
-    private void chooseShareApp(final String repoID, final String path, final boolean isdir) {
-        final Intent shareIntent = new Intent();
-        shareIntent.setAction(Intent.ACTION_SEND);
-        shareIntent.setType("text/plain");
-
-        // Get a list of apps
-        List<ResolveInfo> infos = Utils.getAppsByIntent(shareIntent);
-
-        String title = getString(isdir ? R.string.share_dir_link : R.string.share_file_link);
-
-        AppChoiceDialog dialog = new AppChoiceDialog();
-        dialog.addCustomAction(0, getResources().getDrawable(R.drawable.copy_link),
-                getString(R.string.copy_link));
-        dialog.init(title, infos, new AppChoiceDialog.OnItemSelectedListener() {
-            @Override
-            public void onCustomActionSelected(AppChoiceDialog.CustomAction action) {
-                final GetShareLinkDialog gdialog = new GetShareLinkDialog();
-                gdialog.init(repoID, path, isdir, mAccount);
-                gdialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
-                    @Override
-                    @SuppressWarnings("deprecation")
-                    public void onTaskSuccess() {
-                        ClipboardManager clipboard = (ClipboardManager)
-                                getSystemService(Context.CLIPBOARD_SERVICE);
-                        clipboard.setText(gdialog.getLink());
-                        // ClipData clip = ClipData.newPlainText("seafile shared link", gdialog.getLink());
-                        // clipboard.setPrimaryClip(clip);
-                        ToastUtils.show(GalleryActivity.this, R.string.link_ready_to_be_pasted);
-                    }
-                });
-                gdialog.show(getSupportFragmentManager(), "DialogFragment");
-            }
-
-            @Override
-            public void onAppSelected(ResolveInfo appInfo) {
-                String className = appInfo.activityInfo.name;
-                String packageName = appInfo.activityInfo.packageName;
-                shareIntent.setClassName(packageName, className);
-
-                final GetShareLinkDialog gdialog = new GetShareLinkDialog();
-                gdialog.init(repoID, path, isdir, mAccount);
-                gdialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
-                    @Override
-                    public void onTaskSuccess() {
-                        shareIntent.putExtra(Intent.EXTRA_TEXT, gdialog.getLink());
-                        startActivity(shareIntent);
-                    }
-                });
-                gdialog.show(getSupportFragmentManager(), "DialogFragment");
-            }
-
-        });
-        dialog.show(getSupportFragmentManager(), BrowserActivity.CHOOSE_APP_DIALOG_FRAGMENT_TAG);
+        WidgetUtils.chooseShareApp(this, repoID, path, false, mAccount);
     }
 
     class StarFileTask extends AsyncTask<Void, Void, Void> {
