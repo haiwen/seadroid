@@ -320,98 +320,12 @@ public class ReposFragment extends SherlockListFragment {
         return false;
     }
 
-    private class RepoMTimeComparator implements Comparator<SeafRepo> {
-
-        @Override
-        public int compare(SeafRepo itemA, SeafRepo itemB) {
-            return (int) (itemB.mtime - itemA.mtime);
-        }
+    public void sortByName() {
+        adapter.sortByType(SeafItemAdapter.SORT_BY_NAME);
     }
 
-    private class DirentMTimeComparator implements Comparator<SeafDirent> {
-
-        @Override
-        public int compare(SeafDirent itemA, SeafDirent itemB) {
-            return (int) (itemB.mtime - itemA.mtime);
-        }
-    }
-
-    private class RepoNameComparator implements Comparator<SeafRepo> {
-
-        @Override
-        public int compare(SeafRepo itemA, SeafRepo itemB) {
-            return itemA.name.toLowerCase().compareTo(itemB.name.toLowerCase());
-        }
-    }
-
-    private class DirentNameComparator implements Comparator<SeafDirent> {
-
-        @Override
-        public int compare(SeafDirent itemA, SeafDirent itemB) {
-            return itemA.name.toLowerCase().compareTo(itemB.name.toLowerCase());
-        }
-    }
-
-    public void sortReposByName() {
-        List<SeafRepo> repos = getDataManager().getReposFromCache();
-        if (repos != null
-                && repos.size() > 1) {
-            Collections.sort(repos, new RepoNameComparator());
-            updateAdapterWithRepos(repos);
-        }
-    }
-
-    public void sortDirentsByName() {
-        List<SeafDirent> dirents = getDataManager().getCachedDirents(
-                getNavContext().getRepoID(), getNavContext().getDirPath());
-        if (dirents != null
-                && dirents.size() > 1) {
-            List<SeafDirent> folders = Lists.newArrayList();
-            List<SeafDirent> files = Lists.newArrayList();
-            for (SeafDirent dirent : dirents) {
-                if (dirent.isDir())
-                    folders.add(dirent);
-                else
-                    files.add(dirent);
-            }
-            Collections.sort(folders, new DirentNameComparator());
-            Collections.sort(files, new DirentNameComparator());
-            dirents.clear();
-            dirents.addAll(folders);
-            dirents.addAll(files);
-            updateAdapterWithDirents(dirents);
-        }
-    }
-
-    public void sortRepoByTime() {
-        List<SeafRepo> repos = getDataManager().getReposFromCache();
-        if (repos != null
-                && repos.size() > 1) {
-            Collections.sort(repos, new RepoMTimeComparator());
-            updateAdapterWithRepos(repos);
-        }
-    }
-
-    public void sortDirentsByTime() {
-        List<SeafDirent> dirents = getDataManager().getCachedDirents(
-                getNavContext().getRepoID(), getNavContext().getDirPath());
-        if (dirents != null
-                && dirents.size() > 1) {
-            List<SeafDirent> folders = Lists.newArrayList();
-            List<SeafDirent> files = Lists.newArrayList();
-            for (SeafDirent dirent : dirents) {
-                if (dirent.isDir())
-                    folders.add(dirent);
-                else
-                    files.add(dirent);
-            }
-            Collections.sort(folders, new DirentMTimeComparator());
-            Collections.sort(files, new DirentMTimeComparator());
-            dirents.clear();
-            dirents.addAll(folders);
-            dirents.addAll(files);
-            updateAdapterWithDirents(dirents);
-        }
+    public void sortByTime() {
+        adapter.sortByType(SeafItemAdapter.SORT_BY_MODIFICATION_TIME);
     }
 
     private void updateAdapterWithRepos(List<SeafRepo> repos) {
