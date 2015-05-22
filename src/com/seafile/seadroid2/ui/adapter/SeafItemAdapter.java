@@ -1,14 +1,5 @@
 package com.seafile.seadroid2.ui.adapter;
 
-import java.io.File;
-import java.util.*;
-
-import android.graphics.Bitmap;
-import android.widget.ProgressBar;
-import com.seafile.seadroid2.ui.AnimateFirstDisplayListener;
-import com.seafile.seadroid2.ui.WidgetUtils;
-import net.londatiga.android.ActionItem;
-import net.londatiga.android.QuickAction;
 import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,26 +7,28 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
-
 import com.google.common.collect.Lists;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
-import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.seafile.seadroid2.NavContext;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.data.SeafCachedFile;
-import com.seafile.seadroid2.data.SeafDirent;
-import com.seafile.seadroid2.data.SeafGroup;
-import com.seafile.seadroid2.data.SeafItem;
-import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.data.*;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
+import com.seafile.seadroid2.ui.AnimateFirstDisplayListener;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.util.Utils;
+import net.londatiga.android.ActionItem;
+import net.londatiga.android.QuickAction;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class SeafItemAdapter extends BaseAdapter {
 
@@ -60,6 +53,9 @@ public class SeafItemAdapter extends BaseAdapter {
     private static final int ACTION_ID_COPY = 6;
     private static final int ACTION_ID_MOVE = 7;
     private static final int ACTION_ID_STAR = 8;
+
+    public static final int SORT_BY_NAME = 0;
+    public static final int SORT_BY_MODIFICATION_TIME = 1;
 
     @Override
     public int getCount() {
@@ -586,9 +582,10 @@ public class SeafItemAdapter extends BaseAdapter {
         repoIsEncrypted = encrypted;
     }
 
-    public static final int SORT_BY_NAME = 0;
-    public static final int SORT_BY_MODIFICATION_TIME = 1;
-
+    /**
+     * Sorts the given list using the given comparator
+     * by {@link #SORT_BY_NAME} or by {@link #SORT_BY_MODIFICATION_TIME}
+     */
     public void sortByType(int type) {
         List<SeafRepo> repos = Lists.newArrayList();
         List<SeafGroup> groups = Lists.newArrayList();
@@ -625,6 +622,7 @@ public class SeafItemAdapter extends BaseAdapter {
             }
 
             items.clear();
+            // Adds the objects in the specified collection to this ArrayList
             items.addAll(repos);
             items.addAll(groups);
             items.addAll(cachedFiles);
@@ -633,6 +631,9 @@ public class SeafItemAdapter extends BaseAdapter {
         }
     }
 
+    /**
+     * Repository modification time comparator class
+     */
     private class RepoMTimeComparator implements Comparator<SeafRepo> {
 
         @Override
@@ -641,6 +642,9 @@ public class SeafItemAdapter extends BaseAdapter {
         }
     }
 
+    /**
+     * SeafDirent modification time comparator class
+     */
     private class DirentMTimeComparator implements Comparator<SeafDirent> {
 
         @Override
@@ -649,6 +653,9 @@ public class SeafItemAdapter extends BaseAdapter {
         }
     }
 
+    /**
+     * Repository name comparator class
+     */
     private class RepoNameComparator implements Comparator<SeafRepo> {
 
         @Override
@@ -657,6 +664,9 @@ public class SeafItemAdapter extends BaseAdapter {
         }
     }
 
+    /**
+     * SeafDirent name comparator class
+     */
     private class DirentNameComparator implements Comparator<SeafDirent> {
 
         @Override
