@@ -887,12 +887,10 @@ public class BrowserActivity extends SherlockFragmentActivity
                                         public void onClick(DialogInterface dialog, int which) {
                                             switch (which) {
                                                 case SORT_BY_NAME:
-                                                    ToastUtils.show(BrowserActivity.this, "sort by name");
-                                                    sortByName();
+                                                    sortFilesByType(SORT_BY_NAME);
                                                     break;
                                                 case SORT_BY_MODIFICATION_TIME:
-                                                    ToastUtils.show(BrowserActivity.this, "sort by modification time");
-                                                    sortByTime();
+                                                    sortFilesByType(SORT_BY_MODIFICATION_TIME);
                                                     break;
                                                 default:
                                                     return;
@@ -903,7 +901,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
     }
 
-    private void sortByName() {
+    private void sortFilesByType(int type) {
         if (currentPosition == 0) {
             if (navContext.inRepo()) {
                 SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
@@ -918,29 +916,16 @@ public class BrowserActivity extends SherlockFragmentActivity
                             }, password);
 
                 }
-                getReposFragment().sortDirentsByName();
-            } else
-                getReposFragment().sortReposByName();
-        }
-    }
-    private void sortByTime() {
-        if (currentPosition == 0) {
-            if (navContext.inRepo()) {
-                SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
-                if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
-                    String password = DataManager.getRepoPassword(repo.id);
-                    showPasswordDialog(repo.name, repo.id,
-                            new TaskDialog.TaskDialogListener() {
-                                @Override
-                                public void onTaskSuccess() {
-                                    getReposFragment().sortDirentsByTime();
-                                }
-                            }, password);
-
-                }
-                getReposFragment().sortDirentsByTime();
-            } else
-                getReposFragment().sortRepoByTime();
+                if (type == SORT_BY_NAME)
+                    getReposFragment().sortDirentsByName();
+                else if (type == SORT_BY_MODIFICATION_TIME)
+                    getReposFragment().sortDirentsByTime();
+            } else {
+                if (type == SORT_BY_NAME)
+                    getReposFragment().sortReposByName();
+                else if (type == SORT_BY_MODIFICATION_TIME)
+                    getReposFragment().sortRepoByTime();
+            }
         }
     }
 
