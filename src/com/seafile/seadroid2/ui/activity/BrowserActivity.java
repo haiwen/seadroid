@@ -57,6 +57,7 @@ import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.ToastUtils;
+import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
 import com.seafile.seadroid2.ui.dialog.CopyMoveDialog;
 import com.seafile.seadroid2.ui.dialog.DeleteFileDialog;
@@ -872,9 +873,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         new SortFilesDialog().show(getSupportFragmentManager(), "sort files");
     }
 
-    public static final int SORT_BY_NAME = 0;
-    public static final int SORT_BY_MODIFICATION_TIME = 1;
-
     public class SortFilesDialog extends DialogFragment {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -886,11 +884,11 @@ public class BrowserActivity extends SherlockFragmentActivity
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
                                             switch (which) {
-                                                case SORT_BY_NAME:
-                                                    sortFilesByType(SORT_BY_NAME);
+                                                case SeafItemAdapter.SORT_BY_NAME:
+                                                    sortFilesByType(SeafItemAdapter.SORT_BY_NAME);
                                                     break;
-                                                case SORT_BY_MODIFICATION_TIME:
-                                                    sortFilesByType(SORT_BY_MODIFICATION_TIME);
+                                                case SeafItemAdapter.SORT_BY_MODIFICATION_TIME:
+                                                    sortFilesByType(SeafItemAdapter.SORT_BY_MODIFICATION_TIME);
                                                     break;
                                                 default:
                                                     return;
@@ -911,18 +909,18 @@ public class BrowserActivity extends SherlockFragmentActivity
                             new TaskDialog.TaskDialogListener() {
                                 @Override
                                 public void onTaskSuccess() {
-                                    if (type == SORT_BY_NAME)
+                                    if (type == SeafItemAdapter.SORT_BY_NAME)
                                         getReposFragment().sortByName();
-                                    else if (type == SORT_BY_MODIFICATION_TIME)
+                                    else if (type == SeafItemAdapter.SORT_BY_MODIFICATION_TIME)
                                         getReposFragment().sortByTime();
                                 }
                             }, password);
                 }
             }
 
-            if (type == SORT_BY_NAME)
+            if (type == SeafItemAdapter.SORT_BY_NAME)
                 getReposFragment().sortByName();
-            else if (type == SORT_BY_MODIFICATION_TIME)
+            else if (type == SeafItemAdapter.SORT_BY_MODIFICATION_TIME)
                 getReposFragment().sortByTime();
         }
     }
