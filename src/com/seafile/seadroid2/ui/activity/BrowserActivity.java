@@ -907,7 +907,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         if (currentPosition == 0) {
             if (navContext.inRepo()) {
                 SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
-                /*if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
+                if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
                     String password = DataManager.getRepoPassword(repo.id);
                     showPasswordDialog(repo.name, repo.id,
                             new TaskDialog.TaskDialogListener() {
@@ -917,7 +917,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                                 }
                             }, password);
 
-                }*/
+                }
                 getReposFragment().sortDirentsByName();
             } else
                 getReposFragment().sortReposByName();
@@ -927,7 +927,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         if (currentPosition == 0) {
             if (navContext.inRepo()) {
                 SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
-                /*if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
+                if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
                     String password = DataManager.getRepoPassword(repo.id);
                     showPasswordDialog(repo.name, repo.id,
                             new TaskDialog.TaskDialogListener() {
@@ -937,7 +937,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                                 }
                             }, password);
 
-                }*/
+                }
                 getReposFragment().sortDirentsByTime();
             } else
                 getReposFragment().sortRepoByTime();
