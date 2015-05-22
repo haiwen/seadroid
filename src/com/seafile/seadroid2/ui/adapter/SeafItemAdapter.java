@@ -25,10 +25,7 @@ import net.londatiga.android.ActionItem;
 import net.londatiga.android.QuickAction;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class SeafItemAdapter extends BaseAdapter {
 
@@ -620,15 +617,15 @@ public class SeafItemAdapter extends BaseAdapter {
                 Collections.sort(folders, new DirentMTimeComparator());
                 Collections.sort(files, new DirentMTimeComparator());
             }
-
-            items.clear();
-            // Adds the objects in the specified collection to this ArrayList
-            items.addAll(repos);
-            items.addAll(groups);
-            items.addAll(cachedFiles);
-            items.addAll(folders);
-            items.addAll(files);
         }
+
+        items.clear();
+        // Adds the objects in the specified collection to this ArrayList
+        items.addAll(groups);
+        items.addAll(repos);
+        items.addAll(cachedFiles);
+        items.addAll(folders);
+        items.addAll(files);
     }
 
     /**
