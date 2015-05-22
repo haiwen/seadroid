@@ -901,7 +901,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
     }
 
-    private void sortFilesByType(int type) {
+    private void sortFilesByType(final int type) {
         if (currentPosition == 0) {
             if (navContext.inRepo()) {
                 SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
@@ -911,21 +911,19 @@ public class BrowserActivity extends SherlockFragmentActivity
                             new TaskDialog.TaskDialogListener() {
                                 @Override
                                 public void onTaskSuccess() {
-                                    getReposFragment().sortDirentsByName();
+                                    if (type == SORT_BY_NAME)
+                                        getReposFragment().sortByName();
+                                    else if (type == SORT_BY_MODIFICATION_TIME)
+                                        getReposFragment().sortByTime();
                                 }
                             }, password);
-
                 }
-                if (type == SORT_BY_NAME)
-                    getReposFragment().sortDirentsByName();
-                else if (type == SORT_BY_MODIFICATION_TIME)
-                    getReposFragment().sortDirentsByTime();
-            } else {
-                if (type == SORT_BY_NAME)
-                    getReposFragment().sortReposByName();
-                else if (type == SORT_BY_MODIFICATION_TIME)
-                    getReposFragment().sortRepoByTime();
             }
+
+            if (type == SORT_BY_NAME)
+                getReposFragment().sortByName();
+            else if (type == SORT_BY_MODIFICATION_TIME)
+                getReposFragment().sortByTime();
         }
     }
 

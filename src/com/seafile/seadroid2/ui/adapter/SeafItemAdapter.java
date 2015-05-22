@@ -1,10 +1,7 @@
 package com.seafile.seadroid2.ui.adapter;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import android.graphics.Bitmap;
 import android.widget.ProgressBar;
@@ -588,5 +585,85 @@ public class SeafItemAdapter extends BaseAdapter {
     public void setEncryptedRepo(boolean encrypted) {
         repoIsEncrypted = encrypted;
     }
+
+    public static final int SORT_BY_NAME = 0;
+    public static final int SORT_BY_MODIFICATION_TIME = 1;
+
+    public void sortByType(int type) {
+        List<SeafRepo> repos = Lists.newArrayList();
+        List<SeafGroup> groups = Lists.newArrayList();
+        List<SeafCachedFile> cachedFiles = Lists.newArrayList();
+        List<SeafDirent> folders = Lists.newArrayList();
+        List<SeafDirent> files = Lists.newArrayList();
+
+        for (SeafItem item : items) {
+            if (item instanceof SeafRepo) {
+                // SeafRepo
+                repos.add(((SeafRepo) item));
+            } else if (item instanceof SeafGroup) {
+                // SeafGroup
+                groups.add(((SeafGroup) item));
+            } else if (item instanceof SeafCachedFile) {
+                // SeafCachedFile
+                cachedFiles.add(((SeafCachedFile) item));
+            } else {
+                // SeafDirent
+                if (((SeafDirent) item).isDir())
+                    folders.add(((SeafDirent) item));
+                else
+                    files.add(((SeafDirent) item));
+            }
+
+            if (type == SORT_BY_NAME) {
+                Collections.sort(repos, new RepoNameComparator());
+                Collections.sort(folders, new DirentNameComparator());
+                Collections.sort(files, new DirentNameComparator());
+            } else if (type == SORT_BY_MODIFICATION_TIME) {
+                Collections.sort(repos, new RepoMTimeComparator());
+                Collections.sort(folders, new DirentMTimeComparator());
+                Collections.sort(files, new DirentMTimeComparator());
+            }
+
+            items.clear();
+            items.addAll(repos);
+            items.addAll(groups);
+            items.addAll(cachedFiles);
+            items.addAll(folders);
+            items.addAll(files);
+        }
+    }
+
+    private class RepoMTimeComparator implements Comparator<SeafRepo> {
+
+        @Override
+        public int compare(SeafRepo itemA, SeafRepo itemB) {
+            return (int) (itemB.mtime - itemA.mtime);
+        }
+    }
+
+    private class DirentMTimeComparator implements Comparator<SeafDirent> {
+
+        @Override
+        public int compare(SeafDirent itemA, SeafDirent itemB) {
+            return (int) (itemB.mtime - itemA.mtime);
+        }
+    }
+
+    private class RepoNameComparator implements Comparator<SeafRepo> {
+
+        @Override
+        public int compare(SeafRepo itemA, SeafRepo itemB) {
+            return itemA.name.toLowerCase().compareTo(itemB.name.toLowerCase());
+        }
+    }
+
+    private class DirentNameComparator implements Comparator<SeafDirent> {
+
+        @Override
+        public int compare(SeafDirent itemA, SeafDirent itemB) {
+            return itemA.name.toLowerCase().compareTo(itemB.name.toLowerCase());
+        }
+    }
+
 }
 
