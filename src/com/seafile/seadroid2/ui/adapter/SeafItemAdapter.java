@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.ui.adapter;
 
 import android.content.res.Resources;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -10,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
@@ -584,59 +586,52 @@ public class SeafItemAdapter extends BaseAdapter {
      * by {@link #SORT_BY_NAME} or by {@link #SORT_BY_MODIFICATION_TIME}
      */
     public void sortByType(int type) {
-        List<SeafRepo> repos = Lists.newArrayList();
         List<SeafGroup> groups = Lists.newArrayList();
         List<SeafCachedFile> cachedFiles = Lists.newArrayList();
         List<SeafDirent> folders = Lists.newArrayList();
         List<SeafDirent> files = Lists.newArrayList();
+        SeafGroup group = null;
 
         for (SeafItem item : items) {
-            if (item instanceof SeafRepo) {
-                // SeafRepo
-                repos.add(((SeafRepo) item));
-            } else if (item instanceof SeafGroup) {
-                // SeafGroup
-                groups.add(((SeafGroup) item));
+            if (item instanceof SeafGroup) {
+                group = (SeafGroup) item;
+                groups.add(group);
+            } else if (item instanceof SeafRepo) {
+                if (group == null)
+                    continue;
+                group.addIfAbsent((SeafRepo) item);
             } else if (item instanceof SeafCachedFile) {
-                // SeafCachedFile
                 cachedFiles.add(((SeafCachedFile) item));
             } else {
-                // SeafDirent
                 if (((SeafDirent) item).isDir())
                     folders.add(((SeafDirent) item));
                 else
                     files.add(((SeafDirent) item));
             }
-
-            if (type == SORT_BY_NAME) {
-                Collections.sort(repos, new RepoNameComparator());
-                Collections.sort(folders, new DirentNameComparator());
-                Collections.sort(files, new DirentNameComparator());
-            } else if (type == SORT_BY_MODIFICATION_TIME) {
-                Collections.sort(repos, new RepoMTimeComparator());
-                Collections.sort(folders, new DirentMTimeComparator());
-                Collections.sort(files, new DirentMTimeComparator());
-            }
         }
 
         items.clear();
+
+        // sort SeafGroups and SeafRepos
+        for (SeafGroup sg : groups) {
+            sg.sortByType(type);
+            items.add(sg);
+            items.addAll(sg.getRepos());
+        }
+
+        // sort SeafDirents
+        if (type == SORT_BY_NAME) {
+            Collections.sort(folders, new DirentNameComparator());
+            Collections.sort(files, new DirentNameComparator());
+        } else if (type == SORT_BY_MODIFICATION_TIME) {
+            Collections.sort(folders, new DirentMTimeComparator());
+            Collections.sort(files, new DirentMTimeComparator());
+        }
+
         // Adds the objects in the specified collection to this ArrayList
-        items.addAll(groups);
-        items.addAll(repos);
         items.addAll(cachedFiles);
         items.addAll(folders);
         items.addAll(files);
-    }
-
-    /**
-     * Repository modification time comparator class
-     */
-    private class RepoMTimeComparator implements Comparator<SeafRepo> {
-
-        @Override
-        public int compare(SeafRepo itemA, SeafRepo itemB) {
-            return (int) (itemB.mtime - itemA.mtime);
-        }
     }
 
     /**
@@ -647,17 +642,6 @@ public class SeafItemAdapter extends BaseAdapter {
         @Override
         public int compare(SeafDirent itemA, SeafDirent itemB) {
             return (int) (itemB.mtime - itemA.mtime);
-        }
-    }
-
-    /**
-     * Repository name comparator class
-     */
-    private class RepoNameComparator implements Comparator<SeafRepo> {
-
-        @Override
-        public int compare(SeafRepo itemA, SeafRepo itemB) {
-            return itemA.name.toLowerCase().compareTo(itemB.name.toLowerCase());
         }
     }
 
