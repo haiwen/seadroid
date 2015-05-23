@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.seafile.seadroid2</groupId>
   <artifactId>seadroid</artifactId>
-  <version>1.3.0</version>
+  <version>1.7.0</version>
   <packaging>apk</packaging>
   <name>seafile android client</name>
   <url>http://seafile.com</url>
@@ -88,6 +88,12 @@
         <artifactId>universal-image-loader</artifactId>
         <version>1.9.3</version>
     </dependency>
+
+	<dependency>
+    	<groupId>com.github.chrisbanes.photoview</groupId>
+    	<artifactId>parent</artifactId>
+    	<version>1.2.2</version>
+	</dependency>
 
     <!-- test dependencies  -->
     <dependency>
