@@ -89,11 +89,11 @@
         <version>1.9.3</version>
     </dependency>
 
-	<dependency>
-    	<groupId>com.github.chrisbanes.photoview</groupId>
-    	<artifactId>parent</artifactId>
-    	<version>1.2.2</version>
-	</dependency>
+    <dependency>
+      <groupId>com.github.chrisbanes.photoview</groupId>
+      <artifactId>library</artifactId>
+      <version>1.2.2</version>
+    </dependency>
 
     <!-- test dependencies  -->
     <dependency>
