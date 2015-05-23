@@ -45,6 +45,7 @@ You will get `target/seadroid.apk` after the build finishes.
 * [ActionBarSherlock](https://github.com/JakeWharton/ActionBarSherlock)
 * [NewQuickAction](https://github.com/haiwen/NewQuickAction)
 * [ViewPagerIndicator](https://github.com/JakeWharton/Android-ViewPagerIndicator)
+* [PhotoView](https://github.com/chrisbanes/PhotoView)
 
 ### Build
 
@@ -54,7 +55,11 @@ You will get `target/seadroid.apk` after the build finishes.
 - Git clone `NewQuickAction`
 
         git clone https://github.com/haiwen/NewQuickAction
-- Add ActionBarSherlock/NewQuickAction/ViewPagerIndicator as library according to this [referencing library tutorial](http://developer.android.com/guide/developing/projects/projects-eclipse.html#ReferencingLibraryProject)
+- Git clone `PhotoView`
+
+		git clone https://github.com/chrisbanes/PhotoView
+
+- Add ActionBarSherlock/NewQuickAction/ViewPagerIndicator/PhotoView as library according to this [referencing library tutorial](http://developer.android.com/guide/developing/projects/projects-eclipse.html#ReferencingLibraryProject)
 
 - Replace the android-support-v4.jar in `ActionBarSherlock` and `ViewPagerIndicator` with the jar in seadroid to make sure that all versions of this library be the same at this time.
 
