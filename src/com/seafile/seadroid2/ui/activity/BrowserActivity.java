@@ -302,19 +302,14 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
 
     private void requestServerInfo() {
-        if (checkServerProEdition()) {
-            // show Activities Tab
-        } else {
+        if(!checkServerProEdition()) {
             // hide Activity tab
             adapter.hideActivityTab();
             indicator.notifyDataSetChanged();
             adapter.notifyDataSetChanged();
-
         }
 
-        if (checkSearchEnabled()) {
-            // show search menu
-        } else {
+        if (!checkSearchEnabled()) {
             // hide search menu
             if (menuSearch != null)
                 menuSearch.setVisible(false);

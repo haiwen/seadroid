@@ -39,7 +39,6 @@ public class AccountDBHelper extends SQLiteOpenHelper {
                     + SERVER_INFO_COLUMN_VERSION + " TEXT NOT NULL, "
                     + SERVER_INFO_COLUMN_FEATURE + " TEXT NOT NULL" + ")";
 
-
     private static final String SQL_CREATE_ACCOUNT_TABLE =
             "CREATE TABLE " + ACCOUNT_TABLE_NAME + " ("
                     + ACCOUNT_COLUMN_SERVER + " TEXT NOT NULL, "
@@ -67,14 +66,13 @@ public class AccountDBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(SQL_CREATE_ACCOUNT_TABLE);
         db.execSQL(SQL_CREATE_SERVER_INFO_TABLE);
-
     }
 
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // This database is only a cache for online data, so its upgrade policy is
         // to simply to discard the data and start over
-        db.execSQL("DELETE TABLE IF EXIST " + ACCOUNT_TABLE_NAME + ";");
-        db.execSQL("DELETE TABLE IF EXISTS " + SERVER_INFO_TABLE_NAME + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + ACCOUNT_TABLE_NAME + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + SERVER_INFO_TABLE_NAME + ";");
         onCreate(db);
     }
 
