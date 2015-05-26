@@ -287,7 +287,8 @@ public class GalleryActivity extends SherlockFragmentActivity {
 
     /**
      * This method will get called when tapping at the center of a photo,
-     * tool bar will auto hide when launch, and will show or hide alternatively on tapping event.
+     * tool bar will auto hide when open the gallery,
+     * and will show or hide alternatively when tapping.
      */
     public void hideOrShowToolBar() {
         if (showToolBar) {
