@@ -3,6 +3,11 @@ package com.seafile.seadroid2.ui;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 
+/**
+ * A PageTransformer is invoked whenever a visible/attached page is scrolled.
+ * This offers an opportunity for the application to apply a ZoomOut transformation
+ * to the page views using animation properties.
+ */
 public class ZoomOutPageTransformer implements ViewPager.PageTransformer {
     private static float MIN_SCALE = 0.85f;
     private static float MIN_ALPHA = 0.5f;

@@ -1,12 +1,8 @@
 package com.seafile.seadroid2.ui.activity;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.ResolveInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
-import android.text.ClipboardManager;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -28,9 +24,7 @@ import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.ZoomOutPageTransformer;
 import com.seafile.seadroid2.ui.adapter.GalleryAdapter;
-import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
 import com.seafile.seadroid2.ui.dialog.DeleteFileDialog;
-import com.seafile.seadroid2.ui.dialog.GetShareLinkDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.util.Utils;
 
@@ -68,6 +62,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
     /** mapping thumbnail link to seafDirent in order to display photo name */
     private HashMap<String, SeafDirent> mThumbLinkAndSeafDirentMap = Maps.newHashMap();
 
+    /** flag to mark if the tool bar was shown */
     private static boolean showToolBar = true;
     private View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
@@ -273,16 +268,20 @@ public class GalleryActivity extends SherlockFragmentActivity {
 
     }
 
-    public void hideOrShowActionBar() {
-        if (!showToolBar) {
-            mToolbar.setVisibility(View.GONE);
-            mPageIndexContainer.setVisibility(View.GONE);
-            mPageNameTextView.setVisibility(View.GONE);
-            showToolBar = !showToolBar;
-        } else {
+    /**
+     * This method will get called when tapping at the center of a photo,
+     * tool bar will auto hide when launch, and will show or hide alternatively on tapping event.
+     */
+    public void hideOrShowToolBar() {
+        if (showToolBar) {
             mToolbar.setVisibility(View.VISIBLE);
             mPageIndexContainer.setVisibility(View.VISIBLE);
             mPageNameTextView.setVisibility(View.VISIBLE);
+            showToolBar = !showToolBar;
+        } else {
+            mToolbar.setVisibility(View.GONE);
+            mPageIndexContainer.setVisibility(View.GONE);
+            mPageNameTextView.setVisibility(View.GONE);
             showToolBar = !showToolBar;
         }
 
