@@ -401,4 +401,5 @@
 
     <!-- Gallery -->
     <string name="gallery_load_photos_error">Load photos error</string>
+    <string name="gallery_encrypted_repo_not_supported">Encrypted library was not supported</string>
 </resources>

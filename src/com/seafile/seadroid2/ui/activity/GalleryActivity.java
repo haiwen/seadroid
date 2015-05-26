@@ -20,6 +20,7 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
+import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.ZoomOutPageTransformer;
@@ -158,6 +159,8 @@ public class GalleryActivity extends SherlockFragmentActivity {
                 }
             }
 
+            checkEncryptedRepo();
+
             mGalleryAdapter = new GalleryAdapter(GalleryActivity.this, mAccount, links);
             mViewPager.setAdapter(mGalleryAdapter);
 
@@ -229,6 +232,8 @@ public class GalleryActivity extends SherlockFragmentActivity {
                     ToastUtils.show(GalleryActivity.this, R.string.gallery_load_photos_error);
                     Log.e(DEBUG_TAG, "error message " + err.getMessage() + " error code " + err.getCode());
                 }
+
+                checkEncryptedRepo();
                 return;
             }
 
@@ -241,7 +246,24 @@ public class GalleryActivity extends SherlockFragmentActivity {
     }
 
     /**
-     * dynamically navigate to the starting page index selected by user
+     * Encrypted repo doesn`t support thumbnails,
+     * if browsing context is under an encrypted repo,
+     * force to exit the gallery view
+     */
+    private void checkEncryptedRepo() {
+        if (dataMgr == null)
+            return;
+
+        SeafRepo seafRepo = dataMgr.getCachedRepoByID(repoID);
+        if (seafRepo != null && seafRepo.encrypted) {
+            ToastUtils.show(GalleryActivity.this, R.string.gallery_encrypted_repo_not_supported);
+            finish();
+            return;
+        }
+    }
+
+    /**
+     * Dynamically navigate to the starting page index selected by user
      * by default the starting page index is 0
      *
      * @param links
