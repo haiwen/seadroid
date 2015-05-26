@@ -31,6 +31,7 @@ import com.seafile.seadroid2.util.Utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -61,7 +62,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
     private GalleryAdapter mGalleryAdapter;
     private final RequestPhotoLinksTask mLinksTask = new RequestPhotoLinksTask();
     /** mapping thumbnail link to seafDirent in order to display photo name */
-    private HashMap<String, SeafDirent> mThumbLinkAndSeafDirentMap = Maps.newHashMap();
+    private LinkedHashMap<String, SeafDirent> mThumbLinkAndSeafDirentMap = new LinkedHashMap<String, SeafDirent>();
 
     /** flag to mark if the tool bar was shown */
     private static boolean showToolBar = true;
@@ -146,14 +147,12 @@ public class GalleryActivity extends SherlockFragmentActivity {
             if (seafDirents == null)
                 return;
 
-            ArrayList<String> links = Lists.newArrayList();
             for (SeafDirent seafDirent : seafDirents) {
                 if (!seafDirent.isDir()
                         && Utils.isViewableImage(seafDirent.name)) { // only cache image type files
                     String link = dataMgr.getThumbnailLink(repoID, Utils.pathJoin(dirPath, seafDirent.name), 800);
                     // Log.d(DEBUG_TAG, "add remote url " + thumbnailLink);
                     if (link != null) {
-                        links.add(link);
                         mThumbLinkAndSeafDirentMap.put(link, seafDirent);
                     }
                 }
@@ -161,10 +160,12 @@ public class GalleryActivity extends SherlockFragmentActivity {
 
             checkEncryptedRepo();
 
-            mGalleryAdapter = new GalleryAdapter(GalleryActivity.this, mAccount, links);
+            mGalleryAdapter = new GalleryAdapter(GalleryActivity.this,
+                    mAccount,
+                    new ArrayList<String>(mThumbLinkAndSeafDirentMap.keySet()));
             mViewPager.setAdapter(mGalleryAdapter);
 
-            navToSelectedPage(links);
+            navToSelectedPage();
             return;
         }
 
@@ -207,19 +208,17 @@ public class GalleryActivity extends SherlockFragmentActivity {
             if (seafDirents == null)
                 return null;
 
-            ArrayList<String> links = Lists.newArrayList();
             for (SeafDirent seafDirent : seafDirents) {
                 if (!seafDirent.isDir()
                         && Utils.isViewableImage(seafDirent.name)) { // only cache image type files
                     String link = dataMgr.getThumbnailLink(repoID, Utils.pathJoin(dirPath, seafDirent.name), 800);
                     // Log.d(DEBUG_TAG, "add remote url " + thumbnailLink);
                     if(link != null) {
-                        links.add(link);
                         mThumbLinkAndSeafDirentMap.put(link, seafDirent);
                     }
                 }
             }
-            return links;
+            return new ArrayList<String>(mThumbLinkAndSeafDirentMap.keySet());
         }
 
         @Override
@@ -241,7 +240,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
             mGalleryAdapter = new GalleryAdapter(GalleryActivity.this, mAccount, links);
             mViewPager.setAdapter(mGalleryAdapter);
 
-            navToSelectedPage(links);
+            navToSelectedPage();
         }
     }
 
@@ -266,15 +265,11 @@ public class GalleryActivity extends SherlockFragmentActivity {
      * Dynamically navigate to the starting page index selected by user
      * by default the starting page index is 0
      *
-     * @param links
      */
-    private void navToSelectedPage(ArrayList<String> links) {
-        for (int i = 0; i< links.size(); i++) {
-            String key = links.get(i);
-            if (mThumbLinkAndSeafDirentMap.containsKey(key)
-                    && mThumbLinkAndSeafDirentMap.get(key).name.equals(fileName)) {
-                // Log.d(DEBUG_TAG, "current index " + i);
-                // Log.d(DEBUG_TAG, "current file name " + fileName);
+    private void navToSelectedPage() {
+        int i = 0;
+        for (String key : mThumbLinkAndSeafDirentMap.keySet()) {
+            if (mThumbLinkAndSeafDirentMap.get(key).name.equals(fileName)) {
                 mViewPager.setCurrentItem(i);
                 mPageIndexTextView.setText(String.valueOf(i + 1));
                 mPageIndex = i;
@@ -285,9 +280,9 @@ public class GalleryActivity extends SherlockFragmentActivity {
                 }
                 break;
             }
+            i++;
         }
-        mPageCountTextView.setText(String.valueOf(links.size()));
-
+        mPageCountTextView.setText(String.valueOf(mThumbLinkAndSeafDirentMap.size()));
     }
 
     /**
