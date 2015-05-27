@@ -40,6 +40,7 @@ import com.actionbarsherlock.view.Window;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.*;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.AccountDBHelper;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
 import com.seafile.seadroid2.data.*;
@@ -93,7 +94,6 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final String CHOOSE_APP_DIALOG_FRAGMENT_TAG = "choose_app_fragment";
     public static final String PICK_FILE_DIALOG_FRAGMENT_TAG = "pick_file_fragment";
 
-    private static ArrayList<ServerInfo> serverInfoList = Lists.newArrayList();
     private static final int[] ICONS = new int[] {
         R.drawable.tab_library, R.drawable.tab_starred,
         R.drawable.tab_activity
@@ -298,17 +298,18 @@ public class BrowserActivity extends SherlockFragmentActivity
         Intent monitorIntent = new Intent(this, FileMonitorService.class);
         startService(monitorIntent);
 
-        fetchServerInfo();
+        requestServerInfo();
     }
 
-    private void fetchServerInfo() {
-        if (isServerProEdition())
-            return;
-        else {
-            // hide Activity tab and search menu
+    private void requestServerInfo() {
+        if(!checkServerProEdition()) {
+            // hide Activity tab
             adapter.hideActivityTab();
             indicator.notifyDataSetChanged();
             adapter.notifyDataSetChanged();
+        }
+
+        if (!checkSearchEnabled()) {
             // hide search menu
             if (menuSearch != null)
                 menuSearch.setVisible(false);
@@ -317,10 +318,10 @@ public class BrowserActivity extends SherlockFragmentActivity
         if (!Utils.isNetworkOn())
             return;
 
-        ConcurrentAsyncTask.execute(new FetchServerInfoTask());
+        ConcurrentAsyncTask.execute(new RequestServerInfoTask());
     }
 
-    class FetchServerInfoTask extends AsyncTask<Void, Void, ServerInfo> {
+    class RequestServerInfoTask extends AsyncTask<Void, Void, ServerInfo> {
         private SeafException err;
 
         @Override
@@ -330,7 +331,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             } catch (SeafException e) {
                 err = e;
             } catch (JSONException e) {
-                e.printStackTrace();
+                Log.e(DEBUG_TAG, "JSONException " + e.getMessage());
             }
             return null;
         }
@@ -343,38 +344,62 @@ public class BrowserActivity extends SherlockFragmentActivity
                 return;
             }
 
-            if (serverInfo.isProEdition()) {
-                // hide Activity tab and search menu
+            if (serverInfo.proEdition()) {
+                // show Activity tab
                 adapter.unHideActivityTab();
                 indicator.notifyDataSetChanged();
                 adapter.notifyDataSetChanged();
-                // hide search menu
+            }
+
+            if (serverInfo.searchEnabled()) {
+                // show search menu
                 if (menuSearch != null)
                     menuSearch.setVisible(true);
             }
 
             serverInfo.setUrl(account.getServer());
-            saveServerProEdition(serverInfo);
+            saveServerInfo(serverInfo);
         }
     }
 
-    private void saveServerProEdition(ServerInfo serverInfo) {
-        if (!serverInfoList.contains(serverInfo))
-            serverInfoList.add(serverInfo);
+    private void saveServerInfo(ServerInfo serverInfo) {
+        AccountDBHelper.getDatabaseHelper(this).saveServerInfo(serverInfo);
     }
 
-    private boolean isServerProEdition() {
-        if (serverInfoList.isEmpty()
-                || account == null)
+    /**
+     * check if server is pro edition
+     *
+     * @return
+     *          true, if server is pro edition
+     *          false, otherwise.
+     */
+    private boolean checkServerProEdition() {
+        if (account.getServer() == null)
             return false;
 
-        for (ServerInfo si : serverInfoList) {
-            if (si.getUrl().equals(account.getServer()))
-                return si.isProEdition();
-        }
+        ServerInfo serverInfo = AccountDBHelper.getDatabaseHelper(this).getServerInfo(account.getServer());
+        if (serverInfo == null)
+            return false;
 
-        return false;
+        return serverInfo.proEdition();
+    }
 
+    /**
+     * check if server supports searching feature
+     *
+     * @return
+     *          true, if search enabled
+     *          false, otherwise.
+     */
+    private boolean checkSearchEnabled() {
+        if (account.getServer() == null)
+            return false;
+
+        ServerInfo serverInfo = AccountDBHelper.getDatabaseHelper(this).getServerInfo(account.getServer());
+        if (serverInfo == null)
+            return false;
+
+        return serverInfo.searchEnabled();
     }
 
     class SeafileTabsAdapter extends FragmentPagerAdapter implements
@@ -712,7 +737,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             menuSettings.setVisible(true);
         }
 
-        if (!isServerProEdition())
+        if (!checkServerProEdition())
             menuSearch.setVisible(false);
 
         return true;
