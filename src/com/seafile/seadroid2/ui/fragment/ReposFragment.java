@@ -31,6 +31,7 @@ import com.seafile.seadroid2.ui.PullToRefreshListView;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
+import com.seafile.seadroid2.ui.activity.GalleryActivity;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
@@ -391,6 +392,10 @@ public class ReposFragment extends SherlockListFragment {
                     refreshView();
                     mActivity.setUpButtonTitle(dirent.name);
                 } else {
+                    if (Utils.isViewableImage(dirent.name)) {
+                        browsePhotosInGallery(nav.getDirPath(), dirent.name);
+                        return;
+                    }
                     mActivity.onFileSelected(dirent);
                 }
             } else
@@ -403,6 +408,15 @@ public class ReposFragment extends SherlockListFragment {
         }
     }
 
+    public void browsePhotosInGallery(String dirPath, String fileName) {
+        Intent intent = new Intent(mActivity, GalleryActivity.class);
+        intent.putExtra("repoName", getNavContext().getRepoName());
+        intent.putExtra("repoId", getNavContext().getRepoID());
+        intent.putExtra("path", dirPath);
+        intent.putExtra("account", getDataManager().getAccount());
+        intent.putExtra("fileName", fileName);
+        startActivity(intent);
+    }
 
     private void addReposToAdapter(List<SeafRepo> repos) {
         if (repos == null)

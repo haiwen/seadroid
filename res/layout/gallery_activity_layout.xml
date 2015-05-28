@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="fill_parent"
+             android:layout_height="fill_parent"
+             android:layout_above="@+id/gallery_pager">
+
+        <android.support.v4.view.ViewPager xmlns:android="http://schemas.android.com/apk/res/android"
+                                                 android:id="@+id/gallery_pager"
+                                                 android:layout_width="match_parent"
+                                                 android:layout_height="match_parent"
+                                                 android:background="@color/black"/>
+
+        <LinearLayout
+                android:fitsSystemWindows="true"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_gravity="right|bottom"
+                android:layout_marginRight="8dp"
+                android:layout_marginBottom="@dimen/index_text_margin_bottom"
+                android:gravity="top"
+                android:id="@+id/page_index_container"
+                android:visibility="gone"
+                android:orientation="horizontal"
+                android:baselineAligned="true">
+
+            <TextView
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:id="@+id/gallery_page_index"
+                    android:textColor="@color/white"
+                    android:shadowColor="@color/dark_gray"
+                    android:shadowDy="1"
+                    android:shadowRadius="1"
+                    android:textSize="35sp"/>
+
+            <TextView
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:text="/"
+                    android:shadowColor="@color/dark_gray"
+                    android:shadowDy="1"
+                    android:shadowRadius="1"
+                    android:textColor="@color/white"
+                    android:textSize="24sp"/>
+
+            <TextView
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:id="@+id/gallery_page_count"
+                    android:shadowColor="@color/dark_gray"
+                    android:shadowDy="1"
+                    android:shadowRadius="1"
+                    android:textColor="@color/white"
+                    android:textSize="24sp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+                android:fitsSystemWindows="true"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_gravity="left|bottom"
+                android:layout_marginLeft="8dp"
+                android:layout_marginBottom="@dimen/index_text_margin_bottom"
+                android:gravity="bottom"
+                android:orientation="horizontal"
+                android:baselineAligned="true">
+
+            <TextView
+                    android:id="@+id/gallery_page_name"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:shadowColor="@color/dark_gray"
+                    android:visibility="gone"
+                    android:shadowDy="1"
+                    android:shadowRadius="1"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"/>
+
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/gallery_tool_bar"
+                      android:fitsSystemWindows="true"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:orientation="horizontal"
+                      android:padding="@dimen/gallery_padding"
+                      android:gravity="top|right"
+                      android:visibility="gone"
+                      android:background="@color/transparent">
+            <ImageView android:id="@+id/gallery_delete_photo"
+                       android:layout_width="@dimen/gallery_icon_width"
+                       android:layout_height="@dimen/gallery_icon_height"
+                       android:layout_marginRight="@dimen/gallery_icon_margin_right"
+                       android:src="@drawable/action_delete"/>
+            <ImageView android:id="@+id/gallery_star_photo"
+                       android:layout_width="@dimen/gallery_icon_width"
+                       android:layout_height="@dimen/gallery_icon_height"
+                       android:layout_marginRight="@dimen/gallery_icon_margin_right"
+                       android:src="@drawable/action_star"/>
+            <ImageView android:id="@+id/gallery_share_photo"
+                       android:layout_width="@dimen/gallery_icon_width"
+                       android:layout_height="@dimen/gallery_icon_height"
+                       android:src="@drawable/action_share"/>
+
+        </LinearLayout>
+
+    <FrameLayout android:id="@+id/gallery_progressContainer"
+                  android:orientation="vertical"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:background="@color/transparent"
+                  android:visibility="gone"
+                  android:layout_gravity="center_vertical">
+
+        <ProgressBar style="?android:attr/progressBarStyleLarge"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_gravity="center_horizontal"/>
+
+    </FrameLayout>
+</FrameLayout>

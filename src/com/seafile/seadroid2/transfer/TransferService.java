@@ -141,8 +141,8 @@ public class TransferService extends Service {
         return downloadTaskManager.addTask(account, repoName, repoID, path);
     }
 
-    public int addTaskToDownloadQue(Account account, String repoName, String repoID, String path) {
-        return downloadTaskManager.addTaskToQue(account, repoName, repoID, path);
+    public void addTaskToDownloadQue(Account account, String repoName, String repoID, String path) {
+        downloadTaskManager.addTaskToQue(account, repoName, repoID, path);
     }
 
     public List<DownloadTaskInfo> getAllDownloadTaskInfos() {
