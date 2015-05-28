@@ -55,11 +55,10 @@ public class DownloadTaskManager extends TransferManager implements DownloadStat
         return task.getTaskID();
     }
 
-    public int addTaskToQue(Account account, String repoName, String repoID, String path) {
+    public void addTaskToQue(Account account, String repoName, String repoID, String path) {
         // create a new one to avoid IllegalStateException
         DownloadTask downloadTask = new DownloadTask(++notificationID, account, repoName, repoID, path, this);
         addTaskToQue(downloadTask);
-        return notificationID;
     }
 
     public int getDownloadingFileCountByPath(String repoID, String dir) {

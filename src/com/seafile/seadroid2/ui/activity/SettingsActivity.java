@@ -10,7 +10,7 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.ui.fragment.SettingsPreferenceFragment;
+import com.seafile.seadroid2.ui.fragment.SettingsFragment;
 
 public class SettingsActivity extends SherlockFragmentActivity {
     private static final String DEBUG_TAG = "SettingsActivity";
@@ -25,7 +25,7 @@ public class SettingsActivity extends SherlockFragmentActivity {
         setContentView(R.layout.settings_activity_layout);
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(R.id.settings_fragment_container, new SettingsPreferenceFragment());
+        fragmentTransaction.add(R.id.settings_fragment_container, new SettingsFragment());
         fragmentTransaction.commit();
         
         ActionBar actionBar = getSupportActionBar();

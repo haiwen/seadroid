@@ -83,6 +83,8 @@
     <dimen name="cb_padding_top">10dp</dimen>
     <dimen name="cb_btn_txt_size">16sp</dimen>
 
+    <dimen name="rb_margin_top">5dp</dimen> <!-- RadioButton -->
+
     <dimen name="form_padding_top">0dp</dimen> <!-- Login Form -->
     <dimen name="form_padding_bottom">7dp</dimen>
 
@@ -127,6 +129,14 @@
 
     <dimen name="preference_fragment_padding_bottom">0dp</dimen>
     <dimen name="preference_fragment_padding_side">16dp</dimen>
+
+    <dimen name="index_text_margin_bottom">8dp</dimen>
+
+    <!-- Gallery -->
+    <dimen name="gallery_padding">10dp</dimen>
+    <dimen name="gallery_icon_width">40dp</dimen>
+    <dimen name="gallery_icon_height">40dp</dimen>
+    <dimen name="gallery_icon_margin_right">40dp</dimen>
 
     <!-- Footer -->
     <dimen name="footer_margin_left">20dp</dimen>

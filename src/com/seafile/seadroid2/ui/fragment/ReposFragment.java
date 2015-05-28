@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,13 +18,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
-import com.seafile.seadroid2.CertsManager;
-import com.seafile.seadroid2.ConcurrentAsyncTask;
-import com.seafile.seadroid2.NavContext;
-import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SeafConnection;
-import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.*;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafGroup;
@@ -32,7 +29,9 @@ import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.ui.PullToRefreshListView;
 import com.seafile.seadroid2.ui.ToastUtils;
+import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
+import com.seafile.seadroid2.ui.activity.GalleryActivity;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
@@ -393,6 +392,10 @@ public class ReposFragment extends SherlockListFragment {
                     refreshView();
                     mActivity.setUpButtonTitle(dirent.name);
                 } else {
+                    if (Utils.isViewableImage(dirent.name)) {
+                        browsePhotosInGallery(nav.getDirPath(), dirent.name);
+                        return;
+                    }
                     mActivity.onFileSelected(dirent);
                 }
             } else
@@ -405,6 +408,15 @@ public class ReposFragment extends SherlockListFragment {
         }
     }
 
+    public void browsePhotosInGallery(String dirPath, String fileName) {
+        Intent intent = new Intent(mActivity, GalleryActivity.class);
+        intent.putExtra("repoName", getNavContext().getRepoName());
+        intent.putExtra("repoId", getNavContext().getRepoID());
+        intent.putExtra("path", dirPath);
+        intent.putExtra("account", getDataManager().getAccount());
+        intent.putExtra("fileName", fileName);
+        startActivity(intent);
+    }
 
     private void addReposToAdapter(List<SeafRepo> repos) {
         if (repos == null)
@@ -525,10 +537,15 @@ public class ReposFragment extends SherlockListFragment {
             }
 
             if (err != null) {
-                err.printStackTrace();
-                Log.i(DEBUG_TAG, "failed to load repos: " + err.getMessage());
-                showError(R.string.error_when_load_repos);
-                return;
+                if (err.getCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+                    // Token expired, should login again
+                    ToastUtils.show(mActivity, R.string.err_token_expired);
+                    logoutWhenTokenExpired();
+                } else {
+                    Log.e(DEBUG_TAG, "failed to load repos: " + err.getMessage());
+                    showError(R.string.error_when_load_repos);
+                    return;
+                }
             }
 
             if (rs != null) {
@@ -687,6 +704,10 @@ public class ReposFragment extends SherlockListFragment {
             if (err != null) {
                 if (err.getCode() == SeafConnection.HTTP_STATUS_REPO_PASSWORD_REQUIRED) {
                     showPasswordDialog();
+                } else if (err.getCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+                    // Token expired, should login again
+                    ToastUtils.show(mActivity, R.string.err_token_expired);
+                    logoutWhenTokenExpired();
                 } else if (err.getCode() == HttpURLConnection.HTTP_NOT_FOUND) {
                     ToastUtils.show(mActivity, String.format("The folder \"%s\" was deleted", myPath));
                 } else {
@@ -705,6 +726,22 @@ public class ReposFragment extends SherlockListFragment {
             getDataManager().setDirsRefreshTimeStamp(myRepoID, myPath);
             updateAdapterWithDirents(dirents);
         }
+    }
+
+    /**
+     * Token expired, clear current authorized info and redirect user to login page
+     */
+    private void logoutWhenTokenExpired() {
+        AccountManager accountMgr = new AccountManager(mActivity);
+        // sign out current account
+        accountMgr.signOutCurrentAccount();
+
+        // then redirect to AccountsActivity
+        Intent intent = new Intent(mActivity, AccountsActivity.class);
+        mActivity.startActivity(intent);
+
+        // finish current Activity
+        mActivity.finish();
     }
 
     private void showPasswordDialog() {

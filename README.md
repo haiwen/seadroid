@@ -63,6 +63,7 @@ You will get `target/seadroid.apk` after the build finishes.
     - [commons-io-2.4.jar](http://repo1.maven.org/maven2/commons-io/commons-io/2.4/commons-io-2.4.jar)
     - [guava-17.0.jar](http://search.maven.org/remotecontent?filepath=com/google/guava/guava/17.0/guava-17.0.jar)
     - [universal-image-loader-1.9.3.jar](https://raw.githubusercontent.com/nostra13/Android-Universal-Image-Loader/master/downloads/universal-image-loader-1.9.3.jar)
+    - [library-1.2.2.jar](https://search.maven.org/remotecontent?filepath=com/github/chrisbanes/photoview/library/1.2.2/library-1.2.2.jar)
 
 Now you can build seadroid in Intellij IDEA/Eclipse.
 

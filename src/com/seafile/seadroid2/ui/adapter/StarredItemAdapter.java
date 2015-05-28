@@ -84,8 +84,7 @@ public class StarredItemAdapter extends BaseAdapter {
             viewHolder = (Viewholder) convertView.getTag();
         }
 
-        int iconID = item.getIcon();
-        viewHolder.icon.setImageResource(iconID);
+        viewHolder.icon.setImageResource(item.getIcon());
         viewHolder.title.setText(item.getTitle());
         viewHolder.subtitle.setText(item.getSubtitle());
 
@@ -105,11 +104,11 @@ public class StarredItemAdapter extends BaseAdapter {
             ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
             String url = mActivity.getDataManager().getThumbnailLink(((SeafStarredFile) item).getRepoID(), ((SeafStarredFile) item).getPath(), WidgetUtils.getThumbnailWidth());
             if (url == null) {
-                ImageLoader.getInstance().displayImage("drawable://" + item.getIcon(), viewHolder.icon, WidgetUtils.iconOptions);
+                viewHolder.icon.setImageResource(item.getIcon());
             } else
                 ImageLoader.getInstance().displayImage(url, viewHolder.icon, options, animateFirstListener);
         } else {
-            ImageLoader.getInstance().displayImage("drawable://" + item.getIcon(), viewHolder.icon, WidgetUtils.iconOptions);
+            viewHolder.icon.setImageResource(item.getIcon());
         }
 
         return view;

@@ -1,25 +1,50 @@
 package com.seafile.seadroid2.data;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import com.google.common.base.Objects;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * Server info entity
+ * Value type that represents a ServerInfo.
  */
-public class ServerInfo {
+public class ServerInfo implements Parcelable{
 
     private String url;
     private String version;
     private String features;
-    private boolean isProEdition;
+    private boolean proEdition;
+    private boolean searchEnabled;
+
+    public ServerInfo(String url, String version, String features) {
+        this.url = url;
+        this.version = version;
+        this.features = features;
+    }
 
     public String getVersion() {
         return version;
     }
 
-    public boolean isProEdition() {
-        return isProEdition;
+    public String getFeatures() {
+        return features;
+    }
+
+    public boolean proEdition() {
+        return proEdition;
+    }
+
+    public void setProEdition(boolean proEdition) {
+        this.proEdition = proEdition;
+    }
+
+    public boolean searchEnabled() {
+        return searchEnabled;
+    }
+
+    public void setSearchEnabled(boolean searchEnabled) {
+        this.searchEnabled = searchEnabled;
     }
 
     public String getUrl() {
@@ -30,15 +55,20 @@ public class ServerInfo {
         this.url = url;
     }
 
-    static ServerInfo fromJson(JSONObject obj) throws JSONException {
-        ServerInfo serverInfo = new ServerInfo();
-        serverInfo.version = obj.optString("version");
-        serverInfo.features = obj.optString("features");
-        /** raw data goes like this, ["seafile-basic","seafile-pro","office-preview"] */
-        if (serverInfo.features.contains("seafile-pro"))
-            serverInfo.isProEdition = true;
+    public static ServerInfo fromJson(JSONObject obj) throws JSONException {
+        String version = obj.optString("version");
+        String features = obj.optString("features");
+        /* actually there is no url node in responded json data
+         * but it is useful to use url to represent the server,
+         * so url should be explicitly assigned a valid value by calling {@link #setUrl}
+         * instead of using the hard coded value.
+         * If url assignment was not handled by a future maintainer, an error may occur */
+        String url = "not applicable";
+        ServerInfo serverInfo = new ServerInfo(url, version, features);
+        // raw data goes like "features":["seafile-basic","seafile-pro","office-preview","file-search"]
+        serverInfo.setProEdition(features.contains("seafile-pro"));
+        serverInfo.setSearchEnabled(features.contains("file-search"));
 
-        serverInfo.url = "not applicable";
         return serverInfo;
     }
 
@@ -70,4 +100,15 @@ public class ServerInfo {
                 .toString();
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(url);
+        dest.writeString(version);
+        dest.writeString(features);
+    }
 }

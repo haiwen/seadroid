@@ -19,15 +19,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
 
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.os.Build;
 import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
@@ -691,5 +686,23 @@ public class Utils {
         //
         new URL(serverURL); // will throw MalformedURLException if serverURL not valid
         return serverURL;
+    }
+
+    public static List<ResolveInfo> getAppsByIntent(Intent intent) {
+        PackageManager pm = SeadroidApplication.getAppContext().getPackageManager();
+        List<ResolveInfo> infos = pm.queryIntentActivities(intent, 0);
+
+        // Remove seafile app from the list
+        String seadroidPackageName = SeadroidApplication.getAppContext().getPackageName();
+        ResolveInfo info;
+        Iterator<ResolveInfo> iter = infos.iterator();
+        while (iter.hasNext()) {
+            info = iter.next();
+            if (info.activityInfo.packageName.equals(seadroidPackageName)) {
+                iter.remove();
+            }
+        }
+
+        return infos;
     }
 }

@@ -53,6 +53,7 @@
     <string name="err_passwd_empty">Password can\`t be empty</string>
     <string name="err_login_failed">Login failed</string>
     <string name="err_wrong_user_or_passwd">Email or password error</string>
+    <string name="err_token_expired">Authentication expired, please login again</string>
     <string name="upload">Upload</string>
     <string name="uploaded">Uploaded</string>
     <string name="updated">Updated</string>
@@ -63,11 +64,10 @@
     <string name="task_cancel">Cancel</string>
     <string name="task_retry">Retry</string>
     <string name="task_remove">Remove</string>
-    <string name="task_remove_all_cancelled">Remove all cancelled</string>
-    <string name="task_remove_all_finished">Remove all finished</string>
+    <string name="task_remove_all_cancelled">Remove all cancelled tasks</string>
+    <string name="task_remove_all_finished">Remove all finished tasks </string>
     <string name="file_action_star">Star</string>
     <string name="file_action_download">Download</string>
-    <string name="file_action_remove_cache">Remove Cache</string>
     <string name="file_action_update">Upload</string>
     <string name="file_action_share">Share</string>
     <string name="file_action_export">Export</string>
@@ -105,7 +105,6 @@
     <string name="add_to_seafile">Add to Seafile</string>
     <string name="ok">OK</string>
     <string name="no_account">Please set up an account in Seafile first</string>
-    <string name="no_library">You have no library yet</string>
     <string name="choose_an_account">Choose an account</string>
     <string name="choose_a_library">Choose a library</string>
     <string name="choose_a_folder">Choose a folder</string>
@@ -276,7 +275,7 @@
 
     <!-- Camera Upload Configuration View -->
     <string name="settings_cuc_title">Configuration Helper</string>
-    <string name="settings_cuc_welcome_text">Thanks for using camera upload configuration helper. \nTo help you get started with the camera upload service, you\'ll be guided through a few initial steps. \n\nSwipe left to continue.</string>
+    <string name="settings_cuc_welcome_text">Thanks for using camera upload configuration helper. \nTo help you get started with the camera upload service, you\'ll be guided through a few initial steps.</string>
     <string name="settings_cuc_network_title">How to upload</string>
     <string name="settings_cuc_network_wifi">Wi-Fi only</string>
     <string name="settings_cuc_network_data_plan">Wi-Fi or data plan</string>
@@ -396,4 +395,7 @@
     </plurals>
     <string name="notification_download_completed">Download completed</string>
 
+    <!-- Gallery -->
+    <string name="gallery_load_photos_error">Load photos error</string>
+    <string name="gallery_encrypted_repo_not_supported">Encrypted library was not supported</string>
 </resources>

@@ -33,7 +33,7 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/cuc_ready_info_tv"
         android:layout_below="@+id/cuc_ready_info_tv"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="@dimen/tv_subtitle_margin_top"
         android:text="@string/settings_cuc_click_btn"
         android:textSize="@dimen/tv_subtitle_txt_size"
         android:textColor="@color/tv_subtitle_color" />
