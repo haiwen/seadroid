@@ -20,12 +20,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.google.common.collect.Lists;
-import com.seafile.seadroid2.CertsManager;
-import com.seafile.seadroid2.ConcurrentAsyncTask;
-import com.seafile.seadroid2.NavContext;
-import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SeafConnection;
-import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.*;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.DataManager;
@@ -323,11 +318,15 @@ public class ReposFragment extends SherlockListFragment {
     public void sortByName() {
         adapter.sortByType(SeafItemAdapter.SORT_BY_NAME);
         adapter.notifyDataSetChanged();
+        // persist sort settings
+        SettingsManager.instance().saveSortFilesPref(SeafItemAdapter.SORT_BY_NAME);
     }
 
     public void sortByTime() {
         adapter.sortByType(SeafItemAdapter.SORT_BY_MODIFICATION_TIME);
         adapter.notifyDataSetChanged();
+        // persist sort settings
+        SettingsManager.instance().saveSortFilesPref(SeafItemAdapter.SORT_BY_MODIFICATION_TIME);
     }
 
     private void updateAdapterWithRepos(List<SeafRepo> repos) {
