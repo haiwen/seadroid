@@ -333,6 +333,7 @@ public class ReposFragment extends SherlockListFragment {
         adapter.clear();
         if (repos.size() > 0) {
             addReposToAdapter(repos);
+            adapter.sortByType(SettingsManager.instance().getSortFilesPref());
             adapter.notifyChanged();
             mPullRefreshListView.setVisibility(View.VISIBLE);
             mEmptyView.setVisibility(View.GONE);
@@ -354,6 +355,7 @@ public class ReposFragment extends SherlockListFragment {
             final String repoID = nav.getRepoID();
             final String dirPath = nav.getDirPath();
 
+            adapter.sortByType(SettingsManager.instance().getSortFilesPref());
             adapter.notifyChanged();
             mPullRefreshListView.setVisibility(View.VISIBLE);
             mEmptyView.setVisibility(View.GONE);

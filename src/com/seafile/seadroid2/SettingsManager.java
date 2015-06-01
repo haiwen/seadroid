@@ -190,6 +190,10 @@ public final class SettingsManager {
         editor.putInt(SORT_FILES_TYPE, type).commit();
     }
 
+    public int getSortFilesPref() {
+        return sharedPref.getInt(SORT_FILES_TYPE, 0);
+    }
+
     public String getLocalDirPath() {
         return sharedPref.getString(CAMERA_UPLOAD_CUSTOM_DIRECTORIES_PATH, null);
     }
