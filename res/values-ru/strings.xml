@@ -35,6 +35,12 @@
     <item>Другое</item>
   </string-array>
   <string name="choose_server">Выберите сервер Seafile</string>
+  <string-array name="choose_server_array">
+    <item>Приватный сервер Seafile</item>
+    <item>SeaCloud.cc</item>
+    <item>Cloud.mein-seafile.de</item>
+    <item>Shibboleth Login</item>
+  </string-array>
   <string name="network_down">Нет соединения с сетью</string>
   <string name="unknow_error">Неизвестная ошибка</string>
   <string name="invalid_server_address">Неправильный адрес сервера</string>
@@ -47,17 +53,12 @@
   <string name="uploaded">Загруженные</string>
   <string name="updated">Обновленные</string>
   <string name="download_failed">Скачивание не удалось</string>
-  <string name="trust_https_server">Сертификация не выдана доверенной организацией, вы хотите продолжить?</string>
-  <string name="upload_to">загружено в:</string>
   <string name="task_cancel">Отмена</string>
   <string name="task_retry">Повторить</string>
   <string name="task_remove">Удалить</string>
-  <string name="task_remove_all_cancelled">Удалить все отмененные</string>
-  <string name="task_remove_all_finished">Удалить все завершенные</string>
   <string name="file_action_star">Пометить</string>
   <string name="file_action_download">Скачать</string>
-  <string name="file_action_remove_cache">Удалить кэш</string>
-  <string name="file_action_update">Закачать</string>
+  <string name="file_action_update">Загрузить</string>
   <string name="file_action_share">Поделиться</string>
   <string name="file_action_export">Экспорт</string>
   <string name="file_action_delete">Удалить</string>
@@ -79,6 +80,7 @@
   <plurals name="n_upload_items_selected">
     <item quantity="one"><xliff:g id="numbers_of_selected">%1$d</xliff:g> элемент выбран</item>
     <item quantity="few"><xliff:g id="numbers_of_selected">%1$d</xliff:g> элементов выбрано</item>
+    <item quantity="many"><xliff:g id="numbers_of_selected">%1$d</xliff:g> элементов выбрано</item>
     <item quantity="other"><xliff:g id="numbers_of_selected">%1$d</xliff:g> элементов выбрано</item>
   </plurals>
   <string name="dir_name_empty">Пожалуйста, введите имя папки</string>
@@ -94,7 +96,6 @@
   <string name="add_to_seafile">Добавить в Seafile</string>
   <string name="ok">ОК</string>
   <string name="no_account">Пожалуйста, сначала добавьте аккаунт в Seafile</string>
-  <string name="no_library">У вас еще нет библиотек</string>
   <string name="choose_an_account">Выберите аккаунт</string>
   <string name="choose_a_library">Выберите библиотеку</string>
   <string name="choose_a_folder">Выберите папку</string>
@@ -103,6 +104,11 @@
   <string name="load_dir_fail">Не удалось загрузить содержимое этой папки</string>
   <string name="not_supported_share">Этот тип обмена не поддерживается</string>
   <string name="download_folder">Скачать папку</string>
+  <string name="download_folder_title">Выберите нужный вариант</string>
+  <string-array name="download_folder_options_array">
+    <item>Скачать папку</item>
+    <item>Скачать папку и подпапки</item>
+  </string-array>
   <string name="create_new_file">Создать новый файл</string>
   <string name="create_new_dir">Создать новую папку</string>
   <string name="camera">Сделать фотографию</string>
@@ -114,7 +120,7 @@
   <string name="library_not_found">Библиотека была удалена.</string>
   <string name="export_file">Экспортировать этот файл</string>
   <string name="no_upload_tasks">Пока нет задач на загрузку</string>
-  <string name="no_download_tasks">Пока нет задач на загрузку</string>
+  <string name="no_download_tasks">Пока нет задач на скачивание</string>
   <string name="seahub_url_hint">Примечание: Адрес сервера должен содержать порт. Например, www.example.com:8000</string>
   <string name="copy_link">Копировать ссылку</string>
   <string name="share_file_link">Поделиться ссылкой на этот файл</string>
@@ -138,10 +144,6 @@
   <string name="tabs_activity">Активность</string>
   <string name="tabs_starred">Помеченные</string>
   <string name="provide_password">Задать пароль для библиотеки "%s"</string>
-  <string name="upload_waiting">Ожидание</string>
-  <string name="upload_finished">Завершенные</string>
-  <string name="upload_cancelled">Отмененные</string>
-  <string name="upload_failed">Проваленные</string>
   <string name="days_ago">%d дней назад</string>
   <string name="hours_ago">%d часов назад</string>
   <string name="minutes_ago">%d минут назад</string>
@@ -155,6 +157,7 @@
   <plurals name="n_upload_files_selected">
     <item quantity="one"><xliff:g id="number_of_selected">%1$d</xliff:g> файл выбран</item>
     <item quantity="few"><xliff:g id="number_of_selected">%1$d</xliff:g> файлов выбрано</item>
+    <item quantity="many"><xliff:g id="number_of_selected">%1$d</xliff:g> файлов выбрано</item>
     <item quantity="other"><xliff:g id="number_of_selected">%1$d</xliff:g> файлов выбрано</item>
   </plurals>
   <string name="empty_folder">Пустая папка</string>
@@ -208,11 +211,13 @@
   <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
     <item quantity="one">Вы можете повторить через <xliff:g id="seconds">%1$d</xliff:g> секунду</item>
     <item quantity="few">Вы можете повторить через <xliff:g id="seconds">%1$d</xliff:g> секунд</item>
+    <item quantity="many">Вы можете повторить через <xliff:g id="seconds">%1$d</xliff:g> секунд</item>
     <item quantity="other">Вы можете повторить через <xliff:g id="seconds">%1$d</xliff:g> секунд</item>
   </plurals>
   <plurals name="lockscreen_access_pattern_failure_left_try_times">
     <item quantity="one">Неправильный графический ключ, вы можете попробовать еще <xliff:g id="times">%1$d</xliff:g> раз</item>
     <item quantity="few">Неправильный графический ключ, вы можете попробовать еще <xliff:g id="times">%1$d</xliff:g> раз</item>
+    <item quantity="many">Неправильный графический ключ, вы можете попробовать еще <xliff:g id="times">%1$d</xliff:g> раз</item>
     <item quantity="other">Неправильный графический ключ, вы можете попробовать еще <xliff:g id="times">%1$d</xliff:g> раз</item>
   </plurals>
   <string name="lockscreen_access_pattern_failure_not_long_enough">Соединяйте точки не так долго, попробуйте еще раз</string>
@@ -236,7 +241,54 @@
   <string name="skip_button_label">Пропустить</string>
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Загрузка фото с камеры</string>
+  <string name="settings_camera_upload_service_started">Сервис загрузки запущен</string>
+  <string name="settings_camera_upload_service_stopped">Сервис загрузки остановлен</string>
+  <string name="settings_camera_upload_allow_data_plan">Разрешить мобильные данные</string>
+  <string name="settings_camera_upload_allow_videos">Разрешить загрузку видео</string>
+  <string name="settings_camera_upload_default_wifi">По умолчанию использовать только Wi-Fi</string>
+  <string name="settings_camera_upload_data_plan_allowed">Мобильные данные разрешены</string>
+  <string name="settings_camera_upload_default_photos">По умолчанию загружать только фото</string>
+  <string name="settings_camera_upload_videos_allowed">Видео включены</string>
+  <string name="settings_camera_upload_change_repo_title">Изменить папку загрузки</string>
+  <string name="settings_camera_upload_repo_hint">Пожалуйста, сначала выберите библиотеку</string>
+  <string name="settings_camera_upload_turn_on">Включить загрузку с камеры</string>
+  <string name="settings_camera_upload_choose_dir">Изменить локальные папки</string>
+  <string name="settings_camera_upload_dir_auto_scan">Автоматическое сканирование фото по умолчанию</string>
+  <string name="settings_camera_upload_dir_custom">Сканировать выделенные папки</string>
+  <string name="settings_camera_upload_lib_not_found">Выбранная библиотека не существует</string>
+  <string name="settings_camera_upload_advanced_feature_title">Дополнительные опции</string>
+  <string name="settings_camera_upload_advanced_feature_subtitle">Пользовательские опции загрузки</string>
+  <string name="settings_camera_upload_advanced_custom_directories">Пользовательские папки для загрузки</string>
+  <string name="settings_camera_upload_advanced_custom_directories_on">Папки для загрузки фото</string>
+  <string name="settings_camera_upload_advanced_custom_directories_off">Автоматическое сканирование устройства</string>
   <!--Camera Upload Configuration View-->
+  <string name="settings_cuc_title">Помощник по настройке</string>
+  <string name="settings_cuc_network_title">Как загружать</string>
+  <string name="settings_cuc_network_wifi">Только Wi-Fi</string>
+  <string name="settings_cuc_network_data_plan">Wi-Fi или мобильные данные</string>
+  <string name="settings_cuc_option_hint">Выберите нужный вариант. \nВы всегда сможете изменить эти опции в Настройках. \n\nПроведите влево, чтобы продолжить.</string>
+  <string name="settings_cuc_type_title">Что загружать</string>
+  <string name="settings_cuc_type_photo">Только фото</string>
+  <string name="settings_cuc_type_video">Фото и видео</string>
+  <string name="settings_cuc_local_dir_title">Выбрать локальные папки</string>
+  <plurals name="settings_cuc_local_dir_items">
+    <item quantity="one"><xliff:g id="cuc_item">%1$d</xliff:g> элемент</item>
+    <item quantity="few"><xliff:g id="cuc_item">%1$d</xliff:g> элементов</item>
+    <item quantity="many"></item>
+    <item quantity="other"><xliff:g id="cuc_items">%1$d</xliff:g> элементов</item>
+  </plurals>
+  <string name="settings_cuc_remote_lib_title">Выбрать удаленную библиотеку</string>
+  <string name="settings_cuc_remote_lib_account">Выберите аккаунт</string>
+  <string name="settings_cuc_remote_lib_repo">%s выбранных элементов</string>
+  <string name="settings_cuc_upload_to_parent_folder">К родительской папке</string>
+  <string name="settings_cuc_auto_scan">Получить все фото на устройстве</string>
+  <string name="settings_cuc_pick_dir">Позволить мне выбрать папки с фото</string>
+  <string name="settings_cuc_remote_lib_hint">Выберите нужный аккаунт или библиотеку. \nВы всегда сможете изменить эти опции в Настройках. \n\nПроведите влево, чтобы продолжить.</string>
+  <string name="settings_cuc_finish_title">Завершить</string>
+  <string name="settings_cuc_ready">Теперь Seafile будет загружать файлы из выбранных вами папок. \nВо время этого вы можете закрыть приложение.</string>
+  <string name="settings_cuc_swipe_left">Проведите влево, чтобы продолжить.</string>
+  <string name="settings_cuc_click_btn">Щелкните, чтобы закрыть помощник.</string>
+  <string name="settings_cuc_loading">загрузка...</string>
   <string name="settings_about_title">О ПРИЛОЖЕНИИ</string>
   <string name="settings_about_version_title">Версия</string>
   <string name="settings_about_author_title">Об авторе</string>
@@ -273,9 +325,13 @@ Email: support@seafile.com<br>
   <string name="saf_open_directory_exception">Невозможно открыть папку.</string>
   <string name="saf_file_not_cached_exception">Файл %s не кэширован.</string>
   <string name="saf_thumbnail_not_found_exception">Невозможно найти/открыть миниатюру файла %s.</string>
-  <string name="saf_file_not_downloaded_exception">Невозможно загрузить с сервера файл %s.</string>
+  <string name="saf_file_not_downloaded_exception">Невозможно скачать с сервера файл %s.</string>
   <string name="saf_write_diretory_exception">Невозможно открыть папку для чтения/записи.</string>
   <string name="saf_account_not_found_exception">Невозможно найти аккаунт Seafile.</string>
+  <string name="saf_upload_path_not_available">Невозможно загрузить, нет доступного пути</string>
+  <string name="saf_failed_to_create_directory">Не возможно создать папку %s</string>
+  <string name="saf_file_exist">Файл уже существует</string>
+  <string name="saf_bad_mime_type">Неправильный тип ответа</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">Сервер пуст!</string>
   <string name="shib_server_incorrect_prefix">Сервер должен начинаться с http:// или https://</string>
@@ -289,11 +345,12 @@ Email: support@seafile.com<br>
   <string name="transfer_list_cancel_all">Отменить все</string>
   <string name="transfer_tabs_downloads">Список загрузок</string>
   <string name="transfer_tabs_uploads">Список закачек</string>
-  <string name="transfer_download_no_task">Все файлы были загружены</string>
+  <string name="transfer_download_no_task">Все файлы были скачены</string>
   <plurals name="transfer_download_started">
-    <item quantity="one">Начало загрузки <xliff:g id="download_file">%1$d</xliff:g> файла</item>
-    <item quantity="few">Начало загрузки <xliff:g id="download_file">%1$d</xliff:g> файлов</item>
-    <item quantity="other">Начало загрузки <xliff:g id="download_file">%1$d</xliff:g> файлов</item>
+    <item quantity="one">Скачивание <xliff:g id="download_file">%1$d</xliff:g> файла</item>
+    <item quantity="few">Скачивание <xliff:g id="download_file">%1$d</xliff:g> файлов</item>
+    <item quantity="many">Скачивание <xliff:g id="download_file">%1$d</xliff:g> файлов</item>
+    <item quantity="other">Скачивание <xliff:g id="download_file">%1$d</xliff:g> файлов</item>
   </plurals>
   <!--Search-->
   <string name="search_menu_item">Поиск</string>
@@ -306,4 +363,7 @@ Email: support@seafile.com<br>
   <string name="star_file_succeed">Файл успешно помечен</string>
   <string name="star_file_failed">Не удалось пометить файл</string>
   <!--notification bar-->
+  <string name="notification_upload_started_title">Загрузка файлов...</string>
+  <string name="notification_download_started_title">Скачивание файлов...</string>
+  <!--Gallery-->
 </resources>

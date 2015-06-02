@@ -47,16 +47,11 @@
   <string name="uploaded">Upphlaðið</string>
   <string name="updated">Uppfært</string>
   <string name="download_failed">Niðurhal mistókst</string>
-  <string name="trust_https_server">Öryggisskírteinið er ekki gefið út af traustri stofnun, viltu halda áfram?</string>
-  <string name="upload_to">hlaða upp til:</string>
   <string name="task_cancel">Hætta við</string>
   <string name="task_retry">Reyna aftur</string>
   <string name="task_remove">Fjarlæga</string>
-  <string name="task_remove_all_cancelled">Fjarlægja allt sem hefur verið hætt við</string>
-  <string name="task_remove_all_finished">Fjarlægingu lokið</string>
   <string name="file_action_star">Stjarna</string>
   <string name="file_action_download">Hala niður</string>
-  <string name="file_action_remove_cache">Tæma flýtimynni</string>
   <string name="file_action_update">Hlaða upp</string>
   <string name="file_action_share">Deila</string>
   <string name="file_action_export">Flytja út</string>
@@ -93,7 +88,6 @@
   <string name="add_to_seafile">Bæta við Seafile</string>
   <string name="ok">Í lagi</string>
   <string name="no_account">Vinsamlegast settu upp reikning í Seafile fyrst</string>
-  <string name="no_library">Þú átt enn engin söfn</string>
   <string name="choose_an_account">Veldu reikning</string>
   <string name="choose_a_library">Veldu safn</string>
   <string name="choose_a_folder">Veldu skráasafn</string>
@@ -137,10 +131,6 @@
   <string name="tabs_activity">Hreyfingar</string>
   <string name="tabs_starred">Stjörnumerkt</string>
   <string name="provide_password">Búðu til lykilorð fyrir safnið "%s"</string>
-  <string name="upload_waiting">Bíð</string>
-  <string name="upload_finished">Búið</string>
-  <string name="upload_cancelled">Hætt við</string>
-  <string name="upload_failed">Mistókst</string>
   <string name="days_ago">%d dagar síðan</string>
   <string name="hours_ago">%d klukkutímar síðan</string>
   <string name="minutes_ago">%d mínútur síðan</string>
@@ -302,4 +292,5 @@
   <string name="star_file_succeed">Stjörnumerkti skránna með ágætum</string>
   <string name="star_file_failed">Mistókst að stjörnumerkja skrá</string>
   <!--notification bar-->
+  <!--Gallery-->
 </resources>

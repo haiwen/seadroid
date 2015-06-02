@@ -49,20 +49,21 @@
   <string name="err_passwd_empty">Contraseña no puede estar vacía</string>
   <string name="err_login_failed">Ingreso fallido</string>
   <string name="err_wrong_user_or_passwd">Email o contraseña incorrecto</string>
+  <string name="err_token_expired">La autenticación expiró, por favor ingrese nuevamente</string>
   <string name="upload">Subir</string>
   <string name="uploaded">Subido</string>
   <string name="updated">Actualizado</string>
   <string name="download_failed">Descarga falló</string>
-  <string name="trust_https_server">El certificado no fue emitido por una organización de confianza, desea continuar?</string>
-  <string name="upload_to">subir a: </string>
+  <string name="download_waiting">Descarga en espera</string>
+  <string name="download_finished">Descarga finalizada</string>
+  <string name="download_cancelled">Descarga cancelada</string>
   <string name="task_cancel">Cancelar</string>
   <string name="task_retry">Reintentar</string>
   <string name="task_remove">Remover</string>
-  <string name="task_remove_all_cancelled">Remover tareas canceladas</string>
-  <string name="task_remove_all_finished">Remover todas las finalizadas</string>
+  <string name="task_remove_all_cancelled">Remover todas las tareas canceladas</string>
+  <string name="task_remove_all_finished">Remover todas las tareas finalizadas</string>
   <string name="file_action_star">Favorito</string>
   <string name="file_action_download">Descargar</string>
-  <string name="file_action_remove_cache">Remover Caché</string>
   <string name="file_action_update">Subir</string>
   <string name="file_action_share">Compartir</string>
   <string name="file_action_export">Exportar</string>
@@ -99,7 +100,6 @@
   <string name="add_to_seafile">Agregar a Seafile</string>
   <string name="ok">OK</string>
   <string name="no_account">Por favor, primero configure una cuenta en Seafile</string>
-  <string name="no_library">Aún no tiene bibliotecas</string>
   <string name="choose_an_account">Elija una cuenta</string>
   <string name="choose_a_library">Elija una biblioteca</string>
   <string name="choose_a_folder">Elija una carpeta</string>
@@ -148,9 +148,9 @@
   <string name="tabs_activity">Actividades</string>
   <string name="tabs_starred">Favoritos</string>
   <string name="provide_password">Provea la contraseña para la biblioteca "%s"</string>
-  <string name="upload_waiting">Esperando</string>
-  <string name="upload_finished">Finalizado</string>
-  <string name="upload_cancelled">Cancelado</string>
+  <string name="upload_waiting">Subida en espera</string>
+  <string name="upload_finished">Subida finalizada</string>
+  <string name="upload_cancelled">Subida cancelada</string>
   <string name="upload_failed">Subida falló</string>
   <string name="days_ago">hace %d días</string>
   <string name="hours_ago">hace %d horas</string>
@@ -265,7 +265,7 @@
   <string name="settings_camera_upload_advanced_custom_directories_off">Examinar automáticamente el dispositivo</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Ayuda de configuración</string>
-  <string name="settings_cuc_welcome_text">Gracias por usar la ayuda para configurar la subida de cámara. \nPara ayudarlo a preparar el servicio de subida de cámara, será guiado en los pasos iniciales. \n\nDeslice a la izquierda para continuar.</string>
+  <string name="settings_cuc_welcome_text">Gracias por usar la ayuda para configurar la subida de cámara. \nPara ayudarlo a preparar el servicio de subida de cámara, será guiado en los pasos iniciales.</string>
   <string name="settings_cuc_network_title">Como subir</string>
   <string name="settings_cuc_network_wifi">Sólo Wi-Fi</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi o plan de datos</string>
@@ -366,15 +366,16 @@
   <string name="notification_upload_started_title">Subiendo archivos...</string>
   <string name="notification_download_started_title">Descargando archivos...</string>
   <string name="notification_upload_completed">Subida finalizada</string>
-  <string name="notification_upload_cancelled">Subida cancelada</string>
   <plurals name="notification_upload_info">
-    <item quantity="one">Subiendo archivos, resta %1$d archivo (%2$d%%)</item>
-    <item quantity="other">Subiendo archivos, restan %1$d archivos (%2$d%%)</item>
+    <item quantity="one">Subiendo <xliff:g id="uploading_file">%1$d</xliff:g> archivo (%2$d%%)</item>
+    <item quantity="other">Subiendo <xliff:g id="uploading_file">%1$d</xliff:g> archivos (%2$d%%)</item>
   </plurals>
   <plurals name="notification_download_info">
-    <item quantity="one">Descargando archivos, resta  %1$d archivo (%2$d%%)</item>
-    <item quantity="other">Descargando archivos, restan %1$d archivos (%2$d%%)</item>
+    <item quantity="one">Descargando <xliff:g id="downloading_file">%1$d</xliff:g> archivo (%2$d%%)</item>
+    <item quantity="other">Descargando <xliff:g id="downloading_file">%1$d</xliff:g> archivos (%2$d%%)</item>
   </plurals>
   <string name="notification_download_completed">Descarga finalizada</string>
-  <string name="notification_download_cancelled">Descarga cancelada</string>
+  <!--Gallery-->
+  <string name="gallery_load_photos_error">Error al cargar fotos</string>
+  <string name="gallery_encrypted_repo_not_supported">Bibliotecas encriptadas no están soportadas</string>
 </resources>

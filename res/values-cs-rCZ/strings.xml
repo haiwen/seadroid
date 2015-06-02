@@ -47,16 +47,11 @@
   <string name="uploaded">Nahráno</string>
   <string name="updated">Aktualizováno</string>
   <string name="download_failed">Stažení selhalo</string>
-  <string name="trust_https_server">Certifikát není vydaný důvěryhodnou organizací, chcete přesto pokračovat?</string>
-  <string name="upload_to">nahrát na:</string>
   <string name="task_cancel">Zrušit</string>
   <string name="task_retry">Znovu</string>
   <string name="task_remove">Smazat</string>
-  <string name="task_remove_all_cancelled">Smazat všechny zrušené</string>
-  <string name="task_remove_all_finished">Smazat všechny dokončené</string>
   <string name="file_action_star">Oblíbené</string>
   <string name="file_action_download">Stáhnout</string>
-  <string name="file_action_remove_cache">Odstranit z mezipaměti</string>
   <string name="file_action_update">Nahrát</string>
   <string name="file_action_share">Sdílet</string>
   <string name="file_action_export">Exportovat</string>
@@ -94,7 +89,6 @@
   <string name="add_to_seafile">Přidat do Seafile</string>
   <string name="ok">OK</string>
   <string name="no_account">Prosím, nejprve nastavte účet</string>
-  <string name="no_library">Zatím nemáte žádné knihovny</string>
   <string name="choose_an_account">Vyberte účet</string>
   <string name="choose_a_library">Vyberte knihovnu</string>
   <string name="choose_a_folder">Vyberte složku</string>
@@ -138,10 +132,6 @@
   <string name="tabs_activity">Aktivity</string>
   <string name="tabs_starred">Oblíbené</string>
   <string name="provide_password">Zadejte heslo pro knihovnu "%s"</string>
-  <string name="upload_waiting">Čekejte</string>
-  <string name="upload_finished">Dokončeno</string>
-  <string name="upload_cancelled">Zrušeno</string>
-  <string name="upload_failed">Chyba</string>
   <string name="days_ago">před %d dny</string>
   <string name="hours_ago">pře %d hodinami</string>
   <string name="minutes_ago">před %d minutami</string>
@@ -307,4 +297,5 @@
   <string name="star_file_succeed">Soubor byl úspěšně přidán do oblíbených</string>
   <string name="star_file_failed">Soubor nebyl přidán do oblíbených</string>
   <!--notification bar-->
+  <!--Gallery-->
 </resources>

@@ -6,6 +6,127 @@
   <string name="delete_account">刪除帳戶</string>
   <string name="delete">刪除</string>
   <string name="delete_file">確定要刪除文件或文件夾嗎？</string>
+  <string name="delete_successful">刪除成功</string>
+  <string name="delete_file_f">刪除文件</string>
+  <string name="delete_dir">刪除文件夾</string>
+  <string name="server_hint">服務器地址，比如cloud.seafile.com</string>
+  <string name="email_hint">郵箱</string>
+  <string name="passwd_hint">密碼</string>
+  <string name="login">登錄</string>
+  <string name="open_file">打開</string>
+  <string name="download_file">下載</string>
+  <string name="redownload_file">重新下載</string>
+  <string name="cancel_download">取消下載</string>
+  <string name="unknown_file_type">未知文件類型</string>
+  <string name="activity_not_found">找不到相關應用打開此文件</string>
+  <string name="refresh">刷新</string>
+  <string name="add_account">添加賬戶</string>
+  <string name="personal">個人</string>
+  <string name="libraries">資料庫</string>
+  <string name="cached">已緩存</string>
+  <string name="activities">事件</string>
+  <string name="pick_upload_type">上傳</string>
+  <string name="transfer_tasks">傳輸列表</string>
+  <string name="accounts">賬號</string>
+  <string name="settings">設置</string>
+  <string-array name="pick_upload_array">
+    <item>文件</item>
+    <item>圖片/視頻</item>
+    <item>其他</item>
+  </string-array>
+  <string name="choose_server">請選擇一個Seafile服務器</string>
+  <string-array name="choose_server_array">
+    <item>私有Seafile服務器</item>
+    <item>SeaCloud.cc</item>
+    <item>Cloud.mein-seafile.de</item>
+    <item>Shibboleth登錄</item>
+  </string-array>
+  <string name="network_down">無網絡連接</string>
+  <string name="unknow_error">未知錯誤</string>
+  <string name="invalid_server_address">無效的服務器地址</string>
+  <string name="err_server_andress_empty">服務器地址不能為空</string>
+  <string name="err_email_empty">郵箱不能為空</string>
+  <string name="err_passwd_empty">密碼不能為空</string>
+  <string name="err_login_failed">登錄失敗</string>
+  <string name="err_wrong_user_or_passwd">郵箱或密碼錯誤</string>
+  <string name="err_token_expired">認證已過期，請重新登錄</string>
+  <string name="upload">上傳</string>
+  <string name="uploaded">已上傳</string>
+  <string name="updated">已更新</string>
+  <string name="download_failed">下載失敗</string>
+  <string name="download_waiting">等待下載</string>
+  <string name="download_finished">下載完成</string>
+  <string name="download_cancelled">下載取消</string>
+  <string name="task_cancel">取消</string>
+  <string name="task_retry">重試</string>
+  <string name="task_remove">移除</string>
+  <string name="file_action_star">星标</string>
+  <string name="file_action_download">下载</string>
+  <string name="file_action_update">上傳</string>
+  <string name="file_action_share">分享</string>
+  <string name="file_action_export">導出</string>
+  <string name="file_action_delete">刪除</string>
+  <string name="file_action_rename">重命名</string>
+  <string name="file_action_copy">複製</string>
+  <string name="file_action_move">移動</string>
+  <string name="file_action_open_as">打開為</string>
+  <string-array name="file_type_array">
+    <item>文本</item>
+    <item>音頻</item>
+    <item>視頻</item>
+    <item>圖像</item>
+    <item>其他</item>
+  </string-array>
+  <string name="wait">等待</string>
+  <string name="image_gallery_NoImageView_text">沒有找到圖片</string>
+  <string name="pick_photo_video_title">請選擇要上傳的圖片/視頻</string>
+  <string name="select_upload_items">請選擇要上傳的文件</string>
+  <plurals name="n_upload_items_selected">
+    <item quantity="other">选中<xliff:g id="numbers_of_selected">%1$d</xliff:g>个文件</item>
+  </plurals>
+  <string name="dir_name_empty">請輸入文件夾名</string>
+  <string name="file_name_empty">請輸入文件名</string>
+  <string name="password_empty">請輸入密碼</string>
+  <string name="wrong_password">密碼錯誤</string>
+  <string name="library_read_only">這個資料庫是只讀的</string>
+  <string name="error_when_load_dirents">文件夾加載失敗</string>
+  <string name="error_when_load_repos">資料庫加載失敗</string>
+  <string name="dir_empty">文件夾為空</string>
+  <string name="no_repo">無資料庫</string>
+  <string name="no_app_available">沒有找到應用</string>
+  <string name="add_to_seafile">添加到Seafile</string>
+  <string name="ok">確定</string>
+  <string name="no_account">首先請在Seafile上創建一個賬戶</string>
+  <string name="choose_an_account">請選擇一個賬戶</string>
+  <string name="choose_a_library">請選擇一個資料庫</string>
+  <string name="choose_a_folder">請選擇一個文件夾</string>
+  <string name="load_accounts_fail">加載Seafile賬戶失敗</string>
+  <string name="load_libraries_fail">加載資料庫失敗</string>
+  <string name="load_dir_fail">加載文件夾內容失敗</string>
+  <string name="not_supported_share">不支持分享此類型文件</string>
+  <string name="download_folder">下載文件夾</string>
+  <string name="download_folder_title">請選擇一項</string>
+  <string-array name="download_folder_options_array">
+    <item>下載文件夾</item>
+    <item>下載文件夾和子文件夾</item>
+  </string-array>
+  <string name="create_new_file">創建新文件</string>
+  <string name="create_new_dir">創建新文件夾</string>
+  <string name="camera">拍照上傳</string>
+  <string name="download">下載</string>
+  <string name="open">打開</string>
+  <string name="last_modified">最後更改</string>
+  <string name="file_modified">已更改</string>
+  <string name="file_size">文件大小</string>
+  <string name="library_not_found">此資料庫已被刪除</string>
+  <string name="export_file">導出此文件</string>
+  <string name="no_upload_tasks">無上傳任務</string>
+  <string name="no_download_tasks">無下載任務</string>
+  <string name="seahub_url_hint">注意：服務器地址應該包含端口號。比如www.example.com:8000</string>
+  <string name="copy_link">複製鏈接</string>
+  <string name="share_file_link">分享此文件的鏈接</string>
+  <string name="share_dir_link">分享此文件夾的鏈接</string>
+  <string name="generating_link">生成鏈接中...</string>
   <!--Strings for possible PreferenceActivity Back/Next buttons-->
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <!--Camera Upload Preference-->
@@ -17,4 +138,5 @@
   <!--Search-->
   <!--star a file-->
   <!--notification bar-->
+  <!--Gallery-->
 </resources>

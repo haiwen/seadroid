@@ -43,15 +43,10 @@
   <string name="uploaded">Yüklendi</string>
   <string name="updated">Güncellendi</string>
   <string name="download_failed">İndirme başarısız</string>
-  <string name="trust_https_server">Sertifika güvenilir bir organizasyon tarafından onaylanmamış, devam etmek istiyor musunuz?</string>
-  <string name="upload_to">şuraya yükle:</string>
   <string name="task_cancel">İptal et</string>
   <string name="task_retry">Tekrar dene</string>
   <string name="task_remove">Kaldır</string>
-  <string name="task_remove_all_cancelled">Hepsini kaldır işlemi iptal edildi</string>
-  <string name="task_remove_all_finished">Bitenlerin hepsini kaldır</string>
   <string name="file_action_download">İndir</string>
-  <string name="file_action_remove_cache">Ön belleği kaldır</string>
   <string name="file_action_update">Yükle</string>
   <string name="file_action_share">Paylaş</string>
   <string name="file_action_export">Dışa aktar</string>
@@ -81,7 +76,6 @@
   <string name="no_app_available">Uygulama bulunamıyor</string>
   <string name="add_to_seafile">Seafile\'a ekle</string>
   <string name="ok">Tamam</string>
-  <string name="no_library">Henüz hiç kütüphaneniz yok</string>
   <string name="choose_an_account">Hesap seç</string>
   <string name="choose_a_library">Kütüphane seç</string>
   <string name="choose_a_folder">Klasör seç</string>
@@ -120,10 +114,6 @@
   <string name="tabs_activity">Etkinlikler</string>
   <string name="tabs_starred">Yıldızlı</string>
   <string name="provide_password">"%s" kütüphanesi için şifreyi giriniz</string>
-  <string name="upload_waiting">Bekliyor</string>
-  <string name="upload_finished">Bitti</string>
-  <string name="upload_cancelled">İptal edildi</string>
-  <string name="upload_failed">Başarısız oldu</string>
   <string name="just_now">hemen şimdi</string>
   <string name="error_when_load_starred">Yıldızlı dosyaları yüklerken hata</string>
   <string name="open_as">Şöyle aç</string>
@@ -213,4 +203,5 @@
   <!--Search-->
   <!--star a file-->
   <!--notification bar-->
+  <!--Gallery-->
 </resources>

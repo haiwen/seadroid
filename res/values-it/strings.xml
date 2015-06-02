@@ -41,14 +41,10 @@
   <string name="uploaded">Caricati</string>
   <string name="updated">Aggiornati</string>
   <string name="download_failed">Download fallito</string>
-  <string name="trust_https_server">Il certificato non proviene da un\'organizzazione fidata, vuoi continuare?</string>
-  <string name="upload_to">carica in:</string>
   <string name="task_cancel">Annulla</string>
   <string name="task_retry">Riprova</string>
   <string name="task_remove">Rimuovi</string>
-  <string name="task_remove_all_finished">Rimuovi tutti i completati</string>
   <string name="file_action_download">Scarica</string>
-  <string name="file_action_remove_cache">Rimuovi Cache</string>
   <string name="file_action_update">Carica</string>
   <string name="file_action_share">Condividi</string>
   <string name="file_action_export">Esporta</string>
@@ -78,7 +74,6 @@
   <string name="no_app_available">Nessun app trovata</string>
   <string name="add_to_seafile">Aggiungi a Seafile</string>
   <string name="ok">OK</string>
-  <string name="no_library">Non hai ancora librerie</string>
   <string name="choose_an_account">Scegli un account</string>
   <string name="choose_a_library">Scegli una libreria</string>
   <string name="choose_a_folder">Scegli una cartella</string>
@@ -115,10 +110,6 @@
   <string name="tabs_activity">Attività</string>
   <string name="tabs_starred">Preferiti</string>
   <string name="provide_password">Inserisci la password per la libreria "%s"</string>
-  <string name="upload_waiting">Attendi</string>
-  <string name="upload_finished">Completato</string>
-  <string name="upload_cancelled">Annullato</string>
-  <string name="upload_failed">Fallito</string>
   <string name="just_now">Appena adesso</string>
   <string name="error_when_load_starred">Errore nel caricamento dei file preferiti</string>
   <string name="open_as">Apri come</string>
@@ -158,4 +149,5 @@
   <!--Search-->
   <!--star a file-->
   <!--notification bar-->
+  <!--Gallery-->
 </resources>

@@ -47,16 +47,11 @@
   <string name="uploaded">Geupload</string>
   <string name="updated">geüpdate</string>
   <string name="download_failed">Download gefaald</string>
-  <string name="trust_https_server">Het certificaat is niet verstrekt door een vertrouwde organisatie, wilt u verdergaan?</string>
-  <string name="upload_to">upload naar:</string>
   <string name="task_cancel">Cancel</string>
   <string name="task_retry">Probeer opnieuw</string>
   <string name="task_remove">Verwijder</string>
-  <string name="task_remove_all_cancelled">Verwijder alle gecancelde</string>
-  <string name="task_remove_all_finished">Verwijder alle gefinishede</string>
   <string name="file_action_star">Ster</string>
   <string name="file_action_download">Download</string>
-  <string name="file_action_remove_cache">Verwijder Cache</string>
   <string name="file_action_update">Upload</string>
   <string name="file_action_share">Deel</string>
   <string name="file_action_export">Exporteer</string>
@@ -89,7 +84,6 @@
   <string name="add_to_seafile">Voeg too aan Seafile</string>
   <string name="ok">OK</string>
   <string name="no_account">Gelieve eerste een Seafile account aan te maken</string>
-  <string name="no_library">Je hebt nog geen Bibliotheken</string>
   <string name="choose_an_account">Kies een account</string>
   <string name="choose_a_library">Kies een bibliotheek</string>
   <string name="choose_a_folder">Kies een map</string>
@@ -133,10 +127,6 @@
   <string name="tabs_activity">Activiteiten</string>
   <string name="tabs_starred">Gesterd</string>
   <string name="provide_password">Voorzie het wachtwoord voor de bibliotheek "%s"</string>
-  <string name="upload_waiting">Wachten</string>
-  <string name="upload_finished">Finished</string>
-  <string name="upload_cancelled">Gecanceled</string>
-  <string name="upload_failed">Gefaald</string>
   <string name="days_ago">%d dagen geleden</string>
   <string name="hours_ago">%d uren geleden</string>
   <string name="minutes_ago">%d minuten geleden</string>
@@ -200,4 +190,5 @@
   <!--Search-->
   <!--star a file-->
   <!--notification bar-->
+  <!--Gallery-->
 </resources>

@@ -53,16 +53,11 @@
   <string name="uploaded">업로드함</string>
   <string name="updated">업데이트함</string>
   <string name="download_failed">다운로드에 실패했습니다</string>
-  <string name="trust_https_server">신뢰 기관에서 발급한 인증서가 아닙니다. 계속할까요?</string>
-  <string name="upload_to">업로드 대상:</string>
   <string name="task_cancel">취소</string>
   <string name="task_retry">다시 시도</string>
   <string name="task_remove">제거</string>
-  <string name="task_remove_all_cancelled">취소한 모든 항목 제거</string>
-  <string name="task_remove_all_finished">완료한 항목 제거</string>
   <string name="file_action_star">별 표시</string>
   <string name="file_action_download">다운로드</string>
-  <string name="file_action_remove_cache">캐시 제거</string>
   <string name="file_action_update">업로드</string>
   <string name="file_action_share">공유</string>
   <string name="file_action_export">내보내기</string>
@@ -98,7 +93,6 @@
   <string name="add_to_seafile">Seafile에 추가</string>
   <string name="ok">확인</string>
   <string name="no_account">우선 Seafile 계정을 설정하십시오</string>
-  <string name="no_library">아직 라이브러리가 없습니다</string>
   <string name="choose_an_account">계정 만들기</string>
   <string name="choose_a_library">라이브러리 만들기</string>
   <string name="choose_a_folder">폴더 만들기</string>
@@ -147,10 +141,6 @@
   <string name="tabs_activity">활동</string>
   <string name="tabs_starred">별표 표시</string>
   <string name="provide_password">"%s" 라이브러리에 대한 암호를 입력하세요</string>
-  <string name="upload_waiting">기다리는 중</string>
-  <string name="upload_finished">끝냈습니다</string>
-  <string name="upload_cancelled">취소했습니다</string>
-  <string name="upload_failed">실패했습니다</string>
   <string name="days_ago">%d일 전</string>
   <string name="hours_ago">%d시간 전</string>
   <string name="minutes_ago">%d분 전</string>
@@ -261,7 +251,6 @@
   <string name="settings_camera_upload_advanced_custom_directories_off">자동으로 검색할 장치</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">설정 도우미</string>
-  <string name="settings_cuc_welcome_text">카메라 업로드 설정 도우미 사용에 감사드립니다.\n카메라 업로드 서비스를 처음 사용하시는 여러분을 도와드리기 위해 몇가지 절차를 안내해드립니다.\n\n계속하시려면 왼쪽으로 미십시오.</string>
   <string name="settings_cuc_network_title">업로드 방법</string>
   <string name="settings_cuc_network_wifi">무선랜 만</string>
   <string name="settings_cuc_network_data_plan">무선랜 또는 데이터 서비스</string>
@@ -359,14 +348,5 @@
   <!--notification bar-->
   <string name="notification_upload_started_title">파일 업로드 중...</string>
   <string name="notification_download_started_title">파일 다운로드 중...</string>
-  <string name="notification_upload_completed">업로드를 끝냈습니다</string>
-  <string name="notification_upload_cancelled">업로드를 취소했습니다</string>
-  <plurals name="notification_upload_info">
-    <item quantity="other">파일 업로드 중, 파일 %1$d개 남음(%2$d%%)</item>
-  </plurals>
-  <plurals name="notification_download_info">
-    <item quantity="other">파일 다운로드 중, 파일 %1$d개 남음(%2$d%%)</item>
-  </plurals>
-  <string name="notification_download_completed">다운로드를 끝냈습니다</string>
-  <string name="notification_download_cancelled">다운로드를 취소했습니다</string>
+  <!--Gallery-->
 </resources>

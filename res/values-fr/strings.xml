@@ -49,20 +49,21 @@
   <string name="err_passwd_empty">Le mot de passe ne peut être vide</string>
   <string name="err_login_failed">Échec de la connexion</string>
   <string name="err_wrong_user_or_passwd">Erreur d\'email ou de mot de passe</string>
+  <string name="err_token_expired">Authentification a expirée. reconnectez vous.</string>
   <string name="upload">Transfert</string>
   <string name="uploaded">Transféré</string>
   <string name="updated">Mis à jour</string>
   <string name="download_failed">Échec du téléchargement</string>
-  <string name="trust_https_server">Ce certificat n\'est pas émis par une organisation de confiance, voulez-vous continuer ?</string>
-  <string name="upload_to">transféré vers: </string>
+  <string name="download_waiting">Téléchargement en attente</string>
+  <string name="download_finished">Téléchargement terminé</string>
+  <string name="download_cancelled">Téléchargement annulé</string>
   <string name="task_cancel">Annuler</string>
   <string name="task_retry">Réessayer</string>
   <string name="task_remove">Supprimer</string>
-  <string name="task_remove_all_cancelled">Retirer les tâches annulées</string>
-  <string name="task_remove_all_finished">Supprimer les tâches terminées</string>
+  <string name="task_remove_all_cancelled">Effacer toutes les taches annulées</string>
+  <string name="task_remove_all_finished">Effacer toutes les taches terminées</string>
   <string name="file_action_star">Favori</string>
   <string name="file_action_download">Télécharger</string>
-  <string name="file_action_remove_cache">Effacer le cache</string>
   <string name="file_action_update">Transfert</string>
   <string name="file_action_share">Partager</string>
   <string name="file_action_export">Exporter</string>
@@ -99,7 +100,6 @@
   <string name="add_to_seafile">Ajouter à Seafile</string>
   <string name="ok">OK</string>
   <string name="no_account">Merci de créer un compte dans Seafile pour commencer</string>
-  <string name="no_library">Vous n\'avez pas encore de bibliothèque</string>
   <string name="choose_an_account">Choisir un compte</string>
   <string name="choose_a_library">Choisir une bibliothèque</string>
   <string name="choose_a_folder">Choisir un fichier</string>
@@ -148,10 +148,10 @@
   <string name="tabs_activity">Activités</string>
   <string name="tabs_starred">Préférés</string>
   <string name="provide_password">Mot de passe pour la bibliothèque "%s"</string>
-  <string name="upload_waiting">En attente</string>
-  <string name="upload_finished">Terminé</string>
-  <string name="upload_cancelled">Annulé</string>
-  <string name="upload_failed">Échec</string>
+  <string name="upload_waiting">Envoi en attente</string>
+  <string name="upload_finished">Envoi terminé</string>
+  <string name="upload_cancelled">Envoi annulé</string>
+  <string name="upload_failed">Échec de l\'envoi</string>
   <string name="days_ago">il y a %d jours</string>
   <string name="hours_ago">il y a %d heures</string>
   <string name="minutes_ago">il y a %d minutes</string>
@@ -265,7 +265,7 @@
   <string name="settings_camera_upload_advanced_custom_directories_off">Scan automatique du périphérique</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Aide à la configuration</string>
-  <string name="settings_cuc_welcome_text">Merci d’utiliser l\'aide à la configuration pour l\'envoi de photos.\nPour vous aider à démarrer avec le service d\'envoi de photos, vous serez guidé pour vos premiers pas.\nGlisser vers la gauche pour continuer.</string>
+  <string name="settings_cuc_welcome_text">Merci d\'utiliser l\'aide à la configuration des envois de photos/vidéos. \nPour vous aider, commencer par démarrer le service d\'envoi de photos/vidéos, vous serez guidé dans vos premiers pas.</string>
   <string name="settings_cuc_network_title">Comment envoyer</string>
   <string name="settings_cuc_network_wifi">Wi-Fi seulement</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi ou plan de données</string>
@@ -365,16 +365,17 @@
   <!--notification bar-->
   <string name="notification_upload_started_title">Envoi des fichiers...</string>
   <string name="notification_download_started_title">Téléchargement des fichiers...</string>
-  <string name="notification_upload_completed">Envoi terminé</string>
-  <string name="notification_upload_cancelled">Envoi annulé</string>
+  <string name="notification_upload_completed">Téléversement terminé</string>
   <plurals name="notification_upload_info">
-    <item quantity="one">Envoi du fichier, %1$d fichier restant (%2$d%%)</item>
-    <item quantity="other">Envoi des fichiers, %1$d fichiers restants (%2$d%%)</item>
+    <item quantity="one">Envoi <xliff:g id="uploading_file">%1$d</xliff:g> fichier (%2$d%%)</item>
+    <item quantity="other">Envoi <xliff:g id="uploading_file">%1$d</xliff:g> fichiers (%2$d%%)</item>
   </plurals>
   <plurals name="notification_download_info">
-    <item quantity="one">Téléchargement du fichier, %1$d fichier restant (%2$d%%)</item>
-    <item quantity="other">Téléchargement des fichiers, %1$d fichiers restants (%2$d%%)</item>
+    <item quantity="one">Téléchargement <xliff:g id="downloading_file">%1$d</xliff:g> fichier (%2$d%%)</item>
+    <item quantity="other">Téléchargement <xliff:g id="downloading_file">%1$d</xliff:g> fichiers (%2$d%%)</item>
   </plurals>
   <string name="notification_download_completed">Téléchargement terminé</string>
-  <string name="notification_download_cancelled">Téléchargement annulé</string>
+  <!--Gallery-->
+  <string name="gallery_load_photos_error">Erreur de chargement des photos</string>
+  <string name="gallery_encrypted_repo_not_supported">Bibliothèque cryptée non  supportée</string>
 </resources>
