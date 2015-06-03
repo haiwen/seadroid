@@ -11,18 +11,23 @@ import java.security.cert.X509Certificate;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import javax.net.ssl.*;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
-import android.os.Build;
+import org.apache.http.conn.ssl.BrowserCompatHostnameVerifier;
+import org.apache.http.conn.ssl.X509HostnameVerifier;
+
 import android.util.Log;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.seafile.seadroid2.account.Account;
-import org.apache.http.conn.ssl.BrowserCompatHostnameVerifier;
-import org.apache.http.conn.ssl.X509HostnameVerifier;
 
 public final class SSLTrustManager {
     public enum SslFailureReason {
@@ -145,7 +150,9 @@ public final class SSLTrustManager {
             return ImmutableList.of();
         }
 
-        List<X509Certificate> certs = Lists.newArrayList(certificates);
+        Set<X509Certificate> all = Sets.newHashSet(certificates);
+
+        List<X509Certificate> certs = Lists.newArrayList(all);
         // certs.addAll(Arrays.asList(certificates));
         X509Certificate certChain = certs.get(0);
         certs.remove(certChain);
