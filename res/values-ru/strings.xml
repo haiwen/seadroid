@@ -49,13 +49,19 @@
   <string name="err_passwd_empty">Поле Пароль не может быть пустым</string>
   <string name="err_login_failed">Вход не удался</string>
   <string name="err_wrong_user_or_passwd">Ошибка Email или пароля</string>
+  <string name="err_token_expired">Истекло время сессии, войдите снова</string>
   <string name="upload">Загрузить</string>
   <string name="uploaded">Загруженные</string>
   <string name="updated">Обновленные</string>
   <string name="download_failed">Скачивание не удалось</string>
+  <string name="download_waiting">Скачивание ожидается</string>
+  <string name="download_finished">Скачивание завершено</string>
+  <string name="download_cancelled">Скачивание отменено</string>
   <string name="task_cancel">Отмена</string>
   <string name="task_retry">Повторить</string>
   <string name="task_remove">Удалить</string>
+  <string name="task_remove_all_cancelled">Удалить все отмененные задачи</string>
+  <string name="task_remove_all_finished">Удалить все завершенные задачи</string>
   <string name="file_action_star">Пометить</string>
   <string name="file_action_download">Скачать</string>
   <string name="file_action_update">Загрузить</string>
@@ -144,6 +150,10 @@
   <string name="tabs_activity">Активность</string>
   <string name="tabs_starred">Помеченные</string>
   <string name="provide_password">Задать пароль для библиотеки "%s"</string>
+  <string name="upload_waiting">Ожидание загрузки</string>
+  <string name="upload_finished">Загрузка закончена</string>
+  <string name="upload_cancelled">Загрузка отменена</string>
+  <string name="upload_failed">Загрузка не удалась</string>
   <string name="days_ago">%d дней назад</string>
   <string name="hours_ago">%d часов назад</string>
   <string name="minutes_ago">%d минут назад</string>
@@ -263,6 +273,7 @@
   <string name="settings_camera_upload_advanced_custom_directories_off">Автоматическое сканирование устройства</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Помощник по настройке</string>
+  <string name="settings_cuc_welcome_text">Спасибо за использование помощника по настройке загрузки фото. \nЧтобы освоиться с сервисом загрузки фото, вам нужно  пройти всего лишь несколько шагов.</string>
   <string name="settings_cuc_network_title">Как загружать</string>
   <string name="settings_cuc_network_wifi">Только Wi-Fi</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi или мобильные данные</string>
@@ -365,5 +376,21 @@ Email: support@seafile.com<br>
   <!--notification bar-->
   <string name="notification_upload_started_title">Загрузка файлов...</string>
   <string name="notification_download_started_title">Скачивание файлов...</string>
+  <string name="notification_upload_completed">Загрузка завершена</string>
+  <plurals name="notification_upload_info">
+    <item quantity="one">Загрузка <xliff:g id="uploading_file">%1$d</xliff:g> файла(%2$d%%)</item>
+    <item quantity="few">Загрузка <xliff:g id="uploading_file">%1$d</xliff:g> файлов(%2$d%%)</item>
+    <item quantity="many">Загрузка <xliff:g id="uploading_file">%1$d</xliff:g> файлов(%2$d%%)</item>
+    <item quantity="other">Загрузка <xliff:g id="uploading_file">%1$d</xliff:g> файлов(%2$d%%)</item>
+  </plurals>
+  <plurals name="notification_download_info">
+    <item quantity="one">Скачивание <xliff:g id="downloading_file">%1$d</xliff:g> файла(%2$d%%)</item>
+    <item quantity="few">Скачивание <xliff:g id="downloading_file">%1$d</xliff:g> файлов(%2$d%%)</item>
+    <item quantity="many">Скачивание <xliff:g id="downloading_file">%1$d</xliff:g> файлов(%2$d%%)</item>
+    <item quantity="other">Скачивание <xliff:g id="downloading_file">%1$d</xliff:g> файлов(%2$d%%)</item>
+  </plurals>
+  <string name="notification_download_completed">Скачивание завершено</string>
   <!--Gallery-->
+  <string name="gallery_load_photos_error">Ошибка загрузки фотографий</string>
+  <string name="gallery_encrypted_repo_not_supported">Зашифрованная библиотека не поддерживается</string>
 </resources>
