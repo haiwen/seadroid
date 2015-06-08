@@ -6,6 +6,6 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.SeafCachedFile;
 
 interface CachedFileChangedListener {
-    void onCachedFiledChanged(Account account, SeafCachedFile cf, File file);
+    void onCachedFileChanged(Account account, SeafCachedFile cf, File file);
 }
 
