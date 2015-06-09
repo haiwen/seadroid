@@ -197,6 +197,7 @@
     <string name="copy_folder_ing">Copying folder</string>
     <string name="move_folder_ing">Moving folder</string>
     <string name="upload_started">Upload is started</string>
+    <string name="update_started">Update is started</string>
     <string name="cannot_copy_folder_to_subfolder">You can\'t copy a folder to its subfolder</string>
     <string name="cannot_move_folder_to_subfolder">You can\'t move a folder to its subfolder</string>
     <string name="cancel">Cancel</string>
@@ -419,4 +420,8 @@
     <!-- Gallery -->
     <string name="gallery_load_photos_error">Load photos error</string>
     <string name="gallery_encrypted_repo_not_supported">Encrypted library was not supported</string>
+
+    <!-- Overwrite existing files -->
+    <string name="overwrite_existing_file_title">Overwrite existing file</string>
+    <string name="overwrite_existing_file_msg">The file already exist, do you want to overwrite it?</string>
 </resources>
