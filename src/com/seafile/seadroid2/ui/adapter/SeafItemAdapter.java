@@ -19,6 +19,7 @@ import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.ui.AnimateFirstDisplayListener;
 import com.seafile.seadroid2.ui.NavContext;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
+import com.seafile.seadroid2.util.SeadroidApplication;
 import com.seafile.seadroid2.util.Utils;
 import net.londatiga.android.ActionItem;
 import net.londatiga.android.QuickAction;

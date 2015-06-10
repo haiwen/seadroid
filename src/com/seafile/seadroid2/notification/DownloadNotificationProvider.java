@@ -3,13 +3,13 @@ package com.seafile.seadroid2.notification;
 import android.app.PendingIntent;
 import android.content.Intent;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.DownloadTaskManager;
 import com.seafile.seadroid2.transfer.TaskState;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.ui.CustomNotificationBuilder;
 import com.seafile.seadroid2.ui.activity.TransferActivity;
+import com.seafile.seadroid2.util.SeadroidApplication;
 
 import java.util.List;
 
