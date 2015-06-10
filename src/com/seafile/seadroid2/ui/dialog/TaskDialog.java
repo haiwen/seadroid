@@ -18,9 +18,9 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.seafile.seadroid2.ConcurrentAsyncTask;
+import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.transfer.SeafException;
 
 
 /**

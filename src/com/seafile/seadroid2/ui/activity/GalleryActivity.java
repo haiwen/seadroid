@@ -13,24 +13,22 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.transfer.SeafException;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.ZoomOutPageTransformer;
 import com.seafile.seadroid2.ui.adapter.GalleryAdapter;
 import com.seafile.seadroid2.ui.dialog.DeleteFileDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
+import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 

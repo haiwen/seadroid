@@ -3,9 +3,9 @@ package com.seafile.seadroid2.notification;
 import android.app.NotificationManager;
 import android.support.v4.app.NotificationCompat;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.transfer.TransferManager;
 import com.seafile.seadroid2.transfer.TransferService;
+import com.seafile.seadroid2.util.SeadroidApplication;
 
 import java.util.Timer;
 import java.util.TimerTask;

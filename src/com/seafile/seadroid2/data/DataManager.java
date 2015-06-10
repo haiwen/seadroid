@@ -21,9 +21,9 @@ import android.util.Pair;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.SeafConnection;
-import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.util.SeadroidApplication;
+import com.seafile.seadroid2.transfer.SeafConnection;
+import com.seafile.seadroid2.transfer.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.util.Utils;
 

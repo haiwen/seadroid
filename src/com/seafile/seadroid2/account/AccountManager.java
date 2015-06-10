@@ -1,13 +1,12 @@
 package com.seafile.seadroid2.account;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import com.seafile.seadroid2.SettingsManager;
+import com.seafile.seadroid2.ui.SettingsManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
 import com.seafile.seadroid2.util.Utils;
 import org.json.JSONException;

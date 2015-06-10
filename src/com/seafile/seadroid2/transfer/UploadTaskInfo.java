@@ -1,6 +1,5 @@
 package com.seafile.seadroid2.transfer;
 
-import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 /**
  * upload task info

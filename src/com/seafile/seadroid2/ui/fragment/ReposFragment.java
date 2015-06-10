@@ -18,7 +18,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
-import com.seafile.seadroid2.*;
+import com.seafile.seadroid2.ssl.CertsManager;
+import com.seafile.seadroid2.util.ConcurrentAsyncTask;
+import com.seafile.seadroid2.ui.NavContext;
+import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.transfer.SeafConnection;
+import com.seafile.seadroid2.transfer.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.DataManager;

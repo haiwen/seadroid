@@ -8,7 +8,7 @@ import org.apache.commons.io.monitor.FileAlterationMonitor;
 import android.util.Log;
 
 import com.google.common.collect.Maps;
-import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.util.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 

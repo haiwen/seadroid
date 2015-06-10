@@ -2,7 +2,7 @@ package com.seafile.seadroid2.avatar;
 
 import java.util.*;
 
-import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.util.SeadroidApplication;
 import com.seafile.seadroid2.account.AccountManager;
 import org.json.JSONObject;
 

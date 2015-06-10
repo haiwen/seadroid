@@ -12,7 +12,6 @@ import android.webkit.MimeTypeMap;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.activity.MarkdownActivity;
@@ -20,6 +19,7 @@ import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
 import com.seafile.seadroid2.ui.dialog.GetShareLinkDialog;
 import com.seafile.seadroid2.ui.dialog.OpenAsDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
+import com.seafile.seadroid2.util.SeadroidApplication;
 import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;
