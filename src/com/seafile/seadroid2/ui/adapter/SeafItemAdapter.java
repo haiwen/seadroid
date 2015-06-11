@@ -622,17 +622,17 @@ public class SeafItemAdapter extends BaseAdapter {
 
         // sort SeafDirents
         if (type == SORT_BY_NAME) {
-            Collections.sort(folders, new DirentNameComparator());
-            Collections.sort(files, new DirentNameComparator());
+            Collections.sort(folders, new SeafDirent.DirentNameComparator());
+            Collections.sort(files, new SeafDirent.DirentNameComparator());
         } else if (type == SORT_BY_LAST_MODIFIED_TIME) {
-            Collections.sort(folders, new DirentLastMTimeComparator());
-            Collections.sort(files, new DirentLastMTimeComparator());
+            Collections.sort(folders, new SeafDirent.DirentLastMTimeComparator());
+            Collections.sort(files, new SeafDirent.DirentLastMTimeComparator());
         } else if (type == SORT_BY_NAME_DESCENDING) {
-            Collections.sort(folders, Collections.reverseOrder(new DirentNameComparator()));
-            Collections.sort(files, Collections.reverseOrder(new DirentNameComparator()));
+            Collections.sort(folders, Collections.reverseOrder(new SeafDirent.DirentNameComparator()));
+            Collections.sort(files, Collections.reverseOrder(new SeafDirent.DirentNameComparator()));
         } else if (type == SORT_BY_LAST_MODIFIED_TIME_DESCENDING) {
-            Collections.sort(folders, Collections.reverseOrder(new DirentLastMTimeComparator()));
-            Collections.sort(files, Collections.reverseOrder(new DirentLastMTimeComparator()));
+            Collections.sort(folders, Collections.reverseOrder(new SeafDirent.DirentLastMTimeComparator()));
+            Collections.sort(files, Collections.reverseOrder(new SeafDirent.DirentLastMTimeComparator()));
         }
 
         // Adds the objects in the specified collection to this ArrayList
@@ -640,28 +640,5 @@ public class SeafItemAdapter extends BaseAdapter {
         items.addAll(folders);
         items.addAll(files);
     }
-
-    /**
-     * SeafDirent modification time comparator class
-     */
-    private class DirentLastMTimeComparator implements Comparator<SeafDirent> {
-
-        @Override
-        public int compare(SeafDirent itemA, SeafDirent itemB) {
-            return (int) (itemA.mtime - itemB.mtime);
-        }
-    }
-
-    /**
-     * SeafDirent name comparator class
-     */
-    private class DirentNameComparator implements Comparator<SeafDirent> {
-
-        @Override
-        public int compare(SeafDirent itemA, SeafDirent itemB) {
-            return itemB.name.toLowerCase().compareTo(itemA.name.toLowerCase());
-        }
-    }
-
 }
 

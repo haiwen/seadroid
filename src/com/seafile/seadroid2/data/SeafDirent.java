@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.data;
 
 import java.io.Serializable;
+import java.util.Comparator;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -65,5 +66,27 @@ public class SeafDirent implements SeafItem, Serializable {
         if (isDir())
             return R.drawable.folder;
         return Utils.getFileIcon(name);
+    }
+
+    /**
+     * SeafDirent modification time comparator class
+     */
+    public static class DirentLastMTimeComparator implements Comparator<SeafDirent> {
+
+        @Override
+        public int compare(SeafDirent itemA, SeafDirent itemB) {
+            return (int) (itemA.mtime - itemB.mtime);
+        }
+    }
+
+    /**
+     * SeafDirent name comparator class
+     */
+    public static class DirentNameComparator implements Comparator<SeafDirent> {
+
+        @Override
+        public int compare(SeafDirent itemA, SeafDirent itemB) {
+            return itemB.name.toLowerCase().compareTo(itemA.name.toLowerCase());
+        }
     }
 }
