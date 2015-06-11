@@ -54,7 +54,9 @@ public class SeafItemAdapter extends BaseAdapter {
     private static final int ACTION_ID_STAR = 8;
 
     public static final int SORT_BY_NAME = 9;
-    public static final int SORT_BY_MODIFICATION_TIME = 10;
+    public static final int SORT_BY_LAST_MODIFIED_TIME = 10;
+    public static final int SORT_BY_NAME_DESCENDING = 11;
+    public static final int SORT_BY_LAST_MODIFIED_TIME_DESCENDING = 12;
 
     @Override
     public int getCount() {
@@ -583,7 +585,8 @@ public class SeafItemAdapter extends BaseAdapter {
 
     /**
      * Sorts the given list using the given comparator
-     * by {@link #SORT_BY_NAME} or by {@link #SORT_BY_MODIFICATION_TIME}
+     * by {@link #SORT_BY_NAME}, {@link #SORT_BY_LAST_MODIFIED_TIME}, {@link #SORT_BY_NAME_DESCENDING}
+     * or {@link #SORT_BY_LAST_MODIFIED_TIME_DESCENDING}
      */
     public void sortByType(int type) {
         List<SeafGroup> groups = Lists.newArrayList();
@@ -623,9 +626,15 @@ public class SeafItemAdapter extends BaseAdapter {
         if (type == SORT_BY_NAME) {
             Collections.sort(folders, new DirentNameComparator());
             Collections.sort(files, new DirentNameComparator());
-        } else if (type == SORT_BY_MODIFICATION_TIME) {
+        } else if (type == SORT_BY_LAST_MODIFIED_TIME) {
             Collections.sort(folders, new DirentMTimeComparator());
             Collections.sort(files, new DirentMTimeComparator());
+        } else if (type == SORT_BY_NAME_DESCENDING) {
+            Collections.sort(folders, new DirentNameComparatorDescend());
+            Collections.sort(files, new DirentNameComparatorDescend());
+        } else if (type == SORT_BY_LAST_MODIFIED_TIME_DESCENDING) {
+            Collections.sort(folders, new DirentMTimeComparatorDescend());
+            Collections.sort(files, new DirentMTimeComparatorDescend());
         }
 
         // Adds the objects in the specified collection to this ArrayList
@@ -653,6 +662,28 @@ public class SeafItemAdapter extends BaseAdapter {
         @Override
         public int compare(SeafDirent itemA, SeafDirent itemB) {
             return itemA.name.toLowerCase().compareTo(itemB.name.toLowerCase());
+        }
+    }
+
+    /**
+     * SeafDirent modification time comparator class
+     */
+    private class DirentMTimeComparatorDescend implements Comparator<SeafDirent> {
+
+        @Override
+        public int compare(SeafDirent itemA, SeafDirent itemB) {
+            return (int) (itemA.mtime - itemB.mtime);
+        }
+    }
+
+    /**
+     * SeafDirent name comparator class
+     */
+    private class DirentNameComparatorDescend implements Comparator<SeafDirent> {
+
+        @Override
+        public int compare(SeafDirent itemA, SeafDirent itemB) {
+            return itemB.name.toLowerCase().compareTo(itemA.name.toLowerCase());
         }
     }
 
