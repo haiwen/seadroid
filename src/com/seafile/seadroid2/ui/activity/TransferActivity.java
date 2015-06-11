@@ -17,7 +17,6 @@ import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.notification.BaseNotificationProvider;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
-import com.seafile.seadroid2.notification.UploadNotificationProvider;
 import com.seafile.seadroid2.ui.adapter.TransferTaskAdapter;
 import com.seafile.seadroid2.ui.fragment.DownloadTaskFragment;
 import com.seafile.seadroid2.ui.fragment.UploadTaskFragment;
@@ -27,12 +26,13 @@ public class TransferActivity extends SherlockFragmentActivity {
     private static final String DEBUG_TAG = "TransferActivity";
 
     /**  0 mark as Download Fragment, 1 mark as Upload Fragment, the same convention with {@link TransferTaskAdapter #mTransferTaskType} */
-    private int currentPosition = 0;
+    private TransferFragmentType whichTab;
     private TransferTabsAdapter tabsAdapter;
     private ViewPager pager;
     private TabPageIndicator indicator;
 
     private Menu overFlowMenu = null;
+    public enum TransferFragmentType {DOWNLOAD_TASK_FRAGMENT, UPLOAD_TASK_FRAGMENT}
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -42,10 +42,10 @@ public class TransferActivity extends SherlockFragmentActivity {
                 // extract the extra-data in the Notification
                 String msg = extras.getString(BaseNotificationProvider.NOTIFICATION_MESSAGE_KEY);
                 if (msg.equals(DownloadNotificationProvider.NOTIFICATION_OPEN_DOWNLOAD_TAB)) {
-                    currentPosition = 0;
+                    whichTab = TransferFragmentType.DOWNLOAD_TASK_FRAGMENT;
                     indicator.setCurrentItem(0);
                 } else if (msg.equals(BaseNotificationProvider.NOTIFICATION_OPEN_UPLOAD_TAB)) {
-                    currentPosition = 1;
+                    whichTab = TransferFragmentType.UPLOAD_TASK_FRAGMENT;
                     indicator.setCurrentItem(1);
                 }
             }
@@ -68,7 +68,7 @@ public class TransferActivity extends SherlockFragmentActivity {
             @Override
             public void onPageSelected(final int position) {
                 Log.d(DEBUG_TAG, "current tab index " + position);
-                currentPosition = position;
+                whichTab = (position == 0 ? TransferFragmentType.DOWNLOAD_TASK_FRAGMENT : TransferFragmentType.UPLOAD_TASK_FRAGMENT);
                 supportInvalidateOptionsMenu();
                 pager.setCurrentItem(position);
             }
@@ -126,7 +126,7 @@ public class TransferActivity extends SherlockFragmentActivity {
             finish();
             return true;
         case R.id.cancel_transfer_tasks:
-            if (currentPosition == 0) {
+            if (whichTab == TransferFragmentType.DOWNLOAD_TASK_FRAGMENT) {
                 getDownloadTaskFragment().cancelAllDownloadTasks();
                 
             } else getUploadTaskFragment().cancelUploadTasks();
