@@ -51,9 +51,13 @@ public class SeafItemAdapter extends BaseAdapter {
     private static final int ACTION_ID_MOVE = 7;
     private static final int ACTION_ID_STAR = 8;
 
+    /** sort files by name in ascending order */
     public static final int SORT_BY_NAME = 9;
+    /** sort files by last modified time in ascending order */
     public static final int SORT_BY_LAST_MODIFIED_TIME = 10;
+    /** sort files by name in descending order */
     public static final int SORT_BY_NAME_DESCENDING = 11;
+    /** sort files by last modified time in descending order */
     public static final int SORT_BY_LAST_MODIFIED_TIME_DESCENDING = 12;
 
     @Override
