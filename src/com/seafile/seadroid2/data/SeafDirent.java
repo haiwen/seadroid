@@ -69,7 +69,7 @@ public class SeafDirent implements SeafItem, Serializable {
     }
 
     /**
-     * SeafDirent modification time comparator class
+     * SeafDirent last modified time comparator class
      */
     public static class DirentLastMTimeComparator implements Comparator<SeafDirent> {
 
