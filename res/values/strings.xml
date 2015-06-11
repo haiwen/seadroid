@@ -371,7 +371,7 @@
 
     <!-- Sort -->
     <string name="sort_menu_item">Sort</string>
-    <string name="sort_files">Sort files</string>
+    <string name="sort_files">Sort By</string>
     <array name="sort_files_options_array">
         <item>Name</item>
         <item>Last Modified Time</item>
