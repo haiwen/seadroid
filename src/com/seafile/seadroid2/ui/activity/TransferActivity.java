@@ -25,14 +25,12 @@ import com.viewpagerindicator.TabPageIndicator;
 public class TransferActivity extends SherlockFragmentActivity {
     private static final String DEBUG_TAG = "TransferActivity";
 
-    /**  0 mark as Download Fragment, 1 mark as Upload Fragment, the same convention with {@link TransferTaskAdapter #mTransferTaskType} */
-    private TransferFragmentType whichTab;
+    private TransferTaskAdapter.TaskType whichTab = TransferTaskAdapter.TaskType.DOWNLOAD_TASK;
     private TransferTabsAdapter tabsAdapter;
     private ViewPager pager;
     private TabPageIndicator indicator;
 
     private Menu overFlowMenu = null;
-    public enum TransferFragmentType {DOWNLOAD_TASK_FRAGMENT, UPLOAD_TASK_FRAGMENT}
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -42,10 +40,10 @@ public class TransferActivity extends SherlockFragmentActivity {
                 // extract the extra-data in the Notification
                 String msg = extras.getString(BaseNotificationProvider.NOTIFICATION_MESSAGE_KEY);
                 if (msg.equals(DownloadNotificationProvider.NOTIFICATION_OPEN_DOWNLOAD_TAB)) {
-                    whichTab = TransferFragmentType.DOWNLOAD_TASK_FRAGMENT;
+                    whichTab = TransferTaskAdapter.TaskType.DOWNLOAD_TASK;
                     indicator.setCurrentItem(0);
                 } else if (msg.equals(BaseNotificationProvider.NOTIFICATION_OPEN_UPLOAD_TAB)) {
-                    whichTab = TransferFragmentType.UPLOAD_TASK_FRAGMENT;
+                    whichTab = TransferTaskAdapter.TaskType.UPLOAD_TASK;
                     indicator.setCurrentItem(1);
                 }
             }
@@ -69,8 +67,8 @@ public class TransferActivity extends SherlockFragmentActivity {
             public void onPageSelected(final int position) {
                 Log.d(DEBUG_TAG, "current tab index " + position);
                 whichTab = (position == 0
-                        ? TransferFragmentType.DOWNLOAD_TASK_FRAGMENT
-                        : TransferFragmentType.UPLOAD_TASK_FRAGMENT);
+                        ? TransferTaskAdapter.TaskType.DOWNLOAD_TASK
+                        : TransferTaskAdapter.TaskType.UPLOAD_TASK);
                 supportInvalidateOptionsMenu();
                 pager.setCurrentItem(position);
             }
@@ -128,42 +126,42 @@ public class TransferActivity extends SherlockFragmentActivity {
                 finish();
                 return true;
             case R.id.cancel_transfer_tasks:
-                if (whichTab == TransferFragmentType.DOWNLOAD_TASK_FRAGMENT) {
+                if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK) {
                     getDownloadTaskFragment().cancelAllDownloadTasks();
 
                 } else getUploadTaskFragment().cancelUploadTasks();
 
                 return true;
             case R.id.restart_failed_transfer_tasks:
-                if (whichTab == TransferFragmentType.DOWNLOAD_TASK_FRAGMENT) {
+                if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK) {
                     getDownloadTaskFragment().restartAllFailedTasks();
 
                 } else getUploadTaskFragment().restartAllFailedTasks();
 
                 return true;
             case R.id.restart_cancelled_transfer_tasks:
-                if (whichTab == TransferFragmentType.DOWNLOAD_TASK_FRAGMENT) {
+                if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK) {
                     getDownloadTaskFragment().restartAllCancelledTasks();
 
                 } else getUploadTaskFragment().restartAllCancelledTasks();
 
                 return true;
             case R.id.clear_failed_transfer_tasks:
-                if (whichTab == TransferFragmentType.DOWNLOAD_TASK_FRAGMENT) {
+                if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK) {
                     getDownloadTaskFragment().removeAllFailedDownloadTasks();
 
                 } else getUploadTaskFragment().removeAllFailedUploadTasks();
 
                 return true;
             case R.id.clear_cancelled_transfer_tasks:
-                if (whichTab == TransferFragmentType.DOWNLOAD_TASK_FRAGMENT) {
+                if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK) {
                     getDownloadTaskFragment().removeAllCancelledDownloadTasks();
 
                 } else getUploadTaskFragment().removeAllCancelledUploadTasks();
 
                 return true;
             case R.id.clear_finished_transfer_tasks:
-                if (whichTab == TransferFragmentType.DOWNLOAD_TASK_FRAGMENT) {
+                if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK) {
                     getDownloadTaskFragment().removeAllFinishedDownloadTasks();
 
                 } else getUploadTaskFragment().removeAllFinishedUploadTasks();
