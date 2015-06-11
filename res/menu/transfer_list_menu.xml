@@ -33,21 +33,21 @@
                 android:showAsAction="ifRoom"
                 android:title="@string/transfer_list_clear_failed_tasks"
                 android:visible="true">
-            Restart cancelled tasks
+            Clear failed tasks
             </item>
             <item
                 android:id="@+id/clear_cancelled_transfer_tasks"
                 android:showAsAction="ifRoom"
                 android:title="@string/transfer_list_clear_cancelled_tasks"
                 android:visible="true">
-            Restart cancelled tasks
+            Clear cancelled tasks
             </item>
             <item
                 android:id="@+id/clear_finished_transfer_tasks"
                 android:showAsAction="ifRoom"
                 android:title="@string/transfer_list_clear_finished_tasks"
                 android:visible="true">
-            Restart cancelled tasks
+            Clear finished tasks
             </item>
         </menu>
     </item>
