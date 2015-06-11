@@ -40,20 +40,24 @@ public class SeafGroup implements SeafItem {
     }
 
     /**
-     * sort collections by repository name or modification time
+     * sort collections by repository name or last modified time
      */
     public void sortByType(int type) {
         if (type == SeafItemAdapter.SORT_BY_NAME) {
             Collections.sort(repos, new RepoNameComparator());
-        } else if (type == SeafItemAdapter.SORT_BY_MODIFICATION_TIME) {
-            Collections.sort(repos, new RepoMTimeComparator());
+        } else if (type == SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME) {
+            Collections.sort(repos, new RepoLastMTimeComparator());
+        } else if (type == SeafItemAdapter.SORT_BY_NAME_DESCENDING) {
+            Collections.sort(repos, Collections.reverseOrder(new RepoNameComparator()));
+        } else if (type == SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME_DESCENDING) {
+            Collections.sort(repos, Collections.reverseOrder(new RepoLastMTimeComparator()));
         }
     }
 
     /**
-     * Repository modification time comparator class
+     * Repository last modified time comparator class
      */
-    private class RepoMTimeComparator implements Comparator<SeafRepo> {
+    private class RepoLastMTimeComparator implements Comparator<SeafRepo> {
 
         @Override
         public int compare(SeafRepo itemA, SeafRepo itemB) {

@@ -1,7 +1,6 @@
 package com.seafile.seadroid2.ui.adapter;
 
 import android.content.res.Resources;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -11,7 +10,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
@@ -624,17 +622,17 @@ public class SeafItemAdapter extends BaseAdapter {
 
         // sort SeafDirents
         if (type == SORT_BY_NAME) {
-            Collections.sort(folders, new DirentNameComparator());
+            Collections.sort(folders, new SeafDirent.DirentNameComparator());
             Collections.sort(files, new DirentNameComparator());
         } else if (type == SORT_BY_LAST_MODIFIED_TIME) {
-            Collections.sort(folders, new DirentMTimeComparator());
-            Collections.sort(files, new DirentMTimeComparator());
+            Collections.sort(folders, new DirentLastMTimeComparator());
+            Collections.sort(files, new DirentLastMTimeComparator());
         } else if (type == SORT_BY_NAME_DESCENDING) {
-            Collections.sort(folders, new DirentNameComparatorDescend());
-            Collections.sort(files, new DirentNameComparatorDescend());
+            Collections.sort(folders, Collections.reverseOrder(new DirentNameComparator()));
+            Collections.sort(files, Collections.reverseOrder(new DirentNameComparator()));
         } else if (type == SORT_BY_LAST_MODIFIED_TIME_DESCENDING) {
-            Collections.sort(folders, new DirentMTimeComparatorDescend());
-            Collections.sort(files, new DirentMTimeComparatorDescend());
+            Collections.sort(folders, Collections.reverseOrder(new DirentLastMTimeComparator()));
+            Collections.sort(files, Collections.reverseOrder(new DirentLastMTimeComparator()));
         }
 
         // Adds the objects in the specified collection to this ArrayList
@@ -643,49 +641,6 @@ public class SeafItemAdapter extends BaseAdapter {
         items.addAll(files);
     }
 
-    /**
-     * SeafDirent modification time comparator class
-     */
-    private class DirentMTimeComparator implements Comparator<SeafDirent> {
-
-        @Override
-        public int compare(SeafDirent itemA, SeafDirent itemB) {
-            return (int) (itemB.mtime - itemA.mtime);
-        }
-    }
-
-    /**
-     * SeafDirent name comparator class
-     */
-    private class DirentNameComparator implements Comparator<SeafDirent> {
-
-        @Override
-        public int compare(SeafDirent itemA, SeafDirent itemB) {
-            return itemA.name.toLowerCase().compareTo(itemB.name.toLowerCase());
-        }
-    }
-
-    /**
-     * SeafDirent modification time comparator class
-     */
-    private class DirentMTimeComparatorDescend implements Comparator<SeafDirent> {
-
-        @Override
-        public int compare(SeafDirent itemA, SeafDirent itemB) {
-            return (int) (itemA.mtime - itemB.mtime);
-        }
-    }
-
-    /**
-     * SeafDirent name comparator class
-     */
-    private class DirentNameComparatorDescend implements Comparator<SeafDirent> {
-
-        @Override
-        public int compare(SeafDirent itemA, SeafDirent itemB) {
-            return itemB.name.toLowerCase().compareTo(itemA.name.toLowerCase());
-        }
-    }
 
 }
 
