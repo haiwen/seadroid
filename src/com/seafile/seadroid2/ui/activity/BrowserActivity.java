@@ -891,7 +891,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                                                     sortFilesByType(SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME);
                                                     break;
                                                 case 2: // sort by name, descending
-                                                    sortFilesByType(SeafItemAdapter.SORT_BY_NAME);
+                                                    sortFilesByType(SeafItemAdapter.SORT_BY_NAME_DESCENDING);
                                                     break;
                                                 case 3: // sort by last modified time, descending
                                                     sortFilesByType(SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME_DESCENDING);
