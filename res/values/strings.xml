@@ -373,8 +373,10 @@
     <string name="sort_menu_item">Sort</string>
     <string name="sort_files">Sort files</string>
     <array name="sort_files_options_array">
-        <item>Sort by name</item>
-        <item>Sort by time</item>
+        <item>Name</item>
+        <item>Last Modified Time</item>
+        <item>Name (Desc)</item>
+        <item>Last Modified Time (Desc)</item>
     </array>
 
     <!-- Search -->
