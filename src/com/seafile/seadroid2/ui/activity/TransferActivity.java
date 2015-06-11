@@ -68,7 +68,9 @@ public class TransferActivity extends SherlockFragmentActivity {
             @Override
             public void onPageSelected(final int position) {
                 Log.d(DEBUG_TAG, "current tab index " + position);
-                whichTab = (position == 0 ? TransferFragmentType.DOWNLOAD_TASK_FRAGMENT : TransferFragmentType.UPLOAD_TASK_FRAGMENT);
+                whichTab = (position == 0
+                        ? TransferFragmentType.DOWNLOAD_TASK_FRAGMENT
+                        : TransferFragmentType.UPLOAD_TASK_FRAGMENT);
                 supportInvalidateOptionsMenu();
                 pager.setCurrentItem(position);
             }
@@ -122,16 +124,52 @@ public class TransferActivity extends SherlockFragmentActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-        case android.R.id.home:
-            finish();
-            return true;
-        case R.id.cancel_transfer_tasks:
-            if (whichTab == TransferFragmentType.DOWNLOAD_TASK_FRAGMENT) {
-                getDownloadTaskFragment().cancelAllDownloadTasks();
-                
-            } else getUploadTaskFragment().cancelUploadTasks();
-            
-            return true;
+            case android.R.id.home:
+                finish();
+                return true;
+            case R.id.cancel_transfer_tasks:
+                if (whichTab == TransferFragmentType.DOWNLOAD_TASK_FRAGMENT) {
+                    getDownloadTaskFragment().cancelAllDownloadTasks();
+
+                } else getUploadTaskFragment().cancelUploadTasks();
+
+                return true;
+            case R.id.restart_failed_transfer_tasks:
+                if (whichTab == TransferFragmentType.DOWNLOAD_TASK_FRAGMENT) {
+                    getDownloadTaskFragment().restartAllFailedTasks();
+
+                } else getUploadTaskFragment().restartAllFailedTasks();
+
+                return true;
+            case R.id.restart_cancelled_transfer_tasks:
+                if (whichTab == TransferFragmentType.DOWNLOAD_TASK_FRAGMENT) {
+                    getDownloadTaskFragment().restartAllCancelledTasks();
+
+                } else getUploadTaskFragment().restartAllCancelledTasks();
+
+                return true;
+            case R.id.clear_failed_transfer_tasks:
+                if (whichTab == TransferFragmentType.DOWNLOAD_TASK_FRAGMENT) {
+                    getDownloadTaskFragment().removeAllFailedDownloadTasks();
+
+                } else getUploadTaskFragment().removeAllFailedUploadTasks();
+
+                return true;
+            case R.id.clear_cancelled_transfer_tasks:
+                if (whichTab == TransferFragmentType.DOWNLOAD_TASK_FRAGMENT) {
+                    getDownloadTaskFragment().removeAllCancelledDownloadTasks();
+
+                } else getUploadTaskFragment().removeAllCancelledUploadTasks();
+
+                return true;
+            case R.id.clear_finished_transfer_tasks:
+                if (whichTab == TransferFragmentType.DOWNLOAD_TASK_FRAGMENT) {
+                    getDownloadTaskFragment().removeAllFinishedDownloadTasks();
+
+                } else getUploadTaskFragment().removeAllFinishedUploadTasks();
+
+                return true;
+
         }
         return super.onOptionsItemSelected(item);
     }

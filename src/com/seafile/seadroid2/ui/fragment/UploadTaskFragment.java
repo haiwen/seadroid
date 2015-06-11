@@ -94,6 +94,52 @@ public class UploadTaskFragment extends TransferTaskFragment {
             return false;
     }
 
+
+    /**
+     * restart all failed tasks
+     */
+    public void restartAllFailedTasks() {
+        if (txService != null) {
+            txService.restartAllUploadTasksByState(TaskState.FAILED);
+        }
+    }
+
+    /**
+     * restart all cancelled tasks
+     */
+    public void restartAllCancelledTasks() {
+        if (txService != null) {
+            txService.restartAllUploadTasksByState(TaskState.CANCELLED);
+        }
+    }
+
+    /**
+     * remove all failed Upload tasks
+     */
+    public void removeAllFailedUploadTasks() {
+        if (txService != null) {
+            txService.removeAllUploadTasksByState(TaskState.FAILED);
+        }
+    }
+
+    /**
+     * remove all cancelled Upload tasks
+     */
+    public void removeAllCancelledUploadTasks() {
+        if (txService != null) {
+            txService.removeAllUploadTasksByState(TaskState.CANCELLED);
+        }
+    }
+
+    /**
+     * remove all finished Upload tasks
+     */
+    public void removeAllFinishedUploadTasks() {
+        if (txService != null) {
+            txService.removeAllUploadTasksByState(TaskState.FINISHED);
+        }
+    }
+
     /**
      *  cancel upload tasks
      *  Note that, this method <strong>only</strong> use to cancel file upload tasks rather than Camera Upload tasks.

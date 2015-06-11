@@ -146,6 +146,16 @@ public abstract class TransferManager {
         }
     }
 
+    public synchronized void restartByState(TaskState taskState) {
+        Iterator<TransferTask> iter = allTaskList.iterator();
+        while (iter.hasNext()) {
+            TransferTask task = iter.next();
+            if (task.getState().equals(taskState)) {
+                iter.remove();
+            }
+        }
+    }
+
     public void cancelAll() {
         List<? extends TransferTaskInfo> transferTaskInfos = getAllTaskInfoList();
         for (TransferTaskInfo transferTaskInfo : transferTaskInfos) {

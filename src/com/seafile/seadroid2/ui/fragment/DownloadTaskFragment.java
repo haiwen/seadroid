@@ -96,6 +96,51 @@ public class DownloadTaskFragment extends TransferTaskFragment {
     }
 
     /**
+     * restart all failed tasks
+     */
+    public void restartAllFailedTasks() {
+        if (txService != null) {
+            txService.restartAllDownloadTasksByState(TaskState.FAILED);
+        }
+    }
+
+    /**
+     * restart all cancelled tasks
+     */
+    public void restartAllCancelledTasks() {
+        if (txService != null) {
+            txService.restartAllDownloadTasksByState(TaskState.CANCELLED);
+        }
+    }
+
+    /**
+     * remove all failed download tasks
+     */
+    public void removeAllFailedDownloadTasks() {
+        if (txService != null) {
+            txService.removeAllDownloadTasksByState(TaskState.FAILED);
+        }
+    }
+
+    /**
+     * remove all cancelled download tasks
+     */
+    public void removeAllCancelledDownloadTasks() {
+        if (txService != null) {
+            txService.removeAllDownloadTasksByState(TaskState.CANCELLED);
+        }
+    }
+
+    /**
+     * remove all finished download tasks
+     */
+    public void removeAllFinishedDownloadTasks() {
+        if (txService != null) {
+            txService.removeAllDownloadTasksByState(TaskState.FINISHED);
+        }
+    }
+
+    /**
      * cancel all download tasks
      */
     public void cancelAllDownloadTasks() {
