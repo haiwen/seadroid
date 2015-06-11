@@ -315,18 +315,18 @@ public class ReposFragment extends SherlockListFragment {
         return false;
     }
 
-    public void sortByName() {
-        adapter.sortByType(SeafItemAdapter.SORT_BY_NAME);
+    public void sortByName(int type) {
+        adapter.sortByType(type);
         adapter.notifyDataSetChanged();
         // persist sort settings
-        SettingsManager.instance().saveSortFilesPref(SeafItemAdapter.SORT_BY_NAME);
+        SettingsManager.instance().saveSortFilesPref(type);
     }
 
-    public void sortByTime() {
-        adapter.sortByType(SeafItemAdapter.SORT_BY_MODIFICATION_TIME);
+    public void sortByTime(int type) {
+        adapter.sortByType(type);
         adapter.notifyDataSetChanged();
         // persist sort settings
-        SettingsManager.instance().saveSortFilesPref(SeafItemAdapter.SORT_BY_MODIFICATION_TIME);
+        SettingsManager.instance().saveSortFilesPref(type);
     }
 
     private void updateAdapterWithRepos(List<SeafRepo> repos) {

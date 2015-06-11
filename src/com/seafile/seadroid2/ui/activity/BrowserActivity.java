@@ -877,9 +877,9 @@ public class BrowserActivity extends SherlockFragmentActivity
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             SeafileStyleDialogBuilder builder =
-                    new SeafileStyleDialogBuilder(getActivity()).
-                            setTitle(getResources().getString(R.string.sort_files)).
-                            setItems(R.array.sort_files_options_array,
+                    new SeafileStyleDialogBuilder(getActivity())
+                            .setTitle(getString(R.string.sort_files))
+                            .setItems(R.array.sort_files_options_array,
                                     new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
@@ -887,8 +887,14 @@ public class BrowserActivity extends SherlockFragmentActivity
                                                 case 0: // sort by name
                                                     sortFilesByType(SeafItemAdapter.SORT_BY_NAME);
                                                     break;
-                                                case 1: // sort by modification time
-                                                    sortFilesByType(SeafItemAdapter.SORT_BY_MODIFICATION_TIME);
+                                                case 1: // sort by modified time
+                                                    sortFilesByType(SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME);
+                                                    break;
+                                                case 2: // sort by name, descending
+                                                    sortFilesByType(SeafItemAdapter.SORT_BY_NAME);
+                                                    break;
+                                                case 3: // sort by last modified time, descending
+                                                    sortFilesByType(SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME_DESCENDING);
                                                     break;
                                                 default:
                                                     return;
@@ -899,6 +905,10 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
     }
 
+    /**
+     * Sort file by type
+     * @param type
+     */
     private void sortFilesByType(final int type) {
         if (currentPosition == 0) {
             if (navContext.inRepo()) {
@@ -909,19 +919,23 @@ public class BrowserActivity extends SherlockFragmentActivity
                             new TaskDialog.TaskDialogListener() {
                                 @Override
                                 public void onTaskSuccess() {
-                                    if (type == SeafItemAdapter.SORT_BY_NAME)
-                                        getReposFragment().sortByName();
-                                    else if (type == SeafItemAdapter.SORT_BY_MODIFICATION_TIME)
-                                        getReposFragment().sortByTime();
+                                    if (type == SeafItemAdapter.SORT_BY_NAME
+                                            || type == SeafItemAdapter.SORT_BY_NAME_DESCENDING)
+                                        getReposFragment().sortByName(type);
+                                    else if (type == SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME
+                                            || type == SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME_DESCENDING)
+                                        getReposFragment().sortByTime(type);
                                 }
                             }, password);
                 }
             }
 
-            if (type == SeafItemAdapter.SORT_BY_NAME)
-                getReposFragment().sortByName();
-            else if (type == SeafItemAdapter.SORT_BY_MODIFICATION_TIME)
-                getReposFragment().sortByTime();
+            if (type == SeafItemAdapter.SORT_BY_NAME
+                    || type == SeafItemAdapter.SORT_BY_NAME_DESCENDING)
+                getReposFragment().sortByName(type);
+            else if (type == SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME
+                    || type == SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME_DESCENDING)
+                getReposFragment().sortByTime(type);
         }
     }
 
