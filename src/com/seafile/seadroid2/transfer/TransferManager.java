@@ -136,17 +136,19 @@ public abstract class TransferManager {
         }
     }
 
-    public synchronized void removeByState(TaskState taskState) {
+    public synchronized List<TransferTask> getTasksByState(TaskState taskState) {
+        List<TransferTask> taskList = Lists.newArrayList();
         Iterator<TransferTask> iter = allTaskList.iterator();
         while (iter.hasNext()) {
             TransferTask task = iter.next();
-            if (task.getState().equals(taskState)) {
-                iter.remove();
+            if (task.state.equals(taskState)) {
+                taskList.add(task);
             }
         }
+        return taskList;
     }
 
-    public synchronized void restartByState(TaskState taskState) {
+    public synchronized void removeByState(TaskState taskState) {
         Iterator<TransferTask> iter = allTaskList.iterator();
         while (iter.hasNext()) {
             TransferTask task = iter.next();

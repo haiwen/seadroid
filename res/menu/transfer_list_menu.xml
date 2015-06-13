@@ -15,7 +15,7 @@
             Cancel all tasks
             </item>
             <item
-                android:id="@+id/restart_failed_transfer_tasks"
+                android:id="@+id/retry_failed_transfer_tasks"
                 android:showAsAction="ifRoom"
                 android:title="@string/transfer_list_retry_failed_tasks"
                 android:visible="true">

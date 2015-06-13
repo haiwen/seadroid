@@ -96,9 +96,9 @@ public class UploadTaskFragment extends TransferTaskFragment {
 
 
     /**
-     * restart all failed tasks
+     * retry all failed tasks
      */
-    public void restartAllFailedTasks() {
+    public void retryAllFailedTasks() {
         if (txService != null) {
             txService.restartAllUploadTasksByState(TaskState.FAILED);
         }
