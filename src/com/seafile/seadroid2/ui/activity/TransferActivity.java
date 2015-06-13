@@ -132,11 +132,11 @@ public class TransferActivity extends SherlockFragmentActivity {
                 } else getUploadTaskFragment().cancelUploadTasks();
 
                 return true;
-            case R.id.restart_failed_transfer_tasks:
+            case R.id.retry_failed_transfer_tasks:
                 if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK) {
-                    getDownloadTaskFragment().restartAllFailedTasks();
+                    getDownloadTaskFragment().retryAllFailedTasks();
 
-                } else getUploadTaskFragment().restartAllFailedTasks();
+                } else getUploadTaskFragment().retryAllFailedTasks();
 
                 return true;
             case R.id.restart_cancelled_transfer_tasks:

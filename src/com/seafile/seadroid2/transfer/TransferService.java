@@ -115,8 +115,9 @@ public class TransferService extends Service {
     }
 
     public void restartAllUploadTasksByState(TaskState taskState) {
-        uploadTaskManager.restartByState(taskState);
-
+        for (TransferTask tt : uploadTaskManager.getTasksByState(taskState)) {
+            retryUploadTask(tt.getTaskID());
+        }
     }
 
     public void cancelUploadTaskInQue(int taskID) {
@@ -171,8 +172,9 @@ public class TransferService extends Service {
     }
 
     public void restartAllDownloadTasksByState(TaskState taskState) {
-        downloadTaskManager.restartByState(taskState);
-
+        for (TransferTask tt : downloadTaskManager.getTasksByState(taskState)) {
+            retryDownloadTask(tt.getTaskID());
+        }
     }
 
     public void removeAllDownloadTasksByState(TaskState taskState) {
