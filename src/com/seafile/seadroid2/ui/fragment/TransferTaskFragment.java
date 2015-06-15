@@ -9,17 +9,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
-import android.view.ContextMenu;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.view.animation.AnimationUtils;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.transfer.*;
+import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.activity.TransferActivity;
 import com.seafile.seadroid2.ui.adapter.TransferTaskAdapter;
 
@@ -51,7 +50,58 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.transfer_task_fragment, container, false);
         mTransferTaskListView = (ListView) root.findViewById(android.R.id.list);
-        mTransferTaskListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        mTransferTaskListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+        mTransferTaskListView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
+            @Override
+            public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+                // Here you can do something when items are selected/de-selected,
+                // such as update the title in the CAB
+            }
+
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                // Inflate the menu for the CAB
+                MenuInflater inflater = mode.getMenuInflater();
+                inflater.inflate(R.menu.transfer_list_multi_choice_menu, menu);
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                // Here you can perform updates to the CAB due to
+                // an invalidate() request
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                // Respond to clicks on the actions in the CAB
+                switch (item.getItemId()) {
+                    case R.id.transfer_multi_choice_select_all:
+                        ToastUtils.show(getActivity(), "select all");
+                        //selectItems();
+                        return true;
+                    case R.id.transfer_multi_choice_deselect_all:
+                        ToastUtils.show(getActivity(), "deselect all");
+                        //deleteSelectedItems();
+                        mode.finish(); // Action picked, so close the CAB
+                        return true;
+                    case R.id.transfer_multi_choice_delete:
+                        ToastUtils.show(getActivity(), "delete");
+                        //deleteSelectedItems();
+                        mode.finish(); // Action picked, so close the CAB
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+                // Here you can make any necessary updates to the activity when
+                // the CAB is removed. By default, selected items are deselected/unchecked.
+            }
+        });
 
         mListContainer =  root.findViewById(R.id.listContainer);
         mProgressContainer = root.findViewById(R.id.progressContainer);
