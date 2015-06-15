@@ -46,7 +46,7 @@ public class DownloadTaskFragment extends TransferTaskFragment {
         return !txService.getAllDownloadTaskInfos().isEmpty();
     }
 
-    @Override
+    /*@Override
     public boolean onContextItemSelected(android.view.MenuItem item) {
         if (getUserVisibleHint()) {
             AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
@@ -93,7 +93,7 @@ public class DownloadTaskFragment extends TransferTaskFragment {
             return true;
         } else
             return false;
-    }
+    }*/
 
     /**
      * retry all failed tasks

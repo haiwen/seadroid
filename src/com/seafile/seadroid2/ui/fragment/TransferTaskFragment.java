@@ -115,7 +115,7 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        registerForContextMenu(mTransferTaskListView);
+        //registerForContextMenu(mTransferTaskListView);
 
         // Toast.makeText(mActivity, "Loading animations", Toast.LENGTH_LONG).show();
         showLoading(true);
@@ -217,7 +217,7 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
         }
     }
 
-    @Override
+    /*@Override
     public void onCreateContextMenu(ContextMenu menu, View v,
                                     ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
@@ -261,5 +261,5 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
                 itemRemoveAllFinished.setVisible(true);
                 break;
         }
-    }
+    }*/
 }
