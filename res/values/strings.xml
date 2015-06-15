@@ -373,6 +373,8 @@
         <item quantity="one">Starting to download <xliff:g id="download_file">%1$d</xliff:g> file</item>
         <item quantity="other">Starting to download <xliff:g id="download_files">%1$d</xliff:g> files</item>
     </plurals>
+    <string name="transfer_list_select_all">Select all</string>
+    <string name="transfer_list_deselect_all">Deselect all</string>
 
     <!-- Sort -->
     <string name="sort_menu_item">Sort</string>
