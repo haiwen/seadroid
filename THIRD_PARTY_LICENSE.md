@@ -49,18 +49,18 @@ The third party software included and used by this project is:
    Placed at package com.seafile.seadroid2.provider.  
    See https://github.com/forouher/seadroid/tree/feature/documentprovider
 
- * App passcode library for Android, master branch
-   Dual licensed under MIT, and GPL.
+ * App passcode library for Android, master branch  
+   Dual licensed under MIT, and GPL.  
    See https://github.com/wordpress-mobile/Android-PasscodeLock
 
- * Jams Music Player, master branch
-   Copyright (C) 2014 Saravan Pantha.
-   Licensed under the Apache License, Version 2.0.
+ * Jams Music Player, master branch  
+   Copyright (C) 2014 Saravan Pantha.  
+   Licensed under the Apache License, Version 2.0.  
    See https://github.com/psaravan/JamsMusicPlayer/tree/master/jamsMusicPlayer/src/main/java/com/jams/music/player/WelcomeActivity
 
- * PhotoView 1.2.2.
-   Copyright 2011, 2012 Chris Banes.
-   Licensed under the Apache License, Version 2.0.
-   Placed at libs/library-1.2.2.jar.
-   The jar file must be included in the Seafile APK.
+ * PhotoView 1.2.2.  
+   Copyright 2011, 2012 Chris Banes.  
+   Licensed under the Apache License, Version 2.0.  
+   Placed at libs/library-1.2.2.jar.  
+   The jar file must be included in the Seafile APK.  
    see https://github.com/chrisbanes/PhotoView
