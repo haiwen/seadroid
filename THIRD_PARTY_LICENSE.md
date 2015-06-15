@@ -57,3 +57,10 @@ The third party software included and used by this project is:
    Copyright (C) 2014 Saravan Pantha.
    Licensed under the Apache License, Version 2.0.
    See https://github.com/psaravan/JamsMusicPlayer/tree/master/jamsMusicPlayer/src/main/java/com/jams/music/player/WelcomeActivity
+
+ * PhotoView 1.2.2.
+   Copyright 2011, 2012 Chris Banes.
+   Licensed under the Apache License, Version 2.0.
+   Placed at libs/library-1.2.2.jar.
+   The jar file must be included in the Seafile APK.
+   see https://github.com/chrisbanes/PhotoView
