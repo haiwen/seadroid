@@ -44,7 +44,7 @@ public class UploadTaskFragment extends TransferTaskFragment {
         return !txService.getAllUploadTaskInfos().isEmpty();
     }
 
-    @Override
+    /*@Override
     public boolean onContextItemSelected(android.view.MenuItem item) {
         if (getUserVisibleHint()) {
             AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
@@ -92,7 +92,7 @@ public class UploadTaskFragment extends TransferTaskFragment {
         }
         else
             return false;
-    }
+    }*/
 
 
     /**
