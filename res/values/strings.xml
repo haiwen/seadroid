@@ -375,6 +375,7 @@
     </plurals>
     <string name="transfer_list_select_all">Select all</string>
     <string name="transfer_list_deselect_all">Deselect all</string>
+    <string name="transfer_list_items_selected">%d Selected</string>
 
     <!-- Sort -->
     <string name="sort_menu_item">Sort</string>
