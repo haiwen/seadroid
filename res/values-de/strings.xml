@@ -107,11 +107,11 @@
   <string name="load_libraries_fail">Bibliotheken konnten nicht geladen werden</string>
   <string name="load_dir_fail">Der Inhalt des Ordners konnte nicht geladen werden</string>
   <string name="not_supported_share">Diese Art der Freigabe wird nicht unterstützt</string>
-  <string name="download_folder">Übertragungsordner</string>
+  <string name="download_folder">Ordner herunterladen</string>
   <string name="download_folder_title">Wählen Sie Ihre bevorzugte Option</string>
   <string-array name="download_folder_options_array">
-    <item>Download-Ordner</item>
-    <item>Download-Ordner und Unterordner</item>
+    <item>Ordner herunterladen</item>
+    <item>Ordner und Unterordner herunterladen</item>
   </string-array>
   <string name="create_new_file">Eine neue Datei anlegen</string>
   <string name="create_new_dir">Einen neuen Ordner anlegen</string>
