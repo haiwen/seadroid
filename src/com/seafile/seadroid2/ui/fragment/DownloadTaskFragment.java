@@ -2,8 +2,6 @@ package com.seafile.seadroid2.ui.fragment;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.TaskState;
@@ -132,6 +130,15 @@ public class DownloadTaskFragment extends TransferTaskFragment {
     }
 
     /**
+     * remove cancelled download tasks by Ids
+     */
+    public void removeCancelledDownloadTasksByIds(List<Integer> ids) {
+        if (txService != null) {
+            txService.removeDownloadTasksByState(TaskState.CANCELLED, ids);
+        }
+    }
+
+    /**
      * remove all finished download tasks
      */
     public void removeAllFinishedDownloadTasks() {
@@ -147,6 +154,21 @@ public class DownloadTaskFragment extends TransferTaskFragment {
         if (txService != null) {
             txService.cancellAllDownloadTasks();
         }
+    }
+
+    /**
+     * cancel download tasks by ids
+     */
+    public void cancelDownloadTasksByIds(List<Integer> ids) {
+        if (txService != null) {
+            txService.cancellDownloadTasksByIds(ids);
+        }
+    }
+
+    @Override
+    protected void deleteSelectedItems(List<Integer> ids) {
+        cancelDownloadTasksByIds(ids);
+        removeCancelledDownloadTasksByIds(ids);
     }
 
 }

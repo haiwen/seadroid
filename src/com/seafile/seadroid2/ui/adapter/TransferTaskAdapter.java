@@ -86,6 +86,13 @@ public class TransferTaskAdapter extends BaseAdapter {
     }
 
     @Override
+    public boolean hasStableIds() {
+        // make adapter with stable ids by return true.
+        // Also in {@link #getItemId} must either override hashCode() or has some kind of id field to be returned
+        return true;
+    }
+
+    @Override
     public int getCount() {
         return mTransferTaskInfos.size();
     }

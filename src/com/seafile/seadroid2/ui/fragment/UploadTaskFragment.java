@@ -151,4 +151,24 @@ public class UploadTaskFragment extends TransferTaskFragment {
             txService.cancelAllUploadTasks();
         }
     }
+
+    private void cancelUploadTasksByIds(List<Integer> ids) {
+        if (txService != null) {
+            txService.cancelUploadTasksByIds(ids);
+        }
+    }
+
+    private void removeCancelledUploadTasksByIds(List<Integer> ids) {
+        if (txService != null) {
+            txService.removeUploadTasksByState(TaskState.CANCELLED, ids);
+        }
+
+    }
+
+    @Override
+    protected void deleteSelectedItems(List<Integer> ids) {
+        cancelUploadTasksByIds(ids);
+        removeCancelledUploadTasksByIds(ids);
+    }
+
 }
