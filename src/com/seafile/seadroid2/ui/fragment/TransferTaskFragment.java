@@ -56,8 +56,11 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
             public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
                 // Here you can do something when items are selected/de-selected,
                 // such as update the title in the CAB
-                int checkedItems = mTransferTaskListView.getCheckedItemCount();
-                mode.setTitle(getActivity().getString(R.string.transfer_list_items_selected, checkedItems));
+                int checkedItemsCount = mTransferTaskListView.getCheckedItemCount();
+                mode.setTitle(getActivity().getResources().getQuantityString(
+                        R.plurals.transfer_list_items_selected,
+                        checkedItemsCount,
+                        checkedItemsCount));
             }
 
             @Override
