@@ -148,6 +148,13 @@ public abstract class TransferManager {
         return taskList;
     }
 
+    /**
+     * remove tasks from {@link #allTaskList} by comparing the taskState,
+     * all tasks with the same taskState will be removed.
+     *
+     * @param taskState
+     *          taskState
+     */
     public synchronized void removeByState(TaskState taskState) {
         Iterator<TransferTask> iter = allTaskList.iterator();
         while (iter.hasNext()) {
@@ -158,20 +165,17 @@ public abstract class TransferManager {
         }
     }
 
-    public synchronized void removeByState(TaskState taskState, List<Integer> ids) {
+    /**
+     * remove tasks from {@link #allTaskList} by traversing the taskId list
+     *
+     * @param ids
+     *          taskId list
+     */
+    public synchronized void removeByIds(List<Integer> ids) {
         for (int taskID : ids) {
             TransferTask transferTask = getTask(taskID);
-            if (transferTask.getState().equals(taskState)) {
-                allTaskList.remove(transferTask);
-            }
+            allTaskList.remove(transferTask);
         }
-        /*Iterator<TransferTask> iter = allTaskList.iterator();
-        while (iter.hasNext()) {
-            TransferTask task = iter.next();
-            if (task.getState().equals(taskState)) {
-                iter.remove();
-            }
-        }*/
     }
 
     public void cancelAll() {

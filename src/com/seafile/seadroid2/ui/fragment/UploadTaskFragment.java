@@ -1,8 +1,6 @@
 package com.seafile.seadroid2.ui.fragment;
 
 import android.os.Bundle;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.transfer.TaskState;
 import com.seafile.seadroid2.transfer.TransferTaskInfo;
@@ -158,9 +156,9 @@ public class UploadTaskFragment extends TransferTaskFragment {
         }
     }
 
-    private void removeCancelledUploadTasksByIds(List<Integer> ids) {
+    private void removeUploadTasksByIds(List<Integer> ids) {
         if (txService != null) {
-            txService.removeUploadTasksByState(TaskState.CANCELLED, ids);
+            txService.removeUploadTasksByIds(ids);
         }
 
     }
@@ -168,7 +166,7 @@ public class UploadTaskFragment extends TransferTaskFragment {
     @Override
     protected void deleteSelectedItems(List<Integer> ids) {
         cancelUploadTasksByIds(ids);
-        removeCancelledUploadTasksByIds(ids);
+        removeUploadTasksByIds(ids);
     }
 
 }
