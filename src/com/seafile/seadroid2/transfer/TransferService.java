@@ -147,8 +147,8 @@ public class TransferService extends Service {
         uploadTaskManager.removeInAllTaskList(taskID);
     }
 
-    public void removeUploadTasksByState(TaskState taskState, List<Integer> ids) {
-        uploadTaskManager.removeByState(taskState, ids);
+    public void removeUploadTasksByIds(List<Integer> ids) {
+        uploadTaskManager.removeByIds(ids);
     }
 
     // -------------------------- download task --------------------//
@@ -190,8 +190,8 @@ public class TransferService extends Service {
         downloadTaskManager.removeByState(taskState);
     }
 
-    public void removeDownloadTasksByState(TaskState taskState, List<Integer> ids) {
-        downloadTaskManager.removeByState(taskState, ids);
+    public void removeDownloadTasksByIds(List<Integer> ids) {
+        downloadTaskManager.removeByIds(ids);
     }
 
     public void retryDownloadTask(int taskID) {

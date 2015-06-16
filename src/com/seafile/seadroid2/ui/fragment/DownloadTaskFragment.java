@@ -132,9 +132,9 @@ public class DownloadTaskFragment extends TransferTaskFragment {
     /**
      * remove cancelled download tasks by Ids
      */
-    public void removeCancelledDownloadTasksByIds(List<Integer> ids) {
+    public void removeDownloadTasksByIds(List<Integer> ids) {
         if (txService != null) {
-            txService.removeDownloadTasksByState(TaskState.CANCELLED, ids);
+            txService.removeDownloadTasksByIds(ids);
         }
     }
 
@@ -168,7 +168,7 @@ public class DownloadTaskFragment extends TransferTaskFragment {
     @Override
     protected void deleteSelectedItems(List<Integer> ids) {
         cancelDownloadTasksByIds(ids);
-        removeCancelledDownloadTasksByIds(ids);
+        removeDownloadTasksByIds(ids);
     }
 
 }
