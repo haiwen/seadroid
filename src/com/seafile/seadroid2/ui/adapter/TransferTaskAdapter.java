@@ -123,7 +123,10 @@ public class TransferTaskAdapter extends BaseAdapter {
 
         switch (info.state) {
         case INIT:
-            stateStr = mContext.getString(R.string.upload_waiting);
+            if (mTransferTaskType.equals(TaskType.DOWNLOAD_TASK))
+                stateStr = mContext.getString(R.string.download_waiting);
+            else if (mTransferTaskType.equals(TaskType.UPLOAD_TASK))
+                stateStr = mContext.getString(R.string.upload_waiting);
             viewHolder.fileSize.setVisibility(View.INVISIBLE);
             viewHolder.progressBar.setVisibility(View.INVISIBLE);
             break;
