@@ -16,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockListFragment;
+import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.transfer.*;
 import com.seafile.seadroid2.ui.ToastUtils;
@@ -83,17 +84,21 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
                 // Respond to clicks on the actions in the CAB
                 switch (item.getItemId()) {
                     case R.id.transfer_multi_choice_select_all:
-                        ToastUtils.show(getActivity(), "select all");
-                        //selectItems();
+                        selectItems();
                         return true;
                     case R.id.transfer_multi_choice_deselect_all:
-                        ToastUtils.show(getActivity(), "deselect all");
-                        //deleteSelectedItems();
+                        deselectItems();
                         mode.finish(); // Action picked, so close the CAB
                         return true;
                     case R.id.transfer_multi_choice_delete:
-                        ToastUtils.show(getActivity(), "delete");
-                        //deleteSelectedItems();
+                        /*
+                         * The result is only valid if the
+                         * choice mode has not been set to {@link #CHOICE_MODE_NONE} and the adapter
+                         * has stable IDs. ({@link ListAdapter#hasStableIds()} == {@code true})
+                         */
+                        long[] ids = mTransferTaskListView.getCheckedItemIds();
+                        if (ids != null)
+                            deleteSelectedItems(convertToTaskIds(ids));
                         mode.finish(); // Action picked, so close the CAB
                         return true;
                     default:
@@ -113,6 +118,39 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
         emptyView = (TextView) root.findViewById(R.id.empty);
         return root;
     }
+
+    private List<Integer> convertToTaskIds(long[] ids) {
+        if (ids == null) return null;
+        List<Integer> taskIds = Lists.newArrayList();
+        for (int i = 0; i < ids.length; i++) {
+            int position = (int) ids[i];
+            TransferTaskInfo tti = adapter.getItem(position);
+            taskIds.add(tti.taskID);
+        }
+
+        return taskIds;
+    }
+    /**
+     * select all items
+     */
+    private void selectItems() {
+        for (int position = 0; position < adapter.getCount(); position++) {
+            mTransferTaskListView.setItemChecked(position, true);
+        }
+
+    }
+
+    /**
+     * deselect all items
+     */
+    private void deselectItems() {
+        for (int position = 0; position < adapter.getCount(); position++) {
+            mTransferTaskListView.setItemChecked(position, false);
+        }
+
+    }
+
+    protected abstract void deleteSelectedItems(List<Integer> ids);
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {

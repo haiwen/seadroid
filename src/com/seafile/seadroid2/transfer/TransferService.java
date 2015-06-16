@@ -130,6 +130,11 @@ public class TransferService extends Service {
         uploadTaskManager.cancelAllUploadNotification();
     }
 
+    public void cancelUploadTasksByIds(List<Integer> ids) {
+        uploadTaskManager.cancelByIds(ids);
+        uploadTaskManager.cancelAllUploadNotification();
+    }
+
     public void cancelAllCameraUploadTasks() {
         uploadTaskManager.cancelAllCameraUploadTasks();
     }
@@ -140,6 +145,10 @@ public class TransferService extends Service {
 
     public void removeUploadTask(int taskID) {
         uploadTaskManager.removeInAllTaskList(taskID);
+    }
+
+    public void removeUploadTasksByState(TaskState taskState, List<Integer> ids) {
+        uploadTaskManager.removeByState(taskState, ids);
     }
 
     // -------------------------- download task --------------------//
@@ -179,7 +188,10 @@ public class TransferService extends Service {
 
     public void removeAllDownloadTasksByState(TaskState taskState) {
         downloadTaskManager.removeByState(taskState);
+    }
 
+    public void removeDownloadTasksByState(TaskState taskState, List<Integer> ids) {
+        downloadTaskManager.removeByState(taskState, ids);
     }
 
     public void retryDownloadTask(int taskID) {
@@ -205,6 +217,11 @@ public class TransferService extends Service {
 
     public void cancellAllDownloadTasks() {
         downloadTaskManager.cancelAll();
+        downloadTaskManager.cancelAllDownloadNotification();
+    }
+
+    public void cancellDownloadTasksByIds(List<Integer> ids) {
+        downloadTaskManager.cancelByIds(ids);
         downloadTaskManager.cancelAllDownloadNotification();
     }
 
