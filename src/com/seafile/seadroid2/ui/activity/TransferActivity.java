@@ -8,8 +8,11 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.ActionMode;
 import android.view.KeyEvent;
+import android.widget.ImageView;
+import android.widget.Toast;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
@@ -18,6 +21,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.notification.BaseNotificationProvider;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
+import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.adapter.TransferTaskAdapter;
 import com.seafile.seadroid2.ui.fragment.DownloadTaskFragment;
 import com.seafile.seadroid2.ui.fragment.UploadTaskFragment;
@@ -25,6 +29,9 @@ import com.viewpagerindicator.TabPageIndicator;
 
 public class TransferActivity extends SherlockFragmentActivity {
     private static final String DEBUG_TAG = "TransferActivity";
+
+    private ActionModeCallback mActionModeCallback = new ActionModeCallback();
+    private com.actionbarsherlock.view.ActionMode mActionMode;
 
     private TransferTaskAdapter.TaskType whichTab = TransferTaskAdapter.TaskType.DOWNLOAD_TASK;
     private TransferTabsAdapter tabsAdapter;
@@ -112,6 +119,37 @@ public class TransferActivity extends SherlockFragmentActivity {
         onNewIntent(getIntent());
     }
 
+    public void onItemSelected(ImageView btn, boolean checked) {
+        // update icon of the multiSelectBtn
+        if (checked) {
+            btn.setImageResource(R.drawable.checkbox_checked2);
+
+            if (mActionMode == null)
+                mActionMode = startActionMode(mActionModeCallback);
+        } else
+            btn.setImageResource(R.drawable.checkbox_unchecked);
+
+        // update CAB title
+        int checkedItemsCount = 0;
+        if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK
+                && getDownloadTaskFragment() != null) {
+            //mode = getDownloadTaskFragment().getActionMode();
+            checkedItemsCount = getDownloadTaskFragment().getCheckedItemCount();
+        } else if(whichTab == TransferTaskAdapter.TaskType.UPLOAD_TASK
+                && getUploadTaskFragment() != null) {
+            //mode = getUploadTaskFragment().getActionMode();
+            checkedItemsCount = getUploadTaskFragment().getCheckedItemCount();
+        }
+
+        if (mActionMode == null)
+            return;
+
+        mActionMode.setTitle(getResources().getQuantityString(
+                R.plurals.transfer_list_items_selected,
+                checkedItemsCount,
+                checkedItemsCount));
+    }
+
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         switch (keyCode) {
@@ -130,13 +168,13 @@ public class TransferActivity extends SherlockFragmentActivity {
         overFlowMenu = menu;
         return true;
     }
-    
+
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         // MenuItem cancel = menu.findItem(R.id.cancel_transfer_tasks);
         return true;
     }
-    
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -260,4 +298,48 @@ public class TransferActivity extends SherlockFragmentActivity {
         }
 
     }
+
+    private class ActionModeCallback implements com.actionbarsherlock.view.ActionMode.Callback {
+
+        @Override
+        public boolean onCreateActionMode(com.actionbarsherlock.view.ActionMode mode, Menu menu) {
+            // inflate contextual menu
+            mode.getMenuInflater().inflate(R.menu.transfer_list_multi_choice_menu, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(com.actionbarsherlock.view.ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(com.actionbarsherlock.view.ActionMode mode, MenuItem item) {
+            // retrieve selected items and print them out
+            /*TransferTaskAdapter adapter = (TransferTaskAdapter) getDownloadTaskFragment().getListAdapter();
+            SparseBooleanArray selected = adapter.get();
+            StringBuilder message = new StringBuilder();
+            for (int i = 0; i < selected.size(); i++) {
+                if (selected.valueAt(i)) {
+                    String selectedItem = adapter.getItem(selected.keyAt(i));
+                    message.append(selectedItem + "\n");
+                }
+            }*/
+            Toast.makeText(TransferActivity.this, "item clicked", Toast.LENGTH_LONG).show();
+
+            // close action mode
+            mode.finish();
+            return false;
+        }
+
+        @Override
+        public void onDestroyActionMode(com.actionbarsherlock.view.ActionMode mode) {
+            // remove selection
+            /*SelectableAdapter adapter = (SelectableAdapter) getListAdapter();
+            adapter.removeSelection();*/
+            mActionMode = null;
+        }
+
+    }
+
 }

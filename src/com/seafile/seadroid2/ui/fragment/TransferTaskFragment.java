@@ -52,6 +52,10 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
         return actionMode;
     }
 
+    public int getCheckedItemCount() {
+        return mTransferTaskListView.getCheckedItemCount();
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.transfer_task_fragment, container, false);

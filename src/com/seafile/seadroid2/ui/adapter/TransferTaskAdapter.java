@@ -28,7 +28,7 @@ public class TransferTaskAdapter extends BaseAdapter {
     private static final String DEBUG_TAG = "TransferTaskAdapter";
 
     private List<? extends TransferTaskInfo> mTransferTaskInfos;
-    private Context mContext;
+    private TransferActivity mActivity;
     private TaskType mTransferTaskType;
     public enum TaskType {DOWNLOAD_TASK, UPLOAD_TASK}
 
@@ -39,13 +39,13 @@ public class TransferTaskAdapter extends BaseAdapter {
      * set {@link TransferTaskAdapter #mUploadTaskInfos} to null if the task is a downloading task </br>
      * set {@link TransferTaskAdapter #mTransferTaskType} 0 to mark as Download Task, 1 mark to mark as Upload Task</br>
      * 
-     * @param context
+     * @param activity
      * @param transferTaskInfos
      */
-    public TransferTaskAdapter(Context context,
+    public TransferTaskAdapter(TransferActivity activity,
                                List<? extends TransferTaskInfo> transferTaskInfos) {
         this.mTransferTaskInfos = transferTaskInfos;
-        this.mContext = context;
+        this.mActivity = activity;
     }
 
     public void setCurrentTab(TaskType type) {
@@ -131,9 +131,9 @@ public class TransferTaskAdapter extends BaseAdapter {
         switch (info.state) {
         case INIT:
             if (mTransferTaskType.equals(TaskType.DOWNLOAD_TASK))
-                stateStr = mContext.getString(R.string.download_waiting);
+                stateStr = mActivity.getString(R.string.download_waiting);
             else if (mTransferTaskType.equals(TaskType.UPLOAD_TASK))
-                stateStr = mContext.getString(R.string.upload_waiting);
+                stateStr = mActivity.getString(R.string.upload_waiting);
             viewHolder.fileSize.setVisibility(View.INVISIBLE);
             viewHolder.progressBar.setVisibility(View.INVISIBLE);
             break;
@@ -153,27 +153,27 @@ public class TransferTaskAdapter extends BaseAdapter {
             break;
         case FINISHED:
             if (mTransferTaskType.equals(TaskType.DOWNLOAD_TASK))
-                stateStr = mContext.getString(R.string.download_finished);
+                stateStr = mActivity.getString(R.string.download_finished);
             else if (mTransferTaskType.equals(TaskType.UPLOAD_TASK))
-                stateStr = mContext.getString(R.string.upload_finished);
+                stateStr = mActivity.getString(R.string.upload_finished);
             stateColor = Color.BLACK;
             viewHolder.fileSize.setVisibility(View.VISIBLE);
             viewHolder.progressBar.setVisibility(View.INVISIBLE);
             break;
         case CANCELLED:
             if (mTransferTaskType.equals(TaskType.DOWNLOAD_TASK))
-                stateStr = mContext.getString(R.string.download_cancelled);
+                stateStr = mActivity.getString(R.string.download_cancelled);
             else if (mTransferTaskType.equals(TaskType.UPLOAD_TASK))
-                stateStr = mContext.getString(R.string.upload_cancelled);
+                stateStr = mActivity.getString(R.string.upload_cancelled);
             stateColor = Color.RED;
             viewHolder.fileSize.setVisibility(View.INVISIBLE);
             viewHolder.progressBar.setVisibility(View.INVISIBLE);
             break;
         case FAILED:
             if (mTransferTaskType.equals(TaskType.DOWNLOAD_TASK))
-                stateStr = mContext.getString(R.string.download_failed);
+                stateStr = mActivity.getString(R.string.download_failed);
             else if (mTransferTaskType.equals(TaskType.UPLOAD_TASK))
-                stateStr = mContext.getString(R.string.upload_failed);
+                stateStr = mActivity.getString(R.string.upload_failed);
             stateColor = Color.RED;
             viewHolder.fileSize.setVisibility(View.INVISIBLE);
             viewHolder.progressBar.setVisibility(View.INVISIBLE);
@@ -185,19 +185,27 @@ public class TransferTaskAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         View view = convertView;
         Viewholder viewHolder;
-
         if (convertView == null) {
-            view = LayoutInflater.from(mContext).inflate(R.layout.transfer_list_item, null);
+            view = LayoutInflater.from(mActivity).inflate(R.layout.transfer_list_item, null);
             ImageView icon = (ImageView)view.findViewById(R.id.transfer_file_icon);
+            final ImageView multiSelectBtn = (ImageView)view.findViewById(R.id.transfer_file_multi_select_btn);
+            multiSelectBtn.setTag(false);
+            multiSelectBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mActivity.onItemSelected(multiSelectBtn, !(Boolean) multiSelectBtn.getTag());
+                    multiSelectBtn.setTag(!(Boolean) multiSelectBtn.getTag());
+                }
+            });
             TextView state = (TextView)view.findViewById(R.id.transfer_file_state);
             TextView targetPath = (TextView)view.findViewById(R.id.transfer_target_path);
             TextView fileName = (TextView)view.findViewById(R.id.transfer_file_name);
             TextView fileSize = (TextView)view.findViewById(R.id.transfer_file_size);
             ProgressBar progressBar = (ProgressBar)view.findViewById(R.id.transfer_file_progress_bar);
-            viewHolder = new Viewholder(icon, state, targetPath, fileName, fileSize, progressBar);
+            viewHolder = new Viewholder(icon, multiSelectBtn, state, targetPath, fileName, fileSize, progressBar);
             view.setTag(viewHolder);
         } else {
             viewHolder = (Viewholder) convertView.getTag();
@@ -227,14 +235,15 @@ public class TransferTaskAdapter extends BaseAdapter {
     }
 
     private class Viewholder {
-        ImageView icon;
+        ImageView icon, multiSelectBtn;
         TextView targetPath, fileName, fileSize, state;
         ProgressBar progressBar;
 
-        public Viewholder(ImageView icon, TextView state, TextView targetPath,
+        public Viewholder(ImageView icon, ImageView multiSelectBtn, TextView state, TextView targetPath,
                           TextView fileName, TextView fileSize, ProgressBar progressBar) {
             super();
             this.icon = icon;
+            this.multiSelectBtn = multiSelectBtn;
             this.state = state;
             this.targetPath = targetPath;
             this.fileName = fileName;
