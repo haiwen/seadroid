@@ -147,8 +147,22 @@ public class TransferService extends Service {
         uploadTaskManager.removeInAllTaskList(taskID);
     }
 
+    /**
+     * remove all upload tasks by their taskIds.
+     *
+     * Note: when deleting all transferring tasks in the queue,
+     * other tasks left will never be executed, because they are all in the waiting state.
+     * In this case, explicitly call doNext to start processing the queue.
+     *
+     * @param ids
+     */
     public void removeUploadTasksByIds(List<Integer> ids) {
         uploadTaskManager.removeByIds(ids);
+        // explicitly call doNext if there aren`t any tasks under transferring state,
+        // in case that all tasks are waiting in the queue.
+        // This could happen if all transferring tasks are removed by calling removeByIds.
+        if (!uploadTaskManager.isTransferring())
+            uploadTaskManager.doNext();
     }
 
     // -------------------------- download task --------------------//
@@ -190,8 +204,22 @@ public class TransferService extends Service {
         downloadTaskManager.removeByState(taskState);
     }
 
+    /**
+     * remove all download tasks by their taskIds.
+     *
+     * Note: when deleting all transferring tasks in the queue,
+     * other tasks left will never be executed, because they are all in the waiting state.
+     * In this case, explicitly call doNext to start processing the queue.
+     *
+     * @param ids
+     */
     public void removeDownloadTasksByIds(List<Integer> ids) {
         downloadTaskManager.removeByIds(ids);
+        // explicitly call doNext if there aren`t any tasks under transferring state,
+        // in case that all tasks are waiting in the queue.
+        // This could happen if all transferring tasks are removed by calling removeByIds.
+        if (!downloadTaskManager.isTransferring())
+            downloadTaskManager.doNext();
     }
 
     public void retryDownloadTask(int taskID) {

@@ -178,6 +178,21 @@ public abstract class TransferManager {
         }
     }
 
+    /**
+     * check if there are tasks under transferring state
+     *
+     * @return true, if there are tasks whose {@link com.seafile.seadroid2.transfer.TaskState} is {@code TRANSFERRING}.
+     *          false, otherwise.
+     */
+    public boolean isTransferring() {
+        List<? extends TransferTaskInfo> transferTaskInfos = getAllTaskInfoList();
+        for (TransferTaskInfo transferTaskInfo : transferTaskInfos) {
+            if (transferTaskInfo.state.equals(TaskState.TRANSFERRING))
+                return true;
+        }
+        return false;
+    }
+
     public void cancelAll() {
         List<? extends TransferTaskInfo> transferTaskInfos = getAllTaskInfoList();
         for (TransferTaskInfo transferTaskInfo : transferTaskInfos) {
