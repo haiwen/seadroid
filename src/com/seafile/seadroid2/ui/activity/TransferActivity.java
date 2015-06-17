@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.KeyEvent;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -69,6 +70,23 @@ public class TransferActivity extends SherlockFragmentActivity {
                 whichTab = (position == 0
                         ? TransferTaskAdapter.TaskType.DOWNLOAD_TASK
                         : TransferTaskAdapter.TaskType.UPLOAD_TASK);
+
+                ActionMode mode = null;
+                if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK
+                        && getUploadTaskFragment() != null) {
+                    // slide from Upload tab to Download tab,
+                    // so hide the CAB of UploadTaskFragment
+                    mode = getUploadTaskFragment().getActionMode();
+                } else if(whichTab == TransferTaskAdapter.TaskType.UPLOAD_TASK
+                        && getDownloadTaskFragment() != null) {
+                    // slide from Download tab to Upload tab,
+                    // so hide the CAB of DownloadTaskFragment
+                    mode = getDownloadTaskFragment().getActionMode();
+                }
+
+                if (mode != null)
+                    mode.finish();
+
                 supportInvalidateOptionsMenu();
                 pager.setCurrentItem(position);
             }
