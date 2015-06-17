@@ -40,11 +40,16 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
     private View mProgressContainer;
     protected final Handler mTimer = new Handler();
     protected TransferService txService = null;
+    private ActionMode actionMode;
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         mActivity = (TransferActivity) activity;
+    }
+
+    public ActionMode getActionMode() {
+        return actionMode;
     }
 
     @Override
@@ -69,6 +74,7 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
                 // Inflate the menu for the CAB
                 MenuInflater inflater = mode.getMenuInflater();
                 inflater.inflate(R.menu.transfer_list_multi_choice_menu, menu);
+                actionMode = mode;
                 return true;
             }
 
@@ -110,6 +116,7 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
             public void onDestroyActionMode(ActionMode mode) {
                 // Here you can make any necessary updates to the activity when
                 // the CAB is removed. By default, selected items are deselected/unchecked.
+                actionMode = null;
             }
         });
 
