@@ -44,55 +44,6 @@ public class DownloadTaskFragment extends TransferTaskFragment {
         return !txService.getAllDownloadTaskInfos().isEmpty();
     }
 
-    /*@Override
-    public boolean onContextItemSelected(android.view.MenuItem item) {
-        if (getUserVisibleHint()) {
-            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-
-            if (txService == null) {
-                return false;
-            }
-
-            ListView listView = mTransferTaskListView;
-            DownloadTaskInfo taskInfo = (DownloadTaskInfo) listView.getItemAtPosition(info.position);
-            TaskState state = taskInfo.state;
-            int taskID = taskInfo.taskID;
-
-            switch (item.getItemId()) {
-                case R.id.cancel:
-                    if (state == TaskState.INIT || state == TaskState.TRANSFERRING) {
-                        txService.cancelDownloadTaskInQue(taskID);
-                    }
-                    break;
-                case R.id.retry:
-                    if (state == TaskState.FAILED || state == TaskState.CANCELLED) {
-                        txService.retryDownloadTask(taskID);
-                    }
-                    break;
-                case R.id.remove:
-                    if (state == TaskState.FINISHED || state == TaskState.FAILED || state == TaskState.CANCELLED) {
-                        txService.removeDownloadTask(taskID);
-                    }
-                    break;
-                case R.id.remove_all_cancelled:
-                    if (state == TaskState.CANCELLED) {
-                        txService.removeAllDownloadTasksByState(TaskState.CANCELLED);
-                    }
-                    break;
-                case R.id.remove_all_finished:
-                    if (state == TaskState.FINISHED) {
-                        txService.removeAllDownloadTasksByState(TaskState.FINISHED);
-                    }
-                    break;
-                default:
-                    return super.onContextItemSelected(item);
-            }
-
-            return true;
-        } else
-            return false;
-    }*/
-
     /**
      * retry all failed tasks
      */

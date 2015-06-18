@@ -42,56 +42,6 @@ public class UploadTaskFragment extends TransferTaskFragment {
         return !txService.getAllUploadTaskInfos().isEmpty();
     }
 
-    /*@Override
-    public boolean onContextItemSelected(android.view.MenuItem item) {
-        if (getUserVisibleHint()) {
-            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-
-            if (txService == null) {
-                return false;
-            }
-
-            ListView listView = mTransferTaskListView;
-            UploadTaskInfo taskInfo = (UploadTaskInfo) listView.getItemAtPosition(info.position);
-            TaskState state = taskInfo.state;
-            int taskID = taskInfo.taskID;
-
-            switch (item.getItemId()) {
-                case R.id.cancel:
-                    if (state == TaskState.INIT || state == TaskState.TRANSFERRING) {
-                        txService.cancelUploadTaskInQue(taskID);
-                    }
-                    break;
-                case R.id.retry:
-                    if (state == TaskState.FAILED || state == TaskState.CANCELLED) {
-                        txService.retryUploadTask(taskID);
-                    }
-                    break;
-                case R.id.remove:
-                    if (state == TaskState.FINISHED || state == TaskState.FAILED || state == TaskState.CANCELLED) {
-                        txService.removeUploadTask(taskID);
-                    }
-                    break;
-                case R.id.remove_all_cancelled:
-                    if (state == TaskState.CANCELLED) {
-                        txService.removeAllUploadTasksByState(TaskState.CANCELLED);
-                    }
-                    break;
-                case R.id.remove_all_finished:
-                    if (state == TaskState.FINISHED) {
-                        txService.removeAllUploadTasksByState(TaskState.FINISHED);
-                    }
-                    break;
-                default:
-                    return super.onContextItemSelected(item);
-            }
-
-            return true;
-        }
-        else
-            return false;
-    }*/
-
 
     /**
      * retry all failed tasks
