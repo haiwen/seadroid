@@ -192,23 +192,17 @@ public class TransferTaskAdapter extends BaseAdapter {
 
     public int getCheckedItemCount() {
         return mSelectedItemsIds.size();
-        /*int checkedItemCount = 0;
-        for (Boolean checked : mSelectedItemsIds.values()) {
-            if (checked)
-                checkedItemCount++;
-        }
-        return checkedItemCount;*/
     }
 
     public void toggleSelection(int position) {
+        if (mSelectedItemsIds.get(position)) {
+            // unselected
+            mSelectedItemsIds.delete(position);
+        } else
+            mSelectedItemsIds.put(position, true);
+
         mActivity.onItemSelected();
-        if (mMultiSelectBtnList.get(position) != null) {
-            ImageView multiSelectBtn = mMultiSelectBtnList.get(position);
-            if (!mSelectedItemsIds.get(position))
-                multiSelectBtn.setImageResource(R.drawable.btn_multiselect);
-            else
-                multiSelectBtn.setImageResource(R.drawable.checkbox_checked2);
-        }
+        notifyDataSetChanged();
     }
 
     public void deselectAllItems() {
@@ -218,8 +212,8 @@ public class TransferTaskAdapter extends BaseAdapter {
 
     public void selectAllItems() {
         mSelectedItemsIds.clear();
-        for (TransferTaskInfo info : mTransferTaskInfos) {
-            mSelectedItemsIds.put(info.taskID, true);
+        for (int i = 0; i < mTransferTaskInfos.size(); i++) {
+            mSelectedItemsIds.put(i, true);
         }
         notifyDataSetChanged();
     }
@@ -251,9 +245,9 @@ public class TransferTaskAdapter extends BaseAdapter {
             viewHolder.icon.setImageResource(iconID);
             viewHolder.targetPath.setText(Utils.pathJoin(taskInfo.repoName, Utils.getParentPath(taskInfo.pathInRepo)));
             viewHolder.fileName.setText(Utils.fileNameFromPath(taskInfo.pathInRepo));
-            Log.d(DEBUG_TAG, "multi select btn checked " + mSelectedItemsIds.get(taskInfo.taskID));
+            Log.d(DEBUG_TAG, "multi select btn checked " + mSelectedItemsIds.get(position));
             mMultiSelectBtnList.put(position, viewHolder.multiSelectBtn);
-            if (mSelectedItemsIds.get(taskInfo.taskID)) {
+            if (mSelectedItemsIds.get(position)) {
                 viewHolder.multiSelectBtn.setImageResource(R.drawable.checkbox_checked2);
             } else
                 viewHolder.multiSelectBtn.setImageResource(R.drawable.btn_multiselect);
@@ -261,13 +255,13 @@ public class TransferTaskAdapter extends BaseAdapter {
             viewHolder.multiSelectBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d(DEBUG_TAG, "onClick >>> multi select btn checked " + mSelectedItemsIds.get(taskInfo.taskID));
-                    if (!mSelectedItemsIds.get(taskInfo.taskID)) {
+                    Log.d(DEBUG_TAG, "onClick >>> multi select btn checked " + mSelectedItemsIds.get(position));
+                    if (!mSelectedItemsIds.get(position)) {
                         viewHolder.multiSelectBtn.setImageResource(R.drawable.checkbox_checked2);
-                        mSelectedItemsIds.put(taskInfo.taskID, true);
+                        mSelectedItemsIds.put(position, true);
                     } else {
                         viewHolder.multiSelectBtn.setImageResource(R.drawable.checkbox_unchecked);
-                        mSelectedItemsIds.put(taskInfo.taskID, false);
+                        mSelectedItemsIds.delete(position);
                     }
 
                     mActivity.onItemSelected();
