@@ -9,6 +9,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.TransferTaskInfo;
@@ -16,9 +17,7 @@ import com.seafile.seadroid2.transfer.UploadTaskInfo;
 import com.seafile.seadroid2.ui.activity.TransferActivity;
 import com.seafile.seadroid2.util.Utils;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Adapter class for both uploading and downloading tasks
@@ -184,6 +183,27 @@ public class TransferTaskAdapter extends BaseAdapter {
         viewHolder.state.setTextColor(stateColor);
     }
 
+    public int getCheckedItemCount() {
+        int checkedItemCount = 0;
+        for (ImageView multiSelectBtn : map.values()) {
+            if ((Boolean) multiSelectBtn.getTag())
+                checkedItemCount++;
+        }
+        return checkedItemCount;
+    }
+
+    public void toggleSelection(int position) {
+        // update multiSelectBtn
+        ImageView multiSelectBtn = map.get(position);
+        if (multiSelectBtn == null)
+            return;
+
+        mActivity.onItemSelected(multiSelectBtn, position, !(Boolean) multiSelectBtn.getTag());
+        multiSelectBtn.setTag(!(Boolean) multiSelectBtn.getTag());
+    }
+
+    private HashMap<Integer, ImageView> map = Maps.newHashMap();
+
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         View view = convertView;
@@ -192,11 +212,12 @@ public class TransferTaskAdapter extends BaseAdapter {
             view = LayoutInflater.from(mActivity).inflate(R.layout.transfer_list_item, null);
             ImageView icon = (ImageView)view.findViewById(R.id.transfer_file_icon);
             final ImageView multiSelectBtn = (ImageView)view.findViewById(R.id.transfer_file_multi_select_btn);
+            map.put(position, multiSelectBtn);
             multiSelectBtn.setTag(false);
             multiSelectBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mActivity.onItemSelected(multiSelectBtn, !(Boolean) multiSelectBtn.getTag());
+                    mActivity.onItemSelected(multiSelectBtn, position, !(Boolean) multiSelectBtn.getTag());
                     multiSelectBtn.setTag(!(Boolean) multiSelectBtn.getTag());
                 }
             });
