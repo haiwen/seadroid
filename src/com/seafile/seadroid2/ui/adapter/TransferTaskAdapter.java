@@ -10,6 +10,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
@@ -31,7 +32,7 @@ public class TransferTaskAdapter extends BaseAdapter {
     private static final String DEBUG_TAG = "TransferTaskAdapter";
 
     private SparseBooleanArray mSelectedItemsIds;
-    private HashMap<Integer, ImageView> mMultiSelectBtnList = Maps.newHashMap();
+    private List<Integer> mSelectedItemsPositions = Lists.newArrayList();
     private List<? extends TransferTaskInfo> mTransferTaskInfos;
     private TransferActivity mActivity;
     private TaskType mTransferTaskType;
@@ -194,12 +195,19 @@ public class TransferTaskAdapter extends BaseAdapter {
         return mSelectedItemsIds.size();
     }
 
+    public List<Integer> getSelectedIds() {
+        return mSelectedItemsPositions;
+    }
+
     public void toggleSelection(int position) {
         if (mSelectedItemsIds.get(position)) {
             // unselected
             mSelectedItemsIds.delete(position);
-        } else
+            mSelectedItemsPositions.remove(Integer.valueOf(position));
+        } else {
             mSelectedItemsIds.put(position, true);
+            mSelectedItemsPositions.add(position);
+        }
 
         mActivity.onItemSelected();
         notifyDataSetChanged();
@@ -207,13 +215,16 @@ public class TransferTaskAdapter extends BaseAdapter {
 
     public void deselectAllItems() {
         mSelectedItemsIds.clear();
+        mSelectedItemsPositions.clear();
         notifyDataSetChanged();
     }
 
     public void selectAllItems() {
         mSelectedItemsIds.clear();
+        mSelectedItemsPositions.clear();
         for (int i = 0; i < mTransferTaskInfos.size(); i++) {
             mSelectedItemsIds.put(i, true);
+            mSelectedItemsPositions.add(i);
         }
         notifyDataSetChanged();
     }
@@ -246,7 +257,6 @@ public class TransferTaskAdapter extends BaseAdapter {
             viewHolder.targetPath.setText(Utils.pathJoin(taskInfo.repoName, Utils.getParentPath(taskInfo.pathInRepo)));
             viewHolder.fileName.setText(Utils.fileNameFromPath(taskInfo.pathInRepo));
             Log.d(DEBUG_TAG, "multi select btn checked " + mSelectedItemsIds.get(position));
-            mMultiSelectBtnList.put(position, viewHolder.multiSelectBtn);
             if (mSelectedItemsIds.get(position)) {
                 viewHolder.multiSelectBtn.setImageResource(R.drawable.checkbox_checked2);
             } else
@@ -259,9 +269,11 @@ public class TransferTaskAdapter extends BaseAdapter {
                     if (!mSelectedItemsIds.get(position)) {
                         viewHolder.multiSelectBtn.setImageResource(R.drawable.checkbox_checked2);
                         mSelectedItemsIds.put(position, true);
+                        mSelectedItemsPositions.add(position);
                     } else {
                         viewHolder.multiSelectBtn.setImageResource(R.drawable.checkbox_unchecked);
                         mSelectedItemsIds.delete(position);
+                        mSelectedItemsPositions.remove(Integer.valueOf(position));
                     }
 
                     mActivity.onItemSelected();

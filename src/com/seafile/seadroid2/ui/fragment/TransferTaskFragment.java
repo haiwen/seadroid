@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -76,11 +77,9 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
         return root;
     }
 
-    private List<Integer> convertToTaskIds(long[] ids) {
-        if (ids == null) return null;
+    private List<Integer> convertToTaskIds(List<Integer> positions) {
         List<Integer> taskIds = Lists.newArrayList();
-        for (int i = 0; i < ids.length; i++) {
-            int position = (int) ids[i];
+        for (int position : positions) {
             TransferTaskInfo tti = adapter.getItem(position);
             taskIds.add(tti.taskID);
         }
@@ -312,9 +311,11 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
                      * choice mode has not been set to {@link #CHOICE_MODE_NONE} and the adapter
                      * has stable IDs. ({@link ListAdapter#hasStableIds()} == {@code true})
                      */
-                    long[] ids = mTransferTaskListView.getCheckedItemIds();
-                    if (ids != null)
+                    List<Integer> ids = adapter.getSelectedIds();
+                    if (ids != null) {
                         deleteSelectedItems(convertToTaskIds(ids));
+                        deselectItems();
+                    }
                     mode.finish(); // Action picked, so close the CAB
                     return true;
                 default:
