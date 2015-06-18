@@ -1,6 +1,8 @@
 package com.seafile.seadroid2.ui.adapter;
 
 import android.graphics.Color;
+import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,17 +10,18 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.TransferTaskInfo;
 import com.seafile.seadroid2.transfer.UploadTaskInfo;
-import com.seafile.seadroid2.ui.MultiSelectCell;
 import com.seafile.seadroid2.ui.activity.TransferActivity;
 import com.seafile.seadroid2.util.Utils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Adapter class for both uploading and downloading tasks
@@ -27,7 +30,8 @@ public class TransferTaskAdapter extends BaseAdapter {
 
     private static final String DEBUG_TAG = "TransferTaskAdapter";
 
-    private List<MultiSelectCell> multiSelectCellList = Lists.newArrayList();
+    private SparseBooleanArray mSelectedItemsIds;
+    private HashMap<Integer, ImageView> mMultiSelectBtnList = Maps.newHashMap();
     private List<? extends TransferTaskInfo> mTransferTaskInfos;
     private TransferActivity mActivity;
     private TaskType mTransferTaskType;
@@ -39,7 +43,7 @@ public class TransferTaskAdapter extends BaseAdapter {
      * set {@link TransferTaskAdapter #mDownloadTaskInfos} to null if the task is a uploading task</br>
      * set {@link TransferTaskAdapter #mUploadTaskInfos} to null if the task is a downloading task </br>
      * set {@link TransferTaskAdapter #mTransferTaskType} 0 to mark as Download Task, 1 mark to mark as Upload Task</br>
-     * 
+     *
      * @param activity
      * @param transferTaskInfos
      */
@@ -47,6 +51,7 @@ public class TransferTaskAdapter extends BaseAdapter {
                                List<? extends TransferTaskInfo> transferTaskInfos) {
         this.mTransferTaskInfos = transferTaskInfos;
         this.mActivity = activity;
+        this.mSelectedItemsIds = new SparseBooleanArray();
     }
 
     public void setCurrentTab(TaskType type) {
@@ -186,39 +191,47 @@ public class TransferTaskAdapter extends BaseAdapter {
     }
 
     public int getCheckedItemCount() {
-        int checkedItemCount = 0;
-        for (MultiSelectCell cell : multiSelectCellList) {
-            if (cell.isSelected())
+        return mSelectedItemsIds.size();
+        /*int checkedItemCount = 0;
+        for (Boolean checked : mSelectedItemsIds.values()) {
+            if (checked)
                 checkedItemCount++;
         }
-        return checkedItemCount;
+        return checkedItemCount;*/
     }
 
     public void toggleSelection(int position) {
-        // update multiSelectBtn
-        MultiSelectCell cell = multiSelectCellList.get(position);
-        if (cell == null)
-            return;
+        mActivity.onItemSelected();
+        if (mMultiSelectBtnList.get(position) != null) {
+            ImageView multiSelectBtn = mMultiSelectBtnList.get(position);
+            if (!mSelectedItemsIds.get(position))
+                multiSelectBtn.setImageResource(R.drawable.btn_multiselect);
+            else
+                multiSelectBtn.setImageResource(R.drawable.checkbox_checked2);
+        }
+    }
 
-        mActivity.onItemSelected(cell);
+    public void deselectAllItems() {
+        mSelectedItemsIds.clear();
+        notifyDataSetChanged();
+    }
+
+    public void selectAllItems() {
+        mSelectedItemsIds.clear();
+        for (TransferTaskInfo info : mTransferTaskInfos) {
+            mSelectedItemsIds.put(info.taskID, true);
+        }
+        notifyDataSetChanged();
     }
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         View view = convertView;
-        Viewholder viewHolder;
+        final Viewholder viewHolder;
         if (convertView == null) {
             view = LayoutInflater.from(mActivity).inflate(R.layout.transfer_list_item, null);
             ImageView icon = (ImageView)view.findViewById(R.id.transfer_file_icon);
-            final ImageView multiSelectBtn = (ImageView)view.findViewById(R.id.transfer_file_multi_select_btn);
-            final MultiSelectCell cell =  new MultiSelectCell(multiSelectBtn, position, false);
-            multiSelectCellList.add(position, cell);
-            multiSelectBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mActivity.onItemSelected(cell);
-                }
-            });
+            ImageView multiSelectBtn = (ImageView)view.findViewById(R.id.transfer_file_multi_select_btn);
             TextView state = (TextView)view.findViewById(R.id.transfer_file_state);
             TextView targetPath = (TextView)view.findViewById(R.id.transfer_target_path);
             TextView fileName = (TextView)view.findViewById(R.id.transfer_file_name);
@@ -229,15 +242,37 @@ public class TransferTaskAdapter extends BaseAdapter {
         } else {
             viewHolder = (Viewholder) convertView.getTag();
         }
-        
+
         int iconID;
         if (mTransferTaskType.equals(TaskType.DOWNLOAD_TASK)) {
-            DownloadTaskInfo taskInfo = (DownloadTaskInfo) mTransferTaskInfos.get(position);
+            final DownloadTaskInfo taskInfo = (DownloadTaskInfo) mTransferTaskInfos.get(position);
             iconID = Utils.getFileIcon(taskInfo.pathInRepo);
-            // the three fileds is not dynamic
+            // the three fields are not dynamic
             viewHolder.icon.setImageResource(iconID);
             viewHolder.targetPath.setText(Utils.pathJoin(taskInfo.repoName, Utils.getParentPath(taskInfo.pathInRepo)));
             viewHolder.fileName.setText(Utils.fileNameFromPath(taskInfo.pathInRepo));
+            Log.d(DEBUG_TAG, "multi select btn checked " + mSelectedItemsIds.get(taskInfo.taskID));
+            mMultiSelectBtnList.put(position, viewHolder.multiSelectBtn);
+            if (mSelectedItemsIds.get(taskInfo.taskID)) {
+                viewHolder.multiSelectBtn.setImageResource(R.drawable.checkbox_checked2);
+            } else
+                viewHolder.multiSelectBtn.setImageResource(R.drawable.btn_multiselect);
+
+            viewHolder.multiSelectBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d(DEBUG_TAG, "onClick >>> multi select btn checked " + mSelectedItemsIds.get(taskInfo.taskID));
+                    if (!mSelectedItemsIds.get(taskInfo.taskID)) {
+                        viewHolder.multiSelectBtn.setImageResource(R.drawable.checkbox_checked2);
+                        mSelectedItemsIds.put(taskInfo.taskID, true);
+                    } else {
+                        viewHolder.multiSelectBtn.setImageResource(R.drawable.checkbox_unchecked);
+                        mSelectedItemsIds.put(taskInfo.taskID, false);
+                    }
+
+                    mActivity.onItemSelected();
+                }
+            });
             updateTaskView(taskInfo, viewHolder);
         } else if (mTransferTaskType.equals(TaskType.UPLOAD_TASK)) {
             UploadTaskInfo taskInfo = (UploadTaskInfo) mTransferTaskInfos.get(position);

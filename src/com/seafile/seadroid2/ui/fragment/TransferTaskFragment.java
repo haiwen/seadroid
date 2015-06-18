@@ -91,9 +91,8 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
      * select all items
      */
     private void selectItems() {
-        for (int position = 0; position < adapter.getCount(); position++) {
-            mTransferTaskListView.setItemChecked(position, true);
-        }
+        adapter.selectAllItems();
+        updateCAB();
 
     }
 
@@ -101,10 +100,8 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
      * deselect all items
      */
     private void deselectItems() {
-        for (int position = 0; position < adapter.getCount(); position++) {
-            mTransferTaskListView.setItemChecked(position, false);
-        }
-
+        adapter.deselectAllItems();
+        updateCAB();
     }
 
     protected abstract void deleteSelectedItems(List<Integer> ids);
