@@ -251,7 +251,7 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
 
     }
 
-    public void updateCAB(int position) {
+    public void updateCAB() {
         if (adapter == null)
             return;
 
