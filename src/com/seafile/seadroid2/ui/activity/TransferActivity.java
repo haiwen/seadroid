@@ -19,7 +19,6 @@ import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.notification.BaseNotificationProvider;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
-import com.seafile.seadroid2.ui.MultiSelectCell;
 import com.seafile.seadroid2.ui.adapter.TransferTaskAdapter;
 import com.seafile.seadroid2.ui.fragment.DownloadTaskFragment;
 import com.seafile.seadroid2.ui.fragment.UploadTaskFragment;
@@ -114,18 +113,7 @@ public class TransferActivity extends SherlockFragmentActivity {
         onNewIntent(getIntent());
     }
 
-    public void onItemSelected(MultiSelectCell cell) {
-        if (cell == null)
-            return;
-
-        cell.toggleSelection();
-
-        // update icon of the multiSelectBtn
-        if (cell.isSelected()) {
-            cell.setImageResource(R.drawable.checkbox_checked2);
-        } else
-            cell.setImageResource(R.drawable.checkbox_unchecked);
-
+    public void onItemSelected() {
         // update CAB title
         if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK
                 && getDownloadTaskFragment() != null) {
