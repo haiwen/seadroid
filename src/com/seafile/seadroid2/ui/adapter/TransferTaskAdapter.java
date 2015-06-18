@@ -1,6 +1,5 @@
 package com.seafile.seadroid2.ui.adapter;
 
-import android.content.Context;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,11 +8,13 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.TransferTaskInfo;
 import com.seafile.seadroid2.transfer.UploadTaskInfo;
+import com.seafile.seadroid2.ui.MultiSelectCell;
 import com.seafile.seadroid2.ui.activity.TransferActivity;
 import com.seafile.seadroid2.util.Utils;
 
@@ -26,6 +27,7 @@ public class TransferTaskAdapter extends BaseAdapter {
 
     private static final String DEBUG_TAG = "TransferTaskAdapter";
 
+    private List<MultiSelectCell> multiSelectCellList = Lists.newArrayList();
     private List<? extends TransferTaskInfo> mTransferTaskInfos;
     private TransferActivity mActivity;
     private TaskType mTransferTaskType;
@@ -185,8 +187,8 @@ public class TransferTaskAdapter extends BaseAdapter {
 
     public int getCheckedItemCount() {
         int checkedItemCount = 0;
-        for (ImageView multiSelectBtn : map.values()) {
-            if ((Boolean) multiSelectBtn.getTag())
+        for (MultiSelectCell cell : multiSelectCellList) {
+            if (cell.isSelected())
                 checkedItemCount++;
         }
         return checkedItemCount;
@@ -194,15 +196,12 @@ public class TransferTaskAdapter extends BaseAdapter {
 
     public void toggleSelection(int position) {
         // update multiSelectBtn
-        ImageView multiSelectBtn = map.get(position);
-        if (multiSelectBtn == null)
+        MultiSelectCell cell = multiSelectCellList.get(position);
+        if (cell == null)
             return;
 
-        mActivity.onItemSelected(multiSelectBtn, position, !(Boolean) multiSelectBtn.getTag());
-        multiSelectBtn.setTag(!(Boolean) multiSelectBtn.getTag());
+        mActivity.onItemSelected(cell);
     }
-
-    private HashMap<Integer, ImageView> map = Maps.newHashMap();
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
@@ -212,13 +211,12 @@ public class TransferTaskAdapter extends BaseAdapter {
             view = LayoutInflater.from(mActivity).inflate(R.layout.transfer_list_item, null);
             ImageView icon = (ImageView)view.findViewById(R.id.transfer_file_icon);
             final ImageView multiSelectBtn = (ImageView)view.findViewById(R.id.transfer_file_multi_select_btn);
-            map.put(position, multiSelectBtn);
-            multiSelectBtn.setTag(false);
+            final MultiSelectCell cell =  new MultiSelectCell(multiSelectBtn, position, false);
+            multiSelectCellList.add(position, cell);
             multiSelectBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mActivity.onItemSelected(multiSelectBtn, position, !(Boolean) multiSelectBtn.getTag());
-                    multiSelectBtn.setTag(!(Boolean) multiSelectBtn.getTag());
+                    mActivity.onItemSelected(cell);
                 }
             });
             TextView state = (TextView)view.findViewById(R.id.transfer_file_state);
