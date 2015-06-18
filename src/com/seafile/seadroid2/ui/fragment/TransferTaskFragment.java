@@ -9,17 +9,22 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
-import android.view.*;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockListFragment;
+import com.actionbarsherlock.view.ActionMode;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.transfer.*;
-import com.seafile.seadroid2.ui.ToastUtils;
+import com.seafile.seadroid2.transfer.TransferService;
+import com.seafile.seadroid2.transfer.TransferTaskInfo;
 import com.seafile.seadroid2.ui.activity.TransferActivity;
 import com.seafile.seadroid2.ui.adapter.TransferTaskAdapter;
 
@@ -40,7 +45,7 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
     private View mProgressContainer;
     protected final Handler mTimer = new Handler();
     protected TransferService txService = null;
-    private ActionMode actionMode;
+    private ActionMode mActionMode;
 
     @Override
     public void onAttach(Activity activity) {
@@ -49,78 +54,19 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
     }
 
     public ActionMode getActionMode() {
-        return actionMode;
-    }
-
-    public int getCheckedItemCount() {
-        return mTransferTaskListView.getCheckedItemCount();
+        return mActionMode;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.transfer_task_fragment, container, false);
         mTransferTaskListView = (ListView) root.findViewById(android.R.id.list);
-        mTransferTaskListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
-        mTransferTaskListView.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
+        // mTransferTaskListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+        mTransferTaskListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
-                // Here you can do something when items are selected/de-selected,
-                // such as update the title in the CAB
-                int checkedItemsCount = mTransferTaskListView.getCheckedItemCount();
-                mode.setTitle(getActivity().getResources().getQuantityString(
-                        R.plurals.transfer_list_items_selected,
-                        checkedItemsCount,
-                        checkedItemsCount));
-            }
-
-            @Override
-            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                // Inflate the menu for the CAB
-                MenuInflater inflater = mode.getMenuInflater();
-                inflater.inflate(R.menu.transfer_list_multi_choice_menu, menu);
-                actionMode = mode;
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                onListItemChecked(position);
                 return true;
-            }
-
-            @Override
-            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-                // Here you can perform updates to the CAB due to
-                // an invalidate() request
-                return false;
-            }
-
-            @Override
-            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                // Respond to clicks on the actions in the CAB
-                switch (item.getItemId()) {
-                    case R.id.transfer_multi_choice_select_all:
-                        selectItems();
-                        return true;
-                    case R.id.transfer_multi_choice_deselect_all:
-                        deselectItems();
-                        mode.finish(); // Action picked, so close the CAB
-                        return true;
-                    case R.id.transfer_multi_choice_delete:
-                        /*
-                         * The result is only valid if the
-                         * choice mode has not been set to {@link #CHOICE_MODE_NONE} and the adapter
-                         * has stable IDs. ({@link ListAdapter#hasStableIds()} == {@code true})
-                         */
-                        long[] ids = mTransferTaskListView.getCheckedItemIds();
-                        if (ids != null)
-                            deleteSelectedItems(convertToTaskIds(ids));
-                        mode.finish(); // Action picked, so close the CAB
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-
-            @Override
-            public void onDestroyActionMode(ActionMode mode) {
-                // Here you can make any necessary updates to the activity when
-                // the CAB is removed. By default, selected items are deselected/unchecked.
-                actionMode = null;
             }
         });
 
@@ -167,9 +113,6 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        //registerForContextMenu(mTransferTaskListView);
-
-        // Toast.makeText(mActivity, "Loading animations", Toast.LENGTH_LONG).show();
         showLoading(true);
 
     }
@@ -269,49 +212,126 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
         }
     }
 
-    /*@Override
-    public void onCreateContextMenu(ContextMenu menu, View v,
-                                    ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        android.view.MenuInflater inflater = mActivity.getMenuInflater();
-        inflater.inflate(R.menu.transfer_task_menu, menu);
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        if (mActionMode == null) {
+            // no items selected, so perform item click actions
+        } else
+            // add or remove selection for current list item
+            onListItemChecked(position);
+    }
 
-        ListView listView = (ListView)v;
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-        TransferTaskInfo taskInfo = (TransferTaskInfo)listView.getItemAtPosition(info.position);
+    public void onListItemChecked(int position) {
+        if (adapter == null)
+            return;
 
-        android.view.MenuItem itemCancel = menu.findItem(R.id.cancel);
-        android.view.MenuItem itemRetry = menu.findItem(R.id.retry);
-        android.view.MenuItem itemRemove = menu.findItem(R.id.remove);
-        android.view.MenuItem itemRemoveAllCancelled = menu.findItem(R.id.remove_all_cancelled);
-        android.view.MenuItem itemRemoveAllFinished = menu.findItem(R.id.remove_all_finished);
+        adapter.toggleSelection(position);
+        boolean itemsChecked = adapter.getCheckedItemCount() > 0;
 
-        itemCancel.setVisible(false);
-        itemRetry.setVisible(false);
-        itemRemove.setVisible(false);
-        itemRemoveAllCancelled.setVisible(false);
-        itemRemoveAllFinished.setVisible(false);
+        Log.d(DEBUG_TAG, "itemsChecked "
+                + itemsChecked
+                + " getCheckedItemCount "
+                + adapter.getCheckedItemCount());
 
-        switch (taskInfo.state) {
-            case INIT:
-                itemCancel.setVisible(true);
-                break;
-            case TRANSFERRING:
-                itemCancel.setVisible(true);
-                break;
-            case CANCELLED:
-                itemRetry.setVisible(true);
-                itemRemove.setVisible(true);
-                itemRemoveAllCancelled.setVisible(true);
-                break;
-            case FAILED:
-                itemRetry.setVisible(true);
-                itemRemove.setVisible(true);
-                break;
-            case FINISHED:
-                itemRemove.setVisible(true);
-                itemRemoveAllFinished.setVisible(true);
-                break;
+        if (itemsChecked && mActionMode == null)
+            // there are some selected items, start the actionMode
+            mActionMode = getSherlockActivity().startActionMode(new ActionModeCallback());
+        else if (!itemsChecked && mActionMode != null)
+            // there no selected items, finish the actionMode
+            mActionMode.finish();
+
+
+        if (mActionMode != null) {
+            Log.d(DEBUG_TAG, "mActionMode.setTitle " + adapter.getCheckedItemCount());
+            mActionMode.setTitle(getResources().getQuantityString(
+                    R.plurals.transfer_list_items_selected,
+                    adapter.getCheckedItemCount(),
+                    adapter.getCheckedItemCount()));
         }
-    }*/
+
+    }
+
+    public void updateCAB(int position) {
+        if (adapter == null)
+            return;
+
+        boolean itemsChecked = adapter.getCheckedItemCount() > 0;
+
+        Log.d(DEBUG_TAG, "itemsChecked "
+                + itemsChecked
+                + " getCheckedItemCount "
+                + adapter.getCheckedItemCount());
+
+        if (itemsChecked && mActionMode == null)
+            // there are some selected items, start the actionMode
+            mActionMode = getSherlockActivity().startActionMode(new ActionModeCallback());
+        else if (!itemsChecked && mActionMode != null)
+            // there no selected items, finish the actionMode
+            mActionMode.finish();
+
+
+        if (mActionMode != null) {
+            Log.d(DEBUG_TAG, "mActionMode.setTitle " + adapter.getCheckedItemCount());
+            mActionMode.setTitle(getResources().getQuantityString(
+                    R.plurals.transfer_list_items_selected,
+                    adapter.getCheckedItemCount(),
+                    adapter.getCheckedItemCount()));
+        }
+
+    }
+
+    private class ActionModeCallback implements ActionMode.Callback {
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            // Inflate the menu for the CAB
+            MenuInflater inflater = mode.getMenuInflater();
+            inflater.inflate(R.menu.transfer_list_multi_choice_menu, menu);
+            mActionMode = mode;
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            // Here you can perform updates to the CAB due to
+            // an invalidate() request
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            // Respond to clicks on the actions in the CAB
+            switch (item.getItemId()) {
+                case R.id.transfer_multi_choice_select_all:
+                    selectItems();
+                    return true;
+                case R.id.transfer_multi_choice_deselect_all:
+                    deselectItems();
+                    mode.finish(); // Action picked, so close the CAB
+                    return true;
+                case R.id.transfer_multi_choice_delete:
+                    /*
+                     * The result is only valid if the
+                     * choice mode has not been set to {@link #CHOICE_MODE_NONE} and the adapter
+                     * has stable IDs. ({@link ListAdapter#hasStableIds()} == {@code true})
+                     */
+                    long[] ids = mTransferTaskListView.getCheckedItemIds();
+                    if (ids != null)
+                        deleteSelectedItems(convertToTaskIds(ids));
+                    mode.finish(); // Action picked, so close the CAB
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            // Here you can make any necessary updates to the activity when
+            // the CAB is removed. By default, selected items are deselected/unchecked.
+            mActionMode = null;
+        }
+
+    }
+
 }
