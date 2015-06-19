@@ -422,8 +422,9 @@
     <string name="gallery_encrypted_repo_not_supported">Encrypted library was not supported</string>
 
     <!-- Overwrite existing files -->
-    <string name="overwrite_existing_file_title">Overwrite existing file</string>
-    <string name="overwrite_existing_file_msg">The file already exist, do you want to overwrite it?</string>
-    <string name="overwrite_existing_file_overwrite">Overwrite</string>
-    <string name="overwrite_existing_file_allow_duplicate">Allow duplicate</string>
+    <string name="overwrite_existing_file_title">Replace existing file</string>
+    <string name="overwrite_existing_file_msg">The file already exist, do you want to replace it?</string>
+    <string name="overwrite_existing_file_replace">Replace</string>
+    <string name="overwrite_existing_file_cancel">Cancel</string>
+    <string name="overwrite_existing_file_duplicate_upload">No</string>
 </resources>

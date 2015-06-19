@@ -245,7 +245,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
                 AlertDialog.Builder builder = new SeafileStyleDialogBuilder(this)
                         .setTitle(getString(R.string.overwrite_existing_file_title))
                         .setMessage(getString(R.string.overwrite_existing_file_msg))
-                        .setPositiveButton(R.string.overwrite_existing_file_overwrite, new DialogInterface.OnClickListener() {
+                        .setPositiveButton(R.string.overwrite_existing_file_replace, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 addUpdateTask(account, repoName, repoID, targetDir, localPathList);
@@ -255,17 +255,26 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
                                 }
                             }
                         })
-                        .setNegativeButton(R.string.overwrite_existing_file_allow_duplicate,
-                                new DialogInterface.OnClickListener() {
+                        .setNeutralButton(R.string.overwrite_existing_file_cancel, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                addUploadTask(account, repoName, repoID, targetDir, localPathList);
                                 if(isFinishActivity) {
                                     Log.d(DEBUG_TAG, "finish!");
                                     finish();
                                 }
                             }
-                        });
+                        })
+                        .setNegativeButton(R.string.overwrite_existing_file_duplicate_upload,
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        addUploadTask(account, repoName, repoID, targetDir, localPathList);
+                                        if (isFinishActivity) {
+                                            Log.d(DEBUG_TAG, "finish!");
+                                            finish();
+                                        }
+                                    }
+                                });
                 builder.show();
             } else {
                 // upload the file directly
