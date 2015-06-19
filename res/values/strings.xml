@@ -197,7 +197,6 @@
     <string name="copy_folder_ing">Copying folder</string>
     <string name="move_folder_ing">Moving folder</string>
     <string name="upload_started">Upload is started</string>
-    <string name="update_started">The file was replaced successfully</string>
     <string name="cannot_copy_folder_to_subfolder">You can\'t copy a folder to its subfolder</string>
     <string name="cannot_move_folder_to_subfolder">You can\'t move a folder to its subfolder</string>
     <string name="cancel">Cancel</string>
@@ -424,7 +423,4 @@
     <!-- Overwrite existing files -->
     <string name="overwrite_existing_file_title">Replace existing file</string>
     <string name="overwrite_existing_file_msg">The file already exist, do you want to replace it?</string>
-    <string name="overwrite_existing_file_replace">Yes</string>
-    <string name="overwrite_existing_file_cancel">Cancel</string>
-    <string name="overwrite_existing_file_duplicate_upload">No</string>
 </resources>
