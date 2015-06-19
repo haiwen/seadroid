@@ -151,7 +151,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
                             path, update, false);
                     Log.d(DEBUG_TAG, path + (update ? " updated" : " uploaded"));
                 }
-                ToastUtils.show(ShareToSeafileActivity.this, update ? R.string.update_started : R.string.upload_started);
+                ToastUtils.show(ShareToSeafileActivity.this, R.string.upload_started);
                 finish();
             }
 
@@ -245,7 +245,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
                 AlertDialog.Builder builder = new SeafileStyleDialogBuilder(this)
                         .setTitle(getString(R.string.overwrite_existing_file_title))
                         .setMessage(getString(R.string.overwrite_existing_file_msg))
-                        .setPositiveButton(R.string.overwrite_existing_file_replace, new DialogInterface.OnClickListener() {
+                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 addUpdateTask(account, repoName, repoID, targetDir, localPathList);
@@ -255,7 +255,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
                                 }
                             }
                         })
-                        .setNeutralButton(R.string.overwrite_existing_file_cancel, new DialogInterface.OnClickListener() {
+                        .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 if(isFinishActivity) {
@@ -264,7 +264,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
                                 }
                             }
                         })
-                        .setNegativeButton(R.string.overwrite_existing_file_duplicate_upload,
+                        .setNegativeButton(R.string.no,
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
