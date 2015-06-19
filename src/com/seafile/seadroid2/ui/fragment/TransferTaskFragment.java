@@ -255,6 +255,9 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
 
     }
 
+    /**
+     *  update state of context action bar
+     */
     public void updateCAB() {
         boolean itemsChecked = adapter.getCheckedItemCount() > 0;
 
