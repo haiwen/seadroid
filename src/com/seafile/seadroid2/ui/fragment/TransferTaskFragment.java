@@ -89,6 +89,9 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
      * select all items
      */
     private void selectItems() {
+        if (adapter == null)
+            return;
+
         adapter.selectAllItems();
         updateCAB();
 
@@ -98,6 +101,9 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
      * deselect all items
      */
     public void deselectItems() {
+        if (adapter == null)
+            return;
+
         adapter.deselectAllItems();
         updateCAB();
     }
@@ -250,9 +256,6 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
     }
 
     public void updateCAB() {
-        if (adapter == null)
-            return;
-
         boolean itemsChecked = adapter.getCheckedItemCount() > 0;
 
         Log.d(DEBUG_TAG, "itemsChecked "
