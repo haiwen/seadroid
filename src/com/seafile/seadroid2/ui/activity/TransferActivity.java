@@ -78,11 +78,13 @@ public class TransferActivity extends SherlockFragmentActivity {
                     // slide from Upload tab to Download tab,
                     // so hide the CAB of UploadTaskFragment
                     mode = getUploadTaskFragment().getActionMode();
+                    getUploadTaskFragment().deselectItems();
                 } else if(whichTab == TransferTaskAdapter.TaskType.UPLOAD_TASK
                         && getDownloadTaskFragment() != null) {
                     // slide from Download tab to Upload tab,
                     // so hide the CAB of DownloadTaskFragment
                     mode = getDownloadTaskFragment().getActionMode();
+                    getDownloadTaskFragment().deselectItems();
                 }
 
                 if (mode != null)
