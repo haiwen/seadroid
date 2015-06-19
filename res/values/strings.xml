@@ -360,7 +360,7 @@
 
     <!-- Transfer List -->
     <string name="transfer_list_network_error">Network connection error, please try again later!</string>
-    <string name="transfer_list_cancel_all">Cancel all running tasks</string>
+    <string name="transfer_list_cancel_all">Cancel all tasks</string>
     <string name="transfer_list_retry_failed_tasks">Retry failed tasks</string>
     <string name="transfer_list_restart_cancelled_tasks">Restart cancelled tasks</string>
     <string name="transfer_list_clear_failed_tasks">Clear failed tasks</string>
