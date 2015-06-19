@@ -300,6 +300,31 @@ public class TransferTaskAdapter extends BaseAdapter {
             viewHolder.icon.setImageResource(iconID);
             viewHolder.targetPath.setText(fullpath);
             viewHolder.fileName.setText(Utils.fileNameFromPath(taskInfo.localFilePath));
+            Log.d(DEBUG_TAG, "multi select btn checked " + mSelectedItemsIds.get(position));
+            if (mSelectedItemsIds.get(position)) {
+                viewHolder.multiSelectBtn.setImageResource(R.drawable.checkbox_checked);
+            } else if (actionModeStarted)
+                viewHolder.multiSelectBtn.setImageResource(R.drawable.checkbox_unchecked);
+            else
+                viewHolder.multiSelectBtn.setImageResource(R.drawable.btn_multiselect);
+
+            viewHolder.multiSelectBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d(DEBUG_TAG, "onClick >>> multi select btn checked " + mSelectedItemsIds.get(position));
+                    if (!mSelectedItemsIds.get(position)) {
+                        viewHolder.multiSelectBtn.setImageResource(R.drawable.checkbox_checked);
+                        mSelectedItemsIds.put(position, true);
+                        mSelectedItemsPositions.add(position);
+                    } else {
+                        viewHolder.multiSelectBtn.setImageResource(R.drawable.checkbox_unchecked);
+                        mSelectedItemsIds.delete(position);
+                        mSelectedItemsPositions.remove(Integer.valueOf(position));
+                    }
+
+                    mActivity.onItemSelected();
+                }
+            });
             updateTaskView(taskInfo, viewHolder);
         }
 
