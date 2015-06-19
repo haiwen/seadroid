@@ -97,7 +97,7 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
     /**
      * deselect all items
      */
-    private void deselectItems() {
+    public void deselectItems() {
         adapter.deselectAllItems();
         updateCAB();
     }
