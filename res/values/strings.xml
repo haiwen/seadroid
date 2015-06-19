@@ -374,8 +374,8 @@
     <string name="sort_files">Sort By</string>
     <array name="sort_files_options_array">
         <item>Name</item>
-        <item>Last Modified Time</item>
         <item>Name (Desc)</item>
+        <item>Last Modified Time</item>
         <item>Last Modified Time (Desc)</item>
     </array>
 
