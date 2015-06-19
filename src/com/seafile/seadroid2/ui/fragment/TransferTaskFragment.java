@@ -333,6 +333,12 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
 
         @Override
         public void onDestroyActionMode(ActionMode mode) {
+            if (adapter == null)
+                return;
+
+            adapter.deselectAllItems();
+            adapter.actionModeOff();
+
             // Here you can make any necessary updates to the activity when
             // the CAB is removed. By default, selected items are deselected/unchecked.
             mActionMode = null;
