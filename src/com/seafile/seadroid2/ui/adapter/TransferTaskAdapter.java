@@ -11,7 +11,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.TransferTaskInfo;
@@ -21,7 +20,6 @@ import com.seafile.seadroid2.util.Utils;
 
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -34,6 +32,8 @@ public class TransferTaskAdapter extends BaseAdapter {
     private SparseBooleanArray mSelectedItemsIds;
     private List<Integer> mSelectedItemsPositions = Lists.newArrayList();
     private List<? extends TransferTaskInfo> mTransferTaskInfos;
+    /** flag to mark if action mode was activated, used to update the state of multi selection buttons */
+    private boolean actionModeStarted;
     private TransferActivity mActivity;
     private TaskType mTransferTaskType;
     public enum TaskType {DOWNLOAD_TASK, UPLOAD_TASK}
@@ -213,6 +213,16 @@ public class TransferTaskAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    public void actionModeOn() {
+        actionModeStarted = true;
+        notifyDataSetChanged();
+    }
+
+    public void actionModeOff() {
+        actionModeStarted = false;
+        notifyDataSetChanged();
+    }
+
     public void deselectAllItems() {
         mSelectedItemsIds.clear();
         mSelectedItemsPositions.clear();
@@ -258,8 +268,10 @@ public class TransferTaskAdapter extends BaseAdapter {
             viewHolder.fileName.setText(Utils.fileNameFromPath(taskInfo.pathInRepo));
             Log.d(DEBUG_TAG, "multi select btn checked " + mSelectedItemsIds.get(position));
             if (mSelectedItemsIds.get(position)) {
-                viewHolder.multiSelectBtn.setImageResource(R.drawable.checkbox_checked2);
-            } else
+                viewHolder.multiSelectBtn.setImageResource(R.drawable.checkbox_checked);
+            } else if (actionModeStarted)
+                viewHolder.multiSelectBtn.setImageResource(R.drawable.checkbox_unchecked);
+            else
                 viewHolder.multiSelectBtn.setImageResource(R.drawable.btn_multiselect);
 
             viewHolder.multiSelectBtn.setOnClickListener(new View.OnClickListener() {
@@ -267,7 +279,7 @@ public class TransferTaskAdapter extends BaseAdapter {
                 public void onClick(View v) {
                     Log.d(DEBUG_TAG, "onClick >>> multi select btn checked " + mSelectedItemsIds.get(position));
                     if (!mSelectedItemsIds.get(position)) {
-                        viewHolder.multiSelectBtn.setImageResource(R.drawable.checkbox_checked2);
+                        viewHolder.multiSelectBtn.setImageResource(R.drawable.checkbox_checked);
                         mSelectedItemsIds.put(position, true);
                         mSelectedItemsPositions.add(position);
                     } else {

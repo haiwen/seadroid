@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
-import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -229,12 +228,15 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
                 + " getCheckedItemCount "
                 + adapter.getCheckedItemCount());
 
-        if (itemsChecked && mActionMode == null)
+        if (itemsChecked && mActionMode == null) {
             // there are some selected items, start the actionMode
             mActionMode = getSherlockActivity().startActionMode(new ActionModeCallback());
-        else if (!itemsChecked && mActionMode != null)
+            adapter.actionModeOn();
+        } else if (!itemsChecked && mActionMode != null) {
             // there no selected items, finish the actionMode
             mActionMode.finish();
+            adapter.actionModeOff();
+        }
 
 
         if (mActionMode != null) {
@@ -258,12 +260,15 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
                 + " getCheckedItemCount "
                 + adapter.getCheckedItemCount());
 
-        if (itemsChecked && mActionMode == null)
+        if (itemsChecked && mActionMode == null) {
             // there are some selected items, start the actionMode
             mActionMode = getSherlockActivity().startActionMode(new ActionModeCallback());
-        else if (!itemsChecked && mActionMode != null)
+            adapter.actionModeOn();
+        } else if (!itemsChecked && mActionMode != null) {
             // there no selected items, finish the actionMode
             mActionMode.finish();
+            adapter.actionModeOff();
+        }
 
 
         if (mActionMode != null) {
