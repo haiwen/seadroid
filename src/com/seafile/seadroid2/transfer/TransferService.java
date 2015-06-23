@@ -150,8 +150,8 @@ public class TransferService extends Service {
     /**
      * remove all upload tasks by their taskIds.
      *
-     * Note: when deleting all transferring tasks in the queue,
-     * other tasks left will never be executed, because they are all in the waiting state.
+     * Note: when deleting all tasks whose state is {@link com.seafile.seadroid2.transfer.TaskState#TRANSFERRING} in the queue,
+     * other tasks left will never be executed, because they are all in the {@link com.seafile.seadroid2.transfer.TaskState#INIT} state.
      * In this case, explicitly call doNext to start processing the queue.
      *
      * @param ids
@@ -207,8 +207,8 @@ public class TransferService extends Service {
     /**
      * remove all download tasks by their taskIds.
      *
-     * Note: when deleting all transferring tasks in the queue,
-     * other tasks left will never be executed, because they are all in the waiting state.
+     * Note: when deleting all tasks whose state is {@link com.seafile.seadroid2.transfer.TaskState#TRANSFERRING} in the queue,
+     * other tasks left will never be executed, because they are all in the {@link com.seafile.seadroid2.transfer.TaskState#INIT} state.
      * In this case, explicitly call doNext to start processing the queue.
      *
      * @param ids
