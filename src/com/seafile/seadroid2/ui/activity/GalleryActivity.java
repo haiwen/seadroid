@@ -2,6 +2,7 @@ package com.seafile.seadroid2.ui.activity;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.View;
@@ -57,6 +58,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
     private String repoID;
     private String dirPath;
     private String fileName;
+    private String STATE_FILE_NAME;
     private SeafDirent currentDirent;
     private int mPageIndex;
     private GalleryAdapter mGalleryAdapter;
@@ -115,6 +117,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
                 if (mThumbLinkAndSeafDirentMap.containsKey(linkKey)) {
                     currentDirent = mThumbLinkAndSeafDirentMap.get(linkKey);
                     mPageNameTextView.setText(currentDirent.name);
+                    fileName = currentDirent.name;
                 }
             }
 
@@ -138,6 +141,28 @@ public class GalleryActivity extends SherlockFragmentActivity {
         dataMgr = new DataManager(mAccount);
 
         showGallery(repoName, repoID, dirPath, fileName);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        // Save the current image file name
+        savedInstanceState.putString(STATE_FILE_NAME, fileName);
+        // Log.d(DEBUG_TAG, "onSaveInstanceState " + fileName);
+
+        // Always call the superclass so it can save the view hierarchy state
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        // Always call the superclass so it can restore the view hierarchy
+        super.onRestoreInstanceState(savedInstanceState);
+
+        // Restore state members from saved instance
+        fileName = savedInstanceState.getString(STATE_FILE_NAME);
+
+        // Log.d(DEBUG_TAG, "onRestoreInstanceState " + fileName);
+        navToSelectedPage();
     }
 
     private void showGallery(String repoName, String repoID, String dirPath, String fileName) {
@@ -407,6 +432,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
             currentDirent = mThumbLinkAndSeafDirentMap.get(linkKey);
             // update file name in gallery view
             mPageNameTextView.setText(currentDirent.name);
+            fileName = currentDirent.name;
         }
 
     }
