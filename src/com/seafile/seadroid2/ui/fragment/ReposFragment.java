@@ -98,7 +98,7 @@ public class ReposFragment extends SherlockListFragment {
         mProgressContainer = root.findViewById(R.id.progressContainer);
 
         // Set a listener to be invoked when the list should be refreshed.
-        /*mPullRefreshListView.setOnRefreshListener(new PullToRefreshListView.OnRefreshListener() {
+        mPullRefreshListView.setOnRefreshListener(new ActionSlideExpandableListView.OnRefreshListener() {
 
             @Override
             public void onRefresh() {
@@ -106,7 +106,7 @@ public class ReposFragment extends SherlockListFragment {
                 refreshView(true);
 
             }
-        });*/
+        });
 
         return root;
     }
@@ -224,7 +224,7 @@ public class ReposFragment extends SherlockListFragment {
         mPullToRefreshStopRefreshing ++;
 
         if (mPullToRefreshStopRefreshing >1) {
-//            mPullRefreshListView.onRefreshComplete();
+            mPullRefreshListView.onRefreshComplete();
             mPullToRefreshStopRefreshing = 0;
         }
 
@@ -233,7 +233,7 @@ public class ReposFragment extends SherlockListFragment {
             List<SeafRepo> repos = getDataManager().getReposFromCache();
             if (repos != null) {
                 if (mRefreshType == REFRESH_ON_PULL) {
-//                    mPullRefreshListView.onRefreshComplete();
+                    mPullRefreshListView.onRefreshComplete();
                     mPullToRefreshStopRefreshing = 0;
                 }
 
@@ -251,7 +251,7 @@ public class ReposFragment extends SherlockListFragment {
         mPullToRefreshStopRefreshing ++;
 
         if (mPullToRefreshStopRefreshing > 1) {
-//            mPullRefreshListView.onRefreshComplete();
+            mPullRefreshListView.onRefreshComplete();
             mPullToRefreshStopRefreshing = 0;
         }
 
@@ -277,7 +277,7 @@ public class ReposFragment extends SherlockListFragment {
                     nav.getRepoID(), nav.getDirPath());
             if (dirents != null) {
                 if (mRefreshType == REFRESH_ON_PULL) {
-//                    mPullRefreshListView.onRefreshComplete();
+                    mPullRefreshListView.onRefreshComplete();
                     mPullToRefreshStopRefreshing = 0;
                 }
 
@@ -539,7 +539,7 @@ public class ReposFragment extends SherlockListFragment {
                 showLoading(false);
             } else if (mRefreshType == REFRESH_ON_PULL) {
                 String lastUpdate = getDataManager().getLastPullToRefreshTime(DataManager.PULL_TO_REFRESH_LAST_TIME_FOR_REPOS_FRAGMENT);
-//                mPullRefreshListView.onRefreshComplete(lastUpdate);
+                mPullRefreshListView.onRefreshComplete(lastUpdate);
                 getDataManager().saveLastPullToRefreshTime(System.currentTimeMillis(), DataManager.PULL_TO_REFRESH_LAST_TIME_FOR_REPOS_FRAGMENT);
                 mPullToRefreshStopRefreshing = 0;
             }
@@ -705,7 +705,7 @@ public class ReposFragment extends SherlockListFragment {
                 showLoading(false);
             } else if (mRefreshType == REFRESH_ON_PULL) {
                 String lastUpdate = getDataManager().getLastPullToRefreshTime(DataManager.PULL_TO_REFRESH_LAST_TIME_FOR_REPOS_FRAGMENT);
-//                mPullRefreshListView.onRefreshComplete(lastUpdate);
+                mPullRefreshListView.onRefreshComplete(lastUpdate);
                 getDataManager().saveLastPullToRefreshTime(System.currentTimeMillis(), DataManager.PULL_TO_REFRESH_LAST_TIME_FOR_REPOS_FRAGMENT);
                 mPullToRefreshStopRefreshing = 0;
             }
