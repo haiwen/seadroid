@@ -89,6 +89,7 @@
                 android:paddingLeft="@dimen/lv_expandable_item_padding"
                 android:paddingRight="@dimen/lv_expandable_item_padding"
                 android:id="@+id/expandable"
+                android:visibility="gone"
                 android:background="@color/grey">
 
                 <LinearLayout
