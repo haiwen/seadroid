@@ -137,22 +137,23 @@ public class ReposFragment extends SherlockListFragment {
                  * different action.
                  */
                 String actionName = "";
-                if (buttonview.getId() == R.id.action_copy_btn) {
-                    actionName = "Copy";
-                } else if (buttonview.getId() == R.id.action_move_btn) {
-                    actionName = "Move";
+                if (buttonview.getId() == R.id.action_share_btn) {
+                    actionName = getActivity().getString(R.string.file_action_share);
+                } else if (buttonview.getId() == R.id.action_delete_btn) {
+                    actionName = getActivity().getString(R.string.file_action_delete);
+                } else if (buttonview.getId() == R.id.action_rename_btn) {
+                    actionName = getActivity().getString(R.string.file_action_rename);
+                } else if (buttonview.getId() == R.id.action_export_btn) {
+                    actionName = getActivity().getString(R.string.file_action_export);
+                } else if (buttonview.getId() == R.id.action_more_btn) {
+                    actionName = getActivity().getString(R.string.file_action_more);
                 }
-                /**
-                 * For testing sake we just show a toast
-                 */
-                Toast.makeText(
-                        getActivity(),
-                        "Clicked Action: " + actionName + " in list item " + position,
-                        Toast.LENGTH_SHORT
-                ).show();
+
+                // For testing sake we just show a toast
+                ToastUtils.show(getActivity(), "Clicked Action: " + actionName + " in list item " + position);
 
             }
-        }, R.id.action_copy_btn, R.id.action_move_btn);
+        }, R.id.action_share_btn, R.id.action_delete_btn, R.id.action_rename_btn, R.id.action_export_btn, R.id.action_more_btn);
         //getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
     }
 

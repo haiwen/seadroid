@@ -87,85 +87,14 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:padding="@dimen/lv_item_padding"
                 android:id="@+id/expandable"
                 android:background="@color/grey">
-                <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0.125"
-                        android:orientation="vertical">
-
-                        <ImageView
-                                android:id="@+id/action_copy_btn"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:src="@drawable/action_copy"/>
-                        <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/white"
-                                android:text="@string/file_action_copy"/>
-                </LinearLayout>
 
                 <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="0.125"
-                        android:orientation="vertical">
-
-                        <ImageView
-                                android:id="@+id/action_move_btn"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:src="@drawable/action_move"/>
-                        <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/white"
-                                android:text="@string/file_action_move"/>
-                </LinearLayout>
-
-                <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0.125"
-                        android:orientation="vertical">
-
-                        <ImageView
-                                android:id="@+id/action_star_btn"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:src="@drawable/action_star"/>
-
-                        <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/white"
-                                android:text="@string/file_action_star"/>
-                </LinearLayout>
-
-                <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0.125"
-                        android:orientation="vertical">
-
-                        <ImageView
-                                android:id="@+id/action_download_btn"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:src="@drawable/action_download"/>
-                        <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/white"
-                                android:text="@string/file_action_download"/>
-                </LinearLayout>
-
-                <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0.125"
+                        android:layout_weight="0.2"
                         android:orientation="vertical">
 
                         <ImageView
@@ -183,25 +112,43 @@
                 <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="0.125"
+                        android:layout_weight="0.2"
                         android:orientation="vertical">
 
                         <ImageView
-                                android:id="@+id/action_update_btn"
+                                android:id="@+id/action_delete_btn"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:src="@drawable/action_update"/>
+                                android:src="@drawable/action_delete"/>
                         <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="@color/white"
-                                android:text="@string/file_action_update"/>
+                                android:text="@string/file_action_delete"/>
                 </LinearLayout>
 
                 <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="0.125"
+                        android:layout_weight="0.2"
+                        android:orientation="vertical">
+
+                        <ImageView
+                                android:id="@+id/action_rename_btn"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:src="@drawable/action_rename"/>
+                        <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/white"
+                                android:text="@string/file_action_rename"/>
+                </LinearLayout>
+
+                <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.2"
                         android:orientation="vertical">
 
                         <ImageView
@@ -219,22 +166,20 @@
                 <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="0.125"
+                        android:layout_weight="0.2"
                         android:orientation="vertical">
 
                         <ImageView
                                 android:id="@+id/action_more_btn"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:src="@drawable/ic_action_overflow"/>
+                                android:src="@drawable/action_more"/>
                         <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="@color/white"
-                                android:text="@string/file_action_rename"/>
+                                android:text="@string/file_action_more"/>
                 </LinearLayout>
-
-
 
         </LinearLayout>
 </LinearLayout>
