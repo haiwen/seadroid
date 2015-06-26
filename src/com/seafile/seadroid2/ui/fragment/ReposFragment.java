@@ -146,6 +146,12 @@ public class ReposFragment extends SherlockListFragment {
                     case R.id.action_delete_btn:
                         mActivity.deleteFile(repoID, repoName, path);
                         break;
+                    case R.id.action_copy_btn:
+                        mActivity.copyFile(repoID, repoName, dir, filename, false);
+                        break;
+                    case R.id.action_move_btn:
+                        mActivity.moveFile(repoID, repoName, dir, filename, false);
+                        break;
                     case R.id.action_rename_btn:
                        mActivity.renameFile(repoID, repoName, path);
                         break;
@@ -160,6 +166,8 @@ public class ReposFragment extends SherlockListFragment {
         },
                 R.id.action_share_btn,
                 R.id.action_delete_btn,
+                R.id.action_copy_btn,
+                R.id.action_move_btn,
                 R.id.action_rename_btn,
                 R.id.action_export_btn,
                 R.id.action_more_btn);
