@@ -94,6 +94,7 @@
                 android:background="@color/grey">
 
                 <LinearLayout
+                        android:id="@+id/action_share_ll"
                         android:layout_width="@dimen/lv_expandable_element_width"
                         android:layout_height="@dimen/lv_expandable_element_height"
                         android:layout_weight="0.2"
@@ -119,6 +120,7 @@
                       android:background="@color/light_white"/>
 
                 <LinearLayout
+                        android:id="@+id/action_delete_ll"
                         android:layout_width="@dimen/lv_expandable_element_width"
                         android:layout_height="@dimen/lv_expandable_element_height"
                         android:layout_weight="0.2"
@@ -144,6 +146,7 @@
                       android:background="@color/light_white"/>
 
                 <LinearLayout
+                        android:id="@+id/action_rename_ll"
                         android:layout_width="@dimen/lv_expandable_element_width"
                         android:layout_height="@dimen/lv_expandable_element_height"
                         android:layout_weight="0.2"
@@ -169,6 +172,7 @@
                       android:background="@color/light_white"/>
 
                 <LinearLayout
+                        android:id="@+id/action_export_ll"
                         android:layout_width="@dimen/lv_expandable_element_width"
                         android:layout_height="@dimen/lv_expandable_element_height"
                         android:layout_weight="0.2"
@@ -194,6 +198,7 @@
                       android:background="@color/light_white"/>
 
                 <LinearLayout
+                        android:id="@+id/action_more_ll"
                         android:layout_width="@dimen/lv_expandable_element_width"
                         android:layout_height="@dimen/lv_expandable_element_height"
                         android:layout_weight="0.2"
@@ -212,6 +217,58 @@
                                 android:textColor="@color/white"
                                 android:textSize="@dimen/lv_expandable_txt_size"
                                 android:text="@string/file_action_more"/>
+                </LinearLayout>
+
+                <View android:layout_width="1dp"
+                      android:layout_height="@dimen/lv_expandable_item_divider_height"
+                      android:background="@color/light_white"/>
+
+                <LinearLayout
+                        android:id="@+id/action_copy_ll"
+                        android:layout_width="@dimen/lv_expandable_element_width"
+                        android:layout_height="@dimen/lv_expandable_element_height"
+                        android:layout_weight="0.2"
+                        android:orientation="vertical">
+
+                        <ImageView
+                                android:id="@+id/action_copy_btn"
+                                android:layout_width="@dimen/lv_expandable_icon_width"
+                                android:layout_height="@dimen/lv_expandable_icon_height"
+                                android:layout_gravity="center_horizontal"
+                                android:src="@drawable/action_copy"/>
+                        <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center_horizontal"
+                                android:textColor="@color/white"
+                                android:textSize="@dimen/lv_expandable_txt_size"
+                                android:text="@string/file_action_copy"/>
+                </LinearLayout>
+
+                <View android:layout_width="1dp"
+                      android:layout_height="@dimen/lv_expandable_item_divider_height"
+                      android:background="@color/light_white"/>
+
+                <LinearLayout
+                        android:id="@+id/action_move_ll"
+                        android:layout_width="@dimen/lv_expandable_element_width"
+                        android:layout_height="@dimen/lv_expandable_element_height"
+                        android:layout_weight="0.2"
+                        android:orientation="vertical">
+
+                        <ImageView
+                                android:id="@+id/action_move_btn"
+                                android:layout_width="@dimen/lv_expandable_icon_width"
+                                android:layout_height="@dimen/lv_expandable_icon_height"
+                                android:layout_gravity="center_horizontal"
+                                android:src="@drawable/action_move"/>
+                        <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center_horizontal"
+                                android:textColor="@color/white"
+                                android:textSize="@dimen/lv_expandable_txt_size"
+                                android:text="@string/file_action_move"/>
                 </LinearLayout>
 
         </LinearLayout>
