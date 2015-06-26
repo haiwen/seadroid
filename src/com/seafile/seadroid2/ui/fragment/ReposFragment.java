@@ -141,24 +141,31 @@ public class ReposFragment extends SherlockListFragment {
 
                 switch (buttonview.getId()) {
                     case R.id.action_share_btn:
+                        mPullRefreshListView.collapse();
                         mActivity.shareFile(repoID, path);
                         break;
                     case R.id.action_delete_btn:
+                        mPullRefreshListView.collapse();
                         mActivity.deleteFile(repoID, repoName, path);
                         break;
                     case R.id.action_copy_btn:
+                        mPullRefreshListView.collapse();
                         mActivity.copyFile(repoID, repoName, dir, filename, false);
                         break;
                     case R.id.action_move_btn:
+                        mPullRefreshListView.collapse();
                         mActivity.moveFile(repoID, repoName, dir, filename, false);
                         break;
                     case R.id.action_rename_btn:
+                        mPullRefreshListView.collapse();
                        mActivity.renameFile(repoID, repoName, path);
                         break;
                     case R.id.action_export_btn:
+                        mPullRefreshListView.collapse();
                         mActivity.exportFile(dirent.name);
                         break;
                     case R.id.action_more_btn:
+                        mPullRefreshListView.collapse();
                         processMoreOptions(repoID, repoName, dir, filename, dirent, localPath);
                         break;
                 }
@@ -431,6 +438,8 @@ public class ReposFragment extends SherlockListFragment {
             mEmptyView.setText(R.string.no_repo);
             mEmptyView.setVisibility(View.VISIBLE);
         }
+        // Collapses the currently open view
+        mPullRefreshListView.collapse();
     }
 
     private void updateAdapterWithDirents(final List<SeafDirent> dirents) {
@@ -455,6 +464,8 @@ public class ReposFragment extends SherlockListFragment {
             mEmptyView.setText(R.string.dir_empty);
             mEmptyView.setVisibility(View.VISIBLE);
         }
+        // Collapses the currently open view
+        mPullRefreshListView.collapse();
     }
 
     @Override
