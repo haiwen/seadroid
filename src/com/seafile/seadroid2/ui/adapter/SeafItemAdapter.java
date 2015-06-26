@@ -1,22 +1,9 @@
 package com.seafile.seadroid2.ui.adapter;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import android.widget.*;
-import com.seafile.seadroid2.ui.AnimateFirstDisplayListener;
-import net.londatiga.android.ActionItem;
-import net.londatiga.android.QuickAction;
-import android.content.res.Resources;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.widget.*;
 import com.google.common.collect.Lists;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -29,11 +16,11 @@ import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.ui.AnimateFirstDisplayListener;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.util.Utils;
-import net.londatiga.android.ActionItem;
-import net.londatiga.android.QuickAction;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class SeafItemAdapter extends BaseAdapter {
 
@@ -243,7 +230,12 @@ public class SeafItemAdapter extends BaseAdapter {
             viewHolder.renameView.setVisibility(View.GONE);
             viewHolder.exportView.setVisibility(View.GONE);
             viewHolder.moreView.setVisibility(View.GONE);
-            setDirAction(dirent, viewHolder, position);
+
+            if (repoIsEncrypted) {
+                viewHolder.action.setVisibility(View.GONE);
+            }
+            viewHolder.action.setImageResource(R.drawable.spinner);
+            viewHolder.action.setVisibility(View.VISIBLE);
         } else {
             viewHolder.downloadStatusIcon.setVisibility(View.GONE);
 
@@ -255,6 +247,10 @@ public class SeafItemAdapter extends BaseAdapter {
 
             viewHolder.copyView.setVisibility(View.GONE);
             viewHolder.moveView.setVisibility(View.GONE);
+
+            viewHolder.action.setImageResource(R.drawable.spinner);
+            viewHolder.action.setVisibility(View.VISIBLE);
+
             setFileView(dirent, viewHolder, position);
         }
 
@@ -363,7 +359,6 @@ public class SeafItemAdapter extends BaseAdapter {
             viewHolder.icon.setImageResource(dirent.getIcon());
         }
 
-        setFileAction(dirent, viewHolder, position, cacheExists);
     }
 
     private View getCacheView(SeafCachedFile item, View convertView, ViewGroup parent) {
@@ -455,183 +450,6 @@ public class SeafItemAdapter extends BaseAdapter {
             this.renameView = renameView;
             this.exportView = exportView;
         }
-    }
-
-    private void setFileAction(SeafDirent dirent, Viewholder viewHolder,
-            final int position, final boolean cacheExists) {
-
-        viewHolder.action.setImageResource(R.drawable.spinner);
-        viewHolder.action.setVisibility(View.VISIBLE);
-    }
-
-    private void setDirAction(SeafDirent dirent, Viewholder viewHolder, final int position) {
-        if (repoIsEncrypted) {
-            viewHolder.action.setVisibility(View.GONE);
-            return;
-        }
-        viewHolder.action.setImageResource(R.drawable.spinner);
-        viewHolder.action.setVisibility(View.VISIBLE);
-    }
-
-    private QuickAction prepareFileAction(final SeafDirent dirent, boolean cacheExists) {
-        final QuickAction mQuickAction = new QuickAction(mActivity);
-        Resources resources = mActivity.getResources();
-        ActionItem shareAction, downloadAction, updateAction, exportAction, renameAction, deleteAction,
-               copyAction, moveAction, starAction;
-
-        if (!repoIsEncrypted) {
-            shareAction = new ActionItem(ACTION_ID_SHARE,
-                    resources.getString(R.string.file_action_share),
-                    resources.getDrawable(R.drawable.action_share));
-            mQuickAction.addActionItem(shareAction);
-        }
-
-        deleteAction = new ActionItem(ACTION_ID_DELETE,
-                resources.getString(R.string.file_action_delete),
-                resources.getDrawable(R.drawable.action_delete));
-        mQuickAction.addActionItem(deleteAction);
-
-        renameAction = new ActionItem(ACTION_ID_RENAME,
-                resources.getString(R.string.file_action_rename),
-                resources.getDrawable(R.drawable.action_rename));
-        mQuickAction.addActionItem(renameAction);
-
-        exportAction = new ActionItem(ACTION_ID_EXPORT,
-                resources.getString(R.string.file_action_export),
-                resources.getDrawable(R.drawable.action_export));
-        mQuickAction.addActionItem(exportAction);
-        
-        copyAction = new ActionItem(ACTION_ID_COPY,
-                resources.getString(R.string.file_action_copy),
-                resources.getDrawable(R.drawable.action_copy));
-        mQuickAction.addActionItem(copyAction);
-        
-        moveAction = new ActionItem(ACTION_ID_MOVE,
-                resources.getString(R.string.file_action_move),
-                resources.getDrawable(R.drawable.action_move));
-        mQuickAction.addActionItem(moveAction);
-
-        if (cacheExists) {
-            if (mActivity.hasRepoWritePermission()) {
-                updateAction = new ActionItem(ACTION_ID_UPDATE,
-                        resources.getString(R.string.file_action_update),
-                        resources.getDrawable(R.drawable.action_update));
-                mQuickAction.addActionItem(updateAction);
-            }
-
-        } else {
-            downloadAction = new ActionItem(ACTION_ID_DOWNLOAD,
-                    resources.getString(R.string.file_action_download),
-                    resources.getDrawable(R.drawable.action_download));
-            mQuickAction.addActionItem(downloadAction);
-        }
-
-        starAction = new ActionItem(ACTION_ID_STAR,
-                resources.getString(R.string.file_action_star),
-                resources.getDrawable(R.drawable.action_star));
-        mQuickAction.addActionItem(starAction);
-
-        //setup the action item click listener
-        mQuickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
-            @Override
-            public void onItemClick(QuickAction quickAction, int pos, int actionId) {
-                NavContext nav = mActivity.getNavContext();
-                String repoName = nav.getRepoName();
-                String repoID = nav.getRepoID();
-                String dir = nav.getDirPath();
-                String path = Utils.pathJoin(dir, dirent.name);
-                String filename = dirent.name;
-                DataManager dataManager = mActivity.getDataManager();
-                String localPath = dataManager.getLocalRepoFile(repoName, repoID, path).getPath();
-                switch (actionId) {
-                case ACTION_ID_SHARE:
-                    mActivity.shareFile(repoID, path);
-                    break;
-                case ACTION_ID_EXPORT:
-                    mActivity.exportFile(dirent.name);
-                    break;
-                case ACTION_ID_DOWNLOAD:
-                    mActivity.onFileSelected(dirent);
-                    break;
-                case ACTION_ID_UPDATE:
-                    mActivity.addUpdateTask(repoID, repoName, dir, localPath);
-                    break;
-                case ACTION_ID_RENAME:
-                    mActivity.renameFile(repoID, repoName, path);
-                    break;
-                case ACTION_ID_DELETE:
-                    mActivity.deleteFile(repoID, repoName, path);
-                    break;
-                case ACTION_ID_COPY:
-                    mActivity.copyFile(repoID, repoName, dir, filename, false);
-                    break;
-                case ACTION_ID_MOVE:
-                    mActivity.moveFile(repoID, repoName, dir, filename, false);
-                    break;
-                case ACTION_ID_STAR:
-                    mActivity.starFile(repoID, dir, filename);
-                    break;
-                }
-            }
-        });
-
-        mQuickAction.mAnimateTrack(false);
-        return mQuickAction;
-    }
-
-    private QuickAction prepareDirAction(final SeafDirent dirent) {
-        final QuickAction mQuickAction = new QuickAction(mActivity);
-        Resources resources = mActivity.getResources();
-        ActionItem shareAction, deleteAction, moveAction, copyAction;
-        shareAction = new ActionItem(ACTION_ID_SHARE,
-                resources.getString(R.string.file_action_share),
-                resources.getDrawable(R.drawable.action_share));
-        mQuickAction.addActionItem(shareAction);
-
-        deleteAction = new ActionItem(ACTION_ID_DELETE,
-                resources.getString(R.string.file_action_delete),
-                resources.getDrawable(R.drawable.action_delete));
-        mQuickAction.addActionItem(deleteAction);
-        
-        copyAction = new ActionItem(ACTION_ID_COPY,
-                resources.getString(R.string.file_action_copy),
-                resources.getDrawable(R.drawable.action_copy));
-        mQuickAction.addActionItem(copyAction);
-        
-        moveAction = new ActionItem(ACTION_ID_MOVE,
-                resources.getString(R.string.file_action_move),
-                resources.getDrawable(R.drawable.action_move));
-        mQuickAction.addActionItem(moveAction);
-        
-        //setup the action item click listener
-        mQuickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
-            @Override
-            public void onItemClick(QuickAction quickAction, int pos, int actionId) {
-                NavContext nav = mActivity.getNavContext();
-                String repoName = nav.getRepoName();
-                String repoID = nav.getRepoID();
-                String dir = nav.getDirPath();
-                String path = Utils.pathJoin(dir, dirent.name);
-                String filename = dirent.name;
-                switch (actionId) {
-                case ACTION_ID_SHARE:
-                    mActivity.shareDir(repoID, path);
-                    break;
-                case ACTION_ID_DELETE:
-                    mActivity.deleteDir(repoID, repoName, path);
-                    break;
-                case ACTION_ID_COPY:
-                    mActivity.copyFile(repoID, repoName, dir, filename, true);
-                    break;
-                case ACTION_ID_MOVE:
-                    mActivity.moveFile(repoID, repoName, dir, filename, true);
-                    break;
-                }
-            }
-        });
-
-        mQuickAction.mAnimateTrack(false);
-        return mQuickAction;
     }
 
     private int getThumbnailWidth() {
