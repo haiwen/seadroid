@@ -48,7 +48,6 @@
                         android:layout_height="@dimen/lv_download_icon_height"
                         android:visibility="gone"
                         android:layout_alignParentLeft="true"
-                        android:layout_alignParentBottom="true"
                         android:contentDescription="@null"
                         android:layout_marginLeft="@dimen/lv_download_icon_margin_left"
                         android:layout_marginRight="@dimen/lv_download_icon_margin_right"

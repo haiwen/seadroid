@@ -5,7 +5,7 @@
               android:orientation="vertical">
     <RelativeLayout
             android:layout_width="fill_parent"
-            android:layout_height="20dp"
+            android:layout_height="40dp"
             android:padding="10dp">
 
         <TextView
@@ -24,58 +24,134 @@
     </RelativeLayout>
     <LinearLayout
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/lv_expandable_item_height"
             android:orientation="horizontal"
+            android:paddingTop="@dimen/lv_expandable_item_padding"
+            android:paddingLeft="@dimen/lv_expandable_item_padding"
+            android:paddingRight="@dimen/lv_expandable_item_padding"
             android:id="@+id/expandable"
-            android:background="#000000">
-        <ImageView
-                android:id="@+id/action_copy_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.125"
-                android:src="@drawable/action_copy"/>
-        <ImageView
-                android:id="@+id/action_move_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.125"
-                android:src="@drawable/action_move"/>
-        <ImageView
-                android:id="@+id/action_star_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.125"
-                android:src="@drawable/action_star"/>
-        <ImageView
-                android:id="@+id/action_download_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.125"
-                android:src="@drawable/action_download"/>
-        <ImageView
-                android:id="@+id/action_share_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.125"
-                android:src="@drawable/action_share"/>
-        <ImageView
-                android:id="@+id/action_update_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.125"
-                android:src="@drawable/action_update"/>
-        <ImageView
-                android:id="@+id/action_export_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.125"
-                android:src="@drawable/action_export"/>
-        <ImageView
-                android:id="@+id/action_more_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.125"
-                android:src="@drawable/ic_action_overflow"/>
+            android:background="@color/grey">
+
+        <LinearLayout
+                android:layout_width="@dimen/lv_expandable_element_width"
+                android:layout_height="@dimen/lv_expandable_element_height"
+                android:layout_weight="0.2"
+                android:orientation="vertical">
+
+            <ImageView
+                    android:id="@+id/action_share_btn"
+                    android:layout_width="@dimen/lv_expandable_icon_width"
+                    android:layout_height="@dimen/lv_expandable_icon_height"
+                    android:layout_gravity="center_horizontal"
+                    android:src="@drawable/action_share"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/lv_expandable_txt_size"
+                    android:text="@string/file_action_share"/>
+        </LinearLayout>
+
+        <View android:layout_width="1dp"
+              android:layout_height="@dimen/lv_expandable_item_divider_height"
+              android:background="@color/light_white"/>
+
+        <LinearLayout
+                android:layout_width="@dimen/lv_expandable_element_width"
+                android:layout_height="@dimen/lv_expandable_element_height"
+                android:layout_weight="0.2"
+                android:orientation="vertical">
+
+            <ImageView
+                    android:id="@+id/action_delete_btn"
+                    android:layout_width="@dimen/lv_expandable_icon_width"
+                    android:layout_height="@dimen/lv_expandable_icon_height"
+                    android:layout_gravity="center_horizontal"
+                    android:src="@drawable/action_delete"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/lv_expandable_txt_size"
+                    android:text="@string/file_action_delete"/>
+        </LinearLayout>
+
+        <View android:layout_width="1dp"
+              android:layout_height="@dimen/lv_expandable_item_divider_height"
+              android:background="@color/light_white"/>
+
+        <LinearLayout
+                android:layout_width="@dimen/lv_expandable_element_width"
+                android:layout_height="@dimen/lv_expandable_element_height"
+                android:layout_weight="0.2"
+                android:orientation="vertical">
+
+            <ImageView
+                    android:id="@+id/action_rename_btn"
+                    android:layout_width="@dimen/lv_expandable_icon_width"
+                    android:layout_height="@dimen/lv_expandable_icon_height"
+                    android:layout_gravity="center_horizontal"
+                    android:src="@drawable/action_rename"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/lv_expandable_txt_size"
+                    android:text="@string/file_action_rename"/>
+        </LinearLayout>
+
+        <View android:layout_width="1dp"
+              android:layout_height="@dimen/lv_expandable_item_divider_height"
+              android:background="@color/light_white"/>
+
+        <LinearLayout
+                android:layout_width="@dimen/lv_expandable_element_width"
+                android:layout_height="@dimen/lv_expandable_element_height"
+                android:layout_weight="0.2"
+                android:orientation="vertical">
+
+            <ImageView
+                    android:id="@+id/action_export_btn"
+                    android:layout_width="@dimen/lv_expandable_icon_width"
+                    android:layout_height="@dimen/lv_expandable_icon_height"
+                    android:layout_gravity="center_horizontal"
+                    android:src="@drawable/action_export"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/lv_expandable_txt_size"
+                    android:text="@string/file_action_export"/>
+        </LinearLayout>
+
+        <View android:layout_width="1dp"
+              android:layout_height="@dimen/lv_expandable_item_divider_height"
+              android:background="@color/light_white"/>
+
+        <LinearLayout
+                android:layout_width="@dimen/lv_expandable_element_width"
+                android:layout_height="@dimen/lv_expandable_element_height"
+                android:layout_weight="0.2"
+                android:orientation="vertical">
+
+            <ImageView
+                    android:id="@+id/action_more_btn"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_width="@dimen/lv_expandable_icon_width"
+                    android:layout_height="@dimen/lv_expandable_icon_height"
+                    android:src="@drawable/action_more"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/lv_expandable_txt_size"
+                    android:text="@string/file_action_more"/>
+        </LinearLayout>
 
     </LinearLayout>
 </LinearLayout>
