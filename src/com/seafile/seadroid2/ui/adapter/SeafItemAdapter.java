@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.widget.ProgressBar;
+import android.widget.*;
 import com.seafile.seadroid2.ui.AnimateFirstDisplayListener;
 import net.londatiga.android.ActionItem;
 import net.londatiga.android.QuickAction;
@@ -173,7 +173,14 @@ public class SeafItemAdapter extends BaseAdapter {
             ImageView action = (ImageView) view.findViewById(R.id.list_item_action);
             ImageView downloadStatusIcon = (ImageView) view.findViewById(R.id.list_item_download_status_icon);
             ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.list_item_download_status_progressbar);
-            viewHolder = new Viewholder(title, subtitle, icon, action, downloadStatusIcon, progressBar);
+            LinearLayout shareView = (LinearLayout) view.findViewById(R.id.action_share_ll);
+            LinearLayout deleteView = (LinearLayout) view.findViewById(R.id.action_delete_ll);
+            LinearLayout copyView = (LinearLayout) view.findViewById(R.id.action_copy_ll);
+            LinearLayout moveView = (LinearLayout) view.findViewById(R.id.action_move_ll);
+            LinearLayout renameView = (LinearLayout) view.findViewById(R.id.action_rename_ll);
+            LinearLayout exportView = (LinearLayout) view.findViewById(R.id.action_export_ll);
+            LinearLayout moreView = (LinearLayout) view.findViewById(R.id.action_more_ll);
+            viewHolder = new Viewholder(title, subtitle, icon, action, downloadStatusIcon, progressBar, shareView, deleteView, copyView, moveView, renameView, exportView, moreView);
             view.setTag(viewHolder);
         } else {
             viewHolder = (Viewholder) convertView.getTag();
@@ -206,7 +213,14 @@ public class SeafItemAdapter extends BaseAdapter {
             ImageView action = (ImageView) view.findViewById(R.id.list_item_action);
             ImageView downloadStatusIcon = (ImageView) view.findViewById(R.id.list_item_download_status_icon);
             ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.list_item_download_status_progressbar);
-            viewHolder = new Viewholder(title, subtitle, icon, action, downloadStatusIcon, progressBar);
+            LinearLayout shareView = (LinearLayout) view.findViewById(R.id.action_share_ll);
+            LinearLayout deleteView = (LinearLayout) view.findViewById(R.id.action_delete_ll);
+            LinearLayout copyView = (LinearLayout) view.findViewById(R.id.action_copy_ll);
+            LinearLayout moveView = (LinearLayout) view.findViewById(R.id.action_move_ll);
+            LinearLayout renameView = (LinearLayout) view.findViewById(R.id.action_rename_ll);
+            LinearLayout exportView = (LinearLayout) view.findViewById(R.id.action_export_ll);
+            LinearLayout moreView = (LinearLayout) view.findViewById(R.id.action_more_ll);
+            viewHolder = new Viewholder(title, subtitle, icon, action, downloadStatusIcon, progressBar, shareView, deleteView, copyView, moveView, renameView, exportView, moreView);
             view.setTag(viewHolder);
         } else {
             viewHolder = (Viewholder) convertView.getTag();
@@ -220,9 +234,27 @@ public class SeafItemAdapter extends BaseAdapter {
             viewHolder.subtitle.setText(dirent.getSubtitle());
             viewHolder.icon.setImageResource(dirent.getIcon());
             viewHolder.action.setVisibility(View.VISIBLE);
+
+            viewHolder.shareView.setVisibility(View.VISIBLE);
+            viewHolder.deleteView.setVisibility(View.VISIBLE);
+            viewHolder.copyView.setVisibility(View.VISIBLE);
+            viewHolder.moveView.setVisibility(View.VISIBLE);
+
+            viewHolder.renameView.setVisibility(View.GONE);
+            viewHolder.exportView.setVisibility(View.GONE);
+            viewHolder.moreView.setVisibility(View.GONE);
             setDirAction(dirent, viewHolder, position);
         } else {
             viewHolder.downloadStatusIcon.setVisibility(View.GONE);
+
+            viewHolder.shareView.setVisibility(View.VISIBLE);
+            viewHolder.deleteView.setVisibility(View.VISIBLE);
+            viewHolder.renameView.setVisibility(View.VISIBLE);
+            viewHolder.exportView.setVisibility(View.VISIBLE);
+            viewHolder.moreView.setVisibility(View.VISIBLE);
+
+            viewHolder.copyView.setVisibility(View.GONE);
+            viewHolder.moveView.setVisibility(View.GONE);
             setFileView(dirent, viewHolder, position);
         }
 
@@ -346,7 +378,14 @@ public class SeafItemAdapter extends BaseAdapter {
             ImageView action = (ImageView) view.findViewById(R.id.list_item_action);
             ImageView downloadStatusIcon = (ImageView) view.findViewById(R.id.list_item_download_status_icon);
             ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.list_item_download_status_progressbar);
-            viewHolder = new Viewholder(title, subtitle, icon, action, downloadStatusIcon, progressBar);
+            LinearLayout shareView = (LinearLayout) view.findViewById(R.id.action_share_ll);
+            LinearLayout deleteView = (LinearLayout) view.findViewById(R.id.action_delete_ll);
+            LinearLayout copyView = (LinearLayout) view.findViewById(R.id.action_copy_ll);
+            LinearLayout moveView = (LinearLayout) view.findViewById(R.id.action_move_ll);
+            LinearLayout renameView = (LinearLayout) view.findViewById(R.id.action_rename_ll);
+            LinearLayout exportView = (LinearLayout) view.findViewById(R.id.action_export_ll);
+            LinearLayout moreView = (LinearLayout) view.findViewById(R.id.action_more_ll);
+            viewHolder = new Viewholder(title, subtitle, icon, action, downloadStatusIcon, progressBar, shareView, deleteView, copyView, moveView, renameView, exportView, moreView);
             view.setTag(viewHolder);
         } else {
             viewHolder = (Viewholder) convertView.getTag();
@@ -380,8 +419,27 @@ public class SeafItemAdapter extends BaseAdapter {
         TextView title, subtitle;
         ImageView icon, action, downloadStatusIcon; // downloadStatusIcon used to show file downloading status, it is invisible by default
         ProgressBar progressBar;
+        LinearLayout shareView;
+        LinearLayout deleteView;
+        LinearLayout copyView;
+        LinearLayout moveView;
+        LinearLayout moreView;
+        LinearLayout renameView;
+        LinearLayout exportView;
 
-        public Viewholder(TextView title, TextView subtitle, ImageView icon, ImageView action, ImageView downloadStatusIcon, ProgressBar progressBar) {
+        public Viewholder(TextView title,
+                          TextView subtitle,
+                          ImageView icon,
+                          ImageView action,
+                          ImageView downloadStatusIcon,
+                          ProgressBar progressBar,
+                          LinearLayout shareView,
+                          LinearLayout deleteView,
+                          LinearLayout copyView,
+                          LinearLayout moveView,
+                          LinearLayout renameView,
+                          LinearLayout exportView,
+                          LinearLayout moreView) {
             super();
             this.icon = icon;
             this.action = action;
@@ -389,6 +447,13 @@ public class SeafItemAdapter extends BaseAdapter {
             this.subtitle = subtitle;
             this.downloadStatusIcon = downloadStatusIcon;
             this.progressBar = progressBar;
+            this.shareView = shareView;
+            this.deleteView = deleteView;
+            this.copyView = copyView;
+            this.moveView = moveView;
+            this.moreView = moreView;
+            this.renameView = renameView;
+            this.exportView = exportView;
         }
     }
 
