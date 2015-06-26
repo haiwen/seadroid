@@ -1,10 +1,17 @@
 package com.seafile.seadroid2.ui.adapter;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import android.widget.ProgressBar;
+import com.seafile.seadroid2.ui.AnimateFirstDisplayListener;
+import net.londatiga.android.ActionItem;
+import net.londatiga.android.QuickAction;
 import android.content.res.Resources;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
@@ -388,16 +395,8 @@ public class SeafItemAdapter extends BaseAdapter {
     private void setFileAction(SeafDirent dirent, Viewholder viewHolder,
             final int position, final boolean cacheExists) {
 
-        viewHolder.action.setImageResource(R.drawable.drop_down_button);
+        viewHolder.action.setImageResource(R.drawable.spinner);
         viewHolder.action.setVisibility(View.VISIBLE);
-        viewHolder.action.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                SeafDirent dirent = (SeafDirent)items.get(position);
-                QuickAction mQuickAction = prepareFileAction(dirent, cacheExists);
-                mQuickAction.show(view);
-            }
-        });
     }
 
     private void setDirAction(SeafDirent dirent, Viewholder viewHolder, final int position) {
@@ -405,16 +404,8 @@ public class SeafItemAdapter extends BaseAdapter {
             viewHolder.action.setVisibility(View.GONE);
             return;
         }
-        viewHolder.action.setImageResource(R.drawable.drop_down_button);
+        viewHolder.action.setImageResource(R.drawable.spinner);
         viewHolder.action.setVisibility(View.VISIBLE);
-        viewHolder.action.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                SeafDirent dirent = (SeafDirent)items.get(position);
-                QuickAction mQuickAction = prepareDirAction(dirent);
-                mQuickAction.show(view);
-            }
-        });
     }
 
     private QuickAction prepareFileAction(final SeafDirent dirent, boolean cacheExists) {
