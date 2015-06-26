@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -16,7 +18,6 @@ import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.seafile.seadroid2.*;
 import com.seafile.seadroid2.account.Account;
@@ -27,11 +28,9 @@ import com.seafile.seadroid2.data.SeafGroup;
 import com.seafile.seadroid2.data.SeafItem;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.transfer.TransferService;
-import com.seafile.seadroid2.ui.PullToRefreshListView;
+import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.ToastUtils;
-import com.seafile.seadroid2.ui.activity.AccountsActivity;
-import com.seafile.seadroid2.ui.activity.BrowserActivity;
-import com.seafile.seadroid2.ui.activity.GalleryActivity;
+import com.seafile.seadroid2.ui.activity.*;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
@@ -130,31 +129,85 @@ public class ReposFragment extends SherlockListFragment {
         mPullRefreshListView.setItemActionListener(new ActionSlideExpandableListView.OnActionClickListener() {
             @Override
             public void onClick(View itemView, View buttonview, int position) {
-                /**
-                 * Normally you would put a switch
-                 * statement here, and depending on
-                 * view.getId() you would perform a
-                 * different action.
-                 */
-                String actionName = "";
-                if (buttonview.getId() == R.id.action_share_btn) {
-                    actionName = getActivity().getString(R.string.file_action_share);
-                } else if (buttonview.getId() == R.id.action_delete_btn) {
-                    actionName = getActivity().getString(R.string.file_action_delete);
-                } else if (buttonview.getId() == R.id.action_rename_btn) {
-                    actionName = getActivity().getString(R.string.file_action_rename);
-                } else if (buttonview.getId() == R.id.action_export_btn) {
-                    actionName = getActivity().getString(R.string.file_action_export);
-                } else if (buttonview.getId() == R.id.action_more_btn) {
-                    actionName = getActivity().getString(R.string.file_action_more);
+                SeafDirent dirent = (SeafDirent) adapter.getItem(position);
+                NavContext nav = mActivity.getNavContext();
+                String repoName = nav.getRepoName();
+                String repoID = nav.getRepoID();
+                String dir = nav.getDirPath();
+                String path = Utils.pathJoin(dir, dirent.name);
+                String filename = dirent.name;
+                DataManager dataManager = mActivity.getDataManager();
+                String localPath = dataManager.getLocalRepoFile(repoName, repoID, path).getPath();
+
+                switch (buttonview.getId()) {
+                    case R.id.action_share_btn:
+                        mActivity.shareFile(repoID, path);
+                        break;
+                    case R.id.action_delete_btn:
+                        mActivity.deleteFile(repoID, repoName, path);
+                        break;
+                    case R.id.action_rename_btn:
+                       mActivity.renameFile(repoID, repoName, path);
+                        break;
+                    case R.id.action_export_btn:
+                        mActivity.exportFile(dirent.name);
+                        break;
+                    case R.id.action_more_btn:
+                        processMoreOptions(repoID, repoName, dir, filename, dirent, localPath);
+                        break;
                 }
-
-                // For testing sake we just show a toast
-                ToastUtils.show(getActivity(), "Clicked Action: " + actionName + " in list item " + position);
-
             }
-        }, R.id.action_share_btn, R.id.action_delete_btn, R.id.action_rename_btn, R.id.action_export_btn, R.id.action_more_btn);
+        },
+                R.id.action_share_btn,
+                R.id.action_delete_btn,
+                R.id.action_rename_btn,
+                R.id.action_export_btn,
+                R.id.action_more_btn);
         //getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+    }
+
+    public static final int FILE_ACTION_COPY = 0;
+    public static final int FILE_ACTION_MOVE = 1;
+    public static final int FILE_ACTION_DOWNLOAD = 2;
+    public static final int FILE_ACTION_UPDATE = 3;
+    public static final int FILE_ACTION_STAR = 4;
+
+    private AlertDialog processMoreOptions(final String repoID,
+                                           final String repoName,
+                                           final String dir,
+                                           final String filename,
+                                           final SeafDirent dirent,
+                                           final String localPath) {
+        SeafileStyleDialogBuilder builder =
+                new SeafileStyleDialogBuilder(getActivity()).
+                        setTitle(getResources().getString(R.string.file_action_more_title)).
+                        setItems(R.array.file_action_more_array,
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        Intent intent;
+                                        switch (which) {
+                                            case FILE_ACTION_COPY:
+                                                mActivity.copyFile(repoID, repoName, dir, filename, false);
+                                                break;
+                                            case FILE_ACTION_MOVE:
+                                                mActivity.moveFile(repoID, repoName, dir, filename, false);
+                                                break;
+                                            case FILE_ACTION_DOWNLOAD:
+                                                mActivity.onFileSelected(dirent);
+                                                break;
+                                            case FILE_ACTION_UPDATE:
+                                                mActivity.addUpdateTask(repoID, repoName, dir, localPath);
+                                                break;
+                                            case FILE_ACTION_STAR:
+                                                mActivity.starFile(repoID, dir, filename);
+                                                break;
+                                            default:
+                                                return;
+                                        }
+                                    }
+                                });
+        return builder.show();
     }
 
     @Override
