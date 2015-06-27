@@ -36,16 +36,6 @@ public class SeafItemAdapter extends BaseAdapter {
         items = Lists.newArrayList();
     }
 
-    private static final int ACTION_ID_DOWNLOAD = 0;
-    private static final int ACTION_ID_UPDATE = 1;
-    private static final int ACTION_ID_EXPORT = 2;
-    private static final int ACTION_ID_RENAME = 3;
-    private static final int ACTION_ID_DELETE = 4;
-    private static final int ACTION_ID_SHARE = 5;
-    private static final int ACTION_ID_COPY = 6;
-    private static final int ACTION_ID_MOVE = 7;
-    private static final int ACTION_ID_STAR = 8;
-
     /** sort files type */
     public static final int SORT_BY_NAME = 9;
     /** sort files type */
