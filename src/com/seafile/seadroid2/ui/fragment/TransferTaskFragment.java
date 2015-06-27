@@ -61,7 +61,6 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.transfer_task_fragment, container, false);
         mTransferTaskListView = (ListView) root.findViewById(android.R.id.list);
-        // mTransferTaskListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
         mTransferTaskListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -229,10 +228,10 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
         adapter.toggleSelection(position);
         boolean itemsChecked = adapter.getCheckedItemCount() > 0;
 
-        Log.d(DEBUG_TAG, "itemsChecked "
+        /*Log.d(DEBUG_TAG, "itemsChecked "
                 + itemsChecked
                 + " getCheckedItemCount "
-                + adapter.getCheckedItemCount());
+                + adapter.getCheckedItemCount());*/
 
         if (itemsChecked && mActionMode == null) {
             // there are some selected items, start the actionMode
@@ -246,7 +245,7 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
 
 
         if (mActionMode != null) {
-            Log.d(DEBUG_TAG, "mActionMode.setTitle " + adapter.getCheckedItemCount());
+            // Log.d(DEBUG_TAG, "mActionMode.setTitle " + adapter.getCheckedItemCount());
             mActionMode.setTitle(getResources().getQuantityString(
                     R.plurals.transfer_list_items_selected,
                     adapter.getCheckedItemCount(),
@@ -261,10 +260,10 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
     public void updateCAB() {
         boolean itemsChecked = adapter.getCheckedItemCount() > 0;
 
-        Log.d(DEBUG_TAG, "itemsChecked "
+        /*Log.d(DEBUG_TAG, "itemsChecked "
                 + itemsChecked
                 + " getCheckedItemCount "
-                + adapter.getCheckedItemCount());
+                + adapter.getCheckedItemCount());*/
 
         if (itemsChecked && mActionMode == null) {
             // there are some selected items, start the actionMode
@@ -278,7 +277,7 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
 
 
         if (mActionMode != null) {
-            Log.d(DEBUG_TAG, "mActionMode.setTitle " + adapter.getCheckedItemCount());
+            // Log.d(DEBUG_TAG, "mActionMode.setTitle " + adapter.getCheckedItemCount());
             mActionMode.setTitle(getResources().getQuantityString(
                     R.plurals.transfer_list_items_selected,
                     adapter.getCheckedItemCount(),

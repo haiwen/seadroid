@@ -266,7 +266,7 @@ public class TransferTaskAdapter extends BaseAdapter {
             viewHolder.icon.setImageResource(iconID);
             viewHolder.targetPath.setText(Utils.pathJoin(taskInfo.repoName, Utils.getParentPath(taskInfo.pathInRepo)));
             viewHolder.fileName.setText(Utils.fileNameFromPath(taskInfo.pathInRepo));
-            Log.d(DEBUG_TAG, "multi select btn checked " + mSelectedItemsIds.get(position));
+            // Log.d(DEBUG_TAG, "multi select btn checked " + mSelectedItemsIds.get(position));
             if (mSelectedItemsIds.get(position)) {
                 viewHolder.multiSelectBtn.setImageResource(R.drawable.checkbox_checked);
             } else if (actionModeStarted)
@@ -277,7 +277,6 @@ public class TransferTaskAdapter extends BaseAdapter {
             viewHolder.multiSelectBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d(DEBUG_TAG, "onClick >>> multi select btn checked " + mSelectedItemsIds.get(position));
                     if (!mSelectedItemsIds.get(position)) {
                         viewHolder.multiSelectBtn.setImageResource(R.drawable.checkbox_checked);
                         mSelectedItemsIds.put(position, true);
@@ -300,7 +299,7 @@ public class TransferTaskAdapter extends BaseAdapter {
             viewHolder.icon.setImageResource(iconID);
             viewHolder.targetPath.setText(fullpath);
             viewHolder.fileName.setText(Utils.fileNameFromPath(taskInfo.localFilePath));
-            Log.d(DEBUG_TAG, "multi select btn checked " + mSelectedItemsIds.get(position));
+            // Log.d(DEBUG_TAG, "multi select btn checked " + mSelectedItemsIds.get(position));
             if (mSelectedItemsIds.get(position)) {
                 viewHolder.multiSelectBtn.setImageResource(R.drawable.checkbox_checked);
             } else if (actionModeStarted)
@@ -311,7 +310,6 @@ public class TransferTaskAdapter extends BaseAdapter {
             viewHolder.multiSelectBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d(DEBUG_TAG, "onClick >>> multi select btn checked " + mSelectedItemsIds.get(position));
                     if (!mSelectedItemsIds.get(position)) {
                         viewHolder.multiSelectBtn.setImageResource(R.drawable.checkbox_checked);
                         mSelectedItemsIds.put(position, true);
