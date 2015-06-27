@@ -338,13 +338,32 @@
   <string name="shib_loading">加载中...</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">网络连接错误，请稍后重试！</string>
-  <string name="transfer_list_cancel_all">全部取消</string>
+  <string name="transfer_list_cancel_all">取消所有任务</string>
+  <string name="transfer_list_retry_failed_tasks">重试失败的任务</string>
+  <string name="transfer_list_restart_cancelled_tasks">重试取消的任务</string>
+  <string name="transfer_list_clear_failed_tasks">清除失败的任务</string>
+  <string name="transfer_list_clear_cancelled_tasks">清除取消的任务</string>
+  <string name="transfer_list_clear_finished_tasks">清除完成的任务</string>
   <string name="transfer_tabs_downloads">下载列表</string>
   <string name="transfer_tabs_uploads">上传列表</string>
   <string name="transfer_download_no_task">所有文件已全部下载</string>
   <plurals name="transfer_download_started">
     <item quantity="other">开始下载<xliff:g id="download_files">%1$d</xliff:g>个文件</item>
   </plurals>
+  <string name="transfer_list_select_all">全选</string>
+  <string name="transfer_list_deselect_all">取消全选</string>
+  <plurals name="transfer_list_items_selected">
+    <item quantity="other">选中%d个</item>
+  </plurals>
+  <!--Sort-->
+  <string name="sort_menu_item">排序</string>
+  <string name="sort_files">排序规则</string>
+  <string-array name="sort_files_options_array">
+    <item>名字</item>
+    <item>名字（降序）</item>
+    <item>最后修改时间</item>
+    <item>最后修改时间（降序）</item>
+  </string-array>
   <!--Search-->
   <string name="search_menu_item">搜索</string>
   <string name="search_bar_hint">搜索...</string>
@@ -369,4 +388,8 @@
   <!--Gallery-->
   <string name="gallery_load_photos_error">加载图片错误</string>
   <string name="gallery_encrypted_repo_not_supported">不支持加密资料库</string>
+  <!--Overwrite existing files-->
+  <string name="overwrite_existing_file_title">替换文件</string>
+  <string name="overwrite_existing_file_msg">该文件已经存在，你想替换掉它吗？</string>
+  <string name="overwrite_existing_file_exist">该文件已经存在</string>
 </resources>

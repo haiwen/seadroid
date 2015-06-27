@@ -344,7 +344,12 @@
   <string name="shib_loading">Lade…</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">Problem bei der Netzwerkverbindung. Bitte versuchen Sie es später nochmal!</string>
-  <string name="transfer_list_cancel_all">Alle abbrechen</string>
+  <string name="transfer_list_cancel_all">Alle Aufgaben abbrechen</string>
+  <string name="transfer_list_retry_failed_tasks">Fehlgeschlagenen Aufgaben wiederholen</string>
+  <string name="transfer_list_restart_cancelled_tasks">Abgrebrochene Aufgaben neu starten</string>
+  <string name="transfer_list_clear_failed_tasks">Fehlgeschlagene Aufgaben entfernen</string>
+  <string name="transfer_list_clear_cancelled_tasks">Abgebrochenen Aufgaben entfernen</string>
+  <string name="transfer_list_clear_finished_tasks">Abgeschlossene Aufgaben entfernen</string>
   <string name="transfer_tabs_downloads">Liste der Downloads</string>
   <string name="transfer_tabs_uploads">Liste der Uploads</string>
   <string name="transfer_download_no_task">Alle Dateien wurden heruntergeladen</string>
@@ -352,6 +357,15 @@
     <item quantity="one"><xliff:g id="download_files">%1$d</xliff:g> wird heruntergeladen</item>
     <item quantity="other"><xliff:g id="download_files">%1$d</xliff:g> wird heruntergeladen</item>
   </plurals>
+  <string name="transfer_list_select_all">Alle auswählen</string>
+  <string name="transfer_list_deselect_all">Alle abwählen</string>
+  <plurals name="transfer_list_items_selected">
+    <item quantity="one">%d Objekt ausgewählt</item>
+    <item quantity="other">%d Objekte ausgewählt</item>
+  </plurals>
+  <!--Sort-->
+  <string name="sort_menu_item">Sortieren</string>
+  <string name="sort_files">Sortieren nach</string>
   <!--Search-->
   <string name="search_menu_item">Suchen</string>
   <string name="search_bar_hint">Suchvorgang …</string>
@@ -378,4 +392,7 @@
   <!--Gallery-->
   <string name="gallery_load_photos_error">Last photos error</string>
   <string name="gallery_encrypted_repo_not_supported">Verschlüsselte Bibliothek wurde nicht unterstützt</string>
+  <!--Overwrite existing files-->
+  <string name="overwrite_existing_file_title">Existierende Datei ersetzen</string>
+  <string name="overwrite_existing_file_msg">Die Datei existiert bereits, möchtest Sie diese ersetzen?</string>
 </resources>

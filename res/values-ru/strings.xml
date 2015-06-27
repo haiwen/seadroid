@@ -353,7 +353,6 @@ Email: support@seafile.com<br>
   <string name="shib_loading">загрузка...</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">Ошибка подключения к сети, пожалуйста, повторите позже!</string>
-  <string name="transfer_list_cancel_all">Отменить все</string>
   <string name="transfer_tabs_downloads">Список загрузок</string>
   <string name="transfer_tabs_uploads">Список закачек</string>
   <string name="transfer_download_no_task">Все файлы были скачены</string>
@@ -363,6 +362,7 @@ Email: support@seafile.com<br>
     <item quantity="many">Скачивание <xliff:g id="download_file">%1$d</xliff:g> файлов</item>
     <item quantity="other">Скачивание <xliff:g id="download_file">%1$d</xliff:g> файлов</item>
   </plurals>
+  <!--Sort-->
   <!--Search-->
   <string name="search_menu_item">Поиск</string>
   <string name="search_bar_hint">Поиск...</string>
@@ -393,4 +393,5 @@ Email: support@seafile.com<br>
   <!--Gallery-->
   <string name="gallery_load_photos_error">Ошибка загрузки фотографий</string>
   <string name="gallery_encrypted_repo_not_supported">Зашифрованная библиотека не поддерживается</string>
+  <!--Overwrite existing files-->
 </resources>

@@ -196,12 +196,13 @@
   <string name="shib_actionbar_title">Shibboleth ile giriş yap</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">Ağ bağlantı hatası, lütfen daha sonra tekrar deneyin!</string>
-  <string name="transfer_list_cancel_all">Hepsini iptal et</string>
   <string name="transfer_tabs_downloads">Listeyi indir</string>
   <string name="transfer_tabs_uploads">Yükleme Listesi</string>
   <string name="transfer_download_no_task">Bütün dosyalar indirildi</string>
+  <!--Sort-->
   <!--Search-->
   <!--star a file-->
   <!--notification bar-->
   <!--Gallery-->
+  <!--Overwrite existing files-->
 </resources>

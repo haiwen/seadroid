@@ -273,7 +273,6 @@
   <string name="shib_loading">er að vinna...</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">Netkerfis tengivilla, vinsamlegast reyndu aftur síðar!</string>
-  <string name="transfer_list_cancel_all">Hætta við allt</string>
   <string name="transfer_tabs_downloads">Niðurhalslisti</string>
   <string name="transfer_tabs_uploads">Upphleðslulisti</string>
   <string name="transfer_download_no_task">Öllum skrám hefur verið niðurhalað</string>
@@ -281,6 +280,7 @@
     <item quantity="one">Niðurhal hafið á <xliff:g id="download_file">%1$d</xliff:g> skrá</item>
     <item quantity="other">Niðurhal hafið á <xliff:g id="download_files">%1$d</xliff:g> skám</item>
   </plurals>
+  <!--Sort-->
   <!--Search-->
   <string name="search_menu_item">Leita</string>
   <string name="search_bar_hint">Leita...</string>
@@ -293,4 +293,5 @@
   <string name="star_file_failed">Mistókst að stjörnumerkja skrá</string>
   <!--notification bar-->
   <!--Gallery-->
+  <!--Overwrite existing files-->
 </resources>
