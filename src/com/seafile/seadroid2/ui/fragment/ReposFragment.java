@@ -3,7 +3,6 @@ package com.seafile.seadroid2.ui.fragment;
 import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -22,21 +21,23 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import com.seafile.seadroid2.*;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
-import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.data.SeafDirent;
-import com.seafile.seadroid2.data.SeafGroup;
-import com.seafile.seadroid2.data.SeafItem;
-import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.data.*;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.ToastUtils;
-import com.seafile.seadroid2.ui.activity.*;
+import com.seafile.seadroid2.ui.activity.AccountsActivity;
+import com.seafile.seadroid2.ui.activity.BrowserActivity;
+import com.seafile.seadroid2.ui.activity.GalleryActivity;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.util.Utils;
 import com.tjerkw.slideexpandable.library.ActionSlideExpandableListView;
 import com.tjerkw.slideexpandable.library.SlideExpandableListAdapter;
+
+import java.net.HttpURLConnection;
+import java.util.List;
+import java.util.Map;
 
 
 public class ReposFragment extends SherlockListFragment {
