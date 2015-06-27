@@ -423,4 +423,5 @@
     <!-- Overwrite existing files -->
     <string name="overwrite_existing_file_title">Replace existing file</string>
     <string name="overwrite_existing_file_msg">The file already exist, do you want to replace it?</string>
+    <string name="overwrite_existing_file_exist">The file already exist</string>
 </resources>

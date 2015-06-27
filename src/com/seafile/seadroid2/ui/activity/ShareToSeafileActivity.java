@@ -4,13 +4,19 @@ import android.app.AlertDialog;
 import android.content.*;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.MediaStore.Images;
 import android.util.Log;
+import android.view.View;
+import android.view.animation.AnimationUtils;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.google.common.collect.Lists;
+import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeafConnection;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
@@ -277,9 +283,80 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
                                 });
                 builder.show();
             } else {
+                if (!Utils.isNetworkOn()) {
+                    ToastUtils.show(this, R.string.network_down);
+                    return;
+                }
+
+                // asynchronously check existence of the file from server
+                asyncCheckDrientFromServer(account, repoName, repoID, targetDir);
+            }
+        }
+    }
+
+    private void asyncCheckDrientFromServer(Account account,
+                                            String repoName,
+                                            String repoID,
+                                            String targetDir) {
+
+        CheckDirentExistentTask task = new CheckDirentExistentTask(account, repoName, repoID, targetDir);
+        ConcurrentAsyncTask.execute(task);
+    }
+
+    class CheckDirentExistentTask extends AsyncTask<Void, Void, Void> {
+
+        private Account account;
+        private String repoName;
+        private String repoID;
+        private String targetDir;
+        private DataManager dm;
+        private boolean fileExistent = false;
+
+        public CheckDirentExistentTask(Account account,
+                                       String repoName,
+                                       String repoID,
+                                       String targetDir) {
+            this.account = account;
+            this.repoName = repoName;
+            this.repoID = repoID;
+            this.targetDir = targetDir;
+            dm = new DataManager(account);
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            List<SeafDirent> dirents = null;
+            try {
+                dirents = dm.getDirentsFromServer(repoID, targetDir);
+            } catch (SeafException e) {
+                Log.e(DEBUG_TAG, e.getMessage() + e.getCode());
+            }
+            boolean existent = false;
+            if (dirents != null) {
+                for (String path : localPathList) {
+                    for (SeafDirent dirent : dirents) {
+                        if (dirent.isDir())
+                            continue;
+                        if (Utils.fileNameFromPath(path).equals(dirent.getTitle())) {
+                            existent = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (!existent)
                 // upload the file directly
                 addUploadTask(account, repoName, repoID, targetDir, localPathList);
-            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            if (fileExistent)
+                ToastUtils.show(ShareToSeafileActivity.this, R.string.overwrite_existing_file_exist);
+
+            finish();
         }
     }
 }
