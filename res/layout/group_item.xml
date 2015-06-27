@@ -55,7 +55,7 @@
 
         <View android:layout_width="1dp"
               android:layout_height="@dimen/lv_expandable_item_divider_height"
-              android:background="@color/light_white"/>
+              android:background="@color/half_transparent"/>
 
         <LinearLayout
                 android:layout_width="@dimen/lv_expandable_element_width"
@@ -80,7 +80,7 @@
 
         <View android:layout_width="1dp"
               android:layout_height="@dimen/lv_expandable_item_divider_height"
-              android:background="@color/light_white"/>
+              android:background="@color/half_transparent"/>
 
         <LinearLayout
                 android:layout_width="@dimen/lv_expandable_element_width"
@@ -105,7 +105,7 @@
 
         <View android:layout_width="1dp"
               android:layout_height="@dimen/lv_expandable_item_divider_height"
-              android:background="@color/light_white"/>
+              android:background="@color/half_transparent"/>
 
         <LinearLayout
                 android:layout_width="@dimen/lv_expandable_element_width"
@@ -130,7 +130,7 @@
 
         <View android:layout_width="1dp"
               android:layout_height="@dimen/lv_expandable_item_divider_height"
-              android:background="@color/light_white"/>
+              android:background="@color/half_transparent"/>
 
         <LinearLayout
                 android:layout_width="@dimen/lv_expandable_element_width"
