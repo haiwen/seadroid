@@ -14,7 +14,7 @@
     <dimen name="lv_item_padding">10dp</dimen>
     <dimen name="lv_icon_width">60dp</dimen>
     <dimen name="lv_space_width">14dp</dimen>
-    <dimen name="lv_iv_action_width">40dp</dimen>
+    <dimen name="lv_iv_action_width">60dp</dimen>
     <dimen name="lv_title_padding_left">12dp</dimen>
     <dimen name="lv_title_txt_size">18sp</dimen>
     <dimen name="lv_subtitle_txt_size">16sp</dimen>

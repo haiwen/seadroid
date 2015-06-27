@@ -157,7 +157,7 @@ public class SeafItemAdapter extends BaseAdapter {
             TextView title = (TextView) view.findViewById(R.id.list_item_title);
             TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
             ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
-            ImageView action = (ImageView) view.findViewById(R.id.list_item_action);
+            RelativeLayout action = (RelativeLayout) view.findViewById(R.id.list_item_action);
             ImageView downloadStatusIcon = (ImageView) view.findViewById(R.id.list_item_download_status_icon);
             ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.list_item_download_status_progressbar);
             LinearLayout shareView = (LinearLayout) view.findViewById(R.id.action_share_ll);
@@ -197,7 +197,7 @@ public class SeafItemAdapter extends BaseAdapter {
             TextView title = (TextView) view.findViewById(R.id.list_item_title);
             TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
             ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
-            ImageView action = (ImageView) view.findViewById(R.id.list_item_action);
+            RelativeLayout action = (RelativeLayout) view.findViewById(R.id.list_item_action);
             ImageView downloadStatusIcon = (ImageView) view.findViewById(R.id.list_item_download_status_icon);
             ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.list_item_download_status_progressbar);
             LinearLayout shareView = (LinearLayout) view.findViewById(R.id.action_share_ll);
@@ -234,7 +234,7 @@ public class SeafItemAdapter extends BaseAdapter {
             if (repoIsEncrypted) {
                 viewHolder.action.setVisibility(View.GONE);
             }
-            viewHolder.action.setImageResource(R.drawable.spinner);
+            // viewHolder.action.setImageResource(R.drawable.spinner);
             viewHolder.action.setVisibility(View.VISIBLE);
         } else {
             viewHolder.downloadStatusIcon.setVisibility(View.GONE);
@@ -248,7 +248,7 @@ public class SeafItemAdapter extends BaseAdapter {
             viewHolder.copyView.setVisibility(View.GONE);
             viewHolder.moveView.setVisibility(View.GONE);
 
-            viewHolder.action.setImageResource(R.drawable.spinner);
+            //viewHolder.action.setImageResource(R.drawable.spinner);
             viewHolder.action.setVisibility(View.VISIBLE);
 
             setFileView(dirent, viewHolder, position);
@@ -370,7 +370,7 @@ public class SeafItemAdapter extends BaseAdapter {
             TextView title = (TextView) view.findViewById(R.id.list_item_title);
             TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
             ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
-            ImageView action = (ImageView) view.findViewById(R.id.list_item_action);
+            RelativeLayout action = (RelativeLayout) view.findViewById(R.id.list_item_action);
             ImageView downloadStatusIcon = (ImageView) view.findViewById(R.id.list_item_download_status_icon);
             ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.list_item_download_status_progressbar);
             LinearLayout shareView = (LinearLayout) view.findViewById(R.id.action_share_ll);
@@ -412,8 +412,9 @@ public class SeafItemAdapter extends BaseAdapter {
 
     private class Viewholder {
         TextView title, subtitle;
-        ImageView icon, action, downloadStatusIcon; // downloadStatusIcon used to show file downloading status, it is invisible by default
+        ImageView icon, downloadStatusIcon; // downloadStatusIcon used to show file downloading status, it is invisible by default
         ProgressBar progressBar;
+        RelativeLayout action;
         LinearLayout shareView;
         LinearLayout deleteView;
         LinearLayout copyView;
@@ -425,7 +426,7 @@ public class SeafItemAdapter extends BaseAdapter {
         public Viewholder(TextView title,
                           TextView subtitle,
                           ImageView icon,
-                          ImageView action,
+                          RelativeLayout action,
                           ImageView downloadStatusIcon,
                           ProgressBar progressBar,
                           LinearLayout shareView,

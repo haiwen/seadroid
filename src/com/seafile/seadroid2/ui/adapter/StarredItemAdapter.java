@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import android.graphics.Bitmap;
+import android.widget.RelativeLayout;
 import com.google.common.collect.Lists;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -77,7 +78,7 @@ public class StarredItemAdapter extends BaseAdapter {
             TextView title = (TextView) view.findViewById(R.id.list_item_title);
             TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
             ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
-            ImageView action = (ImageView) view.findViewById(R.id.list_item_action);
+            RelativeLayout action = (RelativeLayout) view.findViewById(R.id.list_item_action);
             viewHolder = new Viewholder(title, subtitle, icon, action);
             view.setTag(viewHolder);
         } else {
@@ -116,9 +117,10 @@ public class StarredItemAdapter extends BaseAdapter {
 
     private class Viewholder {
         TextView title, subtitle;
-        ImageView icon, action;
+        ImageView icon;
+        RelativeLayout action;
 
-        public Viewholder(TextView title, TextView subtitle, ImageView icon, ImageView action) {
+        public Viewholder(TextView title, TextView subtitle, ImageView icon, RelativeLayout action) {
             super();
             this.icon = icon;
             this.action = action;
