@@ -161,7 +161,7 @@ public class SeafItemAdapter extends BaseAdapter {
             ImageView downloadStatusIcon = (ImageView) view.findViewById(R.id.list_item_download_status_icon);
             ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.list_item_download_status_progressbar);
             RelativeLayout shareView = (RelativeLayout) view.findViewById(R.id.action_share_ll);
-            LinearLayout deleteView = (LinearLayout) view.findViewById(R.id.action_delete_ll);
+            RelativeLayout deleteView = (RelativeLayout) view.findViewById(R.id.action_delete_ll);
             LinearLayout copyView = (LinearLayout) view.findViewById(R.id.action_copy_ll);
             LinearLayout moveView = (LinearLayout) view.findViewById(R.id.action_move_ll);
             LinearLayout renameView = (LinearLayout) view.findViewById(R.id.action_rename_ll);
@@ -201,7 +201,7 @@ public class SeafItemAdapter extends BaseAdapter {
             ImageView downloadStatusIcon = (ImageView) view.findViewById(R.id.list_item_download_status_icon);
             ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.list_item_download_status_progressbar);
             RelativeLayout shareView = (RelativeLayout) view.findViewById(R.id.action_share_ll);
-            LinearLayout deleteView = (LinearLayout) view.findViewById(R.id.action_delete_ll);
+            RelativeLayout deleteView = (RelativeLayout) view.findViewById(R.id.action_delete_ll);
             LinearLayout copyView = (LinearLayout) view.findViewById(R.id.action_copy_ll);
             LinearLayout moveView = (LinearLayout) view.findViewById(R.id.action_move_ll);
             LinearLayout renameView = (LinearLayout) view.findViewById(R.id.action_rename_ll);
@@ -374,7 +374,7 @@ public class SeafItemAdapter extends BaseAdapter {
             ImageView downloadStatusIcon = (ImageView) view.findViewById(R.id.list_item_download_status_icon);
             ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.list_item_download_status_progressbar);
             RelativeLayout shareView = (RelativeLayout) view.findViewById(R.id.action_share_ll);
-            LinearLayout deleteView = (LinearLayout) view.findViewById(R.id.action_delete_ll);
+            RelativeLayout deleteView = (RelativeLayout) view.findViewById(R.id.action_delete_ll);
             LinearLayout copyView = (LinearLayout) view.findViewById(R.id.action_copy_ll);
             LinearLayout moveView = (LinearLayout) view.findViewById(R.id.action_move_ll);
             LinearLayout renameView = (LinearLayout) view.findViewById(R.id.action_rename_ll);
@@ -416,7 +416,7 @@ public class SeafItemAdapter extends BaseAdapter {
         ProgressBar progressBar;
         RelativeLayout action;
         RelativeLayout shareView;
-        LinearLayout deleteView;
+        RelativeLayout deleteView;
         LinearLayout copyView;
         LinearLayout moveView;
         LinearLayout moreView;
@@ -430,7 +430,7 @@ public class SeafItemAdapter extends BaseAdapter {
                           ImageView downloadStatusIcon,
                           ProgressBar progressBar,
                           RelativeLayout shareView,
-                          LinearLayout deleteView,
+                          RelativeLayout deleteView,
                           LinearLayout copyView,
                           LinearLayout moveView,
                           LinearLayout renameView,

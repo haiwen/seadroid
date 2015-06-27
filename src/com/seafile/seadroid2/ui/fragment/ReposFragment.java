@@ -144,27 +144,27 @@ public class ReposFragment extends SherlockListFragment {
                         mPullRefreshListView.collapse();
                         mActivity.shareFile(repoID, path);
                         break;
-                    case R.id.action_delete_btn:
+                    case R.id.action_delete_ll:
                         mPullRefreshListView.collapse();
                         mActivity.deleteFile(repoID, repoName, path);
                         break;
-                    case R.id.action_copy_btn:
+                    case R.id.action_copy_ll:
                         mPullRefreshListView.collapse();
                         mActivity.copyFile(repoID, repoName, dir, filename, false);
                         break;
-                    case R.id.action_move_btn:
+                    case R.id.action_move_ll:
                         mPullRefreshListView.collapse();
                         mActivity.moveFile(repoID, repoName, dir, filename, false);
                         break;
-                    case R.id.action_rename_btn:
+                    case R.id.action_rename_ll:
                         mPullRefreshListView.collapse();
                        mActivity.renameFile(repoID, repoName, path);
                         break;
-                    case R.id.action_export_btn:
+                    case R.id.action_export_ll:
                         mPullRefreshListView.collapse();
                         mActivity.exportFile(dirent.name);
                         break;
-                    case R.id.action_more_btn:
+                    case R.id.action_more_ll:
                         mPullRefreshListView.collapse();
                         processMoreOptions(repoID, repoName, dir, filename, dirent, localPath);
                         break;
@@ -172,12 +172,12 @@ public class ReposFragment extends SherlockListFragment {
             }
         },
                 R.id.action_share_ll,
-                R.id.action_delete_btn,
-                R.id.action_copy_btn,
-                R.id.action_move_btn,
-                R.id.action_rename_btn,
-                R.id.action_export_btn,
-                R.id.action_more_btn);
+                R.id.action_delete_ll,
+                R.id.action_copy_ll,
+                R.id.action_move_ll,
+                R.id.action_rename_ll,
+                R.id.action_export_ll,
+                R.id.action_more_ll);
         //getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
     }
 
