@@ -24,7 +24,7 @@
     <!-- slide expandable listview -->
     <dimen name="lv_expandable_item_height">70dp</dimen>
     <dimen name="lv_expandable_item_padding">10dp</dimen>
-    <dimen name="lv_expandable_item_divider_height">40dp</dimen>
+    <dimen name="lv_expandable_item_divider_height">10dp</dimen>
     <dimen name="lv_expandable_element_height">60dp</dimen>
     <dimen name="lv_expandable_element_width">110dp</dimen>
     <dimen name="lv_expandable_icon_height">40dp</dimen>
