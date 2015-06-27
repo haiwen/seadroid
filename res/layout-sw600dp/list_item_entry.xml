@@ -80,6 +80,7 @@
                         android:layout_height="fill_parent"
                         android:layout_alignParentEnd="true"
                         android:layout_alignParentRight="true"
+                        android:visibility="gone"
                         android:background="@drawable/spinner_selector_holo_light">
 
                         <ImageView
