@@ -109,6 +109,7 @@
                         android:layout_width="@dimen/lv_expandable_element_width"
                         android:layout_height="@dimen/lv_expandable_element_height"
                         android:layout_weight="0.2"
+                        android:background="@drawable/spinner_selector_holo_dark"
                         android:orientation="horizontal">
 
                         <LinearLayout
