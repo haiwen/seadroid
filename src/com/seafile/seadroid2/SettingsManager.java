@@ -66,6 +66,9 @@ public final class SettingsManager {
     public static final String SETTINGS_CACHE_SIZE_KEY = "settings_cache_info_key";
     public static final String SETTINGS_CLEAR_CACHE_KEY = "settings_clear_cache_key";
 
+    // Sort files
+    public static final String SORT_FILES_TYPE = "sort_files_type";
+
     public static long lock_timestamp = 0;
     public static final long LOCK_EXPIRATION_MSECS = 5 * 60 * 1000;
 
@@ -181,6 +184,14 @@ public final class SettingsManager {
 
     public void saveLocalDirPath(String path) {
         editor.putString(CAMERA_UPLOAD_CUSTOM_DIRECTORIES_PATH, path).commit();
+    }
+
+    public void saveSortFilesPref(int type) {
+        editor.putInt(SORT_FILES_TYPE, type).commit();
+    }
+
+    public int getSortFilesPref() {
+        return sharedPref.getInt(SORT_FILES_TYPE, 0);
     }
 
     public String getLocalDirPath() {

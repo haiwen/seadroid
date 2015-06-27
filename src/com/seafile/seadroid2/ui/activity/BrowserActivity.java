@@ -10,6 +10,7 @@ import java.util.*;
 
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
+import android.app.Dialog;
 import android.content.*;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -54,6 +55,9 @@ import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.ui.CopyMoveContext;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.WidgetUtils;
+import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
+import com.seafile.seadroid2.ui.ToastUtils;
+import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
 import com.seafile.seadroid2.ui.dialog.CopyMoveDialog;
 import com.seafile.seadroid2.ui.dialog.DeleteFileDialog;
@@ -654,6 +658,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menuSearch = menu.findItem(R.id.search);
+        MenuItem menuSort = menu.findItem(R.id.sort);
         MenuItem menuUpload = menu.findItem(R.id.upload);
         MenuItem menuRefresh = menu.findItem(R.id.refresh);
         MenuItem menuDownloadFolder = menu.findItem(R.id.download_folder);
@@ -666,6 +671,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         // Libraries Tab
         if (currentPosition == 0) {
+            menuSort.setVisible(true);
             menuUpload.setVisible(true);
             menuDownloadFolder.setVisible(true);
             if (navContext.inRepo() && hasRepoWritePermission()) {
@@ -676,22 +682,26 @@ public class BrowserActivity extends SherlockFragmentActivity
                 menuDownloadFolder.setEnabled(false);
             }
         } else {
+            menuSort.setVisible(false);
             menuUpload.setVisible(false);
             menuDownloadFolder.setVisible(false);
         }
 
         // Libraries Tab
         if (currentPosition == 0) {
+            menuSort.setVisible(true);
             menuRefresh.setVisible(true);
             menuTransferTasks.setVisible(true);
             menuAccounts.setVisible(true);
             menuSettings.setVisible(true);
         } else if (currentPosition == 2) { // ACTIVITY_TAB
+            menuSort.setVisible(false);
             menuRefresh.setVisible(true);
             menuTransferTasks.setVisible(true);
             menuAccounts.setVisible(true);
             menuSettings.setVisible(true);
         } else {
+            menuSort.setVisible(false);
             menuRefresh.setVisible(false);
             menuTransferTasks.setVisible(false);
             menuAccounts.setVisible(false);
@@ -752,6 +762,9 @@ public class BrowserActivity extends SherlockFragmentActivity
             if (navContext.inRepo()) {
                 onBackPressed();
             }
+            return true;
+        case R.id.sort:
+            showSortFilesDialog();
             return true;
         case R.id.search:
             Intent searchIntent = new Intent(this, SearchActivity.class);
@@ -854,6 +867,77 @@ public class BrowserActivity extends SherlockFragmentActivity
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+    }
+
+    private void showSortFilesDialog() {
+        new SortFilesDialog().show(getSupportFragmentManager(), "sort files");
+    }
+
+    public class SortFilesDialog extends DialogFragment {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            SeafileStyleDialogBuilder builder =
+                    new SeafileStyleDialogBuilder(getActivity())
+                            .setTitle(getString(R.string.sort_files))
+                            .setItems(R.array.sort_files_options_array,
+                                    new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            switch (which) {
+                                                case 0: // sort by name
+                                                    sortFilesByType(SeafItemAdapter.SORT_BY_NAME);
+                                                    break;
+                                                case 1: // sort by last modified time
+                                                    sortFilesByType(SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME);
+                                                    break;
+                                                case 2: // sort by name, descending
+                                                    sortFilesByType(SeafItemAdapter.SORT_BY_NAME_DESCENDING);
+                                                    break;
+                                                case 3: // sort by last modified time, descending
+                                                    sortFilesByType(SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME_DESCENDING);
+                                                    break;
+                                                default:
+                                                    return;
+                                            }
+                                        }
+                                    });
+            return builder.show();
+        }
+    }
+
+    /**
+     * Sort files by type
+     *
+     * @param type
+     */
+    private void sortFilesByType(final int type) {
+        if (currentPosition == 0) {
+            if (navContext.inRepo()) {
+                SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
+                if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
+                    String password = DataManager.getRepoPassword(repo.id);
+                    showPasswordDialog(repo.name, repo.id,
+                            new TaskDialog.TaskDialogListener() {
+                                @Override
+                                public void onTaskSuccess() {
+                                    if (type == SeafItemAdapter.SORT_BY_NAME
+                                            || type == SeafItemAdapter.SORT_BY_NAME_DESCENDING)
+                                        getReposFragment().sortByName(type);
+                                    else if (type == SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME
+                                            || type == SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME_DESCENDING)
+                                        getReposFragment().sortByTime(type);
+                                }
+                            }, password);
+                }
+            }
+
+            if (type == SeafItemAdapter.SORT_BY_NAME
+                    || type == SeafItemAdapter.SORT_BY_NAME_DESCENDING)
+                getReposFragment().sortByName(type);
+            else if (type == SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME
+                    || type == SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME_DESCENDING)
+                getReposFragment().sortByTime(type);
+        }
     }
 
     private void showNewDirDialog() {

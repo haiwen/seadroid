@@ -1,17 +1,5 @@
 package com.seafile.seadroid2.ui.adapter;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
-import android.graphics.Bitmap;
-import android.widget.ProgressBar;
-import com.seafile.seadroid2.ui.AnimateFirstDisplayListener;
-import com.seafile.seadroid2.ui.WidgetUtils;
-import net.londatiga.android.ActionItem;
-import net.londatiga.android.QuickAction;
 import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,26 +7,25 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
-
 import com.google.common.collect.Lists;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
-import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.seafile.seadroid2.NavContext;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.data.SeafCachedFile;
-import com.seafile.seadroid2.data.SeafDirent;
-import com.seafile.seadroid2.data.SeafGroup;
-import com.seafile.seadroid2.data.SeafItem;
-import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.data.*;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
+import com.seafile.seadroid2.ui.AnimateFirstDisplayListener;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.util.Utils;
+import net.londatiga.android.ActionItem;
+import net.londatiga.android.QuickAction;
+
+import java.io.File;
+import java.util.*;
 
 public class SeafItemAdapter extends BaseAdapter {
 
@@ -63,6 +50,15 @@ public class SeafItemAdapter extends BaseAdapter {
     private static final int ACTION_ID_COPY = 6;
     private static final int ACTION_ID_MOVE = 7;
     private static final int ACTION_ID_STAR = 8;
+
+    /** sort files by name in ascending order */
+    public static final int SORT_BY_NAME = 9;
+    /** sort files by last modified time in ascending order */
+    public static final int SORT_BY_LAST_MODIFIED_TIME = 10;
+    /** sort files by name in descending order */
+    public static final int SORT_BY_NAME_DESCENDING = 11;
+    /** sort files by last modified time in descending order */
+    public static final int SORT_BY_LAST_MODIFIED_TIME_DESCENDING = 12;
 
     @Override
     public int getCount() {
@@ -587,6 +583,66 @@ public class SeafItemAdapter extends BaseAdapter {
 
     public void setEncryptedRepo(boolean encrypted) {
         repoIsEncrypted = encrypted;
+    }
+
+    /**
+     * Sorts the given list using the given comparator
+     * by {@link #SORT_BY_NAME}, {@link #SORT_BY_LAST_MODIFIED_TIME}, {@link #SORT_BY_NAME_DESCENDING}
+     * or {@link #SORT_BY_LAST_MODIFIED_TIME_DESCENDING}
+     */
+    public void sortByType(int type) {
+        List<SeafGroup> groups = Lists.newArrayList();
+        List<SeafCachedFile> cachedFiles = Lists.newArrayList();
+        List<SeafDirent> folders = Lists.newArrayList();
+        List<SeafDirent> files = Lists.newArrayList();
+        SeafGroup group = null;
+
+        for (SeafItem item : items) {
+            if (item instanceof SeafGroup) {
+                group = (SeafGroup) item;
+                groups.add(group);
+            } else if (item instanceof SeafRepo) {
+                if (group == null)
+                    continue;
+                group.addIfAbsent((SeafRepo) item);
+            } else if (item instanceof SeafCachedFile) {
+                cachedFiles.add(((SeafCachedFile) item));
+            } else {
+                if (((SeafDirent) item).isDir())
+                    folders.add(((SeafDirent) item));
+                else
+                    files.add(((SeafDirent) item));
+            }
+        }
+
+        items.clear();
+
+        // sort SeafGroups and SeafRepos
+        for (SeafGroup sg : groups) {
+            sg.sortByType(type);
+            items.add(sg);
+            items.addAll(sg.getRepos());
+        }
+
+        // sort SeafDirents
+        if (type == SORT_BY_NAME) {
+            Collections.sort(folders, new SeafDirent.DirentNameComparator());
+            Collections.sort(files, new SeafDirent.DirentNameComparator());
+        } else if (type == SORT_BY_LAST_MODIFIED_TIME) {
+            Collections.sort(folders, new SeafDirent.DirentLastMTimeComparator());
+            Collections.sort(files, new SeafDirent.DirentLastMTimeComparator());
+        } else if (type == SORT_BY_NAME_DESCENDING) {
+            Collections.sort(folders, Collections.reverseOrder(new SeafDirent.DirentNameComparator()));
+            Collections.sort(files, Collections.reverseOrder(new SeafDirent.DirentNameComparator()));
+        } else if (type == SORT_BY_LAST_MODIFIED_TIME_DESCENDING) {
+            Collections.sort(folders, Collections.reverseOrder(new SeafDirent.DirentLastMTimeComparator()));
+            Collections.sort(files, Collections.reverseOrder(new SeafDirent.DirentLastMTimeComparator()));
+        }
+
+        // Adds the objects in the specified collection to this ArrayList
+        items.addAll(cachedFiles);
+        items.addAll(folders);
+        items.addAll(files);
     }
 }
 
