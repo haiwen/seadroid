@@ -123,7 +123,7 @@
                               android:layout_width="1dp"
                               android:layout_height="@dimen/lv_expandable_item_divider_height"
                               android:layout_gravity="right"
-                              android:background="@color/light_white"/>
+                              android:background="@color/half_transparent"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -155,7 +155,7 @@
                               android:layout_width="1dp"
                               android:layout_height="@dimen/lv_expandable_item_divider_height"
                               android:layout_gravity="right"
-                              android:background="@color/light_white"/>
+                              android:background="@color/half_transparent"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -186,7 +186,7 @@
                         <View
                               android:layout_width="1dp"
                               android:layout_height="@dimen/lv_expandable_item_divider_height"
-                              android:background="@color/light_white"/>
+                              android:background="@color/half_transparent"/>
                 </LinearLayout>
 
 
@@ -219,7 +219,7 @@
                               android:layout_width="1dp"
                               android:layout_gravity="right"
                               android:layout_height="@dimen/lv_expandable_item_divider_height"
-                              android:background="@color/light_white"/>
+                              android:background="@color/half_transparent"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -274,7 +274,7 @@
                                 android:layout_width="1dp"
                                 android:layout_gravity="right"
                                 android:layout_height="@dimen/lv_expandable_item_divider_height"
-                                android:background="@color/light_white"/>
+                                android:background="@color/half_transparent"/>
                 </LinearLayout>
 
                 <LinearLayout
