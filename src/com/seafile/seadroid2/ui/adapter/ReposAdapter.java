@@ -5,6 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.SeadroidApplication;
@@ -61,7 +62,7 @@ public abstract class ReposAdapter extends BaseAdapter {
 
     protected abstract SeafRepo getChildSeafRepo(int position);
 
-    protected abstract void showRepoSelectedIcon(int position, ImageView imageView);
+    protected abstract void showRepoSelectedIcon(int position, RelativeLayout imageView);
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -76,7 +77,7 @@ public abstract class ReposAdapter extends BaseAdapter {
             TextView title = (TextView) view.findViewById(getChildTitleId());
             TextView subtitle = (TextView) view.findViewById(getChildSubTitleId());
             ImageView icon = (ImageView) view.findViewById(getChildIconId());
-            ImageView action = (ImageView) view.findViewById(getChildActionId());
+            RelativeLayout action = (RelativeLayout) view.findViewById(getChildActionId());
             viewHolder = new Viewholder(title, subtitle, icon, action);
             view.setTag(viewHolder);
         } else {
@@ -94,9 +95,10 @@ public abstract class ReposAdapter extends BaseAdapter {
 
     private class Viewholder {
         TextView title, subtitle;
-        ImageView icon, action;
+        ImageView icon;
+        RelativeLayout action;
 
-        public Viewholder(TextView title, TextView subtitle, ImageView icon, ImageView action) {
+        public Viewholder(TextView title, TextView subtitle, ImageView icon, RelativeLayout action) {
             super();
             this.icon = icon;
             this.action = action;
