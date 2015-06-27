@@ -43,6 +43,14 @@ public class Account implements Parcelable {
         return s.substring(0, s.indexOf('/'));
     }
 
+    public String getServerDomainName() {
+        String dn = getServerHost();
+        // strip port, like :8000 in 192.168.1.116:8000
+        if (dn.contains(":"))
+            dn = dn.substring(0, dn.indexOf(':'));
+        return dn;
+    }
+
     public String getEmail() {
         return email;
     }
