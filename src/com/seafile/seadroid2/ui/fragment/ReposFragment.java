@@ -140,7 +140,7 @@ public class ReposFragment extends SherlockListFragment {
                 String localPath = dataManager.getLocalRepoFile(repoName, repoID, path).getPath();
 
                 switch (buttonview.getId()) {
-                    case R.id.action_share_btn:
+                    case R.id.action_share_ll:
                         mPullRefreshListView.collapse();
                         mActivity.shareFile(repoID, path);
                         break;
@@ -171,7 +171,7 @@ public class ReposFragment extends SherlockListFragment {
                 }
             }
         },
-                R.id.action_share_btn,
+                R.id.action_share_ll,
                 R.id.action_delete_btn,
                 R.id.action_copy_btn,
                 R.id.action_move_btn,
