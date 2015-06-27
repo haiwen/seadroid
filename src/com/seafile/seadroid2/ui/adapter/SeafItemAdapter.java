@@ -162,11 +162,11 @@ public class SeafItemAdapter extends BaseAdapter {
             ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.list_item_download_status_progressbar);
             RelativeLayout shareView = (RelativeLayout) view.findViewById(R.id.action_share_ll);
             RelativeLayout deleteView = (RelativeLayout) view.findViewById(R.id.action_delete_ll);
-            LinearLayout copyView = (LinearLayout) view.findViewById(R.id.action_copy_ll);
-            LinearLayout moveView = (LinearLayout) view.findViewById(R.id.action_move_ll);
-            LinearLayout renameView = (LinearLayout) view.findViewById(R.id.action_rename_ll);
-            LinearLayout exportView = (LinearLayout) view.findViewById(R.id.action_export_ll);
-            LinearLayout moreView = (LinearLayout) view.findViewById(R.id.action_more_ll);
+            RelativeLayout copyView = (RelativeLayout) view.findViewById(R.id.action_copy_ll);
+            RelativeLayout moveView = (RelativeLayout) view.findViewById(R.id.action_move_ll);
+            RelativeLayout renameView = (RelativeLayout) view.findViewById(R.id.action_rename_ll);
+            RelativeLayout exportView = (RelativeLayout) view.findViewById(R.id.action_export_ll);
+            RelativeLayout moreView = (RelativeLayout) view.findViewById(R.id.action_more_ll);
             viewHolder = new Viewholder(title, subtitle, icon, action, downloadStatusIcon, progressBar, shareView, deleteView, copyView, moveView, renameView, exportView, moreView);
             view.setTag(viewHolder);
         } else {
@@ -202,11 +202,11 @@ public class SeafItemAdapter extends BaseAdapter {
             ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.list_item_download_status_progressbar);
             RelativeLayout shareView = (RelativeLayout) view.findViewById(R.id.action_share_ll);
             RelativeLayout deleteView = (RelativeLayout) view.findViewById(R.id.action_delete_ll);
-            LinearLayout copyView = (LinearLayout) view.findViewById(R.id.action_copy_ll);
-            LinearLayout moveView = (LinearLayout) view.findViewById(R.id.action_move_ll);
-            LinearLayout renameView = (LinearLayout) view.findViewById(R.id.action_rename_ll);
-            LinearLayout exportView = (LinearLayout) view.findViewById(R.id.action_export_ll);
-            LinearLayout moreView = (LinearLayout) view.findViewById(R.id.action_more_ll);
+            RelativeLayout copyView = (RelativeLayout) view.findViewById(R.id.action_copy_ll);
+            RelativeLayout moveView = (RelativeLayout) view.findViewById(R.id.action_move_ll);
+            RelativeLayout renameView = (RelativeLayout) view.findViewById(R.id.action_rename_ll);
+            RelativeLayout exportView = (RelativeLayout) view.findViewById(R.id.action_export_ll);
+            RelativeLayout moreView = (RelativeLayout) view.findViewById(R.id.action_more_ll);
             viewHolder = new Viewholder(title, subtitle, icon, action, downloadStatusIcon, progressBar, shareView, deleteView, copyView, moveView, renameView, exportView, moreView);
             view.setTag(viewHolder);
         } else {
@@ -375,11 +375,11 @@ public class SeafItemAdapter extends BaseAdapter {
             ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.list_item_download_status_progressbar);
             RelativeLayout shareView = (RelativeLayout) view.findViewById(R.id.action_share_ll);
             RelativeLayout deleteView = (RelativeLayout) view.findViewById(R.id.action_delete_ll);
-            LinearLayout copyView = (LinearLayout) view.findViewById(R.id.action_copy_ll);
-            LinearLayout moveView = (LinearLayout) view.findViewById(R.id.action_move_ll);
-            LinearLayout renameView = (LinearLayout) view.findViewById(R.id.action_rename_ll);
-            LinearLayout exportView = (LinearLayout) view.findViewById(R.id.action_export_ll);
-            LinearLayout moreView = (LinearLayout) view.findViewById(R.id.action_more_ll);
+            RelativeLayout copyView = (RelativeLayout) view.findViewById(R.id.action_copy_ll);
+            RelativeLayout moveView = (RelativeLayout) view.findViewById(R.id.action_move_ll);
+            RelativeLayout renameView = (RelativeLayout) view.findViewById(R.id.action_rename_ll);
+            RelativeLayout exportView = (RelativeLayout) view.findViewById(R.id.action_export_ll);
+            RelativeLayout moreView = (RelativeLayout) view.findViewById(R.id.action_more_ll);
             viewHolder = new Viewholder(title, subtitle, icon, action, downloadStatusIcon, progressBar, shareView, deleteView, copyView, moveView, renameView, exportView, moreView);
             view.setTag(viewHolder);
         } else {
@@ -417,11 +417,11 @@ public class SeafItemAdapter extends BaseAdapter {
         RelativeLayout action;
         RelativeLayout shareView;
         RelativeLayout deleteView;
-        LinearLayout copyView;
-        LinearLayout moveView;
-        LinearLayout moreView;
-        LinearLayout renameView;
-        LinearLayout exportView;
+        RelativeLayout copyView;
+        RelativeLayout moveView;
+        RelativeLayout moreView;
+        RelativeLayout renameView;
+        RelativeLayout exportView;
 
         public Viewholder(TextView title,
                           TextView subtitle,
@@ -431,11 +431,11 @@ public class SeafItemAdapter extends BaseAdapter {
                           ProgressBar progressBar,
                           RelativeLayout shareView,
                           RelativeLayout deleteView,
-                          LinearLayout copyView,
-                          LinearLayout moveView,
-                          LinearLayout renameView,
-                          LinearLayout exportView,
-                          LinearLayout moreView) {
+                          RelativeLayout copyView,
+                          RelativeLayout moveView,
+                          RelativeLayout renameView,
+                          RelativeLayout exportView,
+                          RelativeLayout moreView) {
             super();
             this.icon = icon;
             this.action = action;

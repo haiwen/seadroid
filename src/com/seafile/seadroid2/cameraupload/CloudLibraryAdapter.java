@@ -2,6 +2,7 @@ package com.seafile.seadroid2.cameraupload;
 
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.ui.adapter.ReposAdapter;
@@ -56,7 +57,7 @@ public class CloudLibraryAdapter extends ReposAdapter {
     }
 
     @Override
-    protected void showRepoSelectedIcon(int position, ImageView imageView) {
+    protected void showRepoSelectedIcon(int position, RelativeLayout imageView) {
         if (selectedRepo == null) {
             imageView.setVisibility(View.INVISIBLE);
             return;

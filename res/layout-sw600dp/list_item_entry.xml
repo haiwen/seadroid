@@ -111,7 +111,7 @@
                         android:background="@drawable/spinner_selector_holo_dark">
 
                         <LinearLayout
-                                android:layout_width="wrap_content"
+                                android:layout_width="@dimen/lv_expandable_element_width"
                                 android:layout_height="wrap_content"
                                 android:layout_centerInParent="true"
                                 android:orientation="vertical">
@@ -131,12 +131,15 @@
                                         android:text="@string/file_action_share"/>
                         </LinearLayout>
 
-                        <View
-                              android:layout_width="1dp"
-                              android:layout_height="@dimen/lv_expandable_item_divider_height"
-                              android:layout_alignBottom="@+id/action_share_txt"
-                              android:layout_alignParentRight="true"
-                              android:background="@color/half_transparent"/>
+                        <LinearLayout android:layout_width="wrap_content"
+                                      android:layout_height="fill_parent"
+                                      android:paddingTop="10dp"
+                                      android:layout_alignParentRight="true">
+                                <View
+                                        android:layout_width="1dp"
+                                        android:layout_height="@dimen/lv_expandable_item_divider_height"
+                                        android:background="@color/half_transparent"/>
+                        </LinearLayout>
                 </RelativeLayout>
 
                 <RelativeLayout
@@ -147,7 +150,7 @@
                         android:background="@drawable/spinner_selector_holo_dark">
                         <LinearLayout
                                 android:layout_width="@dimen/lv_expandable_element_width"
-                                android:layout_height="@dimen/lv_expandable_element_height"
+                                android:layout_height="wrap_content"
                                 android:layout_centerInParent="true"
                                 android:orientation="vertical">
 
@@ -165,29 +168,34 @@
                                         android:textSize="@dimen/lv_expandable_txt_size"
                                         android:text="@string/file_action_delete"/>
                         </LinearLayout>
-                        <View
-                              android:layout_width="1dp"
-                              android:layout_height="@dimen/lv_expandable_item_divider_height"
-                              android:layout_alignBottom="@+id/action_share_txt"
-                              android:layout_alignParentRight="true"
-                              android:background="@color/half_transparent"/>
+                        <LinearLayout android:layout_width="wrap_content"
+                                      android:layout_height="fill_parent"
+                                      android:paddingTop="10dp"
+                                      android:layout_alignParentRight="true">
+                                <View
+                                        android:layout_width="1dp"
+                                        android:layout_height="@dimen/lv_expandable_item_divider_height"
+                                        android:background="@color/half_transparent"/>
+                        </LinearLayout>
+
                 </RelativeLayout>
 
-                <LinearLayout
+                <RelativeLayout
                         android:id="@+id/action_rename_ll"
                         android:layout_width="@dimen/lv_expandable_element_width"
                         android:layout_height="@dimen/lv_expandable_element_height"
                         android:layout_weight="0.2"
-                        android:orientation="horizontal">
+                        android:background="@drawable/spinner_selector_holo_dark">
                         <LinearLayout
                                 android:layout_width="@dimen/lv_expandable_element_width"
-                                android:layout_height="@dimen/lv_expandable_element_height"
+                                android:layout_height="wrap_content"
+                                android:layout_centerInParent="true"
                                 android:orientation="vertical">
 
                                 <ImageView
                                         android:id="@+id/action_rename_btn"
-                                        android:layout_width="@dimen/lv_expandable_icon_width"
-                                        android:layout_height="@dimen/lv_expandable_icon_height"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
                                         android:layout_gravity="center_horizontal"
                                         android:src="@drawable/action_rename"/>
                                 <TextView
@@ -198,28 +206,33 @@
                                         android:textSize="@dimen/lv_expandable_txt_size"
                                         android:text="@string/file_action_rename"/>
                         </LinearLayout>
-                        <View
-                              android:layout_width="1dp"
-                              android:layout_height="@dimen/lv_expandable_item_divider_height"
-                              android:background="@color/half_transparent"/>
-                </LinearLayout>
+                        <LinearLayout android:layout_width="wrap_content"
+                                      android:layout_height="fill_parent"
+                                      android:padding="10dp"
+                                      android:layout_alignParentRight="true">
+                                <View
+                                        android:layout_width="1dp"
+                                        android:layout_height="@dimen/lv_expandable_item_divider_height"
+                                        android:background="@color/half_transparent"/>
+                        </LinearLayout>
+                </RelativeLayout>
 
-
-                <LinearLayout
+                <RelativeLayout
                         android:id="@+id/action_export_ll"
                         android:layout_width="@dimen/lv_expandable_element_width"
                         android:layout_height="@dimen/lv_expandable_element_height"
                         android:layout_weight="0.2"
-                        android:orientation="horizontal">
+                        android:background="@drawable/spinner_selector_holo_dark">
 
                         <LinearLayout
                                 android:layout_width="@dimen/lv_expandable_element_width"
-                                android:layout_height="@dimen/lv_expandable_element_height"
+                                android:layout_height="wrap_content"
+                                android:layout_centerInParent="true"
                                 android:orientation="vertical">
                                 <ImageView
                                         android:id="@+id/action_export_btn"
-                                        android:layout_width="@dimen/lv_expandable_icon_width"
-                                        android:layout_height="@dimen/lv_expandable_icon_height"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
                                         android:layout_gravity="center_horizontal"
                                         android:src="@drawable/action_export"/>
                                 <TextView
@@ -230,51 +243,62 @@
                                         android:textSize="@dimen/lv_expandable_txt_size"
                                         android:text="@string/file_action_export"/>
                         </LinearLayout>
-                        <View
-                              android:layout_width="1dp"
-                              android:layout_gravity="right"
-                              android:layout_height="@dimen/lv_expandable_item_divider_height"
-                              android:background="@color/half_transparent"/>
-                </LinearLayout>
+                        <LinearLayout android:layout_width="wrap_content"
+                                      android:layout_height="fill_parent"
+                                      android:padding="10dp"
+                                      android:layout_alignParentRight="true">
+                                <View
+                                        android:layout_width="1dp"
+                                        android:layout_height="@dimen/lv_expandable_item_divider_height"
+                                        android:background="@color/half_transparent"/>
+                        </LinearLayout>
+                </RelativeLayout>
 
-                <LinearLayout
+                <RelativeLayout
                         android:id="@+id/action_more_ll"
                         android:layout_width="@dimen/lv_expandable_element_width"
                         android:layout_height="@dimen/lv_expandable_element_height"
                         android:layout_weight="0.2"
-                        android:orientation="vertical">
+                        android:background="@drawable/spinner_selector_holo_dark">
 
-                        <ImageView
-                                android:id="@+id/action_more_btn"
-                                android:layout_gravity="center_horizontal"
-                                android:layout_width="@dimen/lv_expandable_icon_width"
-                                android:layout_height="@dimen/lv_expandable_icon_height"
-                                android:src="@drawable/action_more"/>
-                        <TextView
+                        <LinearLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_gravity="center_horizontal"
-                                android:textColor="@color/white"
-                                android:textSize="@dimen/lv_expandable_txt_size"
-                                android:text="@string/file_action_more"/>
-                </LinearLayout>
+                                android:orientation="vertical"
+                                android:layout_centerInParent="true">
+                                <ImageView
+                                        android:id="@+id/action_more_btn"
+                                        android:layout_gravity="center_horizontal"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:src="@drawable/action_more"/>
+                                <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="center_horizontal"
+                                        android:textColor="@color/white"
+                                        android:textSize="@dimen/lv_expandable_txt_size"
+                                        android:text="@string/file_action_more"/>
+                        </LinearLayout>
+                </RelativeLayout>
 
 
-                <LinearLayout
+                <RelativeLayout
                         android:id="@+id/action_copy_ll"
                         android:layout_width="@dimen/lv_expandable_element_width"
                         android:layout_height="@dimen/lv_expandable_element_height"
                         android:layout_weight="0.2"
-                        android:orientation="horizontal">
+                        android:background="@drawable/spinner_selector_holo_dark">
 
                         <LinearLayout
-                                android:layout_width="@dimen/lv_expandable_element_width"
-                                android:layout_height="@dimen/lv_expandable_element_height"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_centerInParent="true"
                                 android:orientation="vertical">
                                 <ImageView
                                         android:id="@+id/action_copy_btn"
-                                        android:layout_width="@dimen/lv_expandable_icon_width"
-                                        android:layout_height="@dimen/lv_expandable_icon_height"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
                                         android:layout_gravity="center_horizontal"
                                         android:src="@drawable/action_copy"/>
                                 <TextView
@@ -285,34 +309,44 @@
                                         android:textSize="@dimen/lv_expandable_txt_size"
                                         android:text="@string/file_action_copy"/>
                         </LinearLayout>
-                        <View
-                                android:layout_width="1dp"
-                                android:layout_gravity="right"
-                                android:layout_height="@dimen/lv_expandable_item_divider_height"
-                                android:background="@color/half_transparent"/>
-                </LinearLayout>
+                        <LinearLayout android:layout_width="wrap_content"
+                                      android:layout_height="fill_parent"
+                                      android:padding="10dp"
+                                      android:layout_alignParentRight="true">
+                                <View
+                                        android:layout_width="1dp"
+                                        android:layout_height="@dimen/lv_expandable_item_divider_height"
+                                        android:background="@color/half_transparent"/>
+                        </LinearLayout>
+                </RelativeLayout>
 
-                <LinearLayout
+                <RelativeLayout
                         android:id="@+id/action_move_ll"
                         android:layout_width="@dimen/lv_expandable_element_width"
                         android:layout_height="@dimen/lv_expandable_element_height"
                         android:layout_weight="0.2"
-                        android:orientation="vertical">
+                        android:background="@drawable/spinner_selector_holo_dark">
 
-                        <ImageView
-                                android:id="@+id/action_move_btn"
-                                android:layout_width="@dimen/lv_expandable_icon_width"
-                                android:layout_height="@dimen/lv_expandable_icon_height"
-                                android:layout_gravity="center_horizontal"
-                                android:src="@drawable/action_move"/>
-                        <TextView
+                        <LinearLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_gravity="center_horizontal"
-                                android:textColor="@color/white"
-                                android:textSize="@dimen/lv_expandable_txt_size"
-                                android:text="@string/file_action_move"/>
-                </LinearLayout>
+                                android:layout_centerInParent="true"
+                                android:orientation="vertical">
+                                <ImageView
+                                        android:id="@+id/action_move_btn"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="center_horizontal"
+                                        android:src="@drawable/action_move"/>
+                                <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="center_horizontal"
+                                        android:textColor="@color/white"
+                                        android:textSize="@dimen/lv_expandable_txt_size"
+                                        android:text="@string/file_action_move"/>
+                        </LinearLayout>
+                </RelativeLayout>
 
         </LinearLayout>
 </LinearLayout>
