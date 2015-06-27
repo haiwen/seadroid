@@ -419,4 +419,9 @@
     <!-- Gallery -->
     <string name="gallery_load_photos_error">Load photos error</string>
     <string name="gallery_encrypted_repo_not_supported">Encrypted library was not supported</string>
+
+    <!-- Overwrite existing files -->
+    <string name="overwrite_existing_file_title">Replace existing file</string>
+    <string name="overwrite_existing_file_msg">The file already exist, do you want to replace it?</string>
+    <string name="overwrite_existing_file_exist">The file already exist</string>
 </resources>
