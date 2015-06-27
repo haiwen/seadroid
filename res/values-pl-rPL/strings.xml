@@ -349,7 +349,12 @@
   <string name="shib_loading">wczytywanie...</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">Błąd połączenia sieciowego, proszę spróbować później!</string>
-  <string name="transfer_list_cancel_all">Anuluj wszystko</string>
+  <string name="transfer_list_cancel_all">Anuluj wszystkie zadania</string>
+  <string name="transfer_list_retry_failed_tasks">Ponów błędne zadania</string>
+  <string name="transfer_list_restart_cancelled_tasks">Uruchom ponownie anulowane zadania</string>
+  <string name="transfer_list_clear_failed_tasks">Wyczyść błędne zadania</string>
+  <string name="transfer_list_clear_cancelled_tasks">Wyczyść anulowane zadania</string>
+  <string name="transfer_list_clear_finished_tasks">Wyczyść ukończone zadania</string>
   <string name="transfer_tabs_downloads">Lista pobierań</string>
   <string name="transfer_tabs_uploads">Lista przesyłań</string>
   <string name="transfer_download_no_task">Wszystkie pliki zostały pobrane</string>
@@ -358,6 +363,16 @@
     <item quantity="few">Rozpoczynanie pobierania <xliff:g id="download_files">%1$d</xliff:g> plików</item>
     <item quantity="other">Rozpoczynanie pobierania <xliff:g id="download_files">%1$d</xliff:g> plików</item>
   </plurals>
+  <string name="transfer_list_select_all">Zaznacz wszystko</string>
+  <string name="transfer_list_deselect_all">Usuń zaznaczenie</string>
+  <plurals name="transfer_list_items_selected">
+    <item quantity="one">Zaznaczono %d element</item>
+    <item quantity="few">Zaznaczono %d elementy</item>
+    <item quantity="other">Zaznaczono %d elementów</item>
+  </plurals>
+  <!--Sort-->
+  <string name="sort_menu_item">Sortuj</string>
+  <string name="sort_files">Sortuj wg</string>
   <!--Search-->
   <string name="search_menu_item">Szukaj</string>
   <string name="search_bar_hint">Wyszukiwanie...</string>
@@ -386,4 +401,7 @@
   <!--Gallery-->
   <string name="gallery_load_photos_error">Błąd wczytywania zdjęć</string>
   <string name="gallery_encrypted_repo_not_supported">Szyfrowana biblioteka nie była obsługiwana</string>
+  <!--Overwrite existing files-->
+  <string name="overwrite_existing_file_title">Nadpisz istniejący plik</string>
+  <string name="overwrite_existing_file_msg">Plik już istnieje, czy chcesz go nadpisać?</string>
 </resources>

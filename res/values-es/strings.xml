@@ -345,6 +345,11 @@
   <!--Transfer List-->
   <string name="transfer_list_network_error">Error de conexión de red, por favor intente más tarde.</string>
   <string name="transfer_list_cancel_all">Cancelar todas las tareas</string>
+  <string name="transfer_list_retry_failed_tasks">Reintentar tareas fallidas</string>
+  <string name="transfer_list_restart_cancelled_tasks">Reiniciar tareas canceladas</string>
+  <string name="transfer_list_clear_failed_tasks">Limpiar tareas fallidas</string>
+  <string name="transfer_list_clear_cancelled_tasks">Limpiar tareas canceladas</string>
+  <string name="transfer_list_clear_finished_tasks">Limpiar tareas finalizadas</string>
   <string name="transfer_tabs_downloads">Lista de descarga</string>
   <string name="transfer_tabs_uploads">Lista de subida</string>
   <string name="transfer_download_no_task">Todos los archivos han sido descargados</string>
@@ -352,6 +357,15 @@
     <item quantity="one">Iniciando descarga de <xliff:g id="download_file">%1$d</xliff:g> archivo</item>
     <item quantity="other">Iniciando descarga de <xliff:g id="download_files">%1$d</xliff:g> archivos</item>
   </plurals>
+  <string name="transfer_list_select_all">Seleccionar todas</string>
+  <string name="transfer_list_deselect_all">Desmarcar todo</string>
+  <plurals name="transfer_list_items_selected">
+    <item quantity="one">%d ítem seleccionado</item>
+    <item quantity="other">%d items seleccionados</item>
+  </plurals>
+  <!--Sort-->
+  <string name="sort_menu_item">Ordenar</string>
+  <string name="sort_files">Ordenar por</string>
   <!--Search-->
   <string name="search_menu_item">Buscar</string>
   <string name="search_bar_hint">Buscando...</string>
@@ -378,4 +392,7 @@
   <!--Gallery-->
   <string name="gallery_load_photos_error">Error al cargar fotos</string>
   <string name="gallery_encrypted_repo_not_supported">Bibliotecas encriptadas no están soportadas</string>
+  <!--Overwrite existing files-->
+  <string name="overwrite_existing_file_title">Reemplazar archivo existente</string>
+  <string name="overwrite_existing_file_msg">El archivo ya existe, ¿desea reemplazarlo?</string>
 </resources>

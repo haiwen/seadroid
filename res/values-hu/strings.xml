@@ -344,7 +344,12 @@
   <string name="shib_loading">betöltés...</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">Hálózati hiba, próbálja meg később!</string>
-  <string name="transfer_list_cancel_all">Mindet megszakít</string>
+  <string name="transfer_list_cancel_all">Minden feladat megszakítása</string>
+  <string name="transfer_list_retry_failed_tasks">Hibás feladatok újrakezdése</string>
+  <string name="transfer_list_restart_cancelled_tasks">Megszakított feladatok újraindítása</string>
+  <string name="transfer_list_clear_failed_tasks">Hibás feladatok törlése</string>
+  <string name="transfer_list_clear_cancelled_tasks">Megszakított feladatok törlése</string>
+  <string name="transfer_list_clear_finished_tasks">Befejezett feladatok törlése</string>
   <string name="transfer_tabs_downloads">Letöltési lista</string>
   <string name="transfer_tabs_uploads">Feltöltési lista</string>
   <string name="transfer_download_no_task">Minden fájl letöltve</string>
@@ -352,6 +357,15 @@
     <item quantity="one"><xliff:g id="download_file">%1$d</xliff:g> fájl letöltése elindul</item>
     <item quantity="other"><xliff:g id="download_files">%1$d</xliff:g> fájl letöltése elindul</item>
   </plurals>
+  <string name="transfer_list_select_all">Mindet kijelöl</string>
+  <string name="transfer_list_deselect_all">Minden kijelölést megszűntet</string>
+  <plurals name="transfer_list_items_selected">
+    <item quantity="one">%d db kiválasztva</item>
+    <item quantity="other">%d db kiválasztva</item>
+  </plurals>
+  <!--Sort-->
+  <string name="sort_menu_item">Rendez</string>
+  <string name="sort_files">Rendezve:</string>
   <!--Search-->
   <string name="search_menu_item">Keres</string>
   <string name="search_bar_hint">Keresés...</string>
@@ -365,6 +379,7 @@
   <!--notification bar-->
   <string name="notification_upload_started_title">Fájlok feltöltése...</string>
   <string name="notification_download_started_title">Fájlok letöltése...</string>
+  <string name="notification_upload_completed">Feltöltés kész</string>
   <plurals name="notification_upload_info">
     <item quantity="one"><xliff:g id="uploading_file">%1$d</xliff:g> fájl feltöltése (%2$d%%)</item>
     <item quantity="other"><xliff:g id="uploading_file">%1$d</xliff:g> fájlok feltöltése (%2$d%%)</item>
@@ -373,5 +388,11 @@
     <item quantity="one"><xliff:g id="downloading_file">%1$d</xliff:g> fájl letöltése (%2$d%%)</item>
     <item quantity="other"><xliff:g id="downloading_file">%1$d</xliff:g> fájlok letöltése (%2$d%%)</item>
   </plurals>
+  <string name="notification_download_completed">Letöltés kész</string>
   <!--Gallery-->
+  <string name="gallery_load_photos_error">Hiba a fényképek betöltésénél</string>
+  <string name="gallery_encrypted_repo_not_supported">A titkosított kötet nem támogatott</string>
+  <!--Overwrite existing files-->
+  <string name="overwrite_existing_file_title">Létező fájlok felülírása</string>
+  <string name="overwrite_existing_file_msg">A fájl már létezik, felülírja?</string>
 </resources>

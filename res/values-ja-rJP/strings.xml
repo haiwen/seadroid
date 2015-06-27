@@ -339,13 +339,26 @@
   <string name="shib_loading">読み込み中…</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">ネットワーク接続エラー。後で再度実行してください!</string>
-  <string name="transfer_list_cancel_all">すべてキャンセル</string>
+  <string name="transfer_list_cancel_all">すべてのタスクをキャンセル</string>
+  <string name="transfer_list_retry_failed_tasks">失敗したタスクを再試行</string>
+  <string name="transfer_list_restart_cancelled_tasks">キャンセルしたタスクを再開</string>
+  <string name="transfer_list_clear_failed_tasks">失敗したタスクをクリア</string>
+  <string name="transfer_list_clear_cancelled_tasks">キャンセルしたタスクをクリア</string>
+  <string name="transfer_list_clear_finished_tasks">完了したタスクをクリア</string>
   <string name="transfer_tabs_downloads">ダウンロードリスト</string>
   <string name="transfer_tabs_uploads">アップロードリスト</string>
   <string name="transfer_download_no_task">ファイルはすべてダウンロードしました</string>
   <plurals name="transfer_download_started">
     <item quantity="other"><xliff:g id="download_files">%1$d</xliff:g> ファイルのダウンロードが開始しました</item>
   </plurals>
+  <string name="transfer_list_select_all">すべて選択</string>
+  <string name="transfer_list_deselect_all">すべて選択解除</string>
+  <plurals name="transfer_list_items_selected">
+    <item quantity="other">%d アイテム選択済</item>
+  </plurals>
+  <!--Sort-->
+  <string name="sort_menu_item">並び替え</string>
+  <string name="sort_files">並び替え順</string>
   <!--Search-->
   <string name="search_menu_item">検索</string>
   <string name="search_bar_hint">検索中…</string>
@@ -370,4 +383,7 @@
   <!--Gallery-->
   <string name="gallery_load_photos_error">写真の読み込みエラー</string>
   <string name="gallery_encrypted_repo_not_supported">暗号化されたライブラリーはサポートされていません</string>
+  <!--Overwrite existing files-->
+  <string name="overwrite_existing_file_title">存在するファイルを置き換え</string>
+  <string name="overwrite_existing_file_msg">ファイルがすでに存在します。置き換えますか?</string>
 </resources>

@@ -277,7 +277,6 @@
   <string name="shib_loading">načítání...</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">Chyba připojení k síti. Prosím, zkuste to později!</string>
-  <string name="transfer_list_cancel_all">Zrušit vše</string>
   <string name="transfer_tabs_downloads">Seznam stahování</string>
   <string name="transfer_tabs_uploads">Seznam nahrávání</string>
   <string name="transfer_download_no_task">Všechny soubory byly staženy</string>
@@ -286,6 +285,7 @@
     <item quantity="few">Spouštění stahování <xliff:g id="download_file">%1$d</xliff:g> souboru</item>
     <item quantity="other">Spouštění stahování <xliff:g id="download_files">%1$d</xliff:g> souborů</item>
   </plurals>
+  <!--Sort-->
   <!--Search-->
   <string name="search_menu_item">Hledat</string>
   <string name="search_bar_hint">Hledání...</string>
@@ -298,4 +298,5 @@
   <string name="star_file_failed">Soubor nebyl přidán do oblíbených</string>
   <!--notification bar-->
   <!--Gallery-->
+  <!--Overwrite existing files-->
 </resources>

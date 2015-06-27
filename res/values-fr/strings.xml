@@ -344,7 +344,12 @@
   <string name="shib_loading">Chargement en cours...</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">Erreur de connexion réseau, réessayer plus tard !</string>
-  <string name="transfer_list_cancel_all">Tout annuler</string>
+  <string name="transfer_list_cancel_all">Annuler toutes les taches</string>
+  <string name="transfer_list_retry_failed_tasks">Relancer les taches en échec</string>
+  <string name="transfer_list_restart_cancelled_tasks">Redémarrer les taches annulées</string>
+  <string name="transfer_list_clear_failed_tasks">Effacer les taches en échec</string>
+  <string name="transfer_list_clear_cancelled_tasks">Effacer les taches annulées</string>
+  <string name="transfer_list_clear_finished_tasks">Effacer les taches terminées</string>
   <string name="transfer_tabs_downloads">Liste des téléchargements</string>
   <string name="transfer_tabs_uploads">Liste d\'envois</string>
   <string name="transfer_download_no_task">Tous les fichiers ont été téléchargés</string>
@@ -352,6 +357,15 @@
     <item quantity="one">Début du téléchargement de <xliff:g id="download_file">%1$d</xliff:g> fichier</item>
     <item quantity="other">Début du téléchargement de <xliff:g id="download_files">%1$d</xliff:g> fichiers</item>
   </plurals>
+  <string name="transfer_list_select_all">Tout sélectionner</string>
+  <string name="transfer_list_deselect_all">Tout désélectionner</string>
+  <plurals name="transfer_list_items_selected">
+    <item quantity="one">%d élément sélectionné</item>
+    <item quantity="other">%d éléments séléctionnés</item>
+  </plurals>
+  <!--Sort-->
+  <string name="sort_menu_item">Tri</string>
+  <string name="sort_files">Tri par</string>
   <!--Search-->
   <string name="search_menu_item">Rechercher</string>
   <string name="search_bar_hint">Recherche en cours...</string>
@@ -378,4 +392,7 @@
   <!--Gallery-->
   <string name="gallery_load_photos_error">Erreur de chargement des photos</string>
   <string name="gallery_encrypted_repo_not_supported">Bibliothèque cryptée non  supportée</string>
+  <!--Overwrite existing files-->
+  <string name="overwrite_existing_file_title">Remplacer le fichier existant</string>
+  <string name="overwrite_existing_file_msg">Ce fichier existe déjà, Voulez vous le remplacer ?</string>
 </resources>

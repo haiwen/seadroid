@@ -333,7 +333,6 @@
   <string name="shib_loading">laster...</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">Nettverkstilkoblingsfeil. Prøv igjen senere!</string>
-  <string name="transfer_list_cancel_all">Avbryt alle</string>
   <string name="transfer_tabs_downloads">Nedlastingsliste</string>
   <string name="transfer_tabs_uploads">Opplastingsliste</string>
   <string name="transfer_download_no_task">Alle filene er lastet ned</string>
@@ -341,6 +340,7 @@
     <item quantity="one">Begynner å laste ned <xliff:g id="download_file">%1$d</xliff:g> filen</item>
     <item quantity="other">Begynner å laste ned <xliff:g id="download_files">%1$d</xliff:g> filer</item>
   </plurals>
+  <!--Sort-->
   <!--Search-->
   <string name="search_menu_item">Søk</string>
   <string name="search_bar_hint">Søker...</string>
@@ -355,4 +355,5 @@
   <string name="notification_upload_started_title">Laster opp filer...</string>
   <string name="notification_download_started_title">Laster ned filer....</string>
   <!--Gallery-->
+  <!--Overwrite existing files-->
 </resources>
