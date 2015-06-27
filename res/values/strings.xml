@@ -360,13 +360,24 @@
 
     <!-- Transfer List -->
     <string name="transfer_list_network_error">Network connection error, please try again later!</string>
-    <string name="transfer_list_cancel_all">Cancel all</string>
+    <string name="transfer_list_cancel_all">Cancel all tasks</string>
+    <string name="transfer_list_retry_failed_tasks">Retry failed tasks</string>
+    <string name="transfer_list_restart_cancelled_tasks">Restart cancelled tasks</string>
+    <string name="transfer_list_clear_failed_tasks">Clear failed tasks</string>
+    <string name="transfer_list_clear_cancelled_tasks">Clear cancelled tasks</string>
+    <string name="transfer_list_clear_finished_tasks">Clear finished tasks</string>
     <string name="transfer_tabs_downloads">Download List</string>
     <string name="transfer_tabs_uploads">Upload List</string>
     <string name="transfer_download_no_task">All files has been downloaded</string>
     <plurals name="transfer_download_started">
         <item quantity="one">Starting to download <xliff:g id="download_file">%1$d</xliff:g> file</item>
         <item quantity="other">Starting to download <xliff:g id="download_files">%1$d</xliff:g> files</item>
+    </plurals>
+    <string name="transfer_list_select_all">Select all</string>
+    <string name="transfer_list_deselect_all">Deselect all</string>
+    <plurals name="transfer_list_items_selected">
+        <item quantity="one">%d item selected</item>
+        <item quantity="other">%d items selected</item>
     </plurals>
 
     <!-- Sort -->

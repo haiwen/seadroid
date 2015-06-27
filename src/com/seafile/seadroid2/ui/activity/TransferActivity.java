@@ -9,15 +9,16 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.widget.ImageView;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.notification.BaseNotificationProvider;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
-import com.seafile.seadroid2.notification.UploadNotificationProvider;
 import com.seafile.seadroid2.ui.adapter.TransferTaskAdapter;
 import com.seafile.seadroid2.ui.fragment.DownloadTaskFragment;
 import com.seafile.seadroid2.ui.fragment.UploadTaskFragment;
@@ -26,8 +27,7 @@ import com.viewpagerindicator.TabPageIndicator;
 public class TransferActivity extends SherlockFragmentActivity {
     private static final String DEBUG_TAG = "TransferActivity";
 
-    /**  0 mark as Download Fragment, 1 mark as Upload Fragment, the same convention with {@link TransferTaskAdapter #mTransferTaskType} */
-    private int currentPosition = 0;
+    private TransferTaskAdapter.TaskType whichTab = TransferTaskAdapter.TaskType.DOWNLOAD_TASK;
     private TransferTabsAdapter tabsAdapter;
     private ViewPager pager;
     private TabPageIndicator indicator;
@@ -42,10 +42,10 @@ public class TransferActivity extends SherlockFragmentActivity {
                 // extract the extra-data in the Notification
                 String msg = extras.getString(BaseNotificationProvider.NOTIFICATION_MESSAGE_KEY);
                 if (msg.equals(DownloadNotificationProvider.NOTIFICATION_OPEN_DOWNLOAD_TAB)) {
-                    currentPosition = 0;
+                    whichTab = TransferTaskAdapter.TaskType.DOWNLOAD_TASK;
                     indicator.setCurrentItem(0);
                 } else if (msg.equals(BaseNotificationProvider.NOTIFICATION_OPEN_UPLOAD_TAB)) {
-                    currentPosition = 1;
+                    whichTab = TransferTaskAdapter.TaskType.UPLOAD_TASK;
                     indicator.setCurrentItem(1);
                 }
             }
@@ -68,7 +68,28 @@ public class TransferActivity extends SherlockFragmentActivity {
             @Override
             public void onPageSelected(final int position) {
                 Log.d(DEBUG_TAG, "current tab index " + position);
-                currentPosition = position;
+                whichTab = (position == 0
+                        ? TransferTaskAdapter.TaskType.DOWNLOAD_TASK
+                        : TransferTaskAdapter.TaskType.UPLOAD_TASK);
+
+                ActionMode mode = null;
+                if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK
+                        && getUploadTaskFragment() != null) {
+                    // slide from Upload tab to Download tab,
+                    // so hide the CAB of UploadTaskFragment
+                    mode = getUploadTaskFragment().getActionMode();
+                    getUploadTaskFragment().deselectItems();
+                } else if(whichTab == TransferTaskAdapter.TaskType.UPLOAD_TASK
+                        && getDownloadTaskFragment() != null) {
+                    // slide from Download tab to Upload tab,
+                    // so hide the CAB of DownloadTaskFragment
+                    mode = getDownloadTaskFragment().getActionMode();
+                    getDownloadTaskFragment().deselectItems();
+                }
+
+                if (mode != null)
+                    mode.finish();
+
                 supportInvalidateOptionsMenu();
                 pager.setCurrentItem(position);
             }
@@ -94,6 +115,17 @@ public class TransferActivity extends SherlockFragmentActivity {
         onNewIntent(getIntent());
     }
 
+    public void onItemSelected() {
+        // update CAB title
+        if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK
+                && getDownloadTaskFragment() != null) {
+            getDownloadTaskFragment().updateCAB();
+        } else if (whichTab == TransferTaskAdapter.TaskType.UPLOAD_TASK
+                && getUploadTaskFragment() != null) {
+            getUploadTaskFragment().updateCAB();
+        }
+    }
+
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         switch (keyCode) {
@@ -112,26 +144,62 @@ public class TransferActivity extends SherlockFragmentActivity {
         overFlowMenu = menu;
         return true;
     }
-    
+
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         // MenuItem cancel = menu.findItem(R.id.cancel_transfer_tasks);
         return true;
     }
-    
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-        case android.R.id.home:
-            finish();
-            return true;
-        case R.id.cancel_transfer_tasks:
-            if (currentPosition == 0) {
-                getDownloadTaskFragment().cancelAllDownloadTasks();
-                
-            } else getUploadTaskFragment().cancelUploadTasks();
-            
-            return true;
+            case android.R.id.home:
+                finish();
+                return true;
+            case R.id.cancel_transfer_tasks:
+                if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK) {
+                    getDownloadTaskFragment().cancelAllDownloadTasks();
+
+                } else getUploadTaskFragment().cancelUploadTasks();
+
+                return true;
+            case R.id.retry_failed_transfer_tasks:
+                if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK) {
+                    getDownloadTaskFragment().retryAllFailedTasks();
+
+                } else getUploadTaskFragment().retryAllFailedTasks();
+
+                return true;
+            case R.id.restart_cancelled_transfer_tasks:
+                if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK) {
+                    getDownloadTaskFragment().restartAllCancelledTasks();
+
+                } else getUploadTaskFragment().restartAllCancelledTasks();
+
+                return true;
+            case R.id.clear_failed_transfer_tasks:
+                if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK) {
+                    getDownloadTaskFragment().removeAllFailedDownloadTasks();
+
+                } else getUploadTaskFragment().removeAllFailedUploadTasks();
+
+                return true;
+            case R.id.clear_cancelled_transfer_tasks:
+                if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK) {
+                    getDownloadTaskFragment().removeAllCancelledDownloadTasks();
+
+                } else getUploadTaskFragment().removeAllCancelledUploadTasks();
+
+                return true;
+            case R.id.clear_finished_transfer_tasks:
+                if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK) {
+                    getDownloadTaskFragment().removeAllFinishedDownloadTasks();
+
+                } else getUploadTaskFragment().removeAllFinishedUploadTasks();
+
+                return true;
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -206,4 +274,5 @@ public class TransferActivity extends SherlockFragmentActivity {
         }
 
     }
+
 }

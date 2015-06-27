@@ -114,6 +114,12 @@ public class TransferService extends Service {
 
     }
 
+    public void restartAllUploadTasksByState(TaskState taskState) {
+        for (TransferTask tt : uploadTaskManager.getTasksByState(taskState)) {
+            retryUploadTask(tt.getTaskID());
+        }
+    }
+
     public void cancelUploadTaskInQue(int taskID) {
         uploadTaskManager.cancel(taskID);
         uploadTaskManager.doNext();
@@ -121,6 +127,11 @@ public class TransferService extends Service {
 
     public void cancelAllUploadTasks() {
         uploadTaskManager.cancelAll();
+        uploadTaskManager.cancelAllUploadNotification();
+    }
+
+    public void cancelUploadTasksByIds(List<Integer> ids) {
+        uploadTaskManager.cancelByIds(ids);
         uploadTaskManager.cancelAllUploadNotification();
     }
 
@@ -134,6 +145,24 @@ public class TransferService extends Service {
 
     public void removeUploadTask(int taskID) {
         uploadTaskManager.removeInAllTaskList(taskID);
+    }
+
+    /**
+     * remove all upload tasks by their taskIds.
+     *
+     * Note: when deleting all tasks whose state is {@link com.seafile.seadroid2.transfer.TaskState#TRANSFERRING} in the queue,
+     * other tasks left will never be executed, because they are all in the {@link com.seafile.seadroid2.transfer.TaskState#INIT} state.
+     * In this case, explicitly call doNext to start processing the queue.
+     *
+     * @param ids
+     */
+    public void removeUploadTasksByIds(List<Integer> ids) {
+        uploadTaskManager.removeByIds(ids);
+        // explicitly call doNext if there aren`t any tasks under transferring state,
+        // in case that all tasks are waiting in the queue.
+        // This could happen if all transferring tasks are removed by calling removeByIds.
+        if (!uploadTaskManager.isTransferring())
+            uploadTaskManager.doNext();
     }
 
     // -------------------------- download task --------------------//
@@ -165,9 +194,32 @@ public class TransferService extends Service {
         downloadTaskManager.removeInAllTaskList(taskID);
     }
 
+    public void restartAllDownloadTasksByState(TaskState taskState) {
+        for (TransferTask tt : downloadTaskManager.getTasksByState(taskState)) {
+            retryDownloadTask(tt.getTaskID());
+        }
+    }
+
     public void removeAllDownloadTasksByState(TaskState taskState) {
         downloadTaskManager.removeByState(taskState);
+    }
 
+    /**
+     * remove all download tasks by their taskIds.
+     *
+     * Note: when deleting all tasks whose state is {@link com.seafile.seadroid2.transfer.TaskState#TRANSFERRING} in the queue,
+     * other tasks left will never be executed, because they are all in the {@link com.seafile.seadroid2.transfer.TaskState#INIT} state.
+     * In this case, explicitly call doNext to start processing the queue.
+     *
+     * @param ids
+     */
+    public void removeDownloadTasksByIds(List<Integer> ids) {
+        downloadTaskManager.removeByIds(ids);
+        // explicitly call doNext if there aren`t any tasks under transferring state,
+        // in case that all tasks are waiting in the queue.
+        // This could happen if all transferring tasks are removed by calling removeByIds.
+        if (!downloadTaskManager.isTransferring())
+            downloadTaskManager.doNext();
     }
 
     public void retryDownloadTask(int taskID) {
@@ -193,6 +245,11 @@ public class TransferService extends Service {
 
     public void cancellAllDownloadTasks() {
         downloadTaskManager.cancelAll();
+        downloadTaskManager.cancelAllDownloadNotification();
+    }
+
+    public void cancellDownloadTasksByIds(List<Integer> ids) {
+        downloadTaskManager.cancelByIds(ids);
         downloadTaskManager.cancelAllDownloadNotification();
     }
 

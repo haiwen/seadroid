@@ -1,8 +1,6 @@
 package com.seafile.seadroid2.ui.fragment;
 
 import android.os.Bundle;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.transfer.TaskState;
 import com.seafile.seadroid2.transfer.TransferTaskInfo;
@@ -44,54 +42,50 @@ public class UploadTaskFragment extends TransferTaskFragment {
         return !txService.getAllUploadTaskInfos().isEmpty();
     }
 
-    @Override
-    public boolean onContextItemSelected(android.view.MenuItem item) {
-        if (getUserVisibleHint()) {
-            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
 
-            if (txService == null) {
-                return false;
-            }
-
-            ListView listView = mTransferTaskListView;
-            UploadTaskInfo taskInfo = (UploadTaskInfo) listView.getItemAtPosition(info.position);
-            TaskState state = taskInfo.state;
-            int taskID = taskInfo.taskID;
-
-            switch (item.getItemId()) {
-                case R.id.cancel:
-                    if (state == TaskState.INIT || state == TaskState.TRANSFERRING) {
-                        txService.cancelUploadTaskInQue(taskID);
-                    }
-                    break;
-                case R.id.retry:
-                    if (state == TaskState.FAILED || state == TaskState.CANCELLED) {
-                        txService.retryUploadTask(taskID);
-                    }
-                    break;
-                case R.id.remove:
-                    if (state == TaskState.FINISHED || state == TaskState.FAILED || state == TaskState.CANCELLED) {
-                        txService.removeUploadTask(taskID);
-                    }
-                    break;
-                case R.id.remove_all_cancelled:
-                    if (state == TaskState.CANCELLED) {
-                        txService.removeAllUploadTasksByState(TaskState.CANCELLED);
-                    }
-                    break;
-                case R.id.remove_all_finished:
-                    if (state == TaskState.FINISHED) {
-                        txService.removeAllUploadTasksByState(TaskState.FINISHED);
-                    }
-                    break;
-                default:
-                    return super.onContextItemSelected(item);
-            }
-
-            return true;
+    /**
+     * retry all failed tasks
+     */
+    public void retryAllFailedTasks() {
+        if (txService != null) {
+            txService.restartAllUploadTasksByState(TaskState.FAILED);
         }
-        else
-            return false;
+    }
+
+    /**
+     * restart all cancelled tasks
+     */
+    public void restartAllCancelledTasks() {
+        if (txService != null) {
+            txService.restartAllUploadTasksByState(TaskState.CANCELLED);
+        }
+    }
+
+    /**
+     * remove all failed Upload tasks
+     */
+    public void removeAllFailedUploadTasks() {
+        if (txService != null) {
+            txService.removeAllUploadTasksByState(TaskState.FAILED);
+        }
+    }
+
+    /**
+     * remove all cancelled Upload tasks
+     */
+    public void removeAllCancelledUploadTasks() {
+        if (txService != null) {
+            txService.removeAllUploadTasksByState(TaskState.CANCELLED);
+        }
+    }
+
+    /**
+     * remove all finished Upload tasks
+     */
+    public void removeAllFinishedUploadTasks() {
+        if (txService != null) {
+            txService.removeAllUploadTasksByState(TaskState.FINISHED);
+        }
     }
 
     /**
@@ -105,4 +99,24 @@ public class UploadTaskFragment extends TransferTaskFragment {
             txService.cancelAllUploadTasks();
         }
     }
+
+    private void cancelUploadTasksByIds(List<Integer> ids) {
+        if (txService != null) {
+            txService.cancelUploadTasksByIds(ids);
+        }
+    }
+
+    private void removeUploadTasksByIds(List<Integer> ids) {
+        if (txService != null) {
+            txService.removeUploadTasksByIds(ids);
+        }
+
+    }
+
+    @Override
+    protected void deleteSelectedItems(List<Integer> ids) {
+        cancelUploadTasksByIds(ids);
+        removeUploadTasksByIds(ids);
+    }
+
 }

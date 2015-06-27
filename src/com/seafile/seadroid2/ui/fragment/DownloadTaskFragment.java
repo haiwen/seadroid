@@ -2,8 +2,6 @@ package com.seafile.seadroid2.ui.fragment;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.TaskState;
@@ -46,53 +44,58 @@ public class DownloadTaskFragment extends TransferTaskFragment {
         return !txService.getAllDownloadTaskInfos().isEmpty();
     }
 
-    @Override
-    public boolean onContextItemSelected(android.view.MenuItem item) {
-        if (getUserVisibleHint()) {
-            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+    /**
+     * retry all failed tasks
+     */
+    public void retryAllFailedTasks() {
+        if (txService != null) {
+            txService.restartAllDownloadTasksByState(TaskState.FAILED);
+        }
+    }
 
-            if (txService == null) {
-                return false;
-            }
+    /**
+     * restart all cancelled tasks
+     */
+    public void restartAllCancelledTasks() {
+        if (txService != null) {
+            txService.restartAllDownloadTasksByState(TaskState.CANCELLED);
+        }
+    }
 
-            ListView listView = mTransferTaskListView;
-            DownloadTaskInfo taskInfo = (DownloadTaskInfo) listView.getItemAtPosition(info.position);
-            TaskState state = taskInfo.state;
-            int taskID = taskInfo.taskID;
+    /**
+     * remove all failed download tasks
+     */
+    public void removeAllFailedDownloadTasks() {
+        if (txService != null) {
+            txService.removeAllDownloadTasksByState(TaskState.FAILED);
+        }
+    }
 
-            switch (item.getItemId()) {
-                case R.id.cancel:
-                    if (state == TaskState.INIT || state == TaskState.TRANSFERRING) {
-                        txService.cancelDownloadTaskInQue(taskID);
-                    }
-                    break;
-                case R.id.retry:
-                    if (state == TaskState.FAILED || state == TaskState.CANCELLED) {
-                        txService.retryDownloadTask(taskID);
-                    }
-                    break;
-                case R.id.remove:
-                    if (state == TaskState.FINISHED || state == TaskState.FAILED || state == TaskState.CANCELLED) {
-                        txService.removeDownloadTask(taskID);
-                    }
-                    break;
-                case R.id.remove_all_cancelled:
-                    if (state == TaskState.CANCELLED) {
-                        txService.removeAllDownloadTasksByState(TaskState.CANCELLED);
-                    }
-                    break;
-                case R.id.remove_all_finished:
-                    if (state == TaskState.FINISHED) {
-                        txService.removeAllDownloadTasksByState(TaskState.FINISHED);
-                    }
-                    break;
-                default:
-                    return super.onContextItemSelected(item);
-            }
+    /**
+     * remove all cancelled download tasks
+     */
+    public void removeAllCancelledDownloadTasks() {
+        if (txService != null) {
+            txService.removeAllDownloadTasksByState(TaskState.CANCELLED);
+        }
+    }
 
-            return true;
-        } else
-            return false;
+    /**
+     * remove cancelled download tasks by Ids
+     */
+    public void removeDownloadTasksByIds(List<Integer> ids) {
+        if (txService != null) {
+            txService.removeDownloadTasksByIds(ids);
+        }
+    }
+
+    /**
+     * remove all finished download tasks
+     */
+    public void removeAllFinishedDownloadTasks() {
+        if (txService != null) {
+            txService.removeAllDownloadTasksByState(TaskState.FINISHED);
+        }
     }
 
     /**
@@ -102,6 +105,21 @@ public class DownloadTaskFragment extends TransferTaskFragment {
         if (txService != null) {
             txService.cancellAllDownloadTasks();
         }
+    }
+
+    /**
+     * cancel download tasks by ids
+     */
+    public void cancelDownloadTasksByIds(List<Integer> ids) {
+        if (txService != null) {
+            txService.cancellDownloadTasksByIds(ids);
+        }
+    }
+
+    @Override
+    protected void deleteSelectedItems(List<Integer> ids) {
+        cancelDownloadTasksByIds(ids);
+        removeDownloadTasksByIds(ids);
     }
 
 }

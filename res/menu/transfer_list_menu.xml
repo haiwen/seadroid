@@ -12,7 +12,42 @@
                 android:showAsAction="ifRoom"
                 android:title="@string/transfer_list_cancel_all"
                 android:visible="true">
-            Cancel
+            Cancel all tasks
+            </item>
+            <item
+                android:id="@+id/retry_failed_transfer_tasks"
+                android:showAsAction="ifRoom"
+                android:title="@string/transfer_list_retry_failed_tasks"
+                android:visible="true">
+            Retry failed tasks
+            </item>
+            <item
+                android:id="@+id/restart_cancelled_transfer_tasks"
+                android:showAsAction="ifRoom"
+                android:title="@string/transfer_list_restart_cancelled_tasks"
+                android:visible="true">
+            Restart cancelled tasks
+            </item>
+            <item
+                android:id="@+id/clear_failed_transfer_tasks"
+                android:showAsAction="ifRoom"
+                android:title="@string/transfer_list_clear_failed_tasks"
+                android:visible="true">
+            Clear failed tasks
+            </item>
+            <item
+                android:id="@+id/clear_cancelled_transfer_tasks"
+                android:showAsAction="ifRoom"
+                android:title="@string/transfer_list_clear_cancelled_tasks"
+                android:visible="true">
+            Clear cancelled tasks
+            </item>
+            <item
+                android:id="@+id/clear_finished_transfer_tasks"
+                android:showAsAction="ifRoom"
+                android:title="@string/transfer_list_clear_finished_tasks"
+                android:visible="true">
+            Clear finished tasks
             </item>
         </menu>
     </item>

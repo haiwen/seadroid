@@ -136,6 +136,25 @@ public abstract class TransferManager {
         }
     }
 
+    public synchronized List<TransferTask> getTasksByState(TaskState taskState) {
+        List<TransferTask> taskList = Lists.newArrayList();
+        Iterator<TransferTask> iter = allTaskList.iterator();
+        while (iter.hasNext()) {
+            TransferTask task = iter.next();
+            if (task.state.equals(taskState)) {
+                taskList.add(task);
+            }
+        }
+        return taskList;
+    }
+
+    /**
+     * remove tasks from {@link #allTaskList} by comparing the taskState,
+     * all tasks with the same taskState will be removed.
+     *
+     * @param taskState
+     *          taskState
+     */
     public synchronized void removeByState(TaskState taskState) {
         Iterator<TransferTask> iter = allTaskList.iterator();
         while (iter.hasNext()) {
@@ -146,10 +165,44 @@ public abstract class TransferManager {
         }
     }
 
+    /**
+     * remove tasks from {@link #allTaskList} by traversing the taskId list
+     *
+     * @param ids
+     *          taskId list
+     */
+    public synchronized void removeByIds(List<Integer> ids) {
+        for (int taskID : ids) {
+            TransferTask transferTask = getTask(taskID);
+            allTaskList.remove(transferTask);
+        }
+    }
+
+    /**
+     * check if there are tasks under transferring state
+     *
+     * @return true, if there are tasks whose {@link com.seafile.seadroid2.transfer.TaskState} is {@code TRANSFERRING}.
+     *          false, otherwise.
+     */
+    public boolean isTransferring() {
+        List<? extends TransferTaskInfo> transferTaskInfos = getAllTaskInfoList();
+        for (TransferTaskInfo transferTaskInfo : transferTaskInfos) {
+            if (transferTaskInfo.state.equals(TaskState.TRANSFERRING))
+                return true;
+        }
+        return false;
+    }
+
     public void cancelAll() {
         List<? extends TransferTaskInfo> transferTaskInfos = getAllTaskInfoList();
         for (TransferTaskInfo transferTaskInfo : transferTaskInfos) {
             cancel(transferTaskInfo.taskID);
+        }
+    }
+
+    public void cancelByIds(List<Integer> taskIds) {
+        for (int taskID : taskIds) {
+            cancel(taskID);
         }
     }
 
