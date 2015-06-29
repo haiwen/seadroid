@@ -113,7 +113,7 @@
                         <LinearLayout
                                 android:layout_width="@dimen/lv_expandable_element_width"
                                 android:layout_height="@dimen/lv_expandable_element_height"
-                                android:paddingTop="10dp"
+                                android:paddingTop="@dimen/lv_expandable_element_padding"
                                 android:layout_centerInParent="true"
                                 android:orientation="vertical">
                                 <ImageView
@@ -134,8 +134,8 @@
 
                         <LinearLayout android:layout_width="wrap_content"
                                       android:layout_height="@dimen/lv_expandable_element_height"
-                                      android:paddingTop="10dp"
-                                      android:paddingBottom="10dp"
+                                      android:paddingTop="@dimen/lv_expandable_item_divider_padding"
+                                      android:paddingBottom="@dimen/lv_expandable_item_divider_padding"
                                       android:layout_alignParentRight="true">
                                 <View
                                         android:layout_width="1dp"
@@ -154,7 +154,7 @@
                                 android:layout_width="@dimen/lv_expandable_element_width"
                                 android:layout_height="@dimen/lv_expandable_element_height"
                                 android:layout_centerInParent="true"
-                                android:paddingTop="10dp"
+                                android:paddingTop="@dimen/lv_expandable_element_padding"
                                 android:orientation="vertical">
 
                                 <ImageView
@@ -173,8 +173,8 @@
                         </LinearLayout>
                         <LinearLayout android:layout_width="wrap_content"
                                       android:layout_height="@dimen/lv_expandable_element_height"
-                                      android:paddingTop="10dp"
-                                      android:paddingBottom="10dp"
+                                      android:paddingTop="@dimen/lv_expandable_item_divider_padding"
+                                      android:paddingBottom="@dimen/lv_expandable_item_divider_padding"
                                       android:layout_alignParentRight="true">
                                 <View
                                         android:layout_width="1dp"
@@ -194,7 +194,7 @@
                                 android:layout_width="@dimen/lv_expandable_element_width"
                                 android:layout_height="@dimen/lv_expandable_element_height"
                                 android:layout_centerInParent="true"
-                                android:paddingTop="10dp"
+                                android:paddingTop="@dimen/lv_expandable_element_padding"
                                 android:orientation="vertical">
 
                                 <ImageView
@@ -213,18 +213,19 @@
                         </LinearLayout>
                         <LinearLayout android:layout_width="wrap_content"
                                       android:layout_height="@dimen/lv_expandable_element_height"
-                                      android:paddingTop="10dp"
-                                      android:paddingBottom="10dp"
+                                      android:paddingTop="@dimen/lv_expandable_item_divider_padding"
+                                      android:paddingBottom="@dimen/lv_expandable_item_divider_padding"
                                       android:layout_alignParentRight="true">
                                 <View
                                         android:layout_width="1dp"
                                         android:layout_height="@dimen/lv_expandable_item_divider_height"
                                         android:background="@color/half_transparent"/>
                         </LinearLayout>
+
                 </RelativeLayout>
 
                 <RelativeLayout
-                        android:id="@+id/action_export_ll"
+                        android:id="@+id/action_update_ll"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -234,32 +235,75 @@
                                 android:layout_width="@dimen/lv_expandable_element_width"
                                 android:layout_height="@dimen/lv_expandable_element_height"
                                 android:layout_centerInParent="true"
-                                android:paddingTop="10dp"
+                                android:paddingTop="@dimen/lv_expandable_element_padding"
                                 android:orientation="vertical">
                                 <ImageView
-                                        android:id="@+id/action_export_btn"
+                                        android:id="@+id/action_update_btn"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_gravity="center_horizontal"
-                                        android:src="@drawable/action_export"/>
+                                        android:src="@drawable/action_update"/>
                                 <TextView
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_gravity="center_horizontal"
                                         android:textColor="@color/white"
                                         android:textSize="@dimen/lv_expandable_txt_size"
-                                        android:text="@string/file_action_export"/>
+                                        android:text="@string/file_action_update"/>
                         </LinearLayout>
+
                         <LinearLayout android:layout_width="wrap_content"
                                       android:layout_height="@dimen/lv_expandable_element_height"
-                                      android:paddingTop="10dp"
-                                      android:paddingBottom="10dp"
+                                      android:paddingTop="@dimen/lv_expandable_item_divider_padding"
+                                      android:paddingBottom="@dimen/lv_expandable_item_divider_padding"
                                       android:layout_alignParentRight="true">
                                 <View
                                         android:layout_width="1dp"
                                         android:layout_height="@dimen/lv_expandable_item_divider_height"
                                         android:background="@color/half_transparent"/>
                         </LinearLayout>
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                        android:id="@+id/action_download_ll"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/spinner_selector_holo_dark">
+
+                        <LinearLayout
+                                android:layout_width="@dimen/lv_expandable_element_width"
+                                android:layout_height="@dimen/lv_expandable_element_height"
+                                android:layout_centerInParent="true"
+                                android:paddingTop="@dimen/lv_expandable_element_padding"
+                                android:orientation="vertical">
+                                <ImageView
+                                        android:id="@+id/action_download_btn"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="center_horizontal"
+                                        android:src="@drawable/action_download"/>
+                                <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="center_horizontal"
+                                        android:textColor="@color/white"
+                                        android:textSize="@dimen/lv_expandable_txt_size"
+                                        android:text="@string/file_action_download"/>
+                        </LinearLayout>
+
+                        <LinearLayout android:layout_width="wrap_content"
+                                      android:layout_height="@dimen/lv_expandable_element_height"
+                                      android:paddingTop="@dimen/lv_expandable_item_divider_padding"
+                                      android:paddingBottom="@dimen/lv_expandable_item_divider_padding"
+                                      android:layout_alignParentRight="true">
+                                <View
+                                        android:layout_width="1dp"
+                                        android:layout_height="@dimen/lv_expandable_item_divider_height"
+                                        android:background="@color/half_transparent"/>
+                        </LinearLayout>
+
                 </RelativeLayout>
 
                 <RelativeLayout
@@ -273,7 +317,7 @@
                                 android:layout_width="@dimen/lv_expandable_element_width"
                                 android:layout_height="@dimen/lv_expandable_element_height"
                                 android:orientation="vertical"
-                                android:paddingTop="10dp"
+                                android:paddingTop="@dimen/lv_expandable_element_padding"
                                 android:layout_centerInParent="true">
                                 <ImageView
                                         android:id="@+id/action_more_btn"
@@ -303,7 +347,7 @@
                                 android:layout_width="@dimen/lv_expandable_element_width"
                                 android:layout_height="@dimen/lv_expandable_element_height"
                                 android:layout_centerInParent="true"
-                                android:paddingTop="10dp"
+                                android:paddingTop="@dimen/lv_expandable_element_padding"
                                 android:orientation="vertical">
                                 <ImageView
                                         android:id="@+id/action_copy_btn"
@@ -321,8 +365,8 @@
                         </LinearLayout>
                         <LinearLayout android:layout_width="wrap_content"
                                       android:layout_height="@dimen/lv_expandable_element_height"
-                                      android:paddingTop="10dp"
-                                      android:paddingBottom="10dp"
+                                      android:paddingTop="@dimen/lv_expandable_item_divider_padding"
+                                      android:paddingBottom="@dimen/lv_expandable_item_divider_padding"
                                       android:layout_alignParentRight="true">
                                 <View
                                         android:layout_width="1dp"
@@ -342,7 +386,7 @@
                                 android:layout_width="@dimen/lv_expandable_element_width"
                                 android:layout_height="@dimen/lv_expandable_element_height"
                                 android:layout_centerInParent="true"
-                                android:paddingTop="10dp"
+                                android:paddingTop="@dimen/lv_expandable_element_padding"
                                 android:orientation="vertical">
                                 <ImageView
                                         android:id="@+id/action_move_btn"
