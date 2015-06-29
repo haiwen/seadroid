@@ -22,14 +22,14 @@
     <dimen name="lv_download_state_txt_size">14sp</dimen>
 
     <!-- slide expandable listview -->
-    <dimen name="lv_expandable_item_height">70dp</dimen>
+    <dimen name="lv_expandable_item_height">60dp</dimen>
     <dimen name="lv_expandable_item_padding">10dp</dimen>
     <dimen name="lv_expandable_item_divider_height">40dp</dimen>
+    <dimen name="lv_expandable_item_divider_padding">10dp</dimen>
     <dimen name="lv_expandable_element_height">60dp</dimen>
     <dimen name="lv_expandable_element_width">110dp</dimen>
-    <dimen name="lv_expandable_icon_height">40dp</dimen>
-    <dimen name="lv_expandable_icon_width">40dp</dimen>
-    <dimen name="lv_expandable_txt_size">10sp</dimen>
+    <dimen name="lv_expandable_element_padding">5dp</dimen>
+    <dimen name="lv_expandable_txt_size">14sp</dimen>
 
     <dimen name="lv_act_icon_width">70dp</dimen> <!-- Account -->
     <dimen name="lv_act_icon_height">70dp</dimen>
