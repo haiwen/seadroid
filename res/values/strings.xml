@@ -79,10 +79,9 @@
     <string name="file_action_more">More</string>
     <string name="file_action_more_title">Choose your preferred option</string>
     <string-array name="file_action_more_array">
+        <item>Export</item>
         <item>Copy</item>
         <item>Move</item>
-        <item>Download</item>
-        <item>Update</item>
         <item>Star</item>
     </string-array>
     <string-array name="file_type_array">

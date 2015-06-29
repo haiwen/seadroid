@@ -117,16 +117,13 @@ public class ReposFragment extends SherlockListFragment {
         Log.d(DEBUG_TAG, "ReposFragment onActivityCreated");
         adapter = new SeafItemAdapter(mActivity);
         
-        // You can also just use setListAdapter(mAdapter) or
-        // mPullRefreshListView.setAdapter(mAdapter)
-        //setListAdapter(adapter);
         mPullRefreshListView.setAdapter(new SlideExpandableListAdapter(
                 adapter,
                 R.id.list_item_action,
                 R.id.expandable));
 
-        // listen for events in the two buttons for every list item.
-        // the 'position' var will tell which list item is clicked
+        // listen for click events for each list item.
+        // the 'position' param will tell which list item is clicked
         mPullRefreshListView.setItemActionListener(new ActionSlideExpandableListView.OnActionClickListener() {
             @Override
             public void onClick(View itemView, View buttonview, int position) {
@@ -161,9 +158,13 @@ public class ReposFragment extends SherlockListFragment {
                         mPullRefreshListView.collapse();
                        mActivity.renameFile(repoID, repoName, path);
                         break;
-                    case R.id.action_export_ll:
+                    case R.id.action_update_ll:
                         mPullRefreshListView.collapse();
-                        mActivity.exportFile(dirent.name);
+                        mActivity.addUpdateTask(repoID, repoName, dir, localPath);
+                        break;
+                    case R.id.action_download_ll:
+                        mPullRefreshListView.collapse();
+                        mActivity.onFileSelected(dirent);
                         break;
                     case R.id.action_more_ll:
                         mPullRefreshListView.collapse();
@@ -177,16 +178,15 @@ public class ReposFragment extends SherlockListFragment {
                 R.id.action_copy_ll,
                 R.id.action_move_ll,
                 R.id.action_rename_ll,
-                R.id.action_export_ll,
+                R.id.action_update_ll,
+                R.id.action_download_ll,
                 R.id.action_more_ll);
-        //getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
     }
 
-    public static final int FILE_ACTION_COPY = 0;
-    public static final int FILE_ACTION_MOVE = 1;
-    public static final int FILE_ACTION_DOWNLOAD = 2;
-    public static final int FILE_ACTION_UPDATE = 3;
-    public static final int FILE_ACTION_STAR = 4;
+    public static final int FILE_ACTION_EXPORT = 0;
+    public static final int FILE_ACTION_COPY = 1;
+    public static final int FILE_ACTION_MOVE = 2;
+    public static final int FILE_ACTION_STAR = 3;
 
     private AlertDialog processMoreOptions(final String repoID,
                                            final String repoName,
@@ -203,17 +203,14 @@ public class ReposFragment extends SherlockListFragment {
                                     public void onClick(DialogInterface dialog, int which) {
                                         Intent intent;
                                         switch (which) {
+                                            case FILE_ACTION_EXPORT:
+                                                mActivity.exportFile(dirent.name);
+                                                break;
                                             case FILE_ACTION_COPY:
                                                 mActivity.copyFile(repoID, repoName, dir, filename, false);
                                                 break;
                                             case FILE_ACTION_MOVE:
                                                 mActivity.moveFile(repoID, repoName, dir, filename, false);
-                                                break;
-                                            case FILE_ACTION_DOWNLOAD:
-                                                mActivity.onFileSelected(dirent);
-                                                break;
-                                            case FILE_ACTION_UPDATE:
-                                                mActivity.addUpdateTask(repoID, repoName, dir, localPath);
                                                 break;
                                             case FILE_ACTION_STAR:
                                                 mActivity.starFile(repoID, dir, filename);
