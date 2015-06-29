@@ -5,7 +5,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.SeadroidApplication;
@@ -95,8 +94,7 @@ public abstract class ReposAdapter extends BaseAdapter {
 
     private class Viewholder {
         TextView title, subtitle;
-        ImageView icon;
-        ImageView action;
+        ImageView icon, action;
 
         public Viewholder(TextView title, TextView subtitle, ImageView icon, ImageView action) {
             super();
