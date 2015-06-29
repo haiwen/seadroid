@@ -1,34 +1,24 @@
 package com.seafile.seadroid2.ui.adapter;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
-import android.graphics.Bitmap;
-import android.widget.RelativeLayout;
-import com.google.common.collect.Lists;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
-import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
-import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.data.SeafItem;
-import com.seafile.seadroid2.data.SeafStarredFile;
-import com.seafile.seadroid2.ui.AnimateFirstDisplayListener;
-import com.seafile.seadroid2.ui.WidgetUtils;
-import com.seafile.seadroid2.ui.activity.BrowserActivity;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.google.common.collect.Lists;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.data.SeafItem;
+import com.seafile.seadroid2.data.SeafStarredFile;
+import com.seafile.seadroid2.ui.AnimateFirstDisplayListener;
+import com.seafile.seadroid2.ui.WidgetUtils;
+import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.util.Utils;
+
+import java.util.ArrayList;
 
 public class StarredItemAdapter extends BaseAdapter {
 
@@ -78,7 +68,7 @@ public class StarredItemAdapter extends BaseAdapter {
             TextView title = (TextView) view.findViewById(R.id.starred_list_item_title);
             TextView subtitle = (TextView) view.findViewById(R.id.starred_list_item_subtitle);
             ImageView icon = (ImageView) view.findViewById(R.id.starred_list_item_icon);
-            RelativeLayout action = (RelativeLayout) view.findViewById(R.id.starred_list_item_action);
+            ImageView action = (ImageView) view.findViewById(R.id.starred_list_item_action);
             viewHolder = new Viewholder(title, subtitle, icon, action);
             view.setTag(viewHolder);
         } else {
@@ -117,10 +107,9 @@ public class StarredItemAdapter extends BaseAdapter {
 
     private class Viewholder {
         TextView title, subtitle;
-        ImageView icon;
-        RelativeLayout action;
+        ImageView icon, action;
 
-        public Viewholder(TextView title, TextView subtitle, ImageView icon, RelativeLayout action) {
+        public Viewholder(TextView title, TextView subtitle, ImageView icon, ImageView action) {
             super();
             this.icon = icon;
             this.action = action;
