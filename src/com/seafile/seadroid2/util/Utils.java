@@ -21,6 +21,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import android.content.ContentResolver;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Build;
@@ -509,21 +510,22 @@ public class Utils {
 
     public static String getFilenamefromUri(Context context, Uri uri) {
 
-        Cursor cursor = context.getContentResolver()
-                .query(uri, null, null, null, null);
-
+        ContentResolver resolver =context.getContentResolver();
+        Cursor cursor = resolver.query(uri, null, null, null, null);
+        String displayName = null;
         if (cursor != null && cursor.moveToFirst()) {
 
             // Note it's called "Display Name".  This is
             // provider-specific, and might not necessarily be the file name.
-            String displayName = cursor.getString(
-                    cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+            displayName = cursor.getString(
+                cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
 
             cursor.close();
-            return displayName;
-        } else {
-            return "unknown filename";
         }
+        else if ("file".equalsIgnoreCase(uri.getScheme())) {
+            displayName = uri.getPath().replaceAll(".*/", "");
+        }
+        return displayName;
     }
 
     public static String getPath(Context context, Uri uri) throws URISyntaxException {
