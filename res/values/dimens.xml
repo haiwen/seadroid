@@ -43,7 +43,7 @@
 
     <!-- Content -->
     <dimen name="lv_margin_top">10dp</dimen> <!-- ListView -->
-    <dimen name="lv_item_height">48dp</dimen>
+    <dimen name="lv_item_height">68dp</dimen>
     <dimen name="lv_item_padding">10dp</dimen>
     <dimen name="lv_item_padding_top">10dp</dimen>
     <dimen name="lv_item_padding_bottom">10dp</dimen>
@@ -64,6 +64,16 @@
     <dimen name="lv_download_icon_margin_top">2dp</dimen>
     <dimen name="lv_download_state_txt_size">12sp</dimen>
 
+    <!-- slide expandable listview -->
+    <dimen name="lv_expandable_item_height">60dp</dimen>
+    <dimen name="lv_expandable_item_padding">5dp</dimen>
+    <dimen name="lv_expandable_item_divider_height">40dp</dimen>
+    <dimen name="lv_expandable_item_divider_padding">5dp</dimen>
+    <dimen name="lv_expandable_element_height">60dp</dimen>
+    <dimen name="lv_expandable_element_width">60dp</dimen>
+    <dimen name="lv_expandable_element_padding">10dp</dimen>
+    <dimen name="lv_expandable_txt_size">10sp</dimen>
+
     <dimen name="lv_act_icon_width">48dp</dimen> <!-- Account -->
     <dimen name="lv_act_icon_height">48dp</dimen>
     <dimen name="lv_act_icon_margin_top">7dp</dimen>
@@ -75,7 +85,7 @@
     <dimen name="lv_act_title_txt_size">18sp</dimen>
     <dimen name="lv_act_subtitle_height">25dp</dimen>
     <dimen name="lv_act_subtitle_margin_top">0sp</dimen>
-    <dimen name="lv_act_subtitle_margin_bottom">5sp</dimen>
+    <dimen name="lv_act_subtitle_margin_bottom">5dp</dimen>
     <dimen name="lv_act_subtitle_txt_size">16sp</dimen>
     <dimen name="lv_divider_height">1dp</dimen>
 
