@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.seafile.seadroid2</groupId>
   <artifactId>seadroid</artifactId>
-  <version>1.7.0</version>
+  <version>1.8.0</version>
   <packaging>apk</packaging>
   <name>seafile android client</name>
   <url>http://seafile.com</url>
@@ -48,13 +48,6 @@
       <version>2.4.1</version>
       <type>apklib</type>
     </dependency>
-    <dependency>
-      <groupId>com.github.lorensiuswlt</groupId>
-      <artifactId>NewQuickAction</artifactId>
-      <version>1.1</version>
-      <type>apklib</type>
-    </dependency>
-    
     <dependency>
       <groupId>com.github.kevinsawicki</groupId>
       <artifactId>http-request</artifactId>
