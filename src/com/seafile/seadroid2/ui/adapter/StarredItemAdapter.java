@@ -74,11 +74,11 @@ public class StarredItemAdapter extends BaseAdapter {
         Viewholder viewHolder;
 
         if (convertView == null) {
-            view = LayoutInflater.from(mActivity).inflate(R.layout.list_item_entry, null);
-            TextView title = (TextView) view.findViewById(R.id.list_item_title);
-            TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
-            ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
-            RelativeLayout action = (RelativeLayout) view.findViewById(R.id.list_item_action);
+            view = LayoutInflater.from(mActivity).inflate(R.layout.starred_list_item, null);
+            TextView title = (TextView) view.findViewById(R.id.starred_list_item_title);
+            TextView subtitle = (TextView) view.findViewById(R.id.starred_list_item_subtitle);
+            ImageView icon = (ImageView) view.findViewById(R.id.starred_list_item_icon);
+            RelativeLayout action = (RelativeLayout) view.findViewById(R.id.starred_list_item_action);
             viewHolder = new Viewholder(title, subtitle, icon, action);
             view.setTag(viewHolder);
         } else {
