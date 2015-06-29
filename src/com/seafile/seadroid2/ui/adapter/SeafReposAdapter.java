@@ -38,27 +38,27 @@ public class SeafReposAdapter extends ReposAdapter {
 
     @Override
     protected int getChildLayout() {
-        return R.layout.list_item_entry;
+        return R.layout.repo_list_item;
     }
 
     @Override
     protected int getChildTitleId() {
-        return R.id.list_item_title;
+        return R.id.repo_list_item_title;
     }
 
     @Override
     protected int getChildSubTitleId() {
-        return R.id.list_item_subtitle;
+        return R.id.repo_list_item_subtitle;
     }
 
     @Override
     protected int getChildIconId() {
-        return R.id.list_item_icon;
+        return R.id.repo_list_item_icon;
     }
 
     @Override
     protected int getChildActionId() {
-        return R.id.list_item_action;
+        return R.id.repo_list_item_action;
     }
 
     @Override
@@ -67,7 +67,7 @@ public class SeafReposAdapter extends ReposAdapter {
     }
 
     @Override
-    protected void showRepoSelectedIcon(int position, RelativeLayout imageView) {
+    protected void showRepoSelectedIcon(int position, ImageView imageView) {
         return;
     }
 }

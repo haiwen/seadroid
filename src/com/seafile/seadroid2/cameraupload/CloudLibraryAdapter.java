@@ -57,7 +57,7 @@ public class CloudLibraryAdapter extends ReposAdapter {
     }
 
     @Override
-    protected void showRepoSelectedIcon(int position, RelativeLayout imageView) {
+    protected void showRepoSelectedIcon(int position, ImageView imageView) {
         if (selectedRepo == null) {
             imageView.setVisibility(View.INVISIBLE);
             return;
