@@ -62,7 +62,7 @@ public abstract class ReposAdapter extends BaseAdapter {
 
     protected abstract SeafRepo getChildSeafRepo(int position);
 
-    protected abstract void showRepoSelectedIcon(int position, RelativeLayout imageView);
+    protected abstract void showRepoSelectedIcon(int position, ImageView imageView);
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -77,7 +77,7 @@ public abstract class ReposAdapter extends BaseAdapter {
             TextView title = (TextView) view.findViewById(getChildTitleId());
             TextView subtitle = (TextView) view.findViewById(getChildSubTitleId());
             ImageView icon = (ImageView) view.findViewById(getChildIconId());
-            RelativeLayout action = (RelativeLayout) view.findViewById(getChildActionId());
+            ImageView action = (ImageView) view.findViewById(getChildActionId());
             viewHolder = new Viewholder(title, subtitle, icon, action);
             view.setTag(viewHolder);
         } else {
@@ -96,9 +96,9 @@ public abstract class ReposAdapter extends BaseAdapter {
     private class Viewholder {
         TextView title, subtitle;
         ImageView icon;
-        RelativeLayout action;
+        ImageView action;
 
-        public Viewholder(TextView title, TextView subtitle, ImageView icon, RelativeLayout action) {
+        public Viewholder(TextView title, TextView subtitle, ImageView icon, ImageView action) {
             super();
             this.icon = icon;
             this.action = action;
