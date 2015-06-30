@@ -120,6 +120,12 @@ public class TransferService extends Service {
         }
     }
 
+    public void restartUploadTasksByIds(List<Integer> ids) {
+        for (int id : ids) {
+            retryUploadTask(id);
+        }
+    }
+
     public void cancelUploadTaskInQue(int taskID) {
         uploadTaskManager.cancel(taskID);
         uploadTaskManager.doNext();
@@ -197,6 +203,12 @@ public class TransferService extends Service {
     public void restartAllDownloadTasksByState(TaskState taskState) {
         for (TransferTask tt : downloadTaskManager.getTasksByState(taskState)) {
             retryDownloadTask(tt.getTaskID());
+        }
+    }
+
+    public void restartDownloadTasksByIds(List<Integer> ids) {
+        for (int id : ids) {
+            retryDownloadTask(id);
         }
     }
 

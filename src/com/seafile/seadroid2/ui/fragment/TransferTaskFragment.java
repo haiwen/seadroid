@@ -90,9 +90,13 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
                         deleteSelectedItems(convertToTaskIds(ids));
                         deselectItems();
                     }
-                    //mode.finish(); // Action picked, so close the CAB
                     break;
                 case R.id.task_action_restart:
+                    List<Integer> restartIds = adapter.getSelectedIds();
+                    if (restartIds != null) {
+                        restartSelectedItems(convertToTaskIds(restartIds));
+                        deselectItems();
+                    }
                     break;
             }
         }
@@ -131,6 +135,8 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
     }
 
     protected abstract void deleteSelectedItems(List<Integer> ids);
+
+    protected abstract void restartSelectedItems(List<Integer> ids);
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
