@@ -41,6 +41,8 @@ import java.util.List;
 public class SearchActivity extends SherlockFragmentActivity implements View.OnClickListener {
     private static final String DEBUG_TAG = "SearchActivity";
 
+    private static final String STATE_SEARCHED_RESULT = "searched_result";
+    private String mSearchedRlt;
     private EditText mTextField;
     private View mSearchContent;
     private ImageButton mTextClearBtn;
@@ -85,6 +87,36 @@ public class SearchActivity extends SherlockFragmentActivity implements View.OnC
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         initData();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        // Save the current image file name
+        savedInstanceState.putString(STATE_SEARCHED_RESULT, mSearchedRlt);
+        Log.d(DEBUG_TAG, "onSaveInstanceState " + mSearchedRlt);
+
+        // Always call the superclass so it can save the view hierarchy state
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        // Always call the superclass so it can restore the view hierarchy
+        super.onRestoreInstanceState(savedInstanceState);
+
+        // Restore state members from saved instance
+        mSearchedRlt = savedInstanceState.getString(STATE_SEARCHED_RESULT);
+
+        Log.d(DEBUG_TAG, "onRestoreInstanceState " + mSearchedFiles);
+        // update ui
+        if (dataManager != null) {
+            mSearchContent.setVisibility(View.VISIBLE);
+            mMessageContainer.setVisibility(View.GONE);
+            mEmptyText.setVisibility(View.GONE);
+            mErrorText.setVisibility(View.GONE);
+            mAdapter.setItems(dataManager.parseSearchResult(mSearchedRlt));
+            mAdapter.notifyChanged();
+        }
     }
 
     @Override
@@ -192,7 +224,8 @@ public class SearchActivity extends SherlockFragmentActivity implements View.OnC
         @Override
         protected ArrayList<SearchedFile> doInBackground(Void... params) {
             try {
-                return dataManager.search(query, page);
+                mSearchedRlt = dataManager.search(query, page);
+                return dataManager.parseSearchResult(mSearchedRlt);
             } catch (SeafException e) {
                 seafException = e;
                 return null;
