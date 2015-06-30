@@ -112,8 +112,11 @@ public class SearchActivity extends SherlockFragmentActivity implements View.OnC
             mMessageContainer.setVisibility(View.GONE);
             mEmptyText.setVisibility(View.GONE);
             mErrorText.setVisibility(View.GONE);
-            mAdapter.setItems(dataManager.parseSearchResult(mSearchedRlt));
-            mAdapter.notifyChanged();
+            ArrayList<SearchedFile> files = dataManager.parseSearchResult(mSearchedRlt);
+            if(files != null) {
+                mAdapter.setItems(files);
+                mAdapter.notifyChanged();
+            }
         }
     }
 
