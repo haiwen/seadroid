@@ -270,6 +270,7 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
             // there no selected items, finish the actionMode
             mActionMode.finish();
             adapter.actionModeOff();
+            mTaskActionBar.setVisibility(View.GONE);
         }
 
 
@@ -358,6 +359,7 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
 
             adapter.deselectAllItems();
             adapter.actionModeOff();
+            mTaskActionBar.setVisibility(View.GONE);
 
             // Here you can make any necessary updates to the activity when
             // the CAB is removed. By default, selected items are deselected/unchecked.
