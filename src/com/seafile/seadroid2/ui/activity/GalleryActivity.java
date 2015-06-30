@@ -183,8 +183,6 @@ public class GalleryActivity extends SherlockFragmentActivity {
                 }
             }
 
-            checkEncryptedRepo();
-
             mGalleryAdapter = new GalleryAdapter(GalleryActivity.this,
                     mAccount,
                     new ArrayList<String>(mThumbLinkAndSeafDirentMap.keySet()));
@@ -257,8 +255,6 @@ public class GalleryActivity extends SherlockFragmentActivity {
                     Log.e(DEBUG_TAG, "error message " + err.getMessage() + " error code " + err.getCode());
                 }
 
-                checkEncryptedRepo();
-                return;
             }
 
             mThumbnailLinks = links;
@@ -266,23 +262,6 @@ public class GalleryActivity extends SherlockFragmentActivity {
             mViewPager.setAdapter(mGalleryAdapter);
 
             navToSelectedPage();
-        }
-    }
-
-    /**
-     * Encrypted repo doesn`t support thumbnails,
-     * if browsing context is under an encrypted repo,
-     * force to exit the gallery view
-     */
-    private void checkEncryptedRepo() {
-        if (dataMgr == null)
-            return;
-
-        SeafRepo seafRepo = dataMgr.getCachedRepoByID(repoID);
-        if (seafRepo != null && seafRepo.encrypted) {
-            ToastUtils.show(GalleryActivity.this, R.string.gallery_encrypted_repo_not_supported);
-            finish();
-            return;
         }
     }
 
