@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -40,6 +41,7 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
     protected TransferTaskAdapter adapter;
     protected TransferActivity mActivity = null;
     protected ListView mTransferTaskListView;
+    protected LinearLayout mTaskActionBar;
     protected TextView emptyView;
     private View mListContainer;
     private View mProgressContainer;
@@ -71,6 +73,7 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
 
         mListContainer =  root.findViewById(R.id.listContainer);
         mProgressContainer = root.findViewById(R.id.progressContainer);
+        mTaskActionBar = (LinearLayout) root.findViewById(R.id.task_action_container);
         emptyView = (TextView) root.findViewById(R.id.empty);
         return root;
     }
@@ -269,10 +272,12 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
             // there are some selected items, start the actionMode
             mActionMode = getSherlockActivity().startActionMode(new ActionModeCallback());
             adapter.actionModeOn();
+            mTaskActionBar.setVisibility(View.VISIBLE);
         } else if (!itemsChecked && mActionMode != null) {
             // there no selected items, finish the actionMode
             mActionMode.finish();
             adapter.actionModeOff();
+            mTaskActionBar.setVisibility(View.GONE);
         }
 
 
