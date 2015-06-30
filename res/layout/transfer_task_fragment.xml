@@ -61,9 +61,10 @@
                         android:orientation="vertical">
                     <ImageView
                             android:id="@+id/task_action_restart"
+                            android:clickable="true"
                             android:layout_width="40dp"
                             android:layout_height="40dp"
-                            android:src="@drawable/action_restart"/>
+                            android:src="@drawable/action_restart_selector"/>
                     <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -79,9 +80,10 @@
                         android:orientation="vertical">
                     <ImageView
                             android:id="@+id/task_action_delete"
+                            android:clickable="true"
                             android:layout_width="40dp"
                             android:layout_height="40dp"
-                            android:src="@drawable/action_delete_solid"/>
+                            android:src="@drawable/action_delete_selector"/>
                     <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
