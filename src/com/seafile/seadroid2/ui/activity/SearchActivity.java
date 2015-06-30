@@ -91,9 +91,8 @@ public class SearchActivity extends SherlockFragmentActivity implements View.OnC
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        // Save the current image file name
+        // Save the searched result
         savedInstanceState.putString(STATE_SEARCHED_RESULT, mSearchedRlt);
-        Log.d(DEBUG_TAG, "onSaveInstanceState " + mSearchedRlt);
 
         // Always call the superclass so it can save the view hierarchy state
         super.onSaveInstanceState(savedInstanceState);
@@ -107,7 +106,6 @@ public class SearchActivity extends SherlockFragmentActivity implements View.OnC
         // Restore state members from saved instance
         mSearchedRlt = savedInstanceState.getString(STATE_SEARCHED_RESULT);
 
-        Log.d(DEBUG_TAG, "onRestoreInstanceState " + mSearchedFiles);
         // update ui
         if (dataManager != null) {
             mSearchContent.setVisibility(View.VISIBLE);
