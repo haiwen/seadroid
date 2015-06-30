@@ -51,6 +51,7 @@
                     android:layout_width="fill_parent"
                     android:background="@color/whitegrey"
                     android:layout_alignParentBottom="true"
+                    android:padding="10dp"
                     android:visibility="gone"
                     android:orientation="horizontal">
 
