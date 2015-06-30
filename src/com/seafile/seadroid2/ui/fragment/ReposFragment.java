@@ -410,7 +410,8 @@ public class ReposFragment extends SherlockListFragment {
                     refreshView();
                     mActivity.setUpButtonTitle(dirent.name);
                 } else {
-                    if (Utils.isViewableImage(dirent.name)) {
+                    if (Utils.isViewableImage(dirent.name)
+                            && !repo.encrypted) {
                         browsePhotosInGallery(nav.getDirPath(), dirent.name);
                         return;
                     }
