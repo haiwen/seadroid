@@ -5,9 +5,6 @@
           android:title="@string/transfer_list_select_all"
           android:icon="@drawable/operation_button_selectall"
           android:showAsAction="ifRoom"/>
-    <item android:id="@+id/transfer_multi_choice_delete"
-          android:icon="@drawable/operation_button_delete"
-          android:title="@string/transfer_list_deselect_all"/>
     <item android:id="@+id/transfer_multi_choice_deselect_all"
           android:icon="@drawable/operation_button_cancel"
           android:title="@string/transfer_list_deselect_all"/>
