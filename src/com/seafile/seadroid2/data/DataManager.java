@@ -798,15 +798,17 @@ public class DataManager {
      *
      * @param query query text
      * @param page pass 0 to disable page loading
-     * @return
+     *
+     * @return json format strings of searched result
+     *
      * @throws SeafException
      */
-    public ArrayList<SearchedFile> search(String query, int page) throws SeafException {
+    public String search(String query, int page) throws SeafException {
         String json = sc.searchLibraries(query, page);
-        return parseSearchResult(json);
+        return json;
     }
 
-    private ArrayList<SearchedFile> parseSearchResult(String json) {
+    public ArrayList<SearchedFile> parseSearchResult(String json) {
         try {
             JSONArray array = Utils.parseJsonArrayByKey(json, "results");
             if (array == null)
