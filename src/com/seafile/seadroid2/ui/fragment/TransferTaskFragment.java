@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.*;
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -299,11 +300,17 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
             // there are some selected items, start the actionMode
             mActionMode = getSherlockActivity().startActionMode(new ActionModeCallback());
             adapter.actionModeOn();
+            Animation bottomUp = AnimationUtils.loadAnimation(getActivity(),
+                    R.anim.bottom_up);
+            mTaskActionBar.startAnimation(bottomUp);
             mTaskActionBar.setVisibility(View.VISIBLE);
         } else if (!itemsChecked && mActionMode != null) {
             // there no selected items, finish the actionMode
             mActionMode.finish();
             adapter.actionModeOff();
+            Animation bottomDown = AnimationUtils.loadAnimation(getActivity(),
+                    R.anim.bottom_down);
+            mTaskActionBar.startAnimation(bottomDown);
             mTaskActionBar.setVisibility(View.GONE);
         }
 
@@ -359,6 +366,9 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
 
             adapter.deselectAllItems();
             adapter.actionModeOff();
+            Animation bottomDown = AnimationUtils.loadAnimation(getActivity(),
+                    R.anim.bottom_down);
+            mTaskActionBar.startAnimation(bottomDown);
             mTaskActionBar.setVisibility(View.GONE);
 
             // Here you can make any necessary updates to the activity when
