@@ -23,6 +23,7 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.*;
 import com.seafile.seadroid2.transfer.TransferService;
+import com.seafile.seadroid2.ui.CustomActionSlideExpandableListView;
 import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.activity.AccountsActivity;
@@ -55,7 +56,7 @@ public class ReposFragment extends SherlockListFragment {
     private SeafItemAdapter adapter;
     private BrowserActivity mActivity = null;
 
-    private ActionSlideExpandableListView mPullRefreshListView;
+    private CustomActionSlideExpandableListView mPullRefreshListView;
     private TextView mEmptyView;
     private View mProgressContainer;
     private View mListContainer;
@@ -91,14 +92,14 @@ public class ReposFragment extends SherlockListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.repos_fragment, container, false);
-        mPullRefreshListView = (ActionSlideExpandableListView) root.findViewById(android.R.id.list);
+        mPullRefreshListView = (CustomActionSlideExpandableListView) root.findViewById(android.R.id.list);
         mEmptyView = (TextView) root.findViewById(R.id.empty);
         mListContainer =  root.findViewById(R.id.listContainer);
         mErrorText = (TextView)root.findViewById(R.id.error_message);
         mProgressContainer = root.findViewById(R.id.progressContainer);
 
         // Set a listener to be invoked when the list should be refreshed.
-        mPullRefreshListView.setOnRefreshListener(new ActionSlideExpandableListView.OnRefreshListener() {
+        mPullRefreshListView.setOnRefreshListener(new CustomActionSlideExpandableListView.OnRefreshListener() {
 
             @Override
             public void onRefresh() {
@@ -117,14 +118,14 @@ public class ReposFragment extends SherlockListFragment {
         Log.d(DEBUG_TAG, "ReposFragment onActivityCreated");
         adapter = new SeafItemAdapter(mActivity);
         
-        mPullRefreshListView.setAdapter(new SlideExpandableListAdapter(
+        mPullRefreshListView.setAdapter(
                 adapter,
                 R.id.list_item_action,
-                R.id.expandable));
+                R.id.expandable);
 
         // listen for click events for each list item.
         // the 'position' param will tell which list item is clicked
-        mPullRefreshListView.setItemActionListener(new ActionSlideExpandableListView.OnActionClickListener() {
+        mPullRefreshListView.setItemActionListener(new CustomActionSlideExpandableListView.OnActionClickListener() {
             @Override
             public void onClick(View itemView, View buttonview, int position) {
                 SeafDirent dirent = (SeafDirent) adapter.getItem(position);
