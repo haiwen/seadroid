@@ -1,7 +1,6 @@
-package com.tjerkw.slideexpandable.library;
+package com.seafile.seadroid2.ui;
 
 import android.content.Context;
-import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -11,12 +10,13 @@ import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.*;
 import com.seafile.seadroid2.R;
+import com.tjerkw.slideexpandable.library.ActionSlideExpandableListView;
 
 /**
  * Simple subclass of listview which does nothing more than wrap
  * any ListAdapter in a SlideExpandalbeListAdapter
  */
-class SlideExpandableListView extends ListView implements AbsListView.OnScrollListener {
+public class CustomActionSlideExpandableListView extends ActionSlideExpandableListView implements AbsListView.OnScrollListener {
 
     // Pull to Refresh flag
     private final static int PULL_To_REFRESH = 0;
@@ -55,18 +55,18 @@ class SlideExpandableListView extends ListView implements AbsListView.OnScrollLi
 
     public OnRefreshListener refreshListener;
 
-    public SlideExpandableListView(Context context) {
+    public CustomActionSlideExpandableListView(Context context) {
         super(context);
         init(context);
     }
 
-    public SlideExpandableListView(Context context, AttributeSet attrs) {
+    public CustomActionSlideExpandableListView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init(context);
 
     }
 
-    public SlideExpandableListView(Context context, AttributeSet attrs, int defStyle) {
+    public CustomActionSlideExpandableListView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init(context);
 
@@ -335,65 +335,5 @@ class SlideExpandableListView extends ListView implements AbsListView.OnScrollLi
                     MeasureSpec.UNSPECIFIED);
         }
         child.measure(childWidthSpec, childHeightSpec);
-    }
-
-    private SlideExpandableListAdapter adapter;
-
-    /**
-     * Collapses the currently open view.
-     *
-     * @return true if a view was collapsed, false if there was no open view.
-     */
-    public boolean collapse() {
-        if (adapter != null) {
-            return adapter.collapseLastOpen();
-        }
-        return false;
-    }
-
-    public void setAdapter(ListAdapter adapter) {
-        this.adapter = new SlideExpandableListAdapter(adapter);
-        super.setAdapter(this.adapter);
-    }
-
-    public void setAdapter(ListAdapter adapter, int toggle_button_id, int expandable_view_id) {
-        this.adapter = new SlideExpandableListAdapter(adapter, toggle_button_id, expandable_view_id);
-        super.setAdapter(this.adapter);
-    }
-
-    /**
-     * Registers a OnItemClickListener for this listview which will
-     * expand the item by default. Any other OnItemClickListener will be overriden.
-     * <p/>
-     * To undo call setOnItemClickListener(null)
-     * <p/>
-     * Important: This method call setOnItemClickListener, so the value will be reset
-     */
-    public void enableExpandOnItemClick() {
-        this.setOnItemClickListener(new OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                SlideExpandableListAdapter adapter = (SlideExpandableListAdapter) getAdapter();
-                adapter.getExpandToggleButton(view).performClick();
-            }
-        });
-    }
-
-    @Override
-    public Parcelable onSaveInstanceState() {
-        return adapter.onSaveInstanceState(super.onSaveInstanceState());
-    }
-
-    @Override
-    public void onRestoreInstanceState(Parcelable state) {
-        if (!(state instanceof AbstractSlideExpandableListAdapter.SavedState)) {
-            super.onRestoreInstanceState(state);
-            return;
-        }
-
-        AbstractSlideExpandableListAdapter.SavedState ss = (AbstractSlideExpandableListAdapter.SavedState) state;
-        super.onRestoreInstanceState(ss.getSuperState());
-
-        adapter.onRestoreInstanceState(ss);
     }
 }
