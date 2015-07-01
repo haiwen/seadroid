@@ -53,7 +53,7 @@ You will get `target/seadroid.apk` after the build finishes.
 
 - Git clone `Android-SlideExpandableListView`
 
-    git clone git@github.com:Logan676/Android-SlideExpandableListView.git
+        git clone https://github.com/Logan676/Android-SlideExpandableListView.git
 - Add ActionBarSherlock/Android-SlideExpandableListView/ViewPagerIndicator as library according to this [referencing library tutorial](http://developer.android.com/guide/developing/projects/projects-eclipse.html#ReferencingLibraryProject)
 
 - Replace the android-support-v4.jar in `ActionBarSherlock` and `ViewPagerIndicator` with the jar in seadroid to make sure that all versions of this library be the same at this time.
