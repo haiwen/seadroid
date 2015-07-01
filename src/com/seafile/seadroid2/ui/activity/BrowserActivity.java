@@ -12,7 +12,6 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.app.Dialog;
 import android.content.*;
-import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.net.Uri;
@@ -27,10 +26,8 @@ import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
-import android.text.ClipboardManager;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.webkit.MimeTypeMap;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -49,14 +46,12 @@ import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.notification.UploadNotificationProvider;
-import com.seafile.seadroid2.ui.*;
 import com.seafile.seadroid2.transfer.*;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.ui.CopyMoveContext;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
-import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
 import com.seafile.seadroid2.ui.dialog.CopyMoveDialog;
@@ -884,17 +879,17 @@ public class BrowserActivity extends SherlockFragmentActivity
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
                                             switch (which) {
-                                                case 0: // sort by name
-                                                    sortFilesByType(SeafItemAdapter.SORT_BY_NAME);
+                                                case 0: // sort by name, ascending
+                                                    sortFiles(SeafItemAdapter.SORT_BY_NAME, SeafItemAdapter.SORT_ORDER_ASCENDING);
                                                     break;
-                                                case 1: // sort by last modified time
-                                                    sortFilesByType(SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME);
+                                                case 1: // sort by name, descending
+                                                    sortFiles(SeafItemAdapter.SORT_BY_NAME, SeafItemAdapter.SORT_ORDER_DESCENDING);
                                                     break;
-                                                case 2: // sort by name, descending
-                                                    sortFilesByType(SeafItemAdapter.SORT_BY_NAME_DESCENDING);
+                                                case 2: // sort by last modified time, ascending
+                                                    sortFiles(SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME, SeafItemAdapter.SORT_ORDER_ASCENDING);
                                                     break;
                                                 case 3: // sort by last modified time, descending
-                                                    sortFilesByType(SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME_DESCENDING);
+                                                    sortFiles(SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME, SeafItemAdapter.SORT_ORDER_DESCENDING);
                                                     break;
                                                 default:
                                                     return;
@@ -906,11 +901,11 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
 
     /**
-     * Sort files by type
+     * Sort files by type and order
      *
      * @param type
      */
-    private void sortFilesByType(final int type) {
+    private void sortFiles(final int type, final int order) {
         if (currentPosition == 0) {
             if (navContext.inRepo()) {
                 SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
@@ -920,23 +915,12 @@ public class BrowserActivity extends SherlockFragmentActivity
                             new TaskDialog.TaskDialogListener() {
                                 @Override
                                 public void onTaskSuccess() {
-                                    if (type == SeafItemAdapter.SORT_BY_NAME
-                                            || type == SeafItemAdapter.SORT_BY_NAME_DESCENDING)
-                                        getReposFragment().sortByName(type);
-                                    else if (type == SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME
-                                            || type == SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME_DESCENDING)
-                                        getReposFragment().sortByTime(type);
+                                    getReposFragment().sortFiles(type, order);
                                 }
                             }, password);
                 }
             }
-
-            if (type == SeafItemAdapter.SORT_BY_NAME
-                    || type == SeafItemAdapter.SORT_BY_NAME_DESCENDING)
-                getReposFragment().sortByName(type);
-            else if (type == SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME
-                    || type == SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME_DESCENDING)
-                getReposFragment().sortByTime(type);
+            getReposFragment().sortFiles(type, order);
         }
     }
 
