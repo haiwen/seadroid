@@ -49,6 +49,12 @@
       <type>apklib</type>
     </dependency>
     <dependency>
+      <groupId>com.github.Logan676</groupId>
+      <artifactId>Android-SlideExpandableListView</artifactId>
+      <version>1.0</version>
+      <type>apklib</type>
+    </dependency>
+    <dependency>
       <groupId>com.github.kevinsawicki</groupId>
       <artifactId>http-request</artifactId>
       <version>5.6</version>
