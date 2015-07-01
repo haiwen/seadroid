@@ -1,8 +1,6 @@
 package com.seafile.seadroid2.ui.fragment;
 
 import java.net.HttpURLConnection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +17,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.ListView;
 import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockListFragment;
-import com.google.common.collect.Lists;
 import com.seafile.seadroid2.*;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
@@ -315,25 +312,19 @@ public class ReposFragment extends SherlockListFragment {
         return false;
     }
 
-    public void sortByName(int type) {
-        adapter.sortByType(type);
+    public void sortFiles(int type, int order) {
+        adapter.sortFiles(type, order);
         adapter.notifyDataSetChanged();
         // persist sort settings
-        SettingsManager.instance().saveSortFilesPref(type);
-    }
-
-    public void sortByTime(int type) {
-        adapter.sortByType(type);
-        adapter.notifyDataSetChanged();
-        // persist sort settings
-        SettingsManager.instance().saveSortFilesPref(type);
+        SettingsManager.instance().saveSortFilesPref(type, order);
     }
 
     private void updateAdapterWithRepos(List<SeafRepo> repos) {
         adapter.clear();
         if (repos.size() > 0) {
             addReposToAdapter(repos);
-            adapter.sortByType(SettingsManager.instance().getSortFilesPref());
+            adapter.sortFiles(SettingsManager.instance().getSortFilesTypePref(),
+                    SettingsManager.instance().getSortFilesOrderPref());
             adapter.notifyChanged();
             mPullRefreshListView.setVisibility(View.VISIBLE);
             mEmptyView.setVisibility(View.GONE);
@@ -355,7 +346,8 @@ public class ReposFragment extends SherlockListFragment {
             final String repoID = nav.getRepoID();
             final String dirPath = nav.getDirPath();
 
-            adapter.sortByType(SettingsManager.instance().getSortFilesPref());
+            adapter.sortFiles(SettingsManager.instance().getSortFilesTypePref(),
+                    SettingsManager.instance().getSortFilesOrderPref());
             adapter.notifyChanged();
             mPullRefreshListView.setVisibility(View.VISIBLE);
             mEmptyView.setVisibility(View.GONE);
