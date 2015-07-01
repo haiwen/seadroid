@@ -51,14 +51,14 @@ public class SeafItemAdapter extends BaseAdapter {
     private static final int ACTION_ID_MOVE = 7;
     private static final int ACTION_ID_STAR = 8;
 
-    /** sort files by name in ascending order */
+    /** sort files type */
     public static final int SORT_BY_NAME = 9;
-    /** sort files by last modified time in ascending order */
+    /** sort files type */
     public static final int SORT_BY_LAST_MODIFIED_TIME = 10;
-    /** sort files by name in descending order */
-    public static final int SORT_BY_NAME_DESCENDING = 11;
-    /** sort files by last modified time in descending order */
-    public static final int SORT_BY_LAST_MODIFIED_TIME_DESCENDING = 12;
+    /** sort files order */
+    public static final int SORT_ORDER_ASCENDING = 11;
+    /** sort files order */
+    public static final int SORT_ORDER_DESCENDING = 12;
 
     @Override
     public int getCount() {
@@ -586,11 +586,10 @@ public class SeafItemAdapter extends BaseAdapter {
     }
 
     /**
-     * Sorts the given list using the given comparator
-     * by {@link #SORT_BY_NAME}, {@link #SORT_BY_LAST_MODIFIED_TIME}, {@link #SORT_BY_NAME_DESCENDING}
-     * or {@link #SORT_BY_LAST_MODIFIED_TIME_DESCENDING}
+     * Sorts the given list by type of {@link #SORT_BY_NAME} or {@link #SORT_BY_LAST_MODIFIED_TIME},
+     * and by order of {@link #SORT_ORDER_ASCENDING} or {@link #SORT_ORDER_DESCENDING}
      */
-    public void sortByType(int type) {
+    public void sortFiles(int type, int order) {
         List<SeafGroup> groups = Lists.newArrayList();
         List<SeafCachedFile> cachedFiles = Lists.newArrayList();
         List<SeafDirent> folders = Lists.newArrayList();
@@ -619,26 +618,29 @@ public class SeafItemAdapter extends BaseAdapter {
 
         // sort SeafGroups and SeafRepos
         for (SeafGroup sg : groups) {
-            sg.sortByType(type);
+            sg.sortByType(type, order);
             items.add(sg);
             items.addAll(sg.getRepos());
         }
 
         // sort SeafDirents
         if (type == SORT_BY_NAME) {
-            Collections.sort(folders, new SeafDirent.DirentNameComparator());
-            Collections.sort(files, new SeafDirent.DirentNameComparator());
+            if (order == SORT_ORDER_ASCENDING) {
+                Collections.sort(folders, new SeafDirent.DirentNameComparator());
+                Collections.sort(files, new SeafDirent.DirentNameComparator());
+            } else if (order == SORT_ORDER_DESCENDING) {
+                Collections.sort(folders, Collections.reverseOrder(new SeafDirent.DirentNameComparator()));
+                Collections.sort(files, Collections.reverseOrder(new SeafDirent.DirentNameComparator()));
+            }
         } else if (type == SORT_BY_LAST_MODIFIED_TIME) {
-            Collections.sort(folders, new SeafDirent.DirentLastMTimeComparator());
-            Collections.sort(files, new SeafDirent.DirentLastMTimeComparator());
-        } else if (type == SORT_BY_NAME_DESCENDING) {
-            Collections.sort(folders, Collections.reverseOrder(new SeafDirent.DirentNameComparator()));
-            Collections.sort(files, Collections.reverseOrder(new SeafDirent.DirentNameComparator()));
-        } else if (type == SORT_BY_LAST_MODIFIED_TIME_DESCENDING) {
-            Collections.sort(folders, Collections.reverseOrder(new SeafDirent.DirentLastMTimeComparator()));
-            Collections.sort(files, Collections.reverseOrder(new SeafDirent.DirentLastMTimeComparator()));
+            if (order == SORT_ORDER_ASCENDING) {
+                Collections.sort(folders, new SeafDirent.DirentLastMTimeComparator());
+                Collections.sort(files, new SeafDirent.DirentLastMTimeComparator());
+            } else if (order == SORT_ORDER_DESCENDING) {
+                Collections.sort(folders, Collections.reverseOrder(new SeafDirent.DirentLastMTimeComparator()));
+                Collections.sort(files, Collections.reverseOrder(new SeafDirent.DirentLastMTimeComparator()));
+            }
         }
-
         // Adds the objects in the specified collection to this ArrayList
         items.addAll(cachedFiles);
         items.addAll(folders);

@@ -68,6 +68,7 @@ public final class SettingsManager {
 
     // Sort files
     public static final String SORT_FILES_TYPE = "sort_files_type";
+    public static final String SORT_FILES_ORDER = "sort_files_order";
 
     public static long lock_timestamp = 0;
     public static final long LOCK_EXPIRATION_MSECS = 5 * 60 * 1000;
@@ -186,12 +187,17 @@ public final class SettingsManager {
         editor.putString(CAMERA_UPLOAD_CUSTOM_DIRECTORIES_PATH, path).commit();
     }
 
-    public void saveSortFilesPref(int type) {
+    public void saveSortFilesPref(int type, int order) {
         editor.putInt(SORT_FILES_TYPE, type).commit();
+        editor.putInt(SORT_FILES_ORDER, order).commit();
     }
 
-    public int getSortFilesPref() {
+    public int getSortFilesTypePref() {
         return sharedPref.getInt(SORT_FILES_TYPE, 0);
+    }
+
+    public int getSortFilesOrderPref() {
+        return sharedPref.getInt(SORT_FILES_ORDER, 0);
     }
 
     public String getLocalDirPath() {
