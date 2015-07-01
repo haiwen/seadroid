@@ -28,16 +28,73 @@
                  android:layout_width="match_parent"
                  android:layout_height="match_parent">
 
-        <ListView android:id="@android:id/list"
-                  android:layout_width="match_parent"
-                  android:layout_height="match_parent"
-                  android:drawSelectorOnTop="false"/>
-        <TextView android:id="@+id/empty"
-                  android:layout_width="match_parent"
-                  android:layout_height="match_parent"
-                  android:visibility="gone"
-                  android:gravity="center"
-                  android:text="@string/no_upload_tasks"
-                  android:textAppearance="?android:attr/textAppearanceLarge"/>
+        <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+            <ListView android:id="@android:id/list"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:layout_alignParentTop="true"
+                      android:drawSelectorOnTop="false"
+                      android:layout_above="@+id/task_action_container"/>
+            <TextView android:id="@+id/empty"
+                      android:layout_width="match_parent"
+                      android:layout_height="match_parent"
+                      android:visibility="gone"
+                      android:gravity="center"
+                      android:text="@string/no_upload_tasks"
+                      android:textAppearance="?android:attr/textAppearanceLarge"/>
+
+            <LinearLayout
+                    android:id="@+id/task_action_container"
+                    android:layout_height="wrap_content"
+                    android:layout_width="fill_parent"
+                    android:background="@color/whitegrey"
+                    android:layout_alignParentBottom="true"
+                    android:padding="10dp"
+                    android:visibility="gone"
+                    android:orientation="horizontal">
+
+                <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="60dp"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical">
+                    <ImageView
+                            android:id="@+id/task_action_restart"
+                            android:clickable="true"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:src="@drawable/action_restart_selector"/>
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/transfer_list_restart_cancelled_tasks"
+                            android:textSize="14sp"/>
+                </LinearLayout>
+
+                <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="60dp"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical">
+                    <ImageView
+                            android:id="@+id/task_action_delete"
+                            android:clickable="true"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:src="@drawable/action_delete_selector"/>
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/delete"
+                            android:textSize="14sp"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </RelativeLayout>
     </FrameLayout>
 </LinearLayout>

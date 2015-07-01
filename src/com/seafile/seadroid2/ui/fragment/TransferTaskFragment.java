@@ -1,10 +1,7 @@
 package com.seafile.seadroid2.ui.fragment;
 
 import android.app.Activity;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
+import android.content.*;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -13,9 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.*;
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
@@ -40,10 +35,14 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
     protected TransferTaskAdapter adapter;
     protected TransferActivity mActivity = null;
     protected ListView mTransferTaskListView;
+    protected LinearLayout mTaskActionBar;
+    protected ImageView mTaskDeleteBtn;
+    protected ImageView mTaskRestartBtn;
     protected TextView emptyView;
     private View mListContainer;
     private View mProgressContainer;
     protected final Handler mTimer = new Handler();
+    private TaskActionListener listener = new TaskActionListener();
     protected TransferService txService = null;
     private ActionMode mActionMode;
 
@@ -71,8 +70,36 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
 
         mListContainer =  root.findViewById(R.id.listContainer);
         mProgressContainer = root.findViewById(R.id.progressContainer);
+        mTaskActionBar = (LinearLayout) root.findViewById(R.id.task_action_container);
+        mTaskDeleteBtn = (ImageView) root.findViewById(R.id.task_action_delete);
+        mTaskRestartBtn = (ImageView) root.findViewById(R.id.task_action_restart);
+        mTaskDeleteBtn.setOnClickListener(listener);
+        mTaskRestartBtn.setOnClickListener(listener);
         emptyView = (TextView) root.findViewById(R.id.empty);
         return root;
+    }
+
+    class TaskActionListener implements View.OnClickListener {
+
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()) {
+                case R.id.task_action_delete:
+                    List<Integer> ids = adapter.getSelectedIds();
+                    if (ids != null) {
+                        deleteSelectedItems(convertToTaskIds(ids));
+                        deselectItems();
+                    }
+                    break;
+                case R.id.task_action_restart:
+                    List<Integer> restartIds = adapter.getSelectedIds();
+                    if (restartIds != null) {
+                        restartSelectedItems(convertToTaskIds(restartIds));
+                        deselectItems();
+                    }
+                    break;
+            }
+        }
     }
 
     private List<Integer> convertToTaskIds(List<Integer> positions) {
@@ -108,6 +135,8 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
     }
 
     protected abstract void deleteSelectedItems(List<Integer> ids);
+
+    protected abstract void restartSelectedItems(List<Integer> ids);
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -241,6 +270,7 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
             // there no selected items, finish the actionMode
             mActionMode.finish();
             adapter.actionModeOff();
+            mTaskActionBar.setVisibility(View.GONE);
         }
 
 
@@ -269,10 +299,12 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
             // there are some selected items, start the actionMode
             mActionMode = getSherlockActivity().startActionMode(new ActionModeCallback());
             adapter.actionModeOn();
+            mTaskActionBar.setVisibility(View.VISIBLE);
         } else if (!itemsChecked && mActionMode != null) {
             // there no selected items, finish the actionMode
             mActionMode.finish();
             adapter.actionModeOff();
+            mTaskActionBar.setVisibility(View.GONE);
         }
 
 
@@ -315,19 +347,6 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
                     deselectItems();
                     mode.finish(); // Action picked, so close the CAB
                     return true;
-                case R.id.transfer_multi_choice_delete:
-                    /*
-                     * The result is only valid if the
-                     * choice mode has not been set to {@link #CHOICE_MODE_NONE} and the adapter
-                     * has stable IDs. ({@link ListAdapter#hasStableIds()} == {@code true})
-                     */
-                    List<Integer> ids = adapter.getSelectedIds();
-                    if (ids != null) {
-                        deleteSelectedItems(convertToTaskIds(ids));
-                        deselectItems();
-                    }
-                    mode.finish(); // Action picked, so close the CAB
-                    return true;
                 default:
                     return false;
             }
@@ -340,6 +359,7 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
 
             adapter.deselectAllItems();
             adapter.actionModeOff();
+            mTaskActionBar.setVisibility(View.GONE);
 
             // Here you can make any necessary updates to the activity when
             // the CAB is removed. By default, selected items are deselected/unchecked.

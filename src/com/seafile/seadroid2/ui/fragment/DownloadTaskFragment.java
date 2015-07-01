@@ -62,6 +62,12 @@ public class DownloadTaskFragment extends TransferTaskFragment {
         }
     }
 
+    public void restartTasksByIds(List<Integer> ids) {
+        if (txService != null) {
+            txService.restartDownloadTasksByIds(ids);
+        }
+    }
+
     /**
      * remove all failed download tasks
      */
@@ -119,6 +125,12 @@ public class DownloadTaskFragment extends TransferTaskFragment {
     @Override
     protected void deleteSelectedItems(List<Integer> ids) {
         cancelDownloadTasksByIds(ids);
+        removeDownloadTasksByIds(ids);
+    }
+
+    @Override
+    protected void restartSelectedItems(List<Integer> ids) {
+        restartTasksByIds(ids);
         removeDownloadTasksByIds(ids);
     }
 
