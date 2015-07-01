@@ -43,6 +43,7 @@ You will get `target/seadroid.apk` after the build finishes.
 ### Android Dependencies
 
 * [ActionBarSherlock](https://github.com/JakeWharton/ActionBarSherlock)
+* [Android-SlideExpandableListView](https://github.com/tjerkw/Android-SlideExpandableListView)
 * [ViewPagerIndicator](https://github.com/JakeWharton/Android-ViewPagerIndicator)
 
 ### Build
@@ -50,7 +51,10 @@ You will get `target/seadroid.apk` after the build finishes.
 - Download `ActionBarSherlock` 4.4.0 from http://actionbarsherlock.com/download.html
 - Download `ViewPagerIndicator` 2.4.1 from http://viewpagerindicator.com
 
-- Add ActionBarSherlock/ViewPagerIndicator as library according to this [referencing library tutorial](http://developer.android.com/guide/developing/projects/projects-eclipse.html#ReferencingLibraryProject)
+- Git clone `Android-SlideExpandableListView`
+
+    git clone git@github.com:Logan676/Android-SlideExpandableListView.git
+- Add ActionBarSherlock/Android-SlideExpandableListView/ViewPagerIndicator as library according to this [referencing library tutorial](http://developer.android.com/guide/developing/projects/projects-eclipse.html#ReferencingLibraryProject)
 
 - Replace the android-support-v4.jar in `ActionBarSherlock` and `ViewPagerIndicator` with the jar in seadroid to make sure that all versions of this library be the same at this time.
 
