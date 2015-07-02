@@ -1,8 +1,5 @@
 package com.seafile.seadroid2.ui.fragment;
 
-import java.net.HttpURLConnection;
-import java.util.List;
-import java.util.Map;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -33,7 +30,6 @@ import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.util.Utils;
-import com.tjerkw.slideexpandable.library.ActionSlideExpandableListView;
 import com.tjerkw.slideexpandable.library.SlideExpandableListAdapter;
 
 import java.net.HttpURLConnection;
@@ -128,54 +124,54 @@ public class ReposFragment extends SherlockListFragment {
         // listen for click events for each list item.
         // the 'position' param will tell which list item is clicked
         mPullRefreshListView.setItemActionListener(new CustomActionSlideExpandableListView.OnActionClickListener() {
-            @Override
-            public void onClick(View itemView, View buttonview, int position) {
-                SeafDirent dirent = (SeafDirent) adapter.getItem(position);
-                NavContext nav = mActivity.getNavContext();
-                String repoName = nav.getRepoName();
-                String repoID = nav.getRepoID();
-                String dir = nav.getDirPath();
-                String path = Utils.pathJoin(dir, dirent.name);
-                String filename = dirent.name;
-                DataManager dataManager = mActivity.getDataManager();
-                String localPath = dataManager.getLocalRepoFile(repoName, repoID, path).getPath();
+                                                       @Override
+                                                       public void onClick(View itemView, View buttonview, int position) {
+                                                           SeafDirent dirent = (SeafDirent) adapter.getItem(position);
+                                                           NavContext nav = mActivity.getNavContext();
+                                                           String repoName = nav.getRepoName();
+                                                           String repoID = nav.getRepoID();
+                                                           String dir = nav.getDirPath();
+                                                           String path = Utils.pathJoin(dir, dirent.name);
+                                                           String filename = dirent.name;
+                                                           DataManager dataManager = mActivity.getDataManager();
+                                                           String localPath = dataManager.getLocalRepoFile(repoName, repoID, path).getPath();
 
-                switch (buttonview.getId()) {
-                    case R.id.action_share_ll:
-                        mPullRefreshListView.collapse();
-                        mActivity.shareFile(repoID, path);
-                        break;
-                    case R.id.action_delete_ll:
-                        mPullRefreshListView.collapse();
-                        mActivity.deleteFile(repoID, repoName, path);
-                        break;
-                    case R.id.action_copy_ll:
-                        mPullRefreshListView.collapse();
-                        mActivity.copyFile(repoID, repoName, dir, filename, false);
-                        break;
-                    case R.id.action_move_ll:
-                        mPullRefreshListView.collapse();
-                        mActivity.moveFile(repoID, repoName, dir, filename, false);
-                        break;
-                    case R.id.action_rename_ll:
-                        mPullRefreshListView.collapse();
-                       mActivity.renameFile(repoID, repoName, path);
-                        break;
-                    case R.id.action_update_ll:
-                        mPullRefreshListView.collapse();
-                        mActivity.addUpdateTask(repoID, repoName, dir, localPath);
-                        break;
-                    case R.id.action_download_ll:
-                        mPullRefreshListView.collapse();
-                        mActivity.onFileSelected(dirent);
-                        break;
-                    case R.id.action_more_ll:
-                        mPullRefreshListView.collapse();
-                        processMoreOptions(repoID, repoName, dir, filename, dirent, localPath);
-                        break;
-                }
-            }
-        },
+                                                           switch (buttonview.getId()) {
+                                                               case R.id.action_share_ll:
+                                                                   mPullRefreshListView.collapse();
+                                                                   mActivity.shareFile(repoID, path);
+                                                                   break;
+                                                               case R.id.action_delete_ll:
+                                                                   mPullRefreshListView.collapse();
+                                                                   mActivity.deleteFile(repoID, repoName, path);
+                                                                   break;
+                                                               case R.id.action_copy_ll:
+                                                                   mPullRefreshListView.collapse();
+                                                                   mActivity.copyFile(repoID, repoName, dir, filename, false);
+                                                                   break;
+                                                               case R.id.action_move_ll:
+                                                                   mPullRefreshListView.collapse();
+                                                                   mActivity.moveFile(repoID, repoName, dir, filename, false);
+                                                                   break;
+                                                               case R.id.action_rename_ll:
+                                                                   mPullRefreshListView.collapse();
+                                                                   mActivity.renameFile(repoID, repoName, path);
+                                                                   break;
+                                                               case R.id.action_update_ll:
+                                                                   mPullRefreshListView.collapse();
+                                                                   mActivity.addUpdateTask(repoID, repoName, dir, localPath);
+                                                                   break;
+                                                               case R.id.action_download_ll:
+                                                                   mPullRefreshListView.collapse();
+                                                                   mActivity.onFileSelected(dirent);
+                                                                   break;
+                                                               case R.id.action_more_ll:
+                                                                   mPullRefreshListView.collapse();
+                                                                   processMoreOptions(repoID, repoName, dir, filename, dirent, localPath);
+                                                                   break;
+                                                           }
+                                                       }
+                                                   },
                 R.id.action_share_ll,
                 R.id.action_delete_ll,
                 R.id.action_copy_ll,
