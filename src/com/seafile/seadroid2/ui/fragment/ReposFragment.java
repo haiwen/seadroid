@@ -33,6 +33,8 @@ import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.util.Utils;
+import com.tjerkw.slideexpandable.library.ActionSlideExpandableListView;
+import com.tjerkw.slideexpandable.library.SlideExpandableListAdapter;
 
 import java.net.HttpURLConnection;
 import java.util.List;
@@ -115,11 +117,13 @@ public class ReposFragment extends SherlockListFragment {
         super.onActivityCreated(savedInstanceState);
         Log.d(DEBUG_TAG, "ReposFragment onActivityCreated");
         adapter = new SeafItemAdapter(mActivity);
-        
+
         mPullRefreshListView.setAdapter(
-                adapter,
-                R.id.list_item_action,
-                R.id.expandable);
+                new SlideExpandableListAdapter(
+                        adapter,
+                        R.id.expandable_toggle_button,
+                        R.id.expandable)
+        );
 
         // listen for click events for each list item.
         // the 'position' param will tell which list item is clicked

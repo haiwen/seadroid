@@ -73,7 +73,7 @@
                 </RelativeLayout>
 
                 <RelativeLayout
-                        android:id="@+id/list_item_action"
+                        android:id="@+id/expandable_toggle_button"
                         android:layout_width="@dimen/lv_iv_action_width"
                         android:layout_height="fill_parent"
                         android:layout_alignParentEnd="true"
