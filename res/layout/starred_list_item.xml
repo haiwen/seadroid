@@ -7,7 +7,7 @@
     <ImageView
             android:id="@+id/starred_list_item_icon"
             android:layout_width="@dimen/lv_icon_width"
-            android:layout_height="fill_parent"
+            android:layout_height="@dimen/lv_icon_height"
             android:layout_alignParentLeft="true"
             android:layout_centerInParent="true"/>
 

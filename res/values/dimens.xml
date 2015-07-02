@@ -50,6 +50,7 @@
     <dimen name="lv_item_padding_left">4dp</dimen>
     <dimen name="lv_item_padding_right">11dp</dimen>
     <dimen name="lv_icon_width">60dp</dimen>
+    <dimen name="lv_icon_height">60dp</dimen>
     <dimen name="lv_space_width">8dp</dimen>
     <dimen name="lv_iv_action_width">60dp</dimen> <!-- ImageView -->
     <dimen name="lv_title_padding_top">4dp</dimen>
