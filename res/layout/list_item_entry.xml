@@ -9,11 +9,10 @@
                 <ImageView
                         android:id="@+id/list_item_icon"
                         android:layout_width="@dimen/lv_icon_width"
-                        android:layout_height="@dimen/lv_item_height"
-                        android:paddingLeft="@dimen/lv_item_padding_top"
-                        android:layout_alignParentBottom="true"
-                        android:layout_alignParentLeft="true"
-                        android:layout_alignParentTop="true"/>
+                        android:layout_height="@dimen/lv_icon_height"
+                        android:paddingLeft="@dimen/lv_item_padding_left"
+                        android:paddingTop="@dimen/lv_item_padding_top"
+                        android:layout_alignParentLeft="true"/>
 
                 <ImageView
                         android:id="@+id/list_item_space"
@@ -31,7 +30,7 @@
                         android:textColor="@color/lv_title_color"
                         android:textSize="@dimen/lv_title_txt_size"
                         android:layout_toRightOf="@id/list_item_space"
-                        android:layout_toLeftOf="@+id/list_item_action"/>
+                        android:layout_toLeftOf="@+id/expandable_toggle_button"/>
 
                 <RelativeLayout
                         android:id="@+id/list_item_subtitle_group"
@@ -39,7 +38,7 @@
                         android:layout_height="wrap_content"
                         android:layout_alignLeft="@id/list_item_title"
                         android:layout_below="@id/list_item_title"
-                        android:layout_toLeftOf="@+id/list_item_action"
+                        android:layout_toLeftOf="@+id/expandable_toggle_button"
                         android:layout_toRightOf="@id/list_item_space">
                         <ImageView
                                 android:id="@+id/list_item_download_status_icon"
