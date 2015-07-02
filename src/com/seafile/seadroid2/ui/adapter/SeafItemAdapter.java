@@ -147,7 +147,7 @@ public class SeafItemAdapter extends BaseAdapter {
             TextView title = (TextView) view.findViewById(R.id.list_item_title);
             TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
             ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
-            RelativeLayout action = (RelativeLayout) view.findViewById(R.id.list_item_action);
+            RelativeLayout action = (RelativeLayout) view.findViewById(R.id.expandable_toggle_button);
             ImageView downloadStatusIcon = (ImageView) view.findViewById(R.id.list_item_download_status_icon);
             ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.list_item_download_status_progressbar);
             RelativeLayout shareView = (RelativeLayout) view.findViewById(R.id.action_share_ll);
@@ -188,7 +188,7 @@ public class SeafItemAdapter extends BaseAdapter {
             TextView title = (TextView) view.findViewById(R.id.list_item_title);
             TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
             ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
-            RelativeLayout action = (RelativeLayout) view.findViewById(R.id.list_item_action);
+            RelativeLayout action = (RelativeLayout) view.findViewById(R.id.expandable_toggle_button);
             ImageView downloadStatusIcon = (ImageView) view.findViewById(R.id.list_item_download_status_icon);
             ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.list_item_download_status_progressbar);
             RelativeLayout shareView = (RelativeLayout) view.findViewById(R.id.action_share_ll);
@@ -376,7 +376,7 @@ public class SeafItemAdapter extends BaseAdapter {
             TextView title = (TextView) view.findViewById(R.id.list_item_title);
             TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
             ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
-            RelativeLayout action = (RelativeLayout) view.findViewById(R.id.list_item_action);
+            RelativeLayout action = (RelativeLayout) view.findViewById(R.id.expandable_toggle_button);
             ImageView downloadStatusIcon = (ImageView) view.findViewById(R.id.list_item_download_status_icon);
             ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.list_item_download_status_progressbar);
             RelativeLayout shareView = (RelativeLayout) view.findViewById(R.id.action_share_ll);
