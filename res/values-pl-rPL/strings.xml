@@ -373,6 +373,12 @@
   <!--Sort-->
   <string name="sort_menu_item">Sortuj</string>
   <string name="sort_files">Sortuj wg</string>
+  <string-array name="sort_files_options_array">
+    <item>Nazwa</item>
+    <item>Nazwa (Malejąco)</item>
+    <item>Czas modyfikacji</item>
+    <item>Czas modyfikacji (Malejąco)</item>
+  </string-array>
   <!--Search-->
   <string name="search_menu_item">Szukaj</string>
   <string name="search_bar_hint">Wyszukiwanie...</string>
@@ -404,4 +410,5 @@
   <!--Overwrite existing files-->
   <string name="overwrite_existing_file_title">Nadpisz istniejący plik</string>
   <string name="overwrite_existing_file_msg">Plik już istnieje, czy chcesz go nadpisać?</string>
+  <string name="overwrite_existing_file_exist">Plik już istnieje</string>
 </resources>

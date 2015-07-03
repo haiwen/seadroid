@@ -366,6 +366,12 @@
   <!--Sort-->
   <string name="sort_menu_item">Tri</string>
   <string name="sort_files">Tri par</string>
+  <string-array name="sort_files_options_array">
+    <item>Nom</item>
+    <item>Nom (Desc)</item>
+    <item>Dernière modification</item>
+    <item>Dernière modification (Desc)</item>
+  </string-array>
   <!--Search-->
   <string name="search_menu_item">Rechercher</string>
   <string name="search_bar_hint">Recherche en cours...</string>
@@ -395,4 +401,5 @@
   <!--Overwrite existing files-->
   <string name="overwrite_existing_file_title">Remplacer le fichier existant</string>
   <string name="overwrite_existing_file_msg">Ce fichier existe déjà, Voulez vous le remplacer ?</string>
+  <string name="overwrite_existing_file_exist">Le fichier existe déjà</string>
 </resources>
