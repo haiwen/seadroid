@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.ui.adapter;
 
 import android.content.res.Resources;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -625,20 +626,20 @@ public class SeafItemAdapter extends BaseAdapter {
 
         // sort SeafDirents
         if (type == SORT_BY_NAME) {
-            if (order == SORT_ORDER_ASCENDING) {
-                Collections.sort(folders, new SeafDirent.DirentNameComparator());
-                Collections.sort(files, new SeafDirent.DirentNameComparator());
-            } else if (order == SORT_ORDER_DESCENDING) {
-                Collections.sort(folders, Collections.reverseOrder(new SeafDirent.DirentNameComparator()));
-                Collections.sort(files, Collections.reverseOrder(new SeafDirent.DirentNameComparator()));
+            // sort by name, in ascending order
+            Collections.sort(folders, new SeafDirent.DirentNameComparator());
+            Collections.sort(files,   new SeafDirent.DirentNameComparator());
+            if (order == SORT_ORDER_DESCENDING) {
+                Collections.reverse(folders);
+                Collections.reverse(files);
             }
         } else if (type == SORT_BY_LAST_MODIFIED_TIME) {
-            if (order == SORT_ORDER_ASCENDING) {
-                Collections.sort(folders, new SeafDirent.DirentLastMTimeComparator());
-                Collections.sort(files, new SeafDirent.DirentLastMTimeComparator());
-            } else if (order == SORT_ORDER_DESCENDING) {
-                Collections.sort(folders, Collections.reverseOrder(new SeafDirent.DirentLastMTimeComparator()));
-                Collections.sort(files, Collections.reverseOrder(new SeafDirent.DirentLastMTimeComparator()));
+            // sort by last modified time, in ascending order
+            Collections.sort(folders, new SeafDirent.DirentLastMTimeComparator());
+            Collections.sort(files,   new SeafDirent.DirentLastMTimeComparator());
+            if (order == SORT_ORDER_DESCENDING) {
+                Collections.reverse(folders);
+                Collections.reverse(files);
             }
         }
         // Adds the objects in the specified collection to this ArrayList

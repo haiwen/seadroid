@@ -44,16 +44,14 @@ public class SeafGroup implements SeafItem {
      */
     public void sortByType(int type, int order) {
         if (type == SeafItemAdapter.SORT_BY_NAME) {
-            if (order == SeafItemAdapter.SORT_ORDER_ASCENDING) {
-                Collections.sort(repos, new RepoNameComparator());
-            } else if (order == SeafItemAdapter.SORT_ORDER_DESCENDING) {
-                Collections.sort(repos, Collections.reverseOrder(new RepoNameComparator()));
+            Collections.sort(repos, new RepoNameComparator());
+            if (order == SeafItemAdapter.SORT_ORDER_DESCENDING) {
+                Collections.reverse(repos);
             }
         } else if (type == SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME) {
-            if (order == SeafItemAdapter.SORT_ORDER_ASCENDING) {
-                Collections.sort(repos, new RepoLastMTimeComparator());
-            } else if (order == SeafItemAdapter.SORT_ORDER_DESCENDING) {
-                Collections.sort(repos, Collections.reverseOrder(new RepoLastMTimeComparator()));
+            Collections.sort(repos, new RepoLastMTimeComparator());
+            if (order == SeafItemAdapter.SORT_ORDER_DESCENDING) {
+                Collections.reverse(repos);
             }
         }
     }
