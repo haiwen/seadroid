@@ -86,7 +86,7 @@ public class SeafDirent implements SeafItem, Serializable {
 
         @Override
         public int compare(SeafDirent itemA, SeafDirent itemB) {
-            return itemB.name.toLowerCase().compareTo(itemA.name.toLowerCase());
+            return itemA.name.toLowerCase().compareTo(itemB.name.toLowerCase());
         }
     }
 }

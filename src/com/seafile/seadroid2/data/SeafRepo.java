@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.data;
 
+import java.util.Comparator;
 import java.util.Date;
 
 import android.util.Log;
@@ -82,5 +83,27 @@ public class SeafRepo implements SeafItem {
 
     public boolean hasWritePermission() {
         return permission.indexOf('w') != -1;
+    }
+
+    /**
+     * Repository last modified time comparator class
+     */
+    public static class RepoLastMTimeComparator implements Comparator<SeafRepo> {
+
+        @Override
+        public int compare(SeafRepo itemA, SeafRepo itemB) {
+            return (int) (itemA.mtime - itemB.mtime);
+        }
+    }
+
+    /**
+     * Repository name comparator class
+     */
+    public static class RepoNameComparator implements Comparator<SeafRepo> {
+
+        @Override
+        public int compare(SeafRepo itemA, SeafRepo itemB) {
+            return itemA.name.toLowerCase().compareTo(itemB.name.toLowerCase());
+        }
     }
 }
