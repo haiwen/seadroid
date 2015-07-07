@@ -14,6 +14,7 @@ import android.app.Dialog;
 import android.content.*;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -29,6 +30,7 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
 import android.view.KeyEvent;
 
+import android.view.View;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
@@ -36,6 +38,8 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.google.common.collect.Lists;
+import com.hannesdorfmann.swipeback.Position;
+import com.hannesdorfmann.swipeback.SwipeBack;
 import com.seafile.seadroid2.*;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountDBHelper;
@@ -48,10 +52,7 @@ import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.notification.UploadNotificationProvider;
 import com.seafile.seadroid2.transfer.*;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
-import com.seafile.seadroid2.ui.CopyMoveContext;
-import com.seafile.seadroid2.ui.ToastUtils;
-import com.seafile.seadroid2.ui.WidgetUtils;
-import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
+import com.seafile.seadroid2.ui.*;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
 import com.seafile.seadroid2.ui.dialog.CopyMoveDialog;
@@ -77,7 +78,7 @@ import org.json.JSONException;
 
 import org.apache.commons.io.IOUtils;
 
-public class BrowserActivity extends SherlockFragmentActivity
+public class BrowserActivity extends SwipeBackActivity
         implements ReposFragment.OnFileSelectedListener, StarredFragment.OnStarredFileSelectedListener, OnBackStackChangedListener {
     public static final String PKG_NAME = "com.seafile.seadroid2";
     public static final String EXTRA_REPO_NAME = PKG_NAME + ".repoName";
@@ -87,7 +88,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     private static final String DEBUG_TAG = "BrowserActivity";
     public static final String ACTIONBAR_PARENT_PATH = "/";
     private static final String UPLOAD_TASKS_VIEW = "UploadTasks";
-    private static final String FILES_VIEW = "Files";
+    public static final String FILES_VIEW = "Files";
 
     public static final String OPEN_FILE_DIALOG_FRAGMENT_TAG = "openfile_fragment";
     public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "password_fragment";
@@ -98,7 +99,8 @@ public class BrowserActivity extends SherlockFragmentActivity
         R.drawable.tab_library, R.drawable.tab_starred,
         R.drawable.tab_activity
     };
-    private int currentPosition = 0;
+    private int currentPosition;
+    private int mPagerOffsetPixels;
     private SeafileTabsAdapter adapter;
     private ViewPager pager;
     private TabPageIndicator indicator;
@@ -161,15 +163,39 @@ public class BrowserActivity extends SherlockFragmentActivity
         return navContext;
     }
 
+    public String getCurrentSelectedItem() {
+        return currentSelectedItem;
+    }
+
     public void disableActionBarTitle() {
         getSupportActionBar().setDisplayShowTitleEnabled(false);
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.tabs_main);
+        SwipeBack.attach(this, Position.LEFT)
+                .setContentView(R.layout.tabs_main)
+                .setSwipeBackView(R.layout.swipeback_default)
+                .setDividerAsSolidColor(Color.WHITE)
+                .setDividerSize(2)
+                .setSwipeBackTransformer(new CustomSwipebackTransformer(this))
+                .setOnInterceptMoveEventListener(
+                        new SwipeBack.OnInterceptMoveEventListener() {
+                            @Override
+                            public boolean isViewDraggable(View v, int dx,
+                                                           int x, int y) {
+                                if (v == pager) {
+                                    return !(currentPosition == 0 && mPagerOffsetPixels == 0)
+                                            || dx < 0;
+                                }
+
+                                return false;
+                            }
+                        });
+
 
         // Get the message from the intent
         Intent intent = getIntent();
@@ -231,8 +257,8 @@ public class BrowserActivity extends SherlockFragmentActivity
             }
 
             @Override
-            public void onPageScrolled(int arg0, float arg1, int arg2) {
-                // TODO Auto-generated method stub
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                mPagerOffsetPixels = positionOffsetPixels;
             }
         });
 
@@ -620,7 +646,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         Log.d(DEBUG_TAG, "onDestroy is called");
         if (txService != null) {
             unbindService(mConnection);

@@ -16,6 +16,8 @@ import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.hannesdorfmann.swipeback.Position;
+import com.hannesdorfmann.swipeback.SwipeBack;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.notification.BaseNotificationProvider;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
@@ -56,6 +58,11 @@ public class TransferActivity extends SherlockFragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.transfer_list_layout);
+
+        // Init the swipe back
+        SwipeBack.attach(this, Position.LEFT)
+                .setContentView(R.layout.transfer_list_layout)
+                .setSwipeBackView(R.layout.swipeback_default);
 
         tabsAdapter = new TransferTabsAdapter(getSupportFragmentManager());
 
@@ -113,6 +120,13 @@ public class TransferActivity extends SherlockFragmentActivity {
          * because it was never called when start the TransferActivity
          * by notification bar */
         onNewIntent(getIntent());
+    }
+
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
+        overridePendingTransition(R.anim.swipeback_stack_to_front,
+                R.anim.swipeback_stack_right_out);
     }
 
     public void onItemSelected() {
