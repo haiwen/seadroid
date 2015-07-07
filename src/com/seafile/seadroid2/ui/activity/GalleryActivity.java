@@ -2,7 +2,6 @@ package com.seafile.seadroid2.ui.activity;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.View;
@@ -14,14 +13,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
-import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.ZoomOutPageTransformer;
@@ -31,7 +28,6 @@ import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.util.Utils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -113,11 +109,13 @@ public class GalleryActivity extends SherlockFragmentActivity {
                 // page index starting from 1 instead of 0 in user interface, so plus one here
                 mPageIndexTextView.setText(String.valueOf(position + 1));
                 mPageIndex = position;
-                String linkKey = mGalleryAdapter.getItem(position);
-                if (mThumbLinkAndSeafDirentMap.containsKey(linkKey)) {
-                    currentDirent = mThumbLinkAndSeafDirentMap.get(linkKey);
-                    mPageNameTextView.setText(currentDirent.name);
-                    fileName = currentDirent.name;
+                if (mGalleryAdapter != null) {
+                    String linkKey = mGalleryAdapter.getItem(position);
+                    if (mThumbLinkAndSeafDirentMap.containsKey(linkKey)) {
+                        currentDirent = mThumbLinkAndSeafDirentMap.get(linkKey);
+                        mPageNameTextView.setText(currentDirent.name);
+                        fileName = currentDirent.name;
+                    }
                 }
             }
 
@@ -278,6 +276,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
                 mPageIndexTextView.setText(String.valueOf(i + 1));
                 mPageIndex = i;
                 mPageNameTextView.setText(fileName);
+                if (mGalleryAdapter == null) return;
                 String linkKey = mGalleryAdapter.getItem(i);
                 if (mThumbLinkAndSeafDirentMap.containsKey(linkKey)) {
                     currentDirent = mThumbLinkAndSeafDirentMap.get(linkKey);
@@ -389,6 +388,8 @@ public class GalleryActivity extends SherlockFragmentActivity {
     private void slidePage() {
         ArrayList<String> links = mLinksTask.getThumbnailLinks();
         links.remove(mPageIndex);
+        if (mGalleryAdapter == null) return;
+
         mGalleryAdapter.setItems(links);
         mGalleryAdapter.notifyDataSetChanged();
         mPageCountTextView.setText(String.valueOf(links.size()));
