@@ -1,13 +1,5 @@
 package com.seafile.seadroid2.ui.activity;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.app.Dialog;
@@ -28,7 +20,9 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
 import android.view.KeyEvent;
-
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
@@ -49,22 +43,11 @@ import com.seafile.seadroid2.notification.UploadNotificationProvider;
 import com.seafile.seadroid2.transfer.*;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.ui.CopyMoveContext;
+import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.WidgetUtils;
-import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
-import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
-import com.seafile.seadroid2.ui.dialog.CopyMoveDialog;
-import com.seafile.seadroid2.ui.dialog.DeleteFileDialog;
-import com.seafile.seadroid2.ui.dialog.FetchFileDialog;
-import com.seafile.seadroid2.ui.dialog.NewDirDialog;
-import com.seafile.seadroid2.ui.dialog.NewFileDialog;
-import com.seafile.seadroid2.ui.dialog.OpenAsDialog;
-import com.seafile.seadroid2.ui.dialog.PasswordDialog;
-import com.seafile.seadroid2.ui.dialog.RenameFileDialog;
-import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
-import com.seafile.seadroid2.ui.dialog.TaskDialog;
-import com.seafile.seadroid2.ui.dialog.UploadChoiceDialog;
+import com.seafile.seadroid2.ui.dialog.*;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog.CustomAction;
 import com.seafile.seadroid2.ui.fragment.ActivitiesFragment;
 import com.seafile.seadroid2.ui.fragment.ReposFragment;
@@ -73,9 +56,14 @@ import com.seafile.seadroid2.util.Utils;
 import com.seafile.seadroid2.util.UtilsJellyBean;
 import com.viewpagerindicator.IconPagerAdapter;
 import com.viewpagerindicator.TabPageIndicator;
+import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 
-import org.apache.commons.io.IOUtils;
+import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class BrowserActivity extends SherlockFragmentActivity
         implements ReposFragment.OnFileSelectedListener, StarredFragment.OnStarredFileSelectedListener, OnBackStackChangedListener {
@@ -871,14 +859,21 @@ public class BrowserActivity extends SherlockFragmentActivity
     public class SortFilesDialog extends DialogFragment {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
+            ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(
+                    getActivity(),
+                    R.layout.list_item_single_choice,
+                    android.R.id.text1,
+                    getResources().getStringArray(R.array.sort_files_options_array));
+
             SeafileStyleDialogBuilder builder =
-                    new SeafileStyleDialogBuilder(getActivity())
+                    (SeafileStyleDialogBuilder) new SeafileStyleDialogBuilder(getActivity())
                             .setTitle(getString(R.string.sort_files))
-                            .setItems(R.array.sort_files_options_array,
-                                    new DialogInterface.OnClickListener() {
+                            .setSingleChoiceItems(adapter,
+                                    calculateCheckedItem(),
+                                    new AdapterView.OnItemClickListener() {
                                         @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            switch (which) {
+                                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                            switch (position) {
                                                 case 0: // sort by name, ascending
                                                     sortFiles(SeafItemAdapter.SORT_BY_NAME, SeafItemAdapter.SORT_ORDER_ASCENDING);
                                                     break;
@@ -894,6 +889,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                                                 default:
                                                     return;
                                             }
+                                            dismiss();
                                         }
                                     });
             return builder.show();
@@ -922,6 +918,30 @@ public class BrowserActivity extends SherlockFragmentActivity
             }
             getReposFragment().sortFiles(type, order);
         }
+    }
+
+    private int calculateCheckedItem() {
+        switch (SettingsManager.instance().getSortFilesTypePref()) {
+            case SeafItemAdapter.SORT_BY_NAME:
+                if (SettingsManager.instance().getSortFilesOrderPref()
+                        == SeafItemAdapter.SORT_ORDER_ASCENDING)
+                    return 0;
+                else if (SettingsManager.instance().getSortFilesOrderPref()
+                        == SeafItemAdapter.SORT_ORDER_DESCENDING)
+                    return 1;
+
+                break;
+            case SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME:
+                if (SettingsManager.instance().getSortFilesOrderPref()
+                        == SeafItemAdapter.SORT_ORDER_ASCENDING)
+                    return 2;
+                else if (SettingsManager.instance().getSortFilesOrderPref()
+                        == SeafItemAdapter.SORT_ORDER_DESCENDING)
+                    return 3;
+
+                break;
+        }
+        return 0;
     }
 
     private void showNewDirDialog() {
