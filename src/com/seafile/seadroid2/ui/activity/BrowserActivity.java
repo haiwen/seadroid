@@ -78,7 +78,7 @@ import org.json.JSONException;
 
 import org.apache.commons.io.IOUtils;
 
-public class BrowserActivity extends SwipeBackActivity
+public class BrowserActivity extends SherlockFragmentActivity
         implements ReposFragment.OnFileSelectedListener, StarredFragment.OnStarredFileSelectedListener, OnBackStackChangedListener {
     public static final String PKG_NAME = "com.seafile.seadroid2";
     public static final String EXTRA_REPO_NAME = PKG_NAME + ".repoName";
@@ -172,7 +172,7 @@ public class BrowserActivity extends SwipeBackActivity
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.tabs_main);
@@ -646,7 +646,7 @@ public class BrowserActivity extends SwipeBackActivity
     }
 
     @Override
-    public void onDestroy() {
+    protected void onDestroy() {
         Log.d(DEBUG_TAG, "onDestroy is called");
         if (txService != null) {
             unbindService(mConnection);

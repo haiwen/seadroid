@@ -20,7 +20,6 @@ public class CustomSwipebackTransformer extends DefaultSwipeBackTransformer {
 
     @Override
     public void onSwipeBackCompleted(SwipeBack swipeBack, Activity activity) {
-        super.onSwipeBackCompleted(swipeBack, activity);
         if (mActivity == null) return;
 
         if (mActivity.getCurrentSelectedItem() == mActivity.FILES_VIEW && mActivity.getCurrentPosition() == 0) {
