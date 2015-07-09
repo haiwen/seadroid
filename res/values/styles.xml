@@ -85,6 +85,24 @@
         <item name="android:listViewStyle">@style/SeafileListStyle</item>
         <item name="vpiTabPageIndicatorStyle">@style/CustomTabPageIndicator</item>
         <item name="android:radioButtonStyle">@style/RadioButton</item>
+        <item name="android:actionBarStyle">@style/EmbeddedActionBar</item>
+        <item name="android:actionBarTabStyle">@style/EmbeddedTabStyle</item>
+        <item name="android:actionBarTabBarStyle">@style/customActionBarTabBarStyle</item>
+    </style>
+
+    <style name="EmbeddedActionBar" parent="@android:style/Widget.Holo.Light.ActionBar.Solid">
+        <item name="android:displayOptions">none</item>
+        <!--<item name="android:background">@color/actionbar_dark_grey</item>-->
+    </style>
+
+    <style name="EmbeddedTabStyle" parent="@android:style/Widget.Holo.Light.ActionBar.TabView">
+        <item name="android:background">@drawable/actionbar_tabs_bg</item>
+        <item name="android:padding">0dp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="customActionBarTabBarStyle" parent="@android:style/Widget.Holo.Light.ActionBar.TabBar">
+        <item name="android:divider">@null</item>
     </style>
 
     <style name="SeafileListStyle" parent="@android:style/Widget.ListView">
