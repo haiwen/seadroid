@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -14,6 +15,7 @@ import android.app.Dialog;
 import android.content.*;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
+import android.content.res.TypedArray;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -29,6 +31,8 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
 import android.view.KeyEvent;
 
+import android.view.View;
+import android.widget.ImageView;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
@@ -101,7 +105,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     private int currentPosition = 0;
     private SeafileTabsAdapter adapter;
     private ViewPager pager;
-    private TabPageIndicator indicator;
+    //private TabPageIndicator indicator;
 
     private Account account;
     NavContext navContext = new NavContext();
@@ -165,6 +169,17 @@ public class BrowserActivity extends SherlockFragmentActivity
         getSupportActionBar().setDisplayShowTitleEnabled(false);
     }
 
+    private void enableEmbeddedTabs(Object actionBar) {
+        try {
+            Method setHasEmbeddedTabsMethod = actionBar.getClass().getDeclaredMethod("setHasEmbeddedTabs", boolean.class);
+            setHasEmbeddedTabsMethod.setAccessible(true);
+            setHasEmbeddedTabsMethod.invoke(actionBar, true);
+        } catch (Exception e) {
+            Log.v("EmbeddedTabs", e.getMessage().toString());
+
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
@@ -201,17 +216,48 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         getSupportFragmentManager().addOnBackStackChangedListener(this);
 
+        pager = (ViewPager) findViewById(R.id.pager);
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayShowTitleEnabled(true);
-        unsetRefreshing();
-        disableUpButton();
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        //actionBar.setDisplayShowTitleEnabled(true);
+        //unsetRefreshing();
+        //disableUpButton();
+        ActionBar.TabListener tabListener = new ActionBar.TabListener() {
+
+            @Override
+            public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
+                pager.setCurrentItem(tab.getPosition());
+
+            }
+
+            @Override
+            public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
+
+            }
+
+            @Override
+            public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
+
+            }
+        };
+        TypedArray iconIds = getResources().obtainTypedArray(R.array.actionbar_icons);
+        for (int i = 0; i < 3; i++) {
+            View view = getLayoutInflater().inflate(R.layout.actionbar_tab_layout, null);
+            ImageView imageView = (ImageView) view.findViewById(R.id.icon);
+            imageView.setImageResource(iconIds.getResourceId(i, -1));
+            actionBar.addTab(
+                    actionBar.newTab()
+                            .setCustomView(view)
+                            .setTabListener(tabListener));
+        }
+
+        enableEmbeddedTabs(actionBar);
 
         adapter = new SeafileTabsAdapter(getSupportFragmentManager());
 
-        pager = (ViewPager) findViewById(R.id.pager);
         pager.setAdapter(adapter);
 
-        indicator = (TabPageIndicator)findViewById(R.id.indicator);
+        /*indicator = (TabPageIndicator)findViewById(R.id.indicator);
         indicator.setViewPager(pager);
         indicator.setOnPageChangeListener(new OnPageChangeListener() {
             @Override
@@ -234,7 +280,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             public void onPageScrolled(int arg0, float arg1, int arg2) {
                 // TODO Auto-generated method stub
             }
-        });
+        });*/
 
         if (savedInstanceState != null) {
             Log.d(DEBUG_TAG, "savedInstanceState is not null");
@@ -284,7 +330,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
 
         // enable ActionBar app icon to behave as action back
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Intent txIntent = new Intent(this, TransferService.class);
         startService(txIntent);
@@ -305,7 +351,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         if(!checkServerProEdition()) {
             // hide Activity tab
             adapter.hideActivityTab();
-            indicator.notifyDataSetChanged();
+            //indicator.notifyDataSetChanged();
             adapter.notifyDataSetChanged();
         }
 
@@ -347,7 +393,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             if (serverInfo.proEdition()) {
                 // show Activity tab
                 adapter.unHideActivityTab();
-                indicator.notifyDataSetChanged();
+                //indicator.notifyDataSetChanged();
                 adapter.notifyDataSetChanged();
             }
 
@@ -518,7 +564,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     public void setCurrentPosition(int currentPosition) {
         this.currentPosition = currentPosition;
-        indicator.setCurrentItem(currentPosition);
+        //indicator.setCurrentItem(currentPosition);
     }
 
     public Fragment getFragment(int index) {
