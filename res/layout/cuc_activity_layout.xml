@@ -9,7 +9,7 @@
             android:id="@+id/cuc_pager"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:layout_above="@+id/indicator" />
+            android:layout_above="@+id/cuc_indicator" />
 
     <com.viewpagerindicator.LinePageIndicator
             android:id="@+id/cuc_indicator"
