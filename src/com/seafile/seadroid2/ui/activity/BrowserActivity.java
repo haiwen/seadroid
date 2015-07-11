@@ -23,6 +23,10 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TabHost;
+import android.widget.TextView;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
@@ -47,6 +51,7 @@ import com.seafile.seadroid2.ui.CopyMoveContext;
 import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.WidgetUtils;
+import com.seafile.seadroid2.ui.*;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
 import com.seafile.seadroid2.ui.dialog.*;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog.CustomAction;
@@ -55,8 +60,7 @@ import com.seafile.seadroid2.ui.fragment.ReposFragment;
 import com.seafile.seadroid2.ui.fragment.StarredFragment;
 import com.seafile.seadroid2.util.Utils;
 import com.seafile.seadroid2.util.UtilsJellyBean;
-import com.viewpagerindicator.IconPagerAdapter;
-import com.viewpagerindicator.TabPageIndicator;
+import com.seafile.seadroid2.ui.PagerSlidingTabStrip;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 
@@ -83,14 +87,14 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final String CHOOSE_APP_DIALOG_FRAGMENT_TAG = "choose_app_fragment";
     public static final String PICK_FILE_DIALOG_FRAGMENT_TAG = "pick_file_fragment";
 
-    private static final int[] ICONS = new int[] {
-        R.drawable.tab_library, R.drawable.tab_starred,
-        R.drawable.tab_activity
-    };
+    public final static String FRAGMENT_TYPE = "fragment_type";
+    public final static byte TYPE_LIBRARY = 0x0;
+    public final static byte TYPE_STARRED = 0x1;
+    public final static byte TYPE_ACTIVITY = 0x2;
     private int currentPosition = 0;
-    private SeafileTabsAdapter adapter;
+    private ViewPageFragmentAdapter adapter;
     private ViewPager pager;
-    private TabPageIndicator indicator;
+    private PagerSlidingTabStrip mTabStrip;
 
     private Account account;
     NavContext navContext = new NavContext();
@@ -195,35 +199,22 @@ public class BrowserActivity extends SherlockFragmentActivity
         unsetRefreshing();
         disableUpButton();
 
-        adapter = new SeafileTabsAdapter(getSupportFragmentManager());
-
         pager = (ViewPager) findViewById(R.id.pager);
-        pager.setAdapter(adapter);
+        mTabStrip = (PagerSlidingTabStrip) findViewById(R.id.indicator);
+        adapter = new ViewPageFragmentAdapter(getSupportFragmentManager(), mTabStrip, pager);
 
-        indicator = (TabPageIndicator)findViewById(R.id.indicator);
-        indicator.setViewPager(pager);
-        indicator.setOnPageChangeListener(new OnPageChangeListener() {
-            @Override
-            public void onPageSelected(final int position) {
-                currentPosition = position;
-                supportInvalidateOptionsMenu();
-                if (currentPosition != 0) {
-                    disableUpButton();
-                } else if (navContext.inRepo()) {
-                    enableUpButton();
-                }
-            }
+        Bundle libraryBundle = new Bundle();
+        libraryBundle.putByte(FRAGMENT_TYPE, TYPE_LIBRARY);
+        adapter.addTab(getString(R.string.tabs_library), "library", ReposFragment.class, libraryBundle);
+        Bundle starredBundle = new Bundle();
+        starredBundle.putByte(FRAGMENT_TYPE, TYPE_STARRED);
+        adapter.addTab(getString(R.string.tabs_starred), "star", StarredFragment.class, starredBundle);
+        Bundle activityBundle = new Bundle();
+        activityBundle.putByte(FRAGMENT_TYPE, TYPE_ACTIVITY);
+        adapter.addTab(getString(R.string.tabs_activity), "activity", ActivitiesFragment.class, activityBundle);
 
-            @Override
-            public void onPageScrollStateChanged(int arg0) {
-                // TODO Auto-generated method stub
-            }
-
-            @Override
-            public void onPageScrolled(int arg0, float arg1, int arg2) {
-                // TODO Auto-generated method stub
-            }
-        });
+        adapter.notifyDataSetChanged();
+        pager.setOffscreenPageLimit(2);
 
         if (savedInstanceState != null) {
             Log.d(DEBUG_TAG, "savedInstanceState is not null");
@@ -294,7 +285,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         if(!checkServerProEdition()) {
             // hide Activity tab
             adapter.hideActivityTab();
-            indicator.notifyDataSetChanged();
+            //mTabStrip.notifyDataSetChanged();
             adapter.notifyDataSetChanged();
         }
 
@@ -336,7 +327,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             if (serverInfo.proEdition()) {
                 // show Activity tab
                 adapter.unHideActivityTab();
-                indicator.notifyDataSetChanged();
+                //mTabStrip.notifyDataSetChanged();
                 adapter.notifyDataSetChanged();
             }
 
@@ -391,16 +382,70 @@ public class BrowserActivity extends SherlockFragmentActivity
         return serverInfo.searchEnabled();
     }
 
-    class SeafileTabsAdapter extends FragmentPagerAdapter implements
-            IconPagerAdapter {
-        public SeafileTabsAdapter(FragmentManager fm) {
+    class ViewPageFragmentAdapter extends FragmentPagerAdapter implements OnPageChangeListener {
+        private final ArrayList<ViewPageInfo> mTabs = new ArrayList<ViewPageInfo>();
+        protected PagerSlidingTabStrip mPagerStrip;
+        private ViewPager mViewPager;
+        private Context mContext;
+        private boolean isHideActivityTab;
+
+        public ViewPageFragmentAdapter(FragmentManager fm, PagerSlidingTabStrip pageStrip, ViewPager pager) {
             super(fm);
+            mContext = pager.getContext();
+            mPagerStrip = pageStrip;
+            mViewPager = pager;
+            mViewPager.setAdapter(this);
+            mViewPager.setOnPageChangeListener(this);
+            mPagerStrip.setViewPager(mViewPager);
         }
 
-        private ReposFragment reposFragment = null;
-        private ActivitiesFragment activitieFragment = null;
-        private StarredFragment starredFragment = null;
-        private boolean isHideActivityTab;
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+
+        @Override
+        public void onPageSelected(int position) {
+            currentPosition = position;
+            supportInvalidateOptionsMenu();
+            if (currentPosition != 0) {
+                disableUpButton();
+            } else if (navContext.inRepo()) {
+                enableUpButton();
+            }
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int position) {}
+
+        /*class DummyTabFactory implements TabHost.TabContentFactory {
+            private final Context mContext;
+
+            public DummyTabFactory(Context context) {
+                mContext = context;
+            }
+
+            @Override
+            public View createTabContent(String tag) {
+                View v = new View(mContext);
+                v.setMinimumWidth(0);
+                v.setMinimumHeight(0);
+                return v;
+            }
+        }*/
+
+        @Override
+        public void notifyDataSetChanged() {
+            super.notifyDataSetChanged();
+            for (ViewPageInfo viewPageInfo : mTabs) {
+                TextView v = (TextView) LayoutInflater.from(mContext).inflate(R.layout.sliding_tab_item, null);
+                v.setText(viewPageInfo.title);
+                mPagerStrip.addTab(v);
+            }
+        }
+
+        public void addTab(String title, String tag, Class<?> clss, Bundle args) {
+            ViewPageInfo info = new ViewPageInfo(title, tag, clss, args);
+            mTabs.add(info);
+        }
 
         public void hideActivityTab() {
             this.isHideActivityTab = true;
@@ -412,52 +457,19 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         @Override
         public Fragment getItem(int position) {
-                switch (position) {
-                    case 0:
-
-                        if (reposFragment == null) {
-                            reposFragment = new ReposFragment();
-                        }
-                        return reposFragment;
-                    case 1:
-                        if (starredFragment == null) {
-                            starredFragment = new StarredFragment();
-                        }
-                        return starredFragment;
-                    case 2:
-                        if (activitieFragment == null) {
-                            activitieFragment = new ActivitiesFragment();
-                        }
-                        return activitieFragment;
-                    default:
-                        return new Fragment();
-                }
+            ViewPageInfo info = mTabs.get(position);
+            return Fragment.instantiate(mContext, info.clss.getName(), info.args);
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0:
-                    return getString(R.string.tabs_library).toUpperCase();
-                case 1:
-                    return getString(R.string.tabs_starred).toUpperCase();
-                case 2:
-                    return getString(R.string.tabs_activity).toUpperCase();
-
-                default:
-                    return null;
-            }
-        }
-
-        @Override
-        public int getIconResId(int index) {
-            return ICONS[index];
+            return mTabs.get(position).title;
         }
 
         @Override
         public int getCount() {
             if (!isHideActivityTab)
-                return ICONS.length;
+                return mTabs.size();
             else
                 return 2;
         }
@@ -507,7 +519,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     public void setCurrentPosition(int currentPosition) {
         this.currentPosition = currentPosition;
-        indicator.setCurrentItem(currentPosition);
+        // mTabStrip.selectedTab(currentPosition);
     }
 
     public Fragment getFragment(int index) {
