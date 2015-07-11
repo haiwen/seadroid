@@ -1,15 +1,10 @@
 package com.seafile.seadroid2.ui.activity;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.Dialog;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.os.*;
+import android.content.*;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -21,8 +16,6 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ListView;
-
-import android.widget.Toast;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
@@ -40,6 +33,9 @@ import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.adapter.AccountAdapter;
 import com.seafile.seadroid2.ui.adapter.SeafAccountAdapter;
 import com.seafile.seadroid2.util.Utils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class AccountsActivity extends SherlockFragmentActivity {
@@ -248,10 +244,10 @@ public class AccountsActivity extends SherlockFragmentActivity {
         super.onBackPressed();
     }
 
-    public static final int PRIVATE_SERVER = 0;
-    public static final int SEACLOUD_CC = 1;
-    public static final int CLOUD_SEAFILE_COM = 2;
-    public static final int SHIBBOLETH_LOGIN = 3;
+    public static final int SEACLOUD_CC = 0;
+    public static final int CLOUD_SEAFILE_COM = 1;
+    public static final int SHIBBOLETH_LOGIN = 2;
+    public static final int PRIVATE_SERVER = 3;
 
     public static class CreateAccountChoiceDialog extends DialogFragment {
         // final Context context = SeadroidApplication.getAppContext();
@@ -266,26 +262,26 @@ public class AccountsActivity extends SherlockFragmentActivity {
                                 public void onClick(DialogInterface dialog, int which) {
                                     Intent intent;
                                     switch (which) {
-                                    case PRIVATE_SERVER:
-                                        intent = new Intent(getActivity(), AccountDetailActivity.class);
-                                        startActivity(intent);
-                                        break;
-                                    case SEACLOUD_CC:
-                                        intent = new Intent(getActivity(), AccountDetailActivity.class);
-                                        intent.putExtra("server", "https://seacloud.cc");
-                                        startActivity(intent);
-                                        break;
-                                    case CLOUD_SEAFILE_COM:
-                                        intent = new Intent(getActivity(), AccountDetailActivity.class);
-                                        intent.putExtra("server", "https://cloud.seafile.de");
-                                        startActivity(intent);
-                                        break;
-                                    case SHIBBOLETH_LOGIN:
-                                        intent = new Intent(getActivity(), ShibbolethActivity.class);
-                                        startActivity(intent);
-                                        break;
-                                    default:
-                                        return;
+                                        case SEACLOUD_CC:
+                                            intent = new Intent(getActivity(), AccountDetailActivity.class);
+                                            intent.putExtra("server", "https://seacloud.cc");
+                                            startActivity(intent);
+                                            break;
+                                        case CLOUD_SEAFILE_COM:
+                                            intent = new Intent(getActivity(), AccountDetailActivity.class);
+                                            intent.putExtra("server", "https://cloud.seafile.de");
+                                            startActivity(intent);
+                                            break;
+                                        case SHIBBOLETH_LOGIN:
+                                            intent = new Intent(getActivity(), ShibbolethActivity.class);
+                                            startActivity(intent);
+                                            break;
+                                        case PRIVATE_SERVER:
+                                            intent = new Intent(getActivity(), AccountDetailActivity.class);
+                                            startActivity(intent);
+                                            break;
+                                        default:
+                                            return;
                                     }
                                 }
                             });
