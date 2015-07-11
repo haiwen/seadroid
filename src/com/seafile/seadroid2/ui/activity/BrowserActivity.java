@@ -25,7 +25,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.TabHost;
 import android.widget.TextView;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -158,6 +157,18 @@ public class BrowserActivity extends SherlockFragmentActivity
         getSupportActionBar().setDisplayShowTitleEnabled(false);
     }
 
+    private void setupTabAdapter() {
+        Bundle libraryBundle = new Bundle();
+        Bundle starredBundle = new Bundle();
+        Bundle activityBundle = new Bundle();
+        libraryBundle.putByte(FRAGMENT_TYPE, TYPE_LIBRARY);
+        starredBundle.putByte(FRAGMENT_TYPE, TYPE_STARRED);
+        activityBundle.putByte(FRAGMENT_TYPE, TYPE_ACTIVITY);
+        adapter.addTab(getString(R.string.tabs_library), "library", ReposFragment.class, libraryBundle);
+        adapter.addTab(getString(R.string.tabs_starred), "star", StarredFragment.class, starredBundle);
+        adapter.addTab(getString(R.string.tabs_activity), "activity", ActivitiesFragment.class, activityBundle);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
@@ -170,7 +181,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         String email = intent.getStringExtra(AccountManager.SHARED_PREF_EMAIL_KEY);
         String token = intent.getStringExtra(AccountManager.SHARED_PREF_TOKEN_KEY);
         account = new Account(server, email, null, token);
-        Log.d(DEBUG_TAG, "browser activity onCreate " + server + " " + email);
+        // Log.d(DEBUG_TAG, "browser activity onCreate " + server + " " + email);
 
         if (server == null) {
             AccountManager accountManager = new AccountManager(this);
@@ -200,24 +211,14 @@ public class BrowserActivity extends SherlockFragmentActivity
         disableUpButton();
 
         pager = (ViewPager) findViewById(R.id.pager);
-        mTabStrip = (PagerSlidingTabStrip) findViewById(R.id.indicator);
+        mTabStrip = (PagerSlidingTabStrip) findViewById(R.id.pager_tabstrip);
         adapter = new ViewPageFragmentAdapter(getSupportFragmentManager(), mTabStrip, pager);
-
-        Bundle libraryBundle = new Bundle();
-        libraryBundle.putByte(FRAGMENT_TYPE, TYPE_LIBRARY);
-        adapter.addTab(getString(R.string.tabs_library), "library", ReposFragment.class, libraryBundle);
-        Bundle starredBundle = new Bundle();
-        starredBundle.putByte(FRAGMENT_TYPE, TYPE_STARRED);
-        adapter.addTab(getString(R.string.tabs_starred), "star", StarredFragment.class, starredBundle);
-        Bundle activityBundle = new Bundle();
-        activityBundle.putByte(FRAGMENT_TYPE, TYPE_ACTIVITY);
-        adapter.addTab(getString(R.string.tabs_activity), "activity", ActivitiesFragment.class, activityBundle);
-
+        setupTabAdapter();
         adapter.notifyDataSetChanged();
-        pager.setOffscreenPageLimit(2);
+        pager.setOffscreenPageLimit(3);
 
         if (savedInstanceState != null) {
-            Log.d(DEBUG_TAG, "savedInstanceState is not null");
+            // Log.d(DEBUG_TAG, "savedInstanceState is not null");
             fetchFileDialog = (FetchFileDialog)
                     getSupportFragmentManager().findFragmentByTag(OPEN_FILE_DIALOG_FRAGMENT_TAG);
 
@@ -234,12 +235,12 @@ public class BrowserActivity extends SherlockFragmentActivity
                 getSupportFragmentManager().findFragmentByTag(SslConfirmDialog.FRAGMENT_TAG);
 
             if (sslConfirmDlg != null) {
-                Log.d(DEBUG_TAG, "sslConfirmDlg is not null");
+                // Log.d(DEBUG_TAG, "sslConfirmDlg is not null");
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 ft.detach(sslConfirmDlg);
                 ft.commit();
             } else {
-                Log.d(DEBUG_TAG, "sslConfirmDlg is null");
+                // Log.d(DEBUG_TAG, "sslConfirmDlg is null");
             }
 
             String repoID = savedInstanceState.getString("repoID");
@@ -268,12 +269,12 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         Intent txIntent = new Intent(this, TransferService.class);
         startService(txIntent);
-        Log.d(DEBUG_TAG, "start TransferService");
+        // Log.d(DEBUG_TAG, "start TransferService");
 
         // bind transfer service
         Intent bIntent = new Intent(this, TransferService.class);
         bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
-        Log.d(DEBUG_TAG, "try bind TransferService");
+        // Log.d(DEBUG_TAG, "try bind TransferService");
 
         Intent monitorIntent = new Intent(this, FileMonitorService.class);
         startService(monitorIntent);
@@ -285,8 +286,8 @@ public class BrowserActivity extends SherlockFragmentActivity
         if(!checkServerProEdition()) {
             // hide Activity tab
             adapter.hideActivityTab();
-            //mTabStrip.notifyDataSetChanged();
-            adapter.notifyDataSetChanged();
+            //remove activity fragment
+            adapter.remove(2);
         }
 
         if (!checkSearchEnabled()) {
@@ -327,8 +328,6 @@ public class BrowserActivity extends SherlockFragmentActivity
             if (serverInfo.proEdition()) {
                 // show Activity tab
                 adapter.unHideActivityTab();
-                //mTabStrip.notifyDataSetChanged();
-                adapter.notifyDataSetChanged();
             }
 
             if (serverInfo.searchEnabled()) {
@@ -447,6 +446,37 @@ public class BrowserActivity extends SherlockFragmentActivity
             mTabs.add(info);
         }
 
+        /**
+         * 移除第一次
+         */
+        public void remove() {
+            remove(0);
+        }
+
+        /**
+         * 移除一个tab
+         *
+         * @param index
+         *            备注：如果index小于0，则从第一个开始删 如果大于tab的数量值则从最后一个开始删除
+         */
+        public void remove(int index) {
+            if (mTabs.isEmpty()) {
+                return;
+            }
+            if (index < 0) {
+                index = 0;
+            }
+            if (index >= mTabs.size()) {
+                // index = mTabs.size() - 1;
+                return;
+            }
+
+            mTabs.remove(index);
+            Log.d(DEBUG_TAG, "remove " + index);
+            mPagerStrip.removeAllTab();
+            notifyDataSetChanged();
+        }
+
         public void hideActivityTab() {
             this.isHideActivityTab = true;
         }
@@ -485,7 +515,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             return;
         }
         if (isCameraUploadServiceRunning("com.seafile.seadroid2.sync.CameraUploadService")) {
-            Log.d(DEBUG_TAG, "service running...");
+            // Log.d(DEBUG_TAG, "service running...");
             // even camera upload service is running, still can`t return.
             // because running state does not guarantee UploadFragment to only show uploading progress, it may show unexpected info like "no upload tasks".
             // 1. when OS under memory pressure, nothing upload even service state is running
@@ -493,7 +523,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
             // return;
         }
-        Log.d(DEBUG_TAG, "start service explicitly on Resume method");
+        // Log.d(DEBUG_TAG, "start service explicitly on Resume method");
         Intent cameraUploadIntent = new Intent(this, CameraUploadService.class);
         startService(cameraUploadIntent);
     }
@@ -547,7 +577,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         public void onServiceConnected(ComponentName className, IBinder service) {
             TransferBinder binder = (TransferBinder) service;
             txService = binder.getService();
-            Log.d(DEBUG_TAG, "bind TransferService");
+            // Log.d(DEBUG_TAG, "bind TransferService");
 
             for (PendingUploadInfo info : pendingUploads) {
                 txService.addTaskToUploadQue(account,
@@ -569,7 +599,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     @Override
     public void onStart() {
-        Log.d(DEBUG_TAG, "onStart");
+        // Log.d(DEBUG_TAG, "onStart");
         super.onStart();
         if (android.os.Build.VERSION.SDK_INT < 14
                 && SettingsManager.instance().isGestureLockRequired()) {
@@ -587,19 +617,19 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     @Override
     protected void onPause() {
-        Log.d(DEBUG_TAG, "onPause");
+        // Log.d(DEBUG_TAG, "onPause");
         super.onPause();
     }
 
     @Override
     public void onRestart() {
-        Log.d(DEBUG_TAG, "onRestart");
+        // Log.d(DEBUG_TAG, "onRestart");
         super.onRestart();
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
-        Log.d(DEBUG_TAG, "onNewIntent");
+        // Log.d(DEBUG_TAG, "onNewIntent");
         String server = intent.getStringExtra("server");
         String email = intent.getStringExtra("email");
 
@@ -612,7 +642,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     @Override
     protected void onStop() {
-        Log.d(DEBUG_TAG, "onStop");
+        // Log.d(DEBUG_TAG, "onStop");
         super.onStop();
 
         if (mTransferReceiver != null) {
@@ -622,7 +652,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     @Override
     protected void onDestroy() {
-        Log.d(DEBUG_TAG, "onDestroy is called");
+        // Log.d(DEBUG_TAG, "onDestroy is called");
         if (txService != null) {
             unbindService(mConnection);
             txService = null;
@@ -632,7 +662,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        Log.d(DEBUG_TAG, "onSaveInstanceState");
+        // Log.d(DEBUG_TAG, "onSaveInstanceState");
         super.onSaveInstanceState(outState);
         //outState.putInt("tab", getSupportActionBar().getSelectedNavigationIndex());
         if (navContext.getRepoID() != null) {

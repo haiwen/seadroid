@@ -69,8 +69,8 @@ public class PagerSlidingTabStrip extends HorizontalScrollView implements
             TypedArray attrsTypedArray = context.obtainStyledAttributes(attrs,
                     R.styleable.PagerSlidingTabStrip);
             if (attrsTypedArray != null) {
-                allowWidthFull = true;/*attrsTypedArray.getBoolean(
-                        R.styleable.PagerSlidingTabStrip_allowWidthFull, false);*/
+                allowWidthFull = attrsTypedArray.getBoolean(
+                        R.styleable.PagerSlidingTabStrip_allowWidthFull, false);
                 slidingBlockDrawable = attrsTypedArray
                         .getDrawable(R.styleable.PagerSlidingTabStrip_slidingBlock);
                 disableViewPager = attrsTypedArray.getBoolean(
