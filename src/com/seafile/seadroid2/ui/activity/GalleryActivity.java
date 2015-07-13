@@ -16,18 +16,22 @@ import com.google.common.collect.Lists;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
+import com.seafile.seadroid2.data.SeafItem;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.ZoomOutPageTransformer;
 import com.seafile.seadroid2.ui.adapter.GalleryAdapter;
+import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
 import com.seafile.seadroid2.ui.dialog.DeleteFileDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.util.Utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -170,6 +174,9 @@ public class GalleryActivity extends SherlockFragmentActivity {
             if (seafDirents == null)
                 return;
 
+            seafDirents = sortFiles(seafDirents,
+                    SettingsManager.instance().getSortFilesTypePref(),
+                    SettingsManager.instance().getSortFilesOrderPref());
             for (SeafDirent seafDirent : seafDirents) {
                 if (!seafDirent.isDir()
                         && Utils.isViewableImage(seafDirent.name)) { // only cache image type files
@@ -229,6 +236,9 @@ public class GalleryActivity extends SherlockFragmentActivity {
             if (seafDirents == null)
                 return null;
 
+            seafDirents = sortFiles(seafDirents,
+                    SettingsManager.instance().getSortFilesTypePref(),
+                    SettingsManager.instance().getSortFilesOrderPref());
             for (SeafDirent seafDirent : seafDirents) {
                 if (!seafDirent.isDir()
                         && Utils.isViewableImage(seafDirent.name)) { // only cache image type files
@@ -261,6 +271,34 @@ public class GalleryActivity extends SherlockFragmentActivity {
 
             navToSelectedPage();
         }
+    }
+
+    /**
+     * Sorts the given list by type of {@link SeafItemAdapter#SORT_BY_NAME} or {@link SeafItemAdapter#SORT_BY_LAST_MODIFIED_TIME},
+     * and by order of {@link SeafItemAdapter#SORT_ORDER_ASCENDING} or {@link SeafItemAdapter#SORT_ORDER_DESCENDING}
+     *
+     * @param dirents
+     * @param type
+     * @param order
+     * @return sorted file list
+     */
+    public List<SeafDirent> sortFiles(List<SeafDirent> dirents, int type, int order) {
+        Log.d(DEBUG_TAG, "sort filey by type " + type + " by order " + order);
+        // sort SeafDirents
+        if (type == SeafItemAdapter.SORT_BY_NAME) {
+            // sort by name, in ascending order
+            Collections.sort(dirents, new SeafDirent.DirentNameComparator());
+            if (order == SeafItemAdapter.SORT_ORDER_DESCENDING) {
+                Collections.reverse(dirents);
+            }
+        } else if (type == SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME) {
+            // sort by last modified time, in ascending order
+            Collections.sort(dirents,   new SeafDirent.DirentLastMTimeComparator());
+            if (order == SeafItemAdapter.SORT_ORDER_DESCENDING) {
+                Collections.reverse(dirents);
+            }
+        }
+        return dirents;
     }
 
     /**
