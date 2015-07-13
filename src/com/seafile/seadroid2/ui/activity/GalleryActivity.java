@@ -274,8 +274,9 @@ public class GalleryActivity extends SherlockFragmentActivity {
     }
 
     /**
-     * Sorts the given list by type of {@link SeafItemAdapter#SORT_BY_NAME} or {@link SeafItemAdapter#SORT_BY_LAST_MODIFIED_TIME},
-     * and by order of {@link SeafItemAdapter#SORT_ORDER_ASCENDING} or {@link SeafItemAdapter#SORT_ORDER_DESCENDING}
+     * Sorts the given list by type and order.
+     * Sorting type is one of {@link SeafItemAdapter#SORT_BY_NAME} or {@link SeafItemAdapter#SORT_BY_LAST_MODIFIED_TIME}.
+     * Sorting order is one of {@link SeafItemAdapter#SORT_ORDER_ASCENDING} or {@link SeafItemAdapter#SORT_ORDER_DESCENDING}.
      *
      * @param dirents
      * @param type
