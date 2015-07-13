@@ -223,7 +223,7 @@ public class SeafileStyleDialogBuilder extends AlertDialog.Builder {
         final ListView listView = (ListView) mDialogView.findViewById(R.id.listView);
         listView.setAdapter(adapter);
         listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-        // listView.setItemChecked(checkedItem, true);
+        listView.setItemChecked(checkedItem, true);
 
         if (onItemClickListener != null) {
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -241,7 +241,7 @@ public class SeafileStyleDialogBuilder extends AlertDialog.Builder {
     public Builder setSingleChoiceItems(CharSequence[] items, int checkedItem,
             final DialogInterface.OnClickListener listener) {
         ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(
-                mContext, android.R.layout.simple_list_item_single_choice,
+                mContext, R.layout.list_item_single_choice,
                 android.R.id.text1, items);
 
         return this.setSingleChoiceItems(adapter, checkedItem, listener);
