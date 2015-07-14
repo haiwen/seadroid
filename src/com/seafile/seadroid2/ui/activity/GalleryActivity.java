@@ -46,14 +46,12 @@ public class GalleryActivity extends SherlockFragmentActivity {
     private TextView mPageIndexTextView;
     private TextView mPageCountTextView;
     private TextView mPageNameTextView;
-    private FrameLayout mProgressView;
     private ImageView mDeleteBtn;
     private ImageView mStarBtn;
     private ImageView mShareBtn;
     private LinearLayout mToolbar;
     private DataManager dataMgr;
     private Account mAccount;
-    private String repoName;
     private String repoID;
     private String dirPath;
     private String fileName;
@@ -61,13 +59,13 @@ public class GalleryActivity extends SherlockFragmentActivity {
     private SeafDirent currentDirent;
     private int mPageIndex;
     private GalleryAdapter mGalleryAdapter;
+    /** thumbnail link */
     private ArrayList<String> links;
-    //private final RequestPhotoLinksTask mLinksTask = new RequestPhotoLinksTask();
     /** mapping thumbnail link to seafDirent in order to display photo name */
     private LinkedHashMap<String, SeafDirent> mThumbLinkAndSeafDirentMap = new LinkedHashMap<String, SeafDirent>();
 
     /** flag to mark if the tool bar was shown */
-    private static boolean showToolBar = true;
+    private boolean showToolBar = true;
     private View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -95,7 +93,6 @@ public class GalleryActivity extends SherlockFragmentActivity {
         if (getSupportActionBar() != null)
             getSupportActionBar().hide();
 
-        mProgressView = (FrameLayout) findViewById(R.id.gallery_progressContainer);
         mDeleteBtn = (ImageView) findViewById(R.id.gallery_delete_photo);
         mStarBtn = (ImageView) findViewById(R.id.gallery_star_photo);
         mShareBtn = (ImageView) findViewById(R.id.gallery_share_photo);
@@ -135,14 +132,13 @@ public class GalleryActivity extends SherlockFragmentActivity {
         mPageCountTextView = (TextView) findViewById(R.id.gallery_page_count);
         mPageNameTextView = (TextView) findViewById(R.id.gallery_page_name);
 
-        repoName = getIntent().getStringExtra("repoName");
         repoID = getIntent().getStringExtra("repoId");
         dirPath = getIntent().getStringExtra("path");
         mAccount = getIntent().getParcelableExtra("account");
         fileName = getIntent().getStringExtra("fileName");
         dataMgr = new DataManager(mAccount);
 
-        showGallery(repoName, repoID, dirPath, fileName);
+        showGallery(repoID, dirPath);
     }
 
     @Override
@@ -167,7 +163,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
         navToSelectedPage();
     }
 
-    private void showGallery(String repoName, String repoID, String dirPath, String fileName) {
+    private void showGallery(String repoID, String dirPath) {
         // calculate thumbnail urls by cached dirents
         List<SeafDirent> seafDirents = dataMgr.getCachedDirents(repoID, dirPath);
         if (seafDirents != null) {
@@ -258,13 +254,12 @@ public class GalleryActivity extends SherlockFragmentActivity {
             mToolbar.setVisibility(View.VISIBLE);
             mPageIndexContainer.setVisibility(View.VISIBLE);
             mPageNameTextView.setVisibility(View.VISIBLE);
-            showToolBar = !showToolBar;
         } else {
             mToolbar.setVisibility(View.GONE);
             mPageIndexContainer.setVisibility(View.GONE);
             mPageNameTextView.setVisibility(View.GONE);
-            showToolBar = !showToolBar;
         }
+        showToolBar = !showToolBar;
 
     }
 

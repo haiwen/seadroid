@@ -404,7 +404,7 @@ public class ReposFragment extends SherlockListFragment {
                 } else {
                     if (Utils.isViewableImage(dirent.name)
                             && !repo.encrypted) {
-                        browsePhotosInGallery(nav.getDirPath(), dirent.name);
+                        browsePhotosInGallery(nav.getRepoID(), nav.getDirPath(), dirent.name, getDataManager().getAccount());
                         return;
                     }
                     mActivity.onFileSelected(dirent);
@@ -419,12 +419,11 @@ public class ReposFragment extends SherlockListFragment {
         }
     }
 
-    public void browsePhotosInGallery(String dirPath, String fileName) {
+    public void browsePhotosInGallery(String repoID, String dirPath, String fileName, Account account) {
         Intent intent = new Intent(mActivity, GalleryActivity.class);
-        intent.putExtra("repoName", getNavContext().getRepoName());
-        intent.putExtra("repoId", getNavContext().getRepoID());
+        intent.putExtra("repoId", repoID);
         intent.putExtra("path", dirPath);
-        intent.putExtra("account", getDataManager().getAccount());
+        intent.putExtra("account", account);
         intent.putExtra("fileName", fileName);
         startActivity(intent);
     }
