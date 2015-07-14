@@ -12,7 +12,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.google.common.collect.Lists;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
@@ -62,7 +61,8 @@ public class GalleryActivity extends SherlockFragmentActivity {
     private SeafDirent currentDirent;
     private int mPageIndex;
     private GalleryAdapter mGalleryAdapter;
-    private final RequestPhotoLinksTask mLinksTask = new RequestPhotoLinksTask();
+    private ArrayList<String> links;
+    //private final RequestPhotoLinksTask mLinksTask = new RequestPhotoLinksTask();
     /** mapping thumbnail link to seafDirent in order to display photo name */
     private LinkedHashMap<String, SeafDirent> mThumbLinkAndSeafDirentMap = new LinkedHashMap<String, SeafDirent>();
 
@@ -168,15 +168,9 @@ public class GalleryActivity extends SherlockFragmentActivity {
     }
 
     private void showGallery(String repoName, String repoID, String dirPath, String fileName) {
-        if (!Utils.isNetworkOn()) {
-            // show cached images
-            List<SeafDirent> seafDirents = dataMgr.getCachedDirents(repoID, dirPath);
-            if (seafDirents == null)
-                return;
-
-            seafDirents = sortFiles(seafDirents,
-                    SettingsManager.instance().getSortFilesTypePref(),
-                    SettingsManager.instance().getSortFilesOrderPref());
+        // calculate thumbnail urls by cached dirents
+        List<SeafDirent> seafDirents = dataMgr.getCachedDirents(repoID, dirPath);
+        if (seafDirents != null) {
             for (SeafDirent seafDirent : seafDirents) {
                 if (!seafDirent.isDir()
                         && Utils.isViewableImage(seafDirent.name)) { // only cache image type files
@@ -188,89 +182,16 @@ public class GalleryActivity extends SherlockFragmentActivity {
                 }
             }
 
+            links = new ArrayList<String>(mThumbLinkAndSeafDirentMap.keySet());
             mGalleryAdapter = new GalleryAdapter(GalleryActivity.this,
                     mAccount,
-                    new ArrayList<String>(mThumbLinkAndSeafDirentMap.keySet()));
+                    links);
             mViewPager.setAdapter(mGalleryAdapter);
 
             navToSelectedPage();
             return;
         }
 
-        ConcurrentAsyncTask.execute(mLinksTask, repoName, repoID, dirPath);
-    }
-
-    private class RequestPhotoLinksTask extends AsyncTask<String, Void, ArrayList<String>> {
-        /** hold thumbnails links which will be used to load thumbnails in gallery */
-        private ArrayList<String> mThumbnailLinks = Lists.newArrayList();
-        private SeafException err = null;
-
-        public ArrayList<String> getThumbnailLinks() {
-            return mThumbnailLinks;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            showLoading(true);
-        }
-
-        @Override
-        protected ArrayList<String> doInBackground(String... params) {
-            if (params.length != 3) {
-                Log.e(DEBUG_TAG, "Wrong params to RequestPhotoLinksTask");
-                return null;
-            }
-
-            repoName = params[0];
-            repoID = params[1];
-            dirPath = params[2];
-
-            List<SeafDirent> seafDirents;
-            try {
-                seafDirents = dataMgr.getDirentsFromServer(repoID, dirPath);
-            } catch (SeafException e) {
-                err = e;
-                return null;
-            }
-
-            if (seafDirents == null)
-                return null;
-
-            seafDirents = sortFiles(seafDirents,
-                    SettingsManager.instance().getSortFilesTypePref(),
-                    SettingsManager.instance().getSortFilesOrderPref());
-            for (SeafDirent seafDirent : seafDirents) {
-                if (!seafDirent.isDir()
-                        && Utils.isViewableImage(seafDirent.name)) { // only cache image type files
-                    String link = dataMgr.getThumbnailLink(repoID, Utils.pathJoin(dirPath, seafDirent.name), 800);
-                    // Log.d(DEBUG_TAG, "add remote url " + thumbnailLink);
-                    if(link != null) {
-                        mThumbLinkAndSeafDirentMap.put(link, seafDirent);
-                    }
-                }
-            }
-            return new ArrayList<String>(mThumbLinkAndSeafDirentMap.keySet());
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<String> links) {
-            showLoading(false);
-            if (links == null
-                    || links.isEmpty()
-                    || fileName == null) {
-                if (err != null) {
-                    ToastUtils.show(GalleryActivity.this, R.string.gallery_load_photos_error);
-                    Log.e(DEBUG_TAG, "error message " + err.getMessage() + " error code " + err.getCode());
-                }
-
-            }
-
-            mThumbnailLinks = links;
-            mGalleryAdapter = new GalleryAdapter(GalleryActivity.this, mAccount, links);
-            mViewPager.setAdapter(mGalleryAdapter);
-
-            navToSelectedPage();
-        }
     }
 
     /**
@@ -425,7 +346,8 @@ public class GalleryActivity extends SherlockFragmentActivity {
      * quit the gallery if both cases were not met
      */
     private void slidePage() {
-        ArrayList<String> links = mLinksTask.getThumbnailLinks();
+        if (links == null) return;
+
         links.remove(mPageIndex);
         if (mGalleryAdapter == null) return;
 
@@ -454,19 +376,6 @@ public class GalleryActivity extends SherlockFragmentActivity {
             fileName = currentDirent.name;
         }
 
-    }
-
-    private void showLoading(boolean show) {
-        if (show) {
-            mProgressView.startAnimation(AnimationUtils.loadAnimation(
-                    this, android.R.anim.fade_in));
-
-            mProgressView.setVisibility(View.VISIBLE);
-        } else {
-            mProgressView.startAnimation(AnimationUtils.loadAnimation(
-                    this, android.R.anim.fade_out));
-            mProgressView.setVisibility(View.GONE);
-        }
     }
 
 }
