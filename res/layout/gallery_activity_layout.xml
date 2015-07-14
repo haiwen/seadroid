@@ -105,18 +105,4 @@
 
         </LinearLayout>
 
-    <FrameLayout android:id="@+id/gallery_progressContainer"
-                  android:orientation="vertical"
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:background="@color/transparent"
-                  android:visibility="gone"
-                  android:layout_gravity="center_vertical">
-
-        <ProgressBar style="?android:attr/progressBarStyleLarge"
-                     android:layout_width="wrap_content"
-                     android:layout_height="wrap_content"
-                     android:layout_gravity="center_horizontal"/>
-
-    </FrameLayout>
 </FrameLayout>
