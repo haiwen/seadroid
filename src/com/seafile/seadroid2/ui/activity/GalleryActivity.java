@@ -3,19 +3,21 @@ package com.seafile.seadroid2.ui.activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.google.common.collect.Lists;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
+import com.seafile.seadroid2.data.SeafPhoto;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.ZoomOutPageTransformer;
@@ -25,9 +27,7 @@ import com.seafile.seadroid2.ui.dialog.DeleteFileDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.util.Utils;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -52,13 +52,9 @@ public class GalleryActivity extends SherlockFragmentActivity {
     private String dirPath;
     private String fileName;
     private String STATE_FILE_NAME;
-    private SeafDirent currentDirent;
     private int mPageIndex;
     private GalleryAdapter mGalleryAdapter;
-    /** thumbnail link */
-    private ArrayList<String> links;
-    /** mapping thumbnail link to seafDirent in order to display photo name */
-    private LinkedHashMap<String, SeafDirent> mThumbLinkAndSeafDirentMap = new LinkedHashMap<String, SeafDirent>();
+    private List<SeafPhoto> mPhotos = Lists.newArrayList();
 
     /** flag to mark if the tool bar was shown */
     private boolean showToolBar = true;
@@ -67,15 +63,13 @@ public class GalleryActivity extends SherlockFragmentActivity {
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.gallery_delete_photo:
-                    if (currentDirent == null)
-                        return;
-                    deleteFile(repoID, Utils.pathJoin(dirPath, currentDirent.name));
+                    deleteFile(repoID, Utils.pathJoin(dirPath, fileName));
                     break;
                 case R.id.gallery_star_photo:
-                    starFile(repoID, dirPath, currentDirent.name);
+                    starFile(repoID, dirPath, fileName);
                     break;
                 case R.id.gallery_share_photo:
-                    shareFile(repoID, Utils.pathJoin(dirPath, currentDirent.name));
+                    shareFile(repoID, Utils.pathJoin(dirPath, fileName));
                     break;
             }
         }
@@ -106,14 +100,8 @@ public class GalleryActivity extends SherlockFragmentActivity {
                 // page index starting from 1 instead of 0 in user interface, so plus one here
                 mPageIndexTextView.setText(String.valueOf(position + 1));
                 mPageIndex = position;
-                if (mGalleryAdapter != null) {
-                    String linkKey = mGalleryAdapter.getItem(position);
-                    if (mThumbLinkAndSeafDirentMap.containsKey(linkKey)) {
-                        currentDirent = mThumbLinkAndSeafDirentMap.get(linkKey);
-                        mPageNameTextView.setText(currentDirent.name);
-                        fileName = currentDirent.name;
-                    }
-                }
+                fileName = mPhotos.get(mPageIndex).getName();
+                mPageNameTextView.setText(fileName);
             }
 
             @Override
@@ -163,21 +151,23 @@ public class GalleryActivity extends SherlockFragmentActivity {
         // calculate thumbnail urls by cached dirents
         List<SeafDirent> seafDirents = dataMgr.getCachedDirents(repoID, dirPath);
         if (seafDirents != null) {
+            // sort files by type and order
+            seafDirents = sortFiles(seafDirents,
+                    SettingsManager.instance().getSortFilesTypePref(),
+                    SettingsManager.instance().getSortFilesOrderPref());
             for (SeafDirent seafDirent : seafDirents) {
                 if (!seafDirent.isDir()
-                        && Utils.isViewableImage(seafDirent.name)) { // only cache image type files
+                        && Utils.isViewableImage(seafDirent.name)) {
                     String link = dataMgr.getThumbnailLink(repoID, Utils.pathJoin(dirPath, seafDirent.name), 800);
-                    // Log.d(DEBUG_TAG, "add remote url " + thumbnailLink);
                     if (link != null) {
-                        mThumbLinkAndSeafDirentMap.put(link, seafDirent);
+                        mPhotos.add(new SeafPhoto(link, seafDirent));
                     }
                 }
             }
 
-            links = new ArrayList<String>(mThumbLinkAndSeafDirentMap.keySet());
             mGalleryAdapter = new GalleryAdapter(GalleryActivity.this,
                     mAccount,
-                    links);
+                    mPhotos);
             mViewPager.setAdapter(mGalleryAdapter);
 
             navToSelectedPage();
@@ -197,7 +187,6 @@ public class GalleryActivity extends SherlockFragmentActivity {
      * @return sorted file list
      */
     public List<SeafDirent> sortFiles(List<SeafDirent> dirents, int type, int order) {
-        Log.d(DEBUG_TAG, "sort filey by type " + type + " by order " + order);
         // sort SeafDirents
         if (type == SeafItemAdapter.SORT_BY_NAME) {
             // sort by name, in ascending order
@@ -221,23 +210,17 @@ public class GalleryActivity extends SherlockFragmentActivity {
      *
      */
     private void navToSelectedPage() {
-        int i = 0;
-        for (String key : mThumbLinkAndSeafDirentMap.keySet()) {
-            if (mThumbLinkAndSeafDirentMap.get(key).name.equals(fileName)) {
+        int size = mPhotos.size();
+        for (int i = 0; i < size; i++) {
+            if (mPhotos.get(i).getName().equals(fileName)) {
                 mViewPager.setCurrentItem(i);
                 mPageIndexTextView.setText(String.valueOf(i + 1));
                 mPageIndex = i;
                 mPageNameTextView.setText(fileName);
-                if (mGalleryAdapter == null) return;
-                String linkKey = mGalleryAdapter.getItem(i);
-                if (mThumbLinkAndSeafDirentMap.containsKey(linkKey)) {
-                    currentDirent = mThumbLinkAndSeafDirentMap.get(linkKey);
-                }
                 break;
             }
-            i++;
         }
-        mPageCountTextView.setText(String.valueOf(mThumbLinkAndSeafDirentMap.size()));
+        mPageCountTextView.setText(String.valueOf(size));
     }
 
     /**
@@ -260,35 +243,26 @@ public class GalleryActivity extends SherlockFragmentActivity {
     }
 
     private void deleteFile(String repoID, String path) {
-        doDelete(repoID, path, false);
-    }
-
-    private void doDelete(String repoID, String path, boolean isDir) {
         final DeleteFileDialog dialog = new DeleteFileDialog();
-        dialog.init(repoID, path, isDir, mAccount);
+        dialog.init(repoID, path, false, mAccount);
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
                 ToastUtils.show(GalleryActivity.this, R.string.delete_successful);
-                slidePage();
+                removePageAndRefreshView();
             }
         });
         dialog.show(getSupportFragmentManager(), "DialogFragment");
     }
 
     private void starFile(String repoId, String dir, String fileName) {
-        doStarFile(repoId, dir, fileName);
-    }
-
-    private void doStarFile(String repoID, String path, String filename) {
-
         if (!Utils.isNetworkOn()) {
             ToastUtils.show(this, R.string.network_down);
             return;
         }
 
-        String p = Utils.pathJoin(path, filename);
-        ConcurrentAsyncTask.execute(new StarFileTask(repoID, p));
+        String p = Utils.pathJoin(dir, fileName);
+        ConcurrentAsyncTask.execute(new StarFileTask(repoId, p));
     }
 
     private void shareFile(String repoID, String path) {
@@ -332,40 +306,28 @@ public class GalleryActivity extends SherlockFragmentActivity {
     }
 
     /**
-     * slide to next page if there are pages left on the right side of the current one,
+     * slide to next page if there are pages on the right side of the current one,
      * slide to previous page if not,
      * quit the gallery if both cases were not met
      */
-    private void slidePage() {
-        if (links == null) return;
-
-        links.remove(mPageIndex);
-        if (mGalleryAdapter == null) return;
-
-        mGalleryAdapter.setItems(links);
+    private void removePageAndRefreshView() {
+        mPhotos.remove(mPageIndex);
+        mGalleryAdapter.setItems(mPhotos);
         mGalleryAdapter.notifyDataSetChanged();
-        mPageCountTextView.setText(String.valueOf(links.size()));
+        int size = mPhotos.size();
+        mPageCountTextView.setText(String.valueOf(size));
 
-        if (links.size() == 0) {
+        if (size == 0) {
             finish();
             return;
         }
 
-        if (mPageIndex > links.size() - 1) {
-            // slide to previous page
-            mPageIndex = links.size() - 1;
-            // page index starting from 1 instead of 0 in user interface, so plus one here
-            mPageIndexTextView.setText(String.valueOf(mPageIndex + 1));
-        }
+        mPageIndex = mPageIndex > size - 1 ? size -1 : mPageIndex;
+        // page index starting from 1 instead of 0 in user interface, so plus one here
+        mPageIndexTextView.setText(String.valueOf(mPageIndex + 1));
 
-        // Log.d(DEBUG_TAG, "pageIndex " + mPageIndex);
-        String linkKey = mGalleryAdapter.getItem(mPageIndex);
-        if (mThumbLinkAndSeafDirentMap.containsKey(linkKey)) {
-            currentDirent = mThumbLinkAndSeafDirentMap.get(linkKey);
-            // update file name in gallery view
-            mPageNameTextView.setText(currentDirent.name);
-            fileName = currentDirent.name;
-        }
+        // update file name in gallery view
+        mPageNameTextView.setText(mPhotos.get(mPageIndex).getName());
 
     }
 

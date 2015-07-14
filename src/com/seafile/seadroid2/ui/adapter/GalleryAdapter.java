@@ -13,11 +13,12 @@ import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingProgressListener;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.data.SeafPhoto;
 import com.seafile.seadroid2.ui.activity.GalleryActivity;
 import uk.co.senab.photoview.PhotoView;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Gallery Adapter
@@ -26,18 +27,18 @@ public class GalleryAdapter extends PagerAdapter {
     public static final String DEBUG_TAG = "GalleryAdapter";
 
     private GalleryActivity mActivity;
-    private ArrayList<String> mPhotoLinks;
+    private List<SeafPhoto> seafPhotos;
     private LayoutInflater inflater;
     private DisplayImageOptions options;
 
     public GalleryAdapter(GalleryActivity context, Account account,
-                          ArrayList<String> photoUrls) {
+                          List<SeafPhoto> photos) {
         mActivity = context;
-        mPhotoLinks = photoUrls;
+        seafPhotos = photos;
         inflater = context.getLayoutInflater();
         options = new DisplayImageOptions.Builder()
                 .showImageForEmptyUri(R.drawable.ic_gallery_empty2)
-                .showImageOnFail(android.R.drawable.stat_notify_error)
+                .showImageOnFail(R.drawable.ic_gallery_empty2)
                 .cacheInMemory(true)
                 .cacheOnDisk(true)
                 .considerExifParams(true)
@@ -47,15 +48,11 @@ public class GalleryAdapter extends PagerAdapter {
 
     @Override
     public int getCount() {
-        return mPhotoLinks.size();
+        return seafPhotos.size();
     }
 
-    public String getItem(int position) {
-        return mPhotoLinks.get(position);
-    }
-
-    public void setItems(ArrayList<String> links) {
-        mPhotoLinks = links;
+    public void setItems(List<SeafPhoto> photos) {
+        seafPhotos = photos;
     }
 
     @Override
@@ -63,7 +60,7 @@ public class GalleryAdapter extends PagerAdapter {
         View contentView = inflater.inflate(R.layout.gallery_view_item, container, false);
         final PhotoView photoView = (PhotoView) contentView.findViewById(R.id.gallery_photoview);
         final ProgressBar progressBar = (ProgressBar) contentView.findViewById(R.id.gallery_progress_bar);
-        ImageLoader.getInstance().displayImage(mPhotoLinks.get(position), photoView, options, new ImageLoadingListener() {
+        ImageLoader.getInstance().displayImage(seafPhotos.get(position).getLink(), photoView, options, new ImageLoadingListener() {
             @Override
             public void onLoadingStarted(String s, View view) {
                 //Log.d(DEBUG_TAG, "ImageLoadingListener >> onLoadingStarted");
