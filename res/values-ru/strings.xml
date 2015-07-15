@@ -35,12 +35,6 @@
     <item>Другое</item>
   </string-array>
   <string name="choose_server">Выберите сервер Seafile</string>
-  <string-array name="choose_server_array">
-    <item>Приватный сервер Seafile</item>
-    <item>SeaCloud.cc</item>
-    <item>Cloud.mein-seafile.de</item>
-    <item>Shibboleth Login</item>
-  </string-array>
   <string name="network_down">Нет соединения с сетью</string>
   <string name="unknow_error">Неизвестная ошибка</string>
   <string name="invalid_server_address">Неправильный адрес сервера</string>
@@ -277,7 +271,6 @@
   <string name="settings_cuc_network_title">Как загружать</string>
   <string name="settings_cuc_network_wifi">Только Wi-Fi</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi или мобильные данные</string>
-  <string name="settings_cuc_option_hint">Выберите нужный вариант. \nВы всегда сможете изменить эти опции в Настройках. \n\nПроведите влево, чтобы продолжить.</string>
   <string name="settings_cuc_type_title">Что загружать</string>
   <string name="settings_cuc_type_photo">Только фото</string>
   <string name="settings_cuc_type_video">Фото и видео</string>
@@ -294,7 +287,6 @@
   <string name="settings_cuc_upload_to_parent_folder">К родительской папке</string>
   <string name="settings_cuc_auto_scan">Получить все фото на устройстве</string>
   <string name="settings_cuc_pick_dir">Позволить мне выбрать папки с фото</string>
-  <string name="settings_cuc_remote_lib_hint">Выберите нужный аккаунт или библиотеку. \nВы всегда сможете изменить эти опции в Настройках. \n\nПроведите влево, чтобы продолжить.</string>
   <string name="settings_cuc_finish_title">Завершить</string>
   <string name="settings_cuc_ready">Теперь Seafile будет загружать файлы из выбранных вами папок. \nВо время этого вы можете закрыть приложение.</string>
   <string name="settings_cuc_swipe_left">Проведите влево, чтобы продолжить.</string>

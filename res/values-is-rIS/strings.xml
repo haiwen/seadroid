@@ -35,12 +35,6 @@
     <item>Annað</item>
   </string-array>
   <string name="choose_server">Veldu Seafile Þjón</string>
-  <string-array name="choose_server_array">
-    <item>Eiginn Seafile Þjónn</item>
-    <item>SeaCloud.cc</item>
-    <item>Cloud.mein-seafile.de</item>
-    <item>Shibboleth Innskráning</item>
-  </string-array>
   <string name="network_down">Engin nettenging</string>
   <string name="unknow_error">Óþekkt villa</string>
   <string name="invalid_server_address">Rangt vistfang</string>
@@ -269,7 +263,6 @@
   <string name="settings_cuc_network_title">Hvernig á að hlaða upp</string>
   <string name="settings_cuc_network_wifi">Aðeins Wi-Fi</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi eða gagnaáætlun</string>
-  <string name="settings_cuc_option_hint">Veldu það sem hentar þér. \nÞú getur breytt þessum stillingum síðar í Stillingum. \n\nStrjúktu til vinstri til að halda áfram.</string>
   <string name="settings_cuc_type_title">Hverju á að hlaða upp</string>
   <string name="settings_cuc_type_photo">Aðeins myndum</string>
   <string name="settings_cuc_type_video">Myndum og kvikmyndum</string>
@@ -284,7 +277,6 @@
   <string name="settings_cuc_upload_to_parent_folder">Upp í Yfirskráasafn</string>
   <string name="settings_cuc_auto_scan">Sækja allar myndir á tæki</string>
   <string name="settings_cuc_pick_dir">Leyfðu mér að velja myndaskáasöfn</string>
-  <string name="settings_cuc_remote_lib_hint">Veldu þann reikning og safn sem þér hentar. \nÞú getur breytt þessum stillingum síðar í Stillingum. \n\nStrjúktu til vinstri til að halda áfram.</string>
   <string name="settings_cuc_finish_title">Enda</string>
   <string name="settings_cuc_ready">Seafile mun nú hlaða upp skrám frá þeim skráasöfnum sem þú valdir. \nÞú mátt loka appinu á meðan þessu stendur.</string>
   <string name="settings_cuc_swipe_left">Strjúktu til vinstri til að halda áfram.</string>

@@ -36,10 +36,10 @@
   </string-array>
   <string name="choose_server">Choisir un serveur Seafile</string>
   <string-array name="choose_server_array">
-    <item>Private Seafile Server</item>
     <item>SeaCloud.cc</item>
-    <item>Cloud.mein-seafile.de</item>
-    <item>Connexion Shibboleth</item>
+    <item>Cloud.seafile.de</item>
+    <item>conexion Shibboleth</item>
+    <item>Autre serveur Seafile</item>
   </string-array>
   <string name="network_down">Absence de connexion réseau</string>
   <string name="unknow_error">Erreur inconnue</string>
@@ -269,7 +269,7 @@
   <string name="settings_cuc_network_title">Comment envoyer</string>
   <string name="settings_cuc_network_wifi">Wi-Fi seulement</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi ou plan de données</string>
-  <string name="settings_cuc_option_hint">Choisissez votre option préférée.\nVous pourrez changer ces options plus tard dans Paramètres.\nGlisser vers la gauche pour continuer</string>
+  <string name="settings_cuc_option_hint">Choisissez votre option préférée. Vous pourrez changer les options dans Paramètres</string>
   <string name="settings_cuc_type_title">Quoi envoyer</string>
   <string name="settings_cuc_type_photo">Seulement des photos</string>
   <string name="settings_cuc_type_video">Photos et  vidéos</string>
@@ -284,7 +284,7 @@
   <string name="settings_cuc_upload_to_parent_folder">Vers dossier parent</string>
   <string name="settings_cuc_auto_scan">Obtenir toutes les photos sur le périphérique</string>
   <string name="settings_cuc_pick_dir">Permettez moi de prendre mes dossiers de photos</string>
-  <string name="settings_cuc_remote_lib_hint">Choisissez votre compte et votre bibliothèque préférés.\nVous pourrez changer  ces options plus tard dans Paramètres.\n\nGlisser vers la gauche pour continuer</string>
+  <string name="settings_cuc_remote_lib_hint">Choisissez votre compte et votre bibliothèque préférés. Vous pourrez changer ces options dans Paramètres.</string>
   <string name="settings_cuc_finish_title">Terminer</string>
   <string name="settings_cuc_ready">Seafile envoie maintenant  les fichiers depuis vos dossiers sélectionnés. \n Vous pouvez fermer l\'application pendant cette opération.</string>
   <string name="settings_cuc_swipe_left">Glisser vers la gauche pour continuer</string>
@@ -345,6 +345,7 @@
   <!--Transfer List-->
   <string name="transfer_list_network_error">Erreur de connexion réseau, réessayer plus tard !</string>
   <string name="transfer_list_cancel_all">Annuler toutes les taches</string>
+  <string name="transfer_list_restart_all">Redémarrer</string>
   <string name="transfer_list_retry_failed_tasks">Relancer les taches en échec</string>
   <string name="transfer_list_restart_cancelled_tasks">Redémarrer les taches annulées</string>
   <string name="transfer_list_clear_failed_tasks">Effacer les taches en échec</string>

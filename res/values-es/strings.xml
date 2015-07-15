@@ -36,10 +36,10 @@
   </string-array>
   <string name="choose_server">Elija un Servidor Seafile</string>
   <string-array name="choose_server_array">
-    <item>Servidor Privado Seafile</item>
     <item>SeaCloud.cc</item>
-    <item>Cloud.mein-seafile.de</item>
-    <item>Iniciar Sesión con Shibboleth</item>
+    <item>Cloud.seafile.de</item>
+    <item>Inicio con Shibboleth</item>
+    <item>Otro Servidor Seafile</item>
   </string-array>
   <string name="network_down">Sin conexión de red</string>
   <string name="unknow_error">Error desconocido</string>
@@ -269,7 +269,7 @@
   <string name="settings_cuc_network_title">Como subir</string>
   <string name="settings_cuc_network_wifi">Sólo Wi-Fi</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi o plan de datos</string>
-  <string name="settings_cuc_option_hint">Elija su opción preferida.  \nLuego puede cambiar estas opciones en Configuración. \n\nDeslice a la izquierda para continuar.</string>
+  <string name="settings_cuc_option_hint">Escoja su opción preferida. \nLuego puede cambiar estas opciones en Configuración.</string>
   <string name="settings_cuc_type_title">Que subir</string>
   <string name="settings_cuc_type_photo">Sólo fotos</string>
   <string name="settings_cuc_type_video">Fotos y videos</string>
@@ -284,7 +284,7 @@
   <string name="settings_cuc_upload_to_parent_folder">Arriba a carpeta superior</string>
   <string name="settings_cuc_auto_scan">Obtener todas las fotos en el dispositivo</string>
   <string name="settings_cuc_pick_dir">Permitirme elegir las carpetas de fotos</string>
-  <string name="settings_cuc_remote_lib_hint">Escoja su cuenta y biblioteca preferidas. \nLuego puede cambiar estas opciones en Configuración. \n\nDeslice a la izquierda para continuar.</string>
+  <string name="settings_cuc_remote_lib_hint">Escoja su cuenta y biblioteca preferidas. \nLuego puede cambiar estas opciones en Configuración.</string>
   <string name="settings_cuc_finish_title">Terminar</string>
   <string name="settings_cuc_ready">Ahora Seafile subirá los archivos de las carpetas seleccionadas. \nPuede cerrar la app durante este proceso.</string>
   <string name="settings_cuc_swipe_left">Deslice a la izquierda para continuar.</string>
@@ -345,6 +345,7 @@
   <!--Transfer List-->
   <string name="transfer_list_network_error">Error de conexión de red, por favor intente más tarde.</string>
   <string name="transfer_list_cancel_all">Cancelar todas las tareas</string>
+  <string name="transfer_list_restart_all">Reiniciar</string>
   <string name="transfer_list_retry_failed_tasks">Reintentar tareas fallidas</string>
   <string name="transfer_list_restart_cancelled_tasks">Reiniciar tareas canceladas</string>
   <string name="transfer_list_clear_failed_tasks">Limpiar tareas fallidas</string>

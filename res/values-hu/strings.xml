@@ -35,12 +35,6 @@
     <item>Más</item>
   </string-array>
   <string name="choose_server">Seafile szerver választás</string>
-  <string-array name="choose_server_array">
-    <item>Saját Seafile Server</item>
-    <item>SeaCloud.cc</item>
-    <item>Cloud.mein-seafile.de</item>
-    <item>Shibboleth Login</item>
-  </string-array>
   <string name="network_down">Nincs hálózati kapcsolat</string>
   <string name="unknow_error">Ismeretlen hiba</string>
   <string name="invalid_server_address">Hibás szerver cím</string>
@@ -269,7 +263,6 @@
   <string name="settings_cuc_network_title">Hogyan lehet feltölteni</string>
   <string name="settings_cuc_network_wifi">Csak Wi-Fi</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi vagy mobil net</string>
-  <string name="settings_cuc_option_hint">Válassza ki a preferált beállítást. \nEzeket a beállításokat később bármikor megváltoztathatja. \n\nTovábblépéshez húzza balra.</string>
   <string name="settings_cuc_type_title">Mit tölt fel</string>
   <string name="settings_cuc_type_photo">Csak fénykép</string>
   <string name="settings_cuc_type_video">Fénykép és videó</string>
@@ -284,7 +277,6 @@
   <string name="settings_cuc_upload_to_parent_folder">Egy könyvtárral feljebb</string>
   <string name="settings_cuc_auto_scan">Minden fénykép az eszközön</string>
   <string name="settings_cuc_pick_dir">Fényképek könyvtárának kiválasztása</string>
-  <string name="settings_cuc_remote_lib_hint">Válassza ki a preferált fiókot és kötetet. \nEzeket a beállításokat később bármikor megváltoztathatja. \n\nTovábblépéshez húzza balra.</string>
   <string name="settings_cuc_finish_title">Kész</string>
   <string name="settings_cuc_ready">A Seafile most elkezdi feltölteni a kiválasztott könyvtárakból a fájlokat. \nBezárhatja az alkalmazást.</string>
   <string name="settings_cuc_swipe_left">Továbblépéshez húzza balra.</string>
@@ -366,6 +358,12 @@
   <!--Sort-->
   <string name="sort_menu_item">Rendez</string>
   <string name="sort_files">Rendezve:</string>
+  <string-array name="sort_files_options_array">
+    <item>Név</item>
+    <item>Név (Leírás)</item>
+    <item>Utolsó módosítás ideje</item>
+    <item>Utolsó módosítás ideje (Leírás)</item>
+  </string-array>
   <!--Search-->
   <string name="search_menu_item">Keres</string>
   <string name="search_bar_hint">Keresés...</string>
@@ -395,4 +393,5 @@
   <!--Overwrite existing files-->
   <string name="overwrite_existing_file_title">Létező fájlok felülírása</string>
   <string name="overwrite_existing_file_msg">A fájl már létezik, felülírja?</string>
+  <string name="overwrite_existing_file_exist">A fájl már létezik</string>
 </resources>

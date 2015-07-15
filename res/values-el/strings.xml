@@ -35,12 +35,6 @@
     <item>Άλλο</item>
   </string-array>
   <string name="choose_server">Επιλέξτε διακομιστή Seafile</string>
-  <string-array name="choose_server_array">
-    <item>Ιδιωτικός Διακομιστής Seafile</item>
-    <item>SeaCloud.cc</item>
-    <item>Cloud.mein-seafile.de</item>
-    <item>Shibboleth Login</item>
-  </string-array>
   <string name="network_down">Δεν υπάρχει σύνδεση στο διαδίκτυο</string>
   <string name="unknow_error">Άγνωστο σφάλμα</string>
   <string name="invalid_server_address">Εσφαλμένη διεύθυνση διακομιστή</string>

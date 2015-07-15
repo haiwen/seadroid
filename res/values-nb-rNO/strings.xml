@@ -35,12 +35,6 @@
     <item>Annet</item>
   </string-array>
   <string name="choose_server">Velg en Seafile-server</string>
-  <string-array name="choose_server_array">
-    <item>Privat Seafile-server</item>
-    <item>SeaCloud.cc</item>
-    <item>Cloud.mein-seafile.de</item>
-    <item>Logg innn med Shibboleth</item>
-  </string-array>
   <string name="network_down">Ingen nettverkstilkobling</string>
   <string name="unknow_error">Ukjent feil</string>
   <string name="invalid_server_address">Ugyldig serveradresse</string>
@@ -258,7 +252,6 @@
   <string name="settings_cuc_network_title">Hvordan laste opp</string>
   <string name="settings_cuc_network_wifi">Kun Wi-Fi</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi eller mobildata</string>
-  <string name="settings_cuc_option_hint">Velg dine preferanser. \nDu kan endre disse innstillingene senere i "innstilinger". \n\nSveip mot venstre for å fortsette.</string>
   <string name="settings_cuc_type_title">Hva vil du laste opp</string>
   <string name="settings_cuc_type_photo">Bare bilder</string>
   <string name="settings_cuc_type_video">Bilder og videoer</string>
@@ -273,7 +266,6 @@
   <string name="settings_cuc_upload_to_parent_folder">Opp til forrige mappe</string>
   <string name="settings_cuc_auto_scan">Hent alle bilder på enheten</string>
   <string name="settings_cuc_pick_dir">La meg velge mine bildemapper</string>
-  <string name="settings_cuc_remote_lib_hint">Velg din foretrukne konto og bibliotek. \nDu kan endre disse valgene senere i "innstillinger". \n\nSveip mot venstre for å fortsette.</string>
   <string name="settings_cuc_finish_title">Avslutt</string>
   <string name="settings_cuc_ready">Seafile vil nå laste opp filer fra dine valgte mapper. \nDu kan lukke programmet mens dette pågår..</string>
   <string name="settings_cuc_swipe_left">Sveip mot venstre for å fortsette.</string>

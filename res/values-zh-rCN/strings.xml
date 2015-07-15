@@ -36,10 +36,10 @@
   </string-array>
   <string name="choose_server">请选择一个Seafile服务器</string>
   <string-array name="choose_server_array">
-    <item>私有Seafile服务器</item>
     <item>SeaCloud.cc</item>
-    <item>Cloud.mein-seafile.de</item>
+    <item>Cloud.seafile.de</item>
     <item>Shibboleth登录</item>
+    <item>其他Seafile Server</item>
   </string-array>
   <string name="network_down">无网络连接</string>
   <string name="unknow_error">未知错误</string>
@@ -265,7 +265,7 @@
   <string name="settings_cuc_network_title">上传方式</string>
   <string name="settings_cuc_network_wifi">仅限于Wi-Fi</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi或者移动流量套餐</string>
-  <string name="settings_cuc_option_hint">选择你要配置的选项，这些设置以后可以在设置菜单里修改。向左滑动进入下一步</string>
+  <string name="settings_cuc_option_hint">选择你要配置的账户和资料库，这些设置以后可以在设置菜单里修改。</string>
   <string name="settings_cuc_type_title">上传内容</string>
   <string name="settings_cuc_type_photo">仅上传图片</string>
   <string name="settings_cuc_type_video">上传图片和视频</string>
@@ -279,7 +279,7 @@
   <string name="settings_cuc_upload_to_parent_folder">上一级</string>
   <string name="settings_cuc_auto_scan">自动获取设备上的图片</string>
   <string name="settings_cuc_pick_dir">自定义图片路径</string>
-  <string name="settings_cuc_remote_lib_hint">选择你要配置的账户和资料库，这些设置以后可以在设置菜单里修改。向左滑动进入下一步</string>
+  <string name="settings_cuc_remote_lib_hint">选择你要配置的选项，这些设置以后可以在设置菜单里修改。</string>
   <string name="settings_cuc_finish_title">完成</string>
   <string name="settings_cuc_ready">Seafile将会从你指定的文件夹上传文件，在这个过程中你可以随时关闭该应用</string>
   <string name="settings_cuc_swipe_left">向左滑进入下一步</string>
@@ -339,6 +339,7 @@
   <!--Transfer List-->
   <string name="transfer_list_network_error">网络连接错误，请稍后重试！</string>
   <string name="transfer_list_cancel_all">取消所有任务</string>
+  <string name="transfer_list_restart_all">重新开始</string>
   <string name="transfer_list_retry_failed_tasks">重试失败的任务</string>
   <string name="transfer_list_restart_cancelled_tasks">重试取消的任务</string>
   <string name="transfer_list_clear_failed_tasks">清除失败的任务</string>

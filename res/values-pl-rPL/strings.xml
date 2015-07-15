@@ -36,10 +36,10 @@
   </string-array>
   <string name="choose_server">Wybierz serwer Seafile</string>
   <string-array name="choose_server_array">
-    <item>Prywatny serwer Seafile</item>
     <item>SeaCloud.cc</item>
-    <item>Cloud.mein-seafile.de</item>
+    <item>cloud.seafile.de</item>
     <item>Logowanie Shibboleth</item>
+    <item>Inny serwer Seafile</item>
   </string-array>
   <string name="network_down">Brak połączenia z siecią</string>
   <string name="unknow_error">Nieznany błąd</string>
@@ -273,7 +273,7 @@
   <string name="settings_cuc_network_title">Jak przesyłać</string>
   <string name="settings_cuc_network_wifi">Tylko Wi-Fi</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi lub transmisja komórkowa</string>
-  <string name="settings_cuc_option_hint">Wskaż swoje preferencje.\nMożesz je później zmienić w Ustawieniach.\n\nPrzesuń w lewo, aby kontynować.</string>
+  <string name="settings_cuc_option_hint">Wybierz swoje opcje. \nMożesz je potem zmienić w ustawieniach.</string>
   <string name="settings_cuc_type_title">Co przesyłać</string>
   <string name="settings_cuc_type_photo">Tylko zdjęcia</string>
   <string name="settings_cuc_type_video">Zdjęcia i wideo</string>
@@ -289,7 +289,7 @@
   <string name="settings_cuc_upload_to_parent_folder">W górę do folderu nadrzędnego</string>
   <string name="settings_cuc_auto_scan">Weź wszystkie zdjęcia z urządzenia</string>
   <string name="settings_cuc_pick_dir">Pozwól mi wybrać foldery ze zdjęciami</string>
-  <string name="settings_cuc_remote_lib_hint">Wybierz preferowane konto i bibliotekę.\nMożesz to później zmienić w ustawieniach.\n\nPrzesuń w lewo, aby kontynuować.</string>
+  <string name="settings_cuc_remote_lib_hint">Wybierz swoje konto i bibliotekę. \nMożesz je potem zmienić w Ustawieniach.</string>
   <string name="settings_cuc_finish_title">Zakończ</string>
   <string name="settings_cuc_ready">Seafile prześle teraz pliki z wybranych folderów.\nMożesz w tym czasie śmiało zamknąć aplikację.</string>
   <string name="settings_cuc_swipe_left">Przesuń w lewo, aby kontynuować.</string>
@@ -350,6 +350,7 @@
   <!--Transfer List-->
   <string name="transfer_list_network_error">Błąd połączenia sieciowego, proszę spróbować później!</string>
   <string name="transfer_list_cancel_all">Anuluj wszystkie zadania</string>
+  <string name="transfer_list_restart_all">Restart</string>
   <string name="transfer_list_retry_failed_tasks">Ponów błędne zadania</string>
   <string name="transfer_list_restart_cancelled_tasks">Uruchom ponownie anulowane zadania</string>
   <string name="transfer_list_clear_failed_tasks">Wyczyść błędne zadania</string>

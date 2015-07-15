@@ -35,12 +35,6 @@
     <item>其他</item>
   </string-array>
   <string name="choose_server">請選擇一個Seafile服務器</string>
-  <string-array name="choose_server_array">
-    <item>私有Seafile服務器</item>
-    <item>SeaCloud.cc</item>
-    <item>Cloud.mein-seafile.de</item>
-    <item>Shibboleth登錄</item>
-  </string-array>
   <string name="network_down">無網絡連接</string>
   <string name="unknow_error">未知錯誤</string>
   <string name="invalid_server_address">無效的服務器地址</string>

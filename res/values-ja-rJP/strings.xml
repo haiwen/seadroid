@@ -35,12 +35,6 @@
     <item>その他</item>
   </string-array>
   <string name="choose_server">Seafile サーバーを選択</string>
-  <string-array name="choose_server_array">
-    <item>プライベート Seafile サーバー</item>
-    <item>SeaCloud.cc</item>
-    <item>Cloud.mein-seafile.de</item>
-    <item>Shibboleth ログイン</item>
-  </string-array>
   <string name="network_down">ネットワーク接続がありません</string>
   <string name="unknow_error">不明なエラー</string>
   <string name="invalid_server_address">サーバーアドレスが正しくありません</string>
@@ -265,7 +259,6 @@
   <string name="settings_cuc_network_title">アップロード方法</string>
   <string name="settings_cuc_network_wifi">Wi-Fi のみ</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi またはデータプラン</string>
-  <string name="settings_cuc_option_hint">お好みのオプションを選択してください。 \n設定から、後でこのオプションを変更することができます。 \n左にスワイプすると続行します。</string>
   <string name="settings_cuc_type_title">アップロード対象</string>
   <string name="settings_cuc_type_photo">写真のみ</string>
   <string name="settings_cuc_type_video">写真とビデオ</string>
@@ -279,7 +272,6 @@
   <string name="settings_cuc_upload_to_parent_folder">親のフォルダーに移動</string>
   <string name="settings_cuc_auto_scan">デバイスのすべての写真を取得</string>
   <string name="settings_cuc_pick_dir">マイ写真フォルダを選択しましょう</string>
-  <string name="settings_cuc_remote_lib_hint">お好みのアカウントとライブラリーを選択してください。 \n設定から、後でこのオプションを変更することができます。 \n左にスワイプすると続行します。</string>
   <string name="settings_cuc_finish_title">完了</string>
   <string name="settings_cuc_ready">Seafile は選択したフォルダーからファイルをアップロードします。 \nこのプロセス中、アプリを自由に閉じることができます。</string>
   <string name="settings_cuc_swipe_left">左にスワイプすると続行します。</string>
@@ -359,6 +351,12 @@
   <!--Sort-->
   <string name="sort_menu_item">並び替え</string>
   <string name="sort_files">並び替え順</string>
+  <string-array name="sort_files_options_array">
+    <item>名前</item>
+    <item>名前 (降順)</item>
+    <item>最終更新時刻</item>
+    <item>最終更新時刻 (降順)</item>
+  </string-array>
   <!--Search-->
   <string name="search_menu_item">検索</string>
   <string name="search_bar_hint">検索中…</string>
@@ -386,4 +384,5 @@
   <!--Overwrite existing files-->
   <string name="overwrite_existing_file_title">存在するファイルを置き換え</string>
   <string name="overwrite_existing_file_msg">ファイルがすでに存在します。置き換えますか?</string>
+  <string name="overwrite_existing_file_exist">ファイルがすでに存在します。</string>
 </resources>
