@@ -657,7 +657,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             menuSort.setVisible(true);
             menuUpload.setVisible(true);
             menuDownloadFolder.setVisible(true);
-            if (navContext.inRepo() && hasRepoWritePermission()) {
+            if (navContext.inRepo()) {
                 menuUpload.setEnabled(true);
                 menuDownloadFolder.setEnabled(true);
             } else {
