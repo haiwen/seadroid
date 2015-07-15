@@ -1221,10 +1221,19 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     @Override
     public void onFileSelected(SeafDirent dirent) {
-        String fileName= dirent.name;
+        final String fileName= dirent.name;
         final String repoName = navContext.getRepoName();
         final String repoID = navContext.getRepoID();
         final String filePath = Utils.pathJoin(navContext.getDirPath(), fileName);
+        final SeafRepo repo = dataManager.getCachedRepoByID(repoID);
+
+        // Encrypted repo doesn\`t support gallery,
+        // because pic thumbnail under encrypted repo was not supported at the server side
+        if (Utils.isViewableImage(fileName)
+                && repo != null && !repo.encrypted) {
+            startGalleryActivity(repoID, filePath, fileName, account);
+            return;
+        }
 
         File localFile = dataManager.getLocalCachedFile(repoName, repoID, filePath, dirent.id);
         if (localFile != null) {
@@ -1380,13 +1389,21 @@ public class BrowserActivity extends SherlockFragmentActivity
     public void onStarredFileSelected(SeafStarredFile starredFile) {
 
         final String repoID = starredFile.getRepoID();
-        SeafRepo seafRepo = dataManager.getCachedRepoByID(repoID);
-        final String repoName = seafRepo.getName();
+        final SeafRepo repo = dataManager.getCachedRepoByID(repoID);
+        final String repoName = repo.getName();
         final String filePath = starredFile.getPath();
+
+        // Encrypted repo doesn\`t support gallery,
+        // because pic thumbnail under encrypted repo was not supported at the server side
+        if (Utils.isViewableImage(starredFile.getTitle())
+                && repo != null && !repo.encrypted) {
+            startGalleryActivity(repoID, filePath, starredFile.getTitle(), account);
+            return;
+        }
 
         File localFile = dataManager.getLocalCachedFile(repoName, repoID, filePath, null);
         if (localFile != null) {
-            showFile(repoID, filePath, localFile);
+            showFile(localFile);
             return;
         }
 
@@ -1441,12 +1458,11 @@ public class BrowserActivity extends SherlockFragmentActivity
      * start and pass data to {@link GalleryActivity}
      *
      * @param repoId
-     * @param path NOTE the value is something like "/path/fileName.extension" when the value of multiFiles is false.
-     *             Otherwise, the value is something like "/path" when the value of multiFiles is true.
+     * @param path
      * @param fileName
      * @param account
      */
-    private void startGalleryActivity(String repoId, String path, String fileName, Account account) {
+    public void startGalleryActivity(String repoId, String path, String fileName, Account account) {
         Intent intent = new Intent(this, GalleryActivity.class);
         intent.putExtra("repoId", repoId);
         intent.putExtra("path", path);
@@ -1455,18 +1471,12 @@ public class BrowserActivity extends SherlockFragmentActivity
         startActivity(intent);
     }
 
-    public void showFile(File file) {
-        showFile(null, null, file);
-    }
-
     /**
      * display the file according to its file type
      *
-     * @param repoID
-     * @param filePath NOTE the value is something like "/dirPath/fileName.extension" if not null
      * @param file
      */
-    public void showFile(String repoID, String filePath, File file) {
+    public void showFile(File file) {
         String name = file.getName();
         String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
 
@@ -1477,12 +1487,6 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         if (suffix.endsWith("md") || suffix.endsWith("markdown")) {
             startMarkdownActivity(file.getPath());
-            return;
-        }
-
-        if (Utils.isViewableImage(file.getName())
-                && repoID != null) {
-            startGalleryActivity(repoID, filePath, file.getName(), getAccount());
             return;
         }
 
