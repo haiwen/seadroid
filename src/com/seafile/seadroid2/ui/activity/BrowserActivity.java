@@ -1386,7 +1386,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         File localFile = dataManager.getLocalCachedFile(repoName, repoID, filePath, null);
         if (localFile != null) {
-            showFile(localFile);
+            showFile(repoID, filePath, localFile);
             return;
         }
 
@@ -1437,7 +1437,36 @@ public class BrowserActivity extends SherlockFragmentActivity
         startActivity(intent);
     }
 
+    /**
+     * start and pass data to {@link GalleryActivity}
+     *
+     * @param repoId
+     * @param path NOTE the value is something like "/path/fileName.extension" when the value of multiFiles is false.
+     *             Otherwise, the value is something like "/path" when the value of multiFiles is true.
+     * @param fileName
+     * @param account
+     */
+    private void startGalleryActivity(String repoId, String path, String fileName, Account account) {
+        Intent intent = new Intent(this, GalleryActivity.class);
+        intent.putExtra("repoId", repoId);
+        intent.putExtra("path", path);
+        intent.putExtra("account", account);
+        intent.putExtra("fileName", fileName);
+        startActivity(intent);
+    }
+
     public void showFile(File file) {
+        showFile(null, null, file);
+    }
+
+    /**
+     * display the file according to its file type
+     *
+     * @param repoID
+     * @param filePath NOTE the value is something like "/dirPath/fileName.extension" if not null
+     * @param file
+     */
+    public void showFile(String repoID, String filePath, File file) {
         String name = file.getName();
         String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
 
@@ -1448,6 +1477,12 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         if (suffix.endsWith("md") || suffix.endsWith("markdown")) {
             startMarkdownActivity(file.getPath());
+            return;
+        }
+
+        if (Utils.isViewableImage(file.getName())
+                && repoID != null) {
+            startGalleryActivity(repoID, filePath, file.getName(), getAccount());
             return;
         }
 
