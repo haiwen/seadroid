@@ -1,7 +1,9 @@
 package com.seafile.seadroid2.ui.activity;
 
-import android.content.*;
-import android.net.Uri;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -19,9 +21,7 @@ import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.TaskState;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
-import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.WidgetUtils;
-import com.seafile.seadroid2.ui.dialog.OpenAsDialog;
 import com.seafile.seadroid2.ui.dialog.PasswordDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.util.Utils;
@@ -194,71 +194,8 @@ public class FileActivity extends SherlockFragmentActivity {
 
         File file = mDataManager.getLocalRepoFile(mRepoName, mRepoID, mFilePath);
         if (file != null && timerStarted)
-            showFile(mRepoID, mRepoName, mFilePath, file);
+            WidgetUtils.showFile(this, file);
         stopTimer();
-    }
-
-    /**
-     * display the file according to its file type
-     *
-     * @param repoID
-     * @param repoName
-     * @param filePath NOTE the value is something like "/path/fileName.extension".
-     * @param file
-     */
-    public void showFile(String repoID, String repoName, String filePath, File file) {
-        String name = file.getName();
-        String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
-
-        if (suffix.length() == 0) {
-            ToastUtils.show(this, R.string.unknown_file_type);
-            return;
-        }
-
-        if (suffix.endsWith("md") || suffix.endsWith("markdown")) {
-            startMarkdownActivity(file.getPath());
-            return;
-        }
-
-        if (Utils.isViewableImage(file.getName())
-                && repoID != null) {
-            startGalleryActivity(repoID, repoName, filePath, file.getName(), false);
-            return;
-        }
-
-        String mime = Intent.normalizeMimeType(suffix);
-        Intent open = new Intent(Intent.ACTION_VIEW);
-        open.setDataAndTypeAndNormalize((Uri.fromFile(file)), mime);
-
-        try {
-            startActivity(open);
-            return;
-        } catch (ActivityNotFoundException e) {
-            new OpenAsDialog(file).show(getSupportFragmentManager(), "OpenAsDialog");
-            //ToastUtils.show(this, R.string.activity_not_found);
-            return;
-        } catch (SecurityException e) {
-            new OpenAsDialog(file).show(getSupportFragmentManager(), "OpenAsDialog");
-            return;
-        }
-
-    }
-
-    private void startMarkdownActivity(String path) {
-        Intent intent = new Intent(this, MarkdownActivity.class);
-        intent.putExtra("path", path);
-        startActivity(intent);
-    }
-
-    private void startGalleryActivity(String repoId, String repoName, String path, String fileName, boolean multiFiles) {
-        Intent intent = new Intent(this, GalleryActivity.class);
-        intent.putExtra("repoId", repoId);
-        intent.putExtra("repoName", repoName);
-        intent.putExtra("path", path);
-        intent.putExtra("account", mDataManager.getAccount());
-        intent.putExtra("fileName", fileName);
-        intent.putExtra("multiFiles", multiFiles);
-        startActivity(intent);
     }
 
     private void onFileDownloadFailed(DownloadTaskInfo info) {

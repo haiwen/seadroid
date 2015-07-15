@@ -402,11 +402,6 @@ public class ReposFragment extends SherlockListFragment {
                     refreshView();
                     mActivity.setUpButtonTitle(dirent.name);
                 } else {
-                    if (Utils.isViewableImage(dirent.name)
-                            && !repo.encrypted) {
-                        browsePhotosInGallery(nav.getRepoID(), nav.getDirPath(), dirent.name, getDataManager().getAccount());
-                        return;
-                    }
                     mActivity.onFileSelected(dirent);
                 }
             } else
@@ -417,15 +412,6 @@ public class ReposFragment extends SherlockListFragment {
             nav.setDir("/", repo.root);
             refreshView();
         }
-    }
-
-    public void browsePhotosInGallery(String repoID, String dirPath, String fileName, Account account) {
-        Intent intent = new Intent(mActivity, GalleryActivity.class);
-        intent.putExtra("repoId", repoID);
-        intent.putExtra("path", dirPath);
-        intent.putExtra("account", account);
-        intent.putExtra("fileName", fileName);
-        startActivity(intent);
     }
 
     private void addReposToAdapter(List<SeafRepo> repos) {
