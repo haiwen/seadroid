@@ -223,7 +223,7 @@ public class Utils {
 
         if (mimetype.contains("pdf")) {
             return R.drawable.file_pdf;
-        } else if (mimetype.contains("image")) {
+        } else if (mimetype.contains("image/")) {
             return R.drawable.file_image;
         } else if (mimetype.contains("text")) {
             return R.drawable.file_text;
@@ -294,7 +294,7 @@ public class Utils {
         String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
         if (mime == null)
             return false;
-        return mime.contains("image");
+        return mime.contains("image/");
     }
 
     public static boolean isNetworkOn() {
