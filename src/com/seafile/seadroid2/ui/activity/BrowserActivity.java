@@ -1233,13 +1233,13 @@ public class BrowserActivity extends SherlockFragmentActivity
         // because pic thumbnail under encrypted repo was not supported at the server side
         if (Utils.isViewableImage(fileName)
                 && repo != null && !repo.encrypted) {
-            startGalleryActivity(repoID, dirPath, fileName, account);
+            WidgetUtils.startGalleryActivity(this, repoID, dirPath, fileName, account);
             return;
         }
 
         File localFile = dataManager.getLocalCachedFile(repoName, repoID, filePath, dirent.id);
         if (localFile != null) {
-            showFile(localFile);
+            WidgetUtils.showFile(this, localFile);
             return;
         }
 
@@ -1400,13 +1400,13 @@ public class BrowserActivity extends SherlockFragmentActivity
         // because pic thumbnail under encrypted repo was not supported at the server side
         if (Utils.isViewableImage(starredFile.getTitle())
                 && repo != null && !repo.encrypted) {
-            startGalleryActivity(repoID, dirPath, starredFile.getTitle(), account);
+            WidgetUtils.startGalleryActivity(this, repoID, dirPath, starredFile.getTitle(), account);
             return;
         }
 
         File localFile = dataManager.getLocalCachedFile(repoName, repoID, filePath, null);
         if (localFile != null) {
-            showFile(localFile);
+            WidgetUtils.showFile(this, localFile);
             return;
         }
 
@@ -1450,66 +1450,6 @@ public class BrowserActivity extends SherlockFragmentActivity
 
 
     /************  Files ************/
-
-    private void startMarkdownActivity(String path) {
-        Intent intent = new Intent(this, MarkdownActivity.class);
-        intent.putExtra("path", path);
-        startActivity(intent);
-    }
-
-    /**
-     * start and pass data to {@link GalleryActivity}
-     *
-     * @param repoId
-     * @param path
-     * @param fileName
-     * @param account
-     */
-    public void startGalleryActivity(String repoId, String path, String fileName, Account account) {
-        Intent intent = new Intent(this, GalleryActivity.class);
-        intent.putExtra("repoId", repoId);
-        intent.putExtra("path", path);
-        intent.putExtra("account", account);
-        intent.putExtra("fileName", fileName);
-        startActivity(intent);
-    }
-
-    /**
-     * display the file according to its file type
-     *
-     * @param file
-     */
-    public void showFile(File file) {
-        String name = file.getName();
-        String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
-
-        if (suffix.length() == 0) {
-            ToastUtils.show(this, R.string.unknown_file_type);
-            return;
-        }
-
-        if (suffix.endsWith("md") || suffix.endsWith("markdown")) {
-            startMarkdownActivity(file.getPath());
-            return;
-        }
-
-        String mime = Intent.normalizeMimeType(suffix);
-        Intent open = new Intent(Intent.ACTION_VIEW);
-        open.setDataAndTypeAndNormalize((Uri.fromFile(file)), mime);
-
-        try {
-            startActivity(open);
-            return;
-        } catch (ActivityNotFoundException e) {
-            new OpenAsDialog(file).show(getSupportFragmentManager(), "OpenAsDialog");
-            //ToastUtils.show(this, R.string.activity_not_found);
-            return;
-        } catch (SecurityException e) {
-            new OpenAsDialog(file).show(getSupportFragmentManager(), "OpenAsDialog");
-            return;
-        }
-
-    }
 
     /**
      * Export a file.

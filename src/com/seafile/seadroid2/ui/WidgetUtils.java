@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui;
 
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -15,6 +16,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
+import com.seafile.seadroid2.ui.activity.GalleryActivity;
 import com.seafile.seadroid2.ui.activity.MarkdownActivity;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
 import com.seafile.seadroid2.ui.dialog.GetShareLinkDialog;
@@ -89,6 +91,11 @@ public class WidgetUtils {
         dialog.show(activity.getSupportFragmentManager(), BrowserActivity.CHOOSE_APP_DIALOG_FRAGMENT_TAG);
     }
 
+    /**
+     * display the file according to its file type
+     *
+     * @param file
+     */
     public static void showFile(final FragmentActivity activity, File file) {
 
         String name = file.getName();
@@ -140,6 +147,23 @@ public class WidgetUtils {
         Intent intent = new Intent(context, MarkdownActivity.class);
         intent.putExtra("path", path);
         context.startActivity(intent);
+    }
+
+    /**
+     * start and pass data to {@link GalleryActivity}
+     *
+     * @param repoId
+     * @param path
+     * @param fileName
+     * @param account
+     */
+    public static void startGalleryActivity(Activity activity, String repoId, String path, String fileName, Account account) {
+        Intent intent = new Intent(activity, GalleryActivity.class);
+        intent.putExtra("repoId", repoId);
+        intent.putExtra("path", path);
+        intent.putExtra("account", account);
+        intent.putExtra("fileName", fileName);
+        activity.startActivity(intent);
     }
 
     public static int getThumbnailWidth() {

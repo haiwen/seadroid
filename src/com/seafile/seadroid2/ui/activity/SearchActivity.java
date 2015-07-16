@@ -348,16 +348,24 @@ public class SearchActivity extends SherlockFragmentActivity implements View.OnC
 
     public void onSearchedFileSelected(SearchedFile searchedFile) {
         final String repoID = searchedFile.getRepoID();
-        SeafRepo seafRepo = dataManager.getCachedRepoByID(repoID);
-        final String repoName = seafRepo.getName();
+        final SeafRepo repo = dataManager.getCachedRepoByID(repoID);
+        final String repoName = repo.getName();
         final String filePath = searchedFile.getPath();
 
         if (searchedFile.isDir()) {
-            if (seafRepo == null) {
+            if (repo == null) {
                 ToastUtils.show(this, R.string.search_library_not_found);
                 return;
             }
             WidgetUtils.showRepo(this, repoID, repoName, filePath, null);
+            return;
+        }
+
+        // Encrypted repo doesn\`t support gallery,
+        // because pic thumbnail under encrypted repo was not supported at the server side
+        if (Utils.isViewableImage(searchedFile.getTitle())
+                && repo != null && !repo.encrypted) {
+            WidgetUtils.startGalleryActivity(this, repoID, Utils.getParentPath(filePath), searchedFile.getTitle(), account);
             return;
         }
 
