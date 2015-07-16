@@ -37,6 +37,7 @@ import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
 import com.seafile.seadroid2.data.*;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
+import com.seafile.seadroid2.gallery.Util;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.notification.UploadNotificationProvider;
@@ -1224,6 +1225,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         final String fileName= dirent.name;
         final String repoName = navContext.getRepoName();
         final String repoID = navContext.getRepoID();
+        final String dirPath = navContext.getDirPath();
         final String filePath = Utils.pathJoin(navContext.getDirPath(), fileName);
         final SeafRepo repo = dataManager.getCachedRepoByID(repoID);
 
@@ -1231,7 +1233,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         // because pic thumbnail under encrypted repo was not supported at the server side
         if (Utils.isViewableImage(fileName)
                 && repo != null && !repo.encrypted) {
-            startGalleryActivity(repoID, filePath, fileName, account);
+            startGalleryActivity(repoID, dirPath, fileName, account);
             return;
         }
 
@@ -1392,12 +1394,13 @@ public class BrowserActivity extends SherlockFragmentActivity
         final SeafRepo repo = dataManager.getCachedRepoByID(repoID);
         final String repoName = repo.getName();
         final String filePath = starredFile.getPath();
+        final String dirPath = Utils.getParentPath(filePath);
 
         // Encrypted repo doesn\`t support gallery,
         // because pic thumbnail under encrypted repo was not supported at the server side
         if (Utils.isViewableImage(starredFile.getTitle())
                 && repo != null && !repo.encrypted) {
-            startGalleryActivity(repoID, filePath, starredFile.getTitle(), account);
+            startGalleryActivity(repoID, dirPath, starredFile.getTitle(), account);
             return;
         }
 
