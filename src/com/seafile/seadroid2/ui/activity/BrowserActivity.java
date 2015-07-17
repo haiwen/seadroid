@@ -37,6 +37,7 @@ import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
 import com.seafile.seadroid2.data.*;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
+import com.seafile.seadroid2.gallery.Util;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.notification.UploadNotificationProvider;
@@ -1221,14 +1222,24 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     @Override
     public void onFileSelected(SeafDirent dirent) {
-        String fileName= dirent.name;
+        final String fileName= dirent.name;
         final String repoName = navContext.getRepoName();
         final String repoID = navContext.getRepoID();
+        final String dirPath = navContext.getDirPath();
         final String filePath = Utils.pathJoin(navContext.getDirPath(), fileName);
+        final SeafRepo repo = dataManager.getCachedRepoByID(repoID);
 
-        File localFile = dataManager.getLocalCachedFile(repoName, repoID, filePath, dirent.id);
+        // Encrypted repo doesn\`t support gallery,
+        // because pic thumbnail under encrypted repo was not supported at the server side
+        if (Utils.isViewableImage(fileName)
+                && repo != null && !repo.encrypted) {
+            WidgetUtils.startGalleryActivity(this, repoID, dirPath, fileName, account);
+            return;
+        }
+
+        final File localFile = dataManager.getLocalCachedFile(repoName, repoID, filePath, dirent.id);
         if (localFile != null) {
-            showFile(localFile);
+            WidgetUtils.showFile(this, localFile);
             return;
         }
 
@@ -1366,7 +1377,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
 
     private void startFileActivity(String repoName, String repoID, String filePath) {
-        int taskID = txService.addDownloadTask(account, repoName, repoID, filePath);
+        final int taskID = txService.addDownloadTask(account, repoName, repoID, filePath);
         Intent intent = new Intent(this, FileActivity.class);
         intent.putExtra("repoName", repoName);
         intent.putExtra("repoID", repoID);
@@ -1380,13 +1391,22 @@ public class BrowserActivity extends SherlockFragmentActivity
     public void onStarredFileSelected(SeafStarredFile starredFile) {
 
         final String repoID = starredFile.getRepoID();
-        SeafRepo seafRepo = dataManager.getCachedRepoByID(repoID);
-        final String repoName = seafRepo.getName();
+        final SeafRepo repo = dataManager.getCachedRepoByID(repoID);
+        final String repoName = repo.getName();
         final String filePath = starredFile.getPath();
+        final String dirPath = Utils.getParentPath(filePath);
 
-        File localFile = dataManager.getLocalCachedFile(repoName, repoID, filePath, null);
+        // Encrypted repo doesn\`t support gallery,
+        // because pic thumbnail under encrypted repo was not supported at the server side
+        if (Utils.isViewableImage(starredFile.getTitle())
+                && repo != null && !repo.encrypted) {
+            WidgetUtils.startGalleryActivity(this, repoID, dirPath, starredFile.getTitle(), account);
+            return;
+        }
+
+        final File localFile = dataManager.getLocalCachedFile(repoName, repoID, filePath, null);
         if (localFile != null) {
-            showFile(localFile);
+            WidgetUtils.showFile(this, localFile);
             return;
         }
 
@@ -1430,44 +1450,6 @@ public class BrowserActivity extends SherlockFragmentActivity
 
 
     /************  Files ************/
-
-    private void startMarkdownActivity(String path) {
-        Intent intent = new Intent(this, MarkdownActivity.class);
-        intent.putExtra("path", path);
-        startActivity(intent);
-    }
-
-    public void showFile(File file) {
-        String name = file.getName();
-        String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
-
-        if (suffix.length() == 0) {
-            ToastUtils.show(this, R.string.unknown_file_type);
-            return;
-        }
-
-        if (suffix.endsWith("md") || suffix.endsWith("markdown")) {
-            startMarkdownActivity(file.getPath());
-            return;
-        }
-
-        String mime = Intent.normalizeMimeType(suffix);
-        Intent open = new Intent(Intent.ACTION_VIEW);
-        open.setDataAndTypeAndNormalize((Uri.fromFile(file)), mime);
-
-        try {
-            startActivity(open);
-            return;
-        } catch (ActivityNotFoundException e) {
-            new OpenAsDialog(file).show(getSupportFragmentManager(), "OpenAsDialog");
-            //ToastUtils.show(this, R.string.activity_not_found);
-            return;
-        } catch (SecurityException e) {
-            new OpenAsDialog(file).show(getSupportFragmentManager(), "OpenAsDialog");
-            return;
-        }
-
-    }
 
     /**
      * Export a file.

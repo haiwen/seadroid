@@ -3,6 +3,7 @@ package com.seafile.seadroid2.ui.activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -122,7 +123,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
         fileName = getIntent().getStringExtra("fileName");
         dataMgr = new DataManager(mAccount);
 
-        showGallery(repoID, dirPath);
+        displayPhotosInGallery(repoID, dirPath);
     }
 
     @Override
@@ -147,7 +148,19 @@ public class GalleryActivity extends SherlockFragmentActivity {
         navToSelectedPage();
     }
 
-    private void showGallery(String repoID, String dirPath) {
+    /**
+     * Load thumbnail urls in order to display them in the gallery.
+     * Prior to use caches to calculate those urls.
+     * If caches are not available, load them asynchronously.
+     *
+     * NOTE: When user browsing files in "LIBRARY" tab, he has to navigate into a repo in order to open gallery.
+     * Method which get called is {@link com.seafile.seadroid2.ui.fragment.ReposFragment#navToReposView(boolean)} or {@link com.seafile.seadroid2.ui.fragment.ReposFragment#navToDirectory(boolean)},
+     * so seafDirents were already cached and it will always use them to calculate thumbnail urls for displaying photos in gallery.
+     * But for browsing "STARRED" tab, caches of starred files may or may not cached, that is where the asynchronous loading code segment comes into use.
+     * @param repoID
+     * @param dirPath
+     */
+    private void displayPhotosInGallery(String repoID, String dirPath) {
         // calculate thumbnail urls by cached dirents
         List<SeafDirent> seafDirents = dataMgr.getCachedDirents(repoID, dirPath);
         if (seafDirents != null) {
@@ -171,9 +184,81 @@ public class GalleryActivity extends SherlockFragmentActivity {
             mViewPager.setAdapter(mGalleryAdapter);
 
             navToSelectedPage();
-            return;
+        } else {
+            if (!Utils.isNetworkOn()) {
+                ToastUtils.show(this, R.string.network_down);
+                // data is not available
+                finish();
+            }
+
+            // load photos asynchronously
+            LoadPhotosTask task = new LoadPhotosTask(repoID, dirPath);
+            ConcurrentAsyncTask.execute(task);
         }
 
+    }
+
+    /**
+     * Load photos asynchronously, use {@link SeafPhoto} to manage state of each photo instance
+     */
+    private class LoadPhotosTask extends AsyncTask<String, Void, List<SeafPhoto>> {
+        private String repoID, dirPath;
+        private SeafException err = null;
+
+        public LoadPhotosTask(String repoID, String dirPath) {
+            this.repoID = repoID;
+            this.dirPath = dirPath;
+        }
+
+        @Override
+        protected List<SeafPhoto> doInBackground(String... params) {
+            List<SeafPhoto> photos = Lists.newArrayList();
+            List<SeafDirent> seafDirents;
+            try {
+                seafDirents = dataMgr.getDirentsFromServer(repoID, dirPath);
+            } catch (SeafException e) {
+                err = e;
+                return null;
+            }
+
+            if (seafDirents == null)
+                return null;
+
+            // sort photos according to global sort settings
+            seafDirents = sortFiles(seafDirents,
+                    SettingsManager.instance().getSortFilesTypePref(),
+                    SettingsManager.instance().getSortFilesOrderPref());
+            for (SeafDirent seafDirent : seafDirents) {
+                if (!seafDirent.isDir()
+                        && Utils.isViewableImage(seafDirent.name)) {
+                    String link = dataMgr.getThumbnailLink(repoID, Utils.pathJoin(dirPath, seafDirent.name), 800);
+
+                    if(link != null) {
+                        photos.add(new SeafPhoto(link, seafDirent));
+                    }
+                }
+            }
+            return photos;
+        }
+
+        @Override
+        protected void onPostExecute(List<SeafPhoto> photos) {
+            if (photos.isEmpty()
+                    || fileName == null) {
+                if (err != null) {
+                    ToastUtils.show(GalleryActivity.this, R.string.gallery_load_photos_error);
+                    Log.e(DEBUG_TAG, "error message " + err.getMessage() + " error code " + err.getCode());
+                }
+
+                return;
+            }
+
+            mPhotos = photos;
+            mGalleryAdapter = new GalleryAdapter(GalleryActivity.this, mAccount, photos);
+            mViewPager.setAdapter(mGalleryAdapter);
+
+            navToSelectedPage();
+        }
     }
 
     /**
