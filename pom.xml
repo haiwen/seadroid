@@ -52,7 +52,7 @@
       <groupId>com.github.tjerkw</groupId>
       <artifactId>Android-SlideExpandableListView</artifactId>
       <version>1.0</version>
-      <type>apklib</type>
+      <type>aar</type>
     </dependency>
     <dependency>
       <groupId>com.github.kevinsawicki</groupId>
