@@ -1237,7 +1237,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             return;
         }
 
-        File localFile = dataManager.getLocalCachedFile(repoName, repoID, filePath, dirent.id);
+        final File localFile = dataManager.getLocalCachedFile(repoName, repoID, filePath, dirent.id);
         if (localFile != null) {
             WidgetUtils.showFile(this, localFile);
             return;
@@ -1377,7 +1377,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
 
     private void startFileActivity(String repoName, String repoID, String filePath) {
-        int taskID = txService.addDownloadTask(account, repoName, repoID, filePath);
+        final int taskID = txService.addDownloadTask(account, repoName, repoID, filePath);
         Intent intent = new Intent(this, FileActivity.class);
         intent.putExtra("repoName", repoName);
         intent.putExtra("repoID", repoID);
@@ -1404,7 +1404,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             return;
         }
 
-        File localFile = dataManager.getLocalCachedFile(repoName, repoID, filePath, null);
+        final File localFile = dataManager.getLocalCachedFile(repoName, repoID, filePath, null);
         if (localFile != null) {
             WidgetUtils.showFile(this, localFile);
             return;

@@ -151,12 +151,12 @@ public class GalleryActivity extends SherlockFragmentActivity {
     /**
      * Load thumbnail urls in order to display them in the gallery.
      * Prior to use caches to calculate those urls.
-     * If caches are not available, load them load asynchronously.
+     * If caches are not available, load them asynchronously.
      *
-     * NOTE: In order to open gallery, user has to navigate inside of a repo
-     * by calling {@link com.seafile.seadroid2.ui.fragment.ReposFragment#navToReposView(boolean)} or {@link com.seafile.seadroid2.ui.fragment.ReposFragment#navToDirectory(boolean)}.
-     * After the previous step, seafDirents for calculating urls were already cached, so browsing in "LIBRARY" tab will always use caches.
-     * But for browsing "STARRED" tab, caches of starred files may or may not cached, that is where the asynchronous loading comes into use.
+     * NOTE: When user browsing files in "LIBRARY" tab, he has to navigate into a repo in order to open gallery.
+     * Method which get called is {@link com.seafile.seadroid2.ui.fragment.ReposFragment#navToReposView(boolean)} or {@link com.seafile.seadroid2.ui.fragment.ReposFragment#navToDirectory(boolean)},
+     * so seafDirents were already cached and it will always use them to calculate thumbnail urls for displaying photos in gallery.
+     * But for browsing "STARRED" tab, caches of starred files may or may not cached, that is where the asynchronous loading code segment comes into use.
      * @param repoID
      * @param dirPath
      */
@@ -184,7 +184,6 @@ public class GalleryActivity extends SherlockFragmentActivity {
             mViewPager.setAdapter(mGalleryAdapter);
 
             navToSelectedPage();
-            return;
         } else {
             if (!Utils.isNetworkOn()) {
                 ToastUtils.show(this, R.string.network_down);
@@ -235,7 +234,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
                     String link = dataMgr.getThumbnailLink(repoID, Utils.pathJoin(dirPath, seafDirent.name), 800);
 
                     if(link != null) {
-                        photos.add(new SeafPhoto(link,seafDirent));
+                        photos.add(new SeafPhoto(link, seafDirent));
                     }
                 }
             }
@@ -244,8 +243,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
 
         @Override
         protected void onPostExecute(List<SeafPhoto> photos) {
-            if (photos == null
-                    || photos.isEmpty()
+            if (photos.isEmpty()
                     || fileName == null) {
                 if (err != null) {
                     ToastUtils.show(GalleryActivity.this, R.string.gallery_load_photos_error);
