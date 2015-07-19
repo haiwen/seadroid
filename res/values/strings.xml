@@ -69,7 +69,7 @@
     <string name="file_action_star">Star</string>
     <string name="file_action_download">Download</string>
     <string name="file_action_update">Upload</string>
-    <string name="file_action_share">Share</string>
+    <string name="file_action_share">Share link</string>
     <string name="file_action_export">Export</string>
     <string name="file_action_delete">Delete</string>
     <string name="file_action_rename">Rename</string>
