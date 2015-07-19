@@ -65,7 +65,7 @@
   <string name="file_action_star">Markieren</string>
   <string name="file_action_download">Herunterladen</string>
   <string name="file_action_update">Hochladen</string>
-  <string name="file_action_share">Freigeben</string>
+  <string name="file_action_share">Link freigeben</string>
   <string name="file_action_export">Exportieren</string>
   <string name="file_action_delete">Löschen</string>
   <string name="file_action_rename">Umbenennen</string>
