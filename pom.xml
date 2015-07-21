@@ -25,7 +25,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>android</groupId>
+      <groupId>com.google.android</groupId>
       <artifactId>android</artifactId>
       <scope>provided</scope>
       <version>${platform.version}</version>
