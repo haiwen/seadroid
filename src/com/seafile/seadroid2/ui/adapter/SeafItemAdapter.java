@@ -56,10 +56,10 @@ public class SeafItemAdapter extends BaseAdapter {
     }
 
     /**
-     * To refresh downloading status of {@link com.seafile.seadroid2.ui.fragment.ReposFragment #mPullRefreshListView},
+     * To refresh downloading status of {@link com.seafile.seadroid2.ui.fragment.ReposFragment#mPullRefreshListView},
      * use this method to update data set.
      * <p>
-     * This method should be called after the download folder button was clicked.
+     * This method should be called after the "Download folder" menu was clicked.
      * 
      * @param newList
      */
