@@ -223,13 +223,13 @@ public class ReposFragment extends SherlockListFragment {
 
     @Override
     public void onStart() {
-        Log.d(DEBUG_TAG, "ReposFragment onStart");
+        // Log.d(DEBUG_TAG, "ReposFragment onStart");
         super.onStart();
     }
 
     @Override
     public void onStop() {
-        Log.d(DEBUG_TAG, "ReposFragment onStop");
+        // Log.d(DEBUG_TAG, "ReposFragment onStop");
         super.onStop();
         stopTimer();
     }
@@ -237,7 +237,7 @@ public class ReposFragment extends SherlockListFragment {
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(DEBUG_TAG, "ReposFragment onResume");
+        // Log.d(DEBUG_TAG, "ReposFragment onResume");
         // refresh the view (loading data)
         refreshView();
         mRefreshType = REFRESH_ON_RESUME;
@@ -251,7 +251,7 @@ public class ReposFragment extends SherlockListFragment {
     @Override
     public void onDetach() {
         mActivity = null;
-        Log.d(DEBUG_TAG, "ReposFragment detached");
+        // Log.d(DEBUG_TAG, "ReposFragment detached");
         super.onDetach();
     }
     
