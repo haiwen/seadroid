@@ -13,8 +13,8 @@ import com.seafile.seadroid2.R;
 import com.tjerkw.slideexpandable.library.ActionSlideExpandableListView;
 
 /**
- * Simple subclass of listview which does nothing more than wrap
- * any ListAdapter in a SlideExpandalbeListAdapter
+ * Simple subclass of listview which wrap ListAdapter in a SlideExpandalbeListAdapter,
+ * and support a pull to refresh feature.
  */
 public class CustomActionSlideExpandableListView extends ActionSlideExpandableListView implements AbsListView.OnScrollListener {
 
