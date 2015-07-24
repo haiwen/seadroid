@@ -16,15 +16,25 @@
 
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:layout_width="wrap_content"
+    android:layout_width="fill_parent"
     android:layout_height="match_parent">
 
-    <com.viewpagerindicator.TabPageIndicator
+    <!--<com.viewpagerindicator.UnderlinePageIndicator
         android:id="@+id/indicator"
-        android:layout_height="wrap_content"
+        android:layout_height="2dp"
         android:layout_width="match_parent"
-        />
+        />-->
+
+    <com.seafile.seadroid2.ui.PagerSlidingTabStrip
+            android:id="@+id/pager_tabstrip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/light_white"
+            app:allowWidthFull="true"
+            app:slidingBlock="@drawable/image_sliding_block" />
+
     <android.support.v4.view.ViewPager
         android:id="@+id/pager"
         android:layout_width="fill_parent"

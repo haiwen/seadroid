@@ -1,15 +1,20 @@
 package com.seafile.seadroid2.ui.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.widget.ImageView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.ActionMode;
@@ -19,18 +24,24 @@ import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.notification.BaseNotificationProvider;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
+import com.seafile.seadroid2.ui.PagerSlidingTabStrip;
+import com.seafile.seadroid2.ui.ViewPageInfo;
 import com.seafile.seadroid2.ui.adapter.TransferTaskAdapter;
-import com.seafile.seadroid2.ui.fragment.DownloadTaskFragment;
-import com.seafile.seadroid2.ui.fragment.UploadTaskFragment;
-import com.viewpagerindicator.TabPageIndicator;
+import com.seafile.seadroid2.ui.fragment.*;
+
+import java.util.ArrayList;
 
 public class TransferActivity extends SherlockFragmentActivity {
     private static final String DEBUG_TAG = "TransferActivity";
 
+    public final static String TRANSFER_FRAGMENT_TYPE = "transfer_fragment_type";
+    public final static byte TYPE_DOWNLOAD = 0x0;
+    public final static byte TYPE_UPLOAD = 0x1;
+
     private TransferTaskAdapter.TaskType whichTab = TransferTaskAdapter.TaskType.DOWNLOAD_TASK;
-    private TransferTabsAdapter tabsAdapter;
+    private ViewPageFragmentAdapter mAdapter;
     private ViewPager pager;
-    private TabPageIndicator indicator;
+    private PagerSlidingTabStrip mTabStrip;
 
     private Menu overFlowMenu = null;
 
@@ -43,13 +54,22 @@ public class TransferActivity extends SherlockFragmentActivity {
                 String msg = extras.getString(BaseNotificationProvider.NOTIFICATION_MESSAGE_KEY);
                 if (msg.equals(DownloadNotificationProvider.NOTIFICATION_OPEN_DOWNLOAD_TAB)) {
                     whichTab = TransferTaskAdapter.TaskType.DOWNLOAD_TASK;
-                    indicator.setCurrentItem(0);
+                    //mTabStrip.setCurrentItem(0);
                 } else if (msg.equals(BaseNotificationProvider.NOTIFICATION_OPEN_UPLOAD_TAB)) {
                     whichTab = TransferTaskAdapter.TaskType.UPLOAD_TASK;
-                    indicator.setCurrentItem(1);
+                    //mTabStrip.setCurrentItem(1);
                 }
             }
         }
+    }
+
+    private void setupTabAdapter() {
+        Bundle downloadBundle = new Bundle();
+        Bundle uploadBundle = new Bundle();
+        downloadBundle.putByte(TRANSFER_FRAGMENT_TYPE, TYPE_DOWNLOAD);
+        uploadBundle.putByte(TRANSFER_FRAGMENT_TYPE, TYPE_UPLOAD);
+        mAdapter.addTab(getString(R.string.transfer_tabs_downloads), "download", DownloadTaskFragment.class, downloadBundle);
+        mAdapter.addTab(getString(R.string.transfer_tabs_uploads), "upload", UploadTaskFragment.class, uploadBundle);
     }
 
     @Override
@@ -57,53 +77,12 @@ public class TransferActivity extends SherlockFragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.transfer_list_layout);
 
-        tabsAdapter = new TransferTabsAdapter(getSupportFragmentManager());
-
+        mTabStrip = (PagerSlidingTabStrip) findViewById(R.id.transfer_list_indicator);
         pager = (ViewPager) findViewById(R.id.transfer_list_pager);
-        pager.setAdapter(tabsAdapter);
-
-        indicator = (TabPageIndicator) findViewById(R.id.transfer_list_indicator);
-        indicator.setViewPager(pager);
-        indicator.setOnPageChangeListener(new OnPageChangeListener() {
-            @Override
-            public void onPageSelected(final int position) {
-                Log.d(DEBUG_TAG, "current tab index " + position);
-                whichTab = (position == 0
-                        ? TransferTaskAdapter.TaskType.DOWNLOAD_TASK
-                        : TransferTaskAdapter.TaskType.UPLOAD_TASK);
-
-                ActionMode mode = null;
-                if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK
-                        && getUploadTaskFragment() != null) {
-                    // slide from Upload tab to Download tab,
-                    // so hide the CAB of UploadTaskFragment
-                    mode = getUploadTaskFragment().getActionMode();
-                    getUploadTaskFragment().deselectItems();
-                } else if(whichTab == TransferTaskAdapter.TaskType.UPLOAD_TASK
-                        && getDownloadTaskFragment() != null) {
-                    // slide from Download tab to Upload tab,
-                    // so hide the CAB of DownloadTaskFragment
-                    mode = getDownloadTaskFragment().getActionMode();
-                    getDownloadTaskFragment().deselectItems();
-                }
-
-                if (mode != null)
-                    mode.finish();
-
-                supportInvalidateOptionsMenu();
-                pager.setCurrentItem(position);
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int arg0) {
-                // TODO Auto-generated method stub
-            }
-
-            @Override
-            public void onPageScrolled(int arg0, float arg1, int arg2) {
-                // TODO Auto-generated method stub
-            }
-        });
+        pager.setOffscreenPageLimit(2);
+        mAdapter = new ViewPageFragmentAdapter(getSupportFragmentManager(), mTabStrip, pager);
+        setupTabAdapter();
+        mAdapter.notifyDataSetChanged();
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowTitleEnabled(true);
@@ -220,59 +199,145 @@ public class TransferActivity extends SherlockFragmentActivity {
         return "android:switcher:" + R.id.transfer_list_pager + ":" + index;
     }
 
-    /**
-     * Adapter for {@link ViewPager} to bind DownloadTaskFragment and UploadTaskFragment
-     */
-    public class TransferTabsAdapter extends FragmentPagerAdapter {
+    class ViewPageFragmentAdapter extends FragmentStatePagerAdapter implements OnPageChangeListener {
 
-        private String downloadTabTitle;
-        private String uploadTabTitle;
+        private final Context mContext;
+        protected PagerSlidingTabStrip mPagerStrip;
+        private final ViewPager mViewPager;
+        private final ArrayList<ViewPageInfo> mTabs = new ArrayList<ViewPageInfo>();
 
-        public TransferTabsAdapter(FragmentManager fm) {
+        public ViewPageFragmentAdapter(FragmentManager fm,
+                                       PagerSlidingTabStrip pageStrip, ViewPager pager) {
             super(fm);
-            downloadTabTitle = getString(R.string.transfer_tabs_downloads);
-            uploadTabTitle = getString(R.string.transfer_tabs_uploads);
+            mContext = pager.getContext();
+            mPagerStrip = pageStrip;
+            mViewPager = pager;
+            mViewPager.setAdapter(this);
+            mPagerStrip.setViewPager(mViewPager);
         }
 
-        private DownloadTaskFragment downloadsFragment = null;
-        private UploadTaskFragment uploadsFragment = null;
+        public void addTab(String title, String tag, Class<?> clss, Bundle args) {
+            ViewPageInfo viewPageInfo = new ViewPageInfo(title, tag, clss, args);
+            addFragment(viewPageInfo);
+        }
 
-        @Override
-        public Fragment getItem(int position) {
-            switch (position) {
-            case 0:
-                if (downloadsFragment == null) {
-                    downloadsFragment = new DownloadTaskFragment();
-                }
-                return downloadsFragment;
-            case 1:
-                if (uploadsFragment == null) {
-                    uploadsFragment = new UploadTaskFragment();
-                }
-                return uploadsFragment;
-            default:
-                return new Fragment();
+        public void addAllTab(ArrayList<ViewPageInfo> mTabs) {
+            for (ViewPageInfo viewPageInfo : mTabs) {
+                addFragment(viewPageInfo);
             }
         }
 
-        @Override
-        public CharSequence getPageTitle(int position) {
-            switch (position) {
-            case 0:
-                return downloadTabTitle;
-            case 1:
-                return uploadTabTitle;
-
-            default:
-                return null;
+        private void addFragment(ViewPageInfo info) {
+            if (info == null) {
+                return;
             }
+
+            // 加入tab title
+            View v = LayoutInflater.from(mContext).inflate(
+                    R.layout.sliding_tab_item, null, false);
+            TextView title = (TextView) v.findViewById(R.id.tab_title);
+            title.setText(info.title);
+            mPagerStrip.addTab(v);
+
+            mTabs.add(info);
+            notifyDataSetChanged();
+        }
+
+        /**
+         * 移除第一次
+         */
+        public void remove() {
+            remove(0);
+        }
+
+        /**
+         * 移除一个tab
+         *
+         * @param index
+         *            备注：如果index小于0，则从第一个开始删 如果大于tab的数量值则从最后一个开始删除
+         */
+        public void remove(int index) {
+            if (mTabs.isEmpty()) {
+                return;
+            }
+            if (index < 0) {
+                index = 0;
+            }
+            if (index >= mTabs.size()) {
+                index = mTabs.size() - 1;
+            }
+            mTabs.remove(index);
+            mPagerStrip.removeTab(index, 1);
+            notifyDataSetChanged();
+        }
+
+        /**
+         * 移除所有的tab
+         */
+        public void removeAll() {
+            if (mTabs.isEmpty()) {
+                return;
+            }
+            mPagerStrip.removeAllTab();
+            mTabs.clear();
+            notifyDataSetChanged();
         }
 
         @Override
         public int getCount() {
-            return 2;
+            return mTabs.size();
         }
 
+        @Override
+        public int getItemPosition(Object object) {
+            return PagerAdapter.POSITION_NONE;
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            ViewPageInfo info = mTabs.get(position);
+            return Fragment.instantiate(mContext, info.clss.getName(), info.args);
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return mTabs.get(position).title;
+        }
+
+        @Override
+        public void onPageScrolled(int i, float v, int i1) {}
+
+        @Override
+        public void onPageSelected(int position) {
+            Log.d(DEBUG_TAG, "current tab index " + position);
+            whichTab = (position == 0
+                    ? TransferTaskAdapter.TaskType.DOWNLOAD_TASK
+                    : TransferTaskAdapter.TaskType.UPLOAD_TASK);
+
+            ActionMode mode = null;
+            if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK
+                    && getUploadTaskFragment() != null) {
+                // slide from Upload tab to Download tab,
+                // so hide the CAB of UploadTaskFragment
+                mode = getUploadTaskFragment().getActionMode();
+                getUploadTaskFragment().deselectItems();
+            } else if (whichTab == TransferTaskAdapter.TaskType.UPLOAD_TASK
+                    && getDownloadTaskFragment() != null) {
+                // slide from Download tab to Upload tab,
+                // so hide the CAB of DownloadTaskFragment
+                mode = getDownloadTaskFragment().getActionMode();
+                getDownloadTaskFragment().deselectItems();
+            }
+
+            if (mode != null)
+                mode.finish();
+
+            supportInvalidateOptionsMenu();
+            //pager.setCurrentItem(position);
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int i) {}
     }
 
 }
