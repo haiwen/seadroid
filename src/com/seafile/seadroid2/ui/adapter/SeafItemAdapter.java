@@ -1,15 +1,9 @@
 package com.seafile.seadroid2.ui.adapter;
 
-import android.content.res.Resources;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.widget.*;
 import com.google.common.collect.Lists;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -22,11 +16,11 @@ import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.ui.AnimateFirstDisplayListener;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.util.Utils;
-import net.londatiga.android.ActionItem;
-import net.londatiga.android.QuickAction;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class SeafItemAdapter extends BaseAdapter {
 
@@ -41,16 +35,6 @@ public class SeafItemAdapter extends BaseAdapter {
         this.mActivity = activity;
         items = Lists.newArrayList();
     }
-
-    private static final int ACTION_ID_DOWNLOAD = 0;
-    private static final int ACTION_ID_UPDATE = 1;
-    private static final int ACTION_ID_EXPORT = 2;
-    private static final int ACTION_ID_RENAME = 3;
-    private static final int ACTION_ID_DELETE = 4;
-    private static final int ACTION_ID_SHARE = 5;
-    private static final int ACTION_ID_COPY = 6;
-    private static final int ACTION_ID_MOVE = 7;
-    private static final int ACTION_ID_STAR = 8;
 
     /** sort files type */
     public static final int SORT_BY_NAME = 9;
@@ -72,27 +56,39 @@ public class SeafItemAdapter extends BaseAdapter {
     }
 
     /**
-     * To refresh downloading status of {@link com.seafile.seadroid2.ui.fragment.ReposFragment #mPullRefreshListView},
+     * To refresh downloading status of {@link com.seafile.seadroid2.ui.fragment.ReposFragment#mPullRefreshListView},
      * use this method to update data set.
      * <p>
-     * This method should be called after the download folder button was clicked.
+     * This method should be called after the "Download folder" menu was clicked.
      * 
      * @param newList
      */
     public void setDownloadTaskList(List<DownloadTaskInfo> newList) {
-
-        if (this.mDownloadTaskInfos == null || newList.size() != this.mDownloadTaskInfos.size()) {
+        if (!equalLists(newList, mDownloadTaskInfos)) {
             this.mDownloadTaskInfos = newList;
+            // redraw the list
             notifyDataSetChanged();
-            return;
         }
-        for (int i = 0; i < newList.size(); i++) {
-            if (!newList.get(i).equals(this.mDownloadTaskInfos.get(i))) {
-                break;
-            }
-        }
-        this.mDownloadTaskInfos = newList;
-        notifyDataSetChanged();
+    }
+
+    /**
+     * Compare two lists
+     *
+     * @param newList
+     * @param oldList
+     * @return true if the two lists are equal,
+     *         false, otherwise.
+     */
+    private boolean equalLists(List<DownloadTaskInfo> newList, List<DownloadTaskInfo> oldList) {
+        if (newList == null && oldList == null)
+            return true;
+
+        if ((newList == null && oldList != null)
+                || newList != null && oldList == null
+                || newList.size() != oldList.size())
+            return false;
+
+        return newList.equals(oldList);
     }
 
     public void addEntry(SeafItem entry) {
@@ -163,10 +159,18 @@ public class SeafItemAdapter extends BaseAdapter {
             TextView title = (TextView) view.findViewById(R.id.list_item_title);
             TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
             ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
-            ImageView action = (ImageView) view.findViewById(R.id.list_item_action);
+            RelativeLayout action = (RelativeLayout) view.findViewById(R.id.expandable_toggle_button);
             ImageView downloadStatusIcon = (ImageView) view.findViewById(R.id.list_item_download_status_icon);
             ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.list_item_download_status_progressbar);
-            viewHolder = new Viewholder(title, subtitle, icon, action, downloadStatusIcon, progressBar);
+            RelativeLayout shareView = (RelativeLayout) view.findViewById(R.id.action_share_ll);
+            RelativeLayout deleteView = (RelativeLayout) view.findViewById(R.id.action_delete_ll);
+            RelativeLayout copyView = (RelativeLayout) view.findViewById(R.id.action_copy_ll);
+            RelativeLayout moveView = (RelativeLayout) view.findViewById(R.id.action_move_ll);
+            RelativeLayout renameView = (RelativeLayout) view.findViewById(R.id.action_rename_ll);
+            RelativeLayout moreView = (RelativeLayout) view.findViewById(R.id.action_more_ll);
+            RelativeLayout updateView = (RelativeLayout) view.findViewById(R.id.action_update_ll);
+            RelativeLayout downloadView = (RelativeLayout) view.findViewById(R.id.action_download_ll);
+            viewHolder = new Viewholder(title, subtitle, icon, action, downloadStatusIcon, progressBar, shareView, deleteView, copyView, moveView, renameView, moreView, updateView, downloadView);
             view.setTag(viewHolder);
         } else {
             viewHolder = (Viewholder) convertView.getTag();
@@ -196,10 +200,18 @@ public class SeafItemAdapter extends BaseAdapter {
             TextView title = (TextView) view.findViewById(R.id.list_item_title);
             TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
             ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
-            ImageView action = (ImageView) view.findViewById(R.id.list_item_action);
+            RelativeLayout action = (RelativeLayout) view.findViewById(R.id.expandable_toggle_button);
             ImageView downloadStatusIcon = (ImageView) view.findViewById(R.id.list_item_download_status_icon);
             ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.list_item_download_status_progressbar);
-            viewHolder = new Viewholder(title, subtitle, icon, action, downloadStatusIcon, progressBar);
+            RelativeLayout shareView = (RelativeLayout) view.findViewById(R.id.action_share_ll);
+            RelativeLayout deleteView = (RelativeLayout) view.findViewById(R.id.action_delete_ll);
+            RelativeLayout copyView = (RelativeLayout) view.findViewById(R.id.action_copy_ll);
+            RelativeLayout moveView = (RelativeLayout) view.findViewById(R.id.action_move_ll);
+            RelativeLayout renameView = (RelativeLayout) view.findViewById(R.id.action_rename_ll);
+            RelativeLayout moreView = (RelativeLayout) view.findViewById(R.id.action_more_ll);
+            RelativeLayout updateView = (RelativeLayout) view.findViewById(R.id.action_update_ll);
+            RelativeLayout downloadView = (RelativeLayout) view.findViewById(R.id.action_download_ll);
+            viewHolder = new Viewholder(title, subtitle, icon, action, downloadStatusIcon, progressBar, shareView, deleteView, copyView, moveView, renameView, moreView, updateView, downloadView);
             view.setTag(viewHolder);
         } else {
             viewHolder = (Viewholder) convertView.getTag();
@@ -212,10 +224,38 @@ public class SeafItemAdapter extends BaseAdapter {
 
             viewHolder.subtitle.setText(dirent.getSubtitle());
             viewHolder.icon.setImageResource(dirent.getIcon());
-            viewHolder.action.setVisibility(View.VISIBLE);
-            setDirAction(dirent, viewHolder, position);
+
+            viewHolder.shareView.setVisibility(View.VISIBLE);
+            viewHolder.deleteView.setVisibility(View.VISIBLE);
+            viewHolder.copyView.setVisibility(View.VISIBLE);
+            viewHolder.moveView.setVisibility(View.VISIBLE);
+
+            viewHolder.renameView.setVisibility(View.GONE);
+            viewHolder.updateView.setVisibility(View.GONE);
+            viewHolder.downloadView.setVisibility(View.GONE);
+            viewHolder.moreView.setVisibility(View.GONE);
+
+            if (repoIsEncrypted) {
+                viewHolder.action.setVisibility(View.GONE);
+            } else
+                viewHolder.action.setVisibility(View.VISIBLE);
         } else {
             viewHolder.downloadStatusIcon.setVisibility(View.GONE);
+
+            if (!repoIsEncrypted) {
+                viewHolder.shareView.setVisibility(View.VISIBLE);
+            } else
+                viewHolder.shareView.setVisibility(View.GONE);
+
+            viewHolder.deleteView.setVisibility(View.VISIBLE);
+            viewHolder.renameView.setVisibility(View.VISIBLE);
+            viewHolder.moreView.setVisibility(View.VISIBLE);
+
+            viewHolder.copyView.setVisibility(View.GONE);
+            viewHolder.moveView.setVisibility(View.GONE);
+
+            viewHolder.action.setVisibility(View.VISIBLE);
+
             setFileView(dirent, viewHolder, position);
         }
 
@@ -324,7 +364,19 @@ public class SeafItemAdapter extends BaseAdapter {
             viewHolder.icon.setImageResource(dirent.getIcon());
         }
 
-        setFileAction(dirent, viewHolder, position, cacheExists);
+        if (cacheExists) {
+            if (mActivity.hasRepoWritePermission()) {
+                viewHolder.updateView.setVisibility(View.VISIBLE);
+                viewHolder.downloadView.setVisibility(View.GONE);
+            } else {
+                viewHolder.updateView.setVisibility(View.GONE);
+                viewHolder.downloadView.setVisibility(View.GONE);
+            }
+
+        } else {
+            viewHolder.updateView.setVisibility(View.GONE);
+            viewHolder.downloadView.setVisibility(View.VISIBLE);
+        }
     }
 
     private View getCacheView(SeafCachedFile item, View convertView, ViewGroup parent) {
@@ -336,10 +388,18 @@ public class SeafItemAdapter extends BaseAdapter {
             TextView title = (TextView) view.findViewById(R.id.list_item_title);
             TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
             ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
-            ImageView action = (ImageView) view.findViewById(R.id.list_item_action);
+            RelativeLayout action = (RelativeLayout) view.findViewById(R.id.expandable_toggle_button);
             ImageView downloadStatusIcon = (ImageView) view.findViewById(R.id.list_item_download_status_icon);
             ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.list_item_download_status_progressbar);
-            viewHolder = new Viewholder(title, subtitle, icon, action, downloadStatusIcon, progressBar);
+            RelativeLayout shareView = (RelativeLayout) view.findViewById(R.id.action_share_ll);
+            RelativeLayout deleteView = (RelativeLayout) view.findViewById(R.id.action_delete_ll);
+            RelativeLayout copyView = (RelativeLayout) view.findViewById(R.id.action_copy_ll);
+            RelativeLayout moveView = (RelativeLayout) view.findViewById(R.id.action_move_ll);
+            RelativeLayout renameView = (RelativeLayout) view.findViewById(R.id.action_rename_ll);
+            RelativeLayout moreView = (RelativeLayout) view.findViewById(R.id.action_more_ll);
+            RelativeLayout updateView = (RelativeLayout) view.findViewById(R.id.action_update_ll);
+            RelativeLayout downloadView = (RelativeLayout) view.findViewById(R.id.action_download_ll);
+            viewHolder = new Viewholder(title, subtitle, icon, action, downloadStatusIcon, progressBar, shareView, deleteView, copyView, moveView, renameView, moreView, updateView, downloadView);
             view.setTag(viewHolder);
         } else {
             viewHolder = (Viewholder) convertView.getTag();
@@ -371,10 +431,32 @@ public class SeafItemAdapter extends BaseAdapter {
 
     private class Viewholder {
         TextView title, subtitle;
-        ImageView icon, action, downloadStatusIcon; // downloadStatusIcon used to show file downloading status, it is invisible by default
+        ImageView icon, downloadStatusIcon; // downloadStatusIcon used to show file downloading status, it is invisible by default
         ProgressBar progressBar;
+        RelativeLayout action;
+        RelativeLayout shareView;
+        RelativeLayout deleteView;
+        RelativeLayout copyView;
+        RelativeLayout moveView;
+        RelativeLayout moreView;
+        RelativeLayout renameView;
+        RelativeLayout updateView;
+        RelativeLayout downloadView;
 
-        public Viewholder(TextView title, TextView subtitle, ImageView icon, ImageView action, ImageView downloadStatusIcon, ProgressBar progressBar) {
+        public Viewholder(TextView title,
+                          TextView subtitle,
+                          ImageView icon,
+                          RelativeLayout action,
+                          ImageView downloadStatusIcon,
+                          ProgressBar progressBar,
+                          RelativeLayout shareView,
+                          RelativeLayout deleteView,
+                          RelativeLayout copyView,
+                          RelativeLayout moveView,
+                          RelativeLayout renameView,
+                          RelativeLayout moreView,
+                          RelativeLayout updateView,
+                          RelativeLayout downloadView) {
             super();
             this.icon = icon;
             this.action = action;
@@ -382,200 +464,15 @@ public class SeafItemAdapter extends BaseAdapter {
             this.subtitle = subtitle;
             this.downloadStatusIcon = downloadStatusIcon;
             this.progressBar = progressBar;
+            this.shareView = shareView;
+            this.deleteView = deleteView;
+            this.copyView = copyView;
+            this.moveView = moveView;
+            this.moreView = moreView;
+            this.renameView = renameView;
+            this.updateView = updateView;
+            this.downloadView = downloadView;
         }
-    }
-
-    private void setFileAction(SeafDirent dirent, Viewholder viewHolder,
-            final int position, final boolean cacheExists) {
-
-        viewHolder.action.setImageResource(R.drawable.drop_down_button);
-        viewHolder.action.setVisibility(View.VISIBLE);
-        viewHolder.action.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                SeafDirent dirent = (SeafDirent)items.get(position);
-                QuickAction mQuickAction = prepareFileAction(dirent, cacheExists);
-                mQuickAction.show(view);
-            }
-        });
-    }
-
-    private void setDirAction(SeafDirent dirent, Viewholder viewHolder, final int position) {
-        if (repoIsEncrypted) {
-            viewHolder.action.setVisibility(View.GONE);
-            return;
-        }
-        viewHolder.action.setImageResource(R.drawable.drop_down_button);
-        viewHolder.action.setVisibility(View.VISIBLE);
-        viewHolder.action.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                SeafDirent dirent = (SeafDirent)items.get(position);
-                QuickAction mQuickAction = prepareDirAction(dirent);
-                mQuickAction.show(view);
-            }
-        });
-    }
-
-    private QuickAction prepareFileAction(final SeafDirent dirent, boolean cacheExists) {
-        final QuickAction mQuickAction = new QuickAction(mActivity);
-        Resources resources = mActivity.getResources();
-        ActionItem shareAction, downloadAction, updateAction, exportAction, renameAction, deleteAction,
-               copyAction, moveAction, starAction;
-
-        if (!repoIsEncrypted) {
-            shareAction = new ActionItem(ACTION_ID_SHARE,
-                    resources.getString(R.string.file_action_share),
-                    resources.getDrawable(R.drawable.action_share));
-            mQuickAction.addActionItem(shareAction);
-        }
-
-        deleteAction = new ActionItem(ACTION_ID_DELETE,
-                resources.getString(R.string.file_action_delete),
-                resources.getDrawable(R.drawable.action_delete));
-        mQuickAction.addActionItem(deleteAction);
-
-        renameAction = new ActionItem(ACTION_ID_RENAME,
-                resources.getString(R.string.file_action_rename),
-                resources.getDrawable(R.drawable.action_rename));
-        mQuickAction.addActionItem(renameAction);
-
-        exportAction = new ActionItem(ACTION_ID_EXPORT,
-                resources.getString(R.string.file_action_export),
-                resources.getDrawable(R.drawable.action_export));
-        mQuickAction.addActionItem(exportAction);
-        
-        copyAction = new ActionItem(ACTION_ID_COPY,
-                resources.getString(R.string.file_action_copy),
-                resources.getDrawable(R.drawable.action_copy));
-        mQuickAction.addActionItem(copyAction);
-        
-        moveAction = new ActionItem(ACTION_ID_MOVE,
-                resources.getString(R.string.file_action_move),
-                resources.getDrawable(R.drawable.action_move));
-        mQuickAction.addActionItem(moveAction);
-
-        if (cacheExists) {
-            if (mActivity.hasRepoWritePermission()) {
-                updateAction = new ActionItem(ACTION_ID_UPDATE,
-                        resources.getString(R.string.file_action_update),
-                        resources.getDrawable(R.drawable.action_update));
-                mQuickAction.addActionItem(updateAction);
-            }
-
-        } else {
-            downloadAction = new ActionItem(ACTION_ID_DOWNLOAD,
-                    resources.getString(R.string.file_action_download),
-                    resources.getDrawable(R.drawable.action_download));
-            mQuickAction.addActionItem(downloadAction);
-        }
-
-        starAction = new ActionItem(ACTION_ID_STAR,
-                resources.getString(R.string.file_action_star),
-                resources.getDrawable(R.drawable.action_star));
-        mQuickAction.addActionItem(starAction);
-
-        //setup the action item click listener
-        mQuickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
-            @Override
-            public void onItemClick(QuickAction quickAction, int pos, int actionId) {
-                NavContext nav = mActivity.getNavContext();
-                String repoName = nav.getRepoName();
-                String repoID = nav.getRepoID();
-                String dir = nav.getDirPath();
-                String path = Utils.pathJoin(dir, dirent.name);
-                String filename = dirent.name;
-                DataManager dataManager = mActivity.getDataManager();
-                String localPath = dataManager.getLocalRepoFile(repoName, repoID, path).getPath();
-                switch (actionId) {
-                case ACTION_ID_SHARE:
-                    mActivity.shareFile(repoID, path);
-                    break;
-                case ACTION_ID_EXPORT:
-                    mActivity.exportFile(dirent.name);
-                    break;
-                case ACTION_ID_DOWNLOAD:
-                    mActivity.onFileSelected(dirent);
-                    break;
-                case ACTION_ID_UPDATE:
-                    mActivity.addUpdateTask(repoID, repoName, dir, localPath);
-                    break;
-                case ACTION_ID_RENAME:
-                    mActivity.renameFile(repoID, repoName, path);
-                    break;
-                case ACTION_ID_DELETE:
-                    mActivity.deleteFile(repoID, repoName, path);
-                    break;
-                case ACTION_ID_COPY:
-                    mActivity.copyFile(repoID, repoName, dir, filename, false);
-                    break;
-                case ACTION_ID_MOVE:
-                    mActivity.moveFile(repoID, repoName, dir, filename, false);
-                    break;
-                case ACTION_ID_STAR:
-                    mActivity.starFile(repoID, dir, filename);
-                    break;
-                }
-            }
-        });
-
-        mQuickAction.mAnimateTrack(false);
-        return mQuickAction;
-    }
-
-    private QuickAction prepareDirAction(final SeafDirent dirent) {
-        final QuickAction mQuickAction = new QuickAction(mActivity);
-        Resources resources = mActivity.getResources();
-        ActionItem shareAction, deleteAction, moveAction, copyAction;
-        shareAction = new ActionItem(ACTION_ID_SHARE,
-                resources.getString(R.string.file_action_share),
-                resources.getDrawable(R.drawable.action_share));
-        mQuickAction.addActionItem(shareAction);
-
-        deleteAction = new ActionItem(ACTION_ID_DELETE,
-                resources.getString(R.string.file_action_delete),
-                resources.getDrawable(R.drawable.action_delete));
-        mQuickAction.addActionItem(deleteAction);
-        
-        copyAction = new ActionItem(ACTION_ID_COPY,
-                resources.getString(R.string.file_action_copy),
-                resources.getDrawable(R.drawable.action_copy));
-        mQuickAction.addActionItem(copyAction);
-        
-        moveAction = new ActionItem(ACTION_ID_MOVE,
-                resources.getString(R.string.file_action_move),
-                resources.getDrawable(R.drawable.action_move));
-        mQuickAction.addActionItem(moveAction);
-        
-        //setup the action item click listener
-        mQuickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
-            @Override
-            public void onItemClick(QuickAction quickAction, int pos, int actionId) {
-                NavContext nav = mActivity.getNavContext();
-                String repoName = nav.getRepoName();
-                String repoID = nav.getRepoID();
-                String dir = nav.getDirPath();
-                String path = Utils.pathJoin(dir, dirent.name);
-                String filename = dirent.name;
-                switch (actionId) {
-                case ACTION_ID_SHARE:
-                    mActivity.shareDir(repoID, path);
-                    break;
-                case ACTION_ID_DELETE:
-                    mActivity.deleteDir(repoID, repoName, path);
-                    break;
-                case ACTION_ID_COPY:
-                    mActivity.copyFile(repoID, repoName, dir, filename, true);
-                    break;
-                case ACTION_ID_MOVE:
-                    mActivity.moveFile(repoID, repoName, dir, filename, true);
-                    break;
-                }
-            }
-        });
-
-        mQuickAction.mAnimateTrack(false);
-        return mQuickAction;
     }
 
     private int getThumbnailWidth() {

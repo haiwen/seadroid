@@ -76,6 +76,14 @@
     <string name="file_action_copy">Copy</string>
     <string name="file_action_move">Move</string>
     <string name="file_action_open_as">Open as</string>
+    <string name="file_action_more">More</string>
+    <string name="file_action_more_title">Choose your preferred option</string>
+    <string-array name="file_action_more_array">
+        <item>Export</item>
+        <item>Copy</item>
+        <item>Move</item>
+        <item>Star</item>
+    </string-array>
     <string-array name="file_type_array">
         <item>Text</item>
         <item>Audio</item>

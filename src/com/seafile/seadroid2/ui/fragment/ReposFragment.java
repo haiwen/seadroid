@@ -1,10 +1,8 @@
 package com.seafile.seadroid2.ui.fragment;
 
-import java.net.HttpURLConnection;
-import java.util.List;
-import java.util.Map;
-
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -20,21 +18,22 @@ import com.actionbarsherlock.app.SherlockListFragment;
 import com.seafile.seadroid2.*;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
-import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.data.SeafDirent;
-import com.seafile.seadroid2.data.SeafGroup;
-import com.seafile.seadroid2.data.SeafItem;
-import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.data.*;
 import com.seafile.seadroid2.transfer.TransferService;
-import com.seafile.seadroid2.ui.PullToRefreshListView;
+import com.seafile.seadroid2.ui.CustomActionSlideExpandableListView;
+import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
-import com.seafile.seadroid2.ui.activity.GalleryActivity;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.util.Utils;
+import com.tjerkw.slideexpandable.library.SlideExpandableListAdapter;
+
+import java.net.HttpURLConnection;
+import java.util.List;
+import java.util.Map;
 
 
 public class ReposFragment extends SherlockListFragment {
@@ -52,7 +51,12 @@ public class ReposFragment extends SherlockListFragment {
     private SeafItemAdapter adapter;
     private BrowserActivity mActivity = null;
 
-    private PullToRefreshListView mPullRefreshListView;
+    public static final int FILE_ACTION_EXPORT = 0;
+    public static final int FILE_ACTION_COPY = 1;
+    public static final int FILE_ACTION_MOVE = 2;
+    public static final int FILE_ACTION_STAR = 3;
+
+    private CustomActionSlideExpandableListView mListView;
     private TextView mEmptyView;
     private View mProgressContainer;
     private View mListContainer;
@@ -88,14 +92,14 @@ public class ReposFragment extends SherlockListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.repos_fragment, container, false);
-        mPullRefreshListView = (PullToRefreshListView) root.findViewById(android.R.id.list);
+        mListView = (CustomActionSlideExpandableListView) root.findViewById(android.R.id.list);
         mEmptyView = (TextView) root.findViewById(R.id.empty);
         mListContainer =  root.findViewById(R.id.listContainer);
         mErrorText = (TextView)root.findViewById(R.id.error_message);
         mProgressContainer = root.findViewById(R.id.progressContainer);
 
         // Set a listener to be invoked when the list should be refreshed.
-        mPullRefreshListView.setOnRefreshListener(new PullToRefreshListView.OnRefreshListener() {
+        mListView.setOnRefreshListener(new CustomActionSlideExpandableListView.OnRefreshListener() {
 
             @Override
             public void onRefresh() {
@@ -113,22 +117,131 @@ public class ReposFragment extends SherlockListFragment {
         super.onActivityCreated(savedInstanceState);
         Log.d(DEBUG_TAG, "ReposFragment onActivityCreated");
         adapter = new SeafItemAdapter(mActivity);
-        
-        // You can also just use setListAdapter(mAdapter) or
-        // mPullRefreshListView.setAdapter(mAdapter)
-        setListAdapter(adapter);
-        getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+
+        mListView.setAdapter(
+                new SlideExpandableListAdapter(
+                        adapter,
+                        R.id.expandable_toggle_button,
+                        R.id.expandable)
+        );
+
+        // A more specific expandable listview in which the expandable area consist of some buttons
+        // which are context actions for the item itself.
+        // It handles event binding for those buttons
+        // and allow for adding a listener that will be invoked if one of those buttons are pressed.
+        mListView.setItemActionListener(new SlideExpandableClickListener(),
+                R.id.action_share_ll,
+                R.id.action_delete_ll,
+                R.id.action_copy_ll,
+                R.id.action_move_ll,
+                R.id.action_rename_ll,
+                R.id.action_update_ll,
+                R.id.action_download_ll,
+                R.id.action_more_ll);
+    }
+
+    /**
+     * Implementation for callback to be invoked whenever an action is clicked in
+     * the expandle area of the list item.
+     */
+    private class SlideExpandableClickListener implements CustomActionSlideExpandableListView.OnActionClickListener {
+
+        @Override
+        public void onClick(View itemView, View buttonview, int position) {
+            // listen for click events for each list item.
+            // the 'position' param will tell which list item is clicked
+            SeafDirent dirent = (SeafDirent) adapter.getItem(position);
+            NavContext nav = mActivity.getNavContext();
+            String repoName = nav.getRepoName();
+            String repoID = nav.getRepoID();
+            String dir = nav.getDirPath();
+            String path = Utils.pathJoin(dir, dirent.name);
+            String filename = dirent.name;
+            DataManager dataManager = mActivity.getDataManager();
+            String localPath = dataManager.getLocalRepoFile(repoName, repoID, path).getPath();
+
+            switch (buttonview.getId()) {
+                case R.id.action_share_ll:
+                    mListView.collapse();
+                    mActivity.shareFile(repoID, path);
+                    break;
+                case R.id.action_delete_ll:
+                    mListView.collapse();
+                    mActivity.deleteFile(repoID, repoName, path);
+                    break;
+                case R.id.action_copy_ll:
+                    mListView.collapse();
+                    mActivity.copyFile(repoID, repoName, dir, filename, false);
+                    break;
+                case R.id.action_move_ll:
+                    mListView.collapse();
+                    mActivity.moveFile(repoID, repoName, dir, filename, false);
+                    break;
+                case R.id.action_rename_ll:
+                    mListView.collapse();
+                    mActivity.renameFile(repoID, repoName, path);
+                    break;
+                case R.id.action_update_ll:
+                    mListView.collapse();
+                    mActivity.addUpdateTask(repoID, repoName, dir, localPath);
+                    break;
+                case R.id.action_download_ll:
+                    mListView.collapse();
+                    mActivity.onFileSelected(dirent);
+                    break;
+                case R.id.action_more_ll:
+                    mListView.collapse();
+                    processMoreOptions(repoID, repoName, dir, filename, dirent, localPath);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    private AlertDialog processMoreOptions(final String repoID,
+                                           final String repoName,
+                                           final String dir,
+                                           final String filename,
+                                           final SeafDirent dirent,
+                                           final String localPath) {
+        SeafileStyleDialogBuilder builder =
+                new SeafileStyleDialogBuilder(getActivity()).
+                        setTitle(getResources().getString(R.string.file_action_more_title)).
+                        setItems(R.array.file_action_more_array,
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        switch (which) {
+                                            case FILE_ACTION_EXPORT:
+                                                mActivity.exportFile(dirent.name);
+                                                break;
+                                            case FILE_ACTION_COPY:
+                                                mActivity.copyFile(repoID, repoName, dir, filename, false);
+                                                break;
+                                            case FILE_ACTION_MOVE:
+                                                mActivity.moveFile(repoID, repoName, dir, filename, false);
+                                                break;
+                                            case FILE_ACTION_STAR:
+                                                mActivity.starFile(repoID, dir, filename);
+                                                break;
+                                            default:
+                                                return;
+                                        }
+                                    }
+                                });
+        return builder.show();
     }
 
     @Override
     public void onStart() {
-        Log.d(DEBUG_TAG, "ReposFragment onStart");
+        // Log.d(DEBUG_TAG, "ReposFragment onStart");
         super.onStart();
     }
 
     @Override
     public void onStop() {
-        Log.d(DEBUG_TAG, "ReposFragment onStop");
+        // Log.d(DEBUG_TAG, "ReposFragment onStop");
         super.onStop();
         stopTimer();
     }
@@ -136,7 +249,7 @@ public class ReposFragment extends SherlockListFragment {
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(DEBUG_TAG, "ReposFragment onResume");
+        // Log.d(DEBUG_TAG, "ReposFragment onResume");
         // refresh the view (loading data)
         refreshView();
         mRefreshType = REFRESH_ON_RESUME;
@@ -150,7 +263,7 @@ public class ReposFragment extends SherlockListFragment {
     @Override
     public void onDetach() {
         mActivity = null;
-        Log.d(DEBUG_TAG, "ReposFragment detached");
+        // Log.d(DEBUG_TAG, "ReposFragment detached");
         super.onDetach();
     }
     
@@ -187,7 +300,7 @@ public class ReposFragment extends SherlockListFragment {
         mPullToRefreshStopRefreshing ++;
 
         if (mPullToRefreshStopRefreshing >1) {
-            mPullRefreshListView.onRefreshComplete();
+            mListView.onRefreshComplete();
             mPullToRefreshStopRefreshing = 0;
         }
 
@@ -196,7 +309,7 @@ public class ReposFragment extends SherlockListFragment {
             List<SeafRepo> repos = getDataManager().getReposFromCache();
             if (repos != null) {
                 if (mRefreshType == REFRESH_ON_PULL) {
-                    mPullRefreshListView.onRefreshComplete();
+                    mListView.onRefreshComplete();
                     mPullToRefreshStopRefreshing = 0;
                 }
 
@@ -214,7 +327,7 @@ public class ReposFragment extends SherlockListFragment {
         mPullToRefreshStopRefreshing ++;
 
         if (mPullToRefreshStopRefreshing > 1) {
-            mPullRefreshListView.onRefreshComplete();
+            mListView.onRefreshComplete();
             mPullToRefreshStopRefreshing = 0;
         }
 
@@ -240,7 +353,7 @@ public class ReposFragment extends SherlockListFragment {
                     nav.getRepoID(), nav.getDirPath());
             if (dirents != null) {
                 if (mRefreshType == REFRESH_ON_PULL) {
-                    mPullRefreshListView.onRefreshComplete();
+                    mListView.onRefreshComplete();
                     mPullToRefreshStopRefreshing = 0;
                 }
 
@@ -326,13 +439,15 @@ public class ReposFragment extends SherlockListFragment {
             adapter.sortFiles(SettingsManager.instance().getSortFilesTypePref(),
                     SettingsManager.instance().getSortFilesOrderPref());
             adapter.notifyChanged();
-            mPullRefreshListView.setVisibility(View.VISIBLE);
+            mListView.setVisibility(View.VISIBLE);
             mEmptyView.setVisibility(View.GONE);
         } else {
-            mPullRefreshListView.setVisibility(View.GONE);
+            mListView.setVisibility(View.GONE);
             mEmptyView.setText(R.string.no_repo);
             mEmptyView.setVisibility(View.VISIBLE);
         }
+        // Collapses the currently open view
+        mListView.collapse();
     }
 
     private void updateAdapterWithDirents(final List<SeafDirent> dirents) {
@@ -349,14 +464,16 @@ public class ReposFragment extends SherlockListFragment {
             adapter.sortFiles(SettingsManager.instance().getSortFilesTypePref(),
                     SettingsManager.instance().getSortFilesOrderPref());
             adapter.notifyChanged();
-            mPullRefreshListView.setVisibility(View.VISIBLE);
+            mListView.setVisibility(View.VISIBLE);
             mEmptyView.setVisibility(View.GONE);
         } else {
             // Directory is empty
-            mPullRefreshListView.setVisibility(View.GONE);
+            mListView.setVisibility(View.GONE);
             mEmptyView.setText(R.string.dir_empty);
             mEmptyView.setVisibility(View.VISIBLE);
         }
+        // Collapses the currently open view
+        mListView.collapse();
     }
 
     @Override
@@ -502,7 +619,7 @@ public class ReposFragment extends SherlockListFragment {
                 showLoading(false);
             } else if (mRefreshType == REFRESH_ON_PULL) {
                 String lastUpdate = getDataManager().getLastPullToRefreshTime(DataManager.PULL_TO_REFRESH_LAST_TIME_FOR_REPOS_FRAGMENT);
-                mPullRefreshListView.onRefreshComplete(lastUpdate);
+                mListView.onRefreshComplete(lastUpdate);
                 getDataManager().saveLastPullToRefreshTime(System.currentTimeMillis(), DataManager.PULL_TO_REFRESH_LAST_TIME_FOR_REPOS_FRAGMENT);
                 mPullToRefreshStopRefreshing = 0;
             }
@@ -668,7 +785,7 @@ public class ReposFragment extends SherlockListFragment {
                 showLoading(false);
             } else if (mRefreshType == REFRESH_ON_PULL) {
                 String lastUpdate = getDataManager().getLastPullToRefreshTime(DataManager.PULL_TO_REFRESH_LAST_TIME_FOR_REPOS_FRAGMENT);
-                mPullRefreshListView.onRefreshComplete(lastUpdate);
+                mListView.onRefreshComplete(lastUpdate);
                 getDataManager().saveLastPullToRefreshTime(System.currentTimeMillis(), DataManager.PULL_TO_REFRESH_LAST_TIME_FOR_REPOS_FRAGMENT);
                 mPullToRefreshStopRefreshing = 0;
             }

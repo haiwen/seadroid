@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.ui.adapter;
 
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.data.SeafRepo;
@@ -37,27 +38,27 @@ public class SeafReposAdapter extends ReposAdapter {
 
     @Override
     protected int getChildLayout() {
-        return R.layout.list_item_entry;
+        return R.layout.repo_list_item;
     }
 
     @Override
     protected int getChildTitleId() {
-        return R.id.list_item_title;
+        return R.id.repo_list_item_title;
     }
 
     @Override
     protected int getChildSubTitleId() {
-        return R.id.list_item_subtitle;
+        return R.id.repo_list_item_subtitle;
     }
 
     @Override
     protected int getChildIconId() {
-        return R.id.list_item_icon;
+        return R.id.repo_list_item_icon;
     }
 
     @Override
     protected int getChildActionId() {
-        return R.id.list_item_action;
+        return R.id.repo_list_item_action;
     }
 
     @Override

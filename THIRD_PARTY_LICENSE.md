@@ -16,16 +16,16 @@ The third party software included and used by this project is:
    and included in the Seadroid APK.  
    See http://http://actionbarsherlock.com/
 
- * NewQuickAction, master branch  
-   Copyright (c) 2011 Lorensius W. L. T  
-   Licensed under Apache License, Version 2.0.  
-   The official repository is referenced as a external library in the  
-   Seadroid repository.  
-   A binary JAR file must be generated from this referenced project  
-   and included in the Seadroid APK.  
-   See http://www.londatiga.net/it/how-to-create-quickaction-dialog-in-android/  
+ * Android-SlideExpandableListView, master branch
+   Copyright (c) TjerkWolterink
+   Licensed under Apache License, Version 2.0.
+   The official repository is referenced as a external library in the
+   Seadroid repository.
+   A binary JAR file must be generated from this referenced project
+   and included in the Seadroid APK.
+   See https://github.com/tjerkw/Android-SlideExpandableListView
 
- * Android-ViewPagerIndicator, master branch  
+ * Android-ViewPagerIndicator, master branch
    Copyright (c) 2012 Jake Wharton  
    Copyright (c) 2011 Patrik Åkerfeldt  
    Copyright (c) 2011 Francisco Figueiredo Jr.  

@@ -27,7 +27,7 @@
             android:layout_height="match_parent">
 
         <!-- The PullToRefreshListView replaces a standard ListView widget. -->
-        <com.seafile.seadroid2.ui.PullToRefreshListView
+        <com.seafile.seadroid2.ui.CustomActionSlideExpandableListView
             android:id="@android:id/list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

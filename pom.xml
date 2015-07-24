@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.seafile.seadroid2</groupId>
   <artifactId>seadroid</artifactId>
-  <version>1.7.0</version>
+  <version>1.8.0</version>
   <packaging>apk</packaging>
   <name>seafile android client</name>
   <url>http://seafile.com</url>
@@ -49,12 +49,11 @@
       <type>apklib</type>
     </dependency>
     <dependency>
-      <groupId>com.github.lorensiuswlt</groupId>
-      <artifactId>NewQuickAction</artifactId>
-      <version>1.1</version>
-      <type>apklib</type>
+      <groupId>com.github.tjerkw</groupId>
+      <artifactId>Android-SlideExpandableListView</artifactId>
+      <version>1.0</version>
+      <type>aar</type>
     </dependency>
-    
     <dependency>
       <groupId>com.github.kevinsawicki</groupId>
       <artifactId>http-request</artifactId>

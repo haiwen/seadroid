@@ -10,7 +10,7 @@
 
     <!-- Content -->
     <dimen name="tv_txt_size">14sp</dimen>
-    <dimen name="lv_item_height">60dp</dimen>
+    <dimen name="lv_item_height">70dp</dimen>
     <dimen name="lv_item_padding">10dp</dimen>
     <dimen name="lv_icon_width">60dp</dimen>
     <dimen name="lv_space_width">14dp</dimen>
@@ -20,6 +20,12 @@
     <dimen name="lv_subtitle_txt_size">16sp</dimen>
     <dimen name="lv_subtitle_padding_left">12dp</dimen>
     <dimen name="lv_download_state_txt_size">14sp</dimen>
+
+    <!-- slide expandable listview -->
+    <dimen name="lv_expandable_item_padding">10dp</dimen>
+    <dimen name="lv_expandable_element_width">110dp</dimen>
+    <dimen name="lv_expandable_element_padding">5dp</dimen>
+    <dimen name="lv_expandable_txt_size">14sp</dimen>
 
     <dimen name="lv_act_icon_width">70dp</dimen> <!-- Account -->
     <dimen name="lv_act_icon_height">70dp</dimen>

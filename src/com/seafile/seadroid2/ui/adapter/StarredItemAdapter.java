@@ -1,33 +1,24 @@
 package com.seafile.seadroid2.ui.adapter;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
-import android.graphics.Bitmap;
-import com.google.common.collect.Lists;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
-import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
-import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.data.SeafItem;
-import com.seafile.seadroid2.data.SeafStarredFile;
-import com.seafile.seadroid2.ui.AnimateFirstDisplayListener;
-import com.seafile.seadroid2.ui.WidgetUtils;
-import com.seafile.seadroid2.ui.activity.BrowserActivity;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.google.common.collect.Lists;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.data.SeafItem;
+import com.seafile.seadroid2.data.SeafStarredFile;
+import com.seafile.seadroid2.ui.AnimateFirstDisplayListener;
+import com.seafile.seadroid2.ui.WidgetUtils;
+import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.util.Utils;
+
+import java.util.ArrayList;
 
 public class StarredItemAdapter extends BaseAdapter {
 
@@ -73,11 +64,11 @@ public class StarredItemAdapter extends BaseAdapter {
         Viewholder viewHolder;
 
         if (convertView == null) {
-            view = LayoutInflater.from(mActivity).inflate(R.layout.list_item_entry, null);
-            TextView title = (TextView) view.findViewById(R.id.list_item_title);
-            TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
-            ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
-            ImageView action = (ImageView) view.findViewById(R.id.list_item_action);
+            view = LayoutInflater.from(mActivity).inflate(R.layout.starred_list_item, null);
+            TextView title = (TextView) view.findViewById(R.id.starred_list_item_title);
+            TextView subtitle = (TextView) view.findViewById(R.id.starred_list_item_subtitle);
+            ImageView icon = (ImageView) view.findViewById(R.id.starred_list_item_icon);
+            ImageView action = (ImageView) view.findViewById(R.id.starred_list_item_action);
             viewHolder = new Viewholder(title, subtitle, icon, action);
             view.setTag(viewHolder);
         } else {
