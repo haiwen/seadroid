@@ -75,8 +75,7 @@ public class StarredItemAdapter extends BaseAdapter {
             viewHolder = (Viewholder) convertView.getTag();
         }
 
-        int iconID = item.getIcon();
-        viewHolder.icon.setImageResource(iconID);
+        viewHolder.icon.setImageResource(item.getIcon());
         viewHolder.title.setText(item.getTitle());
         viewHolder.subtitle.setText(item.getSubtitle());
 

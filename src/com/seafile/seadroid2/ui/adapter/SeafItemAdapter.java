@@ -240,7 +240,6 @@ public class SeafItemAdapter extends BaseAdapter {
             } else
                 viewHolder.action.setVisibility(View.VISIBLE);
             ImageLoader.getInstance().displayImage("drawable://" + dirent.getIcon(), viewHolder.icon, WidgetUtils.iconOptions);
-            viewHolder.action.setVisibility(View.VISIBLE);
         } else {
             viewHolder.downloadStatusIcon.setVisibility(View.GONE);
 
