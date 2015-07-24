@@ -94,6 +94,13 @@
       <version>1.2.2</version>
     </dependency>
 
+   <dependency>
+       <groupId>com.github.astuetz</groupId>
+       <artifactId>pagerslidingtabstrip</artifactId>
+       <version>1.0</version>
+       <type>aar</type>
+   </dependency>
+
     <!-- test dependencies  -->
     <dependency>
       <groupId>junit</groupId>
