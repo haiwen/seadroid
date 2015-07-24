@@ -1,43 +1,10 @@
 package com.seafile.seadroid2.util;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.Reader;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
 import android.content.ContentResolver;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.os.Build;
-import android.provider.DocumentsContract;
-import android.provider.OpenableColumns;
-import android.text.TextUtils;
-import android.text.format.DateFormat;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -45,15 +12,32 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.DetailedState;
 import android.net.Uri;
+import android.os.Build;
+import android.provider.OpenableColumns;
+import android.text.TextUtils;
+import android.text.format.DateFormat;
 import android.util.Log;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.fileschooser.SelectableFile;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class Utils {
     public static final String MIME_APPLICATION_OCTET_STREAM = "application/octet-stream";
@@ -518,13 +502,11 @@ public class Utils {
             // Note it's called "Display Name".  This is
             // provider-specific, and might not necessarily be the file name.
             displayName = cursor.getString(
-                cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-
+                    cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
             cursor.close();
-        }
-        else if ("file".equalsIgnoreCase(uri.getScheme())) {
+        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
             displayName = uri.getPath().replaceAll(".*/", "");
-        }
+        } else displayName = "unknown filename";
         return displayName;
     }
 
