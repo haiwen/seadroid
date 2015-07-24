@@ -51,6 +51,11 @@ public class ReposFragment extends SherlockListFragment {
     private SeafItemAdapter adapter;
     private BrowserActivity mActivity = null;
 
+    public static final int FILE_ACTION_EXPORT = 0;
+    public static final int FILE_ACTION_COPY = 1;
+    public static final int FILE_ACTION_MOVE = 2;
+    public static final int FILE_ACTION_STAR = 3;
+
     private CustomActionSlideExpandableListView mListView;
     private TextView mEmptyView;
     private View mProgressContainer;
@@ -120,57 +125,11 @@ public class ReposFragment extends SherlockListFragment {
                         R.id.expandable)
         );
 
-        // listen for click events for each list item.
-        // the 'position' param will tell which list item is clicked
-        mListView.setItemActionListener(new CustomActionSlideExpandableListView.OnActionClickListener() {
-                                                       @Override
-                                                       public void onClick(View itemView, View buttonview, int position) {
-                                                           SeafDirent dirent = (SeafDirent) adapter.getItem(position);
-                                                           NavContext nav = mActivity.getNavContext();
-                                                           String repoName = nav.getRepoName();
-                                                           String repoID = nav.getRepoID();
-                                                           String dir = nav.getDirPath();
-                                                           String path = Utils.pathJoin(dir, dirent.name);
-                                                           String filename = dirent.name;
-                                                           DataManager dataManager = mActivity.getDataManager();
-                                                           String localPath = dataManager.getLocalRepoFile(repoName, repoID, path).getPath();
-
-                                                           switch (buttonview.getId()) {
-                                                               case R.id.action_share_ll:
-                                                                   mListView.collapse();
-                                                                   mActivity.shareFile(repoID, path);
-                                                                   break;
-                                                               case R.id.action_delete_ll:
-                                                                   mListView.collapse();
-                                                                   mActivity.deleteFile(repoID, repoName, path);
-                                                                   break;
-                                                               case R.id.action_copy_ll:
-                                                                   mListView.collapse();
-                                                                   mActivity.copyFile(repoID, repoName, dir, filename, false);
-                                                                   break;
-                                                               case R.id.action_move_ll:
-                                                                   mListView.collapse();
-                                                                   mActivity.moveFile(repoID, repoName, dir, filename, false);
-                                                                   break;
-                                                               case R.id.action_rename_ll:
-                                                                   mListView.collapse();
-                                                                   mActivity.renameFile(repoID, repoName, path);
-                                                                   break;
-                                                               case R.id.action_update_ll:
-                                                                   mListView.collapse();
-                                                                   mActivity.addUpdateTask(repoID, repoName, dir, localPath);
-                                                                   break;
-                                                               case R.id.action_download_ll:
-                                                                   mListView.collapse();
-                                                                   mActivity.onFileSelected(dirent);
-                                                                   break;
-                                                               case R.id.action_more_ll:
-                                                                   mListView.collapse();
-                                                                   processMoreOptions(repoID, repoName, dir, filename, dirent, localPath);
-                                                                   break;
-                                                           }
-                                                       }
-                                                   },
+        // A more specific expandable listview in which the expandable area consist of some buttons
+        // which are context actions for the item itself.
+        // It handles event binding for those buttons
+        // and allow for adding a listener that will be invoked if one of those buttons are pressed.
+        mListView.setItemActionListener(new SlideExpandableClickListener(),
                 R.id.action_share_ll,
                 R.id.action_delete_ll,
                 R.id.action_copy_ll,
@@ -181,10 +140,64 @@ public class ReposFragment extends SherlockListFragment {
                 R.id.action_more_ll);
     }
 
-    public static final int FILE_ACTION_EXPORT = 0;
-    public static final int FILE_ACTION_COPY = 1;
-    public static final int FILE_ACTION_MOVE = 2;
-    public static final int FILE_ACTION_STAR = 3;
+    /**
+     * Implementation for callback to be invoked whenever an action is clicked in
+     * the expandle area of the list item.
+     */
+    private class SlideExpandableClickListener implements CustomActionSlideExpandableListView.OnActionClickListener {
+
+        @Override
+        public void onClick(View itemView, View buttonview, int position) {
+            // listen for click events for each list item.
+            // the 'position' param will tell which list item is clicked
+            SeafDirent dirent = (SeafDirent) adapter.getItem(position);
+            NavContext nav = mActivity.getNavContext();
+            String repoName = nav.getRepoName();
+            String repoID = nav.getRepoID();
+            String dir = nav.getDirPath();
+            String path = Utils.pathJoin(dir, dirent.name);
+            String filename = dirent.name;
+            DataManager dataManager = mActivity.getDataManager();
+            String localPath = dataManager.getLocalRepoFile(repoName, repoID, path).getPath();
+
+            switch (buttonview.getId()) {
+                case R.id.action_share_ll:
+                    mListView.collapse();
+                    mActivity.shareFile(repoID, path);
+                    break;
+                case R.id.action_delete_ll:
+                    mListView.collapse();
+                    mActivity.deleteFile(repoID, repoName, path);
+                    break;
+                case R.id.action_copy_ll:
+                    mListView.collapse();
+                    mActivity.copyFile(repoID, repoName, dir, filename, false);
+                    break;
+                case R.id.action_move_ll:
+                    mListView.collapse();
+                    mActivity.moveFile(repoID, repoName, dir, filename, false);
+                    break;
+                case R.id.action_rename_ll:
+                    mListView.collapse();
+                    mActivity.renameFile(repoID, repoName, path);
+                    break;
+                case R.id.action_update_ll:
+                    mListView.collapse();
+                    mActivity.addUpdateTask(repoID, repoName, dir, localPath);
+                    break;
+                case R.id.action_download_ll:
+                    mListView.collapse();
+                    mActivity.onFileSelected(dirent);
+                    break;
+                case R.id.action_more_ll:
+                    mListView.collapse();
+                    processMoreOptions(repoID, repoName, dir, filename, dirent, localPath);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
 
     private AlertDialog processMoreOptions(final String repoID,
                                            final String repoName,
@@ -199,7 +212,6 @@ public class ReposFragment extends SherlockListFragment {
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        Intent intent;
                                         switch (which) {
                                             case FILE_ACTION_EXPORT:
                                                 mActivity.exportFile(dirent.name);
