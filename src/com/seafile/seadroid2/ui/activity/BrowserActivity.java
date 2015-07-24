@@ -17,7 +17,6 @@ import android.support.v4.app.*;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
-import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -29,6 +28,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
+import com.astuetz.PagerSlidingTabStrip;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.*;
 import com.seafile.seadroid2.account.Account;
@@ -37,7 +37,6 @@ import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
 import com.seafile.seadroid2.data.*;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
-import com.seafile.seadroid2.gallery.Util;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.notification.UploadNotificationProvider;
@@ -56,7 +55,6 @@ import com.seafile.seadroid2.ui.fragment.StarredFragment;
 import com.seafile.seadroid2.util.Utils;
 import com.seafile.seadroid2.util.UtilsJellyBean;
 import com.viewpagerindicator.IconPagerAdapter;
-import com.viewpagerindicator.TabPageIndicator;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 
@@ -90,7 +88,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     private int currentPosition = 0;
     private SeafileTabsAdapter adapter;
     private ViewPager pager;
-    private TabPageIndicator indicator;
+    private PagerSlidingTabStrip tabStrip;
 
     private Account account;
     NavContext navContext = new NavContext();
@@ -195,14 +193,13 @@ public class BrowserActivity extends SherlockFragmentActivity
         unsetRefreshing();
         disableUpButton();
 
-        adapter = new SeafileTabsAdapter(getSupportFragmentManager());
-
+        tabStrip = (PagerSlidingTabStrip) findViewById(R.id.tab_strip);
         pager = (ViewPager) findViewById(R.id.pager);
+        adapter = new SeafileTabsAdapter(getSupportFragmentManager());
         pager.setAdapter(adapter);
+        tabStrip.setViewPager(pager);
 
-        indicator = (TabPageIndicator)findViewById(R.id.indicator);
-        indicator.setViewPager(pager);
-        indicator.setOnPageChangeListener(new OnPageChangeListener() {
+        tabStrip.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageSelected(final int position) {
                 currentPosition = position;
@@ -294,7 +291,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         if(!checkServerProEdition()) {
             // hide Activity tab
             adapter.hideActivityTab();
-            indicator.notifyDataSetChanged();
+            tabStrip.notifyDataSetChanged();
             adapter.notifyDataSetChanged();
         }
 
@@ -336,7 +333,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             if (serverInfo.proEdition()) {
                 // show Activity tab
                 adapter.unHideActivityTab();
-                indicator.notifyDataSetChanged();
+                tabStrip.notifyDataSetChanged();
                 adapter.notifyDataSetChanged();
             }
 
@@ -507,7 +504,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     public void setCurrentPosition(int currentPosition) {
         this.currentPosition = currentPosition;
-        indicator.setCurrentItem(currentPosition);
+        //tabStrip.setCurrentItem(currentPosition);
     }
 
     public Fragment getFragment(int index) {

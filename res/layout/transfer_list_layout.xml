@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:PagerSlidingTabStrip="http://schemas.android.com/apk/res-auto"
               android:orientation="vertical"
               android:layout_width="wrap_content"
               android:layout_height="match_parent">
-    <com.viewpagerindicator.TabPageIndicator
-            android:id="@+id/transfer_list_indicator"
-            android:layout_height="wrap_content"
+    <com.astuetz.PagerSlidingTabStrip
+            android:id="@+id/transfer_tabs_strip"
+            android:layout_height="48dp"
             android:layout_width="match_parent"
+            android:textSize="@dimen/lv_title_txt_size"
+            android:textColor="@color/tv_subtitle_color"
+            PagerSlidingTabStrip:pstsIndicatorHeight="2dp"
+            PagerSlidingTabStrip:pstsIndicatorColor="@color/theme_color"
+            PagerSlidingTabStrip:pstsShouldExpand="true"
             />
     <android.support.v4.view.ViewPager
             android:id="@+id/transfer_list_pager"

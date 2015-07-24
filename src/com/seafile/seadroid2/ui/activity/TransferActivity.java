@@ -9,20 +9,19 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.widget.ImageView;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.astuetz.PagerSlidingTabStrip;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.notification.BaseNotificationProvider;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.ui.adapter.TransferTaskAdapter;
 import com.seafile.seadroid2.ui.fragment.DownloadTaskFragment;
 import com.seafile.seadroid2.ui.fragment.UploadTaskFragment;
-import com.viewpagerindicator.TabPageIndicator;
 
 public class TransferActivity extends SherlockFragmentActivity {
     private static final String DEBUG_TAG = "TransferActivity";
@@ -30,7 +29,7 @@ public class TransferActivity extends SherlockFragmentActivity {
     private TransferTaskAdapter.TaskType whichTab = TransferTaskAdapter.TaskType.DOWNLOAD_TASK;
     private TransferTabsAdapter tabsAdapter;
     private ViewPager pager;
-    private TabPageIndicator indicator;
+    private PagerSlidingTabStrip tabStrip;
 
     private Menu overFlowMenu = null;
 
@@ -43,10 +42,10 @@ public class TransferActivity extends SherlockFragmentActivity {
                 String msg = extras.getString(BaseNotificationProvider.NOTIFICATION_MESSAGE_KEY);
                 if (msg.equals(DownloadNotificationProvider.NOTIFICATION_OPEN_DOWNLOAD_TAB)) {
                     whichTab = TransferTaskAdapter.TaskType.DOWNLOAD_TASK;
-                    indicator.setCurrentItem(0);
+                    pager.setCurrentItem(0);
                 } else if (msg.equals(BaseNotificationProvider.NOTIFICATION_OPEN_UPLOAD_TAB)) {
                     whichTab = TransferTaskAdapter.TaskType.UPLOAD_TASK;
-                    indicator.setCurrentItem(1);
+                    pager.setCurrentItem(1);
                 }
             }
         }
@@ -62,9 +61,9 @@ public class TransferActivity extends SherlockFragmentActivity {
         pager = (ViewPager) findViewById(R.id.transfer_list_pager);
         pager.setAdapter(tabsAdapter);
 
-        indicator = (TabPageIndicator) findViewById(R.id.transfer_list_indicator);
-        indicator.setViewPager(pager);
-        indicator.setOnPageChangeListener(new OnPageChangeListener() {
+        tabStrip = (PagerSlidingTabStrip) findViewById(R.id.transfer_tabs_strip);
+        tabStrip.setViewPager(pager);
+        tabStrip.setOnPageChangeListener(new OnPageChangeListener() {
             @Override
             public void onPageSelected(final int position) {
                 Log.d(DEBUG_TAG, "current tab index " + position);
@@ -79,7 +78,7 @@ public class TransferActivity extends SherlockFragmentActivity {
                     // so hide the CAB of UploadTaskFragment
                     mode = getUploadTaskFragment().getActionMode();
                     getUploadTaskFragment().deselectItems();
-                } else if(whichTab == TransferTaskAdapter.TaskType.UPLOAD_TASK
+                } else if (whichTab == TransferTaskAdapter.TaskType.UPLOAD_TASK
                         && getDownloadTaskFragment() != null) {
                     // slide from Download tab to Upload tab,
                     // so hide the CAB of DownloadTaskFragment
