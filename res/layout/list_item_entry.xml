@@ -104,7 +104,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:background="@drawable/spinner_selector_holo_dark">
+                        android:background="@drawable/btn_bg_selector_holo_dark">
 
                         <LinearLayout
                                 android:layout_width="@dimen/lv_expandable_element_width"
@@ -145,7 +145,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:background="@drawable/spinner_selector_holo_dark">
+                        android:background="@drawable/btn_bg_selector_holo_dark">
                         <LinearLayout
                                 android:layout_width="@dimen/lv_expandable_element_width"
                                 android:layout_height="@dimen/lv_expandable_element_height"
@@ -185,7 +185,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:background="@drawable/spinner_selector_holo_dark">
+                        android:background="@drawable/btn_bg_selector_holo_dark">
                         <LinearLayout
                                 android:layout_width="@dimen/lv_expandable_element_width"
                                 android:layout_height="@dimen/lv_expandable_element_height"
@@ -225,7 +225,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:background="@drawable/spinner_selector_holo_dark">
+                        android:background="@drawable/btn_bg_selector_holo_dark">
 
                         <LinearLayout
                                 android:layout_width="@dimen/lv_expandable_element_width"
@@ -266,7 +266,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:background="@drawable/spinner_selector_holo_dark">
+                        android:background="@drawable/btn_bg_selector_holo_dark">
 
                         <LinearLayout
                                 android:layout_width="@dimen/lv_expandable_element_width"
@@ -307,7 +307,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:background="@drawable/spinner_selector_holo_dark">
+                        android:background="@drawable/btn_bg_selector_holo_dark">
 
                         <LinearLayout
                                 android:layout_width="@dimen/lv_expandable_element_width"
@@ -336,7 +336,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:background="@drawable/spinner_selector_holo_dark">
+                        android:background="@drawable/btn_bg_selector_holo_dark">
 
                         <LinearLayout
                                 android:layout_width="@dimen/lv_expandable_element_width"
@@ -375,7 +375,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:background="@drawable/spinner_selector_holo_dark">
+                        android:background="@drawable/btn_bg_selector_holo_dark">
 
                         <LinearLayout
                                 android:layout_width="@dimen/lv_expandable_element_width"
