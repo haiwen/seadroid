@@ -22,6 +22,8 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
@@ -89,6 +91,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     private SeafileTabsAdapter adapter;
     private ViewPager pager;
     private PagerSlidingTabStrip tabStrip;
+    private LinearLayout mTabsLinearLayout;
 
     private Account account;
     NavContext navContext = new NavContext();
@@ -199,7 +202,19 @@ public class BrowserActivity extends SherlockFragmentActivity
         pager.setAdapter(adapter);
         tabStrip.setViewPager(pager);
 
+        mTabsLinearLayout = ((LinearLayout) tabStrip.getChildAt(0));
+        for (int i = 0; i < mTabsLinearLayout.getChildCount(); i++) {
+            TextView tv = (TextView) mTabsLinearLayout.getChildAt(i);
+
+            if (i == currentPosition) {
+                tv.setTextColor(getResources().getColor(R.color.theme_color));
+            } else {
+                tv.setTextColor(getResources().getColor(R.color.tv_subtitle_color));
+            }
+        }
+
         tabStrip.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+
             @Override
             public void onPageSelected(final int position) {
                 currentPosition = position;
@@ -208,6 +223,15 @@ public class BrowserActivity extends SherlockFragmentActivity
                     disableUpButton();
                 } else if (navContext.inRepo()) {
                     enableUpButton();
+                }
+
+                for(int i=0; i < mTabsLinearLayout.getChildCount(); i++){
+                    TextView tv = (TextView) mTabsLinearLayout.getChildAt(i);
+                    if(i == position){
+                        tv.setTextColor(getResources().getColor(R.color.theme_color));
+                    } else {
+                        tv.setTextColor(getResources().getColor(R.color.tv_subtitle_color));
+                    }
                 }
             }
 
@@ -333,7 +357,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             if (serverInfo.proEdition()) {
                 // show Activity tab
                 adapter.unHideActivityTab();
-                tabStrip.notifyDataSetChanged();
+                // tabStrip.notifyDataSetChanged();
                 adapter.notifyDataSetChanged();
             }
 
