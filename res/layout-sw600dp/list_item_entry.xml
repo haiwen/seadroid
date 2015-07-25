@@ -87,7 +87,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_alignParentRight="true"
                                 android:layout_alignParentBottom="true"
-                                android:src="@drawable/spinner_default_holo_light"
+                                android:src="@drawable/spinner_disabled_holo_light"
                                 />
                 </RelativeLayout>
 
