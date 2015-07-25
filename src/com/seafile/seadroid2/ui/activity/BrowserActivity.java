@@ -357,8 +357,18 @@ public class BrowserActivity extends SherlockFragmentActivity
             if (serverInfo.proEdition()) {
                 // show Activity tab
                 adapter.unHideActivityTab();
-                // tabStrip.notifyDataSetChanged();
                 adapter.notifyDataSetChanged();
+                tabStrip.notifyDataSetChanged();
+                // highlight font color of the active tab
+                for (int i = 0; i < mTabsLinearLayout.getChildCount(); i++) {
+                    TextView tv = (TextView) mTabsLinearLayout.getChildAt(i);
+
+                    if (i == currentPosition) {
+                        tv.setTextColor(getResources().getColor(R.color.theme_color));
+                    } else {
+                        tv.setTextColor(getResources().getColor(R.color.tv_subtitle_color));
+                    }
+                }
             }
 
             if (serverInfo.searchEnabled()) {
