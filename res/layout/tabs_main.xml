@@ -30,6 +30,7 @@
         PagerSlidingTabStrip:pstsIndicatorHeight="2dp"
         PagerSlidingTabStrip:pstsIndicatorColor="@color/theme_color"
         PagerSlidingTabStrip:pstsShouldExpand="true"
+        PagerSlidingTabStrip:pstsDividerColor="@color/transparent"
         />
     <android.support.v4.view.ViewPager
         android:id="@+id/pager"
