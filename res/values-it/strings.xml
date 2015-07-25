@@ -46,7 +46,6 @@
   <string name="task_remove">Rimuovi</string>
   <string name="file_action_download">Scarica</string>
   <string name="file_action_update">Carica</string>
-  <string name="file_action_share">Condividi</string>
   <string name="file_action_export">Esporta</string>
   <string name="file_action_delete">Cancella</string>
   <string name="file_action_rename">Rinomina</string>

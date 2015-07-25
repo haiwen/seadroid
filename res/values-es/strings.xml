@@ -65,7 +65,6 @@
   <string name="file_action_star">Favorito</string>
   <string name="file_action_download">Descargar</string>
   <string name="file_action_update">Subir</string>
-  <string name="file_action_share">Compartir</string>
   <string name="file_action_export">Exportar</string>
   <string name="file_action_delete">Eliminar</string>
   <string name="file_action_rename">Renombrar</string>

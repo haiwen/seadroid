@@ -65,13 +65,21 @@
   <string name="file_action_star">星标</string>
   <string name="file_action_download">下载</string>
   <string name="file_action_update">上传</string>
-  <string name="file_action_share">分享</string>
+  <string name="file_action_share">分享链接</string>
   <string name="file_action_export">导出</string>
   <string name="file_action_delete">删除</string>
   <string name="file_action_rename">重命名</string>
   <string name="file_action_copy">复制</string>
   <string name="file_action_move">移动</string>
   <string name="file_action_open_as">打开为</string>
+  <string name="file_action_more">更多</string>
+  <string name="file_action_more_title">选择你喜欢的选项</string>
+  <string-array name="file_action_more_array">
+    <item>导出</item>
+    <item>复制</item>
+    <item>移动</item>
+    <item>星标</item>
+  </string-array>
   <string-array name="file_type_array">
     <item>文本</item>
     <item>音频</item>

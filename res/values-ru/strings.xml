@@ -35,6 +35,12 @@
     <item>Другое</item>
   </string-array>
   <string name="choose_server">Выберите сервер Seafile</string>
+  <string-array name="choose_server_array">
+    <item>SeaCloud.cc</item>
+    <item>Cloud.seafile.de</item>
+    <item>Shibboleth</item>
+    <item>Другой Seafile сервер</item>
+  </string-array>
   <string name="network_down">Нет соединения с сетью</string>
   <string name="unknow_error">Неизвестная ошибка</string>
   <string name="invalid_server_address">Неправильный адрес сервера</string>
@@ -59,13 +65,21 @@
   <string name="file_action_star">Пометить</string>
   <string name="file_action_download">Скачать</string>
   <string name="file_action_update">Загрузить</string>
-  <string name="file_action_share">Поделиться</string>
+  <string name="file_action_share">Общедоступная ссылка</string>
   <string name="file_action_export">Экспорт</string>
   <string name="file_action_delete">Удалить</string>
   <string name="file_action_rename">Переименовать</string>
   <string name="file_action_copy">Копировать</string>
   <string name="file_action_move">Переместить</string>
   <string name="file_action_open_as">Открыть как</string>
+  <string name="file_action_more">Больше</string>
+  <string name="file_action_more_title">Выберите нужный вариант</string>
+  <string-array name="file_action_more_array">
+    <item>Экспорт</item>
+    <item>Копировать</item>
+    <item>Переместить</item>
+    <item>Отметить</item>
+  </string-array>
   <string-array name="file_type_array">
     <item>Текст</item>
     <item>Аудио</item>
@@ -145,7 +159,7 @@
   <string name="tabs_starred">Помеченные</string>
   <string name="provide_password">Задать пароль для библиотеки "%s"</string>
   <string name="upload_waiting">Ожидание загрузки</string>
-  <string name="upload_finished">Загрузка закончена</string>
+  <string name="upload_finished">Загрузка завершена</string>
   <string name="upload_cancelled">Загрузка отменена</string>
   <string name="upload_failed">Загрузка не удалась</string>
   <string name="days_ago">%d дней назад</string>
@@ -271,6 +285,7 @@
   <string name="settings_cuc_network_title">Как загружать</string>
   <string name="settings_cuc_network_wifi">Только Wi-Fi</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi или мобильные данные</string>
+  <string name="settings_cuc_option_hint">Выберите нужный вариант. \nВы можете изменить эти параметры позже в меню Настройки.</string>
   <string name="settings_cuc_type_title">Что загружать</string>
   <string name="settings_cuc_type_photo">Только фото</string>
   <string name="settings_cuc_type_video">Фото и видео</string>
@@ -287,6 +302,7 @@
   <string name="settings_cuc_upload_to_parent_folder">К родительской папке</string>
   <string name="settings_cuc_auto_scan">Получить все фото на устройстве</string>
   <string name="settings_cuc_pick_dir">Позволить мне выбрать папки с фото</string>
+  <string name="settings_cuc_remote_lib_hint">Выберите нужный аккаунт и библиотеку. \nВы можете изменить эти параметры позже в меню Настройки.</string>
   <string name="settings_cuc_finish_title">Завершить</string>
   <string name="settings_cuc_ready">Теперь Seafile будет загружать файлы из выбранных вами папок. \nВо время этого вы можете закрыть приложение.</string>
   <string name="settings_cuc_swipe_left">Проведите влево, чтобы продолжить.</string>
@@ -345,6 +361,13 @@ Email: support@seafile.com<br>
   <string name="shib_loading">загрузка...</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">Ошибка подключения к сети, пожалуйста, повторите позже!</string>
+  <string name="transfer_list_cancel_all">Отменить все задания</string>
+  <string name="transfer_list_restart_all">Перезапустить</string>
+  <string name="transfer_list_retry_failed_tasks">Повтор неудачных задач</string>
+  <string name="transfer_list_restart_cancelled_tasks">Перезапустить отмененные задания</string>
+  <string name="transfer_list_clear_failed_tasks">Удалить неудачные задания</string>
+  <string name="transfer_list_clear_cancelled_tasks">Удалить отмененные задания</string>
+  <string name="transfer_list_clear_finished_tasks">Удалить завершенные задания</string>
   <string name="transfer_tabs_downloads">Список загрузок</string>
   <string name="transfer_tabs_uploads">Список закачек</string>
   <string name="transfer_download_no_task">Все файлы были скачены</string>
@@ -354,7 +377,23 @@ Email: support@seafile.com<br>
     <item quantity="many">Скачивание <xliff:g id="download_file">%1$d</xliff:g> файлов</item>
     <item quantity="other">Скачивание <xliff:g id="download_file">%1$d</xliff:g> файлов</item>
   </plurals>
+  <string name="transfer_list_select_all">Выбрать все</string>
+  <string name="transfer_list_deselect_all">Отменить выбор</string>
+  <plurals name="transfer_list_items_selected">
+    <item quantity="one">%d выбранный элемент</item>
+    <item quantity="few">%d выбранных элементов</item>
+    <item quantity="many">%d выбранных элементов</item>
+    <item quantity="other">%d выбранных элементов</item>
+  </plurals>
   <!--Sort-->
+  <string name="sort_menu_item">Сортировка</string>
+  <string name="sort_files">Сортировка по</string>
+  <string-array name="sort_files_options_array">
+    <item>Имя</item>
+    <item>Имя (Описание)</item>
+    <item>Время последнего изменения</item>
+    <item>Время последнего изменения (Описание)</item>
+  </string-array>
   <!--Search-->
   <string name="search_menu_item">Поиск</string>
   <string name="search_bar_hint">Поиск...</string>
@@ -386,4 +425,7 @@ Email: support@seafile.com<br>
   <string name="gallery_load_photos_error">Ошибка загрузки фотографий</string>
   <string name="gallery_encrypted_repo_not_supported">Зашифрованная библиотека не поддерживается</string>
   <!--Overwrite existing files-->
+  <string name="overwrite_existing_file_title">Заменить существующий файл</string>
+  <string name="overwrite_existing_file_msg">Файл уже существует, вы действительно хотите заменить его?</string>
+  <string name="overwrite_existing_file_exist">Файл уже сущетсвует</string>
 </resources>

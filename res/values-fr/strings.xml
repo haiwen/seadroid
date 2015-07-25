@@ -38,7 +38,7 @@
   <string-array name="choose_server_array">
     <item>SeaCloud.cc</item>
     <item>Cloud.seafile.de</item>
-    <item>conexion Shibboleth</item>
+    <item>Connexion Shibboleth</item>
     <item>Autre serveur Seafile</item>
   </string-array>
   <string name="network_down">Absence de connexion réseau</string>
@@ -65,7 +65,6 @@
   <string name="file_action_star">Favori</string>
   <string name="file_action_download">Télécharger</string>
   <string name="file_action_update">Transfert</string>
-  <string name="file_action_share">Partager</string>
   <string name="file_action_export">Exporter</string>
   <string name="file_action_delete">Effacer</string>
   <string name="file_action_rename">Renommer</string>
@@ -170,7 +169,7 @@
   <string name="choose_file">Choisir un fichier</string>
   <string name="ssl_error">Échec de la vérification de sécurité</string>
   <string name="ssl_confirm">La certificat de %s n\'est pas vérifié. Voulez-vous continuer?</string>
-  <string name="ssl_confirm_cert_changed">%s utilise un certificat invalide. La connexion n\'est pas sécurisée. Voulez-vous continuer?</string>
+  <string name="ssl_confirm_cert_changed">%s utilise un certificat non valide. La connexion n\'est pas sécurisée. Voulez-vous continuer?</string>
   <string name="ssl_confirm_title">Connexion non sécurisée</string>
   <string name="issued_to">Publié à</string>
   <string name="finger_prints">Empreintes</string>
@@ -286,7 +285,7 @@
   <string name="settings_cuc_pick_dir">Permettez moi de prendre mes dossiers de photos</string>
   <string name="settings_cuc_remote_lib_hint">Choisissez votre compte et votre bibliothèque préférés. Vous pourrez changer ces options dans Paramètres.</string>
   <string name="settings_cuc_finish_title">Terminer</string>
-  <string name="settings_cuc_ready">Seafile envoie maintenant  les fichiers depuis vos dossiers sélectionnés. \n Vous pouvez fermer l\'application pendant cette opération.</string>
+  <string name="settings_cuc_ready">Seafile envoie maintenant les fichiers depuis vos dossiers sélectionnés. \n Vous pouvez fermer l\'application pendant cette opération.</string>
   <string name="settings_cuc_swipe_left">Glisser vers la gauche pour continuer</string>
   <string name="settings_cuc_click_btn">Cliquez pour fermer l\'aide à la configuration.</string>
   <string name="settings_cuc_loading">Chargement...</string>

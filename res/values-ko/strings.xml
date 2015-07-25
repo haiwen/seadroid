@@ -35,6 +35,12 @@
     <item>기타</item>
   </string-array>
   <string name="choose_server">Seafile 서버를 선택하세요</string>
+  <string-array name="choose_server_array">
+    <item>SeaCloud.cc</item>
+    <item>cloud.seafile.de</item>
+    <item>shibboleth 로그인</item>
+    <item>다른 Seafile 서버</item>
+  </string-array>
   <string name="network_down">네트워크 연결 상태가 아닙니다</string>
   <string name="unknow_error">알 수 없는 오류</string>
   <string name="invalid_server_address">잘못된 서버 주소입니다</string>
@@ -59,7 +65,6 @@
   <string name="file_action_star">별 표시</string>
   <string name="file_action_download">다운로드</string>
   <string name="file_action_update">업로드</string>
-  <string name="file_action_share">공유</string>
   <string name="file_action_export">내보내기</string>
   <string name="file_action_delete">삭제</string>
   <string name="file_action_rename">이름 바꾸기</string>
@@ -259,6 +264,7 @@
   <string name="settings_cuc_network_title">업로드 방법</string>
   <string name="settings_cuc_network_wifi">무선랜 만</string>
   <string name="settings_cuc_network_data_plan">무선랜 또는 데이터 서비스</string>
+  <string name="settings_cuc_option_hint">원하는 옵션을 선택하세요.\n 나중에 설정 메뉴에서 이 옵션을 바꿀 수 있습니다.</string>
   <string name="settings_cuc_type_title">업로드 항목</string>
   <string name="settings_cuc_type_photo">사진만</string>
   <string name="settings_cuc_type_video">사진, 동영상</string>
@@ -272,6 +278,7 @@
   <string name="settings_cuc_upload_to_parent_folder">상위 폴더로 이동</string>
   <string name="settings_cuc_auto_scan">장치의 모든 사진 가져오기</string>
   <string name="settings_cuc_pick_dir">내 사진 폴더에서 고르겠습니다</string>
+  <string name="settings_cuc_remote_lib_hint">원하는 계정과 라이브러리를 선택하세요.\n나중에 설정 메뉴에서 이 옵션을 바꿀 수 있습니다.</string>
   <string name="settings_cuc_finish_title">마침</string>
   <string name="settings_cuc_ready">Seafile은 이제 선택한 폴더에서 파일을 업로드합니다. \n이 과정이 진행되는 동안 앱을 닫으셔도 좋습니다.</string>
   <string name="settings_cuc_swipe_left">계속하려면 왼쪽으로 미세요.</string>
@@ -332,6 +339,7 @@
   <!--Transfer List-->
   <string name="transfer_list_network_error">네트워크 연결에 문제가 있으니, 나중에 다시 해보세요!</string>
   <string name="transfer_list_cancel_all">모든 작업 취소</string>
+  <string name="transfer_list_restart_all">다시 시작</string>
   <string name="transfer_list_retry_failed_tasks">실패한 작업 다시 시도</string>
   <string name="transfer_list_restart_cancelled_tasks">취소한 작업 다시 시작</string>
   <string name="transfer_list_clear_failed_tasks">실패한 작업 지우기</string>

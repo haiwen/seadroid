@@ -48,7 +48,6 @@
   <string name="task_remove">Kaldır</string>
   <string name="file_action_download">İndir</string>
   <string name="file_action_update">Yükle</string>
-  <string name="file_action_share">Paylaş</string>
   <string name="file_action_export">Dışa aktar</string>
   <string name="file_action_delete">Sil</string>
   <string name="file_action_rename">Yeniden adlandır</string>
