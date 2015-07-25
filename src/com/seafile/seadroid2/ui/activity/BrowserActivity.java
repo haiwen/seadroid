@@ -504,7 +504,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     public void setCurrentPosition(int currentPosition) {
         this.currentPosition = currentPosition;
-        //tabStrip.setCurrentItem(currentPosition);
+        pager.setCurrentItem(currentPosition);
     }
 
     public Fragment getFragment(int index) {
