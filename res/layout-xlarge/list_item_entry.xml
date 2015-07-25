@@ -81,7 +81,7 @@
                         android:layout_alignParentEnd="true"
                         android:layout_alignParentRight="true"
                         android:visibility="gone"
-                        android:background="@drawable/spinner_selector_holo_light">
+                        android:background="@drawable/toggle_btn_selector_holo_light">
 
                         <ImageView
                                 android:layout_width="wrap_content"
