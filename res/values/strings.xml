@@ -24,6 +24,7 @@
     <string name="refresh">Refresh</string>
     <string name="add_account">Add Account</string>
     <string name="personal">Personal</string>
+    <string name="shared">Shared</string>
     <string name="libraries">Libraries</string>
     <string name="cached">Cached</string>
     <string name="activities">Activities</string>
