@@ -4,7 +4,7 @@
               android:layout_height="fill_parent"
               android:orientation="vertical" >
         <RelativeLayout android:layout_width="fill_parent"
-                        android:paddingRight="@dimen/lv_item_padding"
+                        android:paddingRight="@dimen/lv_item_inset"
                         android:layout_height="@dimen/lv_item_height">
 
                 <ImageView
