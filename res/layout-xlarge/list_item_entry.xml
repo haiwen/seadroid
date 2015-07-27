@@ -89,6 +89,7 @@
                                 android:layout_height="20dp"
                                 android:layout_alignParentRight="true"
                                 android:layout_alignParentBottom="true"
+                                android:layout_marginBottom="@dimen/lv_item_padding"
                                 android:src="@drawable/spinner_disabled_holo_light"
                                 />
                 </RelativeLayout>
