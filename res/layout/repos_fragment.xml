@@ -33,6 +33,7 @@
             android:layout_height="match_parent"
             android:cacheColorHint="#00000000"
             android:fadingEdge="none"
+            android:divider="@drawable/lv_divider_inset"
             android:fastScrollEnabled="false"
             android:footerDividersEnabled="false"
             android:headerDividersEnabled="false"

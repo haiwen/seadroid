@@ -6,6 +6,7 @@
 
         <RelativeLayout
                         android:layout_width="fill_parent"
+                        android:paddingRight="@dimen/lv_item_padding"
                         android:layout_height="@dimen/lv_item_height">
 
                 <ImageView
@@ -83,8 +84,8 @@
                         android:background="@drawable/toggle_btn_selector_holo_light">
 
                         <ImageView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
                                 android:layout_alignParentRight="true"
                                 android:layout_alignParentBottom="true"
                                 android:src="@drawable/spinner_disabled_holo_light"
