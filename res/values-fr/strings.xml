@@ -65,12 +65,21 @@
   <string name="file_action_star">Favori</string>
   <string name="file_action_download">Télécharger</string>
   <string name="file_action_update">Transfert</string>
+  <string name="file_action_share">Partager le lien</string>
   <string name="file_action_export">Exporter</string>
   <string name="file_action_delete">Effacer</string>
   <string name="file_action_rename">Renommer</string>
   <string name="file_action_copy">Copier</string>
   <string name="file_action_move">Déplacer</string>
   <string name="file_action_open_as">Ouvrir comme</string>
+  <string name="file_action_more">Plus</string>
+  <string name="file_action_more_title">Choisissez votre option préférée</string>
+  <string-array name="file_action_more_array">
+    <item>Exporter</item>
+    <item>Copier</item>
+    <item>Déplacer</item>
+    <item>Favori</item>
+  </string-array>
   <string-array name="file_type_array">
     <item>Texte</item>
     <item>Audio</item>
@@ -145,7 +154,7 @@
   <string name="take_photo_successfully">Photo prise avec succès</string>
   <string name="tabs_library">Bibliothèques</string>
   <string name="tabs_activity">Activités</string>
-  <string name="tabs_starred">Préférés</string>
+  <string name="tabs_starred">Favoris</string>
   <string name="provide_password">Mot de passe pour la bibliothèque "%s"</string>
   <string name="upload_waiting">Envoi en attente</string>
   <string name="upload_finished">Envoi terminé</string>

@@ -65,12 +65,21 @@
   <string name="file_action_star">スター</string>
   <string name="file_action_download">ダウンロード</string>
   <string name="file_action_update">アップロード</string>
+  <string name="file_action_share">リンクを共有</string>
   <string name="file_action_export">エクスポート</string>
   <string name="file_action_delete">削除</string>
   <string name="file_action_rename">名前を変更</string>
   <string name="file_action_copy">コピー</string>
   <string name="file_action_move">移動</string>
   <string name="file_action_open_as">...として開く</string>
+  <string name="file_action_more">つづく</string>
+  <string name="file_action_more_title">お好みのオプションを選択してください</string>
+  <string-array name="file_action_more_array">
+    <item>エクスポート</item>
+    <item>コピー</item>
+    <item>移動</item>
+    <item>スター</item>
+  </string-array>
   <string-array name="file_type_array">
     <item>テキスト</item>
     <item>音声</item>

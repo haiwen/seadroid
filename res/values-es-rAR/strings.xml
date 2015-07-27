@@ -65,12 +65,21 @@
   <string name="file_action_star">Favorito</string>
   <string name="file_action_download">Descargar</string>
   <string name="file_action_update">Subir</string>
+  <string name="file_action_share">Compartir enlace</string>
   <string name="file_action_export">Exportar</string>
   <string name="file_action_delete">Eliminar</string>
   <string name="file_action_rename">Renombrar</string>
   <string name="file_action_copy">Copiar</string>
   <string name="file_action_move">Mover</string>
   <string name="file_action_open_as">Abrir como</string>
+  <string name="file_action_more">Mas</string>
+  <string name="file_action_more_title">Escoja su opción preferida</string>
+  <string-array name="file_action_more_array">
+    <item>Exportar</item>
+    <item>Copiar</item>
+    <item>Mover</item>
+    <item>Marcar</item>
+  </string-array>
   <string-array name="file_type_array">
     <item>Texto</item>
     <item>Audio</item>

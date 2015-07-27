@@ -65,12 +65,21 @@
   <string name="file_action_star">Ulubione</string>
   <string name="file_action_download">Pobierz</string>
   <string name="file_action_update">Prześlij</string>
+  <string name="file_action_share">Łącze udostępniania</string>
   <string name="file_action_export">Wyeksportuj</string>
   <string name="file_action_delete">Usuń</string>
   <string name="file_action_rename">Zmień nazwę</string>
   <string name="file_action_copy">Kopiuj</string>
   <string name="file_action_move">Przenieś</string>
   <string name="file_action_open_as">Otwórz jako</string>
+  <string name="file_action_more">Więcej</string>
+  <string name="file_action_more_title">Wybierz swoje preferencje</string>
+  <string-array name="file_action_more_array">
+    <item>Eksport</item>
+    <item>Kopiuj</item>
+    <item>Przenieś</item>
+    <item>Ulubione</item>
+  </string-array>
   <string-array name="file_type_array">
     <item>Tekst</item>
     <item>Audio</item>
