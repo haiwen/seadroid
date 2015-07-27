@@ -535,19 +535,27 @@ public class ReposFragment extends SherlockListFragment {
         if (repos == null)
             return;
         Map<String, List<SeafRepo>> map = Utils.groupRepos(repos);
-        List<SeafRepo> personal = map.get(Utils.NOGROUP);
-        SeafGroup group;
-        if (personal != null) {
-            group = new SeafGroup(mActivity.getResources().getString(R.string.personal));
-            adapter.add(group);
-            for (SeafRepo repo : personal)
+        List<SeafRepo> personalRepos = map.get(Utils.PERSONAL_REPO);
+        if (personalRepos != null) {
+            SeafGroup personalGroup = new SeafGroup(mActivity.getResources().getString(R.string.personal));
+            adapter.add(personalGroup);
+            for (SeafRepo repo : personalRepos)
+                adapter.add(repo);
+        }
+
+        List<SeafRepo> sharedRepos = map.get(Utils.SHARED_REPO);
+        if (sharedRepos != null) {
+            SeafGroup sharedGroup = new SeafGroup(mActivity.getResources().getString(R.string.shared));
+            adapter.add(sharedGroup);
+            for (SeafRepo repo : sharedRepos)
                 adapter.add(repo);
         }
 
         for (Map.Entry<String, List<SeafRepo>> entry : map.entrySet()) {
             String key = entry.getKey();
-            if (!key.equals(Utils.NOGROUP)) {
-                group = new SeafGroup(key);
+            if (!key.equals(Utils.PERSONAL_REPO)
+                    && !key.endsWith(Utils.SHARED_REPO)) {
+                SeafGroup group = new SeafGroup(key);
                 adapter.add(group);
                 for (SeafRepo repo : entry.getValue()) {
                     adapter.add(repo);

@@ -22,6 +22,8 @@ public class SeafRepo implements SeafItem {
     public long mtime;    // the last modification time
 
     public boolean isGroupRepo;
+    public boolean isPersonalRepo;
+    public boolean isSharedRepo;
     public boolean encrypted;
     public String permission;
 
@@ -39,10 +41,9 @@ public class SeafRepo implements SeafItem {
         repo.encrypted = obj.getBoolean("encrypted");
         repo.root = obj.getString("root");
         repo.size = obj.getLong("size");
-        if (obj.getString("type").equals("grepo")) {
-            repo.isGroupRepo = true;
-        } else
-            repo.isGroupRepo = false;
+        repo.isGroupRepo = obj.getString("type").equals("grepo");
+        repo.isPersonalRepo = obj.getString("type").equals("repo");
+        repo.isSharedRepo = obj.getString("type").equals("srepo");
         return repo;
     }
 

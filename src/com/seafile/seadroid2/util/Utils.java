@@ -43,7 +43,9 @@ public class Utils {
     public static final String MIME_APPLICATION_OCTET_STREAM = "application/octet-stream";
     public static final String AUTHORITY = "com.seafile.seadroid2";
     public static final String PATH_SEPERATOR = "/";
-    public static final String NOGROUP = "$nogroup";
+    // public static final String NOGROUP = "$nogroup";
+    public static final String PERSONAL_REPO = "personal_repo";
+    public static final String SHARED_REPO = "shared_repo";
     private static final String DEBUG_TAG = "Utils";
     private static final String HIDDEN_PREFIX = ".";
     private static HashMap<String, Integer> suffixIconMap = null;
@@ -189,9 +191,16 @@ public class Utils {
 
     public static TreeMap<String, List<SeafRepo>> groupRepos(List<SeafRepo> repos) {
         TreeMap<String, List<SeafRepo>> map = new TreeMap<String, List<SeafRepo>>();
+        String groupName = null;
         for (SeafRepo repo : repos) {
             List<SeafRepo> l;
-            String groupName = repo.isGroupRepo ? repo.owner : NOGROUP;
+            if (repo.isGroupRepo)
+                groupName = repo.owner;
+            else if (repo.isPersonalRepo)
+                groupName = PERSONAL_REPO;
+            else if (repo.isSharedRepo)
+                groupName = SHARED_REPO;
+
             l = map.get(groupName);
             if (l == null) {
                 l = Lists.newArrayList();
