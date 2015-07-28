@@ -63,7 +63,7 @@
     <dimen name="lv_download_icon_height">14dp</dimen>
     <dimen name="lv_download_icon_margin_left">4dp</dimen>
     <dimen name="lv_download_icon_margin_right">4dp</dimen>
-    <dimen name="lv_download_icon_margin_top">2dp</dimen>
+    <dimen name="lv_download_icon_margin_top">3dp</dimen>
     <dimen name="lv_download_state_txt_size">12sp</dimen>
 
     <!-- slide expandable listview -->
