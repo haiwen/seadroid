@@ -17,13 +17,12 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <style name="Theme.SeafileTheme" parent="Theme.Sherlock.Light">
-        <item name="android:logo">@color/transparent</item>
-        <item name="logo">@color/transparent</item>
         <item name="android:listViewStyle">@style/SeafileListStyle</item>
         <item name="android:radioButtonStyle">@style/RadioButton</item>
         <item name="android:actionBarStyle">@style/LightTheme.ActionBar</item>
         <item name="actionBarStyle">@style/LightTheme.ActionBar</item>
         <item name="android:homeAsUpIndicator">@drawable/home_up_btn</item>
+        <item name="homeAsUpIndicator">@drawable/home_up_btn</item>
         <!-- Remove shadow below action bar Android < 5.0 -->
         <item name="windowContentOverlay">@null</item>
         <item name="android:windowContentOverlay">@null</item>
@@ -40,6 +39,8 @@
         <item name="android:dividerPadding">0dip</item>
         <item name="android:titleTextStyle">@style/LightTheme.ActionBar.TitleTextStyle</item>
         <item name="titleTextStyle">@style/LightTheme.ActionBar.TitleTextStyle</item>
+        <item name="android:logo">@drawable/actionbar_space_between_icon_and_title</item>
+        <item name="logo">@drawable/actionbar_space_between_icon_and_title</item>
     </style>
 
     <style name="LightTheme.ActionBar.TitleTextStyle" parent="TextAppearance.Sherlock.Widget.ActionBar.Title">
