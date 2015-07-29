@@ -80,39 +80,36 @@
     </style>
 
     <style name="Theme.SeafileTheme" parent="Theme.Sherlock.Light">
-        <item name="android:logo">@drawable/icon</item>
-        <item name="logo">@drawable/icon</item>
+        <item name="android:logo">@color/transparent</item>
+        <item name="logo">@color/transparent</item>
         <item name="android:listViewStyle">@style/SeafileListStyle</item>
         <item name="vpiTabPageIndicatorStyle">@style/CustomTabPageIndicator</item>
         <item name="android:radioButtonStyle">@style/RadioButton</item>
-        <item name="android:actionBarStyle">@style/Theme.LightTheme.ActionBar</item>
-        <item name="actionBarStyle">@style/Theme.LightTheme.ActionBar</item>
+        <item name="android:actionBarStyle">@style/LightTheme.ActionBar</item>
+        <item name="actionBarStyle">@style/LightTheme.ActionBar</item>
+        <item name="android:homeAsUpIndicator">@drawable/home_up_btn</item>
         <!-- Remove shadow below action bar Android < 5.0 -->
         <item name="windowContentOverlay">@null</item>
         <item name="android:windowContentOverlay">@null</item>
     </style>
 
-    <style name="Theme.LightTheme.ActionBar" parent="Widget.Sherlock.ActionBar">
-        <item name="android:background">#f4f5f6</item>
-        <item name = "background">#f4f5f6</item>
-        <item name="android:height">64dip</item>
-        <item name="height">64dip</item>
+    <style name="LightTheme.ActionBar" parent="Widget.Sherlock.Light.ActionBar">
+        <item name="android:background">@color/fancy_white</item>
+        <item name="background">@color/fancy_white</item>
+        <item name="android:height">@dimen/abs_actionbar_height</item>
+        <item name="height">@dimen/abs_actionbar_height</item>
         <item name="divider">@null</item>
         <item name="android:divider">@null</item>
         <item name="android:showDividers">none</item>
         <item name="android:dividerPadding">0dip</item>
-        <!--<item name="android:titleTextStyle">@style/Theme.LightTheme.ActionBar.TitleTextStyle</item>
-        <item name="titleTextStyle">@style/Theme.LightTheme.ActionBar.TitleTextStyle</item>-->
+        <item name="android:titleTextStyle">@style/LightTheme.ActionBar.TitleTextStyle</item>
+        <item name="titleTextStyle">@style/LightTheme.ActionBar.TitleTextStyle</item>
     </style>
 
-    <!--<style name="Theme.LightTheme.ActionBar.TitleTextStyle" parent="TextAppearance.Sherlock.Widget.ActionBar.Title">
-        <item name="android:textColor">#fff</item>
-        <item name="textColor">#fff</item>
-        <item name="android:textStyle">bold</item>
-        <item name="textStyle">bold</item>
-        <item name="android:textSize">32sp</item>
-        <item name="textSize">32sp</item>
-    </style>-->
+    <style name="LightTheme.ActionBar.TitleTextStyle" parent="TextAppearance.Sherlock.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/dark_gray</item>
+        <item name="android:textSize">@dimen/tv_subtitle_txt_size</item>
+    </style>
 
     <style name="SeafileListStyle" parent="@android:style/Widget.ListView">
         <item name="android:background">@color/white</item>
