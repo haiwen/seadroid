@@ -208,6 +208,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
             if (i == currentPosition) {
                 tv.setTextColor(getResources().getColor(R.color.theme_color));
+                setUpButtonTitleOnSlideTabs(i);
             } else {
                 tv.setTextColor(getResources().getColor(R.color.tv_subtitle_color));
             }
@@ -228,6 +229,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                 for(int i=0; i < mTabsLinearLayout.getChildCount(); i++){
                     TextView tv = (TextView) mTabsLinearLayout.getChildAt(i);
                     if(i == position){
+                        setUpButtonTitleOnSlideTabs(i);
                         tv.setTextColor(getResources().getColor(R.color.theme_color));
                     } else {
                         tv.setTextColor(getResources().getColor(R.color.tv_subtitle_color));
@@ -365,6 +367,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
                     if (i == currentPosition) {
                         tv.setTextColor(getResources().getColor(R.color.theme_color));
+                        setUpButtonTitleOnSlideTabs(i);
                     } else {
                         tv.setTextColor(getResources().getColor(R.color.tv_subtitle_color));
                     }
@@ -1061,6 +1064,31 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     public void setUpButtonTitle(String title){
         getSupportActionBar().setTitle(title);
+    }
+
+    /**
+     * update up button title when sliding among tabs
+     *
+     * @param position
+     */
+    private void setUpButtonTitleOnSlideTabs(int position) {
+        if (navContext == null)
+            return;
+
+        if (position == 0) {
+            if (navContext.inRepo()) {
+                if (navContext.getDirPath().equals(BrowserActivity.ACTIONBAR_PARENT_PATH)) {
+                    setUpButtonTitle(navContext.getRepoName());
+                } else {
+                    setUpButtonTitle(navContext.getDirPath().substring(
+                            navContext.getDirPath().lastIndexOf(BrowserActivity.ACTIONBAR_PARENT_PATH) + 1));
+                }
+            } else
+                setUpButtonTitle(getString(R.string.tabs_library).toUpperCase());
+        } else {
+            setUpButtonTitle(currentPosition == 1 ? getString(R.string.tabs_starred).toUpperCase() : getString(R.string.tabs_activity).toUpperCase());
+        }
+
     }
 
     /***********  Start other activity  ***************/
