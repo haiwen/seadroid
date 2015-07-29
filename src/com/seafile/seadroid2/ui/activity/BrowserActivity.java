@@ -1051,10 +1051,12 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     public void enableUpButton() {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setLogo(getResources().getDrawable(R.color.transparent));
     }
 
     public void disableUpButton() {
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        getSupportActionBar().setLogo(R.drawable.icon);
     }
 
     public void setUpButtonTitle(String title){
