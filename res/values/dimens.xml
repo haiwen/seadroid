@@ -31,7 +31,8 @@
     <dimen name="notificationbar_margin_top">0dp</dimen>
 
     <!-- Header -->
-    <dimen name="abs_actionbar_height">64dp</dimen>
+    <dimen name="abs_actionbar_height">48dp</dimen>
+    <dimen name="tab_height">32dp</dimen>
     <dimen name="tab_txt_size">14sp</dimen>
 
     <!-- Title -->
