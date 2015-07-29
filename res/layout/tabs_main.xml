@@ -26,7 +26,7 @@
         android:id="@+id/tab_strip"
         android:layout_height="48dp"
         android:layout_width="match_parent"
-        android:textSize="@dimen/lv_title_txt_size"
+        android:textSize="@dimen/tab_txt_size"
         PagerSlidingTabStrip:pstsIndicatorHeight="2dp"
         PagerSlidingTabStrip:pstsIndicatorColor="@color/theme_color"
         PagerSlidingTabStrip:pstsShouldExpand="true"
