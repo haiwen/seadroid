@@ -24,7 +24,7 @@
     <!-- textColor was managed dynamically in java source -->
     <com.astuetz.PagerSlidingTabStrip
         android:id="@+id/tab_strip"
-        android:layout_height="48dp"
+        android:layout_height="@dimen/tab_height"
         android:layout_width="match_parent"
         android:textSize="@dimen/tab_txt_size"
         PagerSlidingTabStrip:pstsIndicatorHeight="2dp"

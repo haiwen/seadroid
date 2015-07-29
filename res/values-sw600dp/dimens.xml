@@ -8,6 +8,10 @@
 
     <dimen name="section_margin_top">25dp</dimen>
 
+    <!-- Header -->
+    <dimen name="abs_actionbar_height">64dp</dimen>
+    <dimen name="tab_height">48dp</dimen>
+
     <!-- Content -->
     <dimen name="tv_txt_size">14sp</dimen>
     <dimen name="lv_item_height">70dp</dimen>
