@@ -21,12 +21,12 @@
     android:layout_width="wrap_content"
     android:layout_height="match_parent">
 
+    <!-- textColor was managed dynamically in java source -->
     <com.astuetz.PagerSlidingTabStrip
         android:id="@+id/tab_strip"
         android:layout_height="48dp"
         android:layout_width="match_parent"
         android:textSize="@dimen/lv_title_txt_size"
-        android:textColor="@color/tv_subtitle_color"
         PagerSlidingTabStrip:pstsIndicatorHeight="2dp"
         PagerSlidingTabStrip:pstsIndicatorColor="@color/theme_color"
         PagerSlidingTabStrip:pstsShouldExpand="true"
