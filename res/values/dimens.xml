@@ -139,8 +139,8 @@
     <dimen name="dialog_btn_txt_size">14sp</dimen>
     <dimen name="dialog_et_txt_size">16sp</dimen>
 
-    <dimen name="ptr_tv_tip_txt_size">16sp</dimen>
-    <dimen name="ptr_tv_label_txt_size">12sp</dimen>
+    <dimen name="ptr_tv_tip_txt_size">14sp</dimen>
+    <dimen name="ptr_tv_label_txt_size">10sp</dimen>
 
     <dimen name="preference_fragment_padding_bottom">0dp</dimen>
     <dimen name="preference_fragment_padding_side">16dp</dimen>

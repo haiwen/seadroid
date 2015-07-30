@@ -70,8 +70,8 @@
     <dimen name="dialog_msg_progressbar_height">30dp</dimen>
     <dimen name="dialog_et_txt_size">20sp</dimen>
 
-    <dimen name="ptr_tv_tip_txt_size">18sp</dimen>
-    <dimen name="ptr_tv_label_txt_size">16sp</dimen>
+    <dimen name="ptr_tv_tip_txt_size">16sp</dimen>
+    <dimen name="ptr_tv_label_txt_size">12sp</dimen>
 
     <dimen name="preference_fragment_padding_bottom">0dp</dimen>
     <dimen name="preference_fragment_padding_side">32dp</dimen>
