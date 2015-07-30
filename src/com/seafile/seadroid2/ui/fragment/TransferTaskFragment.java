@@ -1,7 +1,10 @@
 package com.seafile.seadroid2.ui.fragment;
 
 import android.app.Activity;
-import android.content.*;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -21,6 +24,7 @@ import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferTaskInfo;
+import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.activity.TransferActivity;
 import com.seafile.seadroid2.ui.adapter.TransferTaskAdapter;
 
@@ -88,6 +92,11 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
                 case R.id.task_action_delete:
                     List<Integer> ids = adapter.getSelectedIds();
                     if (ids != null) {
+                        if (ids.size() == 0) {
+                            ToastUtils.show(mActivity, R.string.action_mode_no_items_selected);
+                            return;
+                        }
+
                         deleteSelectedItems(convertToTaskIds(ids));
                         deselectItems();
                     }
@@ -95,6 +104,11 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
                 case R.id.task_action_restart:
                     List<Integer> restartIds = adapter.getSelectedIds();
                     if (restartIds != null) {
+                        if (restartIds.size() == 0) {
+                            ToastUtils.show(mActivity, R.string.action_mode_no_items_selected);
+                            return;
+                        }
+
                         restartSelectedItems(convertToTaskIds(restartIds));
                         deselectItems();
                     }
@@ -269,9 +283,9 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
             adapter.actionModeOn();
         } else if (!itemsChecked && mActionMode != null) {
             // there no selected items, finish the actionMode
-            mActionMode.finish();
+            /*mActionMode.finish();
             adapter.actionModeOff();
-            mTaskActionBar.setVisibility(View.GONE);
+            mTaskActionBar.setVisibility(View.GONE);*/
         }
 
 
@@ -306,12 +320,12 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
             mTaskActionBar.setVisibility(View.VISIBLE);
         } else if (!itemsChecked && mActionMode != null) {
             // there no selected items, finish the actionMode
-            mActionMode.finish();
+            /*mActionMode.finish();
             adapter.actionModeOff();
             Animation bottomDown = AnimationUtils.loadAnimation(getActivity(),
                     R.anim.bottom_down);
             mTaskActionBar.startAnimation(bottomDown);
-            mTaskActionBar.setVisibility(View.GONE);
+            mTaskActionBar.setVisibility(View.GONE);*/
         }
 
 
@@ -326,6 +340,8 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
     }
 
     private class ActionModeCallback implements ActionMode.Callback {
+        // flag to mark if all items were selected
+        private boolean allItemsSelected;
 
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
@@ -348,11 +364,13 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
             // Respond to clicks on the actions in the CAB
             switch (item.getItemId()) {
                 case R.id.transfer_multi_choice_select_all:
-                    selectItems();
-                    return true;
-                case R.id.transfer_multi_choice_deselect_all:
-                    deselectItems();
-                    mode.finish(); // Action picked, so close the CAB
+                    if (!allItemsSelected)
+                        selectItems();
+                    else
+                        deselectItems();
+
+                    allItemsSelected = !allItemsSelected;
+
                     return true;
                 default:
                     return false;
