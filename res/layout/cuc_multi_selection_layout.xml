@@ -24,7 +24,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/settings_cuc_upload_to_parent_folder"
                 android:textSize="@dimen/tv_subtitle_txt_size"
-                android:textColor="@color/tv_subtitle_color"
+                android:textColor="@color/fancy_gray"
                 android:layout_centerVertical="true"
                 android:layout_toRightOf="@+id/cuc_multi_selection_up_icon"/>
 

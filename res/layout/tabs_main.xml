@@ -28,7 +28,7 @@
         android:layout_width="match_parent"
         android:textSize="@dimen/tab_txt_size"
         PagerSlidingTabStrip:pstsIndicatorHeight="2dp"
-        PagerSlidingTabStrip:pstsIndicatorColor="@color/theme_color"
+        PagerSlidingTabStrip:pstsIndicatorColor="@color/fancy_orange"
         PagerSlidingTabStrip:pstsShouldExpand="true"
         PagerSlidingTabStrip:pstsDividerColor="@color/transparent"
         PagerSlidingTabStrip:pstsTabBackground="@drawable/tab_bg_selector"

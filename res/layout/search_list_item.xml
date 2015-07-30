@@ -34,7 +34,7 @@
               android:paddingTop="@dimen/lv_title_padding_top"
               android:paddingLeft="@dimen/lv_title_padding_left"
               android:lines="1"
-              android:textColor="@color/lv_subtitle_color"
+              android:textColor="@color/fancy_black"
               android:textSize="@dimen/lv_subtitle_txt_size"
               android:singleLine="true"/>
     <TextView
@@ -50,7 +50,7 @@
             android:paddingTop="@dimen/lv_title_padding_top"
             android:paddingLeft="@dimen/lv_title_padding_left"
             android:singleLine="true"
-            android:textColor="@color/lv_title_color"
+            android:textColor="@color/fancy_dark_black"
             android:textSize="@dimen/lv_title_txt_size"/>
 
     <TextView
@@ -64,7 +64,7 @@
             android:lines="1"
             android:singleLine="true"
             android:paddingLeft="@dimen/lv_subtitle_padding_left"
-            android:textColor="@color/lv_subtitle_color"
+            android:textColor="@color/fancy_black"
             android:textSize="@dimen/lv_subtitle_txt_size"/>
 
 </RelativeLayout>

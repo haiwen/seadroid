@@ -30,7 +30,7 @@
                         android:paddingTop="@dimen/lv_item_padding_top"
                         android:lines="1"
                         android:singleLine="true"
-                        android:textColor="@color/lv_title_color"
+                        android:textColor="@color/fancy_dark_black"
                         android:textSize="@dimen/lv_title_txt_size"
                         android:layout_toRightOf="@id/list_item_space"
                         android:layout_toLeftOf="@+id/expandable_toggle_button"/>
@@ -70,7 +70,7 @@
                                 android:layout_width="fill_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_toRightOf="@id/list_item_download_status_progressbar"
-                                android:textColor="@color/lv_subtitle_color"
+                                android:textColor="@color/fancy_black"
                                 android:textSize="@dimen/lv_subtitle_txt_size"/>
                 </RelativeLayout>
 
