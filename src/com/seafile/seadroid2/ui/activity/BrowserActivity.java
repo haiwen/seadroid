@@ -207,7 +207,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             TextView tv = (TextView) mTabsLinearLayout.getChildAt(i);
 
             if (i == currentPosition) {
-                tv.setTextColor(getResources().getColor(R.color.theme_color));
+                tv.setTextColor(getResources().getColor(R.color.fancy_orange));
                 setUpButtonTitleOnSlideTabs(i);
             } else {
                 tv.setTextColor(getResources().getColor(R.color.fancy_gray));
@@ -230,7 +230,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                     TextView tv = (TextView) mTabsLinearLayout.getChildAt(i);
                     if(i == position){
                         setUpButtonTitleOnSlideTabs(i);
-                        tv.setTextColor(getResources().getColor(R.color.theme_color));
+                        tv.setTextColor(getResources().getColor(R.color.fancy_orange));
                     } else {
                         tv.setTextColor(getResources().getColor(R.color.fancy_gray));
                     }
@@ -366,7 +366,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                     TextView tv = (TextView) mTabsLinearLayout.getChildAt(i);
 
                     if (i == currentPosition) {
-                        tv.setTextColor(getResources().getColor(R.color.theme_color));
+                        tv.setTextColor(getResources().getColor(R.color.fancy_orange));
                         setUpButtonTitleOnSlideTabs(i);
                     } else {
                         tv.setTextColor(getResources().getColor(R.color.fancy_gray));

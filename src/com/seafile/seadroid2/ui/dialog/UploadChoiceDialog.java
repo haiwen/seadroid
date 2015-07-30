@@ -23,9 +23,9 @@ public class UploadChoiceDialog extends DialogFragment {
 
         SeafileStyleDialogBuilder builder = new SeafileStyleDialogBuilder(getActivity()).
                 setTitle(getResources().getString(R.string.pick_upload_type)).
-                setTitleColor(getResources().getString(R.color.dialog_theme_color)).
-                setDividerColor(getResources().getString(R.color.dialog_theme_color)).
-                setItems(R.array.pick_upload_array, 
+                setTitleColor("#ea8201").   //getResources().getColor(R.color.fancy_orange)
+                setDividerColor("#ea8201"). //getResources().getColor(R.color.fancy_orange)
+                setItems(R.array.pick_upload_array,
                         new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

@@ -18,7 +18,7 @@
             app:strokeWidth="4dp"
             app:lineWidth="30dp"
             app:unselectedColor="@color/light_grey"
-            app:selectedColor="@color/theme_color"
+            app:selectedColor="@color/fancy_orange"
             android:layout_height="wrap_content"
             android:layout_width="fill_parent"/>
 

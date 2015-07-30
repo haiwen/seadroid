@@ -1,7 +1,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:background="@color/white">
+    android:layout_height="fill_parent">
 
     <TextView
         android:id="@+id/cuc_wel_title_tv"
@@ -11,7 +10,7 @@
         android:layout_alignParentTop="true"
         android:layout_marginLeft="@dimen/tv_title_margin_left"
         android:layout_marginTop="@dimen/tv_title_margin_top"
-        android:textColor="@color/tv_title_color"
+        android:textColor="@color/fancy_orange"
         android:text="@string/settings_cuc_title"
         android:textSize="@dimen/tv_title_txt_size" />
 
@@ -23,7 +22,7 @@
         android:layout_below="@+id/cuc_wel_title_tv"
         android:layout_marginTop="@dimen/section_margin_top"
         android:text="@string/settings_cuc_welcome_text"
-        android:textColor="@color/tv_subtitle_color"
+        android:textColor="@color/fancy_gray"
         android:layout_marginRight="30dp"
         android:textSize="@dimen/tv_subtitle_txt_size" />
 
@@ -35,7 +34,7 @@
             android:layout_below="@+id/cuc_wel_txt_tv"
             android:layout_marginTop="@dimen/tv_subtitle_margin_top"
             android:text="@string/settings_cuc_swipe_left"
-            android:textColor="@color/tv_subtitle_color"
+            android:textColor="@color/fancy_gray"
             android:textSize="@dimen/tv_subtitle_txt_size" />
 
 </RelativeLayout>
