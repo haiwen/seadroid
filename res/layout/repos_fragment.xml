@@ -38,12 +38,13 @@
             android:headerDividersEnabled="false"
             android:smoothScrollbar="true" />
 
-        <TextView android:id="@+id/empty"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+        <ImageView android:id="@+id/empty"
+                android:layout_width="@dimen/empty_folder_width"
+                android:layout_height="@dimen/empty_folder_height"
+                android:layout_gravity="center"
                 android:gravity="center"
-                android:visibility="invisible"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
+                android:visibility="gone"
+                android:src="@drawable/empty_icon"/>
     </FrameLayout>
 
     <TextView
