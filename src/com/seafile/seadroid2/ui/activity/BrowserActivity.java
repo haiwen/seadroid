@@ -210,7 +210,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                 tv.setTextColor(getResources().getColor(R.color.theme_color));
                 setUpButtonTitleOnSlideTabs(i);
             } else {
-                tv.setTextColor(getResources().getColor(R.color.tv_subtitle_color));
+                tv.setTextColor(getResources().getColor(R.color.fancy_gray));
             }
         }
 
@@ -232,7 +232,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                         setUpButtonTitleOnSlideTabs(i);
                         tv.setTextColor(getResources().getColor(R.color.theme_color));
                     } else {
-                        tv.setTextColor(getResources().getColor(R.color.tv_subtitle_color));
+                        tv.setTextColor(getResources().getColor(R.color.fancy_gray));
                     }
                 }
             }
@@ -369,7 +369,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                         tv.setTextColor(getResources().getColor(R.color.theme_color));
                         setUpButtonTitleOnSlideTabs(i);
                     } else {
-                        tv.setTextColor(getResources().getColor(R.color.tv_subtitle_color));
+                        tv.setTextColor(getResources().getColor(R.color.fancy_gray));
                     }
                 }
             }

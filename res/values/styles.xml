@@ -51,14 +51,15 @@
     </style>
 
     <style name="LightTheme.ActionBar.TitleTextStyle" parent="TextAppearance.Sherlock.Widget.ActionBar.Title">
-        <item name="android:textColor">@color/dark_gray</item>
+        <item name="android:textColor">@color/fancy_black</item>
         <item name="android:textSize">@dimen/tv_subtitle_txt_size</item>
     </style>
 
     <style name="SeafileListStyle" parent="@android:style/Widget.ListView">
-        <item name="android:background">@color/white</item>
-        <item name="android:divider">@color/list_divider</item>
-        <item name="android:dividerHeight">0.5sp</item>
+        <item name="android:background">@color/fancy_light_white</item>
+        <item name="android:divider">@drawable/lv_divider_inset</item>
+        <item name="android:dividerHeight">1dp</item>
+        <item name="android:listSelector">@drawable/list_item_selector</item>
         <!-- <item name="android:colorPressedHighlight">@color/black</item> -->
         <!-- <item name="android:colorLongPressedHighlight">@color/black</item> -->
     </style>
