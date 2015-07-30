@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="white">#FFFFFF</color>
-    <color name="fancy_white">#f4f5f6</color>
     <color name="black">#000000</color>
     <color name="whitegrey">#FFF2F2F2</color>
     <color name="grey">#6E6E6E</color>
@@ -10,7 +9,6 @@
     <color name="dark_gray">#1E2129</color>
     <color name="light_blue">#33B5E5</color>
     <color name="light_black">#333333</color>
-    <color name="theme_color">#F57900</color>
     <color name="transparent">#00000000</color>
     <color name="half_transparent">#80FFFFFF</color>
     <color name="half_transparent_black">#80000000</color>
@@ -32,5 +30,15 @@
     <color name="lv_subtitle_color">#555555</color>
 
     <!-- Footer -->
+
+    <!-- Theme V2 -->
+    <color name="fancy_white">#f4f5f6</color>
+    <color name="fancy_black">#464646</color>
+    <color name="fancy_gray">#969696</color>
+    <color name="fancy_light_white">#fcfcfc</color>
+    <color name="theme_color">#ea8201</color>
+    <color name="fancy_orange">#ea8201</color>
+    <color name="fancy_light_gray">#f0f0f0</color>
+    <color name="fancy_dark_gray">#e1e2e3</color>
 
 </resources>
