@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -57,7 +58,7 @@ public class ReposFragment extends SherlockListFragment {
     public static final int FILE_ACTION_STAR = 3;
 
     private CustomActionSlideExpandableListView mListView;
-    private TextView mEmptyView;
+    private ImageView mEmptyView;
     private View mProgressContainer;
     private View mListContainer;
     private TextView mErrorText;
@@ -93,7 +94,7 @@ public class ReposFragment extends SherlockListFragment {
             Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.repos_fragment, container, false);
         mListView = (CustomActionSlideExpandableListView) root.findViewById(android.R.id.list);
-        mEmptyView = (TextView) root.findViewById(R.id.empty);
+        mEmptyView = (ImageView) root.findViewById(R.id.empty);
         mListContainer =  root.findViewById(R.id.listContainer);
         mErrorText = (TextView)root.findViewById(R.id.error_message);
         mProgressContainer = root.findViewById(R.id.progressContainer);
@@ -443,7 +444,6 @@ public class ReposFragment extends SherlockListFragment {
             mEmptyView.setVisibility(View.GONE);
         } else {
             mListView.setVisibility(View.GONE);
-            mEmptyView.setText(R.string.no_repo);
             mEmptyView.setVisibility(View.VISIBLE);
         }
         // Collapses the currently open view
@@ -469,7 +469,6 @@ public class ReposFragment extends SherlockListFragment {
         } else {
             // Directory is empty
             mListView.setVisibility(View.GONE);
-            mEmptyView.setText(R.string.dir_empty);
             mEmptyView.setVisibility(View.VISIBLE);
         }
         // Collapses the currently open view

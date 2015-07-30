@@ -147,6 +147,9 @@
 
     <dimen name="index_text_margin_bottom">8dp</dimen>
 
+    <dimen name="empty_folder_height">200dp</dimen>
+    <dimen name="empty_folder_width">200dp</dimen>
+
     <!-- Gallery -->
     <dimen name="gallery_padding">10dp</dimen>
     <dimen name="gallery_icon_width">40dp</dimen>
