@@ -102,7 +102,7 @@
                 android:paddingRight="@dimen/lv_expandable_item_padding"
                 android:id="@+id/expandable"
                 android:visibility="gone"
-                android:background="@color/grey">
+                android:background="@color/fancy_light_black">
 
                 <RelativeLayout
                         android:id="@+id/action_share_ll"
@@ -141,7 +141,7 @@
                                 <View
                                         android:layout_width="1dp"
                                         android:layout_height="@dimen/lv_expandable_item_divider_height"
-                                        android:background="@color/half_transparent"/>
+                                        android:background="@color/fancy_deep_black"/>
                         </LinearLayout>
                 </RelativeLayout>
 
@@ -180,7 +180,7 @@
                                 <View
                                         android:layout_width="1dp"
                                         android:layout_height="@dimen/lv_expandable_item_divider_height"
-                                        android:background="@color/half_transparent"/>
+                                        android:background="@color/fancy_deep_black"/>
                         </LinearLayout>
 
                 </RelativeLayout>
@@ -220,7 +220,7 @@
                                 <View
                                         android:layout_width="1dp"
                                         android:layout_height="@dimen/lv_expandable_item_divider_height"
-                                        android:background="@color/half_transparent"/>
+                                        android:background="@color/fancy_deep_black"/>
                         </LinearLayout>
 
                 </RelativeLayout>
@@ -261,7 +261,7 @@
                                 <View
                                         android:layout_width="1dp"
                                         android:layout_height="@dimen/lv_expandable_item_divider_height"
-                                        android:background="@color/half_transparent"/>
+                                        android:background="@color/fancy_deep_black"/>
                         </LinearLayout>
 
                 </RelativeLayout>
@@ -302,7 +302,7 @@
                                 <View
                                         android:layout_width="1dp"
                                         android:layout_height="@dimen/lv_expandable_item_divider_height"
-                                        android:background="@color/half_transparent"/>
+                                        android:background="@color/fancy_deep_black"/>
                         </LinearLayout>
 
                 </RelativeLayout>
@@ -372,7 +372,7 @@
                                 <View
                                         android:layout_width="1dp"
                                         android:layout_height="@dimen/lv_expandable_item_divider_height"
-                                        android:background="@color/half_transparent"/>
+                                        android:background="@color/fancy_deep_black"/>
                         </LinearLayout>
                 </RelativeLayout>
 
