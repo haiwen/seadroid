@@ -2,6 +2,6 @@
 <layer-list
         xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-            android:drawable="@drawable/icon"
+            android:drawable="@color/transparent"
             android:right="10dp"/>
 </layer-list>
