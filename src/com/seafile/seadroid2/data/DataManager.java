@@ -1,5 +1,20 @@
 package com.seafile.seadroid2.data;
 
+import android.os.Environment;
+import android.util.Log;
+import android.util.Pair;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.SeafConnection;
+import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.util.Utils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -9,23 +24,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
-import com.seafile.seadroid2.R;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.os.Environment;
-import android.util.Log;
-import android.util.Pair;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.SeafConnection;
-import com.seafile.seadroid2.SeafException;
-import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.util.Utils;
 
 public class DataManager {
     private static final String DEBUG_TAG = "DataManager";
@@ -652,11 +650,19 @@ public class DataManager {
     }
 
     public void move(String srcRepoId, String srcDir, String srcFn, String dstRepoId, String dstDir,
-                     boolean isdir) throws SeafException {
-        String srcPath = Utils.pathJoin(srcDir, srcFn);
-        Pair<String, String> ret = sc.move(srcRepoId, srcPath, dstRepoId, dstDir, isdir);
-        if (ret == null){
+                     boolean isdir, boolean isBatch) throws SeafException {
+        Pair<String, String> ret;
+        if (isBatch) {
+            sc.move(srcRepoId, srcDir, srcFn, dstRepoId, dstDir, isdir);
+            // We also need to refresh the original list
+            getDirentsFromServer(srcRepoId, srcDir);
             return;
+        } else {
+            String srcPath = Utils.pathJoin(srcDir, srcFn);
+            ret = sc.move(srcRepoId, srcPath, dstRepoId, dstDir, isdir);
+            if (ret == null) {
+                return;
+            }
         }
 
         String newDirID = ret.first;
