@@ -107,7 +107,7 @@ public class WidgetUtils {
         }
 
         // Open markdown files in MarkdownActivity
-        if (suffix.endsWith("md") || suffix.endsWith("markdown")) {
+        if (suffix.equals("md") || suffix.equals("markdown")) {
             startMarkdownActivity(activity, file.getPath());
             activity.finish();
             activity.overridePendingTransition(0, 0);
