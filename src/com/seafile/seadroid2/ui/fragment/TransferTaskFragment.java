@@ -363,14 +363,13 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             // Respond to clicks on the actions in the CAB
             switch (item.getItemId()) {
-                case R.id.transfer_multi_choice_select_all:
+                case R.id.transfer_mode_select_all:
                     if (!allItemsSelected)
                         selectItems();
                     else
                         deselectItems();
 
                     allItemsSelected = !allItemsSelected;
-
                     return true;
                 default:
                     return false;

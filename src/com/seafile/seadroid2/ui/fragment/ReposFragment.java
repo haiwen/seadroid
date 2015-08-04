@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -26,6 +27,7 @@ import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
+import com.seafile.seadroid2.ui.activity.MultiOperationActivity;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
@@ -99,6 +101,14 @@ public class ReposFragment extends SherlockListFragment {
         mErrorText = (TextView)root.findViewById(R.id.error_message);
         mProgressContainer = root.findViewById(R.id.progressContainer);
 
+        mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                openMultiSelectionPage();
+                return true;
+            }
+        });
+
         // Set a listener to be invoked when the list should be refreshed.
         mListView.setOnRefreshListener(new CustomActionSlideExpandableListView.OnRefreshListener() {
 
@@ -111,6 +121,26 @@ public class ReposFragment extends SherlockListFragment {
         });
 
         return root;
+    }
+
+    public void openMultiSelectionPage() {
+        NavContext nav = getNavContext();
+        if (!nav.inRepo())
+            return;
+
+        final String repoName = nav.getRepoName();
+        final String repoID = nav.getRepoID();
+        final String dirPath = nav.getDirPath();
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(MultiOperationActivity.MULTI_OPERATION_ACCOUNT, mActivity.getAccount());
+
+        Intent intent = new Intent(getActivity(), MultiOperationActivity.class);
+        intent.putExtra(MultiOperationActivity.MULTI_OPERATION_REPOID, repoID);
+        intent.putExtra(MultiOperationActivity.MULTI_OPERATION_REPONAME, repoName);
+        intent.putExtra(MultiOperationActivity.MULTI_OPERATION_DIR, dirPath);
+        intent.putExtra(MultiOperationActivity.MULTI_OPERATION_BUNDLE, bundle);
+
+        startActivity(intent);
     }
 
     @Override

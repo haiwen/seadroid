@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+    <ListView
+            android:id="@+id/multi_op_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_above="@+id/multi_op_bottom_action_bar"
+            android:cacheColorHint="#00000000"
+            android:fadingEdge="none"
+            android:fastScrollEnabled="false"
+            android:footerDividersEnabled="false"
+            android:headerDividersEnabled="false"
+            android:smoothScrollbar="true"/>
+
+    <LinearLayout android:id="@+id/multi_op_progressContainer"
+                  android:orientation="vertical"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:visibility="gone"
+                  android:gravity="center">
+
+        <ProgressBar style="?android:attr/progressBarStyleLarge"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content" />
+        <TextView android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:textAppearance="?android:attr/textAppearanceSmall"
+                  android:paddingTop="4dip"
+                  android:singleLine="true" />
+
+    </LinearLayout>
+
+    <TextView android:id="@+id/multi_op_empty"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:gravity="center"
+              android:visibility="gone"
+              android:text="@string/empty_folder"
+              android:textAppearance="?android:attr/textAppearanceLarge"/>
+
+    <LinearLayout
+            android:id="@+id/multi_op_bottom_action_bar"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingLeft="@dimen/lv_expandable_item_padding"
+            android:paddingRight="@dimen/lv_expandable_item_padding"
+            android:layout_alignParentBottom="true"
+            android:background="@color/whitegrey">
+
+        <RelativeLayout
+                android:id="@+id/multi_op_delete_rl"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:background="@drawable/btn_bg_selector_holo_dark">
+            <LinearLayout
+                    android:layout_width="@dimen/lv_expandable_element_width"
+                    android:layout_height="@dimen/lv_expandable_element_height"
+                    android:layout_centerInParent="true"
+                    android:paddingTop="@dimen/lv_expandable_element_padding"
+                    android:orientation="vertical">
+
+                <ImageView
+                        android:id="@+id/file_multi_selection_action_delete_btn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:src="@drawable/action_delete"/>
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:textColor="@color/light_black"
+                        android:textSize="@dimen/lv_expandable_txt_size"
+                        android:text="@string/file_action_delete"/>
+            </LinearLayout>
+            <LinearLayout android:layout_width="wrap_content"
+                          android:layout_height="@dimen/lv_expandable_element_height"
+                          android:paddingTop="@dimen/lv_expandable_item_divider_padding"
+                          android:paddingBottom="@dimen/lv_expandable_item_divider_padding"
+                          android:layout_alignParentRight="true">
+                <View
+                        android:layout_width="2dp"
+                        android:layout_height="@dimen/lv_expandable_item_divider_height"
+                        android:background="@color/white"/>
+            </LinearLayout>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+                android:id="@+id/multi_op_copy_rl"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:background="@drawable/btn_bg_selector_holo_dark">
+
+            <LinearLayout
+                    android:layout_width="@dimen/lv_expandable_element_width"
+                    android:layout_height="@dimen/lv_expandable_element_height"
+                    android:layout_centerInParent="true"
+                    android:paddingTop="@dimen/lv_expandable_element_padding"
+                    android:orientation="vertical">
+                <ImageView
+                        android:id="@+id/file_multi_selection_action_copy_btn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:src="@drawable/action_copy"/>
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:textColor="@color/light_black"
+                        android:textSize="@dimen/lv_expandable_txt_size"
+                        android:text="@string/file_action_copy"/>
+            </LinearLayout>
+            <LinearLayout android:layout_width="wrap_content"
+                          android:layout_height="@dimen/lv_expandable_element_height"
+                          android:paddingTop="@dimen/lv_expandable_item_divider_padding"
+                          android:paddingBottom="@dimen/lv_expandable_item_divider_padding"
+                          android:layout_alignParentRight="true">
+                <View
+                        android:layout_width="2dp"
+                        android:layout_height="@dimen/lv_expandable_item_divider_height"
+                        android:background="@color/white"/>
+            </LinearLayout>
+        </RelativeLayout>
+
+        <RelativeLayout
+                android:id="@+id/multi_op_move_rl"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:background="@drawable/btn_bg_selector_holo_dark">
+
+            <LinearLayout
+                    android:layout_width="@dimen/lv_expandable_element_width"
+                    android:layout_height="@dimen/lv_expandable_element_height"
+                    android:layout_centerInParent="true"
+                    android:paddingTop="@dimen/lv_expandable_element_padding"
+                    android:orientation="vertical">
+                <ImageView
+                        android:id="@+id/file_multi_selection_action_move_btn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:src="@drawable/action_move"/>
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:textColor="@color/light_black"
+                        android:textSize="@dimen/lv_expandable_txt_size"
+                        android:text="@string/file_action_move"/>
+            </LinearLayout>
+            <LinearLayout android:layout_width="wrap_content"
+                          android:layout_height="@dimen/lv_expandable_element_height"
+                          android:paddingTop="@dimen/lv_expandable_item_divider_padding"
+                          android:paddingBottom="@dimen/lv_expandable_item_divider_padding"
+                          android:layout_alignParentRight="true">
+                <View
+                        android:layout_width="2dp"
+                        android:layout_height="@dimen/lv_expandable_item_divider_height"
+                        android:background="@color/white"/>
+            </LinearLayout>
+        </RelativeLayout>
+
+        <RelativeLayout
+                android:id="@+id/multi_op_download_rl"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:clickable="true"
+                android:background="@drawable/btn_bg_selector_holo_dark">
+
+            <LinearLayout
+                    android:layout_width="@dimen/lv_expandable_element_width"
+                    android:layout_height="@dimen/lv_expandable_element_height"
+                    android:layout_centerInParent="true"
+                    android:paddingTop="@dimen/lv_expandable_element_padding"
+                    android:orientation="vertical">
+                <ImageView
+                        android:id="@+id/file_multi_selection_action_download_btn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:src="@drawable/action_download"/>
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:textColor="@color/light_black"
+                        android:textSize="@dimen/lv_expandable_txt_size"
+                        android:text="@string/file_action_download"/>
+            </LinearLayout>
+        </RelativeLayout>
+
+    </LinearLayout>
+</RelativeLayout>

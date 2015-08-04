@@ -1006,6 +1006,49 @@ public class SeafConnection {
         }
     }
 
+    /**
+     * Move multi files
+     *
+     * @param srcRepoId
+     * @param srcDir
+     * @param srcFn
+     * @param dstRepoId
+     * @param dstDir
+     * @param isdir
+     * @throws SeafException
+     */
+    public void move(String srcRepoId, String srcDir, String srcFn,
+                     String dstRepoId, String dstDir, boolean isdir) throws SeafException {
+        try {
+            Map<String, Object> params = Maps.newHashMap();
+            params.put("p", srcDir);
+
+            HttpRequest req = prepareApiPostRequest("api2/repos/" + srcRepoId + "/fileops/move/", true, params);
+
+            req.form("dst_repo", dstRepoId);
+            req.form("dst_dir", dstDir);
+            req.form("file_names", srcFn);
+
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+
+        } catch (SeafException e) {
+            throw e;
+        } catch (HttpRequestException e) {
+            throw getSeafExceptionFromHttpRequestException(e);
+        }
+    }
+
+    /**
+     * move a single file
+     *
+     * @param srcRepoId
+     * @param srcPath
+     * @param dstRepoId
+     * @param dstDir
+     * @param isdir
+     * @return
+     * @throws SeafException
+     */
     public Pair<String, String> move(String srcRepoId, String srcPath, String dstRepoId, String dstDir,
                                      boolean isdir) throws SeafException {
         try {

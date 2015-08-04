@@ -1,6 +1,9 @@
 package com.seafile.seadroid2.ui;
 
+import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.util.Utils;
+
+import java.util.List;
 
 public class CopyMoveContext {
     public enum OP {
@@ -9,21 +12,53 @@ public class CopyMoveContext {
     }
     public OP op;
 
+    public List<SeafDirent> dirents;
     public String srcRepoId;
     public String srcRepoName;
     public String srcDir;
     public String srcFn;
     public boolean isdir;
+    /** flag to mark multi selection & operations */
+    public boolean isBatch;
 
     public String dstRepoId;
     public String dstDir;
 
+    /**
+     * Constructor for a single file operations
+     *
+     * @param srcRepoId
+     * @param srcRepoName
+     * @param srcDir
+     * @param srcFn
+     * @param isdir
+     * @param op
+     */
     public CopyMoveContext(String srcRepoId, String srcRepoName, String srcDir, String srcFn, boolean isdir, OP op) {
         this.srcRepoId = srcRepoId;
         this.srcRepoName = srcRepoName;
         this.srcDir = srcDir;
         this.srcFn = srcFn;
         this.isdir = isdir;
+        this.op = op;
+        this.isBatch = false;
+    }
+
+    /**
+     * Constructor for multi files operations
+     *
+     * @param srcRepoId
+     * @param srcRepoName
+     * @param srcDir
+     * @param dirents
+     * @param op
+     */
+    public CopyMoveContext(String srcRepoId, String srcRepoName, String srcDir, List<SeafDirent> dirents, OP op) {
+        this.srcRepoId = srcRepoId;
+        this.srcRepoName = srcRepoName;
+        this.srcDir = srcDir;
+        this.dirents = dirents;
+        this.isBatch = true;
         this.op = op;
     }
 
