@@ -651,18 +651,22 @@ public class DataManager {
 
     public void move(String srcRepoId, String srcDir, String srcFn, String dstRepoId, String dstDir,
                      boolean isBatch) throws SeafException {
-        Pair<String, String> ret;
+        Pair<String, String> ret = null;
         if (isBatch) {
             sc.move(srcRepoId, srcDir, srcFn, dstRepoId, dstDir);
-            // We also need to refresh the original list
-            getDirentsFromServer(srcRepoId, srcDir);
-            return;
         } else {
             String srcPath = Utils.pathJoin(srcDir, srcFn);
             ret = sc.move(srcRepoId, srcPath, dstRepoId, dstDir);
-            if (ret == null) {
-                return;
-            }
+        }
+
+        // After moving, we need to refresh the destination list
+        getDirentsFromServer(dstRepoId, dstDir);
+
+        // We also need to refresh the original list
+        getDirentsFromServer(srcRepoId, srcDir);
+
+        if (ret == null) {
+            return;
         }
 
         String newDirID = ret.first;
@@ -671,8 +675,6 @@ public class DataManager {
         // The response is the list of dst after moving the
         // file/folder. We save it to avoid request it again
         dbHelper.saveDirents(dstRepoId, dstDir, newDirID, response);
-        // We also need to refresh the original list
-        getDirentsFromServer(srcRepoId, srcDir);
     }
 
     private static class PasswordInfo {
