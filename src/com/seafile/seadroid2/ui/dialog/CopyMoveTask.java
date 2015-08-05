@@ -28,9 +28,9 @@ public class CopyMoveTask extends TaskDialog.Task {
 
             try {
                 if (ctx.isCopy()) {
-                    dataManager.copy(ctx.srcRepoId, ctx.srcDir, fileNames, ctx.dstRepoId, ctx.dstDir, ctx.isdir);
+                    dataManager.copy(ctx.srcRepoId, ctx.srcDir, fileNames, ctx.dstRepoId, ctx.dstDir);
                 } else if (ctx.isMove()) {
-                    dataManager.move(ctx.srcRepoId, ctx.srcDir, fileNames, ctx.dstRepoId, ctx.dstDir, ctx.isdir, true);
+                    dataManager.move(ctx.srcRepoId, ctx.srcDir, fileNames, ctx.dstRepoId, ctx.dstDir, true);
                 }
             } catch (SeafException e) {
                 setTaskException(e);
@@ -40,9 +40,9 @@ public class CopyMoveTask extends TaskDialog.Task {
 
         try {
             if (ctx.isCopy()) {
-                dataManager.copy(ctx.srcRepoId, ctx.srcDir, ctx.srcFn, ctx.dstRepoId, ctx.dstDir, ctx.isdir);
+                dataManager.copy(ctx.srcRepoId, ctx.srcDir, ctx.srcFn, ctx.dstRepoId, ctx.dstDir);
             } else if (ctx.isMove()) {
-                dataManager.move(ctx.srcRepoId, ctx.srcDir, ctx.srcFn, ctx.dstRepoId, ctx.dstDir, ctx.isdir, false);
+                dataManager.move(ctx.srcRepoId, ctx.srcDir, ctx.srcFn, ctx.dstRepoId, ctx.dstDir, false);
             }
         } catch (SeafException e) {
             setTaskException(e);
