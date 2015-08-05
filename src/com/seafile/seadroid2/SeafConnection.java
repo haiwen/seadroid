@@ -986,7 +986,7 @@ public class SeafConnection {
     }
 
     public void copy(String srcRepoId, String srcDir, String srcFn,
-                     String dstRepoId, String dstDir, boolean isdir) throws SeafException {
+                     String dstRepoId, String dstDir) throws SeafException {
         try {
             Map<String, Object> params = Maps.newHashMap();
             params.put("p", srcDir);
@@ -1014,11 +1014,10 @@ public class SeafConnection {
      * @param srcFn
      * @param dstRepoId
      * @param dstDir
-     * @param isdir
      * @throws SeafException
      */
     public void move(String srcRepoId, String srcDir, String srcFn,
-                     String dstRepoId, String dstDir, boolean isdir) throws SeafException {
+                     String dstRepoId, String dstDir) throws SeafException {
         try {
             Map<String, Object> params = Maps.newHashMap();
             params.put("p", srcDir);
@@ -1045,12 +1044,10 @@ public class SeafConnection {
      * @param srcPath
      * @param dstRepoId
      * @param dstDir
-     * @param isdir
      * @return
      * @throws SeafException
      */
-    public Pair<String, String> move(String srcRepoId, String srcPath, String dstRepoId, String dstDir,
-                                     boolean isdir) throws SeafException {
+    public Pair<String, String> move(String srcRepoId, String srcPath, String dstRepoId, String dstDir) throws SeafException {
         try {
             Map<String, Object> params = Maps.newHashMap();
             params.put("p", srcPath);

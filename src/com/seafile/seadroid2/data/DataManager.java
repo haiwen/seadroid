@@ -642,24 +642,24 @@ public class DataManager {
     }
 
     public void copy(String srcRepoId, String srcDir, String srcFn,
-                     String dstRepoId, String dstDir, boolean isdir) throws SeafException {
-        sc.copy(srcRepoId, srcDir, srcFn, dstRepoId, dstDir, isdir);
+                     String dstRepoId, String dstDir) throws SeafException {
+        sc.copy(srcRepoId, srcDir, srcFn, dstRepoId, dstDir);
         
         // After copying, we need to refresh the destination list
         getDirentsFromServer(dstRepoId, dstDir);
     }
 
     public void move(String srcRepoId, String srcDir, String srcFn, String dstRepoId, String dstDir,
-                     boolean isdir, boolean isBatch) throws SeafException {
+                     boolean isBatch) throws SeafException {
         Pair<String, String> ret;
         if (isBatch) {
-            sc.move(srcRepoId, srcDir, srcFn, dstRepoId, dstDir, isdir);
+            sc.move(srcRepoId, srcDir, srcFn, dstRepoId, dstDir);
             // We also need to refresh the original list
             getDirentsFromServer(srcRepoId, srcDir);
             return;
         } else {
             String srcPath = Utils.pathJoin(srcDir, srcFn);
-            ret = sc.move(srcRepoId, srcPath, dstRepoId, dstDir, isdir);
+            ret = sc.move(srcRepoId, srcPath, dstRepoId, dstDir);
             if (ret == null) {
                 return;
             }
