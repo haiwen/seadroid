@@ -1307,16 +1307,47 @@ public class BrowserActivity extends SherlockFragmentActivity
         startFileActivity(repoName, repoID, filePath);
     }
 
+    /**
+     * Download a file
+     *
+     * @param repoID
+     * @param repoName
+     * @param dir
+     * @param fileName
+     */
+    public void downloadFile(String repoID, String repoName, String dir, String fileName) {
+        String filePath = Utils.pathJoin(dir, fileName);
+        txService.addDownloadTask(account, repoName, repoID, filePath);
+
+        if (!txService.hasDownloadNotifProvider()) {
+            DownloadNotificationProvider provider = new DownloadNotificationProvider(txService.getDownloadTaskManager(),
+                    txService);
+            txService.saveDownloadNotifProvider(provider);
+        }
+
+        SeafItemAdapter adapter = getReposFragment().getAdapter();
+        List<DownloadTaskInfo> infos = txService.getDownloadTaskInfosByPath(repoID, dir);
+        // update downloading progress
+        adapter.setDownloadTaskList(infos);
+    }
+
+    /**
+     * Download all files (folders) under a given folder
+     *
+     * @param dirPath
+     * @param recurse
+     */
     public void downloadDir(String dirPath, boolean recurse) {
         if (!Utils.isNetworkOn()) {
             ToastUtils.show(this, R.string.network_down);
             return;
         }
 
-        final String repoName = navContext.getRepoName();
-        final String repoID = navContext.getRepoID();
-
-        ConcurrentAsyncTask.execute(new DownloadDirTask(), repoName, repoID, dirPath, String.valueOf(recurse));
+        ConcurrentAsyncTask.execute(new DownloadDirTask(),
+                navContext.getRepoName(),
+                navContext.getRepoID(),
+                dirPath,
+                String.valueOf(recurse));
     }
 
     private class DownloadDirTask extends AsyncTask<String, Void, List<SeafDirent> > {
@@ -1387,13 +1418,10 @@ public class BrowserActivity extends SherlockFragmentActivity
                                         seafDirent.name));
                         fileCount++;
                     }
-
                 }
-
             }
 
             return dirents;
-
         }
 
         @Override
@@ -1414,27 +1442,11 @@ public class BrowserActivity extends SherlockFragmentActivity
                             txService);
                     txService.saveDownloadNotifProvider(provider);
                 }
-
             }
 
-            mCurrentRepoID = repoID;
-            mCurrentRepoName = repoName;
-            mCurrentDir = dirPath;
             // set download tasks info to adapter in order to update download progress in UI thread
             getReposFragment().getAdapter().setDownloadTaskList(txService.getDownloadTaskInfosByPath(repoID, dirPath));
         }
-    }
-
-    public String getCurrentRepoID() {
-        return mCurrentRepoID;
-    }
-
-    public String getCurrentRepoName() {
-        return mCurrentRepoName;
-    }
-
-    public String getCurrentDir() {
-        return mCurrentDir;
     }
 
     private void startFileActivity(String repoName, String repoID, String filePath) {
