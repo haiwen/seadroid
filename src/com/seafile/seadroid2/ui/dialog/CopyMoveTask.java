@@ -18,7 +18,7 @@ public class CopyMoveTask extends TaskDialog.Task {
     @Override
     protected void runTask() {
 
-        if (ctx.isBatch) {
+        if (ctx.batch) {
             String fileNames = "";
             for (SeafDirent dirent : ctx.dirents) {
                 fileNames += ":" + dirent.name;

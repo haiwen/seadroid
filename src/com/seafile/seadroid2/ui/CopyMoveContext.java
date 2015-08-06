@@ -19,7 +19,7 @@ public class CopyMoveContext {
     public String srcFn;
     public boolean isdir;
     /** flag to mark multiple selection & operations */
-    public boolean isBatch;
+    public boolean batch;
 
     public String dstRepoId;
     public String dstDir;
@@ -41,7 +41,7 @@ public class CopyMoveContext {
         this.srcFn = srcFn;
         this.isdir = isdir;
         this.op = op;
-        this.isBatch = false;
+        this.batch = false;
     }
 
     /**
@@ -58,7 +58,7 @@ public class CopyMoveContext {
         this.srcRepoName = srcRepoName;
         this.srcDir = srcDir;
         this.dirents = dirents;
-        this.isBatch = true;
+        this.batch = true;
         this.op = op;
     }
 
