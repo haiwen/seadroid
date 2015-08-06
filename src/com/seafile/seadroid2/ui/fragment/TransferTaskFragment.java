@@ -41,8 +41,8 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
     protected TransferActivity mActivity = null;
     protected ListView mTransferTaskListView;
     protected LinearLayout mTaskActionBar;
-    protected ImageView mTaskDeleteBtn;
-    protected ImageView mTaskRestartBtn;
+    protected LinearLayout mTaskDeleteBtn;
+    protected LinearLayout mTaskRestartBtn;
     protected TextView emptyView;
     private View mListContainer;
     private View mProgressContainer;
@@ -76,8 +76,8 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
         mListContainer =  root.findViewById(R.id.listContainer);
         mProgressContainer = root.findViewById(R.id.progressContainer);
         mTaskActionBar = (LinearLayout) root.findViewById(R.id.task_action_container);
-        mTaskDeleteBtn = (ImageView) root.findViewById(R.id.task_action_delete);
-        mTaskRestartBtn = (ImageView) root.findViewById(R.id.task_action_restart);
+        mTaskDeleteBtn = (LinearLayout) root.findViewById(R.id.task_action_delete);
+        mTaskRestartBtn = (LinearLayout) root.findViewById(R.id.task_action_restart);
         mTaskDeleteBtn.setOnClickListener(listener);
         mTaskRestartBtn.setOnClickListener(listener);
         emptyView = (TextView) root.findViewById(R.id.empty);
