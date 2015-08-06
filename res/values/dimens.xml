@@ -149,6 +149,8 @@
 
     <dimen name="empty_folder_height">200dp</dimen>
     <dimen name="empty_folder_width">200dp</dimen>
+    <dimen name="error_msg_height">200dp</dimen>
+    <dimen name="error_msg_width">200dp</dimen>
 
     <!-- Gallery -->
     <dimen name="gallery_padding">10dp</dimen>

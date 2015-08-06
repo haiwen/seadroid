@@ -78,6 +78,8 @@
 
     <dimen name="empty_folder_height">400dp</dimen>
     <dimen name="empty_folder_width">400dp</dimen>
+    <dimen name="error_msg_height">400dp</dimen>
+    <dimen name="error_msg_width">400dp</dimen>
     <!-- Footer -->
 
 </resources>
