@@ -38,7 +38,7 @@ public class GalleryAdapter extends PagerAdapter {
         inflater = context.getLayoutInflater();
         options = new DisplayImageOptions.Builder()
                 .showImageForEmptyUri(R.drawable.ic_gallery_empty2)
-                .showImageOnFail(R.drawable.ic_gallery_empty2)
+                .showImageOnFail(R.drawable.gallery_loading_failed)
                 .cacheInMemory(true)
                 .cacheOnDisk(true)
                 .considerExifParams(true)
