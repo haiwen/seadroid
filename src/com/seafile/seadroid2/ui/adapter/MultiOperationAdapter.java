@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Adapter for multi operations
+ * Adapter for multiple files operations
  */
 public class MultiOperationAdapter extends BaseAdapter {
     public static final String DEBUG_TAG = "FileMultiOperationAdapter";

@@ -42,7 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Activity for file (folders) multi selections and operations
+ * Activity for file (folders) multiple selections and operations
  */
 public class MultiOperationActivity extends SherlockFragmentActivity {
     public static final String DEBUG_TAG = "MultiOperationActivity";

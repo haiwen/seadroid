@@ -985,6 +985,16 @@ public class SeafConnection {
             }
     }
 
+    /**
+     * Copy a file or multiple files, multiple file/folder names should be seperated by a ":".
+     *
+     * @param srcRepoId the source repo id
+     * @param srcDir the source folder in src_repo
+     * @param srcFn list of file/folder names to copy. Multiple file/folder names can be seperated by ":"
+     * @param dstRepoId the destination repo id
+     * @param dstDir the destination folder in dst_repo
+     * @throws SeafException
+     */
     public void copy(String srcRepoId, String srcDir, String srcFn,
                      String dstRepoId, String dstDir) throws SeafException {
         try {
@@ -1007,13 +1017,13 @@ public class SeafConnection {
     }
 
     /**
-     * Move multi files
+     * Move multiple files
      *
-     * @param srcRepoId
-     * @param srcDir
-     * @param srcFn
-     * @param dstRepoId
-     * @param dstDir
+     * @param srcRepoId the source repo id
+     * @param srcDir the source folder in src_repo
+     * @param srcFn list of file/folder names to move. Multiple file/folder names can be seperated by ":"
+     * @param dstRepoId the destination repo id
+     * @param dstDir the destination folder in dst_repo
      * @throws SeafException
      */
     public void move(String srcRepoId, String srcDir, String srcFn,
@@ -1038,12 +1048,12 @@ public class SeafConnection {
     }
 
     /**
-     * move a single file
+     * Move a single file
      *
-     * @param srcRepoId
-     * @param srcPath
-     * @param dstRepoId
-     * @param dstDir
+     * @param srcRepoId the source repo id
+     * @param srcPath the source file path
+     * @param dstRepoId the destination repo id
+     * @param dstDir the destination folder in dst_repo
      * @return
      * @throws SeafException
      */
