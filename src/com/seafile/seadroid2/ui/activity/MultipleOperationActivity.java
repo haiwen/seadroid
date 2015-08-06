@@ -15,9 +15,6 @@ import android.widget.*;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.ActionMode;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
@@ -29,6 +26,8 @@ import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.transfer.TransferService;
+import com.seafile.seadroid2.ui.ActionModeCallback;
+import com.seafile.seadroid2.ui.ActionModeCallback.ActionModeOperationListener;
 import com.seafile.seadroid2.ui.CopyMoveContext;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.adapter.MultipleOperationAdapter;
@@ -44,7 +43,8 @@ import java.util.List;
 /**
  * Activity for file (folders) multiple selections and operations
  */
-public class MultipleOperationActivity extends SherlockFragmentActivity {
+public class MultipleOperationActivity extends SherlockFragmentActivity
+        implements ActionModeOperationListener {
     public static final String DEBUG_TAG = "MultiOperationActivity";
 
     public static final String MULTI_OPERATION_REPOID = "operation_repo_id";
@@ -117,7 +117,7 @@ public class MultipleOperationActivity extends SherlockFragmentActivity {
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(false);
 
-        mActionMode = startActionMode(new ActionModeCallback());
+        mActionMode = startActionMode(new ActionModeCallback(this));
 
         Intent txIntent = new Intent(this, TransferService.class);
         startService(txIntent);
@@ -153,7 +153,7 @@ public class MultipleOperationActivity extends SherlockFragmentActivity {
 
         if (mActionMode == null) {
             // there are some selected items, start the actionMode
-            mActionMode = startActionMode(new ActionModeCallback());
+            mActionMode = startActionMode(new ActionModeCallback(this));
         } else {
             // Log.d(DEBUG_TAG, "mActionMode.setTitle " + adapter.getCheckedItemCount());
             mActionMode.setTitle(getResources().getQuantityString(
@@ -174,7 +174,7 @@ public class MultipleOperationActivity extends SherlockFragmentActivity {
 
         if (mActionMode == null) {
             // there are some selected items, start the actionMode
-            mActionMode = startActionMode(new ActionModeCallback());
+            mActionMode = startActionMode(new ActionModeCallback(this));
         } else {
             // Log.d(DEBUG_TAG, "mActionMode.setTitle " + adapter.getCheckedItemCount());
             mActionMode.setTitle(getResources().getQuantityString(
@@ -185,11 +185,11 @@ public class MultipleOperationActivity extends SherlockFragmentActivity {
 
     }
 
-
     /**
      * select all items
      */
-    private void selectItems() {
+    @Override
+    public void selectItems() {
         if (adapter == null)
             return;
 
@@ -201,6 +201,7 @@ public class MultipleOperationActivity extends SherlockFragmentActivity {
     /**
      * deselect all items
      */
+    @Override
     public void deselectItems() {
         if (adapter == null)
             return;
@@ -209,68 +210,24 @@ public class MultipleOperationActivity extends SherlockFragmentActivity {
         updateContextualActionBar();
     }
 
-    /**
-     * Represents a contextual mode of the user interface.
-     * Action modes can be used to provide alternative interaction modes and replace parts of the normal UI until finished.
-     * A Callback configures and handles events raised by a user's interaction with an action mode.
-     */
-    private class ActionModeCallback implements ActionMode.Callback {
-        private boolean allItemsSelected;
+    @Override
+    public void onActionModeDestroy() {
+        if (adapter == null)
+            return;
 
-        @Override
-        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-            // Inflate the menu for the contextual action bar (CAB)
-            MenuInflater inflater = mode.getMenuInflater();
-            inflater.inflate(R.menu.transfer_list_multi_choice_menu, menu);
-            mActionMode = mode;
-            return true;
-        }
+        adapter.deselectAllItems();
+        //adapter.actionModeOff();
+        Animation bottomDown = AnimationUtils.loadAnimation(MultipleOperationActivity.this,
+                R.anim.bottom_down);
+        mTaskActionBar.startAnimation(bottomDown);
+        mTaskActionBar.setVisibility(View.GONE);
 
-        @Override
-        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            // Here you can perform updates to the contextual action bar (CAB) due to
-            // an invalidate() request
-            return false;
-        }
+        // Here you can make any necessary updates to the activity when
+        // the contextual action bar (CAB) is removed. By default, selected items are deselected/unchecked.
+        mActionMode = null;
 
-        @Override
-        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            // Respond to clicks on the actions in the contextual action bar (CAB)
-            switch (item.getItemId()) {
-                case R.id.transfer_mode_select_all:
-                    if (!allItemsSelected)
-                        selectItems();
-                    else
-                        deselectItems();
-
-                    allItemsSelected = !allItemsSelected;
-
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
-        @Override
-        public void onDestroyActionMode(ActionMode mode) {
-            if (adapter == null)
-                return;
-
-            adapter.deselectAllItems();
-            //adapter.actionModeOff();
-            Animation bottomDown = AnimationUtils.loadAnimation(MultipleOperationActivity.this,
-                    R.anim.bottom_down);
-            mTaskActionBar.startAnimation(bottomDown);
-            mTaskActionBar.setVisibility(View.GONE);
-
-            // Here you can make any necessary updates to the activity when
-            // the contextual action bar (CAB) is removed. By default, selected items are deselected/unchecked.
-            mActionMode = null;
-
-            // finish activity
-            finish();
-        }
-
+        // finish activity
+        finish();
     }
 
     public void onItemSelected() {
