@@ -27,7 +27,7 @@ import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
-import com.seafile.seadroid2.ui.activity.MultiOperationActivity;
+import com.seafile.seadroid2.ui.activity.MultipleOperationActivity;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
@@ -132,13 +132,13 @@ public class ReposFragment extends SherlockListFragment {
         final String repoID = nav.getRepoID();
         final String dirPath = nav.getDirPath();
         Bundle bundle = new Bundle();
-        bundle.putParcelable(MultiOperationActivity.MULTI_OPERATION_ACCOUNT, mActivity.getAccount());
+        bundle.putParcelable(MultipleOperationActivity.MULTI_OPERATION_ACCOUNT, mActivity.getAccount());
 
-        Intent intent = new Intent(getActivity(), MultiOperationActivity.class);
-        intent.putExtra(MultiOperationActivity.MULTI_OPERATION_REPOID, repoID);
-        intent.putExtra(MultiOperationActivity.MULTI_OPERATION_REPONAME, repoName);
-        intent.putExtra(MultiOperationActivity.MULTI_OPERATION_DIR, dirPath);
-        intent.putExtra(MultiOperationActivity.MULTI_OPERATION_BUNDLE, bundle);
+        Intent intent = new Intent(getActivity(), MultipleOperationActivity.class);
+        intent.putExtra(MultipleOperationActivity.MULTI_OPERATION_REPOID, repoID);
+        intent.putExtra(MultipleOperationActivity.MULTI_OPERATION_REPONAME, repoName);
+        intent.putExtra(MultipleOperationActivity.MULTI_OPERATION_DIR, dirPath);
+        intent.putExtra(MultipleOperationActivity.MULTI_OPERATION_BUNDLE, bundle);
 
         startActivity(intent);
     }

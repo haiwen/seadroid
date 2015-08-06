@@ -31,7 +31,7 @@ import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.ui.CopyMoveContext;
 import com.seafile.seadroid2.ui.ToastUtils;
-import com.seafile.seadroid2.ui.adapter.MultiOperationAdapter;
+import com.seafile.seadroid2.ui.adapter.MultipleOperationAdapter;
 import com.seafile.seadroid2.ui.dialog.CopyMoveDialog;
 import com.seafile.seadroid2.ui.dialog.DeleteFileDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
@@ -44,7 +44,7 @@ import java.util.List;
 /**
  * Activity for file (folders) multiple selections and operations
  */
-public class MultiOperationActivity extends SherlockFragmentActivity {
+public class MultipleOperationActivity extends SherlockFragmentActivity {
     public static final String DEBUG_TAG = "MultiOperationActivity";
 
     public static final String MULTI_OPERATION_REPOID = "operation_repo_id";
@@ -53,8 +53,8 @@ public class MultiOperationActivity extends SherlockFragmentActivity {
     public static final String MULTI_OPERATION_ACCOUNT = "operation_data_account";
     public static final String MULTI_OPERATION_BUNDLE = "operation_data_bundle";
     public static final int CHOOSE_COPY_MOVE_DEST_REQUEST = 1;
-    private MultiOperationClickListener listener = new MultiOperationClickListener();
-    private MultiOperationAdapter adapter;
+    private MultipleOperationClickListener listener = new MultipleOperationClickListener();
+    private MultipleOperationAdapter adapter;
     private ListView mFileList;
     private TextView mEmptyView;
     private View mProgressBarContainer;
@@ -99,7 +99,7 @@ public class MultiOperationActivity extends SherlockFragmentActivity {
         mAccount = intent.getBundleExtra(MULTI_OPERATION_BUNDLE).getParcelable(MULTI_OPERATION_ACCOUNT);
         manager = new DataManager(mAccount);
         dirents = manager.getCachedDirents(repoID, dirPath);
-        adapter = new MultiOperationAdapter(this, dirents);
+        adapter = new MultipleOperationAdapter(this, dirents);
         adapter.sortFiles(SettingsManager.instance().getSortFilesTypePref(), SettingsManager.instance().getSortFilesOrderPref());
         mFileList.setAdapter(adapter);
         mFileList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -258,7 +258,7 @@ public class MultiOperationActivity extends SherlockFragmentActivity {
 
             adapter.deselectAllItems();
             //adapter.actionModeOff();
-            Animation bottomDown = AnimationUtils.loadAnimation(MultiOperationActivity.this,
+            Animation bottomDown = AnimationUtils.loadAnimation(MultipleOperationActivity.this,
                     R.anim.bottom_down);
             mTaskActionBar.startAnimation(bottomDown);
             mTaskActionBar.setVisibility(View.GONE);
@@ -278,7 +278,7 @@ public class MultiOperationActivity extends SherlockFragmentActivity {
         updateContextualActionBar();
     }
 
-    class MultiOperationClickListener implements View.OnClickListener {
+    class MultipleOperationClickListener implements View.OnClickListener {
 
         @Override
         public void onClick(View v) {
@@ -286,7 +286,7 @@ public class MultiOperationActivity extends SherlockFragmentActivity {
             if (selectedDirents.size() == 0
                     || repoID == null
                     || dirPath == null) {
-                ToastUtils.show(MultiOperationActivity.this, R.string.action_mode_no_items_selected);
+                ToastUtils.show(MultipleOperationActivity.this, R.string.action_mode_no_items_selected);
                 return;
             }
 
@@ -314,7 +314,7 @@ public class MultiOperationActivity extends SherlockFragmentActivity {
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
-                ToastUtils.show(MultiOperationActivity.this, R.string.delete_successful);
+                ToastUtils.show(MultipleOperationActivity.this, R.string.delete_successful);
                 if (manager != null) {
                     List<SeafDirent> cachedDirents = manager.getCachedDirents(repoID, dirPath);
                     adapter.setItems(cachedDirents);
@@ -359,7 +359,7 @@ public class MultiOperationActivity extends SherlockFragmentActivity {
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
-                ToastUtils.show(MultiOperationActivity.this, copyMoveContext.isCopy()
+                ToastUtils.show(MultipleOperationActivity.this, copyMoveContext.isCopy()
                         ? R.string.copied_successfully
                         : R.string.moved_successfully);
                 if (copyMoveContext.isMove()
@@ -475,14 +475,14 @@ public class MultiOperationActivity extends SherlockFragmentActivity {
             showLoading(false);
 
             if (err != null) {
-                ToastUtils.show(MultiOperationActivity.this, R.string.transfer_list_network_error);
+                ToastUtils.show(MultipleOperationActivity.this, R.string.transfer_list_network_error);
                 return;
             }
 
             if (fileCount == 0)
-                ToastUtils.show(MultiOperationActivity.this, R.string.transfer_download_no_task);
+                ToastUtils.show(MultipleOperationActivity.this, R.string.transfer_download_no_task);
             else {
-                ToastUtils.show(MultiOperationActivity.this, getResources().getQuantityString(R.plurals.transfer_download_started, fileCount, fileCount));
+                ToastUtils.show(MultipleOperationActivity.this, getResources().getQuantityString(R.plurals.transfer_download_started, fileCount, fileCount));
                 if (!txService.hasDownloadNotifProvider()) {
                     DownloadNotificationProvider provider = new DownloadNotificationProvider(txService.getDownloadTaskManager(),
                             txService);

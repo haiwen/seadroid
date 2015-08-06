@@ -10,7 +10,7 @@ import android.widget.TextView;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.data.*;
-import com.seafile.seadroid2.ui.activity.MultiOperationActivity;
+import com.seafile.seadroid2.ui.activity.MultipleOperationActivity;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,10 +18,10 @@ import java.util.List;
 /**
  * Adapter for multiple files operations
  */
-public class MultiOperationAdapter extends BaseAdapter {
+public class MultipleOperationAdapter extends BaseAdapter {
     public static final String DEBUG_TAG = "FileMultiOperationAdapter";
 
-    private MultiOperationActivity mActivity;
+    private MultipleOperationActivity mActivity;
     private List<SeafDirent> dirents;
 
     private SparseBooleanArray mSelectedItemsIds;
@@ -32,7 +32,7 @@ public class MultiOperationAdapter extends BaseAdapter {
      */
     //private boolean actionModeStarted;
 
-    public MultiOperationAdapter(MultiOperationActivity activity, List<SeafDirent> dirents) {
+    public MultipleOperationAdapter(MultipleOperationActivity activity, List<SeafDirent> dirents) {
         this.mSelectedItemsIds = new SparseBooleanArray();
         this.mActivity = activity;
         this.dirents = dirents;
