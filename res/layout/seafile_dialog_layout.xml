@@ -49,7 +49,7 @@ https://github.com/android/platform_frameworks_base/blob/master/core/res/res/lay
 
         <TextView android:id="@+id/alertTitle"
                   style="?android:attr/textAppearanceLarge"
-                  android:textColor="@color/dialog_theme_color"
+                  android:textColor="@color/fancy_orange"
                   android:maxLines="2"
                   android:ellipsize="end"
                   android:layout_width="match_parent"
@@ -65,7 +65,7 @@ https://github.com/android/platform_frameworks_base/blob/master/core/res/res/lay
               android:layout_height="2dip"
               android:visibility="visible"
               android:layout_marginTop="7dp"
-              android:background="@color/dialog_theme_color"/>
+              android:background="@color/fancy_orange"/>
     </LinearLayout>
 
     <ScrollView android:id="@+id/contentPanel"

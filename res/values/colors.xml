@@ -7,29 +7,19 @@
     <color name="red">#FF0000</color>
     <color name="light_grey">#BDBDBD</color>
     <color name="dark_gray">#1E2129</color>
-    <color name="light_blue">#33B5E5</color>
     <color name="light_black">#333333</color>
-    <color name="theme_color">#F57900</color>
     <color name="transparent">#00000000</color>
     <color name="half_transparent">#80FFFFFF</color>
     <color name="half_transparent_black">#80000000</color>
 
-    <color name="actionbar_text">#FFFFFF</color>
-    <color name="actionbar_text_shadow">#000000</color>
-
-    <color name="grey_gradient_start">#1B1B1B</color>
-    <color name="grey_gradient_stop">#323232</color>
-    <color name="dialog_theme_color">#FEAC74</color>
-    <color name="list_divider">#BAB9BA</color>
-
-    <!-- Title -->
-    <color name="tv_title_color">#ee8833</color>
-    <color name="tv_subtitle_color">#888</color>
-
-    <!-- Content -->
-    <color name="lv_title_color">#282828</color>
-    <color name="lv_subtitle_color">#555555</color>
-
-    <!-- Footer -->
-
+    <!-- Theme V2 -->
+    <color name="fancy_white">#f4f5f6</color> <!-- theme color -->
+    <color name="fancy_light_white">#fcfcfc</color>
+    <color name="fancy_black">#464646</color>
+    <color name="fancy_light_black">#a9a9a9</color> <!-- color for slide expandable list item background -->
+    <color name="fancy_dark_black">#282828</color>
+    <color name="fancy_deep_black">#989898</color> <!-- color for dividers inside of slide expandable list item -->
+    <color name="fancy_gray">#969696</color>
+    <color name="fancy_dark_gray">#e1e2e3</color>
+    <color name="fancy_orange">#ea8201</color> <!-- theme color -->
 </resources>

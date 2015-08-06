@@ -28,7 +28,7 @@
                         android:paddingTop="@dimen/lv_item_padding_top"
                         android:lines="1"
                         android:singleLine="true"
-                        android:textColor="@color/lv_title_color"
+                        android:textColor="@color/fancy_dark_black"
                         android:textSize="@dimen/lv_title_txt_size"
                         android:layout_toRightOf="@id/list_item_space"
                         android:layout_toLeftOf="@+id/expandable_toggle_button"/>
@@ -68,7 +68,7 @@
                                 android:layout_width="fill_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_toRightOf="@id/list_item_download_status_progressbar"
-                                android:textColor="@color/lv_subtitle_color"
+                                android:textColor="@color/fancy_black"
                                 android:textSize="@dimen/lv_subtitle_txt_size"/>
                 </RelativeLayout>
 
@@ -99,7 +99,7 @@
                 android:paddingRight="@dimen/lv_expandable_item_padding"
                 android:id="@+id/expandable"
                 android:visibility="gone"
-                android:background="@color/grey">
+                android:background="@color/fancy_light_black">
 
                 <RelativeLayout
                         android:id="@+id/action_share_ll"
@@ -138,7 +138,7 @@
                                 <View
                                         android:layout_width="1dp"
                                         android:layout_height="@dimen/lv_expandable_item_divider_height"
-                                        android:background="@color/half_transparent"/>
+                                        android:background="@color/fancy_deep_black"/>
                         </LinearLayout>
                 </RelativeLayout>
 
@@ -177,7 +177,7 @@
                                 <View
                                         android:layout_width="1dp"
                                         android:layout_height="@dimen/lv_expandable_item_divider_height"
-                                        android:background="@color/half_transparent"/>
+                                        android:background="@color/fancy_deep_black"/>
                         </LinearLayout>
 
                 </RelativeLayout>
@@ -217,7 +217,7 @@
                                 <View
                                         android:layout_width="1dp"
                                         android:layout_height="@dimen/lv_expandable_item_divider_height"
-                                        android:background="@color/half_transparent"/>
+                                        android:background="@color/fancy_deep_black"/>
                         </LinearLayout>
 
                 </RelativeLayout>
@@ -258,7 +258,7 @@
                                 <View
                                         android:layout_width="1dp"
                                         android:layout_height="@dimen/lv_expandable_item_divider_height"
-                                        android:background="@color/half_transparent"/>
+                                        android:background="@color/fancy_deep_black"/>
                         </LinearLayout>
 
                 </RelativeLayout>
@@ -299,7 +299,7 @@
                                 <View
                                         android:layout_width="1dp"
                                         android:layout_height="@dimen/lv_expandable_item_divider_height"
-                                        android:background="@color/half_transparent"/>
+                                        android:background="@color/fancy_deep_black"/>
                         </LinearLayout>
 
                 </RelativeLayout>
@@ -368,7 +368,7 @@
                                 <View
                                         android:layout_width="1dp"
                                         android:layout_height="@dimen/lv_expandable_item_divider_height"
-                                        android:background="@color/half_transparent"/>
+                                        android:background="@color/fancy_deep_black"/>
                         </LinearLayout>
                 </RelativeLayout>
 

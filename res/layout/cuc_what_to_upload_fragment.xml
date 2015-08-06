@@ -1,10 +1,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:background="@color/white">
+    android:layout_height="fill_parent">
 
     <TextView
-        android:id="@+id/cuc_upload_type_titel_tv"
+        android:id="@+id/cuc_upload_type_title_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
@@ -12,20 +11,20 @@
         android:layout_marginLeft="@dimen/tv_title_margin_left"
         android:layout_marginTop="@dimen/tv_title_margin_top"
         android:text="@string/settings_cuc_type_title"
-        android:textColor="@color/tv_title_color"
+        android:textColor="@color/fancy_orange"
         android:textSize="@dimen/tv_title_txt_size" />
 
     <TextView
         android:id="@+id/cuc_upload_hint_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/cuc_upload_type_titel_tv"
-        android:layout_below="@+id/cuc_upload_type_titel_tv"
+        android:layout_alignLeft="@+id/cuc_upload_type_title_tv"
+        android:layout_below="@+id/cuc_upload_type_title_tv"
         android:layout_marginRight="30dp"
         android:layout_marginTop="@dimen/section_margin_top"
         android:text="@string/settings_cuc_option_hint"
         android:textSize="@dimen/tv_subtitle_txt_size"
-        android:textColor="@color/tv_subtitle_color" />
+        android:textColor="@color/fancy_gray" />
 
     <TextView
             android:id="@+id/cuc_swipe_left_txt_tv"
@@ -35,7 +34,7 @@
             android:layout_below="@+id/cuc_upload_hint_tv"
             android:layout_marginTop="@dimen/tv_subtitle_margin_top"
             android:text="@string/settings_cuc_swipe_left"
-            android:textColor="@color/tv_subtitle_color"
+            android:textColor="@color/fancy_gray"
             android:textSize="@dimen/tv_subtitle_txt_size" />
 
     <RadioGroup

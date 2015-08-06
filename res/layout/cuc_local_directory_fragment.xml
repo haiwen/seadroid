@@ -1,7 +1,6 @@
 <RelativeLayout android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                xmlns:android="http://schemas.android.com/apk/res/android"
-                android:background="@color/white">
+                xmlns:android="http://schemas.android.com/apk/res/android">
 
     <TextView
             android:id="@+id/cuc_local_library_header_tv"
@@ -12,7 +11,7 @@
             android:layout_marginLeft="@dimen/tv_title_margin_left"
             android:layout_marginTop="@dimen/tv_title_margin_top"
             android:text="@string/settings_cuc_local_dir_title"
-            android:textColor="@color/tv_title_color"
+            android:textColor="@color/fancy_orange"
             android:textSize="@dimen/tv_title_txt_size"/>
 
     <RadioGroup

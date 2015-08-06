@@ -8,6 +8,10 @@
 
     <dimen name="section_margin_top">25dp</dimen>
 
+    <!-- Header -->
+    <dimen name="abs_actionbar_height">64dp</dimen>
+    <dimen name="tab_height">48dp</dimen>
+
     <!-- Content -->
     <dimen name="tv_txt_size">14sp</dimen>
     <dimen name="lv_item_height">70dp</dimen>
@@ -66,12 +70,16 @@
     <dimen name="dialog_msg_progressbar_height">30dp</dimen>
     <dimen name="dialog_et_txt_size">20sp</dimen>
 
-    <dimen name="ptr_tv_tip_txt_size">18sp</dimen>
-    <dimen name="ptr_tv_label_txt_size">16sp</dimen>
+    <dimen name="ptr_tv_tip_txt_size">16sp</dimen>
+    <dimen name="ptr_tv_label_txt_size">12sp</dimen>
 
     <dimen name="preference_fragment_padding_bottom">0dp</dimen>
     <dimen name="preference_fragment_padding_side">32dp</dimen>
 
+    <dimen name="empty_folder_height">300dp</dimen>
+    <dimen name="empty_folder_width">300dp</dimen>
+    <dimen name="error_msg_height">300dp</dimen>
+    <dimen name="error_msg_width">300dp</dimen>
     <!-- Footer -->
 
 </resources>
