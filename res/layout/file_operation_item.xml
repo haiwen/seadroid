@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             android:lines="1"
             android:singleLine="true"
-            android:textColor="@color/lv_title_color"
+            android:textColor="@color/fancy_dark_black"
             android:textSize="@dimen/lv_title_txt_size"
             android:layout_toRightOf="@id/file_operation_space_iv"
             android:layout_toLeftOf="@+id/file_operation_action_iv"/>
@@ -38,7 +38,7 @@
                 android:layout_below="@id/file_operation_title_tv"
                 android:layout_toLeftOf="@+id/file_operation_action_iv"
                 android:layout_toRightOf="@id/file_operation_space_iv"
-                android:textColor="@color/lv_subtitle_color"
+                android:textColor="@color/fancy_black"
                 android:textSize="@dimen/lv_subtitle_txt_size"/>
 
     <ImageView

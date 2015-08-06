@@ -189,7 +189,7 @@ public class MultiOperationActivity extends SherlockFragmentActivity {
     /**
      * select all items
      */
-    private void selectAllItems() {
+    private void selectItems() {
         if (adapter == null)
             return;
 
@@ -201,7 +201,7 @@ public class MultiOperationActivity extends SherlockFragmentActivity {
     /**
      * deselect all items
      */
-    public void deselectAllItems() {
+    public void deselectItems() {
         if (adapter == null)
             return;
 
@@ -215,6 +215,7 @@ public class MultiOperationActivity extends SherlockFragmentActivity {
      * A Callback configures and handles events raised by a user's interaction with an action mode.
      */
     private class ActionModeCallback implements ActionMode.Callback {
+        private boolean allItemsSelected;
 
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
@@ -237,13 +238,13 @@ public class MultiOperationActivity extends SherlockFragmentActivity {
             // Respond to clicks on the actions in the contextual action bar (CAB)
             switch (item.getItemId()) {
                 case R.id.transfer_mode_select_all:
-                    selectAllItems();
-                    return true;
-                case R.id.transfer_mode_deselect_all:
-                    deselectAllItems();
-                    mode.finish(); // Action picked, so close the contextual action bar (CAB)
-                    // finish activity
-                    finish();
+                    if (!allItemsSelected)
+                        selectItems();
+                    else
+                        deselectItems();
+
+                    allItemsSelected = !allItemsSelected;
+
                     return true;
                 default:
                     return false;
