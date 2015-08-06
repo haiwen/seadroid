@@ -18,7 +18,7 @@ public class CopyMoveContext {
     public String srcDir;
     public String srcFn;
     public boolean isdir;
-    /** flag to mark multi selection & operations */
+    /** flag to mark multiple selection & operations */
     public boolean isBatch;
 
     public String dstRepoId;
@@ -45,7 +45,7 @@ public class CopyMoveContext {
     }
 
     /**
-     * Constructor for multi files operations
+     * Constructor for multiple files operations
      *
      * @param srcRepoId
      * @param srcRepoName
