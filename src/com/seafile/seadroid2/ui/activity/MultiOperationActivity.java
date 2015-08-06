@@ -286,7 +286,7 @@ public class MultiOperationActivity extends SherlockFragmentActivity {
             if (selectedDirents.size() == 0
                     || repoID == null
                     || dirPath == null) {
-                ToastUtils.show(MultiOperationActivity.this, R.string.multi_op_no_items_selected);
+                ToastUtils.show(MultiOperationActivity.this, R.string.action_mode_no_items_selected);
                 return;
             }
 

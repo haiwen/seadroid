@@ -78,7 +78,6 @@
     <string name="file_action_move">Move</string>
     <string name="file_action_more">More</string>
     <string name="file_action_open_as">Open as</string>
-    <string name="file_action_more">More</string>
     <string name="file_action_more_title">Choose your preferred option</string>
     <string-array name="file_action_more_array">
         <item>Export</item>
@@ -438,6 +437,4 @@
 
     <!--Action Mode -->
     <string name="action_mode_no_items_selected">No items were selected</string>
-    <!-- Multi selections and operations -->
-    <string name="multi_op_no_items_selected">No items were selected</string>
 </resources>
