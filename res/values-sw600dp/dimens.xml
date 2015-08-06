@@ -76,10 +76,10 @@
     <dimen name="preference_fragment_padding_bottom">0dp</dimen>
     <dimen name="preference_fragment_padding_side">32dp</dimen>
 
-    <dimen name="empty_folder_height">400dp</dimen>
-    <dimen name="empty_folder_width">400dp</dimen>
-    <dimen name="error_msg_height">400dp</dimen>
-    <dimen name="error_msg_width">400dp</dimen>
+    <dimen name="empty_folder_height">300dp</dimen>
+    <dimen name="empty_folder_width">300dp</dimen>
+    <dimen name="error_msg_height">300dp</dimen>
+    <dimen name="error_msg_width">300dp</dimen>
     <!-- Footer -->
 
 </resources>
