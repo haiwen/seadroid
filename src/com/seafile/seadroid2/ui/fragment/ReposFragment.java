@@ -188,7 +188,7 @@ public class ReposFragment extends SherlockListFragment {
                     break;
                 case R.id.action_download_ll:
                     mListView.collapse();
-                    mActivity.onFileSelected(dirent);
+                    mActivity.downloadFile(repoID, repoName, dir, dirent.name);
                     break;
                 case R.id.action_more_ll:
                     mListView.collapse();
@@ -381,9 +381,9 @@ public class ReposFragment extends SherlockListFragment {
             @Override
             public void run() {
                 TransferService ts = mActivity.getTransferService();
-                String repoID = mActivity.getCurrentRepoID();
-                String repoName = mActivity.getCurrentRepoName();
-                String currentDir = mActivity.getCurrentDir();
+                String repoID = getNavContext().getRepoID();
+                String repoName = getNavContext().getRepoName();
+                String currentDir = getNavContext().getDirPath();
 
                 adapter.setDownloadTaskList(ts.getDownloadTaskInfosByPath(repoID, currentDir));
 
