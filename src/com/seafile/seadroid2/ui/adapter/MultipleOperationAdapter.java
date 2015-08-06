@@ -27,10 +27,6 @@ public class MultipleOperationAdapter extends BaseAdapter {
     private SparseBooleanArray mSelectedItemsIds;
     private List<Integer> mSelectedItemsPositions = Lists.newArrayList();
     private List<SeafDirent> mSelectedItemsValues = Lists.newArrayList();
-    /**
-     * flag to mark if action mode was activated, used to update the state of multi selection buttons
-     */
-    //private boolean actionModeStarted;
 
     public MultipleOperationAdapter(MultipleOperationActivity activity, List<SeafDirent> dirents) {
         this.mSelectedItemsIds = new SparseBooleanArray();
