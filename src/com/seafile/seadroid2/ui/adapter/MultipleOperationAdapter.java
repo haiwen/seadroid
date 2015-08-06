@@ -127,10 +127,6 @@ public class MultipleOperationAdapter extends BaseAdapter {
         return mSelectedItemsIds.size();
     }
 
-    public List<Integer> getSelectedIds() {
-        return mSelectedItemsPositions;
-    }
-
     public List<SeafDirent> getSelectedItemsValues() {
         return mSelectedItemsValues;
     }
@@ -150,16 +146,6 @@ public class MultipleOperationAdapter extends BaseAdapter {
         mActivity.onItemSelected();
         notifyDataSetChanged();
     }
-
-    /*public void actionModeOn() {
-        actionModeStarted = true;
-        notifyDataSetChanged();
-    }
-
-    public void actionModeOff() {
-        actionModeStarted = false;
-        notifyDataSetChanged();
-    }*/
 
     public void deselectAllItems() {
         mSelectedItemsIds.clear();

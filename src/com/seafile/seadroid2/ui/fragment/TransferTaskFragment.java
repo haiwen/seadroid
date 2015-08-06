@@ -14,16 +14,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.*;
+import android.widget.AdapterView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.ActionMode;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferTaskInfo;
+import com.seafile.seadroid2.ui.ActionModeCallback;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.activity.TransferActivity;
 import com.seafile.seadroid2.ui.adapter.TransferTaskAdapter;
@@ -34,7 +35,8 @@ import java.util.List;
  * Base class for transfer task fragments
  *
  */
-public abstract class TransferTaskFragment extends SherlockListFragment {
+public abstract class TransferTaskFragment extends SherlockListFragment
+        implements ActionModeCallback.ActionModeOperationListener {
     private String DEBUG_TAG = "TransferTaskFragment";
 
     protected TransferTaskAdapter adapter;
@@ -129,7 +131,8 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
     /**
      * select all items
      */
-    private void selectItems() {
+    @Override
+    public void selectItems() {
         if (adapter == null)
             return;
 
@@ -141,12 +144,30 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
     /**
      * deselect all items
      */
+    @Override
     public void deselectItems() {
         if (adapter == null)
             return;
 
         adapter.deselectAllItems();
         updateCAB();
+    }
+
+    @Override
+    public void onActionModeDestroy() {
+        if (adapter == null)
+            return;
+
+        adapter.deselectAllItems();
+        adapter.actionModeOff();
+        Animation bottomDown = AnimationUtils.loadAnimation(getActivity(),
+                R.anim.bottom_down);
+        mTaskActionBar.startAnimation(bottomDown);
+        mTaskActionBar.setVisibility(View.GONE);
+
+        // Here you can make any necessary updates to the activity when
+        // the CAB is removed. By default, selected items are deselected/unchecked.
+        mActionMode = null;
     }
 
     protected abstract void deleteSelectedItems(List<Integer> ids);
@@ -279,7 +300,7 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
 
         if (itemsChecked && mActionMode == null) {
             // there are some selected items, start the actionMode
-            mActionMode = getSherlockActivity().startActionMode(new ActionModeCallback());
+            mActionMode = getSherlockActivity().startActionMode(new ActionModeCallback(this));
             adapter.actionModeOn();
         } else if (!itemsChecked && mActionMode != null) {
             // there no selected items, finish the actionMode
@@ -312,7 +333,7 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
 
         if (itemsChecked && mActionMode == null) {
             // there are some selected items, start the actionMode
-            mActionMode = getSherlockActivity().startActionMode(new ActionModeCallback());
+            mActionMode = getSherlockActivity().startActionMode(new ActionModeCallback(this));
             adapter.actionModeOn();
             Animation bottomUp = AnimationUtils.loadAnimation(getActivity(),
                     R.anim.bottom_up);
@@ -335,62 +356,6 @@ public abstract class TransferTaskFragment extends SherlockListFragment {
                     R.plurals.transfer_list_items_selected,
                     adapter.getCheckedItemCount(),
                     adapter.getCheckedItemCount()));
-        }
-
-    }
-
-    private class ActionModeCallback implements ActionMode.Callback {
-        // flag to mark if all items were selected
-        private boolean allItemsSelected;
-
-        @Override
-        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-            // Inflate the menu for the CAB
-            MenuInflater inflater = mode.getMenuInflater();
-            inflater.inflate(R.menu.transfer_list_multi_choice_menu, menu);
-            mActionMode = mode;
-            return true;
-        }
-
-        @Override
-        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            // Here you can perform updates to the CAB due to
-            // an invalidate() request
-            return false;
-        }
-
-        @Override
-        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            // Respond to clicks on the actions in the CAB
-            switch (item.getItemId()) {
-                case R.id.transfer_mode_select_all:
-                    if (!allItemsSelected)
-                        selectItems();
-                    else
-                        deselectItems();
-
-                    allItemsSelected = !allItemsSelected;
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
-        @Override
-        public void onDestroyActionMode(ActionMode mode) {
-            if (adapter == null)
-                return;
-
-            adapter.deselectAllItems();
-            adapter.actionModeOff();
-            Animation bottomDown = AnimationUtils.loadAnimation(getActivity(),
-                    R.anim.bottom_down);
-            mTaskActionBar.startAnimation(bottomDown);
-            mTaskActionBar.setVisibility(View.GONE);
-
-            // Here you can make any necessary updates to the activity when
-            // the CAB is removed. By default, selected items are deselected/unchecked.
-            mActionMode = null;
         }
 
     }
