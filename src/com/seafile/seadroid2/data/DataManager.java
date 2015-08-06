@@ -650,9 +650,9 @@ public class DataManager {
     }
 
     public void move(String srcRepoId, String srcDir, String srcFn, String dstRepoId, String dstDir,
-                     boolean isBatch) throws SeafException {
+                     boolean batch) throws SeafException {
         Pair<String, String> ret = null;
-        if (isBatch) {
+        if (batch) {
             sc.move(srcRepoId, srcDir, srcFn, dstRepoId, dstDir);
         } else {
             String srcPath = Utils.pathJoin(srcDir, srcFn);
