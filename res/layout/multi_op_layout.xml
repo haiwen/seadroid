@@ -49,7 +49,7 @@
             android:paddingLeft="@dimen/lv_expandable_item_padding"
             android:paddingRight="@dimen/lv_expandable_item_padding"
             android:layout_alignParentBottom="true"
-            android:background="@color/whitegrey">
+            android:background="@color/fancy_light_black">
 
         <RelativeLayout
                 android:id="@+id/multi_op_delete_rl"
@@ -75,7 +75,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
-                        android:textColor="@color/light_black"
+                        android:textColor="@color/white"
                         android:textSize="@dimen/lv_expandable_txt_size"
                         android:text="@string/file_action_delete"/>
             </LinearLayout>
@@ -85,9 +85,9 @@
                           android:paddingBottom="@dimen/lv_expandable_item_divider_padding"
                           android:layout_alignParentRight="true">
                 <View
-                        android:layout_width="2dp"
+                        android:layout_width="1dp"
                         android:layout_height="@dimen/lv_expandable_item_divider_height"
-                        android:background="@color/white"/>
+                        android:background="@color/fancy_deep_black"/>
             </LinearLayout>
 
         </RelativeLayout>
@@ -116,7 +116,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
-                        android:textColor="@color/light_black"
+                        android:textColor="@color/white"
                         android:textSize="@dimen/lv_expandable_txt_size"
                         android:text="@string/file_action_copy"/>
             </LinearLayout>
@@ -126,9 +126,9 @@
                           android:paddingBottom="@dimen/lv_expandable_item_divider_padding"
                           android:layout_alignParentRight="true">
                 <View
-                        android:layout_width="2dp"
+                        android:layout_width="1dp"
                         android:layout_height="@dimen/lv_expandable_item_divider_height"
-                        android:background="@color/white"/>
+                        android:background="@color/fancy_deep_black"/>
             </LinearLayout>
         </RelativeLayout>
 
@@ -156,7 +156,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
-                        android:textColor="@color/light_black"
+                        android:textColor="@color/white"
                         android:textSize="@dimen/lv_expandable_txt_size"
                         android:text="@string/file_action_move"/>
             </LinearLayout>
@@ -166,9 +166,9 @@
                           android:paddingBottom="@dimen/lv_expandable_item_divider_padding"
                           android:layout_alignParentRight="true">
                 <View
-                        android:layout_width="2dp"
+                        android:layout_width="1dp"
                         android:layout_height="@dimen/lv_expandable_item_divider_height"
-                        android:background="@color/white"/>
+                        android:background="@color/fancy_deep_black"/>
             </LinearLayout>
         </RelativeLayout>
 
@@ -196,7 +196,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
-                        android:textColor="@color/light_black"
+                        android:textColor="@color/white"
                         android:textSize="@dimen/lv_expandable_txt_size"
                         android:text="@string/file_action_download"/>
             </LinearLayout>
