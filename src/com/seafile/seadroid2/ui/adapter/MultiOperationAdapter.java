@@ -67,7 +67,7 @@ public class MultiOperationAdapter extends BaseAdapter {
         final Viewholder viewHolder;
 
         if (convertView == null) {
-            view = LayoutInflater.from(mActivity).inflate(R.layout.file_multi_operation_item, null);
+            view = LayoutInflater.from(mActivity).inflate(R.layout.file_operation_item, null);
             TextView title = (TextView) view.findViewById(R.id.file_operation_title_tv);
             TextView subtitle = (TextView) view.findViewById(R.id.file_operation_subtitle_tv);
             ImageView icon = (ImageView) view.findViewById(R.id.file_operation_icon_iv);
