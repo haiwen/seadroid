@@ -121,18 +121,18 @@ public class MultipleOperationActivity extends SherlockFragmentActivity
 
         Intent txIntent = new Intent(this, TransferService.class);
         startService(txIntent);
-        Log.d(DEBUG_TAG, "start TransferService");
+        // Log.d(DEBUG_TAG, "start TransferService");
 
         // bind transfer service
         Intent bIntent = new Intent(this, TransferService.class);
         bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
-        Log.d(DEBUG_TAG, "try bind TransferService");
+        // Log.d(DEBUG_TAG, "try bind TransferService");
 
     }
 
     @Override
     protected void onDestroy() {
-        Log.d(DEBUG_TAG, "onDestroy is called");
+        // Log.d(DEBUG_TAG, "onDestroy is called");
         if (txService != null) {
             unbindService(mConnection);
             txService = null;
@@ -503,7 +503,7 @@ public class MultipleOperationActivity extends SherlockFragmentActivity
         public void onServiceConnected(ComponentName className, IBinder service) {
             TransferService.TransferBinder binder = (TransferService.TransferBinder) service;
             txService = binder.getService();
-            Log.d(DEBUG_TAG, "TransferService was bound");
+            // Log.d(DEBUG_TAG, "TransferService was bound");
         }
 
         @Override
