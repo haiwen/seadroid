@@ -17,6 +17,8 @@
     <dimen name="head_progressBar_height">32dp</dimen>
     <dimen name="tv_txt_size">14sp</dimen>
     <dimen name="lv_item_height">70dp</dimen>
+    <dimen name="lv_multi_select_width">50dp</dimen>
+    <dimen name="lv_multi_select_height">50dp</dimen>
     <dimen name="lv_item_padding">10dp</dimen>
     <dimen name="lv_icon_width">60dp</dimen>
     <dimen name="lv_space_width">14dp</dimen>

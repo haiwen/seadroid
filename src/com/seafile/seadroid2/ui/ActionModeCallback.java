@@ -22,6 +22,7 @@ public class ActionModeCallback implements ActionMode.Callback {
     public interface ActionModeOperationListener {
         void selectItems();
         void deselectItems();
+        void onActionModeStarted();
         void onActionModeDestroy();
     }
 
@@ -30,6 +31,7 @@ public class ActionModeCallback implements ActionMode.Callback {
         // Inflate the menu for the contextual action bar (CAB)
         MenuInflater inflater = mode.getMenuInflater();
         inflater.inflate(R.menu.transfer_list_multi_choice_menu, menu);
+        mListener.onActionModeStarted();
         return true;
     }
 

@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.ui.adapter;
 
+import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,13 +30,19 @@ public class SeafItemAdapter extends BaseAdapter {
     private ArrayList<SeafItem> items;
     private BrowserActivity mActivity;
     private boolean repoIsEncrypted;
+    private boolean actionModeOn;
+
+    private SparseBooleanArray mSelectedItemsIds;
+    private List<Integer> mSelectedItemsPositions = Lists.newArrayList();
+    private List<SeafItem> mSelectedItemsValues = Lists.newArrayList();
 
     /** DownloadTask instance container **/
     private List<DownloadTaskInfo> mDownloadTaskInfos;
 
     public SeafItemAdapter(BrowserActivity activity) {
-        this.mActivity = activity;
+        mActivity = activity;
         items = Lists.newArrayList();
+        mSelectedItemsIds = new SparseBooleanArray();
     }
 
     /** sort files type */
@@ -113,6 +121,29 @@ public class SeafItemAdapter extends BaseAdapter {
 
     public void setItem(SeafItem item, int listviewPosition) {
         items.set(listviewPosition, item);
+        /*this.dirents = dirents;
+        this.mSelectedItemsIds.clear();
+        this.mSelectedItemsPositions.clear();
+        this.mSelectedItemsValues.clear();*/
+        notifyDataSetChanged();
+    }
+
+    public void deselectAllItems() {
+        mSelectedItemsIds.clear();
+        mSelectedItemsPositions.clear();
+        mSelectedItemsValues.clear();
+        notifyDataSetChanged();
+    }
+
+    public void selectAllItems() {
+        mSelectedItemsIds.clear();
+        mSelectedItemsPositions.clear();
+        mSelectedItemsValues.clear();
+        for (int i = 0; i < items.size(); i++) {
+            mSelectedItemsIds.put(i, true);
+            mSelectedItemsPositions.add(i);
+            mSelectedItemsValues.add(items.get(i));
+        }
         notifyDataSetChanged();
     }
 
@@ -159,6 +190,7 @@ public class SeafItemAdapter extends BaseAdapter {
             view = LayoutInflater.from(mActivity).inflate(R.layout.list_item_entry, null);
             TextView title = (TextView) view.findViewById(R.id.list_item_title);
             TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
+            ImageView multiSelect = (ImageView) view.findViewById(R.id.list_item_multi_select_btn);
             ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
             RelativeLayout action = (RelativeLayout) view.findViewById(R.id.expandable_toggle_button);
             ImageView downloadStatusIcon = (ImageView) view.findViewById(R.id.list_item_download_status_icon);
@@ -171,7 +203,7 @@ public class SeafItemAdapter extends BaseAdapter {
             RelativeLayout moreView = (RelativeLayout) view.findViewById(R.id.action_more_ll);
             RelativeLayout updateView = (RelativeLayout) view.findViewById(R.id.action_update_ll);
             RelativeLayout downloadView = (RelativeLayout) view.findViewById(R.id.action_download_ll);
-            viewHolder = new Viewholder(title, subtitle, icon, action, downloadStatusIcon, progressBar, shareView, deleteView, copyView, moveView, renameView, moreView, updateView, downloadView);
+            viewHolder = new Viewholder(title, subtitle, multiSelect, icon, action, downloadStatusIcon, progressBar, shareView, deleteView, copyView, moveView, renameView, moreView, updateView, downloadView);
             view.setTag(viewHolder);
         } else {
             viewHolder = (Viewholder) convertView.getTag();
@@ -192,15 +224,16 @@ public class SeafItemAdapter extends BaseAdapter {
         return view;
     }
 
-    private View getDirentView(SeafDirent dirent, View convertView, ViewGroup parent, int position) {
+    private View getDirentView(final SeafDirent dirent, View convertView, ViewGroup parent, final int position) {
         View view = convertView;
-        Viewholder viewHolder;
+        final Viewholder viewHolder;
 
         if (convertView == null) {
             view = LayoutInflater.from(mActivity).inflate(R.layout.list_item_entry, null);
             TextView title = (TextView) view.findViewById(R.id.list_item_title);
             TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
             ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
+            ImageView multiSelect = (ImageView) view.findViewById(R.id.list_item_multi_select_btn);
             RelativeLayout action = (RelativeLayout) view.findViewById(R.id.expandable_toggle_button);
             ImageView downloadStatusIcon = (ImageView) view.findViewById(R.id.list_item_download_status_icon);
             ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.list_item_download_status_progressbar);
@@ -212,11 +245,40 @@ public class SeafItemAdapter extends BaseAdapter {
             RelativeLayout moreView = (RelativeLayout) view.findViewById(R.id.action_more_ll);
             RelativeLayout updateView = (RelativeLayout) view.findViewById(R.id.action_update_ll);
             RelativeLayout downloadView = (RelativeLayout) view.findViewById(R.id.action_download_ll);
-            viewHolder = new Viewholder(title, subtitle, icon, action, downloadStatusIcon, progressBar, shareView, deleteView, copyView, moveView, renameView, moreView, updateView, downloadView);
+            viewHolder = new Viewholder(title, subtitle, multiSelect, icon, action, downloadStatusIcon, progressBar, shareView, deleteView, copyView, moveView, renameView, moreView, updateView, downloadView);
             view.setTag(viewHolder);
         } else {
             viewHolder = (Viewholder) convertView.getTag();
         }
+
+        if (actionModeOn) {
+            Log.d("SIA", "---- action mode on");
+            viewHolder.multiSelect.setVisibility(View.VISIBLE);
+            if (mSelectedItemsIds.get(position)) {
+                viewHolder.multiSelect.setImageResource(R.drawable.checkbox_checked);
+            } else
+                viewHolder.multiSelect.setImageResource(R.drawable.checkbox_unchecked);
+
+            viewHolder.multiSelect.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (!mSelectedItemsIds.get(position)) {
+                        viewHolder.multiSelect.setImageResource(R.drawable.checkbox_checked);
+                        mSelectedItemsIds.put(position, true);
+                        mSelectedItemsPositions.add(position);
+                        mSelectedItemsValues.add(dirent);
+                    } else {
+                        viewHolder.multiSelect.setImageResource(R.drawable.checkbox_unchecked);
+                        mSelectedItemsIds.delete(position);
+                        mSelectedItemsPositions.remove(Integer.valueOf(position));
+                        mSelectedItemsValues.remove(dirent);
+                    }
+
+                    mActivity.onItemSelected();
+                }
+            });
+        } else
+            viewHolder.multiSelect.setVisibility(View.GONE);
 
         viewHolder.title.setText(dirent.getTitle());
         if (dirent.isDir()) {
@@ -388,6 +450,7 @@ public class SeafItemAdapter extends BaseAdapter {
             view = LayoutInflater.from(mActivity).inflate(R.layout.list_item_entry, null);
             TextView title = (TextView) view.findViewById(R.id.list_item_title);
             TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
+            ImageView multiSelect = (ImageView) view.findViewById(R.id.list_item_multi_select_btn);
             ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
             RelativeLayout action = (RelativeLayout) view.findViewById(R.id.expandable_toggle_button);
             ImageView downloadStatusIcon = (ImageView) view.findViewById(R.id.list_item_download_status_icon);
@@ -400,7 +463,7 @@ public class SeafItemAdapter extends BaseAdapter {
             RelativeLayout moreView = (RelativeLayout) view.findViewById(R.id.action_more_ll);
             RelativeLayout updateView = (RelativeLayout) view.findViewById(R.id.action_update_ll);
             RelativeLayout downloadView = (RelativeLayout) view.findViewById(R.id.action_download_ll);
-            viewHolder = new Viewholder(title, subtitle, icon, action, downloadStatusIcon, progressBar, shareView, deleteView, copyView, moveView, renameView, moreView, updateView, downloadView);
+            viewHolder = new Viewholder(title, subtitle, multiSelect, icon, action, downloadStatusIcon, progressBar, shareView, deleteView, copyView, moveView, renameView, moreView, updateView, downloadView);
             view.setTag(viewHolder);
         } else {
             viewHolder = (Viewholder) convertView.getTag();
@@ -430,9 +493,37 @@ public class SeafItemAdapter extends BaseAdapter {
         }
     }
 
+    public void setActionModeOn(boolean actionModeOn) {
+        this.actionModeOn = actionModeOn;
+    }
+
+    public void toggleSelection(int position) {
+        if (mSelectedItemsIds.get(position)) {
+            // unselected
+            mSelectedItemsIds.delete(position);
+            mSelectedItemsPositions.remove(Integer.valueOf(position));
+            mSelectedItemsValues.remove(items.get(position));
+        } else {
+            mSelectedItemsIds.put(position, true);
+            mSelectedItemsPositions.add(position);
+            mSelectedItemsValues.add(items.get(position));
+        }
+
+        mActivity.onItemSelected();
+        notifyDataSetChanged();
+    }
+
+    public int getCheckedItemCount() {
+        return mSelectedItemsIds.size();
+    }
+
+    public List<SeafItem> getSelectedItemsValues() {
+        return mSelectedItemsValues;
+    }
+
     private class Viewholder {
         TextView title, subtitle;
-        ImageView icon, downloadStatusIcon; // downloadStatusIcon used to show file downloading status, it is invisible by default
+        ImageView icon, multiSelect, downloadStatusIcon; // downloadStatusIcon used to show file downloading status, it is invisible by default
         ProgressBar progressBar;
         RelativeLayout action;
         RelativeLayout shareView;
@@ -446,6 +537,7 @@ public class SeafItemAdapter extends BaseAdapter {
 
         public Viewholder(TextView title,
                           TextView subtitle,
+                          ImageView multiSelect,
                           ImageView icon,
                           RelativeLayout action,
                           ImageView downloadStatusIcon,
@@ -460,6 +552,7 @@ public class SeafItemAdapter extends BaseAdapter {
                           RelativeLayout downloadView) {
             super();
             this.icon = icon;
+            this.multiSelect = multiSelect;
             this.action = action;
             this.title = title;
             this.subtitle = subtitle;

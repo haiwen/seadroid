@@ -154,6 +154,17 @@ public abstract class TransferTaskFragment extends SherlockListFragment
     }
 
     @Override
+    public void onActionModeStarted() {
+        if (adapter == null) return;
+
+        adapter.actionModeOn();
+        Animation bottomUp = AnimationUtils.loadAnimation(getActivity(),
+                R.anim.bottom_up);
+        mTaskActionBar.startAnimation(bottomUp);
+        mTaskActionBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
     public void onActionModeDestroy() {
         if (adapter == null)
             return;

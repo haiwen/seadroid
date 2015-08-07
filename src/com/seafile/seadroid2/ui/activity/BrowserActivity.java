@@ -44,10 +44,7 @@ import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.notification.UploadNotificationProvider;
 import com.seafile.seadroid2.transfer.*;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
-import com.seafile.seadroid2.ui.CopyMoveContext;
-import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
-import com.seafile.seadroid2.ui.ToastUtils;
-import com.seafile.seadroid2.ui.WidgetUtils;
+import com.seafile.seadroid2.ui.*;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
 import com.seafile.seadroid2.ui.dialog.*;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog.CustomAction;
@@ -679,6 +676,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         MenuItem menuSort = menu.findItem(R.id.sort);
         MenuItem menuUpload = menu.findItem(R.id.upload);
         MenuItem menuRefresh = menu.findItem(R.id.refresh);
+        MenuItem menuEdit = menu.findItem(R.id.edit_files);
         MenuItem menuDownloadFolder = menu.findItem(R.id.download_folder);
         MenuItem menuNewDir = menu.findItem(R.id.newdir);
         MenuItem menuNewFile = menu.findItem(R.id.newfile);
@@ -692,17 +690,21 @@ public class BrowserActivity extends SherlockFragmentActivity
             menuSort.setVisible(true);
             menuUpload.setVisible(true);
             menuDownloadFolder.setVisible(true);
+            menuEdit.setVisible(true);
             if (navContext.inRepo()) {
                 menuUpload.setEnabled(true);
                 menuDownloadFolder.setEnabled(true);
+                menuEdit.setEnabled(true);
             } else {
                 menuUpload.setEnabled(false);
                 menuDownloadFolder.setEnabled(false);
+                menuEdit.setEnabled(false);
             }
         } else {
             menuSort.setVisible(false);
             menuUpload.setVisible(false);
             menuDownloadFolder.setVisible(false);
+            menuEdit.setVisible(false);
         }
 
         // Libraries Tab
@@ -732,15 +734,18 @@ public class BrowserActivity extends SherlockFragmentActivity
                 menuNewDir.setVisible(true);
                 menuNewFile.setVisible(true);
                 menuCamera.setVisible(true);
+                menuEdit.setVisible(true);
             } else {
                 menuNewDir.setVisible(false);
                 menuNewFile.setVisible(false);
                 menuCamera.setVisible(false);
+                menuEdit.setVisible(false);
             }
         } else {
             menuNewDir.setVisible(false);
             menuNewFile.setVisible(false);
             menuCamera.setVisible(false);
+            menuEdit.setVisible(false);
         }
 
         if (currentSelectedItem.equals(UPLOAD_TASKS_VIEW)) {
@@ -843,6 +848,34 @@ public class BrowserActivity extends SherlockFragmentActivity
                 }
             }).show();
             break;
+        case R.id.edit_files:
+            // start action mode for selecting multiple files/folders
+
+            if (!Utils.isNetworkOn()) {
+                ToastUtils.show(this, R.string.network_down);
+                return true;
+            }
+            if (currentPosition == 0) {
+                if (navContext.inRepo()) {
+                    SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
+                    if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
+                        String password = DataManager.getRepoPassword(repo.id);
+                        showPasswordDialog(repo.name, repo.id,
+                                new TaskDialog.TaskDialogListener() {
+                                    @Override
+                                    public void onTaskSuccess() {
+                                        getReposFragment().openMultiSelectionPage();
+                                    }
+                                } , password);
+
+                        return true;
+                    }
+                }
+
+                getReposFragment().openMultiSelectionPage();
+            }
+
+            return true;
         case R.id.newdir:
             showNewDirDialog();
             return true;
@@ -1277,6 +1310,11 @@ public class BrowserActivity extends SherlockFragmentActivity
                 txService.saveUploadNotifProvider(provider);
             }
         }
+    }
+
+    public void onItemSelected() {
+        // update contextual action bar (CAB) title
+        getReposFragment().updateContextualActionBar();
     }
 
     /***************  Navigation *************/
