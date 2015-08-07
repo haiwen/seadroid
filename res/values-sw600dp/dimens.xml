@@ -13,6 +13,8 @@
     <dimen name="tab_height">48dp</dimen>
 
     <!-- Content -->
+    <dimen name="head_progressBar_width">32dp</dimen>
+    <dimen name="head_progressBar_height">32dp</dimen>
     <dimen name="tv_txt_size">14sp</dimen>
     <dimen name="lv_item_height">70dp</dimen>
     <dimen name="lv_item_padding">10dp</dimen>

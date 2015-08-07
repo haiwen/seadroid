@@ -45,6 +45,8 @@
     <dimen name="section_margin_top">5dp</dimen>
 
     <!-- Content -->
+    <dimen name="head_progressBar_width">24dp</dimen>
+    <dimen name="head_progressBar_height">24dp</dimen>
     <dimen name="lv_margin_top">10dp</dimen> <!-- ListView -->
     <dimen name="lv_item_height">68dp</dimen>
     <dimen name="lv_item_padding">10dp</dimen>

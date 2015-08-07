@@ -9,7 +9,7 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:paddingTop="10dip"
-            android:paddingBottom="15dip">
+            android:paddingBottom="10dip">
 
         <FrameLayout
                 android:layout_width="wrap_content"
@@ -33,16 +33,16 @@
                 android:layout_height="fill_parent"
                 android:layout_alignParentLeft="true"
                 android:layout_centerVertical="true"
-                android:paddingTop="10dip"
-                android:layout_marginLeft="100dip"
-                android:layout_marginRight="10dip">
+                android:layout_marginLeft="30dip"
+                android:layout_marginRight="20dip">
 
             <ProgressBar
                     android:id="@+id/head_progressBar"
                     style="@style/loading_small"
                     android:visibility="gone"
-                    android:layout_width="22dp"
-                    android:layout_height="24dp"/>
+                    android:layout_width="@dimen/head_progressBar_width"
+                    android:layout_height="@dimen/head_progressBar_height"
+                    android:layout_gravity="center"/>
 
         </FrameLayout>
 
