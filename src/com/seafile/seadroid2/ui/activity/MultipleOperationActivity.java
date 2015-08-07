@@ -211,6 +211,11 @@ public class MultipleOperationActivity extends SherlockFragmentActivity
     }
 
     @Override
+    public void onActionModeStarted() {
+
+    }
+
+    @Override
     public void onActionModeDestroy() {
         if (adapter == null)
             return;

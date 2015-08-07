@@ -11,23 +11,22 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.ImageView;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.*;
 import com.actionbarsherlock.app.SherlockListFragment;
+import com.actionbarsherlock.view.ActionMode;
 import com.seafile.seadroid2.*;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.*;
 import com.seafile.seadroid2.transfer.TransferService;
+import com.seafile.seadroid2.ui.ActionModeCallback;
 import com.seafile.seadroid2.ui.CustomActionSlideExpandableListView;
 import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
-import com.seafile.seadroid2.ui.activity.MultipleOperationActivity;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
@@ -39,7 +38,8 @@ import java.util.List;
 import java.util.Map;
 
 
-public class ReposFragment extends SherlockListFragment {
+public class ReposFragment extends SherlockListFragment
+        implements ActionModeCallback.ActionModeOperationListener {
 
     private static final String DEBUG_TAG = "ReposFragment";
     
@@ -53,6 +53,8 @@ public class ReposFragment extends SherlockListFragment {
 
     private SeafItemAdapter adapter;
     private BrowserActivity mActivity = null;
+    private ActionMode mActionMode;
+    private LinearLayout mTaskActionBar;
 
     public static final int FILE_ACTION_EXPORT = 0;
     public static final int FILE_ACTION_COPY = 1;
@@ -80,6 +82,57 @@ public class ReposFragment extends SherlockListFragment {
         return adapter;
     }
 
+    @Override
+    public void selectItems() {
+        if (adapter == null) return;
+
+        adapter.selectAllItems();
+        updateContextualActionBar();
+
+    }
+
+    @Override
+    public void deselectItems() {
+        if (adapter == null) return;
+
+        adapter.deselectAllItems();
+        updateContextualActionBar();
+
+    }
+
+    @Override
+    public void onActionModeStarted() {
+        if (adapter == null) return;
+
+        adapter.setActionModeOn(true);
+        adapter.notifyDataSetChanged();
+
+        Animation bottomUp = AnimationUtils.loadAnimation(getActivity(),
+                R.anim.bottom_up);
+        mTaskActionBar.startAnimation(bottomUp);
+        mTaskActionBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onActionModeDestroy() {
+        if (adapter == null) return;
+
+        adapter.setActionModeOn(false);
+        adapter.deselectAllItems();
+        //adapter.actionModeOff();
+        Animation bottomDown = AnimationUtils.loadAnimation(mActivity,
+                R.anim.bottom_down);
+        mTaskActionBar.startAnimation(bottomDown);
+        mTaskActionBar.setVisibility(View.GONE);
+
+        // Here you can make any necessary updates to the activity when
+        // the contextual action bar (CAB) is removed. By default, selected items are deselected/unchecked.
+        mActionMode = null;
+
+        // finish activity
+        // finish();
+    }
+
     public interface OnFileSelectedListener {
         void onFileSelected(SeafDirent fileName);
     }
@@ -96,6 +149,7 @@ public class ReposFragment extends SherlockListFragment {
             Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.repos_fragment, container, false);
         mListView = (CustomActionSlideExpandableListView) root.findViewById(android.R.id.list);
+        mTaskActionBar = (LinearLayout) root.findViewById(R.id.multi_op_bottom_action_bar);
         mEmptyView = (ImageView) root.findViewById(R.id.empty);
         mListContainer =  root.findViewById(R.id.listContainer);
         mErrorText = (TextView)root.findViewById(R.id.error_message);
@@ -123,15 +177,18 @@ public class ReposFragment extends SherlockListFragment {
         return root;
     }
 
+    /**
+     * Start action mode for selecting and process multiple files/folders
+     */
     public void openMultiSelectionPage() {
         NavContext nav = getNavContext();
         if (!nav.inRepo())
             return;
 
-        final String repoName = nav.getRepoName();
+        /*final String repoName = nav.getRepoName();
         final String repoID = nav.getRepoID();
-        final String dirPath = nav.getDirPath();
-        Bundle bundle = new Bundle();
+        final String dirPath = nav.getDirPath();*/
+        /*Bundle bundle = new Bundle();
         bundle.putParcelable(MultipleOperationActivity.MULTI_OPERATION_ACCOUNT, mActivity.getAccount());
 
         Intent intent = new Intent(getActivity(), MultipleOperationActivity.class);
@@ -140,7 +197,13 @@ public class ReposFragment extends SherlockListFragment {
         intent.putExtra(MultipleOperationActivity.MULTI_OPERATION_DIR, dirPath);
         intent.putExtra(MultipleOperationActivity.MULTI_OPERATION_BUNDLE, bundle);
 
-        startActivity(intent);
+        startActivity(intent);*/
+
+        if (mActionMode == null) {
+            // there are some selected items, start the actionMode
+            mActionMode = mActivity.startActionMode(new ActionModeCallback(this));
+        }
+
     }
 
     @Override
@@ -505,8 +568,59 @@ public class ReposFragment extends SherlockListFragment {
         mListView.collapse();
     }
 
+    /**
+     *  update state of contextual action bar (CAB)
+     */
+    public void updateContextualActionBar() {
+        /*Log.d(DEBUG_TAG, "itemsChecked "
+                + itemsChecked
+                + " getCheckedItemCount "
+                + adapter.getCheckedItemCount());*/
+
+        if (mActionMode == null) {
+            // there are some selected items, start the actionMode
+            mActionMode = mActivity.startActionMode(new ActionModeCallback(this));
+        } else {
+            // Log.d(DEBUG_TAG, "mActionMode.setTitle " + adapter.getCheckedItemCount());
+            mActionMode.setTitle(getResources().getQuantityString(
+                    R.plurals.transfer_list_items_selected,
+                    adapter.getCheckedItemCount(),
+                    adapter.getCheckedItemCount()));
+        }
+
+    }
+
+    public void onListItemChecked(int position) {
+        if (adapter == null) return;
+
+        adapter.toggleSelection(position);
+
+        /*Log.d(DEBUG_TAG, "itemsChecked "
+                + itemsChecked
+                + " getCheckedItemCount "
+                + adapter.getCheckedItemCount());*/
+
+        if (mActionMode == null) {
+            // there are some selected items, start the actionMode
+            mActionMode = mActivity.startActionMode(new ActionModeCallback(this));
+        } else {
+            // Log.d(DEBUG_TAG, "mActionMode.setTitle " + adapter.getCheckedItemCount());
+            mActionMode.setTitle(getResources().getQuantityString(
+                    R.plurals.transfer_list_items_selected,
+                    adapter.getCheckedItemCount(),
+                    adapter.getCheckedItemCount()));
+        }
+    }
+
     @Override
     public void onListItemClick(final ListView l, final View v, final int position, final long id) {
+        // handle action mode selections
+        if (mActionMode != null) {
+            // add or remove selection for current list item
+            onListItemChecked(position - 1);
+            return;
+        }
+
         SeafRepo repo = null;
         final NavContext nav = getNavContext();
         if (nav.inRepo()) {

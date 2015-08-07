@@ -54,6 +54,10 @@
     <dimen name="lv_item_padding_bottom">10dp</dimen>
     <dimen name="lv_item_padding_left">4dp</dimen>
     <dimen name="lv_item_padding_right">11dp</dimen>
+    <dimen name="lv_multi_select_width">40dp</dimen>
+    <dimen name="lv_multi_select_height">40dp</dimen>
+    <dimen name="lv_multi_select_padding_left">10dp</dimen>
+    <dimen name="lv_multi_select_padding_right">6dp</dimen>
     <dimen name="lv_item_inset">15dp</dimen>
     <dimen name="lv_icon_width">60dp</dimen>
     <dimen name="lv_icon_height">60dp</dimen>

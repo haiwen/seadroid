@@ -33,6 +33,11 @@
         android:showAsAction="always"
         android:title="More">
       <menu>
+          <item android:id="@+id/edit_files"
+                android:visible="false"
+                android:title="@string/edit_files"
+                android:showAsAction="never"/>
+
           <item android:id="@+id/download_folder"
                 android:visible="false"
                 android:title="@string/download_folder"

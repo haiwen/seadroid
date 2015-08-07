@@ -8,14 +8,24 @@
                         android:layout_width="fill_parent"
                         android:paddingRight="@dimen/lv_item_inset"
                         android:layout_height="@dimen/lv_item_height">
+                <ImageView
+                        android:id="@+id/list_item_multi_select_btn"
+                        android:layout_width="@dimen/lv_multi_select_width"
+                        android:layout_height="@dimen/lv_multi_select_height"
+                        android:paddingLeft="@dimen/lv_multi_select_padding_left"
+                        android:paddingRight="@dimen/lv_multi_select_padding_right"
+                        android:layout_alignParentLeft="true"
+                        android:layout_centerInParent="true"
+                        android:src="@drawable/btn_multiselect"
+                        android:visibility="gone"/>
 
                 <ImageView
                         android:id="@+id/list_item_icon"
+                        android:layout_toRightOf="@id/list_item_multi_select_btn"
                         android:layout_width="@dimen/lv_icon_width"
                         android:layout_height="@dimen/lv_icon_height"
                         android:paddingLeft="@dimen/lv_item_padding_left"
-                        android:paddingTop="@dimen/lv_item_padding_top"
-                        android:layout_alignParentLeft="true"/>
+                        android:paddingTop="@dimen/lv_item_padding_top"/>
 
                 <ImageView
                         android:id="@+id/list_item_space"
