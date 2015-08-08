@@ -16,24 +16,27 @@ import android.view.animation.AnimationUtils;
 import android.widget.*;
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.ActionMode;
+import com.google.common.collect.Lists;
 import com.seafile.seadroid2.*;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.*;
+import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.transfer.TransferService;
-import com.seafile.seadroid2.ui.ActionModeCallback;
-import com.seafile.seadroid2.ui.CustomActionSlideExpandableListView;
-import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
-import com.seafile.seadroid2.ui.ToastUtils;
+import com.seafile.seadroid2.ui.*;
 import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
+import com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
+import com.seafile.seadroid2.ui.dialog.DeleteFileDialog;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.util.Utils;
 import com.tjerkw.slideexpandable.library.SlideExpandableListAdapter;
 
+import java.io.File;
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -55,6 +58,12 @@ public class ReposFragment extends SherlockListFragment
     private BrowserActivity mActivity = null;
     private ActionMode mActionMode;
     private LinearLayout mTaskActionBar;
+    private RelativeLayout deleteView;
+    private RelativeLayout copyView;
+    private RelativeLayout moveView;
+    private RelativeLayout downloadView;
+    private CopyMoveContext copyMoveContext;
+    private MultipleOperationClickListener listener = new MultipleOperationClickListener();
 
     public static final int FILE_ACTION_EXPORT = 0;
     public static final int FILE_ACTION_COPY = 1;
@@ -80,6 +89,10 @@ public class ReposFragment extends SherlockListFragment
 
     public SeafItemAdapter getAdapter() {
         return adapter;
+    }
+
+    public ImageView getEmptyView() {
+        return mEmptyView;
     }
 
     @Override
@@ -150,6 +163,14 @@ public class ReposFragment extends SherlockListFragment
         View root = inflater.inflate(R.layout.repos_fragment, container, false);
         mListView = (CustomActionSlideExpandableListView) root.findViewById(android.R.id.list);
         mTaskActionBar = (LinearLayout) root.findViewById(R.id.multi_op_bottom_action_bar);
+        deleteView = (RelativeLayout) root.findViewById(R.id.multi_op_delete_rl);
+        copyView = (RelativeLayout) root.findViewById(R.id.multi_op_copy_rl);
+        moveView = (RelativeLayout) root.findViewById(R.id.multi_op_move_rl);
+        downloadView = (RelativeLayout) root.findViewById(R.id.multi_op_download_rl);
+        deleteView.setOnClickListener(listener);
+        copyView.setOnClickListener(listener);
+        moveView.setOnClickListener(listener);
+        downloadView.setOnClickListener(listener);
         mEmptyView = (ImageView) root.findViewById(R.id.empty);
         mListContainer =  root.findViewById(R.id.listContainer);
         mErrorText = (TextView)root.findViewById(R.id.error_message);
@@ -325,6 +346,40 @@ public class ReposFragment extends SherlockListFragment
                                     }
                                 });
         return builder.show();
+    }
+
+    class MultipleOperationClickListener implements View.OnClickListener {
+
+        @Override
+        public void onClick(View v) {
+            NavContext nav = mActivity.getNavContext();
+            String repoID = nav.getRepoID();
+            String repoName = nav.getRepoName();
+            String dirPath = nav.getDirPath();
+            final List<SeafDirent> selectedDirents = adapter.getSelectedItemsValues();
+            if (selectedDirents.size() == 0
+                    || repoID == null
+                    || dirPath == null) {
+                ToastUtils.show(mActivity, R.string.action_mode_no_items_selected);
+                return;
+            }
+
+            switch (v.getId()) {
+                case R.id.multi_op_delete_rl:
+                    mActivity.deleteFiles(repoID, dirPath, selectedDirents);
+                    break;
+                case R.id.multi_op_copy_rl:
+                    mActivity.copyFiles(repoID, repoName, dirPath, selectedDirents);
+                    break;
+                case R.id.multi_op_move_rl:
+                    mActivity.moveFiles(repoID, repoName, dirPath, selectedDirents);
+                    break;
+                case R.id.multi_op_download_rl:
+                    mActivity.downloadFiles(repoID, repoName, dirPath, selectedDirents);
+                    break;
+
+            }
+        }
     }
 
     @Override
@@ -837,7 +892,7 @@ public class ReposFragment extends SherlockListFragment
         mErrorText.setVisibility(View.VISIBLE);
     }
 
-    private void showLoading(boolean show) {
+    public void showLoading(boolean show) {
         mErrorText.setVisibility(View.GONE);
         if (show) {
             mProgressContainer.startAnimation(AnimationUtils.loadAnimation(

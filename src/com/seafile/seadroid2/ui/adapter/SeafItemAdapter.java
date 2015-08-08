@@ -34,7 +34,7 @@ public class SeafItemAdapter extends BaseAdapter {
 
     private SparseBooleanArray mSelectedItemsIds;
     private List<Integer> mSelectedItemsPositions = Lists.newArrayList();
-    private List<SeafItem> mSelectedItemsValues = Lists.newArrayList();
+    private List<SeafDirent> mSelectedItemsValues = Lists.newArrayList();
 
     /** DownloadTask instance container **/
     private List<DownloadTaskInfo> mDownloadTaskInfos;
@@ -119,13 +119,14 @@ public class SeafItemAdapter extends BaseAdapter {
         return items.get(position);
     }
 
-    public void setItem(SeafItem item, int listviewPosition) {
-        items.set(listviewPosition, item);
-        /*this.dirents = dirents;
+    public void setItems(List<SeafDirent> dirents) {
+        items.clear();
+        for (SeafDirent dirent : dirents) {
+            items.add(dirent);
+        }
         this.mSelectedItemsIds.clear();
         this.mSelectedItemsPositions.clear();
-        this.mSelectedItemsValues.clear();*/
-        notifyDataSetChanged();
+        this.mSelectedItemsValues.clear();
     }
 
     public void deselectAllItems() {
@@ -142,7 +143,7 @@ public class SeafItemAdapter extends BaseAdapter {
         for (int i = 0; i < items.size(); i++) {
             mSelectedItemsIds.put(i, true);
             mSelectedItemsPositions.add(i);
-            mSelectedItemsValues.add(items.get(i));
+            mSelectedItemsValues.add((SeafDirent) items.get(i));
         }
         notifyDataSetChanged();
     }
@@ -506,7 +507,7 @@ public class SeafItemAdapter extends BaseAdapter {
         } else {
             mSelectedItemsIds.put(position, true);
             mSelectedItemsPositions.add(position);
-            mSelectedItemsValues.add(items.get(position));
+            mSelectedItemsValues.add((SeafDirent) items.get(position));
         }
 
         mActivity.onItemSelected();
@@ -517,7 +518,7 @@ public class SeafItemAdapter extends BaseAdapter {
         return mSelectedItemsIds.size();
     }
 
-    public List<SeafItem> getSelectedItemsValues() {
+    public List<SeafDirent> getSelectedItemsValues() {
         return mSelectedItemsValues;
     }
 
