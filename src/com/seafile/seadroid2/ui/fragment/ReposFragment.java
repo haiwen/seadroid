@@ -617,10 +617,6 @@ public class ReposFragment extends SherlockListFragment
      *  update state of contextual action bar (CAB)
      */
     public void updateContextualActionBar() {
-        /*Log.d(DEBUG_TAG, "itemsChecked "
-                + itemsChecked
-                + " getCheckedItemCount "
-                + adapter.getCheckedItemCount());*/
 
         if (mActionMode == null) {
             // there are some selected items, start the actionMode
@@ -633,28 +629,6 @@ public class ReposFragment extends SherlockListFragment
                     adapter.getCheckedItemCount()));
         }
 
-    }
-
-    public void onListItemChecked(int position) {
-        if (adapter == null) return;
-
-        adapter.toggleSelection(position);
-
-        /*Log.d(DEBUG_TAG, "itemsChecked "
-                + itemsChecked
-                + " getCheckedItemCount "
-                + adapter.getCheckedItemCount());*/
-
-        if (mActionMode == null) {
-            // there are some selected items, start the actionMode
-            mActionMode = mActivity.startActionMode(new ActionModeCallback(this));
-        } else {
-            // Log.d(DEBUG_TAG, "mActionMode.setTitle " + adapter.getCheckedItemCount());
-            mActionMode.setTitle(getResources().getQuantityString(
-                    R.plurals.transfer_list_items_selected,
-                    adapter.getCheckedItemCount(),
-                    adapter.getCheckedItemCount()));
-        }
     }
 
     @Override
@@ -662,7 +636,10 @@ public class ReposFragment extends SherlockListFragment
         // handle action mode selections
         if (mActionMode != null) {
             // add or remove selection for current list item
-            onListItemChecked(position - 1);
+            if (adapter == null) return;
+
+            adapter.toggleSelection(position - 1);
+            updateContextualActionBar();
             return;
         }
 
