@@ -255,20 +255,20 @@ public class SeafItemAdapter extends BaseAdapter {
             Log.d("SIA", "---- action mode on");
             viewHolder.multiSelect.setVisibility(View.VISIBLE);
             if (mSelectedItemsIds.get(position)) {
-                viewHolder.multiSelect.setImageResource(R.drawable.checkbox_checked);
+                viewHolder.multiSelect.setImageResource(R.drawable.multi_select_item_checked);
             } else
-                viewHolder.multiSelect.setImageResource(R.drawable.checkbox_unchecked);
+                viewHolder.multiSelect.setImageResource(R.drawable.multi_select_item_unchecked);
 
             viewHolder.multiSelect.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (!mSelectedItemsIds.get(position)) {
-                        viewHolder.multiSelect.setImageResource(R.drawable.checkbox_checked);
+                        viewHolder.multiSelect.setImageResource(R.drawable.multi_select_item_checked);
                         mSelectedItemsIds.put(position, true);
                         mSelectedItemsPositions.add(position);
                         mSelectedItemsValues.add(dirent);
                     } else {
-                        viewHolder.multiSelect.setImageResource(R.drawable.checkbox_unchecked);
+                        viewHolder.multiSelect.setImageResource(R.drawable.multi_select_item_unchecked);
                         mSelectedItemsIds.delete(position);
                         mSelectedItemsPositions.remove(Integer.valueOf(position));
                         mSelectedItemsValues.remove(dirent);

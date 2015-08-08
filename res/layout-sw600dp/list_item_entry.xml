@@ -16,7 +16,6 @@
                         android:paddingRight="@dimen/lv_multi_select_padding_right"
                         android:layout_alignParentLeft="true"
                         android:layout_centerInParent="true"
-                        android:src="@drawable/btn_multiselect"
                         android:visibility="gone"/>
 
                 <ImageView
