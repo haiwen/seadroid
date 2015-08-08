@@ -26,9 +26,6 @@
         <item name="actionModeStyle">@style/LightTheme.ActionMode</item>
         <item name="android:homeAsUpIndicator">@drawable/home_up_btn</item>
         <item name="homeAsUpIndicator">@drawable/home_up_btn</item>
-        <!-- Remove shadow below action bar Android < 5.0 -->
-        <item name="windowContentOverlay">@null</item>
-        <item name="android:windowContentOverlay">@null</item>
     </style>
 
     <style name="LightTheme.ActionMode" parent="Widget.Sherlock.Light.ActionMode">
@@ -37,14 +34,10 @@
     </style>
 
     <style name="LightTheme.ActionBar" parent="Widget.Sherlock.Light.ActionBar">
-        <item name="android:background">@color/fancy_white</item>
-        <item name="background">@color/fancy_white</item>
+        <item name="android:background">@drawable/actionbar_background</item>
+        <item name="background">@drawable/actionbar_background</item>
         <item name="android:height">@dimen/abs_actionbar_height</item>
         <item name="height">@dimen/abs_actionbar_height</item>
-        <item name="divider">@null</item>
-        <item name="android:divider">@null</item>
-        <item name="android:showDividers">none</item>
-        <item name="android:dividerPadding">0dip</item>
         <item name="android:titleTextStyle">@style/LightTheme.ActionBar.TitleTextStyle</item>
         <item name="titleTextStyle">@style/LightTheme.ActionBar.TitleTextStyle</item>
         <item name="android:logo">@drawable/actionbar_space_between_icon_and_title</item>

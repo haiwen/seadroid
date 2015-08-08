@@ -32,8 +32,7 @@
         PagerSlidingTabStrip:pstsShouldExpand="true"
         PagerSlidingTabStrip:pstsDividerColor="@color/transparent"
         PagerSlidingTabStrip:pstsTabBackground="@drawable/tab_bg_selector"
-        android:background="@color/fancy_white"
-        />
+        android:background="@color/white"/>
     <android.support.v4.view.ViewPager
         android:id="@+id/pager"
         android:layout_width="fill_parent"
