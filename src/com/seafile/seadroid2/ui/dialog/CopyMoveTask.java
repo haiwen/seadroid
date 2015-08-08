@@ -5,6 +5,9 @@ import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.ui.CopyMoveContext;
 
+/**
+ * AsyncTask for copying/moving files
+ */
 public class CopyMoveTask extends TaskDialog.Task {
     public static final String DEBUG_TAG = "CopyMoveTask";
     private DataManager dataManager;
