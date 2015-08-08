@@ -1742,6 +1742,21 @@ public class BrowserActivity extends SherlockFragmentActivity
                 ToastUtils.show(BrowserActivity.this, copyMoveContext.isCopy()
                         ? R.string.copied_successfully
                         : R.string.moved_successfully);
+                if (copyMoveContext.batch) {
+                    List<SeafDirent> cachedDirents = getDataManager().getCachedDirents(getNavContext().getRepoID(),
+                            getNavContext().getDirPath());
+
+                    // refresh view
+                    if (getReposFragment().getAdapter() != null) {
+                        getReposFragment().getAdapter().setItems(cachedDirents);
+                        getReposFragment().getAdapter().notifyDataSetChanged();
+                    }
+
+                    if (cachedDirents.size() == 0)
+                        getReposFragment().getEmptyView().setVisibility(View.VISIBLE);
+                    return;
+                }
+
                 if (copyMoveContext.isMove()) {
                     ReposFragment reposFragment = getReposFragment();
                     if (currentPosition == 0 && reposFragment != null) {
@@ -1833,6 +1848,194 @@ public class BrowserActivity extends SherlockFragmentActivity
         passwordDialog.setTaskDialogLisenter(listener);
         passwordDialog.show(getSupportFragmentManager(), PASSWORD_DIALOG_FRAGMENT_TAG);
         return passwordDialog;
+    }
+
+    /************  Multiple Files ************/
+
+    /**
+     * Delete multiple fiels
+     *
+     * @param repoID
+     * @param path
+     * @param dirents
+     */
+    public void deleteFiles(final String repoID, String path, List<SeafDirent> dirents) {
+        final DeleteFileDialog dialog = new DeleteFileDialog();
+        dialog.init(repoID, path, dirents, account);
+        dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
+            @Override
+            public void onTaskSuccess() {
+                ToastUtils.show(BrowserActivity.this, R.string.delete_successful);
+                if (getDataManager() != null) {
+                    List<SeafDirent> cachedDirents = getDataManager().getCachedDirents(repoID,
+                            getNavContext().getDirPath());
+                    getReposFragment().getAdapter().setItems(cachedDirents);
+                    getReposFragment().getAdapter().notifyDataSetChanged();
+                    if (cachedDirents.size() == 0)
+                        getReposFragment().getEmptyView().setVisibility(View.VISIBLE);
+                }
+            }
+        });
+        dialog.show(getSupportFragmentManager(), "DialogFragment");
+    }
+
+    /**
+     * Copy multiple files
+     *
+     * @param srcRepoId
+     * @param srcRepoName
+     * @param srcDir
+     * @param dirents
+     */
+    public void copyFiles(String srcRepoId, String srcRepoName, String srcDir, List<SeafDirent> dirents) {
+        chooseCopyMoveDestForMultiFiles(srcRepoId, srcRepoName, srcDir, dirents, CopyMoveContext.OP.COPY);
+    }
+
+    /**
+     * Move multiple files
+     *
+     * @param srcRepoId
+     * @param srcRepoName
+     * @param srcDir
+     * @param dirents
+     */
+    public void moveFiles(String srcRepoId, String srcRepoName, String srcDir, List<SeafDirent> dirents) {
+        chooseCopyMoveDestForMultiFiles(srcRepoId, srcRepoName, srcDir, dirents, CopyMoveContext.OP.MOVE);
+    }
+
+    /**
+     * Choose copy/move destination for multiple files
+     *
+     * @param repoID
+     * @param repoName
+     * @param dirPath
+     * @param dirents
+     * @param op
+     */
+    private void chooseCopyMoveDestForMultiFiles(String repoID, String repoName, String dirPath, List<SeafDirent> dirents, CopyMoveContext.OP op) {
+        copyMoveContext = new CopyMoveContext(repoID, repoName, dirPath, dirents, op);
+        Intent intent = new Intent(this, SeafilePathChooserActivity.class);
+        intent.putExtra(SeafilePathChooserActivity.DATA_ACCOUNT, account);
+        SeafRepo repo = getDataManager().getCachedRepoByID(repoID);
+        if (repo.encrypted) {
+            intent.putExtra(SeafilePathChooserActivity.ENCRYPTED_REPO_ID, repoID);
+        }
+        startActivityForResult(intent, BrowserActivity.CHOOSE_COPY_MOVE_DEST_REQUEST);
+    }
+
+    /**
+     * Add selected files (folders) to downloading queue,
+     * folders with subfolder will be downloaded recursively.
+     *
+     * @param repoID
+     * @param repoName
+     * @param dirPath
+     * @param dirents
+     */
+    public void downloadFiles(String repoID, String repoName, String dirPath, List<SeafDirent> dirents) {
+        if (!Utils.isNetworkOn()) {
+            ToastUtils.show(this, R.string.network_down);
+            return;
+        }
+
+        DownloadFilesTask task = new DownloadFilesTask(repoID, repoName, dirPath, dirents);
+        ConcurrentAsyncTask.execute(task);
+    }
+
+    /**
+     * Task for asynchronously downloading selected files (folders),
+     * files wont be added to downloading queue if they have already been cached locally.
+     */
+    class DownloadFilesTask extends AsyncTask<Void, Void, Void> {
+        private String repoID, repoName, dirPath;
+        private List<SeafDirent> dirents;
+        private SeafException err;
+        private int fileCount;
+
+        public DownloadFilesTask(String repoID, String repoName, String dirPath, List<SeafDirent> dirents) {
+            this.repoID = repoID;
+            this.repoName = repoName;
+            this.dirPath = dirPath;
+            this.dirents = dirents;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            getReposFragment().showLoading(true);
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            ArrayList<String> dirPaths = Lists.newArrayList(dirPath);
+            for (int i = 0; i < dirPaths.size(); i++) {
+                if (i > 0) {
+                    try {
+                        dirents = getDataManager().getDirentsFromServer(repoID, dirPaths.get(i));
+                    } catch (SeafException e) {
+                        err = e;
+                        Log.e(DEBUG_TAG, e.getMessage() + e.getCode());
+                    }
+                }
+
+                if (dirents == null)
+                    continue;
+
+                for (SeafDirent seafDirent : dirents) {
+                    if (seafDirent.isDir()) {
+                        // download files recursively
+                        dirPaths.add(Utils.pathJoin(dirPaths.get(i), seafDirent.name));
+                    } else {
+                        File localCachedFile = getDataManager().getLocalCachedFile(repoName,
+                                repoID,
+                                Utils.pathJoin(dirPaths.get(i),
+                                        seafDirent.name),
+                                seafDirent.id);
+                        if (localCachedFile != null) {
+                            continue;
+                        }
+
+                        // txService maybe null if layout orientation has changed
+                        // e.g. landscape and portrait switch
+                        if (txService == null)
+                            return null;
+
+                        txService.addTaskToDownloadQue(account,
+                                repoName,
+                                repoID,
+                                Utils.pathJoin(dirPaths.get(i),
+                                        seafDirent.name));
+                        fileCount++;
+                    }
+
+                }
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            // update ui
+            getReposFragment().showLoading(false);
+
+            if (err != null) {
+                ToastUtils.show(BrowserActivity.this, R.string.transfer_list_network_error);
+                return;
+            }
+
+            if (fileCount == 0)
+                ToastUtils.show(BrowserActivity.this, R.string.transfer_download_no_task);
+            else {
+                ToastUtils.show(BrowserActivity.this, getResources().getQuantityString(R.plurals.transfer_download_started, fileCount, fileCount));
+                if (!txService.hasDownloadNotifProvider()) {
+                    DownloadNotificationProvider provider = new DownloadNotificationProvider(txService.getDownloadTaskManager(),
+                            txService);
+                    txService.saveDownloadNotifProvider(provider);
+                }
+
+            }
+
+        }
     }
 
     @Override
