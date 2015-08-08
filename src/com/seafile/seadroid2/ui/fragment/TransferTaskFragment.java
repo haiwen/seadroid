@@ -70,7 +70,14 @@ public abstract class TransferTaskFragment extends SherlockListFragment
         mTransferTaskListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                onListItemChecked(position);
+                if (mActionMode != null) {
+                    // add or remove selection for current list item
+                    if (adapter == null) return true;
+
+                    adapter.toggleSelection(position);
+                    updateContextualActionBar();
+                }
+
                 return true;
             }
         });
@@ -133,11 +140,10 @@ public abstract class TransferTaskFragment extends SherlockListFragment
      */
     @Override
     public void selectItems() {
-        if (adapter == null)
-            return;
+        if (adapter == null) return;
 
         adapter.selectAllItems();
-        updateCAB();
+        updateContextualActionBar();
 
     }
 
@@ -146,11 +152,10 @@ public abstract class TransferTaskFragment extends SherlockListFragment
      */
     @Override
     public void deselectItems() {
-        if (adapter == null)
-            return;
+        if (adapter == null) return;
 
         adapter.deselectAllItems();
-        updateCAB();
+        updateContextualActionBar();
     }
 
     @Override
@@ -166,8 +171,7 @@ public abstract class TransferTaskFragment extends SherlockListFragment
 
     @Override
     public void onActionModeDestroy() {
-        if (adapter == null)
-            return;
+        if (adapter == null) return;
 
         adapter.deselectAllItems();
         adapter.actionModeOff();
@@ -290,57 +294,20 @@ public abstract class TransferTaskFragment extends SherlockListFragment
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-        if (mActionMode == null) {
-            // no items selected, so perform item click actions
-        } else
-            // add or remove selection for current list item
-            onListItemChecked(position);
-    }
-
-    public void onListItemChecked(int position) {
-        if (adapter == null)
-            return;
-
-        adapter.toggleSelection(position);
-        boolean itemsChecked = adapter.getCheckedItemCount() > 0;
-
-        /*Log.d(DEBUG_TAG, "itemsChecked "
-                + itemsChecked
-                + " getCheckedItemCount "
-                + adapter.getCheckedItemCount());*/
-
-        if (itemsChecked && mActionMode == null) {
-            // there are some selected items, start the actionMode
-            mActionMode = getSherlockActivity().startActionMode(new ActionModeCallback(this));
-            adapter.actionModeOn();
-        } else if (!itemsChecked && mActionMode != null) {
-            // there no selected items, finish the actionMode
-            /*mActionMode.finish();
-            adapter.actionModeOff();
-            mTaskActionBar.setVisibility(View.GONE);*/
-        }
-
-
         if (mActionMode != null) {
-            // Log.d(DEBUG_TAG, "mActionMode.setTitle " + adapter.getCheckedItemCount());
-            mActionMode.setTitle(getResources().getQuantityString(
-                    R.plurals.transfer_list_items_selected,
-                    adapter.getCheckedItemCount(),
-                    adapter.getCheckedItemCount()));
-        }
+            // add or remove selection for current list item
+            if (adapter == null) return;
 
+            adapter.toggleSelection(position);
+            updateContextualActionBar();
+        }
     }
 
     /**
-     *  update state of context action bar
+     *  update state of contextual action bar
      */
-    public void updateCAB() {
+    public void updateContextualActionBar() {
         boolean itemsChecked = adapter.getCheckedItemCount() > 0;
-
-        /*Log.d(DEBUG_TAG, "itemsChecked "
-                + itemsChecked
-                + " getCheckedItemCount "
-                + adapter.getCheckedItemCount());*/
 
         if (itemsChecked && mActionMode == null) {
             // there are some selected items, start the actionMode
@@ -350,14 +317,6 @@ public abstract class TransferTaskFragment extends SherlockListFragment
                     R.anim.bottom_up);
             mTaskActionBar.startAnimation(bottomUp);
             mTaskActionBar.setVisibility(View.VISIBLE);
-        } else if (!itemsChecked && mActionMode != null) {
-            // there no selected items, finish the actionMode
-            /*mActionMode.finish();
-            adapter.actionModeOff();
-            Animation bottomDown = AnimationUtils.loadAnimation(getActivity(),
-                    R.anim.bottom_down);
-            mTaskActionBar.startAnimation(bottomDown);
-            mTaskActionBar.setVisibility(View.GONE);*/
         }
 
 

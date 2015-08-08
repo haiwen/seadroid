@@ -118,10 +118,10 @@ public class TransferActivity extends SherlockFragmentActivity {
         // update CAB title
         if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK
                 && getDownloadTaskFragment() != null) {
-            getDownloadTaskFragment().updateCAB();
+            getDownloadTaskFragment().updateContextualActionBar();
         } else if (whichTab == TransferTaskAdapter.TaskType.UPLOAD_TASK
                 && getUploadTaskFragment() != null) {
-            getUploadTaskFragment().updateCAB();
+            getUploadTaskFragment().updateContextualActionBar();
         }
     }
 
