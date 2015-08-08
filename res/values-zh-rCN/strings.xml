@@ -22,6 +22,7 @@
   <string name="refresh">刷新</string>
   <string name="add_account">添加账户</string>
   <string name="personal">个人</string>
+  <string name="shared">共享给我的</string>
   <string name="libraries">资料库</string>
   <string name="cached">已缓存</string>
   <string name="activities">事件</string>

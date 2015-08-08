@@ -22,6 +22,7 @@
   <string name="refresh">更新</string>
   <string name="add_account">アカウントを追加</string>
   <string name="personal">個人</string>
+  <string name="shared">共有された</string>
   <string name="libraries">ライブラリー</string>
   <string name="cached">キャッシュ済</string>
   <string name="activities">アクティビティ</string>

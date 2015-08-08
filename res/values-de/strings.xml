@@ -22,6 +22,7 @@
   <string name="refresh">Aktualisieren</string>
   <string name="add_account">Konto hinzufügen</string>
   <string name="personal">Meine Bibliotheken</string>
+  <string name="shared">Freigegeben</string>
   <string name="libraries">Bibliotheken</string>
   <string name="cached">Zwischengespeichert</string>
   <string name="activities">Aktivitäten</string>
@@ -177,7 +178,7 @@
   <string name="empty_folder">Leerer Ordner</string>
   <string name="choose_file">Eine Datei auswählen</string>
   <string name="ssl_error">Zertifikatsüberprüfung fehlgeschlagen</string>
-  <string name="ssl_confirm">Dem Sicherheitszertifikat  von %s wird nicht vertraut! Möchten Sie trotzdem fortfahren?</string>
+  <string name="ssl_confirm">Dem Sicherheitszertifikat  von %s wird nicht vertraut. Möchten Sie trotzdem fortfahren?</string>
   <string name="ssl_confirm_cert_changed">%s benutzt ein ungültiges Sicherheitszertifikat. Die Verbindung ist nicht sicher. Möchten Sie trotzdem fortfahren?</string>
   <string name="ssl_confirm_title">Nicht vertrauenswürdige Verbindung</string>
   <string name="issued_to">Ausgestellt für</string>
@@ -286,7 +287,7 @@
     <item quantity="one"><xliff:g id="cuc_item">%1$d</xliff:g> Element</item>
     <item quantity="other"><xliff:g id="cuc_item">%1$d</xliff:g> Elemente</item>
   </plurals>
-  <string name="settings_cuc_remote_lib_title">Entfernte Bibliothek auswählen</string>
+  <string name="settings_cuc_remote_lib_title">Zielbibliothek auswählen</string>
   <string name="settings_cuc_remote_lib_account">Benutzerkonto auswählen</string>
   <string name="settings_cuc_remote_lib_repo">%s wurde ausgewählt</string>
   <string name="settings_cuc_upload_to_parent_folder">Zum übergeordneten Ordner</string>
@@ -347,17 +348,17 @@
   <string name="shib_server_incorrect_prefix">Server sollte mit http:// oder https:// beginnen</string>
   <string name="shib_load_page_error">Fehler:</string>
   <string name="shib_login_title">Shibboleth-Anmeldung</string>
-  <string name="shib_server_hint">Eingangsserver …</string>
+  <string name="shib_server_hint">Server eintragen …</string>
   <string name="shib_actionbar_title">Mit Shibboleth anmelden</string>
   <string name="shib_loading">Lade…</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">Problem bei der Netzwerkverbindung. Bitte versuchen Sie es später nochmal!</string>
-  <string name="transfer_list_cancel_all">Alle Vorgänge anhalten</string>
+  <string name="transfer_list_cancel_all">Alle Vorgänge abbrechen</string>
   <string name="transfer_list_restart_all">Wiederholen</string>
   <string name="transfer_list_retry_failed_tasks">Fehlgeschlagene Vorgänge neu starten</string>
-  <string name="transfer_list_restart_cancelled_tasks">Angehaltene Vorgänge neu starten</string>
+  <string name="transfer_list_restart_cancelled_tasks">Abgebrochene Vorgänge neu starten</string>
   <string name="transfer_list_clear_failed_tasks">Liste löschen: Fehler</string>
-  <string name="transfer_list_clear_cancelled_tasks">Liste löschen: Angehalten</string>
+  <string name="transfer_list_clear_cancelled_tasks">Liste löschen: Abgebrochen</string>
   <string name="transfer_list_clear_finished_tasks">Liste löschen: Abgeschlossen</string>
   <string name="transfer_tabs_downloads">Heruntergeladen</string>
   <string name="transfer_tabs_uploads">Hochgeladen</string>
@@ -386,7 +387,7 @@
   <string name="search_bar_hint">Suchvorgang …</string>
   <string name="search_txt_empty">Bitte Suchbegriffe eingeben</string>
   <string name="search_content_empty">Keine Suchergebnisse</string>
-  <string name="search_server_not_support">Uups, die Suche wird von diesem Server nicht unterstützt!</string>
+  <string name="search_server_not_support">Ups, die Suche wird von diesem Server nicht unterstützt!</string>
   <string name="search_library_not_found">Die Bibliothek konnte nicht gefunden werden. Vielleicht wurde sie gelöscht</string>
   <!--star a file-->
   <string name="star_file_succeed">Als Favorit markiert</string>

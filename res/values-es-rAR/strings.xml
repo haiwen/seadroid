@@ -22,6 +22,7 @@
   <string name="refresh">Actualizar</string>
   <string name="add_account">Agregar cuenta</string>
   <string name="personal">Personal</string>
+  <string name="shared">Compartidas conmigo</string>
   <string name="libraries">Bibliotecas</string>
   <string name="cached">En Caché</string>
   <string name="activities">Actividades</string>

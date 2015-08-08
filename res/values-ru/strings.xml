@@ -22,6 +22,7 @@
   <string name="refresh">Обновить</string>
   <string name="add_account">Добавить аккаунт</string>
   <string name="personal">Личные</string>
+  <string name="shared">Общедоступно</string>
   <string name="libraries">Библиотеки</string>
   <string name="cached">Кэшированы</string>
   <string name="activities">Активность</string>

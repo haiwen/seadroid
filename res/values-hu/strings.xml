@@ -22,6 +22,7 @@
   <string name="refresh">Frissít</string>
   <string name="add_account">Fiók hozzáadása</string>
   <string name="personal">Személyes</string>
+  <string name="shared">Megosztva</string>
   <string name="libraries">Kötetek</string>
   <string name="cached">Gyorsítótárazva</string>
   <string name="activities">Tevékenységek</string>
@@ -35,6 +36,12 @@
     <item>Más</item>
   </string-array>
   <string name="choose_server">Seafile szerver választás</string>
+  <string-array name="choose_server_array">
+    <item>SeaCloud.cc</item>
+    <item>Cloud.seafile.de</item>
+    <item>Shibboleth bejelentkezés</item>
+    <item>Más Seafile szerver</item>
+  </string-array>
   <string name="network_down">Nincs hálózati kapcsolat</string>
   <string name="unknow_error">Ismeretlen hiba</string>
   <string name="invalid_server_address">Hibás szerver cím</string>
@@ -59,12 +66,21 @@
   <string name="file_action_star">Kedvenc</string>
   <string name="file_action_download">Letöltés</string>
   <string name="file_action_update">Feltölt</string>
+  <string name="file_action_share">Megosztás link</string>
   <string name="file_action_export">Exportálás</string>
   <string name="file_action_delete">Törlés</string>
   <string name="file_action_rename">Átnevez</string>
   <string name="file_action_copy">Másol</string>
   <string name="file_action_move">Mozgat</string>
   <string name="file_action_open_as">Megnyit mint</string>
+  <string name="file_action_more">Több</string>
+  <string name="file_action_more_title">Válassza ki a preferált beállítást</string>
+  <string-array name="file_action_more_array">
+    <item>Export</item>
+    <item>Másol</item>
+    <item>Mozgat</item>
+    <item>Kedvenc</item>
+  </string-array>
   <string-array name="file_type_array">
     <item>Szöveg</item>
     <item>Hang</item>
@@ -262,6 +278,7 @@
   <string name="settings_cuc_network_title">Hogyan lehet feltölteni</string>
   <string name="settings_cuc_network_wifi">Csak Wi-Fi</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi vagy mobil net</string>
+  <string name="settings_cuc_option_hint">Válassza ki a preferált beállítást. \nEzeket a beállításokat később bármikor megváltoztathatja.</string>
   <string name="settings_cuc_type_title">Mit tölt fel</string>
   <string name="settings_cuc_type_photo">Csak fénykép</string>
   <string name="settings_cuc_type_video">Fénykép és videó</string>
@@ -276,6 +293,7 @@
   <string name="settings_cuc_upload_to_parent_folder">Egy könyvtárral feljebb</string>
   <string name="settings_cuc_auto_scan">Minden fénykép az eszközön</string>
   <string name="settings_cuc_pick_dir">Fényképek könyvtárának kiválasztása</string>
+  <string name="settings_cuc_remote_lib_hint">Válassza ki a preferált fiókot és kötetet. \nEzeket a beállításokat később bármikor megváltoztathatja.</string>
   <string name="settings_cuc_finish_title">Kész</string>
   <string name="settings_cuc_ready">A Seafile most elkezdi feltölteni a kiválasztott könyvtárakból a fájlokat. \nBezárhatja az alkalmazást.</string>
   <string name="settings_cuc_swipe_left">Továbblépéshez húzza balra.</string>
@@ -336,6 +354,7 @@
   <!--Transfer List-->
   <string name="transfer_list_network_error">Hálózati hiba, próbálja meg később!</string>
   <string name="transfer_list_cancel_all">Minden feladat megszakítása</string>
+  <string name="transfer_list_restart_all">Újraindítás</string>
   <string name="transfer_list_retry_failed_tasks">Hibás feladatok újrakezdése</string>
   <string name="transfer_list_restart_cancelled_tasks">Megszakított feladatok újraindítása</string>
   <string name="transfer_list_clear_failed_tasks">Hibás feladatok törlése</string>

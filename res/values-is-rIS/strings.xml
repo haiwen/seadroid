@@ -22,6 +22,7 @@
   <string name="refresh">Endurglæða</string>
   <string name="add_account">Bæta við reikningi</string>
   <string name="personal">Persónulegt</string>
+  <string name="shared">Deilt</string>
   <string name="libraries">Söfn</string>
   <string name="cached">Í flýtimynni</string>
   <string name="activities">Hreyfingar</string>
@@ -35,6 +36,12 @@
     <item>Annað</item>
   </string-array>
   <string name="choose_server">Veldu Seafile Þjón</string>
+  <string-array name="choose_server_array">
+    <item>SeaCloud.cc</item>
+    <item>Cloud.seafile.de</item>
+    <item>Shibboleth Innskráning</item>
+    <item>Annar Seafile Þjónn</item>
+  </string-array>
   <string name="network_down">Engin nettenging</string>
   <string name="unknow_error">Óþekkt villa</string>
   <string name="invalid_server_address">Rangt vistfang</string>
@@ -59,12 +66,15 @@
   <string name="file_action_star">Stjarna</string>
   <string name="file_action_download">Hala niður</string>
   <string name="file_action_update">Hlaða upp</string>
+  <string name="file_action_share">Deilihlekkur</string>
   <string name="file_action_export">Flytja út</string>
   <string name="file_action_delete">Eyða</string>
   <string name="file_action_rename">Endurnefna</string>
   <string name="file_action_copy">Afrita</string>
   <string name="file_action_move">Færa</string>
   <string name="file_action_open_as">Opna sem</string>
+  <string name="file_action_more">Meira </string>
+  <string name="file_action_more_title">Veldu það sem hentar þér </string>
   <string-array name="file_type_array">
     <item>Texti</item>
     <item>Hljóð</item>
