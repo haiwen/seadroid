@@ -121,9 +121,7 @@ public class SeafItemAdapter extends BaseAdapter {
 
     public void setItems(List<SeafDirent> dirents) {
         items.clear();
-        for (SeafDirent dirent : dirents) {
-            items.add(dirent);
-        }
+        items.addAll(dirents);
         this.mSelectedItemsIds.clear();
         this.mSelectedItemsPositions.clear();
         this.mSelectedItemsValues.clear();
@@ -253,7 +251,6 @@ public class SeafItemAdapter extends BaseAdapter {
         }
 
         if (actionModeOn) {
-            Log.d("SIA", "---- action mode on");
             viewHolder.multiSelect.setVisibility(View.VISIBLE);
             if (mSelectedItemsIds.get(position)) {
                 viewHolder.multiSelect.setImageResource(R.drawable.multi_select_item_checked);

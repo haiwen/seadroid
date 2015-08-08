@@ -14,6 +14,9 @@ import com.seafile.seadroid2.data.SeafDirent;
 
 import java.util.List;
 
+/**
+ * * AsyncTask for deleting files
+ */
 class DeleteTask extends TaskDialog.Task {
     public static final String DEBUG_TAG = "DeleteTask";
 
@@ -56,6 +59,9 @@ class DeleteTask extends TaskDialog.Task {
         }
     }
 
+    /**
+     * Class for deleting files sequentially, starting one after the previous completes.
+     */
     class DeleteTaskManager {
 
         protected List<DeleteCell> waitingList = Lists.newArrayList();
@@ -96,6 +102,9 @@ class DeleteTask extends TaskDialog.Task {
 
     }
 
+    /**
+     * Class for queuing deleting tasks
+     */
     class DeleteCell {
         private String repoID;
         private String path;

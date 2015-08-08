@@ -864,7 +864,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                                 new TaskDialog.TaskDialogListener() {
                                     @Override
                                     public void onTaskSuccess() {
-                                        getReposFragment().openMultiSelectionPage();
+                                        getReposFragment().startContextualActionMode();
                                     }
                                 } , password);
 
@@ -872,7 +872,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                     }
                 }
 
-                getReposFragment().openMultiSelectionPage();
+                getReposFragment().startContextualActionMode();
             }
 
             return true;
@@ -2026,9 +2026,14 @@ public class BrowserActivity extends SherlockFragmentActivity
             if (fileCount == 0)
                 ToastUtils.show(BrowserActivity.this, R.string.transfer_download_no_task);
             else {
-                ToastUtils.show(BrowserActivity.this, getResources().getQuantityString(R.plurals.transfer_download_started, fileCount, fileCount));
+                ToastUtils.show(BrowserActivity.this,
+                        getResources().getQuantityString(R.plurals.transfer_download_started,
+                                fileCount,
+                                fileCount));
+
                 if (!txService.hasDownloadNotifProvider()) {
-                    DownloadNotificationProvider provider = new DownloadNotificationProvider(txService.getDownloadTaskManager(),
+                    DownloadNotificationProvider provider =
+                            new DownloadNotificationProvider(txService.getDownloadTaskManager(),
                             txService);
                     txService.saveDownloadNotifProvider(provider);
                 }

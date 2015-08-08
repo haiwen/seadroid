@@ -16,27 +16,21 @@ import android.view.animation.AnimationUtils;
 import android.widget.*;
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.actionbarsherlock.view.ActionMode;
-import com.google.common.collect.Lists;
 import com.seafile.seadroid2.*;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.*;
-import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.ui.*;
 import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
-import com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
-import com.seafile.seadroid2.ui.dialog.DeleteFileDialog;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.util.Utils;
 import com.tjerkw.slideexpandable.library.SlideExpandableListAdapter;
 
-import java.io.File;
 import java.net.HttpURLConnection;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -132,7 +126,6 @@ public class ReposFragment extends SherlockListFragment
 
         adapter.setActionModeOn(false);
         adapter.deselectAllItems();
-        //adapter.actionModeOff();
         Animation bottomDown = AnimationUtils.loadAnimation(mActivity,
                 R.anim.bottom_down);
         mTaskActionBar.startAnimation(bottomDown);
@@ -142,8 +135,6 @@ public class ReposFragment extends SherlockListFragment
         // the contextual action bar (CAB) is removed. By default, selected items are deselected/unchecked.
         mActionMode = null;
 
-        // finish activity
-        // finish();
     }
 
     public interface OnFileSelectedListener {
@@ -179,7 +170,7 @@ public class ReposFragment extends SherlockListFragment
         mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                openMultiSelectionPage();
+                startContextualActionMode();
                 return true;
             }
         });
@@ -199,29 +190,28 @@ public class ReposFragment extends SherlockListFragment
     }
 
     /**
-     * Start action mode for selecting and process multiple files/folders
+     * Start action mode for selecting and process multiple files/folders.
+     * The contextual action mode is a system implementation of ActionMode
+     * that focuses user interaction toward performing contextual actions.
+     * When a user enables this mode by selecting an item,
+     * a contextual action bar appears at the top of the screen
+     * to present actions the user can perform on the currently selected item(s).
+     *
+     * While this mode is enabled,
+     * the user can select multiple items (if you allow it), deselect items,
+     * and continue to navigate within the activity (as much as you're willing to allow).
+     *
+     * The action mode is disabled and the contextual action bar disappears
+     * when the user deselects all items, presses the BACK button, or selects the Done action on the left side of the bar.
+     *
+     * see http://developer.android.com/guide/topics/ui/menus.html#CAB
      */
-    public void openMultiSelectionPage() {
+    public void startContextualActionMode() {
         NavContext nav = getNavContext();
-        if (!nav.inRepo())
-            return;
-
-        /*final String repoName = nav.getRepoName();
-        final String repoID = nav.getRepoID();
-        final String dirPath = nav.getDirPath();*/
-        /*Bundle bundle = new Bundle();
-        bundle.putParcelable(MultipleOperationActivity.MULTI_OPERATION_ACCOUNT, mActivity.getAccount());
-
-        Intent intent = new Intent(getActivity(), MultipleOperationActivity.class);
-        intent.putExtra(MultipleOperationActivity.MULTI_OPERATION_REPOID, repoID);
-        intent.putExtra(MultipleOperationActivity.MULTI_OPERATION_REPONAME, repoName);
-        intent.putExtra(MultipleOperationActivity.MULTI_OPERATION_DIR, dirPath);
-        intent.putExtra(MultipleOperationActivity.MULTI_OPERATION_BUNDLE, bundle);
-
-        startActivity(intent);*/
+        if (!nav.inRepo()) return;
 
         if (mActionMode == null) {
-            // there are some selected items, start the actionMode
+            // start the actionMode
             mActionMode = mActivity.startActionMode(new ActionModeCallback(this));
         }
 
