@@ -303,6 +303,7 @@ public class SeafItemAdapter extends BaseAdapter {
             ImageLoader.getInstance().displayImage("drawable://" + dirent.getIcon(), viewHolder.icon, WidgetUtils.iconOptions);
         } else {
             viewHolder.downloadStatusIcon.setVisibility(View.GONE);
+            viewHolder.progressBar.setVisibility(View.GONE);
 
             if (!repoIsEncrypted) {
                 viewHolder.shareView.setVisibility(View.VISIBLE);
