@@ -70,12 +70,8 @@ public abstract class TransferTaskFragment extends SherlockListFragment
         mTransferTaskListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                if (mActionMode != null) {
-                    // add or remove selection for current list item
-                    if (adapter == null) return true;
-
-                    adapter.toggleSelection(position);
-                    updateContextualActionBar();
+                if (mActionMode == null) {
+                    mActionMode = getSherlockActivity().startActionMode(new ActionModeCallback(TransferTaskFragment.this));
                 }
 
                 return true;
