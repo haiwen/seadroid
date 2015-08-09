@@ -128,6 +128,13 @@
         <item>Download folder</item>
         <item>Download folder and subfolders</item>
     </string-array>
+    <string name="add_file">Add file</string>
+    <string-array name="add_file_options_array">
+        <item>Create file</item>
+        <item>Create folder</item>
+        <item>Upload file</item>
+        <item>Take a photo</item>
+    </string-array>
     <string name="create_new_file">Create a new file</string>
     <string name="create_new_dir">Create a new folder</string>
     <string name="camera">Take a photo here</string>

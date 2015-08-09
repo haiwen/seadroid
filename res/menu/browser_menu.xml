@@ -41,21 +41,6 @@
               android:title="@string/download_folder"
               android:showAsAction="never"/>
 
-        <item android:id="@+id/newdir"
-              android:visible="false"
-              android:title="@string/create_new_dir"
-              android:showAsAction="never"/>
-
-        <item android:id="@+id/newfile"
-              android:visible="false"
-              android:title="@string/create_new_file"
-              android:showAsAction="never"/>
-
-        <item android:id="@+id/camera"
-              android:visible="false"
-              android:title="@string/camera"
-              android:showAsAction="never"/>
-
 	    <item android:id="@+id/transfer_tasks"
               android:visible="false"
               android:title="@string/transfer_tasks"
