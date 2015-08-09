@@ -412,4 +412,5 @@
   <string name="overwrite_existing_file_title">Létező fájlok felülírása</string>
   <string name="overwrite_existing_file_msg">A fájl már létezik, felülírja?</string>
   <string name="overwrite_existing_file_exist">A fájl már létezik</string>
+  <!--Action Mode-->
 </resources>

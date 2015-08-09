@@ -117,11 +117,19 @@
   <string name="load_libraries_fail">Nie udało się wczytać bibliotek</string>
   <string name="load_dir_fail">Nie udało się wczytać zawartości tego folderu</string>
   <string name="not_supported_share">Ten rodzaj udziału nie jest obsługiwany</string>
+  <string name="edit_files">Edytuj</string>
   <string name="download_folder">Folder pobierania</string>
   <string name="download_folder_title">Wybierz swoje preferencje</string>
   <string-array name="download_folder_options_array">
     <item>Pobierz folder</item>
     <item>Pobierz folder i podfoldery</item>
+  </string-array>
+  <string name="add_file">Dodaj plik</string>
+  <string-array name="add_file_options_array">
+    <item>Utwórz plik</item>
+    <item>Utwórz folder</item>
+    <item>Prześlij plik</item>
+    <item>Zrób zdjęcie</item>
   </string-array>
   <string name="create_new_file">Utwórz nowy plik</string>
   <string name="create_new_dir">Utwórz nowy folder</string>
@@ -421,4 +429,6 @@
   <string name="overwrite_existing_file_title">Nadpisz istniejący plik</string>
   <string name="overwrite_existing_file_msg">Plik już istnieje, czy chcesz go nadpisać?</string>
   <string name="overwrite_existing_file_exist">Plik już istnieje</string>
+  <!--Action Mode-->
+  <string name="action_mode_no_items_selected">Nie wybrano elementów</string>
 </resources>
