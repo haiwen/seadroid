@@ -678,9 +678,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         MenuItem menuRefresh = menu.findItem(R.id.refresh);
         MenuItem menuEdit = menu.findItem(R.id.edit_files);
         MenuItem menuDownloadFolder = menu.findItem(R.id.download_folder);
-        MenuItem menuNewDir = menu.findItem(R.id.newdir);
-        MenuItem menuNewFile = menu.findItem(R.id.newfile);
-        MenuItem menuCamera = menu.findItem(R.id.camera);
         MenuItem menuTransferTasks = menu.findItem(R.id.transfer_tasks);
         MenuItem menuAccounts = menu.findItem(R.id.accounts);
         MenuItem menuSettings = menu.findItem(R.id.settings);
@@ -731,29 +728,17 @@ public class BrowserActivity extends SherlockFragmentActivity
         // Libraries Tab
         if (currentPosition == 0) {
             if (navContext.inRepo() && hasRepoWritePermission()) {
-                menuNewDir.setVisible(true);
-                menuNewFile.setVisible(true);
-                menuCamera.setVisible(true);
                 menuEdit.setVisible(true);
             } else {
-                menuNewDir.setVisible(false);
-                menuNewFile.setVisible(false);
-                menuCamera.setVisible(false);
                 menuEdit.setVisible(false);
             }
         } else {
-            menuNewDir.setVisible(false);
-            menuNewFile.setVisible(false);
-            menuCamera.setVisible(false);
             menuEdit.setVisible(false);
         }
 
         if (currentSelectedItem.equals(UPLOAD_TASKS_VIEW)) {
             menuUpload.setVisible(false);
             menuRefresh.setVisible(false);
-            menuNewDir.setVisible(false);
-            menuNewFile.setVisible(false);
-            menuCamera.setVisible(false);
             menuTransferTasks.setVisible(false);
             menuAccounts.setVisible(false);
             menuSettings.setVisible(false);
@@ -762,9 +747,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         // Starred tab
         if (currentPosition == 1) {
             menuUpload.setVisible(false);
-            menuNewDir.setVisible(false);
-            menuNewFile.setVisible(false);
-            menuCamera.setVisible(false);
             menuRefresh.setVisible(true);
             menuTransferTasks.setVisible(true);
             menuAccounts.setVisible(true);
@@ -794,7 +776,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             startActivity(searchIntent);
             return true;
         case R.id.upload:
-            pickFile();
+            addFile();
             return true;
         case R.id.transfer_tasks:
             Intent newIntent = new Intent(this, TransferActivity.class);
@@ -875,15 +857,6 @@ public class BrowserActivity extends SherlockFragmentActivity
                 getReposFragment().startContextualActionMode();
             }
 
-            return true;
-        case R.id.newdir:
-            showNewDirDialog();
-            return true;
-        case R.id.newfile:
-            showNewFileDialog();
-            return true;
-        case R.id.camera:
-            CameraTakePhoto();
             return true;
         case R.id.settings:
             Intent settingsIntent = new Intent(BrowserActivity.this,SettingsActivity.class);
@@ -1010,6 +983,27 @@ public class BrowserActivity extends SherlockFragmentActivity
                 break;
         }
         return 0;
+    }
+
+    /**
+     * add new file/files
+     */
+    private void addFile() {
+        final SeafileStyleDialogBuilder builder = new SeafileStyleDialogBuilder(this);
+        builder.setTitle(getString(R.string.add_file));
+        builder.setItems(R.array.add_file_options_array, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (which == 0) // create file
+                    showNewFileDialog();
+                else if (which == 1) // create folder
+                    showNewDirDialog();
+                else if (which == 2) // upload file
+                    pickFile();
+                else if (which == 3) // take a photo
+                    CameraTakePhoto();
+            }
+        }).show();
     }
 
     private void showNewDirDialog() {
