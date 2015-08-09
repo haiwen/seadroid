@@ -115,11 +115,19 @@
   <string name="load_libraries_fail">加载资料库失败</string>
   <string name="load_dir_fail">加载此文件夹的内容失败</string>
   <string name="not_supported_share">不支持此类分享</string>
+  <string name="edit_files">编辑</string>
   <string name="download_folder">下载该文件夹</string>
   <string name="download_folder_title">选择你喜欢的选项</string>
   <string-array name="download_folder_options_array">
     <item>下载文件夹</item>
     <item>下载文件夹及其子文件夹</item>
+  </string-array>
+  <string name="add_file">添加文件</string>
+  <string-array name="add_file_options_array">
+    <item>新建文件</item>
+    <item>新建文件夹</item>
+    <item>上传文件</item>
+    <item>拍照上传</item>
   </string-array>
   <string name="create_new_file">创建新文件</string>
   <string name="create_new_dir">创建新文件夹</string>
@@ -402,4 +410,6 @@
   <string name="overwrite_existing_file_title">替换文件</string>
   <string name="overwrite_existing_file_msg">该文件已经存在，你想替换掉它吗？</string>
   <string name="overwrite_existing_file_exist">该文件已经存在</string>
+  <!--Action Mode-->
+  <string name="action_mode_no_items_selected">未选中任何文件</string>
 </resources>

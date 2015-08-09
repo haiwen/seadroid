@@ -118,11 +118,19 @@
   <string name="load_libraries_fail">Не удалось загрузить библиотеки</string>
   <string name="load_dir_fail">Не удалось загрузить содержимое этой папки</string>
   <string name="not_supported_share">Этот тип обмена не поддерживается</string>
+  <string name="edit_files">Изменить</string>
   <string name="download_folder">Скачать папку</string>
   <string name="download_folder_title">Выберите нужный вариант</string>
   <string-array name="download_folder_options_array">
     <item>Скачать папку</item>
     <item>Скачать папку и подпапки</item>
+  </string-array>
+  <string name="add_file">Добавить файл</string>
+  <string-array name="add_file_options_array">
+    <item>Создать файл</item>
+    <item>Создать папку</item>
+    <item>Загрузить файл</item>
+    <item>Сделать фото</item>
   </string-array>
   <string name="create_new_file">Создать новый файл</string>
   <string name="create_new_dir">Создать новую папку</string>
@@ -429,4 +437,6 @@ Email: support@seafile.com<br>
   <string name="overwrite_existing_file_title">Заменить существующий файл</string>
   <string name="overwrite_existing_file_msg">Файл уже существует, вы действительно хотите заменить его?</string>
   <string name="overwrite_existing_file_exist">Файл уже сущетсвует</string>
+  <!--Action Mode-->
+  <string name="action_mode_no_items_selected">Нет выбранных элементов</string>
 </resources>

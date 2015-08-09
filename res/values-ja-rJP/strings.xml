@@ -403,4 +403,5 @@
   <string name="overwrite_existing_file_title">存在するファイルを置き換え</string>
   <string name="overwrite_existing_file_msg">ファイルがすでに存在します。置き換えますか?</string>
   <string name="overwrite_existing_file_exist">ファイルがすでに存在します。</string>
+  <!--Action Mode-->
 </resources>

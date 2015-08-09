@@ -347,4 +347,5 @@
   <string name="notification_download_started_title">Laster ned filer....</string>
   <!--Gallery-->
   <!--Overwrite existing files-->
+  <!--Action Mode-->
 </resources>

@@ -412,4 +412,5 @@
   <string name="overwrite_existing_file_title">Remplacer le fichier existant</string>
   <string name="overwrite_existing_file_msg">Ce fichier existe déjà, Voulez vous le remplacer ?</string>
   <string name="overwrite_existing_file_exist">Le fichier existe déjà</string>
+  <!--Action Mode-->
 </resources>

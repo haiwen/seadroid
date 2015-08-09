@@ -403,4 +403,5 @@
   <string name="overwrite_existing_file_title">Skipta út skrá sem er til</string>
   <string name="overwrite_existing_file_msg">Skráin er þegar til, viltu skipta henni út?</string>
   <string name="overwrite_existing_file_exist">Skráin er þegar til</string>
+  <!--Action Mode-->
 </resources>
