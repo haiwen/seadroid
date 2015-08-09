@@ -44,7 +44,10 @@ import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.notification.UploadNotificationProvider;
 import com.seafile.seadroid2.transfer.*;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
-import com.seafile.seadroid2.ui.*;
+import com.seafile.seadroid2.ui.CopyMoveContext;
+import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
+import com.seafile.seadroid2.ui.ToastUtils;
+import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
 import com.seafile.seadroid2.ui.dialog.*;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog.CustomAction;
@@ -676,13 +679,11 @@ public class BrowserActivity extends SherlockFragmentActivity
         MenuItem menuSort = menu.findItem(R.id.sort);
         MenuItem menuUpload = menu.findItem(R.id.upload);
         MenuItem menuEdit = menu.findItem(R.id.edit_files);
-        MenuItem menuDownloadFolder = menu.findItem(R.id.download_folder);
 
         // Libraries Tab
         if (currentPosition == 0) {
             if (navContext.inRepo()) {
                 menuUpload.setVisible(true);
-                menuDownloadFolder.setVisible(true);
                 menuEdit.setVisible(true);
                 if (hasRepoWritePermission()) {
                     menuUpload.setEnabled(true);
@@ -694,7 +695,6 @@ public class BrowserActivity extends SherlockFragmentActivity
 
             } else {
                 menuUpload.setVisible(false);
-                menuDownloadFolder.setVisible(false);
                 menuEdit.setVisible(false);
             }
 
@@ -702,7 +702,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         } else {
             menuSort.setVisible(false);
             menuUpload.setVisible(false);
-            menuDownloadFolder.setVisible(false);
             menuEdit.setVisible(false);
         }
 
@@ -774,19 +773,6 @@ public class BrowserActivity extends SherlockFragmentActivity
                 getStarredFragment().refresh();
             }
             return true;
-        case R.id.download_folder:
-            final SeafileStyleDialogBuilder builder = new SeafileStyleDialogBuilder(this);
-            builder.setTitle(getString(R.string.download_folder_title));
-            builder.setItems(R.array.download_folder_options_array, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    if (which == 0) // download folder
-                        downloadDir(navContext.getDirPath(), false);
-                    else if (which == 1) // download folder and subfolders
-                        downloadDir(navContext.getDirPath(), true);
-                }
-            }).show();
-            break;
         case R.id.edit_files:
             // start action mode for selecting multiple files/folders
 
@@ -1299,14 +1285,15 @@ public class BrowserActivity extends SherlockFragmentActivity
     /**
      * Download a file
      *
-     * @param repoID
-     * @param repoName
      * @param dir
      * @param fileName
      */
-    public void downloadFile(String repoID, String repoName, String dir, String fileName) {
+    public void downloadFile(String dir, String fileName) {
         String filePath = Utils.pathJoin(dir, fileName);
-        txService.addDownloadTask(account, repoName, repoID, filePath);
+        txService.addDownloadTask(account,
+                navContext.getRepoName(),
+                navContext.getRepoID(),
+                filePath);
 
         if (!txService.hasDownloadNotifProvider()) {
             DownloadNotificationProvider provider = new DownloadNotificationProvider(txService.getDownloadTaskManager(),
@@ -1315,7 +1302,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
 
         SeafItemAdapter adapter = getReposFragment().getAdapter();
-        List<DownloadTaskInfo> infos = txService.getDownloadTaskInfosByPath(repoID, dir);
+        List<DownloadTaskInfo> infos = txService.getDownloadTaskInfosByPath(navContext.getRepoID(), dir);
         // update downloading progress
         adapter.setDownloadTaskList(infos);
     }
@@ -1324,9 +1311,10 @@ public class BrowserActivity extends SherlockFragmentActivity
      * Download all files (folders) under a given folder
      *
      * @param dirPath
+     * @param fileName name of the download folder
      * @param recurse
      */
-    public void downloadDir(String dirPath, boolean recurse) {
+    public void downloadDir(String dirPath, String fileName, boolean recurse) {
         if (!Utils.isNetworkOn()) {
             ToastUtils.show(this, R.string.network_down);
             return;
@@ -1336,13 +1324,15 @@ public class BrowserActivity extends SherlockFragmentActivity
                 navContext.getRepoName(),
                 navContext.getRepoID(),
                 dirPath,
-                String.valueOf(recurse));
+                String.valueOf(recurse),
+                fileName);
     }
 
     private class DownloadDirTask extends AsyncTask<String, Void, List<SeafDirent> > {
 
         private String repoName;
         private String repoID;
+        private String fileName;
         private String dirPath;
         private int fileCount;
         private boolean recurse;
@@ -1351,7 +1341,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         @Override
         protected List<SeafDirent> doInBackground(String... params) {
-            if (params.length != 4) {
+            if (params.length != 5) {
                 Log.d(DEBUG_TAG, "Wrong params to LoadDirTask");
                 return null;
             }
@@ -1360,10 +1350,12 @@ public class BrowserActivity extends SherlockFragmentActivity
             repoID = params[1];
             dirPath = params[2];
             recurse = Boolean.valueOf(params[3]);
+            fileName = params[4];
+
 
             ArrayList<SeafDirent> dirents = Lists.newArrayList();
 
-            dirPaths.add(dirPath);
+            dirPaths.add(Utils.pathJoin(dirPath, fileName));
 
             // don`t use for each loop here
             for (int i = 0; i < dirPaths.size(); i++) {
