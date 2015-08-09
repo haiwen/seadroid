@@ -163,39 +163,11 @@ public class TransferActivity extends SherlockFragmentActivity {
                 } else getUploadTaskFragment().cancelUploadTasks();
 
                 return true;
-            case R.id.retry_failed_transfer_tasks:
-                if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK) {
-                    getDownloadTaskFragment().retryAllFailedTasks();
-
-                } else getUploadTaskFragment().retryAllFailedTasks();
-
-                return true;
-            case R.id.restart_cancelled_transfer_tasks:
-                if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK) {
-                    getDownloadTaskFragment().restartAllCancelledTasks();
-
-                } else getUploadTaskFragment().restartAllCancelledTasks();
-
-                return true;
-            case R.id.clear_failed_transfer_tasks:
-                if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK) {
-                    getDownloadTaskFragment().removeAllFailedDownloadTasks();
-
-                } else getUploadTaskFragment().removeAllFailedUploadTasks();
-
-                return true;
             case R.id.clear_cancelled_transfer_tasks:
                 if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK) {
                     getDownloadTaskFragment().removeAllCancelledDownloadTasks();
 
                 } else getUploadTaskFragment().removeAllCancelledUploadTasks();
-
-                return true;
-            case R.id.clear_finished_transfer_tasks:
-                if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK) {
-                    getDownloadTaskFragment().removeAllFinishedDownloadTasks();
-
-                } else getUploadTaskFragment().removeAllFinishedUploadTasks();
 
                 return true;
 
