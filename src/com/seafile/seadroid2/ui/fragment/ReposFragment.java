@@ -292,7 +292,11 @@ public class ReposFragment extends SherlockListFragment
                     break;
                 case R.id.action_download_ll:
                     mListView.collapse();
-                    mActivity.downloadFile(repoID, repoName, dir, dirent.name);
+                    if (dirent.isDir()) {
+                        mActivity.downloadDir(dir, dirent.name, true);
+                    } else {
+                        mActivity.downloadFile(dir, dirent.name);
+                    }
                     break;
                 case R.id.action_more_ll:
                     mListView.collapse();

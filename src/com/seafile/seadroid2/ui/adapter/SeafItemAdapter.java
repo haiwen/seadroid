@@ -207,6 +207,7 @@ public class SeafItemAdapter extends BaseAdapter {
         } else {
             viewHolder = (Viewholder) convertView.getTag();
         }
+        viewHolder.multiSelect.setVisibility(View.GONE);
         viewHolder.downloadStatusIcon.setVisibility(View.GONE);
         viewHolder.progressBar.setVisibility(View.GONE);
         viewHolder.title.setText(repo.getTitle());
@@ -289,10 +290,10 @@ public class SeafItemAdapter extends BaseAdapter {
             viewHolder.deleteView.setVisibility(View.VISIBLE);
             viewHolder.copyView.setVisibility(View.VISIBLE);
             viewHolder.moveView.setVisibility(View.VISIBLE);
+            viewHolder.downloadView.setVisibility(View.VISIBLE);
 
             viewHolder.renameView.setVisibility(View.GONE);
             viewHolder.updateView.setVisibility(View.GONE);
-            viewHolder.downloadView.setVisibility(View.GONE);
             viewHolder.moreView.setVisibility(View.GONE);
 
             if (repoIsEncrypted) {
