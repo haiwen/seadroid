@@ -27,7 +27,7 @@
         android:showAsAction="ifRoom"/>
 
         <item android:id="@+id/refresh"
-        android:visible="false"
+        android:visible="true"
         android:title="@string/refresh"
         android:showAsAction="ifRoom"/>
 
@@ -42,18 +42,18 @@
               android:showAsAction="never"/>
 
 	    <item android:id="@+id/transfer_tasks"
-              android:visible="false"
+              android:visible="true"
               android:title="@string/transfer_tasks"
               android:showAsAction="never"/>
 
 	    <item android:id="@+id/accounts"
-              android:visible="false"
+              android:visible="true"
               android:title="@string/accounts"
               android:showAsAction="never"/>
 
 
         <item android:id="@+id/settings"
-              android:visible="false"
+              android:visible="true"
               android:title="@string/settings"
               android:showAsAction="never"/>
       </menu>

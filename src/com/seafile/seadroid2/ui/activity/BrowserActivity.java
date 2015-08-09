@@ -675,28 +675,30 @@ public class BrowserActivity extends SherlockFragmentActivity
         menuSearch = menu.findItem(R.id.search);
         MenuItem menuSort = menu.findItem(R.id.sort);
         MenuItem menuUpload = menu.findItem(R.id.upload);
-        MenuItem menuRefresh = menu.findItem(R.id.refresh);
         MenuItem menuEdit = menu.findItem(R.id.edit_files);
         MenuItem menuDownloadFolder = menu.findItem(R.id.download_folder);
-        MenuItem menuTransferTasks = menu.findItem(R.id.transfer_tasks);
-        MenuItem menuAccounts = menu.findItem(R.id.accounts);
-        MenuItem menuSettings = menu.findItem(R.id.settings);
 
         // Libraries Tab
         if (currentPosition == 0) {
-            menuSort.setVisible(true);
-            menuUpload.setVisible(true);
-            menuDownloadFolder.setVisible(true);
-            menuEdit.setVisible(true);
             if (navContext.inRepo()) {
-                menuUpload.setEnabled(true);
-                menuDownloadFolder.setEnabled(true);
-                menuEdit.setEnabled(true);
+                menuUpload.setVisible(true);
+                menuDownloadFolder.setVisible(true);
+                menuEdit.setVisible(true);
+                if (hasRepoWritePermission()) {
+                    menuUpload.setEnabled(true);
+                    menuEdit.setEnabled(true);
+                } else {
+                    menuUpload.setEnabled(false);
+                    menuEdit.setEnabled(false);
+                }
+
             } else {
-                menuUpload.setEnabled(false);
-                menuDownloadFolder.setEnabled(false);
-                menuEdit.setEnabled(false);
+                menuUpload.setVisible(false);
+                menuDownloadFolder.setVisible(false);
+                menuEdit.setVisible(false);
             }
+
+            menuSort.setVisible(true);
         } else {
             menuSort.setVisible(false);
             menuUpload.setVisible(false);
@@ -704,55 +706,10 @@ public class BrowserActivity extends SherlockFragmentActivity
             menuEdit.setVisible(false);
         }
 
-        // Libraries Tab
-        if (currentPosition == 0) {
-            menuSort.setVisible(true);
-            menuRefresh.setVisible(true);
-            menuTransferTasks.setVisible(true);
-            menuAccounts.setVisible(true);
-            menuSettings.setVisible(true);
-        } else if (currentPosition == 2) { // ACTIVITY_TAB
-            menuSort.setVisible(false);
-            menuRefresh.setVisible(true);
-            menuTransferTasks.setVisible(true);
-            menuAccounts.setVisible(true);
-            menuSettings.setVisible(true);
-        } else {
-            menuSort.setVisible(false);
-            menuRefresh.setVisible(false);
-            menuTransferTasks.setVisible(false);
-            menuAccounts.setVisible(false);
-            menuSettings.setVisible(false);
-        }
+        // Global menus, e.g. Accounts, TransferTasks, Settings, are visible by default.
+        // So nothing need to be done here.
 
-        // Libraries Tab
-        if (currentPosition == 0) {
-            if (navContext.inRepo() && hasRepoWritePermission()) {
-                menuEdit.setVisible(true);
-            } else {
-                menuEdit.setVisible(false);
-            }
-        } else {
-            menuEdit.setVisible(false);
-        }
-
-        if (currentSelectedItem.equals(UPLOAD_TASKS_VIEW)) {
-            menuUpload.setVisible(false);
-            menuRefresh.setVisible(false);
-            menuTransferTasks.setVisible(false);
-            menuAccounts.setVisible(false);
-            menuSettings.setVisible(false);
-        }
-
-        // Starred tab
-        if (currentPosition == 1) {
-            menuUpload.setVisible(false);
-            menuRefresh.setVisible(true);
-            menuTransferTasks.setVisible(true);
-            menuAccounts.setVisible(true);
-            menuSettings.setVisible(true);
-        }
-
+        // Though search menu is also a global menu, its state was maintained dynamically at runtime.
         if (!checkServerProEdition())
             menuSearch.setVisible(false);
 
