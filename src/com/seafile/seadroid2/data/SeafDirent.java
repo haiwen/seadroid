@@ -1,8 +1,12 @@
 package com.seafile.seadroid2.data;
 
 import java.io.Serializable;
+import java.text.Collator;
 import java.util.Comparator;
+import java.util.Locale;
 
+import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.util.PinyinUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -86,7 +90,29 @@ public class SeafDirent implements SeafItem, Serializable {
 
         @Override
         public int compare(SeafDirent itemA, SeafDirent itemB) {
-            return itemA.name.toLowerCase().compareTo(itemB.name.toLowerCase());
+            // get the first character unicode from each file name
+            int unicodeA = itemA.name.codePointAt(0);
+            int unicodeB = itemB.name.codePointAt(0);
+
+            String strA, strB;
+
+            // both are Chinese words
+            if ((19968 < unicodeA && unicodeA < 40869) && (19968 < unicodeB && unicodeB < 40869)) {
+                strA = PinyinUtils.toPinyin(SeadroidApplication.getAppContext(), itemA.name).toLowerCase();
+                strB = PinyinUtils.toPinyin(SeadroidApplication.getAppContext(), itemB.name).toLowerCase();
+            } else if ((19968 < unicodeA && unicodeA < 40869) && !(19968 < unicodeB && unicodeB < 40869)) {
+                // itemA is Chinese and itemB is English
+                return 1;
+            } else if (!(19968 < unicodeA && unicodeA < 40869) && (19968 < unicodeB && unicodeB < 40869)) {
+                // itemA is English and itemB is Chinese
+                return -1;
+            } else {
+                // both are English words
+                strA = itemA.name.toLowerCase();
+                strB = itemB.name.toLowerCase();
+            }
+
+            return strA.compareTo(strB);
         }
     }
 }

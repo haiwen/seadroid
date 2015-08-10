@@ -1,14 +1,14 @@
 package com.seafile.seadroid2.data;
 
-import java.util.Comparator;
-import java.util.Date;
-
 import android.util.Log;
+import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.util.PinyinUtils;
 import com.seafile.seadroid2.util.Utils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.seafile.seadroid2.R;
+import java.util.Comparator;
 
 /**
  * SeafRepo: A Seafile library
@@ -78,7 +78,7 @@ public class SeafRepo implements SeafItem {
             return R.drawable.repo_encrypted;
         if (!hasWritePermission())
             return R.drawable.repo_readonly;
-        
+
         return R.drawable.repo;
     }
 
@@ -104,7 +104,29 @@ public class SeafRepo implements SeafItem {
 
         @Override
         public int compare(SeafRepo itemA, SeafRepo itemB) {
-            return itemA.name.toLowerCase().compareTo(itemB.name.toLowerCase());
+            // get the first character unicode from each file name
+            int unicodeA = itemA.name.codePointAt(0);
+            int unicodeB = itemB.name.codePointAt(0);
+
+            String strA, strB;
+
+            // both are Chinese words
+            if ((19968 < unicodeA && unicodeA < 40869) && (19968 < unicodeB && unicodeB < 40869)) {
+                strA = PinyinUtils.toPinyin(SeadroidApplication.getAppContext(), itemA.name).toLowerCase();
+                strB = PinyinUtils.toPinyin(SeadroidApplication.getAppContext(), itemB.name).toLowerCase();
+            } else if ((19968 < unicodeA && unicodeA < 40869) && !(19968 < unicodeB && unicodeB < 40869)) {
+                // itemA is Chinese and itemB is English
+                return 1;
+            } else if (!(19968 < unicodeA && unicodeA < 40869) && (19968 < unicodeB && unicodeB < 40869)) {
+                // itemA is English and itemB is Chinese
+                return -1;
+            } else {
+                // both are English words
+                strA = itemA.name.toLowerCase();
+                strB = itemB.name.toLowerCase();
+            }
+
+            return strA.compareTo(strB);
         }
     }
 }
