@@ -116,11 +116,19 @@
   <string name="load_libraries_fail">Bibliotheken konnten nicht geladen werden</string>
   <string name="load_dir_fail">Der Inhalt des Ordners konnte nicht geladen werden</string>
   <string name="not_supported_share">Diese Art der Freigabe wird nicht unterstützt</string>
+  <string name="edit_files">Bearbeiten</string>
   <string name="download_folder">Ordner herunterladen</string>
   <string name="download_folder_title">Wählen Sie Ihre bevorzugte Option</string>
   <string-array name="download_folder_options_array">
     <item>Ordner herunterladen</item>
     <item>Ordner und Unterordner herunterladen</item>
+  </string-array>
+  <string name="add_file">Datei hinzufügen</string>
+  <string-array name="add_file_options_array">
+    <item>Datei anlegen</item>
+    <item>Ordner anlegen</item>
+    <item>Datei hochladen</item>
+    <item>Foto machen</item>
   </string-array>
   <string name="create_new_file">Eine neue Datei anlegen</string>
   <string name="create_new_dir">Einen neuen Ordner anlegen</string>
@@ -413,4 +421,5 @@
   <string name="overwrite_existing_file_msg">Die Datei ist schon vorhanden, möchten Sie sie wirklich ersetzen?</string>
   <string name="overwrite_existing_file_exist">Die Datei ist schon vorhanden</string>
   <!--Action Mode-->
+  <string name="action_mode_no_items_selected">Es wurden keine Elemente ausgewählt</string>
 </resources>

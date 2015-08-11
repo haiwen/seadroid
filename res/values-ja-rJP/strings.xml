@@ -115,11 +115,19 @@
   <string name="load_libraries_fail">ライブラリーの読み込みに失敗しました</string>
   <string name="load_dir_fail">このフォルダーの内容の読み込みに失敗しました</string>
   <string name="not_supported_share">このタイプの共有はサポートされていません</string>
+  <string name="edit_files">編集</string>
   <string name="download_folder">ダウンロードフォルダー</string>
   <string name="download_folder_title">お好みのオプションを選択してください</string>
   <string-array name="download_folder_options_array">
     <item>ダウンロードフォルダー</item>
     <item>ダウンロードフォルダーとサブフォルダー</item>
+  </string-array>
+  <string name="add_file">ファイルを追加</string>
+  <string-array name="add_file_options_array">
+    <item>ファイルを作成</item>
+    <item>フォルダーを作成</item>
+    <item>ファイルをアップロード</item>
+    <item>写真を撮影</item>
   </string-array>
   <string name="create_new_file">新しいファイルを作成</string>
   <string name="create_new_dir">新しいフォルダーを作成</string>
@@ -404,4 +412,5 @@
   <string name="overwrite_existing_file_msg">ファイルがすでに存在します。置き換えますか?</string>
   <string name="overwrite_existing_file_exist">ファイルがすでに存在します。</string>
   <!--Action Mode-->
+  <string name="action_mode_no_items_selected">アイテムが選択されていません</string>
 </resources>

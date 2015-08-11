@@ -123,6 +123,13 @@
     <item>Descargar carpeta</item>
     <item>Descargar carpeta y subcarpetas</item>
   </string-array>
+  <string name="add_file">Agregar archivo</string>
+  <string-array name="add_file_options_array">
+    <item>Crear archivo</item>
+    <item>Crear carpeta</item>
+    <item>Subir archivo</item>
+    <item>Tomar una foto</item>
+  </string-array>
   <string name="create_new_file">Crear un nuevo archivo</string>
   <string name="create_new_dir">Crear una nueva carpeta</string>
   <string name="camera">Tomar una foto aquí</string>
