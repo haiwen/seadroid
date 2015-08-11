@@ -121,14 +121,14 @@
     <string name="load_libraries_fail">Failed to load libraries</string>
     <string name="load_dir_fail">Failed to load contents of this folder</string>
     <string name="not_supported_share">This type of share is not supported</string>
-    <string name="edit_files">Edit</string>
+    <string name="edit">Edit</string>
     <string name="download_folder">Download folder</string>
     <string name="download_folder_title">Choose your preferred option</string>
     <string-array name="download_folder_options_array">
         <item>Download folder</item>
         <item>Download folder and subfolders</item>
     </string-array>
-    <string name="add_file">Add file</string>
+    <string name="add_file">Add</string>
     <string-array name="add_file_options_array">
         <item>Create file</item>
         <item>Create folder</item>

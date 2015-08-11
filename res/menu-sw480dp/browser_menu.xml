@@ -14,9 +14,9 @@
           android:title="@string/search_menu_item"
           android:showAsAction="always"/>
 
-    <item android:id="@+id/upload"
+    <item android:id="@+id/add"
         android:visible="true"
-        android:title="@string/upload"
+        android:title="@string/add_file"
         android:icon="@drawable/add_file"
         android:showAsAction="ifRoom"/>
 
@@ -33,9 +33,9 @@
         android:showAsAction="always"
         android:title="More">
       <menu>
-          <item android:id="@+id/edit_files"
+          <item android:id="@+id/edit"
                 android:visible="false"
-                android:title="@string/edit_files"
+                android:title="@string/edit"
                 android:showAsAction="never"/>
 
 	    <item android:id="@+id/transfer_tasks"

@@ -677,31 +677,31 @@ public class BrowserActivity extends SherlockFragmentActivity
     public boolean onPrepareOptionsMenu(Menu menu) {
         menuSearch = menu.findItem(R.id.search);
         MenuItem menuSort = menu.findItem(R.id.sort);
-        MenuItem menuUpload = menu.findItem(R.id.upload);
-        MenuItem menuEdit = menu.findItem(R.id.edit_files);
+        MenuItem menuAdd = menu.findItem(R.id.add);
+        MenuItem menuEdit = menu.findItem(R.id.edit);
 
         // Libraries Tab
         if (currentPosition == 0) {
             if (navContext.inRepo()) {
-                menuUpload.setVisible(true);
+                menuAdd.setVisible(true);
                 menuEdit.setVisible(true);
                 if (hasRepoWritePermission()) {
-                    menuUpload.setEnabled(true);
+                    menuAdd.setEnabled(true);
                     menuEdit.setEnabled(true);
                 } else {
-                    menuUpload.setEnabled(false);
+                    menuAdd.setEnabled(false);
                     menuEdit.setEnabled(false);
                 }
 
             } else {
-                menuUpload.setVisible(false);
+                menuAdd.setVisible(false);
                 menuEdit.setVisible(false);
             }
 
             menuSort.setVisible(true);
         } else {
             menuSort.setVisible(false);
-            menuUpload.setVisible(false);
+            menuAdd.setVisible(false);
             menuEdit.setVisible(false);
         }
 
@@ -731,7 +731,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             Intent searchIntent = new Intent(this, SearchActivity.class);
             startActivity(searchIntent);
             return true;
-        case R.id.upload:
+        case R.id.add:
             addFile();
             return true;
         case R.id.transfer_tasks:
@@ -773,7 +773,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                 getStarredFragment().refresh();
             }
             return true;
-        case R.id.edit_files:
+        case R.id.edit:
             // start action mode for selecting multiple files/folders
 
             if (!Utils.isNetworkOn()) {
