@@ -49,6 +49,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
     private LinearLayout mToolbar;
     private DataManager dataMgr;
     private Account mAccount;
+    private String repoName;
     private String repoID;
     private String dirPath;
     private String fileName;
@@ -117,13 +118,14 @@ public class GalleryActivity extends SherlockFragmentActivity {
         mPageCountTextView = (TextView) findViewById(R.id.gallery_page_count);
         mPageNameTextView = (TextView) findViewById(R.id.gallery_page_name);
 
+        repoName = getIntent().getStringExtra("repoName");
         repoID = getIntent().getStringExtra("repoId");
         dirPath = getIntent().getStringExtra("path");
         mAccount = getIntent().getParcelableExtra("account");
         fileName = getIntent().getStringExtra("fileName");
         dataMgr = new DataManager(mAccount);
 
-        displayPhotosInGallery(repoID, dirPath);
+        displayPhotosInGallery(repoName, repoID, dirPath);
     }
 
     @Override
@@ -160,7 +162,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
      * @param repoID
      * @param dirPath
      */
-    private void displayPhotosInGallery(String repoID, String dirPath) {
+    private void displayPhotosInGallery(String repoName, String repoID, String dirPath) {
         // calculate thumbnail urls by cached dirents
         List<SeafDirent> seafDirents = dataMgr.getCachedDirents(repoID, dirPath);
         if (seafDirents != null) {
@@ -171,16 +173,14 @@ public class GalleryActivity extends SherlockFragmentActivity {
             for (SeafDirent seafDirent : seafDirents) {
                 if (!seafDirent.isDir()
                         && Utils.isViewableImage(seafDirent.name)) {
-                    String link = dataMgr.getThumbnailLink(repoID, Utils.pathJoin(dirPath, seafDirent.name), 800);
-                    if (link != null) {
-                        mPhotos.add(new SeafPhoto(link, seafDirent));
-                    }
+                    mPhotos.add(new SeafPhoto(repoName, repoID, dirPath, seafDirent));
                 }
             }
 
             mGalleryAdapter = new GalleryAdapter(GalleryActivity.this,
                     mAccount,
-                    mPhotos);
+                    mPhotos,
+                    dataMgr);
             mViewPager.setAdapter(mGalleryAdapter);
 
             navToSelectedPage();
@@ -192,7 +192,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
             }
 
             // load photos asynchronously
-            LoadPhotosTask task = new LoadPhotosTask(repoID, dirPath);
+            LoadPhotosTask task = new LoadPhotosTask(repoName, repoID, dirPath);
             ConcurrentAsyncTask.execute(task);
         }
 
@@ -202,10 +202,11 @@ public class GalleryActivity extends SherlockFragmentActivity {
      * Load photos asynchronously, use {@link SeafPhoto} to manage state of each photo instance
      */
     private class LoadPhotosTask extends AsyncTask<String, Void, List<SeafPhoto>> {
-        private String repoID, dirPath;
+        private String repoName, repoID, dirPath;
         private SeafException err = null;
 
-        public LoadPhotosTask(String repoID, String dirPath) {
+        public LoadPhotosTask(String repoName, String repoID, String dirPath) {
+            this.repoName = repoName;
             this.repoID = repoID;
             this.dirPath = dirPath;
         }
@@ -231,11 +232,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
             for (SeafDirent seafDirent : seafDirents) {
                 if (!seafDirent.isDir()
                         && Utils.isViewableImage(seafDirent.name)) {
-                    String link = dataMgr.getThumbnailLink(repoID, Utils.pathJoin(dirPath, seafDirent.name), 800);
-
-                    if(link != null) {
-                        photos.add(new SeafPhoto(link, seafDirent));
-                    }
+                    photos.add(new SeafPhoto(repoName, repoID, dirPath, seafDirent));
                 }
             }
             return photos;
@@ -254,7 +251,7 @@ public class GalleryActivity extends SherlockFragmentActivity {
             }
 
             mPhotos = photos;
-            mGalleryAdapter = new GalleryAdapter(GalleryActivity.this, mAccount, photos);
+            mGalleryAdapter = new GalleryAdapter(GalleryActivity.this, mAccount, photos, dataMgr);
             mViewPager.setAdapter(mGalleryAdapter);
 
             navToSelectedPage();

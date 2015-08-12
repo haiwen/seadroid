@@ -365,7 +365,7 @@ public class SearchActivity extends SherlockFragmentActivity implements View.OnC
         // because pic thumbnail under encrypted repo was not supported at the server side
         if (Utils.isViewableImage(searchedFile.getTitle())
                 && repo != null && !repo.encrypted) {
-            WidgetUtils.startGalleryActivity(this, repoID, Utils.getParentPath(filePath), searchedFile.getTitle(), account);
+            WidgetUtils.startGalleryActivity(this, repoName, repoID, Utils.getParentPath(filePath), searchedFile.getTitle(), account);
             return;
         }
 
