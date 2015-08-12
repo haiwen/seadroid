@@ -10,13 +10,19 @@ public class SeafPhoto implements Serializable {
 
     /** display name */
     private String name;
-    /** link for loading thumbnail */
-    private String link;
+    /** repo name */
+    private String repoName;
+    /** repo id */
+    private String repoID;
+    /** dir */
+    private String dir;
     /** related {@link SeafDirent} */
     private SeafDirent dirent;
 
-    public SeafPhoto(String link, SeafDirent dirent) {
-        this.link = link;
+    public SeafPhoto(String repoName, String repoID, String dir, SeafDirent dirent) {
+        this.repoName = repoName;
+        this.repoID = repoID;
+        this.dir = dir;
         this.dirent = dirent;
         this.name = dirent.name;
     }
@@ -25,8 +31,16 @@ public class SeafPhoto implements Serializable {
         return name;
     }
 
-    public String getLink() {
-        return link;
+    public String getDir() {
+        return dir;
+    }
+
+    public String getRepoID() {
+        return repoID;
+    }
+
+    public String getRepoName() {
+        return repoName;
     }
 
     public SeafDirent getDirent() {

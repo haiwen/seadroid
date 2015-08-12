@@ -157,8 +157,9 @@ public class WidgetUtils {
      * @param fileName
      * @param account
      */
-    public static void startGalleryActivity(Activity activity, String repoId, String path, String fileName, Account account) {
+    public static void startGalleryActivity(Activity activity, String repoName, String repoId, String path, String fileName, Account account) {
         Intent intent = new Intent(activity, GalleryActivity.class);
+        intent.putExtra("repoName", repoName);
         intent.putExtra("repoId", repoId);
         intent.putExtra("path", path);
         intent.putExtra("account", account);
