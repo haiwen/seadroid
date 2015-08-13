@@ -77,10 +77,12 @@ public class UploadTaskFragment extends TransferTaskFragment {
     }
 
     /**
-     * remove all cancelled Upload tasks
+     * remove all {@link TaskState#FINISHED}, {@link TaskState#FAILED} and {@link TaskState#CANCELLED} Upload tasks
      */
-    public void removeAllCancelledUploadTasks() {
+    public void removeAllUploadTasks() {
         if (txService != null) {
+            txService.removeAllUploadTasksByState(TaskState.FINISHED);
+            txService.removeAllUploadTasksByState(TaskState.FAILED);
             txService.removeAllUploadTasksByState(TaskState.CANCELLED);
         }
     }

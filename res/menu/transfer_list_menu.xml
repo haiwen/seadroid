@@ -15,11 +15,11 @@
             Cancel all tasks
             </item>
             <item
-                android:id="@+id/clear_cancelled_transfer_tasks"
+                android:id="@+id/clear_all_transfer_tasks"
                 android:showAsAction="ifRoom"
-                android:title="@string/transfer_list_clear_cancelled_tasks"
+                android:title="@string/transfer_list_clear_all_tasks"
                 android:visible="true">
-            Clear cancelled tasks
+            Clear all tasks
             </item>
         </menu>
     </item>

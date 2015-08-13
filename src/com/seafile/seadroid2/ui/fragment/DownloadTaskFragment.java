@@ -78,10 +78,12 @@ public class DownloadTaskFragment extends TransferTaskFragment {
     }
 
     /**
-     * remove all cancelled download tasks
+     * remove all {@link TaskState#FINISHED}, {@link TaskState#FAILED} and {@link TaskState#CANCELLED} download tasks.
      */
-    public void removeAllCancelledDownloadTasks() {
+    public void removeAllDownloadTasks() {
         if (txService != null) {
+            txService.removeAllDownloadTasksByState(TaskState.FINISHED);
+            txService.removeAllDownloadTasksByState(TaskState.FAILED);
             txService.removeAllDownloadTasksByState(TaskState.CANCELLED);
         }
     }

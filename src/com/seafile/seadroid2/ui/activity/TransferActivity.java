@@ -163,11 +163,11 @@ public class TransferActivity extends SherlockFragmentActivity {
                 } else getUploadTaskFragment().cancelUploadTasks();
 
                 return true;
-            case R.id.clear_cancelled_transfer_tasks:
+            case R.id.clear_all_transfer_tasks: // actually this only clear {@link TaskState#FINISHED}, {@link TaskState#FAILED} and {@link TaskState#CANCELLED} tasks.
                 if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK) {
-                    getDownloadTaskFragment().removeAllCancelledDownloadTasks();
+                    getDownloadTaskFragment().removeAllDownloadTasks();
 
-                } else getUploadTaskFragment().removeAllCancelledUploadTasks();
+                } else getUploadTaskFragment().removeAllUploadTasks();
 
                 return true;
 
