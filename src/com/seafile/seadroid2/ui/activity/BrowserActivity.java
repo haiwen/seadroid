@@ -159,6 +159,16 @@ public class BrowserActivity extends SherlockFragmentActivity
     protected void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
+        if (!isTaskRoot()) {
+            final Intent intent = getIntent();
+            final String intentAction = getIntent().getAction();
+            if (intent.hasCategory(Intent.CATEGORY_LAUNCHER)
+                    && intentAction != null
+                    && intentAction.equals(Intent.ACTION_MAIN)) {
+                finish();
+                return;
+            }
+        }
         setContentView(R.layout.tabs_main);
 
         // Get the message from the intent
