@@ -366,7 +366,7 @@
   <string name="transfer_list_retry_failed_tasks">Fehlgeschlagene Vorgänge neu starten</string>
   <string name="transfer_list_restart_cancelled_tasks">Abgebrochene Vorgänge neu starten</string>
   <string name="transfer_list_clear_failed_tasks">Liste löschen: Fehler</string>
-  <string name="transfer_list_clear_cancelled_tasks">Liste löschen: Abgebrochen</string>
+  <string name="transfer_list_clear_all_tasks">Liste löschen: Abgebrochen</string>
   <string name="transfer_list_clear_finished_tasks">Liste löschen: Abgeschlossen</string>
   <string name="transfer_tabs_downloads">Heruntergeladen</string>
   <string name="transfer_tabs_uploads">Hochgeladen</string>

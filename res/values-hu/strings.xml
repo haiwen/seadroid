@@ -358,7 +358,7 @@
   <string name="transfer_list_retry_failed_tasks">Hibás feladatok újrakezdése</string>
   <string name="transfer_list_restart_cancelled_tasks">Megszakított feladatok újraindítása</string>
   <string name="transfer_list_clear_failed_tasks">Hibás feladatok törlése</string>
-  <string name="transfer_list_clear_cancelled_tasks">Megszakított feladatok törlése</string>
+  <string name="transfer_list_clear_all_tasks">Megszakított feladatok törlése</string>
   <string name="transfer_list_clear_finished_tasks">Befejezett feladatok törlése</string>
   <string name="transfer_tabs_downloads">Letöltési lista</string>
   <string name="transfer_tabs_uploads">Feltöltési lista</string>

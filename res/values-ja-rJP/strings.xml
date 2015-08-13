@@ -361,7 +361,7 @@
   <string name="transfer_list_retry_failed_tasks">失敗したタスクを再試行</string>
   <string name="transfer_list_restart_cancelled_tasks">キャンセルしたタスクを再開</string>
   <string name="transfer_list_clear_failed_tasks">失敗したタスクをクリア</string>
-  <string name="transfer_list_clear_cancelled_tasks">キャンセルしたタスクをクリア</string>
+  <string name="transfer_list_clear_all_tasks">キャンセルしたタスクをクリア</string>
   <string name="transfer_list_clear_finished_tasks">完了したタスクをクリア</string>
   <string name="transfer_tabs_downloads">ダウンロードリスト</string>
   <string name="transfer_tabs_uploads">アップロードリスト</string>

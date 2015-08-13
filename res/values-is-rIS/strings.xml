@@ -349,7 +349,7 @@
   <string name="transfer_list_retry_failed_tasks">Reyna aftur við verk sem mistókust</string>
   <string name="transfer_list_restart_cancelled_tasks">Endurræsa verk sem hætt var við</string>
   <string name="transfer_list_clear_failed_tasks">Hreinsa verk sem mistókust</string>
-  <string name="transfer_list_clear_cancelled_tasks">Hreinsa verk sem hætt var við</string>
+  <string name="transfer_list_clear_all_tasks">Hreinsa verk sem hætt var við</string>
   <string name="transfer_list_clear_finished_tasks">Hreinsa loknum verkum</string>
   <string name="transfer_tabs_downloads">Niðurhalslisti</string>
   <string name="transfer_tabs_uploads">Upphleðslulisti</string>

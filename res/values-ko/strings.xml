@@ -343,7 +343,7 @@
   <string name="transfer_list_retry_failed_tasks">실패한 작업 다시 시도</string>
   <string name="transfer_list_restart_cancelled_tasks">취소한 작업 다시 시작</string>
   <string name="transfer_list_clear_failed_tasks">실패한 작업 지우기</string>
-  <string name="transfer_list_clear_cancelled_tasks">취소한 작업 지우기</string>
+  <string name="transfer_list_clear_all_tasks">취소한 작업 지우기</string>
   <string name="transfer_list_clear_finished_tasks">끝낸 작업 지우기</string>
   <string name="transfer_tabs_downloads">다운로드 목록</string>
   <string name="transfer_tabs_uploads">업로드 목록</string>

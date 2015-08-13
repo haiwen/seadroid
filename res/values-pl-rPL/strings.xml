@@ -371,7 +371,7 @@
   <string name="transfer_list_retry_failed_tasks">Ponów błędne zadania</string>
   <string name="transfer_list_restart_cancelled_tasks">Uruchom ponownie anulowane zadania</string>
   <string name="transfer_list_clear_failed_tasks">Wyczyść błędne zadania</string>
-  <string name="transfer_list_clear_cancelled_tasks">Wyczyść anulowane zadania</string>
+  <string name="transfer_list_clear_all_tasks">Wyczyść anulowane zadania</string>
   <string name="transfer_list_clear_finished_tasks">Wyczyść ukończone zadania</string>
   <string name="transfer_tabs_downloads">Lista pobierań</string>
   <string name="transfer_tabs_uploads">Lista przesyłań</string>

@@ -382,7 +382,7 @@
     <string name="transfer_list_retry_failed_tasks">Retry failed tasks</string>
     <string name="transfer_list_restart_cancelled_tasks">Restart cancelled tasks</string>
     <string name="transfer_list_clear_failed_tasks">Clear failed tasks</string>
-    <string name="transfer_list_clear_cancelled_tasks">Clear cancelled tasks</string>
+    <string name="transfer_list_clear_all_tasks">Clear all tasks</string>
     <string name="transfer_list_clear_finished_tasks">Clear finished tasks</string>
     <string name="transfer_tabs_downloads">Download List</string>
     <string name="transfer_tabs_uploads">Upload List</string>

@@ -375,7 +375,7 @@ Email: support@seafile.com<br>
   <string name="transfer_list_retry_failed_tasks">Повтор неудачных задач</string>
   <string name="transfer_list_restart_cancelled_tasks">Перезапустить отмененные задания</string>
   <string name="transfer_list_clear_failed_tasks">Удалить неудачные задания</string>
-  <string name="transfer_list_clear_cancelled_tasks">Удалить отмененные задания</string>
+  <string name="transfer_list_clear_all_tasks">Удалить отмененные задания</string>
   <string name="transfer_list_clear_finished_tasks">Удалить завершенные задания</string>
   <string name="transfer_tabs_downloads">Список загрузок</string>
   <string name="transfer_tabs_uploads">Список закачек</string>

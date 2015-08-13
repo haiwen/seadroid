@@ -358,7 +358,7 @@
   <string name="transfer_list_retry_failed_tasks">Relancer les taches en échec</string>
   <string name="transfer_list_restart_cancelled_tasks">Redémarrer les taches annulées</string>
   <string name="transfer_list_clear_failed_tasks">Effacer les taches en échec</string>
-  <string name="transfer_list_clear_cancelled_tasks">Effacer les taches annulées</string>
+  <string name="transfer_list_clear_all_tasks">Effacer les taches annulées</string>
   <string name="transfer_list_clear_finished_tasks">Effacer les taches terminées</string>
   <string name="transfer_tabs_downloads">Liste des téléchargements</string>
   <string name="transfer_tabs_uploads">Liste d\'envois</string>

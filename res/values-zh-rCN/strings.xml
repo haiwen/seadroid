@@ -360,7 +360,7 @@
   <string name="transfer_list_retry_failed_tasks">重试失败的任务</string>
   <string name="transfer_list_restart_cancelled_tasks">重试取消的任务</string>
   <string name="transfer_list_clear_failed_tasks">清除失败的任务</string>
-  <string name="transfer_list_clear_cancelled_tasks">清除取消的任务</string>
+  <string name="transfer_list_clear_all_tasks">清除取消的任务</string>
   <string name="transfer_list_clear_finished_tasks">清除完成的任务</string>
   <string name="transfer_tabs_downloads">下载列表</string>
   <string name="transfer_tabs_uploads">上传列表</string>

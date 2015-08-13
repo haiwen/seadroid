@@ -366,7 +366,7 @@
   <string name="transfer_list_retry_failed_tasks">Reintentar tareas fallidas</string>
   <string name="transfer_list_restart_cancelled_tasks">Reiniciar tareas canceladas</string>
   <string name="transfer_list_clear_failed_tasks">Limpiar tareas fallidas</string>
-  <string name="transfer_list_clear_cancelled_tasks">Limpiar tareas canceladas</string>
+  <string name="transfer_list_clear_all_tasks">Limpiar tareas canceladas</string>
   <string name="transfer_list_clear_finished_tasks">Limpiar tareas finalizadas</string>
   <string name="transfer_tabs_downloads">Lista de descarga</string>
   <string name="transfer_tabs_uploads">Lista de subida</string>
