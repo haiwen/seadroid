@@ -1269,7 +1269,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         // because pic thumbnail under encrypted repo was not supported at the server side
         if (Utils.isViewableImage(fileName)
                 && repo != null && !repo.encrypted) {
-            WidgetUtils.startGalleryActivity(this, repoID, dirPath, fileName, account);
+            WidgetUtils.startGalleryActivity(this, repoName, repoID, dirPath, fileName, account);
             return;
         }
 
@@ -1454,7 +1454,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         // because pic thumbnail under encrypted repo was not supported at the server side
         if (Utils.isViewableImage(starredFile.getTitle())
                 && repo != null && !repo.encrypted) {
-            WidgetUtils.startGalleryActivity(this, repoID, dirPath, starredFile.getTitle(), account);
+            WidgetUtils.startGalleryActivity(this, repoName, repoID, dirPath, starredFile.getTitle(), account);
             return;
         }
 
