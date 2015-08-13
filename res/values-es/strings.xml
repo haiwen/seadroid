@@ -116,7 +116,7 @@
   <string name="load_libraries_fail">Falla al cargar bibliotecas</string>
   <string name="load_dir_fail">Falla al cargar el contenido de esta carpeta</string>
   <string name="not_supported_share">Este tipo de recurso compartido no es compatible</string>
-  <string name="edit">Editar</string>
+  <string name="edit_files">Editar</string>
   <string name="download_folder">Descargar carpeta</string>
   <string name="download_folder_title">Escoja su opción preferida</string>
   <string-array name="download_folder_options_array">

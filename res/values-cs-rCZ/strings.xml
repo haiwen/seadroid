@@ -43,22 +43,30 @@
   <string name="err_passwd_empty">Heslo nesmí být prázdné</string>
   <string name="err_login_failed">Přihlášení selhalo</string>
   <string name="err_wrong_user_or_passwd">Špatný email nebo heslo</string>
+  <string name="err_token_expired">Přihlášení vypršelo, prosím přihlašte se znovu</string>
   <string name="upload">Nahrát</string>
   <string name="uploaded">Nahráno</string>
   <string name="updated">Aktualizováno</string>
   <string name="download_failed">Stažení selhalo</string>
+  <string name="download_waiting">Stažení čeká</string>
+  <string name="download_finished">Stažení dkončeno</string>
+  <string name="download_cancelled">Stažení zrušeno</string>
   <string name="task_cancel">Zrušit</string>
   <string name="task_retry">Znovu</string>
   <string name="task_remove">Smazat</string>
+  <string name="task_remove_all_cancelled">Odstranit zrušené</string>
+  <string name="task_remove_all_finished">Odstranit dokončené úlohy</string>
   <string name="file_action_star">Oblíbené</string>
   <string name="file_action_download">Stáhnout</string>
   <string name="file_action_update">Nahrát</string>
+  <string name="file_action_share">Sdílet odkaz</string>
   <string name="file_action_export">Exportovat</string>
   <string name="file_action_delete">Smazat</string>
   <string name="file_action_rename">Přejmenovat</string>
   <string name="file_action_copy">Kopírovat</string>
   <string name="file_action_move">Přesunout</string>
   <string name="file_action_open_as">Otevřít jako</string>
+  <string name="file_action_more">Více</string>
   <string-array name="file_type_array">
     <item>Text</item>
     <item>Audio</item>
@@ -95,7 +103,10 @@
   <string name="load_libraries_fail">Chyba při načítání knihoven</string>
   <string name="load_dir_fail">Chyba při načítání obsahu této složky</string>
   <string name="not_supported_share">Tento druh sdílení není podporován</string>
+  <string name="edit_files">Upravit</string>
   <string name="download_folder">Stáhnout složku</string>
+  <string name="download_folder_title">Zvolte preferovanou možnost</string>
+  <string name="add_file">Přidat soubor</string>
   <string name="create_new_file">Vytvořit nový soubor</string>
   <string name="create_new_dir">Vytvořit novou složku</string>
   <string name="camera">Vyfotit sem</string>
@@ -131,6 +142,9 @@
   <string name="tabs_activity">Aktivity</string>
   <string name="tabs_starred">Oblíbené</string>
   <string name="provide_password">Zadejte heslo pro knihovnu "%s"</string>
+  <string name="upload_waiting">Nahrání čeká</string>
+  <string name="upload_finished">Nahrání dokončeno</string>
+  <string name="upload_cancelled">Nahrání zrušeno</string>
   <string name="days_ago">před %d dny</string>
   <string name="hours_ago">pře %d hodinami</string>
   <string name="minutes_ago">před %d minutami</string>
@@ -225,7 +239,12 @@
   <string name="skip_button_label">Přeskočit</string>
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Nahrání fotky z fotoaparátu</string>
+  <string name="settings_camera_upload_allow_videos">Povolit nahrávání videí</string>
+  <string name="settings_camera_upload_data_plan_allowed">Mobilní data povolena</string>
   <!--Camera Upload Configuration View-->
+  <string name="settings_cuc_network_wifi">Pouze WIFI</string>
+  <string name="settings_cuc_network_data_plan">WIFI a mobilní data</string>
+  <string name="settings_cuc_loading">načítání...</string>
   <string name="settings_about_title">O PROGRAMU</string>
   <string name="settings_about_version_title">Verze aplikace</string>
   <string name="settings_about_author_title">O autorovi</string>
@@ -266,6 +285,7 @@
   <string name="saf_file_not_downloaded_exception">Nelze stáhnout soubor %s ze serveru.</string>
   <string name="saf_write_diretory_exception">Nelze otevřít složku pro čtení/zápis.</string>
   <string name="saf_account_not_found_exception">Nelze nalézt Seafile účet.</string>
+  <string name="saf_file_exist">Soubor již existuje</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">Zadejte adresu serveru!</string>
   <string name="shib_server_incorrect_prefix">Server by měl začínat buď http:// nebo https://</string>
@@ -284,7 +304,10 @@
     <item quantity="few">Spouštění stahování <xliff:g id="download_file">%1$d</xliff:g> souboru</item>
     <item quantity="other">Spouštění stahování <xliff:g id="download_files">%1$d</xliff:g> souborů</item>
   </plurals>
+  <string name="transfer_list_select_all">Vybrat vše</string>
+  <string name="transfer_list_deselect_all">Zrušit výběr </string>
   <!--Sort-->
+  <string name="sort_menu_item">Seřadit</string>
   <!--Search-->
   <string name="search_menu_item">Hledat</string>
   <string name="search_bar_hint">Hledání...</string>
@@ -296,7 +319,11 @@
   <string name="star_file_succeed">Soubor byl úspěšně přidán do oblíbených</string>
   <string name="star_file_failed">Soubor nebyl přidán do oblíbených</string>
   <!--notification bar-->
+  <string name="notification_upload_completed">Nahrání dokončeno</string>
+  <string name="notification_download_completed">Stažení dokončeno</string>
   <!--Gallery-->
   <!--Overwrite existing files-->
+  <string name="overwrite_existing_file_title">Nahradit existující soubor</string>
+  <string name="overwrite_existing_file_exist">Soubor již existuje</string>
   <!--Action Mode-->
 </resources>
