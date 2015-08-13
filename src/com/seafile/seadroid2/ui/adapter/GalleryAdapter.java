@@ -75,11 +75,11 @@ public class GalleryAdapter extends PagerAdapter {
         final ProgressBar progressBar = (ProgressBar) contentView.findViewById(R.id.gallery_progress_bar);
         final String repoName = seafPhotos.get(position).getRepoName();
         final String repoID = seafPhotos.get(position).getRepoID();
-        final String filePath = Utils.pathJoin(seafPhotos.get(position).getDir(),
+        final String filePath = Utils.pathJoin(seafPhotos.get(position).getDirPath(),
                 seafPhotos.get(position).getName());
         final File file = dm.getLocalRepoFile(repoName, repoID, filePath);
         if (file.exists()) {
-            ImageLoader.getInstance().displayImage("file://" + file.getAbsolutePath(), photoView, options);
+            ImageLoader.getInstance().displayImage("file://" + file.getAbsolutePath().toString(), photoView, options);
         } else {
             ConcurrentAsyncTask.execute(new DownloadTask(++taskID, mAccount, repoName, repoID, filePath, new DownloadStateListener() {
                 @Override
@@ -89,9 +89,9 @@ public class GalleryAdapter extends PagerAdapter {
 
                 @Override
                 public void onFileDownloaded(int taskID) {
-                    //Log.d(DEBUG_TAG, "ImageLoadingListener >> onLoadingComplete");
+                    //Log.d(DEBUG_TAG, "DownloadTask >> onFileDownloaded");
                     ImageLoader.getInstance().displayImage("file://"
-                                    + dm.getLocalRepoFile(repoName, repoID, filePath).getAbsolutePath(),
+                                    + dm.getLocalRepoFile(repoName, repoID, filePath).getAbsolutePath().toString(),
                             photoView,
                             options,
                             new ImageLoadingListener() {
@@ -132,7 +132,7 @@ public class GalleryAdapter extends PagerAdapter {
 
                 @Override
                 public void onFileDownloadFailed(int taskID) {
-                    //Log.d(DEBUG_TAG, "ImageLoadingListener >> onLoadingFailed");
+                    //Log.d(DEBUG_TAG, "DownloadTask >> onFileDownloadFailed");
                     progressBar.setVisibility(View.INVISIBLE);
                     ImageLoader.getInstance().displayImage("drawable://" + R.drawable.gallery_loading_failed, photoView, options);
                 }
