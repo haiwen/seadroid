@@ -117,7 +117,7 @@
   <string name="load_libraries_fail">Nie udało się wczytać bibliotek</string>
   <string name="load_dir_fail">Nie udało się wczytać zawartości tego folderu</string>
   <string name="not_supported_share">Ten rodzaj udziału nie jest obsługiwany</string>
-  <string name="edit_files">Edytuj</string>
+  <string name="edit">Edytuj</string>
   <string name="download_folder">Folder pobierania</string>
   <string name="download_folder_title">Wybierz swoje preferencje</string>
   <string-array name="download_folder_options_array">

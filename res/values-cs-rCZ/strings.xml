@@ -103,7 +103,7 @@
   <string name="load_libraries_fail">Chyba při načítání knihoven</string>
   <string name="load_dir_fail">Chyba při načítání obsahu této složky</string>
   <string name="not_supported_share">Tento druh sdílení není podporován</string>
-  <string name="edit_files">Upravit</string>
+  <string name="edit">Upravit</string>
   <string name="download_folder">Stáhnout složku</string>
   <string name="download_folder_title">Zvolte preferovanou možnost</string>
   <string name="add_file">Přidat soubor</string>

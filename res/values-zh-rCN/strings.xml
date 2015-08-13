@@ -115,7 +115,7 @@
   <string name="load_libraries_fail">加载资料库失败</string>
   <string name="load_dir_fail">加载此文件夹的内容失败</string>
   <string name="not_supported_share">不支持此类分享</string>
-  <string name="edit_files">编辑</string>
+  <string name="edit">编辑</string>
   <string name="download_folder">下载该文件夹</string>
   <string name="download_folder_title">选择你喜欢的选项</string>
   <string-array name="download_folder_options_array">
