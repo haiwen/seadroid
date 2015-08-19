@@ -94,9 +94,9 @@
             android:key="settings_about_version_key"
             android:enabled="false"
             android:title="@string/settings_about_version_title" />
-        <Preference
-                android:key="settings_about_author_key"
-                android:title="@string/settings_about_author_title" />
+        <!-- <Preference -->
+        <!--         android:key="settings_about_author_key" -->
+        <!--         android:title="@string/settings_about_author_title" /> -->
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/settings_advance_feature_title" >

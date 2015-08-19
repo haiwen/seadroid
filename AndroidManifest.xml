@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="com.seafile.seadroid2"
+      package="com.horizonbase.seadroid2"
       android:versionCode="39"
       android:versionName="1.9.0">
 
@@ -11,32 +11,32 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <application
         android:allowBackup="true"
-        android:name="com.seafile.seadroid2.SeadroidApplication"
+        android:name="com.horizonbase.seadroid2.SeadroidApplication"
         android:label="@string/app_name"
         android:icon="@drawable/ic_launcher">
 
-        <activity android:name="com.seafile.seadroid2.ui.activity.AccountsActivity"
+        <activity android:name="com.horizonbase.seadroid2.ui.activity.AccountsActivity"
                   android:launchMode="singleTop"
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>
 
-        <activity android:name="com.seafile.seadroid2.ui.activity.ShibbolethActivity"
+        <activity android:name="com.horizonbase.seadroid2.ui.activity.ShibbolethActivity"
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>
 
-        <activity android:name="com.seafile.seadroid2.ui.activity.ShibbolethAuthorizeActivity"
+        <activity android:name="com.horizonbase.seadroid2.ui.activity.ShibbolethAuthorizeActivity"
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>
 
-        <activity android:name="com.seafile.seadroid2.ui.activity.SettingsActivity"
+        <activity android:name="com.horizonbase.seadroid2.ui.activity.SettingsActivity"
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>
 
-        <activity android:name="com.seafile.seadroid2.ui.activity.BrowserActivity"
+        <activity android:name="com.horizonbase.seadroid2.ui.activity.BrowserActivity"
                   android:label="@string/app_name"
                   android:theme="@style/Theme.SeafileTheme"
                   android:launchMode="singleTop">
@@ -47,24 +47,24 @@
         </activity>
         
         <activity
-            android:name="com.seafile.seadroid2.ui.activity.UnlockGesturePasswordActivity"
+            android:name="com.horizonbase.seadroid2.ui.activity.UnlockGesturePasswordActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.SeafileTheme"
             android:label="@string/app_name" />
         
         <activity
-            android:name="com.seafile.seadroid2.ui.activity.CreateGesturePasswordActivity"
+            android:name="com.horizonbase.seadroid2.ui.activity.CreateGesturePasswordActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.SeafileTheme" />
 
-        <activity android:name="com.seafile.seadroid2.ui.activity.MarkdownActivity"
+        <activity android:name="com.horizonbase.seadroid2.ui.activity.MarkdownActivity"
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>
 
-        <activity android:name="com.seafile.seadroid2.ui.activity.AccountDetailActivity"
+        <activity android:name="com.horizonbase.seadroid2.ui.activity.AccountDetailActivity"
                   android:theme="@style/Theme.SeafileTheme"
                   android:parentActivityName=".AccountsActivity"
                   android:label="@string/app_name">
@@ -78,12 +78,12 @@
 
         <!-- MultipleImageSelectionActivity uses the default theme, instead of
              ActionBarSherlock -->
-        <activity android:name="com.seafile.seadroid2.gallery.MultipleImageSelectionActivity"
+        <activity android:name="com.horizonbase.seadroid2.gallery.MultipleImageSelectionActivity"
                   android:theme="@android:style/Theme"
                   android:label="@string/app_name">
         </activity>
 
-        <activity android:name="com.seafile.seadroid2.ui.activity.ShareToSeafileActivity"
+        <activity android:name="com.horizonbase.seadroid2.ui.activity.ShareToSeafileActivity"
                   android:theme="@style/Theme.SeafileTheme"
                   android:excludeFromRecents="true"
                   android:label="@string/app_name">
@@ -99,27 +99,27 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity"
+        <activity android:name="com.horizonbase.seadroid2.ui.activity.SeafilePathChooserActivity"
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>
 
-        <activity android:name="com.seafile.seadroid2.ui.activity.FileActivity"
+        <activity android:name="com.horizonbase.seadroid2.ui.activity.FileActivity"
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>
 
-        <activity android:name="com.seafile.seadroid2.fileschooser.MultiFileChooserActivity"
+        <activity android:name="com.horizonbase.seadroid2.fileschooser.MultiFileChooserActivity"
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>
 
-        <activity android:name="com.seafile.seadroid2.ui.activity.TransferActivity"
+        <activity android:name="com.horizonbase.seadroid2.ui.activity.TransferActivity"
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>
 
-        <activity android:name="com.seafile.seadroid2.ui.activity.SearchActivity"
+        <activity android:name="com.horizonbase.seadroid2.ui.activity.SearchActivity"
                 android:theme="@style/Theme.SeafileTheme"
                 android:label="@string/app_name">
             <intent-filter>
@@ -127,7 +127,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.seafile.seadroid2.cameraupload.CameraUploadConfigActivity"
+        <activity android:name="com.horizonbase.seadroid2.cameraupload.CameraUploadConfigActivity"
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>
@@ -138,8 +138,8 @@
         </activity>
 
         <provider
-            android:name="com.seafile.seadroid2.provider.SeafileProvider"
-            android:authorities="com.seafile.seadroid2"
+            android:name="com.horizonbase.seadroid2.provider.SeafileProvider"
+            android:authorities="com.horizonbase.seadroid2"
             android:exported="true"
             android:grantUriPermissions="true"
             android:permission="android.permission.MANAGE_DOCUMENTS"
@@ -148,8 +148,8 @@
                 <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
             </intent-filter>
         </provider>
-        <service android:name="com.seafile.seadroid2.transfer.TransferService" > </service>
-        <service android:name="com.seafile.seadroid2.monitor.FileMonitorService" > </service>
-        <service android:name="com.seafile.seadroid2.cameraupload.CameraUploadService" > </service>
+        <service android:name="com.horizonbase.seadroid2.transfer.TransferService" > </service>
+        <service android:name="com.horizonbase.seadroid2.monitor.FileMonitorService" > </service>
+        <service android:name="com.horizonbase.seadroid2.cameraupload.CameraUploadService" > </service>
       </application>
 </manifest>

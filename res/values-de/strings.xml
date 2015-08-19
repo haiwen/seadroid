@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <string name="welcome_to_seafile">Willkommen bei Seafile</string>
+  <string name="welcome_to_seafile">Willkommen bei Horizonbase</string>
   <string name="select_account">Bitte wählen Sie ein Konto aus</string>
   <string name="edit_account">Bearbeiten</string>
   <string name="delete_account">Löschen</string>
@@ -106,13 +106,13 @@
   <string name="dir_empty">Dieser Ordner ist leer</string>
   <string name="no_repo">Sie haben noch keine Bibliotheken angelegt</string>
   <string name="no_app_available">Es konnte keine Anwendung gefunden werden</string>
-  <string name="add_to_seafile">Zu Seafile hinzufügen</string>
+  <string name="add_to_seafile">Zu Horizonbase hinzufügen</string>
   <string name="ok">OK</string>
   <string name="no_account">Bitte zuerst ein Konto einrichten</string>
   <string name="choose_an_account">Ein Konto auswählen</string>
   <string name="choose_a_library">Eine Bibliothek auswählen</string>
   <string name="choose_a_folder">Einen Ordner auswählen</string>
-  <string name="load_accounts_fail">Die Seafile-Konten konnten nicht geladen werden</string>
+  <string name="load_accounts_fail">Die Horizonbase-Konten konnten nicht geladen werden</string>
   <string name="load_libraries_fail">Bibliotheken konnten nicht geladen werden</string>
   <string name="load_dir_fail">Der Inhalt des Ordners konnte nicht geladen werden</string>
   <string name="not_supported_share">Diese Art der Freigabe wird nicht unterstützt</string>
@@ -303,7 +303,7 @@
   <string name="settings_cuc_pick_dir">Bilderordner auswählen</string>
   <string name="settings_cuc_remote_lib_hint">Wählen Sie aus, welches Benutzerkonto und welche Bibliothek Sie bevorzugen.\nSie können beides in den Einstellungen jederzeit anpassen.</string>
   <string name="settings_cuc_finish_title">Beenden</string>
-  <string name="settings_cuc_ready">Seafile wird nun die Dateien aus den ausgewählten Ordnern hochladen. \nSie können die App währenddessen schließen.</string>
+  <string name="settings_cuc_ready">Horizonbase wird nun die Dateien aus den ausgewählten Ordnern hochladen. \nSie können die App währenddessen schließen.</string>
   <string name="settings_cuc_swipe_left">Nach links Wischen um fortzufahren.</string>
   <string name="settings_cuc_click_btn">Fertig – Sie können den Einrichtungsassistenten jetzt beenden.</string>
   <string name="settings_cuc_loading">lade …</string>
@@ -346,7 +346,7 @@
   <string name="saf_thumbnail_not_found_exception">Vorschaubild %s konnte nicht gefunden oder geöffnet werden.</string>
   <string name="saf_file_not_downloaded_exception">Datei %s konnte nicht vom Server heruntergeladen werden.</string>
   <string name="saf_write_diretory_exception">Der Ordner konnte nicht zum Lesen oder Schreiben geöffnet werden.</string>
-  <string name="saf_account_not_found_exception">Seafile-Konto konnte nicht gefunden werden.</string>
+  <string name="saf_account_not_found_exception">Horizonbase-Konto konnte nicht gefunden werden.</string>
   <string name="saf_upload_path_not_available">Hochladen nicht möglich: Pfad nicht gefunden</string>
   <string name="saf_failed_to_create_directory">Konnte Ordner %s nicht anlegen</string>
   <string name="saf_file_exist">Datei ist schon vorhanden</string>

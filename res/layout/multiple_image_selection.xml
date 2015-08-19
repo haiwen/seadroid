@@ -10,7 +10,7 @@
       android:layout_height="wrap_content"
       android:orientation="vertical">
 
-    <view class="com.seafile.seadroid2.gallery.GridViewSpecial"
+    <view class="com.horizonbase.seadroid2.gallery.GridViewSpecial"
           android:id="@+id/image_grid"
           android:focusable="true"
           android:layout_width="match_parent"

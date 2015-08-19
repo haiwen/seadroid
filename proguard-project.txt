@@ -105,7 +105,7 @@
     *** startFinalizer(java.lang.Class,java.lang.Object);
 }
 
--keep class com.seafile.seadroid2.**
--keepclassmembers class com.seafile.seadroid2.** { *; }
--keepclassmembers class com.seafile.seadroid2.** { public <init>(...); }
+-keep class com.horizonbase.seadroid2.**
+-keepclassmembers class com.horizonbase.seadroid2.** { *; }
+-keepclassmembers class com.horizonbase.seadroid2.** { public <init>(...); }
 -keepclassmembers class * extends com.actionbarsherlock.ActionBarSherlock { public <init>(...); }

@@ -36,15 +36,16 @@
                 android:background="@drawable/edit_text_holo_light"
                 android:inputType="textUri"/>
 
-        <com.seafile.seadroid2.ui.CustomClearableEditText
+        <com.horizonbase.seadroid2.ui.CustomClearableEditText
                 android:id="@+id/email_address"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
                 android:layout_marginBottom="@dimen/et_margin_bottom"
                 android:layout_marginLeft="@dimen/auto_complete_ed_margin_left"
                 android:layout_marginRight="@dimen/auto_complete_ed_margin_right"/>
 
-        <com.seafile.seadroid2.ui.CustomClearableEditText
+        <com.horizonbase.seadroid2.ui.CustomClearableEditText
                 android:id="@+id/password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <string name="welcome_to_seafile">Bienvenue sur Seafile</string>
+  <string name="welcome_to_seafile">Bienvenue sur Horizonbase</string>
   <string name="select_account">Sélectionnez un compte pour démarrer</string>
   <string name="edit_account">Éditer</string>
   <string name="delete_account">Effacer</string>
@@ -106,9 +106,9 @@
   <string name="dir_empty">Ce dossier est vide</string>
   <string name="no_repo">Vous n\'avez pas encore de bibliothèque</string>
   <string name="no_app_available">Aucune application disponible</string>
-  <string name="add_to_seafile">Ajouter à Seafile</string>
+  <string name="add_to_seafile">Ajouter à Horizonbase</string>
   <string name="ok">OK</string>
-  <string name="no_account">Merci de créer un compte dans Seafile pour commencer</string>
+  <string name="no_account">Merci de créer un compte dans Horizonbase pour commencer</string>
   <string name="choose_an_account">Choisir un compte</string>
   <string name="choose_a_library">Choisir une bibliothèque</string>
   <string name="choose_a_folder">Choisir un fichier</string>
@@ -295,7 +295,7 @@
   <string name="settings_cuc_pick_dir">Permettez moi de prendre mes dossiers de photos</string>
   <string name="settings_cuc_remote_lib_hint">Choisissez votre compte et votre bibliothèque préférés. Vous pourrez changer ces options dans Paramètres.</string>
   <string name="settings_cuc_finish_title">Terminer</string>
-  <string name="settings_cuc_ready">Seafile envoie maintenant les fichiers depuis vos dossiers sélectionnés. \n Vous pouvez fermer l\'application pendant cette opération.</string>
+  <string name="settings_cuc_ready">Horizonbase envoie maintenant les fichiers depuis vos dossiers sélectionnés. \n Vous pouvez fermer l\'application pendant cette opération.</string>
   <string name="settings_cuc_swipe_left">Glisser vers la gauche pour continuer</string>
   <string name="settings_cuc_click_btn">Cliquez pour fermer l\'aide à la configuration.</string>
   <string name="settings_cuc_loading">Chargement...</string>

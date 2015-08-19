@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name" translatable="false">Seafile</string>
-    <string name="app_url" translatable="false">http://seafile.com</string>
-    <string name="welcome_to_seafile">Welcome to Seafile</string>
+    <string name="app_name" translatable="false">Horizonbase</string>
+    <!-- <string name="app_url" translatable="false">https://cloud.seafile.com</string> -->
+    <string name="app_url" translatable="false">https://ch.horizonbase.ch</string>
+    <string name="welcome_to_seafile">Welcome to Horizonbase</string>
     <string name="select_account">Choose an account to start</string>
     <string name="edit_account">Edit</string>
     <string name="delete_account">Delete</string>
@@ -111,13 +112,13 @@
     <string name="dir_empty">This folder is empty</string>
     <string name="no_repo">You have no libraries yet</string>
     <string name="no_app_available">No app can be found</string>
-    <string name="add_to_seafile">Add to Seafile</string>
+    <string name="add_to_seafile">Add to Horizonbase</string>
     <string name="ok">OK</string>
-    <string name="no_account">Please set up an account in Seafile first</string>
+    <string name="no_account">Please set up an account in Horizonbase first</string>
     <string name="choose_an_account">Choose an account</string>
     <string name="choose_a_library">Choose a library</string>
     <string name="choose_a_folder">Choose a folder</string>
-    <string name="load_accounts_fail">Failed to load Seafile accounts</string>
+    <string name="load_accounts_fail">Failed to load Horizonbase accounts</string>
     <string name="load_libraries_fail">Failed to load libraries</string>
     <string name="load_dir_fail">Failed to load contents of this folder</string>
     <string name="not_supported_share">This type of share is not supported</string>
@@ -313,7 +314,7 @@
     <string name="settings_cuc_pick_dir">Let me pick my photo folders</string>
     <string name="settings_cuc_remote_lib_hint">Choose your preferred account and library. \nYou can change these options later in Settings.</string>
     <string name="settings_cuc_finish_title">Finish</string>
-    <string name="settings_cuc_ready">Seafile will now uploading files from your selected folders. \nFeel free to close the app during this process.</string>
+    <string name="settings_cuc_ready">Horizonbase will now uploading files from your selected folders. \nFeel free to close the app during this process.</string>
     <string name="settings_cuc_swipe_left">Swipe left to continue.</string>
     <string name="settings_cuc_click_btn">Click to close the configuration helper.</string>
     <string name="settings_cuc_loading">loading&#8230;</string>
@@ -360,7 +361,7 @@
     <string name="saf_thumbnail_not_found_exception">Couldn\'t find/open thumbnail %s.</string>
     <string name="saf_file_not_downloaded_exception">Couldn\'t download file %s from server.</string>
     <string name="saf_write_diretory_exception">Can\`t open directory for reading/writing.</string>
-    <string name="saf_account_not_found_exception">Couldn\'t find Seafile account.</string>
+    <string name="saf_account_not_found_exception">Couldn\'t find Horizonbase account.</string>
     <string name="saf_upload_path_not_available">Unable to upload, no path available</string>
     <string name="saf_failed_to_create_directory">Could not create directory %s</string>
     <string name="saf_file_exist">File exists already</string>
