@@ -1824,6 +1824,8 @@ public class BrowserActivity extends SherlockFragmentActivity
                             getNavContext().getDirPath());
                     getReposFragment().getAdapter().setItems(cachedDirents);
                     getReposFragment().getAdapter().notifyDataSetChanged();
+                    // update contextual action bar (CAB) title
+                    getReposFragment().updateContextualActionBar();
                     if (cachedDirents.size() == 0)
                         getReposFragment().getEmptyView().setVisibility(View.VISIBLE);
                 }
