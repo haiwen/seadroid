@@ -634,6 +634,9 @@ public class BrowserActivity extends SherlockFragmentActivity
         Log.d(DEBUG_TAG, "onNewIntent");
         String server = intent.getStringExtra("server");
         String email = intent.getStringExtra("email");
+        // avoid lost browsing progress when resume App from launcher
+        // because it will restart the Activity when null
+        if (server == null || email == null) return;
 
         Account selectedAccount = new Account(server, email);
         if (!account.equals(selectedAccount)) {
