@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.ui.activity;
 
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -104,6 +105,12 @@ public class GalleryActivity extends SherlockFragmentActivity {
                 mPageIndex = position;
                 fileName = mPhotos.get(mPageIndex).getName();
                 mPageNameTextView.setText(fileName);
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                    // hide soft key
+                    if (!showToolBar)
+                        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
+                }
             }
 
             @Override
@@ -315,10 +322,16 @@ public class GalleryActivity extends SherlockFragmentActivity {
             mToolbar.setVisibility(View.VISIBLE);
             mPageIndexContainer.setVisibility(View.VISIBLE);
             mPageNameTextView.setVisibility(View.VISIBLE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+            }
         } else {
             mToolbar.setVisibility(View.GONE);
             mPageIndexContainer.setVisibility(View.GONE);
             mPageNameTextView.setVisibility(View.GONE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
+            }
         }
         showToolBar = !showToolBar;
 
