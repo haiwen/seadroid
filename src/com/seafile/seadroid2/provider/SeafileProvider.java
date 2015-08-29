@@ -684,7 +684,7 @@ public class SeafileProvider extends DocumentsProvider {
         final MatrixCursor.RowBuilder row = result.newRow();
         row.add(Document.COLUMN_DOCUMENT_ID, docId);
         row.add(Document.COLUMN_DISPLAY_NAME, repo.getTitle());
-        row.add(Document.COLUMN_SUMMARY, repo.description);
+        row.add(Document.COLUMN_SUMMARY, null);
         row.add(Document.COLUMN_LAST_MODIFIED, repo.mtime * 1000);
         row.add(Document.COLUMN_FLAGS, flags);
         row.add(Document.COLUMN_ICON, repo.getIcon());

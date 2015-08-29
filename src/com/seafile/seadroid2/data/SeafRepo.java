@@ -17,7 +17,6 @@ import java.util.Comparator;
 public class SeafRepo implements SeafItem {
     public String id;     // repo id
     public String name;
-    public String description;
     public String owner;
     public long mtime;    // the last modification time
 
@@ -34,7 +33,6 @@ public class SeafRepo implements SeafItem {
         SeafRepo repo = new SeafRepo();
         repo.id = obj.getString("id");
         repo.name = obj.getString("name");
-        repo.description = obj.getString("desc");
         repo.owner = obj.getString("owner");
         repo.permission = obj.getString("permission");
         repo.mtime = obj.getLong("mtime");
