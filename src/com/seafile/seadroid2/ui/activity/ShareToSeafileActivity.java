@@ -2,20 +2,15 @@ package com.seafile.seadroid2.ui.activity;
 
 import android.app.AlertDialog;
 import android.content.*;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.provider.MediaStore.Images;
 import android.util.Log;
-import android.view.View;
-import android.view.animation.AnimationUtils;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
@@ -26,6 +21,13 @@ import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.util.Utils;
 
+import org.apache.commons.io.IOUtils;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,42 +50,72 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
         if (extras != null) {
             Object extraStream = extras.get(Intent.EXTRA_STREAM);
 
-            if(localPathList == null) localPathList = Lists.newArrayList();
             if (extraStream instanceof ArrayList) {
-                for (Uri uri : (ArrayList<Uri>)extraStream) {
-                    localPathList.add(getSharedFilePath(uri));
-                }
+                ArrayList<Uri> array = (ArrayList<Uri>)extraStream;
+                ConcurrentAsyncTask.execute(new LoadFileFromUriTask(), array.toArray(new Uri[]{}));
             } else if (extraStream instanceof Uri) {
-                localPathList.add(getSharedFilePath((Uri) extraStream));
+                ConcurrentAsyncTask.execute(new LoadFileFromUriTask(), (Uri)extraStream);
             }
         }
-        
-        if (localPathList == null || localPathList.size() == 0) {
-            ToastUtils.show(this, R.string.not_supported_share);
-            finish();
-            return;
-        }
-
-        Log.d(DEBUG_TAG, "share " + localPathList);
-        Intent chooserIntent = new Intent(this, SeafilePathChooserActivity.class);
-        startActivityForResult(chooserIntent, CHOOSE_COPY_MOVE_DEST_REQUEST);
     }
 
-    private String getSharedFilePath(Uri uri) {
-        if (uri == null) {
-            return null;
+    class LoadFileFromUriTask extends AsyncTask<Uri, Void, File[]> {
+
+        @Override
+        protected File[] doInBackground(Uri... uriList) {
+            if (uriList == null)
+                return null;
+
+            List<File> fileList = new ArrayList<File>();
+            for (Uri uri: uriList) {
+                File tempDir = new File(DataManager.getExternalTempDirectory(), "upload-"+System.currentTimeMillis());
+                File tempFile = new File(tempDir, Utils.getFilenamefromUri(ShareToSeafileActivity.this, uri));
+
+                InputStream in = null;
+                OutputStream out = null;
+
+                try {
+                    tempDir.mkdirs();
+
+                    if (!tempFile.createNewFile()) {
+                        throw new RuntimeException("could not create temporary file");
+                    }
+
+                    in = getContentResolver().openInputStream(uri);
+                    out = new FileOutputStream(tempFile);
+                    IOUtils.copy(in, out);
+
+                } catch (IOException e) {
+                    Log.d(DEBUG_TAG, "Could not open requested document", e);
+                    tempFile = null;
+                } catch (RuntimeException e) {
+                    Log.d(DEBUG_TAG, "Could not open requested document", e);
+                    tempFile = null;
+                } finally {
+                    IOUtils.closeQuietly(in);
+                    IOUtils.closeQuietly(out);
+                }
+                fileList.add(tempFile);
+            }
+            return fileList.toArray(new File[]{});
         }
 
-        if (uri.getScheme().equals("file")) {
-            return uri.getPath();
-        } else {
-            ContentResolver contentResolver = getContentResolver();
-            Cursor cursor = contentResolver.query(uri, null, null, null, null);
-            if (cursor == null || !cursor.moveToFirst()) {
-                return null;
+        @Override
+        protected void onPostExecute(File... fileList) {
+            if (fileList == null || fileList.length == 0) {
+                ToastUtils.show(ShareToSeafileActivity.this, R.string.not_supported_share);
+                finish();
+                return;
             }
-            String filePath = cursor.getString(cursor.getColumnIndex(Images.Media.DATA));
-            return filePath;
+
+            if(localPathList == null) localPathList = Lists.newArrayList();
+            for (File f: fileList) {
+                localPathList.add(f.getAbsolutePath());
+            }
+
+            Log.d(DEBUG_TAG, "share " + localPathList);
+            Intent chooserIntent = new Intent(ShareToSeafileActivity.this, SeafilePathChooserActivity.class);
+            startActivityForResult(chooserIntent, CHOOSE_COPY_MOVE_DEST_REQUEST);
         }
     }
 
