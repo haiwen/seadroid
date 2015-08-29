@@ -7,7 +7,7 @@ import android.util.Log;
 import com.google.common.base.Objects;
 import com.seafile.seadroid2.util.Utils;
 
-public class Account implements Parcelable {
+public class Account implements Parcelable, Comparable<Account> {
     private static final String DEBUG_TAG = "Account";
 
     // The full URL of the server, like 'http://gonggeng.org/seahub/' or 'http://gonggeng.org/'
@@ -149,5 +149,10 @@ public class Account implements Parcelable {
             .add("server", server)
             .add("user", email)
             .toString();
+    }
+
+    @Override
+    public int compareTo(Account other) {
+        return this.toString().compareTo(other.toString());
     }
 }
