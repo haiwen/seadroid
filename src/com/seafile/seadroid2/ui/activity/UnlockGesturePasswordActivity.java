@@ -63,9 +63,8 @@ public class UnlockGesturePasswordActivity extends Activity {
     public void onBackPressed() {
         // stop default action (finishing the current activity) to be executed.
         // super.onBackPressed();
-        Intent i = new Intent();
-        i.setAction(Intent.ACTION_MAIN);
-        i.addCategory(Intent.CATEGORY_HOME);
+        Intent i = new Intent(this, BrowserActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(i);
         finish();
     }

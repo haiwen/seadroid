@@ -235,9 +235,8 @@ public class AccountsActivity extends SherlockFragmentActivity {
         Account account = accountManager.getCurrentAccount();
         if (account == null) {
             // force exit when current account was deleted
-            Intent i = new Intent();
-            i.setAction(Intent.ACTION_MAIN);
-            i.addCategory(Intent.CATEGORY_HOME);
+            Intent i = new Intent(this, BrowserActivity.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(i);
             finish();
         }

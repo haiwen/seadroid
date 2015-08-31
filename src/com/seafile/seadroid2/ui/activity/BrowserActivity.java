@@ -638,6 +638,14 @@ public class BrowserActivity extends SherlockFragmentActivity
         // because it will restart the Activity when null
         if (server == null || email == null) return;
 
+        // if the user started the Seadroid app from the Launcher, keep the old Activity
+        final String intentAction = getIntent().getAction();
+        if (intent.hasCategory(Intent.CATEGORY_LAUNCHER)
+                && intentAction != null
+                && intentAction.equals(Intent.ACTION_MAIN)) {
+            return;
+        }
+
         Account selectedAccount = new Account(server, email);
         if (!account.equals(selectedAccount)) {
             finish();
