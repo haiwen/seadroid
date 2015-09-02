@@ -101,11 +101,6 @@ public class WidgetUtils {
         String name = file.getName();
         String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
 
-        if (suffix.length() == 0) {
-            ToastUtils.show(activity, R.string.unknown_file_type);
-            return;
-        }
-
         // Open markdown files in MarkdownActivity
         if (suffix.equals("md") || suffix.equals("markdown")) {
             startMarkdownActivity(activity, file.getPath());
