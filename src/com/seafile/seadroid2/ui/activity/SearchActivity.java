@@ -58,6 +58,8 @@ public class SearchActivity extends SherlockFragmentActivity implements View.OnC
     private TransferService txService = null;
     private Account account;
 
+    public static final int DOWNLOAD_FILE_REQUEST = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -172,6 +174,19 @@ public class SearchActivity extends SherlockFragmentActivity implements View.OnC
             mTextField.getText().clear();
         }
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case DOWNLOAD_FILE_REQUEST:
+                if (resultCode == RESULT_OK) {
+                    File file = new File(data.getStringExtra("path"));
+                    WidgetUtils.showFile(this, file);
+                }
+            default:
+                break;
+        }
     }
 
     private void handleSearch(int page) {
@@ -386,7 +401,7 @@ public class SearchActivity extends SherlockFragmentActivity implements View.OnC
         intent.putExtra("filePath", filePath);
         intent.putExtra("account", account);
         intent.putExtra("taskID", taskID);
-        startActivity(intent);
+        startActivityForResult(intent, DOWNLOAD_FILE_REQUEST);
     }
 
     ServiceConnection mConnection = new ServiceConnection() {

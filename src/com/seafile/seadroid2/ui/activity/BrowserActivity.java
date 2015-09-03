@@ -1081,6 +1081,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final int PICK_FILE_REQUEST = 3;
     public static final int TAKE_PHOTO_REQUEST = 4;
     public static final int CHOOSE_COPY_MOVE_DEST_REQUEST = 5;
+    public static final int DOWNLOAD_FILE_REQUEST = 6;
 
     public boolean hasRepoWritePermission() {
         SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
@@ -1188,6 +1189,11 @@ public class BrowserActivity extends SherlockFragmentActivity
 
             }
             break;
+            case DOWNLOAD_FILE_REQUEST:
+                if (resultCode == RESULT_OK) {
+                    File file = new File(data.getStringExtra("path"));
+                    WidgetUtils.showFile(BrowserActivity.this, file);
+                }
         default:
              break;
         }
@@ -1451,7 +1457,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         intent.putExtra("filePath", filePath);
         intent.putExtra("account", account);
         intent.putExtra("taskID", taskID);
-        startActivity(intent);
+        startActivityForResult(intent, DOWNLOAD_FILE_REQUEST);
     }
 
     @Override
