@@ -36,6 +36,7 @@ public class OpenAsDialog extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         switch (which) {
                         case OPEN_AS_TEXT:
                             intent.setDataAndTypeAndNormalize((Uri.fromFile(file)), "text/*");
