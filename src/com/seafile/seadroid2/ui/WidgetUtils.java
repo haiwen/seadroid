@@ -3,7 +3,6 @@ package com.seafile.seadroid2.ui;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
@@ -20,7 +19,6 @@ import com.seafile.seadroid2.ui.activity.GalleryActivity;
 import com.seafile.seadroid2.ui.activity.MarkdownActivity;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
 import com.seafile.seadroid2.ui.dialog.GetShareLinkDialog;
-import com.seafile.seadroid2.ui.dialog.OpenAsDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.util.Utils;
 
@@ -115,20 +113,18 @@ public class WidgetUtils {
         Intent open = new Intent(Intent.ACTION_VIEW);
         open.setDataAndType((Uri.fromFile(file)), mime);
 
+        if (activity.getPackageManager().resolveActivity(open, 0) == null) {
+            ToastUtils.show(activity, "Could not find suitable app for mime type " + mime);
+            mime = "*/*";
+            open.setType(mime);
+        }
+
         try {
             activity.startActivity(open);
             activity.finish();
-            return;
         } catch (ActivityNotFoundException e) {
-            new OpenAsDialog(file) {
-                @Override
-                public void onDismiss(DialogInterface dialog) {
-                    activity.finish();
-                }
-            }.show(activity.getSupportFragmentManager(), "OpenAsDialog");
-            return;
+            e.printStackTrace();
         }
-
     }
 
     public static void showRepo(Context context, String repoID, String repoName, String path, String dirID) {
