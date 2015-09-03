@@ -110,6 +110,8 @@ public class WidgetUtils {
         }
 
         String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
+        if (mime==null)
+            mime = "*/*"; // forces app chooser dialog on unknown type
         Intent open = new Intent(Intent.ACTION_VIEW);
         open.setDataAndType((Uri.fromFile(file)), mime);
 
