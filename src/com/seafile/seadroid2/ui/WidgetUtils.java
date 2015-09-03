@@ -102,7 +102,6 @@ public class WidgetUtils {
         // Open markdown files in MarkdownActivity
         if (suffix.equals("md") || suffix.equals("markdown")) {
             startMarkdownActivity(activity, file.getPath());
-            activity.finish();
             activity.overridePendingTransition(0, 0);
             return;
         }
@@ -111,6 +110,7 @@ public class WidgetUtils {
         if (mime==null)
             mime = "*/*"; // forces app chooser dialog on unknown type
         Intent open = new Intent(Intent.ACTION_VIEW);
+        open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         open.setDataAndType((Uri.fromFile(file)), mime);
 
         if (activity.getPackageManager().resolveActivity(open, 0) == null) {
@@ -121,7 +121,6 @@ public class WidgetUtils {
 
         try {
             activity.startActivity(open);
-            activity.finish();
         } catch (ActivityNotFoundException e) {
             e.printStackTrace();
         }
