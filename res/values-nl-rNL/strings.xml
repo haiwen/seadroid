@@ -125,7 +125,7 @@
   <string name="tabs_library">Bibliotheken</string>
   <string name="tabs_activity">Activiteiten</string>
   <string name="tabs_starred">Gesterd</string>
-  <string name="provide_password">Voorzie het wachtwoord voor de bibliotheek "%s"</string>
+  <string name="provide_password">Voorzie het wachtwoord voor de bibliotheek \"%s\"</string>
   <string name="days_ago">%d dagen geleden</string>
   <string name="hours_ago">%d uren geleden</string>
   <string name="minutes_ago">%d minuten geleden</string>

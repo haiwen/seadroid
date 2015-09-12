@@ -93,8 +93,8 @@
   <string name="pick_photo_video_title">Fotó/videó választás feltöltéshez</string>
   <string name="select_upload_items">Elemek kiválasztása feltöltéshez</string>
   <plurals name="n_upload_items_selected">
-    <item quantity="one"><xliff:g id="number_of_selected">%1$d</xliff:g> elem kijelölve</item>
-    <item quantity="other"><xliff:g id="numbers_of_selected">%1$d</xliff:g> elem kijelölve</item>
+    <item quantity="one">%1$d elem kiválasztva</item>
+    <item quantity="other">%1$d elem kiválasztva</item>
   </plurals>
   <string name="dir_name_empty">Adja meg a könyvtár nevét</string>
   <string name="file_name_empty">Adja meg a fájl nevét</string>
@@ -116,11 +116,19 @@
   <string name="load_libraries_fail">Hiba a kötetek letöltésénél</string>
   <string name="load_dir_fail">Hiba a könyvtár tartalmának betöltésénél</string>
   <string name="not_supported_share">Ez a megosztás típus nem támogatott</string>
+  <string name="edit">Szerkeszt</string>
   <string name="download_folder">Könyvtár letöltés</string>
   <string name="download_folder_title">Válassza ki a preferált beállítást</string>
   <string-array name="download_folder_options_array">
     <item>Letöltési könyvtár</item>
     <item>Letöltési könyvtár és alkönyvtár</item>
+  </string-array>
+  <string name="add_file">Hozzáad</string>
+  <string-array name="add_file_options_array">
+    <item>Fájl létrehozás</item>
+    <item>Könyvtár létrehozás</item>
+    <item>Fájl feltöltés</item>
+    <item>Fénykép készítés</item>
   </string-array>
   <string name="create_new_file">Új fájl létrehozása</string>
   <string name="create_new_dir">Új könyvtár létrehozása</string>
@@ -156,7 +164,7 @@
   <string name="tabs_library">Kötetek</string>
   <string name="tabs_activity">Tevékenységek</string>
   <string name="tabs_starred">Kedvencek</string>
-  <string name="provide_password">Jelszó megadása ehhez: "%s"</string>
+  <string name="provide_password">Jelszó megadása ehhez: \"%s\"</string>
   <string name="upload_waiting">Feltöltés várakozik</string>
   <string name="upload_finished">Feltöltés kész</string>
   <string name="upload_cancelled">Feltöltés megszakítva</string>
@@ -172,8 +180,8 @@
   <string name="storage_removed">Eltávolították a tárolót</string>
   <string name="error_selecting_file">Hiba a fájlok kiválasztásánál</string>
   <plurals name="n_upload_files_selected">
-    <item quantity="one"><xliff:g id="number_of_selected">%1$d</xliff:g> fájl kijelölve</item>
-    <item quantity="other"><xliff:g id="numbers_of_selected">%1$d</xliff:g> fájl kijelölve</item>
+    <item quantity="one">%1$d fájl kiválasztva</item>
+    <item quantity="other">%1$d fájl kiválasztva</item>
   </plurals>
   <string name="empty_folder">Üres könyvtár</string>
   <string name="choose_file">Fájl kiválasztása</string>
@@ -224,12 +232,12 @@
   <string name="lockscreen_access_pattern_passwd_forget">Jelszó elfelejtve</string>
   <string name="lockscreen_access_pattern_failure">5 hibás próbálkozás, várjon 30 másodpercet mielőtt újra próbálja</string>
   <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
-    <item quantity="one"><xliff:g id="second">%1$d</xliff:g> másodperc múlva újra próbálkozhat</item>
-    <item quantity="other"> <xliff:g id="seconds">%1$d</xliff:g> másodperc múlva újra próbálkozhat</item>
+    <item quantity="one">%1$d másodperc múlva újra megpróbálhatja</item>
+    <item quantity="other">%1$d másodperc múlva újra megpróbálhatja</item>
   </plurals>
   <plurals name="lockscreen_access_pattern_failure_left_try_times">
-    <item quantity="one">Hibás minta, még <xliff:g id="time">%1$d</xliff:g> alkalommal probálkozhat</item>
-    <item quantity="other">Hibás minta, még <xliff:g id="times">%1$d</xliff:g> alkalommal probálkozhat</item>
+    <item quantity="one">Hibás minta, még %1$d alkalommal probálkozhat</item>
+    <item quantity="other">Hibás minta, még %1$d alkalommal probálkozhat</item>
   </plurals>
   <string name="lockscreen_access_pattern_failure_not_long_enough">Nincs elég pont összekötve, próbálja újra</string>
   <string name="lockpattern_retry_button_text">Újra</string>
@@ -284,8 +292,8 @@
   <string name="settings_cuc_type_video">Fénykép és videó</string>
   <string name="settings_cuc_local_dir_title">Helyi könyvtár kiválasztása</string>
   <plurals name="settings_cuc_local_dir_items">
-    <item quantity="one"><xliff:g id="cuc_item">%1$d</xliff:g> elem</item>
-    <item quantity="other"><xliff:g id="cuc_items">%1$d</xliff:g> elem</item>
+    <item quantity="one">%1$d elem</item>
+    <item quantity="other">%1$d elem</item>
   </plurals>
   <string name="settings_cuc_remote_lib_title">Kötet kiválasztása</string>
   <string name="settings_cuc_remote_lib_account">Fiók kiválasztása</string>
@@ -358,14 +366,14 @@
   <string name="transfer_list_retry_failed_tasks">Hibás feladatok újrakezdése</string>
   <string name="transfer_list_restart_cancelled_tasks">Megszakított feladatok újraindítása</string>
   <string name="transfer_list_clear_failed_tasks">Hibás feladatok törlése</string>
-  <string name="transfer_list_clear_all_tasks">Megszakított feladatok törlése</string>
+  <string name="transfer_list_clear_all_tasks">Minden feladat törlése</string>
   <string name="transfer_list_clear_finished_tasks">Befejezett feladatok törlése</string>
   <string name="transfer_tabs_downloads">Letöltési lista</string>
   <string name="transfer_tabs_uploads">Feltöltési lista</string>
   <string name="transfer_download_no_task">Minden fájl letöltve</string>
   <plurals name="transfer_download_started">
-    <item quantity="one"><xliff:g id="download_file">%1$d</xliff:g> fájl letöltése elindul</item>
-    <item quantity="other"><xliff:g id="download_files">%1$d</xliff:g> fájl letöltése elindul</item>
+    <item quantity="one">%1$d fájl letöltésének elkezdése</item>
+    <item quantity="other">%1$d fájl letöltésének elkezdése</item>
   </plurals>
   <string name="transfer_list_select_all">Mindet kijelöl</string>
   <string name="transfer_list_deselect_all">Minden kijelölést megszűntet</string>
@@ -397,12 +405,12 @@
   <string name="notification_download_started_title">Fájlok letöltése...</string>
   <string name="notification_upload_completed">Feltöltés kész</string>
   <plurals name="notification_upload_info">
-    <item quantity="one"><xliff:g id="uploading_file">%1$d</xliff:g> fájl feltöltése (%2$d%%)</item>
-    <item quantity="other"><xliff:g id="uploading_file">%1$d</xliff:g> fájlok feltöltése (%2$d%%)</item>
+    <item quantity="one">%1$d fájl feltöltése (%2$d%%)</item>
+    <item quantity="other">%1$d fájl feltöltése (%2$d%%)</item>
   </plurals>
   <plurals name="notification_download_info">
-    <item quantity="one"><xliff:g id="downloading_file">%1$d</xliff:g> fájl letöltése (%2$d%%)</item>
-    <item quantity="other"><xliff:g id="downloading_file">%1$d</xliff:g> fájlok letöltése (%2$d%%)</item>
+    <item quantity="one">%1$d fájl letöltése (%2$d%%)</item>
+    <item quantity="other">%1$d fájl letöltése (%2$d%%)</item>
   </plurals>
   <string name="notification_download_completed">Letöltés kész</string>
   <!--Gallery-->
@@ -413,4 +421,5 @@
   <string name="overwrite_existing_file_msg">A fájl már létezik, felülírja?</string>
   <string name="overwrite_existing_file_exist">A fájl már létezik</string>
   <!--Action Mode-->
+  <string name="action_mode_no_items_selected">Nincs kiválasztott elem</string>
 </resources>

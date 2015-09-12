@@ -78,11 +78,6 @@
   <string name="image_gallery_NoImageView_text">Žádný obrázek nebyl nalezen</string>
   <string name="pick_photo_video_title">Vyberte fotky/videa pro nahrání</string>
   <string name="select_upload_items">Vyberte položky pro nahrání</string>
-  <plurals name="n_upload_items_selected">
-    <item quantity="one">vybrána <xliff:g id="number_of_selected">%1$d</xliff:g> položka</item>
-    <item quantity="few">vybrána <xliff:g id="number_of_selected">%1$d</xliff:g> položka</item>
-    <item quantity="other">vybráno <xliff:g id="numbers_of_selected">%1$d</xliff:g> položek</item>
-  </plurals>
   <string name="dir_name_empty">Prosím, vložte název složky</string>
   <string name="file_name_empty">Prosím, vložte název souboru</string>
   <string name="password_empty">Prosím, vložte heslo</string>
@@ -103,10 +98,8 @@
   <string name="load_libraries_fail">Chyba při načítání knihoven</string>
   <string name="load_dir_fail">Chyba při načítání obsahu této složky</string>
   <string name="not_supported_share">Tento druh sdílení není podporován</string>
-  <string name="edit">Upravit</string>
   <string name="download_folder">Stáhnout složku</string>
   <string name="download_folder_title">Zvolte preferovanou možnost</string>
-  <string name="add_file">Přidat soubor</string>
   <string name="create_new_file">Vytvořit nový soubor</string>
   <string name="create_new_dir">Vytvořit novou složku</string>
   <string name="camera">Vyfotit sem</string>
@@ -141,7 +134,7 @@
   <string name="tabs_library">Knihovny</string>
   <string name="tabs_activity">Aktivity</string>
   <string name="tabs_starred">Oblíbené</string>
-  <string name="provide_password">Zadejte heslo pro knihovnu "%s"</string>
+  <string name="provide_password">Zadejte heslo pro knihovnu \"%s\"</string>
   <string name="upload_waiting">Nahrání čeká</string>
   <string name="upload_finished">Nahrání dokončeno</string>
   <string name="upload_cancelled">Nahrání zrušeno</string>
@@ -155,11 +148,6 @@
   <string name="select_upload_files">Vyberte soubory pro nahrání</string>
   <string name="storage_removed">Úložiště bylo odstraněno</string>
   <string name="error_selecting_file">Chyba při výběru souboru</string>
-  <plurals name="n_upload_files_selected">
-    <item quantity="one">vybrán <xliff:g id="number_of_selected">%1$d</xliff:g> soubor</item>
-    <item quantity="few">vybrán <xliff:g id="number_of_selected">%1$d</xliff:g> soubor</item>
-    <item quantity="other">vybráno <xliff:g id="numbers_of_selected">%1$d</xliff:g> souborů</item>
-  </plurals>
   <string name="empty_folder">Prázdná složka</string>
   <string name="choose_file">Vyberte soubor</string>
   <string name="ssl_error">Chyba ověření bezpečnosti</string>
@@ -208,16 +196,6 @@
   <string name="lockscreen_access_pattern_detected">Gesto detekováno</string>
   <string name="lockscreen_access_pattern_passwd_forget">Zapomenuté gesto</string>
   <string name="lockscreen_access_pattern_failure">5x špatné gesto, čekejte prosím 30s do dalšího pokusu</string>
-  <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
-    <item quantity="one">Můžete to zkusit za <xliff:g id="second">%1$d</xliff:g> sekundu</item>
-    <item quantity="few">Můžete to zkusit za <xliff:g id="second">%1$d</xliff:g> sekund</item>
-    <item quantity="other">Můžete to zkusit za <xliff:g id="second">%1$d</xliff:g> sekund</item>
-  </plurals>
-  <plurals name="lockscreen_access_pattern_failure_left_try_times">
-    <item quantity="one">Špatné gesto, můžete to zkusit znovu <xliff:g id="time">%1$d</xliff:g> krát</item>
-    <item quantity="few">Špatné gesto, můžete to zkusit znovu <xliff:g id="time">%1$d</xliff:g> krát</item>
-    <item quantity="other">Špatné gesto, můžete to zkusit znovu <xliff:g id="times">%1$d</xliff:g> krát</item>
-  </plurals>
   <string name="lockscreen_access_pattern_failure_not_long_enough">Propojení bodů není dostatečně dlouhé, zkuste to znovu</string>
   <string name="lockpattern_retry_button_text">Opakovat</string>
   <string name="lockpattern_continue_button_text">Další</string>
@@ -299,11 +277,6 @@
   <string name="transfer_tabs_downloads">Seznam stahování</string>
   <string name="transfer_tabs_uploads">Seznam nahrávání</string>
   <string name="transfer_download_no_task">Všechny soubory byly staženy</string>
-  <plurals name="transfer_download_started">
-    <item quantity="one">Spouštění stahování <xliff:g id="download_file">%1$d</xliff:g> souboru</item>
-    <item quantity="few">Spouštění stahování <xliff:g id="download_file">%1$d</xliff:g> souboru</item>
-    <item quantity="other">Spouštění stahování <xliff:g id="download_files">%1$d</xliff:g> souborů</item>
-  </plurals>
   <string name="transfer_list_select_all">Vybrat vše</string>
   <string name="transfer_list_deselect_all">Zrušit výběr </string>
   <!--Sort-->

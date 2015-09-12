@@ -108,7 +108,7 @@
   <string name="tabs_library">Librerie</string>
   <string name="tabs_activity">Attività</string>
   <string name="tabs_starred">Preferiti</string>
-  <string name="provide_password">Inserisci la password per la libreria "%s"</string>
+  <string name="provide_password">Inserisci la password per la libreria \"%s\"</string>
   <string name="just_now">Appena adesso</string>
   <string name="error_when_load_starred">Errore nel caricamento dei file preferiti</string>
   <string name="open_as">Apri come</string>

@@ -74,9 +74,6 @@
   <string name="image_gallery_NoImageView_text">沒有找到圖片</string>
   <string name="pick_photo_video_title">請選擇要上傳的圖片/視頻</string>
   <string name="select_upload_items">請選擇要上傳的文件</string>
-  <plurals name="n_upload_items_selected">
-    <item quantity="other">选中<xliff:g id="numbers_of_selected">%1$d</xliff:g>个文件</item>
-  </plurals>
   <string name="dir_name_empty">請輸入文件夾名</string>
   <string name="file_name_empty">請輸入文件名</string>
   <string name="password_empty">請輸入密碼</string>

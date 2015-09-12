@@ -93,7 +93,7 @@
   <string name="pick_photo_video_title">请选择要上传的图片/视频</string>
   <string name="select_upload_items">请选择要上传的文件</string>
   <plurals name="n_upload_items_selected">
-    <item quantity="other">选中<xliff:g id="numbers_of_selected">%1$d</xliff:g>个文件</item>
+    <item quantity="other">选择了%1$d个文件</item>
   </plurals>
   <string name="dir_name_empty">请输入文件夹名</string>
   <string name="file_name_empty">请输入文件名</string>
@@ -163,7 +163,7 @@
   <string name="tabs_library">资料库</string>
   <string name="tabs_activity">最近修改</string>
   <string name="tabs_starred">星标文件</string>
-  <string name="provide_password">请提供资料库"%s"的密码</string>
+  <string name="provide_password">请提供资料库\"%s\"的密码</string>
   <string name="upload_waiting">等待上传</string>
   <string name="upload_finished">上传完成</string>
   <string name="upload_cancelled">上传取消</string>
@@ -179,7 +179,7 @@
   <string name="storage_removed">存储卡已被移出</string>
   <string name="error_selecting_file">选择文件时出错</string>
   <plurals name="n_upload_files_selected">
-    <item quantity="other">选中<xliff:g id="numbers_of_selected">%1$d</xliff:g>个文件</item>
+    <item quantity="other">已经选择%1$d个文件</item>
   </plurals>
   <string name="empty_folder">此文件夹是空的</string>
   <string name="choose_file">请选择一个文件</string>
@@ -233,7 +233,7 @@
     <item quantity="other">%1$d秒后重试</item>
   </plurals>
   <plurals name="lockscreen_access_pattern_failure_left_try_times">
-    <item quantity="other">密码错误，还可以再输入<xliff:g id="times">%1$d</xliff:g>次</item>
+    <item quantity="other">密码错误，还可以再输入%1$d次</item>
   </plurals>
   <string name="lockscreen_access_pattern_failure_not_long_enough">输入长度不够，请重试</string>
   <string name="lockpattern_retry_button_text">重绘</string>
@@ -288,7 +288,7 @@
   <string name="settings_cuc_type_video">上传图片和视频</string>
   <string name="settings_cuc_local_dir_title">选择本地文件夹</string>
   <plurals name="settings_cuc_local_dir_items">
-    <item quantity="other"><xliff:g id="cuc_items">%1$d</xliff:g>个</item>
+    <item quantity="other">%1$d个文件</item>
   </plurals>
   <string name="settings_cuc_remote_lib_title">选择云端资料库</string>
   <string name="settings_cuc_remote_lib_account">请选择一个账户</string>
@@ -366,7 +366,7 @@
   <string name="transfer_tabs_uploads">上传列表</string>
   <string name="transfer_download_no_task">所有文件已全部下载</string>
   <plurals name="transfer_download_started">
-    <item quantity="other">开始下载<xliff:g id="download_files">%1$d</xliff:g>个文件</item>
+    <item quantity="other">开始下载%1$d个文件</item>
   </plurals>
   <string name="transfer_list_select_all">全选</string>
   <string name="transfer_list_deselect_all">取消全选</string>
@@ -397,10 +397,10 @@
   <string name="notification_download_started_title">文件下载中...</string>
   <string name="notification_upload_completed">上传完成</string>
   <plurals name="notification_upload_info">
-    <item quantity="other">正在上传<xliff:g id="uploading_file">%1$d</xliff:g>个文件(%2$d%%)</item>
+    <item quantity="other">正在上传%1$d个文件(%2$d%%)</item>
   </plurals>
   <plurals name="notification_download_info">
-    <item quantity="other">正在下载<xliff:g id="downloading_file">%1$d</xliff:g>个文件(%2$d%%)</item>
+    <item quantity="other">正在下载%1$d个文件(%2$d%%)</item>
   </plurals>
   <string name="notification_download_completed">下载完成</string>
   <!--Gallery-->
