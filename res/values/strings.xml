@@ -97,8 +97,8 @@
     <string name="pick_photo_video_title">Choose photos/videos to upload</string>
     <string name="select_upload_items">Select items to upload</string>
     <plurals name="n_upload_items_selected">
-        <item quantity="one"><xliff:g id="number_of_selected">%1$d</xliff:g> item selected</item>
-        <item quantity="other"><xliff:g id="numbers_of_selected">%1$d</xliff:g> items selected</item>
+        <item quantity="one">%1$d item selected</item>
+        <item quantity="other">%1$d items selected</item>
     </plurals>
 
     <string name="dir_name_empty">Please enter the name of the folder</string>
@@ -185,8 +185,8 @@
     <string name="storage_removed">Storage was removed</string>
     <string name="error_selecting_file">Error when selecting file</string>
     <plurals name="n_upload_files_selected">
-        <item quantity="one"><xliff:g id="number_of_selected">%1$d</xliff:g> file selected</item>
-        <item quantity="other"><xliff:g id="numbers_of_selected">%1$d</xliff:g> files selected</item>
+        <item quantity="one">%1$d file selected</item>
+        <item quantity="other">%1$d files selected</item>
     </plurals>
     <string name="empty_folder">Empty folder</string>
     <string name="choose_file">Choose a file</string>
@@ -239,12 +239,12 @@
     <string name="lockscreen_access_pattern_passwd_forget">Forgot password</string>
     <string name="lockscreen_access_pattern_failure">Failed 5 times, please wait 30 seconds before trying</string>
     <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
-        <item quantity="one">You can retry <xliff:g id="second">%1$d</xliff:g> second later</item>
-        <item quantity="other">You can retry <xliff:g id="seconds">%1$d</xliff:g> seconds later</item>
+        <item quantity="one">You can retry %1$d second later</item>
+        <item quantity="other">You can retry %1$d seconds later</item>
     </plurals>
     <plurals name="lockscreen_access_pattern_failure_left_try_times">
-        <item quantity="one">Incorrect pattern, you can try another <xliff:g id="time">%1$d</xliff:g> time</item>
-        <item quantity="other">Incorrect pattern, you can try another <xliff:g id="times">%1$d</xliff:g> times</item>
+        <item quantity="one">Incorrect pattern, you can try another %1$d time</item>
+        <item quantity="other">Incorrect pattern, you can try another %1$d times</item>
     </plurals>
     <string name="lockscreen_access_pattern_failure_not_long_enough">Linking points not long enough, pelase try again</string>
     <string name="lockpattern_retry_button_text">Retry</string>
@@ -302,8 +302,8 @@
     <string name="settings_cuc_type_video">Photos and videos</string>
     <string name="settings_cuc_local_dir_title">Select Local Folders</string>
     <plurals name="settings_cuc_local_dir_items">
-        <item quantity="one"><xliff:g id="cuc_item">%1$d</xliff:g> item</item>
-        <item quantity="other"><xliff:g id="cuc_items">%1$d</xliff:g> items</item>
+        <item quantity="one">%1$d item</item>
+        <item quantity="other">%1$d items</item>
     </plurals>
     <string name="settings_cuc_remote_lib_title">Select Remote Library</string>
     <string name="settings_cuc_remote_lib_account">Choose an account</string>
@@ -388,8 +388,8 @@
     <string name="transfer_tabs_uploads">Upload List</string>
     <string name="transfer_download_no_task">All files has been downloaded</string>
     <plurals name="transfer_download_started">
-        <item quantity="one">Starting to download <xliff:g id="download_file">%1$d</xliff:g> file</item>
-        <item quantity="other">Starting to download <xliff:g id="download_files">%1$d</xliff:g> files</item>
+        <item quantity="one">Starting to download %1$d file</item>
+        <item quantity="other">Starting to download %1$d files</item>
     </plurals>
     <string name="transfer_list_select_all">Select all</string>
     <string name="transfer_list_deselect_all">Deselect all</string>
@@ -425,12 +425,12 @@
     <string name="notification_download_started_title">Downloading files&#8230;</string>
     <string name="notification_upload_completed">Upload completed</string>
     <plurals name="notification_upload_info">
-        <item quantity="one">Uploading <xliff:g id="uploading_file">%1$d</xliff:g> file (%2$d%%)</item>
-        <item quantity="other">Uploading <xliff:g id="uploading_file">%1$d</xliff:g> files (%2$d%%)</item>
+        <item quantity="one">Uploading %1$d file (%2$d%%)</item>
+        <item quantity="other">Uploading %1$d files (%2$d%%)</item>
     </plurals>
     <plurals name="notification_download_info">
-        <item quantity="one">Downloading <xliff:g id="downloading_file">%1$d</xliff:g> file (%2$d%%)</item>
-        <item quantity="other">Downloading <xliff:g id="downloading_file">%1$d</xliff:g> files (%2$d%%)</item>
+        <item quantity="one">Downloading %1$d file (%2$d%%)</item>
+        <item quantity="other">Downloading %1$d files (%2$d%%)</item>
     </plurals>
     <string name="notification_download_completed">Download completed</string>
 
