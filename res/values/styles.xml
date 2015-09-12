@@ -66,7 +66,7 @@
     </style>
 
     <style name="RadioButton" parent="@android:style/Widget.CompoundButton.RadioButton">
-        <item name="android:button">@drawable/btn_radio_holo_light</item>
+        <item name="android:button">@drawable/fancy_blue_btn_radio_holo_light</item>
     </style>
 
     <!-- Notifications -->
