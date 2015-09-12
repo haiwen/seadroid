@@ -75,6 +75,12 @@
   <string name="file_action_open_as">Opna sem</string>
   <string name="file_action_more">Meira </string>
   <string name="file_action_more_title">Veldu það sem hentar þér </string>
+  <string-array name="file_action_more_array">
+    <item>Flytja út</item>
+    <item>Afrita</item>
+    <item>Færa</item>
+    <item>Stjarna</item>
+  </string-array>
   <string-array name="file_type_array">
     <item>Texti</item>
     <item>Hljóð</item>
@@ -87,8 +93,8 @@
   <string name="pick_photo_video_title">Veldu myndir/vídeó til að hlaða upp</string>
   <string name="select_upload_items">Veldu atriði til að hlaða upp</string>
   <plurals name="n_upload_items_selected">
-    <item quantity="one"><xliff:g id="number_of_selected">%1$d</xliff:g> atriði valið</item>
-    <item quantity="other"><xliff:g id="numbers_of_selected">%1$d</xliff:g> atriði valin</item>
+    <item quantity="one">%1$d atriði valið</item>
+    <item quantity="other">%1$d atriði valin</item>
   </plurals>
   <string name="dir_name_empty">Vinsamlegast sláðu inn nafn skráasafnsins</string>
   <string name="file_name_empty">Vinsamlegast sláðu inn nafn skrárinnar</string>
@@ -110,11 +116,19 @@
   <string name="load_libraries_fail">Mistókst að hlaða inn söfnum</string>
   <string name="load_dir_fail">Mistókst að hlaða inn efni þessa skráasafns</string>
   <string name="not_supported_share">Þessi gerð af deilingu er ekki studd</string>
+  <string name="edit">Breyta</string>
   <string name="download_folder">Hala niður skráasafni</string>
   <string name="download_folder_title">Veldu það sem hentar þér</string>
   <string-array name="download_folder_options_array">
     <item>Hala niður skráasafni</item>
     <item>Hala niður skráasafni og undirskráasöfnum</item>
+  </string-array>
+  <string name="add_file">Bæta við</string>
+  <string-array name="add_file_options_array">
+    <item>Búa til skrá</item>
+    <item>Búa til skráasafn</item>
+    <item>Hlaða upp skrá</item>
+    <item>Taka mynd</item>
   </string-array>
   <string name="create_new_file">Búa til nýja skrá</string>
   <string name="create_new_dir">Búa til nýtt skráasafn</string>
@@ -150,7 +164,7 @@
   <string name="tabs_library">Söfn</string>
   <string name="tabs_activity">Hreyfingar</string>
   <string name="tabs_starred">Stjörnumerkt</string>
-  <string name="provide_password">Búðu til lykilorð fyrir safnið "%s"</string>
+  <string name="provide_password">Búðu til lykilorð fyrir safnið \"%s\"</string>
   <string name="upload_waiting">Upphleðsla í bið</string>
   <string name="upload_finished">Upphleðslu lokið</string>
   <string name="upload_cancelled">Hætt við upphleðslu</string>
@@ -166,8 +180,8 @@
   <string name="storage_removed">Geymsla var fjarlægð</string>
   <string name="error_selecting_file">Villa við að velja skrá</string>
   <plurals name="n_upload_files_selected">
-    <item quantity="one"><xliff:g id="number_of_selected">%1$d</xliff:g> skrá valin</item>
-    <item quantity="other"><xliff:g id="numbers_of_selected">%1$d</xliff:g> skrár valdar</item>
+    <item quantity="one">%1$d skrá valin</item>
+    <item quantity="other">%1$d skrár valdar</item>
   </plurals>
   <string name="empty_folder">Tómt skráasafn</string>
   <string name="choose_file">Veldu skrá</string>
@@ -207,10 +221,10 @@
   <string name="settings_account_sign_out_hint">Smelltu til að útskrá</string>
   <string name="settings_account_sign_out_confirm">Viltu skrá þig út?</string>
   <string name="security">Öryggi</string>
-  <string name="gesture_lock">Hreyfilæsing</string>
-  <string name="gesture_lock_on">Hreyfilæsing á</string>
-  <string name="gesture_lock_off">Hreyfilæsing af</string>
-  <string name="lockscreen_access_pattern_hint">Vinsamlegast teiknaðu Hreyfilæsingarmynstur</string>
+  <string name="gesture_lock">Mynsturslæsing</string>
+  <string name="gesture_lock_on">Mynsturslæsing á</string>
+  <string name="gesture_lock_off">Mynsturslæsing af</string>
+  <string name="lockscreen_access_pattern_hint">Vinsamlegast teiknaðu mynstur</string>
   <string name="lockscreen_access_pattern_start">Byrjaðu að teikna</string>
   <string name="lockscreen_access_pattern_cleared">Mynstur hreinsað</string>
   <string name="lockscreen_access_pattern_cell_added">Bætt við mystursreit</string>
@@ -218,27 +232,27 @@
   <string name="lockscreen_access_pattern_passwd_forget">Gleymt lykilorð</string>
   <string name="lockscreen_access_pattern_failure">Mistókst 5 sinnum, vinsamlegast bíddu í 30 sekúndur áður en þú reynir aftur</string>
   <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
-    <item quantity="one">Þú getur reynt aftur eftir <xliff:g id="second">%1$d</xliff:g> sekúndu</item>
-    <item quantity="other">þú getur reynt aftur eftir <xliff:g id="seconds">%1$d</xliff:g> sekúndur</item>
+    <item quantity="one">Þú getur reynt aftur eftir %1$d sekúndu</item>
+    <item quantity="other">Þú getur reynt aftur eftir %1$d sekúndur</item>
   </plurals>
   <plurals name="lockscreen_access_pattern_failure_left_try_times">
-    <item quantity="one">Rangt munstur, þú getur reynt aftur <xliff:g id="time">%1$d</xliff:g> sinni enn</item>
-    <item quantity="other">Rangt munstur, þú getur reynt aftur <xliff:g id="times">%1$d</xliff:g> sinnum</item>
+    <item quantity="one">Rangt mynstur, þú getur reynt aftur %1$d sinni</item>
+    <item quantity="other">Rangt mynstur, þú getur reynt aftur %1$d sinnum</item>
   </plurals>
   <string name="lockscreen_access_pattern_failure_not_long_enough">Tengdir punktar ekki nægilega langir, vinsamlegast reyndu aftur</string>
   <string name="lockpattern_retry_button_text">Reyna aftur</string>
   <string name="lockpattern_continue_button_text">Næst</string>
   <string name="lockpattern_confirm_button_text">Í lagi</string>
-  <string name="lockpattern_recording_intro_header">Vinsamlegast teiknaðu Hreyfilæsingarmynstur</string>
-  <string name="lockpattern_settings_help_how_to_record">Lærðu hvernig á að teikna Hreyfilæsingarmynstur</string>
+  <string name="lockpattern_recording_intro_header">Vinsamlegast teiknaðu mynstur</string>
+  <string name="lockpattern_settings_help_how_to_record">Lærðu hvernig á að teikna mynstur</string>
   <string name="lockpattern_recording_incorrect_too_short">Strjúktu yfir amk 4 punkta, reyndu aftur!</string>
   <string name="lockpattern_pattern_entered_header">Mynstur vistað</string>
-  <string name="lockpattern_need_to_draw">Vinsamlegast teiknaðu Hreyfilæsingarmynstur</string>
+  <string name="lockpattern_need_to_draw">Vinsamlegast teiknaðu mynstur</string>
   <string name="lockpattern_need_to_confirm">Vinsamlegast staðfestu mynstrið þitt</string>
   <string name="lockpattern_need_to_unlock_wrong">Mynstrið passaði ekki. Reyndu aftur.</string>
   <string name="lockpattern_pattern_confirmed_header">Smelltu á OK til að vista mynstrið</string>
   <string name="lockpattern_recording_inprogress">Lyftu fingrinum þegar þú hefur lokið teikningunni</string>
-  <string name="lockpattern_pattern_toast_saved">Hreyfilæsingarmynstur giftursamlega vistað</string>
+  <string name="lockpattern_pattern_toast_saved">Mynstur vistað með ágætum</string>
   <!--Strings for possible PreferenceActivity Back/Next buttons-->
   <string name="back_button_label">Til baka</string>
   <string name="next_button_label">Næst</string>
@@ -272,13 +286,14 @@
   <string name="settings_cuc_network_title">Hvernig á að hlaða upp</string>
   <string name="settings_cuc_network_wifi">Aðeins Wi-Fi</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi eða gagnaáætlun</string>
+  <string name="settings_cuc_option_hint">Veldu það sem hentar þér. \nÞú getur breytt þessum valmöguleikum síðar í Stillingum.</string>
   <string name="settings_cuc_type_title">Hverju á að hlaða upp</string>
   <string name="settings_cuc_type_photo">Aðeins myndum</string>
   <string name="settings_cuc_type_video">Myndum og kvikmyndum</string>
   <string name="settings_cuc_local_dir_title">Veldu Staðvær Skráasöfn</string>
   <plurals name="settings_cuc_local_dir_items">
-    <item quantity="one"><xliff:g id="cuc_item">%1$d</xliff:g> atriði</item>
-    <item quantity="other"><xliff:g id="cuc_items">%1$d</xliff:g> atriðum</item>
+    <item quantity="one">%1$d atriði</item>
+    <item quantity="other">%1$d atriði</item>
   </plurals>
   <string name="settings_cuc_remote_lib_title">Veldu Fjartengt Safn</string>
   <string name="settings_cuc_remote_lib_account">Veldu reikning</string>
@@ -286,6 +301,7 @@
   <string name="settings_cuc_upload_to_parent_folder">Upp í Yfirskráasafn</string>
   <string name="settings_cuc_auto_scan">Sækja allar myndir á tæki</string>
   <string name="settings_cuc_pick_dir">Leyfðu mér að velja myndaskáasöfn</string>
+  <string name="settings_cuc_remote_lib_hint">Veldu reikninginn þinn og safn. \nÞú getur breytt þessum stillingum síðar í Stillingum.</string>
   <string name="settings_cuc_finish_title">Enda</string>
   <string name="settings_cuc_ready">Seafile mun nú hlaða upp skrám frá þeim skráasöfnum sem þú valdir. \nÞú mátt loka appinu á meðan þessu stendur.</string>
   <string name="settings_cuc_swipe_left">Strjúktu til vinstri til að halda áfram.</string>
@@ -346,17 +362,18 @@
   <!--Transfer List-->
   <string name="transfer_list_network_error">Netkerfis tengivilla, vinsamlegast reyndu aftur síðar!</string>
   <string name="transfer_list_cancel_all">Hætta við öll verk</string>
+  <string name="transfer_list_restart_all">Byrja upp á nýtt</string>
   <string name="transfer_list_retry_failed_tasks">Reyna aftur við verk sem mistókust</string>
   <string name="transfer_list_restart_cancelled_tasks">Endurræsa verk sem hætt var við</string>
   <string name="transfer_list_clear_failed_tasks">Hreinsa verk sem mistókust</string>
-  <string name="transfer_list_clear_all_tasks">Hreinsa verk sem hætt var við</string>
+  <string name="transfer_list_clear_all_tasks">Hreinsa öll verk</string>
   <string name="transfer_list_clear_finished_tasks">Hreinsa loknum verkum</string>
   <string name="transfer_tabs_downloads">Niðurhalslisti</string>
   <string name="transfer_tabs_uploads">Upphleðslulisti</string>
   <string name="transfer_download_no_task">Öllum skrám hefur verið niðurhalað</string>
   <plurals name="transfer_download_started">
-    <item quantity="one">Niðurhal hafið á <xliff:g id="download_file">%1$d</xliff:g> skrá</item>
-    <item quantity="other">Niðurhal hafið á <xliff:g id="download_files">%1$d</xliff:g> skám</item>
+    <item quantity="one">Er að hefja niðurhal á %1$d skrá</item>
+    <item quantity="other">Er að hefja niðurhal %1$d skráa</item>
   </plurals>
   <string name="transfer_list_select_all">Velja allt</string>
   <string name="transfer_list_deselect_all">Afvelja allt</string>
@@ -388,12 +405,12 @@
   <string name="notification_download_started_title">Hala niður skrám...</string>
   <string name="notification_upload_completed">Upphleðslu lokið</string>
   <plurals name="notification_upload_info">
-    <item quantity="one">Hleð upp <xliff:g id="uploading_file">%1$d</xliff:g> skrá (%2$d%%)</item>
-    <item quantity="other">Hleð upp <xliff:g id="uploading_file">%1$d</xliff:g> skrám (%2$d%%)</item>
+    <item quantity="one">Hleð upp %1$d skrá (%2$d%%)</item>
+    <item quantity="other">Hleð upp %1$d skrám (%2$d%%)</item>
   </plurals>
   <plurals name="notification_download_info">
-    <item quantity="one">Hleð niður <xliff:g id="downloading_file">%1$d</xliff:g> skrá (%2$d%%)</item>
-    <item quantity="other">Hleð niður <xliff:g id="downloading_file">%1$d</xliff:g> skrám (%2$d%%)</item>
+    <item quantity="one">Hala niður %1$d skrá (%2$d%%)</item>
+    <item quantity="other">Hala niður %1$d skrám (%2$d%%)</item>
   </plurals>
   <string name="notification_download_completed">Niðurhali lokið</string>
   <!--Gallery-->
@@ -404,4 +421,5 @@
   <string name="overwrite_existing_file_msg">Skráin er þegar til, viltu skipta henni út?</string>
   <string name="overwrite_existing_file_exist">Skráin er þegar til</string>
   <!--Action Mode-->
+  <string name="action_mode_no_items_selected">Engin atriði voru valin</string>
 </resources>

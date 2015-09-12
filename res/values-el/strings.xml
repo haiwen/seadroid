@@ -133,7 +133,7 @@
   <string name="added_to_upload_tasks">Η μεταφόρτωση άρχισε</string>
   <string name="added_photo_to_upload_tasks">Άρχισε η μεταφόρτωση φωτογραφιών</string>
   <string name="tabs_library">Βιβλιοθήκες</string>
-  <string name="provide_password">Εισάγετε τον κωδικό για την βιβλιοθήκη "%s"</string>
+  <string name="provide_password">Εισάγετε τον κωδικό για την βιβλιοθήκη \"%s\"</string>
   <string name="upload_waiting">Μεταφόρτωση σε αναμονή</string>
   <string name="upload_finished">Η μεταφόρτωση ολοκληρώθηκε</string>
   <string name="upload_cancelled">Η μεταφόρτωση ακυρώθηκε</string>
@@ -176,14 +176,6 @@
   <string name="notification_upload_started_title">Μεταφόρτωση αρχείων...</string>
   <string name="notification_download_started_title">Λήψη αρχείων...</string>
   <string name="notification_upload_completed">Η μεταφόρτωση ολοκληρώθηκε</string>
-  <plurals name="notification_upload_info">
-    <item quantity="one">Μεταφόρτωση <xliff:g id="uploading_file">%1$d</xliff:g> αρχείου (%2$d%%)</item>
-    <item quantity="other">Μεταφόρτωση <xliff:g id="uploading_file">%1$d</xliff:g> αρχείων (%2$d%%)</item>
-  </plurals>
-  <plurals name="notification_download_info">
-    <item quantity="one">Γίνεται λήψη <xliff:g id="downloading_file">%1$d</xliff:g> αρχείου (%2$d%%)</item>
-    <item quantity="other">Γίνεται λήψη <xliff:g id="downloading_file">%1$d</xliff:g> αρχείων (%2$d%%)</item>
-  </plurals>
   <string name="notification_download_completed">Η λήψη ολοκληρώθηκε</string>
   <!--Gallery-->
   <!--Overwrite existing files-->

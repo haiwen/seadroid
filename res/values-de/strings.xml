@@ -93,8 +93,8 @@
   <string name="pick_photo_video_title">Bitte Fotos/Videos zum Hochladen wählen</string>
   <string name="select_upload_items">Elemente zum Hochladen auswählen</string>
   <plurals name="n_upload_items_selected">
-    <item quantity="one"><xliff:g id="number_of_selected">%1$d</xliff:g> Element ausgewählt</item>
-    <item quantity="other"><xliff:g id="numbers_of_selected">%1$d</xliff:g> Elemente ausgewählt</item>
+    <item quantity="one">%1$d Element ausgewählt</item>
+    <item quantity="other">%1$d Elemente ausgewählt</item>
   </plurals>
   <string name="dir_name_empty">Bitte den Namen des Ordners eingeben</string>
   <string name="file_name_empty">Bitte den Namen der Datei eingeben</string>
@@ -123,7 +123,7 @@
     <item>Ordner herunterladen</item>
     <item>Ordner und Unterordner herunterladen</item>
   </string-array>
-  <string name="add_file">Datei hinzufügen</string>
+  <string name="add_file">Hinzufügen</string>
   <string-array name="add_file_options_array">
     <item>Datei anlegen</item>
     <item>Ordner anlegen</item>
@@ -180,8 +180,8 @@
   <string name="storage_removed">Speicher wurde entfernt</string>
   <string name="error_selecting_file">Fehler beim Auswählen der Datei</string>
   <plurals name="n_upload_files_selected">
-    <item quantity="one"><xliff:g id="number_of_selected">%1$d</xliff:g> Datei ausgewählt</item>
-    <item quantity="other"><xliff:g id="numbers_of_selected">%1$d</xliff:g> Dateien ausgewählt</item>
+    <item quantity="one">%1$d Datei ausgewählt</item>
+    <item quantity="other">%1$d Dateien ausgewählt</item>
   </plurals>
   <string name="empty_folder">Leerer Ordner</string>
   <string name="choose_file">Eine Datei auswählen</string>
@@ -232,12 +232,12 @@
   <string name="lockscreen_access_pattern_passwd_forget">Passwort vergessen</string>
   <string name="lockscreen_access_pattern_failure">5 fehlerhafte Eingaben. Bitte warten Sie 30 Sekunden, bevor Sie es wieder versuchen</string>
   <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
-    <item quantity="one">Sie können es in <xliff:g id="seconds">%1$d</xliff:g> Sekunde nochmal versuchen</item>
-    <item quantity="other">Sie können es in <xliff:g id="seconds">%1$d</xliff:g> Sekunden nochmal versuchen</item>
+    <item quantity="one">Sie können es in %1$d Sekunde nochmal versuchen</item>
+    <item quantity="other">Sie können es in %1$d Sekunden nochmal versuchen</item>
   </plurals>
   <plurals name="lockscreen_access_pattern_failure_left_try_times">
-    <item quantity="one">Falsches Entsperrmuster, Sie können es noch <xliff:g id="time">%1$d</xliff:g> Mal versuchen </item>
-    <item quantity="other">Falsches Entsperrmuster, Sie können es noch <xliff:g id="times">%1$d</xliff:g> Mal versuchen </item>
+    <item quantity="one">Falsches Entsperrmuster, Sie können es noch %1$d Mal versuchen</item>
+    <item quantity="other">Falsches Entsperrmuster, Sie können es noch %1$d Mal versuchen</item>
   </plurals>
   <string name="lockscreen_access_pattern_failure_not_long_enough">Bitte wählen Sie ein längeres Entsperrmuster</string>
   <string name="lockpattern_retry_button_text">Wiederholen</string>
@@ -292,8 +292,8 @@
   <string name="settings_cuc_type_video">Bilder und Videos</string>
   <string name="settings_cuc_local_dir_title">Lokale Ordner auswählen</string>
   <plurals name="settings_cuc_local_dir_items">
-    <item quantity="one"><xliff:g id="cuc_item">%1$d</xliff:g> Element</item>
-    <item quantity="other"><xliff:g id="cuc_item">%1$d</xliff:g> Elemente</item>
+    <item quantity="one">%1$d Element</item>
+    <item quantity="other">%1$d Elemente</item>
   </plurals>
   <string name="settings_cuc_remote_lib_title">Zielbibliothek auswählen</string>
   <string name="settings_cuc_remote_lib_account">Benutzerkonto auswählen</string>
@@ -366,14 +366,14 @@
   <string name="transfer_list_retry_failed_tasks">Fehlgeschlagene Vorgänge neu starten</string>
   <string name="transfer_list_restart_cancelled_tasks">Abgebrochene Vorgänge neu starten</string>
   <string name="transfer_list_clear_failed_tasks">Liste löschen: Fehler</string>
-  <string name="transfer_list_clear_all_tasks">Liste löschen: Abgebrochen</string>
+  <string name="transfer_list_clear_all_tasks">Alle Aufgaben löschen</string>
   <string name="transfer_list_clear_finished_tasks">Liste löschen: Abgeschlossen</string>
   <string name="transfer_tabs_downloads">Heruntergeladen</string>
   <string name="transfer_tabs_uploads">Hochgeladen</string>
   <string name="transfer_download_no_task">Alle Dateien wurden heruntergeladen</string>
   <plurals name="transfer_download_started">
-    <item quantity="one"><xliff:g id="download_files">%1$d</xliff:g> wird heruntergeladen</item>
-    <item quantity="other"><xliff:g id="download_files">%1$d</xliff:g> Dateien werden heruntergeladen</item>
+    <item quantity="one">Beginne %1$d Datei herunterzuladen</item>
+    <item quantity="other">Beginne %1$d Dateien herunterzuladen</item>
   </plurals>
   <string name="transfer_list_select_all">Alle auswählen</string>
   <string name="transfer_list_deselect_all">Alle abwählen</string>
@@ -405,12 +405,12 @@
   <string name="notification_download_started_title">Dateien werden heruntergeladen …</string>
   <string name="notification_upload_completed">Hochladen abgeschlossen</string>
   <plurals name="notification_upload_info">
-    <item quantity="one">Hochladen: <xliff:g id="uploading_file">%1$d</xliff:g> Datei (%2$d%%)</item>
-    <item quantity="other">Hochladen: <xliff:g id="uploading_file">%1$d</xliff:g> Dateien (%2$d%%)</item>
+    <item quantity="one">Lade %1$d Datei hoch (%2$d%%)</item>
+    <item quantity="other">Lade %1$d Dateien hoch (%2$d%%)</item>
   </plurals>
   <plurals name="notification_download_info">
-    <item quantity="one">Herunterladen: <xliff:g id="downloading_file">%1$d</xliff:g> Datei (%2$d%%)</item>
-    <item quantity="other">Herunterladen: <xliff:g id="downloading_file">%1$d</xliff:g> Dateien (%2$d%%)</item>
+    <item quantity="one">Lade %1$d Datei hoch (%2$d%%)</item>
+    <item quantity="other">Lade %1$d Dateien hoch (%2$d%%)</item>
   </plurals>
   <string name="notification_download_completed">Herunterladen abgeschlossen</string>
   <!--Gallery-->

@@ -93,9 +93,9 @@
   <string name="pick_photo_video_title">Wybierz zdjęcia/wideo do przesłania</string>
   <string name="select_upload_items">Wybierz elementy do przesłania</string>
   <plurals name="n_upload_items_selected">
-    <item quantity="one">zaznaczono <xliff:g id="number_of_selected">%1$d</xliff:g> element</item>
-    <item quantity="few">zaznaczono <xliff:g id="numbers_of_selected">%1$d</xliff:g> elementy</item>
-    <item quantity="other">zaznaczono <xliff:g id="numbers_of_selected">%1$d</xliff:g> elementów</item>
+    <item quantity="one">wybrano %1$d element</item>
+    <item quantity="few">wybrano %1$d elementy</item>
+    <item quantity="other">wybrano %1$d elementów</item>
   </plurals>
   <string name="dir_name_empty">Podaj nazwę folderu</string>
   <string name="file_name_empty">Podaj nazwę pliku</string>
@@ -124,7 +124,7 @@
     <item>Pobierz folder</item>
     <item>Pobierz folder i podfoldery</item>
   </string-array>
-  <string name="add_file">Dodaj plik</string>
+  <string name="add_file">Dodaj</string>
   <string-array name="add_file_options_array">
     <item>Utwórz plik</item>
     <item>Utwórz folder</item>
@@ -165,7 +165,7 @@
   <string name="tabs_library">Biblioteki</string>
   <string name="tabs_activity">Aktywność</string>
   <string name="tabs_starred">Ulubione</string>
-  <string name="provide_password">Podaj hasło do biblioteki "%s"</string>
+  <string name="provide_password">Podaj hasło do biblioteki \"%s\"</string>
   <string name="upload_waiting">Wysyłanie oczekujące</string>
   <string name="upload_finished">Wysyłanie zakończone</string>
   <string name="upload_cancelled">Wysyłanie anulowane</string>
@@ -181,9 +181,9 @@
   <string name="storage_removed">Magazyn został usunięty</string>
   <string name="error_selecting_file">Błąd podczas wybierania pliku</string>
   <plurals name="n_upload_files_selected">
-    <item quantity="one">wybrano <xliff:g id="number_of_selected">%1$d</xliff:g> plik</item>
-    <item quantity="few">wybrano <xliff:g id="number_of_selected">%1$d</xliff:g> pliki</item>
-    <item quantity="other">wybrano <xliff:g id="number_of_selected">%1$d</xliff:g> plików</item>
+    <item quantity="one">wybrano %1$d plik</item>
+    <item quantity="few">wybrano %1$d pliki</item>
+    <item quantity="other">wybrano %1$d plików</item>
   </plurals>
   <string name="empty_folder">Pusty folder</string>
   <string name="choose_file">Wybierz plik</string>
@@ -234,14 +234,14 @@
   <string name="lockscreen_access_pattern_passwd_forget">Zapomniałem hasła</string>
   <string name="lockscreen_access_pattern_failure">Pięciokrotne niepowodzenie, proszę odczekać 30 sekund przed ponowną próbą</string>
   <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
-    <item quantity="one">Możesz spróbować ponownie za <xliff:g id="second">%1$d</xliff:g> sekundę</item>
-    <item quantity="few">Możesz spróbować ponownie za <xliff:g id="second">%1$d</xliff:g> sekundy</item>
-    <item quantity="other">Możesz spróbować ponownie za <xliff:g id="second">%1$d</xliff:g> sekund</item>
+    <item quantity="one">Możesz ponownie spróbować za %1$d sekundę</item>
+    <item quantity="few">Możesz ponownie spróbować za %1$d sekundy</item>
+    <item quantity="other">Możesz ponownie spróbować za %1$d sekund</item>
   </plurals>
   <plurals name="lockscreen_access_pattern_failure_left_try_times">
-    <item quantity="one">Nieprawidłowy wzór, możesz spróbować ponownie <xliff:g id="times">%1$d</xliff:g> raz</item>
-    <item quantity="few">Nieprawidłowy wzór, możesz spróbować ponownie <xliff:g id="times">%1$d</xliff:g> razy</item>
-    <item quantity="other">Nieprawidłowy wzór, możesz spróbować ponownie <xliff:g id="times">%1$d</xliff:g> razy</item>
+    <item quantity="one">Nieprawidłowy wzór, możesz wypróbować inny %1$d raz</item>
+    <item quantity="few">Nieprawidłowy wzór, możesz wypróbować inny %1$d razy</item>
+    <item quantity="other">Nieprawidłowy wzór, możesz wypróbować inny %1$d razy</item>
   </plurals>
   <string name="lockscreen_access_pattern_failure_not_long_enough">Połączenie punktów jest zbyt krótkie, spróbuj ponownie</string>
   <string name="lockpattern_retry_button_text">Ponów</string>
@@ -296,9 +296,9 @@
   <string name="settings_cuc_type_video">Zdjęcia i wideo</string>
   <string name="settings_cuc_local_dir_title">Wybierz foldery lokalne</string>
   <plurals name="settings_cuc_local_dir_items">
-    <item quantity="one"><xliff:g id="cuc_item">%1$d</xliff:g> element</item>
-    <item quantity="few"><xliff:g id="cuc_item">%1$d</xliff:g> elementy</item>
-    <item quantity="other"><xliff:g id="cuc_items">%1$d</xliff:g> elementów</item>
+    <item quantity="one">%1$d element</item>
+    <item quantity="few">%1$d elementy</item>
+    <item quantity="other">%1$d elementów</item>
   </plurals>
   <string name="settings_cuc_remote_lib_title">Wybierz zdalną bibliotekę</string>
   <string name="settings_cuc_remote_lib_account">Wybierz konto</string>
@@ -371,15 +371,15 @@
   <string name="transfer_list_retry_failed_tasks">Ponów błędne zadania</string>
   <string name="transfer_list_restart_cancelled_tasks">Uruchom ponownie anulowane zadania</string>
   <string name="transfer_list_clear_failed_tasks">Wyczyść błędne zadania</string>
-  <string name="transfer_list_clear_all_tasks">Wyczyść anulowane zadania</string>
+  <string name="transfer_list_clear_all_tasks">Wyczyść wszystkie zadania</string>
   <string name="transfer_list_clear_finished_tasks">Wyczyść ukończone zadania</string>
   <string name="transfer_tabs_downloads">Lista pobierań</string>
   <string name="transfer_tabs_uploads">Lista przesyłań</string>
   <string name="transfer_download_no_task">Wszystkie pliki zostały pobrane</string>
   <plurals name="transfer_download_started">
-    <item quantity="one">Rozpoczynanie pobierania <xliff:g id="download_files">%1$d</xliff:g> pliku</item>
-    <item quantity="few">Rozpoczynanie pobierania <xliff:g id="download_files">%1$d</xliff:g> plików</item>
-    <item quantity="other">Rozpoczynanie pobierania <xliff:g id="download_files">%1$d</xliff:g> plików</item>
+    <item quantity="one">Rozpoczynanie pobierania %1$d pliku</item>
+    <item quantity="few">Rozpoczynanie pobierania %1$d plików</item>
+    <item quantity="other">Rozpoczynanie pobierania %1$d plików</item>
   </plurals>
   <string name="transfer_list_select_all">Zaznacz wszystko</string>
   <string name="transfer_list_deselect_all">Usuń zaznaczenie</string>
@@ -412,14 +412,14 @@
   <string name="notification_download_started_title">Pobieranie plików...</string>
   <string name="notification_upload_completed">Przesyłanie zakończone</string>
   <plurals name="notification_upload_info">
-    <item quantity="one">Wysyłanie <xliff:g id="uploading_file">%1$d</xliff:g> pliku (%2$d%%)</item>
-    <item quantity="few">Wysyłanie <xliff:g id="uploading_file">%1$d</xliff:g> plików (%2$d%%)</item>
-    <item quantity="other">Wysyłanie <xliff:g id="uploading_file">%1$d</xliff:g> plików (%2$d%%)</item>
+    <item quantity="one">Przesyłanie %1$d pliku (%2$d%%)</item>
+    <item quantity="few">Przesyłanie %1$d plików (%2$d%%)</item>
+    <item quantity="other">Przesyłanie %1$d plików (%2$d%%)</item>
   </plurals>
   <plurals name="notification_download_info">
-    <item quantity="one">Pobieranie <xliff:g id="downloading_file">%1$d</xliff:g> pliku (%2$d%%)</item>
-    <item quantity="few">Pobieranie <xliff:g id="downloading_file">%1$d</xliff:g> plików (%2$d%%)</item>
-    <item quantity="other">Pobieranie <xliff:g id="downloading_file">%1$d</xliff:g> plików (%2$d%%)</item>
+    <item quantity="one">Pobieranie %1$d pliku (%2$d%%)</item>
+    <item quantity="few">Pobieranie %1$d plików (%2$d%%)</item>
+    <item quantity="other">Pobieranie %1$d plików (%2$d%%)</item>
   </plurals>
   <string name="notification_download_completed">Pobieranie zakończone</string>
   <!--Gallery-->

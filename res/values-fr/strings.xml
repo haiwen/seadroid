@@ -2,7 +2,7 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <string name="welcome_to_seafile">Bienvenue sur Seafile</string>
   <string name="select_account">Sélectionnez un compte pour démarrer</string>
-  <string name="edit_account">Éditer</string>
+  <string name="edit_account">Modifier</string>
   <string name="delete_account">Effacer</string>
   <string name="delete">Effacer</string>
   <string name="delete_file">Êtes vous certain de vouloir effacer ce fichier ou ce dossier ?</string>
@@ -50,7 +50,7 @@
   <string name="err_passwd_empty">Le mot de passe ne peut être vide</string>
   <string name="err_login_failed">Échec de la connexion</string>
   <string name="err_wrong_user_or_passwd">Erreur d\'email ou de mot de passe</string>
-  <string name="err_token_expired">Authentification a expirée. reconnectez vous.</string>
+  <string name="err_token_expired">L\'authentification a expirée. reconnectez vous.</string>
   <string name="upload">Transfert</string>
   <string name="uploaded">Transféré</string>
   <string name="updated">Mis à jour</string>
@@ -93,8 +93,8 @@
   <string name="pick_photo_video_title">Choisir les photos/vidéos à transférer</string>
   <string name="select_upload_items">Sélection des éléments à transférer</string>
   <plurals name="n_upload_items_selected">
-    <item quantity="one"><xliff:g id="number_of_selected">%1$d</xliff:g> éléments sélectionné</item>
-    <item quantity="other"><xliff:g id="numbers_of_selected">%1$d</xliff:g> éléments sélectionnés</item>
+    <item quantity="one">%1$d éléments sélectionné</item>
+    <item quantity="other">%1$d éléments sélectionnés</item>
   </plurals>
   <string name="dir_name_empty">Veuillez saisir le nom du dossier</string>
   <string name="file_name_empty">Veuillez saisir le nom du fichier</string>
@@ -116,11 +116,19 @@
   <string name="load_libraries_fail">Échec du chargement des bibliothèques</string>
   <string name="load_dir_fail">Échec du chargement du contenu de ce dossier</string>
   <string name="not_supported_share">Ce type de partage n\'est pas supporté</string>
+  <string name="edit">Modifier</string>
   <string name="download_folder">Télécharger le dossier</string>
   <string name="download_folder_title">Choisissez votre option préférée</string>
   <string-array name="download_folder_options_array">
     <item>Dossier de téléchargement</item>
     <item>Dossier de téléchargement et sous dossiers</item>
+  </string-array>
+  <string name="add_file">Ajouter</string>
+  <string-array name="add_file_options_array">
+    <item>Créer un fichier</item>
+    <item>Créer un dossier</item>
+    <item>Téléverser un fichier</item>
+    <item>Prebdre une photo</item>
   </string-array>
   <string name="create_new_file">Créer un nouveau fichier</string>
   <string name="create_new_dir">Créer un nouveau dossier</string>
@@ -156,7 +164,7 @@
   <string name="tabs_library">Bibliothèques</string>
   <string name="tabs_activity">Activités</string>
   <string name="tabs_starred">Favoris</string>
-  <string name="provide_password">Mot de passe pour la bibliothèque "%s"</string>
+  <string name="provide_password">Mot de passe pour la bibliothèque \"%s\"</string>
   <string name="upload_waiting">Envoi en attente</string>
   <string name="upload_finished">Envoi terminé</string>
   <string name="upload_cancelled">Envoi annulé</string>
@@ -169,11 +177,11 @@
   <string name="error_when_load_starred">Erreur de chargement des fichiers préférés</string>
   <string name="open_as">Ouvrir comme</string>
   <string name="select_upload_files">sélection les fichiers à transférer</string>
-  <string name="storage_removed">le stockage a été supprimé</string>
+  <string name="storage_removed">Le stockage a été supprimé</string>
   <string name="error_selecting_file">Erreur lors de la sélection du fichier</string>
   <plurals name="n_upload_files_selected">
-    <item quantity="one"><xliff:g id="number_of_selected">%1$d</xliff:g> fichier sélectionné</item>
-    <item quantity="other"><xliff:g id="numbers_of_selected">%1$d</xliff:g> fichiers sélectionnés</item>
+    <item quantity="one">%1$d fichier séléctionné</item>
+    <item quantity="other">%1$d fichiers sélectionnés</item>
   </plurals>
   <string name="empty_folder">Dossier vide</string>
   <string name="choose_file">Choisir un fichier</string>
@@ -221,15 +229,15 @@
   <string name="lockscreen_access_pattern_cleared">Modèle effacé</string>
   <string name="lockscreen_access_pattern_cell_added">Point de modèle ajouté </string>
   <string name="lockscreen_access_pattern_detected">Modèle détecté</string>
-  <string name="lockscreen_access_pattern_passwd_forget">mot de passe oublié</string>
+  <string name="lockscreen_access_pattern_passwd_forget">Mot de passe oublié</string>
   <string name="lockscreen_access_pattern_failure">5 échecs, réessayer dans 30 secondes</string>
   <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
-    <item quantity="one">Vous pouvez réessayer dans <xliff:g id="second">%1$d</xliff:g> seconde </item>
-    <item quantity="other">Vous pouvez réessayer dans <xliff:g id="seconds">%1$d</xliff:g> secondes </item>
+    <item quantity="one">Réessayer dans %1$d seconde</item>
+    <item quantity="other">Réessayer dans %1$d secondes</item>
   </plurals>
   <plurals name="lockscreen_access_pattern_failure_left_try_times">
-    <item quantity="one">Modèle incorrect, vous pouvez réessayer <xliff:g id="time">%1$d</xliff:g> fois</item>
-    <item quantity="other">Modèle incorrect, vous pouvez réessayer <xliff:g id="times">%1$d</xliff:g> fois</item>
+    <item quantity="one">Modèle incorrect, essayer %1$d fois</item>
+    <item quantity="other">Modèle incorrect, essayer encore %1$d fois</item>
   </plurals>
   <string name="lockscreen_access_pattern_failure_not_long_enough">Le nombre de points reliés n\'est pas suffisant, réessayer </string>
   <string name="lockpattern_retry_button_text">Réessayer</string>
@@ -284,14 +292,14 @@
   <string name="settings_cuc_type_video">Photos et  vidéos</string>
   <string name="settings_cuc_local_dir_title">Sélectionner les dossiers locaux</string>
   <plurals name="settings_cuc_local_dir_items">
-    <item quantity="one"><xliff:g id="cuc_item">%1$d</xliff:g> élément</item>
-    <item quantity="other"><xliff:g id="cuc_items">%1$d</xliff:g> éléments</item>
+    <item quantity="one">%1$d élément</item>
+    <item quantity="other">%1$d éléments</item>
   </plurals>
   <string name="settings_cuc_remote_lib_title">Sélectionner la bibliothèque distante</string>
   <string name="settings_cuc_remote_lib_account">Choisir un compte</string>
   <string name="settings_cuc_remote_lib_repo">%s a été sélectionné</string>
   <string name="settings_cuc_upload_to_parent_folder">Vers dossier parent</string>
-  <string name="settings_cuc_auto_scan">Obtenir toutes les photos sur le périphérique</string>
+  <string name="settings_cuc_auto_scan">Collecter toutes les photos sur le périphérique</string>
   <string name="settings_cuc_pick_dir">Permettez moi de prendre mes dossiers de photos</string>
   <string name="settings_cuc_remote_lib_hint">Choisissez votre compte et votre bibliothèque préférés. Vous pourrez changer ces options dans Paramètres.</string>
   <string name="settings_cuc_finish_title">Terminer</string>
@@ -358,14 +366,14 @@
   <string name="transfer_list_retry_failed_tasks">Relancer les taches en échec</string>
   <string name="transfer_list_restart_cancelled_tasks">Redémarrer les taches annulées</string>
   <string name="transfer_list_clear_failed_tasks">Effacer les taches en échec</string>
-  <string name="transfer_list_clear_all_tasks">Effacer les taches annulées</string>
+  <string name="transfer_list_clear_all_tasks">Effacer toutes les tâches </string>
   <string name="transfer_list_clear_finished_tasks">Effacer les taches terminées</string>
   <string name="transfer_tabs_downloads">Liste des téléchargements</string>
   <string name="transfer_tabs_uploads">Liste d\'envois</string>
   <string name="transfer_download_no_task">Tous les fichiers ont été téléchargés</string>
   <plurals name="transfer_download_started">
-    <item quantity="one">Début du téléchargement de <xliff:g id="download_file">%1$d</xliff:g> fichier</item>
-    <item quantity="other">Début du téléchargement de <xliff:g id="download_files">%1$d</xliff:g> fichiers</item>
+    <item quantity="one">Téléchargement de %1$d fichier</item>
+    <item quantity="other">Téléchargement de %1$d fichiers</item>
   </plurals>
   <string name="transfer_list_select_all">Tout sélectionner</string>
   <string name="transfer_list_deselect_all">Tout désélectionner</string>
@@ -375,7 +383,7 @@
   </plurals>
   <!--Sort-->
   <string name="sort_menu_item">Tri</string>
-  <string name="sort_files">Tri par</string>
+  <string name="sort_files">Trier par</string>
   <string-array name="sort_files_options_array">
     <item>Nom</item>
     <item>Nom (Desc)</item>
@@ -397,12 +405,12 @@
   <string name="notification_download_started_title">Téléchargement des fichiers...</string>
   <string name="notification_upload_completed">Téléversement terminé</string>
   <plurals name="notification_upload_info">
-    <item quantity="one">Envoi <xliff:g id="uploading_file">%1$d</xliff:g> fichier (%2$d%%)</item>
-    <item quantity="other">Envoi <xliff:g id="uploading_file">%1$d</xliff:g> fichiers (%2$d%%)</item>
+    <item quantity="one">Téléversement de %1$d fichier (%2$d%%)</item>
+    <item quantity="other">Téléversement de %1$d fichiers (%2$d%%)</item>
   </plurals>
   <plurals name="notification_download_info">
-    <item quantity="one">Téléchargement <xliff:g id="downloading_file">%1$d</xliff:g> fichier (%2$d%%)</item>
-    <item quantity="other">Téléchargement <xliff:g id="downloading_file">%1$d</xliff:g> fichiers (%2$d%%)</item>
+    <item quantity="one">Téléchargement de %1$d fichier (%2$d%%)</item>
+    <item quantity="other">Téléchargement de %1$d fichiers (%2$d%%)</item>
   </plurals>
   <string name="notification_download_completed">Téléchargement terminé</string>
   <!--Gallery-->
@@ -413,4 +421,5 @@
   <string name="overwrite_existing_file_msg">Ce fichier existe déjà, Voulez vous le remplacer ?</string>
   <string name="overwrite_existing_file_exist">Le fichier existe déjà</string>
   <!--Action Mode-->
+  <string name="action_mode_no_items_selected">Aucun élément sélectionné </string>
 </resources>

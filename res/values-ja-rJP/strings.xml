@@ -93,7 +93,7 @@
   <string name="pick_photo_video_title">アップロードする写真/ビデオを選択</string>
   <string name="select_upload_items">アップロードするアイテムを選択してください</string>
   <plurals name="n_upload_items_selected">
-    <item quantity="other"><xliff:g id="numbers_of_selected">%1$d</xliff:g> アイテム選択済</item>
+    <item quantity="other">%1$d アイテム選択済</item>
   </plurals>
   <string name="dir_name_empty">フォルダー名を入力してください</string>
   <string name="file_name_empty">ファイル名を入力してください</string>
@@ -122,7 +122,7 @@
     <item>ダウンロードフォルダー</item>
     <item>ダウンロードフォルダーとサブフォルダー</item>
   </string-array>
-  <string name="add_file">ファイルを追加</string>
+  <string name="add_file">追加</string>
   <string-array name="add_file_options_array">
     <item>ファイルを作成</item>
     <item>フォルダーを作成</item>
@@ -163,7 +163,7 @@
   <string name="tabs_library">ライブラリー</string>
   <string name="tabs_activity">アクティビティ</string>
   <string name="tabs_starred">スター付き</string>
-  <string name="provide_password">ライブラリー "%s" のパスワードを入力</string>
+  <string name="provide_password">ライブラリー \"%s\" のパスワードを入力</string>
   <string name="upload_waiting">アップロードの待機中</string>
   <string name="upload_finished">アップロードが完了しました</string>
   <string name="upload_cancelled">アップロードをキャンセルしました</string>
@@ -179,7 +179,7 @@
   <string name="storage_removed">ストレージは削除されました</string>
   <string name="error_selecting_file">ファイルの選択時にエラー</string>
   <plurals name="n_upload_files_selected">
-    <item quantity="other"><xliff:g id="numbers_of_selected">%1$d</xliff:g> ファイル選択済</item>
+    <item quantity="other">%1$d ファイル選択済</item>
   </plurals>
   <string name="empty_folder">空のフォルダー</string>
   <string name="choose_file">ファイルを選択</string>
@@ -230,10 +230,10 @@
   <string name="lockscreen_access_pattern_passwd_forget">パスワードをお忘れですか</string>
   <string name="lockscreen_access_pattern_failure">5 回失敗しました。再度入力するまで 30 秒お待ちください</string>
   <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
-    <item quantity="other"><xliff:g id="seconds">%1$d</xliff:g> 秒後に再度入力できます</item>
+    <item quantity="other">%1$d 秒後に再度入力できます</item>
   </plurals>
   <plurals name="lockscreen_access_pattern_failure_left_try_times">
-    <item quantity="other">パターンが正しくありません。あと <xliff:g id="times">%1$d</xliff:g> 回入力できます</item>
+    <item quantity="other">パターンが正しくありません。あと %1$d 回入力できます</item>
   </plurals>
   <string name="lockscreen_access_pattern_failure_not_long_enough">接続点の長さが十分ではありません。再度入力してください</string>
   <string name="lockpattern_retry_button_text">再試行</string>
@@ -288,7 +288,7 @@
   <string name="settings_cuc_type_video">写真とビデオ</string>
   <string name="settings_cuc_local_dir_title">ローカルフォルダーを選択</string>
   <plurals name="settings_cuc_local_dir_items">
-    <item quantity="other"><xliff:g id="cuc_items">%1$d</xliff:g> アイテム</item>
+    <item quantity="other">%1$d アイテム</item>
   </plurals>
   <string name="settings_cuc_remote_lib_title">リモートライブラリーを選択</string>
   <string name="settings_cuc_remote_lib_account">アカウントを選択</string>
@@ -361,13 +361,13 @@
   <string name="transfer_list_retry_failed_tasks">失敗したタスクを再試行</string>
   <string name="transfer_list_restart_cancelled_tasks">キャンセルしたタスクを再開</string>
   <string name="transfer_list_clear_failed_tasks">失敗したタスクをクリア</string>
-  <string name="transfer_list_clear_all_tasks">キャンセルしたタスクをクリア</string>
+  <string name="transfer_list_clear_all_tasks">すべてのタスクをクリア</string>
   <string name="transfer_list_clear_finished_tasks">完了したタスクをクリア</string>
   <string name="transfer_tabs_downloads">ダウンロードリスト</string>
   <string name="transfer_tabs_uploads">アップロードリスト</string>
   <string name="transfer_download_no_task">ファイルはすべてダウンロードしました</string>
   <plurals name="transfer_download_started">
-    <item quantity="other"><xliff:g id="download_files">%1$d</xliff:g> ファイルのダウンロードが開始しました</item>
+    <item quantity="other">%1$d ファイルのダウンロードを開始しました</item>
   </plurals>
   <string name="transfer_list_select_all">すべて選択</string>
   <string name="transfer_list_deselect_all">すべて選択解除</string>
@@ -398,10 +398,10 @@
   <string name="notification_download_started_title">ファイルをダウンロードしています</string>
   <string name="notification_upload_completed">アップロードが完了しました</string>
   <plurals name="notification_upload_info">
-    <item quantity="other"><xliff:g id="uploading_file">%1$d</xliff:g> ファイルをアップロードしています (%2$d%%)</item>
+    <item quantity="other">%1$d ファイルをアップロードしています (%2$d%%)</item>
   </plurals>
   <plurals name="notification_download_info">
-    <item quantity="other"><xliff:g id="downloading_file">%1$d</xliff:g> ファイルをダウンロードしています (%2$d%%)</item>
+    <item quantity="other">%1$d ファイルをダウンロードしています (%2$d%%)</item>
   </plurals>
   <string name="notification_download_completed">ダウンロードが完了しました</string>
   <!--Gallery-->

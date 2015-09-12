@@ -93,8 +93,8 @@
   <string name="pick_photo_video_title">Elija fotos/videos para subir</string>
   <string name="select_upload_items">Seleccione items para subir</string>
   <plurals name="n_upload_items_selected">
-    <item quantity="one"><xliff:g id="number_of_selected">%1$d</xliff:g> ítem seleccionado</item>
-    <item quantity="other"><xliff:g id="numbers_of_selected">%1$d</xliff:g> items selecionados</item>
+    <item quantity="one">%1$d ítem seleccionado</item>
+    <item quantity="other">%1$d items seleccionados</item>
   </plurals>
   <string name="dir_name_empty">Por favor ingrese el nombre de la carpeta</string>
   <string name="file_name_empty">Por favor ingrese el nombre del archivo</string>
@@ -123,7 +123,7 @@
     <item>Descargar carpeta</item>
     <item>Descargar carpeta y subcarpetas</item>
   </string-array>
-  <string name="add_file">Agregar archivo</string>
+  <string name="add_file">Agregar</string>
   <string-array name="add_file_options_array">
     <item>Crear archivo</item>
     <item>Crear carpeta</item>
@@ -164,7 +164,7 @@
   <string name="tabs_library">Bibliotecas</string>
   <string name="tabs_activity">Actividades</string>
   <string name="tabs_starred">Favoritos</string>
-  <string name="provide_password">Provea la contraseña para la biblioteca "%s"</string>
+  <string name="provide_password">Provea la contraseña para la biblioteca \"%s\"</string>
   <string name="upload_waiting">Subida en espera</string>
   <string name="upload_finished">Subida finalizada</string>
   <string name="upload_cancelled">Subida cancelada</string>
@@ -180,8 +180,8 @@
   <string name="storage_removed">Almacenamiento fue removido</string>
   <string name="error_selecting_file">Error al seleccionar archivo</string>
   <plurals name="n_upload_files_selected">
-    <item quantity="one"><xliff:g id="number_of_selected">%1$d</xliff:g> archivo seleccionado</item>
-    <item quantity="other"><xliff:g id="numbers_of_selected">%1$d</xliff:g> archivos seleccionados</item>
+    <item quantity="one">%1$d archivo seleccionado</item>
+    <item quantity="other">%1$d archivos seleccionados</item>
   </plurals>
   <string name="empty_folder">Carpeta vacía</string>
   <string name="choose_file">Elija un archivo</string>
@@ -232,12 +232,12 @@
   <string name="lockscreen_access_pattern_passwd_forget">Olvidar contraseña</string>
   <string name="lockscreen_access_pattern_failure">Falló 5 veces, por favor espere 30 segundos antes de intentar</string>
   <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
-    <item quantity="one">Puede reintentar en <xliff:g id="second">%1$d</xliff:g> segundo</item>
-    <item quantity="other">Puede reintentar en  <xliff:g id="seconds">%1$d</xliff:g> segundos</item>
+    <item quantity="one">Puede reintentar en %1$d segundo</item>
+    <item quantity="other">Puede reintentar en %1$d segundos</item>
   </plurals>
   <plurals name="lockscreen_access_pattern_failure_left_try_times">
-    <item quantity="one">Patrón incorrecto, puede intentar <xliff:g id="time">%1$d</xliff:g> vez más</item>
-    <item quantity="other">Patrón incorrecto, puede intentar <xliff:g id="times">%1$d</xliff:g> veces más</item>
+    <item quantity="one">Patrón incorrecto, puede intentar %1$d vez más</item>
+    <item quantity="other">Patrón incorrecto, puede intentar %1$d veces más</item>
   </plurals>
   <string name="lockscreen_access_pattern_failure_not_long_enough">No enlazó suficientes puntos, por favor intente nuevamente</string>
   <string name="lockpattern_retry_button_text">Reintentar</string>
@@ -292,8 +292,8 @@
   <string name="settings_cuc_type_video">Fotos y videos</string>
   <string name="settings_cuc_local_dir_title">Seleccionar carpetas locales</string>
   <plurals name="settings_cuc_local_dir_items">
-    <item quantity="one"><xliff:g id="cuc_item">%1$d</xliff:g> ítem</item>
-    <item quantity="other"><xliff:g id="cuc_items">%1$d</xliff:g> items</item>
+    <item quantity="one">%1$d ítem</item>
+    <item quantity="other">%1$d items</item>
   </plurals>
   <string name="settings_cuc_remote_lib_title">Seleccionar biblioteca remota</string>
   <string name="settings_cuc_remote_lib_account">Escoja una cuenta</string>
@@ -366,14 +366,14 @@
   <string name="transfer_list_retry_failed_tasks">Reintentar tareas fallidas</string>
   <string name="transfer_list_restart_cancelled_tasks">Reiniciar tareas canceladas</string>
   <string name="transfer_list_clear_failed_tasks">Limpiar tareas fallidas</string>
-  <string name="transfer_list_clear_all_tasks">Limpiar tareas canceladas</string>
+  <string name="transfer_list_clear_all_tasks">Limpiar todas las tareas</string>
   <string name="transfer_list_clear_finished_tasks">Limpiar tareas finalizadas</string>
   <string name="transfer_tabs_downloads">Lista de descarga</string>
   <string name="transfer_tabs_uploads">Lista de subida</string>
   <string name="transfer_download_no_task">Todos los archivos han sido descargados</string>
   <plurals name="transfer_download_started">
-    <item quantity="one">Iniciando descarga de <xliff:g id="download_file">%1$d</xliff:g> archivo</item>
-    <item quantity="other">Iniciando descarga de <xliff:g id="download_files">%1$d</xliff:g> archivos</item>
+    <item quantity="one">Iniciando la descarga de %1$d archivo</item>
+    <item quantity="other">Iniciando la descarga de %1$d archivos</item>
   </plurals>
   <string name="transfer_list_select_all">Seleccionar todas</string>
   <string name="transfer_list_deselect_all">Desmarcar todo</string>
@@ -405,12 +405,12 @@
   <string name="notification_download_started_title">Descargando archivos...</string>
   <string name="notification_upload_completed">Subida finalizada</string>
   <plurals name="notification_upload_info">
-    <item quantity="one">Subiendo <xliff:g id="uploading_file">%1$d</xliff:g> archivo (%2$d%%)</item>
-    <item quantity="other">Subiendo <xliff:g id="uploading_file">%1$d</xliff:g> archivos (%2$d%%)</item>
+    <item quantity="one">Subiendo %1$d archivo (%2$d%%)</item>
+    <item quantity="other">Subiendo %1$d archivos (%2$d%%)</item>
   </plurals>
   <plurals name="notification_download_info">
-    <item quantity="one">Descargando <xliff:g id="downloading_file">%1$d</xliff:g> archivo (%2$d%%)</item>
-    <item quantity="other">Descargando <xliff:g id="downloading_file">%1$d</xliff:g> archivos (%2$d%%)</item>
+    <item quantity="one">Descargando %1$d archivo (%2$d%%)</item>
+    <item quantity="other">Descargando %1$d archivos (%2$d%%)</item>
   </plurals>
   <string name="notification_download_completed">Descarga finalizada</string>
   <!--Gallery-->

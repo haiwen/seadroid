@@ -70,10 +70,6 @@
   <string name="image_gallery_NoImageView_text">Fant ikke bildet</string>
   <string name="pick_photo_video_title">Velg bildene/ videoene som skal lastes opp</string>
   <string name="select_upload_items">Velg elementer til å laste</string>
-  <plurals name="n_upload_items_selected">
-    <item quantity="one"><xliff:g id="number_of_selected">%1$d</xliff:g> elementer valgt</item>
-    <item quantity="other"><xliff:g id="numbers_of_selected">%1$d</xliff:g> elementer valgt</item>
-  </plurals>
   <string name="dir_name_empty">Skriv inn navnet på mappen</string>
   <string name="file_name_empty">Skriv inn navnet på filen</string>
   <string name="password_empty">Skriv inn passordet</string>
@@ -134,7 +130,7 @@
   <string name="tabs_library">Biblioteker</string>
   <string name="tabs_activity">Aktiviteter</string>
   <string name="tabs_starred">Favoritt</string>
-  <string name="provide_password">Skriv passordet for biblioteket "%s"</string>
+  <string name="provide_password">Skriv passordet for biblioteket \"%s\"</string>
   <string name="days_ago">%d dager siden</string>
   <string name="hours_ago">%d timer siden</string>
   <string name="minutes_ago">%d minutter siden</string>
@@ -145,10 +141,6 @@
   <string name="select_upload_files">Velg filer å laste opp</string>
   <string name="storage_removed">Lagringen ble fjernet</string>
   <string name="error_selecting_file">Feil ved valg av fil</string>
-  <plurals name="n_upload_files_selected">
-    <item quantity="one"><xliff:g id="number_of_selected">%1$d</xliff:g> filer valgt</item>
-    <item quantity="other"><xliff:g id="numbers_of_selected">%1$d</xliff:g> filer valg</item>
-  </plurals>
   <string name="empty_folder">Tom mappe</string>
   <string name="choose_file">Velg en fil</string>
   <string name="ssl_error">Sikkerhetskontroll feilet</string>
@@ -197,14 +189,6 @@
   <string name="lockscreen_access_pattern_detected">Mønster oppdaget</string>
   <string name="lockscreen_access_pattern_passwd_forget">Glemt passord</string>
   <string name="lockscreen_access_pattern_failure">Feilet 5 ganger. Vennligst vent 30 sekunder før du prøver igjen</string>
-  <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
-    <item quantity="one">Du kan prøve igjen <xliff:g id="second">%1$d</xliff:g> sekunder senere</item>
-    <item quantity="other">Du kan prøve igjen <xliff:g id="seconds">%1$d</xliff:g> sekunder senere</item>
-  </plurals>
-  <plurals name="lockscreen_access_pattern_failure_left_try_times">
-    <item quantity="one">Ugyldig mønster. Du kan prøve igjen <xliff:g id="time">%1$d</xliff:g> ganger.</item>
-    <item quantity="other">Ugyldig mønster. Du kan prøve igjen <xliff:g id="times">%1$d</xliff:g> ganger.</item>
-  </plurals>
   <string name="lockscreen_access_pattern_failure_not_long_enough">Sammenkoblingspunktene er ikke lange nok. Prøv igjen</string>
   <string name="lockpattern_retry_button_text">Prøv igjen</string>
   <string name="lockpattern_continue_button_text">Neste</string>
@@ -255,10 +239,6 @@
   <string name="settings_cuc_type_photo">Bare bilder</string>
   <string name="settings_cuc_type_video">Bilder og videoer</string>
   <string name="settings_cuc_local_dir_title">Velg lokale mapper</string>
-  <plurals name="settings_cuc_local_dir_items">
-    <item quantity="one"><xliff:g id="cuc_item">%1$d</xliff:g> elementer</item>
-    <item quantity="other"><xliff:g id="cuc_items">%1$d</xliff:g> elementer</item>
-  </plurals>
   <string name="settings_cuc_remote_lib_title">Velg biblioteket på server</string>
   <string name="settings_cuc_remote_lib_account">Velg en konto</string>
   <string name="settings_cuc_remote_lib_repo">%s ble valgt</string>
@@ -327,10 +307,6 @@
   <string name="transfer_tabs_downloads">Nedlastingsliste</string>
   <string name="transfer_tabs_uploads">Opplastingsliste</string>
   <string name="transfer_download_no_task">Alle filene er lastet ned</string>
-  <plurals name="transfer_download_started">
-    <item quantity="one">Begynner å laste ned <xliff:g id="download_file">%1$d</xliff:g> filen</item>
-    <item quantity="other">Begynner å laste ned <xliff:g id="download_files">%1$d</xliff:g> filer</item>
-  </plurals>
   <!--Sort-->
   <!--Search-->
   <string name="search_menu_item">Søk</string>

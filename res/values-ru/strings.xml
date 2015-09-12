@@ -93,10 +93,10 @@
   <string name="pick_photo_video_title">Выберите фото/видео для загрузки</string>
   <string name="select_upload_items">Выбрать элементы для загрузки</string>
   <plurals name="n_upload_items_selected">
-    <item quantity="one"><xliff:g id="numbers_of_selected">%1$d</xliff:g> элемент выбран</item>
-    <item quantity="few"><xliff:g id="numbers_of_selected">%1$d</xliff:g> элементов выбрано</item>
-    <item quantity="many"><xliff:g id="numbers_of_selected">%1$d</xliff:g> элементов выбрано</item>
-    <item quantity="other"><xliff:g id="numbers_of_selected">%1$d</xliff:g> элементов выбрано</item>
+    <item quantity="one">%1$d элемент выбран</item>
+    <item quantity="few">%1$d выбранных элементов</item>
+    <item quantity="many">%1$d выбранных элементов</item>
+    <item quantity="other">%1$d выбранных элементов</item>
   </plurals>
   <string name="dir_name_empty">Пожалуйста, введите имя папки</string>
   <string name="file_name_empty">Пожалуйста, введите имя файла</string>
@@ -125,7 +125,7 @@
     <item>Скачать папку</item>
     <item>Скачать папку и подпапки</item>
   </string-array>
-  <string name="add_file">Добавить файл</string>
+  <string name="add_file">Добавить</string>
   <string-array name="add_file_options_array">
     <item>Создать файл</item>
     <item>Создать папку</item>
@@ -166,7 +166,7 @@
   <string name="tabs_library">Библиотеки</string>
   <string name="tabs_activity">Активность</string>
   <string name="tabs_starred">Помеченные</string>
-  <string name="provide_password">Задать пароль для библиотеки "%s"</string>
+  <string name="provide_password">Задать пароль для библиотеки \"%s\"</string>
   <string name="upload_waiting">Ожидание загрузки</string>
   <string name="upload_finished">Загрузка завершена</string>
   <string name="upload_cancelled">Загрузка отменена</string>
@@ -182,10 +182,10 @@
   <string name="storage_removed">Хранилище было удалено</string>
   <string name="error_selecting_file">Ошибка при выборе файла</string>
   <plurals name="n_upload_files_selected">
-    <item quantity="one"><xliff:g id="number_of_selected">%1$d</xliff:g> файл выбран</item>
-    <item quantity="few"><xliff:g id="number_of_selected">%1$d</xliff:g> файлов выбрано</item>
-    <item quantity="many"><xliff:g id="number_of_selected">%1$d</xliff:g> файлов выбрано</item>
-    <item quantity="other"><xliff:g id="number_of_selected">%1$d</xliff:g> файлов выбрано</item>
+    <item quantity="one">%1$d файл выбран</item>
+    <item quantity="few">%1$d файлов выбраны</item>
+    <item quantity="many">%1$d файлов выбраны</item>
+    <item quantity="other">%1$d файл(ов) выбраны</item>
   </plurals>
   <string name="empty_folder">Пустая папка</string>
   <string name="choose_file">Выбрать файл</string>
@@ -236,16 +236,16 @@
   <string name="lockscreen_access_pattern_passwd_forget">Я забыл(а) пароль</string>
   <string name="lockscreen_access_pattern_failure">У вас не удалось ввести пароль 5 раз, пожалуйста, подождите 30 секунд, затем попробуйте еще раз</string>
   <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
-    <item quantity="one">Вы можете повторить через <xliff:g id="seconds">%1$d</xliff:g> секунду</item>
-    <item quantity="few">Вы можете повторить через <xliff:g id="seconds">%1$d</xliff:g> секунд</item>
-    <item quantity="many">Вы можете повторить через <xliff:g id="seconds">%1$d</xliff:g> секунд</item>
-    <item quantity="other">Вы можете повторить через <xliff:g id="seconds">%1$d</xliff:g> секунд</item>
+    <item quantity="one">Вы можете повторить через %1$d секундй</item>
+    <item quantity="few">Вы можете повторить через %1$d секунд</item>
+    <item quantity="many">Вы можете повторить через %1$d секунд</item>
+    <item quantity="other">Вы можете повторить через %1$d секунд</item>
   </plurals>
   <plurals name="lockscreen_access_pattern_failure_left_try_times">
-    <item quantity="one">Неправильный графический ключ, вы можете попробовать еще <xliff:g id="times">%1$d</xliff:g> раз</item>
-    <item quantity="few">Неправильный графический ключ, вы можете попробовать еще <xliff:g id="times">%1$d</xliff:g> раз</item>
-    <item quantity="many">Неправильный графический ключ, вы можете попробовать еще <xliff:g id="times">%1$d</xliff:g> раз</item>
-    <item quantity="other">Неправильный графический ключ, вы можете попробовать еще <xliff:g id="times">%1$d</xliff:g> раз</item>
+    <item quantity="one">Не правильный шаблон, вы можете попробовать еще %1$d раз</item>
+    <item quantity="few">Не правильный шаблон, вы можете попробовать еще %1$d раз</item>
+    <item quantity="many">Не правильный шаблон, вы можете попробовать еще %1$d раз</item>
+    <item quantity="other">Не правильный шаблон, вы можете попробовать еще %1$d раз</item>
   </plurals>
   <string name="lockscreen_access_pattern_failure_not_long_enough">Соединяйте точки не так долго, попробуйте еще раз</string>
   <string name="lockpattern_retry_button_text">Повторить</string>
@@ -300,10 +300,10 @@
   <string name="settings_cuc_type_video">Фото и видео</string>
   <string name="settings_cuc_local_dir_title">Выбрать локальные папки</string>
   <plurals name="settings_cuc_local_dir_items">
-    <item quantity="one"><xliff:g id="cuc_item">%1$d</xliff:g> элемент</item>
-    <item quantity="few"><xliff:g id="cuc_item">%1$d</xliff:g> элементов</item>
-    <item quantity="many"></item>
-    <item quantity="other"><xliff:g id="cuc_items">%1$d</xliff:g> элементов</item>
+    <item quantity="one">%1$d элемент</item>
+    <item quantity="few">%1$d элементов</item>
+    <item quantity="many">%1$d элементов</item>
+    <item quantity="other">%1$d элементов</item>
   </plurals>
   <string name="settings_cuc_remote_lib_title">Выбрать удаленную библиотеку</string>
   <string name="settings_cuc_remote_lib_account">Выберите аккаунт</string>
@@ -375,16 +375,16 @@ Email: support@seafile.com<br>
   <string name="transfer_list_retry_failed_tasks">Повтор неудачных задач</string>
   <string name="transfer_list_restart_cancelled_tasks">Перезапустить отмененные задания</string>
   <string name="transfer_list_clear_failed_tasks">Удалить неудачные задания</string>
-  <string name="transfer_list_clear_all_tasks">Удалить отмененные задания</string>
+  <string name="transfer_list_clear_all_tasks">Удалить все задания</string>
   <string name="transfer_list_clear_finished_tasks">Удалить завершенные задания</string>
   <string name="transfer_tabs_downloads">Список загрузок</string>
   <string name="transfer_tabs_uploads">Список закачек</string>
   <string name="transfer_download_no_task">Все файлы были скачены</string>
   <plurals name="transfer_download_started">
-    <item quantity="one">Скачивание <xliff:g id="download_file">%1$d</xliff:g> файла</item>
-    <item quantity="few">Скачивание <xliff:g id="download_file">%1$d</xliff:g> файлов</item>
-    <item quantity="many">Скачивание <xliff:g id="download_file">%1$d</xliff:g> файлов</item>
-    <item quantity="other">Скачивание <xliff:g id="download_file">%1$d</xliff:g> файлов</item>
+    <item quantity="one">Начало скачивания %1$d файла</item>
+    <item quantity="few">Начало скачивания %1$d файлов</item>
+    <item quantity="many">Начало скачивания %1$d файлов</item>
+    <item quantity="other">Начало скачивания %1$d файлов</item>
   </plurals>
   <string name="transfer_list_select_all">Выбрать все</string>
   <string name="transfer_list_deselect_all">Отменить выбор</string>
@@ -418,16 +418,16 @@ Email: support@seafile.com<br>
   <string name="notification_download_started_title">Скачивание файлов...</string>
   <string name="notification_upload_completed">Загрузка завершена</string>
   <plurals name="notification_upload_info">
-    <item quantity="one">Загрузка <xliff:g id="uploading_file">%1$d</xliff:g> файла(%2$d%%)</item>
-    <item quantity="few">Загрузка <xliff:g id="uploading_file">%1$d</xliff:g> файлов(%2$d%%)</item>
-    <item quantity="many">Загрузка <xliff:g id="uploading_file">%1$d</xliff:g> файлов(%2$d%%)</item>
-    <item quantity="other">Загрузка <xliff:g id="uploading_file">%1$d</xliff:g> файлов(%2$d%%)</item>
+    <item quantity="one">Загружается %1$d файл (%2$d%%)</item>
+    <item quantity="few">Загружается %1$d файлов (%2$d%%)</item>
+    <item quantity="many">Загружается %1$d файлов (%2$d%%)</item>
+    <item quantity="other">Загружается %1$d файлов (%2$d%%)</item>
   </plurals>
   <plurals name="notification_download_info">
-    <item quantity="one">Скачивание <xliff:g id="downloading_file">%1$d</xliff:g> файла(%2$d%%)</item>
-    <item quantity="few">Скачивание <xliff:g id="downloading_file">%1$d</xliff:g> файлов(%2$d%%)</item>
-    <item quantity="many">Скачивание <xliff:g id="downloading_file">%1$d</xliff:g> файлов(%2$d%%)</item>
-    <item quantity="other">Скачивание <xliff:g id="downloading_file">%1$d</xliff:g> файлов(%2$d%%)</item>
+    <item quantity="one">Скачивается %1$d файл (%2$d%%)</item>
+    <item quantity="few">Скачивается %1$d файлов (%2$d%%)</item>
+    <item quantity="many">Скачивается %1$d файлов (%2$d%%)</item>
+    <item quantity="other">Скачивается %1$d файлов (%2$d%%)</item>
   </plurals>
   <string name="notification_download_completed">Скачивание завершено</string>
   <!--Gallery-->
