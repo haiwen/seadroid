@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.util;
 
+import com.horizonbase.seadroid2.util.Utils;
 import org.junit.Test;
 import org.junit.Assert;
 
