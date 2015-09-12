@@ -2,7 +2,7 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name" translatable="false">Horizonbase</string>
     <!-- <string name="app_url" translatable="false">https://cloud.seafile.com</string> -->
-    <string name="app_url" translatable="false">https://ch.horizonbase.ch</string>
+    <string name="app_url" translatable="false">https://horizonbase.ch</string>
     <string name="welcome_to_seafile">Welcome to Horizonbase</string>
     <string name="select_account">Choose an account to start</string>
     <string name="edit_account">Edit</string>
