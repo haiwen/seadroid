@@ -42,7 +42,7 @@
 
                         <TextView
                                 android:id="@+id/list_item_title"
-                                android:layout_width="wrap_content"
+                                android:layout_width="fill_parent"
                                 android:layout_height="wrap_content"
                                 android:lines="1"
                                 android:singleLine="true"
