@@ -634,9 +634,6 @@ public class BrowserActivity extends SherlockFragmentActivity
         Log.d(DEBUG_TAG, "onNewIntent");
         String server = intent.getStringExtra("server");
         String email = intent.getStringExtra("email");
-        // avoid lost browsing progress when resume App from launcher
-        // because it will restart the Activity when null
-        if (server == null || email == null) return;
 
         // if the user started the Seadroid app from the Launcher, keep the old Activity
         final String intentAction = getIntent().getAction();
