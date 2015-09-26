@@ -41,6 +41,8 @@ import java.util.List;
 public class AccountsActivity extends SherlockFragmentActivity {
     private static final String DEBUG_TAG = "AccountsActivity";
 
+    public static final int DETAIL_ACTIVITY_REQUEST = 1;
+
     private ListView accountsView;
 
     private AccountManager accountManager;
@@ -183,8 +185,9 @@ public class AccountsActivity extends SherlockFragmentActivity {
         intent.putExtra(AccountManager.SHARED_PREF_EMAIL_KEY, account.email);
         intent.putExtra(AccountManager.SHARED_PREF_TOKEN_KEY, account.token);
 
-        startActivity(intent);
+        // first finish this activity, so the BrowserActivity is again "on top"
         finish();
+        startActivity(intent);
     }
 
     private void startEditAccountActivity(Account account) {
@@ -192,7 +195,21 @@ public class AccountsActivity extends SherlockFragmentActivity {
         intent.putExtra("server", account.server);
         intent.putExtra("email", account.email);
         intent.putExtra("isEdited", true);
-        startActivity(intent);
+        startActivityForResult(intent, DETAIL_ACTIVITY_REQUEST);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case DETAIL_ACTIVITY_REQUEST:
+                if (resultCode == RESULT_OK) {
+                    Account account = accountManager.getCurrentAccount();
+                    startFilesActivity(account);
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     @Override
