@@ -632,11 +632,11 @@ public class BrowserActivity extends SherlockFragmentActivity
     @Override
     protected void onNewIntent(Intent intent) {
         Log.d(DEBUG_TAG, "onNewIntent");
-        String server = intent.getStringExtra("server");
-        String email = intent.getStringExtra("email");
+        String server = intent.getStringExtra(AccountManager.SHARED_PREF_SERVER_KEY);
+        String email = intent.getStringExtra(AccountManager.SHARED_PREF_EMAIL_KEY);
 
         // if the user started the Seadroid app from the Launcher, keep the old Activity
-        final String intentAction = getIntent().getAction();
+        final String intentAction = intent.getAction();
         if (intent.hasCategory(Intent.CATEGORY_LAUNCHER)
                 && intentAction != null
                 && intentAction.equals(Intent.ACTION_MAIN)) {
