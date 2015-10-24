@@ -102,6 +102,8 @@ public class GalleryActivity extends SherlockFragmentActivity {
                 // page index starting from 1 instead of 0 in user interface, so plus one here
                 mPageIndexTextView.setText(String.valueOf(position + 1));
                 mPageIndex = position;
+                // fixed IndexOutOfBoundsException when accessing list
+                if (mPageIndex == mPhotos.size()) return;
                 fileName = mPhotos.get(mPageIndex).getName();
                 mPageNameTextView.setText(fileName);
             }
