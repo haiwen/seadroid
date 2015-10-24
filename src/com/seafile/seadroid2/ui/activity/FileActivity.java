@@ -21,7 +21,6 @@ import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.TaskState;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
-import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.dialog.PasswordDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.util.Utils;
@@ -145,7 +144,8 @@ public class FileActivity extends SherlockFragmentActivity {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
+        Log.d(DEBUG_TAG, "onSaveInstanceState");
+        //super.onSaveInstanceState(outState);
     }
 
     private void bindTransferService() {
@@ -193,9 +193,16 @@ public class FileActivity extends SherlockFragmentActivity {
         mButtonCancel.setVisibility(View.GONE);
 
         File file = mDataManager.getLocalRepoFile(mRepoName, mRepoID, mFilePath);
-        if (file != null && timerStarted)
-            WidgetUtils.showFile(this, file);
+        if (file != null && timerStarted) {
+            Intent result = new Intent();
+            result.putExtra("path", file.getAbsolutePath());
+            setResult(RESULT_OK, result);
+        }
+        else {
+            setResult(RESULT_CANCELED);
+        }
         stopTimer();
+        finish();
     }
 
     private void onFileDownloadFailed(DownloadTaskInfo info) {

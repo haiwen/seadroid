@@ -3,7 +3,6 @@ package com.seafile.seadroid2.ui;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
@@ -20,7 +19,6 @@ import com.seafile.seadroid2.ui.activity.GalleryActivity;
 import com.seafile.seadroid2.ui.activity.MarkdownActivity;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
 import com.seafile.seadroid2.ui.dialog.GetShareLinkDialog;
-import com.seafile.seadroid2.ui.dialog.OpenAsDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.util.Utils;
 
@@ -101,37 +99,31 @@ public class WidgetUtils {
         String name = file.getName();
         String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
 
-        if (suffix.length() == 0) {
-            ToastUtils.show(activity, R.string.unknown_file_type);
-            return;
-        }
-
         // Open markdown files in MarkdownActivity
         if (suffix.equals("md") || suffix.equals("markdown")) {
             startMarkdownActivity(activity, file.getPath());
-            activity.finish();
             activity.overridePendingTransition(0, 0);
             return;
         }
 
         String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
+        if (mime==null)
+            mime = "*/*"; // forces app chooser dialog on unknown type
         Intent open = new Intent(Intent.ACTION_VIEW);
+        open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         open.setDataAndType((Uri.fromFile(file)), mime);
+
+        if (activity.getPackageManager().resolveActivity(open, 0) == null) {
+            ToastUtils.show(activity, "Could not find suitable app for mime type " + mime);
+            mime = "*/*";
+            open.setType(mime);
+        }
 
         try {
             activity.startActivity(open);
-            activity.finish();
-            return;
         } catch (ActivityNotFoundException e) {
-            new OpenAsDialog(file) {
-                @Override
-                public void onDismiss(DialogInterface dialog) {
-                    activity.finish();
-                }
-            }.show(activity.getSupportFragmentManager(), "OpenAsDialog");
-            return;
+            e.printStackTrace();
         }
-
     }
 
     public static void showRepo(Context context, String repoID, String repoName, String path, String dirID) {
