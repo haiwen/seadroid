@@ -170,7 +170,7 @@ public class ReposFragment extends SherlockListFragment
         mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                startContextualActionMode();
+                startContextualActionMode(position);
                 return true;
             }
         });
@@ -206,6 +206,16 @@ public class ReposFragment extends SherlockListFragment
      *
      * see http://developer.android.com/guide/topics/ui/menus.html#CAB
      */
+    public void startContextualActionMode(int position) {
+        startContextualActionMode();
+
+        if (adapter == null) return;
+
+        adapter.toggleSelection(position - 1);
+        updateContextualActionBar();
+
+    }
+
     public void startContextualActionMode() {
         NavContext nav = getNavContext();
         if (!nav.inRepo()) return;
