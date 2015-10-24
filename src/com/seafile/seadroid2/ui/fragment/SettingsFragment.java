@@ -540,11 +540,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
                 String actInfo = seafConnection.getAccountInfo();
                 // parse raw data
                 accountInfo = accountMgr.parseAccountInfo(actInfo);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (SeafException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
