@@ -209,7 +209,8 @@ public class ReposFragment extends SherlockListFragment
     public void startContextualActionMode(int position) {
         startContextualActionMode();
 
-        if (adapter == null) return;
+        NavContext nav = getNavContext();
+        if (adapter == null || !nav.inRepo()) return;
 
         adapter.toggleSelection(position - 1);
         updateContextualActionBar();
