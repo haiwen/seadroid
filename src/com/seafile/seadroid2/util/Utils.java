@@ -342,6 +342,15 @@ public class Utils {
         return result.toString();
     }
 
+    public static String removeLastPathSeperator(String path) {
+        if (TextUtils.isEmpty(path)) return null;
+
+        int size = path.length();
+        if (path.endsWith("/")) {
+            return path.substring(0, size - 1);
+        } else
+            return path;
+    }
     /**
      * Strip leading and trailing slashes
      */

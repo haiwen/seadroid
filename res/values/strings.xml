@@ -211,8 +211,12 @@
     <string name="internal_server_error">Internal Server Error</string>
     <string name="copy_file_ing">Copying file</string>
     <string name="move_file_ing">Moving file</string>
+    <string name="copy_file_from">Copying from %1$s \n To %2$s</string>
+    <string name="move_file_from">Moving from %1$s \n To %2$s</string>
     <string name="copy_folder_ing">Copying folder</string>
     <string name="move_folder_ing">Moving folder</string>
+    <string name="copy_folder_from">Copying from %1$s \n To %2$s</string>
+    <string name="move_folder_from">Moving from %1$s \n To %2$s</string>
     <string name="upload_started">Upload is started</string>
     <string name="cannot_copy_folder_to_subfolder">You can\'t copy a folder to its subfolder</string>
     <string name="cannot_move_folder_to_subfolder">You can\'t move a folder to its subfolder</string>
