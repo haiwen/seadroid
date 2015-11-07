@@ -12,7 +12,7 @@
             android:layout_marginLeft="@dimen/tv_title_margin_left"
             android:layout_marginTop="@dimen/tv_title_margin_top"
             android:text="@string/settings_custom_cache_directory_title"
-            android:textColor="@color/tv_title_color"
+            android:textColor="@color/fancy_orange"
             android:textSize="@dimen/tv_title_txt_size"/>
 
     <RelativeLayout

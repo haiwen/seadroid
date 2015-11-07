@@ -175,20 +175,19 @@ public final class SettingsManager {
         return settingsSharedPref.getBoolean(CAMERA_UPLOAD_ALLOW_VIDEOS_SWITCH_KEY, false);
     }
 
-    public boolean isCustomCacheDirectory() {
+    public boolean checkCacheDefaultDirCustomized() {
         return settingsSharedPref.getBoolean(SETTINGS_CUSTOM_CACHE_DIRECTORY_KEY, false);
     }
 
-    public void saveCustomCacheDirectory(boolean isCustom) {
+    public void setCacheDefaultDirCustomized(boolean isCustom) {
         settingsSharedPref.edit().putBoolean(SETTINGS_CUSTOM_CACHE_DIRECTORY_KEY, isCustom).commit();
     }
 
-    public String getCustomCachedPath() {
+    public String getCustomCacheDir() {
         return settingsSharedPref.getString(SETTINGS_CUSTOM_CACHE_DIRECTORY_PATH, null);
-
     }
 
-    public void saveCustomCachedPath(String path) {
+    public void saveCustomCacheDir(String path) {
         settingsSharedPref.edit().putString(SETTINGS_CUSTOM_CACHE_DIRECTORY_PATH, path).commit();
     }
 

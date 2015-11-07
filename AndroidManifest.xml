@@ -136,7 +136,7 @@
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>
-        <activity android:name="com.seafile.seadroid2.cache.CacheDirectoryActivity"
+        <activity android:name=".cache.SelectCacheDirectoryActivity"
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>

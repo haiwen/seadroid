@@ -17,7 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- *
+ * Fragment for selecting a default cache dir
  */
 public class CacheDirSelectionFragment extends Fragment {
 
@@ -25,11 +25,8 @@ public class CacheDirSelectionFragment extends Fragment {
     private TextView mCurrentDirText;
     private ImageView mRefreshBtn;
     private ListView mListView;
-
     private String mRootDir;
-
     private String mCurrentDir;
-
     private List<String> mDirectoryNamesList;
     private List<String> mDirectoryPathsList;
     private List<String> mDirectorySizesList;
@@ -53,9 +50,7 @@ public class CacheDirSelectionFragment extends Fragment {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
             }
-
         });
 
         mRootDir = Environment.getExternalStorageDirectory().getAbsolutePath().toString();
@@ -70,9 +65,7 @@ public class CacheDirSelectionFragment extends Fragment {
             public void onItemClick(AdapterView<?> arg0, View arg1, int index, long arg3) {
                 String newPath = mDirectoryPathsList.get(index);
                 getDir(newPath);
-
             }
-
         });
 
         return rootView;
@@ -91,7 +84,6 @@ public class CacheDirSelectionFragment extends Fragment {
      * folder's subfolders.
      */
     private void getDir(String dirPath) {
-
         mDirectoryNamesList = Lists.newArrayList();
         mDirectoryPathsList = Lists.newArrayList();
         mDirectorySizesList = Lists.newArrayList();

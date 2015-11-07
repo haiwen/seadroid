@@ -57,10 +57,10 @@ public class DataManager {
     public static String getExternalRootDirectory() {
         if (isExternalStorageWritable()) {
             File extDir;
-            if(!SettingsManager.instance().isCustomCacheDirectory())
+            if(!SettingsManager.instance().checkCacheDefaultDirCustomized())
                 extDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Seafile/");
             else
-                extDir = new File(SettingsManager.instance().getCustomCachedPath()  + "/Seafile/");
+                extDir = new File(SettingsManager.instance().getCustomCacheDir()  + "/Seafile/");
             if (!extDir.exists()) {
                 extDir.mkdirs();
             }

@@ -18,7 +18,7 @@ import java.io.File;
  */
 public class CacheDirectoryFragment extends Fragment {
 
-    private CacheDirectoryActivity mActivity;
+    private SelectCacheDirectoryActivity mActivity;
     private FragmentManager fm;
     private CacheDirSelectionFragment mSelectionFragment;
     private Button mDoneBtn;
@@ -26,7 +26,7 @@ public class CacheDirectoryFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        mActivity = (CacheDirectoryActivity) getActivity();
+        mActivity = (SelectCacheDirectoryActivity) getActivity();
         View rootView = mActivity.getLayoutInflater().inflate(R.layout.cache_local_directory_fragment, null);
 
         fm = getChildFragmentManager();
