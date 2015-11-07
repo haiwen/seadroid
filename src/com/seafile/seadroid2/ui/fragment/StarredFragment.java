@@ -5,27 +5,30 @@ import java.util.List;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.*;
 
-import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockListFragment;
+import com.actionbarsherlock.view.ActionMode;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafStarredFile;
+import com.seafile.seadroid2.ui.ActionModeCallback;
 import com.seafile.seadroid2.ui.PullToRefreshListView;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.adapter.StarredItemAdapter;
 import com.seafile.seadroid2.util.Utils;
 
-public class StarredFragment extends SherlockListFragment {
+public class StarredFragment extends SherlockListFragment
+        implements ActionModeCallback.ActionModeOperationListener {
     private StarredItemAdapter adapter;
     private BrowserActivity mActivity = null;
 
@@ -34,6 +37,9 @@ public class StarredFragment extends SherlockListFragment {
     private View mProgressContainer;
     private View mListContainer;
     private TextView mErrorText;
+    private ActionMode mActionMode;
+    private LinearLayout mTaskActionBar;
+    private RelativeLayout mUnstarFiles;
     private static final int REFRESH_ON_RESUME = 0;
     private static final int REFRESH_ON_PULL = 1;
     private static final int REFRESH_ON_OVERFLOW_MENU = 2;
@@ -45,6 +51,54 @@ public class StarredFragment extends SherlockListFragment {
 
     public StarredItemAdapter getAdapter() {
         return adapter;
+    }
+
+    @Override
+    public void selectItems() {
+        if (adapter == null) return;
+
+        adapter.selectAllItems();
+        updateContextualActionBar();
+
+    }
+
+    @Override
+    public void deselectItems() {
+        if (adapter == null) return;
+
+        adapter.deselectAllItems();
+        updateContextualActionBar();
+
+    }
+
+    @Override
+    public void onActionModeStarted() {
+        if (adapter == null) return;
+
+        adapter.setActionModeOn(true);
+        adapter.notifyDataSetChanged();
+
+        Animation bottomUp = AnimationUtils.loadAnimation(getActivity(),
+                R.anim.bottom_up);
+        mTaskActionBar.startAnimation(bottomUp);
+        mTaskActionBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onActionModeDestroy() {
+        if (adapter == null) return;
+
+        adapter.setActionModeOn(false);
+        adapter.deselectAllItems();
+        Animation bottomDown = AnimationUtils.loadAnimation(mActivity,
+                R.anim.bottom_down);
+        mTaskActionBar.startAnimation(bottomDown);
+        mTaskActionBar.setVisibility(View.GONE);
+
+        // Here you can make any necessary updates to the activity when
+        // the contextual action bar (CAB) is removed. By default, selected items are deselected/unchecked.
+        mActionMode = null;
+
     }
 
     public interface OnStarredFileSelectedListener {
@@ -66,7 +120,17 @@ public class StarredFragment extends SherlockListFragment {
         mListContainer =  root.findViewById(R.id.listContainer);
         mErrorText = (TextView)root.findViewById(R.id.error_message);
         mProgressContainer = root.findViewById(R.id.progressContainer);
-        
+        mTaskActionBar = (LinearLayout) root.findViewById(R.id.multi_op_bottom_action_bar);
+        mUnstarFiles = (RelativeLayout) root.findViewById(R.id.multi_op_unstar_rl);
+        mUnstarFiles.setOnClickListener(new UnstarMultiFilesClickListener());
+
+        mPullRefreshListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                startContextualActionMode(position);
+                return true;
+            }
+        });
         // Set a listener to be invoked when the list should be refreshed.
         mPullRefreshListView.setOnRefreshListener(new PullToRefreshListView.OnRefreshListener() {
             @Override
@@ -195,9 +259,35 @@ public class StarredFragment extends SherlockListFragment {
 
     @Override
     public void onListItemClick(final ListView l, final View v, final int position, final long id) {
+        // handle action mode selections
+        if (mActionMode != null) {
+            // add or remove selection for current list item
+            if (adapter == null) return;
+
+            adapter.toggleSelection(position - 1);
+            updateContextualActionBar();
+            return;
+        }
 
         final SeafStarredFile starredFile = (SeafStarredFile)adapter.getItem(position - 1);
         mActivity.onStarredFileSelected(starredFile);
+    }
+
+    private void unStarFiles(List<SeafStarredFile> starredFiles) {
+        for (SeafStarredFile seafStarredFile : starredFiles) {
+            doUnStarFile(seafStarredFile.getRepoID(), seafStarredFile.getPath());
+        }
+    }
+
+    private void doUnStarFile(String repoID, String path) {
+        if (!Utils.isNetworkOn()) {
+            ToastUtils.show(mActivity, R.string.network_down);
+            return;
+        }
+
+        //String p = Utils.pathJoin(path, filename);
+        ConcurrentAsyncTask.execute(new UnStarFileTask(repoID, path));
+
     }
 
     public void doStarFile(String repoID, String path, String filename) {
@@ -300,6 +390,127 @@ public class StarredFragment extends SherlockListFragment {
             }
 
             ToastUtils.show(mActivity, R.string.star_file_succeed);
+        }
+    }
+
+    class UnStarFileTask extends AsyncTask<Void, Void, Void> {
+        private String repoId;
+        private String path;
+        private SeafException err;
+
+        public UnStarFileTask(String repoId, String path) {
+            this.repoId = repoId;
+            this.path = path;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            try {
+                mActivity.getDataManager().unstar(repoId, path);
+            } catch (SeafException e) {
+                err = e;
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void v) {
+            if (err != null) {
+                ToastUtils.show(mActivity, R.string.unstar_file_failed);
+                return;
+            }
+
+            mRefreshType = REFRESH_ON_RESUME;
+            refreshView();
+            adapter.deselectAllItems();
+            mActionMode.setTitle(getResources().
+                    getQuantityString(R.plurals.transfer_list_items_selected, 0, 0));
+        }
+    }
+
+    /**
+     * Start action mode for selecting and process multiple files/folders.
+     * The contextual action mode is a system implementation of ActionMode
+     * that focuses user interaction toward performing contextual actions.
+     * When a user enables this mode by selecting an item,
+     * a contextual action bar appears at the top of the screen
+     * to present actions the user can perform on the currently selected item(s).
+     *
+     * While this mode is enabled,
+     * the user can select multiple items (if you allow it), deselect items,
+     * and continue to navigate within the activity (as much as you're willing to allow).
+     *
+     * The action mode is disabled and the contextual action bar disappears
+     * when the user deselects all items, presses the BACK button, or selects the Done action on the left side of the bar.
+     *
+     * see http://developer.android.com/guide/topics/ui/menus.html#CAB
+     */
+    public void startContextualActionMode(int position) {
+        startContextualActionMode();
+
+        if (adapter == null) return;
+
+        adapter.toggleSelection(position - 1);
+        updateContextualActionBar();
+
+    }
+
+    public void startContextualActionMode() {
+        //NavContext nav = getNavContext();
+        //if (!nav.inRepo()) return;
+
+        if (mActionMode == null) {
+            // start the actionMode
+            mActionMode = mActivity.startActionMode(new ActionModeCallback(this));
+        }
+
+    }
+
+    /**
+     *  update state of contextual action bar (CAB)
+     */
+    public void updateContextualActionBar() {
+
+        if (mActionMode == null) {
+            // there are some selected items, start the actionMode
+            mActionMode = mActivity.startActionMode(new ActionModeCallback(this));
+        } else {
+            // Log.d(DEBUG_TAG, "mActionMode.setTitle " + adapter.getCheckedItemCount());
+            mActionMode.setTitle(getResources().getQuantityString(
+                    R.plurals.transfer_list_items_selected,
+                    adapter.getCheckedItemCount(),
+                    adapter.getCheckedItemCount()));
+        }
+
+    }
+
+    class UnstarMultiFilesClickListener implements View.OnClickListener {
+
+        @Override
+        public void onClick(View v) {
+            final List<SeafStarredFile> selectedDirents = adapter.getSelectedItemsValues();
+            if (selectedDirents.size() == 0) {
+                ToastUtils.show(mActivity, R.string.action_mode_no_items_selected);
+                return;
+            }
+
+            switch (v.getId()) {
+                case R.id.multi_op_unstar_rl:
+                    unStarFiles(selectedDirents);
+                    break;
+                /*case R.id.multi_op_copy_rl:
+                    mActivity.copyFiles(repoID, repoName, dirPath, selectedDirents);
+                    break;
+                case R.id.multi_op_move_rl:
+                    mActivity.moveFiles(repoID, repoName, dirPath, selectedDirents);
+                    break;
+                case R.id.multi_op_download_rl:
+                    mActivity.downloadFiles(repoID, repoName, dirPath, selectedDirents);
+                    break;*/
+
+            }
         }
     }
 }

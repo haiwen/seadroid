@@ -420,6 +420,10 @@
     <string name="star_file_succeed">File starred successfully</string>
     <string name="star_file_failed">File starred failed</string>
 
+    <!-- unstar a file -->
+    <string name="unstar_file_failed">Unstar the file failed</string>
+    <string name="unstar">Unstar</string>
+
     <!-- notification bar -->
     <string name="notification_upload_started_title">Uploading files&#8230;</string>
     <string name="notification_download_started_title">Downloading files&#8230;</string>
