@@ -36,7 +36,7 @@ import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.transfer.TransferManager;
 import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.ToastUtils;
-import com.seafile.seadroid2.ui.activity.AccountsActivity;
+import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.activity.CreateGesturePasswordActivity;
 import com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity;
 import com.seafile.seadroid2.ui.activity.SettingsActivity;
@@ -84,7 +84,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
         mActivity = (SettingsActivity) getActivity();
         settingsMgr = SettingsManager.instance();
         accountMgr = new AccountManager(mActivity);
-        Account act = settingsMgr.getCurrentAccount();
+        Account act = accountMgr.getCurrentAccount();
         dataMgr = new DataManager(act);
 
         LocalBroadcastManager
@@ -130,7 +130,8 @@ public class SettingsFragment extends CustomPreferenceFragment {
         findPreference(SettingsManager.SETTINGS_ACCOUNT_INFO_KEY).setSummary(identifier);
 
         // Space used
-        String signature = accountMgr.getCurrentAccount().getSignature();
+        Account currentAccount = accountMgr.getCurrentAccount();
+        String signature = currentAccount.getSignature();
         AccountInfo info = getAccountInfoBySignature(signature);
         if (info != null) {
             String spaceUsed = info.getSpaceUsed();
@@ -160,10 +161,11 @@ public class SettingsFragment extends CustomPreferenceFragment {
                         }
 
                         // sign out operations
-                        accountMgr.signOutCurrentAccount();
+                        accountMgr.signOutAccount(account);
 
-                        // navigate to AccountsActivity
-                        Intent intent = new Intent(mActivity, AccountsActivity.class);
+                        // restart BrowserActivity (will go to AccountsActivity)
+                        Intent intent = new Intent(mActivity, BrowserActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         mActivity.startActivity(intent);
                         mActivity.finish();
                     }
@@ -405,7 +407,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
         String thumbDir = DataManager.getThumbDirectory();
 
         ClearCacheTaskDialog dialog = new ClearCacheTaskDialog();
-        Account account = settingsMgr.getCurrentAccount();
+        Account account = accountMgr.getCurrentAccount();
         dialog.init(account, filesDir, cacheDir, tempDir, thumbDir);
         dialog.setTaskDialogLisenter(new TaskDialogListener() {
             @Override
@@ -533,19 +535,12 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
             if (params == null) return null;
 
-            Account account = params[0];
-            SeafConnection seafConnection = new SeafConnection(account);
             try {
                 // get account info from server
-                String actInfo = seafConnection.getAccountInfo();
-                // parse raw data
-                accountInfo = accountMgr.parseAccountInfo(actInfo);
+                accountInfo = dataMgr.getAccountInfo();
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e(DEBUG_TAG, "could not get account info!", e);
             }
-
-            if (accountInfo != null)
-                accountInfo.setServer(account.getServer());
 
             return accountInfo;
         }
@@ -560,12 +555,14 @@ public class SettingsFragment extends CustomPreferenceFragment {
             findPreference(SettingsManager.SETTINGS_ACCOUNT_INFO_KEY).setSummary(getCurrentUserIdentifier());
             String spaceUsage = accountInfo.getSpaceUsed();
             findPreference(SettingsManager.SETTINGS_ACCOUNT_SPACE_KEY).setSummary(spaceUsage);
-            saveAccountInfo(accountMgr.getCurrentAccount().getSignature(), accountInfo);
+            Account currentAccount = accountMgr.getCurrentAccount();
+            if (currentAccount != null)
+                saveAccountInfo(currentAccount.getSignature(), accountInfo);
         }
     }
 
     public String getCurrentUserIdentifier() {
-        Account account = settingsMgr.getCurrentAccount();
+        Account account = accountMgr.getCurrentAccount();
 
         if (account == null)
             return "";

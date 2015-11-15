@@ -135,14 +135,14 @@ public class SeafConnection {
      * @return true if login success, false otherwise
      * @throws SeafException
      */
-    private boolean realLogin() throws SeafException {
+    private boolean realLogin(String passwd) throws SeafException {
         HttpRequest req = null;
         try {
             req = prepareApiPostRequest("api2/auth-token/", false, null);
             // Log.d(DEBUG_TAG, "Login to " + account.server + "api2/auth-token/");
 
             req.form("username", account.email);
-            req.form("password", account.passwd);
+            req.form("password", passwd);
 
             String appVersion = "";
             Context context = SeadroidApplication.getAppContext();
@@ -192,12 +192,20 @@ public class SeafConnection {
      * @return
      * @throws SeafException
      */
-    public String getAccountInfo() throws IOException, SeafException {
-        String apiPath = String.format("api2/account/info/");
+    public String getAccountInfo() throws SeafException {
 
-        HttpRequest req = prepareApiGetRequest(apiPath);
-        checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
-        String result = new String(req.bytes(), "UTF-8");
+        String result;
+        try {
+            HttpRequest req = prepareApiGetRequest("api2/account/info/");
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+            result = new String(req.bytes(), "UTF-8");
+        } catch (SeafException e) {
+            throw e;
+        } catch (HttpRequestException e) {
+            throw getSeafExceptionFromHttpRequestException(e);
+        } catch (IOException e) {
+            throw SeafException.networkException;
+        }
 
         return result;
     }
@@ -219,12 +227,12 @@ public class SeafConnection {
         return result;
     }
 
-    public boolean doLogin() throws SeafException {
+    public boolean doLogin(String passwd) throws SeafException {
         try {
-            return realLogin();
+            return realLogin(passwd);
         } catch (Exception e) {
             // do again
-            return realLogin();
+            return realLogin(passwd);
         }
     }
 

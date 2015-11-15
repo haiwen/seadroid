@@ -9,6 +9,21 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <!-- get list of Seadroid accounts -->
+    <uses-permission android:name="android.permission.GET_ACCOUNTS"
+        android:maxSdkVersion="22"/>
+
+    <!--Set/Get the auth token from the account manager -->
+    <uses-permission android:name="android.permission.USE_CREDENTIALS"
+        android:maxSdkVersion="22"/>
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"
+        android:maxSdkVersion="22"/>
+
+    <!-- Add/Remove/Update Seafile accounts -->
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"
+        android:maxSdkVersion="22"/>
+
     <application
         android:allowBackup="true"
         android:name="com.seafile.seadroid2.SeadroidApplication"
@@ -66,14 +81,7 @@
 
         <activity android:name="com.seafile.seadroid2.ui.activity.AccountDetailActivity"
                   android:theme="@style/Theme.SeafileTheme"
-                  android:parentActivityName=".AccountsActivity"
                   android:label="@string/app_name">
-            
-            <!-- Parent activity meta-data to support 4.0 and lower -->
-             <meta-data
-                 android:name="android.support.PARENT_ACTIVITY"
-                 android:value=".AccountsActivity" />
-
         </activity>
 
         <!-- MultipleImageSelectionActivity uses the default theme, instead of
@@ -105,6 +113,11 @@
         </activity>
 
         <activity android:name="com.seafile.seadroid2.ui.activity.FileActivity"
+                  android:theme="@style/Theme.SeafileTheme"
+                  android:label="@string/app_name">
+        </activity>
+
+        <activity android:name=".ui.activity.SeafileAuthenticatorActivity"
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>
@@ -151,5 +164,13 @@
         <service android:name="com.seafile.seadroid2.transfer.TransferService" > </service>
         <service android:name="com.seafile.seadroid2.monitor.FileMonitorService" > </service>
         <service android:name="com.seafile.seadroid2.cameraupload.CameraUploadService" > </service>
+
+        <service android:name=".account.AuthenticatorService" >
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+            <meta-data android:name="android.accounts.AccountAuthenticator" android:resource="@xml/authenticator" />
+        </service>
+
       </application>
 </manifest>

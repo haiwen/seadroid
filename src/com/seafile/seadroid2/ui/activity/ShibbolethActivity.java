@@ -9,7 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.Toast;
+
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.R;
@@ -29,6 +29,8 @@ public class ShibbolethActivity extends SherlockFragmentActivity {
     private Button mNextBtn;
     private CheckBox mHttpPrefixCb;
     private EditText mServerUrlEt;
+
+    private static final int SHIBBOLETH_AUTH = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,7 +152,17 @@ public class ShibbolethActivity extends SherlockFragmentActivity {
     private void openAuthorizePage(String serverUrl) {
         Intent intent = new Intent(ShibbolethActivity.this, ShibbolethAuthorizeActivity.class);
         intent.putExtra(SHIBBOLETH_SERVER_URL, serverUrl);
-        startActivity(intent);
-        finish();
+        intent.putExtras(getIntent());
+        startActivityForResult(intent, SHIBBOLETH_AUTH);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(DEBUG_TAG, "onActivityResult");
+
+        // pass auth result back to the SeafileAuthenticatorActivity
+        if (requestCode == SHIBBOLETH_AUTH) {
+            setResult(resultCode, data);
+        }
     }
 }

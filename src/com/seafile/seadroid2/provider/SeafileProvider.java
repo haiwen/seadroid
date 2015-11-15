@@ -19,7 +19,9 @@
 
 package com.seafile.seadroid2.provider;
 
+import android.accounts.OnAccountsUpdateListener;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.database.MatrixCursor;
@@ -43,7 +45,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.AccountDBHelper;
+import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.ProgressMonitor;
 import com.seafile.seadroid2.data.SeafDirent;
@@ -117,9 +119,27 @@ public class SeafileProvider extends DocumentsProvider {
     private final BlockingQueue<Runnable> mDecodeWorkQueue = new LinkedBlockingQueue<Runnable>();
     private ThreadPoolExecutor threadPoolExecutor;
 
+    private android.accounts.AccountManager androidAccountManager;
+    private AccountManager accountManager;
+
+    public static final Uri NOTIFICATION_URI = DocumentsContract.buildRootsUri(Utils.AUTHORITY);
+
+    private OnAccountsUpdateListener accountListener = new OnAccountsUpdateListener() {
+        @Override
+        public void onAccountsUpdated(android.accounts.Account[] accounts) {
+            Context c = SeadroidApplication.getAppContext();
+            c.getContentResolver().notifyChange(NOTIFICATION_URI, null);
+        }
+    };
+
     @Override
     public boolean onCreate() {
         docIdParser = new DocumentIdParser(getContext());
+
+        accountManager = new AccountManager(getContext());
+        androidAccountManager = android.accounts.AccountManager.get(getContext());
+
+        androidAccountManager.addOnAccountsUpdatedListener(accountListener, null, true);
 
         threadPoolExecutor = new ThreadPoolExecutor(
                 NUMBER_OF_CORES,       // Initial pool size
@@ -141,13 +161,13 @@ public class SeafileProvider extends DocumentsProvider {
 
         Log.d(DEBUG_TAG, "queryRoots()");
 
-        // add a Root for every Seafile account we have.
-        for(Account a: AccountDBHelper.getDatabaseHelper(getContext()).getAccountList()) {
+        // add a Root for every signed in Seafile account we have.
+        for(Account a: accountManager.getAccountList()) {
             includeRoot(result, a);
         }
 
         // notification uri for the event, that the account list has changed
-        result.setNotificationUri(getContext().getContentResolver(), AccountNotifier.NOTIFICATION_URI);
+        result.setNotificationUri(getContext().getContentResolver(), NOTIFICATION_URI);
 
         return result;
     }

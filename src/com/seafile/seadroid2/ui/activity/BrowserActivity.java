@@ -34,9 +34,9 @@ import com.astuetz.PagerSlidingTabStrip;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.*;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.AccountDBHelper;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
+import com.seafile.seadroid2.data.ServerInfo;
 import com.seafile.seadroid2.data.*;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 import com.seafile.seadroid2.monitor.FileMonitorService;
@@ -103,6 +103,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     TransferService txService = null;
     TransferReceiver mTransferReceiver;
     SettingsManager settingsMgr;
+    AccountManager accountManager;
     private String currentSelectedItem = FILES_VIEW;
 
     FetchFileDialog fetchFileDialog = null;
@@ -163,6 +164,9 @@ public class BrowserActivity extends SherlockFragmentActivity
     protected void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
+
+        accountManager = new AccountManager(this);
+
         if (!isTaskRoot()) {
             final Intent intent = getIntent();
             final String intentAction = getIntent().getAction();
@@ -177,30 +181,14 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         // Get the message from the intent
         Intent intent = getIntent();
-        String server = intent.getStringExtra(AccountManager.SHARED_PREF_SERVER_KEY);
-        String email = intent.getStringExtra(AccountManager.SHARED_PREF_EMAIL_KEY);
-        String token = intent.getStringExtra(AccountManager.SHARED_PREF_TOKEN_KEY);
-        account = new Account(server, email, null, token);
-        Log.d(DEBUG_TAG, "browser activity onCreate " + server + " " + email);
 
-        if (server == null) {
-            AccountManager accountManager = new AccountManager(this);
-            // get current Account from SharedPreference
-            // "current" means the Account is in using at foreground if multiple accounts exist
-            Account act = accountManager.getCurrentAccount();
-            if (act != null) {
-                account = act;
-            } else {
-                Intent newIntent = new Intent(this, AccountsActivity.class);
-                newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(newIntent);
-                finish();
-                return;
-            }
-
+        account = accountManager.getCurrentAccount();
+        if (account == null || !account.hasValidToken()) {
+            finishAndStartAccountsActivity();
+            return;
         }
 
+        Log.d(DEBUG_TAG, "browser activity onCreate " + account.server + " " + account.email);
         dataManager = new DataManager(account);
 
         getSupportFragmentManager().addOnBackStackChangedListener(this);
@@ -328,6 +316,14 @@ public class BrowserActivity extends SherlockFragmentActivity
         requestServerInfo();
     }
 
+    private void finishAndStartAccountsActivity() {
+        Intent newIntent = new Intent(this, AccountsActivity.class);
+        newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        finish();
+        startActivity(newIntent);
+    }
+
     private void requestServerInfo() {
         if(!checkServerProEdition()) {
             // hide Activity tab
@@ -371,7 +367,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                 return;
             }
 
-            if (serverInfo.proEdition()) {
+            if (serverInfo.isProEdition()) {
                 // show Activity tab
                 adapter.unHideActivityTab();
                 adapter.notifyDataSetChanged();
@@ -389,19 +385,14 @@ public class BrowserActivity extends SherlockFragmentActivity
                 }
             }
 
-            if (serverInfo.searchEnabled()) {
+            if (serverInfo.isSearchEnabled()) {
                 // show search menu
                 if (menuSearch != null)
                     menuSearch.setVisible(true);
             }
 
-            serverInfo.setUrl(account.getServer());
-            saveServerInfo(serverInfo);
+            accountManager.setServerInfo(account, serverInfo);
         }
-    }
-
-    private void saveServerInfo(ServerInfo serverInfo) {
-        AccountDBHelper.getDatabaseHelper(this).saveServerInfo(serverInfo);
     }
 
     /**
@@ -412,14 +403,12 @@ public class BrowserActivity extends SherlockFragmentActivity
      *          false, otherwise.
      */
     private boolean checkServerProEdition() {
-        if (account.getServer() == null)
+        if (account == null)
             return false;
 
-        ServerInfo serverInfo = AccountDBHelper.getDatabaseHelper(this).getServerInfo(account.getServer());
-        if (serverInfo == null)
-            return false;
+        ServerInfo serverInfo = accountManager.getServerInfo(account);
 
-        return serverInfo.proEdition();
+        return serverInfo.isProEdition();
     }
 
     /**
@@ -430,14 +419,12 @@ public class BrowserActivity extends SherlockFragmentActivity
      *          false, otherwise.
      */
     private boolean checkSearchEnabled() {
-        if (account.getServer() == null)
+        if (account == null)
             return false;
 
-        ServerInfo serverInfo = AccountDBHelper.getDatabaseHelper(this).getServerInfo(account.getServer());
-        if (serverInfo == null)
-            return false;
+        ServerInfo serverInfo = accountManager.getServerInfo(account);
 
-        return serverInfo.searchEnabled();
+        return serverInfo.isSearchEnabled();
     }
 
     class SeafileTabsAdapter extends FragmentPagerAdapter implements
@@ -632,13 +619,17 @@ public class BrowserActivity extends SherlockFragmentActivity
     public void onRestart() {
         Log.d(DEBUG_TAG, "onRestart");
         super.onRestart();
+
+        if (accountManager.getCurrentAccount() == null
+                || !accountManager.getCurrentAccount().equals(this.account)
+                || !accountManager.getCurrentAccount().getToken().equals(this.account.getToken())) {
+            finishAndStartAccountsActivity();
+        }
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         Log.d(DEBUG_TAG, "onNewIntent");
-        String server = intent.getStringExtra(AccountManager.SHARED_PREF_SERVER_KEY);
-        String email = intent.getStringExtra(AccountManager.SHARED_PREF_EMAIL_KEY);
 
         // if the user started the Seadroid app from the Launcher, keep the old Activity
         final String intentAction = intent.getAction();
@@ -648,8 +639,12 @@ public class BrowserActivity extends SherlockFragmentActivity
             return;
         }
 
-        Account selectedAccount = new Account(server, email);
-        if (!account.equals(selectedAccount)) {
+        Account selectedAccount = accountManager.getCurrentAccount();
+        Log.d(DEBUG_TAG,"Current account: "+selectedAccount);
+        if (selectedAccount == null
+                || !account.equals(selectedAccount)
+                || !account.getToken().equals(selectedAccount.getToken())) {
+            Log.d(DEBUG_TAG,"Account switched, restarting activity.");
             finish();
             startActivity(intent);
         }

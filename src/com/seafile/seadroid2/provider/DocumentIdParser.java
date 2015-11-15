@@ -20,7 +20,7 @@ package com.seafile.seadroid2.provider;
 import android.content.Context;
 
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.AccountDBHelper;
+import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.util.Utils;
 
 import java.io.FileNotFoundException;
@@ -44,9 +44,11 @@ public class DocumentIdParser {
     private static final String ROOT_REPO_ID = "root-magic-repo";
 
     Context context;
+    AccountManager manager;
 
     public DocumentIdParser(Context context) {
         this.context = context;
+        this.manager = new AccountManager(context);
     }
 
     /**
@@ -60,8 +62,8 @@ public class DocumentIdParser {
         String[] list = documentId.split(DOC_SEPERATOR, 2);
         if (list.length > 0) {
             String server = list[0];
-            for (Account a: AccountDBHelper.getDatabaseHelper(context).getAccountList()) {
-                if (a.getFullSignature().equals(server)) {
+            for (Account a: manager.getAccountList()) {
+                if (a.getSignature().equals(server)) {
                     return a;
                 }
             }
@@ -113,11 +115,11 @@ public class DocumentIdParser {
      */
     public static String buildId(Account a, String repoId, String path) {
         if (repoId != null && path != null)
-            return a.getFullSignature() + DOC_SEPERATOR + repoId + DOC_SEPERATOR + path;
+            return a.getSignature() + DOC_SEPERATOR + repoId + DOC_SEPERATOR + path;
         else if (repoId != null)
-            return a.getFullSignature() + DOC_SEPERATOR + repoId;
+            return a.getSignature() + DOC_SEPERATOR + repoId;
         else
-            return a.getFullSignature();
+            return a.getSignature();
     }
 
     /**
@@ -127,11 +129,11 @@ public class DocumentIdParser {
      * @returns a documentId
      */
     public static String buildRootId(Account a) {
-        return a.getFullSignature() + DOC_SEPERATOR + ROOT_REPO_ID;
+        return a.getSignature() + DOC_SEPERATOR + ROOT_REPO_ID;
     }
 
     public static String buildStarredFilesId(Account a) {
-        return a.getFullSignature() + DOC_SEPERATOR + STARRED_FILE_REPO_ID;
+        return a.getSignature() + DOC_SEPERATOR + STARRED_FILE_REPO_ID;
     }
 
     public static boolean isRoot(String documentId) {

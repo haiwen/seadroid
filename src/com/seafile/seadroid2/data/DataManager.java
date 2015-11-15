@@ -10,6 +10,7 @@ import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.util.Utils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -151,6 +152,19 @@ public class DataManager {
             return null;
     }
 
+    public AccountInfo getAccountInfo() throws SeafException, JSONException {
+        String json = sc.getAccountInfo();
+        return parseAccountInfo(json);
+    }
+
+    private AccountInfo parseAccountInfo(String json) throws JSONException {
+        JSONObject object = Utils.parseJsonObject(json);
+        if (object == null)
+            return null;
+
+        return AccountInfo.fromJson(object, account.getServer());
+    }
+
     public ServerInfo getServerInfo() throws SeafException, JSONException {
         String json = sc.getServerInfo();
         return parseServerInfo(json);
@@ -161,7 +175,7 @@ public class DataManager {
         if (object == null)
             return null;
 
-        return ServerInfo.fromJson(object);
+        return ServerInfo.fromJson(object, account.getServer());
     }
 
     public Account getAccount() {

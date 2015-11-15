@@ -107,7 +107,7 @@ public class CameraUploadService extends Service {
         initParams();
         if (repoId != null && accountEmail != null) {
             isCameraUploadEnabled = true;
-            account = new Account(accountServer, accountEmail, null, accountToken);
+            account = new Account(accountServer, accountEmail, accountToken);
             cUploadManager = new CameraUploadManager(account);
         } else
             isCameraUploadEnabled = false;

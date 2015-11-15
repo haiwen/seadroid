@@ -224,17 +224,6 @@ public final class SettingsManager {
         return sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN, null);
     }
 
-    /**
-     * get current login Account instance
-     *
-     * @return Account if has, otherwise, returns null.
-     */
-    public Account getCurrentAccount() {
-        AccountManager accountMgr = new AccountManager(
-                SeadroidApplication.getAppContext());
-        return accountMgr.getCurrentAccount();
-    }
-
     public void delCachesByActSignature(Account account) {
         DatabaseHelper dbHelper = DatabaseHelper.getDatabaseHelper();
         dbHelper.delCachesBySignature(account);

@@ -1,17 +1,12 @@
 package com.seafile.seadroid2.account;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import com.seafile.seadroid2.SettingsManager;
-import com.seafile.seadroid2.cameraupload.CameraUploadService;
-import com.seafile.seadroid2.util.Utils;
-import org.json.JSONException;
-import org.json.JSONObject;
+
+import com.seafile.seadroid2.cameraupload.CameraUploadManager;
 
 /**
  * Account Manager.<br>
@@ -19,128 +14,109 @@ import org.json.JSONObject;
  *
  */
 import com.google.common.collect.Lists;
+import com.seafile.seadroid2.data.ServerInfo;
 
 public class AccountManager {
     @SuppressWarnings("unused")
     private static String DEBUG_TAG = "AccountManager";
 
     public static final String SHARED_PREF_NAME = "latest_account";
-    public static final String SHARED_PREF_SERVER_KEY = "com.seafile.seadroid.server";
-    public static final String SHARED_PREF_EMAIL_KEY = "com.seafile.seadroid.email";
-    public static final String SHARED_PREF_TOKEN_KEY = "com.seafile.seadroid.token";
-
-    public static final String INVALID_TOKEN = "not_applicable";
+    public static final String SHARED_PREF_ACCOUNT_NAME = "com.seafile.seadroid.account_name";
 
     /** used to manage multi Accounts when user switch between different Accounts */
     private SharedPreferences actMangeSharedPref;
     private SharedPreferences.Editor editor;
 
-    private final AccountDBHelper dbHelper;
+    private android.accounts.AccountManager accountManager;
+
     private Context ctx;
 
     public AccountManager(Context context) {
         this.ctx = context;
-        dbHelper = AccountDBHelper.getDatabaseHelper(context);
+        accountManager = android.accounts.AccountManager.get(context);
         // used to manage multi Accounts when user switch between different Accounts
         actMangeSharedPref = ctx.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
         editor = actMangeSharedPref.edit();
 
-    }
-
-    public Account getAccountBySignature(String signature) {
-        List<Account> accounts = dbHelper.getAccountList();
-        for (int i = 0; i < accounts.size(); ++i) {
-            if (signature.equals(accounts.get(i).getSignature())) {
-                return accounts.get(i);
-            }
-        }
-        return null;
+        // migrate old accounts
+        AccountDBHelper.migrateAccounts(context);
     }
 
     public List<Account> getAccountList() {
-        return dbHelper.getAccountList();
+        List<Account> list = new ArrayList<Account>();
+        android.accounts.Account availableAccounts[] = accountManager.getAccountsByType(Account.ACCOUNT_TYPE);
+        for (int i = 0; i < availableAccounts.length; i++) {
+            Account a = getSeafileAccount(availableAccounts[i]);
+            list.add(a);
+        }
+        return list;
     }
 
-    /**
-     * save sign in account to database
-     *
-     * @param account
-     */
-    public void saveAccountToDB(Account account) {
-        // save to db
-        dbHelper.saveAccount(account);
-    }
-
-    /**
-     * update account info from database
-     *
-     * @param oldAccount
-     * @param newAccount
-     */
-    public void updateAccountFromDB(Account oldAccount, Account newAccount) {
-
-        dbHelper.updateAccount(oldAccount, newAccount);
+    public List<Account> getSignedInAccountList() {
+        List<Account> list = new ArrayList<Account>();
+        android.accounts.Account availableAccounts[] = accountManager.getAccountsByType(Account.ACCOUNT_TYPE);
+        for (int i = 0; i < availableAccounts.length; i++) {
+            Account a = getSeafileAccount(availableAccounts[i]);
+            if (a.hasValidToken())
+                list.add(a);
+        }
+        return list;
     }
 
     public Account getCurrentAccount() {
-        String currentServer = actMangeSharedPref.getString(SHARED_PREF_SERVER_KEY, null);
-        String currentEmail = actMangeSharedPref.getString(SHARED_PREF_EMAIL_KEY, null);
-        String currentToken = actMangeSharedPref.getString(SHARED_PREF_TOKEN_KEY, null);
+        String name = actMangeSharedPref.getString(SHARED_PREF_ACCOUNT_NAME, null);
 
-        // When user sign out, the value of token will be null, then leads user to AccountsActivity
-        if (currentServer != null && currentToken != null) {
-            return new Account(currentServer, currentEmail, null, currentToken);
-        } else
-            return null;
+        if (name != null) {
+            List<Account> list = getAccountList();
+            for(Account a: list) {
+                if (a.hasValidToken() && a.getSignature().equals(name)) {
+                    return a;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public Account getSeafileAccount(android.accounts.Account androidAccount) {
+
+        String server = accountManager.getUserData(androidAccount, Authenticator.KEY_SERVER_URI);
+        String email = accountManager.getUserData(androidAccount, Authenticator.KEY_EMAIL);
+        String token = accountManager.peekAuthToken(androidAccount, Authenticator.AUTHTOKEN_TYPE);
+
+        return new Account(server, email, token);
+    }
+
+    public void setServerInfo(Account account, ServerInfo serverInfo) {
+        accountManager.setUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_URI, serverInfo.getUrl());
+        accountManager.setUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_VERSION, serverInfo.getVersion());
+        accountManager.setUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_FEATURES, serverInfo.getFeatures());
+    }
+
+    /**
+     * Return cached ServerInfo
+     *
+     * @param account
+     * @return ServerInfo. Will never be null.
+     */
+    public ServerInfo getServerInfo(Account account) {
+        String server = accountManager.getUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_URI);
+        String version = accountManager.getUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_VERSION);
+        String features = accountManager.getUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_FEATURES);
+        ServerInfo info = new ServerInfo(server, version, features);
+        return info;
     }
 
     /**
      * save current Account info to SharedPreference<br>
      * <strong>current</strong> means the Account is now in using at the foreground if has multiple accounts
      *
-     * @param account
+     * @param accountName
      */
-    public void saveCurrentAccount(Account account) {
+    public void saveCurrentAccount(String accountName) {
 
-        editor.putString(SHARED_PREF_SERVER_KEY, account.server);
-        editor.putString(SHARED_PREF_EMAIL_KEY, account.email);
-        editor.putString(SHARED_PREF_TOKEN_KEY, account.token);
+        editor.putString(SHARED_PREF_ACCOUNT_NAME, accountName);
         editor.commit();
-    }
-
-    /**
-     * delete a selected Account info from SharedPreference
-     *
-     * @param account
-     */
-    public void deleteAccountFromSharedPreference(Account account) {
-
-        String currentServer = actMangeSharedPref.getString(SHARED_PREF_SERVER_KEY, null);
-        String currentEmail = actMangeSharedPref.getString(SHARED_PREF_EMAIL_KEY, null);
-
-        if (account.server.equals(currentServer) && account.email.equals(currentEmail)) {
-            editor.putString(SHARED_PREF_SERVER_KEY, null);
-            editor.putString(SHARED_PREF_EMAIL_KEY, null);
-            editor.putString(SHARED_PREF_TOKEN_KEY, null);
-            editor.commit();
-        }
-
-    }
-
-    public void deleteCameraUploadSettingsByAccount(Account account) {
-        // update cache data of settings module
-        String settingsServer = actMangeSharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER, null);
-        String settingsEmail = actMangeSharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL, null);
-
-        if (account.server.equals(settingsServer) && account.email.equals(settingsEmail)) {
-            SettingsManager.instance().clearCameraUploadInfo();
-        }
-    }
-
-    public void deleteAccountFromDB(Account account) {
-
-        // delete from db
-        dbHelper.deleteAccount(account);
     }
 
     /**
@@ -148,56 +124,10 @@ public class AccountManager {
      * If Camera Upload Service is running under the Account, stop the service.
      *
      */
-    public void signOutCurrentAccount() {
+    public void signOutAccount(Account account) {
 
-        Account currentAccount =  getCurrentAccount();
+        accountManager.invalidateAuthToken(Account.ACCOUNT_TYPE, account.getToken());
 
-        // delete token of the account from database
-        Account accountWithoutToken = new Account(currentAccount.getServer(), currentAccount.getEmail(), null, INVALID_TOKEN);
-        updateAccountFromDB(currentAccount, accountWithoutToken);
-
-        // delete data in Shared_prefs
-        deleteAccountFromSharedPreference(currentAccount);
-
-        // stop camera upload service if on
-        stopCamerUploadServiceByAccount(currentAccount);
-
-        // keep Gesture lock settings
-
-    }
-
-    /**
-     * turn off camera upload service of the deleted account if it was turned on before
-     *
-     * @param account
-     */
-    public void stopCamerUploadServiceByAccount(Account account) {
-        String camerUploadEmail = SettingsManager.instance().getCameraUploadAccountEmail();
-        String cameraUploadServer = SettingsManager.instance().getCameraUploadAccountServer();
-
-        if (camerUploadEmail == null) {
-            return;
-        }
-
-        // stop camera upload service
-        if (camerUploadEmail.equals(account.getEmail()) && cameraUploadServer.equals(account.getServer())) {
-            Intent cameraUploadIntent = new Intent(ctx, CameraUploadService.class);
-            ctx.stopService(cameraUploadIntent);
-        }
-    }
-
-    /**
-     * parse JSON format data
-     *
-     * @param accountInfo
-     * @return AccountInfo
-     * @throws JSONException
-     */
-    public AccountInfo parseAccountInfo(String accountInfo) throws JSONException {
-        JSONObject obj = Utils.parseJsonObject(accountInfo);
-        if (obj == null)
-            return null;
-        return AccountInfo.fromJson(obj);
     }
 
     /**
@@ -208,7 +138,7 @@ public class AccountManager {
     public ArrayList<String> getAccountAutoCompleteTexts() {
         ArrayList<String> autoCompleteTexts = Lists.newArrayList();
 
-        List<Account> accounts = dbHelper.getAccountList();
+        List<Account> accounts = getAccountList();
 
         if (accounts == null) return null;
         for (Account act : accounts) {

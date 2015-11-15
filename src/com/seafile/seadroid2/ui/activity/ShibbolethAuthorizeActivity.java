@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.net.http.SslError;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -12,22 +11,19 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.webkit.CookieManager;
-import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
-import android.widget.Toast;
+
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.util.Utils;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLEncoder;
 
 /**
@@ -166,32 +162,25 @@ public class ShibbolethAuthorizeActivity extends SherlockFragmentActivity {
             } catch (MalformedURLException e) {
                 Log.e(DEBUG_TAG, e.getMessage());
             }
-            saveAccount(account);
-            openResource(account);
+            returnAccount(account);
         }
     }
 
-
-    private void openResource(Account account) {
+    private void returnAccount(Account account) {
         if (account == null)
-            return;
+            finish();
 
-        Intent intent = new Intent(this, AccountsActivity.class);
-        startActivity(intent);
+        Intent retData = new Intent();
+        retData.putExtras(getIntent());
+        retData.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_NAME, account.getSignature());
+        retData.putExtra(android.accounts.AccountManager.KEY_AUTHTOKEN, account.getToken());
+        retData.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_TYPE, getIntent().getStringExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_TYPE));
+        retData.putExtra(SeafileAuthenticatorActivity.ARG_EMAIL, account.getEmail());
+        retData.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, account.getServer());
+
+        // pass auth result back to the ShibbolethActivity
+        setResult(RESULT_OK, retData);
         finish();
-    }
-
-    private void saveAccount(Account account) {
-        if (account == null)
-            return;
-
-        AccountManager accountManager = new AccountManager(this);
-
-        // save account to SharedPrefs
-        accountManager.saveCurrentAccount(account);
-
-        // save account to database
-        accountManager.saveAccountToDB(account);
     }
 
     /**
@@ -215,7 +204,7 @@ public class ShibbolethAuthorizeActivity extends SherlockFragmentActivity {
         Log.d(DEBUG_TAG, "email: " + email);
         Log.d(DEBUG_TAG, "token: " + token);
 
-        return new Account(url, email, null, token);
+        return new Account(url, email, token);
     }
 
     public String getCookie(String url, String key) {

@@ -2,18 +2,23 @@ package com.seafile.seadroid2.account;
 
 import java.util.List;
 
+import android.content.ContentResolver;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import com.google.common.collect.Lists;
+import com.seafile.seadroid2.SettingsManager;
+import com.seafile.seadroid2.cameraupload.CameraUploadManager;
 import com.seafile.seadroid2.data.ServerInfo;
-import com.seafile.seadroid2.provider.AccountNotifier;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 /**
+ * Legacy code. Only for migrating old account settings to the new android account store.
+ *
  * A helper class to manage {@link #DATABASE_NAME} database creation and version management.
  */
 public class AccountDBHelper extends SQLiteOpenHelper {
@@ -28,9 +33,11 @@ public class AccountDBHelper extends SQLiteOpenHelper {
     private static final int VER_ADD_NEW_TABLE_SERVER_INFO = 2;
     /** version of adding a new table @{link #SERVER_INFO_TABLE_NAME} without losing data */
     private static final int VER_ADD_NEW_TABLE_SERVER_INFO_MIGRATION = 3;
+    /** version of moving all accounts to the android account store */
+    private static final int VER_MIGRATE_TO_ANDROID_ACCOUNT = 4;
 
     // If you change the database schema, you must increment the database version.
-    private static final int DATABASE_VERSION = VER_ADD_NEW_TABLE_SERVER_INFO_MIGRATION;
+    private static final int DATABASE_VERSION = VER_MIGRATE_TO_ANDROID_ACCOUNT;
 
     private static final String DATABASE_NAME = "account.db";
 
@@ -59,22 +66,18 @@ public class AccountDBHelper extends SQLiteOpenHelper {
                     + ACCOUNT_COLUMN_EMAIL + " TEXT NOT NULL, "
                     + ACCOUNT_COLUMN_TOKEN + " TEXT NOT NULL);";
 
-    private static AccountDBHelper dbHelper = null;
-    private SQLiteDatabase database = null;
+    private android.accounts.AccountManager mAccountManager;
+    private Context context;
 
-    public static synchronized AccountDBHelper getDatabaseHelper(Context context) {
-        // Note: the given context will be used for the singleton instance. it can come
-        // either from the application or the contentProvider.
-        if (dbHelper != null)
-            return dbHelper;
-        dbHelper = new AccountDBHelper(context);
-        dbHelper.database = dbHelper.getWritableDatabase();
-        AccountNotifier.notifyProvider();
-        return dbHelper;
+    public static void migrateAccounts(Context context) {
+        AccountDBHelper db = new AccountDBHelper(context);
+        db.getWritableDatabase().close();  // this forces an onUpgrade()
     }
 
     private AccountDBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.context = context;
+        mAccountManager = android.accounts.AccountManager.get(context);
     }
 
     public void onCreate(SQLiteDatabase db) {
@@ -106,6 +109,11 @@ public class AccountDBHelper extends SQLiteOpenHelper {
                 db.execSQL("DROP TABLE IF EXISTS " + SERVER_INFO_TABLE_NAME + ";");
                 db.execSQL(SQL_CREATE_SERVER_INFO_TABLE);
                 version = VER_ADD_NEW_TABLE_SERVER_INFO_MIGRATION;
+            case VER_ADD_NEW_TABLE_SERVER_INFO_MIGRATION:
+                migrateToAndroidAccount(db);
+                db.execSQL("DROP TABLE IF EXISTS " + ACCOUNT_TABLE_NAME + ";");
+                db.execSQL("DROP TABLE IF EXISTS " + SERVER_INFO_TABLE_NAME + ";");
+                version = VER_MIGRATE_TO_ANDROID_ACCOUNT;
         }
 
         Log.d(DEBUG_TAG, "after upgrade logic, at version " + version);
@@ -125,34 +133,49 @@ public class AccountDBHelper extends SQLiteOpenHelper {
         onUpgrade(db, oldVersion, newVersion);
     }
 
-    public Account getAccount(String server, String email) {
-        String[] projection = {
-                AccountDBHelper.ACCOUNT_COLUMN_SERVER,
-                AccountDBHelper.ACCOUNT_COLUMN_EMAIL,
-                AccountDBHelper.ACCOUNT_COLUMN_TOKEN
-        };
+    private void migrateToAndroidAccount(SQLiteDatabase db) {
 
-        Cursor c = database.query(
-             AccountDBHelper.ACCOUNT_TABLE_NAME,
-             projection,
-             "server=? and email=?",
-             new String[] { server, email },
-             null,   // don't group the rows
-             null,   // don't filter by row groups
-             null    // The sort order
-         );
+        Log.i(DEBUG_TAG, "Migrating seafile accounts into Android account store (upgrade)");
 
-        if (!c.moveToFirst()) {
-            c.close();
-            return null;
+        SharedPreferences sharedPref = context.getSharedPreferences(AccountManager.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        SharedPreferences settingsSharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+
+        Account cameraAccount = null;
+        String cameraServer = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER, null);
+        String cameraEmail = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL, null);
+        String cameraToken = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN, null);
+        if (settingsSharedPref.getBoolean(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY, false) && cameraEmail != null
+                && cameraServer != null && cameraToken != null) {
+
+            // on this account camera upload was done previously
+            cameraAccount = new Account(cameraServer, cameraEmail, cameraToken);
         }
 
-        Account account = cursorToAccount(c);
-        c.close();
-        return account;
+        for (Account account: getAccountList(db)) {
+            Log.d(DEBUG_TAG, "Migrating seafile account: " + account);
+
+            // MIGRATE account
+            Log.d(DEBUG_TAG, "adding account: " + account);
+            mAccountManager.addAccountExplicitly(account.getAndroidAccount(), null, null);
+            mAccountManager.setAuthToken(account.getAndroidAccount(), Authenticator.AUTHTOKEN_TYPE, account.getToken());
+            mAccountManager.setUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_URI, account.getServer());
+            mAccountManager.setUserData(account.getAndroidAccount(), Authenticator.KEY_EMAIL, account.getEmail());
+
+            // MIGRATE ServerInfo
+            ServerInfo info = getServerInfo(db, account.getServer());
+            if (info != null) {
+                Log.d(DEBUG_TAG, "setting server info: " + info);
+                mAccountManager.setUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_FEATURES, info.getFeatures());
+                mAccountManager.setUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_VERSION, info.getVersion());
+            }
+
+            Log.d(DEBUG_TAG, "Finished migrating seafile account: " + account);
+        }
+
+        Log.i(DEBUG_TAG, "Finished migration of seafile accounts");
     }
 
-    public List<Account> getAccountList() {
+    private List<Account> getAccountList(SQLiteDatabase database) {
         List<Account> accounts = Lists.newArrayList();
 
         String[] projection = {
@@ -182,55 +205,11 @@ public class AccountDBHelper extends SQLiteOpenHelper {
         return accounts;
     }
 
-    public void saveAccount(Account account) {
-        Account old = getAccount(account.server, account.email);
-        if (old != null) {
-            if (old.token.equals(account.token))
-                return;
-            else
-                deleteAccount(old);
-        }
-
-        // Create a new map of values, where column names are the keys
-        ContentValues values = new ContentValues();
-        values.put(AccountDBHelper.ACCOUNT_COLUMN_SERVER, account.server);
-        values.put(AccountDBHelper.ACCOUNT_COLUMN_EMAIL, account.email);
-        values.put(AccountDBHelper.ACCOUNT_COLUMN_TOKEN, account.token);
-
-        // Insert the new row, returning the primary key value of the new row
-        database.replace(AccountDBHelper.ACCOUNT_TABLE_NAME, null, values);
-
-        AccountNotifier.notifyProvider();
-    }
-
-    public void updateAccount(Account oldAccount, Account newAccount) {
-        ContentValues values = new ContentValues();
-        values.put(AccountDBHelper.ACCOUNT_COLUMN_SERVER, newAccount.server);
-        values.put(AccountDBHelper.ACCOUNT_COLUMN_EMAIL, newAccount.email);
-        values.put(AccountDBHelper.ACCOUNT_COLUMN_TOKEN, newAccount.token);
-
-        database.update(AccountDBHelper.ACCOUNT_TABLE_NAME, values, "server=? and email=?",
-                new String[]{oldAccount.server, oldAccount.email});
-
-        AccountNotifier.notifyProvider();
-    }
-
-    public void deleteAccount(Account account) {
-        database.delete(AccountDBHelper.ACCOUNT_TABLE_NAME,  "server=? and email=?",
-                new String[] { account.server, account.email });
-
-        AccountNotifier.notifyProvider();
-    }
-
     private Account cursorToAccount(Cursor cursor) {
-        Account account = new Account();
-        account.server = cursor.getString(0);
-        account.email = cursor.getString(1);
-        account.token = cursor.getString(2);
-        return account;
+        return new Account(cursor.getString(0), cursor.getString(1), cursor.getString(2));
     }
 
-    public ServerInfo getServerInfo(String url) {
+    private ServerInfo getServerInfo(SQLiteDatabase database, String url) {
         String[] projection = {SERVER_INFO_COLUMN_URL, SERVER_INFO_COLUMN_VERSION, SERVER_INFO_COLUMN_FEATURE};
 
         Cursor c = database.query(SERVER_INFO_TABLE_NAME,
@@ -257,16 +236,7 @@ public class AccountDBHelper extends SQLiteOpenHelper {
         String version = cursor.getString(1);
         String features = cursor.getString(2);
         ServerInfo serverInfo = new ServerInfo(url, version, features);
-        serverInfo.setProEdition(features.contains("seafile-pro"));
         return serverInfo;
     }
 
-    public void saveServerInfo(ServerInfo serverInfo) {
-        ContentValues values = new ContentValues();
-        values.put(SERVER_INFO_COLUMN_URL, serverInfo.getUrl());
-        values.put(SERVER_INFO_COLUMN_VERSION, serverInfo.getVersion());
-        values.put(SERVER_INFO_COLUMN_FEATURE, serverInfo.getFeatures());
-
-        database.replace(SERVER_INFO_TABLE_NAME, null, values);
-    }
 }
