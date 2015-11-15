@@ -50,6 +50,7 @@ public class AccountsActivity extends SherlockFragmentActivity {
     private AccountAdapter adapter;
     private List<Account> accounts;
     private FileMonitorService mMonitorService;
+    private Account currentDefaultAccount;
     private ServiceConnection mMonitorConnection = new ServiceConnection() {
 
         @Override
@@ -74,7 +75,8 @@ public class AccountsActivity extends SherlockFragmentActivity {
         accountsView = (ListView) findViewById(R.id.account_list_view);
         accountManager = new AccountManager(this);
         avatarManager = new AvatarManager();
-       
+        currentDefaultAccount = accountManager.getCurrentAccount();
+
         View footerView = ((LayoutInflater) this
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
                 R.layout.account_list_footer, null, false);
@@ -173,6 +175,13 @@ public class AccountsActivity extends SherlockFragmentActivity {
         accounts = accountManager.getAccountList();
         adapter.clear();
         adapter.setItems(accounts);
+
+        // if the user switched default account while we were in background,
+        // switch to BrowserActivity
+        Account newCurrentAccount = accountManager.getCurrentAccount();
+        if (newCurrentAccount != null && !newCurrentAccount.equals(currentDefaultAccount)) {
+            startFilesActivity(newCurrentAccount);
+        }
 
         loadAvatarUrls(48);
 
