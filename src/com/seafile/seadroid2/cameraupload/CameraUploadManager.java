@@ -1,148 +1,103 @@
 package com.seafile.seadroid2.cameraupload;
 
-import java.util.List;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.os.Bundle;
 
-import com.seafile.seadroid2.ConcurrentAsyncTask;
-import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.data.SeafCachedPhoto;
-import com.seafile.seadroid2.data.SeafDirent;
-import com.seafile.seadroid2.data.SeafRepo;
-import com.seafile.seadroid2.util.Utils;
+import com.seafile.seadroid2.account.AccountManager;
 
 /**
- * send request to server to ensure that Camera Uploads folder is valid
+ * Camera Upload Manager.
  *
+ * This class can be used by other parts of Seadroid to enable/configure the camera upload
+ * service.
  */
 public class CameraUploadManager {
-    // private static final String DEBUG_TAG = "CameraUploadManager";
 
-    private CameraUploadDBHelper dbHelper;
-    private DataManager mDataManager;
-    private Account account;
+    /**
+     * The authority of the camera sync service
+     */
+    public static final String AUTHORITY = "com.seafile.seadroid2.cameraupload";
 
-    public CameraUploadManager(Account act) {
-        account = act;
-        dbHelper = CameraUploadDBHelper.getInstance();
-        mDataManager = new DataManager(act);
+    AccountManager accountManager;
+
+    public CameraUploadManager(Context context) {
+        accountManager = new AccountManager(context);
     }
 
     /**
-     * get cached photo from local database
+     * Is camera upload enabled?
      *
-     * @param repoName
-     * @param repoID
-     * @param path
-     * @return
+     * @return true if camera upload is enabled.
      */
-    public SeafCachedPhoto getCachedPhoto(String repoName, String repoID,
-            String path) {
-        SeafCachedPhoto cp = dbHelper.getPhotoCacheItem(repoID, path);
-        return cp;
+    public boolean isCameraUploadEnabled() {
+        Account account = getCameraAccount();
+        return account != null;
     }
 
     /**
-     * get cached photo from local database
+     * Get the account that is currently the remote target for the camera upload
      *
-     * @param repoName
-     * @param repoID
-     * @param dir
-     * @param path
-     * @return
+     * @return the account if camera is enabled, null otherwise.
      */
-    public SeafCachedPhoto getCachedPhoto(String repoName, String repoID,
-            String dir, String path) {
-        String validPath = Utils.pathJoin(dir, path);
-        return getCachedPhoto(repoName, repoID, validPath);
+    public Account getCameraAccount() {
+        for (Account account: accountManager.getAccountList()) {
+            int isSyncable = ContentResolver.getIsSyncable(account.getAndroidAccount(), AUTHORITY);
+            if (isSyncable > 0)
+                return account;
+        }
+        return null;
     }
 
     /**
-     * add a photo cache to local database
-     *
-     * @param repoName
-     * @param repoID
-     * @param path
+     * Initiate a camera sync immediately.
      */
-    public void addCachedPhoto(String repoName, String repoID, String path) {
-        SeafCachedPhoto item = new SeafCachedPhoto();
-        item.repoName = repoName;
-        item.repoID = repoID;
-        item.path = path;
-        item.accountSignature = account.getSignature();
-        dbHelper.savePhotoCacheItem(item);
+    public void performSync() {
+        Account cameraAccount = getCameraAccount();
+        if (cameraAccount != null)
+            ContentResolver.requestSync(cameraAccount.getAndroidAccount(), AUTHORITY, Bundle.EMPTY);
     }
 
     /**
-     * remove a photo cache from local database
-     *
-     * @param cp
-     * @return 1 when successfully removed a cache, otherwise 0
-     *
+     * Initiate a camera sync immediately, upload all media files again.
      */
-    public int removeCachedPhoto(SeafCachedPhoto cp) {
-        // unused method
-        // check if the file deletion succeeds
-        return dbHelper.removePhotoCacheItem(cp);
-    }
+    public void performFullSync() {
+        Bundle b = new Bundle();
+        b.putBoolean(ContentResolver.SYNC_EXTRAS_INITIALIZE, true);
 
-    public void onPhotoUploadSuccess(final String repoName, final String repoID, final String path) {
-        ConcurrentAsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
-                addCachedPhoto(repoName, repoID, path);
-            }
-        });
+        Account cameraAccount = getCameraAccount();
+        if (cameraAccount != null)
+            ContentResolver.requestSync(cameraAccount.getAndroidAccount(), AUTHORITY, b);
     }
 
     /**
-     * send request to server to check if one particular folder {@link CameraUploadService#CAMERA_UPLOAD_REMOTE_DIR} exist
+     * Change the account currently responsible for camera upload.
      *
-     *
-     * this method should not be placed in UI thread
-     *
-     * @param repoID
-     * @param parentDir
-     * @return
-     * @throws SeafException
+     * @param account An account. must not be null.
      */
-    public Boolean isRemoteCameraUploadRepoValid(String repoID, String parentDir) throws SeafException {
-        List<SeafRepo> list = mDataManager.getReposFromServer();
-        if (list != null) {
-            for (SeafRepo seafRepo : list) {
-                if (seafRepo.id.equals(repoID)) {
-                    return true;
-                }
+    public void setCameraAccount(Account account) {
+        for (Account a: accountManager.getAccountList()) {
+            if (a.equals(account)) {
+                // enable camera upload on this account
+                ContentResolver.setIsSyncable(a.getAndroidAccount(), AUTHORITY, 1);
+                ContentResolver.setSyncAutomatically(a.getAndroidAccount(), AUTHORITY, true);
+            } else {
+                // disable on all the others
+                ContentResolver.cancelSync(a.getAndroidAccount(), AUTHORITY);
+                ContentResolver.setIsSyncable(a.getAndroidAccount(), AUTHORITY, 0);
+
             }
         }
-
-        return  false;
     }
 
     /**
-     *
-     * camera photos only uploaded to the specific folder called {@link CameraUploadService#CAMERA_UPLOAD_REMOTE_DIR},
-     * the folder was placed under the root directory of the selected library
-     *
-     * get dirents list from server,
-     * traverse the dirents list to check if the remote folder {@link CameraUploadService#CAMERA_UPLOAD_REMOTE_DIR} already existed or not
-     * if not, create a new one
-     *
-     *
-     * @param repoID
-     * @param parentDir
-     * @param dirName
-     * @throws SeafException
+     * Disable camera upload.
      */
-    public void validateRemoteCameraUploadsDir(String repoID, String parentDir, String dirName) throws SeafException {
-        List<SeafDirent> list = mDataManager.getDirentsFromServer(repoID, parentDir);
-
-        for (SeafDirent seafDirent : list) {
-            if (seafDirent.name.equals(CameraUploadService.CAMERA_UPLOAD_REMOTE_DIR)) {
-                return;
-            }
+    public void disableCameraUpload() {
+        for (Account account: accountManager.getAccountList()) {
+            ContentResolver.cancelSync(account.getAndroidAccount(), AUTHORITY);
+            ContentResolver.setIsSyncable(account.getAndroidAccount(), AUTHORITY, 0);
         }
-
-       mDataManager.createNewDir(repoID, parentDir, dirName);
     }
 }

@@ -514,7 +514,10 @@ public class DataManager {
 
     public void addCachedFile(String repoName, String repoID, String path, String fileID, File file) {
         // notify Android Gallery that a new file has appeared
-        Utils.notifyAndroidGalleryFileChange(file);
+
+        // file does not always reside in Seadroid directory structure (e.g. camera upload)
+        if (file.exists())
+            Utils.notifyAndroidGalleryFileChange(file);
 
         SeafCachedFile item = new SeafCachedFile();
         item.repoName = repoName;

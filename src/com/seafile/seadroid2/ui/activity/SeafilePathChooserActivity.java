@@ -607,7 +607,7 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                accounts = accountManager.getAccountList();
+                accounts = accountManager.getSignedInAccountList();
             } catch (Exception e) {
                 err = e;
             }

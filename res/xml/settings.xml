@@ -73,14 +73,14 @@
                 </CheckBoxPreference>
                 <CheckBoxPreference
                         android:defaultValue="false"
-                        android:key="camera_upload_directory_switch_key"
+                        android:key="camera_upload_buckets_switch_key"
                         android:summaryOff="@string/settings_camera_upload_advanced_custom_directories_off"
                         android:summaryOn="@string/settings_camera_upload_advanced_custom_directories_on"
                         android:title="@string/settings_camera_upload_advanced_custom_directories"
                         android:layout="@layout/seafile_checkbox_layout" >
                 </CheckBoxPreference>
                 <Preference
-                        android:key="camera_upload_directory_key"
+                        android:key="camera_upload_buckets_key"
                         android:layout="@layout/preference"
                         android:summary="@string/settings_camera_upload_dir_auto_scan"
                         android:title="@string/settings_camera_upload_choose_dir" >

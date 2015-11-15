@@ -1,7 +1,5 @@
 package com.seafile.seadroid2.ui.activity;
 
-import android.app.ActivityManager;
-import android.app.ActivityManager.RunningServiceInfo;
 import android.app.Dialog;
 import android.content.*;
 import android.content.pm.ResolveInfo;
@@ -11,7 +9,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v4.app.*;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
@@ -35,8 +32,8 @@ import com.google.common.collect.Lists;
 import com.seafile.seadroid2.*;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
-import com.seafile.seadroid2.cameraupload.CameraUploadService;
 import com.seafile.seadroid2.data.ServerInfo;
+import com.seafile.seadroid2.cameraupload.MediaObserverService;
 import com.seafile.seadroid2.data.*;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 import com.seafile.seadroid2.monitor.FileMonitorService;
@@ -166,6 +163,10 @@ public class BrowserActivity extends SherlockFragmentActivity
         super.onCreate(savedInstanceState);
 
         accountManager = new AccountManager(this);
+
+        // restart service should it have been stopped for some reason
+        Intent mediaObserver = new Intent(this, MediaObserverService.class);
+        startService(mediaObserver);
 
         if (!isTaskRoot()) {
             final Intent intent = getIntent();
@@ -497,44 +498,6 @@ public class BrowserActivity extends SherlockFragmentActivity
             else
                 return 2;
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean isUploadStart = settings.getBoolean(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY, false);
-        if (!isUploadStart) {
-            return;
-        }
-        if (isCameraUploadServiceRunning("com.seafile.seadroid2.sync.CameraUploadService")) {
-            Log.d(DEBUG_TAG, "service running...");
-            // even camera upload service is running, still can`t return.
-            // because running state does not guarantee UploadFragment to only show uploading progress, it may show unexpected info like "no upload tasks".
-            // 1. when OS under memory pressure, nothing upload even service state is running
-            // 2. OS will restore upload, of course service state is running as well
-
-            // return;
-        }
-        Log.d(DEBUG_TAG, "start service explicitly on Resume method");
-        Intent cameraUploadIntent = new Intent(this, CameraUploadService.class);
-        startService(cameraUploadIntent);
-    }
-
-    private boolean isCameraUploadServiceRunning(String serviceClassName) {
-        final ActivityManager activityManager =
-                (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        final List<RunningServiceInfo> services = activityManager
-                .getRunningServices(Integer.MAX_VALUE);
-
-        for (RunningServiceInfo runningServiceInfo : services) {
-            if (runningServiceInfo.service.getClassName().equals(
-                    serviceClassName)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public int getCurrentPosition() {

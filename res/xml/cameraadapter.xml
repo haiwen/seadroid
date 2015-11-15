@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sync-adapter
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:contentAuthority="com.seafile.seadroid2.cameraupload"
+        android:accountType="com.seafile.seadroid2"
+        android:userVisible="true"
+        android:supportsUploading="true"
+        android:allowParallelSyncs="false"
+        android:isAlwaysSyncable="true"/>

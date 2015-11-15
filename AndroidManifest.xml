@@ -10,6 +10,13 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
+    <!-- to start monitor services during boot -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
+    <!-- to modify Seadroid's own account sync settings -->
+    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS"/>
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
+
     <!-- get list of Seadroid accounts -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS"
         android:maxSdkVersion="22"/>
@@ -163,7 +170,14 @@
         </provider>
         <service android:name="com.seafile.seadroid2.transfer.TransferService" > </service>
         <service android:name="com.seafile.seadroid2.monitor.FileMonitorService" > </service>
-        <service android:name="com.seafile.seadroid2.cameraupload.CameraUploadService" > </service>
+        <service android:name=".cameraupload.MediaObserverService" />
+
+        <provider
+            android:name=".cameraupload.StubContentProvider"
+            android:authorities="com.seafile.seadroid2.cameraupload"
+            android:label="@string/sync_provider_camera_upload"
+            android:exported="false"
+            android:syncable="true"/>
 
         <service android:name=".account.AuthenticatorService" >
             <intent-filter>
@@ -172,5 +186,23 @@
             <meta-data android:name="android.accounts.AccountAuthenticator" android:resource="@xml/authenticator" />
         </service>
 
+        <service
+                android:name=".cameraupload.CameraSyncService"
+                android:exported="true">
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter"/>
+            </intent-filter>
+            <meta-data android:name="android.content.SyncAdapter"
+                    android:resource="@xml/cameraadapter" />
+        </service>
+
+        <receiver android:name="com.seafile.seadroid2.BootAutostart">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.ACTION_MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
       </application>
 </manifest>

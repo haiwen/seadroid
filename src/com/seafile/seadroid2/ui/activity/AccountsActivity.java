@@ -191,7 +191,7 @@ public class AccountsActivity extends SherlockFragmentActivity {
         // switch to BrowserActivity
         Account newCurrentAccount = accountManager.getCurrentAccount();
         if (newCurrentAccount != null && !newCurrentAccount.equals(currentDefaultAccount)) {
-            startFilesActivity(newCurrentAccount);
+            startFilesActivity();
         }
 
         loadAvatarUrls(48);

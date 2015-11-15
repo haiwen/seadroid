@@ -169,6 +169,14 @@ public class AccountDBHelper extends SQLiteOpenHelper {
                 mAccountManager.setUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_VERSION, info.getVersion());
             }
 
+            // MIGRATE camera sync settings
+            if (cameraAccount != null && cameraAccount.equals(account)) {
+                Log.d(DEBUG_TAG, "enabling camera sync");
+                ContentResolver.setIsSyncable(account.getAndroidAccount(), CameraUploadManager.AUTHORITY, 1);
+                ContentResolver.setSyncAutomatically(account.getAndroidAccount(), CameraUploadManager.AUTHORITY, true);
+            } else {
+                ContentResolver.setIsSyncable(account.getAndroidAccount(), CameraUploadManager.AUTHORITY, 0);
+            }
             Log.d(DEBUG_TAG, "Finished migrating seafile account: " + account);
         }
 

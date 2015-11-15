@@ -146,6 +146,9 @@ public class SeafileAuthenticatorActivity extends AccountAuthenticatorActivity {
 
             Log.d(DEBUG_TAG, "removing old account " + oldAccountName);
 
+            cameraIsSyncable = ContentResolver.getIsSyncable(oldAccount, CameraUploadManager.AUTHORITY);
+            cameraSyncAutomatically = ContentResolver.getSyncAutomatically(oldAccount, CameraUploadManager.AUTHORITY);
+
             mAccountManager.removeAccount(oldAccount, null, null);
         }
 
@@ -155,6 +158,11 @@ public class SeafileAuthenticatorActivity extends AccountAuthenticatorActivity {
         mAccountManager.setAuthToken(newAccount, Authenticator.AUTHTOKEN_TYPE, authtoken);
         mAccountManager.setUserData(newAccount, Authenticator.KEY_SERVER_URI, serveruri);
         mAccountManager.setUserData(newAccount, Authenticator.KEY_EMAIL, email);
+
+        // set sync settings
+
+        ContentResolver.setIsSyncable(newAccount, CameraUploadManager.AUTHORITY, cameraIsSyncable);
+        ContentResolver.setSyncAutomatically(newAccount, CameraUploadManager.AUTHORITY, cameraSyncAutomatically);
 
         Bundle result = new Bundle();
         result.putBoolean(AccountManager.KEY_BOOLEAN_RESULT, true);

@@ -15,14 +15,16 @@ import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.RelativeLayout;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SettingsManager;
+
 /**
- * Local directories fragment
+ * Buckets fragment
  */
-public class LocalDirFragment extends Fragment {
+public class BucketsFragment extends Fragment {
 
     private CameraUploadConfigActivity mActivity;
     private FragmentManager fm;
-    private LocalDirSelectionFragment mSelectionFragment;
+    private BucketsSelectionFragment mSelectionFragment;
     private RadioGroup mRadioGroup;
     private Button mDoneBtn;
     private TranslateAnimation mSlideInAnimation;
@@ -66,16 +68,18 @@ public class LocalDirFragment extends Fragment {
         // RadioButton mAutoScanRadioBtn = (RadioButton) mRadioGroup.findViewById(R.id.cuc_local_library_auto_scan_rb);
         // RadioButton mCustomPickRadioBtn = (RadioButton) mRadioGroup.findViewById(R.id.cuc_local_library_pick_folders_rb);
 
-        if (mActivity.isCustomScanDir()) {
-            // pick custom folders to scan
-            mDirectoriesLayout.setVisibility(View.VISIBLE);
-            mDirectoriesLayout.setEnabled(true);
-            mRadioGroup.check(R.id.cuc_local_directory_pick_folders_rb);
-        } else {
+        SettingsManager settingsManager = SettingsManager.instance();
+
+        if (settingsManager.getCameraUploadBucketList().isEmpty()) {
             // auto scan
             mDirectoriesLayout.setVisibility(View.INVISIBLE);
             mDirectoriesLayout.setEnabled(false);
             mRadioGroup.check(R.id.cuc_local_directory_auto_scan_rb);
+        } else {
+            // pick custom folders to scan
+            mDirectoriesLayout.setVisibility(View.VISIBLE);
+            mDirectoriesLayout.setEnabled(true);
+            mRadioGroup.check(R.id.cuc_local_directory_pick_folders_rb);
         }
 
         mRadioGroup.setOnCheckedChangeListener(onCheckedChangeListener);
@@ -92,14 +96,15 @@ public class LocalDirFragment extends Fragment {
         public void onCheckedChanged(RadioGroup radioGroup, int radioButtonId) {
             switch (radioButtonId) {
                 case R.id.cuc_local_directory_auto_scan_rb:
-                    mActivity.saveCustomScanDir(false);
+                    mActivity.saveSettings();
                     mDirectoriesLayout.startAnimation(mSlideOutAnimation);
                     mDirectoriesLayout.setEnabled(false);
+                    mActivity.saveSettings();
                     break;
                 case R.id.cuc_local_directory_pick_folders_rb:
-                    mActivity.saveCustomScanDir(true);
                     mDirectoriesLayout.startAnimation(mSlideInAnimation);
                     mDirectoriesLayout.setEnabled(true);
+                    mActivity.saveSettings();
                     break;
             }
 
@@ -107,10 +112,14 @@ public class LocalDirFragment extends Fragment {
 
     };
 
+    public boolean isAllBucketsSelected() {
+        return mRadioGroup.getCheckedRadioButtonId() == R.id.cuc_local_directory_auto_scan_rb;
+    }
+
     private View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            mActivity.startCameraUploadService();
+            mActivity.saveSettings();
             mActivity.finish();
         }
     };
@@ -159,13 +168,12 @@ public class LocalDirFragment extends Fragment {
      * Instantiates a new fragment if mSelectionFragment is null.
      * Returns the current fragment, otherwise.
      */
-    public LocalDirSelectionFragment getSelectionFragment() {
+    public BucketsSelectionFragment getSelectionFragment() {
         if (mSelectionFragment == null) {
-            mSelectionFragment = new LocalDirSelectionFragment();
+            mSelectionFragment = new BucketsSelectionFragment();
         }
 
         return mSelectionFragment;
     }
 
 }
-

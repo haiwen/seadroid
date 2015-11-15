@@ -126,8 +126,15 @@ public class AccountManager {
      */
     public void signOutAccount(Account account) {
 
+        CameraUploadManager cameraManager = new CameraUploadManager(ctx);
+
         accountManager.invalidateAuthToken(Account.ACCOUNT_TYPE, account.getToken());
 
+        // disable camera upload if on this account
+        Account camAccount = cameraManager.getCameraAccount();
+        if (camAccount != null && camAccount.equals(account)) {
+            cameraManager.disableCameraUpload();
+        }
     }
 
     /**
