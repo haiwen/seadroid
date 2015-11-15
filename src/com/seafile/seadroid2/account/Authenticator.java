@@ -9,7 +9,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.seafile.seadroid2.SeafException;
-import com.seafile.seadroid2.ui.activity.SeafileAuthenticatorActivity;
+import com.seafile.seadroid2.account.ui.SeafileAuthenticatorActivity;
 import com.seafile.seadroid2.data.DataManager;
 
 import org.json.JSONException;

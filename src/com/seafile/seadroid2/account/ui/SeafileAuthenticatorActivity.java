@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.ui.activity;
+package com.seafile.seadroid2.account.ui;
 
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorActivity;
@@ -15,7 +15,6 @@ import android.widget.ListView;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Authenticator;
 import com.seafile.seadroid2.cameraupload.CameraUploadManager;
-import com.seafile.seadroid2.transfer.TransferManager;
 
 /**
  * The Authenticator activity.

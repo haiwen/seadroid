@@ -43,12 +43,12 @@
                   android:label="@string/app_name">
         </activity>
 
-        <activity android:name="com.seafile.seadroid2.ui.activity.ShibbolethActivity"
+        <activity android:name=".account.ui.ShibbolethActivity"
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>
 
-        <activity android:name="com.seafile.seadroid2.ui.activity.ShibbolethAuthorizeActivity"
+        <activity android:name=".account.ui.ShibbolethAuthorizeActivity"
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>
@@ -86,7 +86,7 @@
                   android:label="@string/app_name">
         </activity>
 
-        <activity android:name="com.seafile.seadroid2.ui.activity.AccountDetailActivity"
+        <activity android:name=".account.ui.AccountDetailActivity"
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>
@@ -124,7 +124,7 @@
                   android:label="@string/app_name">
         </activity>
 
-        <activity android:name=".ui.activity.SeafileAuthenticatorActivity"
+        <activity android:name=".account.ui.SeafileAuthenticatorActivity"
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>
