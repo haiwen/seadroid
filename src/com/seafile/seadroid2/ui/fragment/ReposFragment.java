@@ -439,7 +439,7 @@ public class ReposFragment extends SherlockListFragment
 
         NavContext navContext = getNavContext();
         if (navContext.inRepo()) {
-            if (mActivity.getCurrentPosition() == 0) {
+            if (mActivity.getCurrentPosition() == BrowserActivity.INDEX_LIBRARY_TAB) {
                 mActivity.enableUpButton();
             }
             navToDirectory(forceRefresh);

@@ -83,6 +83,10 @@ public class BrowserActivity extends SherlockFragmentActivity
     public static final String CHOOSE_APP_DIALOG_FRAGMENT_TAG = "choose_app_fragment";
     public static final String PICK_FILE_DIALOG_FRAGMENT_TAG = "pick_file_fragment";
 
+    public static final int INDEX_LIBRARY_TAB = 0;
+    public static final int INDEX_STARRED_TAB = 1;
+    public static final int INDEX_ACTIVITIES_TAB = 2;
+
     private static final int[] ICONS = new int[] {
         R.drawable.tab_library, R.drawable.tab_starred,
         R.drawable.tab_activity
@@ -231,7 +235,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                 currentPosition = position;
                 supportInvalidateOptionsMenu();
                 pager.setCurrentItem(position);
-                if (currentPosition != 0) {
+                if (currentPosition != INDEX_LIBRARY_TAB) {
                     disableUpButton();
                 } else if (navContext.inRepo()) {
                     enableUpButton();
@@ -734,7 +738,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         switch (item.getItemId()) {
         case android.R.id.home:
-            if (navContext.inRepo() && currentPosition == 0) {
+            if (navContext.inRepo() && currentPosition == INDEX_LIBRARY_TAB) {
                 onBackPressed();
             }
             return true;
@@ -763,7 +767,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                 ToastUtils.show(this, R.string.network_down);
                 return true;
             }
-            if (currentPosition == 0) {
+            if (currentPosition == INDEX_LIBRARY_TAB) {
                 if (navContext.inRepo()) {
                     SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
                     if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
@@ -781,9 +785,9 @@ public class BrowserActivity extends SherlockFragmentActivity
                 }
 
                 getReposFragment().refresh();
-            } else if (currentPosition == 2) {
+            } else if (currentPosition == INDEX_ACTIVITIES_TAB) {
                 getActivitiesFragment().refreshView();
-            } else if (currentPosition == 1) {
+            } else if (currentPosition == INDEX_STARRED_TAB) {
                 getStarredFragment().refresh();
             }
             return true;
@@ -794,7 +798,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                 ToastUtils.show(this, R.string.network_down);
                 return true;
             }
-            if (currentPosition == 0) {
+            if (currentPosition == INDEX_LIBRARY_TAB) {
                 if (navContext.inRepo()) {
                     SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
                     if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
@@ -900,7 +904,7 @@ public class BrowserActivity extends SherlockFragmentActivity
      * @param type
      */
     private void sortFiles(final int type, final int order) {
-        if (currentPosition == 0) {
+        if (currentPosition == INDEX_LIBRARY_TAB) {
             if (navContext.inRepo()) {
                 SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
                 if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
@@ -976,7 +980,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             public void onTaskSuccess() {
                 ToastUtils.show(BrowserActivity.this, "Sucessfully created folder " + dialog.getNewDirName());
                 ReposFragment reposFragment = getReposFragment();
-                if (currentPosition == 0 && reposFragment != null) {
+                if (currentPosition == INDEX_LIBRARY_TAB && reposFragment != null) {
                     reposFragment.refreshView();
                 }
             }
@@ -997,7 +1001,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             public void onTaskSuccess() {
                 ToastUtils.show(BrowserActivity.this, "Sucessfully created file " + dialog.getNewFileName());
                 ReposFragment reposFragment = getReposFragment();
-                if (currentPosition == 0 && reposFragment != null) {
+                if (currentPosition == INDEX_LIBRARY_TAB && reposFragment != null) {
                     reposFragment.refreshView();
                 }
             }
@@ -1059,7 +1063,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         if (navContext == null)
             return;
 
-        if (position == 0) {
+        if (position == INDEX_LIBRARY_TAB) {
             if (navContext.inRepo()) {
                 if (navContext.getDirPath().equals(BrowserActivity.ACTIONBAR_PARENT_PATH)) {
                     setUpButtonTitle(navContext.getRepoName());
@@ -1494,7 +1498,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             return;
         }
 
-        if (currentSelectedItem == FILES_VIEW && currentPosition == 0) {
+        if (currentSelectedItem == FILES_VIEW && currentPosition == INDEX_LIBRARY_TAB) {
             if (navContext.inRepo()) {
                 if (navContext.isRepoRoot()) {
                     navContext.setRepoID(null);
@@ -1632,7 +1636,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             public void onTaskSuccess() {
                 ToastUtils.show(BrowserActivity.this, R.string.rename_successful);
                 ReposFragment reposFragment = getReposFragment();
-                if (currentPosition == 0 && reposFragment != null) {
+                if (currentPosition == INDEX_LIBRARY_TAB && reposFragment != null) {
                     reposFragment.refreshView();
                 }
             }
@@ -1656,7 +1660,7 @@ public class BrowserActivity extends SherlockFragmentActivity
             public void onTaskSuccess() {
                 ToastUtils.show(BrowserActivity.this, R.string.delete_successful);
                 ReposFragment reposFragment = getReposFragment();
-                if (currentPosition == 0 && reposFragment != null) {
+                if (currentPosition == INDEX_LIBRARY_TAB && reposFragment != null) {
                     reposFragment.refreshView();
                 }
             }
@@ -1723,7 +1727,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
                 if (copyMoveContext.isMove()) {
                     ReposFragment reposFragment = getReposFragment();
-                    if (currentPosition == 0 && reposFragment != null) {
+                    if (currentPosition == INDEX_LIBRARY_TAB && reposFragment != null) {
                         reposFragment.refreshView();
                     }
                 }
@@ -1748,7 +1752,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         if (err != null
                 && err.getCode() == SeafConnection.HTTP_STATUS_REPO_PASSWORD_REQUIRED) {
-            if (currentPosition == 0
+            if (currentPosition == INDEX_LIBRARY_TAB
                     && repoID.equals(navContext.getRepoID())
                     && Utils.getParentPath(path)
                             .equals(navContext.getDirPath())) {
@@ -1782,7 +1786,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         String repoID = info.repoID;
         String dir = info.parentDir;
-        if (currentPosition == 0
+        if (currentPosition == INDEX_LIBRARY_TAB
                 && repoID.equals(navContext.getRepoID())
                 && dir.equals(navContext.getDirPath())) {
             getReposFragment().refreshView(true);
