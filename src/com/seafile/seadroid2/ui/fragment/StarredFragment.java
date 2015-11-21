@@ -285,7 +285,6 @@ public class StarredFragment extends SherlockListFragment
             return;
         }
 
-        //String p = Utils.pathJoin(path, filename);
         ConcurrentAsyncTask.execute(new UnStarFileTask(repoID, path));
 
     }
@@ -458,9 +457,6 @@ public class StarredFragment extends SherlockListFragment
     }
 
     public void startContextualActionMode() {
-        //NavContext nav = getNavContext();
-        //if (!nav.inRepo()) return;
-
         if (mActionMode == null) {
             // start the actionMode
             mActionMode = mActivity.startActionMode(new ActionModeCallback(this));
@@ -500,16 +496,6 @@ public class StarredFragment extends SherlockListFragment
                 case R.id.multi_op_unstar_rl:
                     unStarFiles(selectedDirents);
                     break;
-                /*case R.id.multi_op_copy_rl:
-                    mActivity.copyFiles(repoID, repoName, dirPath, selectedDirents);
-                    break;
-                case R.id.multi_op_move_rl:
-                    mActivity.moveFiles(repoID, repoName, dirPath, selectedDirents);
-                    break;
-                case R.id.multi_op_download_rl:
-                    mActivity.downloadFiles(repoID, repoName, dirPath, selectedDirents);
-                    break;*/
-
             }
         }
     }
