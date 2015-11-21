@@ -192,7 +192,7 @@ public class ActivitiesFragment extends SherlockFragment {
         intent.putExtra("filePath", path);
         intent.putExtra("account", getBrowserActivity().getAccount());
         intent.putExtra("taskID", taskID);
-        startActivityForResult(intent, BrowserActivity.DOWNLOAD_FILE_REQUEST);
+        getBrowserActivity().startActivityForResult(intent, BrowserActivity.DOWNLOAD_FILE_REQUEST);
     }
 
     private class MyWebViewClient extends WebViewClient {
