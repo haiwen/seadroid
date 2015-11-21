@@ -17,6 +17,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -245,6 +246,12 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
                 statusView.setText(R.string.invalid_server_address);
                 Log.d(DEBUG_TAG, "Invalid URL " + serverURL);
                 return;
+            }
+
+            // force the keyboard to be hidden in all situations
+            if (getCurrentFocus() != null) {
+                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
             }
 
             loginButton.setEnabled(false);
