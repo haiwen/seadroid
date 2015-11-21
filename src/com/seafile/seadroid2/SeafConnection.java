@@ -920,6 +920,22 @@ public class SeafConnection {
         }
     }
 
+    public void unstar(String repoID, String path) throws SeafException {
+        try {
+            Map<String, Object> params = Maps.newHashMap();
+            params.put("repo_id", repoID);
+            params.put("p", path);
+            HttpRequest req = prepareApiDeleteRequest("api2/starredfiles/", params);
+
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+
+        } catch (SeafException e) {
+            throw e;
+        } catch (HttpRequestException e) {
+            throw getSeafExceptionFromHttpRequestException(e);
+        }
+    }
+
     public Pair<String, String> rename(String repoID, String path,
                                        String newName, boolean isdir) throws SeafException {
         try {

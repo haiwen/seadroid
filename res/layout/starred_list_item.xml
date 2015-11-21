@@ -5,10 +5,19 @@
                 android:padding="@dimen/lv_item_padding">
 
     <ImageView
+            android:id="@+id/list_item_multi_select_btn"
+            android:layout_width="@dimen/lv_multi_select_width"
+            android:layout_height="@dimen/lv_multi_select_height"
+            android:paddingLeft="@dimen/lv_multi_select_padding_left"
+            android:layout_alignParentLeft="true"
+            android:layout_centerInParent="true"
+            android:visibility="visible"/>
+
+    <ImageView
             android:id="@+id/starred_list_item_icon"
             android:layout_width="@dimen/lv_icon_width"
             android:layout_height="@dimen/lv_icon_height"
-            android:layout_alignParentLeft="true"
+            android:layout_toRightOf="@id/list_item_multi_select_btn"
             android:layout_centerVertical="true"/>
 
     <ImageView
