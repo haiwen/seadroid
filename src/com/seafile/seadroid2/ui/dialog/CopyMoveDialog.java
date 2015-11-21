@@ -46,7 +46,7 @@ public class CopyMoveDialog extends TaskDialog {
         int strMsgId;
         if (ctx.isdir) {
             strTitleId = ctx.isCopy() ? R.string.copy_folder_ing : R.string.move_folder_ing;
-            strMsgId = ctx.isCopy() ? R.string.copy_folder_from : R.string.move_folder_from;
+            strMsgId = ctx.isCopy() ? R.string.copy_file_from : R.string.move_file_from;
         } else {
             strTitleId = ctx.isCopy() ? R.string.copy_file_ing : R.string.move_file_ing;
             strMsgId = ctx.isCopy() ? R.string.copy_file_from : R.string.move_file_from;
