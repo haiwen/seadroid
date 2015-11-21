@@ -734,7 +734,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         switch (item.getItemId()) {
         case android.R.id.home:
-            if (navContext.inRepo()) {
+            if (navContext.inRepo() && currentPosition == 0) {
                 onBackPressed();
             }
             return true;

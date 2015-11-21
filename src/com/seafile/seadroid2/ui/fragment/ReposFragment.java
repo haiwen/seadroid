@@ -439,7 +439,9 @@ public class ReposFragment extends SherlockListFragment
 
         NavContext navContext = getNavContext();
         if (navContext.inRepo()) {
-            mActivity.enableUpButton();
+            if (mActivity.getCurrentPosition() == 0) {
+                mActivity.enableUpButton();
+            }
             navToDirectory(forceRefresh);
         } else {
             mActivity.disableUpButton();
@@ -487,8 +489,6 @@ public class ReposFragment extends SherlockListFragment
 
         NavContext nav = getNavContext();
         DataManager dataManager = getDataManager();
-
-        mActivity.enableUpButton();
 
         SeafRepo repo = getDataManager().getCachedRepoByID(nav.getRepoID());
         if (repo != null) {
