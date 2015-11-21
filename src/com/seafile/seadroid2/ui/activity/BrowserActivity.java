@@ -1699,6 +1699,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
         final CopyMoveDialog dialog = new CopyMoveDialog();
         dialog.init(account, copyMoveContext);
+        dialog.setCancelable(false);
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
@@ -1825,6 +1826,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     public void deleteFiles(final String repoID, String path, List<SeafDirent> dirents) {
         final DeleteFileDialog dialog = new DeleteFileDialog();
         dialog.init(repoID, path, dirents, account);
+        dialog.setCancelable(false);
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
