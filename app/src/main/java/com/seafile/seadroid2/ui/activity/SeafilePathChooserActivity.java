@@ -3,7 +3,6 @@ package com.seafile.seadroid2.ui.activity;
 import java.net.HttpURLConnection;
 import java.util.List;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -15,7 +14,6 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -33,19 +31,18 @@ import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
-import com.seafile.seadroid2.ui.adapter.AccountAdapter;
-import com.seafile.seadroid2.ui.adapter.DirentsAdapter;
-import com.seafile.seadroid2.ui.adapter.ReposAdapter;
+import com.seafile.seadroid2.ui.ToastUtils;
+import com.seafile.seadroid2.ui.adapter.*;
 import com.seafile.seadroid2.ui.dialog.PasswordDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
-import com.seafile.seadroid2.ui.fragment.SettingsPreferenceFragment;
+import com.seafile.seadroid2.ui.fragment.SettingsFragment;
 import com.seafile.seadroid2.util.Utils;
 
 /**
  * Path chooser - Let the user choose a target path (account, repo, dir)
  */
 public class SeafilePathChooserActivity extends SherlockFragmentActivity {
-    private static final String DEBUG_TAG = "ShareToSeafileActivity";
+    private static final String DEBUG_TAG = "SeafilePathChooserActivity";
 
     public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "password_dialog_fragment_tag";
 
@@ -57,7 +54,7 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
     private DataManager mDataManager;
 
     private AccountAdapter mAccountAdapter;
-    private ReposAdapter mReposAdapter;
+    private SeafReposAdapter mReposAdapter;
     private DirentsAdapter mDirentsAdapter;
 
     private LoadDirTask mLoadDirTask;
@@ -83,6 +80,7 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
 
     public static final String DATA_REPO_ID = "repoID";
     public static final String DATA_REPO_NAME = "repoNAME";
+    public static final String DATA_DIRECTORY_PATH = "dirPath";
     public static final String DATA_DIR = "dir";
     public static final String DATA_ACCOUNT = "account";
 
@@ -116,7 +114,7 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
         mListContainer = findViewById(R.id.listContainer);
         mProgressContainer = findViewById(R.id.progressContainer);
         mContentArea = findViewById(R.id.content);
-        isOnlyChooseRepo = intent.getBooleanExtra(SettingsPreferenceFragment.EXTRA_CAMERA_UPLOAD, false);
+        isOnlyChooseRepo = intent.getBooleanExtra(SettingsFragment.CAMERA_UPLOAD_BOTH_PAGES, false);
         if (isOnlyChooseRepo) {
             mOkButton.setVisibility(View.GONE);
             mTransparentSpace.setVisibility(View.GONE);
@@ -163,7 +161,8 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        if (SettingsManager.instance().isGestureLockRequired()) {
+        if (android.os.Build.VERSION.SDK_INT < 14
+                && SettingsManager.instance().isGestureLockRequired()) {
             Intent newIntent = new Intent(this, UnlockGesturePasswordActivity.class);
             startActivity(newIntent);
         }
@@ -386,7 +385,7 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
 
     private void chooseRepo(boolean forceRefresh) {
         mStep = STEP_CHOOSE_REPO;
-        mEmptyText.setText(R.string.no_library);
+        mEmptyText.setText(R.string.no_repo);
 
         setListAdapter(getReposAdapter());
         mOkButton.setVisibility(View.GONE);
@@ -499,16 +498,6 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
         passwordDialog.show(getSupportFragmentManager(), PASSWORD_DIALOG_FRAGMENT_TAG);
     }
 
-    public void showToast(CharSequence msg) {
-        Context context = getApplicationContext();
-        Toast toast = Toast.makeText(context, msg, Toast.LENGTH_SHORT);
-        toast.show();
-    }
-
-    public void showToast(int id) {
-        showToast(getString(id));
-    }
-
     private void showLoading(boolean loading) {
         clearError();
         if (loading) {
@@ -577,15 +566,15 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
 
     private AccountAdapter getAccountAdapter() {
         if (mAccountAdapter == null) {
-            mAccountAdapter = new AccountAdapter(this);
+            mAccountAdapter = new SeafAccountAdapter(this);
         }
 
         return mAccountAdapter;
     }
 
-    private ReposAdapter getReposAdapter() {
+    private SeafReposAdapter getReposAdapter() {
         if (mReposAdapter == null) {
-            mReposAdapter = new ReposAdapter(onlyShowWritableRepos, encryptedRepoId);
+            mReposAdapter = new SeafReposAdapter(onlyShowWritableRepos, encryptedRepoId);
         }
 
         return mReposAdapter;
@@ -727,7 +716,7 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
                 if (retCode == SeafConnection.HTTP_STATUS_REPO_PASSWORD_REQUIRED) {
                     showPasswordDialog();
                 } else if (retCode == HttpURLConnection.HTTP_NOT_FOUND) {
-                    showToast(String.format("The folder \"%s\" was deleted", dirPath));
+                    ToastUtils.show(SeafilePathChooserActivity.this, String.format("The folder \"%s\" was deleted", dirPath));
                 } else {
                     Log.d(DEBUG_TAG, "failed to load dirents: " + err.getMessage());
                     err.printStackTrace();

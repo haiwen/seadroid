@@ -1,128 +1,59 @@
 package com.seafile.seadroid2.transfer;
 
-import java.io.File;
+import android.app.NotificationManager;
+import android.util.Log;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.seafile.seadroid2.ConcurrentAsyncTask;
+import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.util.Utils;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-
-import android.os.AsyncTask;
-import android.util.Log;
-
-import com.google.common.collect.Lists;
-import com.seafile.seadroid2.SeafException;
-import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.data.ProgressMonitor;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Manages file downloading and uploading.
- *
+ * <p/>
  * Currently use an AsyncTask for an file.
  */
-public class TransferManager {
+public abstract class TransferManager {
     private static final String DEBUG_TAG = "TransferManager";
 
-    public enum TaskState { INIT, TRANSFERRING, FINISHED, CANCELLED, FAILED }
-
-    public interface TransferListener {
-        void onFileUploadProgress(int taskID);
-        void onFileUploaded(int taskID);
-        void onFileUploadCancelled(int taskID);
-        void onFileUploadFailed(int taskID);
-
-        void onFileDownloadProgress(int taskID);
-        void onFileDownloaded(int taskID);
-        void onFileDownloadFailed(int taskID);
-    }
-
-    private ArrayList<UploadTask> uploadTasks;
-    private ArrayList<DownloadTask> downloadTasks;
-    private int notificationID;
-    TransferListener listener;
-
-    public TransferManager() {
-        notificationID = 0;
-        uploadTasks = Lists.newArrayList();
-        downloadTasks = Lists.newArrayList();
-        listener = null;
-    }
-
-    public void setListener(TransferListener listener) {
-        this.listener = listener;
-    }
-
-    public void unsetListener() {
-        listener = null;
-    }
+    public static final String BROADCAST_ACTION = "com.seafile.seadroid.TX_BROADCAST";
 
     /**
-     * Add a new upload task
+     * unique task id
      */
-    public int addUploadTask(Account account, String repoID, String repoName,
-                              String dir, String filePath, boolean isUpdate, boolean isCopyToLocal) {
-        Iterator<UploadTask> iter = uploadTasks.iterator();
-        
-        while (iter.hasNext()) {
-            UploadTask task = iter.next();
-            if (task.myRepoID.equals(repoID) && task.myPath.equals(filePath)) {
-                if (task.myState == TaskState.CANCELLED || task.myState == TaskState.FAILED
-                        || task.myState == TaskState.FINISHED) {
-                    // If there is a duplicate, but it has failed or been
-                    // cancelled, remove it first
-                    iter.remove();
-                    break;
-                } else {
-                    // A duplicate task is uploading
-                    return task.getTaskID();
-                }
-            }
-        }
+    protected int notificationID;
 
-        UploadTask task = new UploadTask(account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal);
-        task.execute();
-        return task.getTaskID();
-    }
-
+    protected static final int TRANSFER_MAX_COUNT = 2;
     /**
-     * Add a new download task
+     * contains all transfer tasks, including failed, cancelled, finished, transferring, waiting tasks.
      */
-    public int addDownloadTask(Account account,
-                               String repoName,
-                               String repoID,
-                               String path) {
-        Iterator<DownloadTask> iter = downloadTasks.iterator();
-        while (iter.hasNext()) {
-            DownloadTask task = iter.next();
-            if (task.myRepoID.equals(repoID) && task.myPath.equals(path)) {
-                if (task.myState == TaskState.CANCELLED || task.myState == TaskState.FAILED
-                        || task.myState == TaskState.FINISHED) {
-                    // If there is a duplicate, but it has failed or been
-                    // cancelled, remove it first
-                    iter.remove();
-                    break;
-                } else {
-                    // A duplicate task is downloading
-                    return task.getTaskID();
-                }
-            }
-        }
+    protected List<TransferTask> allTaskList = Lists.newArrayList();
+    /**
+     * contains currently transferring tasks
+     */
+    protected List<TransferTask> transferringList = Lists.newArrayList();
+    /**
+     * contains waiting tasks
+     */
+    protected List<TransferTask> waitingList = Lists.newArrayList();
 
-        DownloadTask task = new DownloadTask(account, repoName, repoID, path);
-        task.execute();
-        return task.getTaskID();
-    }
-
-    private UploadTask getUploadTaskByID(int taskID) {
-        for (UploadTask task : uploadTasks) {
+    protected synchronized TransferTask getTask(int taskID) {
+        for (TransferTask task : allTaskList) {
             if (task.getTaskID() == taskID) {
                 return task;
             }
         }
         return null;
     }
-    
-    public UploadTaskInfo getUploadTaskInfo (int taskID) {
-        UploadTask task = getUploadTaskByID(taskID);
+
+    public TransferTaskInfo getTaskInfo(int taskID) {
+        TransferTask task = getTask(taskID);
         if (task != null) {
             return task.getTaskInfo();
         }
@@ -130,308 +61,158 @@ public class TransferManager {
         return null;
     }
 
-    public List<UploadTaskInfo> getAllUploadTaskInfos() {
-        ArrayList<UploadTaskInfo> infos = Lists.newArrayList();
-        for (UploadTask task : uploadTasks) {
-            infos.add(task.getTaskInfo());
+    private synchronized boolean hasInQue(TransferTask transferTask) {
+        if (waitingList.contains(transferTask)) {
+            // Log.d(DEBUG_TAG, "in  Que  " + taskID + " " + repoName + path + "in waiting list");
+            return true;
         }
 
-        return infos;
+        if (transferringList.contains(transferTask)) {
+            // Log.d(DEBUG_TAG, "in  Que  " + taskID + " " + repoName + path + " in downloading list");
+            return true;
+        }
+        return false;
     }
-    
-    public void removeUploadTask(int taskID) {
-        UploadTask task = getUploadTaskByID(taskID);
-        if (task != null) {
-            uploadTasks.remove(task);
+
+    protected void addTaskToQue(TransferTask task) {
+        if (!hasInQue(task)) {
+            // remove the cancelled or failed task if any
+            synchronized (this) {
+                allTaskList.remove(task);
+
+                // add new created task
+                allTaskList.add(task);
+
+                // Log.d(DEBUG_TAG, "add Que  " + taskID + " " + repoName + path);
+                waitingList.add(task);
+            }
+            doNext();
         }
     }
-    
-    public void removeFinishedUploadTasks() {
-        Iterator<UploadTask> iter = uploadTasks.iterator();
+
+    public synchronized void doNext() {
+        if (!waitingList.isEmpty()
+                && transferringList.size() < TRANSFER_MAX_COUNT) {
+            Log.d(DEBUG_TAG, "do next!");
+
+            TransferTask task = waitingList.remove(0);
+            transferringList.add(task);
+
+            ConcurrentAsyncTask.execute(task);
+        }
+    }
+
+    protected void cancel(int taskID) {
+        TransferTask task = getTask(taskID);
+        if (task != null) {
+            task.cancel();
+
+        }
+
+        remove(taskID);
+    }
+
+    protected synchronized void remove(int taskID) {
+
+        TransferTask toCancel = getTask(taskID);
+        if (toCancel == null)
+            return;
+
+        if (!waitingList.isEmpty()) {
+            waitingList.remove(toCancel);
+        }
+
+        if (!transferringList.isEmpty()) {
+            transferringList.remove(toCancel);
+        }
+    }
+
+    public void removeInAllTaskList(int taskID) {
+        TransferTask task = getTask(taskID);
+        if (task != null) {
+            synchronized (this) {
+                allTaskList.remove(task);
+            }
+        }
+    }
+
+    public synchronized List<TransferTask> getTasksByState(TaskState taskState) {
+        List<TransferTask> taskList = Lists.newArrayList();
+        Iterator<TransferTask> iter = allTaskList.iterator();
         while (iter.hasNext()) {
-            UploadTask task = iter.next();
-            if (task.getState() == TaskState.FINISHED) {
+            TransferTask task = iter.next();
+            if (task.state.equals(taskState)) {
+                taskList.add(task);
+            }
+        }
+        return taskList;
+    }
+
+    /**
+     * remove tasks from {@link #allTaskList} by comparing the taskState,
+     * all tasks with the same taskState will be removed.
+     *
+     * @param taskState
+     *          taskState
+     */
+    public synchronized void removeByState(TaskState taskState) {
+        Iterator<TransferTask> iter = allTaskList.iterator();
+        while (iter.hasNext()) {
+            TransferTask task = iter.next();
+            if (task.getState().equals(taskState)) {
                 iter.remove();
             }
         }
     }
 
-    public void cancelUploadTask(int taskID) {
-        UploadTask task = getUploadTaskByID(taskID);
-        if (task != null) {
-            task.cancelUpload();
+    /**
+     * remove tasks from {@link #allTaskList} by traversing the taskId list
+     *
+     * @param ids
+     *          taskId list
+     */
+    public synchronized void removeByIds(List<Integer> ids) {
+        for (int taskID : ids) {
+            TransferTask transferTask = getTask(taskID);
+            allTaskList.remove(transferTask);
         }
     }
 
-    public void cancelDownloadTask(int taskID) {
-        DownloadTask task = getDownloadTaskByID(taskID);
-        if (task != null) {
-            task.cancelDownload();
+    /**
+     * check if there are tasks under transferring state
+     *
+     * @return true, if there are tasks whose {@link com.seafile.seadroid2.transfer.TaskState} is {@code TRANSFERRING}.
+     *          false, otherwise.
+     */
+    public boolean isTransferring() {
+        List<? extends TransferTaskInfo> transferTaskInfos = getAllTaskInfoList();
+        for (TransferTaskInfo transferTaskInfo : transferTaskInfos) {
+            if (transferTaskInfo.state.equals(TaskState.TRANSFERRING))
+                return true;
+        }
+        return false;
+    }
+
+    public void cancelAll() {
+        List<? extends TransferTaskInfo> transferTaskInfos = getAllTaskInfoList();
+        for (TransferTaskInfo transferTaskInfo : transferTaskInfos) {
+            cancel(transferTaskInfo.taskID);
         }
     }
 
-    public void retryUploadTask(int taskID) {
-        UploadTask task = getUploadTaskByID(taskID);
-        if (task != null) {
-            task.retryUpload();
+    public void cancelByIds(List<Integer> taskIds) {
+        for (int taskID : taskIds) {
+            cancel(taskID);
         }
     }
 
-    private DownloadTask getDownloadTaskByID(int taskID) {
-        for (DownloadTask task : downloadTasks) {
-            if (task.getTaskID() == taskID) {
-                return task;
-            }
+    public synchronized List<? extends TransferTaskInfo> getAllTaskInfoList() {
+        ArrayList<TransferTaskInfo> infos = Lists.newArrayList();
+        for (TransferTask task : allTaskList) {
+            infos.add(task.getTaskInfo());
         }
-        return null;
+
+        return infos;
     }
 
-    public DownloadTaskInfo getDownloadTaskInfo (int taskID) {
-        DownloadTask task = getDownloadTaskByID(taskID);
-        if (task != null) {
-            return task.getTaskInfo();
-        }
-
-        return null;
-    }
-    
-    private class UploadTask extends AsyncTask<String, Long, Void> {
-        private String myRepoID;
-        private String myRepoName;
-        private String myDir;   // parent dir
-        private String myPath;  // local file path
-        private boolean isUpdate;  // true if update an existing file
-        private boolean isCopyToLocal; // false to turn off copy operation
-        
-        private TaskState myState;
-        private int myID;
-        private long myUploaded;
-        private long mySize;
-        private DataManager dataManager;
-
-        SeafException err;
-
-        Account account;
-
-        public UploadTask(Account account, String repoID, String repoName,
-                          String dir, String filePath, boolean isUpdate, boolean isCopyToLocal) {
-            this.account = account;
-            this.myRepoID = repoID;
-            this.myRepoName = repoName;
-            this.myDir = dir;
-            this.myPath = filePath;
-            this.isUpdate = isUpdate;
-            this.isCopyToLocal = isCopyToLocal;
-            this.dataManager = new DataManager(account);
-
-            File f = new File(filePath);
-            mySize = f.length();
-
-            myID = ++notificationID;
-            myState = TaskState.INIT;
-            myUploaded = 0;
-
-            // Log.d(DEBUG_TAG, "stored object is " + myPath + myObjectID);
-            uploadTasks.add(this);
-            err = null;
-        }
-
-        public int getTaskID() {
-            return myID;
-        }
-
-        public TaskState getState() {
-            return myState;
-        }
-
-        public UploadTaskInfo getTaskInfo() {
-            UploadTaskInfo info = new UploadTaskInfo(myID, account, myState, myRepoID,
-                                                     myRepoName, myDir, myPath, isUpdate, isCopyToLocal,
-                                                     myUploaded, mySize, err);
-            return info;
-        }
-
-        public void retryUpload() {
-            if (myState != TaskState.CANCELLED && myState != TaskState.FAILED) {
-                return;
-            }
-            uploadTasks.remove(this);
-            addUploadTask(account, myRepoID, myRepoName, myDir, myPath, isUpdate, isCopyToLocal);
-        }
-
-        public void cancelUpload() {
-            if (myState != TaskState.INIT && myState != TaskState.TRANSFERRING) {
-                return;
-            }
-            myState = TaskState.CANCELLED;
-            super.cancel(true);
-        }
-
-        @Override
-        protected void onPreExecute() {
-            myState = TaskState.TRANSFERRING;
-        }
-
-        @Override
-        protected void onProgressUpdate(Long... values) {
-            long uploaded = values[0];
-            // Log.d(DEBUG_TAG, "Uploaded " + uploaded);
-            myUploaded = uploaded;
-            listener.onFileUploadProgress(myID);
-        }
-
-        @Override
-        protected Void doInBackground(String... params) {
-            try {
-                ProgressMonitor monitor = new ProgressMonitor() {
-                    @Override
-                    public void onProgressNotify(long uploaded) {
-                        publishProgress(uploaded);
-                    }
-
-                    @Override
-                    public boolean isCancelled() {
-                        return UploadTask.this.isCancelled();
-                    }
-                };
-                if (isUpdate) {
-                    dataManager.updateFile(myRepoName, myRepoID, myDir, myPath, monitor, isCopyToLocal);
-                } else {
-                    Log.d(DEBUG_TAG, "Upload path: " + myPath);
-                    dataManager.uploadFile(myRepoName, myRepoID, myDir, myPath, monitor, isCopyToLocal);
-                }
-            } catch (SeafException e) {
-                Log.d(DEBUG_TAG, "Upload exception " + e.getCode() + " " + e.getMessage());
-                err = e;
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void v) {
-            myState = err == null ? TaskState.FINISHED : TaskState.FAILED;
-            if (listener != null) {
-                if (err == null) {
-                    listener.onFileUploaded(myID);
-                }
-                else {
-                    listener.onFileUploadFailed(myID);
-                }
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            if (listener != null) {
-                listener.onFileUploadCancelled(myID);
-            }
-        }
-    }
-
-    private class DownloadTask extends AsyncTask<String, Long, File> {
-        private int taskID;
-
-        Account account;
-        private String myRepoName;
-        private String myRepoID;
-        private String myPath, myLocalPath;
-        private long mySize, finished;
-        private TaskState myState;
-        SeafException err;
-
-        public DownloadTask(Account account, String repoName, String repoID, String path) {
-            this.account = account;
-            this.myRepoName = repoName;
-            this.myRepoID = repoID;
-            this.myPath = path;
-            this.myState = TaskState.INIT;
-
-            // The size of the file would be known in the first progress update
-            this.mySize = -1;
-            this.taskID = ++notificationID;
-
-            // Log.d(DEBUG_TAG, "stored object is " + myPath + myObjectID);
-            downloadTasks.add(this);
-            err = null;
-        }
-
-        /**
-         * When downloading a file, we don't know the file size in advance, so
-         * we make use of the first progress update to return the file size.
-         */
-        @Override
-        protected void onProgressUpdate(Long... values) {
-            if (mySize == -1) {
-                mySize = values[0];
-                myState = TaskState.TRANSFERRING;
-                return;
-            }
-            finished = values[0];
-            listener.onFileDownloadProgress(taskID);
-        }
-
-        @Override
-        protected File doInBackground(String... params) {
-            try {
-                DataManager dataManager = new DataManager(account);
-                return dataManager.getFile(myRepoName, myRepoID, myPath,
-                        new ProgressMonitor() {
-
-                            @Override
-                            public void onProgressNotify(long total) {
-                                publishProgress(total);
-                            }
-
-                            @Override
-                            public boolean isCancelled() {
-                                return DownloadTask.this.isCancelled();
-                            }
-                        }
-                        );
-            } catch (SeafException e) {
-                err = e;
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(File file) {
-            if (listener != null) {
-                if (file != null) {
-                    myState = TaskState.FINISHED;
-                    myLocalPath = file.getPath();
-                    listener.onFileDownloaded(taskID);
-                } else {
-                    myState = TaskState.FAILED;
-                    if (err == null)
-                        err = SeafException.unknownException;
-                    listener.onFileDownloadFailed(taskID);
-                }
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            myState = TaskState.CANCELLED;
-        }
-
-        public int getTaskID() {
-            return taskID;
-        }
-
-        public DownloadTaskInfo getTaskInfo() {
-            DownloadTaskInfo info = new DownloadTaskInfo(account, taskID, myState, myRepoID,
-                                                         myRepoName, myPath, myLocalPath, mySize, finished, err);
-            return info;
-        }
-
-        public void cancelDownload() {
-            if (myState != TaskState.INIT && myState != TaskState.TRANSFERRING) {
-                return;
-            }
-            myState = TaskState.CANCELLED;
-            super.cancel(true);
-        }
-    }
 }

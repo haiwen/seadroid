@@ -24,15 +24,17 @@ def getVersionCode = { ->
 
 
 dependencies {
-    compile 'com.android.support:support-v4:21.0.+'
+    compile 'com.android.support:support-v4:22.2.0'
     compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
     compile 'com.inkapplications.viewpageindicator:library:2.4.3'
     compile 'com.github.kevinsawicki:http-request:5.6'
     compile 'commons-io:commons-io:2.4'
     compile 'com.google.guava:guava:18.0'
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
-    compile project(':libraries:NewQuickAction')
+    compile 'com.astuetz:pagerslidingtabstrip:1.0.1'
+    compile project(':libraries:SlideExpandableListView')
     compile project(':libraries:MarkdownView')
+    compile project(':libraries:PhotoView')
 }
 
 android {

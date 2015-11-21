@@ -13,11 +13,11 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.ui.ToastUtils;
 
 /**
  * Shibboleth welcome page
  * <p/>
- * Created by Logan on 14/12/23.
  */
 public class ShibbolethActivity extends SherlockFragmentActivity {
     public static final String DEBUG_TAG = "ShibbolethActivity";
@@ -130,12 +130,12 @@ public class ShibbolethActivity extends SherlockFragmentActivity {
 
     private boolean isServerUrlValid(String serverUrl) {
         if (serverUrl == null || serverUrl.isEmpty()) {
-            Toast.makeText(this, getString(R.string.shib_server_url_empty), Toast.LENGTH_SHORT).show();
+            ToastUtils.show(this, getString(R.string.shib_server_url_empty));
             return false;
         }
 
         if (!serverUrl.startsWith(SHIBBOLETH_HTTP_PREFIX) && !serverUrl.startsWith(SHIBBOLETH_HTTPS_PREFIX)) {
-            Toast.makeText(this, getString(R.string.shib_server_incorrect_prefix), Toast.LENGTH_SHORT).show();
+            ToastUtils.show(this, getString(R.string.shib_server_incorrect_prefix));
             return false;
         }
 

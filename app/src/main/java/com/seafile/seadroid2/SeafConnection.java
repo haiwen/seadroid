@@ -9,7 +9,6 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -203,6 +202,23 @@ public class SeafConnection {
         return result;
     }
 
+    public String getServerInfo() throws SeafException {
+
+        String result;
+        try {
+            HttpRequest  req = prepareApiGetRequest("api2/server-info/");
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+            result = new String(req.bytes(), "UTF-8");
+        } catch (SeafException e) {
+            throw e;
+        } catch (HttpRequestException e) {
+            throw getSeafExceptionFromHttpRequestException(e);
+        } catch (IOException e) {
+            throw SeafException.networkException;
+        }
+        return result;
+    }
+
     public boolean doLogin() throws SeafException {
         try {
             return realLogin();
@@ -260,6 +276,30 @@ public class SeafConnection {
             throw SeafException.networkException;
         }
     }
+
+    public String searchLibraries(String query, int page) throws SeafException {
+
+        try {
+            Map<String, Object> params = Maps.newHashMap();
+            params.put("q", encodeUriComponent(query));
+
+            if (page > 0)
+                params.put("per_page", page);
+
+            HttpRequest req = prepareApiGetRequest("api2/search/", params);
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+            String result = new String(req.bytes(), "UTF-8");
+            return result;
+        } catch (SeafException e) {
+            throw e;
+        } catch (HttpRequestException e) {
+            throw getSeafExceptionFromHttpRequestException(e);
+        } catch (IOException e) {
+            throw SeafException.networkException;
+        }
+
+    }
+
     private static String encodeUriComponent(String src) throws UnsupportedEncodingException {
         return URLEncoder.encode(src, "UTF-8");
     }
@@ -486,7 +526,7 @@ public class SeafConnection {
             if (msg != null)
                 Log.d(DEBUG_TAG, msg);
             else
-                Log.d(DEBUG_TAG, "get upload link error");
+                Log.d(DEBUG_TAG, "get upload link error", e);
             throw SeafException.unknownException;
         }
     }
@@ -864,6 +904,38 @@ public class SeafConnection {
         }
     }
 
+    public void star(String repoID, String path) throws SeafException {
+        try {
+            HttpRequest req = prepareApiPostRequest("api2/starredfiles/", true, null);
+
+            req.form("repo_id", repoID);
+            req.form("p", path);
+
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_CREATED);
+
+        } catch (SeafException e) {
+            throw e;
+        } catch (HttpRequestException e) {
+            throw getSeafExceptionFromHttpRequestException(e);
+        }
+    }
+
+    public void unstar(String repoID, String path) throws SeafException {
+        try {
+            Map<String, Object> params = Maps.newHashMap();
+            params.put("repo_id", repoID);
+            params.put("p", path);
+            HttpRequest req = prepareApiDeleteRequest("api2/starredfiles/", params);
+
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+
+        } catch (SeafException e) {
+            throw e;
+        } catch (HttpRequestException e) {
+            throw getSeafExceptionFromHttpRequestException(e);
+        }
+    }
+
     public Pair<String, String> rename(String repoID, String path,
                                        String newName, boolean isdir) throws SeafException {
         try {
@@ -929,8 +1001,18 @@ public class SeafConnection {
             }
     }
 
+    /**
+     * Copy a file or multiple files, multiple file/folder names should be seperated by a ":".
+     *
+     * @param srcRepoId the source repo id
+     * @param srcDir the source folder in src_repo
+     * @param srcFn list of file/folder names to copy. Multiple file/folder names can be seperated by ":"
+     * @param dstRepoId the destination repo id
+     * @param dstDir the destination folder in dst_repo
+     * @throws SeafException
+     */
     public void copy(String srcRepoId, String srcDir, String srcFn,
-                     String dstRepoId, String dstDir, boolean isdir) throws SeafException {
+                     String dstRepoId, String dstDir) throws SeafException {
         try {
             Map<String, Object> params = Maps.newHashMap();
             params.put("p", srcDir);
@@ -950,8 +1032,48 @@ public class SeafConnection {
         }
     }
 
-    public Pair<String, String> move(String srcRepoId, String srcPath, String dstRepoId, String dstDir,
-                                     boolean isdir) throws SeafException {
+    /**
+     * Move multiple files
+     *
+     * @param srcRepoId the source repo id
+     * @param srcDir the source folder in src_repo
+     * @param srcFn list of file/folder names to move. Multiple file/folder names can be seperated by ":"
+     * @param dstRepoId the destination repo id
+     * @param dstDir the destination folder in dst_repo
+     * @throws SeafException
+     */
+    public void move(String srcRepoId, String srcDir, String srcFn,
+                     String dstRepoId, String dstDir) throws SeafException {
+        try {
+            Map<String, Object> params = Maps.newHashMap();
+            params.put("p", srcDir);
+
+            HttpRequest req = prepareApiPostRequest("api2/repos/" + srcRepoId + "/fileops/move/", true, params);
+
+            req.form("dst_repo", dstRepoId);
+            req.form("dst_dir", dstDir);
+            req.form("file_names", srcFn);
+
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+
+        } catch (SeafException e) {
+            throw e;
+        } catch (HttpRequestException e) {
+            throw getSeafExceptionFromHttpRequestException(e);
+        }
+    }
+
+    /**
+     * Move a single file
+     *
+     * @param srcRepoId the source repo id
+     * @param srcPath the source file path
+     * @param dstRepoId the destination repo id
+     * @param dstDir the destination folder in dst_repo
+     * @return
+     * @throws SeafException
+     */
+    public Pair<String, String> move(String srcRepoId, String srcPath, String dstRepoId, String dstDir) throws SeafException {
         try {
             Map<String, Object> params = Maps.newHashMap();
             params.put("p", srcPath);

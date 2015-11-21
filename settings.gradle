@@ -1,1 +1,4 @@
-include ':app', ':libraries:NewQuickAction', ':libraries:MarkdownView'
+include ':app'
+include ':libraries:SlideExpandableListView'
+include ':libraries:MarkdownView'
+include ':libraries:PhotoView'

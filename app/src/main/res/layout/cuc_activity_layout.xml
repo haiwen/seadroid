@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical" >
+
+    <android.support.v4.view.ViewPager
+            android:id="@+id/cuc_pager"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_above="@+id/cuc_indicator" />
+
+    <com.viewpagerindicator.LinePageIndicator
+            android:id="@+id/cuc_indicator"
+            android:padding="20dip"
+            android:layout_alignParentBottom="true"
+            app:strokeWidth="4dp"
+            app:lineWidth="30dp"
+            app:unselectedColor="@color/light_grey"
+            app:selectedColor="@color/fancy_orange"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"/>
+
+</RelativeLayout>

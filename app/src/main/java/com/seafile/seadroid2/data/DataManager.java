@@ -1,39 +1,31 @@
 package com.seafile.seadroid2.data;
 
-import java.io.ByteArrayOutputStream;
+import android.os.Environment;
+import android.util.Log;
+import android.util.Pair;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.SeafConnection;
+import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.util.Utils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import com.seafile.seadroid2.R;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.graphics.Bitmap;
-import android.os.Environment;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.util.Pair;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.SeafConnection;
-import com.seafile.seadroid2.SeafException;
-import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.util.BitmapUtil;
-import com.seafile.seadroid2.util.Utils;
-
 public class DataManager {
-    public static final int MAX_GEN_CACHE_THUMB = 1000000;  // Only generate thumb cache for files less than 1MB
-    public static final int MAX_DIRECT_SHOW_THUMB = 100000;  // directly show thumb
-
     private static final String DEBUG_TAG = "DataManager";
     private static final long SET_PASSWORD_INTERVAL = 59 * 60 * 1000; // 59 min
     // private static final long SET_PASSWORD_INTERVAL = 5 * 1000; // 5s
@@ -79,7 +71,7 @@ public class DataManager {
     }
 
     public static String getThumbDirectory() {
-        String root = SeadroidApplication.getAppContext().getFilesDir().getAbsolutePath();
+        String root = SeadroidApplication.getAppContext().getCacheDir().getAbsolutePath();
         File tmpDir = new File(root + "/" + "thumb");
         return getDirectoryCreateIfNeeded(tmpDir);
     }
@@ -120,85 +112,56 @@ public class DataManager {
         return new File(p);
     }
 
-    public static File getThumbFile(String oid) {
-        String p = Utils.pathJoin(getThumbDirectory(), oid + ".png");
-        return new File(p);
-    }
-
     // Obtain a cache file for storing a directory with oid
     public static File getFileForDirentsCache(String oid) {
         return new File(getExternalCacheDirectory() + "/" + oid);
     }
     
-    public static File getAvatarCacheDirectory() {
-        return new File(getExternalCacheDirectory() + "/avatar");
+    public static File getThumbnailCacheDirectory() {
+        return new File(getExternalCacheDirectory() + "/thumbnails");
     }
 
-    public void calculateThumbnail(String repoName, String repoID, String path, String oid) {
-        final int THUMBNAIL_SIZE = caculateThumbnailSizeOfDevice();
-        FileOutputStream out = null;
-        try {
-            File file = getLocalRepoFile(repoName, repoID, path);
-            if (!file.exists())
-                return;
-            // if (file.length() > MAX_GEN_CACHE_THUMB)
-            //     return;
+    public String getThumbnailLink(String repoName, String repoID, String filePath, int size) {
+        File file = getLocalRepoFile(repoName, repoID, filePath);
 
-            Bitmap imageBitmap = BitmapUtil.calculateThumbnail(file.getPath(), THUMBNAIL_SIZE);
-            if (imageBitmap == null) {
-                return;
-            }
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-            byte[] byteArray = baos.toByteArray();
-            File thumb = getThumbFile(oid);
-            out = new FileOutputStream(thumb);
-            out.write(byteArray);
-        } catch (IOException e) {
-            Log.i(DEBUG_TAG, "Failed to write thumbnail : " + e.getMessage());
-        } finally {
-            try {
-                if(out != null) {
-                    out.close();
-                }
-            }
-            catch(IOException ioe) {
-            }
-        }
-    }
-
-    /**
-     * Caculate the thumbnail of an image directly when its size is less than {@link #MAX_DIRECT_SHOW_THUMB}
-     */
-    public Bitmap getThumbnail(File file) {
-        try {
-            if (!file.exists())
-                return null;
-
-            final int THUMBNAIL_SIZE = caculateThumbnailSizeOfDevice();
-
-            return BitmapUtil.calculateThumbnail(file.getPath(), THUMBNAIL_SIZE);
-        } catch (Exception ex) {
+        SeafRepo seafRepo = getCachedRepoByID(repoID);
+        // encrypted repo doesn\`t support thumbnails
+        if (seafRepo != null && seafRepo.encrypted)
             return null;
+
+        // use locally cached file if available
+        if (file.exists()) {
+            return "file://" + file.getAbsolutePath();
+        } else {
+            try {
+                String pathEnc = URLEncoder.encode(filePath, "UTF-8");
+                return account.getServer() + String.format("api2/repos/%s/thumbnail/?p=%s&size=%s", repoID, pathEnc, size);
+            } catch (UnsupportedEncodingException e) {
+                return null;
+            }
+
         }
     }
 
+    public String getThumbnailLink(String repoID, String filePath, int size) {
+        SeafRepo repo = getCachedRepoByID(repoID);
+        if (repo != null)
+            return getThumbnailLink(repo.getName(), repoID, filePath, size);
+        else
+            return null;
+    }
 
-    public static int caculateThumbnailSizeOfDevice() {
-        DisplayMetrics metrics = SeadroidApplication.getAppContext().getResources().getDisplayMetrics();
+    public ServerInfo getServerInfo() throws SeafException, JSONException {
+        String json = sc.getServerInfo();
+        return parseServerInfo(json);
+    }
 
-        switch(metrics.densityDpi) {
-        case DisplayMetrics.DENSITY_LOW:
-            return 36;
-        case DisplayMetrics.DENSITY_MEDIUM:
-            return 48;
-        case DisplayMetrics.DENSITY_HIGH:
-            return 72;
-        case DisplayMetrics.DENSITY_XHIGH:
-            return 96;
-        default:
-            return 36;
-        }
+    private ServerInfo parseServerInfo(String json) throws JSONException {
+        JSONObject object = Utils.parseJsonObject(json);
+        if (object == null)
+            return null;
+
+        return ServerInfo.fromJson(object);
     }
 
     public Account getAccount() {
@@ -330,10 +293,11 @@ public class DataManager {
             }
             return repos;
         } catch (JSONException e) {
-            Log.w(DEBUG_TAG, "repos: parse json error");
+            Log.e(DEBUG_TAG, "parse json error");
             return null;
         } catch (Exception e) {
             // other exception, for example ClassCastException
+            Log.e(DEBUG_TAG, "parseRepos exception");
             return null;
         }
     }
@@ -477,10 +441,12 @@ public class DataManager {
     }
 
     /**
-     * In two cases we need to visit the server for dirents
+     * In four cases we need to visit the server for dirents
      *
      * 1. No cached dirents
      * 2. User clicks "refresh" button.
+     * 3. Download all dirents within a folder
+     * 4. View starred or searched files in gallery without available local cache
      *
      * In the second case, the local cache may still be valid.
      */
@@ -511,9 +477,17 @@ public class DataManager {
 
     public List<SeafStarredFile> getStarredFiles() throws SeafException {
         String starredFiles = sc.getStarredFiles();
-        Log.v(DEBUG_TAG, "Get starred files : " + starredFiles);
+        Log.v(DEBUG_TAG, "Save starred files: " + starredFiles);
+        dbHelper.saveCachedStarredFiles(account, starredFiles);
         return parseStarredFiles(starredFiles);
     }
+
+    public List<SeafStarredFile> getCachedStarredFiles() {
+        String starredFiles = dbHelper.getCachedStarredFiles(account);
+        Log.v(DEBUG_TAG, "Get cached starred files: " + starredFiles);
+        return parseStarredFiles(starredFiles);
+    }
+
 
     public SeafCachedFile getCachedFile(String repoName, String repoID, String path) {
         SeafCachedFile cf = dbHelper.getFileCacheItem(repoID, path, this);
@@ -525,6 +499,9 @@ public class DataManager {
     }
 
     public void addCachedFile(String repoName, String repoID, String path, String fileID, File file) {
+        // notify Android Gallery that a new file has appeared
+        Utils.notifyAndroidGalleryFileChange(file);
+
         SeafCachedFile item = new SeafCachedFile();
         item.repoName = repoName;
         item.repoID = repoID;
@@ -632,6 +609,14 @@ public class DataManager {
         }
     }
 
+    public void star(String repoID, String path) throws SeafException {
+        sc.star(repoID, path);
+    }
+
+    public void unstar(String repoID, String path) throws SeafException {
+        sc.unstar(repoID, path);
+    }
+
     public void rename(String repoID, String path, String newName, boolean isdir) throws SeafException {
         Pair<String, String> ret = sc.rename(repoID, path, newName, isdir);
         if (ret == null) {
@@ -661,18 +646,30 @@ public class DataManager {
     }
 
     public void copy(String srcRepoId, String srcDir, String srcFn,
-                     String dstRepoId, String dstDir, boolean isdir) throws SeafException {
-        sc.copy(srcRepoId, srcDir, srcFn, dstRepoId, dstDir, isdir);
+                     String dstRepoId, String dstDir) throws SeafException {
+        sc.copy(srcRepoId, srcDir, srcFn, dstRepoId, dstDir);
         
         // After copying, we need to refresh the destination list
         getDirentsFromServer(dstRepoId, dstDir);
     }
 
     public void move(String srcRepoId, String srcDir, String srcFn, String dstRepoId, String dstDir,
-                     boolean isdir) throws SeafException {
-        String srcPath = Utils.pathJoin(srcDir, srcFn);
-        Pair<String, String> ret = sc.move(srcRepoId, srcPath, dstRepoId, dstDir, isdir);
-        if (ret == null){
+                     boolean batch) throws SeafException {
+        Pair<String, String> ret = null;
+        if (batch) {
+            sc.move(srcRepoId, srcDir, srcFn, dstRepoId, dstDir);
+        } else {
+            String srcPath = Utils.pathJoin(srcDir, srcFn);
+            ret = sc.move(srcRepoId, srcPath, dstRepoId, dstDir);
+        }
+
+        // After moving, we need to refresh the destination list
+        getDirentsFromServer(dstRepoId, dstDir);
+
+        // We also need to refresh the original list
+        getDirentsFromServer(srcRepoId, srcDir);
+
+        if (ret == null) {
             return;
         }
 
@@ -682,8 +679,6 @@ public class DataManager {
         // The response is the list of dst after moving the
         // file/folder. We save it to avoid request it again
         dbHelper.saveDirents(dstRepoId, dstDir, newDirID, response);
-        // We also need to refresh the original list
-        getDirentsFromServer(srcRepoId, srcDir);
     }
 
     private static class PasswordInfo {
@@ -745,6 +740,18 @@ public class DataManager {
         return true;
     }
 
+    public boolean isStarredFilesRefreshTimeout() {
+        if (!direntsRefreshTimeMap.containsKey(PULL_TO_REFRESH_LAST_TIME_FOR_STARRED_FRAGMENT)) {
+            return true;
+        }
+        long lastRefreshTime = direntsRefreshTimeMap.get(PULL_TO_REFRESH_LAST_TIME_FOR_STARRED_FRAGMENT);
+
+        if (Utils.now() < lastRefreshTime + REFRESH_EXPIRATION_MSECS) {
+            return false;
+        }
+        return true;
+    }
+
     public void setDirsRefreshTimeStamp(String repoID, String path) {
         direntsRefreshTimeMap.put(Utils.pathJoin(repoID, path), Utils.now());
     }
@@ -780,7 +787,7 @@ public class DataManager {
         sb.append(SeadroidApplication.getAppContext().getString(R.string.pull_to_refresh_last_update));
 
         if (seconds < 60) {
-            sb.append(seconds + SeadroidApplication.getAppContext().getString(R.string.pull_to_refresh_last_update_seconds_ago));
+            sb.append(SeadroidApplication.getAppContext().getString(R.string.pull_to_refresh_last_update_seconds_ago, seconds));
         } else {
             int minutes = (seconds / 60);
             if (minutes > 60) {
@@ -789,14 +796,47 @@ public class DataManager {
                     Date date = new Date(lastUpdate);
                     sb.append(ptrDataFormat.format(date));
                 } else {
-                    sb.append(hours + SeadroidApplication.getAppContext().getString(R.string.pull_to_refresh_last_update_hours_ago));
+                    sb.append(SeadroidApplication.getAppContext().getString(R.string.pull_to_refresh_last_update_hours_ago, hours));
                 }
 
             } else {
-                sb.append(minutes + SeadroidApplication.getAppContext().getString(R.string.pull_to_refresh_last_update_minutes_ago));
+                sb.append(SeadroidApplication.getAppContext().getString(R.string.pull_to_refresh_last_update_minutes_ago, minutes));
             }
         }
         return sb.toString();
     }
 
+    /**
+     * search on server
+     *
+     * @param query query text
+     * @param page pass 0 to disable page loading
+     *
+     * @return json format strings of searched result
+     *
+     * @throws SeafException
+     */
+    public String search(String query, int page) throws SeafException {
+        String json = sc.searchLibraries(query, page);
+        return json;
+    }
+
+    public ArrayList<SearchedFile> parseSearchResult(String json) {
+        try {
+            JSONArray array = Utils.parseJsonArrayByKey(json, "results");
+            if (array == null)
+                return null;
+
+            ArrayList<SearchedFile> searchedFiles = Lists.newArrayList();
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject obj = array.getJSONObject(i);
+                SearchedFile sf = SearchedFile.fromJson(obj);
+                if (sf != null)
+                    searchedFiles.add(sf);
+            }
+            return searchedFiles;
+        } catch (JSONException e) {
+            return null;
+        }
+    }
 }

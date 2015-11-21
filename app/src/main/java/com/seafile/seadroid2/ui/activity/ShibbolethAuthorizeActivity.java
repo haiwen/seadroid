@@ -2,8 +2,12 @@ package com.seafile.seadroid2.ui.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.http.SslError;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
@@ -15,15 +19,21 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.util.Utils;
+
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
 
 /**
  * Shibboleth Authorize page
  * use cookie to get authorized data
  * <p/>
- * Created by Logan on 14/12/23.
  */
 public class ShibbolethAuthorizeActivity extends SherlockFragmentActivity {
     public static final String DEBUG_TAG = "ShibbolethAuthorizeActivity";
@@ -31,6 +41,7 @@ public class ShibbolethAuthorizeActivity extends SherlockFragmentActivity {
     public static final String SEAHUB_SHIB_COOKIE_NAME = "seahub_auth";
     private WebView mWebview;
     private LinearLayout mloadingAnimation;
+    public String serverUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,16 +61,51 @@ public class ShibbolethAuthorizeActivity extends SherlockFragmentActivity {
         getActionBar().setTitle(R.string.shib_actionbar_title);
 
         String url = getIntent().getStringExtra(ShibbolethActivity.SHIBBOLETH_SERVER_URL);
+        CookieManager.getInstance().removeAllCookie();
         openAuthorizePage(url);
     }
 
     private void openAuthorizePage(String url) {
         Log.d(DEBUG_TAG, "server url is " + url);
 
+        serverUrl = url;
+
         if (!Utils.isNetworkOn()) {
-            showToast(getString(R.string.network_down));
+            ToastUtils.show(this, getString(R.string.network_down));
             return;
         }
+
+        String deviceId = Settings.Secure.getString(this.getContentResolver(),
+                Settings.Secure.ANDROID_ID);
+
+        String appVersion = "";
+        Context context = SeadroidApplication.getAppContext();
+        try {
+            PackageInfo pInfo = context.getPackageManager().
+                    getPackageInfo(context.getPackageName(), 0);
+            appVersion = pInfo.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            // ignore
+        }
+
+        if (!url.endsWith("/")) {
+            url += "/shib-login";
+        } else
+            url += "shib-login";
+
+        try {
+            url += String.format("?shib_platform_version=%s&shib_device_name=%s&shib_platform=%s&shib_device_id=%s&shib_client_version=%s",
+                    URLEncoder.encode(Build.VERSION.RELEASE, "UTF-8"),
+                    URLEncoder.encode(Build.MODEL, "UTF-8"),
+                    "android",
+                    URLEncoder.encode(deviceId, "UTF-8"),
+                    appVersion);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+
+        Log.d(DEBUG_TAG, "url " + url);
 
         mWebview.loadUrl(url);
 
@@ -91,37 +137,40 @@ public class ShibbolethAuthorizeActivity extends SherlockFragmentActivity {
         @Override
         public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
             // Display error messages
-            Toast.makeText(
-                    ShibbolethAuthorizeActivity.this,
-                    String.format((R.string.shib_load_page_error) + description),
-                    Toast.LENGTH_SHORT
-            ).show();
+            ToastUtils.show(ShibbolethAuthorizeActivity.this,
+                    String.format((R.string.shib_load_page_error) + description));
 
             showPageLoading(false);
         }
 
-        @Override
+        /*@Override
         public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
             Log.d(DEBUG_TAG, "onReceivedSslError " + error.getCertificate().toString());
 
             // Ignore SSL certificate validate
             handler.proceed();
-        }
+        }*/
 
         @Override
         public void onPageFinished(WebView webView, String url) {
-            Log.d(DEBUG_TAG, "onPageFinished " + url);
+            Log.d(DEBUG_TAG, "onPageFinished " + serverUrl);
             showPageLoading(false);
 
-            String cookie = getCookie(url, SEAHUB_SHIB_COOKIE_NAME);
+            String cookie = getCookie(serverUrl, SEAHUB_SHIB_COOKIE_NAME);
             if (cookie == null)
                 return;
 
-            Account account = parseAccount(url, cookie);
+            Account account = null;
+            try {
+                account = parseAccount(Utils.cleanServerURL(serverUrl), cookie);
+            } catch (MalformedURLException e) {
+                Log.e(DEBUG_TAG, e.getMessage());
+            }
             saveAccount(account);
             openResource(account);
         }
     }
+
 
     private void openResource(Account account) {
         if (account == null)
@@ -190,12 +239,6 @@ public class ShibbolethAuthorizeActivity extends SherlockFragmentActivity {
             }
         }
         return CookieValue;
-    }
-
-    public void showToast(CharSequence msg) {
-        Context context = getApplicationContext();
-        Toast toast = Toast.makeText(context, msg, Toast.LENGTH_SHORT);
-        toast.show();
     }
 
 }

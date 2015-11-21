@@ -1,6 +1,17 @@
 # Seafile Android Client [![Build Status](https://secure.travis-ci.org/haiwen/seadroid.png?branch=master)](http://travis-ci.org/haiwen/seadroid)
 
+The application has been published onto the market for easy access:
+
+[![Get it on Google Play](http://www.android.com/images/brand/get_it_on_play_logo_small.png)](https://play.google.com/store/apps/details?id=com.seafile.seadroid2)
+[![Get it on F-Droid](https://cloud.githubusercontent.com/assets/12447257/8024903/ce8dca32-0d44-11e5-95b0-e97d1d027351.png)](https://f-droid.org/repository/browse/?fdid=com.seafile.seadroid2)
+
+## Contributors
+
+See [Contributors Graph](https://github.com/haiwen/seadroid/graphs/contributors)
+
 ## Build the APK
+
+* Make sure you have installed the [Android SDK](http://developer.android.com/sdk/index.html) then:
 
 * cd into seadroid directory
 * Create `key.properties` file or copy `key.properties.example` in `app` dir

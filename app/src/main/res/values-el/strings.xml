@@ -1,0 +1,183 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="welcome_to_seafile">Καλωσήρθατε στο Seafile</string>
+  <string name="select_account">Επιλέξτε ένα λογαριασμό για να ξεκινήσετε</string>
+  <string name="edit_account">Επεξεργασία</string>
+  <string name="delete_account">Διαγραφή</string>
+  <string name="delete">Διαγραφή</string>
+  <string name="delete_file">Είστε σίγουροι πως θέλετε να διαγράψετε αυτό το αρχείο ή φάκελο;</string>
+  <string name="delete_successful">Διεγράφη με επιτυχία</string>
+  <string name="delete_file_f">Διαγραφή αρχείου</string>
+  <string name="delete_dir">Διαγραφή φακέλου</string>
+  <string name="server_hint">Διακομιστής, όπως cloud.seafile.com</string>
+  <string name="email_hint">Email</string>
+  <string name="passwd_hint">Κωδικός</string>
+  <string name="login">Σύνδεση</string>
+  <string name="open_file">Άνοιγμα</string>
+  <string name="download_file">Λήψη</string>
+  <string name="redownload_file">Λήψη ξανά</string>
+  <string name="cancel_download">Ακύρωση</string>
+  <string name="unknown_file_type">Άγνωστος τύπος αρχείου</string>
+  <string name="activity_not_found">Δεν μπορεί να βρεθεί εφαρμογή για να ανοίξει αυτό το αρχείο</string>
+  <string name="refresh">Ανανέωση</string>
+  <string name="add_account">Προσθήκη λογαριασμού</string>
+  <string name="personal">Προσωπικό</string>
+  <string name="libraries">Βιβλιοθήκες</string>
+  <string name="cached">Προσωρινά αποθηκευμένο</string>
+  <string name="activities">Δραστηριότητες</string>
+  <string name="pick_upload_type">Μεταφόρτωση</string>
+  <string name="transfer_tasks">Λίστα μεταφορών</string>
+  <string name="accounts">Λογαριασμοί</string>
+  <string name="settings">Ρυθμίσεις</string>
+  <string-array name="pick_upload_array">
+    <item>Αρχείο</item>
+    <item>Φωτογραφίες/Βίντεο</item>
+    <item>Άλλο</item>
+  </string-array>
+  <string name="choose_server">Επιλέξτε διακομιστή Seafile</string>
+  <string name="network_down">Δεν υπάρχει σύνδεση στο διαδίκτυο</string>
+  <string name="unknow_error">Άγνωστο σφάλμα</string>
+  <string name="invalid_server_address">Εσφαλμένη διεύθυνση διακομιστή</string>
+  <string name="err_server_andress_empty">Η διεύθυνση διακομιστή δεν μπορεί να είναι κενή</string>
+  <string name="err_email_empty">Η διεύθυνση email δεν μπορεί να είναι κενή</string>
+  <string name="err_passwd_empty">Ο κωδικός δεν μπορεί να είναι κενός</string>
+  <string name="err_login_failed">Η σύνδεση απέτυχε</string>
+  <string name="err_wrong_user_or_passwd">Πρόβλημα με το email ή με τον κωδικό</string>
+  <string name="err_token_expired">Η περιόδος σύνδεσης έχει λήξει, παρακαλώ συνδεθείτε ξανά</string>
+  <string name="upload">Μεταφόρτωση</string>
+  <string name="uploaded">Μεταφορτώθηκε</string>
+  <string name="updated">Ανανεώθηκε</string>
+  <string name="download_failed">Αποτυχία λήψης</string>
+  <string name="download_waiting">Λήψη σε αναμονή</string>
+  <string name="download_finished">Λήψη ολοκληρώθηκε</string>
+  <string name="download_cancelled">Λήψη ακυρώθηκε</string>
+  <string name="task_cancel">Ακύρωση</string>
+  <string name="task_retry">Επανάληψη</string>
+  <string name="task_remove">Αφαίρεση</string>
+  <string name="task_remove_all_cancelled">Αφαίρεση όλων των ακυρωμένων εργασιών</string>
+  <string name="task_remove_all_finished">Αφαίρεση όλων των ολοκληρωμένων εργασιών</string>
+  <string name="file_action_star">Star</string>
+  <string name="file_action_download">Λήψη</string>
+  <string name="file_action_update">Μεταφόρτωση</string>
+  <string name="file_action_export">Εξαγωγή</string>
+  <string name="file_action_delete">Διαγραφή</string>
+  <string name="file_action_rename">Μετονομασία</string>
+  <string name="file_action_copy">Αντιγραφή</string>
+  <string name="file_action_move">Μετακίνηση</string>
+  <string name="file_action_open_as">Άνοιγμα ως</string>
+  <string-array name="file_type_array">
+    <item>Κείμενο</item>
+    <item>Ήχος</item>
+    <item>Βίντεο</item>
+    <item>Εικόνα</item>
+    <item>Άλλο</item>
+  </string-array>
+  <string name="wait">Αναμονή</string>
+  <string name="image_gallery_NoImageView_text">Δεν βρέθηκε εικόνα</string>
+  <string name="pick_photo_video_title">Επιλέξτε εικόνες/βίντεο για μεταφόρτωση</string>
+  <string name="select_upload_items">Επιλέξτε αντικείμενα για μεταφόρτωση</string>
+  <string name="dir_name_empty">Παρακαλώ εισάγετε το όνομα του φακέλου</string>
+  <string name="file_name_empty">Παρακαλώ εισάγετε το όνομα του αρχείου</string>
+  <string name="password_empty">Παρακαλώ εισάγετε τον κωδικό</string>
+  <string name="wrong_password">λάθος κωδικός</string>
+  <string name="library_read_only">Αυτή η βιβλιοθήκη είναι μόνο για ανάγνωση</string>
+  <string name="error_when_load_dirents">Σφάλμα κατά την φόρτωση του φακέλου</string>
+  <string name="error_when_load_repos">Σφάλμα κατά την φόρτωση των βιβλιοθηκών</string>
+  <string name="dir_empty">Αυτός ο φάκελος είναι κενός</string>
+  <string name="no_repo">Δεν έχετε ακόμα βιβλιοθήκες</string>
+  <string name="no_app_available">Δεν μπορεί να βρέθει καμιά εφαρμογή</string>
+  <string name="add_to_seafile">Προσθήκη στο Seafile</string>
+  <string name="ok">OK</string>
+  <string name="no_account">Παρακαλώ δημιουργήστε έναν λογαριασμό στο Seafile πρώτα</string>
+  <string name="choose_an_account">Επιλέξτε ένα λογαριασμό</string>
+  <string name="choose_a_library">Επιλέξτε μία βιβλιοθήκη</string>
+  <string name="choose_a_folder">Επιλέξτε ένα φάκελο</string>
+  <string name="load_accounts_fail">Αποτυχία φόρτωσης λογαριασμών Seafile</string>
+  <string name="load_libraries_fail">Αποτυχία φόρτωσης βιβλιοθηκών</string>
+  <string name="load_dir_fail">Αποτυχία φόρτωσης των περιεχομένων αυτού του φακέλου</string>
+  <string name="not_supported_share">Αυτός ο τύπος κοινόχρηστου στοιχείου δεν είναι διαθέσιμος</string>
+  <string name="download_folder">Φάκελος λήψεων</string>
+  <string name="download_folder_title">Επιλέξτε την επιθυμητή επιλογή</string>
+  <string-array name="download_folder_options_array">
+    <item>Λήψη φακέλου</item>
+    <item>Λήψη φακέλου και υποφακέλων</item>
+  </string-array>
+  <string name="create_new_file">Δημιουργήστε ένα νέο αρχείο</string>
+  <string name="create_new_dir">Δημιουργήστε έναν νέο φάκελο</string>
+  <string name="camera">Βγάλτε μια φωτογραφία εδώ</string>
+  <string name="download">Λήψη</string>
+  <string name="open">Άνοιγμα</string>
+  <string name="last_modified">τελευταία τροποποίηση</string>
+  <string name="file_modified">τροποποιήθηκε</string>
+  <string name="file_size">μέγεθος αρχείου</string>
+  <string name="library_not_found">Η βιβλιοθήκη έχει διαγραφεί.</string>
+  <string name="export_file">Εξάγετε αυτό το αρχείο</string>
+  <string name="no_upload_tasks">Δεν υπάρχουν εργασίες μεταφόρτωσης ακόμα</string>
+  <string name="no_download_tasks">Δεν υπάρχουν εργασίες λήψεων ακόμα</string>
+  <string name="seahub_url_hint">Σημείωση: Η διεύθυνση διακομιστή πρέπει να περιλαμβάνει και τη θύρα.  Για παράδειγμα, www.example.com:8000</string>
+  <string name="copy_link">Αντιγραφή συνδέσμου</string>
+  <string name="share_file_link">Κοινή χρήση συνδέσμου για αυτό το αρχείο</string>
+  <string name="share_dir_link">Κοινή χρήση συνδέσμου για αυτό το φάκελο</string>
+  <string name="generating_link">Δημιουργία συνδέσμου...</string>
+  <string name="link_ready_to_be_pasted">Ο σύνδεσμος είναι έτοιμος να επικοληθεί</string>
+  <string name="rename_file">Μετονομασία αρχείου</string>
+  <string name="rename_dir">Μετονομασία φακέλου</string>
+  <string name="rename_successful">Μετονομάστηκε επιτυχώς.</string>
+  <string-array name="nav_array">
+    <item>Αρχεία</item>
+    <item>Μεταφορτώσεις</item>
+    <item>Λογαριασμοί</item>
+    <item>Backup Φωτογραφιών</item>
+  </string-array>
+  <string name="no_starred_file">Δεν υπάρχουν αρχεία με αστεράκι ακόμη</string>
+  <string name="added_to_upload_tasks">Η μεταφόρτωση άρχισε</string>
+  <string name="added_photo_to_upload_tasks">Άρχισε η μεταφόρτωση φωτογραφιών</string>
+  <string name="tabs_library">Βιβλιοθήκες</string>
+  <string name="provide_password">Εισάγετε τον κωδικό για την βιβλιοθήκη \"%s\"</string>
+  <string name="upload_waiting">Μεταφόρτωση σε αναμονή</string>
+  <string name="upload_finished">Η μεταφόρτωση ολοκληρώθηκε</string>
+  <string name="upload_cancelled">Η μεταφόρτωση ακυρώθηκε</string>
+  <string name="upload_failed">Η μεταφόρτωση απέτυχε</string>
+  <string name="select_upload_files">Επιλέξτε αρχεία για μεταφόρτωση</string>
+  <string name="upload_started">Η μεταφόρτωση άρχισε</string>
+  <!--Strings for possible PreferenceActivity Back/Next buttons-->
+  <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
+  <!--Camera Upload Preference-->
+  <string name="settings_camera_upload_info_title">Μεταφόρτωση φωτογραφιών</string>
+  <string name="settings_camera_upload_service_started">Η υπηρεσία μεταφόρτωσης ξεκίνησε</string>
+  <string name="settings_camera_upload_service_stopped">Η διαδικασία μεταφόρτωσης σταμάτησε</string>
+  <string name="settings_camera_upload_allow_videos">Να επιτρέπεται μεταφόρτωση βίντεο</string>
+  <string name="settings_camera_upload_default_photos">Μεταφόρτωση φωτογραφιών μόνο από προεπιλογή</string>
+  <string name="settings_camera_upload_change_repo_title">Αλλαγή βιβλιοθήκης μεταφόρτωσης</string>
+  <string name="settings_camera_upload_repo_hint">Παρακαλώ επιλέξτε πρώτα μια βιβλιοθήκη</string>
+  <string name="settings_camera_upload_turn_on">Ενεργοποίηση μεταφόρτωσης φωτ. μηχανής</string>
+  <string name="settings_camera_upload_lib_not_found">Η επιλεγμένη βιβλιοθήκη δεν υπάρχει</string>
+  <string name="settings_camera_upload_advanced_feature_subtitle">Μη τυπικές ρυθμίσεις μεταφόρτωσης</string>
+  <string name="settings_camera_upload_advanced_custom_directories">Μη τυπική φάκελοι μεταφόρτωσης</string>
+  <!--Camera Upload Configuration View-->
+  <string name="settings_cuc_welcome_text">Σας ευχαριστούμε που χρησιμοποιείτε τον βοηθό ρύθμισης της μεταφόρτωσης φωτογραφιών. \nΓια να σας βοηθήσουμε να ξεκινήσετε με την υπηρεσία μεταφόρτωσης, θα καθοδηγηθήτε κατά τα πρώτα βήματα.</string>
+  <string name="settings_cuc_network_title">Πώς να μεταφορτώσετε</string>
+  <string name="settings_cuc_type_title">Τί να μεταφορτώσετε</string>
+  <string name="settings_cuc_remote_lib_title">Επιλέξτε απομακρυσμένη βιβλιοθήκη</string>
+  <string name="settings_cuc_ready">Το Seafile θα αρχίσει να μεταφορτώνει αρχεία από τους επιλεγμένους φακέλους. \nΜπορείτε να κλείσετε την εφαρμογή κατά την διάρκεια αυτής της διαδικασίας.</string>
+  <!--pull to refresh-->
+  <!--storage access framework-->
+  <string name="saf_file_not_downloaded_exception">Δεν ήταν δυνατή η λήψη του αρχείου %s από το διακομιστή.</string>
+  <string name="saf_upload_path_not_available">Αποτυχία μεταφόρτωσης, δεν υπάρχει η διαδρομή</string>
+  <!--shibboleth SSO-->
+  <!--Transfer List-->
+  <string name="transfer_tabs_downloads">Λίστα λήψεων</string>
+  <string name="transfer_tabs_uploads">Λίστα μεταφορτώσεων</string>
+  <string name="transfer_download_no_task">Όλα τα αρχεία έχουν ληφθεί</string>
+  <!--Sort-->
+  <!--Search-->
+  <!--star a file-->
+  <!--notification bar-->
+  <string name="notification_upload_started_title">Μεταφόρτωση αρχείων...</string>
+  <string name="notification_download_started_title">Λήψη αρχείων...</string>
+  <string name="notification_upload_completed">Η μεταφόρτωση ολοκληρώθηκε</string>
+  <string name="notification_download_completed">Η λήψη ολοκληρώθηκε</string>
+  <!--Gallery-->
+  <!--Overwrite existing files-->
+  <!--Action Mode-->
+</resources>

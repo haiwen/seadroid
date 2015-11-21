@@ -1,38 +1,10 @@
 package com.seafile.seadroid2.util;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.Reader;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.TreeMap;
-
-import org.apache.commons.io.FileUtils;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -40,19 +12,40 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.DetailedState;
 import android.net.Uri;
+import android.os.Build;
+import android.provider.OpenableColumns;
+import android.text.TextUtils;
+import android.text.format.DateFormat;
 import android.util.Log;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.fileschooser.SelectableFile;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class Utils {
     public static final String MIME_APPLICATION_OCTET_STREAM = "application/octet-stream";
-    public static final String NOGROUP = "$nogroup";
+    public static final String AUTHORITY = "com.seafile.seadroid2";
+    public static final String PATH_SEPERATOR = "/";
+    // public static final String NOGROUP = "$nogroup";
+    public static final String PERSONAL_REPO = "personal_repo";
+    public static final String SHARED_REPO = "shared_repo";
     private static final String DEBUG_TAG = "Utils";
     private static final String HIDDEN_PREFIX = ".";
     private static HashMap<String, Integer> suffixIconMap = null;
@@ -73,10 +66,24 @@ public class Utils {
         }
     }
 
+    public static JSONArray parseJsonArrayByKey(String json, String key) throws JSONException {
+        if (json == null) {
+            // the caller should not give null
+            Log.w(DEBUG_TAG, "null in parseJsonArrayByKey");
+            return null;
+        }
+
+        String value = new JSONObject(json).optString(key);
+        if (!TextUtils.isEmpty(value))
+            return parseJsonArray(value);
+        else
+            return null;
+    }
+
     public static JSONArray parseJsonArray(String json) {
         if (json == null) {
          // the caller should not give null
-            Log.w(DEBUG_TAG, "null in parseJsonObject");
+            Log.w(DEBUG_TAG, "null in parseJsonArray");
             return null;
         }
 
@@ -184,9 +191,16 @@ public class Utils {
 
     public static TreeMap<String, List<SeafRepo>> groupRepos(List<SeafRepo> repos) {
         TreeMap<String, List<SeafRepo>> map = new TreeMap<String, List<SeafRepo>>();
+        String groupName = null;
         for (SeafRepo repo : repos) {
             List<SeafRepo> l;
-            String groupName = repo.isGroupRepo ? repo.owner : NOGROUP;
+            if (repo.isGroupRepo)
+                groupName = repo.owner;
+            else if (repo.isPersonalRepo)
+                groupName = PERSONAL_REPO;
+            else if (repo.isSharedRepo)
+                groupName = SHARED_REPO;
+
             l = map.get(groupName);
             if (l == null) {
                 l = Lists.newArrayList();
@@ -203,7 +217,7 @@ public class Utils {
 
         if (mimetype.contains("pdf")) {
             return R.drawable.file_pdf;
-        } else if (mimetype.contains("image")) {
+        } else if (mimetype.contains("image/")) {
             return R.drawable.file_image;
         } else if (mimetype.contains("text")) {
             return R.drawable.file_text;
@@ -274,7 +288,7 @@ public class Utils {
         String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
         if (mime == null)
             return false;
-        return mime.contains("image");
+        return mime.contains("image/");
     }
 
     public static boolean isNetworkOn() {
@@ -328,11 +342,24 @@ public class Utils {
         return result.toString();
     }
 
+    public static String removeLastPathSeperator(String path) {
+        if (TextUtils.isEmpty(path)) return null;
+
+        int size = path.length();
+        if (path.endsWith("/")) {
+            return path.substring(0, size - 1);
+        } else
+            return path;
+    }
     /**
      * Strip leading and trailing slashes
      */
     public static String stripSlashes(String a) {
         return a.replaceAll("^[/]*|[/]*$", "");
+    }
+
+    public static String getCurrentHourMinute() {
+        return (String) DateFormat.format("hh:mm", new Date());
     }
 
     /**
@@ -356,15 +383,15 @@ public class Utils {
             SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
             return fmt.format(d);
         } else if (days > 0) {
-            return days + SeadroidApplication.getAppContext().getString(R.string.days_ago);
+            return SeadroidApplication.getAppContext().getString(R.string.days_ago, days);
         } else if (seconds >= 60 * 60) {
             long hours = seconds / 3600;
-            return hours + SeadroidApplication.getAppContext().getString(R.string.hours_ago);
+            return SeadroidApplication.getAppContext().getString(R.string.hours_ago, hours);
         } else if (seconds >= 60) {
             long minutes = seconds / 60;
-            return minutes + SeadroidApplication.getAppContext().getString(R.string.minutes_ago);
+            return SeadroidApplication.getAppContext().getString(R.string.minutes_ago, minutes);
         } else if (seconds > 0) {
-            return seconds + SeadroidApplication.getAppContext().getString(R.string.seconds_ago);
+            return SeadroidApplication.getAppContext().getString(R.string.seconds_ago, seconds);
         } else {
             return SeadroidApplication.getAppContext().getString(R.string.just_now);
         }
@@ -473,7 +500,32 @@ public class Utils {
         intent.setType("*/*");
         // Only return URIs that can be opened with ContentResolver
         intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            // Allow user to select multiple files
+            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+            // only show local document providers
+            intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+        }
         return intent;
+    }
+
+    public static String getFilenamefromUri(Context context, Uri uri) {
+
+        ContentResolver resolver =context.getContentResolver();
+        Cursor cursor = resolver.query(uri, null, null, null, null);
+        String displayName = null;
+        if (cursor != null && cursor.moveToFirst()) {
+
+            // Note it's called "Display Name".  This is
+            // provider-specific, and might not necessarily be the file name.
+            displayName = cursor.getString(
+                    cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+            cursor.close();
+        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
+            displayName = uri.getPath().replaceAll(".*/", "");
+        } else displayName = "unknown filename";
+        return displayName;
     }
 
     public static String getPath(Context context, Uri uri) throws URISyntaxException {
@@ -570,6 +622,13 @@ public class Utils {
         fileOrDirectory.renameTo(renamedFile);
         renamedFile.delete();
 
+        // notify Android Gallery that this file is gone
+        notifyAndroidGalleryFileChange(fileOrDirectory);
+    }
+
+    public static void notifyAndroidGalleryFileChange(File file) {
+        Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file));
+        SeadroidApplication.getAppContext().sendBroadcast(intent);
     }
 
     /**
@@ -595,4 +654,57 @@ public class Utils {
         return totalSize;
     }
 
+    public static String assembleUserName(String email, String server) {
+        if (email == null || server == null)
+            return null;
+
+        if (TextUtils.isEmpty(email) || TextUtils.isEmpty(server))
+            return "";
+
+        // strip port, like :8000 in 192.168.1.116:8000
+        if (server.indexOf(":") != -1)
+            server = server.substring(0, server.indexOf(':'));
+        String info = String.format("%s (%s)", email, server);
+        info = info.replaceAll("[^\\w\\d\\.@\\(\\) ]", "_");
+        return info;
+    }
+
+    public static void hideSoftKeyboard(View view) {
+        if (view == null)
+            return;
+        ((InputMethodManager) SeadroidApplication.getAppContext().getSystemService(
+                Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(
+                view.getWindowToken(), 0);
+    }
+
+    public static String cleanServerURL(String serverURL) throws MalformedURLException {
+        if (!serverURL.endsWith("/")) {
+            serverURL = serverURL + "/";
+        }
+
+        // XXX: android 4.0.3 ~ 4.0.4 can't handle urls with underscore (_) in the host field.
+        // See https://github.com/nostra13/Android-Universal-Image-Loader/issues/256 , and
+        // https://code.google.com/p/android/issues/detail?id=24924
+        //
+        new URL(serverURL); // will throw MalformedURLException if serverURL not valid
+        return serverURL;
+    }
+
+    public static List<ResolveInfo> getAppsByIntent(Intent intent) {
+        PackageManager pm = SeadroidApplication.getAppContext().getPackageManager();
+        List<ResolveInfo> infos = pm.queryIntentActivities(intent, 0);
+
+        // Remove seafile app from the list
+        String seadroidPackageName = SeadroidApplication.getAppContext().getPackageName();
+        ResolveInfo info;
+        Iterator<ResolveInfo> iter = infos.iterator();
+        while (iter.hasNext()) {
+            info = iter.next();
+            if (info.activityInfo.packageName.equals(seadroidPackageName)) {
+                iter.remove();
+            }
+        }
+
+        return infos;
+    }
 }

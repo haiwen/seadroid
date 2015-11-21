@@ -13,8 +13,8 @@
     	android:id="@+id/copy_move_file_hint"
     	android:layout_width="fill_parent"
     	android:layout_height="wrap_content"
-    	android:gravity="center"
-    	android:textSize="20sp"
+    	android:gravity="left"
+    	android:textSize="@dimen/dialog_error_txt_size"
     />
 
 </LinearLayout>

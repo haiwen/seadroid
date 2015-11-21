@@ -5,8 +5,9 @@ import android.os.Parcelable;
 import android.util.Log;
 
 import com.google.common.base.Objects;
+import com.seafile.seadroid2.util.Utils;
 
-public class Account implements Parcelable {
+public class Account implements Parcelable, Comparable<Account> {
     private static final String DEBUG_TAG = "Account";
 
     // The full URL of the server, like 'http://gonggeng.org/seahub/' or 'http://gonggeng.org/'
@@ -40,6 +41,14 @@ public class Account implements Parcelable {
     public String getServerHost() {
         String s = server.substring(server.indexOf("://") + 3);
         return s.substring(0, s.indexOf('/'));
+    }
+
+    public String getServerDomainName() {
+        String dn = getServerHost();
+        // strip port, like :8000 in 192.168.1.116:8000
+        if (dn.contains(":"))
+            dn = dn.substring(0, dn.indexOf(':'));
+        return dn;
     }
 
     public String getEmail() {
@@ -87,9 +96,18 @@ public class Account implements Parcelable {
     public String getSignature() {
         return email.substring(0, 4) + " " + hashCode();
     }
-    
+
+    public String getFullSignature() {
+        return email + "@" + server;
+    }
+
     public String getName() {
         return email.substring(0, email.indexOf("@")) + "@" + getServerHost();
+    }
+
+    public String getDisplayName() {
+        String server = Utils.stripSlashes(getServerHost());
+        return Utils.assembleUserName(email, server);
     }
 
     @Override
@@ -131,5 +149,10 @@ public class Account implements Parcelable {
             .add("server", server)
             .add("user", email)
             .toString();
+    }
+
+    @Override
+    public int compareTo(Account other) {
+        return this.toString().compareTo(other.toString());
     }
 }

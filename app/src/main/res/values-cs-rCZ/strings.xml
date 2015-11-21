@@ -1,8 +1,302 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="welcome_to_seafile">Vítejte v Seafile</string>
+  <string name="select_account">Nejprve vyberte svůj účet</string>
+  <string name="edit_account">Upravit</string>
+  <string name="delete_account">Odstranit</string>
+  <string name="delete">Odstranit</string>
+  <string name="delete_file">Opravdu chcete odstranit tuto složku nebo soubor?</string>
+  <string name="delete_successful">Úspěšně odstraněno</string>
+  <string name="delete_file_f">Odstranit soubor</string>
+  <string name="delete_dir">Odstranit složku</string>
+  <string name="server_hint">Server, např. cloud.seafile.com</string>
+  <string name="email_hint">Email</string>
+  <string name="passwd_hint">Heslo</string>
+  <string name="login">Přihlásit</string>
+  <string name="open_file">Otevřít</string>
+  <string name="download_file">Stáhnout</string>
+  <string name="redownload_file">Stáhnout znovu</string>
+  <string name="cancel_download">Zrušit</string>
+  <string name="unknown_file_type">Neznámý typ souboru</string>
+  <string name="activity_not_found">Nelze najít aplikaci pro otevření tohoto souboru</string>
+  <string name="refresh">Obnovit</string>
+  <string name="add_account">Přidat účet</string>
+  <string name="personal">Osobní</string>
+  <string name="libraries">Knihovny</string>
+  <string name="cached">V mezipaměti</string>
+  <string name="activities">Aktivity</string>
+  <string name="pick_upload_type">Nahrát</string>
+  <string name="transfer_tasks">Seznam přenosů</string>
+  <string name="accounts">Účty</string>
+  <string name="settings">Nastavení</string>
+  <string-array name="pick_upload_array">
+    <item>Soubor</item>
+    <item>Fotky/Videa</item>
+    <item>Ostatní</item>
+  </string-array>
+  <string name="choose_server">Vyberte Seafile server</string>
+  <string name="network_down">Nejste připojen k síti</string>
+  <string name="unknow_error">Neznámá chyba</string>
+  <string name="invalid_server_address">Špatná adresa serveru</string>
+  <string name="err_server_andress_empty">Adresa serveru nesmí být prázdná</string>
+  <string name="err_email_empty">Email nesmí být prázdný</string>
+  <string name="err_passwd_empty">Heslo nesmí být prázdné</string>
+  <string name="err_login_failed">Přihlášení selhalo</string>
+  <string name="err_wrong_user_or_passwd">Špatný email nebo heslo</string>
+  <string name="err_token_expired">Přihlášení vypršelo, prosím přihlašte se znovu</string>
+  <string name="upload">Nahrát</string>
+  <string name="uploaded">Nahráno</string>
+  <string name="updated">Aktualizováno</string>
+  <string name="download_failed">Stažení selhalo</string>
+  <string name="download_waiting">Stažení čeká</string>
+  <string name="download_finished">Stažení dkončeno</string>
+  <string name="download_cancelled">Stažení zrušeno</string>
+  <string name="task_cancel">Zrušit</string>
+  <string name="task_retry">Znovu</string>
+  <string name="task_remove">Smazat</string>
+  <string name="task_remove_all_cancelled">Odstranit zrušené</string>
+  <string name="task_remove_all_finished">Odstranit dokončené úlohy</string>
+  <string name="file_action_star">Oblíbené</string>
+  <string name="file_action_download">Stáhnout</string>
+  <string name="file_action_update">Nahrát</string>
+  <string name="file_action_share">Sdílet odkaz</string>
+  <string name="file_action_export">Exportovat</string>
+  <string name="file_action_delete">Smazat</string>
+  <string name="file_action_rename">Přejmenovat</string>
+  <string name="file_action_copy">Kopírovat</string>
+  <string name="file_action_move">Přesunout</string>
+  <string name="file_action_open_as">Otevřít jako</string>
+  <string name="file_action_more">Více</string>
+  <string-array name="file_type_array">
+    <item>Text</item>
+    <item>Audio</item>
+    <item>Video</item>
+    <item>Obrázek</item>
+    <item>Ostatní</item>
+  </string-array>
+  <string name="wait">Čekejte</string>
+  <string name="image_gallery_NoImageView_text">Žádný obrázek nebyl nalezen</string>
+  <string name="pick_photo_video_title">Vyberte fotky/videa pro nahrání</string>
+  <string name="select_upload_items">Vyberte položky pro nahrání</string>
+  <string name="dir_name_empty">Prosím, vložte název složky</string>
+  <string name="file_name_empty">Prosím, vložte název souboru</string>
+  <string name="password_empty">Prosím, vložte heslo</string>
+  <string name="wrong_password">špatné heslo</string>
+  <string name="library_read_only">Tato knihovna je pouze pro čtení</string>
+  <string name="error_when_load_dirents">Chyba při načítání složky</string>
+  <string name="error_when_load_repos">Chyba při načítání knihoven</string>
+  <string name="dir_empty">Tato složka je prázdná</string>
+  <string name="no_repo">Zatím nemáte žádné knihovny</string>
+  <string name="no_app_available">Není nalezena žádná aplikace</string>
+  <string name="add_to_seafile">Přidat do Seafile</string>
+  <string name="ok">OK</string>
+  <string name="no_account">Prosím, nejprve nastavte účet</string>
+  <string name="choose_an_account">Vyberte účet</string>
+  <string name="choose_a_library">Vyberte knihovnu</string>
+  <string name="choose_a_folder">Vyberte složku</string>
+  <string name="load_accounts_fail">Chyba při načítání Seafile účtů</string>
+  <string name="load_libraries_fail">Chyba při načítání knihoven</string>
+  <string name="load_dir_fail">Chyba při načítání obsahu této složky</string>
+  <string name="not_supported_share">Tento druh sdílení není podporován</string>
+  <string name="download_folder">Stáhnout složku</string>
+  <string name="download_folder_title">Zvolte preferovanou možnost</string>
+  <string name="create_new_file">Vytvořit nový soubor</string>
+  <string name="create_new_dir">Vytvořit novou složku</string>
+  <string name="camera">Vyfotit sem</string>
+  <string name="download">Smazat</string>
+  <string name="open">Otevřít</string>
+  <string name="last_modified">naposledy upraveno</string>
+  <string name="file_modified">upraveno</string>
+  <string name="file_size">velikost souboru</string>
+  <string name="library_not_found">Knihovna byla odstraněna</string>
+  <string name="export_file">Exportovat tento soubor</string>
+  <string name="no_upload_tasks">Zatím nic nenahráváte</string>
+  <string name="no_download_tasks">Zatím nic nestahujete</string>
+  <string name="seahub_url_hint">Poznámka: Adresa serveru by měla obsahovat port. Např. www.priklad.cz:8000</string>
+  <string name="copy_link">Kopírovat odkaz</string>
+  <string name="share_file_link">Sdílet odkaz na tento soubor</string>
+  <string name="share_dir_link">Sdílet odkaz na tuto složku</string>
+  <string name="generating_link">Generování odkazu...</string>
+  <string name="link_ready_to_be_pasted">Odkaz je připraven pro vložení.</string>
+  <string name="rename_file">Přejmenova soubor</string>
+  <string name="rename_dir">Přejmenovat složku</string>
+  <string name="rename_successful">Úspěšně přejmenováno.</string>
+  <string-array name="nav_array">
+    <item>Soubory</item>
+    <item>Nahrávání</item>
+    <item>Účty</item>
+    <item>Zálohy fotek</item>
+  </string-array>
+  <string name="no_starred_file">Zatím nemáte oblíbené soubory</string>
+  <string name="added_to_upload_tasks">Nahrávání spustěno</string>
+  <string name="added_photo_to_upload_tasks">Nahrávání fotek spuštěno</string>
+  <string name="take_photo_successfully">Úspěšně vyfoceno</string>
+  <string name="tabs_library">Knihovny</string>
+  <string name="tabs_activity">Aktivity</string>
+  <string name="tabs_starred">Oblíbené</string>
+  <string name="provide_password">Zadejte heslo pro knihovnu \"%s\"</string>
+  <string name="upload_waiting">Nahrání čeká</string>
+  <string name="upload_finished">Nahrání dokončeno</string>
+  <string name="upload_cancelled">Nahrání zrušeno</string>
+  <string name="days_ago">před %d dny</string>
+  <string name="hours_ago">pře %d hodinami</string>
+  <string name="minutes_ago">před %d minutami</string>
+  <string name="seconds_ago">před %d sekundami</string>
+  <string name="just_now">Právě teď</string>
+  <string name="error_when_load_starred">Chyba při načítání oblíbených souborů</string>
+  <string name="open_as">Otevřít jako</string>
+  <string name="select_upload_files">Vyberte soubory pro nahrání</string>
+  <string name="storage_removed">Úložiště bylo odstraněno</string>
+  <string name="error_selecting_file">Chyba při výběru souboru</string>
+  <string name="empty_folder">Prázdná složka</string>
+  <string name="choose_file">Vyberte soubor</string>
+  <string name="ssl_error">Chyba ověření bezpečnosti</string>
+  <string name="ssl_confirm">Bezpečnostní certifikát %s není důvěryhodný. Chcete pokračovat?</string>
+  <string name="ssl_confirm_cert_changed">%s používá neplatný bezpečnostní certifikát. Spojení není zabezpečené. Chcete pokračovat?</string>
+  <string name="ssl_confirm_title">Nedůvěryhodné připojení</string>
+  <string name="issued_to">Vydaný pro</string>
+  <string name="finger_prints">Otisky</string>
+  <string name="period_of_validity">Doba platnosti</string>
+  <string name="sha1">SHA-1 %s</string>
+  <string name="md5">MD5 %s</string>
+  <string name="not_available">není dostupný</string>
+  <string name="serial_number">Sériové číslo %s</string>
+  <string name="not_before">Platný od %s</string>
+  <string name="not_after">Platný do %s</string>
+  <string name="yes">Ano</string>
+  <string name="no">Ne</string>
+  <string name="remember_my_choice">Zapamatovat mojí volbu</string>
+  <string name="copied_successfully">Úspěšně nakopírováno</string>
+  <string name="moved_successfully">Úspěšně přesunuto</string>
+  <string name="internal_server_error">Vnitřní chyba serveru</string>
+  <string name="copy_file_ing">Kopírování souboru</string>
+  <string name="move_file_ing">Přesouvání souboru</string>
+  <string name="copy_folder_ing">Kopírování složky</string>
+  <string name="move_folder_ing">Přesouvání složky</string>
+  <string name="upload_started">Nahrávání je spuštěno</string>
+  <string name="cannot_copy_folder_to_subfolder">Nelze kopírovat složku do její podsložky</string>
+  <string name="cannot_move_folder_to_subfolder">Nemůžete přesunout složku do její podsložky</string>
+  <string name="cancel">Zrušit</string>
+  <string name="confirm">Potvrdit</string>
+  <string name="settings_account">Účet</string>
+  <string name="settings_account_info_title">Uživatelské informace</string>
+  <string name="settings_account_info_load_data">načítání...</string>
+  <string name="settings_account_space_title">Využitý prostor</string>
+  <string name="settings_account_sign_out_title">Odhlásit se</string>
+  <string name="settings_account_sign_out_hint">Klikněte pro odhlášení</string>
+  <string name="settings_account_sign_out_confirm">Opravdu se chcete odhlásit?</string>
+  <string name="security">Bezpečnost</string>
+  <string name="gesture_lock">Zamknutí gestem</string>
+  <string name="gesture_lock_on">Zamknutí heslem zap.</string>
+  <string name="gesture_lock_off">Zamknutí heslem vyp.</string>
+  <string name="lockscreen_access_pattern_hint">Prosím, zvolte si své gesto</string>
+  <string name="lockscreen_access_pattern_start">Začít kreslit gesto</string>
+  <string name="lockscreen_access_pattern_cleared">Gesto odstraněno</string>
+  <string name="lockscreen_access_pattern_cell_added">Gesto přidáno</string>
+  <string name="lockscreen_access_pattern_detected">Gesto detekováno</string>
+  <string name="lockscreen_access_pattern_passwd_forget">Zapomenuté gesto</string>
+  <string name="lockscreen_access_pattern_failure">5x špatné gesto, čekejte prosím 30s do dalšího pokusu</string>
+  <string name="lockscreen_access_pattern_failure_not_long_enough">Propojení bodů není dostatečně dlouhé, zkuste to znovu</string>
+  <string name="lockpattern_retry_button_text">Opakovat</string>
+  <string name="lockpattern_continue_button_text">Další</string>
+  <string name="lockpattern_confirm_button_text">OK</string>
+  <string name="lockpattern_recording_intro_header">Prosím, nakreslete gesto</string>
+  <string name="lockpattern_settings_help_how_to_record">Zjistit jak se kreslí gesto</string>
+  <string name="lockpattern_recording_incorrect_too_short">Spojte nejméně 4 body. Zkuste to znovu!</string>
+  <string name="lockpattern_pattern_entered_header">Gesto uloženo</string>
+  <string name="lockpattern_need_to_draw">Prosím, nakreslete gesto</string>
+  <string name="lockpattern_need_to_confirm">Prosím, potvrďte gesto</string>
+  <string name="lockpattern_need_to_unlock_wrong">Gesto nesouhlasí. Zkuste to znovu.</string>
+  <string name="lockpattern_pattern_confirmed_header">Stiskněte OK pro uložení gesta</string>
+  <string name="lockpattern_recording_inprogress">Gesto dokončíte sundáním prstu z obrazovky</string>
+  <string name="lockpattern_pattern_toast_saved">Gesto úspěšně uloženo</string>
   <!--Strings for possible PreferenceActivity Back/Next buttons-->
+  <string name="back_button_label">Zpět</string>
+  <string name="next_button_label">Další</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
+  <string name="skip_button_label">Přeskočit</string>
+  <!--Camera Upload Preference-->
+  <string name="settings_camera_upload_info_title">Nahrání fotky z fotoaparátu</string>
+  <string name="settings_camera_upload_allow_videos">Povolit nahrávání videí</string>
+  <string name="settings_camera_upload_data_plan_allowed">Mobilní data povolena</string>
+  <!--Camera Upload Configuration View-->
+  <string name="settings_cuc_network_wifi">Pouze WIFI</string>
+  <string name="settings_cuc_network_data_plan">WIFI a mobilní data</string>
+  <string name="settings_cuc_loading">načítání...</string>
+  <string name="settings_about_title">O PROGRAMU</string>
+  <string name="settings_about_version_title">Verze aplikace</string>
+  <string name="settings_about_author_title">O autorovi</string>
+  <string name="settings_about_author_info">
+        <![CDATA[
+        <h5>Seafile Android Client</h5>
+        <p>%s</p>
+        <h5>Kontaktujte nás</h5>
+        <p>
+            Twitter: Seafile<br>
+            Email: support@seafile.com<br>
+        </p>
+        <h5>Contribution</h5>
+        <p>https://github.com/haiwen/seadroid.git</P>
+        <h5>Copyright ©2013-2015 Seafile Ltd.</h5>
+        ]]>
+    </string>
+  <string name="settings_advance_feature_title">POKROČILÉ FUNKCE</string>
+  <string name="settings_cache_title">Velikost mezipaměti</string>
+  <string name="settings_clear_cache_title">Vyčistit mezipaměť</string>
+  <string name="settings_clear_cache_hint">Opravdu chcete vyčistit mezipamět?</string>
+  <string name="settings_clear_cache_success">Mezipamět úspěšně vyčištěna</string>
+  <string name="settings_clear_cache_failed">Chyba při čištění mezipaměti</string>
+  <string name="settings_cache_empty">0 KB</string>
   <!--pull to refresh-->
+  <string name="pull_to_refresh_pull_label">Pro obnovení zatáhněte...</string>
+  <string name="pull_to_refresh_release_label">Pusťte pro obnovení...</string>
+  <string name="pull_to_refresh_refreshing_label">Nahrávání...</string>
+  <string name="pull_to_refresh_last_update">Poslední aktualizace:</string>
+  <string name="pull_to_refresh_last_update_seconds_ago">před %d sekundami</string>
+  <string name="pull_to_refresh_last_update_minutes_ago">před %d minutami</string>
+  <string name="pull_to_refresh_last_update_hours_ago">před %d hodinami</string>
   <!--storage access framework-->
+  <string name="saf_open_file_exception">Nelze otevřít soubor %s.</string>
+  <string name="saf_open_directory_exception">Nelze otevřít složku.</string>
+  <string name="saf_file_not_cached_exception">Soubor %s není v mezipaměti.</string>
+  <string name="saf_thumbnail_not_found_exception">Nelze najít/otevřít miniaturu %s.</string>
+  <string name="saf_file_not_downloaded_exception">Nelze stáhnout soubor %s ze serveru.</string>
+  <string name="saf_write_diretory_exception">Nelze otevřít složku pro čtení/zápis.</string>
+  <string name="saf_account_not_found_exception">Nelze nalézt Seafile účet.</string>
+  <string name="saf_file_exist">Soubor již existuje</string>
   <!--shibboleth SSO-->
+  <string name="shib_server_url_empty">Zadejte adresu serveru!</string>
+  <string name="shib_server_incorrect_prefix">Server by měl začínat buď http:// nebo https://</string>
+  <string name="shib_load_page_error">Chyba:</string>
+  <string name="shib_login_title">Shibboleth Login</string>
+  <string name="shib_server_hint">Zadejte server...</string>
+  <string name="shib_actionbar_title">Přihlásit pomocí Shibboleth</string>
+  <string name="shib_loading">načítání...</string>
+  <!--Transfer List-->
+  <string name="transfer_list_network_error">Chyba připojení k síti. Prosím, zkuste to později!</string>
+  <string name="transfer_tabs_downloads">Seznam stahování</string>
+  <string name="transfer_tabs_uploads">Seznam nahrávání</string>
+  <string name="transfer_download_no_task">Všechny soubory byly staženy</string>
+  <string name="transfer_list_select_all">Vybrat vše</string>
+  <string name="transfer_list_deselect_all">Zrušit výběr </string>
+  <!--Sort-->
+  <string name="sort_menu_item">Seřadit</string>
+  <!--Search-->
+  <string name="search_menu_item">Hledat</string>
+  <string name="search_bar_hint">Hledání...</string>
+  <string name="search_txt_empty">Prosím, zadejte klíčová slova</string>
+  <string name="search_content_empty">Nic nenalezeno</string>
+  <string name="search_server_not_support">Jejda, hledání není serverem podporováno!</string>
+  <string name="search_library_not_found">Nelze najít tuto knihovnu. Může být odstraněna.</string>
+  <!--star a file-->
+  <string name="star_file_succeed">Soubor byl úspěšně přidán do oblíbených</string>
+  <string name="star_file_failed">Soubor nebyl přidán do oblíbených</string>
+  <!--notification bar-->
+  <string name="notification_upload_completed">Nahrání dokončeno</string>
+  <string name="notification_download_completed">Stažení dokončeno</string>
+  <!--Gallery-->
+  <!--Overwrite existing files-->
+  <string name="overwrite_existing_file_title">Nahradit existující soubor</string>
+  <string name="overwrite_existing_file_exist">Soubor již existuje</string>
+  <!--Action Mode-->
 </resources>

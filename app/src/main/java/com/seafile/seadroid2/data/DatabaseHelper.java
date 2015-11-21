@@ -18,7 +18,7 @@ import com.seafile.seadroid2.account.Account;
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DEBUG_TAG = "DatabaseHelper";
     // If you change the database schema, you must increment the database version.
-    public static final int DATABASE_VERSION = 5;
+    public static final int DATABASE_VERSION = 6;
     public static final String DATABASE_NAME = "data.db";
 
     // FileCache table
@@ -30,6 +30,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String FILECACHE_COLUMN_REPO_ID = "repo_id";
     private static final String FILECACHE_COLUMN_PATH = "path";
     private static final String FILECACHE_COLUMN_ACCOUNT = "account";
+
+    private static final String STARRED_FILECACHE_TABLE_NAME = "StarredFileCache";
+
+    private static final String STARRED_FILECACHE_COLUMN_ID = "id";
+    private static final String STARRED_FILECACHE_COLUMN_ACCOUNT = "account";
+    private static final String STARRED_FILECACHE_COLUMN_CONTENT = "content";
 
     // RepoDir table
     private static final String REPODIR_TABLE_NAME = "RepoDir";
@@ -56,7 +62,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         + FILECACHE_COLUMN_REPO_NAME + " TEXT NOT NULL, "
         + FILECACHE_COLUMN_REPO_ID + " TEXT NOT NULL, "
         + FILECACHE_COLUMN_ACCOUNT + " TEXT NOT NULL);";
-    
+
+    private static final String SQL_CREATE_STARRED_FILECACHE_TABLE =
+            "CREATE TABLE " + STARRED_FILECACHE_TABLE_NAME + " ("
+                    + STARRED_FILECACHE_COLUMN_ID + " INTEGER PRIMARY KEY, "
+                    + STARRED_FILECACHE_COLUMN_ACCOUNT + " TEXT NOT NULL, "
+                    + STARRED_FILECACHE_COLUMN_CONTENT + " TEXT NOT NULL);";
+
     private static final String SQL_CREATE_REPODIR_TABLE =
         "CREATE TABLE " + REPODIR_TABLE_NAME + " ("
         + REPODIR_COLUMN_ID + " INTEGER PRIMARY KEY, "
@@ -95,6 +107,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         createFileCacheTable(db);
         createRepoDirTable(db);
         createDirentsCacheTable(db);
+        createStarredFilesCacheTable(db);
     }
 
     private void createFileCacheTable(SQLiteDatabase db) {
@@ -135,6 +148,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(sql);
     }
 
+    private void createStarredFilesCacheTable(SQLiteDatabase db) {
+        db.execSQL(SQL_CREATE_STARRED_FILECACHE_TABLE);
+
+        String sql;
+        sql = String.format("CREATE INDEX account_content_index ON %s (%s, %s)",
+                STARRED_FILECACHE_TABLE_NAME,
+                STARRED_FILECACHE_COLUMN_ACCOUNT,
+                STARRED_FILECACHE_COLUMN_CONTENT);
+        db.execSQL(sql);
+    }
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // This database is only a cache for online data, so its upgrade policy is
@@ -150,6 +174,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + FILECACHE_TABLE_NAME + ";");
         db.execSQL("DROP TABLE IF EXISTS " + REPODIR_TABLE_NAME + ";");
         db.execSQL("DROP TABLE IF EXISTS " + DIRENTS_CACHE_TABLE_NAME + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + STARRED_FILECACHE_TABLE_NAME + ";");
         onCreate(db);
     }
 
@@ -309,6 +334,37 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return dir;
     }
 
+    public String getCachedStarredFiles(Account account) {
+        String[] projection = {
+                STARRED_FILECACHE_COLUMN_CONTENT
+        };
+
+        String selectClause = String.format("%s = ?",
+                STARRED_FILECACHE_COLUMN_ACCOUNT);
+
+        String[] selectArgs = { account.getSignature() };
+
+
+        Cursor cursor = database.query(
+                STARRED_FILECACHE_TABLE_NAME,
+                projection,
+                selectClause,
+                selectArgs,
+                null,   // don't group the rows
+                null,   // don't filter by row groups
+                null);  // The sort order
+
+        if (!cursor.moveToFirst()) {
+            cursor.close();
+            return null;
+        }
+
+        String dir = cursor.getString(0);
+        cursor.close();
+
+        return dir;
+    }
+
     /**
      * Tell if a record exists already.
      */
@@ -343,11 +399,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void saveRepoDirMapping(Account account, String repoName,
                                    String repoID, String dir) {
         String log = String.format("Saving repo dir mapping: account = %s(%s) "
-                                   + "repoName = %s"
-                                   + "repoID = %s"
-                                   + "dir = %s",
-                                   account.getEmail(), account.getServerNoProtocol(),
-                                   repoName, repoID, dir);
+                        + "repoName = %s"
+                        + "repoID = %s"
+                        + "dir = %s",
+                account.getEmail(), account.getServerNoProtocol(),
+                repoName, repoID, dir);
 
         Log.d(DEBUG_TAG, log);
 
@@ -359,6 +415,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(REPODIR_COLUMN_REPO_DIR, dir);
 
         database.insert(REPODIR_TABLE_NAME, null, values);
+    }
+
+    public void saveCachedStarredFiles(Account account, String content) {
+        removeStarredFiles(account);
+
+        // Create a new map of values, where column names are the keys
+        ContentValues values = new ContentValues();
+        values.put(STARRED_FILECACHE_COLUMN_ACCOUNT, account.getSignature());
+        values.put(STARRED_FILECACHE_COLUMN_CONTENT, content);
+
+        database.insert(STARRED_FILECACHE_TABLE_NAME, null, values);
     }
 
     public void saveDirents(String repoID, String path, String dirID, String content) {
@@ -379,6 +446,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             DIRENTS_CACHE_COLUMN_REPO_ID, DIRENTS_CACHE_COLUMN_PATH);
 
         database.delete(DIRENTS_CACHE_TABLE_NAME, whereClause, new String[] { repoID, path });
+    }
+
+    private void removeStarredFiles(Account account) {
+        String whereClause = String.format("%s = ?",
+                STARRED_FILECACHE_COLUMN_ACCOUNT);
+
+        database.delete(STARRED_FILECACHE_TABLE_NAME, whereClause, new String[] { account.getSignature() });
     }
 
     public String getDirents(String repoID, String path, String dirID) {

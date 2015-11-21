@@ -1,16 +1,17 @@
 package com.seafile.seadroid2.account;
 
+import com.seafile.seadroid2.util.Utils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
  * This class used to manage Account information
  *
- * Created by Logan on 14/12/8.
  */
 public class AccountInfo {
     private static final String DEBUG_TAG = "AccountInfo";
 
+    public static final String SPACE_USAGE_SEPERATOR = " / ";
     private long usage;
     private long total;
     private String email;
@@ -62,6 +63,12 @@ public class AccountInfo {
 
     public void setServer(String server) {
         this.server = server;
+    }
+
+    public String getSpaceUsed() {
+        String strUsage = Utils.readableFileSize(usage);
+        String strTotal = Utils.readableFileSize(total);
+        return strUsage + SPACE_USAGE_SEPERATOR + strTotal;
     }
 
 }

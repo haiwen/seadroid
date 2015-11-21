@@ -24,7 +24,7 @@ public class CameraUploadManager {
 
     public CameraUploadManager(Account act) {
         account = act;
-        dbHelper = CameraUploadDBHelper.getCameraUploadDBHelper();
+        dbHelper = CameraUploadDBHelper.getInstance();
         mDataManager = new DataManager(act);
     }
 
@@ -108,11 +108,14 @@ public class CameraUploadManager {
      */
     public Boolean isRemoteCameraUploadRepoValid(String repoID, String parentDir) throws SeafException {
         List<SeafRepo> list = mDataManager.getReposFromServer();
-        for (SeafRepo seafRepo : list) {
-            if (seafRepo.id.equals(repoID)) {
-                return true;
+        if (list != null) {
+            for (SeafRepo seafRepo : list) {
+                if (seafRepo.id.equals(repoID)) {
+                    return true;
+                }
             }
         }
+
         return  false;
     }
 

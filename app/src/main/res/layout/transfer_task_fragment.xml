@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <LinearLayout android:id="@+id/progressContainer"
+                  android:orientation="vertical"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:visibility="gone"
+                  android:gravity="center">
+
+        <ProgressBar style="?android:attr/progressBarStyleLarge"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"/>
+        <TextView android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:textAppearance="?android:attr/textAppearanceSmall"
+                  android:text=""
+                  android:paddingTop="4dip"
+                  android:singleLine="true"/>
+
+    </LinearLayout>
+
+
+    <FrameLayout android:id="@+id/listContainer"
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent">
+
+        <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+            <ListView android:id="@android:id/list"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:layout_alignParentTop="true"
+                      android:drawSelectorOnTop="false"
+                      android:layout_above="@+id/task_action_container"/>
+            <TextView android:id="@+id/empty"
+                      android:layout_width="match_parent"
+                      android:layout_height="match_parent"
+                      android:visibility="gone"
+                      android:gravity="center"
+                      android:text="@string/no_upload_tasks"
+                      android:textAppearance="?android:attr/textAppearanceLarge"/>
+
+            <LinearLayout
+                    android:id="@+id/task_action_container"
+                    android:layout_height="wrap_content"
+                    android:layout_width="fill_parent"
+                    android:background="@color/fancy_light_black"
+                    android:layout_alignParentBottom="true"
+                    android:visibility="gone"
+                    android:orientation="horizontal">
+
+                <LinearLayout
+                        android:id="@+id/task_action_restart"
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/lv_expandable_element_height"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical"
+                        android:background="@drawable/btn_bg_selector_holo_dark">
+                    <TextView
+                            android:layout_width="fill_parent"
+                            android:layout_height="fill_parent"
+                            android:text="@string/transfer_list_restart_all"
+                            android:gravity="center"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/long_btn_txt_size"/>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="wrap_content"
+                              android:layout_height="@dimen/lv_expandable_element_height"
+                              android:paddingTop="@dimen/lv_expandable_item_divider_padding"
+                              android:paddingBottom="@dimen/lv_expandable_item_divider_padding"
+                              android:layout_alignParentRight="true">
+                    <View
+                            android:layout_width="1dp"
+                            android:layout_height="@dimen/lv_expandable_item_divider_height"
+                            android:background="@color/fancy_deep_black"/>
+                </LinearLayout>
+
+                <LinearLayout
+                        android:id="@+id/task_action_delete"
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/lv_expandable_element_height"
+                        android:layout_weight="1"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical"
+                        android:background="@drawable/btn_bg_selector_holo_dark">
+                    <TextView
+                            android:layout_width="fill_parent"
+                            android:layout_height="fill_parent"
+                            android:text="@string/delete"
+                            android:gravity="center"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/long_btn_txt_size"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </RelativeLayout>
+    </FrameLayout>
+</LinearLayout>

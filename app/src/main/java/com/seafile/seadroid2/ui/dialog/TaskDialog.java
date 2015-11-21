@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.AnimationUtils;
@@ -51,6 +52,7 @@ public abstract class TaskDialog extends DialogFragment {
 
     //
     private Button okButton;
+    private Button cancelButton;
 
     // The content area of the dialog
     private View contentView;
@@ -254,6 +256,9 @@ public abstract class TaskDialog extends DialogFragment {
             public void onShow(DialogInterface d) {
                 if (hasOkButton()) {
                     okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                    okButton.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.dialog_btn_txt_size));
+                    cancelButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+                    cancelButton.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.dialog_btn_txt_size));
                     View.OnClickListener onOKButtonClickedListener = new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {

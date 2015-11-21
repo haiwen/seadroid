@@ -17,6 +17,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -32,6 +33,7 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.ui.CustomClearableEditText;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
+import com.seafile.seadroid2.util.Utils;
 
 public class AccountDetailActivity extends SherlockFragmentActivity {
     private static final String DEBUG_TAG = "AccountDetailActivity";
@@ -212,25 +214,11 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
         });
     }
 
-    private String cleanServerURL(String serverURL, boolean isHttps) throws MalformedURLException {
-        if (!serverURL.endsWith("/")) {
-            serverURL = serverURL + "/";
-        }
-
-        // XXX: android 4.0.3 ~ 4.0.4 can't handle urls with underscore (_) in the host field.
-        // See https://github.com/nostra13/Android-Universal-Image-Loader/issues/256 , and
-        // https://code.google.com/p/android/issues/detail?id=24924
-        //
-        new URL(serverURL); // will throw MalformedURLException if serverURL not valid
-        return serverURL;
-    }
-
     /** Called when the user clicks the Login button */
     public void login(View view) {
-        String serverURL = serverText.getText().toString();
-        String email = emailText.getText().toString();
+        String serverURL = serverText.getText().toString().trim();
+        String email = emailText.getText().toString().trim();
         String passwd = passwdText.getText().toString();
-        boolean isHttps = httpsCheckBox.isChecked();
 
         ConnectivityManager connMgr = (ConnectivityManager)
             getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -253,11 +241,17 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
             }
             
             try {
-                serverURL = cleanServerURL(serverURL, isHttps);
+                serverURL = Utils.cleanServerURL(serverURL);
             } catch (MalformedURLException e) {
                 statusView.setText(R.string.invalid_server_address);
                 Log.d(DEBUG_TAG, "Invalid URL " + serverURL);
                 return;
+            }
+
+            // force the keyboard to be hidden in all situations
+            if (getCurrentFocus() != null) {
+                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
             }
 
             loginButton.setEnabled(false);

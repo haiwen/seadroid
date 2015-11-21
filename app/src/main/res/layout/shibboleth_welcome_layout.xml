@@ -9,16 +9,17 @@
                android:src="@drawable/shibboleth"
                android:layout_marginTop="15dp"
                android:layout_marginBottom="10dp"
-               android:layout_marginLeft="15dp"
-               android:layout_marginRight="15dp"/>
+               android:layout_marginLeft="@dimen/et_margin_left"
+               android:layout_marginRight="@dimen/et_margin_right"/>
     <TextView android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:text="@string/shib_login_title"
-              android:layout_marginTop="0dp"
+              android:layout_marginTop="@dimen/tv_subtitle_margin_top"
               android:layout_marginBottom="10dp"
-              android:layout_marginLeft="15dp"
-              android:layout_marginRight="15dp"
-              android:textColor="@color/orange"
+              android:layout_marginLeft="@dimen/et_margin_left"
+              android:layout_marginRight="@dimen/et_margin_right"
+              android:textColor="@color/fancy_orange"
+              android:textSize="@dimen/tv_subtitle_txt_size"
               android:gravity="center_horizontal"
               android:textAppearance="?android:attr/textAppearanceMedium"/>
 
@@ -26,12 +27,13 @@
             android:id="@+id/shibboleth_http_cb"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginLeft="@dimen/cb_padding_left"
+            android:layout_marginStart="@dimen/cb_padding_left"
+            android:layout_marginTop="@dimen/cb_padding_top"
             android:onClick="onHttpsCheckboxClicked"
             android:button="@drawable/checkbox_btn_holo_light"
-            android:text="@string/shib_add_https_prefix" />
+            android:textSize="@dimen/cb_btn_txt_size"
+            android:text="@string/accounts_https_hint" />
 
     <EditText
             android:id="@+id/shibboleth_server_url_et"
@@ -40,8 +42,8 @@
             android:hint="@string/shib_server_hint"
             android:inputType="textUri"
             android:background="@drawable/edit_text_holo_light"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"/>
+            android:layout_marginLeft="@dimen/et_margin_left"
+            android:layout_marginRight="@dimen/et_margin_right"/>
 
     <LinearLayout
             android:layout_width="match_parent"
@@ -54,14 +56,14 @@
         <Button
                 android:id="@+id/shibboleth_next_btn"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_marginLeft="30dp"
-                android:layout_marginRight="30dp"
+                android:layout_height="@dimen/long_btn_height"
+                android:layout_marginLeft="@dimen/long_btn_margin_left"
+                android:layout_marginRight="@dimen/long_btn_margin_right"
                 android:onClick="login"
                 android:background="@drawable/confirm_btn_default_holo_light"
                 android:text="@string/lockpattern_continue_button_text"
                 android:textColor="@color/white"
-                android:textSize="18sp"/>
+                android:textSize="@dimen/long_btn_txt_size"/>
     </LinearLayout>
 
 </LinearLayout>

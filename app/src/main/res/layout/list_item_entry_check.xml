@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="48dp"
-    android:padding="10dp" >
+    android:layout_height="@dimen/lv_item_height"
+    android:padding="@dimen/lv_item_padding" >
 
     <ImageView
         android:id="@+id/list_item_icon"
-        android:layout_width="wrap_content"
+        android:layout_width="@dimen/lv_icon_width"
         android:layout_height="fill_parent"
         android:layout_alignParentBottom="true"
         android:layout_alignParentTop="true"
-        android:layout_marginRight="8dp"
         android:paddingBottom="4dp"
         android:src="@drawable/folder" />
 
@@ -29,22 +28,24 @@
         android:id="@+id/list_item_title"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/lv_title_padding_left"
         android:layout_toRightOf="@id/list_item_icon"
         android:layout_toLeftOf="@id/list_item_checkbox"
         android:lines="1"
         android:singleLine="true"
         android:text="Titel"
         android:textColor="@color/black"
-        android:textSize="18sp" />
+        android:textSize="@dimen/lv_title_txt_size" />
 
     <TextView
         android:id="@+id/list_item_subtitle"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/list_item_title"
+        android:paddingLeft="@dimen/lv_subtitle_padding_left"
         android:layout_toRightOf="@id/list_item_icon"
         android:layout_toLeftOf="@id/list_item_checkbox"
         android:text="Subtitle"
-        android:textSize="12sp" />
+        android:textSize="@dimen/lv_subtitle_txt_size" />
 
 </RelativeLayout>

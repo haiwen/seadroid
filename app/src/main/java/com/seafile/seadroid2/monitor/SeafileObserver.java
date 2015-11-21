@@ -123,7 +123,7 @@ public class SeafileObserver implements FileAlterationListener {
         Log.d(DEBUG_TAG, path + " was modified!");
         SeafCachedFile cachedFile = watchedFiles.get(path);
         if (cachedFile != null) {
-            listener.onCachedFiledChanged(account, cachedFile, file);
+            listener.onCachedFileChanged(account, cachedFile, file);
         }
     }
 

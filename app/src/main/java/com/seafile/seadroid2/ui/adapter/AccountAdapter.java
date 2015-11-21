@@ -7,6 +7,7 @@ import java.util.List;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,9 +27,9 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.avatar.Avatar;
 
 /**
- * Adapter for showing account in a list view.
+ * Base account adapter
  */
-public class AccountAdapter extends BaseAdapter {
+public abstract class AccountAdapter extends BaseAdapter {
     private static final String DEBUG_TAG = "AccountAdapter";
     
     private ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
@@ -96,15 +97,23 @@ public class AccountAdapter extends BaseAdapter {
     }
 
     private Viewholder viewHolder;
-    
+
+    protected abstract int getChildLayout();
+
+    protected abstract int getChildTitleId();
+
+    protected abstract int getChildSubTitleId();
+
+    protected abstract int getChildIconId();
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = convertView;
         if (convertView == null) {
-            view = LayoutInflater.from(context).inflate(R.layout.list_item_account_entry, null);
-            TextView title = (TextView) view.findViewById(R.id.list_item_account_title);
-            TextView subtitle = (TextView) view.findViewById(R.id.list_item_account_subtitle);
-            ImageView icon = (ImageView) view.findViewById(R.id.list_item_account_icon);
+            view = LayoutInflater.from(context).inflate(getChildLayout(), null);
+            TextView title = (TextView) view.findViewById(getChildTitleId());
+            TextView subtitle = (TextView) view.findViewById(getChildSubTitleId());
+            ImageView icon = (ImageView) view.findViewById(getChildIconId());
             viewHolder = new Viewholder(title, subtitle, icon);
             view.setTag(viewHolder);
         } else {
@@ -117,7 +126,7 @@ public class AccountAdapter extends BaseAdapter {
             options = new DisplayImageOptions.Builder()
             .extraForDownloader(account)
             .showStubImage(R.drawable.default_avatar)
-            .delayBeforeLoading(1000)
+            // .delayBeforeLoading(1000)
             .showImageOnLoading(R.drawable.default_avatar)
             .showImageForEmptyUri(R.drawable.default_avatar)
             .showImageOnFail(R.drawable.default_avatar)

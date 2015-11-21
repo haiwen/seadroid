@@ -1,7 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
-  <string name="app_name">Seafile</string>
-  <string name="app_url">http://seafile.com</string>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <string name="welcome_to_seafile">Velkomin í Seafile</string>
   <string name="select_account">Veldu reikning til að byrja</string>
   <string name="edit_account">Breyta</string>
@@ -20,16 +18,16 @@
   <string name="redownload_file">Hala niður aftur</string>
   <string name="cancel_download">Hætta við</string>
   <string name="unknown_file_type">Óþekkt skráargerð</string>
-  <string name="activity_not_found">Finn ekki app til að opna þessa skrá</string>
+  <string name="activity_not_found">Finn ekki App til að opna þessa skrá</string>
   <string name="refresh">Endurglæða</string>
   <string name="add_account">Bæta við reikningi</string>
   <string name="personal">Persónulegt</string>
+  <string name="shared">Deilt</string>
   <string name="libraries">Söfn</string>
   <string name="cached">Í flýtimynni</string>
   <string name="activities">Hreyfingar</string>
   <string name="pick_upload_type">Hlaða upp</string>
-  <string name="accounts_https_hint">https</string>
-  <string name="upload_tasks">Upphlaðið</string>
+  <string name="transfer_tasks">Flutningslisti</string>
   <string name="accounts">Reikningar</string>
   <string name="settings">Stillingar</string>
   <string-array name="pick_upload_array">
@@ -38,33 +36,51 @@
     <item>Annað</item>
   </string-array>
   <string name="choose_server">Veldu Seafile Þjón</string>
+  <string-array name="choose_server_array">
+    <item>SeaCloud.cc</item>
+    <item>Cloud.seafile.de</item>
+    <item>Shibboleth Innskráning</item>
+    <item>Annar Seafile Þjónn</item>
+  </string-array>
   <string name="network_down">Engin nettenging</string>
+  <string name="unknow_error">Óþekkt villa</string>
   <string name="invalid_server_address">Rangt vistfang</string>
-  <string name="err_server_andress_empty">Vistfang þjóns má ekki vanta</string>
+  <string name="err_server_andress_empty">Lén þjóns má ekki vanta</string>
   <string name="err_email_empty">Netfang má ekki vanta</string>
   <string name="err_passwd_empty">Lykilorð má ekki vanta</string>
   <string name="err_login_failed">Innskráning mistókst</string>
   <string name="err_wrong_user_or_passwd">Netfang eða lykilorð rangt</string>
+  <string name="err_token_expired">Auðkenning útrunnin, vinsamlegast skráðu þig inn aftur</string>
   <string name="upload">Hlaða upp</string>
   <string name="uploaded">Upphlaðið</string>
   <string name="updated">Uppfært</string>
   <string name="download_failed">Niðurhal mistókst</string>
-  <string name="trust_https_server">Öryggisskírteinið er ekki gefið út af traustri stofnun, viltu halda áfram?</string>
-  <string name="upload_to">hlaða upp til:</string>
+  <string name="download_waiting">Niðurhal í bið</string>
+  <string name="download_finished">Niðurhali lokið</string>
+  <string name="download_cancelled">Hætt við niðurhal</string>
   <string name="task_cancel">Hætta við</string>
   <string name="task_retry">Reyna aftur</string>
   <string name="task_remove">Fjarlæga</string>
-  <string name="task_remove_all_finished">Fjarlægingu lokið</string>
+  <string name="task_remove_all_cancelled">Fjarlægja öll niðurfelld verk</string>
+  <string name="task_remove_all_finished">Fjarlægja öllum loknum verkum</string>
+  <string name="file_action_star">Stjarna</string>
   <string name="file_action_download">Hala niður</string>
-  <string name="file_action_remove_cache">Tæma flýtimynni</string>
   <string name="file_action_update">Hlaða upp</string>
-  <string name="file_action_share">Deila</string>
+  <string name="file_action_share">Deilihlekkur</string>
   <string name="file_action_export">Flytja út</string>
   <string name="file_action_delete">Eyða</string>
   <string name="file_action_rename">Endurnefna</string>
   <string name="file_action_copy">Afrita</string>
   <string name="file_action_move">Færa</string>
   <string name="file_action_open_as">Opna sem</string>
+  <string name="file_action_more">Meira </string>
+  <string name="file_action_more_title">Veldu það sem hentar þér </string>
+  <string-array name="file_action_more_array">
+    <item>Flytja út</item>
+    <item>Afrita</item>
+    <item>Færa</item>
+    <item>Stjarna</item>
+  </string-array>
   <string-array name="file_type_array">
     <item>Texti</item>
     <item>Hljóð</item>
@@ -75,8 +91,11 @@
   <string name="wait">Bið</string>
   <string name="image_gallery_NoImageView_text">Engin mynd fannst</string>
   <string name="pick_photo_video_title">Veldu myndir/vídeó til að hlaða upp</string>
-  <string name="select_upload_items">veldu atriði til að hlaða upp</string>
-  <string name="n_upload_items_selected">%d atriði valin</string>
+  <string name="select_upload_items">Veldu atriði til að hlaða upp</string>
+  <plurals name="n_upload_items_selected">
+    <item quantity="one">%1$d atriði valið</item>
+    <item quantity="other">%1$d atriði valin</item>
+  </plurals>
   <string name="dir_name_empty">Vinsamlegast sláðu inn nafn skráasafnsins</string>
   <string name="file_name_empty">Vinsamlegast sláðu inn nafn skrárinnar</string>
   <string name="password_empty">Vinsamlegast sláðu inn lykilorðið</string>
@@ -89,15 +108,28 @@
   <string name="no_app_available">Það fannst ekkert app</string>
   <string name="add_to_seafile">Bæta við Seafile</string>
   <string name="ok">Í lagi</string>
-  <string name="no_account">Vinsamlegast búðu til reikning í Seafile fyrst</string>
-  <string name="no_library">Þú átt enn engin söfn</string>
+  <string name="no_account">Vinsamlegast settu upp reikning í Seafile fyrst</string>
   <string name="choose_an_account">Veldu reikning</string>
   <string name="choose_a_library">Veldu safn</string>
   <string name="choose_a_folder">Veldu skráasafn</string>
-  <string name="load_accounts_fail">Mistókst að hlaða inn seafile reikningum</string>
+  <string name="load_accounts_fail">Mistókst að hlaða inn Seafile reikningum</string>
   <string name="load_libraries_fail">Mistókst að hlaða inn söfnum</string>
   <string name="load_dir_fail">Mistókst að hlaða inn efni þessa skráasafns</string>
   <string name="not_supported_share">Þessi gerð af deilingu er ekki studd</string>
+  <string name="edit">Breyta</string>
+  <string name="download_folder">Hala niður skráasafni</string>
+  <string name="download_folder_title">Veldu það sem hentar þér</string>
+  <string-array name="download_folder_options_array">
+    <item>Hala niður skráasafni</item>
+    <item>Hala niður skráasafni og undirskráasöfnum</item>
+  </string-array>
+  <string name="add_file">Bæta við</string>
+  <string-array name="add_file_options_array">
+    <item>Búa til skrá</item>
+    <item>Búa til skráasafn</item>
+    <item>Hlaða upp skrá</item>
+    <item>Taka mynd</item>
+  </string-array>
   <string name="create_new_file">Búa til nýja skrá</string>
   <string name="create_new_dir">Búa til nýtt skráasafn</string>
   <string name="camera">Taka mynd hér</string>
@@ -106,9 +138,10 @@
   <string name="last_modified">síðast breytt</string>
   <string name="file_modified">breytt</string>
   <string name="file_size">skráarstærð</string>
-  <string name="library_not_found">Safninu hefur verið eytt</string>
+  <string name="library_not_found">Safninu hefur verið eytt.</string>
   <string name="export_file">Flytja þessa skrá út</string>
   <string name="no_upload_tasks">Engin upphleðsluverk enn</string>
+  <string name="no_download_tasks">Ekkert niðurhalsverkefni ennþá</string>
   <string name="seahub_url_hint">Ath: Veffang þjónsins ætti að innihalda portið.  Til dæmis, www.example.com:8000</string>
   <string name="copy_link">Afrita hlekk</string>
   <string name="share_file_link">Deildu hlekk að þessari skrá</string>
@@ -124,34 +157,35 @@
     <item>Reikningar</item>
     <item>Afrita Myndir</item>
   </string-array>
-  <string name="drawer_open">Opna stýriskúffu</string>
-  <string name="drawer_close">Loka stýriskúffu</string>
   <string name="no_starred_file">Engar stjörnumerktar skrár enn</string>
-  <string name="added_to_upload_tasks">Völdu skránni/skránum hefur verið bætt á upphleðslulistann.</string>
-  <string name="added_photo_to_upload_tasks">Verið er að hlaða upp myndinni</string>
-  <string name="take_photo_successfully">Taktu Mynd</string>
+  <string name="added_to_upload_tasks">Upphleðsla hafin</string>
+  <string name="added_photo_to_upload_tasks">Mynda upphleðsla hafin</string>
+  <string name="take_photo_successfully">Taktu mynd með ágætum</string>
   <string name="tabs_library">Söfn</string>
   <string name="tabs_activity">Hreyfingar</string>
   <string name="tabs_starred">Stjörnumerkt</string>
   <string name="provide_password">Búðu til lykilorð fyrir safnið \"%s\"</string>
-  <string name="upload_waiting">Bíð</string>
-  <string name="upload_finished">Búið</string>
-  <string name="upload_cancelled">Hætt við</string>
-  <string name="upload_failed">Mistókst</string>
-  <string name="days_ago">dagar síðan</string>
-  <string name="hours_ago">klukkutímar síðan</string>
-  <string name="minutes_ago">mínútum síðan</string>
-  <string name="seconds_ago">sekúndum síðan</string>
+  <string name="upload_waiting">Upphleðsla í bið</string>
+  <string name="upload_finished">Upphleðslu lokið</string>
+  <string name="upload_cancelled">Hætt við upphleðslu</string>
+  <string name="upload_failed">Upphleðsla mistókst</string>
+  <string name="days_ago">%d dagar síðan</string>
+  <string name="hours_ago">%d klukkutímar síðan</string>
+  <string name="minutes_ago">%d mínútur síðan</string>
+  <string name="seconds_ago">%d sekúndur síðan</string>
   <string name="just_now">Rétt í þessu</string>
   <string name="error_when_load_starred">Villa við að hlaða inn stjörnumerktum skrám</string>
   <string name="open_as">Opna sem</string>
-  <string name="select_upload_files">veldu skrár til að hlaða upp</string>
+  <string name="select_upload_files">Veldu skrár til að hlaða upp</string>
   <string name="storage_removed">Geymsla var fjarlægð</string>
   <string name="error_selecting_file">Villa við að velja skrá</string>
-  <string name="n_upload_files_selected">%d skrá(r) valin/valdar</string>
+  <plurals name="n_upload_files_selected">
+    <item quantity="one">%1$d skrá valin</item>
+    <item quantity="other">%1$d skrár valdar</item>
+  </plurals>
   <string name="empty_folder">Tómt skráasafn</string>
   <string name="choose_file">Veldu skrá</string>
-  <string name="ssl_error">öryggispróf klikkaði</string>
+  <string name="ssl_error">Öryggispróf mistókst</string>
   <string name="ssl_confirm">Öryggisskírteinið fyrir %s er ótraust. Viltu halda áfram?</string>
   <string name="ssl_confirm_cert_changed">%s notar rangt öryggisskírteini.  Tengingin er ekki örugg.  Viltu halda áfram?</string>
   <string name="ssl_confirm_title">Ótraust Tenging</string>
@@ -160,82 +194,232 @@
   <string name="period_of_validity">Gildistími</string>
   <string name="sha1">SHA-1 %s</string>
   <string name="md5">MD5 %s</string>
+  <string name="not_available">ekki tiltækt</string>
   <string name="serial_number">Raðnúmer %s</string>
   <string name="not_before">Gildir frá %s</string>
   <string name="not_after">Gildir til %s</string>
   <string name="yes">Já</string>
   <string name="no">Nei</string>
   <string name="remember_my_choice">Mundu valið mitt</string>
-  <string name="copied_successfully">Afritun tókst</string>
-  <string name="moved_successfully">Færsla tókst</string>
+  <string name="copied_successfully">Afritað með ágætum</string>
+  <string name="moved_successfully">Fært giftursamlega</string>
   <string name="internal_server_error">Innri Kerfisvilla</string>
   <string name="copy_file_ing">Afrita skrá</string>
   <string name="move_file_ing">Færi skrá</string>
   <string name="copy_folder_ing">Afrita skráasafn</string>
   <string name="move_folder_ing">Færi skráasafn</string>
-  <string name="upload_started">upphleðsla er farin af stað</string>
+  <string name="upload_started">Upphleðsla er hafin</string>
   <string name="cannot_copy_folder_to_subfolder">Þú getur ekki afritað skráasafn í sitt eigið undirskráasafn</string>
   <string name="cannot_move_folder_to_subfolder">Þú getur ekki fært skráasafn í sitt eigið undirskráasafn</string>
   <string name="cancel">Hætta við</string>
   <string name="confirm">Staðfesta</string>
+  <string name="settings_account">Reikningur</string>
+  <string name="settings_account_info_title">Notendaupplýsingar</string>
+  <string name="settings_account_info_load_data">hleð...</string>
+  <string name="settings_account_space_title">Pláss notað</string>
+  <string name="settings_account_sign_out_title">Útskrá</string>
+  <string name="settings_account_sign_out_hint">Smelltu til að útskrá</string>
+  <string name="settings_account_sign_out_confirm">Viltu skrá þig út?</string>
   <string name="security">Öryggi</string>
-  <string name="gesture_lock">Hreyfilæsing</string>
-  <string name="gesture_lock_on">Hreyfilæsing á</string>
-  <string name="gesture_lock_off">Hreyfilæsing af</string>
-  <string name="lockscreen_access_pattern_hint">Vinsamlegast teiknaðu Hreyfilæsingarmynstur</string>
+  <string name="gesture_lock">Mynsturslæsing</string>
+  <string name="gesture_lock_on">Mynsturslæsing á</string>
+  <string name="gesture_lock_off">Mynsturslæsing af</string>
+  <string name="lockscreen_access_pattern_hint">Vinsamlegast teiknaðu mynstur</string>
   <string name="lockscreen_access_pattern_start">Byrjaðu að teikna</string>
   <string name="lockscreen_access_pattern_cleared">Mynstur hreinsað</string>
   <string name="lockscreen_access_pattern_cell_added">Bætt við mystursreit</string>
   <string name="lockscreen_access_pattern_detected">Mynstur er greint</string>
-  <string name="lockscreen_access_pattern_passwd_forget">Gleyma lykilorði</string>
-  <string name="lockscreen_access_pattern_failure">Mistókst 5 sinnum, vinsamlegast bíddu í 30 sekúndur áður en þú reynir</string>
-  <string name="lockscreen_access_pattern_failure_left_try_seconds">Þú getur reynt aftur eftir %d sekúndur</string>
-  <string name="lockscreen_access_pattern_failure_left_try_times">Rangt mynstur, þú getur reynt aftur %d sinnum</string>
+  <string name="lockscreen_access_pattern_passwd_forget">Gleymt lykilorð</string>
+  <string name="lockscreen_access_pattern_failure">Mistókst 5 sinnum, vinsamlegast bíddu í 30 sekúndur áður en þú reynir aftur</string>
+  <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
+    <item quantity="one">Þú getur reynt aftur eftir %1$d sekúndu</item>
+    <item quantity="other">Þú getur reynt aftur eftir %1$d sekúndur</item>
+  </plurals>
+  <plurals name="lockscreen_access_pattern_failure_left_try_times">
+    <item quantity="one">Rangt mynstur, þú getur reynt aftur %1$d sinni</item>
+    <item quantity="other">Rangt mynstur, þú getur reynt aftur %1$d sinnum</item>
+  </plurals>
   <string name="lockscreen_access_pattern_failure_not_long_enough">Tengdir punktar ekki nægilega langir, vinsamlegast reyndu aftur</string>
   <string name="lockpattern_retry_button_text">Reyna aftur</string>
   <string name="lockpattern_continue_button_text">Næst</string>
   <string name="lockpattern_confirm_button_text">Í lagi</string>
-  <string name="lockpattern_recording_intro_header">Vinsamlegast teiknaðu Hreyfilæsingarmynstur</string>
-  <string name="lockpattern_settings_help_how_to_record">Lærðu hvernig á að teikna Hreyfilæsingarmynstur</string>
-  <string name="lockpattern_recording_incorrect_too_short">Tengdu að minnsta kosti 4 punkta, reyndu aftur!</string>
+  <string name="lockpattern_recording_intro_header">Vinsamlegast teiknaðu mynstur</string>
+  <string name="lockpattern_settings_help_how_to_record">Lærðu hvernig á að teikna mynstur</string>
+  <string name="lockpattern_recording_incorrect_too_short">Strjúktu yfir amk 4 punkta, reyndu aftur!</string>
   <string name="lockpattern_pattern_entered_header">Mynstur vistað</string>
-  <string name="lockpattern_need_to_draw">Vinsamlegast teiknaðu Hreyfilæsingarmynstur</string>
+  <string name="lockpattern_need_to_draw">Vinsamlegast teiknaðu mynstur</string>
   <string name="lockpattern_need_to_confirm">Vinsamlegast staðfestu mynstrið þitt</string>
-  <string name="lockpattern_need_to_unlock_wrong">Mynstur stemma ekki, reyndu aftur!</string>
-  <string name="lockpattern_pattern_confirmed_header">Staðfestu að vista mynstrið þitt</string>
-  <string name="lockpattern_recording_inprogress">Færa burtu myndina þína eftir teikningu\"</string>
-  <string name="lockpattern_pattern_toast_saved">Hreyfilæsingarmynstur giftursamlega vistað</string>
+  <string name="lockpattern_need_to_unlock_wrong">Mynstrið passaði ekki. Reyndu aftur.</string>
+  <string name="lockpattern_pattern_confirmed_header">Smelltu á OK til að vista mynstrið</string>
+  <string name="lockpattern_recording_inprogress">Lyftu fingrinum þegar þú hefur lokið teikningunni</string>
+  <string name="lockpattern_pattern_toast_saved">Mynstur vistað með ágætum</string>
   <!--Strings for possible PreferenceActivity Back/Next buttons-->
   <string name="back_button_label">Til baka</string>
   <string name="next_button_label">Næst</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">Sleppa</string>
-  <string name="settings_camera_upload_duplicate">þegar hlaðið upp</string>
+  <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Hlaða Upp Myndum Myndavélar</string>
-  <string name="settings_camera_upload_info">hlaða upp %d mynd(um) til\u0020</string>
-  <string name="settings_wifi_down">Þráðlaust net ekki tiltækt</string>
-  <string name="settings_startUpService">Upphleðsluþjónusta komin í gang</string>
-  <string name="settings_stopUpService">Upphleðsluþjónusta stöðvuð</string>
-  <string name="settings_allow_mobile_connections">Leyfa 2G/3G/4G Tengingar</string>
-  <string name="settings_default_wifi_connection">Nota aðeins þráðlaust net sem sjálfgefið</string>
-  <string name="settings_use_mobile_connections">2G/3G/4G tengingar leyfðar</string>
-  <string name="settings_repo">Breyta Upphleðslusafni</string>
-  <string name="settings_hint">Vinsamlegast veldu safn fyrst</string>
-  <string name="settings_start">Kveikja á Myndavélaupphleðslu</string>
-  <string name="settings_camera_upload_library_not_found">Valda safnið er ekki til</string>
+  <string name="settings_camera_upload_service_started">Upphleðsluþjónusta hafin</string>
+  <string name="settings_camera_upload_service_stopped">Upphleðsluþjónusta stöðvaðist</string>
+  <string name="settings_camera_upload_allow_data_plan">Leyfa gagnaáætlun</string>
+  <string name="settings_camera_upload_allow_videos">Leyfa Upphleðslu Kvikmynda</string>
+  <string name="settings_camera_upload_default_wifi">Sjálfgefið að nota aðeins Wi-Fi</string>
+  <string name="settings_camera_upload_data_plan_allowed">Gagnaáætlun leyfð</string>
+  <string name="settings_camera_upload_default_photos">Sjálfgefið að hlaða aðeins upp ljósmyndum</string>
+  <string name="settings_camera_upload_videos_allowed">Vídeó innifalin </string>
+  <string name="settings_camera_upload_change_repo_title">Skipta um Upphleðslusafn</string>
+  <string name="settings_camera_upload_repo_hint">Vinsamlegast veldu fyrst safn</string>
+  <string name="settings_camera_upload_turn_on">Kveikja á Myndavélaupphleðslu</string>
+  <string name="settings_camera_upload_choose_dir">Breyta Staðværum Skráarsöfnum</string>
+  <string name="settings_camera_upload_dir_auto_scan">Sjálfgefið að skima myndir skjálfkrafa</string>
+  <string name="settings_camera_upload_dir_custom">Skima yfir valin skráasöfn</string>
+  <string name="settings_camera_upload_lib_not_found">Valin skráasöfn eru ekki til</string>
+  <string name="settings_camera_upload_advanced_feature_title">Frekari Valmöguleikar</string>
+  <string name="settings_camera_upload_advanced_feature_subtitle">Sérsniðið upphleðsluval</string>
+  <string name="settings_camera_upload_advanced_custom_directories">Sérsniðin upphleðsluskráasöfn</string>
+  <string name="settings_camera_upload_advanced_custom_directories_on">Veldu myndaskráasöfn</string>
+  <string name="settings_camera_upload_advanced_custom_directories_off">Sjálfvirk skimun tækis</string>
+  <!--Camera Upload Configuration View-->
+  <string name="settings_cuc_title">Stillingahjálp</string>
+  <string name="settings_cuc_welcome_text">Takk vyrir að nota myndavélaupphleðsluhjálpina. \nTil að hjálpa þér af stað með myndavélaupphleðsluþjónustuna, þá verður þér leiðbeint í upphafskrefunum.</string>
+  <string name="settings_cuc_network_title">Hvernig á að hlaða upp</string>
+  <string name="settings_cuc_network_wifi">Aðeins Wi-Fi</string>
+  <string name="settings_cuc_network_data_plan">Wi-Fi eða gagnaáætlun</string>
+  <string name="settings_cuc_option_hint">Veldu það sem hentar þér. \nÞú getur breytt þessum valmöguleikum síðar í Stillingum.</string>
+  <string name="settings_cuc_type_title">Hverju á að hlaða upp</string>
+  <string name="settings_cuc_type_photo">Aðeins myndum</string>
+  <string name="settings_cuc_type_video">Myndum og kvikmyndum</string>
+  <string name="settings_cuc_local_dir_title">Veldu Staðvær Skráasöfn</string>
+  <plurals name="settings_cuc_local_dir_items">
+    <item quantity="one">%1$d atriði</item>
+    <item quantity="other">%1$d atriði</item>
+  </plurals>
+  <string name="settings_cuc_remote_lib_title">Veldu Fjartengt Safn</string>
+  <string name="settings_cuc_remote_lib_account">Veldu reikning</string>
+  <string name="settings_cuc_remote_lib_repo">%s varð fyrir valinu</string>
+  <string name="settings_cuc_upload_to_parent_folder">Upp í Yfirskráasafn</string>
+  <string name="settings_cuc_auto_scan">Sækja allar myndir á tæki</string>
+  <string name="settings_cuc_pick_dir">Leyfðu mér að velja myndaskáasöfn</string>
+  <string name="settings_cuc_remote_lib_hint">Veldu reikninginn þinn og safn. \nÞú getur breytt þessum stillingum síðar í Stillingum.</string>
+  <string name="settings_cuc_finish_title">Enda</string>
+  <string name="settings_cuc_ready">Seafile mun nú hlaða upp skrám frá þeim skráasöfnum sem þú valdir. \nÞú mátt loka appinu á meðan þessu stendur.</string>
+  <string name="settings_cuc_swipe_left">Strjúktu til vinstri til að halda áfram.</string>
+  <string name="settings_cuc_click_btn">Smelltu til að loka stillingahjálpinni.</string>
+  <string name="settings_cuc_loading">hleð...</string>
   <string name="settings_about_title">UM</string>
   <string name="settings_about_version_title">App Útgáfa</string>
+  <string name="settings_about_author_title">Um Höfund</string>
+  <string name="settings_about_author_info">
+        <![CDATA[
+        <h5>Seafile Android biðlari</h5>
+        <p>%s</p>
+        <h5>Hafðu samband við okkur</h5>
+        <p>
+            Twitter: Seafile<br>
+            Netfang: support@seafile.com<br>
+        </p>
+        <h5>Taka þátt</h5>
+        <p>https://github.com/haiwen/seadroid.git</P>
+        <h5>Copyright ©2013-2015 Seafile Ltd.</h5>
+        ]]>
+    </string>
+  <string name="settings_advance_feature_title">ÍTARLEGRI SÉRKENNI</string>
+  <string name="settings_cache_title">Flýtiminnisstærð</string>
+  <string name="settings_clear_cache_title">Tæma flýtiminni</string>
+  <string name="settings_clear_cache_hint">Viltu tæma flýtiminnið?</string>
+  <string name="settings_clear_cache_success">Flýtiminni tæmt með ágætum</string>
+  <string name="settings_clear_cache_failed">Mistókst að tæma flýtiminni</string>
+  <string name="settings_cache_empty">0 KB</string>
   <!--pull to refresh-->
   <string name="pull_to_refresh_pull_label">Dragðu til að endurglæða...</string>
   <string name="pull_to_refresh_release_label">Slepptu til að endurglæða...</string>
   <string name="pull_to_refresh_refreshing_label">Hleð inn...</string>
+  <string name="pull_to_refresh_last_update">Síðasta uppfærsla:</string>
+  <string name="pull_to_refresh_last_update_seconds_ago">%d sekúndum síðan</string>
+  <string name="pull_to_refresh_last_update_minutes_ago">%d mínútum síðan</string>
+  <string name="pull_to_refresh_last_update_hours_ago">%d klukkutímum síðan</string>
   <!--storage access framework-->
-  <string name="saf_open_file_exception">Gat ekki optað skrá %s.</string>
-  <string name="saf_open_directory_exception">Get ekki opnað skráasafn.</string>
+  <string name="saf_open_file_exception">Gat ekki opnað skránna %s.</string>
+  <string name="saf_open_directory_exception">Get ekki oppnað skráasafn.</string>
   <string name="saf_file_not_cached_exception">Skrá %s hefur ekki verið sett í flýtimynni.</string>
-  <string name="saf_thumbnail_not_found_exception">Gat ekki fundið/opnað smámynd %s.</string>
-  <string name="saf_file_not_downloaded_exception">gat ekki halað niður skrá %s af þjóni.</string>
-  <string name="saf_write_diretory_exception">Gat ekki opnað skráasafn fyrir lestur/skrift.</string>
-  <string name="saf_account_not_found_exception">gat ekki fundið Seafile reikning.</string>
+  <string name="saf_thumbnail_not_found_exception">Gat ekki fundið/opnað smámyndina %s.</string>
+  <string name="saf_file_not_downloaded_exception">Gat ekki halað niður skránni %s af þjóni.</string>
+  <string name="saf_write_diretory_exception">Get ekki opnað skráasafn fyrir lestur/skrif.</string>
+  <string name="saf_account_not_found_exception">Finn ekki Seafile reikning.</string>
+  <string name="saf_upload_path_not_available">Gat ekki hlaðið upp, engin slóð tiltæk</string>
+  <string name="saf_failed_to_create_directory">Gat ekki búið til skráasafnið %s</string>
+  <string name="saf_file_exist">Skrá er þegar til</string>
+  <string name="saf_bad_mime_type">Slæm beiðnagerð</string>
   <!--shibboleth SSO-->
+  <string name="shib_server_url_empty">Þjónn er tómur!</string>
+  <string name="shib_server_incorrect_prefix">Þjónn ætti að byrja á annaðhvort http:// eða https://</string>
+  <string name="shib_load_page_error">Villa:</string>
+  <string name="shib_login_title">Shibboleth Innskráning</string>
+  <string name="shib_server_hint">Settu inn Þjón...</string>
+  <string name="shib_actionbar_title">Skrá inn með Shibboleth</string>
+  <string name="shib_loading">er að vinna...</string>
+  <!--Transfer List-->
+  <string name="transfer_list_network_error">Netkerfis tengivilla, vinsamlegast reyndu aftur síðar!</string>
+  <string name="transfer_list_cancel_all">Hætta við öll verk</string>
+  <string name="transfer_list_restart_all">Byrja upp á nýtt</string>
+  <string name="transfer_list_retry_failed_tasks">Reyna aftur við verk sem mistókust</string>
+  <string name="transfer_list_restart_cancelled_tasks">Endurræsa verk sem hætt var við</string>
+  <string name="transfer_list_clear_failed_tasks">Hreinsa verk sem mistókust</string>
+  <string name="transfer_list_clear_all_tasks">Hreinsa öll verk</string>
+  <string name="transfer_list_clear_finished_tasks">Hreinsa loknum verkum</string>
+  <string name="transfer_tabs_downloads">Niðurhalslisti</string>
+  <string name="transfer_tabs_uploads">Upphleðslulisti</string>
+  <string name="transfer_download_no_task">Öllum skrám hefur verið niðurhalað</string>
+  <plurals name="transfer_download_started">
+    <item quantity="one">Er að hefja niðurhal á %1$d skrá</item>
+    <item quantity="other">Er að hefja niðurhal %1$d skráa</item>
+  </plurals>
+  <string name="transfer_list_select_all">Velja allt</string>
+  <string name="transfer_list_deselect_all">Afvelja allt</string>
+  <plurals name="transfer_list_items_selected">
+    <item quantity="one">%d atriði valin</item>
+    <item quantity="other">%d atriði valin</item>
+  </plurals>
+  <!--Sort-->
+  <string name="sort_menu_item">Raða</string>
+  <string name="sort_files">Raða eftir</string>
+  <string-array name="sort_files_options_array">
+    <item>Nafni</item>
+    <item>Nafni (Lækkandi)</item>
+    <item>Síðast breytt</item>
+    <item>Síðast breytt (Lækkandi)</item>
+  </string-array>
+  <!--Search-->
+  <string name="search_menu_item">Leita</string>
+  <string name="search_bar_hint">Leita...</string>
+  <string name="search_txt_empty">Vinsamlegast settu inn lykilorð</string>
+  <string name="search_content_empty">Ekkert fannst</string>
+  <string name="search_server_not_support">Úps, leit var ekki studd á þessum þjóni!</string>
+  <string name="search_library_not_found">Fann ekki þetta safn. Því hefur kannski verið eytt.</string>
+  <!--star a file-->
+  <string name="star_file_succeed">Stjörnumerkti skránna með ágætum</string>
+  <string name="star_file_failed">Mistókst að stjörnumerkja skrá</string>
+  <!--notification bar-->
+  <string name="notification_upload_started_title">Hleð upp skrám...</string>
+  <string name="notification_download_started_title">Hala niður skrám...</string>
+  <string name="notification_upload_completed">Upphleðslu lokið</string>
+  <plurals name="notification_upload_info">
+    <item quantity="one">Hleð upp %1$d skrá (%2$d%%)</item>
+    <item quantity="other">Hleð upp %1$d skrám (%2$d%%)</item>
+  </plurals>
+  <plurals name="notification_download_info">
+    <item quantity="one">Hala niður %1$d skrá (%2$d%%)</item>
+    <item quantity="other">Hala niður %1$d skrám (%2$d%%)</item>
+  </plurals>
+  <string name="notification_download_completed">Niðurhali lokið</string>
+  <!--Gallery-->
+  <string name="gallery_load_photos_error">Villa í hleðslu mynda</string>
+  <string name="gallery_encrypted_repo_not_supported">Dulkóðað safn var ekki stutt</string>
+  <!--Overwrite existing files-->
+  <string name="overwrite_existing_file_title">Skipta út skrá sem er til</string>
+  <string name="overwrite_existing_file_msg">Skráin er þegar til, viltu skipta henni út?</string>
+  <string name="overwrite_existing_file_exist">Skráin er þegar til</string>
+  <!--Action Mode-->
+  <string name="action_mode_no_items_selected">Engin atriði voru valin</string>
 </resources>

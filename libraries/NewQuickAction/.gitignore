@@ -1,8 +1,0 @@
-*~
-bin
-gen
-local.properties
-.classpath
-.project
-.settings
-libs

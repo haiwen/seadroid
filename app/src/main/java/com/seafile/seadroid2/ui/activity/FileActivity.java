@@ -1,42 +1,32 @@
 package com.seafile.seadroid2.ui.activity;
 
-import java.io.File;
-import java.net.HttpURLConnection;
-
-import android.content.ActivityNotFoundException;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
-import android.webkit.MimeTypeMap;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
-
+import android.widget.*;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
+import com.seafile.seadroid2.transfer.TaskState;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
-import com.seafile.seadroid2.ui.dialog.OpenAsDialog;
 import com.seafile.seadroid2.ui.dialog.PasswordDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.util.Utils;
+
+import java.io.File;
+import java.net.HttpURLConnection;
 
 /**
  * Display a file
@@ -57,7 +47,7 @@ public class FileActivity extends SherlockFragmentActivity {
 
     private int mTaskID = -1;
     private TransferService mTransferService;
-    private TransferReceiver mTransferReceiver;
+    private boolean timerStarted;
     private ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
@@ -65,7 +55,7 @@ public class FileActivity extends SherlockFragmentActivity {
 
             TransferBinder binder = (TransferBinder) service;
             mTransferService = binder.getService();
-            onTransferSericeConnected();
+            onTransferServiceConnected();
         }
 
         @Override
@@ -73,11 +63,13 @@ public class FileActivity extends SherlockFragmentActivity {
         }
     };
 
+    private final Handler mTimer = new Handler();
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
 
-        mAccount  = (Account)intent.getParcelableExtra("account");
+        mAccount  = intent.getParcelableExtra("account");
         mRepoName = intent.getStringExtra("repoName");
         mRepoID = intent.getStringExtra("repoID");
         mFilePath = intent.getStringExtra("filePath");
@@ -91,23 +83,30 @@ public class FileActivity extends SherlockFragmentActivity {
     }
 
     @Override
-    protected void onStop() {
-        Log.d(DEBUG_TAG, "onStop");
-        super.onStop();
-
-        if (mTransferReceiver != null) {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(mTransferReceiver);
+    protected void onStart() {
+        Log.d(DEBUG_TAG, "onStart");
+        super.onStart();
+        if (mTransferService != null) {
+            startTimer();
         }
     }
 
     @Override
+    protected void onStop() {
+        Log.d(DEBUG_TAG, "onStop");
+        super.onStop();
+        stopTimer();
+    }
+
+    @Override
     protected void onDestroy() {
+        Log.d(DEBUG_TAG, "onDestroy");
+        super.onDestroy();
         if (mTransferService != null) {
             unbindService(mConnection);
             mTransferService = null;
         }
 
-        super.onDestroy();
     }
 
     private void initWidgets() {
@@ -128,83 +127,25 @@ public class FileActivity extends SherlockFragmentActivity {
             public void onClick(View view) {
                 if (mTaskID > 0) {
                     mTransferService.cancelDownloadTask(mTaskID);
+                    mTransferService.cancelNotification();
                 }
                 finish();
             }
         });
     }
 
-    private void startMarkdownActivity(String path) {
-        Intent intent = new Intent(this, MarkdownActivity.class);
-        intent.putExtra("path", path);
-        startActivity(intent);
-    }
-
-    private void showFile() {
-        File file = mDataManager.getLocalRepoFile(mRepoName, mRepoID, mFilePath);
-        String name = file.getName();
-        String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
-
-        if (suffix.length() == 0) {
-            showToast(R.string.unknown_file_type);
-            return;
-        }
-
-        // Open markdown files in MarkdownActivity
-        if (suffix.endsWith("md") || suffix.endsWith("markdown")) {
-            startMarkdownActivity(file.getPath());
-            finish();
-            overridePendingTransition(0, 0);
-            return;
-        }
-
-        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
-        Intent open = new Intent(Intent.ACTION_VIEW);
-        open.setDataAndType((Uri.fromFile(file)), mime);
-
-        try {
-            startActivity(open);
-            finish();
-            return;
-        } catch (ActivityNotFoundException e) {
-            new OpenAsDialog(file) {
-                @Override
-                public void onDismiss(DialogInterface dialog) {
-                    finish();
-                }
-            }.show(getSupportFragmentManager(), "OpenAsDialog");
-            return;
-        }
-
-/*      String chooser_title = getString(R.string.open_with);
-        Intent chooser = Intent.createChooser(open, chooser_title);
-
-        if (open.resolveActivity(getPackageManager()) != null) {
-            startActivity(chooser);
-            finish();
-            overridePendingTransition(0, 0);
-            return;
-        } else {
-            showToast(R.string.activity_not_found);
-            return;
-        }*/
-
-    }
-
-    private void onTransferSericeConnected() {
-        // Register broadcast receiver
-        IntentFilter filter = new IntentFilter(TransferService.BROADCAST_ACTION);
-        mTransferReceiver = new TransferReceiver();
-        LocalBroadcastManager.getInstance(this).registerReceiver(mTransferReceiver, filter);
-
+    private void onTransferServiceConnected() {
         mProgressBar.setVisibility(View.VISIBLE);
         mProgressBar.setIndeterminate(true);
         mProgressText.setVisibility(View.VISIBLE);
+
+        startTimer();
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
+        Log.d(DEBUG_TAG, "onSaveInstanceState");
+        //super.onSaveInstanceState(outState);
     }
 
     private void bindTransferService() {
@@ -234,14 +175,34 @@ public class FileActivity extends SherlockFragmentActivity {
         String txt = Utils.readableFileSize(finished) + " / " + Utils.readableFileSize(fileSize);
 
         mProgressText.setText(txt);
+
+        if (!mTransferService.hasDownloadNotifProvider()) {
+            DownloadNotificationProvider provider = new DownloadNotificationProvider(
+                    mTransferService.getDownloadTaskManager(),
+                    mTransferService);
+            mTransferService.saveDownloadNotifProvider(provider);
+        } else {
+            // if the notificationManager mapping the repoID exist, update its data set
+            // mTransferService.getDownloadNotifProvider().updateTotalSize(fileSize);
+        }
     }
 
-    private void onFileDownloaded(DownloadTaskInfo info) {
+    private void onFileDownloaded() {
         mProgressBar.setVisibility(View.GONE);
         mProgressText.setVisibility(View.GONE);
         mButtonCancel.setVisibility(View.GONE);
 
-        showFile();
+        File file = mDataManager.getLocalRepoFile(mRepoName, mRepoID, mFilePath);
+        if (file != null && timerStarted) {
+            Intent result = new Intent();
+            result.putExtra("path", file.getAbsolutePath());
+            setResult(RESULT_OK, result);
+        }
+        else {
+            setResult(RESULT_CANCELED);
+        }
+        stopTimer();
+        finish();
     }
 
     private void onFileDownloadFailed(DownloadTaskInfo info) {
@@ -259,6 +220,7 @@ public class FileActivity extends SherlockFragmentActivity {
         } else {
             showToast("Failed to download file \"" + fileName);
         }
+        stopTimer();
     }
 
     private void handlePassword() {
@@ -291,36 +253,43 @@ public class FileActivity extends SherlockFragmentActivity {
         showToast(getString(id));
     }
 
-    private class TransferReceiver extends BroadcastReceiver {
-        private TransferReceiver() {}
 
-        public void onReceive(Context context, Intent intent) {
-            if (mTaskID < 0) {
-                return;
-            }
-
-            String type = intent.getStringExtra("type");
-            if (type == null) {
-                return;
-            }
-
-            int taskID = intent.getIntExtra("taskID", 0);
-            if (taskID != mTaskID) {
-                return;
-            }
-
-            DownloadTaskInfo info = mTransferService.getDownloadTaskInfo(taskID);
-            if (info == null) {
-                Log.w(DEBUG_TAG, "download info is null");
-            }
-            if (type.equals(TransferService.BROADCAST_FILE_DOWNLOAD_PROGRESS)) {
-                onFileDownloadProgress(info);
-            } else if (type.equals(TransferService.BROADCAST_FILE_DOWNLOAD_SUCCESS)) {
-                onFileDownloaded(info);
-            } else if (type.equals(TransferService.BROADCAST_FILE_DOWNLOAD_FAILED)) {
-                onFileDownloadFailed(info);
-            }
+    public void startTimer() {
+        if (timerStarted) {
+            return;
         }
+        timerStarted = true;
+        Log.d(DEBUG_TAG, "timer started");
+        mTimer.postDelayed(new Runnable() {
 
-    } // TransferReceiver
+            @Override
+            public void run() {
+                if (mTransferService == null)
+                    return;
+
+                DownloadTaskInfo downloadTaskInfo = mTransferService.getDownloadTaskInfo(mTaskID);
+                if (downloadTaskInfo.state == TaskState.INIT
+                        || downloadTaskInfo.state == TaskState.TRANSFERRING)
+                    onFileDownloadProgress(downloadTaskInfo);
+                else if (downloadTaskInfo.state == TaskState.FAILED)
+                    onFileDownloadFailed(downloadTaskInfo);
+                else if (downloadTaskInfo.state == TaskState.FINISHED)
+                    onFileDownloaded();
+                else if (downloadTaskInfo.state == TaskState.CANCELLED)
+                    // do nothing when cancelled
+
+                Log.d(DEBUG_TAG, "timer post refresh signal " + System.currentTimeMillis());
+                mTimer.postDelayed(this, 1 * 1000);
+            }
+        }, 1 * 1000);
+    }
+
+    public void stopTimer() {
+        if (!timerStarted) {
+            return;
+        }
+        timerStarted = false;
+        Log.d(DEBUG_TAG, "timer stopped");
+        mTimer.removeCallbacksAndMessages(null);
+    }
 }

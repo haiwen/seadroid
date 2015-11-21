@@ -11,18 +11,22 @@ import java.security.cert.X509Certificate;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import android.os.Build;
+import org.apache.http.conn.ssl.BrowserCompatHostnameVerifier;
+import org.apache.http.conn.ssl.X509HostnameVerifier;
+
 import android.util.Log;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.seafile.seadroid2.account.Account;
 
 public final class SSLTrustManager {
@@ -146,7 +150,9 @@ public final class SSLTrustManager {
             return ImmutableList.of();
         }
 
-        List<X509Certificate> certs = Lists.newArrayList(certificates);
+        Set<X509Certificate> all = Sets.newHashSet(certificates);
+
+        List<X509Certificate> certs = Lists.newArrayList(all);
         // certs.addAll(Arrays.asList(certificates));
         X509Certificate certChain = certs.get(0);
         certs.remove(certChain);
@@ -209,11 +215,13 @@ public final class SSLTrustManager {
                 return;
             }
 
+            List<X509Certificate> orderedChain = orderCerts(chain);
             try {
                 // First try to do default check
                 defaultTrustManager.checkServerTrusted(chain, authType);
+                // Second check if hostname is valid
+                validateHostName(orderedChain);
             } catch (CertificateException e) {
-                List<X509Certificate> orderedChain = orderCerts(chain);
                 customCheck(orderedChain, authType);
             }
         }
@@ -225,7 +233,22 @@ public final class SSLTrustManager {
                     + " IssuerAlternative: " + cert.getIssuerAlternativeNames()
                     + " NotAfter: " + cert.getNotAfter();
         }
-        
+
+        /**
+         * Interface for checking if a hostname matches the names stored inside the server's X.509 certificate
+         */
+        private void validateHostName(List<X509Certificate> chain) throws CertificateException {
+            X509Certificate cert = chain.get(0);
+            // BrowserCompatHostnameVerifier can verify hostnames in the form of IP addresses (like a browser)
+            // where as the DefaultHostnameVerifier will always try to lookup IP addresses via the DNS.
+            X509HostnameVerifier mHostnameVerifier = new BrowserCompatHostnameVerifier();
+            try {
+                mHostnameVerifier.verify(account.getServerDomainName(), cert);
+            } catch (SSLException e) {
+                throw new CertificateException();
+            }
+        }
+
         private void customCheck(List<X509Certificate> chain, String authType)
             throws CertificateException {
 
@@ -246,7 +269,7 @@ public final class SSLTrustManager {
                 // The certificate is different from the one user confirmed to trust,
                 // This may be either:
                 // 1. The server admin has changed its cert
-                // 2. The user is under security attak
+                // 2. The user is under security attack
                 Log.d(DEBUG_TAG, "the cert of " + account.server + " has changed");
                 reason = SslFailureReason.CERT_CHANGED;
                 throw new CertificateException();

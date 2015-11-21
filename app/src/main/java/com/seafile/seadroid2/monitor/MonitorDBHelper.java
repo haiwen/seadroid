@@ -1,9 +1,6 @@
 package com.seafile.seadroid2.monitor;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -137,7 +134,7 @@ public class MonitorDBHelper extends SQLiteOpenHelper {
 
         c.moveToFirst();
 
-        Map<String, Account> accounts = getAllAccouts();
+        Map<String, Account> accounts = getAllAccounts();
         while (!c.isAfterLast()) {
             AutoUpdateInfo item = cursorToAutoUpdateInfo(c, accounts);
             c.moveToNext();
@@ -161,7 +158,7 @@ public class MonitorDBHelper extends SQLiteOpenHelper {
         return infos;
     }
 
-    private Map<String, Account> getAllAccouts() {
+    private Map<String, Account> getAllAccounts() {
         AccountManager accountMgr = new AccountManager(SeadroidApplication.getAppContext());
         Map<String, Account> accounts = Maps.newHashMap();
         for (Account account : accountMgr.getAccountList()) {
