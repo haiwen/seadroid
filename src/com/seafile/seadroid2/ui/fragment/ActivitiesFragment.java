@@ -164,7 +164,7 @@ public class ActivitiesFragment extends SherlockFragment {
         SeafRepo repo = getBrowserActivity().getDataManager().getCachedRepoByID(repoID);
 
         if (repo == null) {
-            ToastUtils.show(getBrowserActivity(), "Couldn't find this library. It may be deleted");
+            ToastUtils.show(getBrowserActivity(), getString(R.string.repo_not_found));
             return;
         }
 

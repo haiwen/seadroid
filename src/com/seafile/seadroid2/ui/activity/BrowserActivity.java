@@ -1185,7 +1185,7 @@ public class BrowserActivity extends SherlockFragmentActivity
                 }
 
                 if(strImgPath == null) {
-                    ToastUtils.show(this, "Unable to upload, no path available");
+                    ToastUtils.show(this, getString(R.string.saf_upload_path_not_available));
                     Log.i(DEBUG_TAG, "Pick file request did not return a path");
                     return;
                 }
