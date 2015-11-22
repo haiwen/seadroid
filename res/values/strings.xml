@@ -220,7 +220,7 @@
     <string name="cannot_move_folder_to_subfolder">You can\'t move a folder to its subfolder</string>
     <string name="cancel">Cancel</string>
     <string name="confirm">Confirm</string>
-    <string name="repo_not_found">Couldn't find this library. It may be deleted or encrypted</string>
+    <string name="repo_not_found">Couldn\'t find this library. It may be deleted or encrypted</string>
 
     <string name="settings_account">Account</string>
     <string name="settings_account_info_title">User info</string>
