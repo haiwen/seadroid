@@ -45,7 +45,7 @@ Build the APK with `./gradlew assembleRelease`.
 
 ### Contribute your translation
 
-Please submit translations via Transifex: https://www.transifex.com/projects/p/seafile-client/
+Please submit translations via Transifex: https://www.transifex.com/haiwen/seadroid/
 
 Steps:
 
