@@ -1,0 +1,135 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.0.0'
+    }
+}
+
+apply plugin: 'com.android.application'
+
+
+repositories {
+    mavenCentral()
+
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+/*
+ * Gets the version name from the latest Git tag
+ */
+def getVersionName = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'describe', '--tags'
+        standardOutput = stdout
+    }
+    def version = stdout.toString().trim()
+    return version.substring(0, 5)
+}
+def getVersionCode = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-list', '--count', "HEAD"
+        standardOutput = stdout
+    }
+    return Integer.valueOf(stdout.toString().trim())
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: 'markdownview-1.2.jar')
+    compile 'com.android.support:support-v4:21.0.+'
+    compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
+    compile ('com.inkapplications.viewpageindicator:library:2.4.3') {
+        exclude module: 'support-v4'
+    }
+    compile 'com.github.kevinsawicki:http-request:5.6'
+    compile ('com.github.chrisbanes.photoview:library:1.2.3') {
+        exclude module: 'support-v4'
+    }
+    compile 'commons-io:commons-io:2.4'
+    compile 'com.google.guava:guava:18.0'
+    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
+    compile project(':NewQuickAction')
+}
+
+android {
+    compileSdkVersion 21
+    buildToolsVersion "21.1.2"
+    defaultConfig {
+        minSdkVersion 8
+        targetSdkVersion 21
+        versionCode getVersionCode()
+        versionName getVersionName()
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            resources.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['res']
+        }
+
+        // Move the tests to tests/java, tests/res, etc...
+        instrumentTest.setRoot('tests')
+
+        // Move the build types to build-types/<type>
+        // For instance, build-types/debug/java, build-types/debug/AndroidManifest.xml, ...
+        // This moves them out of them default location under src/<type>/... which would
+        // conflict with src/ being used by the main source set.
+        // Adding new build types or product flavors should be accompanied
+        // by a similar customization.
+        debug.setRoot('build-types/debug')
+        release.setRoot('build-types/release')
+    }
+
+    signingConfigs {
+        release {
+            // Signing code for manual signing
+            //storeFile file(System.console().readLine("\n\$ Enter keystore path: "))
+            //storePassword System.console().readPassword("\n\$ Enter keystore password: ").toString()
+            //keyAlias System.console().readLine("\n\$ Enter key alias: ")
+            //keyPassword System.console().readPassword("\n\$ Enter key password: ").toString()
+
+            def props = new Properties()
+            props.load(new FileInputStream(project.file("key.properties")))
+            storeFile project.file(props.keyStore)
+            storePassword props.keyStorePassword
+            keyAlias props.keyAlias
+            keyPassword props.keyAliasPassword
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
+            applicationVariants.all { variant ->
+                variant.outputs.each { output ->
+                    if (output.outputFile != null && output.outputFile.name.endsWith('.apk')) {
+                        def file = output.outputFile
+                        if (variant.name == "release")
+                            output.outputFile = new File(file.parent,
+                                    "seafile-" + defaultConfig.versionName +
+                                            ".apk")
+                    }
+                }
+            }
+        }
+    }
+
+    android {
+        lintOptions {
+            abortOnError false
+        }
+    }
+}
+

@@ -1,0 +1,3 @@
+include ':'
+include ':NewQuickAction'
+project(':NewQuickAction').projectDir = new File('/Users/Logan/development/android/eclipse_luna_workspace/NewQuickAction')
