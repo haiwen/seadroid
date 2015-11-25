@@ -6,7 +6,7 @@ apply plugin: 'com.android.application'
 def getVersionName = { ->
     def stdout = new ByteArrayOutputStream()
     exec {
-        commandLine 'git', 'describe', '--tags'
+        commandLine 'git', 'describe', '--abbrev=0', '--tags'
         standardOutput = stdout
     }
     // Version must be max 16 byte long, so trim results if needed.
@@ -80,7 +80,7 @@ android {
                         def file = output.outputFile
                         if (variant.name == "release")
                             output.outputFile = new File(file.parent,
-                                    "Seadroid-release-" + defaultConfig.versionName +
+                                    "seadroid-" + defaultConfig.versionName +
                                             ".apk")
                     }
                 }
