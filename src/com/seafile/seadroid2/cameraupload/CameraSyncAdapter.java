@@ -29,6 +29,7 @@ import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;
 import java.net.HttpURLConnection;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -171,6 +172,18 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
         Log.i(DEBUG_TAG, "Syncing images and video to " + account);
 
+        Log.d(DEBUG_TAG, "Last image sync timestamp: " + settingsMgr.getCameraUploadSyncStampImage());
+        Log.d(DEBUG_TAG, "Last video sync timestamp: "+settingsMgr.getCameraUploadSyncStampVideo());
+        Log.d(DEBUG_TAG, "Camera upload target dir: "+settingsMgr.getCameraUploadDir());
+        Log.d(DEBUG_TAG, "Selected buckets for camera upload: "+settingsMgr.getCameraUploadBucketList());
+        Log.d(DEBUG_TAG, "is video upload allowed: "+settingsMgr.isVideosUploadAllowed());
+        Log.d(DEBUG_TAG, "is data plan allowed: "+settingsMgr.isDataPlanAllowed());
+
+        Log.d(DEBUG_TAG, "Media buckets available on this system: ");
+        for (GalleryBucketUtils.Bucket bucket: GalleryBucketUtils.getMediaBuckets(getContext())) {
+            Log.d(DEBUG_TAG, "Bucket id="+bucket.id+" name="+bucket.name);
+        }
+
         // resync all media
         if (extras.getBoolean(ContentResolver.SYNC_EXTRAS_INITIALIZE)) {
             Log.i(DEBUG_TAG, "Doing a full resync");
@@ -232,7 +245,11 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 uploadVideos(syncResult, dataManager);
             }
 
-            Log.i(DEBUG_TAG, "sync finished successfully.");
+            if (isCancelled()) {
+                Log.i(DEBUG_TAG, "sync was cancelled.");
+            } else {
+                Log.i(DEBUG_TAG, "sync finished successfully.");
+            }
 
         } catch (SeafException e) {
             switch (e.getCode()) {
@@ -255,10 +272,15 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                     Log.i(DEBUG_TAG, "sync aborted because of IO or server-side error.", e);
                     break;
             }
+        } catch (Exception e) {
+            Log.e(DEBUG_TAG, "sync aborted because an unknown error", e);
+            syncResult.stats.numParseExceptions++;
         }
     }
 
     private void uploadImages(SyncResult syncResult, DataManager dataManager) throws SeafException {
+
+        Log.d(DEBUG_TAG, "Starting to upload images...");
 
         if (isCancelled())
             return;
@@ -287,6 +309,8 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             selection += " AND " + MediaStore.Images.Media.BUCKET_DISPLAY_NAME + " = ?";
         }
 
+        Log.d(DEBUG_TAG, "ContentResolver selection='"+selection+"' selectionArgs='"+Arrays.deepToString(selectionArgs)+"'");
+
         // fetch all new images from the ContentProvider since our last sync
         Cursor cursor = contentResolver.query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
@@ -302,9 +326,12 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         );
 
         try {
+            if (cursor == null) {
+                Log.e(DEBUG_TAG, "ContentResolver query failed!");
+                return;
+            }
+            Log.d(DEBUG_TAG, "i see " + cursor.getCount() + " new images.");
             if (cursor.getCount() > 0) {
-                Log.d(DEBUG_TAG, "i see " + cursor.getCount() + " new images.");
-
                 // create directories for media buckets
                 createDirectories(dataManager);
 
@@ -319,15 +346,17 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 settingsMgr.setCameraUploadSyncStampImage(cursor.getLong(dateAddedColumn));
             }
         } finally {
-            cursor.close();
+            if (cursor != null)
+                cursor.close();
         }
     }
 
     private void uploadVideos(SyncResult syncResult, DataManager dataManager) throws SeafException {
 
+        Log.d(DEBUG_TAG, "Starting to upload videos...");
+
         if (isCancelled())
             return;
-
 
         // we only want media added since the last complete sync
         String selection = MediaStore.Video.VideoColumns.DATE_ADDED + " > ?";
@@ -353,6 +382,8 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             selection += " AND " + MediaStore.Video.Media.BUCKET_DISPLAY_NAME + " = ?";
         }
 
+        Log.d(DEBUG_TAG, "ContentResolver selection='"+selection+"' selectionArgs='"+Arrays.deepToString(selectionArgs)+"'");
+
         // fetch all new videos from the ContentProvider since our last sync
         Cursor cursor = contentResolver.query(
                 MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
@@ -368,9 +399,12 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         );
 
         try {
+            if (cursor == null) {
+                Log.e(DEBUG_TAG, "ContentResolver query failed!");
+                return;
+            }
+            Log.d(DEBUG_TAG, "i see " + cursor.getCount() + " new videos.");
             if (cursor.getCount() > 0) {
-                Log.d(DEBUG_TAG, "i see " + cursor.getCount() + " new videos.");
-
                 // create directories for media buckets
                 createDirectories(dataManager);
 
@@ -385,7 +419,8 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 settingsMgr.setCameraUploadSyncStampVideo(cursor.getLong(dateAddedColumn));
             }
         } finally {
-            cursor.close();
+            if (cursor != null)
+                cursor.close();
         }
 
     }
@@ -411,11 +446,13 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
             // Ignore all media by Seafile. We don't want to upload our own cached files.
             if (file.getAbsolutePath().startsWith(DataManager.getExternalRootDirectory())) {
+                Log.d(DEBUG_TAG, "Skipping media "+file+" because it's part of the Seadroid cache");
                 continue;
             }
 
             // local file does not exist. some inconsistency in the Media Provider? Ignore and continue
             if (!file.exists()) {
+                Log.d(DEBUG_TAG, "Skipping media "+file+" because it doesn't exist");
                 syncResult.stats.numSkippedEntries++;
                 continue;
             }
@@ -437,9 +474,11 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
     private void uploadFile(DataManager dataManager, File file, String bucketName) throws SeafException {
 
         String serverPath = Utils.pathJoin(targetDir, bucketName);
+        Log.d(DEBUG_TAG, "uploading file " + file.getName() + " to " + serverPath);
 
         List<SeafDirent> list = dataManager.getCachedDirents(targetRepoId, serverPath);
         if (list == null) {
+            Log.e(DEBUG_TAG, "Seadroid dirent cache is empty in uploadFile. Should not happen, aborting.");
             // the dirents were supposed to be refreshed in createDirectories()
             // something changed, abort.
             throw SeafException.unknownException;
