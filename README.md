@@ -40,6 +40,9 @@ You will get `app/build/outputs/apk/seafile-${versionName}.apk` after the build 
 * Choose import from gradle
 * Click next until import is completed
 
+## Develop in IntelliJ/Eclipse
+For those who are using maven build structures, checkout the project from [maven](https://github.com/haiwen/seadroid/tree/maven) branch.
+
 ## Internationalization
 
 ### Contribute your translation
