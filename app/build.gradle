@@ -50,6 +50,7 @@ android {
 
     lintOptions {
         abortOnError false
+        disable 'MissingTranslation'
     }
 
     signingConfigs {
@@ -80,8 +81,7 @@ android {
                         def file = output.outputFile
                         if (variant.name == "release")
                             output.outputFile = new File(file.parent,
-                                    "seadroid-" + defaultConfig.versionName +
-                                            ".apk")
+                                    "seafile-" + defaultConfig.versionName + ".apk")
                     }
                 }
             }
