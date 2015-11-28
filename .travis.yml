@@ -11,15 +11,17 @@ android:
       # - tools
 
       # The BuildTools version used by your project
-      - build-tools-21.1.1
+      - build-tools-22.0.1
 
       # The SDK version used to compile your project
-      - android-21
+      - android-22
+
+      - extra-android-support
 
       # Additional components
       #- extra-google-google_play_services
       #- extra-google-m2repository
-      #- extra-android-m2repository
+      - extra-android-m2repository
       #- addon-google_apis-google-19
 
       # Specify at least one system image,
@@ -31,11 +33,7 @@ android:
         - 'android-sdk-license-.+'
         #- 'google-gdk-license-.+'
 
-install:
-  - cd /tmp/
-  - git clone https://github.com/mosabua/maven-android-sdk-deployer.git
-  - cd maven-android-sdk-deployer
-  - mvn clean install -pl platforms/android-21
-  - cd $TRAVIS_BUILD_DIR
 script:
-  - mvn test
+    - cp app/key.properties.example app/key.properties
+    - keytool -genkey -v -keystore app/debug.keystore -alias AndroidDebugKey -keyalg RSA -keysize 2048 -validity 1 -storepass android -keypass android -dname "cn=TEST, ou=TEST, o=TEST, c=TE"
+    - ./gradlew clean assemble

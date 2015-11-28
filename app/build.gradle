@@ -1,0 +1,90 @@
+apply plugin: 'com.android.application'
+
+/*
+ * Gets the version name from the latest Git tag
+ */
+def getVersionName = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'describe', '--abbrev=0', '--tags'
+        standardOutput = stdout
+    }
+    // Version must be max 16 byte long, so trim results if needed.
+    def version = stdout.toString().trim()
+    return version.substring(0, Math.min(version.length(), 16))
+}
+def getVersionCode = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-list', '--count', "HEAD"
+        standardOutput = stdout
+    }
+    return Integer.valueOf(stdout.toString().trim())
+}
+
+
+dependencies {
+    compile 'com.android.support:support-v4:22.2.0'
+    compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
+    compile 'com.inkapplications.viewpageindicator:library:2.4.3'
+    compile 'com.github.kevinsawicki:http-request:5.6'
+    compile 'commons-io:commons-io:2.4'
+    compile 'com.google.guava:guava:18.0'
+    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
+    compile 'com.astuetz:pagerslidingtabstrip:1.0.1'
+    compile project(':libraries:SlideExpandableListView')
+    compile project(':libraries:MarkdownView')
+    compile project(':libraries:PhotoView')
+}
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode getVersionCode()
+        versionName getVersionName()
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    signingConfigs {
+        release {
+            // Signing code for manual signing
+            //storeFile file(System.console().readLine("\n\$ Enter keystore path: "))
+            //storePassword System.console().readPassword("\n\$ Enter keystore password: ").toString()
+            //keyAlias System.console().readLine("\n\$ Enter key alias: ")
+            //keyPassword System.console().readPassword("\n\$ Enter key password: ").toString()
+
+            def props = new Properties()
+            props.load(new FileInputStream(project.file("key.properties")))
+            storeFile project.file(props.keyStore)
+            storePassword props.keyStorePassword
+            keyAlias props.keyAlias
+            keyPassword props.keyAliasPassword
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
+            applicationVariants.all { variant ->
+                variant.outputs.each { output ->
+                    if (output.outputFile != null && output.outputFile.name.endsWith('.apk')) {
+                        def file = output.outputFile
+                        if (variant.name == "release")
+                            output.outputFile = new File(file.parent,
+                                    "seadroid-" + defaultConfig.versionName +
+                                            ".apk")
+                    }
+                }
+            }
+        }
+    }
+}
