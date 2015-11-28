@@ -2,7 +2,6 @@ package com.seafile.seadroid2.ui.activity;
 
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 
 import android.content.Context;
@@ -24,7 +23,7 @@ import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
-import com.seafile.seadroid2.CertsManager;
+import com.seafile.seadroid2.ssl.CertsManager;
 import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;

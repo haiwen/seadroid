@@ -31,6 +31,7 @@ import com.google.common.collect.Maps;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.ProgressMonitor;
+import com.seafile.seadroid2.ssl.SSLTrustManager;
 import com.seafile.seadroid2.util.Utils;
 
 /**

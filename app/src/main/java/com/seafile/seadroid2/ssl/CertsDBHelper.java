@@ -1,4 +1,4 @@
-package com.seafile.seadroid2;
+package com.seafile.seadroid2.ssl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -13,6 +13,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Base64;
+
+import com.seafile.seadroid2.SeadroidApplication;
 
 public class CertsDBHelper extends SQLiteOpenHelper {
     // If you change the database schema, you must increment the database version.

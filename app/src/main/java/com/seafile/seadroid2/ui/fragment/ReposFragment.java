@@ -20,6 +20,7 @@ import com.seafile.seadroid2.*;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.*;
+import com.seafile.seadroid2.ssl.CertsManager;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.ui.*;
 import com.seafile.seadroid2.ui.activity.AccountsActivity;

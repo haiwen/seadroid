@@ -1,4 +1,4 @@
-package com.seafile.seadroid2;
+package com.seafile.seadroid2.ssl;
 
 import java.security.cert.X509Certificate;
 import java.util.List;
@@ -7,6 +7,7 @@ import java.util.Map;
 import android.util.Log;
 
 import com.google.common.collect.Maps;
+import com.seafile.seadroid2.ConcurrentAsyncTask;
 import com.seafile.seadroid2.account.Account;
 
 /**

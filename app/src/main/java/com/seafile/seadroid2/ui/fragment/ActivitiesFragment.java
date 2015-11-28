@@ -35,7 +35,7 @@ import android.widget.Toast;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
-import com.seafile.seadroid2.CertsManager;
+import com.seafile.seadroid2.ssl.CertsManager;
 import com.seafile.seadroid2.ui.activity.FileActivity;
 import com.seafile.seadroid2.NavContext;
 import com.seafile.seadroid2.R;
