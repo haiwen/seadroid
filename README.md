@@ -14,30 +14,29 @@ See [Contributors Graph](https://github.com/haiwen/seadroid/graphs/contributors)
 * Make sure you have installed the [Android SDK](http://developer.android.com/sdk/index.html) then:
 
 * cd into seadroid directory
-* Create `key.properties` file or copy `key.properties.example` in `app` dir
-* Create keystore file if you don't have one `keytool -genkey -v -keystore app/debug.keystore -alias AndroidDebugKey -keyalg RSA -keysize 2048 -validity 1 -storepass android -keypass android -dname "cn=TEST, ou=TEST, o=TEST, c=TE"`
+* Create `key.properties` file or simply rename `key.properties.example` and change configurations to match yours.
+
+* Create keystore file if you don't have one
+
+ ```
+ keytool -genkey -v -keystore app/debug.keystore -alias AndroidDebugKey -keyalg RSA -keysize 2048 -validity 1 -storepass android -keypass android -dname "cn=TEST, ou=TEST, o=TEST, c=TE"
+ ```
 * Build with `./gradlew assembleRelease`
 
-You will get `app/build/outputs/Seadroid-release-*.apk` after the build finishes.
+You will get `app/build/outputs/apk/seafile-${versionName}.apk` after the build finishes.
 
-## Sign the APK
-
-Change `key.properties` to match your keystore file.
-
-Build the APK with `./gradlew assembleRelease`.
-
-## Develop in Android Studio / IntelliJ
+## Develop in Android Studio
 
 ### Prerequisites
 
-* Android Studio 0.9 or IntelliJ 14
+* Android Studio
 * OpenJDK 7 / OracleJDK 7
 
 ### Import project
 
-* Open Android Studio / IntelliJ
+* Open Android Studio
 * Import project
-* Select seafile directory
+* Select seadroid directory
 * Choose import from gradle
 * Click next until import is completed
 
