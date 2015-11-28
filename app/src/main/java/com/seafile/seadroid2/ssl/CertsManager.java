@@ -7,7 +7,7 @@ import java.util.Map;
 import android.util.Log;
 
 import com.google.common.collect.Maps;
-import com.seafile.seadroid2.ConcurrentAsyncTask;
+import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.account.Account;
 
 /**

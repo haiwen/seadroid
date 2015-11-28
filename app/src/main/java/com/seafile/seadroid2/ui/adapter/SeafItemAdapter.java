@@ -1,6 +1,5 @@
 package com.seafile.seadroid2.ui.adapter;
 
-import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,7 +9,7 @@ import com.google.common.collect.Lists;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
-import com.seafile.seadroid2.NavContext;
+import com.seafile.seadroid2.ui.NavContext;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.data.*;

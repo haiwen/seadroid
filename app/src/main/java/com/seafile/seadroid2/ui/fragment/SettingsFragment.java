@@ -23,7 +23,7 @@ import android.widget.Toast;
 
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.*;
-import com.seafile.seadroid2.ConcurrentAsyncTask;
+import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
@@ -43,9 +43,7 @@ import com.seafile.seadroid2.ui.activity.SettingsActivity;
 import com.seafile.seadroid2.ui.dialog.ClearCacheTaskDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog.TaskDialogListener;
 import com.seafile.seadroid2.util.Utils;
-import org.json.JSONException;
 
-import java.io.IOException;
 import java.util.Map;
 
 public class SettingsFragment extends CustomPreferenceFragment {

@@ -10,7 +10,7 @@ import android.util.Log;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
-import com.seafile.seadroid2.ConcurrentAsyncTask;
+import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.SeafCachedFile;

@@ -1,4 +1,4 @@
-package com.seafile.seadroid2;
+package com.seafile.seadroid2.ui;
 
 public class NavContext {
     String repoID = null;
