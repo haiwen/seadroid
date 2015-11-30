@@ -141,10 +141,6 @@ public class TransferService extends Service {
         uploadTaskManager.cancelAllUploadNotification();
     }
 
-    public void cancelAllCameraUploadTasks() {
-        uploadTaskManager.cancelAllCameraUploadTasks();
-    }
-
     public void retryUploadTask(int taskID) {
         uploadTaskManager.retry(taskID);
     }
