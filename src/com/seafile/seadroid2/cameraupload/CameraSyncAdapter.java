@@ -3,13 +3,16 @@ package com.seafile.seadroid2.cameraupload;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.AbstractThreadedSyncAdapter;
+import android.content.ComponentName;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SyncResult;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.provider.MediaStore;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -21,15 +24,18 @@ import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.data.ProgressMonitor;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.transfer.TaskState;
+import com.seafile.seadroid2.transfer.TransferService;
+import com.seafile.seadroid2.transfer.UploadTaskInfo;
 import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.ui.activity.SettingsActivity;
 import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -54,6 +60,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
     private static final String[] CAMERA_BUCKET_NAMES = {"Camera", "100ANDRO", "100MEDIA"};
 
     private ContentResolver contentResolver;
+
     private SettingsManager settingsMgr = SettingsManager.instance();
     private com.seafile.seadroid2.account.AccountManager manager;
 
@@ -62,21 +69,41 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
     private String targetDir;
     private List<String> bucketList;
 
-    private ProgressMonitor monitor = new ProgressMonitor() {
-        @Override
-        public void onProgressNotify(long uploaded) {
-        }
-
-        @Override
-        public boolean isCancelled() {
-            return CameraSyncAdapter.this.isCancelled();
-        }
-    };
-
     /**
      * Will be set to true if the current sync has been cancelled.
      */
     private boolean cancelled = false;
+
+    /**
+     * Media files we have sent over to the TransferService. Thread-safe.
+     */
+    private List<Integer> tasksInProgress = new ArrayList<>();
+
+    TransferService txService = null;
+
+    ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            // this will run in a foreign thread!
+
+            TransferService.TransferBinder binder = (TransferService.TransferBinder) service;
+            synchronized (CameraSyncAdapter.this) {
+                txService = binder.getService();
+            }
+            Log.d(DEBUG_TAG, "connected to TransferService");
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            // this will run in a foreign thread!
+            Log.d(DEBUG_TAG, "disconnected from TransferService, aborting sync");
+
+            onSyncCanceled();
+            synchronized (CameraSyncAdapter.this) {
+                txService = null;
+            }
+        }
+    };
 
     /**
      * Set up the sync adapter
@@ -88,6 +115,14 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
         contentResolver = context.getContentResolver();
         manager = new AccountManager(context);
+    }
+
+    private synchronized void startTransferService() {
+        if (txService != null)
+            return;
+
+        Intent bIntent = new Intent(getContext(), TransferService.class);
+        getContext().bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
@@ -252,6 +287,24 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 return;
             }
 
+            Log.d(DEBUG_TAG, "connecting to TransferService");
+            startTransferService();
+
+            // wait for TransferService to connect
+            Log.d(DEBUG_TAG, "waiting for transfer service");
+            int timeout = 1000; // wait up to a second
+            while (!isCancelled() && timeout > 0 && txService == null) {
+                Log.d(DEBUG_TAG, "waiting for transfer service");
+                Thread.sleep(100);
+                timeout -= 100;
+            }
+
+            if (txService == null) {
+                Log.e(DEBUG_TAG, "TransferService did not come up in time, aborting sync");
+                syncResult.delayUntil = 60;
+                return;
+            }
+
             uploadImages(syncResult, dataManager);
 
             if (settingsMgr.isVideosUploadAllowed()) {
@@ -263,6 +316,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             } else {
                 Log.i(DEBUG_TAG, "sync finished successfully.");
             }
+            Log.d(DEBUG_TAG, "syncResult: " + syncResult);
 
         } catch (SeafException e) {
             switch (e.getCode()) {
@@ -288,10 +342,20 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         } catch (Exception e) {
             Log.e(DEBUG_TAG, "sync aborted because an unknown error", e);
             syncResult.stats.numParseExceptions++;
+        } finally {
+            if (txService != null) {
+
+                Log.d(DEBUG_TAG, "Cancelling remaining pending tasks (if any)");
+                txService.cancelUploadTasksByIds(tasksInProgress);
+
+                Log.d(DEBUG_TAG, "disconnecting from TransferService");
+                getContext().unbindService(mConnection);
+                txService = null;
+            }
         }
     }
 
-    private void uploadImages(SyncResult syncResult, DataManager dataManager) throws SeafException {
+    private void uploadImages(SyncResult syncResult, DataManager dataManager) throws SeafException, InterruptedException {
 
         Log.d(DEBUG_TAG, "Starting to upload images...");
 
@@ -359,7 +423,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         }
     }
 
-    private void uploadVideos(SyncResult syncResult, DataManager dataManager) throws SeafException {
+    private void uploadVideos(SyncResult syncResult, DataManager dataManager) throws SeafException, InterruptedException {
 
         Log.d(DEBUG_TAG, "Starting to upload videos...");
 
@@ -442,7 +506,9 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
      * @param cursor
      * @throws SeafException
      */
-    private void iterateCursor(SyncResult syncResult, DataManager dataManager, Cursor cursor) throws SeafException {
+    private void iterateCursor(SyncResult syncResult, DataManager dataManager, Cursor cursor) throws SeafException, InterruptedException {
+
+        tasksInProgress.clear();
 
         // upload them one by one
         while (!isCancelled() && cursor.moveToNext()) {
@@ -467,8 +533,39 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             }
 
             uploadFile(dataManager, file, bucketName);
-            syncResult.stats.numInserts++;
+        }
 
+        waitForUploads();
+        checkUploadResult(syncResult);
+    }
+
+    private void waitForUploads() throws InterruptedException {
+        Log.d(DEBUG_TAG, "wait for transfer service to finish our tasks");
+        WAITLOOP: while (!isCancelled()) {
+            Thread.sleep(100); // wait
+
+            for (int id: tasksInProgress) {
+                UploadTaskInfo info = txService.getUploadTaskInfo(id);
+                if (info.state == TaskState.INIT || info.state == TaskState.TRANSFERRING) {
+                    // there is still at least one task pending
+                    continue  WAITLOOP;
+                }
+            }
+            break;
+        }
+    }
+
+    private void checkUploadResult(SyncResult syncResult) throws SeafException {
+        for (int id: tasksInProgress) {
+            UploadTaskInfo info = txService.getUploadTaskInfo(id);
+            if (info.err != null) {
+                throw info.err;
+            }
+            if (info.state == TaskState.FINISHED) {
+                syncResult.stats.numInserts++;
+            } else {
+                throw SeafException.unknownException;
+            }
         }
     }
 
@@ -483,7 +580,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
     private void uploadFile(DataManager dataManager, File file, String bucketName) throws SeafException {
 
         String serverPath = Utils.pathJoin(targetDir, bucketName);
-        Log.d(DEBUG_TAG, "uploading file " + file.getName() + " to " + serverPath);
 
         List<SeafDirent> list = dataManager.getCachedDirents(targetRepoId, serverPath);
         if (list == null) {
@@ -500,10 +596,10 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             }
         }
 
-        //  this blocks until upload is complete
-        dataManager.uploadFile(targetRepoName, targetRepoId, serverPath, file.getAbsolutePath(), monitor, false);
-        Log.d(DEBUG_TAG, "upload of file " + file.getAbsolutePath() + " into bucket " + bucketName + " successful");
-
+        Log.d(DEBUG_TAG, "uploading file " + file.getName() + " to " + serverPath);
+        int taskID = txService.addUploadTask(dataManager.getAccount(), targetRepoId, targetRepoName,
+                serverPath, file.getAbsolutePath(), false, false);
+        tasksInProgress.add(taskID);
     }
 
     /**
