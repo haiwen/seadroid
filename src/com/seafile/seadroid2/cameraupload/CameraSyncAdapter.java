@@ -14,6 +14,7 @@ import android.provider.MediaStore;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.google.common.base.Joiner;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
@@ -42,9 +43,15 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
     private static final String DEBUG_TAG = "CameraSyncAdapter";
 
     /**
-     * Per default we will upload images/videos in this bucket
+     * Per default we will upload images/videos from these buckets
+     *
+     * - https://en.wikipedia.org/wiki/Design_rule_for_Camera_File_system
+     * - https://stackoverflow.com/questions/6248887/android-device-specific-camera-path-issue
+     *
+     * TODO: better to check if Environment.DIRECTORY_DCIM is parent?
+     * TODO: move this into the Bucket class?
      */
-    private static final String CAMERA_BUCKET_NAME = "Camera";
+    private static final String[] CAMERA_BUCKET_NAMES = {"Camera", "100ANDRO", "100MEDIA"};
 
     private ContentResolver contentResolver;
     private SettingsManager settingsMgr = SettingsManager.instance();
@@ -133,9 +140,15 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             if (!bucketList.isEmpty() && !bucketList.contains(bucket.id)) {
                 continue;
             }
-            if (bucketList.isEmpty() && !bucket.name.equals(CAMERA_BUCKET_NAME)) {
-                continue;
+
+            boolean thisIsADefaultBucket = false;
+            for (String bucketName: CAMERA_BUCKET_NAMES) {
+                if (bucket.name.equals(bucketName)) {
+                    thisIsADefaultBucket = true;
+                }
             }
+            if (bucketList.isEmpty() && !thisIsADefaultBucket)
+                continue;
 
             // first make sure that the bucket name exists and is a directory
             boolean found = false;
@@ -293,20 +306,15 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             // also we only want media in one of the selected buckets...
             selectionArgs = new String[bucketList.size() + 1];
             selectionArgs[0] = Long.toString(settingsMgr.getCameraUploadSyncStampImage());
-
-            String questionmarkList = "";
-            for (int i = 0; i < bucketList.size(); i++) {
-                selectionArgs[i + 1] = bucketList.get(i);
-                questionmarkList += "?,";
-            }
-            questionmarkList = questionmarkList.substring(0, questionmarkList.length() - 1); // remove last ","
-            selection += " AND " + MediaStore.Images.ImageColumns.BUCKET_ID + " IN (" + questionmarkList + ")";
+            selection += " AND " + MediaStore.Images.ImageColumns.BUCKET_ID + " IN " + varArgs(bucketList.size());
         } else {
             // ...or only from the Camera bucket
-            selectionArgs = new String[2];
+            selectionArgs = new String[1 + CAMERA_BUCKET_NAMES.length];
             selectionArgs[0] = Long.toString(settingsMgr.getCameraUploadSyncStampImage());
-            selectionArgs[1] = CAMERA_BUCKET_NAME;
-            selection += " AND " + MediaStore.Images.Media.BUCKET_DISPLAY_NAME + " = ?";
+            for (int i = 0; i < CAMERA_BUCKET_NAMES.length; i++) {
+                selectionArgs[i + 1] = CAMERA_BUCKET_NAMES[i];
+            }
+            selection += " AND " + MediaStore.Images.Media.BUCKET_DISPLAY_NAME + " IN " + varArgs(CAMERA_BUCKET_NAMES.length);
         }
 
         Log.d(DEBUG_TAG, "ContentResolver selection='"+selection+"' selectionArgs='"+Arrays.deepToString(selectionArgs)+"'");
@@ -366,20 +374,15 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             // also we only want media in one of the selected buckets...
             selectionArgs = new String[bucketList.size() + 1];
             selectionArgs[0] = Long.toString(settingsMgr.getCameraUploadSyncStampVideo());
-
-            String questionmarkList = "";
-            for (int i = 0; i < bucketList.size(); i++) {
-                selectionArgs[i + 1] = bucketList.get(i);
-                questionmarkList += "?,";
-            }
-            questionmarkList = questionmarkList.substring(0, questionmarkList.length() - 1); // remove last ","
-            selection += " AND " + MediaStore.Video.VideoColumns.BUCKET_ID + " IN (" + questionmarkList + ")";
+            selection += " AND " + MediaStore.Video.VideoColumns.BUCKET_ID + " IN " + varArgs(bucketList.size());
         } else {
             // ...or only from the Camera bucket
-            selectionArgs = new String[2];
+            selectionArgs = new String[1 + CAMERA_BUCKET_NAMES.length];
             selectionArgs[0] = Long.toString(settingsMgr.getCameraUploadSyncStampVideo());
-            selectionArgs[1] = CAMERA_BUCKET_NAME;
-            selection += " AND " + MediaStore.Video.Media.BUCKET_DISPLAY_NAME + " = ?";
+            for (int i = 0; i < CAMERA_BUCKET_NAMES.length; i++) {
+                selectionArgs[i + 1] = CAMERA_BUCKET_NAMES[i];
+            }
+            selection += " AND " + MediaStore.Video.Media.BUCKET_DISPLAY_NAME + " IN " + varArgs(CAMERA_BUCKET_NAMES.length);
         }
 
         Log.d(DEBUG_TAG, "ContentResolver selection='"+selection+"' selectionArgs='"+Arrays.deepToString(selectionArgs)+"'");
@@ -423,6 +426,12 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 cursor.close();
         }
 
+    }
+
+    private String varArgs(int count) {
+        String[] chars = new String[count];
+        Arrays.fill(chars, "?");
+        return "( " + Joiner.on(", ").join(chars) + " )";
     }
 
     /**
