@@ -92,9 +92,9 @@ public class TransferService extends Service {
      * @param isCopyToLocal
      * @return
      */
-    public void addUploadTask(Account account, String repoID, String repoName, String dir,
+    public int addUploadTask(Account account, String repoID, String repoName, String dir,
             String filePath, boolean isUpdate, boolean isCopyToLocal) {
-        addTaskToUploadQue(account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal);
+        return addTaskToUploadQue(account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal);
     }
 
     public UploadTaskInfo getUploadTaskInfo(int taskID) {
