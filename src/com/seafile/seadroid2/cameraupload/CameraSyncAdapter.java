@@ -59,6 +59,8 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
     private String targetDir;
     private List<String> bucketList;
 
+    private final String BASE_DIR = "My Photos";
+
     /**
      * Will be set to true if the current sync has been cancelled.
      */
@@ -158,7 +160,9 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
     private void createDirectories(DataManager dataManager) throws SeafException {
         List<GalleryBucketUtils.Bucket> buckets = GalleryBucketUtils.getMediaBuckets(getContext());
 
-        List<SeafDirent> dirs = dataManager.getDirentsFromServer(targetRepoId, targetDir);
+        String serverPath = Utils.pathJoin(targetDir, BASE_DIR);
+
+        List<SeafDirent> dirs = dataManager.getDirentsFromServer(targetRepoId, serverPath);
 
         for (GalleryBucketUtils.Bucket bucket : buckets) {
 
@@ -179,7 +183,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 } else if (dir.name.equals(bucket.name) && !dir.isDir()) {
                     // there is already a file. move it away.
                     dataManager.rename(targetRepoId,
-                            Utils.pathJoin(targetDir, dir.name),
+                            Utils.pathJoin(serverPath, dir.name),
                             dir.name + " (renamed by Seadroid)",
                             false);
                 }
@@ -187,10 +191,10 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
             // create bucket directory, if its missing
             if (!found)
-                dataManager.createNewDir(targetRepoId, targetDir, bucket.name);
+                dataManager.createNewDir(targetRepoId, serverPath, bucket.name);
 
             // update our cache for that server. we will use it later
-            dataManager.getDirentsFromServer(targetRepoId, Utils.pathJoin(targetDir, bucket.name));
+            dataManager.getDirentsFromServer(targetRepoId, Utils.pathJoin(serverPath, bucket.name));
         }
     }
 
@@ -555,7 +559,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
      */
     private void uploadFile(DataManager dataManager, File file, String bucketName) throws SeafException {
 
-        String serverPath = Utils.pathJoin(targetDir, bucketName);
+        String serverPath = Utils.pathJoin(targetDir, BASE_DIR, bucketName);
 
         List<SeafDirent> list = dataManager.getCachedDirents(targetRepoId, serverPath);
         if (list == null) {
