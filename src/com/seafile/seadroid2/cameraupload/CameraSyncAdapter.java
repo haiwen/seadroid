@@ -48,17 +48,6 @@ import java.util.List;
 public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
     private static final String DEBUG_TAG = "CameraSyncAdapter";
 
-    /**
-     * Per default we will upload images/videos from these buckets
-     *
-     * - https://en.wikipedia.org/wiki/Design_rule_for_Camera_File_system
-     * - https://stackoverflow.com/questions/6248887/android-device-specific-camera-path-issue
-     *
-     * TODO: better to check if Environment.DIRECTORY_DCIM is parent?
-     * TODO: move this into the Bucket class?
-     */
-    private static final String[] CAMERA_BUCKET_NAMES = {"Camera", "100ANDRO", "100MEDIA"};
-
     private ContentResolver contentResolver;
 
     private SettingsManager settingsMgr = SettingsManager.instance();
@@ -173,18 +162,13 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
         for (GalleryBucketUtils.Bucket bucket : buckets) {
 
-            // only create directories for buckets the user has selected
+            // the user has selected specific buckets: only create directories for these
             if (!bucketList.isEmpty() && !bucketList.contains(bucket.id)) {
                 continue;
             }
 
-            boolean thisIsADefaultBucket = false;
-            for (String bucketName: CAMERA_BUCKET_NAMES) {
-                if (bucket.name.equals(bucketName)) {
-                    thisIsADefaultBucket = true;
-                }
-            }
-            if (bucketList.isEmpty() && !thisIsADefaultBucket)
+            // auto-guessing is on: create directories for camera buckets
+            if (bucketList.isEmpty() && !bucket.isCameraBucket)
                 continue;
 
             // first make sure that the bucket name exists and is a directory
@@ -361,26 +345,19 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         if (isCancelled())
             return;
 
-        // we only want media added since the last complete sync
-        String selection;
-        String[] selectionArgs;
-
+        List<String> selectedBuckets = new ArrayList<>();
         if (bucketList.size() > 0) {
-            // also we only want media in one of the selected buckets...
-            selectionArgs = new String[bucketList.size()];
-            for (int i = 0; i < bucketList.size(); i++) {
-                selectionArgs[i] = bucketList.get(i);
-            }
-            selection = MediaStore.Images.ImageColumns.BUCKET_ID + " IN " + varArgs(bucketList.size());
+            selectedBuckets = bucketList;
         } else {
-            // ...or only from the Camera bucket
-            selectionArgs = new String[CAMERA_BUCKET_NAMES.length];
-            for (int i = 0; i < CAMERA_BUCKET_NAMES.length; i++) {
-                selectionArgs[i] = CAMERA_BUCKET_NAMES[i];
+            List<GalleryBucketUtils.Bucket> allBuckets = GalleryBucketUtils.getMediaBuckets(getContext());
+            for (GalleryBucketUtils.Bucket bucket: allBuckets) {
+                if (bucket.isCameraBucket)
+                    selectedBuckets.add(bucket.id);
             }
-            // compare bucket names case insensitive
-            selection = MediaStore.Images.Media.BUCKET_DISPLAY_NAME + " IN " + varArgs(CAMERA_BUCKET_NAMES.length) + " COLLATE NOCASE";
         }
+
+        String[] selectionArgs = selectedBuckets.toArray(new String[]{});
+        String selection = MediaStore.Images.ImageColumns.BUCKET_ID + " IN " + varArgs(selectedBuckets.size());
 
         Log.d(DEBUG_TAG, "ContentResolver selection='"+selection+"' selectionArgs='"+Arrays.deepToString(selectionArgs)+"'");
 
@@ -426,26 +403,19 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         if (isCancelled())
             return;
 
-        // we only want media added since the last complete sync
-        String selection;
-        String[] selectionArgs;
-
+        List<String> selectedBuckets = new ArrayList<>();
         if (bucketList.size() > 0) {
-            // also we only want media in one of the selected buckets...
-            selectionArgs = new String[bucketList.size()];
-            selection = MediaStore.Video.VideoColumns.BUCKET_ID + " IN " + varArgs(bucketList.size());
-            for (int i = 0; i < bucketList.size(); i++) {
-                selectionArgs[i] = bucketList.get(i);
-            }
+            selectedBuckets = bucketList;
         } else {
-            // ...or only from the Camera bucket
-            selectionArgs = new String[CAMERA_BUCKET_NAMES.length];
-            for (int i = 0; i < CAMERA_BUCKET_NAMES.length; i++) {
-                selectionArgs[i] = CAMERA_BUCKET_NAMES[i];
+            List<GalleryBucketUtils.Bucket> allBuckets = GalleryBucketUtils.getMediaBuckets(getContext());
+            for (GalleryBucketUtils.Bucket bucket: allBuckets) {
+                if (bucket.isCameraBucket)
+                    selectedBuckets.add(bucket.id);
             }
-            // compare bucket names case insensitive
-            selection = MediaStore.Video.Media.BUCKET_DISPLAY_NAME + " IN " + varArgs(CAMERA_BUCKET_NAMES.length) + " COLLATE NOCASE";
         }
+
+        String[] selectionArgs = selectedBuckets.toArray(new String[]{});
+        String selection = MediaStore.Video.VideoColumns.BUCKET_ID + " IN " + varArgs(selectedBuckets.size());
 
         Log.d(DEBUG_TAG, "ContentResolver selection='"+selection+"' selectionArgs='"+Arrays.deepToString(selectionArgs)+"'");
 

@@ -102,7 +102,7 @@ public class CameraUploadConfigActivity extends SherlockFragmentActivity {
 
             SettingsManager settingsManager = SettingsManager.instance();
             List<String> selectedBuckets = mBucketsFragment.getSelectionFragment().getSelectedBuckets();
-            if (mBucketsFragment.isAllBucketsSelected()){
+            if (mBucketsFragment.isAutoScanSelected()){
                 selectedBuckets.clear();
             }
             // this is the only setting that is safed here. all other are returned to caller

@@ -112,7 +112,7 @@ public class BucketsFragment extends Fragment {
 
     };
 
-    public boolean isAllBucketsSelected() {
+    public boolean isAutoScanSelected() {
         return mRadioGroup.getCheckedRadioButtonId() == R.id.cuc_local_directory_auto_scan_rb;
     }
 

@@ -45,7 +45,13 @@ public class BucketsSelectionFragment extends Fragment {
                         getActivity().getApplicationContext().getContentResolver(), b.image_id,
                         MediaStore.Images.Thumbnails.MINI_KIND, null);
             }
-            selectedBuckets[i] = currentBucketList.contains(b.id);
+
+            // if the user has previously selected buckets, mark these.
+            // otherwise, select the ones that will be auto-guessed.
+            if (currentBucketList.size() > 0)
+                selectedBuckets[i] = currentBucketList.contains(b.id);
+            else
+                selectedBuckets[i] = b.isCameraBucket;
         }
 
         GridView imagegrid = (GridView) rootView.findViewById(R.id.cuc_bucket_selection_grid);
@@ -74,8 +80,6 @@ public class BucketsSelectionFragment extends Fragment {
                 ret.add(buckets.get(i).id);
             }
         }
-        if (ret.size()==buckets.size())
-            ret.clear();
 
         return ret;
     }

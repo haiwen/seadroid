@@ -17,10 +17,19 @@ import java.util.List;
 public class GalleryBucketUtils {
     private static final String DEBUG_TAG = "GalleryBucketUtils";
 
+    /**
+     * Per default we will upload images/videos from these buckets
+     *
+     * - https://en.wikipedia.org/wiki/Design_rule_for_Camera_File_system
+     * - https://stackoverflow.com/questions/6248887/android-device-specific-camera-path-issue
+     */
+    public static final String[] CAMERA_BUCKET_NAMES = {"Camera", "100ANDRO", "100MEDIA"};
+
     public static class Bucket {
         public String id;
         public String name;
         public int image_id = -1;
+        public boolean isCameraBucket;
     }
 
     /**
@@ -73,6 +82,13 @@ public class GalleryBucketUtils {
             b.id = cursor.getString(bucketIdColumnIndex);
             b.name = cursor.getString(bucketColumnIndex);
 
+            b.isCameraBucket = false;
+            for (String name: CAMERA_BUCKET_NAMES) {
+                if (b.name.equalsIgnoreCase(name)) {
+                    b.isCameraBucket = true;
+                }
+            }
+
             // ignore buckets created by Seadroid
             String file = cursor.getString(dataColumnIndex);
             if (!file.startsWith(DataManager.getExternalRootDirectory()))
@@ -111,6 +127,13 @@ public class GalleryBucketUtils {
             b.id = cursor.getString(bucketIdColumnIndex);
             b.name = cursor.getString(bucketColumnIndex);
             b.image_id = cursor.getInt(idColumnIndex);
+
+            b.isCameraBucket = false;
+            for (String name: CAMERA_BUCKET_NAMES) {
+                if (b.name.equalsIgnoreCase(name)) {
+                    b.isCameraBucket = true;
+                }
+            }
 
             // ignore buckets created by Seadroid
             String file = cursor.getString(dataColumnIndex);
