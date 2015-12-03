@@ -311,7 +311,7 @@
     <string name="settings_cuc_remote_lib_account">Choose an account</string>
     <string name="settings_cuc_remote_lib_repo">%s was selected</string>
     <string name="settings_cuc_upload_to_parent_folder">Up to Parent Folder</string>
-    <string name="settings_cuc_auto_scan">Get all camera photos on device</string>
+    <string name="settings_cuc_auto_scan">Automatically guess camera albums</string>
     <string name="settings_cuc_pick_albums">Let me pick my photo albums</string>
     <string name="settings_cuc_remote_lib_hint">Choose your preferred account and library. \nYou can change these options later in Settings.</string>
     <string name="settings_cuc_finish_title">Finish</string>
