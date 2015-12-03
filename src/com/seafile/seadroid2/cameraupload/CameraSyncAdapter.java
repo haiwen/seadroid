@@ -63,6 +63,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
     private SettingsManager settingsMgr = SettingsManager.instance();
     private com.seafile.seadroid2.account.AccountManager manager;
+    private CameraUploadDBHelper dbHelper;
 
     private String targetRepoId;
     private String targetRepoName;
@@ -115,6 +116,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
         contentResolver = context.getContentResolver();
         manager = new AccountManager(context);
+        dbHelper = CameraUploadDBHelper.getInstance();
     }
 
     private synchronized void startTransferService() {
@@ -220,8 +222,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
         Log.i(DEBUG_TAG, "Syncing images and video to " + account);
 
-        Log.d(DEBUG_TAG, "Last image sync timestamp: " + settingsMgr.getCameraUploadSyncStampImage());
-        Log.d(DEBUG_TAG, "Last video sync timestamp: "+settingsMgr.getCameraUploadSyncStampVideo());
         Log.d(DEBUG_TAG, "Camera upload target dir: "+settingsMgr.getCameraUploadDir());
         Log.d(DEBUG_TAG, "Selected buckets for camera upload: "+settingsMgr.getCameraUploadBucketList());
         Log.d(DEBUG_TAG, "is video upload allowed: "+settingsMgr.isVideosUploadAllowed());
@@ -235,8 +235,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         // resync all media
         if (extras.getBoolean(ContentResolver.SYNC_EXTRAS_INITIALIZE)) {
             Log.i(DEBUG_TAG, "Doing a full resync");
-            settingsMgr.setCameraUploadSyncStampImage(0);
-            settingsMgr.setCameraUploadSyncStampVideo(0);
+            dbHelper.cleanPhotoCache();
         }
 
         if (!settingsMgr.checkCameraUploadNetworkAvailable()) {
@@ -363,22 +362,24 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             return;
 
         // we only want media added since the last complete sync
-        String selection = MediaStore.Images.ImageColumns.DATE_ADDED + " > ?";
+        String selection;
         String[] selectionArgs;
 
         if (bucketList.size() > 0) {
             // also we only want media in one of the selected buckets...
-            selectionArgs = new String[bucketList.size() + 1];
-            selectionArgs[0] = Long.toString(settingsMgr.getCameraUploadSyncStampImage());
-            selection += " AND " + MediaStore.Images.ImageColumns.BUCKET_ID + " IN " + varArgs(bucketList.size());
+            selectionArgs = new String[bucketList.size()];
+            for (int i = 0; i < bucketList.size(); i++) {
+                selectionArgs[i] = bucketList.get(i);
+            }
+            selection = MediaStore.Images.ImageColumns.BUCKET_ID + " IN " + varArgs(bucketList.size());
         } else {
             // ...or only from the Camera bucket
-            selectionArgs = new String[1 + CAMERA_BUCKET_NAMES.length];
-            selectionArgs[0] = Long.toString(settingsMgr.getCameraUploadSyncStampImage());
+            selectionArgs = new String[CAMERA_BUCKET_NAMES.length];
             for (int i = 0; i < CAMERA_BUCKET_NAMES.length; i++) {
-                selectionArgs[i + 1] = CAMERA_BUCKET_NAMES[i];
+                selectionArgs[i] = CAMERA_BUCKET_NAMES[i];
             }
-            selection += " AND " + MediaStore.Images.Media.BUCKET_DISPLAY_NAME + " IN " + varArgs(CAMERA_BUCKET_NAMES.length);
+            // compare bucket names case insensitive
+            selection = MediaStore.Images.Media.BUCKET_DISPLAY_NAME + " IN " + varArgs(CAMERA_BUCKET_NAMES.length) + " COLLATE NOCASE";
         }
 
         Log.d(DEBUG_TAG, "ContentResolver selection='"+selection+"' selectionArgs='"+Arrays.deepToString(selectionArgs)+"'");
@@ -389,7 +390,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 new String[]{
                         MediaStore.Images.Media._ID,
                         MediaStore.Images.Media.DATA,
-                        MediaStore.Images.ImageColumns.DATE_ADDED,
                         MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME
                 },
                 selection,
@@ -412,10 +412,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 if (isCancelled())
                     return;
 
-                // use the date_added of the last image as our new sync stamp
-                int dateAddedColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_ADDED);
-                cursor.moveToLast();
-                settingsMgr.setCameraUploadSyncStampImage(cursor.getLong(dateAddedColumn));
             }
         } finally {
             if (cursor != null)
@@ -431,22 +427,24 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             return;
 
         // we only want media added since the last complete sync
-        String selection = MediaStore.Video.VideoColumns.DATE_ADDED + " > ?";
+        String selection;
         String[] selectionArgs;
 
         if (bucketList.size() > 0) {
             // also we only want media in one of the selected buckets...
-            selectionArgs = new String[bucketList.size() + 1];
-            selectionArgs[0] = Long.toString(settingsMgr.getCameraUploadSyncStampVideo());
-            selection += " AND " + MediaStore.Video.VideoColumns.BUCKET_ID + " IN " + varArgs(bucketList.size());
+            selectionArgs = new String[bucketList.size()];
+            selection = MediaStore.Video.VideoColumns.BUCKET_ID + " IN " + varArgs(bucketList.size());
+            for (int i = 0; i < bucketList.size(); i++) {
+                selectionArgs[i] = bucketList.get(i);
+            }
         } else {
             // ...or only from the Camera bucket
-            selectionArgs = new String[1 + CAMERA_BUCKET_NAMES.length];
-            selectionArgs[0] = Long.toString(settingsMgr.getCameraUploadSyncStampVideo());
+            selectionArgs = new String[CAMERA_BUCKET_NAMES.length];
             for (int i = 0; i < CAMERA_BUCKET_NAMES.length; i++) {
-                selectionArgs[i + 1] = CAMERA_BUCKET_NAMES[i];
+                selectionArgs[i] = CAMERA_BUCKET_NAMES[i];
             }
-            selection += " AND " + MediaStore.Video.Media.BUCKET_DISPLAY_NAME + " IN " + varArgs(CAMERA_BUCKET_NAMES.length);
+            // compare bucket names case insensitive
+            selection = MediaStore.Video.Media.BUCKET_DISPLAY_NAME + " IN " + varArgs(CAMERA_BUCKET_NAMES.length) + " COLLATE NOCASE";
         }
 
         Log.d(DEBUG_TAG, "ContentResolver selection='"+selection+"' selectionArgs='"+Arrays.deepToString(selectionArgs)+"'");
@@ -457,7 +455,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 new String[]{
                         MediaStore.Video.Media._ID,
                         MediaStore.Video.Media.DATA,
-                        MediaStore.Video.VideoColumns.DATE_ADDED,
                         MediaStore.Video.VideoColumns.BUCKET_DISPLAY_NAME
                 },
                 selection,
@@ -480,10 +477,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 if (isCancelled())
                     return;
 
-                // use the date_added of the last image as our new sync stamp
-                int dateAddedColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_ADDED);
-                cursor.moveToLast();
-                settingsMgr.setCameraUploadSyncStampVideo(cursor.getLong(dateAddedColumn));
             }
         } finally {
             if (cursor != null)
@@ -519,16 +512,21 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             File file = new File(cursor.getString(dataColumn));
             String bucketName = cursor.getString(bucketColumn);
 
+            // local file does not exist. some inconsistency in the Media Provider? Ignore and continue
+            if (!file.exists()) {
+                Log.d(DEBUG_TAG, "Skipping media "+file+" because it doesn't exist");
+                syncResult.stats.numSkippedEntries++;
+                continue;
+            }
+
             // Ignore all media by Seafile. We don't want to upload our own cached files.
             if (file.getAbsolutePath().startsWith(DataManager.getExternalRootDirectory())) {
                 Log.d(DEBUG_TAG, "Skipping media "+file+" because it's part of the Seadroid cache");
                 continue;
             }
 
-            // local file does not exist. some inconsistency in the Media Provider? Ignore and continue
-            if (!file.exists()) {
-                Log.d(DEBUG_TAG, "Skipping media "+file+" because it doesn't exist");
-                syncResult.stats.numSkippedEntries++;
+            if (dbHelper.isUploaded(file)) {
+                Log.d(DEBUG_TAG, "Skipping media " + file + " because we have uploaded it in the past.");
                 continue;
             }
 
@@ -555,6 +553,12 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         }
     }
 
+    /**
+     * Upload is finished. Go through task infos and mark files as uploaded in our DB
+     *
+     * @param syncResult
+     * @throws SeafException
+     */
     private void checkUploadResult(SyncResult syncResult) throws SeafException {
         for (int id: tasksInProgress) {
             UploadTaskInfo info = txService.getUploadTaskInfo(id);
@@ -562,6 +566,8 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 throw info.err;
             }
             if (info.state == TaskState.FINISHED) {
+                File file = new File(info.localFilePath);
+                dbHelper.markAsUploaded(file);
                 syncResult.stats.numInserts++;
             } else {
                 throw SeafException.unknownException;
@@ -589,9 +595,16 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             throw SeafException.unknownException;
         }
 
+        /*
+         * We don't want to upload a file twice unless the local and remote files differ.
+         *
+         * It would be cool if the API2 offered a way to query the hash of a remote file.
+         * Currently, comparing the file size is the best we can do.
+         */
         for (SeafDirent dirent : list) {
             if (dirent.name.equals(file.getName()) && dirent.size == file.length()) {
                 Log.d(DEBUG_TAG, "File " + file.getName() + " in bucket " + bucketName + " already exists on the server. Skipping.");
+                dbHelper.markAsUploaded(file);
                 return;
             }
         }

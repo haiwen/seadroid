@@ -51,8 +51,6 @@ public final class SettingsManager {
     public static final String SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL = PKG + ".camera.account.email";
     public static final String SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER = PKG + ".camera.account.server";
     public static final String SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN = PKG + ".camera.account.token";
-    public static final String SHARED_PREF_CAMERA_UPLOAD_SYNC_STAMP_VIDEO = PKG + ".camera.account.sync.stamp.video";
-    public static final String SHARED_PREF_CAMERA_UPLOAD_SYNC_STAMP_IMAGE = PKG + ".camera.account.sync.stamp.image";
     public static final String CAMERA_UPLOAD_SWITCH_KEY = "camera_upload_switch_key";
     public static final String CAMERA_UPLOAD_REPO_KEY = "camera_upload_repo_key";
     public static final String CAMERA_UPLOAD_ADVANCED_SCREEN_KEY = "screen_camera_upload_advanced_feature";
@@ -185,14 +183,6 @@ public final class SettingsManager {
         editor.putInt(SORT_FILES_ORDER, order).commit();
     }
 
-    public void setCameraUploadSyncStampImage(long stamp) {
-        sharedPref.edit().putLong(SHARED_PREF_CAMERA_UPLOAD_SYNC_STAMP_IMAGE, stamp).commit();
-    }
-
-    public void setCameraUploadSyncStampVideo(long stamp) {
-        sharedPref.edit().putLong(SHARED_PREF_CAMERA_UPLOAD_SYNC_STAMP_VIDEO, stamp).commit();
-    }
-
     public void setCameraUploadBucketList(List<String> list) {
         String s = TextUtils.join(",", list);
         sharedPref.edit().putString(SHARED_PREF_CAMERA_UPLOAD_BUCKETS, s).commit();
@@ -214,15 +204,6 @@ public final class SettingsManager {
     public int getSortFilesOrderPref() {
         return sharedPref.getInt(SORT_FILES_ORDER, 0);
     }
-
-    public long getCameraUploadSyncStampImage() {
-        return sharedPref.getLong(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_SYNC_STAMP_IMAGE, 0);
-    }
-
-    public long getCameraUploadSyncStampVideo() {
-        return sharedPref.getLong(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_SYNC_STAMP_VIDEO, 0);
-    }
-
 
     public String getCameraUploadRepoId() {
         return sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_REPO_ID, null);
