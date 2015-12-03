@@ -162,6 +162,9 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
         String serverPath = Utils.pathJoin(targetDir, BASE_DIR);
 
+        // recursively create directories in serverPath
+        createDirectoriesRecursively(dataManager, serverPath);
+
         List<SeafDirent> dirs = dataManager.getDirentsFromServer(targetRepoId, serverPath);
 
         for (GalleryBucketUtils.Bucket bucket : buckets) {
@@ -195,6 +198,41 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
             // update our cache for that server. we will use it later
             dataManager.getDirentsFromServer(targetRepoId, Utils.pathJoin(serverPath, bucket.name));
+        }
+    }
+
+    /**
+     * Create the directory structure where we want to store the media.
+     *
+     * @param dataManager
+     * @param serverPath
+     * @throws SeafException
+     */
+    private void createDirectoriesRecursively(DataManager dataManager, String serverPath) throws SeafException {
+        String tempPath = serverPath;
+        String base = "/";
+        while (tempPath.length() > 0) {
+            String[] array = tempPath.split("/", 2);
+            String dir = array[0];
+            if (array.length == 2) {
+                tempPath = array[1];
+            } else {
+                tempPath = "";
+            }
+            if (dir.length() == 0) {
+                continue;
+            }
+
+            List<SeafDirent> dirs = dataManager.getDirentsFromServer(targetRepoId, base);
+            boolean found = false;
+            for (SeafDirent dirent : dirs) {
+                if (dirent.name.equals(dir))
+                    found = true;
+            }
+            if (!found)
+                dataManager.createNewDir(targetRepoId, base, dir);
+
+            base = Utils.pathJoin(base, dir);
         }
     }
 
