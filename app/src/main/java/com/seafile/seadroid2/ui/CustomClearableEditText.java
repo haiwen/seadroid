@@ -30,20 +30,17 @@ public class CustomClearableEditText extends RelativeLayout {
 
     public CustomClearableEditText(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        // TODO Auto-generated constructor stub
         initViews();
     }
 
     public CustomClearableEditText(Context context, AttributeSet attrs) {
         super(context, attrs);
-        // TODO Auto-generated constructor stub
         initViews();
 
     }
 
     public CustomClearableEditText(Context context) {
         super(context);
-        // TODO Auto-generated constructor stub
         initViews();
     }
 
@@ -72,7 +69,6 @@ public class CustomClearableEditText extends RelativeLayout {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // TODO Auto-generated method stub
                 if (s.length() > 0)
                     btn_clear.setVisibility(RelativeLayout.VISIBLE);
                 else

@@ -1,9 +1,5 @@
 package com.seafile.seadroid2.ui.activity;
 
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -17,22 +13,31 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.*;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
-import com.seafile.seadroid2.ssl.CertsManager;
-import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.ssl.CertsManager;
 import com.seafile.seadroid2.ui.CustomClearableEditText;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
+import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
+
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
 
 public class AccountDetailActivity extends SherlockFragmentActivity {
     private static final String DEBUG_TAG = "AccountDetailActivity";
@@ -319,17 +324,21 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
             }
 
             if (result != null && result.equals("Success")) {
-                if (isFromEdit) {
-                    accountManager.updateAccountFromDB(account, loginAccount);
-                    isFromEdit = false;
+                if (Utils.isValidEmail(loginAccount.email)) {
+                    if (isFromEdit) {
+                        accountManager.updateAccountFromDB(account, loginAccount);
+                        isFromEdit = false;
+                    } else {
+                        accountManager.saveAccountToDB(loginAccount);
+                    }
+
+                    // save account to SharedPreference
+                    accountManager.saveCurrentAccount(loginAccount);
+
+                    startFilesActivity(loginAccount);
                 } else {
-                    accountManager.saveAccountToDB(loginAccount);
+                    ConcurrentAsyncTask.execute(new RequestAccountInfoTask(), loginAccount);
                 }
-
-                // save account to SharedPreference
-                accountManager.saveCurrentAccount(loginAccount);
-
-                startFilesActivity(loginAccount);
             } else {
                 statusView.setText(result);
             }
@@ -360,4 +369,63 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
             }
         }
     }
+
+    /**
+     * automatically update Account info, like space usage, total space size, from background.
+     */
+    class RequestAccountInfoTask extends AsyncTask<Account, Void, AccountInfo> {
+        Account loginAccount;
+
+        @Override
+        protected void onPreExecute() {
+            setSupportProgressBarIndeterminateVisibility(true);
+        }
+
+        @Override
+        protected AccountInfo doInBackground(Account... params) {
+            AccountInfo accountInfo = null;
+
+            if (params == null || params.length < 1) return null;
+
+            loginAccount = params[0];
+            SeafConnection seafConnection = new SeafConnection(loginAccount);
+            try {
+                // get account info from server
+                String json = seafConnection.getAccountInfo();
+                // parse raw data
+                accountInfo = accountManager.parseAccountInfo(json);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            if (accountInfo != null)
+                accountInfo.setServer(loginAccount.getServer());
+
+            return accountInfo;
+        }
+
+        @Override
+        protected void onPostExecute(AccountInfo accountInfo) {
+            setSupportProgressBarIndeterminateVisibility(false);
+
+            if (accountInfo == null) return;
+
+            // reset username to be email for compatible with other modules
+            loginAccount.email = accountInfo.getEmail();
+
+            if (isFromEdit) {
+                accountManager.updateAccountFromDB(account, loginAccount);
+                isFromEdit = false;
+            } else {
+                accountManager.saveAccountToDB(loginAccount);
+            }
+
+            // save account to SharedPreference
+            accountManager.saveCurrentAccount(loginAccount);
+
+            startFilesActivity(loginAccount);
+
+        }
+    }
+
 }
