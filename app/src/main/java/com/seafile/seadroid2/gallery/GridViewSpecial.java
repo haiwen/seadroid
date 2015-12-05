@@ -27,7 +27,7 @@ import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
 
 
-class GridViewSpecial extends View {
+public class GridViewSpecial extends View {
     @SuppressWarnings("unused")
     private static final String TAG = "GridViewSpecial";
     private static final float MAX_FLING_VELOCITY = 2500;
