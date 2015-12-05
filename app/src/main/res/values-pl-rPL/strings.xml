@@ -208,6 +208,8 @@
   <string name="internal_server_error">Wewnętrzny Błąd Serwera</string>
   <string name="copy_file_ing">Kopiowanie pliku</string>
   <string name="move_file_ing">Przenoszenie pliku</string>
+  <string name="copy_file_from">Kopiowanie z %1$s \n Do %2$s</string>
+  <string name="move_file_from">Przenoszenie z %1$s \n Do %2$s</string>
   <string name="copy_folder_ing">Kopiowanie folderu</string>
   <string name="move_folder_ing">Przenoszenie folderu</string>
   <string name="upload_started">Przesyłanie rozpoczęte</string>
@@ -215,6 +217,7 @@
   <string name="cannot_move_folder_to_subfolder">Nie można przenieść folderu do jego podfolderu</string>
   <string name="cancel">Anuluj</string>
   <string name="confirm">Zatwierdź</string>
+  <string name="repo_not_found">Nie można odnaleźć biblioteki. Mogła zostać usunięta lub zaszyfrowana.</string>
   <string name="settings_account">Konto</string>
   <string name="settings_account_info_title">Informacje o użytkowniku</string>
   <string name="settings_account_info_load_data">wczytywanie...</string>
@@ -407,6 +410,9 @@
   <!--star a file-->
   <string name="star_file_succeed">Plik został oznaczony gwiazdką</string>
   <string name="star_file_failed">Nie udało się oznaczyć pliku gwiazdką</string>
+  <!--unstar a file-->
+  <string name="unstar_file_failed">Nie udało się usunąć gwizdki</string>
+  <string name="unstar">Usuń gwiazdkę</string>
   <!--notification bar-->
   <string name="notification_upload_started_title">Przesyłanie plików...</string>
   <string name="notification_download_started_title">Pobieranie plików...</string>

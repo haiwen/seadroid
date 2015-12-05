@@ -172,6 +172,7 @@
   <!--Sort-->
   <!--Search-->
   <!--star a file-->
+  <!--unstar a file-->
   <!--notification bar-->
   <string name="notification_upload_started_title">Μεταφόρτωση αρχείων...</string>
   <string name="notification_download_started_title">Λήψη αρχείων...</string>

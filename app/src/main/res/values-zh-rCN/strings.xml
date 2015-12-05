@@ -38,7 +38,7 @@
   <string name="choose_server">请选择一个Seafile服务器</string>
   <string-array name="choose_server_array">
     <item>SeaCloud.cc</item>
-    <item>Cloud.seafile.de</item>
+    <item>App.seafile.de</item>
     <item>Shibboleth登录</item>
     <item>其他Seafile Server</item>
   </string-array>
@@ -204,6 +204,8 @@
   <string name="internal_server_error">服务器出错了</string>
   <string name="copy_file_ing">正在复制文件</string>
   <string name="move_file_ing">正在移动文件</string>
+  <string name="copy_file_from">正在从 %1$s \n 复制到 %2$s</string>
+  <string name="move_file_from">正在从 %1$s \n 移动到 %2$s</string>
   <string name="copy_folder_ing">正在复制文件夹</string>
   <string name="move_folder_ing">正在移动文件夹</string>
   <string name="upload_started">开始上传</string>
@@ -211,6 +213,7 @@
   <string name="cannot_move_folder_to_subfolder">不能把一个文件夹移动到它的子文件夹里面去</string>
   <string name="cancel">取消</string>
   <string name="confirm">确定</string>
+  <string name="repo_not_found">找不到该资料库，它可能是加密资料库或已被删除</string>
   <string name="settings_account">账户</string>
   <string name="settings_account_info_title">账户信息</string>
   <string name="settings_account_info_load_data">加载中...</string>
@@ -392,6 +395,9 @@
   <!--star a file-->
   <string name="star_file_succeed">星标添加成功</string>
   <string name="star_file_failed">星标添加失败</string>
+  <!--unstar a file-->
+  <string name="unstar_file_failed">取消星标失败</string>
+  <string name="unstar">取消星标</string>
   <!--notification bar-->
   <string name="notification_upload_started_title">文件上传中...</string>
   <string name="notification_download_started_title">文件下载中...</string>

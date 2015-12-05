@@ -38,7 +38,7 @@
   <string name="choose_server">Elija un Servidor Seafile</string>
   <string-array name="choose_server_array">
     <item>SeaCloud.cc</item>
-    <item>Cloud.seafile.de</item>
+    <item>App.seafile.de</item>
     <item>Inicio con Shibboleth</item>
     <item>Otro Servidor Seafile</item>
   </string-array>
@@ -206,6 +206,8 @@
   <string name="internal_server_error">Error interno del Servidor</string>
   <string name="copy_file_ing">Copiando archivo</string>
   <string name="move_file_ing">Moviendo archivo</string>
+  <string name="copy_file_from">Copiando desde %1$s \n a %2$s</string>
+  <string name="move_file_from">Moviendo desde %1$s \n a %2$s</string>
   <string name="copy_folder_ing">Copiando carpeta</string>
   <string name="move_folder_ing">Moviendo carpeta</string>
   <string name="upload_started">Subida iniciada</string>
@@ -213,6 +215,7 @@
   <string name="cannot_move_folder_to_subfolder">No puede mover una carpeta a su subcarpeta</string>
   <string name="cancel">Cancelar</string>
   <string name="confirm">Confirmar</string>
+  <string name="repo_not_found">No se encontró la biblioteca. Puede estar encriptada o haber sido eliminada.</string>
   <string name="settings_account">Cuenta</string>
   <string name="settings_account_info_title">Información de usuario</string>
   <string name="settings_account_info_load_data">cargando...</string>
@@ -400,6 +403,9 @@
   <!--star a file-->
   <string name="star_file_succeed">Archivo marcado con éxito</string>
   <string name="star_file_failed">Falló marcar archivo</string>
+  <!--unstar a file-->
+  <string name="unstar_file_failed">Desmarcar el archivo falló</string>
+  <string name="unstar">Desmarcar</string>
   <!--notification bar-->
   <string name="notification_upload_started_title">Subiendo archivos...</string>
   <string name="notification_download_started_title">Descargando archivos...</string>

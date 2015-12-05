@@ -38,7 +38,7 @@
   <string name="choose_server">Choisir un serveur Seafile</string>
   <string-array name="choose_server_array">
     <item>SeaCloud.cc</item>
-    <item>Cloud.seafile.de</item>
+    <item>App.seafile.de</item>
     <item>Connexion Shibboleth</item>
     <item>Autre serveur Seafile</item>
   </string-array>
@@ -206,6 +206,8 @@
   <string name="internal_server_error">Erreur interne du serveur</string>
   <string name="copy_file_ing">Copie du fichier en cours</string>
   <string name="move_file_ing">Déplacement du fichier en cours</string>
+  <string name="copy_file_from">Copie de %1$s \n vers %2$s</string>
+  <string name="move_file_from">Déplacement de %1$s \n vers %2$s</string>
   <string name="copy_folder_ing">Copie du dossier en cours</string>
   <string name="move_folder_ing">Déplacement du dossier en cours</string>
   <string name="upload_started">Début de l\'envoi</string>
@@ -213,6 +215,7 @@
   <string name="cannot_move_folder_to_subfolder">Vous ne pouvez pas déplacer un dossier dans son sous-dossier</string>
   <string name="cancel">Annuler</string>
   <string name="confirm">Confirmer</string>
+  <string name="repo_not_found">Impossible de trouver cette bibliothèque. Elle est peut être effacée ou cryptée.</string>
   <string name="settings_account">Compte</string>
   <string name="settings_account_info_title">Infos utilisateur</string>
   <string name="settings_account_info_load_data">Chargement en cours...</string>
@@ -400,6 +403,9 @@
   <!--star a file-->
   <string name="star_file_succeed">Fichier mis en favori avec succès</string>
   <string name="star_file_failed">Échec de la mise en favori du fichier</string>
+  <!--unstar a file-->
+  <string name="unstar_file_failed">Désactiver l\'attribut favori du fichier</string>
+  <string name="unstar">Désactiver l\'attribut favori</string>
   <!--notification bar-->
   <string name="notification_upload_started_title">Envoi des fichiers...</string>
   <string name="notification_download_started_title">Téléchargement des fichiers...</string>

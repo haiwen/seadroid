@@ -38,7 +38,7 @@
   <string name="choose_server">Veldu Seafile Þjón</string>
   <string-array name="choose_server_array">
     <item>SeaCloud.cc</item>
-    <item>Cloud.seafile.de</item>
+    <item>App.seafile.de</item>
     <item>Shibboleth Innskráning</item>
     <item>Annar Seafile Þjónn</item>
   </string-array>
@@ -206,6 +206,8 @@
   <string name="internal_server_error">Innri Kerfisvilla</string>
   <string name="copy_file_ing">Afrita skrá</string>
   <string name="move_file_ing">Færi skrá</string>
+  <string name="copy_file_from">Afrita frá %1$s \n Til %2$s</string>
+  <string name="move_file_from">Færi frá %1$s \n Til %2$s</string>
   <string name="copy_folder_ing">Afrita skráasafn</string>
   <string name="move_folder_ing">Færi skráasafn</string>
   <string name="upload_started">Upphleðsla er hafin</string>
@@ -213,6 +215,7 @@
   <string name="cannot_move_folder_to_subfolder">Þú getur ekki fært skráasafn í sitt eigið undirskráasafn</string>
   <string name="cancel">Hætta við</string>
   <string name="confirm">Staðfesta</string>
+  <string name="repo_not_found">Fann ekki þetta safn. Því getur hafa verið eytt eða dulkóðað</string>
   <string name="settings_account">Reikningur</string>
   <string name="settings_account_info_title">Notendaupplýsingar</string>
   <string name="settings_account_info_load_data">hleð...</string>
@@ -400,6 +403,9 @@
   <!--star a file-->
   <string name="star_file_succeed">Stjörnumerkti skránna með ágætum</string>
   <string name="star_file_failed">Mistókst að stjörnumerkja skrá</string>
+  <!--unstar a file-->
+  <string name="unstar_file_failed">Mistókst að taka stjörnu af skrá</string>
+  <string name="unstar">Taka stjörnu af</string>
   <!--notification bar-->
   <string name="notification_upload_started_title">Hleð upp skrám...</string>
   <string name="notification_download_started_title">Hala niður skrám...</string>

@@ -38,7 +38,7 @@
   <string name="choose_server">Seafile サーバーを選択</string>
   <string-array name="choose_server_array">
     <item>SeaCloud.cc</item>
-    <item>Cloud.seafile.de</item>
+    <item>App.seafile.de</item>
     <item>Shibboleth ログイン</item>
     <item>他の Seafile サーバー</item>
   </string-array>
@@ -204,6 +204,8 @@
   <string name="internal_server_error">内部サーバーエラー</string>
   <string name="copy_file_ing">ファイルをコピーしています</string>
   <string name="move_file_ing">ファイルを移動しています</string>
+  <string name="copy_file_from">%1$s から\n%2$s にコピーしています</string>
+  <string name="move_file_from">%1$s から\n%2$s に移動しています</string>
   <string name="copy_folder_ing">フォルダーをコピーしています</string>
   <string name="move_folder_ing">フォルダーを移動しています</string>
   <string name="upload_started">アップロードが開始しました</string>
@@ -211,6 +213,7 @@
   <string name="cannot_move_folder_to_subfolder">フォルダーをそのサブフォルダーに移動できません</string>
   <string name="cancel">キャンセル</string>
   <string name="confirm">確認</string>
+  <string name="repo_not_found">このライブラリーが見つかりません。削除または暗号化された可能性があります。</string>
   <string name="settings_account">アカウント</string>
   <string name="settings_account_info_title">ユーザー情報</string>
   <string name="settings_account_info_load_data">読み込み中…</string>
@@ -393,6 +396,9 @@
   <!--star a file-->
   <string name="star_file_succeed">正常にファイルにスターを付けました</string>
   <string name="star_file_failed">ファイルにスターを付けることができませんでした</string>
+  <!--unstar a file-->
+  <string name="unstar_file_failed">失敗したファイルのスターを消す</string>
+  <string name="unstar">スターを消す</string>
   <!--notification bar-->
   <string name="notification_upload_started_title">ファイルをアップロードしています…</string>
   <string name="notification_download_started_title">ファイルをダウンロードしています</string>

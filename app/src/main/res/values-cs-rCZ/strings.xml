@@ -291,6 +291,7 @@
   <!--star a file-->
   <string name="star_file_succeed">Soubor byl úspěšně přidán do oblíbených</string>
   <string name="star_file_failed">Soubor nebyl přidán do oblíbených</string>
+  <!--unstar a file-->
   <!--notification bar-->
   <string name="notification_upload_completed">Nahrání dokončeno</string>
   <string name="notification_download_completed">Stažení dokončeno</string>
