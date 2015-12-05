@@ -38,7 +38,7 @@
   <string name="choose_server">Bitte wählen Sie einen Seafile-Server aus</string>
   <string-array name="choose_server_array">
     <item>SeaCloud.cc</item>
-    <item>App.seafile.de</item>
+    <item>Cloud.seafile.de</item>
     <item>Shibboleth-Anmeldung</item>
     <item>Anderer Seafile-Server</item>
   </string-array>
@@ -94,7 +94,7 @@
   <string name="select_upload_items">Elemente zum Hochladen auswählen</string>
   <plurals name="n_upload_items_selected">
     <item quantity="one">%1$d Element ausgewählt</item>
-    <item quantity="other">%1$d Elemente ausgewählt</item>
+    <item quantity="other">%1$d Objekte ausgewählt</item>
   </plurals>
   <string name="dir_name_empty">Bitte den Namen des Ordners eingeben</string>
   <string name="file_name_empty">Bitte den Namen der Datei eingeben</string>
@@ -292,8 +292,8 @@
   <string name="settings_cuc_type_video">Bilder und Videos</string>
   <string name="settings_cuc_local_dir_title">Lokale Ordner auswählen</string>
   <plurals name="settings_cuc_local_dir_items">
-    <item quantity="one">%1$d Element</item>
-    <item quantity="other">%1$d Elemente</item>
+    <item quantity="one">%1$d Objekt</item>
+    <item quantity="other">%1$d Objekte</item>
   </plurals>
   <string name="settings_cuc_remote_lib_title">Zielbibliothek auswählen</string>
   <string name="settings_cuc_remote_lib_account">Benutzerkonto auswählen</string>
@@ -400,6 +400,7 @@
   <!--star a file-->
   <string name="star_file_succeed">Als Favorit markiert</string>
   <string name="star_file_failed">Markieren als Favorit nicht möglich</string>
+  <!--unstar a file-->
   <!--notification bar-->
   <string name="notification_upload_started_title">Dateien werden hochgeladen …</string>
   <string name="notification_download_started_title">Dateien werden heruntergeladen …</string>
@@ -409,8 +410,8 @@
     <item quantity="other">Lade %1$d Dateien hoch (%2$d%%)</item>
   </plurals>
   <plurals name="notification_download_info">
-    <item quantity="one">Lade %1$d Datei hoch (%2$d%%)</item>
-    <item quantity="other">Lade %1$d Dateien hoch (%2$d%%)</item>
+    <item quantity="one">Lade %1$d Datei herunter (%2$d%%)</item>
+    <item quantity="other">Lade %1$d Dateien herunter (%2$d%%)</item>
   </plurals>
   <string name="notification_download_completed">Herunterladen abgeschlossen</string>
   <!--Gallery-->

@@ -22,6 +22,7 @@
   <string name="refresh">새로 고침</string>
   <string name="add_account">계정 추가</string>
   <string name="personal">개인</string>
+  <string name="shared">공유함</string>
   <string name="libraries">라이브러리</string>
   <string name="cached">캐시함</string>
   <string name="activities">활동</string>
@@ -65,12 +66,21 @@
   <string name="file_action_star">별 표시</string>
   <string name="file_action_download">다운로드</string>
   <string name="file_action_update">업로드</string>
+  <string name="file_action_share">공유 링크</string>
   <string name="file_action_export">내보내기</string>
   <string name="file_action_delete">삭제</string>
   <string name="file_action_rename">이름 바꾸기</string>
   <string name="file_action_copy">복사</string>
   <string name="file_action_move">이동</string>
   <string name="file_action_open_as">다른 앱에서 열기</string>
+  <string name="file_action_more">더 보기</string>
+  <string name="file_action_more_title">원하는 설정 항목을 선택하세요</string>
+  <string-array name="file_action_more_array">
+    <item>내보내기</item>
+    <item>복사</item>
+    <item>이동</item>
+    <item>별표 표시</item>
+  </string-array>
   <string-array name="file_type_array">
     <item>텍스트</item>
     <item>오디오</item>
@@ -82,6 +92,9 @@
   <string name="image_gallery_NoImageView_text">그림 없음</string>
   <string name="pick_photo_video_title">업로드할 사진/동영상을 선택하세요</string>
   <string name="select_upload_items">업로드할 항목을 선택하세요</string>
+  <plurals name="n_upload_items_selected">
+    <item quantity="other">항목 %1$d개 선택함</item>
+  </plurals>
   <string name="dir_name_empty">폴더 이름을 입력하세요</string>
   <string name="file_name_empty">파일 이름을 입력하세요</string>
   <string name="password_empty">암호를 입력하세요</string>
@@ -102,11 +115,19 @@
   <string name="load_libraries_fail">라이브러리 불러오기에 실패했습니다</string>
   <string name="load_dir_fail">이 폴더의 내용 불러오기에 실패했습니다.</string>
   <string name="not_supported_share">이 공유 형식은 지원하지 않습니다</string>
+  <string name="edit">편집</string>
   <string name="download_folder">다운로드 폴더</string>
   <string name="download_folder_title">원하는 옵션을 선택하세요</string>
   <string-array name="download_folder_options_array">
     <item>다운로드 폴더</item>
     <item>다운로드 폴더 및 하위 폴더</item>
+  </string-array>
+  <string name="add_file">추가</string>
+  <string-array name="add_file_options_array">
+    <item>파일 만들기</item>
+    <item>폴더 만들기</item>
+    <item>파일 업로드</item>
+    <item>사진 촬영</item>
   </string-array>
   <string name="create_new_file">새 파일 만들기</string>
   <string name="create_new_dir">새 폴더 만들기</string>
@@ -157,6 +178,9 @@
   <string name="select_upload_files">업로드할 파일을 선택하세요</string>
   <string name="storage_removed">저장소를 제거했습니다</string>
   <string name="error_selecting_file">파일을 선택하는 중 오류가 생겼습니다</string>
+  <plurals name="n_upload_files_selected">
+    <item quantity="other">파일 %1$d개 선택함</item>
+  </plurals>
   <string name="empty_folder">빈 폴더</string>
   <string name="choose_file">파일 선택</string>
   <string name="ssl_error">보안 검사 실패</string>
@@ -205,6 +229,12 @@
   <string name="lockscreen_access_pattern_detected">패턴을 감지했습니다</string>
   <string name="lockscreen_access_pattern_passwd_forget">암호를 잊었습니다</string>
   <string name="lockscreen_access_pattern_failure">5회 실패했으니, 30초 기다리시고 다시 해보세요</string>
+  <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
+    <item quantity="other">%1$d초 후 다시 시도할 수 있습니다</item>
+  </plurals>
+  <plurals name="lockscreen_access_pattern_failure_left_try_times">
+    <item quantity="other">잘못된 패턴입니다. %1$d번 시도할 수 있습니다.</item>
+  </plurals>
   <string name="lockscreen_access_pattern_failure_not_long_enough">점 연결 길이가 충분하지 않습니다. 다시 해보세요</string>
   <string name="lockpattern_retry_button_text">다시 시도</string>
   <string name="lockpattern_continue_button_text">다음</string>
@@ -257,6 +287,9 @@
   <string name="settings_cuc_type_photo">사진만</string>
   <string name="settings_cuc_type_video">사진, 동영상</string>
   <string name="settings_cuc_local_dir_title">로컬 폴더 선택</string>
+  <plurals name="settings_cuc_local_dir_items">
+    <item quantity="other">항목 %1$d개</item>
+  </plurals>
   <string name="settings_cuc_remote_lib_title">원격 라이브러리 선택</string>
   <string name="settings_cuc_remote_lib_account">계정 선택</string>
   <string name="settings_cuc_remote_lib_repo">%s을(를) 선택함</string>
@@ -328,10 +361,14 @@
   <string name="transfer_list_retry_failed_tasks">실패한 작업 다시 시도</string>
   <string name="transfer_list_restart_cancelled_tasks">취소한 작업 다시 시작</string>
   <string name="transfer_list_clear_failed_tasks">실패한 작업 지우기</string>
+  <string name="transfer_list_clear_all_tasks">모든 작업 취소</string>
   <string name="transfer_list_clear_finished_tasks">끝낸 작업 지우기</string>
   <string name="transfer_tabs_downloads">다운로드 목록</string>
   <string name="transfer_tabs_uploads">업로드 목록</string>
   <string name="transfer_download_no_task">모든 파일을 다운로드했습니다</string>
+  <plurals name="transfer_download_started">
+    <item quantity="other">파일 %1$d개 다운로드 시작 중</item>
+  </plurals>
   <string name="transfer_list_select_all">모두 선택</string>
   <string name="transfer_list_deselect_all">모두 선택 취소</string>
   <plurals name="transfer_list_items_selected">
@@ -356,10 +393,17 @@
   <!--star a file-->
   <string name="star_file_succeed">파일 별표 표시를 성공했습니다</string>
   <string name="star_file_failed">파일 별표 표시에 실패했습니다</string>
+  <!--unstar a file-->
   <!--notification bar-->
   <string name="notification_upload_started_title">파일 업로드 중...</string>
   <string name="notification_download_started_title">파일 다운로드 중...</string>
   <string name="notification_upload_completed">업로드를 끝냈습니다</string>
+  <plurals name="notification_upload_info">
+    <item quantity="other">파일 %1$d개 업로드 중(%2$d%%)</item>
+  </plurals>
+  <plurals name="notification_download_info">
+    <item quantity="other">파일 %1$d개 다운로드 중(%2$d%%)</item>
+  </plurals>
   <string name="notification_download_completed">다운로드를 끝냈습니다</string>
   <!--Gallery-->
   <string name="gallery_load_photos_error">사진 불러오기 오류</string>
@@ -369,4 +413,5 @@
   <string name="overwrite_existing_file_msg">파일이 있습니다. 바꿀까요?</string>
   <string name="overwrite_existing_file_exist">파일이 이미 있음</string>
   <!--Action Mode-->
+  <string name="action_mode_no_items_selected">선택한 항목이 없습니다</string>
 </resources>

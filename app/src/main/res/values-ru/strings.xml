@@ -38,7 +38,7 @@
   <string name="choose_server">Выберите сервер Seafile</string>
   <string-array name="choose_server_array">
     <item>SeaCloud.cc</item>
-    <item>App.seafile.de</item>
+    <item>Cloud.seafile.de</item>
     <item>Shibboleth</item>
     <item>Другой Seafile сервер</item>
   </string-array>
@@ -210,6 +210,8 @@
   <string name="internal_server_error">Внутренняя ошибка сервера</string>
   <string name="copy_file_ing">Копирование файла</string>
   <string name="move_file_ing">Перемещение файла</string>
+  <string name="copy_file_from">Копирование из %1$s \n В %2$s</string>
+  <string name="move_file_from">Перемещение из %1$s \n В %2$s</string>
   <string name="copy_folder_ing">Копирование папки</string>
   <string name="move_folder_ing">Перемещение папки</string>
   <string name="upload_started">Загрузка началась</string>
@@ -217,6 +219,7 @@
   <string name="cannot_move_folder_to_subfolder">Вы не можете переместить папку в эту подпапку</string>
   <string name="cancel">Отмена</string>
   <string name="confirm">Подтвердить</string>
+  <string name="repo_not_found">Невозможно найти эту библиотеку. Возможно, она была удалена или зашифрована</string>
   <string name="settings_account">Аккаунт</string>
   <string name="settings_account_info_title">Информация о пользователе</string>
   <string name="settings_account_info_load_data">загрузка...</string>
@@ -413,6 +416,9 @@ Email: support@seafile.com<br>
   <!--star a file-->
   <string name="star_file_succeed">Файл успешно помечен</string>
   <string name="star_file_failed">Не удалось пометить файл</string>
+  <!--unstar a file-->
+  <string name="unstar_file_failed">Снять метку не удалось</string>
+  <string name="unstar">Снять метку</string>
   <!--notification bar-->
   <string name="notification_upload_started_title">Загрузка файлов...</string>
   <string name="notification_download_started_title">Скачивание файлов...</string>
