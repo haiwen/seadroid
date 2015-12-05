@@ -38,7 +38,7 @@
   <string name="choose_server">Seafile szerver választás</string>
   <string-array name="choose_server_array">
     <item>SeaCloud.cc</item>
-    <item>Cloud.seafile.de</item>
+    <item>App.seafile.de</item>
     <item>Shibboleth bejelentkezés</item>
     <item>Más Seafile szerver</item>
   </string-array>

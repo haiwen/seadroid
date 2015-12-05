@@ -269,7 +269,7 @@ public class AccountsActivity extends SherlockFragmentActivity {
                                             break;
                                         case CLOUD_SEAFILE_COM:
                                             intent = new Intent(getActivity(), AccountDetailActivity.class);
-                                            intent.putExtra("server", "https://cloud.seafile.de");
+                                            intent.putExtra("server", "https://app.seafile.de");
                                             startActivity(intent);
                                             break;
                                         case SHIBBOLETH_LOGIN:
