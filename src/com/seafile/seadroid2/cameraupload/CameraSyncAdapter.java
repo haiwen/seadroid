@@ -199,7 +199,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 // there is already a file. move it away.
                 String newFilename = getContext().getString(R.string.camera_sync_rename_file, dirent.name);
                 dataManager.rename(targetRepoId,
-                        Utils.pathJoin(dir, dirent.name),
+                        Utils.pathJoin(Utils.pathJoin("/", parent), dirent.name),
                         newFilename,
                         false);
             }
