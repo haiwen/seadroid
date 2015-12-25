@@ -455,4 +455,5 @@
     <string name="camera_sync_notification_title_failed">Camera upload failed</string>
     <string name="camera_sync_notification_repo_missing_failed">Server repository is missing.</string>
     <string name="camera_sync_notification_auth_error_failed">Authentication error.</string>
+    <string name="camera_sync_rename_file">%s (renamed by Seafile)</string>
 </resources>

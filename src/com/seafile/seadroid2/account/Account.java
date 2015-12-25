@@ -2,6 +2,7 @@ package com.seafile.seadroid2.account;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.common.base.Objects;
@@ -96,7 +97,7 @@ public class Account implements Parcelable, Comparable<Account> {
     }
 
     public boolean hasValidToken() {
-        return token != null;
+        return !TextUtils.isEmpty(token);
     }
 
     @Override

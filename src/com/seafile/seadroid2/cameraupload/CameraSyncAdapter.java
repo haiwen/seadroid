@@ -185,9 +185,10 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                     found = true;
                 } else if (dir.name.equals(bucket.name) && !dir.isDir()) {
                     // there is already a file. move it away.
+                    String newFilename = getContext().getString(R.string.camera_sync_rename_file, dir.name);
                     dataManager.rename(targetRepoId,
                             Utils.pathJoin(serverPath, dir.name),
-                            dir.name + " (renamed by Seadroid)",
+                            newFilename,
                             false);
                 }
             }

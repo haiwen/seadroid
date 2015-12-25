@@ -140,7 +140,7 @@ public class BucketsSelectionFragment extends Fragment {
         }
     }
 
-    class ViewHolder {
+    static class ViewHolder {
         ImageView imageview;
         ImageView marking;
         TextView text;
