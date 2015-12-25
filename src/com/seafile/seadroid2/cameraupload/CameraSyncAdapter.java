@@ -56,7 +56,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
     private String targetRepoId;
     private String targetRepoName;
-    private String targetDir;
     private List<String> bucketList;
 
     private final String BASE_DIR = "My Photos";
@@ -160,12 +159,8 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
     private void createDirectories(DataManager dataManager) throws SeafException {
         List<GalleryBucketUtils.Bucket> buckets = GalleryBucketUtils.getMediaBuckets(getContext());
 
-        String serverPath = Utils.pathJoin(targetDir, BASE_DIR);
-
-        // recursively create directories in serverPath
-        createDirectoriesRecursively(dataManager, serverPath);
-
-        List<SeafDirent> dirs = dataManager.getDirentsFromServer(targetRepoId, serverPath);
+        // create base directory
+        forceCreateDirectory(dataManager, "/", BASE_DIR);
 
         for (GalleryBucketUtils.Bucket bucket : buckets) {
 
@@ -178,63 +173,39 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             if (bucketList.isEmpty() && !bucket.isCameraBucket)
                 continue;
 
-            // first make sure that the bucket name exists and is a directory
-            boolean found = false;
-            for (SeafDirent dir : dirs) {
-                if (dir.name.equals(bucket.name) && dir.isDir()) {
-                    found = true;
-                } else if (dir.name.equals(bucket.name) && !dir.isDir()) {
-                    // there is already a file. move it away.
-                    String newFilename = getContext().getString(R.string.camera_sync_rename_file, dir.name);
-                    dataManager.rename(targetRepoId,
-                            Utils.pathJoin(serverPath, dir.name),
-                            newFilename,
-                            false);
-                }
-            }
-
-            // create bucket directory, if its missing
-            if (!found)
-                dataManager.createNewDir(targetRepoId, serverPath, bucket.name);
+            forceCreateDirectory(dataManager, BASE_DIR, bucket.name);
 
             // update our cache for that server. we will use it later
-            dataManager.getDirentsFromServer(targetRepoId, Utils.pathJoin(serverPath, bucket.name));
+            dataManager.getDirentsFromServer(targetRepoId, Utils.pathJoin(BASE_DIR, bucket.name));
         }
     }
 
     /**
-     * Create the directory structure where we want to store the media.
+     * Create a directory, rename a file away if necessary,
      *
      * @param dataManager
-     * @param serverPath
+     * @param parent parent dir
+     * @param dir directory to create
      * @throws SeafException
      */
-    private void createDirectoriesRecursively(DataManager dataManager, String serverPath) throws SeafException {
-        String tempPath = serverPath;
-        String base = "/";
-        while (tempPath.length() > 0) {
-            String[] array = tempPath.split("/", 2);
-            String dir = array[0];
-            if (array.length == 2) {
-                tempPath = array[1];
-            } else {
-                tempPath = "";
-            }
-            if (dir.length() == 0) {
-                continue;
-            }
+    private void forceCreateDirectory(DataManager dataManager, String parent, String dir) throws SeafException {
 
-            List<SeafDirent> dirs = dataManager.getDirentsFromServer(targetRepoId, base);
-            boolean found = false;
-            for (SeafDirent dirent : dirs) {
-                if (dirent.name.equals(dir))
-                    found = true;
+        List<SeafDirent> dirs = dataManager.getDirentsFromServer(targetRepoId, parent);
+        boolean found = false;
+        for (SeafDirent dirent : dirs) {
+           if (dirent.name.equals(dir) && dirent.isDir()) {
+                found = true;
+            } else if (dirent.name.equals(dir) && !dirent.isDir()) {
+                // there is already a file. move it away.
+                String newFilename = getContext().getString(R.string.camera_sync_rename_file, dirent.name);
+                dataManager.rename(targetRepoId,
+                        Utils.pathJoin(dir, dirent.name),
+                        newFilename,
+                        false);
             }
-            if (!found)
-                dataManager.createNewDir(targetRepoId, base, dir);
-
-            base = Utils.pathJoin(base, dir);
         }
+        if (!found)
+            dataManager.createNewDir(targetRepoId, Utils.pathJoin("/", parent), dir);
     }
 
     @Override
@@ -249,7 +220,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
         Log.i(DEBUG_TAG, "Syncing images and video to " + account);
 
-        Log.d(DEBUG_TAG, "Camera upload target dir: "+settingsMgr.getCameraUploadDir());
         Log.d(DEBUG_TAG, "Selected buckets for camera upload: "+settingsMgr.getCameraUploadBucketList());
         Log.d(DEBUG_TAG, "is video upload allowed: "+settingsMgr.isVideosUploadAllowed());
         Log.d(DEBUG_TAG, "is data plan allowed: "+settingsMgr.isDataPlanAllowed());
@@ -292,7 +262,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         // make copies so we're unaffected by sudden settings changes
         targetRepoId = settingsMgr.getCameraUploadRepoId();
         targetRepoName = settingsMgr.getCameraUploadRepoName();
-        targetDir = settingsMgr.getCameraUploadDir();
         bucketList = settingsMgr.getCameraUploadBucketList();
 
         try {
@@ -599,7 +568,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
      */
     private void uploadFile(DataManager dataManager, File file, String bucketName) throws SeafException {
 
-        String serverPath = Utils.pathJoin(targetDir, BASE_DIR, bucketName);
+        String serverPath = Utils.pathJoin(BASE_DIR, bucketName);
 
         List<SeafDirent> list = dataManager.getCachedDirents(targetRepoId, serverPath);
         if (list == null) {

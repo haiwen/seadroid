@@ -32,7 +32,6 @@ public class CameraUploadConfigActivity extends SherlockFragmentActivity {
     private CloudLibraryFragment mCloudLibFragment;
     private SettingsManager sm;
     private SeafRepo mSeafRepo;
-    private String mSubDir;
     private Account mAccount;
     /** handling data from configuration helper */
     private boolean isChooseBothPages;
@@ -90,10 +89,9 @@ public class CameraUploadConfigActivity extends SherlockFragmentActivity {
         public void onPageSelected(int page){}
     };
 
-    public void saveCameraUploadInfo(Account account, SeafRepo seafRepo, String directory) {
+    public void saveCameraUploadInfo(Account account, SeafRepo seafRepo) {
         mSeafRepo = seafRepo;
         mAccount = account;
-        mSubDir = directory;
     }
 
     public void saveSettings() {
@@ -115,7 +113,6 @@ public class CameraUploadConfigActivity extends SherlockFragmentActivity {
         if (mSeafRepo != null && mAccount != null) {
             intent.putExtra(SeafilePathChooserActivity.DATA_REPO_NAME, mSeafRepo.name);
             intent.putExtra(SeafilePathChooserActivity.DATA_REPO_ID, mSeafRepo.id);
-            intent.putExtra(SeafilePathChooserActivity.DATA_DIR, mSubDir);
             intent.putExtra(SeafilePathChooserActivity.DATA_ACCOUNT, mAccount);
         }
 

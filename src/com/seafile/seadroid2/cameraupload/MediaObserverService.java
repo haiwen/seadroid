@@ -59,11 +59,6 @@ public class MediaObserverService extends Service {
                 case SettingsManager.SHARED_PREF_CAMERA_UPLOAD_REPO_ID:
                     doFullResync = true;
                     break;
-
-                // the repo dir, also do a full resync
-                case SettingsManager.SHARED_PREF_CAMERA_UPLOAD_REPO_DIR:
-                    doFullResync = true;
-                    break;
             }
 
             if (cameraManager.isCameraUploadEnabled() && doFullResync) {

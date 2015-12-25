@@ -47,7 +47,6 @@ public final class SettingsManager {
     public static final String PKG = "com.seafile.seadroid2";
     public static final String SHARED_PREF_CAMERA_UPLOAD_REPO_ID = PKG + ".camera.repoid";
     public static final String SHARED_PREF_CAMERA_UPLOAD_REPO_NAME = PKG + ".camera.repoName";
-    public static final String SHARED_PREF_CAMERA_UPLOAD_REPO_DIR = PKG + ".camera.repoDir";
     public static final String SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL = PKG + ".camera.account.email";
     public static final String SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER = PKG + ".camera.account.server";
     public static final String SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN = PKG + ".camera.account.token";
@@ -138,15 +137,9 @@ public final class SettingsManager {
         return sharedPref.getString(SHARED_PREF_CAMERA_UPLOAD_REPO_NAME, null);
     }
 
-    public String getCameraUploadDir() {
-        return sharedPref.getString(SHARED_PREF_CAMERA_UPLOAD_REPO_DIR, "/");
-    }
-
-    public void saveCameraUploadRepoInfo(String repoId, String repoName,
-            String dstDir) {
+    public void saveCameraUploadRepoInfo(String repoId, String repoName) {
         editor.putString(SHARED_PREF_CAMERA_UPLOAD_REPO_ID, repoId);
         editor.putString(SHARED_PREF_CAMERA_UPLOAD_REPO_NAME, repoName);
-        editor.putString(SHARED_PREF_CAMERA_UPLOAD_REPO_DIR, dstDir);
         editor.commit();
     }
 
