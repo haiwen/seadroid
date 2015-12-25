@@ -13,7 +13,7 @@ public class Account implements Parcelable, Comparable<Account> {
     /**
      * Type of the account (currently there is only one type)
      */
-    public final static String ACCOUNT_TYPE = "com.seafile.seadroid2";
+    public final static String ACCOUNT_TYPE = "com.seafile.seadroid2.account.api2";
 
     // The full URL of the server, like 'http://gonggeng.org/seahub/' or 'http://gonggeng.org/'
     public final String server;
