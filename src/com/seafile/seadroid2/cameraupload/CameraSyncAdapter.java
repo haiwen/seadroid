@@ -284,6 +284,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             syncResult.stats.numAuthExceptions++;
 
             // we're logged out on this account. disable camera upload.
+            ContentResolver.cancelSync(account, CameraUploadManager.AUTHORITY);
             ContentResolver.setIsSyncable(account, CameraUploadManager.AUTHORITY, 0);
             return;
         }
