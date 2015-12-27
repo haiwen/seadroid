@@ -40,6 +40,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.astuetz.PagerSlidingTabStrip;
+import com.cocosw.bottomsheet.BottomSheet;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
@@ -2087,4 +2088,16 @@ public class BrowserActivity extends BaseActivity
 
     } // TransferReceiver
 
+    public void showButtomSheet() {
+        new BottomSheet.Builder(this).title("title").sheet(R.menu.bottom_sheet_multiple_operation).listener(new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case R.id.share:
+                        ToastUtils.show(BrowserActivity.this, "Share ...");
+                        break;
+                }
+            }
+        }).show();
+    }
 }
