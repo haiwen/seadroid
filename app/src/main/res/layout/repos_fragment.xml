@@ -22,29 +22,36 @@
 
     </LinearLayout>
 
-    <FrameLayout android:id="@+id/listContainer"
+    <FrameLayout
+        android:id="@+id/listContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.v4.widget.SwipeRefreshLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/swiperefresh"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
+            <ListView
+                android:id="@android:id/list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:cacheColorHint="#00000000"
+                android:fadingEdge="none"
+                android:fastScrollEnabled="false"
+                android:footerDividersEnabled="false"
+                android:headerDividersEnabled="false"
+                android:smoothScrollbar="true" />
+        </android.support.v4.widget.SwipeRefreshLayout>
 
-        <!-- The PullToRefreshListView replaces a standard ListView widget. -->
-        <com.seafile.seadroid2.ui.CustomActionSlideExpandableListView
-            android:id="@android:id/list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:cacheColorHint="#00000000"
-            android:fadingEdge="none"
-            android:fastScrollEnabled="false"
-            android:footerDividersEnabled="false"
-            android:headerDividersEnabled="false"
-            android:smoothScrollbar="true" />
-
-        <ImageView android:id="@+id/empty"
-                android:layout_width="@dimen/empty_folder_width"
-                android:layout_height="@dimen/empty_folder_height"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:visibility="gone"
-                android:src="@drawable/empty_icon"/>
+        <ImageView
+            android:id="@+id/empty"
+            android:layout_width="@dimen/empty_folder_width"
+            android:layout_height="@dimen/empty_folder_height"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:src="@drawable/empty_icon"
+            android:visibility="gone" />
     </FrameLayout>
 
     <TextView

@@ -5,6 +5,7 @@ import java.util.List;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +32,8 @@ public class StarredFragment extends SherlockListFragment
     private StarredItemAdapter adapter;
     private BrowserActivity mActivity = null;
 
-    private PullToRefreshListView mPullRefreshListView;
+    private SwipeRefreshLayout refreshLayout;
+    private ListView mListView;
     private TextView mNoStarredView;
     private View mProgressContainer;
     private View mListContainer;
@@ -114,7 +116,8 @@ public class StarredFragment extends SherlockListFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.starred_fragment, container, false);
-        mPullRefreshListView = (PullToRefreshListView) root.findViewById(android.R.id.list);
+        refreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swiperefresh);
+        mListView = (ListView) root.findViewById(android.R.id.list);
         mNoStarredView = (TextView) root.findViewById(android.R.id.empty);
         mListContainer =  root.findViewById(R.id.listContainer);
         mErrorText = (TextView)root.findViewById(R.id.error_message);
@@ -123,7 +126,7 @@ public class StarredFragment extends SherlockListFragment
         mUnstarFiles = (RelativeLayout) root.findViewById(R.id.multi_op_unstar_rl);
         mUnstarFiles.setOnClickListener(new UnstarMultiFilesClickListener());
 
-        mPullRefreshListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 startContextualActionMode(position);
@@ -131,7 +134,7 @@ public class StarredFragment extends SherlockListFragment
             }
         });
         // Set a listener to be invoked when the list should be refreshed.
-        mPullRefreshListView.setOnRefreshListener(new PullToRefreshListView.OnRefreshListener() {
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 mRefreshType = REFRESH_ON_PULL;
@@ -193,7 +196,7 @@ public class StarredFragment extends SherlockListFragment
         mErrorText.setVisibility(View.GONE);
         mListContainer.setVisibility(View.VISIBLE);
         if (!Utils.isNetworkOn()) {
-            mPullRefreshListView.onRefreshComplete();
+            refreshLayout.setRefreshing(false);
             Toast.makeText(mActivity, getString(R.string.network_down), Toast.LENGTH_SHORT).show();
         }
         List<SeafStarredFile> starredFiles = getDataManager().getCachedStarredFiles();
@@ -248,10 +251,10 @@ public class StarredFragment extends SherlockListFragment
                 adapter.add(starred);
             }
             adapter.notifyChanged();
-            mPullRefreshListView.setVisibility(View.VISIBLE);
+            mListView.setVisibility(View.VISIBLE);
             mNoStarredView.setVisibility(View.GONE);
         } else {
-            mPullRefreshListView.setVisibility(View.GONE);
+            mListView.setVisibility(View.GONE);
             mNoStarredView.setVisibility(View.VISIBLE);
         }
     }
@@ -263,12 +266,12 @@ public class StarredFragment extends SherlockListFragment
             // add or remove selection for current list item
             if (adapter == null) return;
 
-            adapter.toggleSelection(position - 1);
+            adapter.toggleSelection(position);
             updateContextualActionBar();
             return;
         }
 
-        final SeafStarredFile starredFile = (SeafStarredFile)adapter.getItem(position - 1);
+        final SeafStarredFile starredFile = (SeafStarredFile)adapter.getItem(position);
         mActivity.onStarredFileSelected(starredFile);
     }
 
@@ -339,8 +342,9 @@ public class StarredFragment extends SherlockListFragment
                 showLoading(false);
             } else if (mRefreshType == REFRESH_ON_PULL) {
                 // Call onRefreshComplete when the list has been refreshed.
-                mPullRefreshListView.onRefreshComplete(getDataManager().getLastPullToRefreshTime(DataManager.PULL_TO_REFRESH_LAST_TIME_FOR_STARRED_FRAGMENT));
+                //mListView.onRefreshComplete(getDataManager().getLastPullToRefreshTime(DataManager.PULL_TO_REFRESH_LAST_TIME_FOR_STARRED_FRAGMENT));
                 getDataManager().saveLastPullToRefreshTime(System.currentTimeMillis(), DataManager.PULL_TO_REFRESH_LAST_TIME_FOR_STARRED_FRAGMENT);
+                refreshLayout.setRefreshing(false);
             }
 
 
@@ -450,7 +454,7 @@ public class StarredFragment extends SherlockListFragment
 
         if (adapter == null) return;
 
-        adapter.toggleSelection(position - 1);
+        adapter.toggleSelection(position);
         updateContextualActionBar();
 
     }
