@@ -2,6 +2,7 @@ package com.seafile.seadroid2.ui.activity;
 
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -25,10 +26,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.NavUtils;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -38,9 +37,10 @@ import android.view.View;
 import android.view.Window;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.astuetz.PagerSlidingTabStrip;
-import com.cocosw.bottomsheet.BottomSheet;
+import com.flipboard.bottomsheet.commons.MenuSheetView;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
@@ -2088,16 +2088,12 @@ public class BrowserActivity extends BaseActivity
 
     } // TransferReceiver
 
-    public void showButtomSheet() {
-        new BottomSheet.Builder(this).title("title").sheet(R.menu.bottom_sheet_multiple_operation).listener(new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case R.id.share:
-                        ToastUtils.show(BrowserActivity.this, "Share ...");
-                        break;
-                }
-            }
-        }).show();
+    public void showFileBottomSheet(String title, final SeafDirent dirent) {
+        getReposFragment().showFileBottomSheet(title, dirent);
     }
+
+    public void showDirBottomSheet(String title, final SeafDirent dirent) {
+        getReposFragment().showDirBottomSheet(title, dirent);
+    }
+
 }

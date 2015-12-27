@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.ui.fragment;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -21,6 +23,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.flipboard.bottomsheet.commons.MenuSheetView;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
@@ -80,7 +84,7 @@ public class ReposFragment extends ListFragment
     public static final int FILE_ACTION_MOVE = 2;
     public static final int FILE_ACTION_STAR = 3;
 
-    private BottomSheetLayout bottomSheet;
+    private BottomSheetLayout bottomSheetLayout;
     private SwipeRefreshLayout refreshLayout;
     private ListView mListView;
     private ImageView mEmptyView;
@@ -171,7 +175,7 @@ public class ReposFragment extends ListFragment
             Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.repos_fragment, container, false);
         refreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swiperefresh);
-        bottomSheet = (BottomSheetLayout) root.findViewById(R.id.bottomsheet);
+        bottomSheetLayout = (BottomSheetLayout) root.findViewById(R.id.bottomsheet);
         mListView = (ListView) root.findViewById(android.R.id.list);
         mTaskActionBar = (LinearLayout) root.findViewById(R.id.multi_op_bottom_action_bar);
         deleteView = (RelativeLayout) root.findViewById(R.id.multi_op_delete_rl);
@@ -194,17 +198,6 @@ public class ReposFragment extends ListFragment
                 return true;
             }
         });
-
-        // Set a listener to be invoked when the list should be refreshed.
-        /*mListView.setOnRefreshListener(new CustomActionSlideExpandableListView.OnRefreshListener() {
-
-            @Override
-            public void onRefresh() {
-                mRefreshType = REFRESH_ON_PULL;
-                refreshView(true);
-
-            }
-        });*/
 
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -254,6 +247,105 @@ public class ReposFragment extends ListFragment
             mActionMode = mActivity.startActionMode(new ActionModeCallback(this));
         }
 
+    }
+
+    public void showFileBottomSheet(String title, final SeafDirent dirent) {
+        final String repoName = getNavContext().getRepoName();
+        final String repoID = getNavContext().getRepoID();
+        final String dir = getNavContext().getDirPath();
+        final String path = Utils.pathJoin(dir, dirent.name);
+        final String filename = dirent.name;
+        final String localPath = getDataManager().getLocalRepoFile(repoName, repoID, path).getPath();
+        MenuSheetView menuSheetView =
+                new MenuSheetView(mActivity, MenuSheetView.MenuType.LIST, title, new MenuSheetView.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        ToastUtils.show(mActivity, item.getTitle().toString());
+                        if (bottomSheetLayout.isSheetShowing()) {
+                            bottomSheetLayout.dismissSheet();
+                        }
+
+                        switch (item.getItemId()) {
+                            case R.id.share:
+                                mActivity.shareFile(repoID, path);
+                                break;
+                            case R.id.delete:
+                                mActivity.deleteFile(repoID, repoName, path);
+                                break;
+                            case R.id.copy:
+                                mActivity.copyFile(repoID, repoName, dir, filename, false);
+                                break;
+                            case R.id.move:
+                                mActivity.moveFile(repoID, repoName, dir, filename, false);
+                                break;
+                            case R.id.rename:
+                                mActivity.renameFile(repoID, repoName, path);
+                                break;
+                            case R.id.update:
+                                mActivity.addUpdateTask(repoID, repoName, dir, localPath);
+                                break;
+                            case R.id.download:
+                                if (dirent.isDir()) {
+                                    mActivity.downloadDir(dir, dirent.name, true);
+                                } else {
+                                    mActivity.downloadFile(dir, dirent.name);
+                                }
+                                break;
+                            case R.id.export:
+                                mActivity.exportFile(dirent.name);
+                                break;
+                            case R.id.star:
+                                mActivity.starFile(repoID, dir, filename);
+                                break;
+                        }
+                        return true;
+                    }
+                });
+        menuSheetView.inflateMenu(R.menu.bottom_sheet_op_file);
+        bottomSheetLayout.showWithSheetView(menuSheetView);
+    }
+
+    public void showDirBottomSheet(String title, final SeafDirent dirent) {
+        final String repoName = getNavContext().getRepoName();
+        final String repoID = getNavContext().getRepoID();
+        final String dir = getNavContext().getDirPath();
+        final String path = Utils.pathJoin(dir, dirent.name);
+        final String filename = dirent.name;
+        MenuSheetView menuSheetView =
+                new MenuSheetView(mActivity, MenuSheetView.MenuType.LIST, title, new MenuSheetView.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        ToastUtils.show(mActivity, item.getTitle().toString());
+                        if (bottomSheetLayout.isSheetShowing()) {
+                            bottomSheetLayout.dismissSheet();
+                        }
+
+                        switch (item.getItemId()) {
+                            case R.id.delete:
+                                mActivity.deleteFile(repoID, repoName, path);
+                                break;
+                            case R.id.copy:
+                                mActivity.copyFile(repoID, repoName, dir, filename, false);
+                                break;
+                            case R.id.move:
+                                mActivity.moveFile(repoID, repoName, dir, filename, false);
+                                break;
+                            case R.id.rename:
+                                mActivity.renameFile(repoID, repoName, path);
+                                break;
+                            case R.id.download:
+                                if (dirent.isDir()) {
+                                    mActivity.downloadDir(dir, dirent.name, true);
+                                } else {
+                                    mActivity.downloadFile(dir, dirent.name);
+                                }
+                                break;
+                        }
+                        return true;
+                    }
+                });
+        menuSheetView.inflateMenu(R.menu.bottom_sheet_op_dir);
+        bottomSheetLayout.showWithSheetView(menuSheetView);
     }
 
     @Override

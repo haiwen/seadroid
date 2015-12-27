@@ -4,17 +4,27 @@ import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.*;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
 import com.google.common.collect.Lists;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
-import com.seafile.seadroid2.ui.NavContext;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.data.*;
+import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.SeafCachedFile;
+import com.seafile.seadroid2.data.SeafDirent;
+import com.seafile.seadroid2.data.SeafGroup;
+import com.seafile.seadroid2.data.SeafItem;
+import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.ui.AnimateFirstDisplayListener;
+import com.seafile.seadroid2.ui.NavContext;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.util.Utils;
@@ -237,7 +247,10 @@ public class SeafItemAdapter extends BaseAdapter {
         viewHolder.action.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mActivity.showButtomSheet();
+                if (dirent.isDir())
+                    mActivity.showDirBottomSheet(dirent.getTitle(), (SeafDirent) getItem(position));
+                else
+                    mActivity.showFileBottomSheet(dirent.getTitle(), (SeafDirent) getItem(position));
             }
         });
 

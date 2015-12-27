@@ -26,7 +26,7 @@
         <item name="actionModeStyle">@style/LightTheme.ActionMode</item>
         <item name="android:homeAsUpIndicator">@drawable/home_up_btn</item>
         <item name="homeAsUpIndicator">@drawable/home_up_btn</item>
-        <item name="android:textColorHighlight">#99ea8201</item>
+        <item name="android:textColorHighlight">@color/fancy_gray</item>
         <item name="android:textSelectHandleLeft">@drawable/fancy_orange_text_select_handle_left</item>
         <item name="android:textSelectHandleRight">@drawable/fancy_orange_text_select_handle_right</item>
         <item name="android:textSelectHandle">@drawable/fancy_orange_text_select_handle_middle</item>
