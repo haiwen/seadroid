@@ -38,7 +38,7 @@
   <string name="choose_server">Veldu Seafile Þjón</string>
   <string-array name="choose_server_array">
     <item>SeaCloud.cc</item>
-    <item>App.seafile.de</item>
+    <item>Cloud.seafile.de</item>
     <item>Shibboleth Innskráning</item>
     <item>Annar Seafile Þjónn</item>
   </string-array>

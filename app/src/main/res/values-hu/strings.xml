@@ -38,7 +38,7 @@
   <string name="choose_server">Seafile szerver választás</string>
   <string-array name="choose_server_array">
     <item>SeaCloud.cc</item>
-    <item>App.seafile.de</item>
+    <item>Cloud.seafile.de</item>
     <item>Shibboleth bejelentkezés</item>
     <item>Más Seafile szerver</item>
   </string-array>
@@ -206,6 +206,8 @@
   <string name="internal_server_error">Belső hiba</string>
   <string name="copy_file_ing">Fájl másolás</string>
   <string name="move_file_ing">Fájl mozgatás</string>
+  <string name="copy_file_from">Másolás: %1$s -&gt; %2$s</string>
+  <string name="move_file_from">Mozgatás: %1$s \n -&gt; %2$s</string>
   <string name="copy_folder_ing">Könyvtár másolás</string>
   <string name="move_folder_ing">Könyvtár mozgatása</string>
   <string name="upload_started">Feltöltés elindítva</string>
@@ -213,6 +215,7 @@
   <string name="cannot_move_folder_to_subfolder">A könyvtár nem mozgatható az alkönyvtárába</string>
   <string name="cancel">Mégse</string>
   <string name="confirm">Megerősít</string>
+  <string name="repo_not_found">A kötet nem található. Lehet, hogy törölve lett vagy titkosítva van</string>
   <string name="settings_account">Fiók</string>
   <string name="settings_account_info_title">Felhasználói információ</string>
   <string name="settings_account_info_load_data">betöltés...</string>
@@ -401,6 +404,8 @@
   <string name="star_file_succeed">Fájl sikeresen felvéve a kedvencek közé</string>
   <string name="star_file_failed">A fájlt nem sikerült felvenni a kedvencek közé</string>
   <!--unstar a file-->
+  <string name="unstar_file_failed">A kedvencnek jelölés eltávolítása sikertelen</string>
+  <string name="unstar">Nem kedvenc</string>
   <!--notification bar-->
   <string name="notification_upload_started_title">Fájlok feltöltése...</string>
   <string name="notification_download_started_title">Fájlok letöltése...</string>

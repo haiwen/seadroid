@@ -126,13 +126,13 @@
     <item>Accounts</item>
     <item>Backup Fotos</item>
   </string-array>
-  <string name="no_starred_file">Nog geen gesterde bestanden</string>
+  <string name="no_starred_file">Nog geen favoriete bestanden</string>
   <string name="added_to_upload_tasks">Uploaden gestart</string>
   <string name="added_photo_to_upload_tasks">Foto upload gestart</string>
   <string name="take_photo_successfully">Neem foto succesvol</string>
   <string name="tabs_library">Bibliotheken</string>
   <string name="tabs_activity">Activiteiten</string>
-  <string name="tabs_starred">Gesterd</string>
+  <string name="tabs_starred">Favorieten</string>
   <string name="provide_password">Voorzie het wachtwoord voor de bibliotheek \"%s\"</string>
   <string name="upload_finished">Upload afgerond</string>
   <string name="upload_cancelled">Upload geannuleerd</string>
@@ -142,7 +142,7 @@
   <string name="minutes_ago">%d minuten geleden</string>
   <string name="seconds_ago">%d seconden geleden</string>
   <string name="just_now">Juist nu</string>
-  <string name="error_when_load_starred">Fout bij het laden van gesterde bestanden</string>
+  <string name="error_when_load_starred">Fout bij het laden van favoriete bestanden</string>
   <string name="open_as">Openen als</string>
   <string name="select_upload_files">Selecteer de bestanden om te uploaden</string>
   <string name="storage_removed">Opslag was verwijdert</string>
@@ -235,7 +235,7 @@
   <!--Transfer List-->
   <string name="transfer_list_cancel_all">Alle taken annuleren</string>
   <string name="transfer_list_restart_all">Herstarten</string>
-  <string name="transfer_list_restart_cancelled_tasks">Herstart geannuleerde taken</string>
+  <string name="transfer_list_restart_cancelled_tasks">Geannuleerde taken herstarten</string>
   <string name="transfer_download_no_task">Alle bestanden zijn gedownload</string>
   <string name="transfer_list_select_all">Alles selecteren</string>
   <string name="transfer_list_deselect_all">Alles deselecteren</string>

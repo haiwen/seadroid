@@ -38,7 +38,7 @@
   <string name="choose_server">Choisir un serveur Seafile</string>
   <string-array name="choose_server_array">
     <item>SeaCloud.cc</item>
-    <item>App.seafile.de</item>
+    <item>Cloud.seafile.de</item>
     <item>Connexion Shibboleth</item>
     <item>Autre serveur Seafile</item>
   </string-array>
