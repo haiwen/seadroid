@@ -1,22 +1,5 @@
 package com.seafile.seadroid2;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URLEncoder;
-import java.util.Map;
-
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLHandshakeException;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -33,6 +16,23 @@ import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.ProgressMonitor;
 import com.seafile.seadroid2.ssl.SSLTrustManager;
 import com.seafile.seadroid2.util.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URLEncoder;
+import java.util.Map;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLHandshakeException;
 
 /**
  * SeafConnection encapsulates Seafile Web API
@@ -389,6 +389,71 @@ public class SeafConnection {
         }
     }
 
+    public String getBlockdlink(String repoID, String fileId, String blkId) throws SeafException {
+        try {
+            String apiPath = String.format("api2/repos/%s/files/%s/blks/%s/download-link/", repoID, fileId, blkId);
+            HttpRequest req = prepareApiGetRequest(apiPath);
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+
+            String result = new String(req.bytes(), "UTF-8");
+            // String fileID = req.header("oid");
+
+            // should return "\"http://gonggeng.org:8082/...\"" or "\"https://gonggeng.org:8082/...\"
+            if (result.startsWith("\"http")) {
+                String url = result.substring(1, result.length() - 1);
+                return url;
+            } else {
+                throw SeafException.illFormatException;
+            }
+        } catch (SeafException e) {
+            throw e;
+        } catch (UnsupportedEncodingException e) {
+            throw SeafException.encodingException;
+        } catch (IOException e) {
+            throw SeafException.networkException;
+        } catch (HttpRequestException e) {
+            throw getSeafExceptionFromHttpRequestException(e);
+        }
+    }
+
+    /**
+     * 获取下载链接和block id和下载链接列表
+     *
+     * @param repoID
+     * @param path
+     * @return
+     * @throws SeafException
+     */
+    public String getDownloadBlockList(String repoID, String path) throws SeafException {
+        try {
+            String apiPath = String.format("api2/repos/%s/file/", repoID);
+            Map<String, Object> params = Maps.newHashMap();
+            params.put("p", encodeUriComponent(path));
+            params.put("op", "downloadblks");
+            HttpRequest req = prepareApiGetRequest(apiPath, params);
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+
+            String result = new String(req.bytes(), "UTF-8");
+            Log.d(DEBUG_TAG, "获取block下载链接列表 " + result);
+
+            return result;
+            // should return "\"http://gonggeng.org:8082/...\"" or "\"https://gonggeng.org:8082/...\"
+            /*if (result.startsWith("\"http") && fileID != null) {
+                String url = result.substring(1, result.length() - 1);
+            } else {
+                throw SeafException.illFormatException;
+            }*/
+        } catch (SeafException e) {
+            throw e;
+        } catch (UnsupportedEncodingException e) {
+            throw SeafException.encodingException;
+        } catch (IOException e) {
+            throw SeafException.networkException;
+        } catch (HttpRequestException e) {
+            throw getSeafExceptionFromHttpRequestException(e);
+        }
+    }
+
     private File getFileFromLink(String dlink, String path, String localPath,
                                  String oid, ProgressMonitor monitor)
                                     throws SeafException {
@@ -448,6 +513,63 @@ public class SeafConnection {
         }
     }
 
+    private File getBlockFromLink(String dlink, String path, String localPath, String oid, ProgressMonitor monitor) throws SeafException {
+        if (dlink == null) return null;
+
+        File file = new File(localPath);
+
+        try {
+            int i = dlink.lastIndexOf('/');
+            String quoted = dlink.substring(0, i) + "/" +
+                    URLEncoder.encode(dlink.substring(i + 1), "UTF-8");
+
+            Log.d(DEBUG_TAG, "requesting single block " + quoted);
+            HttpRequest req = prepareApiFileGetRequest(quoted);
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+
+            if (monitor != null) {
+                /*if (req.header(HttpRequest.HEADER_CONTENT_LENGTH) == null) {
+                    throw SeafException.illFormatException;
+                }
+                Long size = Long.parseLong(req.header(HttpRequest.HEADER_CONTENT_LENGTH));*/
+                if (req.contentLength() > 0) {
+                    Long size =  Long.valueOf(req.contentLength());
+                    monitor.onProgressNotify(size);
+                }
+            }
+
+            File tmp = DataManager.getTempFile(path, oid);
+            // Log.d(DEBUG_TAG, "write to " + tmp.getAbsolutePath());
+            if (monitor == null) {
+                req.receive(tmp);
+            } else {
+                req.bufferSize(MonitoredFileOutputStream.BUFFER_SIZE);
+                req.receive(new MonitoredFileOutputStream(tmp, monitor));
+            }
+
+            /*if (!tmp.renameTo(file)) {
+                Log.w(DEBUG_TAG, "Rename file error");
+                return null;
+            }*/
+            return file;
+
+        } catch (SeafException e) {
+            throw e;
+        } catch (UnsupportedEncodingException e) {
+            throw SeafException.encodingException;
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw SeafException.networkException;
+        } catch (HttpRequestException e) {
+            if (e.getCause() instanceof MonitorCancelledException) {
+                // Log.d(DEBUG_TAG, "download is cancelled");
+                throw SeafException.userCancelledException;
+            } else {
+                throw getSeafExceptionFromHttpRequestException(e);
+            }
+        }
+    }
+
     /**
      * Get the latest version of the file from server
      * @param repoID
@@ -476,6 +598,37 @@ public class SeafConnection {
                                 path, fileID, cachedFileID != null ? cachedFileID : "null"));*/
 
             File file = getFileFromLink(dlink, path, localPath, fileID, monitor);
+            if (file != null) {
+                return new Pair<String, File>(fileID, file);
+            } else {
+                throw SeafException.unknownException;
+            }
+        }
+    }
+    /**
+     * Get the latest version of encrypted block from server
+     * @param path
+     * @param localPath
+     * @param cachedFileID The file id of the local cached version
+     * @param monitor
+     * @return A two tuple of (fileID, file). If the local cached version is up to date, the returned file is null.
+     */
+    public Pair<String, File> getBlock(String dlink,
+                                          String path,
+                                          String localPath,
+                                          String cachedFileID,
+                                          String fileID,
+                                          ProgressMonitor monitor) throws SeafException {
+        if (fileID.equals(cachedFileID)) {
+            // cache is valid
+            // Log.d(DEBUG_TAG, String.format("file %s is cached", path));
+            return new Pair<String, File>(fileID, null);
+        } else {
+            /*Log.d(DEBUG_TAG,
+                  String.format("file %s will be downloaded from server, latest %s, local cache %s",
+                                path, fileID, cachedFileID != null ? cachedFileID : "null"));*/
+
+            File file = getBlockFromLink(dlink, path, localPath, fileID, monitor);
             if (file != null) {
                 return new Pair<String, File>(fileID, file);
             } else {

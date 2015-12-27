@@ -1,18 +1,5 @@
 package com.seafile.seadroid2.ui.fragment;
 
-import java.io.ByteArrayInputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.net.http.SslCertificate;
@@ -33,14 +20,29 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
-import com.seafile.seadroid2.ui.ToastUtils;
-import com.seafile.seadroid2.ui.activity.BrowserActivity;
-import com.seafile.seadroid2.ssl.CertsManager;
-import com.seafile.seadroid2.ui.activity.FileActivity;
-import com.seafile.seadroid2.ui.NavContext;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.ssl.CertsManager;
+import com.seafile.seadroid2.ui.NavContext;
+import com.seafile.seadroid2.ui.ToastUtils;
+import com.seafile.seadroid2.ui.activity.BrowserActivity;
+import com.seafile.seadroid2.ui.activity.FileActivity;
+import com.seafile.seadroid2.ui.dialog.TaskDialog;
+
+import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ActivitiesFragment extends SherlockFragment {
     private static final String DEBUG_TAG = "ActivitiesFragment";
@@ -160,36 +162,68 @@ public class ActivitiesFragment extends SherlockFragment {
         }
     }
 
-    private void viewRepo(String repoID) {
-        SeafRepo repo = getBrowserActivity().getDataManager().getCachedRepoByID(repoID);
+    private void viewRepo(final String repoID) {
+        final SeafRepo repo = getBrowserActivity().getDataManager().getCachedRepoByID(repoID);
 
         if (repo == null) {
             ToastUtils.show(getBrowserActivity(), getString(R.string.repo_not_found));
             return;
         }
 
-        NavContext nav = getBrowserActivity().getNavContext();
+        if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
+            String password = DataManager.getRepoPassword(repo.id);
+            getBrowserActivity().showPasswordDialog(repo.name, repo.id,
+                    new TaskDialog.TaskDialogListener() {
+                        @Override
+                        public void onTaskSuccess() {
+                            switchTab(repoID, repo.getName(), repo.getRootDirID());
+                        }
+                    }, password);
 
-        nav.setRepoID(repoID);
-        nav.setRepoName(repo.getName());
-        nav.setDir("/", repo.getRootDirID());
-
-        // switch to LIBRARY TAB
-        getBrowserActivity().setCurrentPosition(0);
+        } else {
+            switchTab(repoID, repo.getName(), repo.getRootDirID());
+        }
     }
 
-    private void viewFile(String repoID, String path) {
-        SeafRepo repo = getBrowserActivity().getDataManager().getCachedRepoByID(repoID);
+    private void viewFile(final String repoID, final String path) {
+        final SeafRepo repo = getBrowserActivity().getDataManager().getCachedRepoByID(repoID);
 
         if (repo == null) {
             ToastUtils.show(getBrowserActivity(), R.string.library_not_found);
             return;
         }
-        int taskID = getBrowserActivity().getTransferService().addDownloadTask(getBrowserActivity().getAccount(), repo.getName(), repoID, path);
+
+        if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
+            String password = DataManager.getRepoPassword(repo.id);
+            getBrowserActivity().showPasswordDialog(repo.name, repo.id,
+                    new TaskDialog.TaskDialogListener() {
+                        @Override
+                        public void onTaskSuccess() {
+                            openFile(repoID, repo.getName(), path);
+                        }
+                    }, password);
+
+        } else {
+            openFile(repoID, repo.getName(), path);
+        }
+    }
+
+    private void switchTab(String repoID, String repoName, String repoDir) {
+        NavContext nav = getBrowserActivity().getNavContext();
+        nav.setRepoID(repoID);
+        nav.setRepoName(repoName);
+        nav.setDir("/", repoDir);
+
+        // switch to LIBRARY TAB
+        getBrowserActivity().setCurrentPosition(BrowserActivity.INDEX_LIBRARY_TAB);
+    }
+
+    private void openFile(String repoID, String repoName, String filePath) {
+        int taskID = getBrowserActivity().getTransferService().addDownloadTask(getBrowserActivity().getAccount(), repoName, repoID, filePath);
         Intent intent = new Intent(getActivity(), FileActivity.class);
-        intent.putExtra("repoName", repo.getName());
+        intent.putExtra("repoName", repoName);
         intent.putExtra("repoID", repoID);
-        intent.putExtra("filePath", path);
+        intent.putExtra("filePath", filePath);
         intent.putExtra("account", getBrowserActivity().getAccount());
         intent.putExtra("taskID", taskID);
         getBrowserActivity().startActivityForResult(intent, BrowserActivity.DOWNLOAD_FILE_REQUEST);

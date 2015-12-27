@@ -1,17 +1,23 @@
 package com.seafile.seadroid2.transfer;
 
+import android.util.Log;
+import android.util.Pair;
+
+import com.google.common.collect.Lists;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.ProgressMonitor;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * Download task
  *
  */
 public class DownloadTask extends TransferTask {
+    public static final String DEBUG_TAG = DownloadTask.class.getSimpleName();
 
     private String localPath;
     private DownloadStateListener downloadStateListener;
@@ -41,24 +47,44 @@ public class DownloadTask extends TransferTask {
     protected File doInBackground(Void... params) {
         try {
             DataManager dataManager = new DataManager(account);
-            return dataManager.getFile(repoName, repoID, path,
-                    new ProgressMonitor() {
 
-                        @Override
-                        public void onProgressNotify(long total) {
-                            publishProgress(total);
-                        }
+            final String json = dataManager.getBlockIdList(repoID, path);
+            final List<String> ids = dataManager.parseBlockIdList(json);
 
-                        @Override
-                        public boolean isCancelled() {
-                            return DownloadTask.this.isCancelled();
-                        }
+            String fileId = dataManager.parseFileId(json);
+            Log.d(DEBUG_TAG, "fileId " + fileId);
+
+            if (ids == null) return null;
+
+            List<String> blkLinks = Lists.newArrayList();
+            for (String blkId : ids) {
+                final String rlt = dataManager.getBlockdlink(repoID, fileId, blkId);
+                Log.d(DEBUG_TAG, "block download link " + rlt);
+                blkLinks.add(rlt);
+            }
+
+            for (String link : blkLinks) {
+                dataManager.getBlock(link, fileId, repoName, repoID, path, new ProgressMonitor() {
+
+                    @Override
+                    public void onProgressNotify(long total) {
+                        publishProgress(total);
                     }
-            );
+
+                    @Override
+                    public boolean isCancelled() {
+                        return DownloadTask.this.isCancelled();
+                    }
+                });
+            }
+
+
         } catch (SeafException e) {
             err = e;
             return null;
         }
+
+        return null;
     }
 
     @Override
