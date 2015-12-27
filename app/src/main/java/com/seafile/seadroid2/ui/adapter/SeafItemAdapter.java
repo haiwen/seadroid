@@ -193,15 +193,7 @@ public class SeafItemAdapter extends BaseAdapter {
             RelativeLayout action = (RelativeLayout) view.findViewById(R.id.expandable_toggle_button);
             ImageView downloadStatusIcon = (ImageView) view.findViewById(R.id.list_item_download_status_icon);
             ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.list_item_download_status_progressbar);
-            RelativeLayout shareView = (RelativeLayout) view.findViewById(R.id.action_share_ll);
-            RelativeLayout deleteView = (RelativeLayout) view.findViewById(R.id.action_delete_ll);
-            RelativeLayout copyView = (RelativeLayout) view.findViewById(R.id.action_copy_ll);
-            RelativeLayout moveView = (RelativeLayout) view.findViewById(R.id.action_move_ll);
-            RelativeLayout renameView = (RelativeLayout) view.findViewById(R.id.action_rename_ll);
-            RelativeLayout moreView = (RelativeLayout) view.findViewById(R.id.action_more_ll);
-            RelativeLayout updateView = (RelativeLayout) view.findViewById(R.id.action_update_ll);
-            RelativeLayout downloadView = (RelativeLayout) view.findViewById(R.id.action_download_ll);
-            viewHolder = new Viewholder(title, subtitle, multiSelect, icon, action, downloadStatusIcon, progressBar, shareView, deleteView, copyView, moveView, renameView, moreView, updateView, downloadView);
+            viewHolder = new Viewholder(title, subtitle, multiSelect, icon, action, downloadStatusIcon, progressBar);
             view.setTag(viewHolder);
         } else {
             viewHolder = (Viewholder) convertView.getTag();
@@ -236,19 +228,18 @@ public class SeafItemAdapter extends BaseAdapter {
             RelativeLayout action = (RelativeLayout) view.findViewById(R.id.expandable_toggle_button);
             ImageView downloadStatusIcon = (ImageView) view.findViewById(R.id.list_item_download_status_icon);
             ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.list_item_download_status_progressbar);
-            RelativeLayout shareView = (RelativeLayout) view.findViewById(R.id.action_share_ll);
-            RelativeLayout deleteView = (RelativeLayout) view.findViewById(R.id.action_delete_ll);
-            RelativeLayout copyView = (RelativeLayout) view.findViewById(R.id.action_copy_ll);
-            RelativeLayout moveView = (RelativeLayout) view.findViewById(R.id.action_move_ll);
-            RelativeLayout renameView = (RelativeLayout) view.findViewById(R.id.action_rename_ll);
-            RelativeLayout moreView = (RelativeLayout) view.findViewById(R.id.action_more_ll);
-            RelativeLayout updateView = (RelativeLayout) view.findViewById(R.id.action_update_ll);
-            RelativeLayout downloadView = (RelativeLayout) view.findViewById(R.id.action_download_ll);
-            viewHolder = new Viewholder(title, subtitle, multiSelect, icon, action, downloadStatusIcon, progressBar, shareView, deleteView, copyView, moveView, renameView, moreView, updateView, downloadView);
+            viewHolder = new Viewholder(title, subtitle, multiSelect, icon, action, downloadStatusIcon, progressBar);
             view.setTag(viewHolder);
         } else {
             viewHolder = (Viewholder) convertView.getTag();
         }
+
+        viewHolder.action.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mActivity.showButtomSheet();
+            }
+        });
 
         if (actionModeOn) {
             viewHolder.multiSelect.setVisibility(View.VISIBLE);
@@ -285,16 +276,6 @@ public class SeafItemAdapter extends BaseAdapter {
 
             viewHolder.subtitle.setText(dirent.getSubtitle());
 
-            viewHolder.shareView.setVisibility(View.VISIBLE);
-            viewHolder.deleteView.setVisibility(View.VISIBLE);
-            viewHolder.copyView.setVisibility(View.VISIBLE);
-            viewHolder.moveView.setVisibility(View.VISIBLE);
-            viewHolder.downloadView.setVisibility(View.VISIBLE);
-
-            viewHolder.renameView.setVisibility(View.GONE);
-            viewHolder.updateView.setVisibility(View.GONE);
-            viewHolder.moreView.setVisibility(View.GONE);
-
             if (repoIsEncrypted) {
                 viewHolder.action.setVisibility(View.GONE);
             } else
@@ -303,18 +284,6 @@ public class SeafItemAdapter extends BaseAdapter {
         } else {
             viewHolder.downloadStatusIcon.setVisibility(View.GONE);
             viewHolder.progressBar.setVisibility(View.GONE);
-
-            if (!repoIsEncrypted) {
-                viewHolder.shareView.setVisibility(View.VISIBLE);
-            } else
-                viewHolder.shareView.setVisibility(View.GONE);
-
-            viewHolder.deleteView.setVisibility(View.VISIBLE);
-            viewHolder.renameView.setVisibility(View.VISIBLE);
-            viewHolder.moreView.setVisibility(View.VISIBLE);
-
-            viewHolder.copyView.setVisibility(View.GONE);
-            viewHolder.moveView.setVisibility(View.GONE);
 
             viewHolder.action.setVisibility(View.VISIBLE);
 
@@ -426,19 +395,6 @@ public class SeafItemAdapter extends BaseAdapter {
             ImageLoader.getInstance().displayImage("drawable://" + dirent.getIcon(), viewHolder.icon, WidgetUtils.iconOptions);
         }
 
-        if (cacheExists) {
-            if (mActivity.hasRepoWritePermission()) {
-                viewHolder.updateView.setVisibility(View.VISIBLE);
-                viewHolder.downloadView.setVisibility(View.GONE);
-            } else {
-                viewHolder.updateView.setVisibility(View.GONE);
-                viewHolder.downloadView.setVisibility(View.GONE);
-            }
-
-        } else {
-            viewHolder.updateView.setVisibility(View.GONE);
-            viewHolder.downloadView.setVisibility(View.VISIBLE);
-        }
     }
 
     private View getCacheView(SeafCachedFile item, View convertView, ViewGroup parent) {
@@ -454,15 +410,7 @@ public class SeafItemAdapter extends BaseAdapter {
             RelativeLayout action = (RelativeLayout) view.findViewById(R.id.expandable_toggle_button);
             ImageView downloadStatusIcon = (ImageView) view.findViewById(R.id.list_item_download_status_icon);
             ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.list_item_download_status_progressbar);
-            RelativeLayout shareView = (RelativeLayout) view.findViewById(R.id.action_share_ll);
-            RelativeLayout deleteView = (RelativeLayout) view.findViewById(R.id.action_delete_ll);
-            RelativeLayout copyView = (RelativeLayout) view.findViewById(R.id.action_copy_ll);
-            RelativeLayout moveView = (RelativeLayout) view.findViewById(R.id.action_move_ll);
-            RelativeLayout renameView = (RelativeLayout) view.findViewById(R.id.action_rename_ll);
-            RelativeLayout moreView = (RelativeLayout) view.findViewById(R.id.action_more_ll);
-            RelativeLayout updateView = (RelativeLayout) view.findViewById(R.id.action_update_ll);
-            RelativeLayout downloadView = (RelativeLayout) view.findViewById(R.id.action_download_ll);
-            viewHolder = new Viewholder(title, subtitle, multiSelect, icon, action, downloadStatusIcon, progressBar, shareView, deleteView, copyView, moveView, renameView, moreView, updateView, downloadView);
+            viewHolder = new Viewholder(title, subtitle, multiSelect, icon, action, downloadStatusIcon, progressBar);
             view.setTag(viewHolder);
         } else {
             viewHolder = (Viewholder) convertView.getTag();
@@ -525,14 +473,6 @@ public class SeafItemAdapter extends BaseAdapter {
         ImageView icon, multiSelect, downloadStatusIcon; // downloadStatusIcon used to show file downloading status, it is invisible by default
         ProgressBar progressBar;
         RelativeLayout action;
-        RelativeLayout shareView;
-        RelativeLayout deleteView;
-        RelativeLayout copyView;
-        RelativeLayout moveView;
-        RelativeLayout moreView;
-        RelativeLayout renameView;
-        RelativeLayout updateView;
-        RelativeLayout downloadView;
 
         public Viewholder(TextView title,
                           TextView subtitle,
@@ -540,15 +480,8 @@ public class SeafItemAdapter extends BaseAdapter {
                           ImageView icon,
                           RelativeLayout action,
                           ImageView downloadStatusIcon,
-                          ProgressBar progressBar,
-                          RelativeLayout shareView,
-                          RelativeLayout deleteView,
-                          RelativeLayout copyView,
-                          RelativeLayout moveView,
-                          RelativeLayout renameView,
-                          RelativeLayout moreView,
-                          RelativeLayout updateView,
-                          RelativeLayout downloadView) {
+                          ProgressBar progressBar
+                          ) {
             super();
             this.icon = icon;
             this.multiSelect = multiSelect;
@@ -557,14 +490,6 @@ public class SeafItemAdapter extends BaseAdapter {
             this.subtitle = subtitle;
             this.downloadStatusIcon = downloadStatusIcon;
             this.progressBar = progressBar;
-            this.shareView = shareView;
-            this.deleteView = deleteView;
-            this.copyView = copyView;
-            this.moveView = moveView;
-            this.moreView = moreView;
-            this.renameView = renameView;
-            this.updateView = updateView;
-            this.downloadView = downloadView;
         }
     }
 
