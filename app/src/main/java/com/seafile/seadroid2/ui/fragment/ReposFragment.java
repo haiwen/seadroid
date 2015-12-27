@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ListFragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -66,7 +67,8 @@ public class ReposFragment extends ListFragment
     public static final int FILE_ACTION_MOVE = 2;
     public static final int FILE_ACTION_STAR = 3;
 
-    private CustomActionSlideExpandableListView mListView;
+    private SwipeRefreshLayout refreshLayout;
+    private ListView mListView;
     private ImageView mEmptyView;
     private View mProgressContainer;
     private View mListContainer;
@@ -154,7 +156,8 @@ public class ReposFragment extends ListFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.repos_fragment, container, false);
-        mListView = (CustomActionSlideExpandableListView) root.findViewById(android.R.id.list);
+        refreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swiperefresh);
+        mListView = (ListView) root.findViewById(android.R.id.list);
         mTaskActionBar = (LinearLayout) root.findViewById(R.id.multi_op_bottom_action_bar);
         deleteView = (RelativeLayout) root.findViewById(R.id.multi_op_delete_rl);
         copyView = (RelativeLayout) root.findViewById(R.id.multi_op_copy_rl);
@@ -178,13 +181,21 @@ public class ReposFragment extends ListFragment
         });
 
         // Set a listener to be invoked when the list should be refreshed.
-        mListView.setOnRefreshListener(new CustomActionSlideExpandableListView.OnRefreshListener() {
+        /*mListView.setOnRefreshListener(new CustomActionSlideExpandableListView.OnRefreshListener() {
 
             @Override
             public void onRefresh() {
                 mRefreshType = REFRESH_ON_PULL;
                 refreshView(true);
 
+            }
+        });*/
+
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                mRefreshType = REFRESH_ON_PULL;
+                refreshView(true);
             }
         });
 
@@ -214,7 +225,7 @@ public class ReposFragment extends ListFragment
         NavContext nav = getNavContext();
         if (adapter == null || !nav.inRepo()) return;
 
-        adapter.toggleSelection(position - 1);
+        adapter.toggleSelection(position);
         updateContextualActionBar();
 
     }
@@ -247,7 +258,7 @@ public class ReposFragment extends ListFragment
         // which are context actions for the item itself.
         // It handles event binding for those buttons
         // and allow for adding a listener that will be invoked if one of those buttons are pressed.
-        mListView.setItemActionListener(new SlideExpandableClickListener(),
+        /*mListView.setItemActionListener(new SlideExpandableClickListener(),
                 R.id.action_share_ll,
                 R.id.action_delete_ll,
                 R.id.action_copy_ll,
@@ -255,7 +266,7 @@ public class ReposFragment extends ListFragment
                 R.id.action_rename_ll,
                 R.id.action_update_ll,
                 R.id.action_download_ll,
-                R.id.action_more_ll);
+                R.id.action_more_ll);*/
     }
 
     /**
@@ -280,31 +291,31 @@ public class ReposFragment extends ListFragment
 
             switch (buttonview.getId()) {
                 case R.id.action_share_ll:
-                    mListView.collapse();
+                    ////mListView.collapse();
                     mActivity.shareFile(repoID, path);
                     break;
                 case R.id.action_delete_ll:
-                    mListView.collapse();
+                    //mListView.collapse();
                     mActivity.deleteFile(repoID, repoName, path);
                     break;
                 case R.id.action_copy_ll:
-                    mListView.collapse();
+                    //mListView.collapse();
                     mActivity.copyFile(repoID, repoName, dir, filename, false);
                     break;
                 case R.id.action_move_ll:
-                    mListView.collapse();
+                    //mListView.collapse();
                     mActivity.moveFile(repoID, repoName, dir, filename, false);
                     break;
                 case R.id.action_rename_ll:
-                    mListView.collapse();
+                    //mListView.collapse();
                     mActivity.renameFile(repoID, repoName, path);
                     break;
                 case R.id.action_update_ll:
-                    mListView.collapse();
+                    //mListView.collapse();
                     mActivity.addUpdateTask(repoID, repoName, dir, localPath);
                     break;
                 case R.id.action_download_ll:
-                    mListView.collapse();
+                    //mListView.collapse();
                     if (dirent.isDir()) {
                         mActivity.downloadDir(dir, dirent.name, true);
                     } else {
@@ -312,7 +323,7 @@ public class ReposFragment extends ListFragment
                     }
                     break;
                 case R.id.action_more_ll:
-                    mListView.collapse();
+                    //mListView.collapse();
                     processMoreOptions(repoID, repoName, dir, filename, dirent, localPath);
                     break;
                 default:
@@ -457,7 +468,7 @@ public class ReposFragment extends ListFragment
         mPullToRefreshStopRefreshing ++;
 
         if (mPullToRefreshStopRefreshing >1) {
-            mListView.onRefreshComplete();
+            refreshLayout.setRefreshing(false);
             mPullToRefreshStopRefreshing = 0;
         }
 
@@ -466,7 +477,7 @@ public class ReposFragment extends ListFragment
             List<SeafRepo> repos = getDataManager().getReposFromCache();
             if (repos != null) {
                 if (mRefreshType == REFRESH_ON_PULL) {
-                    mListView.onRefreshComplete();
+                    refreshLayout.setRefreshing(false);
                     mPullToRefreshStopRefreshing = 0;
                 }
 
@@ -484,7 +495,7 @@ public class ReposFragment extends ListFragment
         mPullToRefreshStopRefreshing ++;
 
         if (mPullToRefreshStopRefreshing > 1) {
-            mListView.onRefreshComplete();
+            refreshLayout.setRefreshing(false);
             mPullToRefreshStopRefreshing = 0;
         }
 
@@ -508,7 +519,7 @@ public class ReposFragment extends ListFragment
                     nav.getRepoID(), nav.getDirPath());
             if (dirents != null) {
                 if (mRefreshType == REFRESH_ON_PULL) {
-                    mListView.onRefreshComplete();
+                    refreshLayout.setRefreshing(false);
                     mPullToRefreshStopRefreshing = 0;
                 }
 
@@ -601,7 +612,7 @@ public class ReposFragment extends ListFragment
             mEmptyView.setVisibility(View.VISIBLE);
         }
         // Collapses the currently open view
-        mListView.collapse();
+        //mListView.collapse();
     }
 
     private void updateAdapterWithDirents(final List<SeafDirent> dirents) {
@@ -626,7 +637,7 @@ public class ReposFragment extends ListFragment
             mEmptyView.setVisibility(View.VISIBLE);
         }
         // Collapses the currently open view
-        mListView.collapse();
+        //mListView.collapse();
     }
 
     /**
@@ -654,7 +665,7 @@ public class ReposFragment extends ListFragment
             // add or remove selection for current list item
             if (adapter == null) return;
 
-            adapter.toggleSelection(position - 1);
+            adapter.toggleSelection(position);
             updateContextualActionBar();
             return;
         }
@@ -665,7 +676,7 @@ public class ReposFragment extends ListFragment
             repo = getDataManager().getCachedRepoByID(nav.getRepoID());
             mActivity.setUpButtonTitle(repo.getName());
         } else {
-            SeafItem item = adapter.getItem(position - 1);
+            SeafItem item = adapter.getItem(position);
             if (item instanceof SeafRepo) {
                 repo = (SeafRepo)item;
             }
@@ -690,8 +701,8 @@ public class ReposFragment extends ListFragment
 
         mRefreshType = REFRESH_ON_CLICK;
         if (nav.inRepo()) {
-            if (adapter.getItem(position - 1) instanceof SeafDirent) {
-                final SeafDirent dirent = (SeafDirent) adapter.getItem(position - 1);
+            if (adapter.getItem(position) instanceof SeafDirent) {
+                final SeafDirent dirent = (SeafDirent) adapter.getItem(position);
                 if (dirent.isDir()) {
                     String currentPath = nav.getDirPath();
                     String newPath = currentPath.endsWith("/") ?
@@ -808,7 +819,8 @@ public class ReposFragment extends ListFragment
                 showLoading(false);
             } else if (mRefreshType == REFRESH_ON_PULL) {
                 String lastUpdate = getDataManager().getLastPullToRefreshTime(DataManager.PULL_TO_REFRESH_LAST_TIME_FOR_REPOS_FRAGMENT);
-                mListView.onRefreshComplete(lastUpdate);
+                //mListView.onRefreshComplete(lastUpdate);
+                refreshLayout.setRefreshing(false);
                 getDataManager().saveLastPullToRefreshTime(System.currentTimeMillis(), DataManager.PULL_TO_REFRESH_LAST_TIME_FOR_REPOS_FRAGMENT);
                 mPullToRefreshStopRefreshing = 0;
             }
@@ -974,7 +986,8 @@ public class ReposFragment extends ListFragment
                 showLoading(false);
             } else if (mRefreshType == REFRESH_ON_PULL) {
                 String lastUpdate = getDataManager().getLastPullToRefreshTime(DataManager.PULL_TO_REFRESH_LAST_TIME_FOR_REPOS_FRAGMENT);
-                mListView.onRefreshComplete(lastUpdate);
+                //mListView.onRefreshComplete(lastUpdate);
+                refreshLayout.setRefreshing(false);
                 getDataManager().saveLastPullToRefreshTime(System.currentTimeMillis(), DataManager.PULL_TO_REFRESH_LAST_TIME_FOR_REPOS_FRAGMENT);
                 mPullToRefreshStopRefreshing = 0;
             }
