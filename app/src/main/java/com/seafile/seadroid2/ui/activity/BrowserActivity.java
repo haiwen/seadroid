@@ -2,8 +2,16 @@ package com.seafile.seadroid2.ui.activity;
 
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
+import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.*;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.net.Uri;
@@ -13,8 +21,12 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
-import android.support.v4.app.*;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -24,6 +36,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
@@ -33,26 +46,49 @@ import com.actionbarsherlock.view.Window;
 import com.astuetz.PagerSlidingTabStrip;
 import com.cocosw.bottomsheet.BottomSheet;
 import com.google.common.collect.Lists;
-import com.seafile.seadroid2.*;
+import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeafConnection;
+import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountDBHelper;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
-import com.seafile.seadroid2.data.*;
+import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.SeafDirent;
+import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.data.SeafStarredFile;
+import com.seafile.seadroid2.data.ServerInfo;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.notification.UploadNotificationProvider;
-import com.seafile.seadroid2.transfer.*;
+import com.seafile.seadroid2.transfer.DownloadTaskInfo;
+import com.seafile.seadroid2.transfer.DownloadTaskManager;
+import com.seafile.seadroid2.transfer.PendingUploadInfo;
+import com.seafile.seadroid2.transfer.TransferManager;
+import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
+import com.seafile.seadroid2.transfer.UploadTaskInfo;
+import com.seafile.seadroid2.transfer.UploadTaskManager;
 import com.seafile.seadroid2.ui.CopyMoveContext;
 import com.seafile.seadroid2.ui.NavContext;
 import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
-import com.seafile.seadroid2.ui.dialog.*;
+import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog.CustomAction;
+import com.seafile.seadroid2.ui.dialog.CopyMoveDialog;
+import com.seafile.seadroid2.ui.dialog.DeleteFileDialog;
+import com.seafile.seadroid2.ui.dialog.FetchFileDialog;
+import com.seafile.seadroid2.ui.dialog.NewDirDialog;
+import com.seafile.seadroid2.ui.dialog.NewFileDialog;
+import com.seafile.seadroid2.ui.dialog.PasswordDialog;
+import com.seafile.seadroid2.ui.dialog.RenameFileDialog;
+import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
+import com.seafile.seadroid2.ui.dialog.TaskDialog;
+import com.seafile.seadroid2.ui.dialog.UploadChoiceDialog;
 import com.seafile.seadroid2.ui.fragment.ActivitiesFragment;
 import com.seafile.seadroid2.ui.fragment.ReposFragment;
 import com.seafile.seadroid2.ui.fragment.StarredFragment;
@@ -60,10 +96,15 @@ import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 import com.seafile.seadroid2.util.UtilsJellyBean;
 import com.viewpagerindicator.IconPagerAdapter;
+
 import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -2050,16 +2091,86 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     } // TransferReceiver
 
-    public void showButtomSheet() {
-        new BottomSheet.Builder(this).title("title").sheet(R.menu.bottom_sheet_multiple_operation).listener(new DialogInterface.OnClickListener() {
+    public void showFileBottomSheet(String title, final SeafDirent dirent) {
+        final String repoName = getNavContext().getRepoName();
+        final String repoID = getNavContext().getRepoID();
+        final String dir = getNavContext().getDirPath();
+        final String path = Utils.pathJoin(dir, dirent.name);
+        final String filename = dirent.name;
+        final String localPath = dataManager.getLocalRepoFile(repoName, repoID, path).getPath();
+        new BottomSheet.Builder(this).icon(R.drawable.file).title(title).sheet(R.menu.bottom_sheet_op_file).listener(new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
                     case R.id.share:
-                        ToastUtils.show(BrowserActivity.this, "Share ...");
+                        shareFile(repoID, path);
+                        break;
+                    case R.id.delete:
+                        deleteFile(repoID, repoName, path);
+                        break;
+                    case R.id.copy:
+                        copyFile(repoID, repoName, dir, filename, false);
+                        break;
+                    case R.id.move:
+                        moveFile(repoID, repoName, dir, filename, false);
+                        break;
+                    case R.id.rename:
+                        renameFile(repoID, repoName, path);
+                        break;
+                    case R.id.update:
+                        addUpdateTask(repoID, repoName, dir, localPath);
+                        break;
+                    case R.id.download:
+                        if (dirent.isDir()) {
+                            downloadDir(dir, dirent.name, true);
+                        } else {
+                            downloadFile(dir, dirent.name);
+                        }
+                        break;
+                    case R.id.export:
+                        exportFile(dirent.name);
+                        break;
+                    case R.id.star:
+                        starFile(repoID, dir, filename);
                         break;
                 }
             }
         }).show();
     }
+
+    public void showDirBottomSheet(String title, final SeafDirent dirent) {
+        final String repoName = getNavContext().getRepoName();
+        final String repoID = getNavContext().getRepoID();
+        final String dir = getNavContext().getDirPath();
+        final String path = Utils.pathJoin(dir, dirent.name);
+        final String filename = dirent.name;
+        final String localPath = dataManager.getLocalRepoFile(repoName, repoID, path).getPath();
+        new BottomSheet.Builder(this).icon(R.drawable.folder).title(title).sheet(R.menu.bottom_sheet_op_dir).listener(new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case R.id.delete:
+                        deleteFile(repoID, repoName, path);
+                        break;
+                    case R.id.copy:
+                        copyFile(repoID, repoName, dir, filename, false);
+                        break;
+                    case R.id.move:
+                        moveFile(repoID, repoName, dir, filename, false);
+                        break;
+                    case R.id.rename:
+                        renameFile(repoID, repoName, path);
+                        break;
+                    case R.id.download:
+                        if (dirent.isDir()) {
+                            downloadDir(dir, dirent.name, true);
+                        } else {
+                            downloadFile(dir, dirent.name);
+                        }
+                        break;
+                }
+            }
+        }).show();
+    }
+
 }

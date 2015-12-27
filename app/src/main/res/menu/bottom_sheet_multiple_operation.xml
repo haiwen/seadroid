@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/share" android:title="@string/file_action_share" android:icon="@drawable/action_share"/>
-    <item android:id="@+id/copy" android:title="@string/file_action_copy" android:icon="@drawable/action_copy"/>
-    <item android:id="@+id/move" android:title="@string/file_action_move" android:icon="@drawable/action_move"/>
-    <group android:id="@+id/helpgroup">
-        <item android:id="@+id/more" android:title="@string/file_action_more" android:icon="@drawable/action_more"/>
-    </group>
-</menu>
