@@ -42,6 +42,16 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Dev testing easily done with adb commands:
+                     adb shell am start -a android.intent.action.VIEW -d am start -a android.intent.action.VIEW -d seafile://openfile?repo_id=XXXpath=foo -->
+                <data
+                    android:scheme="seafile"
+                    android:host="*" />
+            </intent-filter>
         </activity>
         
         <activity

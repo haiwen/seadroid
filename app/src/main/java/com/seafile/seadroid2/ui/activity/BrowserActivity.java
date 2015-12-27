@@ -3,7 +3,14 @@ package com.seafile.seadroid2.ui.activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.app.Dialog;
-import android.content.*;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.net.Uri;
@@ -13,8 +20,12 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
-import android.support.v4.app.*;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -24,6 +35,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
@@ -32,26 +44,49 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.astuetz.PagerSlidingTabStrip;
 import com.google.common.collect.Lists;
-import com.seafile.seadroid2.*;
+import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeafConnection;
+import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountDBHelper;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
-import com.seafile.seadroid2.data.*;
+import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.SeafDirent;
+import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.data.SeafStarredFile;
+import com.seafile.seadroid2.data.ServerInfo;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.notification.UploadNotificationProvider;
-import com.seafile.seadroid2.transfer.*;
+import com.seafile.seadroid2.transfer.DownloadTaskInfo;
+import com.seafile.seadroid2.transfer.DownloadTaskManager;
+import com.seafile.seadroid2.transfer.PendingUploadInfo;
+import com.seafile.seadroid2.transfer.TransferManager;
+import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
+import com.seafile.seadroid2.transfer.UploadTaskInfo;
+import com.seafile.seadroid2.transfer.UploadTaskManager;
 import com.seafile.seadroid2.ui.CopyMoveContext;
 import com.seafile.seadroid2.ui.NavContext;
 import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
-import com.seafile.seadroid2.ui.dialog.*;
+import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog.CustomAction;
+import com.seafile.seadroid2.ui.dialog.CopyMoveDialog;
+import com.seafile.seadroid2.ui.dialog.DeleteFileDialog;
+import com.seafile.seadroid2.ui.dialog.FetchFileDialog;
+import com.seafile.seadroid2.ui.dialog.NewDirDialog;
+import com.seafile.seadroid2.ui.dialog.NewFileDialog;
+import com.seafile.seadroid2.ui.dialog.PasswordDialog;
+import com.seafile.seadroid2.ui.dialog.RenameFileDialog;
+import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
+import com.seafile.seadroid2.ui.dialog.TaskDialog;
+import com.seafile.seadroid2.ui.dialog.UploadChoiceDialog;
 import com.seafile.seadroid2.ui.fragment.ActivitiesFragment;
 import com.seafile.seadroid2.ui.fragment.ReposFragment;
 import com.seafile.seadroid2.ui.fragment.StarredFragment;
@@ -59,14 +94,23 @@ import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 import com.seafile.seadroid2.util.UtilsJellyBean;
 import com.viewpagerindicator.IconPagerAdapter;
+
 import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class BrowserActivity extends SherlockFragmentActivity
         implements ReposFragment.OnFileSelectedListener, StarredFragment.OnStarredFileSelectedListener, OnBackStackChangedListener {
@@ -243,9 +287,9 @@ public class BrowserActivity extends SherlockFragmentActivity
                     enableUpButton();
                 }
 
-                for(int i=0; i < mTabsLinearLayout.getChildCount(); i++){
+                for (int i = 0; i < mTabsLinearLayout.getChildCount(); i++) {
                     TextView tv = (TextView) mTabsLinearLayout.getChildAt(i);
-                    if(i == position){
+                    if (i == position) {
                         setUpButtonTitleOnSlideTabs(i);
                         tv.setTextColor(getResources().getColor(R.color.fancy_orange));
                     } else {
@@ -300,6 +344,8 @@ public class BrowserActivity extends SherlockFragmentActivity
                 navContext.setRepoName(repoName);
                 navContext.setDir(path, dirID);
             }
+
+
         }
 
         String repoID = intent.getStringExtra("repoID");
@@ -328,6 +374,62 @@ public class BrowserActivity extends SherlockFragmentActivity
         startService(monitorIntent);
 
         requestServerInfo();
+
+    }
+
+    /**
+     * Integrate internal share links for the other Seafile client, e.g. Seafile desktop client
+     *
+     * @param intent
+     */
+    private void handleInternalLink(Intent intent) {
+        final String action = intent.getAction();
+
+        if(Intent.ACTION_VIEW.equals(action)) {
+            // received path is something like below, starting with seafile://openfile?
+            // seafile://openfile?repo_id=bf00556c-6498-4fa9-a481-01ba10227111path=%2FCamera%20Uploads%2F1445874280682_ce5b154a-4099-4264-aa76-f231760278be_by_camera.jpg
+            String url = intent.getData().toString();
+            String API_URL_PREFIX = "seafile://";
+            if (!url.startsWith(API_URL_PREFIX)) return;
+
+            String req = url.substring(API_URL_PREFIX.length(), url.length());
+
+            Pattern REPO_FILE_PATTERN = Pattern.compile("openfile\\?repo_id=([-a-f0-9]{36})path=(.+)");
+            Matcher matcher;
+
+            if ((matcher = fullMatch(REPO_FILE_PATTERN, req)) != null) {
+                String repoID = matcher.group(1);
+
+                try {
+                    String path = URLDecoder.decode(matcher.group(2), "UTF-8");
+                    viewFile(repoID, path);
+                } catch (UnsupportedEncodingException e) {
+                    // Ignore
+                }
+            }
+        }
+    }
+
+    private static Matcher fullMatch(Pattern pattern, String str) {
+        Matcher matcher = pattern.matcher(str);
+        return matcher.matches() ? matcher : null;
+    }
+
+    private void viewFile(String repoID, String path) {
+        SeafRepo repo = dataManager.getCachedRepoByID(repoID);
+
+        if (repo == null) {
+            ToastUtils.show(this, R.string.library_not_found);
+            return;
+        }
+        int taskID = txService.addDownloadTask(getAccount(), repo.getName(), repoID, path);
+        Intent intent = new Intent(this, FileActivity.class);
+        intent.putExtra("repoName", repo.getName());
+        intent.putExtra("repoID", repoID);
+        intent.putExtra("filePath", path);
+        intent.putExtra("account", getAccount());
+        intent.putExtra("taskID", taskID);
+        startActivityForResult(intent, BrowserActivity.DOWNLOAD_FILE_REQUEST);
     }
 
     private void requestServerInfo() {
@@ -598,6 +700,9 @@ public class BrowserActivity extends SherlockFragmentActivity
                                             info.isCopyToLocal);
             }
             pendingUploads.clear();
+
+            handleInternalLink(getIntent());
+
         }
 
         @Override
