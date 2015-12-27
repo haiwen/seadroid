@@ -12,7 +12,7 @@
     <string name="delete_file_f">Delete file</string>
     <string name="delete_dir">Delete folder</string>
     <string name="server_hint">Server, like cloud.seafile.com</string>
-    <string name="email_hint">Email</string>
+    <string name="email_hint">Username or email address</string>
     <string name="passwd_hint">Password</string>
     <string name="login">Login</string>
     <string name="open_file">Open</string>

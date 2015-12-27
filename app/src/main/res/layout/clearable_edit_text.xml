@@ -7,7 +7,6 @@
             android:id="@+id/clearable_edit"
             android:layout_width="fill_parent"
             android:layout_height="@dimen/auto_complete_et_height"
-            android:hint="@string/email_hint"
             android:background="@drawable/edit_text_holo_light"
             android:textSize="@dimen/et_txt_size"
             android:paddingRight="35dip"
