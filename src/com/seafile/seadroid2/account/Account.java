@@ -87,10 +87,10 @@ public class Account implements Parcelable, Comparable<Account> {
             return false;
 
         Account a = (Account)obj;
-        if (a.server == null || a.email == null)
+        if (a.server == null || a.email == null || a.token == null)
             return false;
 
-        return a.server.equals(this.server) && a.email.equals(this.email);
+        return a.server.equals(this.server) && a.email.equals(this.email) && a.token.equals(this.token);
     }
 
     public String getSignature() {

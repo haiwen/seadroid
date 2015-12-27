@@ -41,6 +41,8 @@ import java.util.List;
 public class AccountsActivity extends SherlockFragmentActivity {
     private static final String DEBUG_TAG = "AccountsActivity";
 
+    public static final int DETAIL_ACTIVITY_REQUEST = 1;
+
     private ListView accountsView;
 
     private AccountManager accountManager;
@@ -48,6 +50,7 @@ public class AccountsActivity extends SherlockFragmentActivity {
     private AccountAdapter adapter;
     private List<Account> accounts;
     private FileMonitorService mMonitorService;
+    private Account currentDefaultAccount;
     private ServiceConnection mMonitorConnection = new ServiceConnection() {
 
         @Override
@@ -72,7 +75,8 @@ public class AccountsActivity extends SherlockFragmentActivity {
         accountsView = (ListView) findViewById(R.id.account_list_view);
         accountManager = new AccountManager(this);
         avatarManager = new AvatarManager();
-       
+        currentDefaultAccount = accountManager.getCurrentAccount();
+
         View footerView = ((LayoutInflater) this
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
                 R.layout.account_list_footer, null, false);
@@ -172,6 +176,13 @@ public class AccountsActivity extends SherlockFragmentActivity {
         adapter.clear();
         adapter.setItems(accounts);
 
+        // if the user switched default account while we were in background,
+        // switch to BrowserActivity
+        Account newCurrentAccount = accountManager.getCurrentAccount();
+        if (newCurrentAccount != null && !newCurrentAccount.equals(currentDefaultAccount)) {
+            startFilesActivity(newCurrentAccount);
+        }
+
         loadAvatarUrls(48);
 
         adapter.notifyChanged();
@@ -183,8 +194,9 @@ public class AccountsActivity extends SherlockFragmentActivity {
         intent.putExtra(AccountManager.SHARED_PREF_EMAIL_KEY, account.email);
         intent.putExtra(AccountManager.SHARED_PREF_TOKEN_KEY, account.token);
 
-        startActivity(intent);
+        // first finish this activity, so the BrowserActivity is again "on top"
         finish();
+        startActivity(intent);
     }
 
     private void startEditAccountActivity(Account account) {
@@ -192,7 +204,21 @@ public class AccountsActivity extends SherlockFragmentActivity {
         intent.putExtra("server", account.server);
         intent.putExtra("email", account.email);
         intent.putExtra("isEdited", true);
-        startActivity(intent);
+        startActivityForResult(intent, DETAIL_ACTIVITY_REQUEST);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case DETAIL_ACTIVITY_REQUEST:
+                if (resultCode == RESULT_OK) {
+                    Account account = accountManager.getCurrentAccount();
+                    startFilesActivity(account);
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     @Override
@@ -235,9 +261,8 @@ public class AccountsActivity extends SherlockFragmentActivity {
         Account account = accountManager.getCurrentAccount();
         if (account == null) {
             // force exit when current account was deleted
-            Intent i = new Intent();
-            i.setAction(Intent.ACTION_MAIN);
-            i.addCategory(Intent.CATEGORY_HOME);
+            Intent i = new Intent(this, BrowserActivity.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(i);
             finish();
         }

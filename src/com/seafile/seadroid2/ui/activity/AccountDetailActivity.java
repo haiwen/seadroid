@@ -262,16 +262,6 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
         }
     }
 
-    private void startFilesActivity(Account account) {
-        Intent intent = new Intent(this, BrowserActivity.class);
-        intent.putExtra("server", account.server);
-        intent.putExtra("email", account.email);
-        intent.putExtra("token", account.token);
-
-        startActivity(intent);
-        finish(); // so the user will not return to this activity when press 'back'
-    }
-
     private class LoginTask extends AsyncTask<Void, Void, String> {
         Account loginAccount;
         SeafException err = null;
@@ -330,7 +320,9 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
                 // save account to SharedPreference
                 accountManager.saveCurrentAccount(loginAccount);
 
-                startFilesActivity(loginAccount);
+                setResult(RESULT_OK);
+                finish();
+
             } else {
                 statusView.setText(result);
             }
