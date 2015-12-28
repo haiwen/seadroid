@@ -80,9 +80,7 @@ public class PasswordDialog extends TaskDialog {
 
     @Override
     protected void onDialogCreated(Dialog dialog) {
-        setTitle(repoName);
-        // setTitle(String.format(getString(R.string.provide_password), repoName));
-        // dialog.setTitle(String.format(getString(R.string.provide_password), repoName));
+        dialog.setTitle(repoName);
     }
 
     @Override

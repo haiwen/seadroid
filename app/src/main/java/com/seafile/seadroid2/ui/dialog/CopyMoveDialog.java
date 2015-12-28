@@ -65,7 +65,7 @@ public class CopyMoveDialog extends TaskDialog {
         }
 
         if (ctx.batch) {
-            setTitle(strTitle);
+            dialog.setTitle(strTitle);
             if (srcDirPath != null && dstDirPath != null) {
                 tvMessage.setText(String.format(strMsg, srcDirPath, dstDirPath));
             } else {
@@ -73,7 +73,7 @@ public class CopyMoveDialog extends TaskDialog {
             }
         } else {
             String srcFilePath = Utils.pathJoin(ctx.srcRepoName, ctx.srcDir, ctx.srcFn);
-            setTitle(strTitle);
+            dialog.setTitle(strTitle);
             if (srcFilePath != null && dstDirPath != null) {
                 tvMessage.setText(String.format(strMsg, srcFilePath, dstDirPath));
             } else {

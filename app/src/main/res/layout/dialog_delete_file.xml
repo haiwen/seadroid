@@ -13,8 +13,8 @@
     	android:id="@+id/delete_file_name"
     	android:layout_width="fill_parent"
     	android:layout_height="wrap_content"
-    	android:gravity="center"
     	android:textSize="@dimen/dialog_msg_txt_size"
+		android:layout_marginLeft="@dimen/margin_big"
 		android:textColor="@color/black"
     	android:text="@string/delete_file"
     />

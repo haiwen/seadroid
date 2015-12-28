@@ -96,7 +96,7 @@ public class RenameFileDialog extends TaskDialog {
     protected void onDialogCreated(Dialog dialog) {
         String str = getActivity().getString(isdir ? R.string.rename_dir : R.string.rename_file);
         // setTitle(str + " " + Utils.fileNameFromPath(path));
-        setTitle(str);
+        dialog.setTitle(str);
     }
 
     @Override

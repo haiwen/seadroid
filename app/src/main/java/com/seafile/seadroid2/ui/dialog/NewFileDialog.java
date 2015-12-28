@@ -90,7 +90,7 @@ public class NewFileDialog extends TaskDialog {
 
     @Override
     protected void onDialogCreated(Dialog dialog) {
-        setTitle(getResources().getString(R.string.create_new_file));
+        dialog.setTitle(getResources().getString(R.string.create_new_file));
         // dialog.setTitle(getActivity().getString(R.string.create_new_file));
     }
 

@@ -185,31 +185,25 @@ public abstract class TaskDialog extends DialogFragment {
         super.onSaveInstanceState(outState);
     }
     /** optional dialog title layout */
-    private TextView mTitle;
+    // private TextView mTitle;
     /** optional alert dialog image */
-    private ImageView mIcon;
+    // private ImageView mIcon;
     /** optional message displayed below title if title exists*/
-    private TextView mMessage;
+    // private TextView mMessage;
     /** The colored holo divider. You can set its color with the setDividerColor method */
-    private View mDivider;
+    // private View mDivider;
     /** optional custom panel image */
     private FrameLayout mCustom;
     /**Keep Context as Member to support Apis below 11*/
 
-    public void setTitle(CharSequence text) {
-        mTitle.setText(text);
-    }
-    
+    private AlertDialog.Builder builder;
+
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder = new AlertDialog.Builder(getActivity(), android.R.style.Theme_Material_Light_Dialog_Alert);
         LayoutInflater inflater = getActivity().getLayoutInflater();
         LinearLayout view = (LinearLayout)inflater.inflate(R.layout.seafile_dialog_layout, null);
-        mTitle = (TextView) view.findViewById(R.id.alertTitle);
-        mMessage = (TextView) view.findViewById(R.id.message);
-        //mIcon = (ImageView) view.findViewById(R.id.icon);
-        mDivider = view.findViewById(R.id.titleDivider);
         mCustom = (FrameLayout) view.findViewById(R.id.customPanel);
         contentView = createDialogContentView(inflater, savedInstanceState);
         if (contentView != null) {
@@ -256,9 +250,9 @@ public abstract class TaskDialog extends DialogFragment {
             public void onShow(DialogInterface d) {
                 if (hasOkButton()) {
                     okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                    okButton.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.dialog_btn_txt_size));
+                    //okButton.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.dialog_btn_txt_size));
                     cancelButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-                    cancelButton.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.dialog_btn_txt_size));
+                    //cancelButton.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.dialog_btn_txt_size));
                     View.OnClickListener onOKButtonClickedListener = new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {

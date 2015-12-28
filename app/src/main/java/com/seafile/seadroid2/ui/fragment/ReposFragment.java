@@ -327,8 +327,7 @@ public class ReposFragment extends ListFragment
                                            final String filename,
                                            final SeafDirent dirent,
                                            final String localPath) {
-        SeafileStyleDialogBuilder builder =
-                new SeafileStyleDialogBuilder(getActivity()).
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity()).
                         setTitle(getResources().getString(R.string.file_action_more_title)).
                         setItems(R.array.file_action_more_array,
                                 new DialogInterface.OnClickListener() {

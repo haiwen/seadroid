@@ -3,23 +3,25 @@ package com.seafile.seadroid2.ui.dialog;
 import java.util.List;
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 
 /**
  * Choose an app from a list of apps or custom actions
@@ -64,12 +66,12 @@ public class AppChoiceDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        SeafileStyleDialogBuilder builder = new SeafileStyleDialogBuilder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(mTitle);
-        builder.setSingleChoiceItems(new AppsListAdapter(), 0, new ListView.OnItemClickListener() {
+        builder.setSingleChoiceItems(new AppsListAdapter(), 0, new DialogInterface.OnClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> l, View view, int position, long id) {
-                onAppSelected(position);
+            public void onClick(DialogInterface dialogInterface, int i) {
+                onAppSelected(i);
             }
         });
 

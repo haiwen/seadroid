@@ -83,7 +83,7 @@ public class NewDirDialog extends TaskDialog {
 
     @Override
     protected void onDialogCreated(Dialog dialog) {
-        setTitle(getResources().getString(R.string.create_new_dir));
+        dialog.setTitle(getResources().getString(R.string.create_new_dir));
         //dialog.setTitle(getActivity().getString(R.string.create_new_dir));
     }
 

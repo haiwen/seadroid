@@ -138,7 +138,7 @@
     <dimen name="dialog_title_txt_size">18sp</dimen>
     <dimen name="dialog_lv_txt_size">16sp</dimen>
     <dimen name="dialog_msg_title_txt_size">16sp</dimen>
-    <dimen name="dialog_msg_txt_size">16sp</dimen>
+    <dimen name="dialog_msg_txt_size">20sp</dimen>
     <dimen name="dialog_msg_progressbar_height">30dp</dimen>
     <dimen name="dialog_error_txt_size">12sp</dimen>
     <dimen name="dialog_btn_txt_size">14sp</dimen>
@@ -169,4 +169,10 @@
     <dimen name="footer_margin_bottom">10dp</dimen>
     <dimen name="footer_margin_top">10dp</dimen>
 
+    <!-- Common -->
+    <dimen name="margin_normal">10dp</dimen>
+    <dimen name="margin_big">15dp</dimen>
+    <dimen name="margin_large">20dp</dimen>
+    <dimen name="margin_larger">25dp</dimen>
+    <dimen name="margin_largest">30dp</dimen>
 </resources>

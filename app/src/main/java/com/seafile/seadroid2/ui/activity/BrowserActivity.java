@@ -3,7 +3,14 @@ package com.seafile.seadroid2.ui.activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.app.Dialog;
-import android.content.*;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.net.Uri;
@@ -21,6 +28,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -28,32 +36,55 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import android.widget.TextView;
+
 import com.astuetz.PagerSlidingTabStrip;
 import com.google.common.collect.Lists;
-import com.seafile.seadroid2.*;
+import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeafConnection;
+import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountDBHelper;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
-import com.seafile.seadroid2.data.*;
+import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.SeafDirent;
+import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.data.SeafStarredFile;
+import com.seafile.seadroid2.data.ServerInfo;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.notification.UploadNotificationProvider;
-import com.seafile.seadroid2.transfer.*;
+import com.seafile.seadroid2.transfer.DownloadTaskInfo;
+import com.seafile.seadroid2.transfer.DownloadTaskManager;
+import com.seafile.seadroid2.transfer.PendingUploadInfo;
+import com.seafile.seadroid2.transfer.TransferManager;
+import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
+import com.seafile.seadroid2.transfer.UploadTaskInfo;
+import com.seafile.seadroid2.transfer.UploadTaskManager;
 import com.seafile.seadroid2.ui.CopyMoveContext;
 import com.seafile.seadroid2.ui.NavContext;
-import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
-import com.seafile.seadroid2.ui.dialog.*;
+import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog.CustomAction;
+import com.seafile.seadroid2.ui.dialog.CopyMoveDialog;
+import com.seafile.seadroid2.ui.dialog.DeleteFileDialog;
+import com.seafile.seadroid2.ui.dialog.FetchFileDialog;
+import com.seafile.seadroid2.ui.dialog.NewDirDialog;
+import com.seafile.seadroid2.ui.dialog.NewFileDialog;
+import com.seafile.seadroid2.ui.dialog.PasswordDialog;
+import com.seafile.seadroid2.ui.dialog.RenameFileDialog;
+import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
+import com.seafile.seadroid2.ui.dialog.TaskDialog;
+import com.seafile.seadroid2.ui.dialog.UploadChoiceDialog;
 import com.seafile.seadroid2.ui.fragment.ActivitiesFragment;
 import com.seafile.seadroid2.ui.fragment.ReposFragment;
 import com.seafile.seadroid2.ui.fragment.StarredFragment;
@@ -61,10 +92,15 @@ import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 import com.seafile.seadroid2.util.UtilsJellyBean;
 import com.viewpagerindicator.IconPagerAdapter;
+
 import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -865,21 +901,14 @@ public class BrowserActivity extends BaseActivity
     public class SortFilesDialog extends DialogFragment {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(
-                    getActivity(),
-                    R.layout.list_item_single_choice,
-                    android.R.id.text1,
-                    getResources().getStringArray(R.array.sort_files_options_array));
-
-            SeafileStyleDialogBuilder builder =
-                    (SeafileStyleDialogBuilder) new SeafileStyleDialogBuilder(getActivity())
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                             .setTitle(getString(R.string.sort_files))
-                            .setSingleChoiceItems(adapter,
+                            .setSingleChoiceItems(R.array.sort_files_options_array,
                                     calculateCheckedItem(),
-                                    new AdapterView.OnItemClickListener() {
+                                    new DialogInterface.OnClickListener() {
                                         @Override
-                                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                            switch (position) {
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            switch (i) {
                                                 case 0: // sort by name, ascending
                                                     sortFiles(SeafItemAdapter.SORT_BY_NAME, SeafItemAdapter.SORT_ORDER_ASCENDING);
                                                     break;
@@ -896,7 +925,9 @@ public class BrowserActivity extends BaseActivity
                                                     return;
                                             }
                                             dismiss();
+
                                         }
+
                                     });
             return builder.show();
         }
@@ -954,7 +985,7 @@ public class BrowserActivity extends BaseActivity
      * add new file/files
      */
     private void addFile() {
-        final SeafileStyleDialogBuilder builder = new SeafileStyleDialogBuilder(this);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.add_file));
         builder.setItems(R.array.add_file_options_array, new DialogInterface.OnClickListener() {
             @Override

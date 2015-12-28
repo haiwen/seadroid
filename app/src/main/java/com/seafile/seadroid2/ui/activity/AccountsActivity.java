@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -28,7 +29,6 @@ import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.avatar.Avatar;
 import com.seafile.seadroid2.avatar.AvatarManager;
 import com.seafile.seadroid2.monitor.FileMonitorService;
-import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.adapter.AccountAdapter;
 import com.seafile.seadroid2.ui.adapter.SeafAccountAdapter;
 import com.seafile.seadroid2.util.Utils;
@@ -249,11 +249,10 @@ public class AccountsActivity extends BaseActivity {
     public static final int OTHER_SERVER = 3;
 
     public static class CreateAccountChoiceDialog extends DialogFragment {
-        // final Context context = SeadroidApplication.getAppContext();
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            SeafileStyleDialogBuilder builder = 
-                    new SeafileStyleDialogBuilder(getActivity()).
+            AlertDialog.Builder builder =
+                    new AlertDialog.Builder(getActivity()).
                     setTitle(getResources().getString(R.string.choose_server)).
                     setItems(R.array.choose_server_array,
                             new DialogInterface.OnClickListener() {

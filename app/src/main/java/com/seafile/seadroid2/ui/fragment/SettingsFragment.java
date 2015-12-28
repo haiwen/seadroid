@@ -34,7 +34,6 @@ import com.seafile.seadroid2.cameraupload.CameraUploadConfigActivity;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.transfer.TransferManager;
-import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.ui.activity.CreateGesturePasswordActivity;
@@ -141,7 +140,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
             public boolean onPreferenceClick(Preference preference) {
 
                 // popup a dialog to confirm sign out request
-                final SeafileStyleDialogBuilder builder = new SeafileStyleDialogBuilder(mActivity);
+                final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
                 builder.setTitle(getString(R.string.settings_account_sign_out_title));
                 builder.setMessage(getString(R.string.settings_account_sign_out_confirm));
                 builder.setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
@@ -173,12 +172,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
                         dialog.dismiss();
                     }
                 });
-                final AlertDialog dialog = builder.show();
-                Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                okButton.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.dialog_btn_txt_size));
-                Button cancelButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-                cancelButton.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.dialog_btn_txt_size));
-
+                builder.show();
                 return true;
             }
         });
@@ -324,9 +318,8 @@ public class SettingsFragment extends CustomPreferenceFragment {
             @Override
             public boolean onPreferenceClick(Preference preference) {
 
-                SeafileStyleDialogBuilder builder = new SeafileStyleDialogBuilder(mActivity);
+                AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
                 // builder.setIcon(R.drawable.icon);
-                builder.setTitle(mActivity.getResources().getString(R.string.app_name));
                 builder.setMessage(Html.fromHtml(getString(R.string.settings_about_author_info, appVersion)));
                 builder.show();
                 return true;

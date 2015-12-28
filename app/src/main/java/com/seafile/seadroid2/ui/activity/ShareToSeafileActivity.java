@@ -18,7 +18,6 @@ import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
-import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.util.Utils;
 import org.apache.commons.io.IOUtils;
@@ -306,7 +305,7 @@ public class ShareToSeafileActivity extends BaseActivity {
             }
 
             if (fileExistent) {
-                AlertDialog.Builder builder = new SeafileStyleDialogBuilder(this)
+                AlertDialog.Builder builder = new AlertDialog.Builder(this)
                         .setTitle(getString(R.string.overwrite_existing_file_title))
                         .setMessage(getString(R.string.overwrite_existing_file_msg))
                         .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {

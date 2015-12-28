@@ -64,7 +64,7 @@ public class GetShareLinkDialog extends TaskDialog {
 
     @Override
     protected void onDialogCreated(Dialog dialog) {
-        setTitle(getActivity().getString(R.string.generating_link));
+        dialog.setTitle(getActivity().getString(R.string.generating_link));
         // dialog.setTitle(getActivity().getString(R.string.generating_link));
     }
 
