@@ -9,11 +9,11 @@ import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.text.ClipboardManager;
 import android.webkit.MimeTypeMap;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.ui.activity.BaseActivity;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.activity.GalleryActivity;
 import com.seafile.seadroid2.ui.activity.MarkdownActivity;
@@ -30,7 +30,7 @@ import java.util.List;
  */
 public class WidgetUtils {
 
-    public static void chooseShareApp(final SherlockFragmentActivity activity,
+    public static void chooseShareApp(final BaseActivity activity,
                                       final String repoID,
                                       final String path,
                                       final boolean isdir,

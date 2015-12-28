@@ -8,10 +8,13 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v7.app.ActionBar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -19,10 +22,6 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
@@ -39,7 +38,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 
-public class AccountDetailActivity extends SherlockFragmentActivity {
+public class AccountDetailActivity extends BaseActivity {
     private static final String DEBUG_TAG = "AccountDetailActivity";
 
     private static final String HTTP_PREFIX = "http://";

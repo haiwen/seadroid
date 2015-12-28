@@ -3,16 +3,16 @@ package com.seafile.seadroid2.ui.activity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
 import android.util.Log;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
+import android.view.MenuItem;
+import android.view.Window;
+
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.ui.fragment.SettingsFragment;
 
-public class SettingsActivity extends SherlockFragmentActivity {
+public class SettingsActivity extends BaseActivity {
     private static final String DEBUG_TAG = "SettingsActivity";
 
     public void onCreate(Bundle savedInstanceState) {

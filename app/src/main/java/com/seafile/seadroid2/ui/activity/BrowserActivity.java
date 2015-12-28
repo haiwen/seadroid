@@ -13,23 +13,25 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
-import android.support.v4.app.*;
-import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
 import com.astuetz.PagerSlidingTabStrip;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.*;
@@ -68,8 +70,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class BrowserActivity extends SherlockFragmentActivity
-        implements ReposFragment.OnFileSelectedListener, StarredFragment.OnStarredFileSelectedListener, OnBackStackChangedListener {
+public class BrowserActivity extends BaseActivity
+        implements ReposFragment.OnFileSelectedListener, StarredFragment.OnStarredFileSelectedListener, FragmentManager.OnBackStackChangedListener {
     public static final String PKG_NAME = "com.seafile.seadroid2";
     public static final String EXTRA_REPO_NAME = PKG_NAME + ".repoName";
     public static final String EXTRA_REPO_ID = PKG_NAME + ".repoID";
@@ -570,7 +572,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
 
     public ReposFragment getReposFragment() {
-        return (ReposFragment)getFragment(0);
+        return (ReposFragment) getFragment(0);
     }
 
     public StarredFragment getStarredFragment() {
@@ -687,7 +689,7 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getSupportMenuInflater();
+        MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.browser_menu, menu);
         overFlowMenu = menu;
         return true;

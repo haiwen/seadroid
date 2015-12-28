@@ -8,7 +8,10 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.ListFragment;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,8 +21,6 @@ import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.ActionMode;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.transfer.TransferService;
@@ -35,7 +36,7 @@ import java.util.List;
  * Base class for transfer task fragments
  *
  */
-public abstract class TransferTaskFragment extends SherlockListFragment
+public abstract class TransferTaskFragment extends ListFragment
         implements ActionModeCallback.ActionModeOperationListener {
     private String DEBUG_TAG = "TransferTaskFragment";
 
@@ -71,7 +72,7 @@ public abstract class TransferTaskFragment extends SherlockListFragment
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 if (mActionMode == null) {
-                    mActionMode = getSherlockActivity().startActionMode(new ActionModeCallback(TransferTaskFragment.this));
+                    mActionMode = getActivity().startActionMode(new ActionModeCallback(TransferTaskFragment.this));
                 }
 
                 return true;
@@ -307,7 +308,7 @@ public abstract class TransferTaskFragment extends SherlockListFragment
 
         if (itemsChecked && mActionMode == null) {
             // there are some selected items, start the actionMode
-            mActionMode = getSherlockActivity().startActionMode(new ActionModeCallback(this));
+            mActionMode = getActivity().startActionMode(new ActionModeCallback(this));
             adapter.actionModeOn();
             Animation bottomUp = AnimationUtils.loadAnimation(getActivity(),
                     R.anim.bottom_up);

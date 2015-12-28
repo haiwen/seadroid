@@ -7,15 +7,15 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.ListFragment;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.*;
-import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.ActionMode;
 import com.seafile.seadroid2.*;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class ReposFragment extends SherlockListFragment
+public class ReposFragment extends ListFragment
         implements ActionModeCallback.ActionModeOperationListener {
 
     private static final String DEBUG_TAG = "ReposFragment";

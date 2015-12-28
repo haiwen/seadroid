@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.net.http.SslError;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -12,12 +11,10 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.webkit.CookieManager;
-import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
-import android.widget.Toast;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
+
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
@@ -27,7 +24,6 @@ import com.seafile.seadroid2.util.Utils;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLEncoder;
 
 /**
@@ -35,7 +31,7 @@ import java.net.URLEncoder;
  * use cookie to get authorized data
  * <p/>
  */
-public class ShibbolethAuthorizeActivity extends SherlockFragmentActivity {
+public class ShibbolethAuthorizeActivity extends BaseActivity {
     public static final String DEBUG_TAG = "ShibbolethAuthorizeActivity";
 
     public static final String SEAHUB_SHIB_COOKIE_NAME = "seahub_auth";

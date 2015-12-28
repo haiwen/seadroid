@@ -16,7 +16,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="Theme.SeafileTheme" parent="Theme.Sherlock.Light">
+    <style name="Theme.SeafileTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:windowBackground">@color/fancy_light_white</item>
         <item name="android:listViewStyle">@style/SeafileListStyle</item>
         <item name="android:radioButtonStyle">@style/RadioButton</item>
@@ -32,12 +32,12 @@
         <item name="android:textSelectHandle">@drawable/fancy_orange_text_select_handle_middle</item>
     </style>
 
-    <style name="LightTheme.ActionMode" parent="Widget.Sherlock.Light.ActionMode">
+    <style name="LightTheme.ActionMode" parent="Widget.AppCompat.ActionMode">
         <item name="android:background">@color/fancy_white</item>
         <item name="background">@color/fancy_white</item>
     </style>
 
-    <style name="LightTheme.ActionBar" parent="Widget.Sherlock.Light.ActionBar">
+    <style name="LightTheme.ActionBar" parent="Widget.AppCompat.Light.ActionBar">
         <item name="android:background">@drawable/actionbar_background</item>
         <item name="background">@drawable/actionbar_background</item>
         <item name="android:height">@dimen/abs_actionbar_height</item>
@@ -48,7 +48,7 @@
         <item name="logo">@drawable/actionbar_space_between_icon_and_title</item>
     </style>
 
-    <style name="LightTheme.ActionBar.TitleTextStyle" parent="TextAppearance.Sherlock.Widget.ActionBar.Title">
+    <style name="LightTheme.ActionBar.TitleTextStyle" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
         <item name="android:textColor">@color/fancy_black</item>
         <item name="android:textSize">@dimen/tv_subtitle_txt_size</item>
     </style>

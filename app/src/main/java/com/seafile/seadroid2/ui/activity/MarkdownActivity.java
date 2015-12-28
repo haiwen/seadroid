@@ -5,11 +5,10 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
+import android.support.v7.app.ActionBar;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.util.Utils;
@@ -20,7 +19,7 @@ import java.io.File;
 /*
  * For showing markdown files
  */
-public class MarkdownActivity extends SherlockActivity {
+public class MarkdownActivity extends BaseActivity {
 
     @SuppressWarnings("unused")
     private static final String DEBUG_TAG = "MarkdownActivity";
@@ -59,7 +58,7 @@ public class MarkdownActivity extends SherlockActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getSupportMenuInflater();
+        MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.markdown_view_menu, menu);
         return true;
     }

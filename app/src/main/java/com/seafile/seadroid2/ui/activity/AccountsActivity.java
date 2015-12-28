@@ -6,19 +6,18 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ListView;
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.MenuItem;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
@@ -38,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class AccountsActivity extends SherlockFragmentActivity {
+public class AccountsActivity extends BaseActivity {
     private static final String DEBUG_TAG = "AccountsActivity";
 
     private ListView accountsView;
