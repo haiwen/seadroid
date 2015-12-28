@@ -4,7 +4,7 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
-
+    <include layout="@layout/toolbar_actionbar" /> <!-- placeholder, empty except on L -->
     <LinearLayout android:id="@+id/shibboleth_loading_ll"
                   android:orientation="vertical"
                   android:layout_width="match_parent"

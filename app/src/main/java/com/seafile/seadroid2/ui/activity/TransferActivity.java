@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.KeyEvent;
@@ -22,7 +23,7 @@ import com.seafile.seadroid2.ui.adapter.TransferTaskAdapter;
 import com.seafile.seadroid2.ui.fragment.DownloadTaskFragment;
 import com.seafile.seadroid2.ui.fragment.UploadTaskFragment;
 
-public class TransferActivity extends BaseActivity {
+public class TransferActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
     private static final String DEBUG_TAG = "TransferActivity";
 
     private TransferTaskAdapter.TaskType whichTab = TransferTaskAdapter.TaskType.DOWNLOAD_TASK;
@@ -103,9 +104,8 @@ public class TransferActivity extends BaseActivity {
             }
         });
 
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        Toolbar toolbar = getActionBarToolbar();
+        toolbar.setOnMenuItemClickListener(this);
 
         /** this is hacky to explicitly call onNewIntent()
          * because it was never called when start the TransferActivity
@@ -150,7 +150,7 @@ public class TransferActivity extends BaseActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 finish();

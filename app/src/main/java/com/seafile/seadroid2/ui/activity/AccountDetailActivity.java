@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.*;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -38,7 +40,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 
-public class AccountDetailActivity extends BaseActivity {
+public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
     private static final String DEBUG_TAG = "AccountDetailActivity";
 
     private static final String HTTP_PREFIX = "http://";
@@ -60,9 +62,8 @@ public class AccountDetailActivity extends BaseActivity {
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        //This has to be called before setContentView
         supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.account_detail);
 
         statusView = (TextView) findViewById(R.id.status_view);
@@ -103,8 +104,8 @@ public class AccountDetailActivity extends BaseActivity {
             int prefixLen = HTTP_PREFIX.length();
             serverText.setSelection(prefixLen, prefixLen);
         }
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        Toolbar toolbar = getActionBarToolbar();
+        toolbar.setOnMenuItemClickListener(this);
     }
 
     @Override
@@ -124,7 +125,7 @@ public class AccountDetailActivity extends BaseActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onMenuItemClick(MenuItem item) {
          switch (item.getItemId()) {
             case android.R.id.home:
 

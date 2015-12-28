@@ -4,11 +4,14 @@ import android.content.*;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v7.widget.*;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
@@ -37,7 +40,7 @@ import java.util.List;
  * Search Activity
  *
  */
-public class SearchActivity extends BaseActivity implements View.OnClickListener {
+public class SearchActivity extends BaseActivity implements View.OnClickListener, Toolbar.OnMenuItemClickListener {
     private static final String DEBUG_TAG = "SearchActivity";
 
     private static final String STATE_SEARCHED_RESULT = "searched_result";
@@ -85,7 +88,6 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(new SearchListClickListener());
         //TODO mListView load more data
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         initData();
     }
@@ -142,8 +144,17 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
         bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
         Log.d(DEBUG_TAG, "try bind TransferService");
     }
+
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onCreateOptionsMenu(Menu menu) {
+        android.support.v7.widget.Toolbar toolbar = getActionBarToolbar();
+        toolbar.inflateMenu(R.menu.browser_menu);
+        toolbar.setOnMenuItemClickListener(this);
+        return true;
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 finish();

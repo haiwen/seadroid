@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -40,7 +41,7 @@ import com.seafile.seadroid2.util.Utils;
 /**
  * Path chooser - Let the user choose a target path (account, repo, dir)
  */
-public class SeafilePathChooserActivity extends BaseActivity {
+public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
     private static final String DEBUG_TAG = "SeafilePathChooserActivity";
 
     public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "password_dialog_fragment_tag";
@@ -99,10 +100,6 @@ public class SeafilePathChooserActivity extends BaseActivity {
         }
         onlyShowWritableRepos = intent.getBooleanExtra(ONLY_SHOW_WRITABLE_REPOS, true);
         encryptedRepoId = intent.getStringExtra(ENCRYPTED_REPO_ID);
-
-        ActionBar bar = getSupportActionBar();
-        bar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        bar.setDisplayHomeAsUpEnabled(false);
 
         mOkButton = (Button) findViewById(R.id.ok);
         mCancelButton = (Button) findViewById(R.id.cancel);
@@ -249,8 +246,9 @@ public class SeafilePathChooserActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.seafile_path_chooser_menu, menu);
+        Toolbar toolbar = getActionBarToolbar();
+        toolbar.inflateMenu(R.menu.seafile_path_chooser_menu);
+        toolbar.setOnMenuItemClickListener(this);
         return true;
     }
 
@@ -263,7 +261,7 @@ public class SeafilePathChooserActivity extends BaseActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
         case android.R.id.home:
             stepBack();

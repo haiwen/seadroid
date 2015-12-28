@@ -8,6 +8,7 @@ import android.os.IBinder;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -37,7 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class AccountsActivity extends BaseActivity {
+public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener{
     private static final String DEBUG_TAG = "AccountsActivity";
 
     private ListView accountsView;
@@ -105,8 +106,8 @@ public class AccountsActivity extends BaseActivity {
         });
         registerForContextMenu(accountsView);
 
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        Toolbar toolbar = getActionBarToolbar();
+        toolbar.setOnMenuItemClickListener(this);
     }
 
     private void authorizeAccount(Account account) {
@@ -148,7 +149,7 @@ public class AccountsActivity extends BaseActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onMenuItemClick(MenuItem item) {
          switch (item.getItemId()) {
             case android.R.id.home:
                 // if the current account sign out and no account was to logged in,

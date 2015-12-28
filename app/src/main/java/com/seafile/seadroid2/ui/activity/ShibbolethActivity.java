@@ -2,6 +2,7 @@ package com.seafile.seadroid2.ui.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -17,7 +18,7 @@ import com.seafile.seadroid2.ui.ToastUtils;
  * Shibboleth welcome page
  * <p/>
  */
-public class ShibbolethActivity extends BaseActivity {
+public class ShibbolethActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
     public static final String DEBUG_TAG = "ShibbolethActivity";
 
     public static final String SHIBBOLETH_SERVER_URL = "shibboleth server url";
@@ -51,8 +52,9 @@ public class ShibbolethActivity extends BaseActivity {
             }
         });
 
-        getActionBar().setDisplayHomeAsUpEnabled(true);
-        getActionBar().setTitle(R.string.shib_actionbar_title);
+        Toolbar toolbar = getActionBarToolbar();
+        toolbar.setTitle(R.string.shib_actionbar_title);
+        toolbar.setOnMenuItemClickListener(this);
     }
 
     public void onHttpsCheckboxClicked(View view) {
@@ -116,15 +118,15 @@ public class ShibbolethActivity extends BaseActivity {
         });
     }
 
-    /*@Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 finish();
                 break;
         }
         return true;
-    }*/
+    }
 
     private boolean isServerUrlValid(String serverUrl) {
         if (serverUrl == null || serverUrl.isEmpty()) {

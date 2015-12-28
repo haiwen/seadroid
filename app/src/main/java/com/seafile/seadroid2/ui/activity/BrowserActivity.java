@@ -25,20 +25,18 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NavUtils;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import com.astuetz.PagerSlidingTabStrip;
@@ -107,7 +105,8 @@ import java.util.Date;
 import java.util.List;
 
 public class BrowserActivity extends BaseActivity
-        implements ReposFragment.OnFileSelectedListener, StarredFragment.OnStarredFileSelectedListener, FragmentManager.OnBackStackChangedListener {
+        implements ReposFragment.OnFileSelectedListener, StarredFragment.OnStarredFileSelectedListener,
+        FragmentManager.OnBackStackChangedListener, Toolbar.OnMenuItemClickListener {
     public static final String PKG_NAME = "com.seafile.seadroid2";
     public static final String EXTRA_REPO_NAME = PKG_NAME + ".repoName";
     public static final String EXTRA_REPO_ID = PKG_NAME + ".repoID";
@@ -196,7 +195,7 @@ public class BrowserActivity extends BaseActivity
     }
 
     public void disableActionBarTitle() {
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getActionBarToolbar().setEnabled(false);
     }
 
     @Override
@@ -245,8 +244,7 @@ public class BrowserActivity extends BaseActivity
 
         getSupportFragmentManager().addOnBackStackChangedListener(this);
 
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayShowTitleEnabled(true);
+        //getActionBarToolbar().setEnabled(true);
         unsetRefreshing();
         disableUpButton();
 
@@ -351,7 +349,7 @@ public class BrowserActivity extends BaseActivity
         }
 
         // enable ActionBar app icon to behave as action back
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //getActionBarToolbar().setEnabled(true);
 
         Intent txIntent = new Intent(this, TransferService.class);
         startService(txIntent);
@@ -386,6 +384,100 @@ public class BrowserActivity extends BaseActivity
             return;
 
         ConcurrentAsyncTask.execute(new RequestServerInfoTask());
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                if (navContext.inRepo() && currentPosition == INDEX_LIBRARY_TAB) {
+                    onBackPressed();
+                }
+                return true;
+            case R.id.sort:
+                showSortFilesDialog();
+                return true;
+            case R.id.search:
+                Intent searchIntent = new Intent(this, SearchActivity.class);
+                startActivity(searchIntent);
+                return true;
+            case R.id.add:
+                addFile();
+                return true;
+            case R.id.transfer_tasks:
+                Intent newIntent = new Intent(this, TransferActivity.class);
+                newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(newIntent);
+                return true;
+            case R.id.accounts:
+                newIntent = new Intent(this, AccountsActivity.class);
+                newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(newIntent);
+                return true;
+            case R.id.refresh:
+                if (!Utils.isNetworkOn()) {
+                    ToastUtils.show(this, R.string.network_down);
+                    return true;
+                }
+                if (currentPosition == INDEX_LIBRARY_TAB) {
+                    if (navContext.inRepo()) {
+                        SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
+                        if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
+                            String password = DataManager.getRepoPassword(repo.id);
+                            showPasswordDialog(repo.name, repo.id,
+                                    new TaskDialog.TaskDialogListener() {
+                                        @Override
+                                        public void onTaskSuccess() {
+                                            getReposFragment().refresh();
+                                        }
+                                    } , password);
+
+                            return true;
+                        }
+                    }
+
+                    getReposFragment().refresh();
+                } else if (currentPosition == INDEX_ACTIVITIES_TAB) {
+                    getActivitiesFragment().refreshView();
+                } else if (currentPosition == INDEX_STARRED_TAB) {
+                    getStarredFragment().refresh();
+                }
+                return true;
+            case R.id.edit:
+                // start action mode for selecting multiple files/folders
+
+                if (!Utils.isNetworkOn()) {
+                    ToastUtils.show(this, R.string.network_down);
+                    return true;
+                }
+                if (currentPosition == INDEX_LIBRARY_TAB) {
+                    if (navContext.inRepo()) {
+                        SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
+                        if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
+                            String password = DataManager.getRepoPassword(repo.id);
+                            showPasswordDialog(repo.name, repo.id,
+                                    new TaskDialog.TaskDialogListener() {
+                                        @Override
+                                        public void onTaskSuccess() {
+                                            getReposFragment().startContextualActionMode();
+                                        }
+                                    } , password);
+
+                            return true;
+                        }
+                    }
+
+                    getReposFragment().startContextualActionMode();
+                }
+
+                return true;
+            case R.id.settings:
+                Intent settingsIntent = new Intent(BrowserActivity.this,SettingsActivity.class);
+                settingsIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(settingsIntent);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     class RequestServerInfoTask extends AsyncTask<Void, Void, ServerInfo> {
@@ -714,7 +806,7 @@ public class BrowserActivity extends BaseActivity
     public void onSaveInstanceState(Bundle outState) {
         Log.d(DEBUG_TAG, "onSaveInstanceState");
         super.onSaveInstanceState(outState);
-        //outState.putInt("tab", getSupportActionBar().getSelectedNavigationIndex());
+        //outState.putInt("tab", getActionBarToolbar().getSelectedNavigationIndex());
         if (navContext.getRepoID() != null) {
             outState.putString("repoID", navContext.getRepoID());
             outState.putString("repoName", navContext.getRepoName());
@@ -725,9 +817,18 @@ public class BrowserActivity extends BaseActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.browser_menu, menu);
-        overFlowMenu = menu;
+
+        // Add the search button to the toolbar.
+        Toolbar toolbar = getActionBarToolbar();
+        toolbar.inflateMenu(R.menu.browser_menu);
+        toolbar.setOnMenuItemClickListener(this);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                NavUtils.navigateUpFromSameTask(BrowserActivity.this);
+            }
+        });
+
         return true;
     }
 
@@ -771,101 +872,6 @@ public class BrowserActivity extends BaseActivity
             menuSearch.setVisible(false);
 
         return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        switch (item.getItemId()) {
-        case android.R.id.home:
-            if (navContext.inRepo() && currentPosition == INDEX_LIBRARY_TAB) {
-                onBackPressed();
-            }
-            return true;
-        case R.id.sort:
-            showSortFilesDialog();
-            return true;
-        case R.id.search:
-            Intent searchIntent = new Intent(this, SearchActivity.class);
-            startActivity(searchIntent);
-            return true;
-        case R.id.add:
-            addFile();
-            return true;
-        case R.id.transfer_tasks:
-            Intent newIntent = new Intent(this, TransferActivity.class);
-            newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(newIntent);
-            return true;
-        case R.id.accounts:
-            newIntent = new Intent(this, AccountsActivity.class);
-            newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(newIntent);
-            return true;
-        case R.id.refresh:
-            if (!Utils.isNetworkOn()) {
-                ToastUtils.show(this, R.string.network_down);
-                return true;
-            }
-            if (currentPosition == INDEX_LIBRARY_TAB) {
-                if (navContext.inRepo()) {
-                    SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
-                    if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
-                        String password = DataManager.getRepoPassword(repo.id);
-                        showPasswordDialog(repo.name, repo.id,
-                            new TaskDialog.TaskDialogListener() {
-                                @Override
-                                public void onTaskSuccess() {
-                                    getReposFragment().refresh();
-                                }
-                            } , password);
-
-                        return true;
-                    }
-                }
-
-                getReposFragment().refresh();
-            } else if (currentPosition == INDEX_ACTIVITIES_TAB) {
-                getActivitiesFragment().refreshView();
-            } else if (currentPosition == INDEX_STARRED_TAB) {
-                getStarredFragment().refresh();
-            }
-            return true;
-        case R.id.edit:
-            // start action mode for selecting multiple files/folders
-
-            if (!Utils.isNetworkOn()) {
-                ToastUtils.show(this, R.string.network_down);
-                return true;
-            }
-            if (currentPosition == INDEX_LIBRARY_TAB) {
-                if (navContext.inRepo()) {
-                    SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
-                    if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
-                        String password = DataManager.getRepoPassword(repo.id);
-                        showPasswordDialog(repo.name, repo.id,
-                                new TaskDialog.TaskDialogListener() {
-                                    @Override
-                                    public void onTaskSuccess() {
-                                        getReposFragment().startContextualActionMode();
-                                    }
-                                } , password);
-
-                        return true;
-                    }
-                }
-
-                getReposFragment().startContextualActionMode();
-            }
-
-            return true;
-        case R.id.settings:
-            Intent settingsIntent = new Intent(BrowserActivity.this,SettingsActivity.class);
-            settingsIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(settingsIntent);
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -1076,17 +1082,17 @@ public class BrowserActivity extends BaseActivity
     }
 
     public void enableUpButton() {
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setLogo(getResources().getDrawable(R.color.transparent));
+        //getActionBarToolbar().setEnabled(true);
+        //getActionBarToolbar().setLogo(getResources().getDrawable(R.color.transparent));
     }
 
     public void disableUpButton() {
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        getSupportActionBar().setLogo(R.drawable.icon);
+        //getActionBarToolbar().setEnabled(false);
+        //getActionBarToolbar().setLogo(R.drawable.icon);
     }
 
     public void setUpButtonTitle(String title){
-        getSupportActionBar().setTitle(title);
+        getActionBarToolbar().setTitle(title);
     }
 
     /**
@@ -1537,15 +1543,15 @@ public class BrowserActivity extends BaseActivity
             if (navContext.inRepo()) {
                 if (navContext.isRepoRoot()) {
                     navContext.setRepoID(null);
-                    getSupportActionBar().setTitle(R.string.app_name);
+                    getActionBarToolbar().setTitle(R.string.app_name);
                 } else {
                     String parentPath = Utils.getParentPath(navContext
                             .getDirPath());
                     navContext.setDir(parentPath, null);
                     if (parentPath.equals(ACTIONBAR_PARENT_PATH)) {
-                        getSupportActionBar().setTitle(navContext.getRepoName());
+                        getActionBarToolbar().setTitle(navContext.getRepoName());
                     }else {
-                        getSupportActionBar().setTitle(parentPath.substring(parentPath.lastIndexOf(ACTIONBAR_PARENT_PATH) + 1));
+                        getActionBarToolbar().setTitle(parentPath.substring(parentPath.lastIndexOf(ACTIONBAR_PARENT_PATH) + 1));
                     }
                 }
                 getReposFragment().refreshView();

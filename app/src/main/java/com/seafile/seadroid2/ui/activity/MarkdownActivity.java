@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -16,10 +17,10 @@ import us.feras.mdv.MarkdownView;
 
 import java.io.File;
 
-/*
+/**
  * For showing markdown files
  */
-public class MarkdownActivity extends BaseActivity {
+public class MarkdownActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
 
     @SuppressWarnings("unused")
     private static final String DEBUG_TAG = "MarkdownActivity";
@@ -40,9 +41,6 @@ public class MarkdownActivity extends BaseActivity {
 
         if (path == null)
             return;
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        
     }
     
     @Override
@@ -58,13 +56,14 @@ public class MarkdownActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.markdown_view_menu, menu);
+        Toolbar toolbar = getActionBarToolbar();
+        toolbar.inflateMenu(R.menu.markdown_view_menu);
+        toolbar.setOnMenuItemClickListener(this);
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
         case R.id.edit_markdown:
             edit();
