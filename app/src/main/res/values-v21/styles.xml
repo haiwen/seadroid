@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2012 Jake Wharton
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <style name="Theme.SeafileTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/fancy_dark_gray</item>
+        <item name="colorPrimaryDark">@color/fancy_deep_black</item>
+        <item name="colorAccent">@color/fancy_light_black</item>
+        <item name="android:windowBackground">@color/fancy_light_white</item>
+        <item name="android:listViewStyle">@style/SeafileListStyle</item>
+        <item name="android:radioButtonStyle">@style/RadioButton</item>
+        <item name="android:actionBarStyle">@style/LightTheme.ActionBar</item>
+        <item name="actionBarStyle">@style/LightTheme.ActionBar</item>
+        <item name="android:actionModeStyle">@style/LightTheme.ActionMode</item>
+        <item name="actionModeStyle">@style/LightTheme.ActionMode</item>
+        <item name="android:homeAsUpIndicator">@drawable/home_up_btn</item>
+        <item name="homeAsUpIndicator">@drawable/home_up_btn</item>
+        <item name="android:textColorHighlight">#99ea8201</item>
+        <item name="android:textSelectHandleLeft">@drawable/fancy_orange_text_select_handle_left</item>
+        <item name="android:textSelectHandleRight">@drawable/fancy_orange_text_select_handle_right</item>
+        <item name="android:textSelectHandle">@drawable/fancy_orange_text_select_handle_middle</item>
+    </style>
+
+    <style name="LightTheme.ActionMode" parent="Widget.AppCompat.ActionMode">
+        <item name="android:background">@color/fancy_white</item>
+        <item name="background">@color/fancy_white</item>
+    </style>
+
+    <style name="LightTheme.ActionBar" parent="Widget.AppCompat.Light.ActionBar">
+        <item name="android:background">@drawable/actionbar_background</item>
+        <item name="background">@drawable/actionbar_background</item>
+        <item name="android:height">@dimen/abs_actionbar_height</item>
+        <item name="height">@dimen/abs_actionbar_height</item>
+        <item name="android:titleTextStyle">@style/LightTheme.ActionBar.TitleTextStyle</item>
+        <item name="titleTextStyle">@style/LightTheme.ActionBar.TitleTextStyle</item>
+        <item name="android:logo">@drawable/actionbar_space_between_icon_and_title</item>
+        <item name="logo">@drawable/actionbar_space_between_icon_and_title</item>
+    </style>
+
+    <style name="LightTheme.ActionBar.TitleTextStyle" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/fancy_black</item>
+        <item name="android:textSize">@dimen/tv_subtitle_txt_size</item>
+    </style>
+
+    <style name="SeafileListStyle" parent="@android:style/Widget.ListView">
+        <item name="android:background">@color/fancy_light_white</item>
+        <item name="android:divider">@drawable/lv_divider_inset</item>
+        <item name="android:dividerHeight">1dp</item>
+        <item name="android:listSelector">@drawable/list_item_selector</item>
+        <item name="android:colorPressedHighlight">@color/black</item>
+        <!-- <item name="android:colorLongPressedHighlight">@color/black</item> -->
+    </style>
+    <style name="CustomCheckboxTheme" parent="@android:style/Widget.CompoundButton.CheckBox">
+        <item name="android:button">@drawable/checkbox_btn_holo_light</item>
+    </style>
+
+    <style name="loading_small" parent="@android:style/Widget.ProgressBar">
+        <item name="android:indeterminateDrawable">@anim/pull_to_refresh_header_loading</item>
+    </style>
+
+    <style name="RadioButton" parent="@android:style/Widget.CompoundButton.RadioButton">
+        <item name="android:button">@drawable/btn_radio_holo_light</item>
+    </style>
+
+    <!-- Notifications -->
+    <style name="NotificationTitle"
+        parent="@android:style/TextAppearance">
+        <item name="android:textColor">#ff000000</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="NotificationContent"
+        parent="@android:style/TextAppearance">
+        <item name="android:textColor">#ff000000</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+</resources>

@@ -18,9 +18,8 @@ public class SettingsActivity extends BaseActivity {
     public void onCreate(Bundle savedInstanceState) {
         Log.d(DEBUG_TAG, "SettingsActivity.onCreate is called");
         super.onCreate(savedInstanceState);
-        // This has to be called before setContentView and you must use the
-        // class in android.support.v4.view and NOT android.view
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        // This has to be called before setContentView
+        supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
         setContentView(R.layout.settings_activity_layout);
         FragmentManager fragmentManager = getSupportFragmentManager();

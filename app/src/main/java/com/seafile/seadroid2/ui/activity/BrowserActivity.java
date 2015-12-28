@@ -165,7 +165,7 @@ public class BrowserActivity extends BaseActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
         if (!isTaskRoot()) {
             final Intent intent = getIntent();

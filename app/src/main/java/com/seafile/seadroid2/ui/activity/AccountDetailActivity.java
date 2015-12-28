@@ -61,9 +61,8 @@ public class AccountDetailActivity extends BaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //This has to be called before setContentView and you must use the
-        //class in com.actionbarsherlock.view and NOT android.view
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        //This has to be called before setContentView
+        supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.account_detail);
 
         statusView = (TextView) findViewById(R.id.status_view);
