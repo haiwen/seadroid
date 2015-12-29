@@ -213,6 +213,9 @@ public class BrowserActivity extends BaseActivity
             }
         }
         setContentView(R.layout.tabs_main);
+        setSupportActionBar(getActionBarToolbar());
+        // enable ActionBar app icon to behave as action back
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Get the message from the intent
         Intent intent = getIntent();
@@ -244,7 +247,6 @@ public class BrowserActivity extends BaseActivity
 
         getSupportFragmentManager().addOnBackStackChangedListener(this);
 
-        //getActionBarToolbar().setEnabled(true);
         unsetRefreshing();
         disableUpButton();
 
@@ -348,9 +350,6 @@ public class BrowserActivity extends BaseActivity
             navContext.setDir(path, dirID);
         }
 
-        // enable ActionBar app icon to behave as action back
-        //getActionBarToolbar().setEnabled(true);
-
         Intent txIntent = new Intent(this, TransferService.class);
         startService(txIntent);
         Log.d(DEBUG_TAG, "start TransferService");
@@ -387,13 +386,20 @@ public class BrowserActivity extends BaseActivity
     }
 
     @Override
-    public boolean onMenuItemClick(MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 if (navContext.inRepo() && currentPosition == INDEX_LIBRARY_TAB) {
                     onBackPressed();
                 }
                 return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()) {
             case R.id.sort:
                 showSortFilesDialog();
                 return true;
@@ -817,18 +823,9 @@ public class BrowserActivity extends BaseActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-
-        // Add the search button to the toolbar.
         Toolbar toolbar = getActionBarToolbar();
         toolbar.inflateMenu(R.menu.browser_menu);
         toolbar.setOnMenuItemClickListener(this);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                NavUtils.navigateUpFromSameTask(BrowserActivity.this);
-            }
-        });
-
         return true;
     }
 
@@ -1082,11 +1079,13 @@ public class BrowserActivity extends BaseActivity
     }
 
     public void enableUpButton() {
-        //getActionBarToolbar().setEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        setSupportActionBar(getActionBarToolbar());
         //getActionBarToolbar().setLogo(getResources().getDrawable(R.color.transparent));
     }
 
     public void disableUpButton() {
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         //getActionBarToolbar().setEnabled(false);
         //getActionBarToolbar().setLogo(R.drawable.icon);
     }
