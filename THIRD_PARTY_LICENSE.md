@@ -7,24 +7,6 @@ that govern this software, for the purposes they are being used.
 
 The third party software included and used by this project is:
 
- * ActionBarSherlock, master branch.  
-   Copyright (c) 2012 Jake Wharton.  
-   Licensed under Apache License, Version 2.0.  
-   The official repository is referenced as a external library in the  
-   Seadroid repository.  
-   A binary JAR file must be generated from this referenced project  
-   and included in the Seadroid APK.  
-   See http://http://actionbarsherlock.com/
-
- * Android-SlideExpandableListView, master branch
-   Copyright (c) TjerkWolterink
-   Licensed under Apache License, Version 2.0.
-   The official repository is referenced as a external library in the
-   Seadroid repository.
-   A binary JAR file must be generated from this referenced project
-   and included in the Seadroid APK.
-   See https://github.com/tjerkw/Android-SlideExpandableListView
-
  * PagerSlidingTabStrip, master branch
    Copyright 2013 Andreas Stuetz
    Licensed under the Apache License, Version 2.0.
@@ -57,10 +39,6 @@ The third party software included and used by this project is:
    Licensed under the GNU Affero General Public License, Version 3.0.  
    Placed at package com.seafile.seadroid2.provider.  
    See https://github.com/forouher/seadroid/tree/feature/documentprovider
-
- * App passcode library for Android, master branch  
-   Dual licensed under MIT, and GPL.  
-   See https://github.com/wordpress-mobile/Android-PasscodeLock
 
  * Jams Music Player, master branch  
    Copyright (C) 2014 Saravan Pantha.  
