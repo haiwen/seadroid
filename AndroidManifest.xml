@@ -136,6 +136,10 @@
                   android:theme="@style/Theme.SeafileTheme"
                   android:label="@string/app_name">
         </activity>
+        <activity android:name=".cache.SelectCacheDirectoryActivity"
+                  android:theme="@style/Theme.SeafileTheme"
+                  android:label="@string/app_name">
+        </activity>
 
         <provider
             android:name="com.seafile.seadroid2.provider.SeafileProvider"

@@ -1,7 +1,5 @@
 package com.seafile.seadroid2.ui.fragment;
 
-import java.io.File;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.*;
@@ -15,22 +13,20 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Html;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
-
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.*;
-import com.seafile.seadroid2.ConcurrentAsyncTask;
-import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.AccountManager;
-import com.seafile.seadroid2.cameraupload.CameraUploadService;
+import com.seafile.seadroid2.cache.SelectCacheDirectoryActivity;
 import com.seafile.seadroid2.cameraupload.CameraUploadConfigActivity;
+import com.seafile.seadroid2.cameraupload.CameraUploadService;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.transfer.TransferManager;
@@ -43,17 +39,20 @@ import com.seafile.seadroid2.ui.activity.SettingsActivity;
 import com.seafile.seadroid2.ui.dialog.ClearCacheTaskDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog.TaskDialogListener;
 import com.seafile.seadroid2.util.Utils;
-import org.json.JSONException;
 
-import java.io.IOException;
+import java.io.File;
 import java.util.Map;
 
 public class SettingsFragment extends CustomPreferenceFragment {
     private static final String DEBUG_TAG = "SettingsFragment";
 
+    // Camera upload
     public static final String CAMERA_UPLOAD_BOTH_PAGES = "com.seafile.seadroid2.camera.upload";
     public static final String CAMERA_UPLOAD_REMOTE_LIBRARY = "com.seafile.seadroid2.camera.upload.library";
     public static final String CAMERA_UPLOAD_LOCAL_DIRECTORIES = "com.seafile.seadroid2.camera.upload.directories";
+
+    // custom cache download directory
+    public static final String CACHE_DOWNLOAD_LOCAL_DIRECTORIE = "com.seafile.seadroid2.cache.download.directory";
 
     // Account Info
     private static Map<String, AccountInfo> accountInfoMap = Maps.newHashMap();
@@ -67,7 +66,13 @@ public class SettingsFragment extends CustomPreferenceFragment {
     private Preference cLocalDirectoriesPref;
     private Intent cUploadIntent;
     private String repoName;
-    private String customDirs;
+    private String customDirs; //upload photos
+
+    // custom download dir
+    private PreferenceCategory cacheCategory;
+    private CheckBoxPreference customCachePathSwitch;
+    private String strCustomDownloadDir;
+    private Preference customDownloadDirPref;
 
     private SettingsActivity mActivity;
     private String appVersion;
@@ -335,6 +340,34 @@ public class SettingsFragment extends CustomPreferenceFragment {
             }
         });
 
+        // Cache category
+        cacheCategory = (PreferenceCategory) findPreference(SettingsManager.SETTINGS_CACHE_CATEGORY_KEY);
+        customCachePathSwitch = (CheckBoxPreference) findPreference(SettingsManager.SETTINGS_CUSTOM_CACHE_DIRECTORY_KEY);
+        customCachePathSwitch.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                if (!settingsMgr.checkCacheDefaultDirCustomized()) {
+                    cacheCategory.removePreference(customDownloadDirPref);
+                } else {
+                    cacheCategory.addPreference(customDownloadDirPref);
+                    selectDefaultCacheDir();
+                }
+                return true;
+            }
+        });
+        findPreference(SettingsManager.SETTINGS_CUSTOM_CACHE_DIRECTORY_KEY).setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                if (!settingsMgr.checkCacheDefaultDirCustomized()) {
+                    cacheCategory.removePreference(customDownloadDirPref);
+                } else {
+                    cacheCategory.addPreference(customDownloadDirPref);
+                    selectDefaultCacheDir();
+                }
+                return true;
+            }
+        });
+
         // Cache size
         calculateCacheSize();
 
@@ -347,11 +380,52 @@ public class SettingsFragment extends CustomPreferenceFragment {
             }
         });
 
+        customDownloadDirPref = findPreference(SettingsManager.SETTINGS_CUSTOM_CACHE_DIRECTORY_PATH);
+        customDownloadDirPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Intent intent = new Intent(mActivity, SelectCacheDirectoryActivity.class);
+                startActivityForResult(intent, SettingsManager.CHOOSE_CACHE_DOWNLOAD_DIRECTORY_REQUEST);
+                return true;
+            }
+        });
+
+        // custom download dir
+        strCustomDownloadDir = settingsMgr.getCustomCacheDir();
+        if (!TextUtils.isEmpty(strCustomDownloadDir)) {
+            cacheCategory.addPreference(customDownloadDirPref);
+        } else {
+            cacheCategory.removePreference(customDownloadDirPref);
+        }
+
+
         LocalBroadcastManager
         .getInstance(getActivity().getApplicationContext())
         .registerReceiver(transferReceiver,
                 new IntentFilter(TransferManager.BROADCAST_ACTION));
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (!settingsMgr.checkCacheDefaultDirCustomized())
+            cacheCategory.removePreference(customDownloadDirPref);
+        else {
+            cacheCategory.addPreference(customDownloadDirPref);
+            if (!TextUtils.isEmpty(settingsMgr.getCustomCacheDir()))
+                customDownloadDirPref.setSummary(settingsMgr.getCustomCacheDir());
+        }
+    }
+
+    private void selectDefaultCacheDir() {
+        if (strCustomDownloadDir != null) {
+            customDownloadDirPref.setSummary(strCustomDownloadDir);
+            return;
+        }
+
+        Intent intent = new Intent(mActivity, SelectCacheDirectoryActivity.class);
+        startActivityForResult(intent, SettingsManager.CHOOSE_CACHE_DOWNLOAD_DIRECTORY_REQUEST);
     }
 
     private void initCameraUploadData() {
@@ -450,7 +524,28 @@ public class SettingsFragment extends CustomPreferenceFragment {
                 }
                 refreshCameraUpladView();
                 break;
+            case SettingsManager.CHOOSE_CACHE_DOWNLOAD_DIRECTORY_REQUEST:
+                if (resultCode == Activity.RESULT_OK) {
+                    if (data == null) {
+                        return;
+                    }
 
+                    strCustomDownloadDir = data.getStringExtra(SettingsFragment.CACHE_DOWNLOAD_LOCAL_DIRECTORIE);
+                    if (strCustomDownloadDir != null) {
+                        customDownloadDirPref.setSummary(strCustomDownloadDir);
+                        cacheCategory.addPreference(customDownloadDirPref);
+                        customCachePathSwitch.setChecked(true);
+                        settingsMgr.setCacheDefaultDirCustomized(true);
+                        settingsMgr.saveCustomCacheDir(strCustomDownloadDir);
+                    } else {
+                        cacheCategory.removePreference(customDownloadDirPref);
+                        customCachePathSwitch.setChecked(false);
+                        settingsMgr.setCacheDefaultDirCustomized(false);
+                    }
+                } else if (resultCode == Activity.RESULT_CANCELED) {
+
+                }
+                break;
             default:
                 break;
         }
