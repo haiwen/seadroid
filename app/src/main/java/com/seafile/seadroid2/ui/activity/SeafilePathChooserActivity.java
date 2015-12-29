@@ -1,8 +1,5 @@
 package com.seafile.seadroid2.ui.activity;
 
-import java.net.HttpURLConnection;
-import java.util.List;
-
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -10,7 +7,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
@@ -19,9 +16,6 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import android.view.MenuItem;
-import com.seafile.seadroid2.util.ConcurrentAsyncTask;
-import com.seafile.seadroid2.ui.NavContext;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
@@ -31,12 +25,20 @@ import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.ui.NavContext;
 import com.seafile.seadroid2.ui.ToastUtils;
-import com.seafile.seadroid2.ui.adapter.*;
+import com.seafile.seadroid2.ui.adapter.AccountAdapter;
+import com.seafile.seadroid2.ui.adapter.DirentsAdapter;
+import com.seafile.seadroid2.ui.adapter.SeafAccountAdapter;
+import com.seafile.seadroid2.ui.adapter.SeafReposAdapter;
 import com.seafile.seadroid2.ui.dialog.PasswordDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.ui.fragment.SettingsFragment;
+import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
+
+import java.net.HttpURLConnection;
+import java.util.List;
 
 /**
  * Path chooser - Let the user choose a target path (account, repo, dir)
@@ -152,6 +154,12 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
         } else {
             chooseRepo();
         }
+
+        Toolbar toolbar = getActionBarToolbar();
+        toolbar.setOnMenuItemClickListener(this);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(R.string.app_name);
     }
 
     @Override
@@ -261,14 +269,20 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
     }
 
     @Override
-    public boolean onMenuItemClick(MenuItem item) {
-        switch (item.getItemId()) {
-        case android.R.id.home:
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
             stepBack();
             return true;
-        case R.id.refresh:
-            refreshList(true);
-            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.refresh:
+                refreshList(true);
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }

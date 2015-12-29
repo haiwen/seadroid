@@ -106,6 +106,9 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
         }
         Toolbar toolbar = getActionBarToolbar();
         toolbar.setOnMenuItemClickListener(this);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(R.string.login);
     }
 
     @Override
@@ -126,6 +129,11 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
          switch (item.getItemId()) {
             case android.R.id.home:
 

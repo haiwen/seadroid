@@ -27,12 +27,19 @@ public class SettingsActivity extends BaseActivity implements Toolbar.OnMenuItem
         fragmentTransaction.commit();
 
         Toolbar toolbar = getActionBarToolbar();
+        setSupportActionBar(toolbar);
         toolbar.setOnMenuItemClickListener(this);
-
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(R.string.settings);
     }
-    
+
     @Override
     public boolean onMenuItemClick(MenuItem item) {
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
          switch (item.getItemId()) {
             case android.R.id.home:
                 this.finish();

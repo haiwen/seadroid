@@ -81,8 +81,6 @@ public class GalleryActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.gallery_activity_layout);
-        if (getSupportActionBar() != null)
-            getSupportActionBar().hide();
 
         mDeleteBtn = (ImageView) findViewById(R.id.gallery_delete_photo);
         mStarBtn = (ImageView) findViewById(R.id.gallery_star_photo);

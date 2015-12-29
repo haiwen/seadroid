@@ -7,7 +7,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
-import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ActionMode;
@@ -15,6 +14,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+
 import com.astuetz.PagerSlidingTabStrip;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.notification.BaseNotificationProvider;
@@ -105,7 +105,9 @@ public class TransferActivity extends BaseActivity implements Toolbar.OnMenuItem
         });
 
         Toolbar toolbar = getActionBarToolbar();
-        toolbar.setOnMenuItemClickListener(this);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(R.string.transfer_tasks);
 
         /** this is hacky to explicitly call onNewIntent()
          * because it was never called when start the TransferActivity
@@ -137,9 +139,8 @@ public class TransferActivity extends BaseActivity implements Toolbar.OnMenuItem
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.transfer_list_menu, menu);
-        overFlowMenu = menu;
+        getActionBarToolbar().inflateMenu(R.menu.transfer_list_menu);
+        getActionBarToolbar().setOnMenuItemClickListener(this);
         return true;
     }
 
@@ -150,11 +151,17 @@ public class TransferActivity extends BaseActivity implements Toolbar.OnMenuItem
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
             case R.id.cancel_transfer_tasks:
                 if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK) {
                     getDownloadTaskFragment().cancelAllDownloadTasks();

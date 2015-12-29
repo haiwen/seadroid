@@ -7,7 +7,9 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.webkit.CookieManager;
@@ -31,7 +33,7 @@ import java.net.URLEncoder;
  * use cookie to get authorized data
  * <p/>
  */
-public class ShibbolethAuthorizeActivity extends BaseActivity {
+public class ShibbolethAuthorizeActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
     public static final String DEBUG_TAG = "ShibbolethAuthorizeActivity";
 
     public static final String SEAHUB_SHIB_COOKIE_NAME = "seahub_auth";
@@ -53,8 +55,11 @@ public class ShibbolethAuthorizeActivity extends BaseActivity {
         CustomWebviewClient client = new CustomWebviewClient();
         mWebview.setWebViewClient(client);
 
-        getActionBar().setDisplayHomeAsUpEnabled(true);
-        getActionBar().setTitle(R.string.shib_actionbar_title);
+        Toolbar toolbar = getActionBarToolbar();
+        setSupportActionBar(toolbar);
+        toolbar.setOnMenuItemClickListener(this);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(R.string.shib_actionbar_title);
 
         String url = getIntent().getStringExtra(ShibbolethActivity.SHIBBOLETH_SERVER_URL);
         CookieManager.getInstance().removeAllCookie();
@@ -127,6 +132,20 @@ public class ShibbolethAuthorizeActivity extends BaseActivity {
             mloadingAnimation.setVisibility(View.VISIBLE);
             mWebview.setVisibility(View.INVISIBLE);
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        return true;
     }
 
     class CustomWebviewClient extends WebViewClient {

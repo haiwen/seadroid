@@ -26,8 +26,7 @@
             android:key="gesture_lock_switch_key"
             android:summaryOff="@string/gesture_lock_off"
             android:summaryOn="@string/gesture_lock_on"
-            android:title="@string/gesture_lock"
-            android:layout="@layout/seafile_checkbox_layout" >
+            android:title="@string/gesture_lock" >
         </CheckBoxPreference>
     </PreferenceCategory>
     <PreferenceCategory
@@ -38,8 +37,7 @@
             android:key="camera_upload_switch_key"
             android:summaryOff="@string/settings_camera_upload_service_stopped"
             android:summaryOn="@string/settings_camera_upload_service_started"
-            android:title="@string/settings_camera_upload_turn_on"
-            android:layout="@layout/seafile_checkbox_layout" >
+            android:title="@string/settings_camera_upload_turn_on" >
         </CheckBoxPreference>
 
         <Preference

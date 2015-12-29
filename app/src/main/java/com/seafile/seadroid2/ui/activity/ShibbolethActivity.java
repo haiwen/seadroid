@@ -53,8 +53,10 @@ public class ShibbolethActivity extends BaseActivity implements Toolbar.OnMenuIt
         });
 
         Toolbar toolbar = getActionBarToolbar();
-        toolbar.setTitle(R.string.shib_actionbar_title);
         toolbar.setOnMenuItemClickListener(this);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(R.string.shib_actionbar_title);
     }
 
     public void onHttpsCheckboxClicked(View view) {
@@ -120,6 +122,11 @@ public class ShibbolethActivity extends BaseActivity implements Toolbar.OnMenuIt
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 finish();

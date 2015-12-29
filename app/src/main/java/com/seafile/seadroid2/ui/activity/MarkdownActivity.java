@@ -39,8 +39,12 @@ public class MarkdownActivity extends BaseActivity implements Toolbar.OnMenuItem
         Intent intent = getIntent();
         path = intent.getStringExtra("path");
 
-        if (path == null)
-            return;
+        if (path == null) return;
+
+        Toolbar toolbar = getActionBarToolbar();
+        toolbar.setOnMenuItemClickListener(this);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
     
     @Override
@@ -56,10 +60,17 @@ public class MarkdownActivity extends BaseActivity implements Toolbar.OnMenuItem
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        Toolbar toolbar = getActionBarToolbar();
-        toolbar.inflateMenu(R.menu.markdown_view_menu);
-        toolbar.setOnMenuItemClickListener(this);
+        getActionBarToolbar().inflateMenu(R.menu.markdown_view_menu);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

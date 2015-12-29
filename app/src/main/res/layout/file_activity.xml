@@ -1,72 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="vertical"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center" >
+    android:orientation="vertical">
+
     <include layout="@layout/toolbar_actionbar" /> <!-- placeholder, empty except on L -->
-  <ImageView
-      android:id="@+id/file_icon"
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-      android:layout_gravity="center_horizontal" />
-
-  <TextView
-      android:id="@+id/file_name"
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-      android:gravity="center_horizontal"
-      android:singleLine="true"
-      android:lines="1"
-      android:textSize="16sp"
-      android:color="@color/black" />
-
-  
     <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:padding="20dp" >
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/progress_text"
+        <ImageView
+            android:id="@+id/file_icon"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal" />
+
+        <TextView
+            android:id="@+id/file_name"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:color="@color/black"
             android:gravity="center_horizontal"
-            android:paddingBottom="4dp"
             android:lines="1"
             android:singleLine="true"
-            android:textSize="12dp" />
+            android:textSize="16sp" />
 
-        <ProgressBar
-            android:id="@+id/progress_bar"
+
+        <LinearLayout
             android:layout_width="fill_parent"
-            android:layout_height="6dp"
-            android:indeterminate="true"
-            style="@android:style/Widget.ProgressBar.Horizontal" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
 
+            <TextView
+                android:id="@+id/progress_text"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:lines="1"
+                android:paddingBottom="4dp"
+                android:singleLine="true"
+                android:textSize="12dp" />
+
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                android:layout_width="fill_parent"
+                style="@android:style/Widget.ProgressBar.Horizontal"
+                android:layout_height="6dp"
+                android:indeterminate="true" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingBottom="7dp"
+            android:paddingTop="7dp">
+
+            <Button
+                android:id="@+id/op_cancel"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/long_btn_height"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="@dimen/long_btn_margin_left"
+                android:layout_marginRight="@dimen/long_btn_margin_right"
+                android:text="@string/cancel"
+                android:textColor="@color/light_black"
+                android:textSize="@dimen/long_btn_txt_size"
+                android:theme="@style/NegativeButton" />
+        </LinearLayout>
     </LinearLayout>
-
-  <LinearLayout
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:gravity="center"
-      android:orientation="horizontal"
-      android:paddingBottom="7dp"
-      android:paddingTop="7dp" >
-
-      <Button
-          android:id="@+id/op_cancel"
-          android:layout_width="match_parent"
-          android:layout_height="@dimen/long_btn_height"
-          android:layout_marginLeft="@dimen/long_btn_margin_left"
-          android:layout_marginRight="@dimen/long_btn_margin_right"
-          android:textColor="@color/light_black"
-          android:theme="@style/NegativeButton"
-          android:layout_gravity="center_horizontal"
-          android:text="@string/cancel"
-          android:textSize="@dimen/long_btn_txt_size" />
-  </LinearLayout>
-
 </LinearLayout>

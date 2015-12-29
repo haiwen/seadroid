@@ -108,6 +108,9 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
 
         Toolbar toolbar = getActionBarToolbar();
         toolbar.setOnMenuItemClickListener(this);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(R.string.accounts);
     }
 
     private void authorizeAccount(Account account) {
@@ -150,6 +153,11 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
          switch (item.getItemId()) {
             case android.R.id.home:
                 // if the current account sign out and no account was to logged in,
