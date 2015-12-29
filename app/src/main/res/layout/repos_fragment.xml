@@ -26,6 +26,10 @@
         android:id="@+id/listContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+        <com.flipboard.bottomsheet.BottomSheetLayout
+            android:id="@+id/bottomsheet"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
         <android.support.v4.widget.SwipeRefreshLayout
             xmlns:android="http://schemas.android.com/apk/res/android"
@@ -43,6 +47,7 @@
                 android:headerDividersEnabled="false"
                 android:smoothScrollbar="true" />
         </android.support.v4.widget.SwipeRefreshLayout>
+        </com.flipboard.bottomsheet.BottomSheetLayout>
 
         <ImageView
             android:id="@+id/empty"

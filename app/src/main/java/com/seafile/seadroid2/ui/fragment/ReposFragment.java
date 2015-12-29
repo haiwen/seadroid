@@ -17,6 +17,8 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.*;
+
+import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.seafile.seadroid2.*;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
@@ -67,6 +69,7 @@ public class ReposFragment extends ListFragment
     public static final int FILE_ACTION_MOVE = 2;
     public static final int FILE_ACTION_STAR = 3;
 
+    private BottomSheetLayout bottomSheet;
     private SwipeRefreshLayout refreshLayout;
     private ListView mListView;
     private ImageView mEmptyView;
@@ -157,6 +160,7 @@ public class ReposFragment extends ListFragment
             Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.repos_fragment, container, false);
         refreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swiperefresh);
+        bottomSheet = (BottomSheetLayout) root.findViewById(R.id.bottomsheet);
         mListView = (ListView) root.findViewById(android.R.id.list);
         mTaskActionBar = (LinearLayout) root.findViewById(R.id.multi_op_bottom_action_bar);
         deleteView = (RelativeLayout) root.findViewById(R.id.multi_op_delete_rl);
@@ -247,12 +251,7 @@ public class ReposFragment extends ListFragment
         Log.d(DEBUG_TAG, "ReposFragment onActivityCreated");
         adapter = new SeafItemAdapter(mActivity);
 
-        mListView.setAdapter(
-                new SlideExpandableListAdapter(
-                        adapter,
-                        R.id.expandable_toggle_button,
-                        R.id.expandable)
-        );
+        mListView.setAdapter(adapter);
 
         // A more specific expandable listview in which the expandable area consist of some buttons
         // which are context actions for the item itself.
