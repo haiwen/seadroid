@@ -96,8 +96,8 @@
             android:text="@string/cancel"
             android:textColor="@color/light_black"
             android:gravity="center"
-            android:background="@drawable/cancel_btn_default_holo_light"
-            />
+            android:theme="@style/NegativeButton"
+           />
 
 		<View
 		    android:id="@+id/transparent_space"
@@ -113,7 +113,6 @@
             android:text="@string/ok"
             android:textColor="@color/white"
             android:gravity="center"
-          	android:background="@drawable/confirm_btn_default_holo_light"            
             />
         
     </LinearLayout>

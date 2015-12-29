@@ -60,7 +60,6 @@
                 android:layout_marginLeft="@dimen/long_btn_margin_left"
                 android:layout_marginRight="@dimen/long_btn_margin_right"
                 android:onClick="login"
-                android:background="@drawable/confirm_btn_default_holo_light"
                 android:text="@string/lockpattern_continue_button_text"
                 android:textColor="@color/white"
                 android:textSize="@dimen/long_btn_txt_size"/>

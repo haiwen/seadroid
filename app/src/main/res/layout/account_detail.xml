@@ -12,7 +12,6 @@
             android:layout_marginStart="@dimen/cb_padding_left"
             android:layout_marginTop="@dimen/cb_padding_top"
             android:onClick="onHttpsCheckboxClicked"
-            android:button="@drawable/checkbox_btn_holo_light"
             android:textSize="@dimen/cb_btn_txt_size"
             android:text="@string/accounts_https_hint"/>
 
@@ -63,7 +62,6 @@
             android:layout_marginLeft="@dimen/long_btn_margin_left"
             android:layout_marginRight="@dimen/long_btn_margin_right"
             android:onClick="login"
-            android:background="@drawable/confirm_btn_default_holo_light"
             android:text="@string/login"
             android:textColor="@color/white"
             android:textSize="@dimen/long_btn_txt_size"/>

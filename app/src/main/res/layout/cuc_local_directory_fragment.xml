@@ -66,7 +66,6 @@
             android:textColor="@color/white"
             android:layout_width="match_parent"
             android:layout_height="@dimen/long_btn_height"
-            android:background="@drawable/confirm_btn_default_holo_light"
             android:layout_alignParentBottom="true"/>
 
 </RelativeLayout>

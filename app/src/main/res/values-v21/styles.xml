@@ -10,6 +10,13 @@
         <item name="android:radioButtonStyle">@style/RadioButton</item>
         <item name="android:actionModeStyle">@style/LightTheme.ActionMode</item>
         <item name="actionModeStyle">@style/LightTheme.ActionMode</item>
+        <item name="android:colorButtonNormal">@color/fancy_orange</item>
+        <item name="colorButtonNormal">@color/fancy_orange</item>
+    </style>
+
+    <style name="NegativeButton" parent="android:style/Widget.Material.Button">
+        <item name="android:colorButtonNormal">@color/fancy_dark_gray</item>
+        <item name="colorButtonNormal">@color/fancy_dark_gray</item>
     </style>
 
     <style name="ActionBarPopupThemeOverlay" parent="ThemeOverlay.AppCompat.Light" />

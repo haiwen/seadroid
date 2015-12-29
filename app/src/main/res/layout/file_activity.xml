@@ -63,7 +63,7 @@
           android:layout_marginLeft="@dimen/long_btn_margin_left"
           android:layout_marginRight="@dimen/long_btn_margin_right"
           android:textColor="@color/light_black"
-          android:background="@drawable/cancel_btn_default_holo_light"
+          android:theme="@style/NegativeButton"
           android:layout_gravity="center_horizontal"
           android:text="@string/cancel"
           android:textSize="@dimen/long_btn_txt_size" />
