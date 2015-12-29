@@ -12,12 +12,10 @@ import android.util.Log;
 import android.view.ActionMode;
 import android.view.KeyEvent;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import com.astuetz.PagerSlidingTabStrip;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.notification.BaseNotificationProvider;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
