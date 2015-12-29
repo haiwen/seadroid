@@ -1,4 +1,3 @@
 include ':app'
-include ':libraries:SlideExpandableListView'
 include ':libraries:MarkdownView'
 include ':libraries:PhotoView'

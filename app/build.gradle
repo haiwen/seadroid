@@ -61,7 +61,6 @@ android {
         compile 'com.astuetz:pagerslidingtabstrip:1.0.1'
         compile 'com.flipboard:bottomsheet-core:1.5.0'
         compile 'com.flipboard:bottomsheet-commons:1.5.0' // optional
-        compile project(':libraries:SlideExpandableListView')
         compile project(':libraries:MarkdownView')
         compile project(':libraries:PhotoView')
     }
