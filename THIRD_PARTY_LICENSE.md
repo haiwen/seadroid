@@ -7,15 +7,6 @@ that govern this software, for the purposes they are being used.
 
 The third party software included and used by this project is:
 
- * PagerSlidingTabStrip, master branch
-   Copyright 2013 Andreas Stuetz
-   Licensed under the Apache License, Version 2.0.
-   The official repository is referenced as a external library in the
-   Seadroid repository.
-   A binary JAR file must be generated from this referenced project
-   and included in the Seadroid APK.
-   See https://github.com/astuetz/PagerSlidingTabStrip
-
  * Android-ViewPagerIndicator, master branch
    Copyright (c) 2012 Jake Wharton  
    Copyright (c) 2011 Patrik Åkerfeldt  

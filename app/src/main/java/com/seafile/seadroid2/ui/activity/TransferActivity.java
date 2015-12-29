@@ -14,6 +14,8 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.astuetz.PagerSlidingTabStrip;
 import com.seafile.seadroid2.R;
@@ -29,7 +31,7 @@ public class TransferActivity extends BaseActivity implements Toolbar.OnMenuItem
     private TransferTaskAdapter.TaskType whichTab = TransferTaskAdapter.TaskType.DOWNLOAD_TASK;
     private TransferTabsAdapter tabsAdapter;
     private ViewPager pager;
-    private PagerSlidingTabStrip tabStrip;
+    private ImageView ivIndicator;
 
     private Menu overFlowMenu = null;
 
@@ -58,15 +60,27 @@ public class TransferActivity extends BaseActivity implements Toolbar.OnMenuItem
 
         tabsAdapter = new TransferTabsAdapter(getSupportFragmentManager());
 
+        ivIndicator = (ImageView) findViewById(R.id.iv_tab_indicator);
+        calculateIndicatorWidth(2, ivIndicator);
         pager = (ViewPager) findViewById(R.id.transfer_list_pager);
         pager.setAdapter(tabsAdapter);
-
-        tabStrip = (PagerSlidingTabStrip) findViewById(R.id.transfer_tabs_strip);
-        tabStrip.setViewPager(pager);
-        tabStrip.setOnPageChangeListener(new OnPageChangeListener() {
+        pager.setOnPageChangeListener(new OnPageChangeListener() {
             @Override
-            public void onPageSelected(final int position) {
-                Log.d(DEBUG_TAG, "current tab index " + position);
+            public void onPageScrolled(int position, float offset, int positionOffsetPixels) {
+                LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) ivIndicator.getLayoutParams();
+                if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK && position == 0) { // 0->1
+                    lp.leftMargin = (int) (offset * (screenWidth * 1.0 / 2) + 0 * (screenWidth / 2));
+                } else if (whichTab == TransferTaskAdapter.TaskType.UPLOAD_TASK && position == 0) {// 1->0
+                    lp.leftMargin = (int) (-(1 - offset) * (screenWidth * 1.0 / 2) + 1 * (screenWidth / 2));
+                } else if (whichTab == TransferTaskAdapter.TaskType.UPLOAD_TASK && position == 1) {// 1->2
+                    lp.leftMargin = (int) (offset * (screenWidth * 1.0 / 2) + 1 * (screenWidth / 2));
+                }
+                ivIndicator.setLayoutParams(lp);
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                // Log.d(DEBUG_TAG, "current tab index " + position);
                 whichTab = (position == 0
                         ? TransferTaskAdapter.TaskType.DOWNLOAD_TASK
                         : TransferTaskAdapter.TaskType.UPLOAD_TASK);
@@ -94,13 +108,8 @@ public class TransferActivity extends BaseActivity implements Toolbar.OnMenuItem
             }
 
             @Override
-            public void onPageScrollStateChanged(int arg0) {
-                // TODO Auto-generated method stub
-            }
+            public void onPageScrollStateChanged(int state) {
 
-            @Override
-            public void onPageScrolled(int arg0, float arg1, int arg2) {
-                // TODO Auto-generated method stub
             }
         });
 

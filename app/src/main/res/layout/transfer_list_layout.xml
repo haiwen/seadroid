@@ -1,29 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:PagerSlidingTabStrip="http://schemas.android.com/apk/res-auto"
-              android:orientation="vertical"
-              android:layout_width="wrap_content"
-              android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
     <include layout="@layout/toolbar_actionbar" /> <!-- placeholder, empty except on L -->
-    <com.astuetz.PagerSlidingTabStrip
-            android:id="@+id/transfer_tabs_strip"
-            android:layout_height="@dimen/tab_height"
-            android:layout_width="match_parent"
-            android:textSize="@dimen/tab_txt_size"
-            PagerSlidingTabStrip:pstsIndicatorHeight="2dp"
-            PagerSlidingTabStrip:pstsIndicatorColor="@color/fancy_orange"
-            PagerSlidingTabStrip:pstsShouldExpand="true"
-            PagerSlidingTabStrip:pstsDividerColor="@color/transparent"
-            PagerSlidingTabStrip:pstsTabBackground="@drawable/tab_bg_selector"
-            android:background="@color/white"
-            />
-    <android.support.v4.view.ViewPager
-            android:id="@+id/transfer_list_pager"
-            android:layout_width="fill_parent"
-            android:layout_height="0dp"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#f4f4f4"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="@dimen/padding_normal">
+
+        <RelativeLayout
+            android:id="@+id/rl_download_tab"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
             android:layout_weight="1"
-            />
+            android:descendantFocusability="blocksDescendants">
+
+            <TextView
+                android:id="@+id/tv_download_tab_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="@string/transfer_tabs_downloads" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_upload_tab"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/tv_upload_tab_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="@string/transfer_tabs_uploads" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/iv_tab_indicator"
+        android:layout_width="50dp"
+        android:layout_height="2dp"
+        android:background="@color/fancy_orange" />
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/transfer_list_pager"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 
 
 </LinearLayout>

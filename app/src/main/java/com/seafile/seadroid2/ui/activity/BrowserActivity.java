@@ -29,18 +29,17 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.astuetz.PagerSlidingTabStrip;
-import com.flipboard.bottomsheet.commons.MenuSheetView;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
@@ -133,9 +132,8 @@ public class BrowserActivity extends BaseActivity
     };
     private int currentPosition = 0;
     private SeafileTabsAdapter adapter;
+    private ImageView ivIndicator;
     private ViewPager pager;
-    private PagerSlidingTabStrip tabStrip;
-    private LinearLayout mTabsLinearLayout;
 
     private Account account;
     NavContext navContext = new NavContext();
@@ -251,13 +249,49 @@ public class BrowserActivity extends BaseActivity
         unsetRefreshing();
         disableUpButton();
 
-        tabStrip = (PagerSlidingTabStrip) findViewById(R.id.tab_strip);
+        ivIndicator = (ImageView) findViewById(R.id.iv_tab_indicator);
+        tabs = 3;
+        calculateIndicatorWidth(tabs, ivIndicator);
         pager = (ViewPager) findViewById(R.id.pager);
         adapter = new SeafileTabsAdapter(getSupportFragmentManager());
         pager.setAdapter(adapter);
-        tabStrip.setViewPager(pager);
+        pager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float offset, int positionOffsetPixels) {
+                LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) ivIndicator.getLayoutParams();
+                if (currentPosition == 0 && position == 0) { // 0->1
+                    lp.leftMargin = (int) (offset * (screenWidth * 1.0 / tabs) + currentPosition * (screenWidth / tabs));
+                } else if (currentPosition == 1 && position == 0) {// 1->0
+                    lp.leftMargin = (int) (-(1 - offset) * (screenWidth * 1.0 / tabs) + currentPosition * (screenWidth / tabs));
+                } else if (currentPosition == 1 && position == 1) {// 1->2
+                    lp.leftMargin = (int) (offset * (screenWidth * 1.0 / tabs) + currentPosition * (screenWidth / tabs));
+                } else if (currentPosition == 2 && position == 1) {// 2->1
+                    lp.leftMargin = (int) (-(1 - offset) * (screenWidth * 1.0 / tabs) + currentPosition * (screenWidth / tabs));
+                }
+                ivIndicator.setLayoutParams(lp);
+            }
 
-        mTabsLinearLayout = ((LinearLayout) tabStrip.getChildAt(0));
+            @Override
+            public void onPageSelected(int position) {
+                currentPosition = position;
+                supportInvalidateOptionsMenu();
+                pager.setCurrentItem(position);
+                if (currentPosition != INDEX_LIBRARY_TAB) {
+                    disableUpButton();
+                } else if (navContext.inRepo()) {
+                    enableUpButton();
+                }
+
+                setUpButtonTitleOnSlideTabs(position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+
+        /*mTabsLinearLayout = ((LinearLayout) tabStrip.getChildAt(0));
         for (int i = 0; i < mTabsLinearLayout.getChildCount(); i++) {
             TextView tv = (TextView) mTabsLinearLayout.getChildAt(i);
 
@@ -273,24 +307,7 @@ public class BrowserActivity extends BaseActivity
 
             @Override
             public void onPageSelected(final int position) {
-                currentPosition = position;
-                supportInvalidateOptionsMenu();
-                pager.setCurrentItem(position);
-                if (currentPosition != INDEX_LIBRARY_TAB) {
-                    disableUpButton();
-                } else if (navContext.inRepo()) {
-                    enableUpButton();
-                }
 
-                for(int i=0; i < mTabsLinearLayout.getChildCount(); i++){
-                    TextView tv = (TextView) mTabsLinearLayout.getChildAt(i);
-                    if(i == position){
-                        setUpButtonTitleOnSlideTabs(i);
-                        tv.setTextColor(getResources().getColor(R.color.fancy_orange));
-                    } else {
-                        tv.setTextColor(getResources().getColor(R.color.fancy_gray));
-                    }
-                }
             }
 
             @Override
@@ -302,7 +319,7 @@ public class BrowserActivity extends BaseActivity
             public void onPageScrolled(int arg0, float arg1, int arg2) {
                 // TODO Auto-generated method stub
             }
-        });
+        });*/
 
         if (savedInstanceState != null) {
             Log.d(DEBUG_TAG, "savedInstanceState is not null");
@@ -370,7 +387,7 @@ public class BrowserActivity extends BaseActivity
         if(!checkServerProEdition()) {
             // hide Activity tab
             adapter.hideActivityTab();
-            tabStrip.notifyDataSetChanged();
+            //tabStrip.notifyDataSetChanged();
             adapter.notifyDataSetChanged();
         }
 
@@ -514,19 +531,12 @@ public class BrowserActivity extends BaseActivity
                 // show Activity tab
                 adapter.unHideActivityTab();
                 adapter.notifyDataSetChanged();
-                tabStrip.notifyDataSetChanged();
-                // highlight font color of the active tab
-                for (int i = 0; i < mTabsLinearLayout.getChildCount(); i++) {
-                    TextView tv = (TextView) mTabsLinearLayout.getChildAt(i);
-
-                    if (i == currentPosition) {
-                        tv.setTextColor(getResources().getColor(R.color.fancy_orange));
-                        setUpButtonTitleOnSlideTabs(i);
-                    } else {
-                        tv.setTextColor(getResources().getColor(R.color.fancy_gray));
-                    }
-                }
+                tabs = 3;
+            } else {
+                // displaying 2 tabs
+                tabs = 2;
             }
+            calculateIndicatorWidth(tabs, ivIndicator);
 
             if (serverInfo.searchEnabled()) {
                 // show search menu
