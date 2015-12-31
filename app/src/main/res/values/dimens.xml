@@ -176,6 +176,7 @@
     <dimen name="margin_larger">25dp</dimen>
     <dimen name="margin_largest">30dp</dimen>
 
+    <dimen name="padding_small">5dp</dimen>
     <dimen name="padding_normal">10dp</dimen>
 
     <!-- Action Bar auto-hide-on-scroll behavior parameters -->

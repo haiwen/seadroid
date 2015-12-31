@@ -9,9 +9,9 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/padding_normal"
+        android:padding="@dimen/padding_small"
         android:gravity="center"
-        android:background="#f4f4f4"
+        android:background="@color/white"
         android:orientation="horizontal">
 
         <RelativeLayout
