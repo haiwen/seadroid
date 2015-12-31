@@ -3,7 +3,6 @@ package com.seafile.seadroid2.data;
 import android.os.Environment;
 import android.util.Log;
 import android.util.Pair;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
@@ -12,7 +11,6 @@ import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.util.Utils;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -387,86 +385,6 @@ public class DataManager {
             addCachedFile(repoName, repoID, path, fileID, file);
             return file;
         }
-    }
-
-    public synchronized File getBlock(String dlink, String blkId, String repoName, String repoID, String path,
-                        ProgressMonitor monitor) throws SeafException {
-
-        String cachedFileID = null;
-        SeafCachedFile cf = getCachedFile(repoName, repoID, path);
-        File localFile = getLocalRepoFile(repoName, repoID, path);
-        // If local file is up to date, show it
-        if (cf != null) {
-            if (localFile.exists()) {
-                cachedFileID = cf.fileID;
-            }
-        }
-
-        Pair<String, File> ret = sc.getBlock(dlink, path, localFile.getPath(), cachedFileID, blkId, monitor);
-
-        String fileID = ret.first;
-        if (fileID.equals(cachedFileID)) {
-            // cache is valid
-            return localFile;
-        } else {
-            File file = ret.second;
-            addCachedFile(repoName, repoID, path, fileID, file);
-            return file;
-        }
-    }
-
-    /**
-     * get downloading file block list
-     *
-     * @param repoID
-     * @param path
-     * @return
-     * @throws SeafException
-     */
-    public synchronized String getBlockIdList(String repoID, String path) throws SeafException {
-        return sc.getDownloadBlockList(repoID, path);
-    }
-
-    public String getBlockdlink(String repoID, String fileId, String blkId) {
-        try {
-            return sc.getBlockdlink(repoID, fileId, blkId);
-        } catch (SeafException e) {
-            Log.e(DEBUG_TAG, "fetching block downloading link failed");
-            return null;
-        }
-    }
-
-    public List<String> parseBlockIdList(String json) {
-        try {
-            // may throw ClassCastException
-            JSONObject obj = Utils.parseJsonObject(json);
-            if (obj == null) return null;
-
-            ArrayList<String> blocks = Lists.newArrayList();
-            final JSONArray blklist = obj.optJSONArray("blklist");
-            for (int i = 0; i < blklist.length(); i++) {
-                String blkId = (String) blklist.get(i);
-                Log.d(DEBUG_TAG, "parsing blockId " + blkId);
-                if (blkId != null)
-                    blocks.add(blkId);
-            }
-            return blocks;
-        } catch (JSONException e) {
-            Log.e(DEBUG_TAG, "parse json error");
-            return null;
-        } catch (Exception e) {
-            // other exception, for example ClassCastException
-            Log.e(DEBUG_TAG, "parseRepos exception");
-            return null;
-        }
-    }
-
-    public String parseFileId(String json) {
-        // may throw ClassCastException
-        JSONObject obj = Utils.parseJsonObject(json);
-        if (obj == null) return null;
-
-        return obj.optString("file_id");
     }
 
     private List<SeafDirent> parseDirents(String json) {
