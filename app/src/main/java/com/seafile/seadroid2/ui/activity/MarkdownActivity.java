@@ -32,15 +32,14 @@ public class MarkdownActivity extends BaseActivity implements Toolbar.OnMenuItem
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.start);
-        markdownView = new MarkdownView(this);
-        setContentView(markdownView);
+        setContentView(R.layout.activity_markdown);
 
         Intent intent = getIntent();
         path = intent.getStringExtra("path");
 
         if (path == null) return;
 
+        markdownView = (MarkdownView) findViewById(R.id.markdownView);
         Toolbar toolbar = getActionBarToolbar();
         toolbar.setOnMenuItemClickListener(this);
         setSupportActionBar(toolbar);
@@ -56,6 +55,7 @@ public class MarkdownActivity extends BaseActivity implements Toolbar.OnMenuItem
 
         String content = Utils.readFile(file);
         markdownView.loadMarkdown(content);
+        getSupportActionBar().setTitle(file.getName());
     }
 
     @Override
@@ -66,23 +66,19 @@ public class MarkdownActivity extends BaseActivity implements Toolbar.OnMenuItem
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                break;
+            case R.id.edit_markdown:
+                edit();
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
-        switch (item.getItemId()) {
-        case R.id.edit_markdown:
-            edit();
-            return true;
-        case android.R.id.home:
-            finish();
-            return true;
-        }
         return super.onOptionsItemSelected(item);
     }
 

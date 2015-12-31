@@ -260,7 +260,6 @@ public class ReposFragment extends ListFragment
                 new MenuSheetView(mActivity, MenuSheetView.MenuType.LIST, title, new MenuSheetView.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        ToastUtils.show(mActivity, item.getTitle().toString());
                         if (bottomSheetLayout.isSheetShowing()) {
                             bottomSheetLayout.dismissSheet();
                         }
@@ -315,7 +314,6 @@ public class ReposFragment extends ListFragment
                 new MenuSheetView(mActivity, MenuSheetView.MenuType.LIST, title, new MenuSheetView.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        ToastUtils.show(mActivity, item.getTitle().toString());
                         if (bottomSheetLayout.isSheetShowing()) {
                             bottomSheetLayout.dismissSheet();
                         }
