@@ -10,6 +10,7 @@
         <item name="android:radioButtonStyle">@style/RadioButton</item>
         <item name="android:actionModeStyle">@style/LightTheme.ActionMode</item>
         <item name="actionModeStyle">@style/LightTheme.ActionMode</item>
+        <item name="windowActionModeOverlay">true</item>
         <item name="android:colorButtonNormal">@color/fancy_orange</item>
         <item name="colorButtonNormal">@color/fancy_orange</item>
     </style>

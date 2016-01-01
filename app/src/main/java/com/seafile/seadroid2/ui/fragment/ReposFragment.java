@@ -8,7 +8,7 @@ import android.os.Handler;
 import android.support.v4.app.ListFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
-import android.view.ActionMode;
+import android.support.v7.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -244,7 +244,7 @@ public class ReposFragment extends ListFragment
 
         if (mActionMode == null) {
             // start the actionMode
-            mActionMode = mActivity.startActionMode(new ActionModeCallback(this));
+            mActionMode = mActivity.startSupportActionMode(new ActionModeCallback(this));
         }
 
     }
@@ -655,7 +655,7 @@ public class ReposFragment extends ListFragment
 
         if (mActionMode == null) {
             // there are some selected items, start the actionMode
-            mActionMode = mActivity.startActionMode(new ActionModeCallback(this));
+            mActionMode = mActivity.startSupportActionMode(new ActionModeCallback(this));
         } else {
             // Log.d(DEBUG_TAG, "mActionMode.setTitle " + adapter.getCheckedItemCount());
             mActionMode.setTitle(getResources().getQuantityString(

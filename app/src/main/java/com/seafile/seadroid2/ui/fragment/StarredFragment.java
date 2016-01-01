@@ -6,8 +6,8 @@ import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
-import android.view.ActionMode;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -461,7 +461,7 @@ public class StarredFragment extends ListFragment
     public void startContextualActionMode() {
         if (mActionMode == null) {
             // start the actionMode
-            mActionMode = mActivity.startActionMode(new ActionModeCallback(this));
+            mActionMode = mActivity.startSupportActionMode(new ActionModeCallback(this));
         }
 
     }
@@ -473,7 +473,7 @@ public class StarredFragment extends ListFragment
 
         if (mActionMode == null) {
             // there are some selected items, start the actionMode
-            mActionMode = mActivity.startActionMode(new ActionModeCallback(this));
+            mActionMode = mActivity.startSupportActionMode(new ActionModeCallback(this));
         } else {
             // Log.d(DEBUG_TAG, "mActionMode.setTitle " + adapter.getCheckedItemCount());
             mActionMode.setTitle(getResources().getQuantityString(

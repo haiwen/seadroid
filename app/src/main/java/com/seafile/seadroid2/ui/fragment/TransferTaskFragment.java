@@ -8,10 +8,9 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
+import android.support.v7.view.ActionMode;
 import android.util.Log;
-import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -72,7 +71,7 @@ public abstract class TransferTaskFragment extends ListFragment
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 if (mActionMode == null) {
-                    mActionMode = getActivity().startActionMode(new ActionModeCallback(TransferTaskFragment.this));
+                    mActionMode = mActivity.startSupportActionMode(new ActionModeCallback(TransferTaskFragment.this));
                 }
 
                 return true;
@@ -308,7 +307,7 @@ public abstract class TransferTaskFragment extends ListFragment
 
         if (itemsChecked && mActionMode == null) {
             // there are some selected items, start the actionMode
-            mActionMode = getActivity().startActionMode(new ActionModeCallback(this));
+            mActionMode = mActivity.startSupportActionMode(new ActionModeCallback(this));
             adapter.actionModeOn();
             Animation bottomUp = AnimationUtils.loadAnimation(getActivity(),
                     R.anim.bottom_up);

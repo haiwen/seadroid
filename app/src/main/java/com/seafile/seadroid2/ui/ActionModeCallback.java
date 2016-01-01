@@ -1,6 +1,5 @@
 package com.seafile.seadroid2.ui;
-
-import android.view.ActionMode;
+import android.support.v7.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -12,7 +11,7 @@ import com.seafile.seadroid2.R;
  * Action modes can be used to provide alternative interaction modes and replace parts of the normal UI until finished.
  * A Callback configures and handles events raised by a user's interaction with an action mode.
  */
-public class ActionModeCallback implements android.view.ActionMode.Callback {
+public class ActionModeCallback implements ActionMode.Callback {
     private boolean allItemsSelected;
     private ActionModeOperationListener mListener;
 
