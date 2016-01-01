@@ -1,7 +1,5 @@
 package com.seafile.seadroid2.ui.fragment;
 
-import java.util.List;
-
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -9,25 +7,31 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.*;
+import android.widget.AdapterView;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
-import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafStarredFile;
-import com.seafile.seadroid2.ui.ActionModeCallback;
+import com.seafile.seadroid2.ui.NavContext;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.adapter.StarredItemAdapter;
+import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 
-public class StarredFragment extends ListFragment
-        implements ActionModeCallback.ActionModeOperationListener {
+import java.util.List;
+
+public class StarredFragment extends ListFragment {
     private StarredItemAdapter adapter;
     private BrowserActivity mActivity = null;
 
@@ -38,8 +42,8 @@ public class StarredFragment extends ListFragment
     private View mListContainer;
     private TextView mErrorText;
     private ActionMode mActionMode;
-    private LinearLayout mTaskActionBar;
-    private RelativeLayout mUnstarFiles;
+    /*private LinearLayout mTaskActionBar;
+    private RelativeLayout mUnstarFiles;*/
     private static final int REFRESH_ON_RESUME = 0;
     private static final int REFRESH_ON_PULL = 1;
     private static final int REFRESH_ON_OVERFLOW_MENU = 2;
@@ -51,54 +55,6 @@ public class StarredFragment extends ListFragment
 
     public StarredItemAdapter getAdapter() {
         return adapter;
-    }
-
-    @Override
-    public void selectItems() {
-        if (adapter == null) return;
-
-        adapter.selectAllItems();
-        updateContextualActionBar();
-
-    }
-
-    @Override
-    public void deselectItems() {
-        if (adapter == null) return;
-
-        adapter.deselectAllItems();
-        updateContextualActionBar();
-
-    }
-
-    @Override
-    public void onActionModeStarted() {
-        if (adapter == null) return;
-
-        adapter.setActionModeOn(true);
-        adapter.notifyDataSetChanged();
-
-        Animation bottomUp = AnimationUtils.loadAnimation(getActivity(),
-                R.anim.bottom_up);
-        mTaskActionBar.startAnimation(bottomUp);
-        mTaskActionBar.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void onActionModeDestroy() {
-        if (adapter == null) return;
-
-        adapter.setActionModeOn(false);
-        adapter.deselectAllItems();
-        Animation bottomDown = AnimationUtils.loadAnimation(mActivity,
-                R.anim.bottom_down);
-        mTaskActionBar.startAnimation(bottomDown);
-        mTaskActionBar.setVisibility(View.GONE);
-
-        // Here you can make any necessary updates to the activity when
-        // the contextual action bar (CAB) is removed. By default, selected items are deselected/unchecked.
-        mActionMode = null;
-
     }
 
     public interface OnStarredFileSelectedListener {
@@ -121,9 +77,6 @@ public class StarredFragment extends ListFragment
         mListContainer =  root.findViewById(R.id.listContainer);
         mErrorText = (TextView)root.findViewById(R.id.error_message);
         mProgressContainer = root.findViewById(R.id.progressContainer);
-        mTaskActionBar = (LinearLayout) root.findViewById(R.id.multi_op_bottom_action_bar);
-        mUnstarFiles = (RelativeLayout) root.findViewById(R.id.multi_op_unstar_rl);
-        mUnstarFiles.setOnClickListener(new UnstarMultiFilesClickListener());
 
         mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
@@ -461,7 +414,7 @@ public class StarredFragment extends ListFragment
     public void startContextualActionMode() {
         if (mActionMode == null) {
             // start the actionMode
-            mActionMode = mActivity.startSupportActionMode(new ActionModeCallback(this));
+            mActionMode = mActivity.startSupportActionMode(new ActionModeCallback());
         }
 
     }
@@ -473,7 +426,7 @@ public class StarredFragment extends ListFragment
 
         if (mActionMode == null) {
             // there are some selected items, start the actionMode
-            mActionMode = mActivity.startSupportActionMode(new ActionModeCallback(this));
+            mActionMode = mActivity.startSupportActionMode(new ActionModeCallback());
         } else {
             // Log.d(DEBUG_TAG, "mActionMode.setTitle " + adapter.getCheckedItemCount());
             mActionMode.setTitle(getResources().getQuantityString(
@@ -484,21 +437,92 @@ public class StarredFragment extends ListFragment
 
     }
 
-    class UnstarMultiFilesClickListener implements View.OnClickListener {
+    /**
+     * Represents a contextual mode of the user interface.
+     * Action modes can be used to provide alternative interaction modes and replace parts of the normal UI until finished.
+     * A Callback configures and handles events raised by a user's interaction with an action mode.
+     */
+    class ActionModeCallback implements ActionMode.Callback {
+        private boolean allItemsSelected;
+
+        public ActionModeCallback() {
+        }
 
         @Override
-        public void onClick(View v) {
-            final List<SeafStarredFile> selectedDirents = adapter.getSelectedItemsValues();
-            if (selectedDirents.size() == 0) {
-                ToastUtils.show(mActivity, R.string.action_mode_no_items_selected);
-                return;
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            // Inflate the menu for the contextual action bar (CAB)
+            MenuInflater inflater = mode.getMenuInflater();
+            inflater.inflate(R.menu.starred_fragment_menu, menu);
+            if (adapter == null) return true;
+
+            adapter.setActionModeOn(true);
+            adapter.notifyDataSetChanged();
+
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            // Here you can perform updates to the contextual action bar (CAB) due to
+            // an invalidate() request
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            // Respond to clicks on the actions in the contextual action bar (CAB)
+            NavContext nav = mActivity.getNavContext();
+            String repoID = nav.getRepoID();
+            String repoName = nav.getRepoName();
+            String dirPath = nav.getDirPath();
+            final List<SeafStarredFile> starredFiles = adapter.getSelectedItemsValues();
+            if (starredFiles.size() == 0
+                    || repoID == null
+                    || dirPath == null) {
+                if (item.getItemId() != R.id.action_mode_select_all) {
+                    ToastUtils.show(mActivity, R.string.action_mode_no_items_selected);
+                    return true;
+                }
             }
 
-            switch (v.getId()) {
-                case R.id.multi_op_unstar_rl:
-                    unStarFiles(selectedDirents);
+            switch (item.getItemId()) {
+                case R.id.action_mode_select_all:
+                    if (!allItemsSelected) {
+                        if (adapter == null) return true;
+
+                        adapter.selectAllItems();
+                        updateContextualActionBar();
+                    } else {
+                        if (adapter == null) return true;
+
+                        adapter.deselectAllItems();
+                        updateContextualActionBar();
+                    }
+
+                    allItemsSelected = !allItemsSelected;
                     break;
+                case R.id.action_mode_delete:
+                    unStarFiles(starredFiles);
+                    break;
+
+                default:
+                    return false;
             }
+
+            return true;
         }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            if (adapter == null) return;
+
+            adapter.setActionModeOn(false);
+            adapter.deselectAllItems();
+
+            // Here you can make any necessary updates to the activity when
+            // the contextual action bar (CAB) is removed. By default, selected items are deselected/unchecked.
+            mActionMode = null;
+        }
+
     }
 }

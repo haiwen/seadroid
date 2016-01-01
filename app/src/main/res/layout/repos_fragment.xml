@@ -68,6 +68,7 @@
         android:textSize="18sp"
         android:visibility="gone" />
 
+<!--
     <LinearLayout
             android:id="@+id/multi_op_bottom_action_bar"
             android:layout_width="fill_parent"
@@ -76,7 +77,7 @@
             android:paddingLeft="@dimen/lv_expandable_item_padding"
             android:paddingRight="@dimen/lv_expandable_item_padding"
             android:layout_gravity="bottom"
-            android:visibility="gone"
+            android:visibility="visible"
             android:background="@color/fancy_light_black">
 
         <RelativeLayout
@@ -231,5 +232,6 @@
         </RelativeLayout>
 
     </LinearLayout>
+-->
 
 </FrameLayout>
