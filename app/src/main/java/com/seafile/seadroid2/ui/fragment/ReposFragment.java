@@ -1,7 +1,6 @@
 package com.seafile.seadroid2.ui.fragment;
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -16,7 +15,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import com.flipboard.bottomsheet.BottomSheetLayout;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -24,6 +22,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.flipboard.bottomsheet.commons.MenuSheetView;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
@@ -32,6 +31,7 @@ import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.SeafCachedFile;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafGroup;
 import com.seafile.seadroid2.data.SeafItem;
@@ -284,11 +284,7 @@ public class ReposFragment extends ListFragment
                                 mActivity.addUpdateTask(repoID, repoName, dir, localPath);
                                 break;
                             case R.id.download:
-                                if (dirent.isDir()) {
-                                    mActivity.downloadDir(dir, dirent.name, true);
-                                } else {
-                                    mActivity.downloadFile(dir, dirent.name);
-                                }
+                                mActivity.downloadFile(dir, dirent.name);
                                 break;
                             case R.id.export:
                                 mActivity.exportFile(dirent.name);
@@ -302,6 +298,21 @@ public class ReposFragment extends ListFragment
                 });
         menuSheetView.inflateMenu(R.menu.bottom_sheet_op_file);
         bottomSheetLayout.showWithSheetView(menuSheetView);
+
+        SeafRepo repo = getDataManager().getCachedRepoByID(repoID);
+        if (repo != null && repo.encrypted) {
+            menuSheetView.getMenu().removeItem(R.id.share);
+        }
+
+        SeafCachedFile cf = getDataManager().getCachedFile(repoName, repoID, path);
+        if (cf!= null) {
+            menuSheetView.getMenu().removeItem(R.id.download);
+        } else {
+            menuSheetView.getMenu().removeItem(R.id.update);
+        }
+
+        menuSheetView.updateMenu();
+
     }
 
     public void showDirBottomSheet(String title, final SeafDirent dirent) {
@@ -319,8 +330,11 @@ public class ReposFragment extends ListFragment
                         }
 
                         switch (item.getItemId()) {
+                            case R.id.share:
+                                mActivity.shareDir(repoID, path);
+                                break;
                             case R.id.delete:
-                                mActivity.deleteFile(repoID, repoName, path);
+                                mActivity.deleteDir(repoID, repoName, path);
                                 break;
                             case R.id.copy:
                                 mActivity.copyFile(repoID, repoName, dir, filename, false);
@@ -329,14 +343,10 @@ public class ReposFragment extends ListFragment
                                 mActivity.moveFile(repoID, repoName, dir, filename, false);
                                 break;
                             case R.id.rename:
-                                mActivity.renameFile(repoID, repoName, path);
+                                mActivity.renameDir(repoID, repoName, path);
                                 break;
                             case R.id.download:
-                                if (dirent.isDir()) {
-                                    mActivity.downloadDir(dir, dirent.name, true);
-                                } else {
-                                    mActivity.downloadFile(dir, dirent.name);
-                                }
+                                mActivity.downloadDir(dir, dirent.name, true);
                                 break;
                         }
                         return true;
@@ -344,6 +354,14 @@ public class ReposFragment extends ListFragment
                 });
         menuSheetView.inflateMenu(R.menu.bottom_sheet_op_dir);
         bottomSheetLayout.showWithSheetView(menuSheetView);
+
+        SeafRepo repo = getDataManager().getCachedRepoByID(repoID);
+        if (repo != null && repo.encrypted) {
+            menuSheetView.getMenu().removeItem(R.id.share);
+        }
+
+        menuSheetView.updateMenu();
+
     }
 
     @Override
