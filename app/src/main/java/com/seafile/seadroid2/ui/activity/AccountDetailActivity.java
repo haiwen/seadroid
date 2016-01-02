@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui.activity;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -49,6 +50,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
     private TextView statusView;
     private Button loginButton;
     private EditText serverText;
+    private ProgressDialog progressDialog;
     private CustomClearableEditText emailText;
     private CustomClearableEditText passwdText;
     private CheckBox httpsCheckBox;
@@ -109,6 +111,12 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(R.string.login);
+    }
+
+    @Override
+    protected void onDestroy() {
+        progressDialog.dismiss();
+        super.onDestroy();
     }
 
     @Override
@@ -267,6 +275,9 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
 
             loginButton.setEnabled(false);
             Account tmpAccount = new Account(serverURL, email, passwd);
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setMessage(getString(R.string.settings_cuc_loading));
+            progressDialog.setCancelable(false);
             ConcurrentAsyncTask.execute(new LoginTask(tmpAccount));
         } else {
             statusView.setText(R.string.network_down);
@@ -294,7 +305,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
         @Override
         protected void onPreExecute() {
             //super.onPreExecute();
-            setSupportProgressBarIndeterminateVisibility(true);
+            progressDialog.show();
         }
 
         @Override
@@ -311,6 +322,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
 
         @Override
         protected void onPostExecute(final String result) {
+            progressDialog.dismiss();
             if (err == SeafException.sslException) {
                 SslConfirmDialog dialog = new SslConfirmDialog(loginAccount,
                 new SslConfirmDialog.Listener() {
