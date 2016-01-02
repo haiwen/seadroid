@@ -27,46 +27,7 @@ https://github.com/android/platform_frameworks_base/blob/master/core/res/res/lay
         android:layout_height="wrap_content"
         android:layout_marginStart="8dip"
         android:layout_marginEnd="8dip"
-        android:orientation="vertical"
-        android:background="@color/whitegrey">
-
-    <!--<LinearLayout android:id="@+id/topPanel"
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:orientation="vertical">
-
-        <ImageView android:id="@+id/icon"
-                   android:visibility="gone"
-                   android:layout_width="match_parent"
-                   android:layout_height="wrap_content"
-                   android:layout_marginTop="10dp"
-                   android:layout_marginBottom="-15dp"
-                   android:paddingEnd="8dip"
-                   android:paddingRight="8dip"
-                   android:paddingLeft="8dip"
-                   android:gravity="center"
-                   android:src="@drawable/icon"/>
-
-        <TextView android:id="@+id/alertTitle"
-                  style="?android:attr/textAppearanceLarge"
-                  android:textColor="@color/fancy_orange"
-                  android:maxLines="2"
-                  android:ellipsize="end"
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:layout_marginTop="@dimen/dialog_title_margin_top"
-                  android:layout_marginBottom="@dimen/dialog_title_margin_bottom"
-                  android:textSize="@dimen/dialog_title_txt_size"
-                  android:gravity="center"
-                  android:text="titile"/>
-
-        <View android:id="@+id/titleDivider"
-              android:layout_width="match_parent"
-              android:layout_height="2dip"
-              android:visibility="visible"
-              android:layout_marginTop="7dp"
-              android:background="@color/fancy_orange"/>
-    </LinearLayout>-->
+        android:orientation="vertical">
 
     <ScrollView android:id="@+id/contentPanel"
                 android:layout_width="match_parent"

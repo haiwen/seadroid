@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.AnimationUtils;
@@ -201,7 +202,8 @@ public abstract class TaskDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
 
-        builder = new AlertDialog.Builder(getActivity(), android.R.style.Theme_Material_Light_Dialog_Alert);
+        ContextThemeWrapper ctw = new ContextThemeWrapper(getActivity(), R.style.DialogTheme);
+        builder = new AlertDialog.Builder(ctw);
         LayoutInflater inflater = getActivity().getLayoutInflater();
         LinearLayout view = (LinearLayout)inflater.inflate(R.layout.seafile_dialog_layout, null);
         mCustom = (FrameLayout) view.findViewById(R.id.customPanel);

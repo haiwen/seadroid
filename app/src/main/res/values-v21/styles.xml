@@ -13,6 +13,21 @@
         <item name="windowActionModeOverlay">true</item>
         <item name="android:colorButtonNormal">@color/fancy_orange</item>
         <item name="colorButtonNormal">@color/fancy_orange</item>
+        <item name="alertDialogTheme">@style/DialogTheme</item>
+    </style>
+
+    <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="buttonBarNegativeButtonStyle">@style/dialog_button_negative</item>
+        <item name="buttonBarPositiveButtonStyle">@style/dialog_button_positive</item>
+    </style>
+
+    <style name="dialog_button_negative">
+        <item name="android:textColor">@color/fancy_gray</item>
+    </style>
+
+    <style name="dialog_button_positive">
+        <item name="android:layout_marginLeft">8dp</item>
+        <item name="android:textColor">@color/fancy_orange</item>
     </style>
 
     <style name="NegativeButton" parent="android:style/Widget.Material.Button">

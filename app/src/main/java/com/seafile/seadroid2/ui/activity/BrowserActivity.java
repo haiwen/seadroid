@@ -28,6 +28,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.view.ContextThemeWrapper;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -997,7 +998,8 @@ public class BrowserActivity extends BaseActivity
      * add new file/files
      */
     private void addFile() {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        ContextThemeWrapper ctw = new ContextThemeWrapper(this, R.style.DialogTheme);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(ctw);
         builder.setTitle(getString(R.string.add_file));
         builder.setItems(R.array.add_file_options_array, new DialogInterface.OnClickListener() {
             @Override

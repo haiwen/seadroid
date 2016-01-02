@@ -16,7 +16,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="Theme.SeafileTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="Theme.SeafileTheme" parent="Theme.AppCompat.Light">
         <item name="android:windowActionBar">false</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
@@ -33,6 +33,11 @@
         <item name="android:textSelectHandleLeft">@drawable/fancy_orange_text_select_handle_left</item>
         <item name="android:textSelectHandleRight">@drawable/fancy_orange_text_select_handle_right</item>
         <item name="android:textSelectHandle">@drawable/fancy_orange_text_select_handle_middle</item>
+        <item name="android:alertDialogTheme">@style/DialogTheme</item>
+    </style>
+
+    <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 
     <style name="LightTheme.ActionMode" parent="Widget.AppCompat.ActionMode">

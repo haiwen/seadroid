@@ -14,6 +14,7 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.view.ContextThemeWrapper;
 import android.text.Html;
 import android.util.Log;
 import android.util.TypedValue;
@@ -140,7 +141,8 @@ public class SettingsFragment extends CustomPreferenceFragment {
             public boolean onPreferenceClick(Preference preference) {
 
                 // popup a dialog to confirm sign out request
-                final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+                ContextThemeWrapper ctw = new ContextThemeWrapper(mActivity, R.style.DialogTheme);
+                final AlertDialog.Builder builder = new AlertDialog.Builder(ctw);
                 builder.setTitle(getString(R.string.settings_account_sign_out_title));
                 builder.setMessage(getString(R.string.settings_account_sign_out_confirm));
                 builder.setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
@@ -318,7 +320,8 @@ public class SettingsFragment extends CustomPreferenceFragment {
             @Override
             public boolean onPreferenceClick(Preference preference) {
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+                ContextThemeWrapper ctw = new ContextThemeWrapper(mActivity, R.style.DialogTheme);
+                AlertDialog.Builder builder = new AlertDialog.Builder(ctw);
                 // builder.setIcon(R.drawable.icon);
                 builder.setMessage(Html.fromHtml(getString(R.string.settings_about_author_info, appVersion)));
                 builder.show();
