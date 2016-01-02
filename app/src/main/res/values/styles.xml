@@ -35,6 +35,13 @@
         <item name="android:textSelectHandleRight">@drawable/fancy_orange_text_select_handle_right</item>
         <item name="android:textSelectHandle">@drawable/fancy_orange_text_select_handle_middle</item>
         <item name="android:alertDialogTheme">@style/DialogTheme</item>
+        <item name="android:colorButtonNormal">@color/fancy_orange</item>
+        <item name="colorButtonNormal">@color/fancy_orange</item>
+    </style>
+
+    <style name="NegativeButton" parent="android:style/Widget.Material.Button">
+        <item name="android:colorButtonNormal">@color/fancy_dark_gray</item>
+        <item name="colorButtonNormal">@color/fancy_dark_gray</item>
     </style>
 
     <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
