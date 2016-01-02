@@ -133,6 +133,7 @@ public class ReposFragment extends ListFragment {
             }
         });
 
+        refreshLayout.setColorSchemeResources(R.color.fancy_orange);
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {

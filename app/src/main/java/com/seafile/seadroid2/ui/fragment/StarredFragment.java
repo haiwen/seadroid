@@ -85,6 +85,8 @@ public class StarredFragment extends ListFragment {
                 return true;
             }
         });
+
+        refreshLayout.setColorSchemeResources(R.color.fancy_orange);
         // Set a listener to be invoked when the list should be refreshed.
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
