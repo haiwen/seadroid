@@ -20,6 +20,7 @@
         <item name="android:windowActionBar">false</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="windowActionModeOverlay">true</item>
         <item name="android:windowBackground">@color/fancy_light_white</item>
         <item name="android:listViewStyle">@style/SeafileListStyle</item>
         <item name="android:radioButtonStyle">@style/RadioButton</item>
