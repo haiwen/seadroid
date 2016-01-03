@@ -5,6 +5,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.ContentObserver;
+import android.net.Uri;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -125,6 +126,12 @@ public class MediaObserverService extends Service {
 
         @Override
         public void onChange(boolean selfChange) {
+            onChange(selfChange, null);
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri changeUri) {
+
             if (cameraManager.isCameraUploadEnabled()) {
                 Log.d(DEBUG_TAG, "Noticed a change in the media provider, scheduling sync.");
                 cameraManager.performSync();
