@@ -1,58 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item android:id="@+id/sort"
           android:visible="true"
           android:icon="@drawable/sort"
           android:title="@string/sort_menu_item"
-          android:showAsAction="always"/>
+          app:showAsAction="always"/>
 
     <item android:id="@+id/search"
           android:visible="true"
           android:icon="@drawable/search"
           android:title="@string/search_menu_item"
-          android:showAsAction="always"/>
+          app:showAsAction="always"/>
 
     <item android:id="@+id/add"
         android:visible="true"
         android:title="@string/add_file"
         android:icon="@drawable/add_file"
-        android:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom"/>
 
     <item android:id="@+id/refresh"
         android:visible="true"
         android:title="@string/refresh"
         android:icon="@drawable/refresh"
-        android:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom"/>
 
     <!-- More -->
     <item
         android:id="@+id/menu_overflow"
         android:icon="@drawable/ic_action_overflow"
-        android:showAsAction="always"
+        app:showAsAction="always"
         android:title="More">
       <menu>
           <item android:id="@+id/edit"
                 android:visible="false"
                 android:title="@string/edit"
-                android:showAsAction="never"/>
+                app:showAsAction="never"/>
 
 	    <item android:id="@+id/transfer_tasks"
               android:visible="true"
               android:title="@string/transfer_tasks"
-              android:showAsAction="never"/>
+              app:showAsAction="never"/>
 
 	    <item android:id="@+id/accounts"
               android:visible="true"
               android:title="@string/accounts"
-              android:showAsAction="never"/>
+              app:showAsAction="never"/>
 
 
         <item android:id="@+id/settings"
               android:visible="true"
               android:title="@string/settings"
-              android:showAsAction="never"/>
+              app:showAsAction="never"/>
       </menu>
     </item>
 </menu>
