@@ -92,6 +92,15 @@
 
 -keepclassmembers class * extends android.app.Activity { public void *(android.view.View); }
 -keepclassmembers class android.support.v4.app.Fragment { *** getActivity(); public *** onCreate(); public *** onCreateOptionsMenu(...); }
+# support v7
+-dontwarn android.support.v7.**
+-keep class android.support.v7.** { *; }
+-keep interface android.support.v7.** { *; }
+# support design
+-dontwarn android.support.design.**
+-keep class android.support.design.** { *; }
+-keep interface android.support.design.** { *; }
+-keep public class android.support.design.R$* { *; }
 
 -keepclassmembers class com.google.** {
     private void finalizeReferent();
