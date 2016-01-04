@@ -20,10 +20,12 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
@@ -131,7 +133,8 @@ public class BrowserActivity extends BaseActivity
     };
     private int currentPosition = 0;
     private SeafileTabsAdapter adapter;
-    private ImageView ivIndicator;
+    private TabLayout mTabLayout;
+
     private ViewPager pager;
 
     private Account account;
@@ -248,77 +251,37 @@ public class BrowserActivity extends BaseActivity
         unsetRefreshing();
         disableUpButton();
 
-        ivIndicator = (ImageView) findViewById(R.id.iv_tab_indicator);
-        tabs = 3;
-        calculateIndicatorWidth(tabs, ivIndicator);
         pager = (ViewPager) findViewById(R.id.pager);
         adapter = new SeafileTabsAdapter(getSupportFragmentManager());
         pager.setAdapter(adapter);
-        pager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        mTabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+        mTabLayout.setTabsFromPagerAdapter(adapter);
+        mTabLayout.setupWithViewPager(pager);
+        mTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
-            public void onPageScrolled(int position, float offset, int positionOffsetPixels) {
-                LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) ivIndicator.getLayoutParams();
-                if (currentPosition == 0 && position == 0) { // 0->1
-                    lp.leftMargin = (int) (offset * (screenWidth * 1.0 / tabs) + currentPosition * (screenWidth / tabs));
-                } else if (currentPosition == 1 && position == 0) {// 1->0
-                    lp.leftMargin = (int) (-(1 - offset) * (screenWidth * 1.0 / tabs) + currentPosition * (screenWidth / tabs));
-                } else if (currentPosition == 1 && position == 1) {// 1->2
-                    lp.leftMargin = (int) (offset * (screenWidth * 1.0 / tabs) + currentPosition * (screenWidth / tabs));
-                } else if (currentPosition == 2 && position == 1) {// 2->1
-                    lp.leftMargin = (int) (-(1 - offset) * (screenWidth * 1.0 / tabs) + currentPosition * (screenWidth / tabs));
-                }
-                ivIndicator.setLayoutParams(lp);
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                currentPosition = position;
+            public void onTabSelected(TabLayout.Tab tab) {
+                currentPosition = tab.getPosition();
                 supportInvalidateOptionsMenu();
-                pager.setCurrentItem(position);
+                pager.setCurrentItem(tab.getPosition(), true);
                 if (currentPosition != INDEX_LIBRARY_TAB) {
                     disableUpButton();
                 } else if (navContext.inRepo()) {
                     enableUpButton();
                 }
 
-                setUpButtonTitleOnSlideTabs(position);
+                setUpButtonTitleOnSlideTabs(tab.getPosition());
             }
 
             @Override
-            public void onPageScrollStateChanged(int state) {
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
 
             }
         });
-
-        /*mTabsLinearLayout = ((LinearLayout) tabStrip.getChildAt(0));
-        for (int i = 0; i < mTabsLinearLayout.getChildCount(); i++) {
-            TextView tv = (TextView) mTabsLinearLayout.getChildAt(i);
-
-            if (i == currentPosition) {
-                tv.setTextColor(getResources().getColor(R.color.fancy_orange));
-                setUpButtonTitleOnSlideTabs(i);
-            } else {
-                tv.setTextColor(getResources().getColor(R.color.fancy_gray));
-            }
-        }
-
-        tabStrip.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-
-            @Override
-            public void onPageSelected(final int position) {
-
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int arg0) {
-                // TODO Auto-generated method stub
-            }
-
-            @Override
-            public void onPageScrolled(int arg0, float arg1, int arg2) {
-                // TODO Auto-generated method stub
-            }
-        });*/
 
         if (savedInstanceState != null) {
             Log.d(DEBUG_TAG, "savedInstanceState is not null");
@@ -530,12 +493,7 @@ public class BrowserActivity extends BaseActivity
                 // show Activity tab
                 adapter.unHideActivityTab();
                 adapter.notifyDataSetChanged();
-                tabs = 3;
-            } else {
-                // displaying 2 tabs
-                tabs = 2;
             }
-            calculateIndicatorWidth(tabs, ivIndicator);
 
             if (serverInfo.searchEnabled()) {
                 // show search menu

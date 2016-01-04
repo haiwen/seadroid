@@ -16,10 +16,12 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="Theme.SeafileTheme" parent="Theme.AppCompat.Light">
-        <item name="android:windowActionBar">false</item>
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/color_primary</item>
+        <item name="colorPrimaryDark">@color/color_primary_dark</item>
+        <item name="colorAccent">@color/fancy_light_black</item>
+        <item name="actionBarInsetStart">@dimen/keyline_2</item>
         <item name="windowActionModeOverlay">true</item>
         <item name="android:windowBackground">@color/fancy_light_white</item>
         <item name="android:listViewStyle">@style/SeafileListStyle</item>
@@ -37,6 +39,16 @@
         <item name="android:alertDialogTheme">@style/DialogTheme</item>
         <item name="android:colorButtonNormal">@color/fancy_orange</item>
         <item name="colorButtonNormal">@color/fancy_orange</item>
+    </style>
+
+    <style name="TabLayoutStyle" parent="Widget.Design.TabLayout">
+        <item name="tabIndicatorColor">@color/fancy_orange</item>
+        <item name="android:background">@color/color_primary</item>
+        <item name="android:contentInsetStart">?actionBarInsetStart</item>
+    </style>
+
+    <style name="TabTextAppearancce" parent="TextAppearance.Design.Tab">
+        <item name="android:textColor">@color/fancy_dark_black</item>
     </style>
 
     <style name="NegativeButton" parent="android:style/Widget.Material.Button">

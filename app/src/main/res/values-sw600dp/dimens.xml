@@ -85,5 +85,6 @@
     <dimen name="error_msg_height">300dp</dimen>
     <dimen name="error_msg_width">300dp</dimen>
     <!-- Footer -->
+    <dimen name="keyline_2">80dp</dimen>
 
 </resources>

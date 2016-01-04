@@ -38,11 +38,6 @@ public class BaseActivity extends AppCompatActivity {
 
     protected int screenWidth;
 
-    /**
-     * how many tabs for displaying
-     */
-    protected int tabs;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,15 +45,6 @@ public class BaseActivity extends AppCompatActivity {
         if (ab != null) {
             ab.setDisplayHomeAsUpEnabled(true);
         }
-    }
-
-    protected void calculateIndicatorWidth(int size, ImageView indicator) {
-        DisplayMetrics dpMetrics = new DisplayMetrics();
-        getWindow().getWindowManager().getDefaultDisplay().getMetrics(dpMetrics);
-        screenWidth = dpMetrics.widthPixels;
-        LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) indicator.getLayoutParams();
-        lp.width = screenWidth / size;
-        indicator.setLayoutParams(lp);
     }
 
     protected Toolbar getActionBarToolbar() {

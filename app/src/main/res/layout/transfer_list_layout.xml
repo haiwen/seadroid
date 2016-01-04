@@ -1,63 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <include layout="@layout/toolbar_actionbar" /> <!-- placeholder, empty except on L -->
-    <LinearLayout
+    <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#f4f4f4"
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:padding="@dimen/padding_normal">
+        android:layout_height="wrap_content">
 
-        <RelativeLayout
-            android:id="@+id/rl_download_tab"
-            android:layout_width="0dp"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"
-            android:descendantFocusability="blocksDescendants">
+        <include
+            layout="@layout/toolbar_actionbar"
+            app:layout_scrollFlags="scroll|enterAlways" /> <!-- placeholder, empty except on L -->
 
-            <TextView
-                android:id="@+id/tv_download_tab_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:text="@string/transfer_tabs_downloads" />
-
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/rl_upload_tab"
-            android:layout_width="0dp"
-            android:layout_height="fill_parent"
-            android:layout_weight="1">
-
-            <TextView
-                android:id="@+id/tv_upload_tab_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:text="@string/transfer_tabs_uploads" />
-
-        </RelativeLayout>
-
-    </LinearLayout>
-
-    <ImageView
-        android:id="@+id/iv_tab_indicator"
-        android:layout_width="50dp"
-        android:layout_height="2dp"
-        android:background="@color/fancy_orange" />
+        <android.support.design.widget.TabLayout
+            android:id="@+id/sliding_tabs"
+            style="@style/TabLayoutStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_scrollFlags="scroll|enterAlways"
+            app:tabGravity="center"
+            app:tabMode="scrollable"
+            app:tabSelectedTextColor="@color/fancy_orange"
+            app:tabTextAppearance="@style/TabTextAppearancce" />
+    </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.view.ViewPager
         android:id="@+id/transfer_list_pager"
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
-
-
-</LinearLayout>
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+</android.support.design.widget.CoordinatorLayout>

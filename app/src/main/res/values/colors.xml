@@ -22,4 +22,6 @@
     <color name="fancy_gray">#969696</color>
     <color name="fancy_dark_gray">#e1e2e3</color>
     <color name="fancy_orange">#ea8201</color> <!-- theme color -->
+    <color name="color_primary">#f4f4f4</color>
+    <color name="color_primary_dark">#969593</color>
 </resources>

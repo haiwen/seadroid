@@ -9,8 +9,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.*;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -115,7 +113,8 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
 
     @Override
     protected void onDestroy() {
-        progressDialog.dismiss();
+        if (progressDialog != null)
+            progressDialog.dismiss();
         super.onDestroy();
     }
 

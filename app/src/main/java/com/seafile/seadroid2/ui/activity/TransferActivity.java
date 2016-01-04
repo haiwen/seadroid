@@ -2,18 +2,16 @@ package com.seafile.seadroid2.ui.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.notification.BaseNotificationProvider;
@@ -28,7 +26,7 @@ public class TransferActivity extends BaseActivity implements Toolbar.OnMenuItem
     private TransferTaskAdapter.TaskType whichTab = TransferTaskAdapter.TaskType.DOWNLOAD_TASK;
     private TransferTabsAdapter tabsAdapter;
     private ViewPager pager;
-    private ImageView ivIndicator;
+    private TabLayout mTabLayout;
 
     private Menu overFlowMenu = null;
 
@@ -57,28 +55,16 @@ public class TransferActivity extends BaseActivity implements Toolbar.OnMenuItem
 
         tabsAdapter = new TransferTabsAdapter(getSupportFragmentManager());
 
-        ivIndicator = (ImageView) findViewById(R.id.iv_tab_indicator);
-        calculateIndicatorWidth(2, ivIndicator);
         pager = (ViewPager) findViewById(R.id.transfer_list_pager);
         pager.setAdapter(tabsAdapter);
-        pager.setOnPageChangeListener(new OnPageChangeListener() {
+        mTabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+        mTabLayout.setTabsFromPagerAdapter(tabsAdapter);
+        mTabLayout.setupWithViewPager(pager);
+        mTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
-            public void onPageScrolled(int position, float offset, int positionOffsetPixels) {
-                LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) ivIndicator.getLayoutParams();
-                if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK && position == 0) { // 0->1
-                    lp.leftMargin = (int) (offset * (screenWidth * 1.0 / 2) + 0 * (screenWidth / 2));
-                } else if (whichTab == TransferTaskAdapter.TaskType.UPLOAD_TASK && position == 0) {// 1->0
-                    lp.leftMargin = (int) (-(1 - offset) * (screenWidth * 1.0 / 2) + 1 * (screenWidth / 2));
-                } else if (whichTab == TransferTaskAdapter.TaskType.UPLOAD_TASK && position == 1) {// 1->2
-                    lp.leftMargin = (int) (offset * (screenWidth * 1.0 / 2) + 1 * (screenWidth / 2));
-                }
-                ivIndicator.setLayoutParams(lp);
-            }
-
-            @Override
-            public void onPageSelected(int position) {
+            public void onTabSelected(TabLayout.Tab tab) {
                 // Log.d(DEBUG_TAG, "current tab index " + position);
-                whichTab = (position == 0
+                whichTab = (tab.getPosition() == 0
                         ? TransferTaskAdapter.TaskType.DOWNLOAD_TASK
                         : TransferTaskAdapter.TaskType.UPLOAD_TASK);
 
@@ -101,11 +87,16 @@ public class TransferActivity extends BaseActivity implements Toolbar.OnMenuItem
                     mode.finish();
 
                 supportInvalidateOptionsMenu();
-                pager.setCurrentItem(position);
+                pager.setCurrentItem(tab.getPosition());
             }
 
             @Override
-            public void onPageScrollStateChanged(int state) {
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
 
             }
         });
