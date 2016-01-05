@@ -18,7 +18,7 @@ public class CameraSyncService extends Service {
     public void onCreate() {
         synchronized (sSyncAdapterLock) {
             if (sSyncAdapter == null) {
-                sSyncAdapter = new CameraSyncAdapter(getApplicationContext(), false);
+                sSyncAdapter = new CameraSyncAdapter(getApplicationContext());
             }
         }
     }

@@ -99,8 +99,12 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
     /**
      * Set up the sync adapter
      */
-    public CameraSyncAdapter(Context context, boolean autoInitialize) {
-        super(context, autoInitialize);
+    public CameraSyncAdapter(Context context) {
+        /*
+         * autoInitialize is set to false because we need to handle initialization
+         * ourselves in performSync() (resetting the photo database).
+         */
+        super(context, false);
 
         Log.d(DEBUG_TAG, "CameraSyncAdapter created.");
 
