@@ -18,7 +18,7 @@ public class CameraUploadManager {
     /**
      * The authority of the camera sync service
      */
-    public static final String AUTHORITY = "com.seafile.seadroid2.cameraupload";
+    public static final String AUTHORITY = "com.seafile.seadroid2.cameraupload.provider";
 
     AccountManager accountManager;
 

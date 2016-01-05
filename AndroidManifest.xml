@@ -174,7 +174,7 @@
 
         <provider
             android:name=".cameraupload.StubContentProvider"
-            android:authorities="com.seafile.seadroid2.cameraupload"
+            android:authorities="com.seafile.seadroid2.cameraupload.provider"
             android:label="@string/sync_provider_camera_upload"
             android:exported="false"
             android:syncable="true"/>
