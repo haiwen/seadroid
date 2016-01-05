@@ -794,6 +794,12 @@ public class ReposFragment extends ListFragment {
 
         mErrorText.setText(msg);
         mErrorText.setVisibility(View.VISIBLE);
+        mErrorText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                refresh();
+            }
+        });
     }
 
     public void showLoading(boolean show) {
