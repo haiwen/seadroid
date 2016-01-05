@@ -400,35 +400,6 @@ public class BrowserActivity extends BaseActivity
                 newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(newIntent);
                 return true;
-            case R.id.refresh:
-                if (!Utils.isNetworkOn()) {
-                    ToastUtils.show(this, R.string.network_down);
-                    return true;
-                }
-                if (currentPosition == INDEX_LIBRARY_TAB) {
-                    if (navContext.inRepo()) {
-                        SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
-                        if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
-                            String password = DataManager.getRepoPassword(repo.id);
-                            showPasswordDialog(repo.name, repo.id,
-                                    new TaskDialog.TaskDialogListener() {
-                                        @Override
-                                        public void onTaskSuccess() {
-                                            getReposFragment().refresh();
-                                        }
-                                    } , password);
-
-                            return true;
-                        }
-                    }
-
-                    getReposFragment().refresh();
-                } else if (currentPosition == INDEX_ACTIVITIES_TAB) {
-                    getActivitiesFragment().refreshView();
-                } else if (currentPosition == INDEX_STARRED_TAB) {
-                    getStarredFragment().refresh();
-                }
-                return true;
             case R.id.edit:
                 // start action mode for selecting multiple files/folders
 

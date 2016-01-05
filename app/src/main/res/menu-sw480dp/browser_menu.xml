@@ -21,12 +21,6 @@
         android:icon="@drawable/add_file"
         app:showAsAction="ifRoom"/>
 
-    <item android:id="@+id/refresh"
-        android:visible="true"
-        android:title="@string/refresh"
-        android:icon="@drawable/refresh"
-        app:showAsAction="ifRoom"/>
-
     <!-- More -->
     <item
         android:id="@+id/menu_overflow"
