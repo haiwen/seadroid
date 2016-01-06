@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.ui.fragment;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -21,8 +22,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.flipboard.bottomsheet.BottomSheetLayout;
-import com.flipboard.bottomsheet.commons.MenuSheetView;
+import com.cocosw.bottomsheet.BottomSheet;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
@@ -75,7 +75,6 @@ public class ReposFragment extends ListFragment {
     public static final int FILE_ACTION_MOVE = 2;
     public static final int FILE_ACTION_STAR = 3;
 
-    private BottomSheetLayout bottomSheetLayout;
     private SwipeRefreshLayout refreshLayout;
     private ListView mListView;
     private ImageView mEmptyView;
@@ -118,7 +117,6 @@ public class ReposFragment extends ListFragment {
             Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.repos_fragment, container, false);
         refreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swiperefresh);
-        bottomSheetLayout = (BottomSheetLayout) root.findViewById(R.id.bottomsheet);
         mListView = (ListView) root.findViewById(android.R.id.list);
         mEmptyView = (ImageView) root.findViewById(R.id.empty);
         mListContainer =  root.findViewById(R.id.listContainer);
@@ -191,62 +189,53 @@ public class ReposFragment extends ListFragment {
         final String path = Utils.pathJoin(dir, dirent.name);
         final String filename = dirent.name;
         final String localPath = getDataManager().getLocalRepoFile(repoName, repoID, path).getPath();
-        MenuSheetView menuSheetView =
-                new MenuSheetView(mActivity, MenuSheetView.MenuType.LIST, title, new MenuSheetView.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        if (bottomSheetLayout.isSheetShowing()) {
-                            bottomSheetLayout.dismissSheet();
-                        }
-
-                        switch (item.getItemId()) {
-                            case R.id.share:
-                                mActivity.shareFile(repoID, path);
-                                break;
-                            case R.id.delete:
-                                mActivity.deleteFile(repoID, repoName, path);
-                                break;
-                            case R.id.copy:
-                                mActivity.copyFile(repoID, repoName, dir, filename, false);
-                                break;
-                            case R.id.move:
-                                mActivity.moveFile(repoID, repoName, dir, filename, false);
-                                break;
-                            case R.id.rename:
-                                mActivity.renameFile(repoID, repoName, path);
-                                break;
-                            case R.id.update:
-                                mActivity.addUpdateTask(repoID, repoName, dir, localPath);
-                                break;
-                            case R.id.download:
-                                mActivity.downloadFile(dir, dirent.name);
-                                break;
-                            case R.id.export:
-                                mActivity.exportFile(dirent.name);
-                                break;
-                            case R.id.star:
-                                mActivity.starFile(repoID, dir, filename);
-                                break;
-                        }
-                        return true;
-                    }
-                });
-        menuSheetView.inflateMenu(R.menu.bottom_sheet_op_file);
-        bottomSheetLayout.showWithSheetView(menuSheetView);
+        final BottomSheet.Builder builder = new BottomSheet.Builder(mActivity);
+        builder.title(title).sheet(R.menu.bottom_sheet_op_file).listener(new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case R.id.share:
+                        mActivity.shareFile(repoID, path);
+                        break;
+                    case R.id.delete:
+                        mActivity.deleteFile(repoID, repoName, path);
+                        break;
+                    case R.id.copy:
+                        mActivity.copyFile(repoID, repoName, dir, filename, false);
+                        break;
+                    case R.id.move:
+                        mActivity.moveFile(repoID, repoName, dir, filename, false);
+                        break;
+                    case R.id.rename:
+                        mActivity.renameFile(repoID, repoName, path);
+                        break;
+                    case R.id.update:
+                        mActivity.addUpdateTask(repoID, repoName, dir, localPath);
+                        break;
+                    case R.id.download:
+                        mActivity.downloadFile(dir, dirent.name);
+                        break;
+                    case R.id.export:
+                        mActivity.exportFile(dirent.name);
+                        break;
+                    case R.id.star:
+                        mActivity.starFile(repoID, dir, filename);
+                        break;
+                }
+            }
+        }).show();
 
         SeafRepo repo = getDataManager().getCachedRepoByID(repoID);
         if (repo != null && repo.encrypted) {
-            menuSheetView.getMenu().removeItem(R.id.share);
+            builder.remove(R.id.share);
         }
 
         SeafCachedFile cf = getDataManager().getCachedFile(repoName, repoID, path);
         if (cf!= null) {
-            menuSheetView.getMenu().removeItem(R.id.download);
+            builder.remove(R.id.download);
         } else {
-            menuSheetView.getMenu().removeItem(R.id.update);
+            builder.remove(R.id.update);
         }
-
-        menuSheetView.updateMenu();
 
     }
 
@@ -256,47 +245,36 @@ public class ReposFragment extends ListFragment {
         final String dir = getNavContext().getDirPath();
         final String path = Utils.pathJoin(dir, dirent.name);
         final String filename = dirent.name;
-        MenuSheetView menuSheetView =
-                new MenuSheetView(mActivity, MenuSheetView.MenuType.LIST, title, new MenuSheetView.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        if (bottomSheetLayout.isSheetShowing()) {
-                            bottomSheetLayout.dismissSheet();
-                        }
-
-                        switch (item.getItemId()) {
-                            case R.id.share:
-                                mActivity.shareDir(repoID, path);
-                                break;
-                            case R.id.delete:
-                                mActivity.deleteDir(repoID, repoName, path);
-                                break;
-                            case R.id.copy:
-                                mActivity.copyFile(repoID, repoName, dir, filename, false);
-                                break;
-                            case R.id.move:
-                                mActivity.moveFile(repoID, repoName, dir, filename, false);
-                                break;
-                            case R.id.rename:
-                                mActivity.renameDir(repoID, repoName, path);
-                                break;
-                            case R.id.download:
-                                mActivity.downloadDir(dir, dirent.name, true);
-                                break;
-                        }
-                        return true;
-                    }
-                });
-        menuSheetView.inflateMenu(R.menu.bottom_sheet_op_dir);
-        bottomSheetLayout.showWithSheetView(menuSheetView);
-
+        final BottomSheet.Builder builder = new BottomSheet.Builder(mActivity);
+        builder.title(title).sheet(R.menu.bottom_sheet_op_dir).listener(new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case R.id.share:
+                        mActivity.shareDir(repoID, path);
+                        break;
+                    case R.id.delete:
+                        mActivity.deleteDir(repoID, repoName, path);
+                        break;
+                    case R.id.copy:
+                        mActivity.copyFile(repoID, repoName, dir, filename, false);
+                        break;
+                    case R.id.move:
+                        mActivity.moveFile(repoID, repoName, dir, filename, false);
+                        break;
+                    case R.id.rename:
+                        mActivity.renameDir(repoID, repoName, path);
+                        break;
+                    case R.id.download:
+                        mActivity.downloadDir(dir, dirent.name, true);
+                        break;
+                }
+            }
+        }).show();
         SeafRepo repo = getDataManager().getCachedRepoByID(repoID);
         if (repo != null && repo.encrypted) {
-            menuSheetView.getMenu().removeItem(R.id.share);
+            builder.remove(R.id.share);
         }
-
-        menuSheetView.updateMenu();
-
     }
 
     @Override

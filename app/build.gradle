@@ -59,8 +59,7 @@ android {
         compile 'commons-io:commons-io:2.4'
         compile 'com.google.guava:guava:18.0'
         compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
-        compile 'com.flipboard:bottomsheet-core:1.5.0'
-        compile 'com.flipboard:bottomsheet-commons:1.5.0' // optional
+        compile 'com.cocosw:bottomsheet:1.+@aar'
         compile project(':libraries:MarkdownView')
         compile project(':libraries:PhotoView')
     }
