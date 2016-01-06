@@ -218,6 +218,7 @@ public class BrowserActivity extends BaseActivity
         // enable ActionBar app icon to behave as action back
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        findViewById(R.id.view_toolbar_bottom_line).setVisibility(View.GONE);
         // Get the message from the intent
         Intent intent = getIntent();
         String server = intent.getStringExtra(AccountManager.SHARED_PREF_SERVER_KEY);

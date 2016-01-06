@@ -12,6 +12,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.notification.BaseNotificationProvider;
@@ -52,6 +53,8 @@ public class TransferActivity extends BaseActivity implements Toolbar.OnMenuItem
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.transfer_list_layout);
+
+        findViewById(R.id.view_toolbar_bottom_line).setVisibility(View.GONE);
 
         tabsAdapter = new TransferTabsAdapter(getSupportFragmentManager());
 
