@@ -102,7 +102,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/settings_advance_feature_title"
-        android:layout="@layout/bg_settings_section_account">
+        android:layout="@layout/bg_settings_section_advanced">
         <Preference
             android:key="settings_cache_info_key"
             android:enabled="false"
