@@ -175,8 +175,9 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             String bucketName = bucket.name;
 
             // retain backwards compatibility with the behaviour of previous Seadroid versions
-            if (bucketName.equalsIgnoreCase("Camera")) {
-                bucketName = "Camera Uploads";
+            // put all Camera photos into folder "Camera Uploads"
+            if (bucket.isCameraBucket) {
+                bucketName = GalleryBucketUtils.CAMERA_TARGET_FOLDER;
             }
 
             forceCreateDirectory(dataManager, "/", bucketName);
@@ -520,8 +521,11 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             }
 
             // retain backwards compatibility with the behaviour of previous Seadroid versions
-            if (bucketName.equalsIgnoreCase("Camera")) {
-                bucketName = "Camera Uploads";
+            // put all Camera photos into folder "Camera Uploads"
+            for (GalleryBucketUtils.Bucket b: GalleryBucketUtils.getMediaBuckets(getContext())) {
+                if (bucketName.equals(b.name) && b.isCameraBucket) {
+                    bucketName = GalleryBucketUtils.CAMERA_TARGET_FOLDER;
+                }
             }
 
             uploadFile(dataManager, file, bucketName);

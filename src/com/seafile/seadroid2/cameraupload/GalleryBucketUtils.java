@@ -25,6 +25,8 @@ public class GalleryBucketUtils {
      */
     public static final String[] CAMERA_BUCKET_NAMES = {"Camera", "100ANDRO", "100MEDIA"};
 
+    public static final String CAMERA_TARGET_FOLDER = "Camera Uploads";
+
     public static class Bucket {
         public String id;
         public String name;
