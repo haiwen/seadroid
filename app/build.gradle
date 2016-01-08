@@ -60,6 +60,7 @@ android {
         compile 'com.google.guava:guava:18.0'
         compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
         compile 'com.astuetz:pagerslidingtabstrip:1.0.1'
+        compile 'com.cocosw:bottomsheet:1.+@aar'
         compile project(':libraries:SlideExpandableListView')
         compile project(':libraries:MarkdownView')
         compile project(':libraries:PhotoView')

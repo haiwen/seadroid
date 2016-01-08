@@ -26,10 +26,21 @@
         <item name="actionModeStyle">@style/LightTheme.ActionMode</item>
         <item name="android:homeAsUpIndicator">@drawable/home_up_btn</item>
         <item name="homeAsUpIndicator">@drawable/home_up_btn</item>
-        <item name="android:textColorHighlight">#99ea8201</item>
+        <item name="android:textColorHighlight">@color/fancy_gray</item>
         <item name="android:textSelectHandleLeft">@drawable/fancy_orange_text_select_handle_left</item>
         <item name="android:textSelectHandleRight">@drawable/fancy_orange_text_select_handle_right</item>
         <item name="android:textSelectHandle">@drawable/fancy_orange_text_select_handle_middle</item>
+        <item name="bottomSheetStyle">@style/BottomSheet.StyleDialog</item>
+    </style>
+
+    <style name="BottomSheet.StyleDialog" parent="BottomSheet.Dialog">
+        <item name="android:backgroundDimAmount">0.5</item>
+        <item name="android:windowAnimationStyle">@style/BottomSheet.Animation</item>
+        <item name="android:textColorPrimary">@color/fancy_black</item>
+        <item name="android:textColorSecondary">@color/fancy_dark_black</item>
+        <item name="android:textColorHint">@color/fancy_black</item>
+        <item name="bs_dividerColor">@color/fancy_deep_black</item>
+        <item name="bs_numColumns">4</item>
     </style>
 
     <style name="LightTheme.ActionMode" parent="Widget.Sherlock.Light.ActionMode">
