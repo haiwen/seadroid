@@ -45,7 +45,6 @@
 
         <Preference
             android:key="camera_upload_repo_key"
-            android:layout="@layout/preference"
             android:summary="@string/settings_camera_upload_repo_hint"
             android:title="@string/settings_camera_upload_change_repo_title" />
 
@@ -62,15 +61,14 @@
                         android:summaryOff="@string/settings_camera_upload_default_wifi"
                         android:summaryOn="@string/settings_camera_upload_data_plan_allowed"
                         android:title="@string/settings_camera_upload_allow_data_plan"
-                        android:layout="@layout/seafile_checkbox_layout" >
+                        >
                 </CheckBoxPreference>
                 <CheckBoxPreference
                         android:defaultValue="false"
                         android:key="allow_videos_upload_switch_key"
                         android:summaryOff="@string/settings_camera_upload_default_photos"
                         android:summaryOn="@string/settings_camera_upload_videos_allowed"
-                        android:title="@string/settings_camera_upload_allow_videos"
-                        android:layout="@layout/seafile_checkbox_layout" >
+                        android:title="@string/settings_camera_upload_allow_videos">
                 </CheckBoxPreference>
                 <com.seafile.seadroid2.ui.SwitchPreferenceCompat
                         android:defaultValue="false"
@@ -82,7 +80,6 @@
                 </com.seafile.seadroid2.ui.SwitchPreferenceCompat>
                 <Preference
                         android:key="camera_upload_directory_key"
-                        android:layout="@layout/preference"
                         android:summary="@string/settings_camera_upload_dir_auto_scan"
                         android:title="@string/settings_camera_upload_choose_dir" >
                 </Preference>
