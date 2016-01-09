@@ -106,8 +106,8 @@
     <string name="password_empty">Please enter the password</string>
     <string name="wrong_password">wrong password</string>
     <string name="library_read_only">This library is read-only</string>
-    <string name="error_when_load_dirents">Error when loading the folder, tap to refresh</string>
-    <string name="error_when_load_repos">Error when loading libraries, tap to refresh</string>
+    <string name="error_when_load_dirents">Error when loading the folder.\n Tap to refresh</string>
+    <string name="error_when_load_repos">Error when loading libraries.\n Tap to refresh</string>
     <string name="dir_empty">This folder is empty</string>
     <string name="no_repo">You have no libraries yet</string>
     <string name="no_app_available">No app can be found</string>
