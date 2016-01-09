@@ -6,7 +6,9 @@ import android.accounts.AccountManager;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -15,6 +17,7 @@ import android.widget.ListView;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Authenticator;
 import com.seafile.seadroid2.cameraupload.CameraUploadManager;
+import com.seafile.seadroid2.ui.BaseAuthenticatorActivity;
 
 /**
  * The Authenticator activity.
@@ -23,7 +26,7 @@ import com.seafile.seadroid2.cameraupload.CameraUploadManager;
  *
  * It sends back to the Authenticator the result.
  */
-public class SeafileAuthenticatorActivity extends AccountAuthenticatorActivity {
+public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
 
     public static final int SEACLOUD_CC = 0;
     public static final int CLOUD_SEAFILE_COM = 1;
@@ -53,7 +56,7 @@ public class SeafileAuthenticatorActivity extends AccountAuthenticatorActivity {
         setContentView(R.layout.account_create_type_select);
 
         String[] array = getResources().getStringArray(R.array.choose_server_array);
-        ArrayAdapter<String> listAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, array);
+        ArrayAdapter<String> listAdapter = new ArrayAdapter<>(this, R.layout.list_item_authenticator, array);
 
         ListView listView = (ListView)findViewById(R.id.account_create_list);
         listView.setAdapter(listAdapter);
@@ -97,6 +100,17 @@ public class SeafileAuthenticatorActivity extends AccountAuthenticatorActivity {
             intent.putExtras(getIntent().getExtras());
             startActivityForResult(intent, SeafileAuthenticatorActivity.REQ_SIGNUP);
         }
+
+        Toolbar toolbar = getActionBarToolbar();
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(R.string.choose_server);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                navigateUpOrBack(SeafileAuthenticatorActivity.this, null);
+            }
+        });
     }
 
     @Override
@@ -170,5 +184,4 @@ public class SeafileAuthenticatorActivity extends AccountAuthenticatorActivity {
         setResult(RESULT_OK, intent);
         finish();
     }
-
 }
