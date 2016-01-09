@@ -7,8 +7,8 @@
 
     <ImageView
             android:id="@+id/cuc_repo_list_item_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/lv_icon_width"
+            android:layout_height="@dimen/lv_icon_height"
             android:layout_alignParentBottom="true"
             android:layout_alignParentTop="true"/>
 
