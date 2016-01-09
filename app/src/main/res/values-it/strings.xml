@@ -1,0 +1,155 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="welcome_to_seafile">Benvenuto in Seafile</string>
+  <string name="select_account">Scegli un account per iniziare</string>
+  <string name="edit_account">Modifica</string>
+  <string name="delete_account">Cancella</string>
+  <string name="delete">Cancella</string>
+  <string name="delete_file">Sei sicuro di cancellare questo file o cartella?</string>
+  <string name="delete_successful">Cancellato correttamente</string>
+  <string name="delete_file_f">Cancella file</string>
+  <string name="delete_dir">Cancella cartella</string>
+  <string name="server_hint">Server, come cloud.seafile.com</string>
+  <string name="email_hint">Email</string>
+  <string name="passwd_hint">Password</string>
+  <string name="login">Login</string>
+  <string name="open_file">Apri</string>
+  <string name="download_file">Scarica</string>
+  <string name="redownload_file">Scarica nuovamente</string>
+  <string name="cancel_download">Annulla</string>
+  <string name="unknown_file_type">Tipo file sconosciuto</string>
+  <string name="refresh">Aggiorna</string>
+  <string name="add_account">Aggiungi Account</string>
+  <string name="personal">Personale</string>
+  <string name="libraries">Librerie</string>
+  <string name="cached">Cachata</string>
+  <string name="activities">Attività</string>
+  <string name="pick_upload_type">Carica</string>
+  <string name="accounts">Account</string>
+  <string name="settings">Impostazioni</string>
+  <string-array name="pick_upload_array">
+    <item>File</item>
+    <item>Foto/Video</item>
+    <item>Altro</item>
+  </string-array>
+  <string name="choose_server">Scegli un Server Seafile</string>
+  <string name="network_down">Nessun connessione disponibile</string>
+  <string name="invalid_server_address">Indirizzo server non valido</string>
+  <string name="err_login_failed">Login fallito</string>
+  <string name="err_wrong_user_or_passwd">Email o password errati</string>
+  <string name="upload">Carica</string>
+  <string name="uploaded">Caricati</string>
+  <string name="updated">Aggiornati</string>
+  <string name="download_failed">Download fallito</string>
+  <string name="task_cancel">Annulla</string>
+  <string name="task_retry">Riprova</string>
+  <string name="task_remove">Rimuovi</string>
+  <string name="file_action_download">Scarica</string>
+  <string name="file_action_update">Carica</string>
+  <string name="file_action_export">Esporta</string>
+  <string name="file_action_delete">Cancella</string>
+  <string name="file_action_rename">Rinomina</string>
+  <string name="file_action_copy">Copia</string>
+  <string name="file_action_move">Muovi</string>
+  <string name="file_action_open_as">Apri come</string>
+  <string-array name="file_type_array">
+    <item>Testo</item>
+    <item>Audio</item>
+    <item>Video</item>
+    <item>Immagine</item>
+    <item>Altro</item>
+  </string-array>
+  <string name="wait">Attendi</string>
+  <string name="pick_photo_video_title">Scegli foto/video da caricare</string>
+  <string name="dir_name_empty">Inserisci il nome della cartella</string>
+  <string name="file_name_empty">Inserisci il nome del file</string>
+  <string name="password_empty">Inserisci la password</string>
+  <string name="wrong_password">password errata</string>
+  <string name="library_read_only">Questa libreria è sola-lettura</string>
+  <string name="error_when_load_dirents">Error nel caricamento della cartella</string>
+  <string name="error_when_load_repos">Errore nel caricamento librerie</string>
+  <string name="dir_empty">Questa cartella è vuota</string>
+  <string name="no_repo">Non hai ancora librerie</string>
+  <string name="no_app_available">Nessun app trovata</string>
+  <string name="add_to_seafile">Aggiungi a Seafile</string>
+  <string name="ok">OK</string>
+  <string name="choose_an_account">Scegli un account</string>
+  <string name="choose_a_library">Scegli una libreria</string>
+  <string name="choose_a_folder">Scegli una cartella</string>
+  <string name="load_libraries_fail">Impossibile caricare le librerie</string>
+  <string name="load_dir_fail">Impossibile caricare il contenuto di questa cartella</string>
+  <string name="not_supported_share">Questo tipo di condivisione non è supportato</string>
+  <string name="create_new_file">Crea un nuovo file</string>
+  <string name="create_new_dir">Crea una nuova cartella</string>
+  <string name="camera">Crea una foto qui</string>
+  <string name="download">Scarica</string>
+  <string name="open">Apri</string>
+  <string name="last_modified">ultima modifica</string>
+  <string name="file_modified">modificato</string>
+  <string name="file_size">dimensione file</string>
+  <string name="export_file">Esporta questo file</string>
+  <string name="no_upload_tasks">No ci sono ancora caricamenti attivi</string>
+  <string name="seahub_url_hint">Nota: l\'indirizzo del Server dovrebbe contenere la porta. Per esempio, www.example.com:8000</string>
+  <string name="copy_link">Copia link</string>
+  <string name="share_file_link">Condividi il link al file</string>
+  <string name="share_dir_link">Condividi il link a questa cartella</string>
+  <string name="generating_link">Generazione del link...</string>
+  <string name="link_ready_to_be_pasted">Il link è pronto per essere incollato.</string>
+  <string name="rename_file">Rinomina file</string>
+  <string name="rename_dir">Rinomina cartella</string>
+  <string name="rename_successful">Cambio nome avvenuto correttamente.</string>
+  <string-array name="nav_array">
+    <item>File</item>
+    <item>Caricamenti</item>
+    <item>Account</item>
+    <item>Backup Foto</item>
+  </string-array>
+  <string name="no_starred_file">Non ci sono ancora file preferiti</string>
+  <string name="tabs_library">Librerie</string>
+  <string name="tabs_activity">Attività</string>
+  <string name="tabs_starred">Preferiti</string>
+  <string name="provide_password">Inserisci la password per la libreria \"%s\"</string>
+  <string name="just_now">Appena adesso</string>
+  <string name="error_when_load_starred">Errore nel caricamento dei file preferiti</string>
+  <string name="open_as">Apri come</string>
+  <string name="storage_removed">La memoria è stata rimossa</string>
+  <string name="error_selecting_file">Errore nella selezione del file</string>
+  <string name="empty_folder">Cartella vuota</string>
+  <string name="choose_file">Scegli un file</string>
+  <string name="ssl_confirm">Il certificato di sicurezza di %s non è fidato. Vuoi continuare?</string>
+  <string name="ssl_confirm_cert_changed">%s usa un certificato di sicurezza non valido. La connessione non è sicura. Vuoi continuare?</string>
+  <string name="ssl_confirm_title">Connessione Insicura</string>
+  <string name="yes">Sì</string>
+  <string name="no">No</string>
+  <string name="remember_my_choice">Ricorda la mia scelta</string>
+  <string name="internal_server_error">Errore Interno del Server</string>
+  <string name="copy_file_ing">Copia file in corso</string>
+  <string name="move_file_ing">Spostamento file in corso</string>
+  <string name="copy_folder_ing">Copia cartella in corso</string>
+  <string name="move_folder_ing">Spostamento cartella in corso</string>
+  <string name="cannot_copy_folder_to_subfolder">Non puoi copiare una cartella in una sua sottocartella</string>
+  <string name="cannot_move_folder_to_subfolder">Non puoi spostare una cartella in una sua sottocartella</string>
+  <string name="cancel">Annulla</string>
+  <string name="confirm">Conferma</string>
+  <string name="security">Sicurezza</string>
+  <string name="gesture_lock">Movimento per Blocco</string>
+  <string name="gesture_lock_on">Movimento blocco attivo</string>
+  <string name="gesture_lock_off">Movimento blocco disattivo</string>
+  <string name="lockscreen_access_pattern_cleared">Pattern pulito</string>
+  <!--Strings for possible PreferenceActivity Back/Next buttons-->
+  <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
+  <!--Camera Upload Preference-->
+  <string name="settings_camera_upload_info_title">Caricamento Foto di Fotocamera</string>
+  <!--Camera Upload Configuration View-->
+  <!--pull to refresh-->
+  <!--storage access framework-->
+  <!--shibboleth SSO-->
+  <!--Transfer List-->
+  <!--Sort-->
+  <!--Search-->
+  <!--star a file-->
+  <!--notification bar-->
+  <!--Gallery-->
+  <!--Overwrite existing files-->
+  <!--Action Mode-->
+</resources>

@@ -1,0 +1,196 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="welcome_to_seafile">Welkom bij Seafile</string>
+  <string name="select_account">Kies een account om te starten</string>
+  <string name="edit_account">Bewerk</string>
+  <string name="delete_account">Verwijder</string>
+  <string name="delete">Verwijder</string>
+  <string name="delete_file">Bent u zeker dat u dit bestand of deze map wilt verwijderen?</string>
+  <string name="delete_successful">Succesvol verwijdert</string>
+  <string name="delete_file_f">Verwijder bestand</string>
+  <string name="delete_dir">Verwijder map</string>
+  <string name="server_hint">Server zoals cloud.seafile.com</string>
+  <string name="email_hint">E-mail</string>
+  <string name="passwd_hint">Wachtwoord</string>
+  <string name="login">Login</string>
+  <string name="open_file">Open</string>
+  <string name="download_file">Download</string>
+  <string name="redownload_file">Download opnieuw</string>
+  <string name="cancel_download">Cancel</string>
+  <string name="unknown_file_type">Onbekend bestandstype</string>
+  <string name="activity_not_found">Kan geen App vinden om dit bestand te openen</string>
+  <string name="refresh">Vernieuw</string>
+  <string name="add_account">Voeg een account toe</string>
+  <string name="personal">Persoonlijk</string>
+  <string name="libraries">Bibliotheek</string>
+  <string name="cached">Gecached</string>
+  <string name="activities">Activiteiten</string>
+  <string name="pick_upload_type">Uploaden</string>
+  <string name="transfer_tasks">Transferlijst</string>
+  <string name="accounts">Accounts</string>
+  <string name="settings">Instellingen</string>
+  <string-array name="pick_upload_array">
+    <item>Bestand</item>
+    <item>foto\'s/Videos</item>
+    <item>Overig</item>
+  </string-array>
+  <string name="choose_server">Kies een Seafile Server</string>
+  <string name="network_down">Geen netwerk verbinding</string>
+  <string name="unknow_error">Onbekende fout</string>
+  <string name="invalid_server_address">Ongeldig server adres</string>
+  <string name="err_server_andress_empty">Server adres kan niet leeg zijn</string>
+  <string name="err_email_empty">E-mail kan niet leeg zijn</string>
+  <string name="err_passwd_empty">Wachtwoord is niet leeg</string>
+  <string name="err_login_failed">Login mislukt</string>
+  <string name="err_wrong_user_or_passwd">E-mail of wachtwoord fout</string>
+  <string name="upload">Upload</string>
+  <string name="uploaded">Geupload</string>
+  <string name="updated">geüpdate</string>
+  <string name="download_failed">Download gefaald</string>
+  <string name="task_cancel">Cancel</string>
+  <string name="task_retry">Probeer opnieuw</string>
+  <string name="task_remove">Verwijder</string>
+  <string name="file_action_star">Ster</string>
+  <string name="file_action_download">Download</string>
+  <string name="file_action_update">Upload</string>
+  <string name="file_action_export">Exporteer</string>
+  <string name="file_action_delete">Verwijder</string>
+  <string name="file_action_rename">Hernoem</string>
+  <string name="file_action_copy">Kopieer</string>
+  <string name="file_action_move">Verplaatst</string>
+  <string name="file_action_open_as">Open als</string>
+  <string-array name="file_type_array">
+    <item>Tekst</item>
+    <item>Audio</item>
+    <item>Video</item>
+    <item>Afbeelding</item>
+    <item>Overige</item>
+  </string-array>
+  <string name="wait">Wacht</string>
+  <string name="image_gallery_NoImageView_text">Geen afbeelding gevonden</string>
+  <string name="pick_photo_video_title">Kies foto\'s/videos om te uploaden</string>
+  <string name="select_upload_items">Selecteer items om te uploaden</string>
+  <string name="dir_name_empty">Gelieve de foldernaam in te geven.</string>
+  <string name="file_name_empty">Gelieve de bestandsnaam in te geven</string>
+  <string name="password_empty">Gelieve het wachtwoord in te geven</string>
+  <string name="wrong_password">fout wachtwoord</string>
+  <string name="library_read_only">Deze bibliotheek is alleen lezen</string>
+  <string name="error_when_load_dirents">Fout tijdens het laden van de map</string>
+  <string name="error_when_load_repos">Fout bij het laden van de bibliotheken</string>
+  <string name="dir_empty">Deze map is leeg</string>
+  <string name="no_repo">Je hebt nog geen bibliotheken</string>
+  <string name="no_app_available">Geen app gevonden</string>
+  <string name="add_to_seafile">Voeg too aan Seafile</string>
+  <string name="ok">OK</string>
+  <string name="no_account">Gelieve eerste een Seafile account aan te maken</string>
+  <string name="choose_an_account">Kies een account</string>
+  <string name="choose_a_library">Kies een bibliotheek</string>
+  <string name="choose_a_folder">Kies een map</string>
+  <string name="load_accounts_fail">Gefaald bij het laden van Seafile accounts</string>
+  <string name="load_libraries_fail">Gefaald bij het laden van bibliotheken</string>
+  <string name="load_dir_fail">Gefaald bij het laden van de inhoud van deze map</string>
+  <string name="not_supported_share">Dit type van delen is niet ondersteund</string>
+  <string name="download_folder">Download map</string>
+  <string name="create_new_file">Creeër een nieuw bestand</string>
+  <string name="create_new_dir">Creeër een nieuwe map</string>
+  <string name="camera">Neem een foto hier</string>
+  <string name="download">Download</string>
+  <string name="open">Open</string>
+  <string name="last_modified">Laatst bewerkt</string>
+  <string name="file_modified">bewerkt</string>
+  <string name="file_size">Bestandsgrootte</string>
+  <string name="library_not_found">Deze bibliotheek is verwijdert</string>
+  <string name="export_file">Exporteer dit bestand</string>
+  <string name="no_upload_tasks">Nog geen upload taken</string>
+  <string name="no_download_tasks">Nog geen download taken</string>
+  <string name="seahub_url_hint">Nota: Server adres moet de poort niet bevatten. Bijvoorbeeld, www.voorbeeld.com:8000</string>
+  <string name="copy_link">Kopieer link</string>
+  <string name="share_file_link">Deel een link naar dit bestand</string>
+  <string name="share_dir_link">Deel een link naar deze map</string>
+  <string name="generating_link">Link aan het genereren...</string>
+  <string name="link_ready_to_be_pasted">De link is klaar om geplakt te worden</string>
+  <string name="rename_file">Hernoem bestand</string>
+  <string name="rename_dir">Hernoem map</string>
+  <string name="rename_successful">Hernoemen succesfol.</string>
+  <string-array name="nav_array">
+    <item>Bestand</item>
+    <item>Uploads</item>
+    <item>Accounts</item>
+    <item>Backup Fotos</item>
+  </string-array>
+  <string name="no_starred_file">Nog geen gesterde bestanden</string>
+  <string name="added_to_upload_tasks">Uploaden gestart</string>
+  <string name="added_photo_to_upload_tasks">Foto upload gestart</string>
+  <string name="take_photo_successfully">Neem foto succesvol</string>
+  <string name="tabs_library">Bibliotheken</string>
+  <string name="tabs_activity">Activiteiten</string>
+  <string name="tabs_starred">Gesterd</string>
+  <string name="provide_password">Voorzie het wachtwoord voor de bibliotheek \"%s\"</string>
+  <string name="days_ago">%d dagen geleden</string>
+  <string name="hours_ago">%d uren geleden</string>
+  <string name="minutes_ago">%d minuten geleden</string>
+  <string name="seconds_ago">%d seconden geleden</string>
+  <string name="just_now">Juist nu</string>
+  <string name="error_when_load_starred">Fout bij het laden van gesterde bestanden</string>
+  <string name="open_as">Openen als</string>
+  <string name="select_upload_files">Selecteer de bestanden om te uploaden</string>
+  <string name="storage_removed">Opslag was verwijdert</string>
+  <string name="error_selecting_file">Fout bij het selecteren van het bestand</string>
+  <string name="empty_folder">Leeg map</string>
+  <string name="choose_file">Kies een bestand</string>
+  <string name="ssl_error">Veiligheidscontrole gefaald</string>
+  <string name="ssl_confirm">Het veiligheidscertificaar van %s is niet vertrouwd. Wilt u verdergaan?</string>
+  <string name="ssl_confirm_cert_changed">%s gebruikt een ongeldig certificaat. De verbinding is niet veilig. WIlt u verdergaan?</string>
+  <string name="ssl_confirm_title">Onvertrouwde Verbinding</string>
+  <string name="issued_to">Toegewezen Aan</string>
+  <string name="finger_prints">Vingerafdrukken</string>
+  <string name="period_of_validity">Geldigheidsperiode</string>
+  <string name="sha1">SHA-1 %s</string>
+  <string name="md5">MD5 %s</string>
+  <string name="not_available">niet beschikbaar</string>
+  <string name="serial_number">Serienummer %s</string>
+  <string name="not_before">geldig vanaf %s</string>
+  <string name="not_after">Geldig tot %s</string>
+  <string name="yes">Ja</string>
+  <string name="no">Nee</string>
+  <string name="remember_my_choice">Herriner mijn keuze</string>
+  <string name="copied_successfully">succesvol gecopieerd</string>
+  <string name="moved_successfully">Succesvol verplaatst</string>
+  <string name="internal_server_error">Interne Server Fout</string>
+  <string name="copy_file_ing">Kopieren van bestanden</string>
+  <string name="move_file_ing">Bestand verplaatsen</string>
+  <string name="copy_folder_ing">Kopieren van map</string>
+  <string name="move_folder_ing">Verplaatsen van map</string>
+  <string name="upload_started">Upload is gestart</string>
+  <string name="cannot_copy_folder_to_subfolder">Je kan geen folder kopieren naar zijn subfolder</string>
+  <string name="cannot_move_folder_to_subfolder">je kan geen map verplaatsen naar zijn subfolder</string>
+  <string name="cancel">Gecanceled</string>
+  <string name="confirm">Bevestig</string>
+  <string name="settings_account">Account</string>
+  <string name="settings_account_info_title">Gebruikers info</string>
+  <string name="settings_account_info_load_data">Aan het laden...</string>
+  <string name="settings_account_space_title">Plaats gebruikt</string>
+  <string name="settings_account_sign_out_title">Log uit</string>
+  <string name="settings_account_sign_out_hint">Klik om uit te loggen</string>
+  <string name="settings_account_sign_out_confirm">Wil je uitloggen?</string>
+  <string name="security">Veiligheid</string>
+  <string name="lockscreen_access_pattern_start">Start met tekenen</string>
+  <string name="lockscreen_access_pattern_cleared">Patroon leeggemaakt</string>
+  <string name="lockscreen_access_pattern_passwd_forget">Wachtwoord vergeten</string>
+  <string name="lockscreen_access_pattern_failure">5 keer mislukt, gelieve 30 seconden te wachten</string>
+  <!--Strings for possible PreferenceActivity Back/Next buttons-->
+  <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
+  <!--Camera Upload Preference-->
+  <!--Camera Upload Configuration View-->
+  <!--pull to refresh-->
+  <!--storage access framework-->
+  <!--shibboleth SSO-->
+  <!--Transfer List-->
+  <!--Sort-->
+  <!--Search-->
+  <!--star a file-->
+  <!--notification bar-->
+  <!--Gallery-->
+  <!--Overwrite existing files-->
+  <!--Action Mode-->
+</resources>

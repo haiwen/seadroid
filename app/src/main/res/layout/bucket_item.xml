@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <ImageView
+        android:id="@+id/bucket_item_thumbImage"
+        android:layout_width="512px"
+        android:layout_height="384px"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:scaleType="centerCrop" />
+
+    <ImageView
+        android:id="@+id/bucket_item_text_background"
+        android:layout_width="512px"
+        android:layout_height="50px"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:alpha="0.5"
+        android:background="#000000" />
+
+    <ImageView
+        android:id="@+id/bucket_item_marking"
+        android:layout_width="512px"
+        android:layout_height="384px"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/camera_bucket_selected"
+        android:alpha="0.7" />
+
+    <TextView
+        android:id="@+id/bucket_item_name"
+        android:layout_width="512px"
+        android:layout_height="50px"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:textColor="#ffffff"
+        android:layout_marginLeft="10px"
+        android:layout_marginTop="5px"
+        android:layout_marginRight="5px" />
+
+</FrameLayout>

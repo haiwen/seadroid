@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<animation-list android:oneshot="false" xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:duration="100">
+        <scale
+                android:drawable="@drawable/loading_1"
+                android:scaleGravity="center"/>
+    </item>|
+    <item android:duration="100">
+        <scale
+                android:drawable="@drawable/loading_2"
+                android:scaleGravity="center"/>
+    </item>
+    <item android:duration="100">
+        <scale
+                android:drawable="@drawable/loading_3"
+                android:scaleGravity="center"/>
+    </item>
+    <item android:duration="100">
+        <scale
+                android:drawable="@drawable/loading_4"
+                android:scaleGravity="center"/>
+    </item>
+</animation-list>

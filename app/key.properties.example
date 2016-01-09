@@ -1,0 +1,4 @@
+keyStore=debug.keystore
+keyStorePassword=android
+keyAlias=AndroidDebugKey
+keyAliasPassword=android

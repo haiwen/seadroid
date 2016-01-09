@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/transfer_mode_select_all"
+          android:title="@string/transfer_list_select_all"
+          android:icon="@drawable/select_all"
+          android:showAsAction="ifRoom"/>
+</menu>

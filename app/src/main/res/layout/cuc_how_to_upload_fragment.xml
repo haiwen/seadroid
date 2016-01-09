@@ -1,0 +1,66 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <TextView
+        android:id="@+id/cuc_wifi_title_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="@dimen/tv_title_margin_left"
+        android:layout_marginTop="@dimen/tv_title_margin_top"
+        android:text="@string/settings_cuc_network_title"
+        android:textColor="@color/fancy_orange"
+        android:textSize="@dimen/tv_title_txt_size" />
+
+    <TextView
+        android:id="@+id/cuc_wifi_hint_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/cuc_wifi_title_tv"
+        android:layout_below="@+id/cuc_wifi_title_tv"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="@dimen/section_margin_top"
+        android:text="@string/settings_cuc_option_hint"
+        android:textColor="@color/fancy_gray"
+        android:textSize="@dimen/tv_subtitle_txt_size" />
+
+    <TextView
+            android:id="@+id/cuc_swipe_left_txt_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/cuc_wifi_hint_tv"
+            android:layout_below="@+id/cuc_wifi_hint_tv"
+            android:layout_marginTop="@dimen/tv_subtitle_margin_top"
+            android:text="@string/settings_cuc_swipe_left"
+            android:textColor="@color/fancy_gray"
+            android:textSize="@dimen/tv_subtitle_txt_size" />
+
+    <RadioGroup
+        android:id="@+id/cuc_wifi_radio_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checkedButton="@+id/cuc_wifi_only_rb"
+        android:layout_alignLeft="@+id/cuc_swipe_left_txt_tv"
+        android:layout_below="@+id/cuc_swipe_left_txt_tv"
+        android:layout_marginTop="@dimen/section_margin_top" >
+
+        <RadioButton
+            android:id="@+id/cuc_wifi_only_rb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_cuc_network_wifi"
+            android:textSize="@dimen/tv_subtitle_txt_size" />
+
+        <RadioButton
+            android:id="@+id/cuc_wifi_or_data_plan_rb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/rb_margin_top"
+            android:text="@string/settings_cuc_network_data_plan"
+            android:textSize="@dimen/tv_subtitle_txt_size" />
+        
+    </RadioGroup>
+
+</RelativeLayout>

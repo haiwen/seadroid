@@ -1,0 +1,416 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="welcome_to_seafile">Seafile にようこそ</string>
+  <string name="select_account">アカウントを選択して始めましょう</string>
+  <string name="edit_account">編集</string>
+  <string name="delete_account">削除</string>
+  <string name="delete">削除</string>
+  <string name="delete_file">このファイルまたはフォルダーを削除してもよろしいですか?</string>
+  <string name="delete_successful">正常に削除しました</string>
+  <string name="delete_file_f">ファイルを削除</string>
+  <string name="delete_dir">フォルダーを削除</string>
+  <string name="server_hint">サーバー。例 cloud.seafile.com</string>
+  <string name="email_hint">メール</string>
+  <string name="passwd_hint">パスワード</string>
+  <string name="login">ログイン</string>
+  <string name="open_file">開く</string>
+  <string name="download_file">ダウンロード</string>
+  <string name="redownload_file">再度ダウンロード</string>
+  <string name="cancel_download">キャンセル</string>
+  <string name="unknown_file_type">不明なファイルタイプ</string>
+  <string name="activity_not_found">このファイルを開くアプリが見つかりません</string>
+  <string name="refresh">更新</string>
+  <string name="add_account">アカウントを追加</string>
+  <string name="personal">個人</string>
+  <string name="shared">共有された</string>
+  <string name="libraries">ライブラリー</string>
+  <string name="cached">キャッシュ済</string>
+  <string name="activities">アクティビティ</string>
+  <string name="pick_upload_type">アップロード</string>
+  <string name="transfer_tasks">転送リスト</string>
+  <string name="accounts">アカウント</string>
+  <string name="settings">設定</string>
+  <string-array name="pick_upload_array">
+    <item>ファイル</item>
+    <item>写真/ビデオ</item>
+    <item>その他</item>
+  </string-array>
+  <string name="choose_server">Seafile サーバーを選択</string>
+  <string-array name="choose_server_array">
+    <item>SeaCloud.cc</item>
+    <item>Cloud.seafile.de</item>
+    <item>Shibboleth ログイン</item>
+    <item>他の Seafile サーバー</item>
+  </string-array>
+  <string name="network_down">ネットワーク接続がありません</string>
+  <string name="unknow_error">不明なエラー</string>
+  <string name="invalid_server_address">サーバーアドレスが正しくありません</string>
+  <string name="err_server_andress_empty">サーバーアドレスは空にできません</string>
+  <string name="err_email_empty">メールは空にできません</string>
+  <string name="err_passwd_empty">パスワードは空にできません</string>
+  <string name="err_login_failed">ログインに失敗しました</string>
+  <string name="err_wrong_user_or_passwd">メールまたはパスワードエラー</string>
+  <string name="err_token_expired">認証の有効期限が切れました。再度ログインしてください</string>
+  <string name="upload">アップロード</string>
+  <string name="uploaded">アップロードしました</string>
+  <string name="updated">更新しました</string>
+  <string name="download_failed">ダウンロードに失敗しました</string>
+  <string name="download_waiting">ダウンロードの待機中</string>
+  <string name="download_finished">ダウンロードが完了しました</string>
+  <string name="download_cancelled">ダウンロードをキャンセルしました</string>
+  <string name="task_cancel">キャンセル</string>
+  <string name="task_retry">再試行</string>
+  <string name="task_remove">削除</string>
+  <string name="task_remove_all_cancelled">キャンセル済のタスクをすべて削除</string>
+  <string name="task_remove_all_finished">終了済のタスクをすべて削除</string>
+  <string name="file_action_star">スター</string>
+  <string name="file_action_download">ダウンロード</string>
+  <string name="file_action_update">アップロード</string>
+  <string name="file_action_share">リンクを共有</string>
+  <string name="file_action_export">エクスポート</string>
+  <string name="file_action_delete">削除</string>
+  <string name="file_action_rename">名前を変更</string>
+  <string name="file_action_copy">コピー</string>
+  <string name="file_action_move">移動</string>
+  <string name="file_action_open_as">...として開く</string>
+  <string name="file_action_more">つづく</string>
+  <string name="file_action_more_title">お好みのオプションを選択してください</string>
+  <string-array name="file_action_more_array">
+    <item>エクスポート</item>
+    <item>コピー</item>
+    <item>移動</item>
+    <item>スター</item>
+  </string-array>
+  <string-array name="file_type_array">
+    <item>テキスト</item>
+    <item>音声</item>
+    <item>ビデオ</item>
+    <item>画像</item>
+    <item>その他</item>
+  </string-array>
+  <string name="wait">お待ちください</string>
+  <string name="image_gallery_NoImageView_text">画像が見つかりません</string>
+  <string name="pick_photo_video_title">アップロードする写真/ビデオを選択</string>
+  <string name="select_upload_items">アップロードするアイテムを選択してください</string>
+  <plurals name="n_upload_items_selected">
+    <item quantity="other">%1$d アイテム選択済</item>
+  </plurals>
+  <string name="dir_name_empty">フォルダー名を入力してください</string>
+  <string name="file_name_empty">ファイル名を入力してください</string>
+  <string name="password_empty">パスワードを入力してください</string>
+  <string name="wrong_password">パスワードが正しくありません</string>
+  <string name="library_read_only">このライブラリーは読み取り専用です</string>
+  <string name="error_when_load_dirents">フォルダーの読み込み時にエラー</string>
+  <string name="error_when_load_repos">ライブラリーの読み込み時にエラー</string>
+  <string name="dir_empty">このフォルダーは空です</string>
+  <string name="no_repo">まだライブラリーはありません</string>
+  <string name="no_app_available">アプリが見つかりません</string>
+  <string name="add_to_seafile">Seafile に追加</string>
+  <string name="ok">OK</string>
+  <string name="no_account">最初に Seafile にアカウントを設定してください</string>
+  <string name="choose_an_account">アカウントを選択</string>
+  <string name="choose_a_library">ライブラリーを選択</string>
+  <string name="choose_a_folder">フォルダーを選択</string>
+  <string name="load_accounts_fail">Seafile アカウントの読み込みに失敗しました</string>
+  <string name="load_libraries_fail">ライブラリーの読み込みに失敗しました</string>
+  <string name="load_dir_fail">このフォルダーの内容の読み込みに失敗しました</string>
+  <string name="not_supported_share">このタイプの共有はサポートされていません</string>
+  <string name="edit">編集</string>
+  <string name="download_folder">ダウンロードフォルダー</string>
+  <string name="download_folder_title">お好みのオプションを選択してください</string>
+  <string-array name="download_folder_options_array">
+    <item>ダウンロードフォルダー</item>
+    <item>ダウンロードフォルダーとサブフォルダー</item>
+  </string-array>
+  <string name="add_file">追加</string>
+  <string-array name="add_file_options_array">
+    <item>ファイルを作成</item>
+    <item>フォルダーを作成</item>
+    <item>ファイルをアップロード</item>
+    <item>写真を撮影</item>
+  </string-array>
+  <string name="create_new_file">新しいファイルを作成</string>
+  <string name="create_new_dir">新しいフォルダーを作成</string>
+  <string name="camera">ここに写真を撮影</string>
+  <string name="download">ダウンロード</string>
+  <string name="open">開く</string>
+  <string name="last_modified">最終更新</string>
+  <string name="file_modified">更新</string>
+  <string name="file_size">ファイルサイズ</string>
+  <string name="library_not_found">ライブラリーは削除されました。</string>
+  <string name="export_file">このファイルをエクスポート</string>
+  <string name="no_upload_tasks">アップロードタスクはありません</string>
+  <string name="no_download_tasks">ダウンロードタスクはありません</string>
+  <string name="seahub_url_hint">注: サーバーアドレスはポートを含める必要があります。例、www.example.com:8000</string>
+  <string name="copy_link">リンクをコピー</string>
+  <string name="share_file_link">このファイルへのリンクを共有</string>
+  <string name="share_dir_link">このフォルダーへのリンクを共有</string>
+  <string name="generating_link">リンクを生成しています…</string>
+  <string name="link_ready_to_be_pasted">リンクを貼り付けできます。</string>
+  <string name="rename_file">ファイルの名前を変更</string>
+  <string name="rename_dir">フォルダーの名前を変更</string>
+  <string name="rename_successful">正常に名前を変更しました。</string>
+  <string-array name="nav_array">
+    <item>ファイル</item>
+    <item>アップロード</item>
+    <item>アカウント</item>
+    <item>写真のバックアップ</item>
+  </string-array>
+  <string name="no_starred_file">スターを付けたファイルはありません</string>
+  <string name="added_to_upload_tasks">アップロードが開始しました</string>
+  <string name="added_photo_to_upload_tasks">写真のアップロードが開始しました</string>
+  <string name="take_photo_successfully">写真の撮影に成功しました</string>
+  <string name="tabs_library">ライブラリー</string>
+  <string name="tabs_activity">アクティビティ</string>
+  <string name="tabs_starred">スター付き</string>
+  <string name="provide_password">ライブラリー \"%s\" のパスワードを入力</string>
+  <string name="upload_waiting">アップロードの待機中</string>
+  <string name="upload_finished">アップロードが完了しました</string>
+  <string name="upload_cancelled">アップロードをキャンセルしました</string>
+  <string name="upload_failed">アップロードに失敗しました</string>
+  <string name="days_ago">%d 日前</string>
+  <string name="hours_ago">%d 時間前</string>
+  <string name="minutes_ago">%d 分前</string>
+  <string name="seconds_ago">%d 秒前</string>
+  <string name="just_now">たった今</string>
+  <string name="error_when_load_starred">スター付きファイルの読み込み時にエラー</string>
+  <string name="open_as">...として開く</string>
+  <string name="select_upload_files">アップロードするファイルを選択してください</string>
+  <string name="storage_removed">ストレージは削除されました</string>
+  <string name="error_selecting_file">ファイルの選択時にエラー</string>
+  <plurals name="n_upload_files_selected">
+    <item quantity="other">%1$d ファイル選択済</item>
+  </plurals>
+  <string name="empty_folder">空のフォルダー</string>
+  <string name="choose_file">ファイルを選択</string>
+  <string name="ssl_error">セキュリティチェックに失敗しました</string>
+  <string name="ssl_confirm">%s のセキュリティ証明書は信頼されていません。続行しますか?</string>
+  <string name="ssl_confirm_cert_changed">%s は無効なセキュリティ証明書を使用しています。接続は安全ではありません。続行しますか?</string>
+  <string name="ssl_confirm_title">信頼されない接続</string>
+  <string name="issued_to">発行先</string>
+  <string name="finger_prints">フィンガープリント</string>
+  <string name="period_of_validity">有効期間</string>
+  <string name="sha1">SHA-1 %s</string>
+  <string name="md5">MD5 %s</string>
+  <string name="not_available">利用不可</string>
+  <string name="serial_number">シリアルナンバー %s</string>
+  <string name="not_before">有効期間開始 %s</string>
+  <string name="not_after">有効期間終了 %s</string>
+  <string name="yes">はい</string>
+  <string name="no">いいえ</string>
+  <string name="remember_my_choice">選択したものを覚えておく</string>
+  <string name="copied_successfully">正常にコピーしました</string>
+  <string name="moved_successfully">正常に移動しました</string>
+  <string name="internal_server_error">内部サーバーエラー</string>
+  <string name="copy_file_ing">ファイルをコピーしています</string>
+  <string name="move_file_ing">ファイルを移動しています</string>
+  <string name="copy_folder_ing">フォルダーをコピーしています</string>
+  <string name="move_folder_ing">フォルダーを移動しています</string>
+  <string name="upload_started">アップロードが開始しました</string>
+  <string name="cannot_copy_folder_to_subfolder">フォルダーをそのサブフォルダーにコピーできません</string>
+  <string name="cannot_move_folder_to_subfolder">フォルダーをそのサブフォルダーに移動できません</string>
+  <string name="cancel">キャンセル</string>
+  <string name="confirm">確認</string>
+  <string name="settings_account">アカウント</string>
+  <string name="settings_account_info_title">ユーザー情報</string>
+  <string name="settings_account_info_load_data">読み込み中…</string>
+  <string name="settings_account_space_title">容量使用</string>
+  <string name="settings_account_sign_out_title">サインアウト</string>
+  <string name="settings_account_sign_out_hint">クリックするとサインアウト</string>
+  <string name="settings_account_sign_out_confirm">サインアウトしますか?</string>
+  <string name="security">セキュリティ</string>
+  <string name="gesture_lock">ジェスチャーロック</string>
+  <string name="gesture_lock_on">ジェスチャーロック オン</string>
+  <string name="gesture_lock_off">ジェスチャーロック オフ</string>
+  <string name="lockscreen_access_pattern_hint">ジェスチャーロックのパターンを描いてください</string>
+  <string name="lockscreen_access_pattern_start">描き始めてください</string>
+  <string name="lockscreen_access_pattern_cleared">パターンをクリアしました</string>
+  <string name="lockscreen_access_pattern_cell_added">パターンのセルを追加しました</string>
+  <string name="lockscreen_access_pattern_detected">パターンを検出しました</string>
+  <string name="lockscreen_access_pattern_passwd_forget">パスワードをお忘れですか</string>
+  <string name="lockscreen_access_pattern_failure">5 回失敗しました。再度入力するまで 30 秒お待ちください</string>
+  <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
+    <item quantity="other">%1$d 秒後に再度入力できます</item>
+  </plurals>
+  <plurals name="lockscreen_access_pattern_failure_left_try_times">
+    <item quantity="other">パターンが正しくありません。あと %1$d 回入力できます</item>
+  </plurals>
+  <string name="lockscreen_access_pattern_failure_not_long_enough">接続点の長さが十分ではありません。再度入力してください</string>
+  <string name="lockpattern_retry_button_text">再試行</string>
+  <string name="lockpattern_continue_button_text">次へ</string>
+  <string name="lockpattern_confirm_button_text">OK</string>
+  <string name="lockpattern_recording_intro_header">ジェスチャーロックのパターンを描いてください</string>
+  <string name="lockpattern_settings_help_how_to_record">ジェスチャーロック パターンを描く方法について学ぶ</string>
+  <string name="lockpattern_recording_incorrect_too_short">少なくとも 4 箇所スワイプしてください。再度入力してください!</string>
+  <string name="lockpattern_pattern_entered_header">パターンを保存しました</string>
+  <string name="lockpattern_need_to_draw">ジェスチャーロックのパターンを描いてください</string>
+  <string name="lockpattern_need_to_confirm">パターンを確認してください</string>
+  <string name="lockpattern_need_to_unlock_wrong">パターンが一致しませんでした。再度入力してください。</string>
+  <string name="lockpattern_pattern_confirmed_header">OK をタップして保存します</string>
+  <string name="lockpattern_recording_inprogress">完了したら指を離してください</string>
+  <string name="lockpattern_pattern_toast_saved">ジェスチャーロックのパターンを正常に保存しました</string>
+  <!--Strings for possible PreferenceActivity Back/Next buttons-->
+  <string name="back_button_label">戻る</string>
+  <string name="next_button_label">次へ</string>
+  <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
+  <string name="skip_button_label">スキップ</string>
+  <!--Camera Upload Preference-->
+  <string name="settings_camera_upload_info_title">カメラの写真のアップロード</string>
+  <string name="settings_camera_upload_service_started">アップロードサービスが開始しました</string>
+  <string name="settings_camera_upload_service_stopped">アップロードサービスが停止しました</string>
+  <string name="settings_camera_upload_allow_data_plan">データプランを許可する</string>
+  <string name="settings_camera_upload_allow_videos">ビデオのアップロードを許可する</string>
+  <string name="settings_camera_upload_default_wifi">デフォルトで Wi-Fi のみ使用する</string>
+  <string name="settings_camera_upload_data_plan_allowed">データプランを許可しました</string>
+  <string name="settings_camera_upload_default_photos">デフォルトで写真のアップロードのみ使用する</string>
+  <string name="settings_camera_upload_videos_allowed">ビデオを含めました</string>
+  <string name="settings_camera_upload_change_repo_title">アップロードライブラリーを変更</string>
+  <string name="settings_camera_upload_repo_hint">最初にライブラリーを選択してください</string>
+  <string name="settings_camera_upload_turn_on">カメラアップロードをオンにする</string>
+  <string name="settings_camera_upload_choose_dir">ローカルフォルダーを変更</string>
+  <string name="settings_camera_upload_dir_auto_scan">デフォルトで写真を自動スキャンする</string>
+  <string name="settings_camera_upload_dir_custom">選択したフォルダーをスキャン</string>
+  <string name="settings_camera_upload_lib_not_found">選択したライブラリーが存在しません</string>
+  <string name="settings_camera_upload_advanced_feature_title">詳細オプション</string>
+  <string name="settings_camera_upload_advanced_feature_subtitle">カスタムアップロードオプション</string>
+  <string name="settings_camera_upload_advanced_custom_directories">カスタムアップロードフォルダー</string>
+  <string name="settings_camera_upload_advanced_custom_directories_on">写真フォルダーを選択</string>
+  <string name="settings_camera_upload_advanced_custom_directories_off">デバイスを自動スキャン</string>
+  <!--Camera Upload Configuration View-->
+  <string name="settings_cuc_title">設定ヘルパー</string>
+  <string name="settings_cuc_welcome_text">カメラアップロードの設定ヘルパーをご利用いただきありがとうございます。 \nカメラアップロードサービスを始めるための、最初のステップをご案内します。</string>
+  <string name="settings_cuc_network_title">アップロード方法</string>
+  <string name="settings_cuc_network_wifi">Wi-Fi のみ</string>
+  <string name="settings_cuc_network_data_plan">Wi-Fi またはデータプラン</string>
+  <string name="settings_cuc_option_hint">お好みのオプションを選択してください。 \nこのオプションは後で設定から変更することができます。</string>
+  <string name="settings_cuc_type_title">アップロード対象</string>
+  <string name="settings_cuc_type_photo">写真のみ</string>
+  <string name="settings_cuc_type_video">写真とビデオ</string>
+  <string name="settings_cuc_local_dir_title">ローカルフォルダーを選択</string>
+  <plurals name="settings_cuc_local_dir_items">
+    <item quantity="other">%1$d アイテム</item>
+  </plurals>
+  <string name="settings_cuc_remote_lib_title">リモートライブラリーを選択</string>
+  <string name="settings_cuc_remote_lib_account">アカウントを選択</string>
+  <string name="settings_cuc_remote_lib_repo">%s を選択しました</string>
+  <string name="settings_cuc_upload_to_parent_folder">親のフォルダーに移動</string>
+  <string name="settings_cuc_auto_scan">デバイスのすべての写真を取得</string>
+  <string name="settings_cuc_pick_dir">マイ写真フォルダを選択しましょう</string>
+  <string name="settings_cuc_remote_lib_hint">お好みのオプションを選択してください。 \nこのオプションは後で設定から変更することができます。</string>
+  <string name="settings_cuc_finish_title">完了</string>
+  <string name="settings_cuc_ready">Seafile は選択したフォルダーからファイルをアップロードします。 \nこのプロセス中、アプリを自由に閉じることができます。</string>
+  <string name="settings_cuc_swipe_left">左にスワイプすると続行します。</string>
+  <string name="settings_cuc_click_btn">クリックすると設定ヘルパーを閉じます。</string>
+  <string name="settings_cuc_loading">読み込み中…</string>
+  <string name="settings_about_title">アプリについて</string>
+  <string name="settings_about_version_title">アプリ バージョン</string>
+  <string name="settings_about_author_title">作者について</string>
+  <string name="settings_about_author_info">
+        <![CDATA[
+        <h5>Seafile Android クライアント</h5>
+        <p>%s</p>
+        <h5>連絡先</h5>
+        <p>
+            Twitter: Seafile<br>
+            メール: support@seafile.com<br>
+        </p>
+        <h5>貢献</h5>
+        <p>https://github.com/haiwen/seadroid.git</P>
+        <h5>Copyright ©2013-2015 Seafile Ltd.</h5>
+        ]]>
+    </string>
+  <string name="settings_advance_feature_title">高度な機能</string>
+  <string name="settings_cache_title">キャッシュサイズ</string>
+  <string name="settings_clear_cache_title">キャッシュをクリア</string>
+  <string name="settings_clear_cache_hint">キャッシュをクリアしますか?</string>
+  <string name="settings_clear_cache_success">キャッシュを正常にクリアしました</string>
+  <string name="settings_clear_cache_failed">キャッシュのクリアに失敗しました</string>
+  <string name="settings_cache_empty">0 KB</string>
+  <!--pull to refresh-->
+  <string name="pull_to_refresh_pull_label">引くと更新…</string>
+  <string name="pull_to_refresh_release_label">離すと更新…</string>
+  <string name="pull_to_refresh_refreshing_label">読み込み中…</string>
+  <string name="pull_to_refresh_last_update">最終更新: </string>
+  <string name="pull_to_refresh_last_update_seconds_ago">%d 秒前</string>
+  <string name="pull_to_refresh_last_update_minutes_ago">%d 分前</string>
+  <string name="pull_to_refresh_last_update_hours_ago">%d 時間前</string>
+  <!--storage access framework-->
+  <string name="saf_open_file_exception">ファイル %s を開くことができません。</string>
+  <string name="saf_open_directory_exception">ディレクトリーを開くことができません。</string>
+  <string name="saf_file_not_cached_exception">ファイル %s はキャッシュされていません。</string>
+  <string name="saf_thumbnail_not_found_exception">サムネイル %s を見つける/開くことができません。</string>
+  <string name="saf_file_not_downloaded_exception">サーバーからファイル %s をダウンロードできません。</string>
+  <string name="saf_write_diretory_exception">ディレクトリーを読み込み/書き込みで開くことができません。</string>
+  <string name="saf_account_not_found_exception">Seafile アカウントを見つけることができません。</string>
+  <string name="saf_upload_path_not_available">アップロードできません。パスが利用可能ではありません</string>
+  <string name="saf_failed_to_create_directory">ディレクトリー %s を作成できません</string>
+  <string name="saf_file_exist">ファイルはすでに存在します</string>
+  <string name="saf_bad_mime_type">リクエストタイプが不正</string>
+  <!--shibboleth SSO-->
+  <string name="shib_server_url_empty">サーバーは空です!</string>
+  <string name="shib_server_incorrect_prefix">サーバーは http:// または https:// で始まる必要があります</string>
+  <string name="shib_load_page_error">エラー: </string>
+  <string name="shib_login_title">Shibboleth ログイン</string>
+  <string name="shib_server_hint">サーバーを入力...</string>
+  <string name="shib_actionbar_title">Shibboleth でログイン</string>
+  <string name="shib_loading">読み込み中…</string>
+  <!--Transfer List-->
+  <string name="transfer_list_network_error">ネットワーク接続エラー。後で再度実行してください!</string>
+  <string name="transfer_list_cancel_all">すべてのタスクをキャンセル</string>
+  <string name="transfer_list_restart_all">再開</string>
+  <string name="transfer_list_retry_failed_tasks">失敗したタスクを再試行</string>
+  <string name="transfer_list_restart_cancelled_tasks">キャンセルしたタスクを再開</string>
+  <string name="transfer_list_clear_failed_tasks">失敗したタスクをクリア</string>
+  <string name="transfer_list_clear_all_tasks">すべてのタスクをクリア</string>
+  <string name="transfer_list_clear_finished_tasks">完了したタスクをクリア</string>
+  <string name="transfer_tabs_downloads">ダウンロードリスト</string>
+  <string name="transfer_tabs_uploads">アップロードリスト</string>
+  <string name="transfer_download_no_task">ファイルはすべてダウンロードしました</string>
+  <plurals name="transfer_download_started">
+    <item quantity="other">%1$d ファイルのダウンロードを開始しました</item>
+  </plurals>
+  <string name="transfer_list_select_all">すべて選択</string>
+  <string name="transfer_list_deselect_all">すべて選択解除</string>
+  <plurals name="transfer_list_items_selected">
+    <item quantity="other">%d アイテム選択済</item>
+  </plurals>
+  <!--Sort-->
+  <string name="sort_menu_item">並び替え</string>
+  <string name="sort_files">並び替え順</string>
+  <string-array name="sort_files_options_array">
+    <item>名前</item>
+    <item>名前 (降順)</item>
+    <item>最終更新時刻</item>
+    <item>最終更新時刻 (降順)</item>
+  </string-array>
+  <!--Search-->
+  <string name="search_menu_item">検索</string>
+  <string name="search_bar_hint">検索中…</string>
+  <string name="search_txt_empty">キーワードを入力してください</string>
+  <string name="search_content_empty">何も見つかりません</string>
+  <string name="search_server_not_support">申し訳ありません、このサーバーで検索はサポートされていません!</string>
+  <string name="search_library_not_found">このライブラリーが見つかりません。削除された可能性があります。</string>
+  <!--star a file-->
+  <string name="star_file_succeed">正常にファイルにスターを付けました</string>
+  <string name="star_file_failed">ファイルにスターを付けることができませんでした</string>
+  <!--notification bar-->
+  <string name="notification_upload_started_title">ファイルをアップロードしています…</string>
+  <string name="notification_download_started_title">ファイルをダウンロードしています</string>
+  <string name="notification_upload_completed">アップロードが完了しました</string>
+  <plurals name="notification_upload_info">
+    <item quantity="other">%1$d ファイルをアップロードしています (%2$d%%)</item>
+  </plurals>
+  <plurals name="notification_download_info">
+    <item quantity="other">%1$d ファイルをダウンロードしています (%2$d%%)</item>
+  </plurals>
+  <string name="notification_download_completed">ダウンロードが完了しました</string>
+  <!--Gallery-->
+  <string name="gallery_load_photos_error">写真の読み込みエラー</string>
+  <string name="gallery_encrypted_repo_not_supported">暗号化されたライブラリーはサポートされていません</string>
+  <!--Overwrite existing files-->
+  <string name="overwrite_existing_file_title">存在するファイルを置き換え</string>
+  <string name="overwrite_existing_file_msg">ファイルがすでに存在します。置き換えますか?</string>
+  <string name="overwrite_existing_file_exist">ファイルがすでに存在します。</string>
+  <!--Action Mode-->
+  <string name="action_mode_no_items_selected">アイテムが選択されていません</string>
+</resources>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/edit"
+        android:visible="true"
+        android:title="@string/edit_account" />
+    
+    <item android:id="@+id/delete"
+        android:visible="true"
+        android:title="@string/delete_account" />
+    
+</menu>

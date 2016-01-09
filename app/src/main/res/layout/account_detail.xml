@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:orientation="vertical">
+
+    <CheckBox
+            android:id="@+id/https_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/cb_padding_left"
+            android:layout_marginStart="@dimen/cb_padding_left"
+            android:layout_marginTop="@dimen/cb_padding_top"
+            android:onClick="onHttpsCheckboxClicked"
+            android:button="@drawable/checkbox_btn_holo_light"
+            android:textSize="@dimen/cb_btn_txt_size"
+            android:text="@string/accounts_https_hint"/>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/form_padding_bottom"
+            android:paddingTop="@dimen/form_padding_top">
+
+        <EditText
+                android:id="@+id/server_url"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/et_margin_left"
+                android:layout_marginRight="@dimen/et_margin_right"
+                android:layout_marginBottom="@dimen/et_margin_bottom"
+                android:hint="@string/server_hint"
+                android:textSize="@dimen/et_txt_size"
+                android:background="@drawable/edit_text_holo_light"
+                android:inputType="textUri"/>
+
+        <com.seafile.seadroid2.ui.CustomClearableEditText
+                android:id="@+id/email_address"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/et_margin_bottom"
+                android:layout_marginLeft="@dimen/auto_complete_ed_margin_left"
+                android:layout_marginRight="@dimen/auto_complete_ed_margin_right"/>
+
+        <com.seafile.seadroid2.ui.CustomClearableEditText
+                android:id="@+id/password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/et_margin_bottom"
+                android:layout_marginLeft="@dimen/auto_complete_ed_margin_left"
+                android:layout_marginRight="@dimen/auto_complete_ed_margin_right"/>
+    </LinearLayout>
+
+
+    <Button
+            android:id="@+id/login_button"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/long_btn_height"
+            android:paddingBottom="@dimen/long_btn_padding_bottom"
+            android:paddingTop="@dimen/long_btn_padding_top"
+            android:layout_marginLeft="@dimen/long_btn_margin_left"
+            android:layout_marginRight="@dimen/long_btn_margin_right"
+            android:onClick="login"
+            android:background="@drawable/confirm_btn_default_holo_light"
+            android:text="@string/login"
+            android:textColor="@color/white"
+            android:textSize="@dimen/long_btn_txt_size"/>
+
+    <TextView
+            android:id="@+id/status_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/tv_margin_left"
+            android:layout_marginRight="@dimen/tv_margin_right"
+            android:text=""/>
+
+    <TextView
+            android:id="@+id/seahub_url_hint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/tv_margin_left"
+            android:layout_marginRight="@dimen/tv_margin_right"
+            android:textSize="@dimen/tv_txt_size"
+            android:text="@string/seahub_url_hint"/>
+
+</LinearLayout>

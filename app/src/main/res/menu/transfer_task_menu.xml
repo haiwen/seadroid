@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/cancel"
+        android:visible="true"
+        android:title="@string/task_cancel" />
+
+    <item android:id="@+id/retry"
+        android:visible="true"
+        android:title="@string/task_retry" />
+    
+    <item android:id="@+id/remove"
+        android:visible="true"
+        android:title="@string/task_remove" />
+
+    <item android:id="@+id/remove_all_cancelled"
+          android:visible="true"
+          android:title="@string/task_remove_all_cancelled"/>
+
+    <item android:id="@+id/remove_all_finished"
+        android:visible="true"
+        android:title="@string/task_remove_all_finished" />
+</menu>
