@@ -10,6 +10,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.view.ContextThemeWrapper;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -22,7 +23,6 @@ import com.seafile.seadroid2.ssl.SSLTrustManager;
 import com.seafile.seadroid2.ssl.SSLTrustManager.SslFailureReason;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.CertificateInfo;
-import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 
 
 public class SslConfirmDialog extends DialogFragment {
@@ -55,7 +55,9 @@ public class SslConfirmDialog extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        SeafileStyleDialogBuilder builder = new SeafileStyleDialogBuilder(getActivity());
+        ContextThemeWrapper ctw = new ContextThemeWrapper(getActivity(), R.style.DialogTheme);
+        AlertDialog.Builder builder = new AlertDialog.Builder(ctw);
+        builder.setTitle(getString(R.string.ssl_confirm_title));
         LayoutInflater inflater = getActivity().getLayoutInflater();
         LinearLayout view = (LinearLayout)inflater.inflate(R.layout.dialog_ssl_confirm, null);
 
@@ -127,13 +129,7 @@ public class SslConfirmDialog extends DialogFragment {
             }
         });
         builder.setView(view);
-        final AlertDialog dialog = builder.show();
-        Button okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-        okButton.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.dialog_btn_txt_size));
-        Button cancelButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-        cancelButton.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.dialog_btn_txt_size));
-
-        return dialog;
+        return builder.show();
     }
 
     @Override

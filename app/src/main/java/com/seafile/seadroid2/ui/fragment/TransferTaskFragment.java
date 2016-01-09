@@ -8,23 +8,24 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.v4.app.ListFragment;
+import android.support.v7.view.ActionMode;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.ActionMode;
+
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferTaskInfo;
-import com.seafile.seadroid2.ui.ActionModeCallback;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.activity.TransferActivity;
 import com.seafile.seadroid2.ui.adapter.TransferTaskAdapter;
@@ -35,21 +36,16 @@ import java.util.List;
  * Base class for transfer task fragments
  *
  */
-public abstract class TransferTaskFragment extends SherlockListFragment
-        implements ActionModeCallback.ActionModeOperationListener {
+public abstract class TransferTaskFragment extends ListFragment {
     private String DEBUG_TAG = "TransferTaskFragment";
 
     protected TransferTaskAdapter adapter;
     protected TransferActivity mActivity = null;
     protected ListView mTransferTaskListView;
-    protected LinearLayout mTaskActionBar;
-    protected LinearLayout mTaskDeleteBtn;
-    protected LinearLayout mTaskRestartBtn;
     protected TextView emptyView;
     private View mListContainer;
     private View mProgressContainer;
     protected final Handler mTimer = new Handler();
-    private TaskActionListener listener = new TaskActionListener();
     protected TransferService txService = null;
     private ActionMode mActionMode;
 
@@ -71,7 +67,7 @@ public abstract class TransferTaskFragment extends SherlockListFragment
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 if (mActionMode == null) {
-                    mActionMode = getSherlockActivity().startActionMode(new ActionModeCallback(TransferTaskFragment.this));
+                    mActionMode = mActivity.startSupportActionMode(new ActionModeCallback());
                 }
 
                 return true;
@@ -80,46 +76,8 @@ public abstract class TransferTaskFragment extends SherlockListFragment
 
         mListContainer =  root.findViewById(R.id.listContainer);
         mProgressContainer = root.findViewById(R.id.progressContainer);
-        mTaskActionBar = (LinearLayout) root.findViewById(R.id.task_action_container);
-        mTaskDeleteBtn = (LinearLayout) root.findViewById(R.id.task_action_delete);
-        mTaskRestartBtn = (LinearLayout) root.findViewById(R.id.task_action_restart);
-        mTaskDeleteBtn.setOnClickListener(listener);
-        mTaskRestartBtn.setOnClickListener(listener);
         emptyView = (TextView) root.findViewById(R.id.empty);
         return root;
-    }
-
-    class TaskActionListener implements View.OnClickListener {
-
-        @Override
-        public void onClick(View v) {
-            switch (v.getId()) {
-                case R.id.task_action_delete:
-                    List<Integer> ids = adapter.getSelectedIds();
-                    if (ids != null) {
-                        if (ids.size() == 0) {
-                            ToastUtils.show(mActivity, R.string.action_mode_no_items_selected);
-                            return;
-                        }
-
-                        deleteSelectedItems(convertToTaskIds(ids));
-                        deselectItems();
-                    }
-                    break;
-                case R.id.task_action_restart:
-                    List<Integer> restartIds = adapter.getSelectedIds();
-                    if (restartIds != null) {
-                        if (restartIds.size() == 0) {
-                            ToastUtils.show(mActivity, R.string.action_mode_no_items_selected);
-                            return;
-                        }
-
-                        restartSelectedItems(convertToTaskIds(restartIds));
-                        deselectItems();
-                    }
-                    break;
-            }
-        }
     }
 
     private List<Integer> convertToTaskIds(List<Integer> positions) {
@@ -131,54 +89,15 @@ public abstract class TransferTaskFragment extends SherlockListFragment
 
         return taskIds;
     }
-    /**
-     * select all items
-     */
-    @Override
-    public void selectItems() {
-        if (adapter == null) return;
-
-        adapter.selectAllItems();
-        updateContextualActionBar();
-
-    }
 
     /**
      * deselect all items
      */
-    @Override
     public void deselectItems() {
         if (adapter == null) return;
 
         adapter.deselectAllItems();
         updateContextualActionBar();
-    }
-
-    @Override
-    public void onActionModeStarted() {
-        if (adapter == null) return;
-
-        adapter.actionModeOn();
-        Animation bottomUp = AnimationUtils.loadAnimation(getActivity(),
-                R.anim.bottom_up);
-        mTaskActionBar.startAnimation(bottomUp);
-        mTaskActionBar.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void onActionModeDestroy() {
-        if (adapter == null) return;
-
-        adapter.deselectAllItems();
-        adapter.actionModeOff();
-        Animation bottomDown = AnimationUtils.loadAnimation(getActivity(),
-                R.anim.bottom_down);
-        mTaskActionBar.startAnimation(bottomDown);
-        mTaskActionBar.setVisibility(View.GONE);
-
-        // Here you can make any necessary updates to the activity when
-        // the CAB is removed. By default, selected items are deselected/unchecked.
-        mActionMode = null;
     }
 
     protected abstract void deleteSelectedItems(List<Integer> ids);
@@ -307,12 +226,8 @@ public abstract class TransferTaskFragment extends SherlockListFragment
 
         if (itemsChecked && mActionMode == null) {
             // there are some selected items, start the actionMode
-            mActionMode = getSherlockActivity().startActionMode(new ActionModeCallback(this));
+            mActionMode = mActivity.startSupportActionMode(new ActionModeCallback());
             adapter.actionModeOn();
-            Animation bottomUp = AnimationUtils.loadAnimation(getActivity(),
-                    R.anim.bottom_up);
-            mTaskActionBar.startAnimation(bottomUp);
-            mTaskActionBar.setVisibility(View.VISIBLE);
         }
 
 
@@ -322,6 +237,109 @@ public abstract class TransferTaskFragment extends SherlockListFragment
                     R.plurals.transfer_list_items_selected,
                     adapter.getCheckedItemCount(),
                     adapter.getCheckedItemCount()));
+        }
+
+    }
+
+    /**
+     * Represents a contextual mode of the user interface.
+     * Action modes can be used to provide alternative interaction modes and replace parts of the normal UI until finished.
+     * A Callback configures and handles events raised by a user's interaction with an action mode.
+     */
+    class ActionModeCallback implements ActionMode.Callback {
+        private boolean allItemsSelected;
+
+        public ActionModeCallback() {
+        }
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            // Inflate the menu for the contextual action bar (CAB)
+            MenuInflater inflater = mode.getMenuInflater();
+            inflater.inflate(R.menu.transfer_list_multi_choice_menu, menu);
+            if (adapter == null) return true;
+
+            adapter.actionModeOn();
+            adapter.notifyDataSetChanged();
+
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            // Here you can perform updates to the contextual action bar (CAB) due to
+            // an invalidate() request
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            // Respond to clicks on the actions in the contextual action bar (CAB)
+            final List<Integer> selectedIds = adapter.getSelectedIds();
+            if (selectedIds.isEmpty()) {
+                if (item.getItemId() != R.id.action_mode_select_all) {
+                    ToastUtils.show(mActivity, R.string.action_mode_no_items_selected);
+                    return true;
+                }
+            }
+
+            switch (item.getItemId()) {
+                case R.id.action_mode_delete:
+                    List<Integer> ids = adapter.getSelectedIds();
+                    if (ids != null) {
+                        if (ids.size() == 0) {
+                            ToastUtils.show(mActivity, R.string.action_mode_no_items_selected);
+                            return true;
+                        }
+
+                        deleteSelectedItems(convertToTaskIds(ids));
+                        deselectItems();
+                    }
+                    break;
+                case R.id.action_mode_restart:
+                    List<Integer> restartIds = adapter.getSelectedIds();
+                    if (restartIds != null) {
+                        if (restartIds.size() == 0) {
+                            ToastUtils.show(mActivity, R.string.action_mode_no_items_selected);
+                            return true;
+                        }
+
+                        restartSelectedItems(convertToTaskIds(restartIds));
+                        deselectItems();
+                    }
+                    break;
+                case R.id.action_mode_select_all:
+                    if (!allItemsSelected) {
+                        if (adapter == null) return true;
+
+                        adapter.selectAllItems();
+                        updateContextualActionBar();
+                    } else {
+                        if (adapter == null) return true;
+
+                        adapter.deselectAllItems();
+                        updateContextualActionBar();
+                    }
+
+                    allItemsSelected = !allItemsSelected;
+                    break;
+                default:
+                    return false;
+            }
+
+            return true;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            if (adapter == null) return;
+
+            adapter.deselectAllItems();
+            adapter.actionModeOff();
+
+            // Here you can make any necessary updates to the activity when
+            // the contextual action bar (CAB) is removed. By default, selected items are deselected/unchecked.
+            mActionMode = null;
         }
 
     }

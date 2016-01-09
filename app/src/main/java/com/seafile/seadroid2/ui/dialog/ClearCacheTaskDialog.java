@@ -90,7 +90,7 @@ public class ClearCacheTaskDialog extends TaskDialog {
 
     @Override
     protected void onDialogCreated(Dialog dialog) {
-        setTitle(getString(R.string.settings_clear_cache_title));
+        dialog.setTitle(getString(R.string.settings_clear_cache_title));
     }
 
     @Override

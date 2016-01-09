@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center">
 
-        <ProgressBar style="?android:attr/progressBarStyleLarge"
+        <ProgressBar style="?android:attr/progressBarStyle"
                      android:id="@+id/gallery_progress_bar"
                      android:visibility="gone"
                      android:layout_gravity="center_horizontal"

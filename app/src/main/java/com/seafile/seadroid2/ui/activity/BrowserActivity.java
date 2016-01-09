@@ -3,7 +3,14 @@ package com.seafile.seadroid2.ui.activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.app.Dialog;
-import android.content.*;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.net.Uri;
@@ -13,45 +20,70 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
-import android.support.v4.app.*;
-import android.support.v4.app.FragmentManager.OnBackStackChangedListener;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.view.ContextThemeWrapper;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.view.Window;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
-import com.astuetz.PagerSlidingTabStrip;
+
 import com.google.common.collect.Lists;
-import com.seafile.seadroid2.*;
+import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeafConnection;
+import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountDBHelper;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadService;
-import com.seafile.seadroid2.data.*;
+import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.SeafDirent;
+import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.data.SeafStarredFile;
+import com.seafile.seadroid2.data.ServerInfo;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.notification.UploadNotificationProvider;
-import com.seafile.seadroid2.transfer.*;
+import com.seafile.seadroid2.transfer.DownloadTaskInfo;
+import com.seafile.seadroid2.transfer.DownloadTaskManager;
+import com.seafile.seadroid2.transfer.PendingUploadInfo;
+import com.seafile.seadroid2.transfer.TransferManager;
+import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
+import com.seafile.seadroid2.transfer.UploadTaskInfo;
+import com.seafile.seadroid2.transfer.UploadTaskManager;
 import com.seafile.seadroid2.ui.CopyMoveContext;
 import com.seafile.seadroid2.ui.NavContext;
-import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
-import com.seafile.seadroid2.ui.dialog.*;
+import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog.CustomAction;
+import com.seafile.seadroid2.ui.dialog.CopyMoveDialog;
+import com.seafile.seadroid2.ui.dialog.DeleteFileDialog;
+import com.seafile.seadroid2.ui.dialog.FetchFileDialog;
+import com.seafile.seadroid2.ui.dialog.NewDirDialog;
+import com.seafile.seadroid2.ui.dialog.NewFileDialog;
+import com.seafile.seadroid2.ui.dialog.PasswordDialog;
+import com.seafile.seadroid2.ui.dialog.RenameFileDialog;
+import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
+import com.seafile.seadroid2.ui.dialog.TaskDialog;
+import com.seafile.seadroid2.ui.dialog.UploadChoiceDialog;
 import com.seafile.seadroid2.ui.fragment.ActivitiesFragment;
 import com.seafile.seadroid2.ui.fragment.ReposFragment;
 import com.seafile.seadroid2.ui.fragment.StarredFragment;
@@ -59,17 +91,23 @@ import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 import com.seafile.seadroid2.util.UtilsJellyBean;
 import com.viewpagerindicator.IconPagerAdapter;
+
 import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class BrowserActivity extends SherlockFragmentActivity
-        implements ReposFragment.OnFileSelectedListener, StarredFragment.OnStarredFileSelectedListener, OnBackStackChangedListener {
+public class BrowserActivity extends BaseActivity
+        implements ReposFragment.OnFileSelectedListener, StarredFragment.OnStarredFileSelectedListener,
+        FragmentManager.OnBackStackChangedListener, Toolbar.OnMenuItemClickListener {
     public static final String PKG_NAME = "com.seafile.seadroid2";
     public static final String EXTRA_REPO_NAME = PKG_NAME + ".repoName";
     public static final String EXTRA_REPO_ID = PKG_NAME + ".repoID";
@@ -95,9 +133,9 @@ public class BrowserActivity extends SherlockFragmentActivity
     };
     private int currentPosition = 0;
     private SeafileTabsAdapter adapter;
+    private TabLayout mTabLayout;
+
     private ViewPager pager;
-    private PagerSlidingTabStrip tabStrip;
-    private LinearLayout mTabsLinearLayout;
 
     private Account account;
     NavContext navContext = new NavContext();
@@ -158,12 +196,12 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
 
     public void disableActionBarTitle() {
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getActionBarToolbar().setEnabled(false);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
         if (!isTaskRoot()) {
             final Intent intent = getIntent();
@@ -176,7 +214,11 @@ public class BrowserActivity extends SherlockFragmentActivity
             }
         }
         setContentView(R.layout.tabs_main);
+        setSupportActionBar(getActionBarToolbar());
+        // enable ActionBar app icon to behave as action back
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        findViewById(R.id.view_toolbar_bottom_line).setVisibility(View.GONE);
         // Get the message from the intent
         Intent intent = getIntent();
         String server = intent.getStringExtra(AccountManager.SHARED_PREF_SERVER_KEY);
@@ -207,61 +249,38 @@ public class BrowserActivity extends SherlockFragmentActivity
 
         getSupportFragmentManager().addOnBackStackChangedListener(this);
 
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayShowTitleEnabled(true);
         unsetRefreshing();
         disableUpButton();
 
-        tabStrip = (PagerSlidingTabStrip) findViewById(R.id.tab_strip);
         pager = (ViewPager) findViewById(R.id.pager);
         adapter = new SeafileTabsAdapter(getSupportFragmentManager());
         pager.setAdapter(adapter);
-        tabStrip.setViewPager(pager);
-
-        mTabsLinearLayout = ((LinearLayout) tabStrip.getChildAt(0));
-        for (int i = 0; i < mTabsLinearLayout.getChildCount(); i++) {
-            TextView tv = (TextView) mTabsLinearLayout.getChildAt(i);
-
-            if (i == currentPosition) {
-                tv.setTextColor(getResources().getColor(R.color.fancy_orange));
-                setUpButtonTitleOnSlideTabs(i);
-            } else {
-                tv.setTextColor(getResources().getColor(R.color.fancy_gray));
-            }
-        }
-
-        tabStrip.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-
+        mTabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+        mTabLayout.setTabsFromPagerAdapter(adapter);
+        mTabLayout.setupWithViewPager(pager);
+        mTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
-            public void onPageSelected(final int position) {
-                currentPosition = position;
+            public void onTabSelected(TabLayout.Tab tab) {
+                currentPosition = tab.getPosition();
                 supportInvalidateOptionsMenu();
-                pager.setCurrentItem(position);
+                pager.setCurrentItem(tab.getPosition(), true);
                 if (currentPosition != INDEX_LIBRARY_TAB) {
                     disableUpButton();
                 } else if (navContext.inRepo()) {
                     enableUpButton();
                 }
 
-                for(int i=0; i < mTabsLinearLayout.getChildCount(); i++){
-                    TextView tv = (TextView) mTabsLinearLayout.getChildAt(i);
-                    if(i == position){
-                        setUpButtonTitleOnSlideTabs(i);
-                        tv.setTextColor(getResources().getColor(R.color.fancy_orange));
-                    } else {
-                        tv.setTextColor(getResources().getColor(R.color.fancy_gray));
-                    }
-                }
+                setUpButtonTitleOnSlideTabs(tab.getPosition());
             }
 
             @Override
-            public void onPageScrollStateChanged(int arg0) {
-                // TODO Auto-generated method stub
+            public void onTabUnselected(TabLayout.Tab tab) {
+
             }
 
             @Override
-            public void onPageScrolled(int arg0, float arg1, int arg2) {
-                // TODO Auto-generated method stub
+            public void onTabReselected(TabLayout.Tab tab) {
+
             }
         });
 
@@ -312,9 +331,6 @@ public class BrowserActivity extends SherlockFragmentActivity
             navContext.setDir(path, dirID);
         }
 
-        // enable ActionBar app icon to behave as action back
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
         Intent txIntent = new Intent(this, TransferService.class);
         startService(txIntent);
         Log.d(DEBUG_TAG, "start TransferService");
@@ -334,7 +350,7 @@ public class BrowserActivity extends SherlockFragmentActivity
         if(!checkServerProEdition()) {
             // hide Activity tab
             adapter.hideActivityTab();
-            tabStrip.notifyDataSetChanged();
+            //tabStrip.notifyDataSetChanged();
             adapter.notifyDataSetChanged();
         }
 
@@ -348,6 +364,78 @@ public class BrowserActivity extends SherlockFragmentActivity
             return;
 
         ConcurrentAsyncTask.execute(new RequestServerInfoTask());
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                if (navContext.inRepo() && currentPosition == INDEX_LIBRARY_TAB) {
+                    onBackPressed();
+                }
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.sort:
+                showSortFilesDialog();
+                return true;
+            case R.id.search:
+                Intent searchIntent = new Intent(this, SearchActivity.class);
+                startActivity(searchIntent);
+                return true;
+            case R.id.add:
+                addFile();
+                return true;
+            case R.id.transfer_tasks:
+                Intent newIntent = new Intent(this, TransferActivity.class);
+                newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(newIntent);
+                return true;
+            case R.id.accounts:
+                newIntent = new Intent(this, AccountsActivity.class);
+                newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(newIntent);
+                return true;
+            case R.id.edit:
+                // start action mode for selecting multiple files/folders
+
+                if (!Utils.isNetworkOn()) {
+                    ToastUtils.show(this, R.string.network_down);
+                    return true;
+                }
+                if (currentPosition == INDEX_LIBRARY_TAB) {
+                    if (navContext.inRepo()) {
+                        SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
+                        if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
+                            String password = DataManager.getRepoPassword(repo.id);
+                            showPasswordDialog(repo.name, repo.id,
+                                    new TaskDialog.TaskDialogListener() {
+                                        @Override
+                                        public void onTaskSuccess() {
+                                            getReposFragment().startContextualActionMode();
+                                        }
+                                    } , password);
+
+                            return true;
+                        }
+                    }
+
+                    getReposFragment().startContextualActionMode();
+                }
+
+                return true;
+            case R.id.settings:
+                Intent settingsIntent = new Intent(BrowserActivity.this,SettingsActivity.class);
+                settingsIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(settingsIntent);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     class RequestServerInfoTask extends AsyncTask<Void, Void, ServerInfo> {
@@ -377,18 +465,6 @@ public class BrowserActivity extends SherlockFragmentActivity
                 // show Activity tab
                 adapter.unHideActivityTab();
                 adapter.notifyDataSetChanged();
-                tabStrip.notifyDataSetChanged();
-                // highlight font color of the active tab
-                for (int i = 0; i < mTabsLinearLayout.getChildCount(); i++) {
-                    TextView tv = (TextView) mTabsLinearLayout.getChildAt(i);
-
-                    if (i == currentPosition) {
-                        tv.setTextColor(getResources().getColor(R.color.fancy_orange));
-                        setUpButtonTitleOnSlideTabs(i);
-                    } else {
-                        tv.setTextColor(getResources().getColor(R.color.fancy_gray));
-                    }
-                }
             }
 
             if (serverInfo.searchEnabled()) {
@@ -559,6 +635,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     public void setCurrentPosition(int currentPosition) {
         this.currentPosition = currentPosition;
         pager.setCurrentItem(currentPosition);
+        mTabLayout.setScrollPosition(currentPosition, 0, true);
     }
 
     public Fragment getFragment(int index) {
@@ -570,7 +647,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
 
     public ReposFragment getReposFragment() {
-        return (ReposFragment)getFragment(0);
+        return (ReposFragment) getFragment(0);
     }
 
     public StarredFragment getStarredFragment() {
@@ -676,7 +753,7 @@ public class BrowserActivity extends SherlockFragmentActivity
     public void onSaveInstanceState(Bundle outState) {
         Log.d(DEBUG_TAG, "onSaveInstanceState");
         super.onSaveInstanceState(outState);
-        //outState.putInt("tab", getSupportActionBar().getSelectedNavigationIndex());
+        //outState.putInt("tab", getActionBarToolbar().getSelectedNavigationIndex());
         if (navContext.getRepoID() != null) {
             outState.putString("repoID", navContext.getRepoID());
             outState.putString("repoName", navContext.getRepoName());
@@ -687,9 +764,9 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getSupportMenuInflater();
-        inflater.inflate(R.menu.browser_menu, menu);
-        overFlowMenu = menu;
+        Toolbar toolbar = getActionBarToolbar();
+        toolbar.inflateMenu(R.menu.browser_menu);
+        toolbar.setOnMenuItemClickListener(this);
         return true;
     }
 
@@ -736,101 +813,6 @@ public class BrowserActivity extends SherlockFragmentActivity
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        switch (item.getItemId()) {
-        case android.R.id.home:
-            if (navContext.inRepo() && currentPosition == INDEX_LIBRARY_TAB) {
-                onBackPressed();
-            }
-            return true;
-        case R.id.sort:
-            showSortFilesDialog();
-            return true;
-        case R.id.search:
-            Intent searchIntent = new Intent(this, SearchActivity.class);
-            startActivity(searchIntent);
-            return true;
-        case R.id.add:
-            addFile();
-            return true;
-        case R.id.transfer_tasks:
-            Intent newIntent = new Intent(this, TransferActivity.class);
-            newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(newIntent);
-            return true;
-        case R.id.accounts:
-            newIntent = new Intent(this, AccountsActivity.class);
-            newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(newIntent);
-            return true;
-        case R.id.refresh:
-            if (!Utils.isNetworkOn()) {
-                ToastUtils.show(this, R.string.network_down);
-                return true;
-            }
-            if (currentPosition == INDEX_LIBRARY_TAB) {
-                if (navContext.inRepo()) {
-                    SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
-                    if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
-                        String password = DataManager.getRepoPassword(repo.id);
-                        showPasswordDialog(repo.name, repo.id,
-                            new TaskDialog.TaskDialogListener() {
-                                @Override
-                                public void onTaskSuccess() {
-                                    getReposFragment().refresh();
-                                }
-                            } , password);
-
-                        return true;
-                    }
-                }
-
-                getReposFragment().refresh();
-            } else if (currentPosition == INDEX_ACTIVITIES_TAB) {
-                getActivitiesFragment().refreshView();
-            } else if (currentPosition == INDEX_STARRED_TAB) {
-                getStarredFragment().refresh();
-            }
-            return true;
-        case R.id.edit:
-            // start action mode for selecting multiple files/folders
-
-            if (!Utils.isNetworkOn()) {
-                ToastUtils.show(this, R.string.network_down);
-                return true;
-            }
-            if (currentPosition == INDEX_LIBRARY_TAB) {
-                if (navContext.inRepo()) {
-                    SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
-                    if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
-                        String password = DataManager.getRepoPassword(repo.id);
-                        showPasswordDialog(repo.name, repo.id,
-                                new TaskDialog.TaskDialogListener() {
-                                    @Override
-                                    public void onTaskSuccess() {
-                                        getReposFragment().startContextualActionMode();
-                                    }
-                                } , password);
-
-                        return true;
-                    }
-                }
-
-                getReposFragment().startContextualActionMode();
-            }
-
-            return true;
-        case R.id.settings:
-            Intent settingsIntent = new Intent(BrowserActivity.this,SettingsActivity.class);
-            settingsIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(settingsIntent);
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
     }
@@ -863,21 +845,14 @@ public class BrowserActivity extends SherlockFragmentActivity
     public class SortFilesDialog extends DialogFragment {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(
-                    getActivity(),
-                    R.layout.list_item_single_choice,
-                    android.R.id.text1,
-                    getResources().getStringArray(R.array.sort_files_options_array));
-
-            SeafileStyleDialogBuilder builder =
-                    (SeafileStyleDialogBuilder) new SeafileStyleDialogBuilder(getActivity())
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                             .setTitle(getString(R.string.sort_files))
-                            .setSingleChoiceItems(adapter,
+                            .setSingleChoiceItems(R.array.sort_files_options_array,
                                     calculateCheckedItem(),
-                                    new AdapterView.OnItemClickListener() {
+                                    new DialogInterface.OnClickListener() {
                                         @Override
-                                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                            switch (position) {
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            switch (i) {
                                                 case 0: // sort by name, ascending
                                                     sortFiles(SeafItemAdapter.SORT_BY_NAME, SeafItemAdapter.SORT_ORDER_ASCENDING);
                                                     break;
@@ -894,7 +869,9 @@ public class BrowserActivity extends SherlockFragmentActivity
                                                     return;
                                             }
                                             dismiss();
+
                                         }
+
                                     });
             return builder.show();
         }
@@ -952,7 +929,8 @@ public class BrowserActivity extends SherlockFragmentActivity
      * add new file/files
      */
     private void addFile() {
-        final SeafileStyleDialogBuilder builder = new SeafileStyleDialogBuilder(this);
+        ContextThemeWrapper ctw = new ContextThemeWrapper(this, R.style.DialogTheme);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(ctw);
         builder.setTitle(getString(R.string.add_file));
         builder.setItems(R.array.add_file_options_array, new DialogInterface.OnClickListener() {
             @Override
@@ -1044,16 +1022,18 @@ public class BrowserActivity extends SherlockFragmentActivity
 
     public void enableUpButton() {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setLogo(getResources().getDrawable(R.color.transparent));
+        setSupportActionBar(getActionBarToolbar());
+        //getActionBarToolbar().setLogo(getResources().getDrawable(R.color.transparent));
     }
 
     public void disableUpButton() {
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        getSupportActionBar().setLogo(R.drawable.icon);
+        //getActionBarToolbar().setEnabled(false);
+        //getActionBarToolbar().setLogo(R.drawable.icon);
     }
 
     public void setUpButtonTitle(String title){
-        getSupportActionBar().setTitle(title);
+        getActionBarToolbar().setTitle(title);
     }
 
     /**
@@ -1504,15 +1484,15 @@ public class BrowserActivity extends SherlockFragmentActivity
             if (navContext.inRepo()) {
                 if (navContext.isRepoRoot()) {
                     navContext.setRepoID(null);
-                    getSupportActionBar().setTitle(R.string.app_name);
+                    getActionBarToolbar().setTitle(R.string.app_name);
                 } else {
                     String parentPath = Utils.getParentPath(navContext
                             .getDirPath());
                     navContext.setDir(parentPath, null);
                     if (parentPath.equals(ACTIONBAR_PARENT_PATH)) {
-                        getSupportActionBar().setTitle(navContext.getRepoName());
+                        getActionBarToolbar().setTitle(navContext.getRepoName());
                     }else {
-                        getSupportActionBar().setTitle(parentPath.substring(parentPath.lastIndexOf(ACTIONBAR_PARENT_PATH) + 1));
+                        getActionBarToolbar().setTitle(parentPath.substring(parentPath.lastIndexOf(ACTIONBAR_PARENT_PATH) + 1));
                     }
                 }
                 getReposFragment().refreshView();
@@ -2048,5 +2028,13 @@ public class BrowserActivity extends SherlockFragmentActivity
         }
 
     } // TransferReceiver
+
+    public void showFileBottomSheet(String title, final SeafDirent dirent) {
+        getReposFragment().showFileBottomSheet(title, dirent);
+    }
+
+    public void showDirBottomSheet(String title, final SeafDirent dirent) {
+        getReposFragment().showDirBottomSheet(title, dirent);
+    }
 
 }

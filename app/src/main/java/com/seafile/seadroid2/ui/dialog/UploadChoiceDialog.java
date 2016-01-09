@@ -6,12 +6,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 import com.seafile.seadroid2.gallery.MultipleImageSelectionActivity;
-import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.util.Utils;
 
@@ -21,10 +21,8 @@ public class UploadChoiceDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        SeafileStyleDialogBuilder builder = new SeafileStyleDialogBuilder(getActivity()).
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity()).
                 setTitle(getResources().getString(R.string.pick_upload_type)).
-                setTitleColor("#ea8201").   //getResources().getColor(R.color.fancy_orange)
-                setDividerColor("#ea8201"). //getResources().getColor(R.color.fancy_orange)
                 setItems(R.array.pick_upload_array,
                         new DialogInterface.OnClickListener() {
                     @Override

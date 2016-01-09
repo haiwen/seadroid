@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <include layout="@layout/toolbar_actionbar" /> <!-- placeholder, empty except on L -->
   <!-- Error message -->
   <TextView
       android:id="@+id/error_message"
@@ -33,7 +34,7 @@
           android:gravity="center">
 
         <ProgressBar
-            style="?android:attr/progressBarStyleLarge"
+            style="?android:attr/progressBarStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
         <TextView
@@ -89,8 +90,8 @@
             android:textSize="@dimen/btn_txt_size"
             android:textColor="@color/light_black"
             android:gravity="center"
-            android:background="@drawable/cancel_btn_default_holo_light"
-            />
+            android:theme="@style/NegativeButton"
+           />
 
 		<View
 		    android:id="@+id/transparent_space"
@@ -107,11 +108,10 @@
             android:textColor="@color/white"
             android:gravity="center"
             android:textSize="@dimen/btn_txt_size"
-          	android:background="@drawable/confirm_btn_default_holo_light"            
             />
         
     </LinearLayout>
   </RelativeLayout>
 
-</FrameLayout>
+</LinearLayout>
 

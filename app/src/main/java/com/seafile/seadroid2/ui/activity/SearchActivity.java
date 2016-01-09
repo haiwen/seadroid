@@ -4,17 +4,18 @@ import android.content.*;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
 import android.widget.*;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.MenuItem;
+import android.view.MenuItem;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
@@ -38,7 +39,7 @@ import java.util.List;
  * Search Activity
  *
  */
-public class SearchActivity extends SherlockFragmentActivity implements View.OnClickListener {
+public class SearchActivity extends BaseActivity implements View.OnClickListener, Toolbar.OnMenuItemClickListener {
     private static final String DEBUG_TAG = "SearchActivity";
 
     private static final String STATE_SEARCHED_RESULT = "searched_result";
@@ -86,8 +87,10 @@ public class SearchActivity extends SherlockFragmentActivity implements View.OnC
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(new SearchListClickListener());
         //TODO mListView load more data
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        setSupportActionBar(getActionBarToolbar());
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(R.string.search_menu_item);
         initData();
     }
 
@@ -143,6 +146,18 @@ public class SearchActivity extends SherlockFragmentActivity implements View.OnC
         bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
         Log.d(DEBUG_TAG, "try bind TransferService");
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getActionBarToolbar().setOnMenuItemClickListener(this);
+        return true;
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        return super.onOptionsItemSelected(item);
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {

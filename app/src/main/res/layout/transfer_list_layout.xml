@@ -1,28 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:PagerSlidingTabStrip="http://schemas.android.com/apk/res-auto"
-              android:orientation="vertical"
-              android:layout_width="wrap_content"
-              android:layout_height="match_parent">
-    <com.astuetz.PagerSlidingTabStrip
-            android:id="@+id/transfer_tabs_strip"
-            android:layout_height="@dimen/tab_height"
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <include
+            layout="@layout/toolbar_actionbar"
+            app:layout_scrollFlags="scroll|enterAlways" /> <!-- placeholder, empty except on L -->
+
+        <android.support.design.widget.TabLayout
+            android:id="@+id/sliding_tabs"
+            style="@style/TabLayoutStyle"
             android:layout_width="match_parent"
-            android:textSize="@dimen/tab_txt_size"
-            PagerSlidingTabStrip:pstsIndicatorHeight="2dp"
-            PagerSlidingTabStrip:pstsIndicatorColor="@color/fancy_orange"
-            PagerSlidingTabStrip:pstsShouldExpand="true"
-            PagerSlidingTabStrip:pstsDividerColor="@color/transparent"
-            PagerSlidingTabStrip:pstsTabBackground="@drawable/tab_bg_selector"
-            android:background="@color/white"
-            />
+            android:layout_height="wrap_content"
+            app:layout_scrollFlags="scroll|enterAlways"
+            app:tabGravity="center"
+            app:tabMode="scrollable"
+            app:tabSelectedTextColor="@color/fancy_orange"
+            app:tabTextAppearance="@style/TabTextAppearancce" />
+    </android.support.design.widget.AppBarLayout>
+
     <android.support.v4.view.ViewPager
-            android:id="@+id/transfer_list_pager"
-            android:layout_width="fill_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            />
-
-
-</LinearLayout>
+        android:id="@+id/transfer_list_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+</android.support.design.widget.CoordinatorLayout>

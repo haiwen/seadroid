@@ -8,12 +8,12 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.View;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.ui.activity.BaseActivity;
 import com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity;
 import com.seafile.seadroid2.ui.fragment.SettingsFragment;
 import com.viewpagerindicator.LinePageIndicator;
@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * Camera upload configuration helper
  */
-public class CameraUploadConfigActivity extends SherlockFragmentActivity {
+public class CameraUploadConfigActivity extends BaseActivity {
     public static final String DEBUG_TAG = "CameraUploadConfigActivity";
 
     private ViewPager mViewPager;

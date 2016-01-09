@@ -5,8 +5,10 @@ import java.util.List;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -21,8 +23,8 @@ import com.seafile.seadroid2.gesturelock.LockPatternView.Cell;
 import com.seafile.seadroid2.gesturelock.LockPatternView.DisplayMode;
 import com.seafile.seadroid2.ui.ToastUtils;
 
-public class CreateGesturePasswordActivity extends Activity implements
-        OnClickListener {
+public class CreateGesturePasswordActivity extends BaseActivity implements
+        OnClickListener, Toolbar.OnMenuItemClickListener {
     private static final int ID_EMPTY_MESSAGE = -1;
     private static final String KEY_UI_STAGE = "uiStage";
     private static final String KEY_PATTERN_CHOICE = "chosenPattern";
@@ -38,6 +40,20 @@ public class CreateGesturePasswordActivity extends Activity implements
      * The patten used during the help screen to show how to draw a pattern.
      */
     private final List<LockPatternView.Cell> mAnimatePattern = new ArrayList<LockPatternView.Cell>();
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        return false;
+    }
 
     /**
      * The states of the left footer button.
@@ -181,6 +197,11 @@ public class CreateGesturePasswordActivity extends Activity implements
             updateStage(Stage.values()[savedInstanceState.getInt(KEY_UI_STAGE)]);
         }
 
+        Toolbar toolbar = getActionBarToolbar();
+        toolbar.setOnMenuItemClickListener(this);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(R.string.gesture_lock);
     }
 
     private void initPreviewViews() {

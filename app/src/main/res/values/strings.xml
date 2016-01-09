@@ -106,8 +106,8 @@
     <string name="password_empty">Please enter the password</string>
     <string name="wrong_password">wrong password</string>
     <string name="library_read_only">This library is read-only</string>
-    <string name="error_when_load_dirents">Error when loading the folder</string>
-    <string name="error_when_load_repos">Error when loading libraries</string>
+    <string name="error_when_load_dirents">Error when loading the folder.\n Tap to refresh</string>
+    <string name="error_when_load_repos">Error when loading libraries.\n Tap to refresh</string>
     <string name="dir_empty">This folder is empty</string>
     <string name="no_repo">You have no libraries yet</string>
     <string name="no_app_available">No app can be found</string>
@@ -452,4 +452,8 @@
 
     <!--Action Mode -->
     <string name="action_mode_no_items_selected">No items were selected</string>
+
+    <!-- Accessibility description for navigation drawer -->
+    <string name="navdrawer_description_a11y">Navigation Drawer used to switch between major
+        features of the application</string>
 </resources>

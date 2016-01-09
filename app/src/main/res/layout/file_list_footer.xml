@@ -36,8 +36,8 @@
                 android:text="@string/cancel"
                 android:textSize="@dimen/btn_txt_size"
                 android:textColor="@color/light_black"
-                android:background="@drawable/cancel_btn_default_holo_light"
-                />
+                android:theme="@style/NegativeButton"
+            />
 
         <View
                 android:layout_width="0dp"
@@ -52,7 +52,6 @@
                 android:text="@string/upload"
                 android:textSize="@dimen/btn_txt_size"
                 android:textColor="@color/white"
-                android:background="@drawable/confirm_btn_default_holo_light"
                 />
     </LinearLayout>
 

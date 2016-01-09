@@ -9,7 +9,6 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
@@ -35,7 +34,7 @@ import java.util.List;
  * A gallery of images with sliding, zooming, multi-touch and single touch support
  * Local cached images will be shown directly, while cloud images will be asynchronously downloaded first
  */
-public class GalleryActivity extends SherlockFragmentActivity {
+public class GalleryActivity extends BaseActivity {
     public static final String DEBUG_TAG = "GalleryActivity";
 
     private ViewPager mViewPager;
@@ -82,8 +81,6 @@ public class GalleryActivity extends SherlockFragmentActivity {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.gallery_activity_layout);
-        if (getSupportActionBar() != null)
-            getSupportActionBar().hide();
 
         mDeleteBtn = (ImageView) findViewById(R.id.gallery_delete_photo);
         mStarBtn = (ImageView) findViewById(R.id.gallery_star_photo);

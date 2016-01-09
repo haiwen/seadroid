@@ -1,28 +1,45 @@
 package com.seafile.seadroid2.ui.fragment;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.ListFragment;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.view.ActionMode;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.*;
-import com.actionbarsherlock.app.SherlockListFragment;
-import com.actionbarsherlock.view.ActionMode;
-import com.seafile.seadroid2.*;
+import android.widget.AdapterView;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.cocosw.bottomsheet.BottomSheet;
+import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeafConnection;
+import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
-import com.seafile.seadroid2.data.*;
+import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.SeafCachedFile;
+import com.seafile.seadroid2.data.SeafDirent;
+import com.seafile.seadroid2.data.SeafGroup;
+import com.seafile.seadroid2.data.SeafItem;
+import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.ssl.CertsManager;
 import com.seafile.seadroid2.transfer.TransferService;
-import com.seafile.seadroid2.ui.*;
+import com.seafile.seadroid2.ui.CopyMoveContext;
+import com.seafile.seadroid2.ui.NavContext;
+import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
@@ -30,15 +47,13 @@ import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
-import com.tjerkw.slideexpandable.library.SlideExpandableListAdapter;
 
 import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
 
 
-public class ReposFragment extends SherlockListFragment
-        implements ActionModeCallback.ActionModeOperationListener {
+public class ReposFragment extends ListFragment {
 
     private static final String DEBUG_TAG = "ReposFragment";
     
@@ -53,20 +68,15 @@ public class ReposFragment extends SherlockListFragment
     private SeafItemAdapter adapter;
     private BrowserActivity mActivity = null;
     private ActionMode mActionMode;
-    private LinearLayout mTaskActionBar;
-    private RelativeLayout deleteView;
-    private RelativeLayout copyView;
-    private RelativeLayout moveView;
-    private RelativeLayout downloadView;
     private CopyMoveContext copyMoveContext;
-    private MultipleOperationClickListener listener = new MultipleOperationClickListener();
 
     public static final int FILE_ACTION_EXPORT = 0;
     public static final int FILE_ACTION_COPY = 1;
     public static final int FILE_ACTION_MOVE = 2;
     public static final int FILE_ACTION_STAR = 3;
 
-    private CustomActionSlideExpandableListView mListView;
+    private SwipeRefreshLayout refreshLayout;
+    private ListView mListView;
     private ImageView mEmptyView;
     private View mProgressContainer;
     private View mListContainer;
@@ -91,54 +101,6 @@ public class ReposFragment extends SherlockListFragment
         return mEmptyView;
     }
 
-    @Override
-    public void selectItems() {
-        if (adapter == null) return;
-
-        adapter.selectAllItems();
-        updateContextualActionBar();
-
-    }
-
-    @Override
-    public void deselectItems() {
-        if (adapter == null) return;
-
-        adapter.deselectAllItems();
-        updateContextualActionBar();
-
-    }
-
-    @Override
-    public void onActionModeStarted() {
-        if (adapter == null) return;
-
-        adapter.setActionModeOn(true);
-        adapter.notifyDataSetChanged();
-
-        Animation bottomUp = AnimationUtils.loadAnimation(getActivity(),
-                R.anim.bottom_up);
-        mTaskActionBar.startAnimation(bottomUp);
-        mTaskActionBar.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void onActionModeDestroy() {
-        if (adapter == null) return;
-
-        adapter.setActionModeOn(false);
-        adapter.deselectAllItems();
-        Animation bottomDown = AnimationUtils.loadAnimation(mActivity,
-                R.anim.bottom_down);
-        mTaskActionBar.startAnimation(bottomDown);
-        mTaskActionBar.setVisibility(View.GONE);
-
-        // Here you can make any necessary updates to the activity when
-        // the contextual action bar (CAB) is removed. By default, selected items are deselected/unchecked.
-        mActionMode = null;
-
-    }
-
     public interface OnFileSelectedListener {
         void onFileSelected(SeafDirent fileName);
     }
@@ -154,16 +116,8 @@ public class ReposFragment extends SherlockListFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.repos_fragment, container, false);
-        mListView = (CustomActionSlideExpandableListView) root.findViewById(android.R.id.list);
-        mTaskActionBar = (LinearLayout) root.findViewById(R.id.multi_op_bottom_action_bar);
-        deleteView = (RelativeLayout) root.findViewById(R.id.multi_op_delete_rl);
-        copyView = (RelativeLayout) root.findViewById(R.id.multi_op_copy_rl);
-        moveView = (RelativeLayout) root.findViewById(R.id.multi_op_move_rl);
-        downloadView = (RelativeLayout) root.findViewById(R.id.multi_op_download_rl);
-        deleteView.setOnClickListener(listener);
-        copyView.setOnClickListener(listener);
-        moveView.setOnClickListener(listener);
-        downloadView.setOnClickListener(listener);
+        refreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swiperefresh);
+        mListView = (ListView) root.findViewById(android.R.id.list);
         mEmptyView = (ImageView) root.findViewById(R.id.empty);
         mListContainer =  root.findViewById(R.id.listContainer);
         mErrorText = (TextView)root.findViewById(R.id.error_message);
@@ -177,14 +131,12 @@ public class ReposFragment extends SherlockListFragment
             }
         });
 
-        // Set a listener to be invoked when the list should be refreshed.
-        mListView.setOnRefreshListener(new CustomActionSlideExpandableListView.OnRefreshListener() {
-
+        refreshLayout.setColorSchemeResources(R.color.fancy_orange);
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 mRefreshType = REFRESH_ON_PULL;
                 refreshView(true);
-
             }
         });
 
@@ -214,7 +166,7 @@ public class ReposFragment extends SherlockListFragment
         NavContext nav = getNavContext();
         if (adapter == null || !nav.inRepo()) return;
 
-        adapter.toggleSelection(position - 1);
+        adapter.toggleSelection(position);
         updateContextualActionBar();
 
     }
@@ -225,9 +177,104 @@ public class ReposFragment extends SherlockListFragment
 
         if (mActionMode == null) {
             // start the actionMode
-            mActionMode = mActivity.startActionMode(new ActionModeCallback(this));
+            mActionMode = mActivity.startSupportActionMode(new ActionModeCallback());
         }
 
+    }
+
+    public void showFileBottomSheet(String title, final SeafDirent dirent) {
+        final String repoName = getNavContext().getRepoName();
+        final String repoID = getNavContext().getRepoID();
+        final String dir = getNavContext().getDirPath();
+        final String path = Utils.pathJoin(dir, dirent.name);
+        final String filename = dirent.name;
+        final String localPath = getDataManager().getLocalRepoFile(repoName, repoID, path).getPath();
+        final BottomSheet.Builder builder = new BottomSheet.Builder(mActivity);
+        builder.title(title).sheet(R.menu.bottom_sheet_op_file).listener(new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case R.id.share:
+                        mActivity.shareFile(repoID, path);
+                        break;
+                    case R.id.delete:
+                        mActivity.deleteFile(repoID, repoName, path);
+                        break;
+                    case R.id.copy:
+                        mActivity.copyFile(repoID, repoName, dir, filename, false);
+                        break;
+                    case R.id.move:
+                        mActivity.moveFile(repoID, repoName, dir, filename, false);
+                        break;
+                    case R.id.rename:
+                        mActivity.renameFile(repoID, repoName, path);
+                        break;
+                    case R.id.update:
+                        mActivity.addUpdateTask(repoID, repoName, dir, localPath);
+                        break;
+                    case R.id.download:
+                        mActivity.downloadFile(dir, dirent.name);
+                        break;
+                    case R.id.export:
+                        mActivity.exportFile(dirent.name);
+                        break;
+                    case R.id.star:
+                        mActivity.starFile(repoID, dir, filename);
+                        break;
+                }
+            }
+        }).show();
+
+        SeafRepo repo = getDataManager().getCachedRepoByID(repoID);
+        if (repo != null && repo.encrypted) {
+            builder.remove(R.id.share);
+        }
+
+        SeafCachedFile cf = getDataManager().getCachedFile(repoName, repoID, path);
+        if (cf!= null) {
+            builder.remove(R.id.download);
+        } else {
+            builder.remove(R.id.update);
+        }
+
+    }
+
+    public void showDirBottomSheet(String title, final SeafDirent dirent) {
+        final String repoName = getNavContext().getRepoName();
+        final String repoID = getNavContext().getRepoID();
+        final String dir = getNavContext().getDirPath();
+        final String path = Utils.pathJoin(dir, dirent.name);
+        final String filename = dirent.name;
+        final BottomSheet.Builder builder = new BottomSheet.Builder(mActivity);
+        builder.title(title).sheet(R.menu.bottom_sheet_op_dir).listener(new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case R.id.share:
+                        mActivity.shareDir(repoID, path);
+                        break;
+                    case R.id.delete:
+                        mActivity.deleteDir(repoID, repoName, path);
+                        break;
+                    case R.id.copy:
+                        mActivity.copyFile(repoID, repoName, dir, filename, false);
+                        break;
+                    case R.id.move:
+                        mActivity.moveFile(repoID, repoName, dir, filename, false);
+                        break;
+                    case R.id.rename:
+                        mActivity.renameDir(repoID, repoName, path);
+                        break;
+                    case R.id.download:
+                        mActivity.downloadDir(dir, dirent.name, true);
+                        break;
+                }
+            }
+        }).show();
+        SeafRepo repo = getDataManager().getCachedRepoByID(repoID);
+        if (repo != null && repo.encrypted) {
+            builder.remove(R.id.share);
+        }
     }
 
     @Override
@@ -236,157 +283,7 @@ public class ReposFragment extends SherlockListFragment
         Log.d(DEBUG_TAG, "ReposFragment onActivityCreated");
         adapter = new SeafItemAdapter(mActivity);
 
-        mListView.setAdapter(
-                new SlideExpandableListAdapter(
-                        adapter,
-                        R.id.expandable_toggle_button,
-                        R.id.expandable)
-        );
-
-        // A more specific expandable listview in which the expandable area consist of some buttons
-        // which are context actions for the item itself.
-        // It handles event binding for those buttons
-        // and allow for adding a listener that will be invoked if one of those buttons are pressed.
-        mListView.setItemActionListener(new SlideExpandableClickListener(),
-                R.id.action_share_ll,
-                R.id.action_delete_ll,
-                R.id.action_copy_ll,
-                R.id.action_move_ll,
-                R.id.action_rename_ll,
-                R.id.action_update_ll,
-                R.id.action_download_ll,
-                R.id.action_more_ll);
-    }
-
-    /**
-     * Implementation for callback to be invoked whenever an action is clicked in
-     * the expandle area of the list item.
-     */
-    private class SlideExpandableClickListener implements CustomActionSlideExpandableListView.OnActionClickListener {
-
-        @Override
-        public void onClick(View itemView, View buttonview, int position) {
-            // listen for click events for each list item.
-            // the 'position' param will tell which list item is clicked
-            SeafDirent dirent = (SeafDirent) adapter.getItem(position);
-            NavContext nav = mActivity.getNavContext();
-            String repoName = nav.getRepoName();
-            String repoID = nav.getRepoID();
-            String dir = nav.getDirPath();
-            String path = Utils.pathJoin(dir, dirent.name);
-            String filename = dirent.name;
-            DataManager dataManager = mActivity.getDataManager();
-            String localPath = dataManager.getLocalRepoFile(repoName, repoID, path).getPath();
-
-            switch (buttonview.getId()) {
-                case R.id.action_share_ll:
-                    mListView.collapse();
-                    mActivity.shareFile(repoID, path);
-                    break;
-                case R.id.action_delete_ll:
-                    mListView.collapse();
-                    mActivity.deleteFile(repoID, repoName, path);
-                    break;
-                case R.id.action_copy_ll:
-                    mListView.collapse();
-                    mActivity.copyFile(repoID, repoName, dir, filename, false);
-                    break;
-                case R.id.action_move_ll:
-                    mListView.collapse();
-                    mActivity.moveFile(repoID, repoName, dir, filename, false);
-                    break;
-                case R.id.action_rename_ll:
-                    mListView.collapse();
-                    mActivity.renameFile(repoID, repoName, path);
-                    break;
-                case R.id.action_update_ll:
-                    mListView.collapse();
-                    mActivity.addUpdateTask(repoID, repoName, dir, localPath);
-                    break;
-                case R.id.action_download_ll:
-                    mListView.collapse();
-                    if (dirent.isDir()) {
-                        mActivity.downloadDir(dir, dirent.name, true);
-                    } else {
-                        mActivity.downloadFile(dir, dirent.name);
-                    }
-                    break;
-                case R.id.action_more_ll:
-                    mListView.collapse();
-                    processMoreOptions(repoID, repoName, dir, filename, dirent, localPath);
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
-    private AlertDialog processMoreOptions(final String repoID,
-                                           final String repoName,
-                                           final String dir,
-                                           final String filename,
-                                           final SeafDirent dirent,
-                                           final String localPath) {
-        SeafileStyleDialogBuilder builder =
-                new SeafileStyleDialogBuilder(getActivity()).
-                        setTitle(getResources().getString(R.string.file_action_more_title)).
-                        setItems(R.array.file_action_more_array,
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        switch (which) {
-                                            case FILE_ACTION_EXPORT:
-                                                mActivity.exportFile(dirent.name);
-                                                break;
-                                            case FILE_ACTION_COPY:
-                                                mActivity.copyFile(repoID, repoName, dir, filename, false);
-                                                break;
-                                            case FILE_ACTION_MOVE:
-                                                mActivity.moveFile(repoID, repoName, dir, filename, false);
-                                                break;
-                                            case FILE_ACTION_STAR:
-                                                mActivity.starFile(repoID, dir, filename);
-                                                break;
-                                            default:
-                                                return;
-                                        }
-                                    }
-                                });
-        return builder.show();
-    }
-
-    class MultipleOperationClickListener implements View.OnClickListener {
-
-        @Override
-        public void onClick(View v) {
-            NavContext nav = mActivity.getNavContext();
-            String repoID = nav.getRepoID();
-            String repoName = nav.getRepoName();
-            String dirPath = nav.getDirPath();
-            final List<SeafDirent> selectedDirents = adapter.getSelectedItemsValues();
-            if (selectedDirents.size() == 0
-                    || repoID == null
-                    || dirPath == null) {
-                ToastUtils.show(mActivity, R.string.action_mode_no_items_selected);
-                return;
-            }
-
-            switch (v.getId()) {
-                case R.id.multi_op_delete_rl:
-                    mActivity.deleteFiles(repoID, dirPath, selectedDirents);
-                    break;
-                case R.id.multi_op_copy_rl:
-                    mActivity.copyFiles(repoID, repoName, dirPath, selectedDirents);
-                    break;
-                case R.id.multi_op_move_rl:
-                    mActivity.moveFiles(repoID, repoName, dirPath, selectedDirents);
-                    break;
-                case R.id.multi_op_download_rl:
-                    mActivity.downloadFiles(repoID, repoName, dirPath, selectedDirents);
-                    break;
-
-            }
-        }
+        mListView.setAdapter(adapter);
     }
 
     @Override
@@ -458,7 +355,7 @@ public class ReposFragment extends SherlockListFragment
         mPullToRefreshStopRefreshing ++;
 
         if (mPullToRefreshStopRefreshing >1) {
-            mListView.onRefreshComplete();
+            refreshLayout.setRefreshing(false);
             mPullToRefreshStopRefreshing = 0;
         }
 
@@ -467,7 +364,7 @@ public class ReposFragment extends SherlockListFragment
             List<SeafRepo> repos = getDataManager().getReposFromCache();
             if (repos != null) {
                 if (mRefreshType == REFRESH_ON_PULL) {
-                    mListView.onRefreshComplete();
+                    refreshLayout.setRefreshing(false);
                     mPullToRefreshStopRefreshing = 0;
                 }
 
@@ -485,7 +382,7 @@ public class ReposFragment extends SherlockListFragment
         mPullToRefreshStopRefreshing ++;
 
         if (mPullToRefreshStopRefreshing > 1) {
-            mListView.onRefreshComplete();
+            refreshLayout.setRefreshing(false);
             mPullToRefreshStopRefreshing = 0;
         }
 
@@ -509,7 +406,7 @@ public class ReposFragment extends SherlockListFragment
                     nav.getRepoID(), nav.getDirPath());
             if (dirents != null) {
                 if (mRefreshType == REFRESH_ON_PULL) {
-                    mListView.onRefreshComplete();
+                    refreshLayout.setRefreshing(false);
                     mPullToRefreshStopRefreshing = 0;
                 }
 
@@ -602,7 +499,7 @@ public class ReposFragment extends SherlockListFragment
             mEmptyView.setVisibility(View.VISIBLE);
         }
         // Collapses the currently open view
-        mListView.collapse();
+        //mListView.collapse();
     }
 
     private void updateAdapterWithDirents(final List<SeafDirent> dirents) {
@@ -627,7 +524,7 @@ public class ReposFragment extends SherlockListFragment
             mEmptyView.setVisibility(View.VISIBLE);
         }
         // Collapses the currently open view
-        mListView.collapse();
+        //mListView.collapse();
     }
 
     /**
@@ -637,7 +534,7 @@ public class ReposFragment extends SherlockListFragment
 
         if (mActionMode == null) {
             // there are some selected items, start the actionMode
-            mActionMode = mActivity.startActionMode(new ActionModeCallback(this));
+            mActionMode = mActivity.startSupportActionMode(new ActionModeCallback());
         } else {
             // Log.d(DEBUG_TAG, "mActionMode.setTitle " + adapter.getCheckedItemCount());
             mActionMode.setTitle(getResources().getQuantityString(
@@ -655,7 +552,7 @@ public class ReposFragment extends SherlockListFragment
             // add or remove selection for current list item
             if (adapter == null) return;
 
-            adapter.toggleSelection(position - 1);
+            adapter.toggleSelection(position);
             updateContextualActionBar();
             return;
         }
@@ -666,7 +563,7 @@ public class ReposFragment extends SherlockListFragment
             repo = getDataManager().getCachedRepoByID(nav.getRepoID());
             mActivity.setUpButtonTitle(repo.getName());
         } else {
-            SeafItem item = adapter.getItem(position - 1);
+            SeafItem item = adapter.getItem(position);
             if (item instanceof SeafRepo) {
                 repo = (SeafRepo)item;
             }
@@ -691,8 +588,8 @@ public class ReposFragment extends SherlockListFragment
 
         mRefreshType = REFRESH_ON_CLICK;
         if (nav.inRepo()) {
-            if (adapter.getItem(position - 1) instanceof SeafDirent) {
-                final SeafDirent dirent = (SeafDirent) adapter.getItem(position - 1);
+            if (adapter.getItem(position) instanceof SeafDirent) {
+                final SeafDirent dirent = (SeafDirent) adapter.getItem(position);
                 if (dirent.isDir()) {
                     String currentPath = nav.getDirPath();
                     String newPath = currentPath.endsWith("/") ?
@@ -809,7 +706,8 @@ public class ReposFragment extends SherlockListFragment
                 showLoading(false);
             } else if (mRefreshType == REFRESH_ON_PULL) {
                 String lastUpdate = getDataManager().getLastPullToRefreshTime(DataManager.PULL_TO_REFRESH_LAST_TIME_FOR_REPOS_FRAGMENT);
-                mListView.onRefreshComplete(lastUpdate);
+                //mListView.onRefreshComplete(lastUpdate);
+                refreshLayout.setRefreshing(false);
                 getDataManager().saveLastPullToRefreshTime(System.currentTimeMillis(), DataManager.PULL_TO_REFRESH_LAST_TIME_FOR_REPOS_FRAGMENT);
                 mPullToRefreshStopRefreshing = 0;
             }
@@ -874,6 +772,12 @@ public class ReposFragment extends SherlockListFragment
 
         mErrorText.setText(msg);
         mErrorText.setVisibility(View.VISIBLE);
+        mErrorText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                refresh();
+            }
+        });
     }
 
     public void showLoading(boolean show) {
@@ -975,7 +879,8 @@ public class ReposFragment extends SherlockListFragment
                 showLoading(false);
             } else if (mRefreshType == REFRESH_ON_PULL) {
                 String lastUpdate = getDataManager().getLastPullToRefreshTime(DataManager.PULL_TO_REFRESH_LAST_TIME_FOR_REPOS_FRAGMENT);
-                mListView.onRefreshComplete(lastUpdate);
+                //mListView.onRefreshComplete(lastUpdate);
+                refreshLayout.setRefreshing(false);
                 getDataManager().saveLastPullToRefreshTime(System.currentTimeMillis(), DataManager.PULL_TO_REFRESH_LAST_TIME_FOR_REPOS_FRAGMENT);
                 mPullToRefreshStopRefreshing = 0;
             }
@@ -1058,5 +963,111 @@ public class ReposFragment extends SherlockListFragment
                 refreshView();
             }
         });
+    }
+
+    /**
+     * Represents a contextual mode of the user interface.
+     * Action modes can be used to provide alternative interaction modes and replace parts of the normal UI until finished.
+     * A Callback configures and handles events raised by a user's interaction with an action mode.
+     */
+    class ActionModeCallback implements ActionMode.Callback {
+        private boolean allItemsSelected;
+
+        public ActionModeCallback() {
+        }
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            // Inflate the menu for the contextual action bar (CAB)
+            MenuInflater inflater = mode.getMenuInflater();
+            inflater.inflate(R.menu.repos_fragment_menu, menu);
+            if (adapter == null) return true;
+
+            adapter.setActionModeOn(true);
+            adapter.notifyDataSetChanged();
+
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            /*
+             * The ActionBarPolicy determines how many action button to place in the ActionBar
+             * and the default amount is 2.
+             */
+            menu.findItem(R.id.action_mode_delete).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+            menu.findItem(R.id.action_mode_copy).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+            menu.findItem(R.id.action_mode_select_all).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
+            // Here you can perform updates to the contextual action bar (CAB) due to
+            // an invalidate() request
+            return true;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            // Respond to clicks on the actions in the contextual action bar (CAB)
+            NavContext nav = mActivity.getNavContext();
+            String repoID = nav.getRepoID();
+            String repoName = nav.getRepoName();
+            String dirPath = nav.getDirPath();
+            final List<SeafDirent> selectedDirents = adapter.getSelectedItemsValues();
+            if (selectedDirents.size() == 0
+                    || repoID == null
+                    || dirPath == null) {
+                if (item.getItemId() != R.id.action_mode_select_all) {
+                    ToastUtils.show(mActivity, R.string.action_mode_no_items_selected);
+                    return true;
+                }
+            }
+
+            switch (item.getItemId()) {
+                case R.id.action_mode_select_all:
+                    if (!allItemsSelected) {
+                        if (adapter == null) return true;
+
+                        adapter.selectAllItems();
+                        updateContextualActionBar();
+                    } else {
+                        if (adapter == null) return true;
+
+                        adapter.deselectAllItems();
+                        updateContextualActionBar();
+                    }
+
+                    allItemsSelected = !allItemsSelected;
+                    break;
+                case R.id.action_mode_delete:
+                    mActivity.deleteFiles(repoID, dirPath, selectedDirents);
+                    break;
+                case R.id.action_mode_copy:
+                    mActivity.copyFiles(repoID, repoName, dirPath, selectedDirents);
+                    break;
+                case R.id.action_mode_move:
+                    mActivity.moveFiles(repoID, repoName, dirPath, selectedDirents);
+                    break;
+                case R.id.action_mode_download:
+                    mActivity.downloadFiles(repoID, repoName, dirPath, selectedDirents);
+                    break;
+
+                default:
+                    return false;
+            }
+
+            return true;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            if (adapter == null) return;
+
+            adapter.setActionModeOn(false);
+            adapter.deselectAllItems();
+
+            // Here you can make any necessary updates to the activity when
+            // the contextual action bar (CAB) is removed. By default, selected items are deselected/unchecked.
+            mActionMode = null;
+        }
+
     }
 }

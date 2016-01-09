@@ -6,19 +6,20 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ListView;
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.MenuItem;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
@@ -29,7 +30,6 @@ import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.avatar.Avatar;
 import com.seafile.seadroid2.avatar.AvatarManager;
 import com.seafile.seadroid2.monitor.FileMonitorService;
-import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.adapter.AccountAdapter;
 import com.seafile.seadroid2.ui.adapter.SeafAccountAdapter;
 import com.seafile.seadroid2.util.Utils;
@@ -38,7 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class AccountsActivity extends SherlockFragmentActivity {
+public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener{
     private static final String DEBUG_TAG = "AccountsActivity";
 
     private ListView accountsView;
@@ -106,8 +106,11 @@ public class AccountsActivity extends SherlockFragmentActivity {
         });
         registerForContextMenu(accountsView);
 
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        Toolbar toolbar = getActionBarToolbar();
+        toolbar.setOnMenuItemClickListener(this);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(R.string.accounts);
     }
 
     private void authorizeAccount(Account account) {
@@ -146,6 +149,11 @@ public class AccountsActivity extends SherlockFragmentActivity {
         super.onResume();
 
         refreshView();
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -250,11 +258,10 @@ public class AccountsActivity extends SherlockFragmentActivity {
     public static final int OTHER_SERVER = 3;
 
     public static class CreateAccountChoiceDialog extends DialogFragment {
-        // final Context context = SeadroidApplication.getAppContext();
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            SeafileStyleDialogBuilder builder = 
-                    new SeafileStyleDialogBuilder(getActivity()).
+            AlertDialog.Builder builder =
+                    new AlertDialog.Builder(getActivity()).
                     setTitle(getResources().getString(R.string.choose_server)).
                     setItems(R.array.choose_server_array,
                             new DialogInterface.OnClickListener() {

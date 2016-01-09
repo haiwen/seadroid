@@ -5,11 +5,11 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.util.Utils;
@@ -17,10 +17,10 @@ import us.feras.mdv.MarkdownView;
 
 import java.io.File;
 
-/*
+/**
  * For showing markdown files
  */
-public class MarkdownActivity extends SherlockActivity {
+public class MarkdownActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
 
     @SuppressWarnings("unused")
     private static final String DEBUG_TAG = "MarkdownActivity";
@@ -32,18 +32,18 @@ public class MarkdownActivity extends SherlockActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.start);
-        markdownView = new MarkdownView(this);
-        setContentView(markdownView);
+        setContentView(R.layout.activity_markdown);
 
         Intent intent = getIntent();
         path = intent.getStringExtra("path");
 
-        if (path == null)
-            return;
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        
+        if (path == null) return;
+
+        markdownView = (MarkdownView) findViewById(R.id.markdownView);
+        Toolbar toolbar = getActionBarToolbar();
+        toolbar.setOnMenuItemClickListener(this);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
     
     @Override
@@ -55,25 +55,30 @@ public class MarkdownActivity extends SherlockActivity {
 
         String content = Utils.readFile(file);
         markdownView.loadMarkdown(content);
+        getSupportActionBar().setTitle(file.getName());
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getSupportMenuInflater();
-        inflater.inflate(R.menu.markdown_view_menu, menu);
+        getActionBarToolbar().inflateMenu(R.menu.markdown_view_menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-        case R.id.edit_markdown:
-            edit();
-            return true;
-        case android.R.id.home:
-            finish();
-            return true;
+            case android.R.id.home:
+                finish();
+                break;
+            case R.id.edit_markdown:
+                edit();
+                break;
         }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
         return super.onOptionsItemSelected(item);
     }
 

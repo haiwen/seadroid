@@ -2,20 +2,18 @@ package com.seafile.seadroid2.ui.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v4.view.ViewPager.OnPageChangeListener;
-import android.util.Log;
+import android.support.v7.view.ActionMode;
+import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.ActionMode;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-import com.astuetz.PagerSlidingTabStrip;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.notification.BaseNotificationProvider;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
@@ -23,13 +21,13 @@ import com.seafile.seadroid2.ui.adapter.TransferTaskAdapter;
 import com.seafile.seadroid2.ui.fragment.DownloadTaskFragment;
 import com.seafile.seadroid2.ui.fragment.UploadTaskFragment;
 
-public class TransferActivity extends SherlockFragmentActivity {
+public class TransferActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
     private static final String DEBUG_TAG = "TransferActivity";
 
     private TransferTaskAdapter.TaskType whichTab = TransferTaskAdapter.TaskType.DOWNLOAD_TASK;
     private TransferTabsAdapter tabsAdapter;
     private ViewPager pager;
-    private PagerSlidingTabStrip tabStrip;
+    private TabLayout mTabLayout;
 
     private Menu overFlowMenu = null;
 
@@ -56,18 +54,20 @@ public class TransferActivity extends SherlockFragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.transfer_list_layout);
 
+        findViewById(R.id.view_toolbar_bottom_line).setVisibility(View.GONE);
+
         tabsAdapter = new TransferTabsAdapter(getSupportFragmentManager());
 
         pager = (ViewPager) findViewById(R.id.transfer_list_pager);
         pager.setAdapter(tabsAdapter);
-
-        tabStrip = (PagerSlidingTabStrip) findViewById(R.id.transfer_tabs_strip);
-        tabStrip.setViewPager(pager);
-        tabStrip.setOnPageChangeListener(new OnPageChangeListener() {
+        mTabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+        mTabLayout.setTabsFromPagerAdapter(tabsAdapter);
+        mTabLayout.setupWithViewPager(pager);
+        mTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
-            public void onPageSelected(final int position) {
-                Log.d(DEBUG_TAG, "current tab index " + position);
-                whichTab = (position == 0
+            public void onTabSelected(TabLayout.Tab tab) {
+                // Log.d(DEBUG_TAG, "current tab index " + position);
+                whichTab = (tab.getPosition() == 0
                         ? TransferTaskAdapter.TaskType.DOWNLOAD_TASK
                         : TransferTaskAdapter.TaskType.UPLOAD_TASK);
 
@@ -90,23 +90,24 @@ public class TransferActivity extends SherlockFragmentActivity {
                     mode.finish();
 
                 supportInvalidateOptionsMenu();
-                pager.setCurrentItem(position);
+                pager.setCurrentItem(tab.getPosition());
             }
 
             @Override
-            public void onPageScrollStateChanged(int arg0) {
-                // TODO Auto-generated method stub
+            public void onTabUnselected(TabLayout.Tab tab) {
+
             }
 
             @Override
-            public void onPageScrolled(int arg0, float arg1, int arg2) {
-                // TODO Auto-generated method stub
+            public void onTabReselected(TabLayout.Tab tab) {
+
             }
         });
 
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        Toolbar toolbar = getActionBarToolbar();
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(R.string.transfer_tasks);
 
         /** this is hacky to explicitly call onNewIntent()
          * because it was never called when start the TransferActivity
@@ -138,9 +139,8 @@ public class TransferActivity extends SherlockFragmentActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getSupportMenuInflater();
-        inflater.inflate(R.menu.transfer_list_menu, menu);
-        overFlowMenu = menu;
+        getActionBarToolbar().inflateMenu(R.menu.transfer_list_menu);
+        getActionBarToolbar().setOnMenuItemClickListener(this);
         return true;
     }
 
@@ -152,10 +152,16 @@ public class TransferActivity extends SherlockFragmentActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
             case R.id.cancel_transfer_tasks:
                 if (whichTab == TransferTaskAdapter.TaskType.DOWNLOAD_TASK) {
                     getDownloadTaskFragment().cancelAllDownloadTasks();

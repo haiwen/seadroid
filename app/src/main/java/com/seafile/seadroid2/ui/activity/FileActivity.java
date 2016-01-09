@@ -7,10 +7,12 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.v7.widget.*;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.*;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
@@ -31,7 +33,7 @@ import java.net.HttpURLConnection;
 /**
  * Display a file
  */
-public class FileActivity extends SherlockFragmentActivity {
+public class FileActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
     private static final String DEBUG_TAG = "FileActivity";
 
     private TextView mFileNameText;
@@ -132,6 +134,12 @@ public class FileActivity extends SherlockFragmentActivity {
                 finish();
             }
         });
+
+        Toolbar toolbar = getActionBarToolbar();
+        toolbar.setOnMenuItemClickListener(this);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(fileName);
     }
 
     private void onTransferServiceConnected() {
@@ -291,5 +299,23 @@ public class FileActivity extends SherlockFragmentActivity {
         timerStarted = false;
         Log.d(DEBUG_TAG, "timer stopped");
         mTimer.removeCallbacksAndMessages(null);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            if (mTaskID > 0) {
+                mTransferService.cancelDownloadTask(mTaskID);
+                mTransferService.cancelNotification();
+            }
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        return false;
     }
 }

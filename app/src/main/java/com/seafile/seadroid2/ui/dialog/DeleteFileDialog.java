@@ -170,8 +170,7 @@ public class DeleteFileDialog extends TaskDialog {
     protected void onDialogCreated(Dialog dialog) {
         String str = getActivity().getString(
                 isdir ? R.string.delete_dir : R.string.delete_file_f);
-        setTitle(str);
-        // dialog.setTitle(str + " " + Utils.fileNameFromPath(path));
+        dialog.setTitle(str);
     }
 
     @Override

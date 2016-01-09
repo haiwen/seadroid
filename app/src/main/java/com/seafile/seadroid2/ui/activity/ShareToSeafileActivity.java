@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.MediaStore.Images;
 import android.util.Log;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
@@ -19,7 +18,6 @@ import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
-import com.seafile.seadroid2.ui.SeafileStyleDialogBuilder;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.util.Utils;
 import org.apache.commons.io.IOUtils;
@@ -28,7 +26,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ShareToSeafileActivity extends SherlockFragmentActivity {
+public class ShareToSeafileActivity extends BaseActivity {
     private static final String DEBUG_TAG = "ShareToSeafileActivity";
 
     public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "password_dialog_fragment_tag";
@@ -307,7 +305,7 @@ public class ShareToSeafileActivity extends SherlockFragmentActivity {
             }
 
             if (fileExistent) {
-                AlertDialog.Builder builder = new SeafileStyleDialogBuilder(this)
+                AlertDialog.Builder builder = new AlertDialog.Builder(this)
                         .setTitle(getString(R.string.overwrite_existing_file_title))
                         .setMessage(getString(R.string.overwrite_existing_file_msg))
                         .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {

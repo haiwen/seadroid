@@ -8,6 +8,8 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
@@ -23,7 +25,7 @@ import com.seafile.seadroid2.gesturelock.LockPatternView.Cell;
 import com.seafile.seadroid2.ui.ToastUtils;
 
 
-public class UnlockGesturePasswordActivity extends Activity {
+public class UnlockGesturePasswordActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
     private LockPatternView mLockPatternView;
     private int mFailedPatternAttemptsSinceLastTimeout = 0;
     private CountDownTimer mCountdownTimer = null;
@@ -48,7 +50,11 @@ public class UnlockGesturePasswordActivity extends Activity {
         mLockPatternView.setTactileFeedbackEnabled(true);
         mHeadTextView = (TextView) findViewById(R.id.gesturepwd_unlock_text);
         mShakeAnim = AnimationUtils.loadAnimation(this, R.anim.shake_x);
-        
+        final Toolbar toolbar = getActionBarToolbar();
+        toolbar.setOnMenuItemClickListener(this);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(R.string.gesture_lock);
         settingsMgr = SettingsManager.instance();
     }
 
@@ -160,4 +166,17 @@ public class UnlockGesturePasswordActivity extends Activity {
         }
     };
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        return false;
+    }
 }

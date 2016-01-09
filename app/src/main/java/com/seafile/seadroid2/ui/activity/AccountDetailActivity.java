@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui.activity;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -8,10 +9,13 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -19,10 +23,6 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.Window;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
@@ -39,7 +39,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 
-public class AccountDetailActivity extends SherlockFragmentActivity {
+public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
     private static final String DEBUG_TAG = "AccountDetailActivity";
 
     private static final String HTTP_PREFIX = "http://";
@@ -48,6 +48,7 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
     private TextView statusView;
     private Button loginButton;
     private EditText serverText;
+    private ProgressDialog progressDialog;
     private CustomClearableEditText emailText;
     private CustomClearableEditText passwdText;
     private CheckBox httpsCheckBox;
@@ -61,10 +62,8 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
-        //This has to be called before setContentView and you must use the
-        //class in com.actionbarsherlock.view and NOT android.view
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.account_detail);
 
         statusView = (TextView) findViewById(R.id.status_view);
@@ -105,8 +104,18 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
             int prefixLen = HTTP_PREFIX.length();
             serverText.setSelection(prefixLen, prefixLen);
         }
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        Toolbar toolbar = getActionBarToolbar();
+        toolbar.setOnMenuItemClickListener(this);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(R.string.login);
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (progressDialog != null)
+            progressDialog.dismiss();
+        super.onDestroy();
     }
 
     @Override
@@ -123,6 +132,11 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
 
         emailText.setText((String) savedInstanceState.get("email"));
         passwdText.setText((String) savedInstanceState.get("password"));
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -260,6 +274,9 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
 
             loginButton.setEnabled(false);
             Account tmpAccount = new Account(serverURL, email, passwd);
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setMessage(getString(R.string.settings_cuc_loading));
+            progressDialog.setCancelable(false);
             ConcurrentAsyncTask.execute(new LoginTask(tmpAccount));
         } else {
             statusView.setText(R.string.network_down);
@@ -287,7 +304,7 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
         @Override
         protected void onPreExecute() {
             //super.onPreExecute();
-            setSupportProgressBarIndeterminateVisibility(true);
+            progressDialog.show();
         }
 
         @Override
@@ -304,6 +321,7 @@ public class AccountDetailActivity extends SherlockFragmentActivity {
 
         @Override
         protected void onPostExecute(final String result) {
+            progressDialog.dismiss();
             if (err == SeafException.sslException) {
                 SslConfirmDialog dialog = new SslConfirmDialog(loginAccount,
                 new SslConfirmDialog.Listener() {

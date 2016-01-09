@@ -1,12 +1,13 @@
 package com.seafile.seadroid2.ui.activity;
 
-import java.net.HttpURLConnection;
-import java.util.List;
-
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
@@ -15,13 +16,6 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-import com.seafile.seadroid2.util.ConcurrentAsyncTask;
-import com.seafile.seadroid2.ui.NavContext;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
@@ -31,17 +25,25 @@ import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.ui.NavContext;
 import com.seafile.seadroid2.ui.ToastUtils;
-import com.seafile.seadroid2.ui.adapter.*;
+import com.seafile.seadroid2.ui.adapter.AccountAdapter;
+import com.seafile.seadroid2.ui.adapter.DirentsAdapter;
+import com.seafile.seadroid2.ui.adapter.SeafAccountAdapter;
+import com.seafile.seadroid2.ui.adapter.SeafReposAdapter;
 import com.seafile.seadroid2.ui.dialog.PasswordDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.ui.fragment.SettingsFragment;
+import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
+
+import java.net.HttpURLConnection;
+import java.util.List;
 
 /**
  * Path chooser - Let the user choose a target path (account, repo, dir)
  */
-public class SeafilePathChooserActivity extends SherlockFragmentActivity {
+public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
     private static final String DEBUG_TAG = "SeafilePathChooserActivity";
 
     public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "password_dialog_fragment_tag";
@@ -101,10 +103,6 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
         onlyShowWritableRepos = intent.getBooleanExtra(ONLY_SHOW_WRITABLE_REPOS, true);
         encryptedRepoId = intent.getStringExtra(ENCRYPTED_REPO_ID);
 
-        ActionBar bar = getSupportActionBar();
-        bar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        bar.setDisplayHomeAsUpEnabled(false);
-
         mOkButton = (Button) findViewById(R.id.ok);
         mCancelButton = (Button) findViewById(R.id.cancel);
         mTransparentSpace = findViewById(R.id.transparent_space);
@@ -156,6 +154,12 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
         } else {
             chooseRepo();
         }
+
+        Toolbar toolbar = getActionBarToolbar();
+        toolbar.setOnMenuItemClickListener(this);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(R.string.app_name);
     }
 
     @Override
@@ -250,8 +254,9 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getSupportMenuInflater();
-        inflater.inflate(R.menu.seafile_path_chooser_menu, menu);
+        Toolbar toolbar = getActionBarToolbar();
+        toolbar.inflateMenu(R.menu.seafile_path_chooser_menu);
+        toolbar.setOnMenuItemClickListener(this);
         return true;
     }
 
@@ -265,13 +270,19 @@ public class SeafilePathChooserActivity extends SherlockFragmentActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-        case android.R.id.home:
+        if (item.getItemId() == android.R.id.home) {
             stepBack();
             return true;
-        case R.id.refresh:
-            refreshList(true);
-            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.refresh:
+                refreshList(true);
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }

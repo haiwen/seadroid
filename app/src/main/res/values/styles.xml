@@ -16,7 +16,15 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="Theme.SeafileTheme" parent="Theme.Sherlock.Light">
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/color_primary</item>
+        <item name="colorPrimaryDark">@color/color_primary_dark</item>
+        <item name="colorAccent">@color/fancy_light_black</item>
+        <item name="colorControlActivated">@color/fancy_orange</item>
+        <item name="colorControlHighlight">@color/fancy_light_black</item>
+        <item name="actionBarInsetStart">@dimen/keyline_2</item>
+        <item name="windowActionModeOverlay">true</item>
         <item name="android:windowBackground">@color/fancy_light_white</item>
         <item name="android:listViewStyle">@style/SeafileListStyle</item>
         <item name="android:radioButtonStyle">@style/RadioButton</item>
@@ -26,18 +34,40 @@
         <item name="actionModeStyle">@style/LightTheme.ActionMode</item>
         <item name="android:homeAsUpIndicator">@drawable/home_up_btn</item>
         <item name="homeAsUpIndicator">@drawable/home_up_btn</item>
-        <item name="android:textColorHighlight">#99ea8201</item>
+        <item name="android:textColorHighlight">@color/fancy_gray</item>
         <item name="android:textSelectHandleLeft">@drawable/fancy_orange_text_select_handle_left</item>
         <item name="android:textSelectHandleRight">@drawable/fancy_orange_text_select_handle_right</item>
         <item name="android:textSelectHandle">@drawable/fancy_orange_text_select_handle_middle</item>
+        <item name="android:alertDialogTheme">@style/DialogTheme</item>
+        <item name="android:colorButtonNormal">@color/fancy_orange</item>
+        <item name="colorButtonNormal">@color/fancy_orange</item>
     </style>
 
-    <style name="LightTheme.ActionMode" parent="Widget.Sherlock.Light.ActionMode">
+    <style name="TabLayoutStyle" parent="Widget.Design.TabLayout">
+        <item name="tabIndicatorColor">@color/fancy_orange</item>
+        <item name="android:background">@color/color_primary</item>
+        <item name="android:contentInsetStart">?actionBarInsetStart</item>
+    </style>
+
+    <style name="TabTextAppearancce" parent="TextAppearance.Design.Tab">
+        <item name="android:textColor">@color/fancy_dark_black</item>
+    </style>
+
+    <style name="NegativeButton" parent="android:style/Widget.Material.Button">
+        <item name="android:colorButtonNormal">@color/fancy_dark_gray</item>
+        <item name="colorButtonNormal">@color/fancy_dark_gray</item>
+    </style>
+
+    <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+
+    <style name="LightTheme.ActionMode" parent="Widget.AppCompat.ActionMode">
         <item name="android:background">@color/fancy_white</item>
         <item name="background">@color/fancy_white</item>
     </style>
 
-    <style name="LightTheme.ActionBar" parent="Widget.Sherlock.Light.ActionBar">
+    <style name="LightTheme.ActionBar" parent="Widget.AppCompat.Light.ActionBar">
         <item name="android:background">@drawable/actionbar_background</item>
         <item name="background">@drawable/actionbar_background</item>
         <item name="android:height">@dimen/abs_actionbar_height</item>
@@ -48,7 +78,7 @@
         <item name="logo">@drawable/actionbar_space_between_icon_and_title</item>
     </style>
 
-    <style name="LightTheme.ActionBar.TitleTextStyle" parent="TextAppearance.Sherlock.Widget.ActionBar.Title">
+    <style name="LightTheme.ActionBar.TitleTextStyle" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
         <item name="android:textColor">@color/fancy_black</item>
         <item name="android:textSize">@dimen/tv_subtitle_txt_size</item>
     </style>

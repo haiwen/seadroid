@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:background="?android:selectableItemBackground"
                 android:layout_width="fill_parent"
                 android:layout_height="@dimen/lv_item_height"
                 android:padding="@dimen/lv_item_padding">
 
     <ImageView
             android:id="@+id/cuc_repo_list_item_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="@dimen/lv_icon_width"
+            android:layout_height="@dimen/lv_icon_height"
             android:layout_alignParentBottom="true"
             android:layout_alignParentTop="true"/>
 

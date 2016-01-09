@@ -5,35 +5,23 @@ sudo: false
 jdk: oraclejdk7
 android:
   components:
-      # Uncomment the lines below if you want to
-      # use the latest revision of Android SDK Tools
-      # - platform-tools
-      # - tools
+      - tools
+      - platform-tools
 
-      # The BuildTools version used by your project
-      - build-tools-22.0.1
+      - build-tools-23.0.2
 
-      # The SDK version used to compile your project
-      - android-22
-
+      - android-23
       - extra-android-support
 
-      # Additional components
-      #- extra-google-google_play_services
-      #- extra-google-m2repository
       - extra-android-m2repository
-      #- addon-google_apis-google-19
 
-      # Specify at least one system image,
-      # if you need to run emulator(s) during your tests
-      #- sys-img-armeabi-v7a-android-19
-      #- sys-img-x86-android-17
-  licenses:
-        #- 'android-sdk-preview-license-52d11cd2'
-        - 'android-sdk-license-.+'
-        #- 'google-gdk-license-.+'
+      - 'android-sdk-license-.+'
+
 
 script:
     - cp app/key.properties.example app/key.properties
     - keytool -genkey -v -keystore app/debug.keystore -alias AndroidDebugKey -keyalg RSA -keysize 2048 -validity 1 -storepass android -keypass android -dname "cn=TEST, ou=TEST, o=TEST, c=TE"
     - ./gradlew clean assemble
+
+
+# reference https://docs.travis-ci.com/user/languages/android
