@@ -1,6 +1,8 @@
 package com.seafile.seadroid2.ui.activity;
 
-import android.app.Dialog;
+import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
+import android.accounts.OnAccountsUpdateListener;
 import android.content.*;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -27,6 +29,7 @@ import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.account.Authenticator;
 import com.seafile.seadroid2.avatar.Avatar;
 import com.seafile.seadroid2.avatar.AvatarManager;
 import com.seafile.seadroid2.monitor.FileMonitorService;
@@ -41,13 +44,25 @@ import java.util.List;
 public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener{
     private static final String DEBUG_TAG = "AccountsActivity";
 
+    public static final int DETAIL_ACTIVITY_REQUEST = 1;
+
     private ListView accountsView;
 
+    private android.accounts.AccountManager mAccountManager;
     private AccountManager accountManager;
     private AvatarManager avatarManager;
     private AccountAdapter adapter;
     private List<Account> accounts;
     private FileMonitorService mMonitorService;
+    private Account currentDefaultAccount;
+
+    private OnAccountsUpdateListener accountsUpdateListener = new OnAccountsUpdateListener() {
+        @Override
+        public void onAccountsUpdated(android.accounts.Account[] accounts) {
+            refreshView();
+        }
+    };
+
     private ServiceConnection mMonitorConnection = new ServiceConnection() {
 
         @Override
@@ -69,10 +84,12 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start);
 
+        mAccountManager = android.accounts.AccountManager.get(this);
         accountsView = (ListView) findViewById(R.id.account_list_view);
         accountManager = new AccountManager(this);
         avatarManager = new AvatarManager();
-       
+        currentDefaultAccount = accountManager.getCurrentAccount();
+
         View footerView = ((LayoutInflater) this
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
                 R.layout.account_list_footer, null, false);
@@ -80,7 +97,9 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         addAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View btn) {
-                new CreateAccountChoiceDialog().show(getSupportFragmentManager(), "Choose a server");
+                 mAccountManager.addAccount(Account.ACCOUNT_TYPE,
+                         Authenticator.AUTHTOKEN_TYPE, null, null,
+                         AccountsActivity.this, accountCallback, null);
             }
         });
         accountsView.addFooterView(footerView, null, true);
@@ -92,18 +111,19 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
                     long id) {
 
                 Account account = accounts.get(position);
-                if (account.getToken().equals(AccountManager.INVALID_TOKEN)) {
+                if (!account.hasValidToken()) {
                     // user already signed out, input password first
-                    authorizeAccount(account);
+                    startEditAccountActivity(account);
                 } else {
-
-                    startFilesActivity(account);
                     // update current Account info from SharedPreference
-                    accountManager.saveCurrentAccount(account);
+                    accountManager.saveCurrentAccount(account.getSignature());
+                    startFilesActivity();
                 }
-
             }
         });
+
+        mAccountManager.addOnAccountsUpdatedListener(accountsUpdateListener, null, false);
+
         registerForContextMenu(accountsView);
 
         Toolbar toolbar = getActionBarToolbar();
@@ -111,10 +131,6 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(R.string.accounts);
-    }
-
-    private void authorizeAccount(Account account) {
-        startEditAccountActivity(account);
     }
 
     @Override
@@ -139,6 +155,7 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
             unbindService(mMonitorConnection);
             mMonitorService = null;
         }
+        mAccountManager.removeOnAccountsUpdatedListener(accountsUpdateListener);
     }
 
     // Always reload accounts on resume, so that when user add a new account,
@@ -180,27 +197,63 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         adapter.clear();
         adapter.setItems(accounts);
 
+        // if the user switched default account while we were in background,
+        // switch to BrowserActivity
+        Account newCurrentAccount = accountManager.getCurrentAccount();
+        if (newCurrentAccount != null && !newCurrentAccount.equals(currentDefaultAccount)) {
+            startFilesActivity();
+        }
+
         loadAvatarUrls(48);
 
         adapter.notifyChanged();
     }
 
-    private void startFilesActivity(Account account) {
+    private void startFilesActivity() {
         Intent intent = new Intent(this, BrowserActivity.class);
-        intent.putExtra(AccountManager.SHARED_PREF_SERVER_KEY, account.server);
-        intent.putExtra(AccountManager.SHARED_PREF_EMAIL_KEY, account.email);
-        intent.putExtra(AccountManager.SHARED_PREF_TOKEN_KEY, account.token);
 
-        startActivity(intent);
+        // first finish this activity, so the BrowserActivity is again "on top"
         finish();
+        startActivity(intent);
     }
 
+    AccountManagerCallback<Bundle> accountCallback = new AccountManagerCallback<Bundle>() {
+
+        @Override
+        public void run(AccountManagerFuture<Bundle> future) {
+            if (future.isCancelled())
+                return;
+
+            try {
+                Bundle b = future.getResult();
+
+                if (b.getBoolean(android.accounts.AccountManager.KEY_BOOLEAN_RESULT)) {
+                    String accountName = b.getString(android.accounts.AccountManager.KEY_ACCOUNT_NAME);
+                    Log.d(DEBUG_TAG, "switching to account " + accountName);
+                    accountManager.saveCurrentAccount(accountName);
+                    startFilesActivity();
+                }
+            } catch (Exception e) {
+                Log.e(DEBUG_TAG, "unexpected error: " + e);
+            }
+        }
+    };
+
     private void startEditAccountActivity(Account account) {
-        Intent intent = new Intent(this, AccountDetailActivity.class);
-        intent.putExtra("server", account.server);
-        intent.putExtra("email", account.email);
-        intent.putExtra("isEdited", true);
-        startActivity(intent);
+        mAccountManager.updateCredentials(account.getAndroidAccount(), Authenticator.AUTHTOKEN_TYPE, null, this, accountCallback, null);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case DETAIL_ACTIVITY_REQUEST:
+                if (resultCode == RESULT_OK) {
+                    startFilesActivity();
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     @Override
@@ -223,15 +276,12 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         case R.id.delete:
             account = adapter.getItem((int)info.id);
 
-            accountManager.stopCamerUploadServiceByAccount(account);
-            accountManager.deleteAccountFromDB(account);
+            Log.d(DEBUG_TAG, "removing account "+account);
+            mAccountManager.removeAccount(account.getAndroidAccount(), null, null);
+
             if (mMonitorService != null) {
                 mMonitorService.removeAccount(account);
             }
-            accountManager.deleteAccountFromSharedPreference(account);
-            accountManager.deleteCameraUploadSettingsByAccount(account);
-
-            refreshView();
             return true;
         default:
             return super.onContextItemSelected(item);
@@ -243,57 +293,12 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         Account account = accountManager.getCurrentAccount();
         if (account == null) {
             // force exit when current account was deleted
-            Intent i = new Intent();
-            i.setAction(Intent.ACTION_MAIN);
-            i.addCategory(Intent.CATEGORY_HOME);
+            Intent i = new Intent(this, BrowserActivity.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(i);
             finish();
         }
         super.onBackPressed();
-    }
-
-    public static final int SEACLOUD_CC = 0;
-    public static final int CLOUD_SEAFILE_COM = 1;
-    public static final int SHIBBOLETH_LOGIN = 2;
-    public static final int OTHER_SERVER = 3;
-
-    public static class CreateAccountChoiceDialog extends DialogFragment {
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            AlertDialog.Builder builder =
-                    new AlertDialog.Builder(getActivity()).
-                    setTitle(getResources().getString(R.string.choose_server)).
-                    setItems(R.array.choose_server_array,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    Intent intent;
-                                    switch (which) {
-                                        case SEACLOUD_CC:
-                                            intent = new Intent(getActivity(), AccountDetailActivity.class);
-                                            intent.putExtra("server", "https://seacloud.cc");
-                                            startActivity(intent);
-                                            break;
-                                        case CLOUD_SEAFILE_COM:
-                                            intent = new Intent(getActivity(), AccountDetailActivity.class);
-                                            intent.putExtra("server", "https://app.seafile.de");
-                                            startActivity(intent);
-                                            break;
-                                        case SHIBBOLETH_LOGIN:
-                                            intent = new Intent(getActivity(), ShibbolethActivity.class);
-                                            startActivity(intent);
-                                            break;
-                                        case OTHER_SERVER:
-                                            intent = new Intent(getActivity(), AccountDetailActivity.class);
-                                            startActivity(intent);
-                                            break;
-                                        default:
-                                            return;
-                                    }
-                                }
-                            });
-            return builder.show();
-        }
     }
 
     /**

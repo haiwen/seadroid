@@ -1,34 +1,24 @@
 package com.seafile.seadroid2.gallery;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
-import android.location.Location;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
-import android.util.Log;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.seafile.seadroid2.cameraupload.CameraUploadDBHelper;
 import com.seafile.seadroid2.util.Utils;
 
 /**
@@ -39,7 +29,6 @@ public class ImageManager {
     private static final String TAG = "ImageManager";
 
     private static final Uri STORAGE_URI = Images.Media.EXTERNAL_CONTENT_URI;
-    private static final Uri THUMB_URI = Images.Thumbnails.EXTERNAL_CONTENT_URI;
     private static final Uri VIDEO_STORAGE_URI = Uri.parse("content://media/external/video/media");
 
     // ImageListParam specifies all the parameters we need to create an image
@@ -127,11 +116,6 @@ public class ImageManager {
 
     private static List<String> allBucketIds;
 
-    public static List<String> getCustomDirList() {
-        // query database for selected paths
-        return CameraUploadDBHelper.getInstance().getCustomDirList();
-    }
-
     public static List<String> getAutoScannedPathList() {
         String[] paths = {
                 "/DCIM",
@@ -176,20 +160,6 @@ public class ImageManager {
     }
 
     /**
-     * OSX requires plugged-in USB storage to have path /DCIM/NNNAAAAA to be
-     * imported. This is a temporary fix for bug#1655552.
-     */
-    public static void ensureOSXCompatibleFolder() {
-        File nnnAAAAA = new File(
-            Environment.getExternalStorageDirectory().toString()
-            + "/DCIM/100ANDRO");
-        if ((!nnnAAAAA.exists()) && (!nnnAAAAA.mkdir())) {
-            Log.e(TAG, "create NNNAAAAA file: " + nnnAAAAA.getPath()
-                    + " failed");
-        }
-    }
-
-    /**
      * @return true if the mimetype is an image mimetype.
      */
     public static boolean isImageMimeType(String mimeType) {
@@ -219,92 +189,6 @@ public class ImageManager {
         // This is the right implementation, but we use instanceof for speed.
         //return isVideoMimeType(image.getMimeType());
         return (image instanceof VideoObject);
-    }
-
-    //
-    // Stores a bitmap or a jpeg byte array to a file (using the specified
-    // directory and filename). Also add an entry to the media store for
-    // this picture. The title, dateTaken, location are attributes for the
-    // picture. The degree is a one element array which returns the orientation
-    // of the picture.
-    //
-    public static Uri addImage(ContentResolver cr, String title, long dateTaken,
-            Location location, String directory, String filename,
-            Bitmap source, byte[] jpegData, int[] degree) {
-        // We should store image data earlier than insert it to ContentProvider, otherwise
-        // we may not be able to generate thumbnail in time.
-        OutputStream outputStream = null;
-        String filePath = directory + "/" + filename;
-        try {
-            File dir = new File(directory);
-            if (!dir.exists()) dir.mkdirs();
-            File file = new File(directory, filename);
-            outputStream = new FileOutputStream(file);
-            if (source != null) {
-                source.compress(CompressFormat.JPEG, 75, outputStream);
-                degree[0] = 0;
-            } else {
-                outputStream.write(jpegData);
-                degree[0] = getExifOrientation(filePath);
-            }
-        } catch (FileNotFoundException ex) {
-            Log.w(TAG, ex);
-            return null;
-        } catch (IOException ex) {
-            Log.w(TAG, ex);
-            return null;
-        } finally {
-            Util.closeSilently(outputStream);
-        }
-
-        ContentValues values = new ContentValues(7);
-        values.put(Images.Media.TITLE, title);
-
-        // That filename is what will be handed to Gmail when a user shares a
-        // photo. Gmail gets the name of the picture attachment from the
-        // "DISPLAY_NAME" field.
-        values.put(Images.Media.DISPLAY_NAME, filename);
-        values.put(Images.Media.DATE_TAKEN, dateTaken);
-        values.put(Images.Media.MIME_TYPE, "image/jpeg");
-        values.put(Images.Media.ORIENTATION, degree[0]);
-        values.put(Images.Media.DATA, filePath);
-
-        if (location != null) {
-            values.put(Images.Media.LATITUDE, location.getLatitude());
-            values.put(Images.Media.LONGITUDE, location.getLongitude());
-        }
-
-        return cr.insert(STORAGE_URI, values);
-    }
-
-    public static int getExifOrientation(String filepath) {
-        int degree = 0;
-        ExifInterface exif = null;
-        try {
-            exif = new ExifInterface(filepath);
-        } catch (IOException ex) {
-            Log.e(TAG, "cannot read exif", ex);
-        }
-        if (exif != null) {
-            int orientation = exif.getAttributeInt(
-                ExifInterface.TAG_ORIENTATION, -1);
-            if (orientation != -1) {
-                // We only recognize a subset of orientation tag values.
-                switch(orientation) {
-                    case ExifInterface.ORIENTATION_ROTATE_90:
-                        degree = 90;
-                        break;
-                    case ExifInterface.ORIENTATION_ROTATE_180:
-                        degree = 180;
-                        break;
-                    case ExifInterface.ORIENTATION_ROTATE_270:
-                        degree = 270;
-                        break;
-                }
-
-            }
-        }
-        return degree;
     }
 
     // This is the factory function to create an image list.
@@ -367,37 +251,6 @@ public class ImageManager {
         return uber;
     }
 
-    // This is a convenience function to create an image list from a Uri.
-    public static IImageList makeImageList(ContentResolver cr, Uri uri,
-            int sort) {
-        String uriString = (uri != null) ? uri.toString() : "";
-
-        // TODO: we need to figure out whether we're viewing
-        // DRM images in a better way.  Is there a constant
-        // for content://drm somewhere??
-
-        if (uriString.startsWith("content://drm")) {
-            return makeImageList(cr, DataLocation.ALL, INCLUDE_DRM_IMAGES, sort,
-                    null);
-        } else if (uriString.startsWith("content://media/external/video")) {
-            return makeImageList(cr, DataLocation.EXTERNAL, INCLUDE_VIDEOS,
-                    sort, null);
-        } else if (isSingleImageMode(uriString)) {
-            return makeSingleImageList(cr, uri);
-        } else {
-            String bucketId = uri.getQueryParameter("bucketId");
-            return makeImageList(cr, DataLocation.ALL, INCLUDE_IMAGES, sort,
-                    bucketId);
-        }
-    }
-
-    static boolean isSingleImageMode(String uriString) {
-        return !uriString.startsWith(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString())
-                && !uriString.startsWith(
-                MediaStore.Images.Media.INTERNAL_CONTENT_URI.toString());
-    }
-
     private static class EmptyImageList implements IImageList {
         public void close() {
         }
@@ -457,19 +310,8 @@ public class ImageManager {
         return param;
     }
 
-    public static IImageList makeImageList(ContentResolver cr,
-            DataLocation location, int inclusion, int sort, String bucketId) {
-        ImageListParam param = getImageListParam(location, inclusion, sort,
-                bucketId);
-        return makeImageList(cr, param);
-    }
-
     public static IImageList makeEmptyImageList() {
         return makeImageList(null, getEmptyImageListParam());
-    }
-
-    public static IImageList  makeSingleImageList(ContentResolver cr, Uri uri) {
-        return makeImageList(cr, getSingleImageListParam(uri));
     }
 
     private static boolean checkFsWritable() {
@@ -498,10 +340,6 @@ public class ImageManager {
         } catch (IOException ex) {
             return false;
         }
-    }
-
-    public static boolean hasStorage() {
-        return hasStorage(true);
     }
 
     public static boolean hasStorage(boolean requireWriteAccess) {

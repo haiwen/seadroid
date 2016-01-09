@@ -14,8 +14,6 @@ public class ServerInfo implements Parcelable{
     private String url;
     private String version;
     private String features;
-    private boolean proEdition;
-    private boolean searchEnabled;
 
     public ServerInfo(String url, String version, String features) {
         this.url = url;
@@ -23,52 +21,39 @@ public class ServerInfo implements Parcelable{
         this.features = features;
     }
 
+    /**
+     *
+     * @return Server version. Might be null
+     */
     public String getVersion() {
         return version;
     }
 
+    /**
+     *
+     * @return Server features. Might be null
+     */
     public String getFeatures() {
         return features;
     }
 
-    public boolean proEdition() {
-        return proEdition;
+    public boolean isProEdition() {
+        return features != null && features.contains("seafile-pro");
     }
 
-    public void setProEdition(boolean proEdition) {
-        this.proEdition = proEdition;
-    }
-
-    public boolean searchEnabled() {
-        return searchEnabled;
-    }
-
-    public void setSearchEnabled(boolean searchEnabled) {
-        this.searchEnabled = searchEnabled;
+    public boolean isSearchEnabled() {
+        return features != null && features.contains("file-search");
     }
 
     public String getUrl() {
         return url;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public static ServerInfo fromJson(JSONObject obj) throws JSONException {
+    public static ServerInfo fromJson(JSONObject obj, String server) throws JSONException {
         String version = obj.optString("version");
         String features = obj.optString("features");
-        /* actually there is no url node in responded json data
-         * but it is useful to use url to represent the server,
-         * so url should be explicitly assigned a valid value by calling {@link #setUrl}
-         * instead of using the hard coded value.
-         * If url assignment was not handled by a future maintainer, an error may occur */
-        String url = "not applicable";
-        ServerInfo serverInfo = new ServerInfo(url, version, features);
+        ServerInfo serverInfo = new ServerInfo(server, version, features);
         // raw data goes like "features":["seafile-basic","seafile-pro","office-preview","file-search"]
-        serverInfo.setProEdition(features.contains("seafile-pro"));
-        serverInfo.setSearchEnabled(features.contains("file-search"));
-
         return serverInfo;
     }
 

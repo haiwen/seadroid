@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.ui.activity;
+package com.seafile.seadroid2.account.ui;
 
 import android.content.Context;
 import android.content.Intent;
@@ -7,9 +7,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.webkit.CookieManager;
@@ -17,10 +15,10 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
 
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.util.Utils;
 
@@ -33,7 +31,7 @@ import java.net.URLEncoder;
  * use cookie to get authorized data
  * <p/>
  */
-public class ShibbolethAuthorizeActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
+public class ShibbolethAuthorizeActivity extends SherlockFragmentActivity {
     public static final String DEBUG_TAG = "ShibbolethAuthorizeActivity";
 
     public static final String SEAHUB_SHIB_COOKIE_NAME = "seahub_auth";
@@ -55,11 +53,8 @@ public class ShibbolethAuthorizeActivity extends BaseActivity implements Toolbar
         CustomWebviewClient client = new CustomWebviewClient();
         mWebview.setWebViewClient(client);
 
-        Toolbar toolbar = getActionBarToolbar();
-        setSupportActionBar(toolbar);
-        toolbar.setOnMenuItemClickListener(this);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(R.string.shib_actionbar_title);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+        getActionBar().setTitle(R.string.shib_actionbar_title);
 
         String url = getIntent().getStringExtra(ShibbolethActivity.SHIBBOLETH_SERVER_URL);
         CookieManager.getInstance().removeAllCookie();
@@ -134,20 +129,6 @@ public class ShibbolethAuthorizeActivity extends BaseActivity implements Toolbar
         }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onMenuItemClick(MenuItem item) {
-        return true;
-    }
-
     class CustomWebviewClient extends WebViewClient {
         @Override
         public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
@@ -181,32 +162,25 @@ public class ShibbolethAuthorizeActivity extends BaseActivity implements Toolbar
             } catch (MalformedURLException e) {
                 Log.e(DEBUG_TAG, e.getMessage());
             }
-            saveAccount(account);
-            openResource(account);
+            returnAccount(account);
         }
     }
 
-
-    private void openResource(Account account) {
+    private void returnAccount(Account account) {
         if (account == null)
-            return;
+            finish();
 
-        Intent intent = new Intent(this, AccountsActivity.class);
-        startActivity(intent);
+        Intent retData = new Intent();
+        retData.putExtras(getIntent());
+        retData.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_NAME, account.getSignature());
+        retData.putExtra(android.accounts.AccountManager.KEY_AUTHTOKEN, account.getToken());
+        retData.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_TYPE, getIntent().getStringExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_TYPE));
+        retData.putExtra(SeafileAuthenticatorActivity.ARG_EMAIL, account.getEmail());
+        retData.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, account.getServer());
+
+        // pass auth result back to the ShibbolethActivity
+        setResult(RESULT_OK, retData);
         finish();
-    }
-
-    private void saveAccount(Account account) {
-        if (account == null)
-            return;
-
-        AccountManager accountManager = new AccountManager(this);
-
-        // save account to SharedPrefs
-        accountManager.saveCurrentAccount(account);
-
-        // save account to database
-        accountManager.saveAccountToDB(account);
     }
 
     /**
@@ -230,7 +204,7 @@ public class ShibbolethAuthorizeActivity extends BaseActivity implements Toolbar
         Log.d(DEBUG_TAG, "email: " + email);
         Log.d(DEBUG_TAG, "token: " + token);
 
-        return new Account(url, email, null, token);
+        return new Account(url, email, token);
     }
 
     public String getCookie(String url, String key) {

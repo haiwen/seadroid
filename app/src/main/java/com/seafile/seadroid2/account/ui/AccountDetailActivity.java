@@ -1,6 +1,9 @@
-package com.seafile.seadroid2.ui.activity;
+package com.seafile.seadroid2.account.ui;
 
-import android.app.ProgressDialog;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -23,21 +26,19 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.seafile.seadroid2.ssl.CertsManager;
+import com.seafile.seadroid2.ui.activity.AccountsActivity;
+import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.AccountManager;
-import com.seafile.seadroid2.ssl.CertsManager;
+import com.seafile.seadroid2.account.Authenticator;
 import com.seafile.seadroid2.ui.CustomClearableEditText;
+import com.seafile.seadroid2.ui.activity.BaseActivity;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
-import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
-
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
 
 public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
     private static final String DEBUG_TAG = "AccountDetailActivity";
@@ -48,23 +49,24 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
     private TextView statusView;
     private Button loginButton;
     private EditText serverText;
-    private ProgressDialog progressDialog;
     private CustomClearableEditText emailText;
     private CustomClearableEditText passwdText;
     private CheckBox httpsCheckBox;
     private TextView seahubUrlHintText;
 
-    private AccountManager accountManager;
-    private Account account = null;
-    private boolean isFromEdit = false;
+    private android.accounts.AccountManager mAccountManager;
     private boolean serverTextHasFocus;
 
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
+        //This has to be called before setContentView and you must use the
+        //class in com.actionbarsherlock.view and NOT android.view
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.account_detail);
+
+        mAccountManager = android.accounts.AccountManager.get(getBaseContext());
 
         statusView = (TextView) findViewById(R.id.status_view);
         loginButton = (Button) findViewById(R.id.login_button);
@@ -77,29 +79,41 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
         seahubUrlHintText = (TextView) findViewById(R.id.seahub_url_hint);
 
         setupServerText();
-        accountManager = new AccountManager(this);
 
         // email address auto complete when login in
-        ArrayList<String> accounts = accountManager.getAccountAutoCompleteTexts();
+        ArrayList<String> accounts = new AccountManager(this).getAccountAutoCompleteTexts();
         if (accounts != null) {
             ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, accounts);
             emailText.setEmailAddressAutoCompleteAdapter(adapter);
         }
 
         Intent intent = getIntent();
-        String server = intent.getStringExtra("server");
-        String email = intent.getStringExtra("email");
-        isFromEdit = intent.getBooleanExtra("isEdited", false);
-        if (server != null) {
-            if (email == null) email = "";
-            account = new Account(server, email);
-            if (account.isHttps())
+
+        String defaultServerUri = intent.getStringExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI);
+
+        if (intent.getBooleanExtra("isEdited", false)) {
+            String account_name = intent.getStringExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_NAME);
+            String account_type = intent.getStringExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_TYPE);
+            android.accounts.Account account = new android.accounts.Account(account_name, account_type);
+
+            String server = mAccountManager.getUserData(account, Authenticator.KEY_SERVER_URI);
+            String email = mAccountManager.getUserData(account, Authenticator.KEY_EMAIL);
+
+            if (server.startsWith(HTTPS_PREFIX))
                 httpsCheckBox.setChecked(true);
-            serverText.setText(account.getServer());
-            emailText.setText(account.getEmail());
+
+            serverText.setText(server);
+            emailText.setText(email);
             emailText.requestFocus();
             seahubUrlHintText.setVisibility(View.GONE);
-        } else {
+
+
+        } else if (defaultServerUri != null) {
+            if (defaultServerUri.startsWith(HTTPS_PREFIX))
+                httpsCheckBox.setChecked(true);
+            serverText.setText(defaultServerUri);
+            emailText.requestFocus();
+       } else {
             serverText.setText(HTTP_PREFIX);
             int prefixLen = HTTP_PREFIX.length();
             serverText.setSelection(prefixLen, prefixLen);
@@ -109,13 +123,6 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(R.string.login);
-    }
-
-    @Override
-    protected void onDestroy() {
-        if (progressDialog != null)
-            progressDialog.dismiss();
-        super.onDestroy();
     }
 
     @Override
@@ -136,12 +143,12 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
-        return super.onOptionsItemSelected(item);
+        return false;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-         switch (item.getItemId()) {
+        switch (item.getItemId()) {
             case android.R.id.home:
 
                 /* FYI {@link http://stackoverflow.com/questions/13293772/how-to-navigate-up-to-the-same-parent-state?rq=1} */
@@ -165,7 +172,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
 
                 return true;
         }
-         return super.onOptionsItemSelected(item);
+        return super.onOptionsItemSelected(item);
     }
 
     public void onHttpsCheckboxClicked(View view) {
@@ -273,38 +280,27 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
             }
 
             loginButton.setEnabled(false);
-            Account tmpAccount = new Account(serverURL, email, passwd);
-            progressDialog = new ProgressDialog(this);
-            progressDialog.setMessage(getString(R.string.settings_cuc_loading));
-            progressDialog.setCancelable(false);
-            ConcurrentAsyncTask.execute(new LoginTask(tmpAccount));
+            Account tmpAccount = new Account(serverURL, email, null);
+            ConcurrentAsyncTask.execute(new LoginTask(tmpAccount, passwd));
         } else {
             statusView.setText(R.string.network_down);
         }
     }
 
-    private void startFilesActivity(Account account) {
-        Intent intent = new Intent(this, BrowserActivity.class);
-        intent.putExtra("server", account.server);
-        intent.putExtra("email", account.email);
-        intent.putExtra("token", account.token);
-
-        startActivity(intent);
-        finish(); // so the user will not return to this activity when press 'back'
-    }
-
     private class LoginTask extends AsyncTask<Void, Void, String> {
         Account loginAccount;
         SeafException err = null;
+        String passwd;
 
-        public LoginTask(Account loginAccount) {
+        public LoginTask(Account loginAccount, String passwd) {
             this.loginAccount = loginAccount;
+            this.passwd = passwd;
         }
 
         @Override
         protected void onPreExecute() {
             //super.onPreExecute();
-            progressDialog.show();
+            setSupportProgressBarIndeterminateVisibility(true);
         }
 
         @Override
@@ -316,12 +312,11 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
         }
 
         private void resend() {
-            ConcurrentAsyncTask.execute(new LoginTask(loginAccount));
+            ConcurrentAsyncTask.execute(new LoginTask(loginAccount, passwd));
         }
 
         @Override
         protected void onPostExecute(final String result) {
-            progressDialog.dismiss();
             if (err == SeafException.sslException) {
                 SslConfirmDialog dialog = new SslConfirmDialog(loginAccount,
                 new SslConfirmDialog.Listener() {
@@ -342,21 +337,18 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
             }
 
             if (result != null && result.equals("Success")) {
-                if (Utils.isValidEmail(loginAccount.email)) {
-                    if (isFromEdit) {
-                        accountManager.updateAccountFromDB(account, loginAccount);
-                        isFromEdit = false;
-                    } else {
-                        accountManager.saveAccountToDB(loginAccount);
-                    }
 
-                    // save account to SharedPreference
-                    accountManager.saveCurrentAccount(loginAccount);
+                Intent retData = new Intent();
+                retData.putExtras(getIntent());
+                retData.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_NAME, loginAccount.getSignature());
+                retData.putExtra(android.accounts.AccountManager.KEY_AUTHTOKEN, loginAccount.getToken());
+                retData.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_TYPE, getIntent().getStringExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_TYPE));
+                retData.putExtra(SeafileAuthenticatorActivity.ARG_EMAIL, loginAccount.getEmail());
+                retData.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, loginAccount.getServer());
 
-                    startFilesActivity(loginAccount);
-                } else {
-                    ConcurrentAsyncTask.execute(new RequestAccountInfoTask(), loginAccount);
-                }
+                setResult(RESULT_OK, retData);
+                finish();
+
             } else {
                 statusView.setText(result);
             }
@@ -368,7 +360,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
             SeafConnection sc = new SeafConnection(loginAccount);
 
             try {
-                if (!sc.doLogin())
+                if (!sc.doLogin(passwd))
                     return getString(R.string.err_login_failed);
                 return "Success";
             } catch (SeafException e) {
@@ -387,63 +379,4 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
             }
         }
     }
-
-    /**
-     * automatically update Account info, like space usage, total space size, from background.
-     */
-    class RequestAccountInfoTask extends AsyncTask<Account, Void, AccountInfo> {
-        Account loginAccount;
-
-        @Override
-        protected void onPreExecute() {
-            setSupportProgressBarIndeterminateVisibility(true);
-        }
-
-        @Override
-        protected AccountInfo doInBackground(Account... params) {
-            AccountInfo accountInfo = null;
-
-            if (params == null || params.length < 1) return null;
-
-            loginAccount = params[0];
-            SeafConnection seafConnection = new SeafConnection(loginAccount);
-            try {
-                // get account info from server
-                String json = seafConnection.getAccountInfo();
-                // parse raw data
-                accountInfo = accountManager.parseAccountInfo(json);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            if (accountInfo != null)
-                accountInfo.setServer(loginAccount.getServer());
-
-            return accountInfo;
-        }
-
-        @Override
-        protected void onPostExecute(AccountInfo accountInfo) {
-            setSupportProgressBarIndeterminateVisibility(false);
-
-            if (accountInfo == null) return;
-
-            // reset username to be email for compatible with other modules
-            loginAccount.email = accountInfo.getEmail();
-
-            if (isFromEdit) {
-                accountManager.updateAccountFromDB(account, loginAccount);
-                isFromEdit = false;
-            } else {
-                accountManager.saveAccountToDB(loginAccount);
-            }
-
-            // save account to SharedPreference
-            accountManager.saveCurrentAccount(loginAccount);
-
-            startFilesActivity(loginAccount);
-
-        }
-    }
-
 }

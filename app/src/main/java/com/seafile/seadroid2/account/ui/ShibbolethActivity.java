@@ -1,16 +1,17 @@
-package com.seafile.seadroid2.ui.activity;
+package com.seafile.seadroid2.account.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.ui.ToastUtils;
 
@@ -18,7 +19,7 @@ import com.seafile.seadroid2.ui.ToastUtils;
  * Shibboleth welcome page
  * <p/>
  */
-public class ShibbolethActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
+public class ShibbolethActivity extends SherlockFragmentActivity {
     public static final String DEBUG_TAG = "ShibbolethActivity";
 
     public static final String SHIBBOLETH_SERVER_URL = "shibboleth server url";
@@ -28,6 +29,8 @@ public class ShibbolethActivity extends BaseActivity implements Toolbar.OnMenuIt
     private Button mNextBtn;
     private CheckBox mHttpPrefixCb;
     private EditText mServerUrlEt;
+
+    private static final int SHIBBOLETH_AUTH = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,11 +55,8 @@ public class ShibbolethActivity extends BaseActivity implements Toolbar.OnMenuIt
             }
         });
 
-        Toolbar toolbar = getActionBarToolbar();
-        toolbar.setOnMenuItemClickListener(this);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(R.string.shib_actionbar_title);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+        getActionBar().setTitle(R.string.shib_actionbar_title);
     }
 
     public void onHttpsCheckboxClicked(View view) {
@@ -121,12 +121,7 @@ public class ShibbolethActivity extends BaseActivity implements Toolbar.OnMenuIt
     }
 
     @Override
-    public boolean onMenuItemClick(MenuItem item) {
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 finish();
@@ -157,7 +152,17 @@ public class ShibbolethActivity extends BaseActivity implements Toolbar.OnMenuIt
     private void openAuthorizePage(String serverUrl) {
         Intent intent = new Intent(ShibbolethActivity.this, ShibbolethAuthorizeActivity.class);
         intent.putExtra(SHIBBOLETH_SERVER_URL, serverUrl);
-        startActivity(intent);
-        finish();
+        intent.putExtras(getIntent());
+        startActivityForResult(intent, SHIBBOLETH_AUTH);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(DEBUG_TAG, "onActivityResult");
+
+        // pass auth result back to the SeafileAuthenticatorActivity
+        if (requestCode == SHIBBOLETH_AUTH) {
+            setResult(resultCode, data);
+        }
     }
 }

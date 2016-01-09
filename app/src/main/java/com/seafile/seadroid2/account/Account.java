@@ -2,6 +2,7 @@ package com.seafile.seadroid2.account;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.common.base.Objects;
@@ -10,31 +11,20 @@ import com.seafile.seadroid2.util.Utils;
 public class Account implements Parcelable, Comparable<Account> {
     private static final String DEBUG_TAG = "Account";
 
+    /**
+     * Type of the account (currently there is only one type)
+     */
+    public final static String ACCOUNT_TYPE = "com.seafile.seadroid2.account.api2";
+
     // The full URL of the server, like 'http://gonggeng.org/seahub/' or 'http://gonggeng.org/'
-    public String server;
+    public final String server;
 
-    public String email;
+    public final String email;
     public String token;
-    public String passwd;
 
-    public Account() {
-    }
-
-    public Account(String server, String email) {
+    public Account(String server, String email, String token) {
         this.server = server;
         this.email = email;
-    }
-
-    public Account(String server, String email, String passwd) {
-        this.server = server;
-        this.email = email;
-        this.passwd = passwd;
-    }
-
-    public Account(String server, String email, String passwd, String token) {
-        this.server = server;
-        this.email = email;
-        this.passwd = passwd;
         this.token = token;
     }
 
@@ -87,27 +77,27 @@ public class Account implements Parcelable, Comparable<Account> {
             return false;
 
         Account a = (Account)obj;
-        if (a.server == null || a.email == null)
+        if (a.server == null || a.email == null || a.token == null)
             return false;
 
         return a.server.equals(this.server) && a.email.equals(this.email);
     }
 
     public String getSignature() {
-        return email.substring(0, 4) + " " + hashCode();
-    }
-
-    public String getFullSignature() {
-        return email + "@" + server;
-    }
-
-    public String getName() {
-        return email.substring(0, email.indexOf("@")) + "@" + getServerHost();
+        return String.format("%s (%s)", getServerNoProtocol(), email);
     }
 
     public String getDisplayName() {
         String server = Utils.stripSlashes(getServerHost());
         return Utils.assembleUserName(email, server);
+    }
+
+    public android.accounts.Account getAndroidAccount() {
+        return new android.accounts.Account(getSignature(), ACCOUNT_TYPE);
+    }
+
+    public boolean hasValidToken() {
+        return !TextUtils.isEmpty(token);
     }
 
     @Override
@@ -119,7 +109,6 @@ public class Account implements Parcelable, Comparable<Account> {
     public void writeToParcel(Parcel out, int flags) {
         out.writeString(server);
         out.writeString(email);
-        out.writeString(passwd);
         out.writeString(token);
     }
 
@@ -137,10 +126,9 @@ public class Account implements Parcelable, Comparable<Account> {
     private Account(Parcel in) {
         server = in.readString();
         email = in.readString();
-        passwd = in.readString();
         token = in.readString();
 
-        Log.d(DEBUG_TAG, String.format("%s %s %s %s", server, email, passwd, token));
+        Log.d(DEBUG_TAG, String.format("%s %s %s", server, email, token));
     }
 
     @Override
