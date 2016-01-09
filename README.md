@@ -11,7 +11,7 @@ See [Contributors Graph](https://github.com/haiwen/seadroid/graphs/contributors)
 
 ## Build the APK
 
-* Make sure you have installed Java Development Kit 6 or 7
+* Make sure you have installed Java Development Kit 7
 * Make sure you have installed [Maven](http://maven.apache.org/) 3.1.1+
 * Make sure you have installed the [Android SDK](http://developer.android.com/sdk/index.html) then:
 

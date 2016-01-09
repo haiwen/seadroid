@@ -9,6 +9,7 @@ import android.widget.TextView;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.ui.CopyMoveContext;
@@ -58,7 +59,8 @@ public class CopyMoveDialog extends TaskDialog {
         String srcDirPath = Utils.removeLastPathSeperator(srcDir);
 
         String dstDirPath = null;
-        SeafRepo repo = new DataManager(SettingsManager.instance().getCurrentAccount()).getCachedRepoByID(ctx.dstRepoId);
+        AccountManager manager = new AccountManager(this.getActivity());
+        SeafRepo repo = new DataManager(manager.getCurrentAccount()).getCachedRepoByID(ctx.dstRepoId);
         if (repo != null) {
             String dstPath = Utils.pathJoin(repo.name, ctx.dstDir);
             dstDirPath = Utils.removeLastPathSeperator(dstPath);

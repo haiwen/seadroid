@@ -9,7 +9,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.View;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
@@ -18,10 +17,7 @@ import com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity;
 import com.seafile.seadroid2.ui.fragment.SettingsFragment;
 import com.viewpagerindicator.LinePageIndicator;
 
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -32,7 +28,7 @@ public class CameraUploadConfigActivity extends SherlockFragmentActivity {
 
     private ViewPager mViewPager;
     private LinePageIndicator mIndicator;
-    private LocalDirFragment mLocalDirFragment;
+    private BucketsFragment mBucketsFragment;
     private CloudLibraryFragment mCloudLibFragment;
     private SettingsManager sm;
     private SeafRepo mSeafRepo;
@@ -98,34 +94,18 @@ public class CameraUploadConfigActivity extends SherlockFragmentActivity {
         mAccount = account;
     }
 
-    public void startCameraUploadService() {
-        // data inside the container will be presented in Preference summary
-        List<String> summaryPaths = Lists.newArrayList();
+    public void saveSettings() {
+
         if (isChooseBothPages || isChooseDirPage) {
-            HashMap<String, Boolean> map = mLocalDirFragment.getSelectionFragment().getLocalDirHashMap();
-            // in case user unselect some directories
-            List<String> toRemoveList = Lists.newArrayList();
-            // query old data before inserting new ones
-            List<String> oldDirs = CameraUploadDBHelper.getInstance().getCustomDirList();
-            if (!map.isEmpty()) {
-                for (String dir : oldDirs) {
-                    if (!map.containsKey(dir))
-                        toRemoveList.add(dir);
-                }
-            }
-            CameraUploadDBHelper.getInstance().removeDirList(toRemoveList);
 
-            Iterator iterator = map.entrySet().iterator();
-            while (iterator.hasNext()) {
-                Map.Entry<String, Boolean> pair = (Map.Entry) iterator.next();
-                summaryPaths.add(pair.getKey());
-                // insert or update new data
-                CameraUploadDBHelper.getInstance().saveSelectedDirectory(pair.getKey(), pair.getValue());
-                iterator.remove();
+            SettingsManager settingsManager = SettingsManager.instance();
+            List<String> selectedBuckets = mBucketsFragment.getSelectionFragment().getSelectedBuckets();
+            if (mBucketsFragment.isAutoScanSelected()){
+                selectedBuckets.clear();
             }
-
-            if (!summaryPaths.isEmpty())
-                sm.saveLocalDirPath(summaryPaths.toString());
+            // this is the only setting that is safed here. all other are returned to caller
+            // and safed there...
+            settingsManager.setCameraUploadBucketList(selectedBuckets);
         }
 
         Intent intent = new Intent();
@@ -133,12 +113,7 @@ public class CameraUploadConfigActivity extends SherlockFragmentActivity {
         if (mSeafRepo != null && mAccount != null) {
             intent.putExtra(SeafilePathChooserActivity.DATA_REPO_NAME, mSeafRepo.name);
             intent.putExtra(SeafilePathChooserActivity.DATA_REPO_ID, mSeafRepo.id);
-            intent.putExtra(SeafilePathChooserActivity.DATA_DIR, mSeafRepo.root);
             intent.putExtra(SeafilePathChooserActivity.DATA_ACCOUNT, mAccount);
-        }
-
-        if (!summaryPaths.isEmpty()) {
-            intent.putExtra(SeafilePathChooserActivity.DATA_DIRECTORY_PATH, summaryPaths.toString());
         }
 
         setResult(RESULT_OK, intent);
@@ -172,14 +147,6 @@ public class CameraUploadConfigActivity extends SherlockFragmentActivity {
         sm.saveVideosAllowed(isAllowed);
     }
 
-    public void saveCustomScanDir(boolean isCustom) {
-        sm.saveCustomScanDir(isCustom);
-    }
-
-    public boolean isCustomScanDir() {
-        return sm.isCustomScanDir();
-    }
-
     class CameraUploadConfigAdapter extends FragmentStatePagerAdapter {
 
         public CameraUploadConfigAdapter(FragmentManager fm) {
@@ -197,8 +164,8 @@ public class CameraUploadConfigActivity extends SherlockFragmentActivity {
             if (isChooseDirPage) {
                 switch (position) {
                     case 0:
-                        mLocalDirFragment = new LocalDirFragment();
-                        return mLocalDirFragment;
+                        mBucketsFragment = new BucketsFragment();
+                        return mBucketsFragment;
                     default:
                         return null;
                 }
@@ -214,8 +181,8 @@ public class CameraUploadConfigActivity extends SherlockFragmentActivity {
                 case 2:
                     return new WhatToUploadFragment();
                 case 3:
-                    mLocalDirFragment = new LocalDirFragment();
-                    return mLocalDirFragment;
+                    mBucketsFragment = new BucketsFragment();
+                    return mBucketsFragment;
                 case 4:
                     mCloudLibFragment = new CloudLibraryFragment();
                     return mCloudLibFragment;

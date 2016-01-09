@@ -299,8 +299,8 @@
   <string name="settings_cuc_remote_lib_account">Benutzerkonto auswählen</string>
   <string name="settings_cuc_remote_lib_repo">%s wurde ausgewählt</string>
   <string name="settings_cuc_upload_to_parent_folder">Zum übergeordneten Ordner</string>
-  <string name="settings_cuc_auto_scan">Alle Bilder auf dem Gerät</string>
-  <string name="settings_cuc_pick_dir">Bilderordner auswählen</string>
+  <string name="settings_cuc_auto_scan">Alle Kamerabilder auf dem Gerät</string>
+  <string name="settings_cuc_pick_albums">Alben auswählen</string>
   <string name="settings_cuc_remote_lib_hint">Wählen Sie aus, welches Benutzerkonto und welche Bibliothek Sie bevorzugen.\nSie können beides in den Einstellungen jederzeit anpassen.</string>
   <string name="settings_cuc_finish_title">Beenden</string>
   <string name="settings_cuc_ready">Seafile wird nun die Dateien aus den ausgewählten Ordnern hochladen. \nSie können die App währenddessen schließen.</string>
@@ -422,4 +422,5 @@
   <string name="overwrite_existing_file_exist">Die Datei ist schon vorhanden</string>
   <!--Action Mode-->
   <string name="action_mode_no_items_selected">Es wurden keine Elemente ausgewählt</string>
+  <string name="sync_provider_camera_upload">Kamerafotos und -videos</string>
 </resources>

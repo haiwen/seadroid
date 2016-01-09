@@ -23,7 +23,7 @@ public class ReadyToScanFragment extends Fragment {
         continueBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mActivity.startCameraUploadService();
+                mActivity.saveSettings();
                 mActivity.finish();
             }
         });

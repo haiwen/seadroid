@@ -34,17 +34,6 @@ public class UploadTaskManager extends TransferManager implements UploadStateLis
         return task.getTaskID();
     }
 
-    public void cancelAllCameraUploadTasks() {
-        List<UploadTaskInfo> uploadTaskInfos = (List<UploadTaskInfo>) getAllTaskInfoList();
-        for (UploadTaskInfo uploadTaskInfo : uploadTaskInfos) {
-            // use isCopyToLocal as a flag to mark a camera photo upload task if false
-            // mark a file upload task if true
-            if (!uploadTaskInfo.isCopyToLocal) {
-                cancel(uploadTaskInfo.taskID);
-            }
-        }
-    }
-
     public List<UploadTaskInfo> getNoneCameraUploadTaskInfos() {
         List<UploadTaskInfo> noneCameraUploadTaskInfos = Lists.newArrayList();
         List<UploadTaskInfo> uploadTaskInfos = (List<UploadTaskInfo>) getAllTaskInfoList();
