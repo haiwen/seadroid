@@ -23,25 +23,25 @@
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/security"
         android:layout="@layout/bg_settings_section_security">
-        <CheckBoxPreference
+        <com.seafile.seadroid2.ui.SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="gesture_lock_switch_key"
             android:summaryOff="@string/gesture_lock_off"
             android:summaryOn="@string/gesture_lock_on"
             android:title="@string/gesture_lock" >
-        </CheckBoxPreference>
+        </com.seafile.seadroid2.ui.SwitchPreferenceCompat>
     </PreferenceCategory>
     <PreferenceCategory
             android:layout="@layout/bg_settings_section_camera_upload"
             android:key="category_camera_upload_key"
             android:title="@string/settings_camera_upload_info_title" >
-        <CheckBoxPreference
+        <com.seafile.seadroid2.ui.SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="camera_upload_switch_key"
             android:summaryOff="@string/settings_camera_upload_service_stopped"
             android:summaryOn="@string/settings_camera_upload_service_started"
             android:title="@string/settings_camera_upload_turn_on" >
-        </CheckBoxPreference>
+        </com.seafile.seadroid2.ui.SwitchPreferenceCompat>
 
         <Preference
             android:key="camera_upload_repo_key"
@@ -72,14 +72,14 @@
                         android:title="@string/settings_camera_upload_allow_videos"
                         android:layout="@layout/seafile_checkbox_layout" >
                 </CheckBoxPreference>
-                <CheckBoxPreference
+                <com.seafile.seadroid2.ui.SwitchPreferenceCompat
                         android:defaultValue="false"
                         android:key="camera_upload_directory_switch_key"
                         android:summaryOff="@string/settings_camera_upload_advanced_custom_directories_off"
                         android:summaryOn="@string/settings_camera_upload_advanced_custom_directories_on"
                         android:title="@string/settings_camera_upload_advanced_custom_directories"
-                        android:layout="@layout/seafile_checkbox_layout" >
-                </CheckBoxPreference>
+                        >
+                </com.seafile.seadroid2.ui.SwitchPreferenceCompat>
                 <Preference
                         android:key="camera_upload_directory_key"
                         android:layout="@layout/preference"
