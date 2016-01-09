@@ -635,6 +635,7 @@ public class BrowserActivity extends BaseActivity
     public void setCurrentPosition(int currentPosition) {
         this.currentPosition = currentPosition;
         pager.setCurrentItem(currentPosition);
+        mTabLayout.setScrollPosition(currentPosition, 0, true);
     }
 
     public Fragment getFragment(int index) {
