@@ -1,0 +1,17 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion 4
+        targetSdkVersion rootProject.ext.compileSdkVersion
+        versionCode 124
+        versionName "1.2.4"
+    }
+}
+
+dependencies {
+    compile "com.android.support:support-v4:22.2.0"
+}

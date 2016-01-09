@@ -1,0 +1,10 @@
+apply plugin: 'com.android.library'
+
+group='com.tjerkw.slideexpandable'
+archivesBaseName='library'
+version = '1.0'
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion = rootProject.ext.buildToolsVersion
+}
