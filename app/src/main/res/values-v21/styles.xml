@@ -12,7 +12,6 @@
         <item name="colorControlHighlight">@color/fancy_light_black</item>
         <item name="android:windowBackground">@color/fancy_light_white</item>
         <item name="android:listViewStyle">@style/SeafileListStyle</item>
-        <item name="android:radioButtonStyle">@style/RadioButton</item>
         <item name="android:actionModeStyle">@style/LightTheme.ActionMode</item>
         <item name="actionModeStyle">@style/LightTheme.ActionMode</item>
         <item name="windowActionModeOverlay">true</item>
