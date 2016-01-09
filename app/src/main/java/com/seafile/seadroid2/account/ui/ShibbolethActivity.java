@@ -2,24 +2,25 @@ package com.seafile.seadroid2.account.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.MenuItem;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.ui.ToastUtils;
+import com.seafile.seadroid2.ui.activity.BaseActivity;
 
 /**
  * Shibboleth welcome page
  * <p/>
  */
-public class ShibbolethActivity extends SherlockFragmentActivity {
+public class ShibbolethActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
     public static final String DEBUG_TAG = "ShibbolethActivity";
 
     public static final String SHIBBOLETH_SERVER_URL = "shibboleth server url";
@@ -55,8 +56,11 @@ public class ShibbolethActivity extends SherlockFragmentActivity {
             }
         });
 
-        getActionBar().setDisplayHomeAsUpEnabled(true);
-        getActionBar().setTitle(R.string.shib_actionbar_title);
+        Toolbar toolbar = getActionBarToolbar();
+        toolbar.setOnMenuItemClickListener(this);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(R.string.shib_actionbar_title);
     }
 
     public void onHttpsCheckboxClicked(View view) {
@@ -121,7 +125,12 @@ public class ShibbolethActivity extends SherlockFragmentActivity {
     }
 
     @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+    public boolean onMenuItemClick(MenuItem item) {
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 finish();
