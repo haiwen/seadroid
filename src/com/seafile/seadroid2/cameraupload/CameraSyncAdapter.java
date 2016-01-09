@@ -58,6 +58,8 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
     private String targetRepoName;
     private List<String> bucketList;
 
+    private final String BASE_DIR = "My Photos";
+
     /**
      * Will be set to true if the current sync has been cancelled.
      */
@@ -161,6 +163,9 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
     private void createDirectories(DataManager dataManager) throws SeafException {
         List<GalleryBucketUtils.Bucket> buckets = GalleryBucketUtils.getMediaBuckets(getContext());
 
+        // create base directory
+        forceCreateDirectory(dataManager, "/", BASE_DIR);
+
         for (GalleryBucketUtils.Bucket bucket : buckets) {
 
             // the user has selected specific buckets: only create directories for these
@@ -172,18 +177,10 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             if (bucketList.isEmpty() && !bucket.isCameraBucket)
                 continue;
 
-            String bucketName = bucket.name;
-
-            // retain backwards compatibility with the behaviour of previous Seadroid versions
-            // put all Camera photos into folder "Camera Uploads"
-            if (bucket.isCameraBucket) {
-                bucketName = GalleryBucketUtils.CAMERA_TARGET_FOLDER;
-            }
-
-            forceCreateDirectory(dataManager, "/", bucketName);
+            forceCreateDirectory(dataManager, BASE_DIR, bucket.name);
 
             // update our cache for that server. we will use it later
-            dataManager.getDirentsFromServer(targetRepoId, Utils.pathJoin("/", bucketName));
+            dataManager.getDirentsFromServer(targetRepoId, Utils.pathJoin(BASE_DIR, bucket.name));
         }
     }
 
@@ -520,14 +517,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 continue;
             }
 
-            // retain backwards compatibility with the behaviour of previous Seadroid versions
-            // put all Camera photos into folder "Camera Uploads"
-            for (GalleryBucketUtils.Bucket b: GalleryBucketUtils.getMediaBuckets(getContext())) {
-                if (bucketName.equals(b.name) && b.isCameraBucket) {
-                    bucketName = GalleryBucketUtils.CAMERA_TARGET_FOLDER;
-                }
-            }
-
             uploadFile(dataManager, file, bucketName);
         }
 
@@ -583,7 +572,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
      */
     private void uploadFile(DataManager dataManager, File file, String bucketName) throws SeafException {
 
-        String serverPath = Utils.pathJoin("/", bucketName);
+        String serverPath = Utils.pathJoin(BASE_DIR, bucketName);
 
         List<SeafDirent> list = dataManager.getCachedDirents(targetRepoId, serverPath);
         if (list == null) {
