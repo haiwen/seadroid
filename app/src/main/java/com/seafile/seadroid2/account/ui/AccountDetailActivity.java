@@ -288,7 +288,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
             }
 
             loginButton.setEnabled(false);
-            Account tmpAccount = new Account(serverURL, email, passwd);
+            Account tmpAccount = new Account(serverURL, email, null);
             progressDialog = new ProgressDialog(this);
             progressDialog.setMessage(getString(R.string.settings_cuc_loading));
             progressDialog.setCancelable(false);
