@@ -29,6 +29,7 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.account.Authenticator;
+import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.ssl.CertsManager;
 import com.seafile.seadroid2.ui.CustomClearableEditText;
 import com.seafile.seadroid2.ui.activity.AccountsActivity;
@@ -36,6 +37,8 @@ import com.seafile.seadroid2.ui.activity.BaseActivity;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
+
+import org.json.JSONException;
 
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -57,7 +60,6 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
     private TextView seahubUrlHintText;
 
     private android.accounts.AccountManager mAccountManager;
-    private boolean isFromEdit = false;
     private boolean serverTextHasFocus;
 
     /** Called when the activity is first created. */
@@ -350,31 +352,16 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
 
             if (result != null && result.equals("Success")) {
 
-                if (Utils.isValidEmail(loginAccount.email)) {
-                    if (isFromEdit) {
-                        //accountManager.updateAccountFromDB(account, loginAccount);
-                        isFromEdit = false;
-                    } else {
-                        //accountManager.saveAccountToDB(loginAccount);
-                    }
+                Intent retData = new Intent();
+                retData.putExtras(getIntent());
+                retData.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_NAME, loginAccount.getSignature());
+                retData.putExtra(android.accounts.AccountManager.KEY_AUTHTOKEN, loginAccount.getToken());
+                retData.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_TYPE, getIntent().getStringExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_TYPE));
+                retData.putExtra(SeafileAuthenticatorActivity.ARG_EMAIL, loginAccount.getEmail());
+                retData.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, loginAccount.getServer());
 
-                    // save account to SharedPreference
-                    //accountManager.saveCurrentAccount(loginAccount);
-
-                    Intent retData = new Intent();
-                    retData.putExtras(getIntent());
-                    retData.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_NAME, loginAccount.getSignature());
-                    retData.putExtra(android.accounts.AccountManager.KEY_AUTHTOKEN, loginAccount.getToken());
-                    retData.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_TYPE, getIntent().getStringExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_TYPE));
-                    retData.putExtra(SeafileAuthenticatorActivity.ARG_EMAIL, loginAccount.getEmail());
-                    retData.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, loginAccount.getServer());
-
-                    setResult(RESULT_OK, retData);
-                    finish();
-                } else {
-                    ConcurrentAsyncTask.execute(new RequestAccountInfoTask(), loginAccount);
-                }
-
+                setResult(RESULT_OK, retData);
+                finish();
             } else {
                 statusView.setText(result);
             }
@@ -386,9 +373,22 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
             SeafConnection sc = new SeafConnection(loginAccount);
 
             try {
+                // if successful, this will place the auth token into "loginAccount"
                 if (!sc.doLogin(passwd))
                     return getString(R.string.err_login_failed);
+
+                // fetch email address from the server
+                DataManager manager = new DataManager(loginAccount);
+                AccountInfo accountInfo = manager.getAccountInfo();
+
+                if (accountInfo == null)
+                    return "Unknown error";
+
+                // replace email address/username given by the user with the address known by the server.
+                loginAccount = new Account(loginAccount.server, accountInfo.getEmail(), loginAccount.token);
+
                 return "Success";
+
             } catch (SeafException e) {
                 err = e;
                 if (e == SeafException.sslException) {
@@ -402,65 +402,9 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
                 default:
                     return e.getMessage();
                 }
+            } catch (JSONException e) {
+                return e.getMessage();
             }
-        }
-    }
-
-    /**
-     * automatically update Account info, like space usage, total space size, from background.
-     */
-    class RequestAccountInfoTask extends AsyncTask<Account, Void, AccountInfo> {
-        Account loginAccount;
-
-        @Override
-        protected void onPreExecute() {
-            setSupportProgressBarIndeterminateVisibility(true);
-        }
-
-        @Override
-        protected AccountInfo doInBackground(Account... params) {return null;} /*{
-            AccountInfo accountInfo = null;
-
-            if (params == null || params.length < 1) return null;
-
-            loginAccount = params[0];
-            SeafConnection seafConnection = new SeafConnection(loginAccount);
-            try {
-                // get account info from server
-                String json = seafConnection.getAccountInfo();
-                // parse raw data
-                accountInfo = accountManager.parseAccountInfo(json);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            if (accountInfo != null)
-                accountInfo.setServer(loginAccount.getServer());
-
-            return accountInfo;
-        }*/
-
-        @Override
-        protected void onPostExecute(AccountInfo accountInfo) {
-            setSupportProgressBarIndeterminateVisibility(false);
-
-            if (accountInfo == null) return;
-
-            // reset username to be email for compatible with other modules
-            /*loginAccount.email = accountInfo.getEmail();
-
-            if (isFromEdit) {
-                accountManager.updateAccountFromDB(account, loginAccount);
-                isFromEdit = false;
-            } else {
-                accountManager.saveAccountToDB(loginAccount);
-            }
-
-            // save account to SharedPreference
-            accountManager.saveCurrentAccount(loginAccount);
-
-            startFilesActivity(loginAccount);*/
-
         }
     }
 }
