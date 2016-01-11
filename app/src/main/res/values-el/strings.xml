@@ -10,7 +10,6 @@
   <string name="delete_file_f">Διαγραφή αρχείου</string>
   <string name="delete_dir">Διαγραφή φακέλου</string>
   <string name="server_hint">Διακομιστής, όπως cloud.seafile.com</string>
-  <string name="email_hint">Email</string>
   <string name="passwd_hint">Κωδικός</string>
   <string name="login">Σύνδεση</string>
   <string name="open_file">Άνοιγμα</string>
@@ -81,8 +80,6 @@
   <string name="password_empty">Παρακαλώ εισάγετε τον κωδικό</string>
   <string name="wrong_password">λάθος κωδικός</string>
   <string name="library_read_only">Αυτή η βιβλιοθήκη είναι μόνο για ανάγνωση</string>
-  <string name="error_when_load_dirents">Σφάλμα κατά την φόρτωση του φακέλου</string>
-  <string name="error_when_load_repos">Σφάλμα κατά την φόρτωση των βιβλιοθηκών</string>
   <string name="dir_empty">Αυτός ο φάκελος είναι κενός</string>
   <string name="no_repo">Δεν έχετε ακόμα βιβλιοθήκες</string>
   <string name="no_app_available">Δεν μπορεί να βρέθει καμιά εφαρμογή</string>
@@ -91,7 +88,6 @@
   <string name="no_account">Παρακαλώ δημιουργήστε έναν λογαριασμό στο Seafile πρώτα</string>
   <string name="choose_an_account">Επιλέξτε ένα λογαριασμό</string>
   <string name="choose_a_library">Επιλέξτε μία βιβλιοθήκη</string>
-  <string name="choose_a_folder">Επιλέξτε ένα φάκελο</string>
   <string name="load_accounts_fail">Αποτυχία φόρτωσης λογαριασμών Seafile</string>
   <string name="load_libraries_fail">Αποτυχία φόρτωσης βιβλιοθηκών</string>
   <string name="load_dir_fail">Αποτυχία φόρτωσης των περιεχομένων αυτού του φακέλου</string>
@@ -153,13 +149,13 @@
   <string name="settings_camera_upload_turn_on">Ενεργοποίηση μεταφόρτωσης φωτ. μηχανής</string>
   <string name="settings_camera_upload_lib_not_found">Η επιλεγμένη βιβλιοθήκη δεν υπάρχει</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Μη τυπικές ρυθμίσεις μεταφόρτωσης</string>
-  <string name="settings_camera_upload_advanced_custom_directories">Μη τυπική φάκελοι μεταφόρτωσης</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_welcome_text">Σας ευχαριστούμε που χρησιμοποιείτε τον βοηθό ρύθμισης της μεταφόρτωσης φωτογραφιών. \nΓια να σας βοηθήσουμε να ξεκινήσετε με την υπηρεσία μεταφόρτωσης, θα καθοδηγηθήτε κατά τα πρώτα βήματα.</string>
   <string name="settings_cuc_network_title">Πώς να μεταφορτώσετε</string>
   <string name="settings_cuc_type_title">Τί να μεταφορτώσετε</string>
   <string name="settings_cuc_remote_lib_title">Επιλέξτε απομακρυσμένη βιβλιοθήκη</string>
   <string name="settings_cuc_ready">Το Seafile θα αρχίσει να μεταφορτώνει αρχεία από τους επιλεγμένους φακέλους. \nΜπορείτε να κλείσετε την εφαρμογή κατά την διάρκεια αυτής της διαδικασίας.</string>
+  <!--Camera Sync-->
   <!--pull to refresh-->
   <!--storage access framework-->
   <string name="saf_file_not_downloaded_exception">Δεν ήταν δυνατή η λήψη του αρχείου %s από το διακομιστή.</string>
@@ -181,4 +177,5 @@
   <!--Gallery-->
   <!--Overwrite existing files-->
   <!--Action Mode-->
+  <!--Accessibility description for navigation drawer-->
 </resources>

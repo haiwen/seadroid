@@ -10,7 +10,6 @@
   <string name="delete_file_f">Eyða skrá</string>
   <string name="delete_dir">Eyða skráasafni</string>
   <string name="server_hint">Þjónn, eins og cloud.seafile.com</string>
-  <string name="email_hint">Netfang</string>
   <string name="passwd_hint">Lykilorð</string>
   <string name="login">Innská</string>
   <string name="open_file">Opna</string>
@@ -36,12 +35,6 @@
     <item>Annað</item>
   </string-array>
   <string name="choose_server">Veldu Seafile Þjón</string>
-  <string-array name="choose_server_array">
-    <item>SeaCloud.cc</item>
-    <item>Cloud.seafile.de</item>
-    <item>Shibboleth Innskráning</item>
-    <item>Annar Seafile Þjónn</item>
-  </string-array>
   <string name="network_down">Engin nettenging</string>
   <string name="unknow_error">Óþekkt villa</string>
   <string name="invalid_server_address">Rangt vistfang</string>
@@ -101,8 +94,6 @@
   <string name="password_empty">Vinsamlegast sláðu inn lykilorðið</string>
   <string name="wrong_password">rangt lykilorð</string>
   <string name="library_read_only">Þetta safn er aðeins til lestrar</string>
-  <string name="error_when_load_dirents">Villa við að hlaða inn skráasafninu</string>
-  <string name="error_when_load_repos">Villa við að hlaða inn söfnum</string>
   <string name="dir_empty">Þetta skráasafn er tómt</string>
   <string name="no_repo">Þú átt enn engin söfn</string>
   <string name="no_app_available">Það fannst ekkert app</string>
@@ -111,7 +102,6 @@
   <string name="no_account">Vinsamlegast settu upp reikning í Seafile fyrst</string>
   <string name="choose_an_account">Veldu reikning</string>
   <string name="choose_a_library">Veldu safn</string>
-  <string name="choose_a_folder">Veldu skráasafn</string>
   <string name="load_accounts_fail">Mistókst að hlaða inn Seafile reikningum</string>
   <string name="load_libraries_fail">Mistókst að hlaða inn söfnum</string>
   <string name="load_dir_fail">Mistókst að hlaða inn efni þessa skráasafns</string>
@@ -274,14 +264,10 @@
   <string name="settings_camera_upload_change_repo_title">Skipta um Upphleðslusafn</string>
   <string name="settings_camera_upload_repo_hint">Vinsamlegast veldu fyrst safn</string>
   <string name="settings_camera_upload_turn_on">Kveikja á Myndavélaupphleðslu</string>
-  <string name="settings_camera_upload_choose_dir">Breyta Staðværum Skráarsöfnum</string>
   <string name="settings_camera_upload_dir_auto_scan">Sjálfgefið að skima myndir skjálfkrafa</string>
-  <string name="settings_camera_upload_dir_custom">Skima yfir valin skráasöfn</string>
   <string name="settings_camera_upload_lib_not_found">Valin skráasöfn eru ekki til</string>
   <string name="settings_camera_upload_advanced_feature_title">Frekari Valmöguleikar</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Sérsniðið upphleðsluval</string>
-  <string name="settings_camera_upload_advanced_custom_directories">Sérsniðin upphleðsluskráasöfn</string>
-  <string name="settings_camera_upload_advanced_custom_directories_on">Veldu myndaskráasöfn</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">Sjálfvirk skimun tækis</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Stillingahjálp</string>
@@ -293,7 +279,6 @@
   <string name="settings_cuc_type_title">Hverju á að hlaða upp</string>
   <string name="settings_cuc_type_photo">Aðeins myndum</string>
   <string name="settings_cuc_type_video">Myndum og kvikmyndum</string>
-  <string name="settings_cuc_local_dir_title">Veldu Staðvær Skráasöfn</string>
   <plurals name="settings_cuc_local_dir_items">
     <item quantity="one">%1$d atriði</item>
     <item quantity="other">%1$d atriði</item>
@@ -302,14 +287,13 @@
   <string name="settings_cuc_remote_lib_account">Veldu reikning</string>
   <string name="settings_cuc_remote_lib_repo">%s varð fyrir valinu</string>
   <string name="settings_cuc_upload_to_parent_folder">Upp í Yfirskráasafn</string>
-  <string name="settings_cuc_auto_scan">Sækja allar myndir á tæki</string>
-  <string name="settings_cuc_pick_dir">Leyfðu mér að velja myndaskáasöfn</string>
   <string name="settings_cuc_remote_lib_hint">Veldu reikninginn þinn og safn. \nÞú getur breytt þessum stillingum síðar í Stillingum.</string>
   <string name="settings_cuc_finish_title">Enda</string>
   <string name="settings_cuc_ready">Seafile mun nú hlaða upp skrám frá þeim skráasöfnum sem þú valdir. \nÞú mátt loka appinu á meðan þessu stendur.</string>
   <string name="settings_cuc_swipe_left">Strjúktu til vinstri til að halda áfram.</string>
   <string name="settings_cuc_click_btn">Smelltu til að loka stillingahjálpinni.</string>
   <string name="settings_cuc_loading">hleð...</string>
+  <!--Camera Sync-->
   <string name="settings_about_title">UM</string>
   <string name="settings_about_version_title">App Útgáfa</string>
   <string name="settings_about_author_title">Um Höfund</string>
@@ -428,4 +412,5 @@
   <string name="overwrite_existing_file_exist">Skráin er þegar til</string>
   <!--Action Mode-->
   <string name="action_mode_no_items_selected">Engin atriði voru valin</string>
+  <!--Accessibility description for navigation drawer-->
 </resources>

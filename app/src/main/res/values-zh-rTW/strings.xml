@@ -10,7 +10,6 @@
   <string name="delete_file_f">刪除文件</string>
   <string name="delete_dir">刪除文件夾</string>
   <string name="server_hint">服務器地址，比如cloud.seafile.com</string>
-  <string name="email_hint">郵箱</string>
   <string name="passwd_hint">密碼</string>
   <string name="login">登錄</string>
   <string name="open_file">打開</string>
@@ -79,8 +78,6 @@
   <string name="password_empty">請輸入密碼</string>
   <string name="wrong_password">密碼錯誤</string>
   <string name="library_read_only">這個資料庫是只讀的</string>
-  <string name="error_when_load_dirents">文件夾加載失敗</string>
-  <string name="error_when_load_repos">資料庫加載失敗</string>
   <string name="dir_empty">文件夾為空</string>
   <string name="no_repo">無資料庫</string>
   <string name="no_app_available">沒有找到應用</string>
@@ -89,7 +86,6 @@
   <string name="no_account">首先請在Seafile上創建一個賬戶</string>
   <string name="choose_an_account">請選擇一個賬戶</string>
   <string name="choose_a_library">請選擇一個資料庫</string>
-  <string name="choose_a_folder">請選擇一個文件夾</string>
   <string name="load_accounts_fail">加載Seafile賬戶失敗</string>
   <string name="load_libraries_fail">加載資料庫失敗</string>
   <string name="load_dir_fail">加載文件夾內容失敗</string>
@@ -121,6 +117,7 @@
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <!--Camera Upload Preference-->
   <!--Camera Upload Configuration View-->
+  <!--Camera Sync-->
   <!--pull to refresh-->
   <!--storage access framework-->
   <!--shibboleth SSO-->
@@ -133,4 +130,5 @@
   <!--Gallery-->
   <!--Overwrite existing files-->
   <!--Action Mode-->
+  <!--Accessibility description for navigation drawer-->
 </resources>

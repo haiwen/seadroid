@@ -10,7 +10,6 @@
   <string name="delete_file_f">Fájl törlés</string>
   <string name="delete_dir">Könyvtár törlés</string>
   <string name="server_hint">Szerver, mint a cloud.seafile.com</string>
-  <string name="email_hint">Email</string>
   <string name="passwd_hint">Jelszó</string>
   <string name="login">Belépés</string>
   <string name="open_file">Megnyit</string>
@@ -36,12 +35,6 @@
     <item>Más</item>
   </string-array>
   <string name="choose_server">Seafile szerver választás</string>
-  <string-array name="choose_server_array">
-    <item>SeaCloud.cc</item>
-    <item>Cloud.seafile.de</item>
-    <item>Shibboleth bejelentkezés</item>
-    <item>Más Seafile szerver</item>
-  </string-array>
   <string name="network_down">Nincs hálózati kapcsolat</string>
   <string name="unknow_error">Ismeretlen hiba</string>
   <string name="invalid_server_address">Hibás szerver cím</string>
@@ -101,8 +94,6 @@
   <string name="password_empty">Adja meg a jelszót</string>
   <string name="wrong_password">hibás jelszó</string>
   <string name="library_read_only">This library is read-only</string>
-  <string name="error_when_load_dirents">Error when loading the folder</string>
-  <string name="error_when_load_repos">Error when loading libraries</string>
   <string name="dir_empty">A könyvtár üres</string>
   <string name="no_repo">Nincsenek kötetei</string>
   <string name="no_app_available">Nem található alkalmazás</string>
@@ -111,7 +102,6 @@
   <string name="no_account">Először hozzon létre egy felhasználói fiókot a Seafile-on</string>
   <string name="choose_an_account">Fiók kiválasztása</string>
   <string name="choose_a_library">Kötet kiválasztása</string>
-  <string name="choose_a_folder">Könyvtár kiválasztása</string>
   <string name="load_accounts_fail">Hiba a Seafile fiókok betöltésénél</string>
   <string name="load_libraries_fail">Hiba a kötetek letöltésénél</string>
   <string name="load_dir_fail">Hiba a könyvtár tartalmának betöltésénél</string>
@@ -274,14 +264,10 @@
   <string name="settings_camera_upload_change_repo_title">Feltöltési kötet megváltoztatása</string>
   <string name="settings_camera_upload_repo_hint">Először a kötetet kell kiválasztani</string>
   <string name="settings_camera_upload_turn_on">Fényképezőgép feltöltés bekapcsolása</string>
-  <string name="settings_camera_upload_choose_dir">Helyi könyvtár kiválasztása</string>
   <string name="settings_camera_upload_dir_auto_scan">Alapesetben keresse a fényképeket</string>
-  <string name="settings_camera_upload_dir_custom">Keresés a kiválasztott könyvtárakban</string>
   <string name="settings_camera_upload_lib_not_found">A kiválasztott kötet nem létezik.</string>
   <string name="settings_camera_upload_advanced_feature_title">Haladó beállítások</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Egyéni feltöltési beállítások</string>
-  <string name="settings_camera_upload_advanced_custom_directories">Egyéni feltöltési könyvtár</string>
-  <string name="settings_camera_upload_advanced_custom_directories_on">Fényképek könyvtárának kiválasztása</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">Automatikus keresés az eszközön</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Beállítási segéd</string>
@@ -293,7 +279,6 @@
   <string name="settings_cuc_type_title">Mit tölt fel</string>
   <string name="settings_cuc_type_photo">Csak fénykép</string>
   <string name="settings_cuc_type_video">Fénykép és videó</string>
-  <string name="settings_cuc_local_dir_title">Helyi könyvtár kiválasztása</string>
   <plurals name="settings_cuc_local_dir_items">
     <item quantity="one">%1$d elem</item>
     <item quantity="other">%1$d elem</item>
@@ -302,14 +287,13 @@
   <string name="settings_cuc_remote_lib_account">Fiók kiválasztása</string>
   <string name="settings_cuc_remote_lib_repo">%s kiválasztva</string>
   <string name="settings_cuc_upload_to_parent_folder">Egy könyvtárral feljebb</string>
-  <string name="settings_cuc_auto_scan">Minden fénykép az eszközön</string>
-  <string name="settings_cuc_pick_dir">Fényképek könyvtárának kiválasztása</string>
   <string name="settings_cuc_remote_lib_hint">Válassza ki a preferált fiókot és kötetet. \nEzeket a beállításokat később bármikor megváltoztathatja.</string>
   <string name="settings_cuc_finish_title">Kész</string>
   <string name="settings_cuc_ready">A Seafile most elkezdi feltölteni a kiválasztott könyvtárakból a fájlokat. \nBezárhatja az alkalmazást.</string>
   <string name="settings_cuc_swipe_left">Továbblépéshez húzza balra.</string>
   <string name="settings_cuc_click_btn">A konfigurációs segéd bezárásához koppintson.</string>
   <string name="settings_cuc_loading">betöltés...</string>
+  <!--Camera Sync-->
   <string name="settings_about_title">Névjegy</string>
   <string name="settings_about_version_title">Alkalmazás verzió</string>
   <string name="settings_about_author_title">Névjegy</string>
@@ -428,4 +412,5 @@
   <string name="overwrite_existing_file_exist">A fájl már létezik</string>
   <!--Action Mode-->
   <string name="action_mode_no_items_selected">Nincs kiválasztott elem</string>
+  <!--Accessibility description for navigation drawer-->
 </resources>

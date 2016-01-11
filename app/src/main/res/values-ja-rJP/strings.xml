@@ -10,7 +10,7 @@
   <string name="delete_file_f">ファイルを削除</string>
   <string name="delete_dir">フォルダーを削除</string>
   <string name="server_hint">サーバー。例 cloud.seafile.com</string>
-  <string name="email_hint">メール</string>
+  <string name="email_hint">ユーザー名またはメールアドレス</string>
   <string name="passwd_hint">パスワード</string>
   <string name="login">ログイン</string>
   <string name="open_file">開く</string>
@@ -38,7 +38,7 @@
   <string name="choose_server">Seafile サーバーを選択</string>
   <string-array name="choose_server_array">
     <item>SeaCloud.cc</item>
-    <item>Cloud.seafile.de</item>
+    <item>App.seafile.de</item>
     <item>Shibboleth ログイン</item>
     <item>他の Seafile サーバー</item>
   </string-array>
@@ -100,8 +100,6 @@
   <string name="password_empty">パスワードを入力してください</string>
   <string name="wrong_password">パスワードが正しくありません</string>
   <string name="library_read_only">このライブラリーは読み取り専用です</string>
-  <string name="error_when_load_dirents">フォルダーの読み込み時にエラー</string>
-  <string name="error_when_load_repos">ライブラリーの読み込み時にエラー</string>
   <string name="dir_empty">このフォルダーは空です</string>
   <string name="no_repo">まだライブラリーはありません</string>
   <string name="no_app_available">アプリが見つかりません</string>
@@ -110,7 +108,6 @@
   <string name="no_account">最初に Seafile にアカウントを設定してください</string>
   <string name="choose_an_account">アカウントを選択</string>
   <string name="choose_a_library">ライブラリーを選択</string>
-  <string name="choose_a_folder">フォルダーを選択</string>
   <string name="load_accounts_fail">Seafile アカウントの読み込みに失敗しました</string>
   <string name="load_libraries_fail">ライブラリーの読み込みに失敗しました</string>
   <string name="load_dir_fail">このフォルダーの内容の読み込みに失敗しました</string>
@@ -270,14 +267,10 @@
   <string name="settings_camera_upload_change_repo_title">アップロードライブラリーを変更</string>
   <string name="settings_camera_upload_repo_hint">最初にライブラリーを選択してください</string>
   <string name="settings_camera_upload_turn_on">カメラアップロードをオンにする</string>
-  <string name="settings_camera_upload_choose_dir">ローカルフォルダーを変更</string>
   <string name="settings_camera_upload_dir_auto_scan">デフォルトで写真を自動スキャンする</string>
-  <string name="settings_camera_upload_dir_custom">選択したフォルダーをスキャン</string>
   <string name="settings_camera_upload_lib_not_found">選択したライブラリーが存在しません</string>
   <string name="settings_camera_upload_advanced_feature_title">詳細オプション</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">カスタムアップロードオプション</string>
-  <string name="settings_camera_upload_advanced_custom_directories">カスタムアップロードフォルダー</string>
-  <string name="settings_camera_upload_advanced_custom_directories_on">写真フォルダーを選択</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">デバイスを自動スキャン</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">設定ヘルパー</string>
@@ -289,7 +282,6 @@
   <string name="settings_cuc_type_title">アップロード対象</string>
   <string name="settings_cuc_type_photo">写真のみ</string>
   <string name="settings_cuc_type_video">写真とビデオ</string>
-  <string name="settings_cuc_local_dir_title">ローカルフォルダーを選択</string>
   <plurals name="settings_cuc_local_dir_items">
     <item quantity="other">%1$d アイテム</item>
   </plurals>
@@ -297,14 +289,13 @@
   <string name="settings_cuc_remote_lib_account">アカウントを選択</string>
   <string name="settings_cuc_remote_lib_repo">%s を選択しました</string>
   <string name="settings_cuc_upload_to_parent_folder">親のフォルダーに移動</string>
-  <string name="settings_cuc_auto_scan">デバイスのすべての写真を取得</string>
-  <string name="settings_cuc_pick_dir">マイ写真フォルダを選択しましょう</string>
   <string name="settings_cuc_remote_lib_hint">お好みのオプションを選択してください。 \nこのオプションは後で設定から変更することができます。</string>
   <string name="settings_cuc_finish_title">完了</string>
   <string name="settings_cuc_ready">Seafile は選択したフォルダーからファイルをアップロードします。 \nこのプロセス中、アプリを自由に閉じることができます。</string>
   <string name="settings_cuc_swipe_left">左にスワイプすると続行します。</string>
   <string name="settings_cuc_click_btn">クリックすると設定ヘルパーを閉じます。</string>
   <string name="settings_cuc_loading">読み込み中…</string>
+  <!--Camera Sync-->
   <string name="settings_about_title">アプリについて</string>
   <string name="settings_about_version_title">アプリ バージョン</string>
   <string name="settings_about_author_title">作者について</string>
@@ -419,4 +410,5 @@
   <string name="overwrite_existing_file_exist">ファイルがすでに存在します。</string>
   <!--Action Mode-->
   <string name="action_mode_no_items_selected">アイテムが選択されていません</string>
+  <!--Accessibility description for navigation drawer-->
 </resources>

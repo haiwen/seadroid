@@ -10,7 +10,7 @@
   <string name="delete_file_f">Usuń plik</string>
   <string name="delete_dir">Usuń folder</string>
   <string name="server_hint">Serwer, np. cloud.seafile.com</string>
-  <string name="email_hint">Adres e-mail</string>
+  <string name="email_hint">Nazwa użytkownika lub adres email</string>
   <string name="passwd_hint">Hasło</string>
   <string name="login">Login</string>
   <string name="open_file">Otwórz</string>
@@ -38,7 +38,7 @@
   <string name="choose_server">Wybierz serwer Seafile</string>
   <string-array name="choose_server_array">
     <item>SeaCloud.cc</item>
-    <item>cloud.seafile.de</item>
+    <item>App.seafile.de</item>
     <item>Logowanie Shibboleth</item>
     <item>Inny serwer Seafile</item>
   </string-array>
@@ -102,8 +102,6 @@
   <string name="password_empty">Podaj hasło</string>
   <string name="wrong_password">hasło nieprawidłowe</string>
   <string name="library_read_only">Ta biblioteka jest tylko do odczytu</string>
-  <string name="error_when_load_dirents">Błąd podczas wczytywania folderu</string>
-  <string name="error_when_load_repos">Błąd podczas wczytywania bibliotek</string>
   <string name="dir_empty">Ten folder jest pusty</string>
   <string name="no_repo">Nie masz jeszcze żadnej biblioteki</string>
   <string name="no_app_available">Nie znaleziono aplikacji</string>
@@ -112,7 +110,6 @@
   <string name="no_account">Proszę najpierw skonfigurować konto Seafile</string>
   <string name="choose_an_account">Wybierz konto</string>
   <string name="choose_a_library">Wybierz bibliotekę</string>
-  <string name="choose_a_folder">Wybierz folder</string>
   <string name="load_accounts_fail">Nie udało się wczytać kont Seafile</string>
   <string name="load_libraries_fail">Nie udało się wczytać bibliotek</string>
   <string name="load_dir_fail">Nie udało się wczytać zawartości tego folderu</string>
@@ -278,14 +275,10 @@
   <string name="settings_camera_upload_change_repo_title">Biblioteka przesyłania</string>
   <string name="settings_camera_upload_repo_hint">Proszę najpierw wybrać bibliotekę</string>
   <string name="settings_camera_upload_turn_on">Przesyłaj zdjęcia z aparatu</string>
-  <string name="settings_camera_upload_choose_dir">Zmień foldery lokalne</string>
   <string name="settings_camera_upload_dir_auto_scan">Domyślnie skanuj zdjęcia automatycznie</string>
-  <string name="settings_camera_upload_dir_custom">Skanuj wybrane foldery</string>
   <string name="settings_camera_upload_lib_not_found">Wybrana biblioteka nie istnieje</string>
   <string name="settings_camera_upload_advanced_feature_title">Zaawansowane</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Dostosuj opcje przesyłania</string>
-  <string name="settings_camera_upload_advanced_custom_directories">Dostosuj foldery przesyłania</string>
-  <string name="settings_camera_upload_advanced_custom_directories_on">Wybierz foldery ze zdjęciami</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">Automatycznie skanuj urządzenie</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Asystent konfiguracji</string>
@@ -297,7 +290,6 @@
   <string name="settings_cuc_type_title">Co przesyłać</string>
   <string name="settings_cuc_type_photo">Tylko zdjęcia</string>
   <string name="settings_cuc_type_video">Zdjęcia i wideo</string>
-  <string name="settings_cuc_local_dir_title">Wybierz foldery lokalne</string>
   <plurals name="settings_cuc_local_dir_items">
     <item quantity="one">%1$d element</item>
     <item quantity="few">%1$d elementy</item>
@@ -307,14 +299,13 @@
   <string name="settings_cuc_remote_lib_account">Wybierz konto</string>
   <string name="settings_cuc_remote_lib_repo">%s został wybrany</string>
   <string name="settings_cuc_upload_to_parent_folder">W górę do folderu nadrzędnego</string>
-  <string name="settings_cuc_auto_scan">Weź wszystkie zdjęcia z urządzenia</string>
-  <string name="settings_cuc_pick_dir">Pozwól mi wybrać foldery ze zdjęciami</string>
   <string name="settings_cuc_remote_lib_hint">Wybierz swoje konto i bibliotekę. \nMożesz je potem zmienić w Ustawieniach.</string>
   <string name="settings_cuc_finish_title">Zakończ</string>
   <string name="settings_cuc_ready">Seafile prześle teraz pliki z wybranych folderów.\nMożesz w tym czasie śmiało zamknąć aplikację.</string>
   <string name="settings_cuc_swipe_left">Przesuń w lewo, aby kontynuować.</string>
   <string name="settings_cuc_click_btn">Kliknij, aby zamknąć asystenta konfiguracji.</string>
   <string name="settings_cuc_loading">wczytywanie...</string>
+  <!--Camera Sync-->
   <string name="settings_about_title">O PROGRAMIE</string>
   <string name="settings_about_version_title">Wersja aplikacji</string>
   <string name="settings_about_author_title">O autorze</string>
@@ -437,4 +428,5 @@
   <string name="overwrite_existing_file_exist">Plik już istnieje</string>
   <!--Action Mode-->
   <string name="action_mode_no_items_selected">Nie wybrano elementów</string>
+  <!--Accessibility description for navigation drawer-->
 </resources>

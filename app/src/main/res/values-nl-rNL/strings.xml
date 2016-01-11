@@ -10,7 +10,6 @@
   <string name="delete_file_f">Bestand verwijderen</string>
   <string name="delete_dir">Map verwijderen</string>
   <string name="server_hint">Server zoals cloud.seafile.com</string>
-  <string name="email_hint">E-mail</string>
   <string name="passwd_hint">Wachtwoord</string>
   <string name="login">Aanmelden</string>
   <string name="open_file">Open</string>
@@ -80,8 +79,6 @@
   <string name="password_empty">Gelieve het wachtwoord in te geven</string>
   <string name="wrong_password">wachtwoord onjuist</string>
   <string name="library_read_only">Deze bibliotheek is alleen lezen</string>
-  <string name="error_when_load_dirents">Fout tijdens het laden van de map</string>
-  <string name="error_when_load_repos">Fout bij het laden van de bibliotheken</string>
   <string name="dir_empty">Deze map is leeg</string>
   <string name="no_repo">Je hebt nog geen bibliotheken</string>
   <string name="no_app_available">Geen app gevonden</string>
@@ -90,7 +87,6 @@
   <string name="no_account">Gelieve eerste een Seafile account aan te maken</string>
   <string name="choose_an_account">Kies een account</string>
   <string name="choose_a_library">Kies een bibliotheek</string>
-  <string name="choose_a_folder">Kies een map</string>
   <string name="load_accounts_fail">Kon Seafile-accounts niet laden</string>
   <string name="load_libraries_fail">Kon bibliotheken niet laden</string>
   <string name="load_dir_fail">Kon de inhoud van deze map niet laden</string>
@@ -213,6 +209,7 @@
   <string name="settings_cuc_remote_lib_account">Kies een account</string>
   <string name="settings_cuc_finish_title">Afronden</string>
   <string name="settings_cuc_loading">laden...</string>
+  <!--Camera Sync-->
   <string name="settings_about_title">Over</string>
   <string name="settings_about_version_title">App-versie</string>
   <string name="settings_about_author_title">Over maker</string>
@@ -257,4 +254,5 @@
   <!--Overwrite existing files-->
   <string name="overwrite_existing_file_exist">Het bestand bestaat al</string>
   <!--Action Mode-->
+  <!--Accessibility description for navigation drawer-->
 </resources>

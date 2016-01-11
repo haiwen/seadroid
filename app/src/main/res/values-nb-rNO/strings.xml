@@ -10,7 +10,6 @@
   <string name="delete_file_f">Slett fil</string>
   <string name="delete_dir">Slett mappe</string>
   <string name="server_hint">Server, slik som cloud.seafile.com</string>
-  <string name="email_hint">E-post</string>
   <string name="passwd_hint">Passord</string>
   <string name="login">Logg inn</string>
   <string name="open_file">Åpne</string>
@@ -36,12 +35,6 @@
     <item>Annet</item>
   </string-array>
   <string name="choose_server">Velg en Seafile-server</string>
-  <string-array name="choose_server_array">
-    <item>SeaCloud.cc</item>
-    <item>Cloud.seafile.de</item>
-    <item>Pålogging med Shibboleth</item>
-    <item>Annen Seafile server</item>
-  </string-array>
   <string name="network_down">Ingen nettverkstilkobling</string>
   <string name="unknow_error">Ukjent feil</string>
   <string name="invalid_server_address">Ugyldig serveradresse</string>
@@ -101,8 +94,6 @@
   <string name="password_empty">Skriv inn passordet</string>
   <string name="wrong_password">feil passord</string>
   <string name="library_read_only">Dette biblioteket er skrivebeskyttet</string>
-  <string name="error_when_load_dirents">Feil ved lasting av mappen</string>
-  <string name="error_when_load_repos">Feil ved lasting av biblioteker</string>
   <string name="dir_empty">Denne mappen er tom</string>
   <string name="no_repo">Du har ingen biblioteker enda</string>
   <string name="no_app_available">Ingen app finnes</string>
@@ -111,7 +102,6 @@
   <string name="no_account">Vennligst opprett en konto i Seafile først.</string>
   <string name="choose_an_account">Velg en konto</string>
   <string name="choose_a_library">Velg et bibliotek</string>
-  <string name="choose_a_folder">Velg en mappe</string>
   <string name="load_accounts_fail">Klarte ikke å laste inn Seafilekontoene</string>
   <string name="load_libraries_fail">Klarte ikke å laste inn bibliotekene</string>
   <string name="load_dir_fail">Klarte ikke å laste inn innholdet i denne mappen</string>
@@ -271,14 +261,10 @@
   <string name="settings_camera_upload_change_repo_title">Endre opplastingsbibliotek</string>
   <string name="settings_camera_upload_repo_hint">Velg et bibliotek først</string>
   <string name="settings_camera_upload_turn_on">Slå på kameraopplasting</string>
-  <string name="settings_camera_upload_choose_dir">Bytt lokale mapper</string>
   <string name="settings_camera_upload_dir_auto_scan">Automatisk leting etter bilder som standard</string>
-  <string name="settings_camera_upload_dir_custom">Let i valgte mapper</string>
   <string name="settings_camera_upload_lib_not_found">Valgt bibliotek eksisterer ikke</string>
   <string name="settings_camera_upload_advanced_feature_title">Avanserte innstillinger</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Tilpass opplastingsvalg</string>
-  <string name="settings_camera_upload_advanced_custom_directories">Tilpass opplastingsmapper</string>
-  <string name="settings_camera_upload_advanced_custom_directories_on">Velg fotomapper</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">Automatisk leting på enheten</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Konfigurasjonsassistent</string>
@@ -290,7 +276,6 @@
   <string name="settings_cuc_type_title">Hva vil du laste opp</string>
   <string name="settings_cuc_type_photo">Bare bilder</string>
   <string name="settings_cuc_type_video">Bilder og videoer</string>
-  <string name="settings_cuc_local_dir_title">Velg lokale mapper</string>
   <plurals name="settings_cuc_local_dir_items">
     <item quantity="one">%1$d element</item>
     <item quantity="other">%1$d elementer</item>
@@ -299,14 +284,13 @@
   <string name="settings_cuc_remote_lib_account">Velg en konto</string>
   <string name="settings_cuc_remote_lib_repo">%s ble valgt</string>
   <string name="settings_cuc_upload_to_parent_folder">Opp til forrige mappe</string>
-  <string name="settings_cuc_auto_scan">Hent alle bilder på enheten</string>
-  <string name="settings_cuc_pick_dir">La meg velge mine bildemapper</string>
   <string name="settings_cuc_remote_lib_hint">Velg din foretrukne konto og bibliotek. \nDu kan endre disse valgene senere i \"innstillinger\".</string>
   <string name="settings_cuc_finish_title">Avslutt</string>
   <string name="settings_cuc_ready">Seafile vil nå laste opp filer fra dine valgte mapper. \nDu kan lukke programmet mens dette pågår..</string>
   <string name="settings_cuc_swipe_left">Sveip mot venstre for å fortsette.</string>
   <string name="settings_cuc_click_btn">Trykk for å lukke konfigurasjonsassistenten.</string>
   <string name="settings_cuc_loading">laster...</string>
+  <!--Camera Sync-->
   <string name="settings_about_title">OM</string>
   <string name="settings_about_version_title">Programversjon</string>
   <string name="settings_about_author_title">Om utvikleren</string>
@@ -423,4 +407,5 @@
   <string name="overwrite_existing_file_exist">Filen eksisterer allerede</string>
   <!--Action Mode-->
   <string name="action_mode_no_items_selected">Ingen elementer ble valgt</string>
+  <!--Accessibility description for navigation drawer-->
 </resources>

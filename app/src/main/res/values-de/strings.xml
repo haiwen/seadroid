@@ -10,7 +10,6 @@
   <string name="delete_file_f">Datei löschen</string>
   <string name="delete_dir">Ordner löschen</string>
   <string name="server_hint">Server, z.B. cloud.seafile.com</string>
-  <string name="email_hint">E-Mail</string>
   <string name="passwd_hint">Passwort</string>
   <string name="login">Anmelden</string>
   <string name="open_file">Öffnen</string>
@@ -36,12 +35,6 @@
     <item>Andere</item>
   </string-array>
   <string name="choose_server">Bitte wählen Sie einen Seafile-Server aus</string>
-  <string-array name="choose_server_array">
-    <item>SeaCloud.cc</item>
-    <item>Cloud.seafile.de</item>
-    <item>Shibboleth-Anmeldung</item>
-    <item>Anderer Seafile-Server</item>
-  </string-array>
   <string name="network_down">Keine Netzwerkverbindung</string>
   <string name="unknow_error">Unbekannter Fehler</string>
   <string name="invalid_server_address">Ungültige Serveradresse</string>
@@ -101,8 +94,6 @@
   <string name="password_empty">Bitte das Passwort eingeben</string>
   <string name="wrong_password">Falsches Passwort</string>
   <string name="library_read_only">Diese Bibliothek ist schreibgeschützt</string>
-  <string name="error_when_load_dirents">Fehler beim Laden des Ordners</string>
-  <string name="error_when_load_repos">Fehler beim Laden der Bibliotheken</string>
   <string name="dir_empty">Dieser Ordner ist leer</string>
   <string name="no_repo">Sie haben noch keine Bibliotheken angelegt</string>
   <string name="no_app_available">Es konnte keine Anwendung gefunden werden</string>
@@ -111,7 +102,6 @@
   <string name="no_account">Bitte zuerst ein Konto einrichten</string>
   <string name="choose_an_account">Ein Konto auswählen</string>
   <string name="choose_a_library">Eine Bibliothek auswählen</string>
-  <string name="choose_a_folder">Einen Ordner auswählen</string>
   <string name="load_accounts_fail">Die Seafile-Konten konnten nicht geladen werden</string>
   <string name="load_libraries_fail">Bibliotheken konnten nicht geladen werden</string>
   <string name="load_dir_fail">Der Inhalt des Ordners konnte nicht geladen werden</string>
@@ -271,14 +261,10 @@
   <string name="settings_camera_upload_change_repo_title">Zielbibliothek ändern</string>
   <string name="settings_camera_upload_repo_hint">Bitte zuerst eine Bibliothek auswählen</string>
   <string name="settings_camera_upload_turn_on">Kamera-Upload aktivieren</string>
-  <string name="settings_camera_upload_choose_dir">Lokalen Ordner ändern</string>
   <string name="settings_camera_upload_dir_auto_scan">Standardmäßig nach Bildern suchen</string>
-  <string name="settings_camera_upload_dir_custom">Ausgewählte Ordner durchsuchen</string>
   <string name="settings_camera_upload_lib_not_found">Die ausgewählte Bibliothek ist nicht vorhanden</string>
   <string name="settings_camera_upload_advanced_feature_title">Erweiterte Einstellungen</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Einstellungen zum Hochladen anpassen</string>
-  <string name="settings_camera_upload_advanced_custom_directories">Ordner zum Hochladen anpassen</string>
-  <string name="settings_camera_upload_advanced_custom_directories_on">Bilderordner auswählen</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">Gerät automatisch durchsuchen</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Einrichtungsassistent</string>
@@ -290,7 +276,6 @@
   <string name="settings_cuc_type_title">Was soll hochgeladen werden</string>
   <string name="settings_cuc_type_photo">Nur Bilder</string>
   <string name="settings_cuc_type_video">Bilder und Videos</string>
-  <string name="settings_cuc_local_dir_title">Lokale Ordner auswählen</string>
   <plurals name="settings_cuc_local_dir_items">
     <item quantity="one">%1$d Objekt</item>
     <item quantity="other">%1$d Objekte</item>
@@ -299,14 +284,13 @@
   <string name="settings_cuc_remote_lib_account">Benutzerkonto auswählen</string>
   <string name="settings_cuc_remote_lib_repo">%s wurde ausgewählt</string>
   <string name="settings_cuc_upload_to_parent_folder">Zum übergeordneten Ordner</string>
-  <string name="settings_cuc_auto_scan">Alle Kamerabilder auf dem Gerät</string>
-  <string name="settings_cuc_pick_albums">Alben auswählen</string>
   <string name="settings_cuc_remote_lib_hint">Wählen Sie aus, welches Benutzerkonto und welche Bibliothek Sie bevorzugen.\nSie können beides in den Einstellungen jederzeit anpassen.</string>
   <string name="settings_cuc_finish_title">Beenden</string>
   <string name="settings_cuc_ready">Seafile wird nun die Dateien aus den ausgewählten Ordnern hochladen. \nSie können die App währenddessen schließen.</string>
   <string name="settings_cuc_swipe_left">Nach links Wischen um fortzufahren.</string>
   <string name="settings_cuc_click_btn">Fertig – Sie können den Einrichtungsassistenten jetzt beenden.</string>
   <string name="settings_cuc_loading">lade …</string>
+  <!--Camera Sync-->
   <string name="settings_about_title">ÜBER</string>
   <string name="settings_about_version_title">App-Version</string>
   <string name="settings_about_author_title">Autor/innen</string>
@@ -423,5 +407,5 @@
   <string name="overwrite_existing_file_exist">Die Datei ist schon vorhanden</string>
   <!--Action Mode-->
   <string name="action_mode_no_items_selected">Es wurden keine Elemente ausgewählt</string>
-  <string name="sync_provider_camera_upload">Kamerafotos und -videos</string>
+  <!--Accessibility description for navigation drawer-->
 </resources>

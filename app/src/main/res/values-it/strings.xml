@@ -10,7 +10,6 @@
   <string name="delete_file_f">Cancella file</string>
   <string name="delete_dir">Cancella cartella</string>
   <string name="server_hint">Server, come cloud.seafile.com</string>
-  <string name="email_hint">Email</string>
   <string name="passwd_hint">Password</string>
   <string name="login">Login</string>
   <string name="open_file">Apri</string>
@@ -66,8 +65,6 @@
   <string name="password_empty">Inserisci la password</string>
   <string name="wrong_password">password errata</string>
   <string name="library_read_only">Questa libreria è sola-lettura</string>
-  <string name="error_when_load_dirents">Error nel caricamento della cartella</string>
-  <string name="error_when_load_repos">Errore nel caricamento librerie</string>
   <string name="dir_empty">Questa cartella è vuota</string>
   <string name="no_repo">Non hai ancora librerie</string>
   <string name="no_app_available">Nessun app trovata</string>
@@ -75,7 +72,6 @@
   <string name="ok">OK</string>
   <string name="choose_an_account">Scegli un account</string>
   <string name="choose_a_library">Scegli una libreria</string>
-  <string name="choose_a_folder">Scegli una cartella</string>
   <string name="load_libraries_fail">Impossibile caricare le librerie</string>
   <string name="load_dir_fail">Impossibile caricare il contenuto di questa cartella</string>
   <string name="not_supported_share">Questo tipo di condivisione non è supportato</string>
@@ -141,6 +137,7 @@
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Caricamento Foto di Fotocamera</string>
   <!--Camera Upload Configuration View-->
+  <!--Camera Sync-->
   <!--pull to refresh-->
   <!--storage access framework-->
   <!--shibboleth SSO-->
@@ -153,4 +150,5 @@
   <!--Gallery-->
   <!--Overwrite existing files-->
   <!--Action Mode-->
+  <!--Accessibility description for navigation drawer-->
 </resources>

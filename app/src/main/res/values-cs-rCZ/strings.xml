@@ -10,7 +10,6 @@
   <string name="delete_file_f">Odstranit soubor</string>
   <string name="delete_dir">Odstranit složku</string>
   <string name="server_hint">Server, např. cloud.seafile.com</string>
-  <string name="email_hint">Email</string>
   <string name="passwd_hint">Heslo</string>
   <string name="login">Přihlásit</string>
   <string name="open_file">Otevřít</string>
@@ -83,8 +82,6 @@
   <string name="password_empty">Prosím, vložte heslo</string>
   <string name="wrong_password">špatné heslo</string>
   <string name="library_read_only">Tato knihovna je pouze pro čtení</string>
-  <string name="error_when_load_dirents">Chyba při načítání složky</string>
-  <string name="error_when_load_repos">Chyba při načítání knihoven</string>
   <string name="dir_empty">Tato složka je prázdná</string>
   <string name="no_repo">Zatím nemáte žádné knihovny</string>
   <string name="no_app_available">Není nalezena žádná aplikace</string>
@@ -93,7 +90,6 @@
   <string name="no_account">Prosím, nejprve nastavte účet</string>
   <string name="choose_an_account">Vyberte účet</string>
   <string name="choose_a_library">Vyberte knihovnu</string>
-  <string name="choose_a_folder">Vyberte složku</string>
   <string name="load_accounts_fail">Chyba při načítání Seafile účtů</string>
   <string name="load_libraries_fail">Chyba při načítání knihoven</string>
   <string name="load_dir_fail">Chyba při načítání obsahu této složky</string>
@@ -223,6 +219,7 @@
   <string name="settings_cuc_network_wifi">Pouze WIFI</string>
   <string name="settings_cuc_network_data_plan">WIFI a mobilní data</string>
   <string name="settings_cuc_loading">načítání...</string>
+  <!--Camera Sync-->
   <string name="settings_about_title">O PROGRAMU</string>
   <string name="settings_about_version_title">Verze aplikace</string>
   <string name="settings_about_author_title">O autorovi</string>
@@ -300,4 +297,5 @@
   <string name="overwrite_existing_file_title">Nahradit existující soubor</string>
   <string name="overwrite_existing_file_exist">Soubor již existuje</string>
   <!--Action Mode-->
+  <!--Accessibility description for navigation drawer-->
 </resources>

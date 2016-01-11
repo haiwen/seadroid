@@ -4,6 +4,7 @@
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <!--Camera Upload Preference-->
   <!--Camera Upload Configuration View-->
+  <!--Camera Sync-->
   <!--pull to refresh-->
   <!--storage access framework-->
   <!--shibboleth SSO-->
@@ -16,4 +17,5 @@
   <!--Gallery-->
   <!--Overwrite existing files-->
   <!--Action Mode-->
+  <!--Accessibility description for navigation drawer-->
 </resources>

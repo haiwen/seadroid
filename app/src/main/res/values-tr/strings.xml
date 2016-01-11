@@ -10,7 +10,6 @@
   <string name="delete_file_f">Dosyayı  sil</string>
   <string name="delete_dir">Dizini sil</string>
   <string name="server_hint">Sunucu, örneğin cloud.seafile.com</string>
-  <string name="email_hint">Eposta</string>
   <string name="passwd_hint">Şifre</string>
   <string name="login">Giriş yap</string>
   <string name="open_file">Aç</string>
@@ -68,8 +67,6 @@
   <string name="password_empty">Lütfen şifreyi girin</string>
   <string name="wrong_password">yanlış şifre</string>
   <string name="library_read_only">Bu kütüphane salt okunur</string>
-  <string name="error_when_load_dirents">Klasörü yüklerken hata</string>
-  <string name="error_when_load_repos">Klasörleri yüklerken hata</string>
   <string name="dir_empty">Bu klasör boş</string>
   <string name="no_repo">Henüz bir kütüphaneniz yok</string>
   <string name="no_app_available">Uygulama bulunamıyor</string>
@@ -77,7 +74,6 @@
   <string name="ok">Tamam</string>
   <string name="choose_an_account">Hesap seç</string>
   <string name="choose_a_library">Kütüphane seç</string>
-  <string name="choose_a_folder">Klasör seç</string>
   <string name="load_libraries_fail">Kütüphaneleri yükleme başarısız</string>
   <string name="load_dir_fail">Bu klasörün içeriğini yükleme başarısız</string>
   <string name="not_supported_share">Bu tip paylaşım desteklenmiyor</string>
@@ -175,6 +171,7 @@
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Kamera Fotoğrafı Yükle</string>
   <!--Camera Upload Configuration View-->
+  <!--Camera Sync-->
   <string name="settings_about_title">HAKKINDA</string>
   <string name="settings_about_version_title">Uygulama Versiyonu</string>
   <string name="settings_about_author_title">Yazar Hakkında</string>
@@ -206,4 +203,5 @@
   <!--Gallery-->
   <!--Overwrite existing files-->
   <!--Action Mode-->
+  <!--Accessibility description for navigation drawer-->
 </resources>

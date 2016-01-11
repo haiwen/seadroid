@@ -1,0 +1,362 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="welcome_to_seafile">Bem vindo ao Seafile</string>
+  <string name="select_account">Escolha uma conta para começar</string>
+  <string name="edit_account">Editar</string>
+  <string name="delete_account">Deletar</string>
+  <string name="delete">Deletar</string>
+  <string name="delete_file">Tem certeza que deseja deletar esse arquivo ou pasta?</string>
+  <string name="delete_successful">Deletado com sucesso</string>
+  <string name="delete_file_f">Deletar arquivo</string>
+  <string name="delete_dir">Deletar pasta</string>
+  <string name="server_hint">Servidor, como cloud.safile.com</string>
+  <string name="passwd_hint">Senha</string>
+  <string name="login">Usuario</string>
+  <string name="open_file">Abrir</string>
+  <string name="download_file">Descarregar</string>
+  <string name="redownload_file">Descarregar denovo</string>
+  <string name="cancel_download">Cancelar</string>
+  <string name="unknown_file_type">Tipo de arquivo desconhecido</string>
+  <string name="activity_not_found">Aplicativo para abrir esse arquivo não encontrado</string>
+  <string name="refresh">Recarregar</string>
+  <string name="add_account">Adicionar Conta</string>
+  <string name="personal">Pessoal</string>
+  <string name="shared">Compartilhadas</string>
+  <string name="libraries">Bibliotecas</string>
+  <string name="cached">Guardado em cache</string>
+  <string name="activities">Atividades</string>
+  <string name="pick_upload_type">Upload</string>
+  <string name="transfer_tasks">Lista de Transferencia</string>
+  <string name="accounts">Contas</string>
+  <string name="settings">Configurações</string>
+  <string-array name="pick_upload_array">
+    <item>Arquivos</item>
+    <item>Fotos/Videos</item>
+    <item>Outros</item>
+  </string-array>
+  <string name="choose_server">Escolha o Servidor Seafile</string>
+  <string name="network_down">Sem conexão com a internet</string>
+  <string name="unknow_error">Erro desconhecido</string>
+  <string name="invalid_server_address">Endereço do servidor invalido</string>
+  <string name="err_server_andress_empty">O endereço do servidor não pode ser vazio</string>
+  <string name="err_email_empty">Email não pode ser vazio</string>
+  <string name="err_passwd_empty">Senha não pode estar vazia</string>
+  <string name="err_login_failed">Autenticação falhou</string>
+  <string name="err_wrong_user_or_passwd">Email ou senha Invalidos</string>
+  <string name="err_token_expired">Autenticação expirou, por favor realize o login novamente</string>
+  <string name="upload">Upload</string>
+  <string name="uploaded">Uploaded</string>
+  <string name="updated">Atualizado</string>
+  <string name="download_failed">Download falhou</string>
+  <string name="download_waiting">Download em espera</string>
+  <string name="download_finished">Download finalizado</string>
+  <string name="download_cancelled">Download cancelado</string>
+  <string name="task_cancel">Cancelar</string>
+  <string name="task_retry">Tente novamente</string>
+  <string name="task_remove">Remover</string>
+  <string name="task_remove_all_cancelled">Remover todas as tarefas canceladas</string>
+  <string name="task_remove_all_finished">Remover todas as tarefas finalizadas</string>
+  <string name="file_action_star">Estrela</string>
+  <string name="file_action_download">Download</string>
+  <string name="file_action_update">Upload</string>
+  <string name="file_action_share">link compartilhado</string>
+  <string name="file_action_export">Exportar</string>
+  <string name="file_action_delete">Deletar</string>
+  <string name="file_action_rename">Renomear</string>
+  <string name="file_action_copy">Copiar</string>
+  <string name="file_action_move">Mover</string>
+  <string name="file_action_open_as">Abrir como</string>
+  <string name="file_action_more">Mais</string>
+  <string name="file_action_more_title">Escolha sua opção preferida</string>
+  <string-array name="file_action_more_array">
+    <item>Exportar</item>
+    <item>Copiar</item>
+    <item>Mover</item>
+    <item>Estrela</item>
+  </string-array>
+  <string-array name="file_type_array">
+    <item>Texto</item>
+    <item>Audio</item>
+    <item>Video</item>
+    <item>Imagem</item>
+    <item>Outros</item>
+  </string-array>
+  <string name="wait">Aguarde</string>
+  <string name="image_gallery_NoImageView_text">Imagem não encontrada</string>
+  <string name="pick_photo_video_title">Escolha fotos/videos para upload</string>
+  <string name="select_upload_items">Selecione os items para upload</string>
+  <string name="dir_name_empty">Por favor, insira o nome da pasta</string>
+  <string name="file_name_empty">Por favor, insira o nome do arquivo</string>
+  <string name="password_empty">Por favor insira a senha</string>
+  <string name="wrong_password">senha incorreta</string>
+  <string name="library_read_only">Essa biblioteca é somente leitura</string>
+  <string name="dir_empty">A pasta esta vazia</string>
+  <string name="no_repo">Você não tem bibliotecas ainda</string>
+  <string name="no_app_available">Nenhum app pôde ser encontrado</string>
+  <string name="add_to_seafile">Adicionar ao Seafile</string>
+  <string name="ok">OK</string>
+  <string name="no_account">Por favor configure uma conta Seafile primeiro</string>
+  <string name="choose_an_account">Escolha sua Conta</string>
+  <string name="choose_a_library">Escolha a Biblioteca</string>
+  <string name="load_accounts_fail">Falha ao carregar  as contas Seafile</string>
+  <string name="load_libraries_fail">Falha ao carregar as bibliotecas</string>
+  <string name="load_dir_fail">Falha ao carregar o conteúdo desta pasta</string>
+  <string name="not_supported_share">Este tipo de ação não é suportada</string>
+  <string name="download_folder">Download de pasta</string>
+  <string name="download_folder_title">Escolha sua opção preferida</string>
+  <string-array name="download_folder_options_array">
+    <item>Pasta de downloads</item>
+    <item>Pasta de downloads e subpastas</item>
+  </string-array>
+  <string name="create_new_file">Criar novo arquivo</string>
+  <string name="create_new_dir">Criar nova pasta</string>
+  <string name="camera">Tire uma foto aqui</string>
+  <string name="download">Download</string>
+  <string name="open">Abrir</string>
+  <string name="last_modified">Ultima modificação</string>
+  <string name="file_modified">Modificado</string>
+  <string name="file_size">Tamanho do arquivo</string>
+  <string name="library_not_found">A biblioteca foi deletada</string>
+  <string name="export_file">Exportar este arquivo</string>
+  <string name="no_upload_tasks">Sem tarefas de upload ainda</string>
+  <string name="no_download_tasks">Sem tarefas de download ainda</string>
+  <string name="seahub_url_hint">Nota: endereço do servidor deve conter a porta. Por exemplo, www.example.com:8000</string>
+  <string name="copy_link">Copiar link</string>
+  <string name="share_file_link">Compartilhar o link para este arquivo</string>
+  <string name="share_dir_link">Compartilhar o link para esta pasta</string>
+  <string name="generating_link">Gerar link...</string>
+  <string name="link_ready_to_be_pasted">O link está pronto para ser colado.</string>
+  <string name="rename_file">Renomear arquivo</string>
+  <string name="rename_dir">Renomear pasta</string>
+  <string name="rename_successful">Renomeado com sucesso</string>
+  <string name="no_starred_file">Nenhum arquivo selecionado ainda</string>
+  <string name="added_to_upload_tasks">Upload iniciado</string>
+  <string name="added_photo_to_upload_tasks">Upload de foto iniciado</string>
+  <string name="take_photo_successfully">foto tirada com sucesso</string>
+  <string name="tabs_library">Bibliotecas</string>
+  <string name="tabs_activity">Atividades</string>
+  <string name="tabs_starred">Marcado</string>
+  <string name="provide_password">Insira uma senha  para a biblioteca \"%s\"</string>
+  <string name="upload_waiting">Aguardando upload</string>
+  <string name="upload_finished">Upload terminado</string>
+  <string name="upload_cancelled">Upload cancelado</string>
+  <string name="upload_failed">Upload falhou</string>
+  <string name="days_ago">%d dias atras</string>
+  <string name="hours_ago">%d horas atrás</string>
+  <string name="minutes_ago">%d minutos atrás</string>
+  <string name="seconds_ago">%d segundos atrás</string>
+  <string name="just_now">Agora</string>
+  <string name="error_when_load_starred">Erro ao carregar os arquivos marcados</string>
+  <string name="open_as">Abrir como</string>
+  <string name="select_upload_files">Selecione  os arquivos para o upload</string>
+  <string name="storage_removed">Armazenamento  foi removido</string>
+  <string name="error_selecting_file">Erro ao selecionar arquivo</string>
+  <string name="empty_folder">Pasta vazia</string>
+  <string name="choose_file">Escolha o arquivo</string>
+  <string name="ssl_error">Checagem de segurança falhou</string>
+  <string name="ssl_confirm">O certificado de segurança do  %s  nao é confiavel. Deseja continuar?</string>
+  <string name="ssl_confirm_cert_changed">%s usa um certificado de seguranca invalido, A conexão não é segura.Tem certeza que deseja continuar?</string>
+  <string name="ssl_confirm_title">Conexão não confiavel</string>
+  <string name="issued_to">Concedido a</string>
+  <string name="finger_prints">impressões digitais</string>
+  <string name="period_of_validity">Periodo de validade</string>
+  <string name="sha1">SHA-1 %s</string>
+  <string name="md5">MD5 %s</string>
+  <string name="not_available">Não disponivel</string>
+  <string name="serial_number">Numero Serial %s</string>
+  <string name="not_before">Valido para %s</string>
+  <string name="not_after">Valido até %s</string>
+  <string name="yes">Sim</string>
+  <string name="no">Não</string>
+  <string name="remember_my_choice">Lembrar minha escolha</string>
+  <string name="copied_successfully">Copiado com sucesso</string>
+  <string name="moved_successfully">Movido com sucesso</string>
+  <string name="internal_server_error">Erro interno do servidor</string>
+  <string name="copy_file_ing">Copiando arquivo</string>
+  <string name="move_file_ing">Movendo arquivo</string>
+  <string name="copy_folder_ing">Copiando a pasta</string>
+  <string name="move_folder_ing">Movendo a pasta</string>
+  <string name="upload_started">Upload começou</string>
+  <string name="cannot_copy_folder_to_subfolder">Você não pode copiar uma pasta para sua subpasta</string>
+  <string name="cannot_move_folder_to_subfolder">Você não pode mover uma pasta para sua subpasta</string>
+  <string name="cancel">Cancelar</string>
+  <string name="confirm">Confirmar</string>
+  <string name="settings_account">Conta</string>
+  <string name="settings_account_info_title">Informação do Usuario</string>
+  <string name="settings_account_info_load_data">Carregando...</string>
+  <string name="settings_account_space_title">Espaço usado</string>
+  <string name="settings_account_sign_out_title">Sair</string>
+  <string name="settings_account_sign_out_hint">Clique para sair</string>
+  <string name="settings_account_sign_out_confirm">Voce deseja sair?</string>
+  <string name="security">Segurança</string>
+  <string name="gesture_lock">Gestão de travas</string>
+  <string name="gesture_lock_on">Gestao de travas  ligado</string>
+  <string name="gesture_lock_off">Gestão de travas desligado</string>
+  <string name="lockscreen_access_pattern_hint">Por favor desenhe o modelo de trava de gestos</string>
+  <string name="lockscreen_access_pattern_start">Comece a desenhar</string>
+  <string name="lockscreen_access_pattern_cleared">Modelo limpo</string>
+  <string name="lockscreen_access_pattern_cell_added">Modelo de celula adicionado</string>
+  <string name="lockscreen_access_pattern_detected">Modelo detectado</string>
+  <string name="lockscreen_access_pattern_passwd_forget">Esqueci a Senha</string>
+  <string name="lockscreen_access_pattern_failure">Falhou 5 vezes, por favor aguarde 30 segundos antes de tentar novamente</string>
+  <string name="lockscreen_access_pattern_failure_not_long_enough">Ligacao dos pontos não  foi suficientemente longa, por favor tente novamente</string>
+  <string name="lockpattern_retry_button_text">tentar novamente</string>
+  <string name="lockpattern_continue_button_text">Proximo</string>
+  <string name="lockpattern_confirm_button_text">OK</string>
+  <string name="lockpattern_recording_intro_header">Por favor desenhe o modelo  da trava de gestos</string>
+  <string name="lockpattern_settings_help_how_to_record">Aprenda como desenhar  o modelo de trava de gestos</string>
+  <string name="lockpattern_recording_incorrect_too_short">Deslize através de pelo menos 4 pontos, tente novamente!</string>
+  <string name="lockpattern_pattern_entered_header">Padrão salvo</string>
+  <string name="lockpattern_need_to_draw">Por favor desenhe o modelo de trava de gestão</string>
+  <string name="lockpattern_need_to_confirm">Por favor confirme seu modelo</string>
+  <string name="lockpattern_need_to_unlock_wrong">Modelos não coincidem. Tente novamente.</string>
+  <string name="lockpattern_pattern_confirmed_header">Clique em OK para salvar seu modelo</string>
+  <string name="lockpattern_recording_inprogress">Solte o dedo quando terminar o desenho</string>
+  <string name="lockpattern_pattern_toast_saved">Modelo de trava de gestos salva com sucesso</string>
+  <!--Strings for possible PreferenceActivity Back/Next buttons-->
+  <string name="back_button_label">Voltar</string>
+  <string name="next_button_label">Proximo</string>
+  <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
+  <string name="skip_button_label">Pular</string>
+  <!--Camera Upload Preference-->
+  <string name="settings_camera_upload_info_title">Camera carregamento de foto</string>
+  <string name="settings_camera_upload_service_started">Servico de upload iniciado</string>
+  <string name="settings_camera_upload_service_stopped">Servico de upload parado</string>
+  <string name="settings_camera_upload_allow_data_plan">Liberar plano de dados</string>
+  <string name="settings_camera_upload_allow_videos">Liberar upload de videos</string>
+  <string name="settings_camera_upload_default_wifi">Usar Wi-Fi  somente por default</string>
+  <string name="settings_camera_upload_data_plan_allowed">Plano de dados liberado</string>
+  <string name="settings_camera_upload_default_photos">Carregue fotos somente por padrão</string>
+  <string name="settings_camera_upload_videos_allowed">Videos incluidos</string>
+  <string name="settings_camera_upload_change_repo_title">Mudar upload de biblioteca</string>
+  <string name="settings_camera_upload_repo_hint">Por favor selecione a biblioteca primeiro</string>
+  <string name="settings_camera_upload_turn_on">Ligue o upload da camera</string>
+  <string name="settings_camera_upload_dir_auto_scan">Auto scan fotos por default</string>
+  <string name="settings_camera_upload_lib_not_found">A biblioteca selecionada nao existe</string>
+  <string name="settings_camera_upload_advanced_feature_title">Opções avançadas</string>
+  <string name="settings_camera_upload_advanced_feature_subtitle">Opções customizadas de upload</string>
+  <string name="settings_camera_upload_advanced_custom_directories_off">Auto scan do dispositivo</string>
+  <!--Camera Upload Configuration View-->
+  <string name="settings_cuc_title">Ajudante de configuração</string>
+  <string name="settings_cuc_welcome_text">Obrigado por utilizar o ajudante de configuração para upload de camera. \ nPara ajudar você a começar com o serviço de upload câmera, você será guiado através de alguns passos iniciais.</string>
+  <string name="settings_cuc_network_title">Como Realizar upload</string>
+  <string name="settings_cuc_network_wifi">Somente Wi-Fi</string>
+  <string name="settings_cuc_network_data_plan">Wi-Fi ou plano de dados</string>
+  <string name="settings_cuc_option_hint">Escolha a sua opção preferida. \ n Você pode alterar essas opções mais tarde em Configurações.</string>
+  <string name="settings_cuc_type_title">Fazer o upload de</string>
+  <string name="settings_cuc_type_photo">Somente fotos</string>
+  <string name="settings_cuc_type_video">Fotos e Videos</string>
+  <string name="settings_cuc_remote_lib_title">Selecione  uma bliblioteca remota</string>
+  <string name="settings_cuc_remote_lib_account">Escolha uma conta</string>
+  <string name="settings_cuc_remote_lib_repo">%s foi selecionado</string>
+  <string name="settings_cuc_upload_to_parent_folder">Subir pasta</string>
+  <string name="settings_cuc_remote_lib_hint">Escolha a sua conta e biblioteca preferida. \ n Você pode alterar essas opções mais tarde em Configurações.</string>
+  <string name="settings_cuc_finish_title">Finalizar</string>
+  <string name="settings_cuc_ready">Seafile vai agora fazer upload de arquivos de suas pastas selecionadas. \n sinta se livre para fechar o aplicativo durante este processo.</string>
+  <string name="settings_cuc_swipe_left">Deslize para a esquerda para continuar.</string>
+  <string name="settings_cuc_click_btn">Clique para fechar  o ajudante de configuração</string>
+  <string name="settings_cuc_loading">carregando...</string>
+  <!--Camera Sync-->
+  <string name="settings_about_title">Sobre</string>
+  <string name="settings_about_version_title">Versão do App</string>
+  <string name="settings_about_author_title">Sobre o Autor</string>
+  <string name="settings_about_author_info">
+<![CDATA[
+<h5>Seafile cliente android</h5>
+<p>%s</p>
+<h5>Contate nos</h5>
+<p>
+Twitter: Seafile<br>
+Email: support@seafile.com<br>
+</p>
+<h5>Contribution</h5>
+<p>https://github.com/haiwen/seadroid.git</P>
+<h5>Copyright ©2013-2015 Seafile Ltd.</h5>
+]]></string>
+  <string name="settings_advance_feature_title">Recurso Avançado</string>
+  <string name="settings_cache_title">Tamanho de cache</string>
+  <string name="settings_clear_cache_title">Limpar cache</string>
+  <string name="settings_clear_cache_hint">Você quer limpar o cache?</string>
+  <string name="settings_clear_cache_success">Cache limpo com êxito</string>
+  <string name="settings_clear_cache_failed">Falha na limpeza do cache</string>
+  <string name="settings_cache_empty">0 KB</string>
+  <!--pull to refresh-->
+  <string name="pull_to_refresh_pull_label">Puxe para atualizar...</string>
+  <string name="pull_to_refresh_release_label">Solte para atualizar</string>
+  <string name="pull_to_refresh_refreshing_label">Carregando...</string>
+  <string name="pull_to_refresh_last_update">Ultima atualização:</string>
+  <string name="pull_to_refresh_last_update_seconds_ago">%d segundos atrás</string>
+  <string name="pull_to_refresh_last_update_minutes_ago">%d minutos atrás</string>
+  <string name="pull_to_refresh_last_update_hours_ago">%d horas atrás</string>
+  <!--storage access framework-->
+  <string name="saf_open_file_exception">Não é possivel abrir o arquivo %s</string>
+  <string name="saf_open_directory_exception">Não é possivel abriri o diretorio</string>
+  <string name="saf_file_not_cached_exception">Arquivo %s nao esta em cache</string>
+  <string name="saf_thumbnail_not_found_exception">Não foi possivel localizar/abrir  miniatura %s</string>
+  <string name="saf_file_not_downloaded_exception">Não é possivel baixar o arquivo %s do servidor</string>
+  <string name="saf_write_diretory_exception">Não é possivel abrir o diretório  para leitura / escrita.</string>
+  <string name="saf_account_not_found_exception">Conta Seafile  não encontrada</string>
+  <string name="saf_upload_path_not_available">Não é possível carregar, nenhum caminho disponível</string>
+  <string name="saf_failed_to_create_directory">Não foi possível criar o diretório %s</string>
+  <string name="saf_file_exist">Arquivo ja existe</string>
+  <string name="saf_bad_mime_type">Tipo de requisição invalido</string>
+  <!--shibboleth SSO-->
+  <string name="shib_server_url_empty">O Servidor esta vazio</string>
+  <string name="shib_server_incorrect_prefix">Servidor deve começar com http: // ou https: //</string>
+  <string name="shib_load_page_error">Erro:</string>
+  <string name="shib_login_title">Shibboleth Login</string>
+  <string name="shib_server_hint">Servidor de entrada...</string>
+  <string name="shib_actionbar_title">Login com Shibboleth</string>
+  <string name="shib_loading">carregando...</string>
+  <!--Transfer List-->
+  <string name="transfer_list_network_error">Erro de conexão com internet, por favor tente novamente mais tarde</string>
+  <string name="transfer_list_cancel_all">Cancelar todas as tarefas</string>
+  <string name="transfer_list_restart_all">Recomecar</string>
+  <string name="transfer_list_retry_failed_tasks">Repetir tarefas que falharam</string>
+  <string name="transfer_list_restart_cancelled_tasks">Reiniciar tarefas canceladas</string>
+  <string name="transfer_list_clear_failed_tasks">Limpar tarefas que falharam</string>
+  <string name="transfer_list_clear_finished_tasks">Limpar tarefas finalizadas</string>
+  <string name="transfer_tabs_downloads">Lista de Downloads</string>
+  <string name="transfer_tabs_uploads">Lista de Upload</string>
+  <string name="transfer_download_no_task">Todas os arquivos foram baixados</string>
+  <string name="transfer_list_select_all">Selecionar tudo</string>
+  <string name="transfer_list_deselect_all">Deselecionar tudo</string>
+  <plurals name="transfer_list_items_selected">
+    <item quantity="one">%d item selecionado</item>
+    <item quantity="other">%d items selecionados</item>
+  </plurals>
+  <!--Sort-->
+  <string name="sort_menu_item">Ordenar</string>
+  <string name="sort_files">Ordenar por</string>
+  <string-array name="sort_files_options_array">
+    <item>Nome</item>
+    <item>Nome (Desc)</item>
+    <item>Hora da ultima modificação</item>
+    <item>Hora da ultima modificação (Desc)</item>
+  </string-array>
+  <!--Search-->
+  <string name="search_menu_item">Procurar</string>
+  <string name="search_bar_hint">Procurando</string>
+  <string name="search_txt_empty">Por favor, entre com palavras-chave </string>
+  <string name="search_content_empty">Nada encontrado</string>
+  <string name="search_server_not_support">Oops , procura não suportada nesse servidor</string>
+  <string name="search_library_not_found">Não foi possível localizar essa biblioteca. Ele pode ser excluída</string>
+  <!--star a file-->
+  <string name="star_file_succeed">Arquivo marcado com sucesso</string>
+  <string name="star_file_failed">Falha na marcação de arquivo</string>
+  <!--unstar a file-->
+  <!--notification bar-->
+  <string name="notification_upload_started_title">Carregando arquivos</string>
+  <string name="notification_download_started_title">Baixando Arquivos</string>
+  <string name="notification_upload_completed">Upload Completo</string>
+  <string name="notification_download_completed">Download completado</string>
+  <!--Gallery-->
+  <string name="gallery_load_photos_error">Erro no carregamento das fotos</string>
+  <string name="gallery_encrypted_repo_not_supported">Biblioteca encriptada não é suportada</string>
+  <!--Overwrite existing files-->
+  <string name="overwrite_existing_file_title">Substituir arquivo existente</string>
+  <string name="overwrite_existing_file_msg">O arquivo ja existe , deseja substitui-lo?</string>
+  <string name="overwrite_existing_file_exist">O arquivo já existe</string>
+  <!--Action Mode-->
+  <!--Accessibility description for navigation drawer-->
+</resources>

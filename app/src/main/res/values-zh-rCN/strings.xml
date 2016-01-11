@@ -10,7 +10,7 @@
   <string name="delete_file_f">删除文件</string>
   <string name="delete_dir">删除文件夹</string>
   <string name="server_hint">服务器地址, 比如cloud.seafile.com</string>
-  <string name="email_hint">电子邮箱</string>
+  <string name="email_hint">用户名或邮箱</string>
   <string name="passwd_hint">密码</string>
   <string name="login">登录</string>
   <string name="open_file">打开</string>
@@ -38,9 +38,9 @@
   <string name="choose_server">请选择一个Seafile服务器</string>
   <string-array name="choose_server_array">
     <item>SeaCloud.cc</item>
-    <item>Cloud.seafile.de</item>
+    <item>App.seafile.de</item>
     <item>Shibboleth登录</item>
-    <item>其他Seafile Server</item>
+    <item>其他Seafile服务器</item>
   </string-array>
   <string name="network_down">无网络连接</string>
   <string name="unknow_error">未知错误</string>
@@ -100,8 +100,8 @@
   <string name="password_empty">请输入您的密码</string>
   <string name="wrong_password">密码错误</string>
   <string name="library_read_only">这个资料库是只读的</string>
-  <string name="error_when_load_dirents">加载文件夹内容时失败</string>
-  <string name="error_when_load_repos">加载资料库时失败</string>
+  <string name="error_when_load_dirents">文件夹数据加载出错.\n 点击刷新</string>
+  <string name="error_when_load_repos">资料库数据加载出错.\n 点击刷新</string>
   <string name="dir_empty">此文件夹是空的</string>
   <string name="no_repo">无资料库</string>
   <string name="no_app_available">没有找到应用</string>
@@ -110,7 +110,6 @@
   <string name="no_account">首先请在Seafile上创建一个账户</string>
   <string name="choose_an_account">请选择一个账户</string>
   <string name="choose_a_library">请选择一个资料库</string>
-  <string name="choose_a_folder">请选择一个文件夹</string>
   <string name="load_accounts_fail">加载Seafile账户失败</string>
   <string name="load_libraries_fail">加载资料库失败</string>
   <string name="load_dir_fail">加载此文件夹的内容失败</string>
@@ -270,14 +269,13 @@
   <string name="settings_camera_upload_change_repo_title">更改上传资料库</string>
   <string name="settings_camera_upload_repo_hint">请先选择一个资料库来上传照片</string>
   <string name="settings_camera_upload_turn_on">打开照片上传</string>
-  <string name="settings_camera_upload_choose_dir">更改本地上传文件夹</string>
+  <string name="settings_camera_upload_choose_dir">更改相册</string>
   <string name="settings_camera_upload_dir_auto_scan">默认自动扫描照片</string>
-  <string name="settings_camera_upload_dir_custom">扫描指定的文件夹</string>
   <string name="settings_camera_upload_lib_not_found">资料库不存在</string>
   <string name="settings_camera_upload_advanced_feature_title">高级选项</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">更改上传设置</string>
-  <string name="settings_camera_upload_advanced_custom_directories">更改上传文件夹</string>
-  <string name="settings_camera_upload_advanced_custom_directories_on">自定义图片文件夹</string>
+  <string name="settings_camera_upload_advanced_custom_directories">选择上传相册</string>
+  <string name="settings_camera_upload_advanced_custom_directories_on">选择备份相册</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">自动扫描设备</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">配置助手</string>
@@ -289,7 +287,7 @@
   <string name="settings_cuc_type_title">上传内容</string>
   <string name="settings_cuc_type_photo">仅上传图片</string>
   <string name="settings_cuc_type_video">上传图片和视频</string>
-  <string name="settings_cuc_local_dir_title">选择本地文件夹</string>
+  <string name="settings_cuc_local_dir_title">选择相册</string>
   <plurals name="settings_cuc_local_dir_items">
     <item quantity="other">%1$d个文件</item>
   </plurals>
@@ -297,14 +295,20 @@
   <string name="settings_cuc_remote_lib_account">请选择一个账户</string>
   <string name="settings_cuc_remote_lib_repo">%s被选中</string>
   <string name="settings_cuc_upload_to_parent_folder">上一级</string>
-  <string name="settings_cuc_auto_scan">自动获取设备上的图片</string>
-  <string name="settings_cuc_pick_dir">自定义图片路径</string>
+  <string name="settings_cuc_auto_scan">自动备份默认相册</string>
+  <string name="settings_cuc_pick_albums">选择备份相册</string>
   <string name="settings_cuc_remote_lib_hint">选择你要配置的选项，这些设置以后可以在设置菜单里修改。</string>
   <string name="settings_cuc_finish_title">完成</string>
   <string name="settings_cuc_ready">Seafile将会从你指定的文件夹上传文件，在这个过程中你可以随时关闭该应用</string>
   <string name="settings_cuc_swipe_left">向左滑进入下一步</string>
   <string name="settings_cuc_click_btn">点击按钮关闭配置助手</string>
   <string name="settings_cuc_loading">加载中...</string>
+  <!--Camera Sync-->
+  <string name="sync_provider_camera_upload">照片和视频</string>
+  <string name="camera_sync_notification_title_failed">照片上传失败</string>
+  <string name="camera_sync_notification_repo_missing_failed">服务器上不存在该资料库</string>
+  <string name="camera_sync_notification_auth_error_failed">授权失败</string>
+  <string name="camera_sync_rename_file"> (由Seafile重命名为)%s</string>
   <string name="settings_about_title">关于</string>
   <string name="settings_about_version_title">应用版本号</string>
   <string name="settings_about_author_title">关于我们</string>
@@ -418,4 +422,5 @@
   <string name="overwrite_existing_file_exist">该文件已经存在</string>
   <!--Action Mode-->
   <string name="action_mode_no_items_selected">未选中任何文件</string>
+  <!--Accessibility description for navigation drawer-->
 </resources>

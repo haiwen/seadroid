@@ -10,7 +10,7 @@
   <string name="delete_file_f">Удалить файл</string>
   <string name="delete_dir">Удалить папку</string>
   <string name="server_hint">Сервер, как cloud.seafile.com</string>
-  <string name="email_hint">Email</string>
+  <string name="email_hint">Логин или email</string>
   <string name="passwd_hint">Пароль</string>
   <string name="login">Войти</string>
   <string name="open_file">Открыть</string>
@@ -38,8 +38,8 @@
   <string name="choose_server">Выберите сервер Seafile</string>
   <string-array name="choose_server_array">
     <item>SeaCloud.cc</item>
-    <item>Cloud.seafile.de</item>
-    <item>Shibboleth</item>
+    <item>App.seafile.de</item>
+    <item>Shibboleth Login</item>
     <item>Другой Seafile сервер</item>
   </string-array>
   <string name="network_down">Нет соединения с сетью</string>
@@ -103,8 +103,6 @@
   <string name="password_empty">Пожалуйста, введите пароль</string>
   <string name="wrong_password">неправильный пароль</string>
   <string name="library_read_only">Эта библиотека только для чтения</string>
-  <string name="error_when_load_dirents">Ошибка загрузки папки</string>
-  <string name="error_when_load_repos">Ошибка загрузки библиотек</string>
   <string name="dir_empty">Эта папка пуста</string>
   <string name="no_repo">У вас еще нет библиотек</string>
   <string name="no_app_available">Не найдено ни одно приложение</string>
@@ -113,7 +111,6 @@
   <string name="no_account">Пожалуйста, сначала добавьте аккаунт в Seafile</string>
   <string name="choose_an_account">Выберите аккаунт</string>
   <string name="choose_a_library">Выберите библиотеку</string>
-  <string name="choose_a_folder">Выберите папку</string>
   <string name="load_accounts_fail">Не удалось загрузить аккаунты Seafile</string>
   <string name="load_libraries_fail">Не удалось загрузить библиотеки</string>
   <string name="load_dir_fail">Не удалось загрузить содержимое этой папки</string>
@@ -282,14 +279,10 @@
   <string name="settings_camera_upload_change_repo_title">Изменить папку загрузки</string>
   <string name="settings_camera_upload_repo_hint">Пожалуйста, сначала выберите библиотеку</string>
   <string name="settings_camera_upload_turn_on">Включить загрузку с камеры</string>
-  <string name="settings_camera_upload_choose_dir">Изменить локальные папки</string>
   <string name="settings_camera_upload_dir_auto_scan">Автоматическое сканирование фото по умолчанию</string>
-  <string name="settings_camera_upload_dir_custom">Сканировать выделенные папки</string>
   <string name="settings_camera_upload_lib_not_found">Выбранная библиотека не существует</string>
   <string name="settings_camera_upload_advanced_feature_title">Дополнительные опции</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Пользовательские опции загрузки</string>
-  <string name="settings_camera_upload_advanced_custom_directories">Пользовательские папки для загрузки</string>
-  <string name="settings_camera_upload_advanced_custom_directories_on">Папки для загрузки фото</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">Автоматическое сканирование устройства</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Помощник по настройке</string>
@@ -301,7 +294,6 @@
   <string name="settings_cuc_type_title">Что загружать</string>
   <string name="settings_cuc_type_photo">Только фото</string>
   <string name="settings_cuc_type_video">Фото и видео</string>
-  <string name="settings_cuc_local_dir_title">Выбрать локальные папки</string>
   <plurals name="settings_cuc_local_dir_items">
     <item quantity="one">%1$d элемент</item>
     <item quantity="few">%1$d элементов</item>
@@ -312,14 +304,13 @@
   <string name="settings_cuc_remote_lib_account">Выберите аккаунт</string>
   <string name="settings_cuc_remote_lib_repo">%s выбранных элементов</string>
   <string name="settings_cuc_upload_to_parent_folder">К родительской папке</string>
-  <string name="settings_cuc_auto_scan">Получить все фото на устройстве</string>
-  <string name="settings_cuc_pick_dir">Позволить мне выбрать папки с фото</string>
   <string name="settings_cuc_remote_lib_hint">Выберите нужный аккаунт и библиотеку. \nВы можете изменить эти параметры позже в меню Настройки.</string>
   <string name="settings_cuc_finish_title">Завершить</string>
   <string name="settings_cuc_ready">Теперь Seafile будет загружать файлы из выбранных вами папок. \nВо время этого вы можете закрыть приложение.</string>
   <string name="settings_cuc_swipe_left">Проведите влево, чтобы продолжить.</string>
   <string name="settings_cuc_click_btn">Щелкните, чтобы закрыть помощник.</string>
   <string name="settings_cuc_loading">загрузка...</string>
+  <!--Camera Sync-->
   <string name="settings_about_title">О ПРИЛОЖЕНИИ</string>
   <string name="settings_about_version_title">Версия</string>
   <string name="settings_about_author_title">Об авторе</string>
@@ -445,4 +436,5 @@ Email: support@seafile.com<br>
   <string name="overwrite_existing_file_exist">Файл уже сущетсвует</string>
   <!--Action Mode-->
   <string name="action_mode_no_items_selected">Нет выбранных элементов</string>
+  <!--Accessibility description for navigation drawer-->
 </resources>
