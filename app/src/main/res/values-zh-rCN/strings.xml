@@ -110,6 +110,7 @@
   <string name="no_account">首先请在Seafile上创建一个账户</string>
   <string name="choose_an_account">请选择一个账户</string>
   <string name="choose_a_library">请选择一个资料库</string>
+  <string name="choose_a_folder">请选择一个文件夹</string>
   <string name="load_accounts_fail">加载Seafile账户失败</string>
   <string name="load_libraries_fail">加载资料库失败</string>
   <string name="load_dir_fail">加载此文件夹的内容失败</string>
