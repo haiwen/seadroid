@@ -72,14 +72,14 @@
                 </CheckBoxPreference>
                 <com.seafile.seadroid2.ui.SwitchPreferenceCompat
                         android:defaultValue="false"
-                        android:key="camera_upload_directory_switch_key"
+                        android:key="camera_upload_buckets_switch_key"
                         android:summaryOff="@string/settings_camera_upload_advanced_custom_directories_off"
                         android:summaryOn="@string/settings_camera_upload_advanced_custom_directories_on"
                         android:title="@string/settings_camera_upload_advanced_custom_directories"
                         >
                 </com.seafile.seadroid2.ui.SwitchPreferenceCompat>
                 <Preference
-                        android:key="camera_upload_directory_key"
+                        android:key="camera_upload_buckets_key"
                         android:summary="@string/settings_camera_upload_dir_auto_scan"
                         android:title="@string/settings_camera_upload_choose_dir" >
                 </Preference>

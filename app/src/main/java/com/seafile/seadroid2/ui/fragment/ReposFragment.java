@@ -941,8 +941,10 @@ public class ReposFragment extends ListFragment {
      */
     private void logoutWhenTokenExpired() {
         AccountManager accountMgr = new AccountManager(mActivity);
+
         // sign out current account
-        accountMgr.signOutCurrentAccount();
+        Account account = accountMgr.getCurrentAccount();
+        accountMgr.signOutAccount(account);
 
         // then redirect to AccountsActivity
         Intent intent = new Intent(mActivity, AccountsActivity.class);

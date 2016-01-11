@@ -618,7 +618,7 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                accounts = accountManager.getAccountList();
+                accounts = accountManager.getSignedInAccountList();
             } catch (Exception e) {
                 err = e;
             }

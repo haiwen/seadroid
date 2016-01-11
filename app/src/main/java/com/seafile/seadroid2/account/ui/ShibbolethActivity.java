@@ -1,4 +1,4 @@
-package com.seafile.seadroid2.ui.activity;
+package com.seafile.seadroid2.account.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,8 +11,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.ui.ToastUtils;
+import com.seafile.seadroid2.ui.activity.BaseActivity;
 
 /**
  * Shibboleth welcome page
@@ -28,6 +30,8 @@ public class ShibbolethActivity extends BaseActivity implements Toolbar.OnMenuIt
     private Button mNextBtn;
     private CheckBox mHttpPrefixCb;
     private EditText mServerUrlEt;
+
+    private static final int SHIBBOLETH_AUTH = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -157,7 +161,17 @@ public class ShibbolethActivity extends BaseActivity implements Toolbar.OnMenuIt
     private void openAuthorizePage(String serverUrl) {
         Intent intent = new Intent(ShibbolethActivity.this, ShibbolethAuthorizeActivity.class);
         intent.putExtra(SHIBBOLETH_SERVER_URL, serverUrl);
-        startActivity(intent);
-        finish();
+        intent.putExtras(getIntent());
+        startActivityForResult(intent, SHIBBOLETH_AUTH);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(DEBUG_TAG, "onActivityResult");
+
+        // pass auth result back to the SeafileAuthenticatorActivity
+        if (requestCode == SHIBBOLETH_AUTH) {
+            setResult(resultCode, data);
+        }
     }
 }

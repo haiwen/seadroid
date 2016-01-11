@@ -40,7 +40,7 @@ public class CloudLibraryFragment extends Fragment {
     private View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            mActivity.startCameraUploadService();
+            mActivity.saveSettings();
             mActivity.finish();
         }
     };
