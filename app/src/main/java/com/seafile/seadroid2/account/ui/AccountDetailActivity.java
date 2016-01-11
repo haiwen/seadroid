@@ -365,7 +365,6 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
             } else {
                 statusView.setText(result);
             }
-            setSupportProgressBarIndeterminateVisibility(false);
             loginButton.setEnabled(true);
         }
 
