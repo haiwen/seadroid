@@ -10,6 +10,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
@@ -294,7 +295,7 @@ public class TransferTaskAdapter extends BaseAdapter {
         } else if (mTransferTaskType.equals(TaskType.UPLOAD_TASK)) {
             UploadTaskInfo taskInfo = (UploadTaskInfo) mTransferTaskInfos.get(position);
             iconID = Utils.getFileIcon(taskInfo.localFilePath);
-            String fullpath = taskInfo.repoName + taskInfo.parentDir;
+            String fullpath = Utils.pathJoin(taskInfo.repoName, taskInfo.parentDir);
             // the three fileds is not dynamic
             viewHolder.icon.setImageResource(iconID);
             viewHolder.targetPath.setText(fullpath);
