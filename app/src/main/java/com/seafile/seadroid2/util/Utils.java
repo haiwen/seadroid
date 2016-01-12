@@ -736,4 +736,19 @@ public class Utils {
     public final static boolean isValidEmail(CharSequence target) {
         return !TextUtils.isEmpty(target) && android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
     }
+
+    private static long lastClickTime;
+
+    /**
+     * check if click event is a fast tapping
+     * @return
+     */
+    public static boolean isFastTapping() {
+        long time = System.currentTimeMillis();
+        if (time - lastClickTime < 500) {
+            return true;
+        }
+        lastClickTime = time;
+        return false;
+    }
 }
