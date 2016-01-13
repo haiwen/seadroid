@@ -74,15 +74,30 @@ public class TransferService extends Service {
     }
 
     // -------------------------- upload task --------------------//
+
+    /**
+     * Call this method to handle upload request, like file upload or camera upload.
+     * Uploading tasks are managed in a queue.
+     *
+     * Note: use isCopyToLocal to mark automatic camera upload if false, or file upload if true.
+     * @param account
+     * @param repoID
+     * @param repoName
+     * @param dir
+     * @param filePath
+     * @param isUpdate
+     * @param isCopyToLocal
+     * @return
+     */
     public int addTaskToUploadQue(Account account, String repoID, String repoName, String dir,
                              String filePath, boolean isUpdate, boolean isCopyToLocal) {
         return uploadTaskManager.addTaskToQue(account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal);
     }
 
     /**
-     * call this method to handle upload request, like file upload or camera upload.
+     * Call this method to handle upload request, like file upload or camera upload.
      *
-     * Note: use isCopyToLocal to mark automatic camera upload if true, or file upload if false.
+     * Note: use isCopyToLocal to mark automatic camera upload if false, or file upload if true.
      * @param account
      * @param repoID
      * @param repoName
