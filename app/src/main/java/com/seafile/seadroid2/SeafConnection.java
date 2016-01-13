@@ -1,22 +1,5 @@
 package com.seafile.seadroid2;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URLEncoder;
-import java.util.Map;
-
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLHandshakeException;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -33,6 +16,23 @@ import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.ProgressMonitor;
 import com.seafile.seadroid2.ssl.SSLTrustManager;
 import com.seafile.seadroid2.util.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URLEncoder;
+import java.util.Map;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLHandshakeException;
 
 /**
  * SeafConnection encapsulates Seafile Web API
@@ -109,7 +109,19 @@ public class SeafConnection {
      */
     private HttpRequest prepareApiPostRequest(String apiPath, boolean withToken, Map<String, ?> params)
                                             throws HttpRequestException {
-        HttpRequest req = HttpRequest.post(account.server + apiPath, params, true)
+        return prepareApiPostRequest(apiPath, withToken, params, true);
+    }
+
+    /** Prepare a post request.
+     *  @param apiPath The path of the http request
+     *  @param withToken
+     *  @param params The query param to be appended to the request url
+     *  @param encode true to encode the full URL
+     *  @throws IOException
+     */
+    private HttpRequest prepareApiPostRequest(String apiPath, boolean withToken, Map<String, ?> params, boolean encode)
+                                            throws HttpRequestException {
+        HttpRequest req = HttpRequest.post(account.server + apiPath, params, encode)
             .followRedirects(true)
             .connectTimeout(CONNECTION_TIMEOUT);
 
@@ -693,11 +705,12 @@ public class SeafConnection {
         HttpRequest req = null;
         try {
             String fullPath = Utils.pathJoin(parentDir, dirName);
+            final String encodeUriComponent = encodeUriComponent(fullPath).replaceAll("\\+", "%20");
             Map<String, Object> params = Maps.newHashMap();
-            params.put("p", fullPath);
+            params.put("p", encodeUriComponent);
             params.put("reloaddir", "true");
 
-            req = prepareApiPostRequest("api2/repos/" + repoID + "/dir/", true, params);
+            req = prepareApiPostRequest("api2/repos/" + repoID + "/dir/", true, params, false);
 
             req.form("operation", "mkdir");
 
@@ -730,11 +743,12 @@ public class SeafConnection {
 
         try {
             String fullPath = Utils.pathJoin(parentDir, fileName);
+            final String encodeUriComponent = encodeUriComponent(fullPath).replaceAll("\\+", "%20");
             Map<String, Object> params = Maps.newHashMap();
-            params.put("p", fullPath);
+            params.put("p", encodeUriComponent);
             params.put("reloaddir", "true");
 
-            HttpRequest req = prepareApiPostRequest("api2/repos/" + repoID + "/file/", true, params);
+            HttpRequest req = prepareApiPostRequest("api2/repos/" + repoID + "/file/", true, params, false);
 
             req.form("operation", "create");
 
