@@ -379,7 +379,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
                     final String repoId = data.getStringExtra(SeafilePathChooserActivity.DATA_REPO_ID);
                     final Account account = data.getParcelableExtra(SeafilePathChooserActivity.DATA_ACCOUNT);
                     if (repoName != null && repoId != null) {
-                        Log.d(DEBUG_TAG,"Activating camera upload to "+account+"; "+repoName);
+                        // Log.d(DEBUG_TAG, "Activating camera upload to " + account + "; " + repoName);
                         cameraManager.setCameraAccount(account);
                         settingsMgr.saveCameraUploadRepoInfo(repoId, repoName);
                     }

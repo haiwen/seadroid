@@ -81,13 +81,13 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             synchronized (CameraSyncAdapter.this) {
                 txService = binder.getService();
             }
-            Log.d(DEBUG_TAG, "connected to TransferService");
+            // Log.d(DEBUG_TAG, "connected to TransferService");
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             // this will run in a foreign thread!
-            Log.d(DEBUG_TAG, "disconnected from TransferService, aborting sync");
+            // Log.d(DEBUG_TAG, "disconnected from TransferService, aborting sync");
 
             onSyncCanceled();
             synchronized (CameraSyncAdapter.this) {
@@ -106,7 +106,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
          */
         super(context, false);
 
-        Log.d(DEBUG_TAG, "CameraSyncAdapter created.");
+        // Log.d(DEBUG_TAG, "CameraSyncAdapter created.");
 
         contentResolver = context.getContentResolver();
         manager = new AccountManager(context);
@@ -124,7 +124,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
     @Override
     public void onSyncCanceled() {
         super.onSyncCanceled();
-        Log.d(DEBUG_TAG, "onPerformSync will be cancelled ");
+        // Log.d(DEBUG_TAG, "onPerformSync will be cancelled ");
         synchronized (this) {
             cancelled = true;
         }
@@ -415,7 +415,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
     private void uploadVideos(SyncResult syncResult, DataManager dataManager) throws SeafException, InterruptedException {
 
-        Log.d(DEBUG_TAG, "Starting to upload videos...");
+        // Log.d(DEBUG_TAG, "Starting to upload videos...");
 
         if (isCancelled())
             return;
@@ -434,7 +434,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         String[] selectionArgs = selectedBuckets.toArray(new String[]{});
         String selection = MediaStore.Video.VideoColumns.BUCKET_ID + " IN " + varArgs(selectedBuckets.size());
 
-        Log.d(DEBUG_TAG, "ContentResolver selection='"+selection+"' selectionArgs='"+Arrays.deepToString(selectionArgs)+"'");
+        // Log.d(DEBUG_TAG, "ContentResolver selection='"+selection+"' selectionArgs='"+Arrays.deepToString(selectionArgs)+"'");
 
         // fetch all new videos from the ContentProvider since our last sync
         Cursor cursor = contentResolver.query(
@@ -454,7 +454,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 Log.e(DEBUG_TAG, "ContentResolver query failed!");
                 return;
             }
-            Log.d(DEBUG_TAG, "i see " + cursor.getCount() + " new videos.");
+            // Log.d(DEBUG_TAG, "i see " + cursor.getCount() + " new videos.");
             if (cursor.getCount() > 0) {
                 // create directories for media buckets
                 createDirectories(dataManager);

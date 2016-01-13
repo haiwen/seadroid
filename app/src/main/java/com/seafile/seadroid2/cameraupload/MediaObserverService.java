@@ -63,7 +63,7 @@ public class MediaObserverService extends Service {
             }
 
             if (cameraManager.isCameraUploadEnabled() && doFullResync) {
-                Log.i(DEBUG_TAG, "Doing a full resync of all media content.");
+                // Log.i(DEBUG_TAG, "Doing a full resync of all media content.");
                 cameraManager.performFullSync();
             }
         }
@@ -71,7 +71,7 @@ public class MediaObserverService extends Service {
 
     @Override
     public void onCreate() {
-        Log.d(DEBUG_TAG, "onCreate");
+        // Log.d(DEBUG_TAG, "onCreate");
 
         settingsManager.registerSharedPreferencesListener(settingsListener);
         cameraManager = new CameraUploadManager(getApplicationContext());
@@ -85,7 +85,7 @@ public class MediaObserverService extends Service {
 
     @Override
     public void onDestroy() {
-        Log.d(DEBUG_TAG, "onDestroy");
+        // Log.d(DEBUG_TAG, "onDestroy");
         settingsManager.unregisterSharedPreferencesListener(settingsListener);
         unregisterContentOberservers();
     }
@@ -109,14 +109,14 @@ public class MediaObserverService extends Service {
         getApplicationContext().getContentResolver().registerContentObserver
                 (MediaStore.Video.Media.EXTERNAL_CONTENT_URI, false, mediaObserver);
 
-        Log.i(DEBUG_TAG, "Started watchting for new media content.");
+        // Log.i(DEBUG_TAG, "Started watchting for new media content.");
     }
 
     private void unregisterContentOberservers() {
         this.getApplicationContext().getContentResolver()
                 .unregisterContentObserver(mediaObserver);
 
-        Log.i(DEBUG_TAG, "Stopped watchting for new media content.");
+        // Log.i(DEBUG_TAG, "Stopped watchting for new media content.");
     }
 
     private class MediaObserver extends ContentObserver {
@@ -133,7 +133,7 @@ public class MediaObserverService extends Service {
         public void onChange(boolean selfChange, Uri changeUri) {
 
             if (cameraManager.isCameraUploadEnabled()) {
-                Log.d(DEBUG_TAG, "Noticed a change in the media provider, scheduling sync.");
+                // Log.d(DEBUG_TAG, "Noticed a change in the media provider, scheduling sync.");
                 cameraManager.performSync();
             }
         }
