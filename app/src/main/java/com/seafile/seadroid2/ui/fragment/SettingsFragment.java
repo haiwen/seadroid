@@ -255,7 +255,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
             }
         });
 
-        refreshCameraUpladView();
+        refreshCameraUploadView();
 
         // App Version
         try {
@@ -294,7 +294,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
     }
 
-    private void refreshCameraUpladView() {
+    private void refreshCameraUploadView() {
         Account camAccount = cameraManager.getCameraAccount();
         if (camAccount != null && settingsMgr.getCameraUploadRepoName() != null) {
             cUploadRepoPref.setSummary(camAccount.getSignature()
@@ -387,7 +387,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
                 } else if (resultCode == Activity.RESULT_CANCELED) {
 
                 }
-                refreshCameraUpladView();
+                refreshCameraUploadView();
                 break;
 
             default:
@@ -405,7 +405,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
         } else {
             List<String> selectedBuckets = new ArrayList<>();
             settingsMgr.setCameraUploadBucketList(selectedBuckets);
-            refreshCameraUpladView();
+            refreshCameraUploadView();
         }
     }
 

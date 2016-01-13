@@ -1,6 +1,5 @@
 package com.seafile.seadroid2.cameraupload;
 
-import android.accounts.OnAccountsUpdateListener;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,7 +7,6 @@ import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.IBinder;
 import android.provider.MediaStore;
-import android.util.Log;
 
 import com.seafile.seadroid2.SettingsManager;
 
@@ -75,7 +73,7 @@ public class MediaObserverService extends Service {
 
         settingsManager.registerSharedPreferencesListener(settingsListener);
         cameraManager = new CameraUploadManager(getApplicationContext());
-        registerContentOberservers();
+        registerContentObservers();
 
         if (cameraManager.isCameraUploadEnabled()) {
             // do a sync in case we missed something while we weren't observing
@@ -87,7 +85,7 @@ public class MediaObserverService extends Service {
     public void onDestroy() {
         // Log.d(DEBUG_TAG, "onDestroy");
         settingsManager.unregisterSharedPreferencesListener(settingsListener);
-        unregisterContentOberservers();
+        unregisterContentObservers();
     }
 
     @Override
@@ -100,7 +98,7 @@ public class MediaObserverService extends Service {
         return null;
     }
 
-    private void registerContentOberservers() {
+    private void registerContentObservers() {
         mediaObserver = new MediaObserver();
 
         getApplicationContext().getContentResolver().registerContentObserver(
@@ -112,7 +110,7 @@ public class MediaObserverService extends Service {
         // Log.i(DEBUG_TAG, "Started watchting for new media content.");
     }
 
-    private void unregisterContentOberservers() {
+    private void unregisterContentObservers() {
         this.getApplicationContext().getContentResolver()
                 .unregisterContentObserver(mediaObserver);
 
