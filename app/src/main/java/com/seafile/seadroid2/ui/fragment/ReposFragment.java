@@ -547,6 +547,8 @@ public class ReposFragment extends ListFragment {
 
     @Override
     public void onListItemClick(final ListView l, final View v, final int position, final long id) {
+        if (Utils.isFastTapping()) return;
+
         // handle action mode selections
         if (mActionMode != null) {
             // add or remove selection for current list item

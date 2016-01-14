@@ -348,8 +348,8 @@ public class BrowserActivity extends BaseActivity
         if(!checkServerProEdition()) {
             // hide Activity tab
             adapter.hideActivityTab();
-            //tabStrip.notifyDataSetChanged();
             adapter.notifyDataSetChanged();
+            mTabLayout.setTabsFromPagerAdapter(adapter);
         }
 
         if (!checkSearchEnabled()) {
@@ -463,6 +463,7 @@ public class BrowserActivity extends BaseActivity
                 // show Activity tab
                 adapter.unHideActivityTab();
                 adapter.notifyDataSetChanged();
+                mTabLayout.setTabsFromPagerAdapter(adapter);
             }
 
             if (serverInfo.isSearchEnabled()) {

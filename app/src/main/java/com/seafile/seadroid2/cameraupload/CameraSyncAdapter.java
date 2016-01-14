@@ -81,13 +81,13 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             synchronized (CameraSyncAdapter.this) {
                 txService = binder.getService();
             }
-            Log.d(DEBUG_TAG, "connected to TransferService");
+            // Log.d(DEBUG_TAG, "connected to TransferService");
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             // this will run in a foreign thread!
-            Log.d(DEBUG_TAG, "disconnected from TransferService, aborting sync");
+            // Log.d(DEBUG_TAG, "disconnected from TransferService, aborting sync");
 
             onSyncCanceled();
             synchronized (CameraSyncAdapter.this) {
@@ -106,7 +106,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
          */
         super(context, false);
 
-        Log.d(DEBUG_TAG, "CameraSyncAdapter created.");
+        // Log.d(DEBUG_TAG, "CameraSyncAdapter created.");
 
         contentResolver = context.getContentResolver();
         manager = new AccountManager(context);
@@ -124,7 +124,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
     @Override
     public void onSyncCanceled() {
         super.onSyncCanceled();
-        Log.d(DEBUG_TAG, "onPerformSync will be cancelled ");
+        // Log.d(DEBUG_TAG, "onPerformSync will be cancelled ");
         synchronized (this) {
             cancelled = true;
         }
@@ -222,25 +222,25 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             cancelled = false;
         }
 
-        Log.i(DEBUG_TAG, "Syncing images and video to " + account);
+        /*Log.i(DEBUG_TAG, "Syncing images and video to " + account);
 
         Log.d(DEBUG_TAG, "Selected buckets for camera upload: "+settingsMgr.getCameraUploadBucketList());
         Log.d(DEBUG_TAG, "is video upload allowed: "+settingsMgr.isVideosUploadAllowed());
         Log.d(DEBUG_TAG, "is data plan allowed: "+settingsMgr.isDataPlanAllowed());
 
-        Log.d(DEBUG_TAG, "Media buckets available on this system: ");
+        Log.d(DEBUG_TAG, "Media buckets available on this system: ");*/
         for (GalleryBucketUtils.Bucket bucket: GalleryBucketUtils.getMediaBuckets(getContext())) {
-            Log.d(DEBUG_TAG, "Bucket id="+bucket.id+" name="+bucket.name);
+            // Log.d(DEBUG_TAG, "Bucket id="+bucket.id+" name="+bucket.name);
         }
 
         // resync all media
         if (extras.getBoolean(ContentResolver.SYNC_EXTRAS_INITIALIZE)) {
-            Log.i(DEBUG_TAG, "Doing a full resync");
+            // Log.i(DEBUG_TAG, "Doing a full resync");
             dbHelper.cleanPhotoCache();
         }
 
         if (!settingsMgr.checkCameraUploadNetworkAvailable()) {
-            Log.d(DEBUG_TAG, "Not syncing because of data plan restriction.");
+            // Log.d(DEBUG_TAG, "Not syncing because of data plan restriction.");
             // treat dataPlan abort the same way as a network connection error
             syncResult.stats.numIoExceptions++;
             return;
@@ -254,7 +254,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
          * account signs out.
          */
         if (!seafileAccount.hasValidToken()) {
-            Log.d(DEBUG_TAG, "This account has no auth token. Disable camera upload.");
+            // Log.d(DEBUG_TAG, "This account has no auth token. Disable camera upload.");
             syncResult.stats.numAuthExceptions++;
 
             // we're logged out on this account. disable camera upload.
@@ -269,7 +269,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         bucketList = settingsMgr.getCameraUploadBucketList();
 
         try {
-            Log.d(DEBUG_TAG, "Validating target repository...");
+            // Log.d(DEBUG_TAG, "Validating target repository...");
 
             // make sure the repo exists
             if (!validateRepository(dataManager)) {
@@ -287,14 +287,14 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 return;
             }
 
-            Log.d(DEBUG_TAG, "connecting to TransferService");
+            // Log.d(DEBUG_TAG, "connecting to TransferService");
             startTransferService();
 
             // wait for TransferService to connect
-            Log.d(DEBUG_TAG, "waiting for transfer service");
+            // Log.d(DEBUG_TAG, "waiting for transfer service");
             int timeout = 1000; // wait up to a second
             while (!isCancelled() && timeout > 0 && txService == null) {
-                Log.d(DEBUG_TAG, "waiting for transfer service");
+                // Log.d(DEBUG_TAG, "waiting for transfer service");
                 Thread.sleep(100);
                 timeout -= 100;
             }
@@ -312,11 +312,11 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             }
 
             if (isCancelled()) {
-                Log.i(DEBUG_TAG, "sync was cancelled.");
+                // Log.i(DEBUG_TAG, "sync was cancelled.");
             } else {
-                Log.i(DEBUG_TAG, "sync finished successfully.");
+                // Log.i(DEBUG_TAG, "sync finished successfully.");
             }
-            Log.d(DEBUG_TAG, "syncResult: " + syncResult);
+            // Log.d(DEBUG_TAG, "syncResult: " + syncResult);
 
         } catch (SeafException e) {
             switch (e.getCode()) {
@@ -331,12 +331,12 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 case HttpURLConnection.HTTP_UNAUTHORIZED:
                     // hard error -> we cannot recover without user interaction
                     syncResult.stats.numAuthExceptions++;
-                    Log.i(DEBUG_TAG, "sync aborted because of authentication error.", e);
+                    // Log.i(DEBUG_TAG, "sync aborted because of authentication error.", e);
                     showNotificationAuthError();
                     break;
                 default:
                     syncResult.stats.numIoExceptions++;
-                    Log.i(DEBUG_TAG, "sync aborted because of IO or server-side error.", e);
+                    // Log.i(DEBUG_TAG, "sync aborted because of IO or server-side error.", e);
                     break;
             }
         } catch (Exception e) {
@@ -345,10 +345,10 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         } finally {
             if (txService != null) {
 
-                Log.d(DEBUG_TAG, "Cancelling remaining pending tasks (if any)");
+                // Log.d(DEBUG_TAG, "Cancelling remaining pending tasks (if any)");
                 txService.cancelUploadTasksByIds(tasksInProgress);
 
-                Log.d(DEBUG_TAG, "disconnecting from TransferService");
+                // Log.d(DEBUG_TAG, "disconnecting from TransferService");
                 getContext().unbindService(mConnection);
                 txService = null;
             }
@@ -357,7 +357,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
     private void uploadImages(SyncResult syncResult, DataManager dataManager) throws SeafException, InterruptedException {
 
-        Log.d(DEBUG_TAG, "Starting to upload images...");
+        // Log.d(DEBUG_TAG, "Starting to upload images...");
 
         if (isCancelled())
             return;
@@ -376,7 +376,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         String[] selectionArgs = selectedBuckets.toArray(new String[]{});
         String selection = MediaStore.Images.ImageColumns.BUCKET_ID + " IN " + varArgs(selectedBuckets.size());
 
-        Log.d(DEBUG_TAG, "ContentResolver selection='"+selection+"' selectionArgs='"+Arrays.deepToString(selectionArgs)+"'");
+        // Log.d(DEBUG_TAG, "ContentResolver selection='"+selection+"' selectionArgs='"+Arrays.deepToString(selectionArgs)+"'");
 
         // fetch all new images from the ContentProvider since our last sync
         Cursor cursor = contentResolver.query(
@@ -396,7 +396,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 Log.e(DEBUG_TAG, "ContentResolver query failed!");
                 return;
             }
-            Log.d(DEBUG_TAG, "i see " + cursor.getCount() + " new images.");
+            // Log.d(DEBUG_TAG, "i see " + cursor.getCount() + " new images.");
             if (cursor.getCount() > 0) {
                 // create directories for media buckets
                 createDirectories(dataManager);
@@ -415,7 +415,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
     private void uploadVideos(SyncResult syncResult, DataManager dataManager) throws SeafException, InterruptedException {
 
-        Log.d(DEBUG_TAG, "Starting to upload videos...");
+        // Log.d(DEBUG_TAG, "Starting to upload videos...");
 
         if (isCancelled())
             return;
@@ -434,7 +434,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         String[] selectionArgs = selectedBuckets.toArray(new String[]{});
         String selection = MediaStore.Video.VideoColumns.BUCKET_ID + " IN " + varArgs(selectedBuckets.size());
 
-        Log.d(DEBUG_TAG, "ContentResolver selection='"+selection+"' selectionArgs='"+Arrays.deepToString(selectionArgs)+"'");
+        // Log.d(DEBUG_TAG, "ContentResolver selection='"+selection+"' selectionArgs='"+Arrays.deepToString(selectionArgs)+"'");
 
         // fetch all new videos from the ContentProvider since our last sync
         Cursor cursor = contentResolver.query(
@@ -454,7 +454,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 Log.e(DEBUG_TAG, "ContentResolver query failed!");
                 return;
             }
-            Log.d(DEBUG_TAG, "i see " + cursor.getCount() + " new videos.");
+            // Log.d(DEBUG_TAG, "i see " + cursor.getCount() + " new videos.");
             if (cursor.getCount() > 0) {
                 // create directories for media buckets
                 createDirectories(dataManager);
@@ -501,19 +501,19 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
             // local file does not exist. some inconsistency in the Media Provider? Ignore and continue
             if (!file.exists()) {
-                Log.d(DEBUG_TAG, "Skipping media "+file+" because it doesn't exist");
+                // Log.d(DEBUG_TAG, "Skipping media "+file+" because it doesn't exist");
                 syncResult.stats.numSkippedEntries++;
                 continue;
             }
 
             // Ignore all media by Seafile. We don't want to upload our own cached files.
             if (file.getAbsolutePath().startsWith(DataManager.getExternalRootDirectory())) {
-                Log.d(DEBUG_TAG, "Skipping media "+file+" because it's part of the Seadroid cache");
+                // Log.d(DEBUG_TAG, "Skipping media "+file+" because it's part of the Seadroid cache");
                 continue;
             }
 
             if (dbHelper.isUploaded(file)) {
-                Log.d(DEBUG_TAG, "Skipping media " + file + " because we have uploaded it in the past.");
+                // Log.d(DEBUG_TAG, "Skipping media " + file + " because we have uploaded it in the past.");
                 continue;
             }
 
@@ -525,7 +525,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private void waitForUploads() throws InterruptedException {
-        Log.d(DEBUG_TAG, "wait for transfer service to finish our tasks");
+        // Log.d(DEBUG_TAG, "wait for transfer service to finish our tasks");
         WAITLOOP: while (!isCancelled()) {
             Thread.sleep(100); // wait
 
@@ -590,13 +590,13 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
          */
         for (SeafDirent dirent : list) {
             if (dirent.name.equals(file.getName()) && dirent.size == file.length()) {
-                Log.d(DEBUG_TAG, "File " + file.getName() + " in bucket " + bucketName + " already exists on the server. Skipping.");
+                // Log.d(DEBUG_TAG, "File " + file.getName() + " in bucket " + bucketName + " already exists on the server. Skipping.");
                 dbHelper.markAsUploaded(file);
                 return;
             }
         }
 
-        Log.d(DEBUG_TAG, "uploading file " + file.getName() + " to " + serverPath);
+        // Log.d(DEBUG_TAG, "uploading file " + file.getName() + " to " + serverPath);
         int taskID = txService.addUploadTask(dataManager.getAccount(), targetRepoId, targetRepoName,
                 serverPath, file.getAbsolutePath(), false, false);
         tasksInProgress.add(taskID);
