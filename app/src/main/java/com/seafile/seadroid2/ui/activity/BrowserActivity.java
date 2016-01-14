@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui.activity;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -8,7 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.net.Uri;
@@ -17,13 +18,15 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.MediaStore;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
@@ -35,8 +38,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
@@ -45,14 +46,12 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.cameraupload.MediaObserverService;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SeafStarredFile;
 import com.seafile.seadroid2.data.ServerInfo;
-import com.seafile.seadroid2.data.ServerInfo;
-import com.seafile.seadroid2.cameraupload.MediaObserverService;
-import com.seafile.seadroid2.data.*;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
@@ -120,6 +119,7 @@ public class BrowserActivity extends BaseActivity
     public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "password_fragment";
     public static final String CHOOSE_APP_DIALOG_FRAGMENT_TAG = "choose_app_fragment";
     public static final String PICK_FILE_DIALOG_FRAGMENT_TAG = "pick_file_fragment";
+    public static final int REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE = 1;
 
     public static final int INDEX_LIBRARY_TAB = 0;
     public static final int INDEX_STARRED_TAB = 1;
@@ -131,6 +131,8 @@ public class BrowserActivity extends BaseActivity
     };
     private int currentPosition = 0;
     private SeafileTabsAdapter adapter;
+    private View mLayout;
+    private boolean boolPermissionGranted = false;
     private TabLayout mTabLayout;
 
     private ViewPager pager;
@@ -220,6 +222,7 @@ public class BrowserActivity extends BaseActivity
             }
         }
         setContentView(R.layout.tabs_main);
+        mLayout = findViewById(R.id.main_layout);
         setSupportActionBar(getActionBarToolbar());
         // enable ActionBar app icon to behave as action back
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -428,12 +431,88 @@ public class BrowserActivity extends BaseActivity
 
                 return true;
             case R.id.settings:
+                requestReadExternalStoragePermission();
+                if (!boolPermissionGranted) {
+                    ToastUtils.show(this, R.string.permission_not_granted);
+                    return true;
+                }
+
                 Intent settingsIntent = new Intent(BrowserActivity.this,SettingsActivity.class);
                 settingsIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(settingsIntent);
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Requests the READ_EXTERNAL_STORAGE permission.
+     * If the permission has been denied previously, a SnackBar will prompt the user to grant the
+     * permission, otherwise it is requested directly.
+     */
+    private void requestReadExternalStoragePermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)  != PackageManager.PERMISSION_GRANTED) {
+            // Log.i(DEBUG_TAG, "READ_EXTERNAL_STORAGE permission has NOT been granted. Requesting permission.");
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
+
+                // Log.i(DEBUG_TAG, "Displaying READ_EXTERNAL_STORAGE permission rationale to provide additional context.");
+                Snackbar.make(mLayout, R.string.permission_read_exteral_storage_rationale,
+                        Snackbar.LENGTH_INDEFINITE)
+                        .setAction(R.string.ok, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                ActivityCompat.requestPermissions(BrowserActivity.this,
+                                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                                        REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE);
+                            }
+                        })
+                        .show();
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                // READ_EXTERNAL_STORAGE permission has not been granted yet. Request it directly.
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE);
+            }
+        } else {
+            boolPermissionGranted = true;
+        }
+    }
+
+    /**
+     * Callback received when a permissions request has been completed.
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        // Log.i(DEBUG_TAG, "Received response for permission request.");
+
+        switch (requestCode) {
+            case REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE: {
+                // Check if the only required permission has been granted
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    boolPermissionGranted = true;
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+
+                } else {
+
+                    boolPermissionGranted = false;
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
     }
 
     class RequestServerInfoTask extends AsyncTask<Void, Void, ServerInfo> {
