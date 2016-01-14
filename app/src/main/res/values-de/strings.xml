@@ -10,6 +10,7 @@
   <string name="delete_file_f">Datei löschen</string>
   <string name="delete_dir">Ordner löschen</string>
   <string name="server_hint">Server, z.B. cloud.seafile.com</string>
+  <string name="email_hint">Benutzername oder Email-Adresse</string>
   <string name="passwd_hint">Passwort</string>
   <string name="login">Anmelden</string>
   <string name="open_file">Öffnen</string>
@@ -35,6 +36,12 @@
     <item>Andere</item>
   </string-array>
   <string name="choose_server">Bitte wählen Sie einen Seafile-Server aus</string>
+  <string-array name="choose_server_array">
+    <item>SeaCloud.cc</item>
+    <item>App.seafile.de</item>
+    <item>Shibboleth Login</item>
+    <item>Anderer Seafile-Server</item>
+  </string-array>
   <string name="network_down">Keine Netzwerkverbindung</string>
   <string name="unknow_error">Unbekannter Fehler</string>
   <string name="invalid_server_address">Ungültige Serveradresse</string>
@@ -94,6 +101,10 @@
   <string name="password_empty">Bitte das Passwort eingeben</string>
   <string name="wrong_password">Falsches Passwort</string>
   <string name="library_read_only">Diese Bibliothek ist schreibgeschützt</string>
+  <string name="error_when_load_dirents">Fehler beim Laden des Verzeichnisses.
+Zum Aktualisieren einmal antippen</string>
+  <string name="error_when_load_repos">Fehler beim Laden der Bibliotheken.
+Zum Aktualisieren einmal antippen</string>
   <string name="dir_empty">Dieser Ordner ist leer</string>
   <string name="no_repo">Sie haben noch keine Bibliotheken angelegt</string>
   <string name="no_app_available">Es konnte keine Anwendung gefunden werden</string>
@@ -102,6 +113,7 @@
   <string name="no_account">Bitte zuerst ein Konto einrichten</string>
   <string name="choose_an_account">Ein Konto auswählen</string>
   <string name="choose_a_library">Eine Bibliothek auswählen</string>
+  <string name="choose_a_folder">Einen Ordner auswählen</string>
   <string name="load_accounts_fail">Die Seafile-Konten konnten nicht geladen werden</string>
   <string name="load_libraries_fail">Bibliotheken konnten nicht geladen werden</string>
   <string name="load_dir_fail">Der Inhalt des Ordners konnte nicht geladen werden</string>
@@ -196,6 +208,8 @@
   <string name="internal_server_error">Interner Serverfehler</string>
   <string name="copy_file_ing">Datei wird kopiert</string>
   <string name="move_file_ing">Datei wird verschoben</string>
+  <string name="copy_file_from">Kopiere von %1$s \n nach %2$s</string>
+  <string name="move_file_from">Verschiebe von %1$s \n nach %2$s</string>
   <string name="copy_folder_ing">Ordner wird kopiert</string>
   <string name="move_folder_ing">Ordner wird verschoben</string>
   <string name="upload_started">Hochladen wurde gestartet</string>
@@ -203,6 +217,7 @@
   <string name="cannot_move_folder_to_subfolder">Sie können keinen Ordner in einen seiner Unterordner verschieben</string>
   <string name="cancel">Abbrechen</string>
   <string name="confirm">Bestätigen</string>
+  <string name="repo_not_found">Die Bibliothek konnte nicht gefunden werden. Vielleicht wurde sie gelöscht oder sie ist verschlüsselt</string>
   <string name="settings_account">Konto</string>
   <string name="settings_account_info_title">Benutzerinformation</string>
   <string name="settings_account_info_load_data">Ladevorgang …</string>
@@ -261,10 +276,13 @@
   <string name="settings_camera_upload_change_repo_title">Zielbibliothek ändern</string>
   <string name="settings_camera_upload_repo_hint">Bitte zuerst eine Bibliothek auswählen</string>
   <string name="settings_camera_upload_turn_on">Kamera-Upload aktivieren</string>
+  <string name="settings_camera_upload_choose_dir">Alben ändern</string>
   <string name="settings_camera_upload_dir_auto_scan">Standardmäßig nach Bildern suchen</string>
   <string name="settings_camera_upload_lib_not_found">Die ausgewählte Bibliothek ist nicht vorhanden</string>
   <string name="settings_camera_upload_advanced_feature_title">Erweiterte Einstellungen</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Einstellungen zum Hochladen anpassen</string>
+  <string name="settings_camera_upload_advanced_custom_directories">Alben manuell auswählen</string>
+  <string name="settings_camera_upload_advanced_custom_directories_on">Alben auswählen</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">Gerät automatisch durchsuchen</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Einrichtungsassistent</string>
@@ -276,6 +294,7 @@
   <string name="settings_cuc_type_title">Was soll hochgeladen werden</string>
   <string name="settings_cuc_type_photo">Nur Bilder</string>
   <string name="settings_cuc_type_video">Bilder und Videos</string>
+  <string name="settings_cuc_local_dir_title">Alben auswählen</string>
   <plurals name="settings_cuc_local_dir_items">
     <item quantity="one">%1$d Objekt</item>
     <item quantity="other">%1$d Objekte</item>
@@ -284,6 +303,8 @@
   <string name="settings_cuc_remote_lib_account">Benutzerkonto auswählen</string>
   <string name="settings_cuc_remote_lib_repo">%s wurde ausgewählt</string>
   <string name="settings_cuc_upload_to_parent_folder">Zum übergeordneten Ordner</string>
+  <string name="settings_cuc_auto_scan">Hochzuladende Alben automatisch auswählen</string>
+  <string name="settings_cuc_pick_albums">Hochzuladende Alben selbst auswählen</string>
   <string name="settings_cuc_remote_lib_hint">Wählen Sie aus, welches Benutzerkonto und welche Bibliothek Sie bevorzugen.\nSie können beides in den Einstellungen jederzeit anpassen.</string>
   <string name="settings_cuc_finish_title">Beenden</string>
   <string name="settings_cuc_ready">Seafile wird nun die Dateien aus den ausgewählten Ordnern hochladen. \nSie können die App währenddessen schließen.</string>
@@ -291,6 +312,11 @@
   <string name="settings_cuc_click_btn">Fertig – Sie können den Einrichtungsassistenten jetzt beenden.</string>
   <string name="settings_cuc_loading">lade …</string>
   <!--Camera Sync-->
+  <string name="sync_provider_camera_upload">Kamerafotos und -videos</string>
+  <string name="camera_sync_notification_title_failed">Upload von Medien fehlgeschlagen</string>
+  <string name="camera_sync_notification_repo_missing_failed">Bibliothek auf dem Server wurde nicht gefunden.</string>
+  <string name="camera_sync_notification_auth_error_failed">Authentifizierungsfehler.</string>
+  <string name="camera_sync_rename_file">%s (umbenannt durch Seafile)</string>
   <string name="settings_about_title">ÜBER</string>
   <string name="settings_about_version_title">App-Version</string>
   <string name="settings_about_author_title">Autor/innen</string>
@@ -385,6 +411,8 @@
   <string name="star_file_succeed">Als Favorit markiert</string>
   <string name="star_file_failed">Markieren als Favorit nicht möglich</string>
   <!--unstar a file-->
+  <string name="unstar_file_failed">Entfernen der Markierung fehlgeschlagen</string>
+  <string name="unstar">Markierung entfernen</string>
   <!--notification bar-->
   <string name="notification_upload_started_title">Dateien werden hochgeladen …</string>
   <string name="notification_download_started_title">Dateien werden heruntergeladen …</string>

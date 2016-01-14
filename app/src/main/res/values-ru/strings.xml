@@ -103,6 +103,8 @@
   <string name="password_empty">Пожалуйста, введите пароль</string>
   <string name="wrong_password">неправильный пароль</string>
   <string name="library_read_only">Эта библиотека только для чтения</string>
+  <string name="error_when_load_dirents">Ошибка загрузки папки.\n Нажмите, чтобы обновить</string>
+  <string name="error_when_load_repos">Ошибка загрузки библиотек.\n Нажмите, чтобы обновить</string>
   <string name="dir_empty">Эта папка пуста</string>
   <string name="no_repo">У вас еще нет библиотек</string>
   <string name="no_app_available">Не найдено ни одно приложение</string>
@@ -111,6 +113,7 @@
   <string name="no_account">Пожалуйста, сначала добавьте аккаунт в Seafile</string>
   <string name="choose_an_account">Выберите аккаунт</string>
   <string name="choose_a_library">Выберите библиотеку</string>
+  <string name="choose_a_folder">Выбрать папку</string>
   <string name="load_accounts_fail">Не удалось загрузить аккаунты Seafile</string>
   <string name="load_libraries_fail">Не удалось загрузить библиотеки</string>
   <string name="load_dir_fail">Не удалось загрузить содержимое этой папки</string>
@@ -279,10 +282,13 @@
   <string name="settings_camera_upload_change_repo_title">Изменить папку загрузки</string>
   <string name="settings_camera_upload_repo_hint">Пожалуйста, сначала выберите библиотеку</string>
   <string name="settings_camera_upload_turn_on">Включить загрузку с камеры</string>
+  <string name="settings_camera_upload_choose_dir">Изменить альбомы</string>
   <string name="settings_camera_upload_dir_auto_scan">Автоматическое сканирование фото по умолчанию</string>
   <string name="settings_camera_upload_lib_not_found">Выбранная библиотека не существует</string>
   <string name="settings_camera_upload_advanced_feature_title">Дополнительные опции</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Пользовательские опции загрузки</string>
+  <string name="settings_camera_upload_advanced_custom_directories">Пользовательская загрузка альбомов</string>
+  <string name="settings_camera_upload_advanced_custom_directories_on">Выбрать фотоальбомы</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">Автоматическое сканирование устройства</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Помощник по настройке</string>
@@ -294,6 +300,7 @@
   <string name="settings_cuc_type_title">Что загружать</string>
   <string name="settings_cuc_type_photo">Только фото</string>
   <string name="settings_cuc_type_video">Фото и видео</string>
+  <string name="settings_cuc_local_dir_title">Выбрать альбомы</string>
   <plurals name="settings_cuc_local_dir_items">
     <item quantity="one">%1$d элемент</item>
     <item quantity="few">%1$d элементов</item>
@@ -304,6 +311,8 @@
   <string name="settings_cuc_remote_lib_account">Выберите аккаунт</string>
   <string name="settings_cuc_remote_lib_repo">%s выбранных элементов</string>
   <string name="settings_cuc_upload_to_parent_folder">К родительской папке</string>
+  <string name="settings_cuc_auto_scan">Автоматически определить альбомы с камеры</string>
+  <string name="settings_cuc_pick_albums">Позволить мне выбрать мои фотоальбомы</string>
   <string name="settings_cuc_remote_lib_hint">Выберите нужный аккаунт и библиотеку. \nВы можете изменить эти параметры позже в меню Настройки.</string>
   <string name="settings_cuc_finish_title">Завершить</string>
   <string name="settings_cuc_ready">Теперь Seafile будет загружать файлы из выбранных вами папок. \nВо время этого вы можете закрыть приложение.</string>
@@ -311,6 +320,11 @@
   <string name="settings_cuc_click_btn">Щелкните, чтобы закрыть помощник.</string>
   <string name="settings_cuc_loading">загрузка...</string>
   <!--Camera Sync-->
+  <string name="sync_provider_camera_upload">Фото и видео с камеры</string>
+  <string name="camera_sync_notification_title_failed">Загрузка с камеры не удалась</string>
+  <string name="camera_sync_notification_repo_missing_failed">Репозиторий на сервере отсутствует</string>
+  <string name="camera_sync_notification_auth_error_failed">Ошибка аутентификации.</string>
+  <string name="camera_sync_rename_file">%s (переименовано Seafile)</string>
   <string name="settings_about_title">О ПРИЛОЖЕНИИ</string>
   <string name="settings_about_version_title">Версия</string>
   <string name="settings_about_author_title">Об авторе</string>

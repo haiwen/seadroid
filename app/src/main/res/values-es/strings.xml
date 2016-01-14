@@ -101,6 +101,8 @@
   <string name="password_empty">Por favor ingrese la contraseña</string>
   <string name="wrong_password">contraseña inválida</string>
   <string name="library_read_only">Esta biblioteca es de sólo-lectura</string>
+  <string name="error_when_load_dirents">Error al cargar la carpeta.\n Toque para actualizar</string>
+  <string name="error_when_load_repos">Error al cargar bibliotecas.\n Toque para actualizar</string>
   <string name="dir_empty">Esta carpeta está vacía</string>
   <string name="no_repo">Aún no tiene bibliotecas</string>
   <string name="no_app_available">No se encuentra ninguna app</string>
@@ -109,6 +111,7 @@
   <string name="no_account">Por favor, primero configure una cuenta en Seafile</string>
   <string name="choose_an_account">Elija una cuenta</string>
   <string name="choose_a_library">Elija una biblioteca</string>
+  <string name="choose_a_folder">Elija una carpeta</string>
   <string name="load_accounts_fail">Falla al cargar cuentas de Seafile</string>
   <string name="load_libraries_fail">Falla al cargar bibliotecas</string>
   <string name="load_dir_fail">Falla al cargar el contenido de esta carpeta</string>
@@ -271,10 +274,13 @@
   <string name="settings_camera_upload_change_repo_title">Cambiar biblioteca de subida</string>
   <string name="settings_camera_upload_repo_hint">Por favor, primero escoja una biblioteca</string>
   <string name="settings_camera_upload_turn_on">Activar subida de cámara</string>
+  <string name="settings_camera_upload_choose_dir">Cambiar álbumes</string>
   <string name="settings_camera_upload_dir_auto_scan">Examinar fotos automáticamente de forma predeterminada</string>
   <string name="settings_camera_upload_lib_not_found">La biblioteca seleccionada no existe</string>
   <string name="settings_camera_upload_advanced_feature_title">Opciones Avanzadas</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Opciones de subida personalizadas</string>
+  <string name="settings_camera_upload_advanced_custom_directories">Álbumes de subida personalizados</string>
+  <string name="settings_camera_upload_advanced_custom_directories_on">Elija álbumes de fotos</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">Examinar automáticamente el dispositivo</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Ayuda de configuración</string>
@@ -286,6 +292,7 @@
   <string name="settings_cuc_type_title">Que subir</string>
   <string name="settings_cuc_type_photo">Sólo fotos</string>
   <string name="settings_cuc_type_video">Fotos y videos</string>
+  <string name="settings_cuc_local_dir_title">Seleccionar álbumes</string>
   <plurals name="settings_cuc_local_dir_items">
     <item quantity="one">%1$d ítem</item>
     <item quantity="other">%1$d items</item>
@@ -294,6 +301,8 @@
   <string name="settings_cuc_remote_lib_account">Escoja una cuenta</string>
   <string name="settings_cuc_remote_lib_repo">%s fue seleccionada</string>
   <string name="settings_cuc_upload_to_parent_folder">Arriba a carpeta superior</string>
+  <string name="settings_cuc_auto_scan">Deducir automáticamente álbumes de la cámara</string>
+  <string name="settings_cuc_pick_albums">Permitirme elegir los álbumes de fotos</string>
   <string name="settings_cuc_remote_lib_hint">Escoja su cuenta y biblioteca preferidas. \nLuego puede cambiar estas opciones en Configuración.</string>
   <string name="settings_cuc_finish_title">Terminar</string>
   <string name="settings_cuc_ready">Ahora Seafile subirá los archivos de las carpetas seleccionadas. \nPuede cerrar la app durante este proceso.</string>
@@ -301,6 +310,11 @@
   <string name="settings_cuc_click_btn">Click para cerrar la ayuda de configuración.</string>
   <string name="settings_cuc_loading">cargando...</string>
   <!--Camera Sync-->
+  <string name="sync_provider_camera_upload">Fotos y videos de la cámara</string>
+  <string name="camera_sync_notification_title_failed">Subida de cámara falló</string>
+  <string name="camera_sync_notification_repo_missing_failed">No se encuentra el repositorio en el servidor.</string>
+  <string name="camera_sync_notification_auth_error_failed">Error de autenticación.</string>
+  <string name="camera_sync_rename_file">%s (renombrado por Seafile)</string>
   <string name="settings_about_title">ACERCA DE</string>
   <string name="settings_about_version_title">App Version</string>
   <string name="settings_about_author_title">Acerca del Autor</string>

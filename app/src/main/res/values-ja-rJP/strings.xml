@@ -100,6 +100,8 @@
   <string name="password_empty">パスワードを入力してください</string>
   <string name="wrong_password">パスワードが正しくありません</string>
   <string name="library_read_only">このライブラリーは読み取り専用です</string>
+  <string name="error_when_load_dirents">フォルダーの読み込み時にエラー。\n タップすると更新します</string>
+  <string name="error_when_load_repos">ライブラリーの読み込み時にエラー。\n タップすると更新します</string>
   <string name="dir_empty">このフォルダーは空です</string>
   <string name="no_repo">まだライブラリーはありません</string>
   <string name="no_app_available">アプリが見つかりません</string>
@@ -108,6 +110,7 @@
   <string name="no_account">最初に Seafile にアカウントを設定してください</string>
   <string name="choose_an_account">アカウントを選択</string>
   <string name="choose_a_library">ライブラリーを選択</string>
+  <string name="choose_a_folder">フォルダーを選択</string>
   <string name="load_accounts_fail">Seafile アカウントの読み込みに失敗しました</string>
   <string name="load_libraries_fail">ライブラリーの読み込みに失敗しました</string>
   <string name="load_dir_fail">このフォルダーの内容の読み込みに失敗しました</string>
@@ -267,10 +270,13 @@
   <string name="settings_camera_upload_change_repo_title">アップロードライブラリーを変更</string>
   <string name="settings_camera_upload_repo_hint">最初にライブラリーを選択してください</string>
   <string name="settings_camera_upload_turn_on">カメラアップロードをオンにする</string>
+  <string name="settings_camera_upload_choose_dir">アルバムを変更</string>
   <string name="settings_camera_upload_dir_auto_scan">デフォルトで写真を自動スキャンする</string>
   <string name="settings_camera_upload_lib_not_found">選択したライブラリーが存在しません</string>
   <string name="settings_camera_upload_advanced_feature_title">詳細オプション</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">カスタムアップロードオプション</string>
+  <string name="settings_camera_upload_advanced_custom_directories">カスタムアップロードアルバム</string>
+  <string name="settings_camera_upload_advanced_custom_directories_on">フォトアルバムを選択</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">デバイスを自動スキャン</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">設定ヘルパー</string>
@@ -282,6 +288,7 @@
   <string name="settings_cuc_type_title">アップロード対象</string>
   <string name="settings_cuc_type_photo">写真のみ</string>
   <string name="settings_cuc_type_video">写真とビデオ</string>
+  <string name="settings_cuc_local_dir_title">アルバムを選択</string>
   <plurals name="settings_cuc_local_dir_items">
     <item quantity="other">%1$d アイテム</item>
   </plurals>
@@ -289,6 +296,8 @@
   <string name="settings_cuc_remote_lib_account">アカウントを選択</string>
   <string name="settings_cuc_remote_lib_repo">%s を選択しました</string>
   <string name="settings_cuc_upload_to_parent_folder">親のフォルダーに移動</string>
+  <string name="settings_cuc_auto_scan">自動的にカメラのアルバムを推測</string>
+  <string name="settings_cuc_pick_albums">マイ フォトアルバムを選択しましょう</string>
   <string name="settings_cuc_remote_lib_hint">お好みのオプションを選択してください。 \nこのオプションは後で設定から変更することができます。</string>
   <string name="settings_cuc_finish_title">完了</string>
   <string name="settings_cuc_ready">Seafile は選択したフォルダーからファイルをアップロードします。 \nこのプロセス中、アプリを自由に閉じることができます。</string>
@@ -296,6 +305,11 @@
   <string name="settings_cuc_click_btn">クリックすると設定ヘルパーを閉じます。</string>
   <string name="settings_cuc_loading">読み込み中…</string>
   <!--Camera Sync-->
+  <string name="sync_provider_camera_upload">カメラの写真とビデオ</string>
+  <string name="camera_sync_notification_title_failed">カメラのアップロードに失敗しました</string>
+  <string name="camera_sync_notification_repo_missing_failed">サーバーのリポジトリが見つかりません。</string>
+  <string name="camera_sync_notification_auth_error_failed">認証エラー。</string>
+  <string name="camera_sync_rename_file">%s (Seafile によって名前の変更)</string>
   <string name="settings_about_title">アプリについて</string>
   <string name="settings_about_version_title">アプリ バージョン</string>
   <string name="settings_about_author_title">作者について</string>
