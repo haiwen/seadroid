@@ -101,6 +101,8 @@
   <string name="password_empty">Veuillez saisir le mot de passe</string>
   <string name="wrong_password">erreur de mot de passe</string>
   <string name="library_read_only">Cette bibliothèque est en lecture seule</string>
+  <string name="error_when_load_dirents">Erreur lors du chargement du dossier.\n Appuyer pour rafraichir</string>
+  <string name="error_when_load_repos">Erreur lors du chargement des bibliothèques.\n Appuyer pour rafraîchir</string>
   <string name="dir_empty">Ce dossier est vide</string>
   <string name="no_repo">Vous n\'avez pas encore de bibliothèque</string>
   <string name="no_app_available">Aucune application disponible</string>
@@ -109,6 +111,7 @@
   <string name="no_account">Merci de créer un compte dans Seafile pour commencer</string>
   <string name="choose_an_account">Choisir un compte</string>
   <string name="choose_a_library">Choisir une bibliothèque</string>
+  <string name="choose_a_folder">Choisissez un dossier</string>
   <string name="load_accounts_fail">Échec du chargement des comptes seafile</string>
   <string name="load_libraries_fail">Échec du chargement des bibliothèques</string>
   <string name="load_dir_fail">Échec du chargement du contenu de ce dossier</string>
@@ -271,10 +274,13 @@
   <string name="settings_camera_upload_change_repo_title">Changer la bibliothèque destinataire</string>
   <string name="settings_camera_upload_repo_hint">Choisissez d\'abord une bibliothèque</string>
   <string name="settings_camera_upload_turn_on">Activer l\'envoi de photos</string>
+  <string name="settings_camera_upload_choose_dir">Changer d\'album</string>
   <string name="settings_camera_upload_dir_auto_scan">Scan automatique des photos par défaut</string>
   <string name="settings_camera_upload_lib_not_found">La bibliothèque sélectionnée n’existe pas </string>
   <string name="settings_camera_upload_advanced_feature_title">Options avancées</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Options d\'envoi personnalisées</string>
+  <string name="settings_camera_upload_advanced_custom_directories">Téléversement personnalisé des albums</string>
+  <string name="settings_camera_upload_advanced_custom_directories_on">Choisir les albums photos</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">Scan automatique du périphérique</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Aide à la configuration</string>
@@ -286,6 +292,7 @@
   <string name="settings_cuc_type_title">Quoi envoyer</string>
   <string name="settings_cuc_type_photo">Seulement des photos</string>
   <string name="settings_cuc_type_video">Photos et  vidéos</string>
+  <string name="settings_cuc_local_dir_title">Sélectionnez des albums</string>
   <plurals name="settings_cuc_local_dir_items">
     <item quantity="one">%1$d élément</item>
     <item quantity="other">%1$d éléments</item>
@@ -294,6 +301,8 @@
   <string name="settings_cuc_remote_lib_account">Choisir un compte</string>
   <string name="settings_cuc_remote_lib_repo">%s a été sélectionné</string>
   <string name="settings_cuc_upload_to_parent_folder">Vers dossier parent</string>
+  <string name="settings_cuc_auto_scan">Deviner automatiquement les albums de la caméra</string>
+  <string name="settings_cuc_pick_albums">Laissez moi choisir mon album photos</string>
   <string name="settings_cuc_remote_lib_hint">Choisissez votre compte et votre bibliothèque préférés. Vous pourrez changer ces options dans Paramètres.</string>
   <string name="settings_cuc_finish_title">Terminer</string>
   <string name="settings_cuc_ready">Seafile envoie maintenant les fichiers depuis vos dossiers sélectionnés. \n Vous pouvez fermer l\'application pendant cette opération.</string>
@@ -301,6 +310,11 @@
   <string name="settings_cuc_click_btn">Cliquez pour fermer l\'aide à la configuration.</string>
   <string name="settings_cuc_loading">Chargement...</string>
   <!--Camera Sync-->
+  <string name="sync_provider_camera_upload">Camera photos  et vidéos</string>
+  <string name="camera_sync_notification_title_failed">Échec du téléversement de la caméra</string>
+  <string name="camera_sync_notification_repo_missing_failed">Le dépôt sur le serveur n’existe pas</string>
+  <string name="camera_sync_notification_auth_error_failed">Erreur d\'authentification.</string>
+  <string name="camera_sync_rename_file">%s (renommé par Seafile)</string>
   <string name="settings_about_title">A PROPOS</string>
   <string name="settings_about_version_title">Version</string>
   <string name="settings_about_author_title">A propos de l\'auteur</string>
