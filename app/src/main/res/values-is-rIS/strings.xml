@@ -10,6 +10,7 @@
   <string name="delete_file_f">Eyða skrá</string>
   <string name="delete_dir">Eyða skráasafni</string>
   <string name="server_hint">Þjónn, eins og cloud.seafile.com</string>
+  <string name="email_hint">Notendanafn eða netfang</string>
   <string name="passwd_hint">Lykilorð</string>
   <string name="login">Innská</string>
   <string name="open_file">Opna</string>
@@ -35,6 +36,12 @@
     <item>Annað</item>
   </string-array>
   <string name="choose_server">Veldu Seafile Þjón</string>
+  <string-array name="choose_server_array">
+    <item>SeaCloud.cc</item>
+    <item>App.seafile.de</item>
+    <item>Shibboleth Login</item>
+    <item>Annar Seafile Þjónn</item>
+  </string-array>
   <string name="network_down">Engin nettenging</string>
   <string name="unknow_error">Óþekkt villa</string>
   <string name="invalid_server_address">Rangt vistfang</string>
@@ -94,6 +101,8 @@
   <string name="password_empty">Vinsamlegast sláðu inn lykilorðið</string>
   <string name="wrong_password">rangt lykilorð</string>
   <string name="library_read_only">Þetta safn er aðeins til lestrar</string>
+  <string name="error_when_load_dirents">Villa við að sækja möppu.\n Smelltu til að endurglæða</string>
+  <string name="error_when_load_repos">Villa við að sækja söfn.\n Smelltu til að endurglæða</string>
   <string name="dir_empty">Þetta skráasafn er tómt</string>
   <string name="no_repo">Þú átt enn engin söfn</string>
   <string name="no_app_available">Það fannst ekkert app</string>
@@ -102,6 +111,7 @@
   <string name="no_account">Vinsamlegast settu upp reikning í Seafile fyrst</string>
   <string name="choose_an_account">Veldu reikning</string>
   <string name="choose_a_library">Veldu safn</string>
+  <string name="choose_a_folder">Veldu möppu</string>
   <string name="load_accounts_fail">Mistókst að hlaða inn Seafile reikningum</string>
   <string name="load_libraries_fail">Mistókst að hlaða inn söfnum</string>
   <string name="load_dir_fail">Mistókst að hlaða inn efni þessa skráasafns</string>
@@ -264,6 +274,7 @@
   <string name="settings_camera_upload_change_repo_title">Skipta um Upphleðslusafn</string>
   <string name="settings_camera_upload_repo_hint">Vinsamlegast veldu fyrst safn</string>
   <string name="settings_camera_upload_turn_on">Kveikja á Myndavélaupphleðslu</string>
+  <string name="settings_camera_upload_choose_dir">Skipta um albúm</string>
   <string name="settings_camera_upload_dir_auto_scan">Sjálfgefið að skima myndir skjálfkrafa</string>
   <string name="settings_camera_upload_lib_not_found">Valin skráasöfn eru ekki til</string>
   <string name="settings_camera_upload_advanced_feature_title">Frekari Valmöguleikar</string>
