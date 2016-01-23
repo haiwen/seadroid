@@ -119,7 +119,7 @@ public class BrowserActivity extends BaseActivity
     public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "password_fragment";
     public static final String CHOOSE_APP_DIALOG_FRAGMENT_TAG = "choose_app_fragment";
     public static final String PICK_FILE_DIALOG_FRAGMENT_TAG = "pick_file_fragment";
-    public static final int REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE = 1;
+    public static final int REQUEST_PERMISSIONS_WRITE_EXTERNAL_STORAGE = 1;
 
     public static final int INDEX_LIBRARY_TAB = 0;
     public static final int INDEX_STARRED_TAB = 1;
@@ -337,6 +337,8 @@ public class BrowserActivity extends BaseActivity
         startService(monitorIntent);
 
         requestServerInfo();
+
+        requestReadExternalStoragePermission();
     }
 
     private void finishAndStartAccountsActivity() {
@@ -431,12 +433,6 @@ public class BrowserActivity extends BaseActivity
 
                 return true;
             case R.id.settings:
-                requestReadExternalStoragePermission();
-                if (!boolPermissionGranted) {
-                    ToastUtils.show(this, R.string.permission_not_granted);
-                    return true;
-                }
-
                 Intent settingsIntent = new Intent(BrowserActivity.this,SettingsActivity.class);
                 settingsIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(settingsIntent);
@@ -446,26 +442,28 @@ public class BrowserActivity extends BaseActivity
     }
 
     /**
-     * Requests the READ_EXTERNAL_STORAGE permission.
+     * If the user is running Android 6.0 (API level 23) or later, the user has to grant your app its permissions while they are running the app
+     *
+     * Requests the WRITE_EXTERNAL_STORAGE permission.
      * If the permission has been denied previously, a SnackBar will prompt the user to grant the
      * permission, otherwise it is requested directly.
+     *
      */
     private void requestReadExternalStoragePermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)  != PackageManager.PERMISSION_GRANTED) {
-            // Log.i(DEBUG_TAG, "READ_EXTERNAL_STORAGE permission has NOT been granted. Requesting permission.");
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
 
-                // Log.i(DEBUG_TAG, "Displaying READ_EXTERNAL_STORAGE permission rationale to provide additional context.");
-                Snackbar.make(mLayout, R.string.permission_read_exteral_storage_rationale,
+                Snackbar.make(mLayout,
+                        R.string.permission_read_exteral_storage_rationale,
                         Snackbar.LENGTH_INDEFINITE)
-                        .setAction(R.string.ok, new View.OnClickListener() {
+                        .setAction(R.string.settings, new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
                                 ActivityCompat.requestPermissions(BrowserActivity.this,
-                                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                                        REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE);
+                                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                        REQUEST_PERMISSIONS_WRITE_EXTERNAL_STORAGE);
                             }
                         })
                         .show();
@@ -474,9 +472,9 @@ public class BrowserActivity extends BaseActivity
 
                 // No explanation needed, we can request the permission.
 
-                // READ_EXTERNAL_STORAGE permission has not been granted yet. Request it directly.
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                        REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE);
+                // WRITE_EXTERNAL_STORAGE permission has not been granted yet. Request it directly.
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        REQUEST_PERMISSIONS_WRITE_EXTERNAL_STORAGE);
             }
         } else {
             boolPermissionGranted = true;
@@ -492,14 +490,14 @@ public class BrowserActivity extends BaseActivity
         // Log.i(DEBUG_TAG, "Received response for permission request.");
 
         switch (requestCode) {
-            case REQUEST_PERMISSIONS_READ_EXTERNAL_STORAGE: {
+            case REQUEST_PERMISSIONS_WRITE_EXTERNAL_STORAGE: {
                 // Check if the only required permission has been granted
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     boolPermissionGranted = true;
                     // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
+                    // related task you need to do.
 
                 } else {
 
@@ -510,8 +508,6 @@ public class BrowserActivity extends BaseActivity
                 return;
             }
 
-            // other 'case' lines to check for other
-            // permissions this app might request
         }
     }
 
