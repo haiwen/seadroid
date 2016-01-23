@@ -464,6 +464,6 @@
         features of the application</string>
 
     <!-- permission -->
-    <string name="permission_read_exteral_storage_rationale">External storage permission is needed to show the settings page</string>
+    <string name="permission_read_exteral_storage_rationale">To process files, allow storage permission to access data.</string>
     <string name="permission_not_granted">Permission was not granted</string>
 </resources>
