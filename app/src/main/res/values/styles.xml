@@ -53,9 +53,9 @@
         <item name="android:textColor">@color/fancy_dark_black</item>
     </style>
 
-    <style name="NegativeButton" parent="android:style/Widget.Material.Button">
-        <item name="android:colorButtonNormal">@color/fancy_dark_gray</item>
+    <style name="NegativeButton" parent="Base.Widget.AppCompat.Button">
         <item name="colorButtonNormal">@color/fancy_dark_gray</item>
+        <item name="android:textColor">@color/light_black</item>
     </style>
 
     <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
