@@ -74,6 +74,11 @@ public class GalleryBucketUtils {
         );
 
         List<Bucket> buckets = new ArrayList<Bucket>();
+
+        if (cursor == null) {
+            return buckets;
+        }
+
         while (cursor.moveToNext()) {
             int bucketIdColumnIndex = cursor.getColumnIndex(MediaStore.Video.Media.BUCKET_ID);
             int bucketColumnIndex = cursor.getColumnIndex(MediaStore.Video.Media.BUCKET_DISPLAY_NAME);
@@ -118,6 +123,11 @@ public class GalleryBucketUtils {
         );
 
         List<Bucket> buckets = new ArrayList<Bucket>();
+
+        if (cursor == null) {
+            return buckets;
+        }
+
         while (cursor.moveToNext()) {
             int bucketIdColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_ID);
             int bucketColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
