@@ -2,7 +2,6 @@ package com.seafile.seadroid2.ui.activity;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -10,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.google.common.collect.Lists;
+import com.seafile.seadroid2.ui.HackyViewPager;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
@@ -37,7 +37,7 @@ import java.util.List;
 public class GalleryActivity extends BaseActivity {
     public static final String DEBUG_TAG = "GalleryActivity";
 
-    private ViewPager mViewPager;
+    private HackyViewPager mViewPager;
     private LinearLayout mPageIndexContainer;
     private TextView mPageIndexTextView;
     private TextView mPageCountTextView;
@@ -89,11 +89,11 @@ public class GalleryActivity extends BaseActivity {
         mDeleteBtn.setOnClickListener(onClickListener);
         mStarBtn.setOnClickListener(onClickListener);
         mShareBtn.setOnClickListener(onClickListener);
-        mViewPager = (ViewPager) findViewById(R.id.gallery_pager);
+        mViewPager = (HackyViewPager) findViewById(R.id.gallery_pager);
         mViewPager.setPageTransformer(true, new ZoomOutPageTransformer());
         mViewPager.setOffscreenPageLimit(1);
 
-        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        mViewPager.setOnPageChangeListener(new HackyViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 // page index starting from 1 instead of 0 in user interface, so plus one here
