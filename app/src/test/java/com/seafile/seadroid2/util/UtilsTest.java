@@ -2,9 +2,11 @@ package com.seafile.seadroid2.util;
 
 import org.junit.Test;
 import org.junit.Assert;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
-public class TestUtils {
+public class UtilsTest {
     @Test
     public void testJoinPaths() {
         String result = Utils.pathJoin("a", "b");
