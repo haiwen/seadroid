@@ -115,6 +115,7 @@ public class Utils {
         try {
             return (JSONArray) new JSONTokener(json).nextValue();
         } catch (Exception e) {
+            Log.e(DEBUG_TAG, "Could not parse json file", e);
             return null;
         }
     }

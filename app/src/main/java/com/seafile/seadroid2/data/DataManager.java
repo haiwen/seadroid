@@ -408,6 +408,7 @@ public class DataManager {
             }
             return dirents;
         } catch (JSONException e) {
+            Log.e(DEBUG_TAG, "Could not parse cached dirent", e);
             return null;
         }
     }
@@ -427,6 +428,7 @@ public class DataManager {
             }
             return starredFiles;
         } catch (JSONException e) {
+            Log.e(DEBUG_TAG, "Could not parse cached starred files", e);
             return null;
         }
     }
