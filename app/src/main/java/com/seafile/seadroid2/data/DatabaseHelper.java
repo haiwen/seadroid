@@ -455,20 +455,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         database.delete(STARRED_FILECACHE_TABLE_NAME, whereClause, new String[] { account.getSignature() });
     }
 
-    public String getDirents(String repoID, String path, String dirID) {
-        Pair<String, String> ret = getCachedDirents(repoID, path);
-        if (ret == null) {
-            return null;
-        }
-
-        if (dirID != null && !ret.first.equals(dirID)) {
-            // cache is out of date
-            return null;
-        }
-
-        return ret.second;
-    }
-
     public Pair<String, String> getCachedDirents(String repoID, String path) {
         String[] projection = {
             DIRENTS_CACHE_COLUMN_DIR_ID,

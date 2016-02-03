@@ -316,14 +316,6 @@ public class DataManager {
         }
     }
 
-    public List<SeafRepo> getCachedRepos() {
-        return reposCache;
-    }
-
-    public SeafRepo getCachedRepo(int position) {
-        return reposCache.get(position);
-    }
-
     public SeafRepo getCachedRepoByID(String id) {
         List<SeafRepo> cachedRepos = getReposFromCache();
         if (cachedRepos == null) {

@@ -119,23 +119,6 @@ public class Utils {
         }
     }
 
-    /** Read input stream and convert the content to string.
-     */
-    public static String readIt(InputStream stream) throws IOException,
-            UnsupportedEncodingException {
-        Reader reader = new InputStreamReader(stream, "UTF-8");
-        char[] buffer = new char[1024];
-        StringBuilder responseStrBuilder = new StringBuilder();
-
-        while (true) {
-            int len = reader.read(buffer, 0, 1024);
-            if (len == -1)
-                break;
-            responseStrBuilder.append(buffer, 0, len);
-        }
-        return responseStrBuilder.toString();
-    }
-
     public static String readFile(File file) {
         Reader reader = null;
         try {
