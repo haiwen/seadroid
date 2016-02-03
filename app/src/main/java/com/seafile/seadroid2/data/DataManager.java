@@ -183,7 +183,12 @@ public class DataManager {
     }
 
     private File getFileForReposCache() {
-        String filename = "repos-" + (account.server + account.email).hashCode() + ".dat";
+        String filename = "repos-" + (account.server + account.email).hashCode() + ".json";
+        return new File(getExternalCacheDirectory() + "/" + filename);
+    }
+
+    private File getFileForDirentCache(String dirID) {
+        String filename = "dirent-" + dirID + ".json";
         return new File(getExternalCacheDirectory() + "/" + filename);
     }
 
@@ -361,10 +366,21 @@ public class DataManager {
             File cache = getFileForReposCache();
             Utils.writeFile(cache, json);
         } catch (IOException e) {
-            // ignore
+            Log.e(DEBUG_TAG, "Could not write repo cache to disk.", e);
         }
 
         return reposCache;
+    }
+
+    private void saveDirentContent(String repoID, String parentDir, String dirID, String content) {
+        dbHelper.saveDirents(repoID, parentDir, dirID);
+
+        try {
+            File cache = getFileForDirentCache(dirID);
+            Utils.writeFile(cache, content);
+        } catch (IOException e) {
+            Log.e(DEBUG_TAG, "Could not write dirent cache to disk.", e);
+        }
     }
 
     public synchronized File getFile(String repoName, String repoID, String path,
@@ -434,13 +450,17 @@ public class DataManager {
     }
 
     public List<SeafDirent> getCachedDirents(String repoID, String path) {
-        String json = null;
-        Pair<String, String> ret = dbHelper.getCachedDirents(repoID, path);
-        if (ret == null) {
+        String dirID = dbHelper.getCachedDirents(repoID, path);
+        if (dirID == null) {
             return null;
         }
 
-        json = ret.second;
+        File cache = getFileForDirentCache(dirID);
+        if (!cache.exists()) {
+            return null;
+        }
+
+        String json = Utils.readFile(cache);
         if (json == null) {
             return null;
         }
@@ -459,25 +479,30 @@ public class DataManager {
      * In the second case, the local cache may still be valid.
      */
     public List<SeafDirent> getDirentsFromServer(String repoID, String path) throws SeafException {
-        Pair<String, String> cache = dbHelper.getCachedDirents(repoID, path);
-        String cachedDirID = null;
-        if (cache != null) {
-            cachedDirID = cache.first;
+
+        // first fetch our cached dirent and read it
+        String cachedDirID = dbHelper.getCachedDirents(repoID, path);
+        String cachedContent = null;
+        File cacheFile = getFileForDirentCache(cachedDirID);
+        if (cacheFile.exists()) {
+            cachedContent = Utils.readFile(cacheFile);
         }
+
+        // if that didn't work, then we have no cache.
+        if (cachedContent == null) {
+            cachedDirID = null;
+        }
+
+        // fetch new dirents. ret.second will be null if the cache is still valid
         Pair<String, String> ret = sc.getDirents(repoID, path, cachedDirID);
-        if (ret == null) {
-            return null;
-        }
 
-        String dirID = ret.first;
         String content;
-
-        if (cache != null && dirID.equals(cachedDirID)) {
-            // local cache still valid
-            content = cache.second;
-        } else {
+        if (ret.second != null) {
+            String dirID = ret.first;
             content = ret.second;
-            dbHelper.saveDirents(repoID, path, dirID, content);
+            saveDirentContent(repoID, path, dirID, content);
+        } else {
+            content = cachedContent;
         }
 
         return parseDirents(content);
@@ -585,7 +610,7 @@ public class DataManager {
 
         // The response is the dirents of the parentDir after creating
         // the new dir. We save it to avoid request it again
-        dbHelper.saveDirents(repoID, parentDir, newDirID, response);
+        saveDirentContent(repoID, parentDir, newDirID, response);
     }
 
     public void createNewFile(String repoID, String parentDir, String fileName) throws SeafException {
@@ -599,7 +624,7 @@ public class DataManager {
 
         // The response is the dirents of the parentDir after creating
         // the new file. We save it to avoid request it again
-        dbHelper.saveDirents(repoID, parentDir, newDirID, response);
+        saveDirentContent(repoID, parentDir, newDirID, response);
     }
 
     public File getLocalCachedFile(String repoName, String repoID, String filePath, String fileID) {
@@ -639,7 +664,7 @@ public class DataManager {
 
         // The response is the dirents of the parentDir after renaming the
         // file/folder. We save it to avoid request it again.
-        dbHelper.saveDirents(repoID, Utils.getParentPath(path), newDirID, response);
+        saveDirentContent(repoID, Utils.getParentPath(path), newDirID, response);
     }
 
     public void delete(String repoID, String path, boolean isdir) throws SeafException{
@@ -653,7 +678,7 @@ public class DataManager {
 
         // The response is the dirents of the parentDir after deleting the
         // file/folder. We save it to avoid request it again
-        dbHelper.saveDirents(repoID, Utils.getParentPath(path), newDirID, response);
+        saveDirentContent(repoID, Utils.getParentPath(path), newDirID, response);
     }
 
     public void copy(String srcRepoId, String srcDir, String srcFn,
@@ -689,7 +714,8 @@ public class DataManager {
 
         // The response is the list of dst after moving the
         // file/folder. We save it to avoid request it again
-        dbHelper.saveDirents(dstRepoId, dstDir, newDirID, response);
+        saveDirentContent(dstRepoId, dstDir, newDirID, response);
+
     }
 
     private static class PasswordInfo {
