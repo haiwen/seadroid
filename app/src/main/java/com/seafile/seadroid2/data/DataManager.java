@@ -343,6 +343,9 @@ public class DataManager {
         File cache = getFileForReposCache();
         if (cache.exists()) {
             String json = Utils.readFile(cache);
+            if (json == null) {
+                return null;
+            }
             reposCache = parseRepos(json);
             return reposCache;
         }
@@ -511,6 +514,9 @@ public class DataManager {
     public List<SeafStarredFile> getStarredFiles() throws SeafException {
         String starredFiles = sc.getStarredFiles();
         Log.v(DEBUG_TAG, "Save starred files: " + starredFiles);
+        if (starredFiles == null) {
+            return null;
+        }
         dbHelper.saveCachedStarredFiles(account, starredFiles);
         return parseStarredFiles(starredFiles);
     }
@@ -518,6 +524,9 @@ public class DataManager {
     public List<SeafStarredFile> getCachedStarredFiles() {
         String starredFiles = dbHelper.getCachedStarredFiles(account);
         Log.v(DEBUG_TAG, "Get cached starred files: " + starredFiles);
+        if (starredFiles == null) {
+            return null;
+        }
         return parseStarredFiles(starredFiles);
     }
 
@@ -859,6 +868,9 @@ public class DataManager {
     }
 
     public ArrayList<SearchedFile> parseSearchResult(String json) {
+        if (json == null)
+            return null;
+
         try {
             JSONArray array = Utils.parseJsonArrayByKey(json, "results");
             if (array == null)

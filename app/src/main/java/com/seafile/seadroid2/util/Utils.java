@@ -14,6 +14,7 @@ import android.net.NetworkInfo.DetailedState;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.OpenableColumns;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -91,13 +92,7 @@ public class Utils {
         }
     }
 
-    public static JSONArray parseJsonArrayByKey(String json, String key) throws JSONException {
-        if (json == null) {
-            // the caller should not give null
-            Log.w(DEBUG_TAG, "null in parseJsonArrayByKey");
-            return null;
-        }
-
+    public static JSONArray parseJsonArrayByKey(@NonNull String json, @NonNull String key) throws JSONException {
         String value = new JSONObject(json).optString(key);
         if (!TextUtils.isEmpty(value))
             return parseJsonArray(value);
@@ -105,13 +100,7 @@ public class Utils {
             return null;
     }
 
-    public static JSONArray parseJsonArray(String json) {
-        if (json == null) {
-         // the caller should not give null
-            Log.w(DEBUG_TAG, "null in parseJsonArray");
-            return null;
-        }
-
+    public static JSONArray parseJsonArray(@NonNull String json) {
         try {
             return (JSONArray) new JSONTokener(json).nextValue();
         } catch (Exception e) {
