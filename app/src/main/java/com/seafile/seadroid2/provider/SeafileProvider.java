@@ -364,7 +364,6 @@ public class SeafileProvider extends DocumentsProvider {
 
             String parentPath = Utils.getParentPath(path);
             List<SeafDirent> dirents = dm.getCachedDirents(repo.getID(), parentPath);
-            List<SeafStarredFile> starredFiles = dm.getCachedStarredFiles();
 
             if (dirents != null) {
                 // the file is in the dirent of the parent directory
@@ -375,13 +374,16 @@ public class SeafileProvider extends DocumentsProvider {
                         includeDirent(result, dm, repo.getID(), parentPath, entry);
                     }
                 }
-            } else if (starredFiles != null) {
+            } else {
                 //maybe the requested file is a starred file?
+                List<SeafStarredFile> starredFiles = dm.getCachedStarredFiles();
+                if (starredFiles != null) {
 
-                // look for the requested file in the list of starred files
-                for(SeafStarredFile file: starredFiles) {
-                    if (file.getPath().equals(path)) {
-                        includeStarredFileDirent(result, dm, file);
+                    // look for the requested file in the list of starred files
+                    for(SeafStarredFile file: starredFiles) {
+                        if (file.getPath().equals(path)) {
+                            includeStarredFileDirent(result, dm, file);
+                        }
                     }
                 }
             }
