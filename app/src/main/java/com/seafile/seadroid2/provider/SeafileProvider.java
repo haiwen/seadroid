@@ -580,6 +580,32 @@ public class SeafileProvider extends DocumentsProvider {
         }
     }
 
+    @Override
+    public void deleteDocument(String documentId) throws FileNotFoundException {
+        Log.d(DEBUG_TAG, "deleteDocument: " + documentId);
+
+        if (!Utils.isNetworkOn())
+            throw new FileNotFoundException();
+
+        String repoId = DocumentIdParser.getRepoIdFromId(documentId);
+        if (repoId.isEmpty()) {
+            throw new FileNotFoundException();
+        }
+
+        String path = docIdParser.getPathFromId(documentId);
+        DataManager dm = createDataManager(documentId);
+
+        try {
+
+            // only support deleting files for now
+            dm.delete(repoId, path, false);
+
+        } catch (SeafException e) {
+            Log.d(DEBUG_TAG, "could not delete file", e);
+            throw new FileNotFoundException();
+        }
+    }
+
     /**
      * Create a MatrixCursor with the option to enable the extraLoading flag.
      *
@@ -814,7 +840,7 @@ public class SeafileProvider extends DocumentsProvider {
             if (entry.isDir()) {
                 flags |= Document.FLAG_DIR_SUPPORTS_CREATE;
             } else {
-                flags |= Document.FLAG_SUPPORTS_WRITE;
+                flags |= Document.FLAG_SUPPORTS_WRITE | Document.FLAG_SUPPORTS_DELETE;
             }
         }
 
