@@ -294,7 +294,7 @@ public class SeafileProvider extends DocumentsProvider {
             SeafRepo repo = dm.getCachedRepoByID(repoId);
 
             // encrypted repos are not supported (we can't ask the user for the passphrase)
-            if (repo.encrypted) {
+            if (repo == null || repo.encrypted) {
                 throw new FileNotFoundException();
             }
 
