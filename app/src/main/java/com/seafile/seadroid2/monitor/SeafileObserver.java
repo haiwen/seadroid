@@ -99,17 +99,14 @@ public class SeafileObserver implements FileAlterationListener {
 
     @Override
     public void onDirectoryChange(File directory) {
-        Log.v(DEBUG_TAG, directory.getPath() + " was modified!");
     }
 
     @Override
     public void onDirectoryCreate(File directory) {
-        Log.v(DEBUG_TAG, directory.getPath() + " was created!");
     }
 
     @Override
     public void onDirectoryDelete(File directory) {
-        Log.v(DEBUG_TAG, directory.getPath() + " was deleted!");
     }
 
     @Override
@@ -142,7 +139,6 @@ public class SeafileObserver implements FileAlterationListener {
 
     @Override
     public void onFileCreate(File file) {
-        Log.v(DEBUG_TAG, file.getPath() + " was created!");
     }
 
     @Override
