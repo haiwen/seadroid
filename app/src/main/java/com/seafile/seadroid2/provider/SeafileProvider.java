@@ -420,7 +420,7 @@ public class SeafileProvider extends DocumentsProvider {
             throw new FileNotFoundException();
         }
 
-        Log.d(DEBUG_TAG, "dowloading file " + path);
+        Log.d(DEBUG_TAG, "dowloading/refreshing file " + path);
         int taskID = txService.addDownloadTask(dm.getAccount(), repo.getName(), repoId, path);
 
         DownloadTaskInfo info = null;
