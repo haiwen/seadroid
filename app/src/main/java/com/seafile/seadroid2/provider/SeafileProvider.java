@@ -201,6 +201,11 @@ public class SeafileProvider extends DocumentsProvider {
                 KEEP_ALIVE_TIME_UNIT,
                 mDecodeWorkQueue);
 
+        // assume at the beginning that all accounts are reachable
+        for(Account a: accountManager.getAccountList()) {
+            reachableAccounts.add(a);
+        }
+
         return true;
     }
 
