@@ -21,7 +21,10 @@ package com.seafile.seadroid2.provider;
 
 import android.accounts.OnAccountsUpdateListener;
 import android.annotation.TargetApi;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.database.MatrixCursor;
@@ -32,6 +35,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.provider.DocumentsContract.Document;
@@ -51,6 +55,9 @@ import com.seafile.seadroid2.data.ProgressMonitor;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SeafStarredFile;
+import com.seafile.seadroid2.transfer.DownloadTaskInfo;
+import com.seafile.seadroid2.transfer.TaskState;
+import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.util.Utils;
 
 import org.apache.commons.io.IOUtils;
@@ -63,10 +70,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -132,6 +136,53 @@ public class SeafileProvider extends DocumentsProvider {
         }
     };
 
+    TransferService txService = null;
+
+    ServiceConnection mConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            // this will run in a foreign thread!
+
+            TransferService.TransferBinder binder = (TransferService.TransferBinder) service;
+            synchronized (SeafileProvider.this) {
+                txService = binder.getService();
+            }
+            Log.d(DEBUG_TAG, "connected to TransferService");
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            // this will run in a foreign thread!
+            Log.d(DEBUG_TAG, "disconnected from TransferService, aborting sync");
+
+            synchronized (SeafileProvider.this) {
+                txService = null;
+            }
+        }
+    };
+
+    private synchronized boolean startTransferService() {
+        if (txService != null)
+            return true;
+
+        Intent bIntent = new Intent(getContext(), TransferService.class);
+        getContext().bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
+
+        // wait for TransferService to connect
+        Log.d(DEBUG_TAG, "waiting for transfer service");
+        int timeout = 1000; // wait up to a second
+        while (timeout > 0 && txService == null) {
+            Log.d(DEBUG_TAG, "waiting for transfer service");
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+            }
+            timeout -= 100;
+        }
+
+        return txService != null;
+    }
+
     @Override
     public boolean onCreate() {
         docIdParser = new DocumentIdParser(getContext());
@@ -140,6 +191,8 @@ public class SeafileProvider extends DocumentsProvider {
         androidAccountManager = android.accounts.AccountManager.get(getContext());
 
         androidAccountManager.addOnAccountsUpdatedListener(accountListener, null, true);
+
+        startTransferService();
 
         threadPoolExecutor = new ThreadPoolExecutor(
                 NUMBER_OF_CORES,       // Initial pool size
@@ -351,50 +404,49 @@ public class SeafileProvider extends DocumentsProvider {
         if (!Utils.isNetworkOn())
             throw new FileNotFoundException();
 
-        // open the file. this might involve talking to the seafile server. this will hang until
-        // it is done.
-        final Future<ParcelFileDescriptor> future = threadPoolExecutor.submit(new Callable<ParcelFileDescriptor>() {
+        String path = docIdParser.getPathFromId(documentId);
+        DataManager dm = createDataManager(documentId);
+        String repoId = DocumentIdParser.getRepoIdFromId(documentId);
 
-            @Override
-            public ParcelFileDescriptor call() throws Exception {
+        // we can assume that the repo is cached because the client has already seen it
+        SeafRepo repo = dm.getCachedRepoByID(repoId);
+        if (repo == null)
+            throw new FileNotFoundException();
 
-                String path = docIdParser.getPathFromId(documentId);
-                DataManager dm = createDataManager(documentId);
-                String repoId = DocumentIdParser.getRepoIdFromId(documentId);
-
-                // we can assume that the repo is cached because the client has already seen it
-                SeafRepo repo = dm.getCachedRepoByID(repoId);
-                if (repo == null)
-                    throw new FileNotFoundException();
-
-                File f = getFile(signal, dm, repo, path);
-
-                // return the file to the client.
-                String parentPath = Utils.getParentPath(path);
-                return makeParcelFileDescriptor(dm, repo.getName(), repoId, parentPath, f, mode);
-            }
-        });
-
-        if (signal != null) {
-            signal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
-                @Override
-                public void onCancel() {
-                    Log.d(DEBUG_TAG, "openDocument cancelling download");
-                    future.cancel(true);
-                }
-            });
+        if (!startTransferService()) {
+            Log.e(DEBUG_TAG, "TransferTask did not come up, upload failed.");
+            throw new FileNotFoundException();
         }
 
+        Log.d(DEBUG_TAG, "dowloading file " + path);
+        int taskID = txService.addDownloadTask(dm.getAccount(), repo.getName(), repoId, path);
+
+        DownloadTaskInfo info = null;
+        while (signal == null || !signal.isCanceled()) {
+            try {
+                Thread.sleep(100); // wait
+            } catch (InterruptedException e) {
+            }
+
+            info = txService.getDownloadTaskInfo(taskID);
+            if (info.state == TaskState.INIT || info.state == TaskState.TRANSFERRING) {
+                continue;
+            }
+            break;
+        }
+
+        if (info == null || info.state != TaskState.FINISHED)
+            throw new FileNotFoundException();
+
+        File f = new File(info.localFilePath);
+
+        // return the file to the client.
+        String parentPath = Utils.getParentPath(path);
+
         try {
-            return future.get();
-        } catch (InterruptedException e) {
-            Log.d(DEBUG_TAG, "openDocument cancelled download");
-            throw new FileNotFoundException();
-        } catch (CancellationException e) {
-            Log.d(DEBUG_TAG, "openDocumentThumbnail cancelled download");
-            throw new FileNotFoundException();
-        } catch (ExecutionException e) {
-            Log.d(DEBUG_TAG, "could not open file", e);
+            return makeParcelFileDescriptor(dm, repo.getName(), repoId, parentPath, f, mode);
+        } catch (IOException e) {
+            Log.d(DEBUG_TAG, "openDocument cancelled download", e);
             throw new FileNotFoundException();
         }
     }
@@ -575,19 +627,15 @@ public class SeafileProvider extends DocumentsProvider {
                             return;
                         }
 
-                        threadPoolExecutor.execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    dm.updateFile(repoName, repoID, parentDir, file.getPath(), null, false);
+                        if (!startTransferService()) {
+                            Log.e(DEBUG_TAG, "TransferTask did not come up, upload failed.");
+                            return;
+                        }
 
-                                    // update cache for parent dir
-                                    dm.getDirentsFromServer(repoID, parentDir);
-                                } catch (SeafException e1) {
-                                    Log.d(DEBUG_TAG, "could not upload file: ", e1);
-                                }
-                            }
-                        });
+                        Log.d(DEBUG_TAG, "uploading file " + file.getName() + " to " + parentDir);
+                        txService.addUploadTask(dm.getAccount(), repoID, repoName,
+                                parentDir, file.getAbsolutePath(), true, false);
+
                     }
 
                 });
