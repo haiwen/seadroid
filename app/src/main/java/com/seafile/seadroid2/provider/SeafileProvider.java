@@ -70,6 +70,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -534,80 +535,98 @@ public class SeafileProvider extends DocumentsProvider {
     }
 
     @Override
-    public String createDocument (String parentDocumentId, String mimeType, String displayName) throws FileNotFoundException {
+    public String createDocument (final String parentDocumentId, final String mimeType,
+                                  final String displayName) throws FileNotFoundException {
+
         Log.d(DEBUG_TAG, "createDocument: " + parentDocumentId + "; " + mimeType + "; " + displayName);
 
         if (!Utils.isNetworkOn())
             throw new FileNotFoundException();
 
-        String repoId = DocumentIdParser.getRepoIdFromId(parentDocumentId);
+        final String repoId = DocumentIdParser.getRepoIdFromId(parentDocumentId);
         if (repoId.isEmpty()) {
             throw new FileNotFoundException();
         }
 
-        String parentPath = DocumentIdParser.getPathFromId(parentDocumentId);
-        DataManager dm = createDataManager(parentDocumentId);
+        final String parentPath = DocumentIdParser.getPathFromId(parentDocumentId);
+        final DataManager dm = createDataManager(parentDocumentId);
+
+        // do the actual network operations in another thread to avoid NetworkOnMainThreadException
+        // in the caller
+        final Future<String> future = threadPoolExecutor.submit(new Callable() {
+
+            @Override
+            public String call() throws SeafException {
+                dm.getReposFromServer(); // refresh cache
+                SeafRepo repo = dm.getCachedRepoByID(repoId);
+
+                List<SeafDirent> list = dm.getDirentsFromServer(repoId, parentPath);
+                if (list == null) {
+                    throw new SeafException(0, SeadroidApplication.getAppContext().getString(R.string.saf_write_diretory_exception));
+                }
+
+                // first check if target already exist. if yes, abort
+                for (SeafDirent e : list) {
+                    if (e.getTitle().equals(displayName)) {
+                        throw new SeafException(0, SeadroidApplication.getAppContext().getString(R.string.saf_file_exist));
+                    }
+                }
+
+                if (repo == null || !repo.hasWritePermission()) {
+                    throw new SeafException(0, SeadroidApplication.getAppContext().getString(R.string.saf_write_diretory_exception));
+                } else if (mimeType == null) {
+                    // bad mime type given by caller
+                    throw new SeafException(0, SeadroidApplication.getAppContext().getString(R.string.saf_bad_mime_type));
+                } else if (mimeType.equals(Document.MIME_TYPE_DIR)) {
+                    dm.createNewDir(repoId, parentPath, displayName);
+                } else {
+                    dm.createNewFile(repoId, parentPath, displayName);
+                }
+
+                // update parent dirent cache
+                dm.getDirentsFromServer(repoId, parentPath);
+
+                return DocumentIdParser.buildId(dm.getAccount(), repoId, Utils.pathJoin(parentPath, displayName));
+            }
+        });
 
         try {
-
-            dm.getReposFromServer(); // refresh cache
-            SeafRepo repo = dm.getCachedRepoByID(repoId);
-
-            List<SeafDirent> list = dm.getDirentsFromServer(repoId, parentPath);
-            if (list == null) {
-                throw new SeafException(0, SeadroidApplication.getAppContext().getString(R.string.saf_write_diretory_exception));
-            }
-
-            // first check if target already exist. if yes, abort
-            for (SeafDirent e: list) {
-                if (e.getTitle().equals(displayName)) {
-                    throw new SeafException(0, SeadroidApplication.getAppContext().getString(R.string.saf_file_exist));
-                }
-            }
-
-            if (repo == null || !repo.hasWritePermission()) {
-                throw new SeafException(0, SeadroidApplication.getAppContext().getString(R.string.saf_write_diretory_exception));
-            } else if (mimeType == null) {
-                // bad mime type given by caller
-                throw new SeafException(0, SeadroidApplication.getAppContext().getString(R.string.saf_bad_mime_type));
-            } else if (mimeType.equals(Document.MIME_TYPE_DIR)) {
-                dm.createNewDir(repoId, parentPath, displayName);
-            } else {
-                dm.createNewFile(repoId, parentPath, displayName);
-            }
-
-            // update parent dirent cache
-            dm.getDirentsFromServer(repoId, parentPath);
-
-            return DocumentIdParser.buildId(dm.getAccount(), repoId, Utils.pathJoin(parentPath, displayName));
-
-        } catch (SeafException e) {
+            return future.get();
+        } catch (Exception e) {
             Log.d(DEBUG_TAG, "could not create file/dir", e);
             throw new FileNotFoundException();
         }
     }
 
     @Override
-    public void deleteDocument(String documentId) throws FileNotFoundException {
+    public void deleteDocument(final String documentId) throws FileNotFoundException {
         Log.d(DEBUG_TAG, "deleteDocument: " + documentId);
 
         if (!Utils.isNetworkOn())
             throw new FileNotFoundException();
 
-        String repoId = DocumentIdParser.getRepoIdFromId(documentId);
+        final String repoId = DocumentIdParser.getRepoIdFromId(documentId);
         if (repoId.isEmpty()) {
             throw new FileNotFoundException();
         }
 
-        String path = docIdParser.getPathFromId(documentId);
-        DataManager dm = createDataManager(documentId);
+        final String path = docIdParser.getPathFromId(documentId);
+        final DataManager dm = createDataManager(documentId);
+
+        // do the actual network operations in another thread to avoid NetworkOnMainThreadException
+        // in the caller
+        final Future<Void> future = threadPoolExecutor.submit(new Callable() {
+            @Override
+            public Void call() throws SeafException {
+                // only support deleting files for now
+                dm.delete(repoId, path, false);
+                return null;
+            }
+        });
 
         try {
-
-            // only support deleting files for now
-            dm.delete(repoId, path, false);
-
-        } catch (SeafException e) {
+            future.get();
+        } catch (Exception e) {
             Log.d(DEBUG_TAG, "could not delete file", e);
             throw new FileNotFoundException();
         }
