@@ -49,6 +49,7 @@ import com.seafile.seadroid2.data.StorageManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.MediaObserverService;
+import com.seafile.seadroid2.crypto.Crypto;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
@@ -103,6 +104,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import javax.crypto.SecretKey;
 
 public class BrowserActivity extends BaseActivity
         implements ReposFragment.OnFileSelectedListener, StarredFragment.OnStarredFileSelectedListener,
@@ -341,6 +344,40 @@ public class BrowserActivity extends BaseActivity
         requestServerInfo();
 
         requestReadExternalStoragePermission();
+
+        testEncrypt();
+    }
+
+    public void testEncrypt() {
+        final String password = "seafTest@123";
+
+        final String ciphertext = "hello world";
+
+        new EncryptTask(ciphertext, password).start();
+    }
+
+    class EncryptTask extends Thread {
+        private String plainText, password;
+
+        public EncryptTask(String plainText, String password) {
+            this.plainText = plainText;
+            this.password = password;
+        }
+
+        @Override
+        public void run() {
+            Log.d(DEBUG_TAG, "encrypting ...");
+            final byte[] encKey = Crypto.generateRadomNumbers();
+            final SecretKey secretKey = Crypto.deriveKeyPbkdf2(encKey, password);
+            final String cipherText = Crypto.encrypt(plainText, secretKey, encKey);
+            Log.d(DEBUG_TAG, "encKey " + encKey);
+            Log.d(DEBUG_TAG, "secretKey " + secretKey.toString());
+            Log.d(DEBUG_TAG, "cipherText " + cipherText);
+
+            Log.d(DEBUG_TAG, "decrypting ...");
+            final String plain = Crypto.decryptPbkdf2(cipherText, password);
+            Log.d(DEBUG_TAG, "plain text " + plain);
+        }
     }
 
     public FrameLayout getContainer() {
