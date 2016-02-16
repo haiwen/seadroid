@@ -79,6 +79,12 @@ public class DataManager {
         return getDirectoryCreateIfNeeded(tmpDir);
     }
 
+    public static String getChunkDirectory() {
+        String root = SeadroidApplication.getAppContext().getCacheDir().getAbsolutePath();
+        File tmpDir = new File(root + "/" + "chunk");
+        return getDirectoryCreateIfNeeded(tmpDir);
+    }
+
     public static String getExternalCacheDirectory() {
         String root = getExternalRootDirectory();
         File tmpDir = new File(root + "/" + "cache");
