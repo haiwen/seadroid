@@ -25,7 +25,9 @@ public class SeafRepo implements SeafItem {
     public boolean isSharedRepo;
     public boolean encrypted;
     public String permission;
-
+    public String magic;
+    public String encKey;
+    public int encVersion;
     public long    size;
     public String  root; // the id of root directory
 
@@ -42,6 +44,9 @@ public class SeafRepo implements SeafItem {
         repo.isGroupRepo = obj.getString("type").equals("grepo");
         repo.isPersonalRepo = obj.getString("type").equals("repo");
         repo.isSharedRepo = obj.getString("type").equals("srepo");
+        repo.magic = obj.getString("magic");
+        repo.encKey = obj.getString("random_key");
+        repo.encVersion = obj.getInt("enc_version");
         return repo;
     }
 
