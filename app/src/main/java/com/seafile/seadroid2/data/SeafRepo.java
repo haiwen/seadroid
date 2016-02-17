@@ -1,10 +1,10 @@
 package com.seafile.seadroid2.data;
 
-import android.util.Log;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.util.PinyinUtils;
 import com.seafile.seadroid2.util.Utils;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -44,9 +44,9 @@ public class SeafRepo implements SeafItem {
         repo.isGroupRepo = obj.getString("type").equals("grepo");
         repo.isPersonalRepo = obj.getString("type").equals("repo");
         repo.isSharedRepo = obj.getString("type").equals("srepo");
-        repo.magic = obj.getString("magic");
-        repo.encKey = obj.getString("random_key");
-        repo.encVersion = obj.getInt("enc_version");
+        repo.magic = obj.optString("magic");
+        repo.encKey = obj.optString("random_key");
+        repo.encVersion = obj.optInt("enc_version");
         return repo;
     }
 
