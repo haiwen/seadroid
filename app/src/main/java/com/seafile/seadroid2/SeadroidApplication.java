@@ -1,7 +1,5 @@
 package com.seafile.seadroid2;
 
-import java.io.File;
-
 import android.app.Application;
 import android.content.Context;
 
@@ -16,6 +14,9 @@ import com.seafile.seadroid2.avatar.AuthImageDownloader;
 import com.seafile.seadroid2.data.StorageManager;
 import com.seafile.seadroid2.gesturelock.AppLockManager;
 
+import java.io.File;
+import java.security.Security;
+
 public class SeadroidApplication extends Application {
     private static Context context;
     
@@ -29,7 +30,12 @@ public class SeadroidApplication extends Application {
         // set gesture lock if available
         AppLockManager.getInstance().enableDefaultAppLockIfAvailable(this);
     }
-    
+
+    static {
+        // http://stackoverflow.com/questions/6898801/how-to-include-the-spongy-castle-jar-in-android
+        Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
+    }
+
     public static Context getAppContext() {
         return SeadroidApplication.context;
     }

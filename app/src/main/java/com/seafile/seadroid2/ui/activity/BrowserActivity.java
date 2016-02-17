@@ -49,7 +49,6 @@ import com.seafile.seadroid2.data.StorageManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.MediaObserverService;
-import com.seafile.seadroid2.crypto.Crypto;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
@@ -104,8 +103,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import javax.crypto.SecretKey;
 
 public class BrowserActivity extends BaseActivity
         implements ReposFragment.OnFileSelectedListener, StarredFragment.OnStarredFileSelectedListener,
@@ -366,17 +363,21 @@ public class BrowserActivity extends BaseActivity
 
         @Override
         public void run() {
-            Log.d(DEBUG_TAG, "encrypting ...");
+            /*Log.d(DEBUG_TAG, "encrypting ...");
             final byte[] encKey = Crypto.generateRadomNumbers();
+            try {
             final SecretKey secretKey = Crypto.deriveKeyPbkdf2(encKey, password);
             final String cipherText = Crypto.encrypt(plainText, secretKey, encKey);
             Log.d(DEBUG_TAG, "encKey " + encKey);
             Log.d(DEBUG_TAG, "secretKey " + secretKey.toString());
             Log.d(DEBUG_TAG, "cipherText " + cipherText);
-
             Log.d(DEBUG_TAG, "decrypting ...");
             final String plain = Crypto.decryptPbkdf2(cipherText, password);
             Log.d(DEBUG_TAG, "plain text " + plain);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }*/
+
         }
     }
 
@@ -1947,13 +1948,18 @@ public class BrowserActivity extends BaseActivity
 
     public PasswordDialog showPasswordDialog(String repoName, String repoID,
                                              TaskDialog.TaskDialogListener listener) {
-        return showPasswordDialog(repoName, repoID, listener, null);
+        return showPasswordDialog(repoName, repoID, null, 0, listener, null);
     }
 
     public PasswordDialog showPasswordDialog(String repoName, String repoID,
                                              TaskDialog.TaskDialogListener listener, String password) {
+        return showPasswordDialog(repoName, repoID, null, 0, listener, password);
+    }
+
+    public PasswordDialog showPasswordDialog(String repoName, String repoID, String magic, int version,
+                                             TaskDialog.TaskDialogListener listener, String password) {
         PasswordDialog passwordDialog = new PasswordDialog();
-        passwordDialog.setRepo(repoName, repoID, account);
+        passwordDialog.setRepo(repoName, repoID, magic, version, account);
         if (password != null) {
             passwordDialog.setPassword(password);
         }
