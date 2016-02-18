@@ -1948,18 +1948,18 @@ public class BrowserActivity extends BaseActivity
 
     public PasswordDialog showPasswordDialog(String repoName, String repoID,
                                              TaskDialog.TaskDialogListener listener) {
-        return showPasswordDialog(repoName, repoID, null, 0, listener, null);
+        return showPasswordDialog(repoName, repoID, null, null, 0, listener, null);
     }
 
     public PasswordDialog showPasswordDialog(String repoName, String repoID,
                                              TaskDialog.TaskDialogListener listener, String password) {
-        return showPasswordDialog(repoName, repoID, null, 0, listener, password);
+        return showPasswordDialog(repoName, repoID, null, null, 0, listener, password);
     }
 
-    public PasswordDialog showPasswordDialog(String repoName, String repoID, String magic, int version,
+    public PasswordDialog showPasswordDialog(String repoName, String repoID, String magic, String randomKey, int version,
                                              TaskDialog.TaskDialogListener listener, String password) {
         PasswordDialog passwordDialog = new PasswordDialog();
-        passwordDialog.setRepo(repoName, repoID, magic, version, account);
+        passwordDialog.setRepo(repoName, repoID, magic, randomKey, version, account);
         if (password != null) {
             passwordDialog.setPassword(password);
         }

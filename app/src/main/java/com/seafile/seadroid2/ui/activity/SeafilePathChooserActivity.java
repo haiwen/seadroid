@@ -488,7 +488,7 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
         String repoID = nav.getRepoID();
 
         PasswordDialog passwordDialog = new PasswordDialog();
-        passwordDialog.setRepo(repoName, repoID, null, 0, mAccount);
+        passwordDialog.setRepo(repoName, repoID, null, null, 0, mAccount);
         passwordDialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
@@ -501,7 +501,7 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
     public void showPasswordDialog(String repoName, String repoID,
                                    TaskDialog.TaskDialogListener listener, String password) {
         PasswordDialog passwordDialog = new PasswordDialog();
-        passwordDialog.setRepo(repoName, repoID, null, 0, mAccount);
+        passwordDialog.setRepo(repoName, repoID, null, null, 0, mAccount);
         if (password != null) {
             passwordDialog.setPassword(password);
         }

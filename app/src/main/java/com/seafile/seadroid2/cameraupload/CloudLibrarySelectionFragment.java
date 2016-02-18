@@ -286,7 +286,7 @@ public class CloudLibrarySelectionFragment extends Fragment {
         String repoID = nav.getRepoID();
 
         PasswordDialog passwordDialog = new PasswordDialog();
-        passwordDialog.setRepo(repoName, repoID, null, 0, mAccount);
+        passwordDialog.setRepo(repoName, repoID, null, null, 0, mAccount);
         passwordDialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
@@ -299,7 +299,7 @@ public class CloudLibrarySelectionFragment extends Fragment {
     public void showPasswordDialog(String repoName, String repoID,
                                    TaskDialog.TaskDialogListener listener, String password) {
         PasswordDialog passwordDialog = new PasswordDialog();
-        passwordDialog.setRepo(repoName, repoID, null, 0, mAccount);
+        passwordDialog.setRepo(repoName, repoID, null, null, 0, mAccount);
         if (password != null) {
             passwordDialog.setPassword(password);
         }
