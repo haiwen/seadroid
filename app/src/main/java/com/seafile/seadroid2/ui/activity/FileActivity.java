@@ -237,7 +237,7 @@ public class FileActivity extends BaseActivity implements Toolbar.OnMenuItemClic
 
     private void handlePassword() {
         PasswordDialog passwordDialog = new PasswordDialog();
-        passwordDialog.setRepo(mRepoName, mRepoID, null, 0, mAccount);
+        passwordDialog.setRepo(mRepoName, mRepoID, null, null, 0, mAccount);
         passwordDialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {

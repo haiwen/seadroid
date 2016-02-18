@@ -27,15 +27,16 @@ class SetPasswordTask extends TaskDialog.Task {
 
     String repoID;
     String password;
-    String magic;
+    String magic, randomKey;
     int version;
     DataManager dataManager;
 
-    public SetPasswordTask(String repoID, String password, int version, String magic,
+    public SetPasswordTask(String repoID, String password, int version, String magic, String randomKey,
                            DataManager dataManager) {
         this.repoID = repoID;
         this.password = password;
         this.magic = magic;
+        this.randomKey = randomKey;
         this.version = version;
         this.dataManager = dataManager;
     }
@@ -75,18 +76,19 @@ public class PasswordDialog extends TaskDialog {
     private static final String STATE_ACCOUNT = "set_password_task.account";
 
     private EditText passwordText;
-    private String repoID, repoName, magic;
+    private String repoID, repoName, magic, randomKey;
     private int version;
     private DataManager dataManager;
     private Account account;
     private String password;
 
-    public void setRepo(String repoName, String repoID, String magic, int version, Account account) {
+    public void setRepo(String repoName, String repoID, String magic, String randomKey, int version, Account account) {
         this.repoName = repoName;
         this.repoID = repoID;
         this.version = version;
         this.account = account;
         this.magic = magic;
+        this.randomKey = randomKey;
     }
 
     private DataManager getDataManager() {
@@ -154,7 +156,7 @@ public class PasswordDialog extends TaskDialog {
     @Override
     protected SetPasswordTask prepareTask() {
         String password = passwordText.getText().toString().trim();
-        SetPasswordTask task = new SetPasswordTask(repoID, password, version, magic, getDataManager());
+        SetPasswordTask task = new SetPasswordTask(repoID, password, version, magic, randomKey, getDataManager());
         return task;
     }
 
@@ -174,7 +176,7 @@ public class PasswordDialog extends TaskDialog {
 
         String password = outState.getString(STATE_TASK_PASSWORD);
         if (password != null) {
-            return new SetPasswordTask(repoID, password, version, magic, getDataManager());
+            return new SetPasswordTask(repoID, password, version, magic, randomKey, getDataManager());
         } else {
             return null;
         }
@@ -191,8 +193,15 @@ public class PasswordDialog extends TaskDialog {
 
     @Override
     public void onTaskSuccess() {
-        String password = passwordText.getText().toString().trim();
-        DataManager.setRepoPasswordSet(repoID, password);
+        // String password = passwordText.getText().toString().trim();
+        try {
+            final String encKey = Crypto.deriveKeyPbkdf2(password, randomKey, version);
+            final String encIV = Crypto.deriveIVPbkdf2()
+            DataManager.saveRepoSecretKey(repoID, encKey);
+            // DataManager.setRepoPasswordSet(repoID, password);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         super.onTaskSuccess();
     }
 
