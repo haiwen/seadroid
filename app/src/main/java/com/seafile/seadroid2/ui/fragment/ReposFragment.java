@@ -577,7 +577,11 @@ public class ReposFragment extends ListFragment {
 
         if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
             String password = DataManager.getRepoPassword(repo.id);
-            mActivity.showPasswordDialog(repo.name, repo.id, repo.magic, repo.encVersion,
+            mActivity.showPasswordDialog(repo.name,
+                    repo.id,
+                    repo.magic,
+                    repo.encKey,
+                    repo.encVersion,
                     new TaskDialog.TaskDialogListener() {
                 @Override
                 public void onTaskSuccess() {
