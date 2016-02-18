@@ -39,6 +39,7 @@ public class DataManager {
     private static SimpleDateFormat ptrDataFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private static Map<String, PasswordInfo> passwords = Maps.newHashMap();
+    private static Map<String, SecretKeyInfo> secretKeyMap = Maps.newHashMap();
     private static Map<String, Long> direntsRefreshTimeMap = Maps.newHashMap();
     public static final long REFRESH_EXPIRATION_MSECS = 10 * 60 * 1000; // 10 mins
     public static long repoRefreshTimeStamp = 0;
@@ -828,6 +829,16 @@ public class DataManager {
         }
     }
 
+    private static class SecretKeyInfo {
+        String secretKey;
+        long timestamp;
+
+        public SecretKeyInfo(String secretKey, long timestamp) {
+            this.secretKey = secretKey;
+            this.timestamp = timestamp;
+        }
+    }
+
     public static boolean getRepoPasswordSet(String repoID) {
         PasswordInfo info = passwords.get(repoID);
         if (info == null) {
@@ -845,6 +856,10 @@ public class DataManager {
         passwords.put(repoID, new PasswordInfo(password, Utils.now()));
     }
 
+    public static void saveRepoSecretKey(String repoID, String key) {
+        secretKeyMap.put(repoID, new SecretKeyInfo(key, Utils.now()));
+    }
+
     public static String getRepoPassword(String repoID) {
         PasswordInfo info = passwords.get(repoID);
         if (info == null) {
@@ -852,6 +867,15 @@ public class DataManager {
         }
 
         return info.password;
+    }
+
+    public static String getSecretKey(String repoID) {
+        SecretKeyInfo info = secretKeyMap.get(repoID);
+        if (info == null) {
+            return null;
+        }
+
+        return info.secretKey;
     }
 
     /**

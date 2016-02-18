@@ -2,6 +2,7 @@ package com.seafile.seadroid2.ui.dialog;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -193,10 +194,13 @@ public class PasswordDialog extends TaskDialog {
 
     @Override
     public void onTaskSuccess() {
-        // String password = passwordText.getText().toString().trim();
+        String password = passwordText.getText().toString().trim();
         try {
             final String encKey = Crypto.deriveKeyPbkdf2(password, randomKey, version);
-            final String encIV = Crypto.deriveIVPbkdf2()
+            Log.d(PasswordDialog.class.getSimpleName(), "encKey " + encKey);
+            Log.d(PasswordDialog.class.getSimpleName(), "generate Radom Number " + Crypto.generateRadomNumbers());
+            final String randomKey = Crypto.generateRandomKey(password, "4d3f847c38ef4e15c8b81b84f0ceb27cc465fca4041b16084145a907ce63b9fe", version);
+            Log.d(PasswordDialog.class.getSimpleName(), "generate randomKey " + randomKey);
             DataManager.saveRepoSecretKey(repoID, encKey);
             // DataManager.setRepoPasswordSet(repoID, password);
         } catch (UnsupportedEncodingException e) {

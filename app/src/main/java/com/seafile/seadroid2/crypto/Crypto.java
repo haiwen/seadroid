@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.crypto;
 
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 
@@ -11,12 +12,9 @@ import org.spongycastle.crypto.generators.PKCS5S2ParametersGenerator;
 import org.spongycastle.crypto.params.KeyParameter;
 
 import java.io.UnsupportedEncodingException;
-import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 
 import javax.crypto.BadPaddingException;
@@ -24,7 +22,6 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -41,40 +38,17 @@ public class Crypto {
 
     public static final String PKCS12_DERIVATION_ALGORITHM = "PBEWITHSHA256AND256BITAES-CBC-BC";
     public static final String PBKDF2_DERIVATION_ALGORITHM = "PBKDF2WithHmacSHA1";
-    private static final String CIPHER_ALGORITHM = "AES/CBC/PKCS5Padding";
-
-    private static String DELIMITER = "]";
+    private static final String CIPHER_ALGORITHM = "AES/CBC/NoPadding";
 
     private static int KEY_LENGTH = 32;
+    private static int KEY_LENGTH_SHORT = 16;
     // minimum values recommended by PKCS#5, increase as necessary
     private static int ITERATION_COUNT = 1000;
+    // Should generate random salt for each repo
+    private static byte[] salt = {(byte) 0xda, (byte) 0x90, (byte) 0x45, (byte) 0xc3, (byte) 0x06, (byte) 0xc7, (byte) 0xcc, (byte) 0x26};
     private static final int PKCS5_SALT_LENGTH = 8;
 
-    private static SecureRandom random = new SecureRandom();
-
     private Crypto() {
-    }
-
-    /**
-     * Generate a 32-byte long cryptographically strong random number.
-     *
-     * This will be used as the file encryption key ("file key").
-     *
-     * Note that the output of a SecureRandom instance should never be relied upon to be deterministic.
-     * For deterministic output from a given input, see {@link MessageDigest} which provides one-way hash functions.
-     * For deriving keys from passwords, see {@link SecretKeyFactory}
-     *
-     * Using the seeded constructor or calling setSeed(byte[]) may completely replace the cryptographically strong default seed
-     * causing the instance to return a predictable sequence of numbers unfit for secure use.
-     * Due to variations between implementations it is not recommended to use setSeed at all.
-     *
-     * @return
-     */
-    public static byte[] generateRadomNumbers() {
-        SecureRandom sr = new SecureRandom();
-        byte[] output = new byte[32];
-        sr.nextBytes(output);
-        return output;
     }
 
     /**
@@ -97,9 +71,6 @@ public class Crypto {
         }
 
         String src = repoID + password;
-        // Should generate random salt for each repo
-        byte[] salt = {(byte) 0xda, (byte) 0x90, (byte) 0x45, (byte) 0xc3, (byte) 0x06, (byte) 0xc7, (byte) 0xcc, (byte) 0x26};
-        // final byte[] slt = new String(salt).getBytes("UTF-8");
         // If you use version 1.47 or higher of SpongyCastle, you can invoke PBKDF2WithHmacSHA256 directly.
         // In versions of BC < 1.47, you could not specify SHA256 digest and it defaulted to SHA1.
         // see http://stackoverflow.com/questions/6898801/how-to-include-the-spongy-castle-jar-in-android
@@ -110,7 +81,7 @@ public class Crypto {
         if (version == 2) {
             keyBytes = ((KeyParameter) gen.generateDerivedMacParameters(KEY_LENGTH * 8)).getKey();
         } else
-            keyBytes = ((KeyParameter) gen.generateDerivedMacParameters(16 * 8)).getKey();
+            keyBytes = ((KeyParameter) gen.generateDerivedMacParameters(KEY_LENGTH_SHORT * 8)).getKey();
 
         return toHex(keyBytes);
     }
@@ -140,12 +111,79 @@ public class Crypto {
         if (diff != 0) throw SeafException.invalidPassword;
     }
 
-    private static byte[] fromHex(String hex) throws NoSuchAlgorithmException {
-        byte[] bytes = new byte[hex.length() / 2];
-        for (int i = 0; i < bytes.length; i++) {
-            bytes[i] = (byte) Integer.parseInt(hex.substring(2 * i, 2 * i + 2), 16);
+    /**
+     * decrypt repo encKey
+     *
+     * @param password
+     * @param randomKey
+     * @param version
+     * @return
+     * @throws UnsupportedEncodingException
+     * @throws NoSuchAlgorithmException
+     */
+    public static String deriveKeyPbkdf2(String password, String randomKey, int version) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+        if (TextUtils.isEmpty(password) || TextUtils.isEmpty(randomKey)) {
+            return null;
         }
-        return bytes;
+
+        PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(new SHA256Digest());
+        gen.init(PBEParametersGenerator.PKCS5PasswordToUTF8Bytes(password.toCharArray()), salt, ITERATION_COUNT);
+        byte[] keyBytes;
+
+        if (version == 2) {
+            keyBytes = ((KeyParameter) gen.generateDerivedMacParameters(KEY_LENGTH * 8)).getKey();
+        } else
+            keyBytes = ((KeyParameter) gen.generateDerivedMacParameters(KEY_LENGTH_SHORT * 8)).getKey();
+
+        SecretKey realKey = new SecretKeySpec(keyBytes, "AES");
+
+        final byte[] iv = deriveIVPbkdf2(realKey.getEncoded());
+
+        final String encKey = seafileDecrypt(fromHex(randomKey), realKey, iv);
+
+        return encKey;
+    }
+
+    public static String seafileDecrypt(byte[] bytes, SecretKey key, byte[] iv) {
+        try {
+            Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
+             IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+            cipher.init(Cipher.DECRYPT_MODE, key, ivParameterSpec);
+            byte[] plaintext = cipher.doFinal(bytes);
+            return toHex(plaintext);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            Log.e(TAG, "NoSuchAlgorithmException " + e.getMessage());
+            return null;
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+            Log.e(TAG, "InvalidKeyException " + e.getMessage());
+            return null;
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+            Log.e(TAG, "NoSuchPaddingException " + e.getMessage());
+            return null;
+        } catch (BadPaddingException e) {
+            e.printStackTrace();
+            Log.e(TAG, "BadPaddingException " + e.getMessage());
+            return null;
+        } catch (IllegalBlockSizeException e) {
+            Log.e(TAG, "IllegalBlockSizeException " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        } catch (InvalidAlgorithmParameterException e) {
+            Log.e(TAG, "InvalidAlgorithmParameterException " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+
+    public static byte[] deriveIVPbkdf2(byte[] key) throws UnsupportedEncodingException {
+        PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(new SHA256Digest());
+        gen.init(key, salt, 10);
+        byte[] keyBytes = ((KeyParameter) gen.generateDerivedMacParameters(KEY_LENGTH_SHORT * 8)).getKey();
+        return keyBytes;
     }
 
     /**
@@ -158,33 +196,32 @@ public class Crypto {
      * This encrypted file key will be sent to and stored on the server.
      * When you need to access the data, you can decrypt the file key from the encrypted file key.
      *
-     *  The iteration count is as recommended by PKCS#5,
-     *  but that standard was written a while ago, so you might want to increase it.
-     *  For some perspective, AES 256 bit keys used to encrypt backups in Android 4.0 (ICS) are derived using 10,000 iterations and a 512 bit salt;
-     *  iOS 4.0 also uses 10,000 iterations.
-     *  The size of the salt should typically match the key size, for example 16 bytes when using a AES with a 128 bit key (128 / 8 = 16).
-     * @param salt
      * @param password
+     * @param rand
+     * @param version
+     * @return RandomKey
+     * @throws UnsupportedEncodingException
      */
-    public static SecretKey deriveKeyPbkdf2(byte[] salt, String password, int version) throws UnsupportedEncodingException {
-        // long start = System.currentTimeMillis();
+    public static String generateRandomKey(String password, String rand, int version) throws UnsupportedEncodingException {
+        if (rand.isEmpty()) {
+            return null;
+        }
+
         PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(new SHA256Digest());
-        gen.init(password.getBytes("UTF-8"), salt, ITERATION_COUNT);
+        gen.init(PBEParametersGenerator.PKCS5PasswordToUTF8Bytes(password.toCharArray()), salt, ITERATION_COUNT);
+        byte[] keyBytes;
+
         if (version == 2) {
-            byte[] keyBytes = ((KeyParameter) gen.generateDerivedParameters(KEY_LENGTH * 8)).getKey();
-            // Log.d(TAG, "key bytes: " + toHex(keyBytes));
-
-            SecretKey result = new SecretKeySpec(keyBytes, "AES");
-            // long elapsed = System.currentTimeMillis() - start;
-            // Log.d(TAG, String.format("PBKDF2 key derivation took %d [ms].", elapsed));
-
-            return result;
-        } else if (version == 1) {
-            // EVP_BytesToKey
-            return null;
+            keyBytes = ((KeyParameter) gen.generateDerivedMacParameters(KEY_LENGTH * 8)).getKey();
         } else
-            // EVP_BytesToKey
-            return null;
+            keyBytes = ((KeyParameter) gen.generateDerivedMacParameters(KEY_LENGTH_SHORT * 8)).getKey();
+
+        SecretKey secretKey = new SecretKeySpec(keyBytes, "AES");
+
+        final byte[] iv = deriveIVPbkdf2(keyBytes);
+
+        final String encKey = encrypt(rand, secretKey, iv);
+        return encKey;
     }
 
     /**
@@ -195,70 +232,76 @@ public class Crypto {
      *
      * @param plaintext
      * @param key
-     * @param salt
      * @return
      */
-    public static String encrypt(String plaintext, SecretKey key, byte[] salt) {
+    public static String encrypt(String plaintext, SecretKey key, byte[] iv) {
         try {
             Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
 
-            byte[] iv = generateIv(cipher.getBlockSize());
-            Log.d(TAG, "IV: " + toHex(iv));
             IvParameterSpec ivParams = new IvParameterSpec(iv);
             cipher.init(Cipher.ENCRYPT_MODE, key, ivParams);
-            Log.d(TAG, "Cipher IV: " + (cipher.getIV() == null ? null : toHex(cipher.getIV())));
 
-            byte[] cipherText = cipher.doFinal(plaintext.getBytes("UTF-8"));
+            byte[] cipherText = cipher.doFinal(fromHex(plaintext));
 
-            if (salt != null) {
-                return String.format("%s%s%s%s%s", toBase64(salt), DELIMITER,
-                        toBase64(iv), DELIMITER, toBase64(cipherText));
-            }
-
-            return String.format("%s%s%s", toBase64(iv), DELIMITER,
-                    toBase64(cipherText));
-        } catch (GeneralSecurityException e) {
-            throw new RuntimeException(e);
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
+            return toHex(cipherText);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            Log.e(TAG, "NoSuchAlgorithmException " + e.getMessage());
+            return null;
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+            Log.e(TAG, "InvalidKeyException " + e.getMessage());
+            return null;
+        } catch (InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+            Log.e(TAG, "InvalidAlgorithmParameterException " + e.getMessage());
+            return null;
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+            Log.e(TAG, "NoSuchPaddingException " + e.getMessage());
+            return null;
+        } catch (IllegalBlockSizeException e) {
+            e.printStackTrace();
+            Log.e(TAG, "IllegalBlockSizeException " + e.getMessage());
+            return null;
+        } catch (BadPaddingException e) {
+            e.printStackTrace();
+            Log.e(TAG, "BadPaddingException " + e.getMessage());
+            return null;
         }
     }
 
-    public static byte[] generateIv(int length) {
-        byte[] b = new byte[length];
-        random.nextBytes(b);
-
-        return b;
-    }
-
-    public static String decryptPbkdf2(String ciphertext, String password, int version) throws UnsupportedEncodingException {
-        String[] fields = ciphertext.split(DELIMITER);
-        if (fields.length != 3) {
-            throw new IllegalArgumentException("Invalid encypted text format");
-        }
-
-        byte[] salt = fromBase64(fields[0]);
-        byte[] iv = fromBase64(fields[1]);
-        byte[] cipherBytes = fromBase64(fields[2]);
-        SecretKey key = deriveKeyPbkdf2(salt, password, version);
-
-        return decrypt(cipherBytes, key, iv);
-    }
-
+    /**
+     * All file data is decrypt by the file key with AES 256/CBC.
+     *
+     * @param cipherBytes
+     * @param key
+     * @param iv
+     * @return
+     */
     public static String decrypt(byte[] cipherBytes, SecretKey key, byte[] iv) {
         try {
             Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
             IvParameterSpec ivParams = new IvParameterSpec(iv);
             cipher.init(Cipher.DECRYPT_MODE, key, ivParams);
-            Log.d(TAG, "Cipher IV: " + toHex(cipher.getIV()));
-            byte[] plaintext = cipher.doFinal(cipherBytes);
-            String plainrStr = new String(plaintext, "UTF-8");
-
-            return plainrStr;
-        } catch (GeneralSecurityException e) {
-            throw new RuntimeException(e);
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
+            byte[] plaintext = cipher.update(cipherBytes);
+            return toHex(plaintext);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            Log.e(TAG, "NoSuchAlgorithmException " + e.getMessage());
+            return null;
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+            Log.e(TAG, "InvalidKeyException " + e.getMessage());
+            return null;
+        } catch (InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+            Log.e(TAG, "InvalidAlgorithmParameterException " + e.getMessage());
+            return null;
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+            Log.e(TAG, "NoSuchPaddingException " + e.getMessage());
+            return null;
         }
     }
 
@@ -279,6 +322,21 @@ public class Crypto {
 
         }
         return result.toString();
+    }
+
+    /**
+     * Convert Hexadecimal to byte
+     *
+     * @param hex
+     * @return
+     * @throws NoSuchAlgorithmException
+     */
+    public static byte[] fromHex(String hex) throws NoSuchAlgorithmException {
+        byte[] bytes = new byte[hex.length() / 2];
+        for (int i = 0; i < bytes.length; i++) {
+            bytes[i] = (byte) Integer.parseInt(hex.substring(2 * i, 2 * i + 2), 16);
+        }
+        return bytes;
     }
 
     public static String toBase64(byte[] bytes) {
