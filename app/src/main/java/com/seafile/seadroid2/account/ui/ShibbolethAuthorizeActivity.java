@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.http.SslError;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -13,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.webkit.CookieManager;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
@@ -158,13 +160,13 @@ public class ShibbolethAuthorizeActivity extends BaseActivity implements Toolbar
             showPageLoading(false);
         }
 
-        /*@Override
+        @Override
         public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
             Log.d(DEBUG_TAG, "onReceivedSslError " + error.getCertificate().toString());
 
             // Ignore SSL certificate validate
             handler.proceed();
-        }*/
+        }
 
         @Override
         public void onPageFinished(WebView webView, String url) {
@@ -186,8 +188,9 @@ public class ShibbolethAuthorizeActivity extends BaseActivity implements Toolbar
     }
 
     private void returnAccount(Account account) {
-        if (account == null)
-            finish();
+        if (account == null) {
+            return;
+        }
 
         Intent retData = new Intent();
         retData.putExtras(getIntent());
