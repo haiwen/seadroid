@@ -265,10 +265,10 @@
   <string name="settings_camera_upload_info_title">Hlaða Upp Myndum Myndavélar</string>
   <string name="settings_camera_upload_service_started">Upphleðsluþjónusta hafin</string>
   <string name="settings_camera_upload_service_stopped">Upphleðsluþjónusta stöðvaðist</string>
-  <string name="settings_camera_upload_allow_data_plan">Leyfa gagnaáætlun</string>
+  <string name="settings_camera_upload_allow_data_plan">Leyfa 3G/4G flutning</string>
   <string name="settings_camera_upload_allow_videos">Leyfa Upphleðslu Kvikmynda</string>
   <string name="settings_camera_upload_default_wifi">Sjálfgefið að nota aðeins Wi-Fi</string>
-  <string name="settings_camera_upload_data_plan_allowed">Gagnaáætlun leyfð</string>
+  <string name="settings_camera_upload_data_plan_allowed">3G/4G flutningur leyfður</string>
   <string name="settings_camera_upload_default_photos">Sjálfgefið að hlaða aðeins upp ljósmyndum</string>
   <string name="settings_camera_upload_videos_allowed">Vídeó innifalin </string>
   <string name="settings_camera_upload_change_repo_title">Skipta um Upphleðslusafn</string>
@@ -279,17 +279,20 @@
   <string name="settings_camera_upload_lib_not_found">Valin skráasöfn eru ekki til</string>
   <string name="settings_camera_upload_advanced_feature_title">Frekari Valmöguleikar</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Sérsniðið upphleðsluval</string>
+  <string name="settings_camera_upload_advanced_custom_directories">Valin Upphleðslumyndasöfn</string>
+  <string name="settings_camera_upload_advanced_custom_directories_on">Veldu myndasöfn</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">Sjálfvirk skimun tækis</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Stillingahjálp</string>
   <string name="settings_cuc_welcome_text">Takk vyrir að nota myndavélaupphleðsluhjálpina. \nTil að hjálpa þér af stað með myndavélaupphleðsluþjónustuna, þá verður þér leiðbeint í upphafskrefunum.</string>
   <string name="settings_cuc_network_title">Hvernig á að hlaða upp</string>
   <string name="settings_cuc_network_wifi">Aðeins Wi-Fi</string>
-  <string name="settings_cuc_network_data_plan">Wi-Fi eða gagnaáætlun</string>
+  <string name="settings_cuc_network_data_plan">Wi-Fi eða 3G/4G</string>
   <string name="settings_cuc_option_hint">Veldu það sem hentar þér. \nÞú getur breytt þessum valmöguleikum síðar í Stillingum.</string>
   <string name="settings_cuc_type_title">Hverju á að hlaða upp</string>
   <string name="settings_cuc_type_photo">Aðeins myndum</string>
   <string name="settings_cuc_type_video">Myndum og kvikmyndum</string>
+  <string name="settings_cuc_local_dir_title">Veldu myndasöfn</string>
   <plurals name="settings_cuc_local_dir_items">
     <item quantity="one">%1$d atriði</item>
     <item quantity="other">%1$d atriði</item>
@@ -298,6 +301,8 @@
   <string name="settings_cuc_remote_lib_account">Veldu reikning</string>
   <string name="settings_cuc_remote_lib_repo">%s varð fyrir valinu</string>
   <string name="settings_cuc_upload_to_parent_folder">Upp í Yfirskráasafn</string>
+  <string name="settings_cuc_auto_scan">Velja myndasöfn sjálfvirkt</string>
+  <string name="settings_cuc_pick_albums">Leyfðu mér að velja upphleðslumyndasöfn</string>
   <string name="settings_cuc_remote_lib_hint">Veldu reikninginn þinn og safn. \nÞú getur breytt þessum stillingum síðar í Stillingum.</string>
   <string name="settings_cuc_finish_title">Enda</string>
   <string name="settings_cuc_ready">Seafile mun nú hlaða upp skrám frá þeim skráasöfnum sem þú valdir. \nÞú mátt loka appinu á meðan þessu stendur.</string>
@@ -305,6 +310,11 @@
   <string name="settings_cuc_click_btn">Smelltu til að loka stillingahjálpinni.</string>
   <string name="settings_cuc_loading">hleð...</string>
   <!--Camera Sync-->
+  <string name="sync_provider_camera_upload">Ljósmyndir og vídeó myndavélar</string>
+  <string name="camera_sync_notification_title_failed">Upphleðsla mynda mistókst</string>
+  <string name="camera_sync_notification_repo_missing_failed">Vantar geymslu á þjóni.</string>
+  <string name="camera_sync_notification_auth_error_failed">Auðkenningarvilla.</string>
+  <string name="camera_sync_rename_file">%s (endurnefnt af Seafile)</string>
   <string name="settings_about_title">UM</string>
   <string name="settings_about_version_title">App Útgáfa</string>
   <string name="settings_about_author_title">Um Höfund</string>
