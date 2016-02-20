@@ -172,6 +172,7 @@ public class ShibbolethActivity extends BaseActivity implements Toolbar.OnMenuIt
         // pass auth result back to the SeafileAuthenticatorActivity
         if (requestCode == SHIBBOLETH_AUTH) {
             setResult(resultCode, data);
+            finish();
         }
     }
 }

@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.http.SslCertificate;
+import android.net.http.SslError;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -13,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.webkit.CookieManager;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
@@ -20,13 +23,16 @@ import android.widget.LinearLayout;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.ssl.CertsManager;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.activity.BaseActivity;
+import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 import com.seafile.seadroid2.util.Utils;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
+import java.security.cert.X509Certificate;
 
 /**
  * Shibboleth Authorize page
@@ -148,6 +154,11 @@ public class ShibbolethAuthorizeActivity extends BaseActivity implements Toolbar
         return true;
     }
 
+    private void displaySSLError() {
+        showPageLoading(false);
+        ToastUtils.show(this, R.string.ssl_error);
+    }
+
     class CustomWebviewClient extends WebViewClient {
         @Override
         public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
@@ -158,13 +169,40 @@ public class ShibbolethAuthorizeActivity extends BaseActivity implements Toolbar
             showPageLoading(false);
         }
 
-        /*@Override
-        public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+        @Override
+        public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
             Log.d(DEBUG_TAG, "onReceivedSslError " + error.getCertificate().toString());
+            final Account account = new Account(serverUrl, null, null);
 
-            // Ignore SSL certificate validate
-            handler.proceed();
-        }*/
+            SslCertificate sslCert = error.getCertificate();
+            X509Certificate savedCert = CertsManager.instance().getCertificate(account);
+
+            if (Utils.isSameCert(sslCert, savedCert)) {
+                Log.d(DEBUG_TAG, "trust this cert");
+                handler.proceed();
+            } else {
+                Log.d(DEBUG_TAG, "cert is not trusted");
+                SslConfirmDialog dialog = new SslConfirmDialog(account,
+                        Utils.getX509CertFromSslCertHack(sslCert),
+                        new SslConfirmDialog.Listener() {
+                            @Override
+                            public void onAccepted(boolean rememberChoice) {
+                                CertsManager.instance().saveCertForAccount(account, rememberChoice);
+                                // Ignore SSL certificate validate
+                                handler.proceed();
+                            }
+
+                            @Override
+                            public void onRejected() {
+                                displaySSLError();
+                                handler.cancel();
+                            }
+                        });
+                dialog.show(getSupportFragmentManager(), SslConfirmDialog.FRAGMENT_TAG);
+            }
+            return;
+
+        }
 
         @Override
         public void onPageFinished(WebView webView, String url) {
@@ -186,8 +224,9 @@ public class ShibbolethAuthorizeActivity extends BaseActivity implements Toolbar
     }
 
     private void returnAccount(Account account) {
-        if (account == null)
-            finish();
+        if (account == null) {
+            return;
+        }
 
         Intent retData = new Intent();
         retData.putExtras(getIntent());

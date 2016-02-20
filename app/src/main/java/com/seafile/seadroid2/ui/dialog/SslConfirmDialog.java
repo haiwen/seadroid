@@ -1,10 +1,5 @@
 package com.seafile.seadroid2.ui.dialog;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.security.cert.CertificateParsingException;
-import java.security.cert.X509Certificate;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -12,17 +7,20 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.view.ContextThemeWrapper;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.ssl.SSLTrustManager;
-import com.seafile.seadroid2.ssl.SSLTrustManager.SslFailureReason;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.CertificateInfo;
+import com.seafile.seadroid2.ssl.SSLTrustManager;
+import com.seafile.seadroid2.ssl.SSLTrustManager.SslFailureReason;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.cert.CertificateParsingException;
+import java.security.cert.X509Certificate;
 
 
 public class SslConfirmDialog extends DialogFragment {
@@ -36,6 +34,7 @@ public class SslConfirmDialog extends DialogFragment {
 
     private Account account;
     private Listener listener;
+    private X509Certificate certificate;
     private TextView messageText;
     private TextView commonNameText;
     // private TextView altSubjNamesText;
@@ -51,6 +50,12 @@ public class SslConfirmDialog extends DialogFragment {
     public SslConfirmDialog(Account account, Listener listener) {
         this.listener = listener;
         this.account = account;
+    }
+
+    public SslConfirmDialog(Account account, X509Certificate certificate, Listener listener) {
+        this.listener = listener;
+        this.account = account;
+        this.certificate = certificate;
     }
 
     @Override
@@ -98,6 +103,14 @@ public class SslConfirmDialog extends DialogFragment {
             commonNameText.setText(certInfo.getSubjectName());
             // String[] subjAltNames = certInfo.getSubjectAltNames();
             // altSubjNamesText.setText((subjAltNames.length > 0) ? StringUtils.join(subjAltNames, ", ") : "—");
+            sha1Text.setText(getActivity().getString(R.string.sha1, certInfo.getSignature("SHA-1")));
+            md5Text.setText(getActivity().getString(R.string.md5, certInfo.getSignature("MD5")));
+            serialNumberText.setText(getActivity().getString(R.string.serial_number, certInfo.getSerialNumber()));
+            notBeforeText.setText(getActivity().getString(R.string.not_before, certInfo.getNotBefore().toLocaleString()));
+            notAfterText.setText(getActivity().getString(R.string.not_after, certInfo.getNotAfter().toLocaleString()));
+        } else if (certificate != null) {
+            CertificateInfo certInfo = new CertificateInfo(certificate);
+            commonNameText.setText(certInfo.getSubjectName());
             sha1Text.setText(getActivity().getString(R.string.sha1, certInfo.getSignature("SHA-1")));
             md5Text.setText(getActivity().getString(R.string.md5, certInfo.getSignature("MD5")));
             serialNumberText.setText(getActivity().getString(R.string.serial_number, certInfo.getSerialNumber()));

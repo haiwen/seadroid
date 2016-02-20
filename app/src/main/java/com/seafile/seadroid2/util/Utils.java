@@ -12,7 +12,9 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.DetailedState;
 import android.net.Uri;
+import android.net.http.SslCertificate;
 import android.os.Build;
+import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
@@ -35,6 +37,7 @@ import org.json.JSONTokener;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -50,6 +53,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -750,5 +757,82 @@ public class Utils {
         }
         lastClickTime = time;
         return false;
+    }
+
+    /**
+     * SslCertificate class does not has a public getter for the underlying
+     * X509Certificate, we can only do this by hack. This only works for andorid 4.0+
+     * @see https://groups.google.com/forum/#!topic/android-developers/eAPJ6b7mrmg
+     */
+    public static X509Certificate getX509CertFromSslCertHack(SslCertificate sslCert) {
+        X509Certificate x509Certificate = null;
+
+        Bundle bundle = SslCertificate.saveState(sslCert);
+        byte[] bytes = bundle.getByteArray("x509-certificate");
+
+        if (bytes == null) {
+            x509Certificate = null;
+        } else {
+            try {
+                CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+                Certificate cert = certFactory.generateCertificate(new ByteArrayInputStream(bytes));
+                x509Certificate = (X509Certificate) cert;
+            } catch (CertificateException e) {
+                x509Certificate = null;
+            }
+        }
+
+        return x509Certificate;
+    }
+
+    public static boolean isSameCert(SslCertificate sslCert, X509Certificate x509Cert) {
+        if (sslCert == null || x509Cert == null) {
+            return false;
+        }
+
+        X509Certificate realCert = getX509CertFromSslCertHack(sslCert);
+        if (realCert != null) {
+            // for android 4.0+
+            return realCert.equals(x509Cert);
+        } else {
+            // for andorid < 4.0
+            return SslCertificateComparator.compare(sslCert,
+                    new SslCertificate(x509Cert));
+        }
+    }
+
+    /**
+     * Compare SslCertificate objects for android before 4.0
+     */
+    public static class SslCertificateComparator {
+        private SslCertificateComparator() {
+        }
+
+        public static boolean compare(SslCertificate cert1, SslCertificate cert2) {
+            return isSameDN(cert1.getIssuedTo(), cert2.getIssuedTo())
+                    && isSameDN(cert1.getIssuedBy(), cert2.getIssuedBy())
+                    && isSameDate(cert1.getValidNotBeforeDate(), cert2.getValidNotBeforeDate())
+                    && isSameDate(cert1.getValidNotAfterDate(), cert2.getValidNotAfterDate());
+        }
+
+        private static boolean isSameDate(Date date1, Date date2) {
+            if (date1 == null && date2 == null) {
+                return true;
+            } else if (date1 == null || date2 == null) {
+                return false;
+            }
+
+            return date1.equals(date2);
+        }
+
+        private static boolean isSameDN(SslCertificate.DName dName1, SslCertificate.DName dName2) {
+            if (dName1 == null && dName2 == null) {
+                return true;
+            } else if (dName1 == null || dName2 == null) {
+                return false;
+            }
+
+            return dName1.getDName().equals(dName2.getDName());
+        }
     }
 }
