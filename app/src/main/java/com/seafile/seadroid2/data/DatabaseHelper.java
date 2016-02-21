@@ -427,7 +427,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public void saveDirents(String repoID, String path, String dirID) {
-        removeCachedDirents(repoID, path);
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
         values.put(DIRENTS_CACHE_COLUMN_REPO_ID, repoID);
@@ -482,4 +481,40 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return dirID;
     }
+
+    /**
+     * Return the number of cached dirs that reference a specific dirID.
+     * Used for cache cleaning.
+     *
+     * @param dirID
+     * @return
+     */
+    public int getCachedDirentUsage(String dirID) {
+        String[] projection = { DIRENTS_CACHE_COLUMN_DIR_ID };
+
+        String selectClause = String.format("%s = ?",
+                DIRENTS_CACHE_COLUMN_DIR_ID);
+
+        String[] selectArgs = { dirID };
+
+        Cursor cursor = database.query(
+                DIRENTS_CACHE_TABLE_NAME,
+                projection,
+                selectClause,
+                selectArgs,
+                null,   // don't group the rows
+                null,   // don't filter by row groups
+                null);  // The sort order
+
+        if (!cursor.moveToFirst()) {
+            cursor.close();
+            return 0;
+        }
+
+        int count = cursor.getCount();
+        cursor.close();
+
+        return count;
+    }
+
 }

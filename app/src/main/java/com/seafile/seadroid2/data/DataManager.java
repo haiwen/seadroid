@@ -376,6 +376,7 @@ public class DataManager {
     }
 
     private void saveDirentContent(String repoID, String parentDir, String dirID, String content) {
+        deleteOldDirentContent(repoID, parentDir);
         dbHelper.saveDirents(repoID, parentDir, dirID);
 
         try {
@@ -384,6 +385,25 @@ public class DataManager {
         } catch (IOException e) {
             Log.e(DEBUG_TAG, "Could not write dirent cache to disk.", e);
         }
+    }
+
+    /**
+     * Clean up old dirent cache for a directory where we have received new data.
+     *
+     * @param repoID
+     * @param dir
+     */
+    private void deleteOldDirentContent(String repoID, String dir) {
+        String dirID = dbHelper.getCachedDirents(repoID, dir);
+
+        // identical directory content results in same dirID. So check if whether
+        // the dirID is referenced multiple times before deleting it.
+        if (dirID != null && dbHelper.getCachedDirentUsage(dirID) <= 1) {
+            File file = getFileForDirentCache(dirID);
+            file.delete();
+        }
+        // and finally delete the entry in the SQL table
+        dbHelper.removeCachedDirents(repoID, dir);
     }
 
     public synchronized File getFile(String repoName, String repoID, String path,
@@ -674,6 +694,8 @@ public class DataManager {
         // The response is the dirents of the parentDir after renaming the
         // file/folder. We save it to avoid request it again.
         saveDirentContent(repoID, Utils.getParentPath(path), newDirID, response);
+
+        // TODO: delete or rename cached files, dirent cache, etc.
     }
 
     public void delete(String repoID, String path, boolean isdir) throws SeafException{
@@ -688,6 +710,8 @@ public class DataManager {
         // The response is the dirents of the parentDir after deleting the
         // file/folder. We save it to avoid request it again
         saveDirentContent(repoID, Utils.getParentPath(path), newDirID, response);
+
+        // TODO: isdir==true: recursively delete cached files, dirent cache, etc.
     }
 
     public void copy(String srcRepoId, String srcDir, String srcFn,
