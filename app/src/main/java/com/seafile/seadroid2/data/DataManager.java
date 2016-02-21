@@ -183,12 +183,12 @@ public class DataManager {
     }
 
     private File getFileForReposCache() {
-        String filename = "repos-" + (account.server + account.email).hashCode() + ".json";
+        String filename = "repos-" + (account.server + account.email).hashCode() + ".dat";
         return new File(getExternalCacheDirectory() + "/" + filename);
     }
 
     private File getFileForDirentCache(String dirID) {
-        String filename = "dirent-" + dirID + ".json";
+        String filename = "dirent-" + dirID + ".dat";
         return new File(getExternalCacheDirectory() + "/" + filename);
     }
 
