@@ -496,6 +496,12 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             int dataColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
             int bucketColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME);
 
+            // some inconsistency in the Media Provider? Ignore and continue
+            if (cursor.getString(dataColumn) == null) {
+                syncResult.stats.numSkippedEntries++;
+                continue;
+            }
+
             File file = new File(cursor.getString(dataColumn));
             String bucketName = cursor.getString(bucketColumn);
 

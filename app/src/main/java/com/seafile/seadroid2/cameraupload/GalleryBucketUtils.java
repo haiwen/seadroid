@@ -96,7 +96,7 @@ public class GalleryBucketUtils {
 
             // ignore buckets created by Seadroid
             String file = cursor.getString(dataColumnIndex);
-            if (!file.startsWith(DataManager.getExternalRootDirectory()))
+            if (file == null || !file.startsWith(DataManager.getExternalRootDirectory()))
                 buckets.add(b);
         }
         cursor.close();
