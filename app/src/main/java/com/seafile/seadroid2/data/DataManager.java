@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.data;
 
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 
@@ -38,7 +39,7 @@ public class DataManager {
     public static final String PULL_TO_REFRESH_LAST_TIME_FOR_STARRED_FRAGMENT = "starred fragment last update ";
     private static SimpleDateFormat ptrDataFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    private static Map<String, PasswordInfo> passwords = Maps.newHashMap();
+    private static Map<String, EncIVInfo> encIVMap = Maps.newHashMap();
     private static Map<String, SecretKeyInfo> secretKeyMap = Maps.newHashMap();
     private static Map<String, Long> direntsRefreshTimeMap = Maps.newHashMap();
     public static final long REFRESH_EXPIRATION_MSECS = 10 * 60 * 1000; // 10 mins
@@ -769,57 +770,50 @@ public class DataManager {
         }
     }
 
-    private static class PasswordInfo {
-        String password;
-        long timestamp;
+    private static class EncIVInfo {
+        String encIV;
 
-        public PasswordInfo(String password, long timestamp) {
-            this.password = password;
-            this.timestamp = timestamp;
+        public EncIVInfo(String encIV) {
+            this.encIV = encIV;
         }
     }
 
     private static class SecretKeyInfo {
         String secretKey;
-        long timestamp;
 
-        public SecretKeyInfo(String secretKey, long timestamp) {
+        public SecretKeyInfo(String secretKey) {
             this.secretKey = secretKey;
-            this.timestamp = timestamp;
         }
     }
 
-    public static boolean getRepoPasswordSet(String repoID) {
-        PasswordInfo info = passwords.get(repoID);
-        if (info == null) {
-            return false;
-        }
-
-        if (Utils.now() - info.timestamp > SET_PASSWORD_INTERVAL) {
-            return false;
-        }
-
-        return true;
+    public static boolean getRepoEncIVSet(String repoID) {
+        EncIVInfo info = encIVMap.get(repoID);
+        return info != null && !TextUtils.isEmpty(info.encIV);
     }
 
-    public static void setRepoPasswordSet(String repoID, String password) {
-        passwords.put(repoID, new PasswordInfo(password, Utils.now()));
+    public static boolean getRepoEnckeySet(String repoID) {
+        SecretKeyInfo info = secretKeyMap.get(repoID);
+        return info != null && !TextUtils.isEmpty(info.secretKey);
+    }
+
+    public static void setRepoEncIV(String repoID, String encIV) {
+        encIVMap.put(repoID, new EncIVInfo(encIV));
     }
 
     public static void saveRepoSecretKey(String repoID, String key) {
-        secretKeyMap.put(repoID, new SecretKeyInfo(key, Utils.now()));
+        secretKeyMap.put(repoID, new SecretKeyInfo(key));
     }
 
     public static String getRepoPassword(String repoID) {
-        PasswordInfo info = passwords.get(repoID);
+        EncIVInfo info = encIVMap.get(repoID);
         if (info == null) {
             return null;
         }
 
-        return info.password;
+        return info.encIV;
     }
 
-    public static String getSecretKey(String repoID) {
+    public static String getRepoEncKey(String repoID) {
         SecretKeyInfo info = secretKeyMap.get(repoID);
         if (info == null) {
             return null;

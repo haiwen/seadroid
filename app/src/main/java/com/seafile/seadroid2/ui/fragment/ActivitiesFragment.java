@@ -119,7 +119,7 @@ public class ActivitiesFragment extends Fragment {
                 final String repoId = seafEvent.getRepo_id();
                 final String repoName = seafEvent.getRepo_name();
 
-                if (seafEvent.isRepo_encrypted() && !DataManager.getRepoPasswordSet(repoId)) {
+                if (seafEvent.isRepo_encrypted() && !DataManager.getRepoEnckeySet(repoId)) {
                     final SeafRepo repo = mActivity.getDataManager().getCachedRepoByID(repoId);
 
                     if (repo == null) {
@@ -392,15 +392,15 @@ public class ActivitiesFragment extends Fragment {
             return;
         }
 
-        if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
-            String password = DataManager.getRepoPassword(repo.id);
+        if (repo.encrypted && !DataManager.getRepoEnckeySet(repo.id)) {
+            String encKey = DataManager.getRepoEncKey(repo.id);
             mActivity.showPasswordDialog(repo.name, repo.id,
                     new TaskDialog.TaskDialogListener() {
                         @Override
                         public void onTaskSuccess() {
                             switchTab(repoID, repo.getName(), repo.getRootDirID());
                         }
-                    }, password);
+                    }, encKey);
 
         } else {
             switchTab(repoID, repo.getName(), repo.getRootDirID());
@@ -415,15 +415,15 @@ public class ActivitiesFragment extends Fragment {
             return;
         }
 
-        if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
-            String password = DataManager.getRepoPassword(repo.id);
+        if (repo.encrypted && !DataManager.getRepoEnckeySet(repo.id)) {
+            String encKey = DataManager.getRepoEncKey(repo.id);
             mActivity.showPasswordDialog(repo.name, repo.id,
                     new TaskDialog.TaskDialogListener() {
                         @Override
                         public void onTaskSuccess() {
                             openFile(repoID, repo.getName(), path);
                         }
-                    }, password);
+                    }, encKey);
 
         } else {
             openFile(repoID, repo.getName(), path);
