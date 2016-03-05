@@ -575,8 +575,8 @@ public class ReposFragment extends ListFragment {
             return;
         }
 
-        if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
-            String password = DataManager.getRepoPassword(repo.id);
+        if (repo.encrypted && !DataManager.getRepoEnckeySet(repo.id)) {
+            String encKey = DataManager.getRepoEncKey(repo.id);
             mActivity.showPasswordDialog(repo.name,
                     repo.id,
                     repo.magic,
@@ -587,7 +587,7 @@ public class ReposFragment extends ListFragment {
                 public void onTaskSuccess() {
                     onListItemClick(l, v, position, id);
                 }
-            }, password);
+            }, encKey);
 
             return;
         }

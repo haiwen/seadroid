@@ -161,15 +161,15 @@ public class CloudLibrarySelectionFragment extends Fragment {
                     return;
                 } else {
                     SeafRepo repo = getDataManager().getCachedRepoByID(getNavContext().getRepoID());
-                    if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
-                        String password = DataManager.getRepoPassword(repo.id);
+                    if (repo.encrypted && !DataManager.getRepoEnckeySet(repo.id)) {
+                        String encKey = DataManager.getRepoEncKey(repo.id);
                         showPasswordDialog(repo.name, repo.id,
                                 new TaskDialog.TaskDialogListener() {
                                     @Override
                                     public void onTaskSuccess() {
                                         chooseRepo(forceRefresh);
                                     }
-                                } , password);
+                                } , encKey);
                     }
                     chooseDir(forceRefresh);
                     break;
@@ -190,14 +190,14 @@ public class CloudLibrarySelectionFragment extends Fragment {
         }
 
         if (repo != null) {
-            if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
-                String password = DataManager.getRepoPassword(repo.id);
+            if (repo.encrypted && !DataManager.getRepoEnckeySet(repo.id)) {
+                String encKey = DataManager.getRepoEncKey(repo.id);
                 showPasswordDialog(repo.name, repo.id, new TaskDialog.TaskDialogListener() {
                             @Override
                             public void onTaskSuccess() {
                                 onListItemClick(v, position, id);
                             }
-                        }, password);
+                        }, encKey);
 
                 return;
             }
@@ -301,7 +301,7 @@ public class CloudLibrarySelectionFragment extends Fragment {
         PasswordDialog passwordDialog = new PasswordDialog();
         passwordDialog.setRepo(repoName, repoID, null, null, 0, mAccount);
         if (password != null) {
-            passwordDialog.setPassword(password);
+            passwordDialog.setEncKey(password);
         }
         passwordDialog.setTaskDialogLisenter(listener);
         passwordDialog.show(mActivity.getSupportFragmentManager(), PASSWORD_DIALOG_FRAGMENT_TAG);

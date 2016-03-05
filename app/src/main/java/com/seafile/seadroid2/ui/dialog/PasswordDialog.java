@@ -2,7 +2,6 @@ package com.seafile.seadroid2.ui.dialog;
 
 import android.app.Dialog;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -45,7 +44,7 @@ class SetPasswordTask extends TaskDialog.Task {
     @Override
     protected void runTask() {
         try {
-            // dataManager.setPassword(repoID, password);
+            // dataManager.setEncKey(repoID, encKey);
             Crypto.verifyRepoPassword(repoID, password, version, magic);
         } catch (SeafException e) {
             setTaskException(e);
@@ -76,12 +75,12 @@ public class PasswordDialog extends TaskDialog {
     private static final String STATE_TASK_PASSWORD = "set_password_task.password";
     private static final String STATE_ACCOUNT = "set_password_task.account";
 
-    private EditText passwordText;
+    private EditText encKeyText;
     private String repoID, repoName, magic, randomKey;
     private int version;
     private DataManager dataManager;
     private Account account;
-    private String password;
+    private String encKey;
 
     public void setRepo(String repoName, String repoID, String magic, String randomKey, int version, Account account) {
         this.repoName = repoName;
@@ -103,7 +102,7 @@ public class PasswordDialog extends TaskDialog {
     @Override
     protected View createDialogContentView(LayoutInflater inflater, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_password, null);
-        passwordText = (EditText) view.findViewById(R.id.password);
+        encKeyText = (EditText) view.findViewById(R.id.password);
 
         if (savedInstanceState != null) {
             repoName = savedInstanceState.getString(STATE_TASK_REPO_NAME);
@@ -112,8 +111,8 @@ public class PasswordDialog extends TaskDialog {
             account = (Account)savedInstanceState.getParcelable(STATE_ACCOUNT);
         }
 
-        if (password != null) {
-            passwordText.setText(password);
+        if (encKey != null) {
+            encKeyText.setText(encKey);
         }
 
         return view;
@@ -134,9 +133,9 @@ public class PasswordDialog extends TaskDialog {
 
     @Override
     protected void onValidateUserInput() throws Exception {
-        String password = passwordText.getText().toString().trim();
+        String encKey = encKeyText.getText().toString().trim();
 
-        if (password.length() == 0) {
+        if (encKey.length() == 0) {
             String err = getActivity().getResources().getString(R.string.password_empty);
             throw new Exception(err);
         }
@@ -145,19 +144,19 @@ public class PasswordDialog extends TaskDialog {
     @Override
     protected void disableInput() {
         super.disableInput();
-        passwordText.setEnabled(false);
+        encKeyText.setEnabled(false);
     }
 
     @Override
     protected void enableInput() {
         super.enableInput();
-        passwordText.setEnabled(true);
+        encKeyText.setEnabled(true);
     }
 
     @Override
     protected SetPasswordTask prepareTask() {
-        String password = passwordText.getText().toString().trim();
-        SetPasswordTask task = new SetPasswordTask(repoID, password, version, magic, randomKey, getDataManager());
+        String encKey = encKeyText.getText().toString().trim();
+        SetPasswordTask task = new SetPasswordTask(repoID, encKey, version, magic, randomKey, getDataManager());
         return task;
     }
 
@@ -183,27 +182,27 @@ public class PasswordDialog extends TaskDialog {
         }
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setEncKey(String encKey) {
+        this.encKey = encKey;
     }
 
     @Override
     protected boolean executeTaskImmediately() {
-        return password != null;
+        return encKey != null;
     }
 
+    public static final String TAG = PasswordDialog.class.getSimpleName();
     @Override
     public void onTaskSuccess() {
-        String password = passwordText.getText().toString().trim();
+        String password = encKeyText.getText().toString().trim();
         try {
             final String encKey = Crypto.deriveKeyPbkdf2(password, randomKey, version);
-            Log.d(PasswordDialog.class.getSimpleName(), "encKey " + encKey);
-            Log.d(PasswordDialog.class.getSimpleName(), "generate Radom Number " + Crypto.generateRadomNumbers());
-            final String randomKey = Crypto.generateRandomKey(password, "4d3f847c38ef4e15c8b81b84f0ceb27cc465fca4041b16084145a907ce63b9fe", version);
-            Log.d(PasswordDialog.class.getSimpleName(), "generate randomKey " + randomKey);
+            final byte[] encIV = Crypto.deriveIVPbkdf2((Crypto.fromHex(encKey)));
             DataManager.saveRepoSecretKey(repoID, encKey);
-            // DataManager.setRepoPasswordSet(repoID, password);
+            DataManager.setRepoEncIV(repoID, Crypto.toHex(encIV));
         } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
         super.onTaskSuccess();
