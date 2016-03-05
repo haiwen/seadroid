@@ -16,6 +16,7 @@ import android.net.http.SslCertificate;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -98,13 +99,7 @@ public class Utils {
         }
     }
 
-    public static JSONArray parseJsonArrayByKey(String json, String key) throws JSONException {
-        if (json == null) {
-            // the caller should not give null
-            Log.w(DEBUG_TAG, "null in parseJsonArrayByKey");
-            return null;
-        }
-
+    public static JSONArray parseJsonArrayByKey(@NonNull String json, @NonNull String key) throws JSONException {
         String value = new JSONObject(json).optString(key);
         if (!TextUtils.isEmpty(value))
             return parseJsonArray(value);
@@ -112,35 +107,13 @@ public class Utils {
             return null;
     }
 
-    public static JSONArray parseJsonArray(String json) {
-        if (json == null) {
-         // the caller should not give null
-            Log.w(DEBUG_TAG, "null in parseJsonArray");
-            return null;
-        }
-
+    public static JSONArray parseJsonArray(@NonNull String json) {
         try {
             return (JSONArray) new JSONTokener(json).nextValue();
         } catch (Exception e) {
+            Log.e(DEBUG_TAG, "Could not parse json file", e);
             return null;
         }
-    }
-
-    /** Read input stream and convert the content to string.
-     */
-    public static String readIt(InputStream stream) throws IOException,
-            UnsupportedEncodingException {
-        Reader reader = new InputStreamReader(stream, "UTF-8");
-        char[] buffer = new char[1024];
-        StringBuilder responseStrBuilder = new StringBuilder();
-
-        while (true) {
-            int len = reader.read(buffer, 0, 1024);
-            if (len == -1)
-                break;
-            responseStrBuilder.append(buffer, 0, len);
-        }
-        return responseStrBuilder.toString();
     }
 
     public static String readFile(File file) {
