@@ -174,6 +174,10 @@
     <string name="upload_finished">Upload finished</string>
     <string name="upload_cancelled">Upload cancelled</string>
     <string name="upload_failed">Upload failed</string>
+    <string name="upload_file_exist">File already exist</string>
+    <string name="upload_duplicate_found">An item named \"%s\" already exist in this location.\n Do you want to replace it with the one you\`re moving?</string>
+    <string name="upload_replace_all">Replace All</string>
+    <string name="upload_keep_both">Keep Both</string>
     <string name="days_ago">%d days ago</string>
     <string name="hours_ago">%d hours ago</string>
     <string name="minutes_ago">%d minutes ago</string>
