@@ -696,6 +696,12 @@ public class DataManager {
         saveDirentContent(repoID, Utils.getParentPath(path), newDirID, response);
 
         // TODO: delete or rename cached files, dirent cache, etc.
+        /*
+         * I think it is more simple and easier if we provide a "clear cache" button in Settings,
+         * just like what we have done with thumbnail caches.
+         * And hopefully it already exist.
+         * Users can manually clear them if they are boring with those temp files.
+         */
     }
 
     public void delete(String repoID, String path, boolean isdir) throws SeafException{
@@ -712,6 +718,13 @@ public class DataManager {
         saveDirentContent(repoID, Utils.getParentPath(path), newDirID, response);
 
         // TODO: isdir==true: recursively delete cached files, dirent cache, etc.
+        /*
+         * I think it is more simple and easier if we provide a "clear cache" button in Settings,
+         * just like what we have done with thumbnail caches.
+         * And hopefully it already exist.
+         * Users can manually clear them if they are boring with those temp files.
+         */
+
     }
 
     public void copy(String srcRepoId, String srcDir, String srcFn,
