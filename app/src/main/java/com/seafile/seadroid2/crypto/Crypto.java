@@ -14,6 +14,7 @@ import org.spongycastle.crypto.params.KeyParameter;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 
@@ -187,44 +188,6 @@ public class Crypto {
     }
 
     /**
-     * Encrypt the file key with the user provided password.
-     *
-     * We first use PBKDF2 algorithm (1000 iteratioins of SHA256) to derive a key/iv pair from the password,
-     * then use AES 256/CBC to encrypt the file key.
-     *
-     * The result is called the "encrypted file key".
-     * This encrypted file key will be sent to and stored on the server.
-     * When you need to access the data, you can decrypt the file key from the encrypted file key.
-     *
-     * @param password
-     * @param rand
-     * @param version
-     * @return RandomKey
-     * @throws UnsupportedEncodingException
-     */
-    public static String generateRandomKey(String password, String rand, int version) throws UnsupportedEncodingException {
-        if (rand.isEmpty()) {
-            return null;
-        }
-
-        PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(new SHA256Digest());
-        gen.init(PBEParametersGenerator.PKCS5PasswordToUTF8Bytes(password.toCharArray()), salt, ITERATION_COUNT);
-        byte[] keyBytes;
-
-        if (version == 2) {
-            keyBytes = ((KeyParameter) gen.generateDerivedMacParameters(KEY_LENGTH * 8)).getKey();
-        } else
-            keyBytes = ((KeyParameter) gen.generateDerivedMacParameters(KEY_LENGTH_SHORT * 8)).getKey();
-
-        SecretKey secretKey = new SecretKeySpec(keyBytes, "AES");
-
-        final byte[] iv = deriveIVPbkdf2(keyBytes);
-
-        final String encKey = encrypt(rand, secretKey, iv);
-        return encKey;
-    }
-
-    /**
      * All file data is encrypted by the file key with AES 256/CBC.
      *
      * We use PBKDF2 algorithm (1000 iterations of SHA256) to derive key/iv pair from the file key.
@@ -234,16 +197,16 @@ public class Crypto {
      * @param key
      * @return
      */
-    public static String encrypt(String plaintext, SecretKey key, byte[] iv) {
+    public static byte[] encrypt(byte[] plaintext, SecretKey key, byte[] iv) {
         try {
             Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
 
             IvParameterSpec ivParams = new IvParameterSpec(iv);
             cipher.init(Cipher.ENCRYPT_MODE, key, ivParams);
 
-            byte[] cipherText = cipher.doFinal(fromHex(plaintext));
+            byte[] cipherText = cipher.doFinal(plaintext);
 
-            return toHex(cipherText);
+            return cipherText;
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             Log.e(TAG, "NoSuchAlgorithmException " + e.getMessage());
@@ -269,6 +232,30 @@ public class Crypto {
             Log.e(TAG, "BadPaddingException " + e.getMessage());
             return null;
         }
+    }
+
+    /**
+     * All file data is encrypted by the file key with AES 256/CBC.
+     *
+     * We use PBKDF2 algorithm (1000 iterations of SHA256) to derive key/iv pair from the file key.
+     * After encryption, the data is uploaded to the server.
+     *
+     * @param plaintext
+     * @param key
+     * @return
+     */
+    public static byte[] encrypt(byte[] plaintext, String key, byte[] iv, int version) {
+        PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(new SHA256Digest());
+        gen.init(PBEParametersGenerator.PKCS5PasswordToUTF8Bytes(key.toCharArray()), salt, ITERATION_COUNT);
+        byte[] keyBytes;
+
+        if (version == 2) {
+            keyBytes = ((KeyParameter) gen.generateDerivedMacParameters(KEY_LENGTH * 8)).getKey();
+        } else
+            keyBytes = ((KeyParameter) gen.generateDerivedMacParameters(KEY_LENGTH_SHORT * 8)).getKey();
+
+        SecretKey realKey = new SecretKeySpec(keyBytes, "AES");
+        return encrypt(plaintext, realKey , iv);
     }
 
     /**
@@ -345,5 +332,11 @@ public class Crypto {
 
     public static byte[] fromBase64(String base64) {
         return Base64.decode(base64, Base64.NO_WRAP);
+    }
+
+    public static String sha1(byte[] cipher) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("SHA-1");
+        md.update(cipher, 0, cipher.length);
+        return toHex(md.digest());
     }
 }

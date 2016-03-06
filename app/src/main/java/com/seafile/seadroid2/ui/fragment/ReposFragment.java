@@ -102,7 +102,7 @@ public class ReposFragment extends ListFragment {
     }
 
     public interface OnFileSelectedListener {
-        void onFileSelected(SeafDirent fileName);
+        void onFileSelected(boolean encrypted, SeafDirent fileName);
     }
 
     @Override
@@ -604,7 +604,7 @@ public class ReposFragment extends ListFragment {
                     refreshView();
                     mActivity.setUpButtonTitle(dirent.name);
                 } else {
-                    mActivity.onFileSelected(dirent);
+                    mActivity.onFileSelected(repo.encrypted, dirent);
                 }
             } else
                 return;
