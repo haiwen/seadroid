@@ -1422,7 +1422,7 @@ public class BrowserActivity extends BaseActivity
     /***************  Navigation *************/
 
     @Override
-    public void onFileSelected(SeafDirent dirent) {
+    public void onFileSelected(boolean encrypted, SeafDirent dirent) {
         final String fileName= dirent.name;
         final String repoName = navContext.getRepoName();
         final String repoID = navContext.getRepoID();
@@ -1444,7 +1444,7 @@ public class BrowserActivity extends BaseActivity
             return;
         }
 
-        startFileActivity(repoName, repoID, filePath);
+        startFileActivity(encrypted, repoName, repoID, filePath);
     }
 
     /**
@@ -1604,6 +1604,25 @@ public class BrowserActivity extends BaseActivity
         intent.putExtra("account", account);
         intent.putExtra("taskID", taskID);
         startActivityForResult(intent, DOWNLOAD_FILE_REQUEST);
+    }
+
+    private void startFileActivity(boolean encrypted, final String repoName, final String repoID, final String filePath) {
+        if (encrypted) {
+            ConcurrentAsyncTask.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        dataManager.downloadByBlocks(repoID, Utils.pathJoin(repoName, filePath));
+                    } catch (SeafException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+            return;
+        }
+
+        startFileActivity(repoName, repoID, filePath);
     }
 
     @Override

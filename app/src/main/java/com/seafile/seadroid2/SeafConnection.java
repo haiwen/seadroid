@@ -14,9 +14,13 @@ import com.google.common.collect.Maps;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.ProgressMonitor;
+import com.seafile.seadroid2.data.SeafLargeFile;
 import com.seafile.seadroid2.ssl.SSLTrustManager;
 import com.seafile.seadroid2.util.Utils;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -29,6 +33,7 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
+import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -447,6 +452,90 @@ public class SeafConnection {
         } catch (HttpRequestException e) {
             throw getSeafExceptionFromHttpRequestException(e);
         }
+    }
+
+    public Pair<String, String> downloadByBlocks(String repoID, String path) throws SeafException {
+        try {
+            String apiPath = String.format("api2/repos/%s/file/", repoID);
+            Map<String, Object> params = Maps.newHashMap();
+            params.put("p", encodeUriComponent(path));
+            params.put("op", "downloadblks");
+            HttpRequest req = prepareApiGetRequest(apiPath, params);
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+
+            String result = new String(req.bytes(), "UTF-8");
+            String fileID = req.header("file_id");
+            Log.d("SeafConnection", "result " + result + " fileID " + fileID);
+            return new Pair<String, String>(repoID, fileID);
+        } catch (UnsupportedEncodingException e) {
+            throw SeafException.encodingException;
+        } catch (IOException e) {
+            throw SeafException.networkException;
+        }
+    }
+
+    public String uploadLargeFileByBlocks(String repoID, String path, String blklist) throws SeafException {
+        String apiPath = String.format("api2/repos/%s/upload-blks-link/", repoID);
+        Map<String, Object> params = Maps.newHashMap();
+        try {
+            params.put("p", encodeUriComponent(path));
+            HttpRequest req = prepareApiPostRequest(apiPath, true, params);
+            req.form("blklist", blklist);
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+
+            String content = new String(req.bytes(), "UTF-8");
+            if (content.length() == 0) {
+                return null;
+            }
+
+            return content;
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return apiPath;
+    }
+
+    private void uploadRawBlocks(SeafLargeFile largeFile, boolean update, DataManager mgr) throws IOException {
+        if (largeFile.missingblocks == null) return;
+
+        int blkidx = 0;
+        int count = Math.min(3, largeFile.missingblocks.size() - blkidx);
+        if (count == 0) {
+            uploadBlocksCommit(largeFile.commiturl, update, largeFile.rawblksurl, largeFile.name, largeFile.size, largeFile.blockids);
+            return;
+        }
+
+        HttpRequest req = prepareApiPostRequest(largeFile.rawblksurl, true, null);
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+        builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+        builder.addTextBody("csrfmiddlewaretoken", "n8ba38951c9ba66418311a25195e2e380");
+
+
+        for (int i = blkidx; i < count; i++) {
+            String blkId = largeFile.missingblocks.get(i);
+            String blockpath = mgr.getBlockPathById(blkId);
+            builder.addTextBody("file", blockpath);
+        }
+
+        HttpEntity entity = builder.build();
+        req.send(entity.getContent());
+    }
+
+    private void uploadBlocksCommit(String commiturl, boolean update, String uploadpath, String name, long fileSize, List<String> allblocks) throws IOException {
+        HttpRequest req = prepareApiPostRequest(commiturl, true, null);
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+        builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+        builder.addTextBody("csrfmiddlewaretoken", "n8ba38951c9ba66418311a25195e2e380");
+        if (update) {
+            builder.addTextBody("replace", "1");
+        }
+        builder.addTextBody("parent_dir", uploadpath);
+        builder.addTextBody("file_name", name);
+        builder.addTextBody("file_size", String.valueOf(fileSize));
+        builder.addTextBody("csrfmiddlewaretoken", "n8ba38951c9ba66418311a25195e2e380");
+        builder.addTextBody("blockids", allblocks.toString()); // don`t assemble strings in allblocks
+        HttpEntity entity = builder.build();
+        req.send(entity.getContent());
     }
 
     private File getFileFromLink(String dlink, String path, String localPath,
