@@ -12,6 +12,7 @@ import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
+import com.seafile.seadroid2.crypto.Crypto;
 import com.seafile.seadroid2.util.Utils;
 
 import org.json.JSONArray;
@@ -19,9 +20,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -156,6 +163,11 @@ public class DataManager {
         return new File(storageManager.getJsonCacheDir() + "/" + filename);
     }
 
+    private File getFileForBlockCache(String blockId) {
+        String filename = "block-" + blockId + ".dat";
+        return new File(getChunkDirectory() + "/" + filename);
+    }
+
     /**
      * The account directory structure of Seafile is like this:
      *
@@ -279,6 +291,12 @@ public class DataManager {
             Log.e(DEBUG_TAG, "parseRepos exception");
             return null;
         }
+    }
+
+
+    public String getBlockPathById(String blkId) {
+        final File block = getFileForBlockCache(blkId);
+        return block.getAbsolutePath();
     }
 
     public SeafRepo getCachedRepoByID(String id) {
@@ -946,5 +964,46 @@ public class DataManager {
         } catch (JSONException e) {
             return null;
         }
+    }
+
+    private SeafLargeFile chunkFile(String encKey, byte[] enkIv, int version, String filePath) {
+        int bufferSize = 2 * 1024 * 1024;
+        File file = new File(filePath);
+        InputStream in;
+        OutputStream out;
+        byte[] buffer = new byte[bufferSize];
+        SeafLargeFile largeFile = new SeafLargeFile();
+        try {
+            in = new FileInputStream(file);
+
+            while (in.read(buffer, 0, bufferSize) != -1) {
+                final byte[] cipher = Crypto.encrypt(buffer, encKey, enkIv, version);
+                final String blockid = Crypto.sha1(cipher);
+                largeFile.chunks.add(cipher);
+                largeFile.blockids.add(blockid);
+                File block = new File(getExternalTempDirectory(), blockid);
+                largeFile.blockpaths.add(block.getAbsolutePath());
+                out = new FileOutputStream(block);
+                out.write(cipher);
+                out.close();
+            }
+
+            in.close();
+
+            return largeFile;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public void downloadByBlocks(String repoID, String path) throws SeafException {
+        final Pair<String, String> blocks = sc.downloadByBlocks(repoID, path);
     }
 }
