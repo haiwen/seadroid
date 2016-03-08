@@ -1163,7 +1163,7 @@ public class BrowserActivity extends BaseActivity
                     if (!duplicate) {
                         addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), path);
                     } else {
-                        addUpdateTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), path);
+                        showFileExistDialog(path);
                     }
                 }
             }
@@ -1189,7 +1189,7 @@ public class BrowserActivity extends BaseActivity
                     if (!duplicate) {
                         addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), path);
                     } else {
-                        addUpdateTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), path);
+                        showFileExistDialog(path);
                     }
                 }
             }
@@ -1304,8 +1304,6 @@ public class BrowserActivity extends BaseActivity
             if (fileList == null) return;
 
             List<SeafDirent> list = dataManager.getCachedDirents(navContext.getRepoID(), navContext.getDirPath());
-            ArrayList<File> duplicateFiles = Lists.newArrayList();
-            replaceAllSet = false;
 
             for (final File file: fileList) {
                 if (file == null) {
@@ -1327,12 +1325,11 @@ public class BrowserActivity extends BaseActivity
                     if (!duplicate) {
                         addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), file.getAbsolutePath());
                     } else {
-                        duplicateFiles.add(file);
+                        showFileExistDialog(file);
                     }
                 }
             }
 
-            showFileExistDialog(duplicateFiles);
             if (txService == null)
                 return;
 
@@ -1345,43 +1342,33 @@ public class BrowserActivity extends BaseActivity
         }
     }
 
-    private boolean replaceAllSet = false;
-    private void showFileExistDialog(final ArrayList<File> files) {
-        if (files.isEmpty())return;
+    private void showFileExistDialog(final String filePath){
+        showFileExistDialog(new File(filePath));
+    }
 
-        final File file = files.remove(0);
-        if (!replaceAllSet) {
-            ContextThemeWrapper ctw = new ContextThemeWrapper(BrowserActivity.this, R.style.DialogTheme);
-            final android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(ctw);
-            builder.setTitle(getString(R.string.upload_file_exist));
-            builder.setMessage(String.format(getString(R.string.upload_duplicate_found), file.getName()));
-            builder.setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    addUpdateTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), file.getAbsolutePath());
-                    showFileExistDialog(files);
-                }
-            });
-            builder.setNeutralButton(getString(R.string.upload_replace_all), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    replaceAllSet = true;
-                    addUpdateTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), file.getAbsolutePath());
-                    showFileExistDialog(files);
-                }
-            });
-            builder.setNegativeButton(getString(R.string.upload_keep_both), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), file.getAbsolutePath());
-                    showFileExistDialog(files);
-                }
-            });
-            builder.show();
-        } else {
-            addUpdateTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), file.getAbsolutePath());
-            showFileExistDialog(files);
-        }
+    private void showFileExistDialog(final File file) {
+        ContextThemeWrapper ctw = new ContextThemeWrapper(BrowserActivity.this, R.style.DialogTheme);
+        final android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(ctw);
+        builder.setTitle(getString(R.string.upload_file_exist));
+        builder.setMessage(String.format(getString(R.string.upload_duplicate_found), file.getName()));
+        builder.setPositiveButton(getString(R.string.upload_replace), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                addUpdateTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), file.getAbsolutePath());
+            }
+        });
+        builder.setNeutralButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+        builder.setNegativeButton(getString(R.string.upload_keep_both), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), file.getAbsolutePath());
+            }
+        });
+        builder.show();
     }
 
     public void onItemSelected() {
