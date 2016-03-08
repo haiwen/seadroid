@@ -102,8 +102,8 @@
   <string name="password_empty">Podaj hasło</string>
   <string name="wrong_password">hasło nieprawidłowe</string>
   <string name="library_read_only">Ta biblioteka jest tylko do odczytu</string>
-  <string name="error_when_load_dirents">Błąd podczas wczytywania folderu.\n Naciśnij, aby odświeżyć</string>
-  <string name="error_when_load_repos">Błąd podczas wczytywania bibliotek.\n Naciśnij, aby odświeżyć</string>
+  <string name="error_when_load_dirents">Błąd podczas wczytywania folderu.\n Dotknij, aby odświeżyć</string>
+  <string name="error_when_load_repos">Błąd podczas wczytywania bibliotek.\n Dotknij, aby odświeżyć</string>
   <string name="dir_empty">Ten folder jest pusty</string>
   <string name="no_repo">Nie masz jeszcze żadnej biblioteki</string>
   <string name="no_app_available">Nie znaleziono aplikacji</string>
@@ -170,6 +170,10 @@
   <string name="upload_finished">Wysyłanie zakończone</string>
   <string name="upload_cancelled">Wysyłanie anulowane</string>
   <string name="upload_failed">Wysyłanie nieudane</string>
+  <string name="upload_file_exist">Plik już istnieje</string>
+  <string name="upload_duplicate_found">Element o nazwie \"%s\" już istnieje w tej lokalizacji.\n Czy chcesz go zastąpić tym, który właśnie przesyłasz?</string>
+  <string name="upload_replace_all">Zamień wszystkie</string>
+  <string name="upload_keep_both">Zachowaj oba</string>
   <string name="days_ago">%d dni temu</string>
   <string name="hours_ago">%d godzin temu</string>
   <string name="minutes_ago">%d minut temu</string>
@@ -283,7 +287,7 @@
   <string name="settings_camera_upload_lib_not_found">Wybrana biblioteka nie istnieje</string>
   <string name="settings_camera_upload_advanced_feature_title">Zaawansowane</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Dostosuj opcje przesyłania</string>
-  <string name="settings_camera_upload_advanced_custom_directories">Dostosuj przesyłane albumy</string>
+  <string name="settings_camera_upload_advanced_custom_directories">Wybierz przesyłane albumy</string>
   <string name="settings_camera_upload_advanced_custom_directories_on">Wybierz albumy zdjęć</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">Automatycznie skanuj urządzenie</string>
   <!--Camera Upload Configuration View-->
@@ -316,7 +320,7 @@
   <string name="settings_cuc_loading">wczytywanie...</string>
   <!--Camera Sync-->
   <string name="sync_provider_camera_upload">Zdjęcia i filmy z aparatu</string>
-  <string name="camera_sync_notification_title_failed">Niepowodzenie przesyłania z kamery</string>
+  <string name="camera_sync_notification_title_failed">Niepowodzenie przesyłania z aparatu</string>
   <string name="camera_sync_notification_repo_missing_failed">Brakuje repozytorium serwera.</string>
   <string name="camera_sync_notification_auth_error_failed">Błąd uwierzytelniania.</string>
   <string name="camera_sync_rename_file">%s (nazwa zmieniona przez Seafile)</string>
@@ -443,4 +447,7 @@
   <!--Action Mode-->
   <string name="action_mode_no_items_selected">Nie wybrano elementów</string>
   <!--Accessibility description for navigation drawer-->
+  <!--permission-->
+  <string name="permission_read_exteral_storage_rationale">Aby obsługiwać pliki zezwól aplikacji na dostęp do pamięci.</string>
+  <string name="permission_not_granted">Nie przyznano uprawnień</string>
 </resources>

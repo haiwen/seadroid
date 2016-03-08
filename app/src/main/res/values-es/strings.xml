@@ -169,6 +169,10 @@
   <string name="upload_finished">Subida finalizada</string>
   <string name="upload_cancelled">Subida cancelada</string>
   <string name="upload_failed">Subida falló</string>
+  <string name="upload_file_exist">El archivo ya existe</string>
+  <string name="upload_duplicate_found">Un ítem llamado \"%s\" ya existe en esta ubicación.\n ¿Desea reemplazarlo con el que está subiendo?</string>
+  <string name="upload_replace_all">Reemplazar todo</string>
+  <string name="upload_keep_both">Mantener ambos</string>
   <string name="days_ago">hace %d días</string>
   <string name="hours_ago">hace %d horas</string>
   <string name="minutes_ago">hace %d minutos</string>
@@ -434,4 +438,7 @@
   <!--Action Mode-->
   <string name="action_mode_no_items_selected">No se han seleccionado items</string>
   <!--Accessibility description for navigation drawer-->
+  <!--permission-->
+  <string name="permission_read_exteral_storage_rationale">Para procesar archivos, conceda permiso de almacenamiento para accederlos.</string>
+  <string name="permission_not_granted">El permiso no fue concedido</string>
 </resources>

@@ -436,4 +436,5 @@ Zum Aktualisieren einmal antippen</string>
   <!--Action Mode-->
   <string name="action_mode_no_items_selected">Es wurden keine Elemente ausgewählt</string>
   <!--Accessibility description for navigation drawer-->
+  <!--permission-->
 </resources>

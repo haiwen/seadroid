@@ -168,6 +168,11 @@
   <string name="upload_finished">上传完成</string>
   <string name="upload_cancelled">上传取消</string>
   <string name="upload_failed">上传失败</string>
+  <string name="upload_file_exist">文件已存在</string>
+  <string name="upload_duplicate_found">名字为\"%s\"的文件在此位置已存在.\n 你想用上传的文件替换它吗?</string>
+  <string name="upload_replace_all">全部替换</string>
+  <string name="upload_keep_both">保留两者</string>
+  <string name="upload_replace">替换</string>
   <string name="days_ago">%d天前</string>
   <string name="hours_ago">%d小时前</string>
   <string name="minutes_ago">%d分钟前</string>
@@ -424,4 +429,7 @@
   <!--Action Mode-->
   <string name="action_mode_no_items_selected">未选中任何文件</string>
   <!--Accessibility description for navigation drawer-->
+  <!--permission-->
+  <string name="permission_read_exteral_storage_rationale">在处理文件之前，请允许应用获取存储权限</string>
+  <string name="permission_not_granted">未获得权限</string>
 </resources>

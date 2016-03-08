@@ -166,6 +166,9 @@
   <string name="upload_finished">Upload afgerond</string>
   <string name="upload_cancelled">Upload geannuleerd</string>
   <string name="upload_failed">Upload mislukt</string>
+  <string name="upload_file_exist">Bestand bestaat reeds</string>
+  <string name="upload_replace_all">Alles vervangen</string>
+  <string name="upload_keep_both">Beide behouden</string>
   <string name="days_ago">%d dagen geleden</string>
   <string name="hours_ago">%d uren geleden</string>
   <string name="minutes_ago">%d minuten geleden</string>
@@ -258,6 +261,8 @@
   <string name="skip_button_label">Overslaan</string>
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Fotocamera upload</string>
+  <string name="settings_camera_upload_service_started">Uploaddienst gestart</string>
+  <string name="settings_camera_upload_service_stopped">Uploaddienst gestopt</string>
   <string name="settings_camera_upload_allow_data_plan">Gegevensabonnement toestaan</string>
   <string name="settings_camera_upload_allow_videos">Uploaden van video\'s toestaan</string>
   <string name="settings_camera_upload_default_wifi">Standaard alleen wifi gebruiken</string>
@@ -287,6 +292,7 @@
   <string name="settings_cuc_remote_lib_title">Externe bibliotheek selecteren</string>
   <string name="settings_cuc_remote_lib_account">Kies een account</string>
   <string name="settings_cuc_remote_lib_repo">%s is geselecteerd</string>
+  <string name="settings_cuc_upload_to_parent_folder">Een map omhoog</string>
   <string name="settings_cuc_pick_albums">Laat mij mijn fotoalbums kiezen</string>
   <string name="settings_cuc_remote_lib_hint">Kies je voorkeursaccount en -bibliotheek.\nJe kunt deze opties later in de instellingen wijzigen.</string>
   <string name="settings_cuc_finish_title">Afronden</string>
@@ -296,6 +302,7 @@
   <string name="settings_cuc_loading">laden...</string>
   <!--Camera Sync-->
   <string name="sync_provider_camera_upload">Camera foto\'s en video\'s</string>
+  <string name="camera_sync_notification_title_failed">Camera-upload mislukt</string>
   <string name="camera_sync_notification_auth_error_failed">Authenticatiefout</string>
   <string name="camera_sync_rename_file">%s (hernoemd door Seafile)</string>
   <string name="settings_about_title">Over</string>
@@ -323,6 +330,7 @@
   <string name="settings_clear_cache_failed">Cache legen mislukt</string>
   <string name="settings_cache_empty">0 kB</string>
   <!--pull to refresh-->
+  <string name="pull_to_refresh_release_label">Loslaten om te verversen...</string>
   <string name="pull_to_refresh_refreshing_label">Laden...</string>
   <string name="pull_to_refresh_last_update">Laatst bijgewerkt:</string>
   <string name="pull_to_refresh_last_update_seconds_ago">%d seconden geleden</string>
@@ -373,6 +381,7 @@
   <string name="search_menu_item">Zoeken</string>
   <string name="search_bar_hint">Zoeken...</string>
   <string name="search_content_empty">Niets gevonden</string>
+  <string name="search_server_not_support">Oeps. Zoeken wordt niet door deze server ondersteund!</string>
   <string name="search_library_not_found">Kon deze bibliotheek niet vinden. Ze kan verwijderd zijn.</string>
   <!--star a file-->
   <!--unstar a file-->
@@ -382,6 +391,7 @@
   <string name="notification_upload_completed">Upload voltooid</string>
   <string name="notification_download_completed">Download voltooid</string>
   <!--Gallery-->
+  <string name="gallery_load_photos_error">Fout bij laden foto\'s</string>
   <string name="gallery_encrypted_repo_not_supported">Gecodeerde bibliotheek wordt niet ondersteund</string>
   <!--Overwrite existing files-->
   <string name="overwrite_existing_file_title">Huidige bestand vervangen</string>
@@ -390,4 +400,6 @@
   <!--Action Mode-->
   <string name="action_mode_no_items_selected">Geen items geselecteerd</string>
   <!--Accessibility description for navigation drawer-->
+  <!--permission-->
+  <string name="permission_not_granted">Toestemming is niet verleend</string>
 </resources>

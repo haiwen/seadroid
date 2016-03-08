@@ -298,4 +298,5 @@
   <string name="overwrite_existing_file_exist">Soubor již existuje</string>
   <!--Action Mode-->
   <!--Accessibility description for navigation drawer-->
+  <!--permission-->
 </resources>
