@@ -2,9 +2,11 @@ package com.seafile.seadroid2.data;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.util.PinyinUtils;
 import com.seafile.seadroid2.util.Utils;
 
+import org.apache.http.util.TextUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -83,6 +85,10 @@ public class SeafRepo implements SeafItem {
             return R.drawable.repo_readonly;
 
         return R.drawable.repo;
+    }
+
+    public boolean canLocalDecrypt() {
+        return encrypted && encVersion >= 2 && !TextUtils.isEmpty(magic);
     }
 
     public boolean hasWritePermission() {
