@@ -13,13 +13,12 @@ import org.json.JSONObject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 
 /**
- * Seafile large file
+ * Seafile file blocks
  */
-public class SeafLargeFile implements SeafItem, Serializable {
-    public static final String DEBUG_TAG = SeafLargeFile.class.getSimpleName();
+public class SeafBlock implements SeafItem, Serializable {
+    public static final String DEBUG_TAG = SeafBlock.class.getSimpleName();
 
     public ArrayList<byte[]> chunks;
     public ArrayList<String> blockids;
@@ -37,14 +36,14 @@ public class SeafLargeFile implements SeafItem, Serializable {
     public long size;    // size of file, 0 if type is dir
     public long mtime;   // last modified timestamp
 
-    public SeafLargeFile() {
+    public SeafBlock() {
         chunks = new ArrayList<>();
         blockids = new ArrayList<>();
         blockpaths = new ArrayList<>();
     }
 
-    static SeafLargeFile fromJson(JSONObject obj) throws JSONException {
-        SeafLargeFile file = new SeafLargeFile();
+    static SeafBlock fromJson(JSONObject obj) throws JSONException {
+        SeafBlock file = new SeafBlock();
         file.rawblksurl = obj.getString("rawblksurl");
         file.commiturl = obj.getString("commiturl");
         file.missingblocks = parseMissingBlocks(obj.getString("blklist"));
