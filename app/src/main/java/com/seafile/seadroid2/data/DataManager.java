@@ -840,6 +840,15 @@ public class DataManager {
         return info.secretKey;
     }
 
+    public static String getRepoEncIv(String repoID) {
+        final EncIVInfo info = encIVMap.get(repoID);
+        if (info == null) {
+            return null;
+        }
+
+        return info.encIV;
+    }
+
     /**
      * calculate if refresh time is expired, the expiration is 10 mins 
      */
@@ -966,23 +975,25 @@ public class DataManager {
         }
     }
 
-    private SeafLargeFile chunkFile(String encKey, byte[] enkIv, int version, String filePath) {
+    private SeafBlock chunkFile(String encKey, byte[] enkIv, int version, String filePath) {
         int bufferSize = 2 * 1024 * 1024;
         File file = new File(filePath);
         InputStream in;
         OutputStream out;
         byte[] buffer = new byte[bufferSize];
-        SeafLargeFile largeFile = new SeafLargeFile();
+        SeafBlock seafBlock = new SeafBlock();
         try {
             in = new FileInputStream(file);
 
+            Log.d(DEBUG_TAG, "file size " + file.length());
             while (in.read(buffer, 0, bufferSize) != -1) {
                 final byte[] cipher = Crypto.encrypt(buffer, encKey, enkIv, version);
                 final String blockid = Crypto.sha1(cipher);
-                largeFile.chunks.add(cipher);
-                largeFile.blockids.add(blockid);
-                File block = new File(getExternalTempDirectory(), blockid);
-                largeFile.blockpaths.add(block.getAbsolutePath());
+                seafBlock.chunks.add(cipher);
+                seafBlock.blockids.add(blockid);
+                File block = new File(getChunkDirectory(), blockid);
+                seafBlock.blockpaths.add(block.getAbsolutePath());
+                Log.d(DEBUG_TAG, "chunk " + block.getAbsolutePath());
                 out = new FileOutputStream(block);
                 out.write(cipher);
                 out.close();
@@ -990,7 +1001,7 @@ public class DataManager {
 
             in.close();
 
-            return largeFile;
+            return seafBlock;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             return null;
@@ -1005,5 +1016,25 @@ public class DataManager {
 
     public void downloadByBlocks(String repoID, String path) throws SeafException {
         final Pair<String, String> blocks = sc.downloadByBlocks(repoID, path);
+    }
+
+    public void uploadByBlocks(String repoName, String repoId, String dir,
+                               String filePath, ProgressMonitor monitor,
+                               boolean isCopyToLocal, int version, boolean update) throws NoSuchAlgorithmException, IOException, SeafException {
+        final String encKey = getRepoEncKey(repoId);
+        final String encIv = getRepoEncIv(repoId);
+        Log.d(DEBUG_TAG, "encKey " + encKey + " encIv " + encIv);
+        if (TextUtils.isEmpty(encKey) || TextUtils.isEmpty(encIv)) {
+            // TODO calculate them and continue
+            return;
+        }
+
+        final SeafBlock chunkFile = chunkFile(encKey, Crypto.fromHex(encIv), version, filePath);
+        if (chunkFile.blockids.isEmpty()) {
+            return;
+        }
+
+        final String ret = sc.uploadByBlocks(repoId, dir, filePath, chunkFile.blockids, chunkFile.blockpaths, update);
+        Log.d(DEBUG_TAG, "uploadByBlocks " + ret);
     }
 }
