@@ -1,34 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/bottom_sheet_container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:id="@+id/main_layout">
+    android:layout_height="match_parent">
 
-    <android.support.design.widget.AppBarLayout
+    <android.support.design.widget.CoordinatorLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/main_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
-        <include
-            layout="@layout/toolbar_actionbar"
-            app:layout_scrollFlags="scroll|enterAlways" /> <!-- placeholder, empty except on L -->
-
-        <android.support.design.widget.TabLayout
-            android:id="@+id/sliding_tabs"
-            style="@style/TabLayoutStyle"
+        <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_scrollFlags="scroll|enterAlways"
-            app:tabGravity="center"
-            app:tabMode="scrollable"
-            app:tabSelectedTextColor="@color/fancy_orange"
-            app:tabTextAppearance="@style/TabTextAppearancce" />
-    </android.support.design.widget.AppBarLayout>
+            android:layout_height="wrap_content">
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/pager"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+            <include
+                layout="@layout/toolbar_actionbar"
+                app:layout_scrollFlags="scroll|enterAlways" /> <!-- placeholder, empty except on L -->
 
-</android.support.design.widget.CoordinatorLayout>
+            <android.support.design.widget.TabLayout
+                android:id="@+id/sliding_tabs"
+                style="@style/TabLayoutStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_scrollFlags="scroll|enterAlways"
+                app:tabGravity="center"
+                app:tabMode="scrollable"
+                app:tabSelectedTextColor="@color/fancy_orange"
+                app:tabTextAppearance="@style/TabTextAppearancce" />
+        </android.support.design.widget.AppBarLayout>
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+    </android.support.design.widget.CoordinatorLayout>
+</FrameLayout>

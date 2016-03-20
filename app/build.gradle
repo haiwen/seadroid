@@ -62,6 +62,7 @@ android {
         compile 'com.cocosw:bottomsheet:1.+@aar'
         compile project(':libraries:MarkdownView')
         compile 'com.commit451:PhotoView:1.2.4'
+        compile 'com.joanzapata.iconify:android-iconify-material-community:2.2.1'
         testCompile 'junit:junit:4.12'
         testCompile 'org.robolectric:robolectric:3.0'
     }

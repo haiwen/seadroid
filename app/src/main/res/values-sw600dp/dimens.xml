@@ -87,4 +87,6 @@
     <!-- Footer -->
     <dimen name="keyline_2">80dp</dimen>
 
+    <dimen name="item_modification_desc">300dp</dimen>
+
 </resources>

@@ -266,6 +266,46 @@ public class SeafConnection {
         }
     }
 
+    public String getEvents(int start) throws SeafException {
+        try {
+            String apiPath = String.format("api2/events/");
+
+            Map<String, Object> params = Maps.newHashMap();
+            params.put("start", start);
+            HttpRequest req = prepareApiGetRequest(apiPath, params);
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+
+            String result = new String(req.bytes(), "UTF-8");
+            return result;
+        } catch (SeafException e) {
+            throw e;
+        } catch (HttpRequestException e) {
+            throw getSeafExceptionFromHttpRequestException(e);
+        } catch (IOException e) {
+            throw SeafException.networkException;
+        }
+    }
+
+    public String getHistoryChanges(String repoID, String commitId) throws SeafException {
+        try {
+            String apiPath = String.format("api2/repo_history_changes/%s/", repoID);
+            Map<String, Object> params = Maps.newHashMap();
+            params.put("commit_id", commitId);
+            HttpRequest req = prepareApiGetRequest(apiPath, params);
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+
+            String result = new String(req.bytes(), "UTF-8");
+
+            return result;
+        } catch (SeafException e) {
+            throw e;
+        } catch (HttpRequestException e) {
+            throw getSeafExceptionFromHttpRequestException(e);
+        } catch (IOException e) {
+            throw SeafException.networkException;
+        }
+    }
+
     public String getStarredFiles() throws SeafException {
         try {
             HttpRequest req = prepareApiGetRequest("api2/starredfiles/");

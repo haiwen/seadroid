@@ -38,6 +38,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.widget.FrameLayout;
 
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
@@ -132,6 +133,7 @@ public class BrowserActivity extends BaseActivity
     private int currentPosition = 0;
     private SeafileTabsAdapter adapter;
     private View mLayout;
+    FrameLayout container;
     private boolean boolPermissionGranted = false;
     private TabLayout mTabLayout;
 
@@ -223,6 +225,7 @@ public class BrowserActivity extends BaseActivity
         }
         setContentView(R.layout.tabs_main);
         mLayout = findViewById(R.id.main_layout);
+        container = (FrameLayout) findViewById(R.id.bottom_sheet_container);
         setSupportActionBar(getActionBarToolbar());
         // enable ActionBar app icon to behave as action back
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -339,6 +342,10 @@ public class BrowserActivity extends BaseActivity
         requestServerInfo();
 
         requestReadExternalStoragePermission();
+    }
+
+    public FrameLayout getContainer() {
+        return container;
     }
 
     private void finishAndStartAccountsActivity() {

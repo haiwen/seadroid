@@ -21,6 +21,24 @@ public class ServerInfo implements Parcelable{
         this.features = features;
     }
 
+    protected ServerInfo(Parcel in) {
+        url = in.readString();
+        version = in.readString();
+        features = in.readString();
+    }
+
+    public static final Creator<ServerInfo> CREATOR = new Creator<ServerInfo>() {
+        @Override
+        public ServerInfo createFromParcel(Parcel in) {
+            return new ServerInfo(in);
+        }
+
+        @Override
+        public ServerInfo[] newArray(int size) {
+            return new ServerInfo[size];
+        }
+    };
+
     /**
      *
      * @return Server version. Might be null

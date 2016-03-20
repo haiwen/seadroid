@@ -3,6 +3,7 @@ package com.seafile.seadroid2.data;
 import android.os.Environment;
 import android.util.Log;
 import android.util.Pair;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
@@ -12,6 +13,7 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.util.Utils;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -762,6 +764,52 @@ public class DataManager {
         // file/folder. We save it to avoid request it again
         saveDirentContent(dstRepoId, dstDir, newDirID, response);
 
+    }
+
+    public SeafActivities getEvents(int start) throws SeafException, JSONException {
+        // First decide if use cache
+        if (!Utils.isNetworkOn()) {
+            throw SeafException.networkException;
+        }
+
+        final String json = sc.getEvents(start);
+
+        if (json == null) return null;
+
+        final JSONObject object = Utils.parseJsonObject(json);
+        final int moreOffset = object.getInt("more_offset");
+        final boolean more = object.getBoolean("more");
+        return new SeafActivities(parseEvents(json), moreOffset, more);
+
+    }
+
+    public String getHistoryChanges(String repoId, String commitId) throws SeafException {
+        return sc.getHistoryChanges(repoId, commitId);
+    }
+
+    public List<SeafEvent> parseEvents(String json) {
+        try {
+            // may throw ClassCastException
+            JSONArray array = Utils.parseJsonArrayByKey(json, "events");
+            if (array.length() == 0)
+                return Lists.newArrayListWithCapacity(0);
+
+            ArrayList<SeafEvent> events = Lists.newArrayList();
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject obj = array.getJSONObject(i);
+                SeafEvent event = SeafEvent.fromJson(obj);
+                if (event != null)
+                    events.add(event);
+            }
+            return events;
+        } catch (JSONException e) {
+            Log.e(DEBUG_TAG, "parse json error");
+            return null;
+        } catch (Exception e) {
+            // other exception, for example ClassCastException
+            Log.e(DEBUG_TAG, "parseEvents exception");
+            return null;
+        }
     }
 
     private static class PasswordInfo {
