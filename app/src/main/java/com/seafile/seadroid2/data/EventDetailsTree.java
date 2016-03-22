@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.data;
 
 import com.google.common.collect.Lists;
+import com.seafile.seadroid2.data.EventDetailsFileItem.EType;
 
 import java.util.List;
 
@@ -9,12 +10,16 @@ import java.util.List;
  */
 public class EventDetailsTree {
     private List<EventDetailsFileItem> items;
+    private SeafEvent event;
 
-    public EventDetailsTree() {
-        items = Lists.newArrayList();
+    public EventDetailsTree(SeafEvent event) {
+        this.items = Lists.newArrayList();
+        this.event = event;
     }
 
     public List<EventDetailsFileItem> setCommitDetails(CommitDetails details) {
+
+        items.clear();
 
         processEventCategory(details.added_files, "Added files", EType.FILE_ADDED);
         processEventCategory(details.deleted_files, "Deleted files", EType.FILE_DELETED);
@@ -39,35 +44,8 @@ public class EventDetailsTree {
         }
 
         for (int i = 0, n = files.size(); i < n; i++) {
-            EventDetailsFileItem item = new EventDetailsFileItem(files.get(i), desc, etype);
+            EventDetailsFileItem item = new EventDetailsFileItem(event, files.get(i), etype);
             items.add(item);
-        }
-    }
-
-    public enum EType {
-        FILE_ADDED,
-        FILE_DELETED,
-        FILE_MODIFIED,
-        FILE_RENAMED,
-        DIR_ADDED,
-        DIR_DELETED
-    }
-
-    public class EventDetailsFileItem {
-        public String file, desc;
-        public EType eType;
-
-        public EventDetailsFileItem(String file, String desc, EType etype) {
-            this.file = file;
-            this.desc = desc;
-            this.eType = etype;
-        }
-
-        public boolean isFileOpenable(EType etype_) {
-            return etype_ == EType.FILE_ADDED ||
-                    etype_ == EType.FILE_MODIFIED ||
-                    etype_ == EType.FILE_RENAMED ||
-                    etype_ == EType.DIR_ADDED;
         }
     }
 }

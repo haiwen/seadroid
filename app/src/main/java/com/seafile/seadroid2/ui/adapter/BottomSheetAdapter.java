@@ -10,15 +10,16 @@ import android.widget.TextView;
 import com.joanzapata.iconify.fonts.MaterialCommunityIcons;
 import com.joanzapata.iconify.widget.IconTextView;
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.data.EventDetailsFileItem;
 import com.seafile.seadroid2.data.EventDetailsTree;
 
 import java.util.List;
 
 public class BottomSheetAdapter extends BaseAdapter {
-    private List<EventDetailsTree.EventDetailsFileItem> items;
+    private List<EventDetailsFileItem> items;
     private Context context;
 
-    public BottomSheetAdapter(Context context, List<EventDetailsTree.EventDetailsFileItem> items) {
+    public BottomSheetAdapter(Context context, List<EventDetailsFileItem> items) {
         this.items = items;
         this.context = context;
     }
@@ -51,10 +52,10 @@ public class BottomSheetAdapter extends BaseAdapter {
             holder = (ViewHolder) contentView.getTag();
         }
 
-        final EventDetailsTree.EventDetailsFileItem eventDetailsFileItem = items.get(position);
+        final EventDetailsFileItem eventDetailsFileItem = items.get(position);
 
-        holder.file.setText(eventDetailsFileItem.file);
-        switch (eventDetailsFileItem.eType) {
+        holder.file.setText(eventDetailsFileItem.getPath());
+        switch (eventDetailsFileItem.geteType()) {
             case FILE_ADDED:
             case DIR_ADDED:
                 holder.file.setTextColor(Color.parseColor("#6CC644"));

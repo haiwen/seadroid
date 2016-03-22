@@ -2,7 +2,6 @@ package com.seafile.seadroid2.ui.fragment;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
 import android.net.http.SslCertificate;
 import android.net.http.SslError;
 import android.os.AsyncTask;
@@ -34,6 +33,7 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.CommitDetails;
 import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.EventDetailsFileItem;
 import com.seafile.seadroid2.data.EventDetailsTree;
 import com.seafile.seadroid2.data.SeafActivities;
 import com.seafile.seadroid2.data.SeafEvent;
@@ -130,8 +130,8 @@ public class ActivitiesFragment extends Fragment {
                 final SeafEvent seafEvent = (SeafEvent) adapterView.getItemAtPosition(position);
                 if (mActivity == null) return;
 
-                LoadHistoryChangesTask task = new LoadHistoryChangesTask();
-                ConcurrentAsyncTask.execute(task, seafEvent.getRepo_id(), seafEvent.getCommit_id());
+                LoadHistoryChangesTask task = new LoadHistoryChangesTask(seafEvent);
+                ConcurrentAsyncTask.execute(task);
             }
         });
 
@@ -203,7 +203,7 @@ public class ActivitiesFragment extends Fragment {
         boolShown = !boolShown;
     }
 
-    private void showChangesDialog(List<EventDetailsTree.EventDetailsFileItem> items) {
+    private void showChangesDialog(final List<EventDetailsFileItem> items) {
         int maskColor = 0x88888888;
 
         if (boolShown && ppwContainerView != null) {
@@ -239,6 +239,8 @@ public class ActivitiesFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                final EventDetailsFileItem fileItem = items.get(position);
+                onItemClicked(fileItem);
                 switchMenu();
             }
         });
@@ -247,6 +249,24 @@ public class ActivitiesFragment extends Fragment {
         ppwContainerView.addView(ppw, 2);
 
         switchMenu();
+    }
+
+    private void onItemClicked(EventDetailsFileItem fileItem) {
+        if (fileItem == null) {
+            return;
+        }
+
+        if (fileItem.isFileOpenable()) {
+            openLocalFile(fileItem);
+        }
+    }
+
+    private void openLocalFile(EventDetailsFileItem fileItem) {
+        if (fileItem.isDir()) {
+            viewRepo(fileItem.getEvent().getRepo_id());
+        } else {
+            viewFile(fileItem.getEvent().getRepo_id(), fileItem.getPath());
+        }
     }
 
     class LoadEventsTask extends AsyncTask<Void, Void, SeafActivities> {
@@ -302,7 +322,7 @@ public class ActivitiesFragment extends Fragment {
 
             offset = result.getOffset();
             if (!result.isMore()) {
-                ToastUtils.show(mActivity, "no more data");
+                ToastUtils.show(mActivity, getString(R.string.no_more_activities));
                 return;
             }
 
@@ -314,15 +334,16 @@ public class ActivitiesFragment extends Fragment {
 
     class LoadHistoryChangesTask extends AsyncTask<String, Void, CommitDetails> {
         private SeafException err;
+        private SeafEvent event;
+
+        public LoadHistoryChangesTask(SeafEvent event) {
+            this.event = event;
+        }
 
         @Override
         protected CommitDetails doInBackground(String... params) {
-            if (params == null || params.length != 2) return null;
-
-            String repoId = params[0];
-            String commitId = params[1];
             try {
-                final String ret = mActivity.getDataManager().getHistoryChanges(repoId, commitId);
+                final String ret = mActivity.getDataManager().getHistoryChanges(event.getRepo_id(), event.getCommit_id());
                 return CommitDetails.fromJson(ret);
             } catch (SeafException e) {
                 err = e;
@@ -344,10 +365,8 @@ public class ActivitiesFragment extends Fragment {
                 return;
             }
 
-            EventDetailsTree tree = new EventDetailsTree();
-            final List<EventDetailsTree.EventDetailsFileItem> items = tree.setCommitDetails(ret);
-
-            if (items == null) return;
+            final EventDetailsTree tree = new EventDetailsTree(event);
+            final List<EventDetailsFileItem> items = tree.setCommitDetails(ret);
 
             showChangesDialog(items);
         }
@@ -428,6 +447,7 @@ public class ActivitiesFragment extends Fragment {
     }
 
     private void openFile(String repoID, String repoName, String filePath) {
+        Log.d(DEBUG_TAG, "open fiel " + repoName + filePath);
         int taskID = mActivity.getTransferService().addDownloadTask(mActivity.getAccount(), repoName, repoID, filePath);
         Intent intent = new Intent(getActivity(), FileActivity.class);
         intent.putExtra("repoName", repoName);
