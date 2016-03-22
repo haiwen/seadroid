@@ -187,4 +187,10 @@
 
     <dimen name="item_repo_name">100dp</dimen>
     <dimen name="item_modification_desc">200dp</dimen>
+
+    <dimen name="font_size_normal">14sp</dimen>
+    <dimen name="font_size_big">16sp</dimen>
+    <dimen name="font_size_bigger">18sp</dimen>
+    <dimen name="font_size_biggest">20sp</dimen>
+    <dimen name="font_size_large">22sp</dimen>
 </resources>

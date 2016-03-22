@@ -220,7 +220,7 @@ public class ActivitiesFragment extends Fragment {
         underLine.setVisibility(View.GONE);
         ppwContainerView.addView(underLine, 0);
 
-        ppw = new RelativeLayout(getContext());
+        ppw = (RelativeLayout) View.inflate(mActivity, R.layout.ppw_history_changes, null);
 
         maskView = new View(getContext());
         maskView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
@@ -233,12 +233,7 @@ public class ActivitiesFragment extends Fragment {
         });
         maskView.setVisibility(View.GONE);
         ppwContainerView.addView(maskView, 1);
-        final RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-        params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, ppw.getId());
-        ppw.setLayoutParams(params);
-        ListView listView = new ListView(mActivity);
-        listView.setDivider(new ColorDrawable(getResources().getColor(R.color.divider_color)));
-        listView.setDividerHeight(Utils.dip2px(mActivity, 0.6f));
+        ListView listView = (ListView) ppw.findViewById(R.id.lv_history_changes);
         final BottomSheetAdapter adapter = new BottomSheetAdapter(mActivity, items);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -247,8 +242,6 @@ public class ActivitiesFragment extends Fragment {
                 switchMenu();
             }
         });
-
-        ppw.addView(listView);
 
         ppw.setVisibility(View.GONE);
         ppwContainerView.addView(ppw, 2);
