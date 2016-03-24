@@ -116,8 +116,29 @@ public class ActivitiesFragment extends Fragment {
                 final SeafEvent seafEvent = (SeafEvent) adapterView.getItemAtPosition(position);
                 if (mActivity == null) return;
 
-                LoadHistoryChangesTask task = new LoadHistoryChangesTask(seafEvent);
-                ConcurrentAsyncTask.execute(task);
+                final String repoId = seafEvent.getRepo_id();
+                final String repoName = seafEvent.getRepo_name();
+
+                if (seafEvent.isRepo_encrypted() && !DataManager.getRepoPasswordSet(repoId)) {
+                    final SeafRepo repo = mActivity.getDataManager().getCachedRepoByID(repoId);
+
+                    if (repo == null) {
+                        ToastUtils.show(mActivity, getString(R.string.repo_not_found));
+                        return;
+                    }
+
+                    String password = DataManager.getRepoPassword(repoId);
+                    mActivity.showPasswordDialog(repoName, repoId,
+                            new TaskDialog.TaskDialogListener() {
+                                @Override
+                                public void onTaskSuccess() {
+                                    switchTab(repoId, repoName, repo.getRootDirID());
+                                }
+                            }, password);
+                } else {
+                    LoadHistoryChangesTask task = new LoadHistoryChangesTask(seafEvent);
+                    ConcurrentAsyncTask.execute(task);
+                }
             }
         });
 
@@ -350,6 +371,7 @@ public class ActivitiesFragment extends Fragment {
             super.onPostExecute(ret);
             if (ret == null) {
                 if (err != null) {
+                    Log.e(DEBUG_TAG, err.getCode() + err.getMessage());
                     ToastUtils.show(mActivity, err.getMessage());
                 }
                 return;
