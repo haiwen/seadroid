@@ -779,7 +779,8 @@ public class DataManager {
         final JSONObject object = Utils.parseJsonObject(json);
         final int moreOffset = object.getInt("more_offset");
         final boolean more = object.getBoolean("more");
-        return new SeafActivities(parseEvents(json), moreOffset, more);
+        final List<SeafEvent> events = parseEvents(json);
+        return new SeafActivities(events, moreOffset, more);
 
     }
 
