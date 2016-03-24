@@ -70,7 +70,7 @@ public class ActivitiesFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        Log.d(DEBUG_TAG, "ActivitiesFragment Attached");
+        // Log.d(DEBUG_TAG, "ActivitiesFragment Attached");
         mActivity = (BrowserActivity) getActivity();
     }
 
@@ -96,7 +96,7 @@ public class ActivitiesFragment extends Fragment {
 
     @Override
     public void onActivityCreated(final Bundle savedInstanceState) {
-        Log.d(DEBUG_TAG, "onActivityCreated");
+        // Log.d(DEBUG_TAG, "onActivityCreated");
 
         refreshLayout.setColorSchemeResources(R.color.fancy_orange);
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -293,7 +293,7 @@ public class ActivitiesFragment extends Fragment {
             if (mActivity == null) return null;
 
             try {
-                Log.d(DEBUG_TAG, "offset " + offset);
+                // Log.d(DEBUG_TAG, "offset " + offset);
                 return mActivity.getDataManager().getEvents(offset);
             } catch (SeafException e) {
                 err = e;
@@ -321,11 +321,11 @@ public class ActivitiesFragment extends Fragment {
             } else {
                 if (offset == result.getOffset()) {
                     // duplicate data
-                    Log.d(DEBUG_TAG, "duplicate data " + offset);
+                    // Log.d(DEBUG_TAG, "duplicate data " + offset);
                     return;
                 }
 
-                Log.d(DEBUG_TAG, "return offset " + offset);
+                // Log.d(DEBUG_TAG, "return offset " + offset);
                 events.addAll(result.getEvents());
             }
 
@@ -441,7 +441,7 @@ public class ActivitiesFragment extends Fragment {
     }
 
     private void openFile(String repoID, String repoName, String filePath) {
-        Log.d(DEBUG_TAG, "open fiel " + repoName + filePath);
+        // Log.d(DEBUG_TAG, "open fiel " + repoName + filePath);
         int taskID = mActivity.getTransferService().addDownloadTask(mActivity.getAccount(), repoName, repoID, filePath);
         Intent intent = new Intent(getActivity(), FileActivity.class);
         intent.putExtra("repoName", repoName);
