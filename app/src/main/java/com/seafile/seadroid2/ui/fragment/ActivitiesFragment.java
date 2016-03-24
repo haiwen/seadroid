@@ -63,6 +63,9 @@ public class ActivitiesFragment extends Fragment {
     private boolean boolShown = false;
     private int offset;
 
+    public boolean isBottomSheetShown() {
+        return boolShown;
+    }
 
     @Override
     public void onAttach(Activity activity) {
@@ -157,6 +160,10 @@ public class ActivitiesFragment extends Fragment {
 
     public void refreshView() {
         new LoadEventsTask().execute();
+    }
+
+    public void hideBottomSheet() {
+        switchMenu();
     }
 
     public void switchMenu() {

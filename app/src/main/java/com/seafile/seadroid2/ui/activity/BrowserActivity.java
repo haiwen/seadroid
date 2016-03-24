@@ -114,7 +114,6 @@ public class BrowserActivity extends BaseActivity
     private static final String DEBUG_TAG = "BrowserActivity";
     public static final String ACTIONBAR_PARENT_PATH = "/";
     private static final String UPLOAD_TASKS_VIEW = "UploadTasks";
-    private static final String FILES_VIEW = "Files";
 
     public static final String OPEN_FILE_DIALOG_FRAGMENT_TAG = "openfile_fragment";
     public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "password_fragment";
@@ -146,7 +145,6 @@ public class BrowserActivity extends BaseActivity
     TransferReceiver mTransferReceiver;
     SettingsManager settingsMgr;
     AccountManager accountManager;
-    private String currentSelectedItem = FILES_VIEW;
 
     FetchFileDialog fetchFileDialog = null;
 
@@ -1603,7 +1601,7 @@ public class BrowserActivity extends BaseActivity
             return;
         }
 
-        if (currentSelectedItem == FILES_VIEW && currentPosition == INDEX_LIBRARY_TAB) {
+        if (currentPosition == INDEX_LIBRARY_TAB) {
             if (navContext.inRepo()) {
                 if (navContext.isRepoRoot()) {
                     navContext.setRepoID(null);
@@ -1622,9 +1620,13 @@ public class BrowserActivity extends BaseActivity
 
             } else
                 super.onBackPressed();
-        } else {
+        } else if (currentPosition == INDEX_ACTIVITIES_TAB) {
+            if (getActivitiesFragment().isBottomSheetShown()) {
+                getActivitiesFragment().hideBottomSheet();
+            } else
+                super.onBackPressed();
+        } else
             super.onBackPressed();
-        }
     }
 
     @Override
