@@ -2,8 +2,6 @@ package com.seafile.seadroid2.ui.fragment;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.net.http.SslCertificate;
-import android.net.http.SslError;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -14,23 +12,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
-import android.webkit.JsResult;
-import android.webkit.SslErrorHandler;
-import android.webkit.WebChromeClient;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
-import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.CommitDetails;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.EventDetailsFileItem;
@@ -38,7 +29,6 @@ import com.seafile.seadroid2.data.EventDetailsTree;
 import com.seafile.seadroid2.data.SeafActivities;
 import com.seafile.seadroid2.data.SeafEvent;
 import com.seafile.seadroid2.data.SeafRepo;
-import com.seafile.seadroid2.ssl.CertsManager;
 import com.seafile.seadroid2.ui.NavContext;
 import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
@@ -51,12 +41,7 @@ import com.seafile.seadroid2.util.Utils;
 
 import org.json.JSONException;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.security.cert.X509Certificate;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class ActivitiesFragment extends Fragment {
     private static final String DEBUG_TAG = "ActivitiesFragment";
@@ -69,7 +54,6 @@ public class ActivitiesFragment extends Fragment {
     private SwipeRefreshLayout refreshLayout;
     private ListView listView;
     private ActivitiesItemAdapter adapter;
-    private View mProgressContainer;
 
     private RelativeLayout ppwContainerView;
     private RelativeLayout ppw;
@@ -102,7 +86,6 @@ public class ActivitiesFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mProgressContainer = view.findViewById(R.id.progressContainer);
         refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
         listView = (ListView) view.findViewById(R.id.activities_listview);
         events = Lists.newArrayList();
@@ -371,24 +354,6 @@ public class ActivitiesFragment extends Fragment {
             showChangesDialog(items);
         }
     }
-    private void showPageLoading(boolean pageLoading) {
-        if (mActivity == null) {
-            return;
-        }
-
-        if (!pageLoading) {
-            mProgressContainer.startAnimation(AnimationUtils.loadAnimation(mActivity, android.R.anim.fade_out));
-            listView.startAnimation(AnimationUtils.loadAnimation(mActivity, android.R.anim.fade_in));
-            mProgressContainer.setVisibility(View.GONE);
-            listView.setVisibility(View.VISIBLE);
-        } else {
-            mProgressContainer.startAnimation(AnimationUtils.loadAnimation(mActivity, android.R.anim.fade_in));
-            listView.startAnimation(AnimationUtils.loadAnimation(mActivity, android.R.anim.fade_out));
-
-            mProgressContainer.setVisibility(View.VISIBLE);
-            listView.setVisibility(View.INVISIBLE);
-        }
-    }
 
     private void viewRepo(final String repoID) {
         final SeafRepo repo = mActivity.getDataManager().getCachedRepoByID(repoID);
@@ -456,96 +421,5 @@ public class ActivitiesFragment extends Fragment {
         intent.putExtra("account", mActivity.getAccount());
         intent.putExtra("taskID", taskID);
         mActivity.startActivityForResult(intent, BrowserActivity.DOWNLOAD_FILE_REQUEST);
-    }
-
-    private class MyWebViewClient extends WebViewClient {
-        // Display error messages
-        @Override
-        public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-            if (mActivity != null) {
-                Toast.makeText(mActivity, "Error: " + description, Toast.LENGTH_SHORT).show();
-                showPageLoading(false);
-            }
-        }
-
-        // Ignore SSL certificate validate
-        @Override
-        public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
-            if (mActivity == null) {
-                return;
-            }
-
-            Account account = mActivity.getAccount();
-
-            SslCertificate sslCert = error.getCertificate();
-            X509Certificate savedCert = CertsManager.instance().getCertificate(account);
-
-            if (Utils.isSameCert(sslCert, savedCert)) {
-                Log.d(DEBUG_TAG, "trust this cert");
-                handler.proceed();
-            } else {
-                Log.d(DEBUG_TAG, "cert is not trusted");
-                ToastUtils.show(mActivity, R.string.ssl_error);
-                showPageLoading(false);
-            }
-        }
-
-        @Override
-        public boolean shouldOverrideUrlLoading(WebView listView, String url) {
-            Log.d(DEBUG_TAG, "loading url " + url);
-            String API_URL_PREFIX= "api://";
-            if (!url.startsWith(API_URL_PREFIX)) {
-                return false;
-            }
-
-            String req = url.substring(API_URL_PREFIX.length(), url.length());
-
-            Pattern REPO_PATTERN = Pattern.compile("repos/([-a-f0-9]{36})/?");
-            Pattern REPO_FILE_PATTERN = Pattern.compile("repo/([-a-f0-9]{36})/files/\\?p=(.+)");
-            Matcher matcher;
-
-            if ((matcher = fullMatch(REPO_PATTERN, req)) != null) {
-                String repoID = matcher.group(1);
-                viewRepo(repoID);
-
-            } else if ((matcher = fullMatch(REPO_FILE_PATTERN, req)) != null) {
-                String repoID = matcher.group(1);
-
-                try {
-                    String path = URLDecoder.decode(matcher.group(2), "UTF-8");
-                    viewFile(repoID, path);
-                } catch (UnsupportedEncodingException e) {
-                    // Ignore
-                }
-            }
-
-            return true;
-        }
-
-        @Override
-        public void onPageFinished(WebView listView, String url) {
-            Log.d(DEBUG_TAG, "onPageFinished " + url);
-            if (mActivity != null) {
-                String js = String.format("javascript:setToken('%s')",
-                        mActivity.getAccount().getToken());
-                listView.loadUrl(js);
-            }
-            showPageLoading(false);
-        }
-    }
-
-    private static Matcher fullMatch(Pattern pattern, String str) {
-        Matcher matcher = pattern.matcher(str);
-        return matcher.matches() ? matcher : null;
-    }
-
-    private class MyWebChromeClient extends WebChromeClient {
-
-        // For debug js
-        @Override
-        public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
-            Log.d(DEBUG_TAG, "alert: " + message);
-            return super.onJsAlert(view, url, message, result);
-        }
     }
 }
