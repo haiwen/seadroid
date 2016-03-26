@@ -235,34 +235,32 @@ public class DataManager {
     /**
      * Get the top dir of a repo. If there are multiple repos with same name,
      * say "ABC", their top dir would be "ABC", "ABC (1)", "ABC (2)", etc. The
-     * mapping (repoName, repoID, dir) is stored in a database table.
+     * mapping (repoID, dir) is stored in a database table.
      */
     private synchronized String getRepoDir(String repoName, String repoID) {
         File repoDir;
 
         // Check if there is a record in database
-        String path = dbHelper.getRepoDir(account, repoName, repoID);
-        if (path != null) {
+        String uniqueRepoName = dbHelper.getRepoDir(account, repoID);
+        if (uniqueRepoName != null) {
             // Has record in database
-            repoDir = new File(path);
+            repoDir = new File(getAccountDir(), uniqueRepoName);
             if (!repoDir.exists()) {
                 if (!repoDir.mkdirs()) {
-                    throw new RuntimeException("Could not create library directory " + path);
+                    throw new RuntimeException("Could not create library directory " + repoDir);
                 }
             }
-            return path;
+            return repoDir.getAbsolutePath();
         }
 
         int i = 0;
         while (true) {
-            String uniqueRepoName;
             if (i == 0) {
                 uniqueRepoName = repoName;
             } else {
                 uniqueRepoName = repoName + " (" + i + ")";
             }
-            path = Utils.pathJoin(getAccountDir(), uniqueRepoName);
-            repoDir = new File(path);
+            repoDir = new File(getAccountDir(), uniqueRepoName);
             if (!repoDir.exists() && !dbHelper.repoDirExists(account, uniqueRepoName)) {
                 // This repo dir does not exist yet, we can use it
                 break;
@@ -271,13 +269,13 @@ public class DataManager {
         }
 
         if (!repoDir.mkdirs()) {
-            throw new RuntimeException("Could not create repo directory " + path);
+            throw new RuntimeException("Could not create repo directory " + uniqueRepoName);
         }
 
         // Save the new mapping in database
-        dbHelper.saveRepoDirMapping(account, repoName, repoID, path);
+        dbHelper.saveRepoDirMapping(account, repoID, uniqueRepoName);
 
-        return repoDir.getPath();
+        return repoDir.getAbsolutePath();
     }
 
     /**
