@@ -18,7 +18,7 @@ import com.seafile.seadroid2.account.Account;
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DEBUG_TAG = "DatabaseHelper";
     // If you change the database schema, you must increment the database version.
-    public static final int DATABASE_VERSION = 7;
+    public static final int DATABASE_VERSION = 8;
     public static final String DATABASE_NAME = "data.db";
 
     // FileCache table
@@ -37,13 +37,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String STARRED_FILECACHE_COLUMN_ACCOUNT = "account";
     private static final String STARRED_FILECACHE_COLUMN_CONTENT = "content";
 
-    // RepoDir table
+    /** Table to lookup the mapping from repository to local cache directory.
+     * As there can be multiple repositories with the same name (even on the same server)
+     * this mapping has to be remembered.
+     */
     private static final String REPODIR_TABLE_NAME = "RepoDir";
 
     private static final String REPODIR_COLUMN_ID = "id";
+    /** Signature of the associated account, E.g. "seacloud.cc (user@example.com)" */
     private static final String REPODIR_COLUMN_ACCOUNT = "account";
-    private static final String REPODIR_COLUMN_REPO_NAME = "repo_name";
+    /** Repository ID: E.g.: 41deb3fc-192a-4387-8aa1-2020e0727283 */
     private static final String REPODIR_COLUMN_REPO_ID = "repo_id";
+    /** Local directory used for cached files, relative to Account cache directory.
+     *  E.g.: "Temp Repository (1)" */
     private static final String REPODIR_COLUMN_REPO_DIR = "repo_dir";
 
     private static final String DIRENTS_CACHE_TABLE_NAME = "DirentsCache";
@@ -72,7 +78,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         "CREATE TABLE " + REPODIR_TABLE_NAME + " ("
         + REPODIR_COLUMN_ID + " INTEGER PRIMARY KEY, "
         + REPODIR_COLUMN_ACCOUNT + " TEXT NOT NULL, "
-        + REPODIR_COLUMN_REPO_NAME + " TEXT NOT NULL, "
         + REPODIR_COLUMN_REPO_ID + " TEXT NOT NULL, "
         + REPODIR_COLUMN_REPO_DIR + " TEXT NOT NULL);";
 
@@ -121,17 +126,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private void createRepoDirTable(SQLiteDatabase db) {
         db.execSQL(SQL_CREATE_REPODIR_TABLE);
 
+        // index for getRepoDir()
         String sql;
-        sql = String.format("CREATE INDEX account_reponame_index ON %s (%s, %s)",
+        sql = String.format("CREATE UNIQUE INDEX account_repoid_index ON %s (%s, %s)",
                             REPODIR_TABLE_NAME,
                             REPODIR_COLUMN_ACCOUNT,
-                            REPODIR_COLUMN_REPO_NAME);
-        db.execSQL(sql);
-        sql = String.format("CREATE UNIQUE INDEX account_reponame_repoid_index ON %s (%s, %s, %s)",
-                            REPODIR_TABLE_NAME,
-                            REPODIR_COLUMN_ACCOUNT,
-                            REPODIR_COLUMN_REPO_NAME,
                             REPODIR_COLUMN_REPO_ID);
+        db.execSQL(sql);
+
+        // index for repoDirExists()
+        sql = String.format("CREATE UNIQUE INDEX account_dir_index ON %s (%s, %s)",
+                            REPODIR_TABLE_NAME,
+                            REPODIR_COLUMN_ACCOUNT,
+                            REPODIR_COLUMN_REPO_DIR);
         db.execSQL(sql);
     }
 
@@ -299,17 +306,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     /**
      * Return the directory of a repo on external storage.
      */
-    public String getRepoDir(Account account, String repoName, String repoID) {
+    public String getRepoDir(Account account, String repoID) {
         String[] projection = {
             REPODIR_COLUMN_REPO_DIR
         };
 
-        String selectClause = String.format("%s = ? and %s = ? and %s = ?",
+        String selectClause = String.format("%s = ? and %s = ?",
                                             REPODIR_COLUMN_ACCOUNT,
-                                            REPODIR_COLUMN_REPO_NAME,
                                             REPODIR_COLUMN_REPO_ID);
 
-        String[] selectArgs = { account.getSignature(), repoName, repoID };
+        String[] selectArgs = { account.getSignature(), repoID };
 
 
         Cursor cursor = database.query(
@@ -366,15 +372,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     /**
      * Tell if a record exists already.
      */
-    public boolean repoDirExists(Account account, String repoName) {
+    public boolean repoDirExists(Account account, String dir) {
         String[] projection = {
             REPODIR_COLUMN_REPO_DIR
         };
 
         String selectClause = String.format("%s = ? and %s = ?",
                                             REPODIR_COLUMN_ACCOUNT,
-                                            REPODIR_COLUMN_REPO_NAME);
-        String[] selectArgs = { account.getSignature(), repoName };
+                                            REPODIR_COLUMN_REPO_DIR);
+        String[] selectArgs = { account.getSignature(), dir };
 
         Cursor cursor = database.query(
             REPODIR_TABLE_NAME,
@@ -394,21 +400,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return exist;
     }
 
-    public void saveRepoDirMapping(Account account, String repoName,
+    public void saveRepoDirMapping(Account account,
                                    String repoID, String dir) {
         String log = String.format("Saving repo dir mapping: account = %s(%s) "
-                        + "repoName = %s"
                         + "repoID = %s"
                         + "dir = %s",
                 account.getEmail(), account.getServerNoProtocol(),
-                repoName, repoID, dir);
+                repoID, dir);
 
         Log.d(DEBUG_TAG, log);
 
         // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
         values.put(REPODIR_COLUMN_ACCOUNT, account.getSignature());
-        values.put(REPODIR_COLUMN_REPO_NAME, repoName);
         values.put(REPODIR_COLUMN_REPO_ID, repoID);
         values.put(REPODIR_COLUMN_REPO_DIR, dir);
 
