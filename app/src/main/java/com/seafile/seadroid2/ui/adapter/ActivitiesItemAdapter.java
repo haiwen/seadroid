@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.ui.adapter;
 
+import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +22,8 @@ import com.seafile.seadroid2.util.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Adapter for Activities tab
@@ -143,23 +147,49 @@ public class ActivitiesItemAdapter extends BaseAdapter {
         viewHolder = new ViewHolder(title, nick, date, repoName, icon);
         view.setTag(viewHolder);
 
-        final String raw = item.getAvatar();
-        final String split = raw.substring(raw.indexOf("\"") + 1);
-        String valid = split.substring(0, split.indexOf("\""));
-        // TODO implement this by regex
-        final String avatar = Utils.pathJoin(mActivity.getAccount().getServer(), valid);
-        loader.displayImage(avatar, viewHolder.icon, options);
+        if (!TextUtils.isEmpty(item.getAvatar())) {
+            final String avatar = parseAvatar(item.getAvatar());
+            loader.displayImage(avatar, viewHolder.icon, options);
+        } else {
+            // show a place holder indicating the error
+            loader.displayImage(item.getAvatar(), viewHolder.icon, options);
+        }
 
         viewHolder.title.setText(item.getDesc());
         viewHolder.nick.setText(item.getNick());
 
-        final String relative = item.getTime_relative();
-        final String substring = relative.substring(relative.indexOf(">") + 1);
-        final String validTime = substring.substring(0, substring.indexOf("<"));
-        // TODO implement this by regex
-        viewHolder.date.setText(validTime);
+        if (!TextUtils.isEmpty(item.getTime_relative())) {
+            final String relative = parseRelativeTime(item.getTime_relative());
+            viewHolder.date.setText(relative);
+            viewHolder.date.setVisibility(View.VISIBLE);
+        } else {
+            viewHolder.date.setVisibility(View.GONE);
+        }
         viewHolder.repoName.setText(item.getRepo_name());
         return view;
+    }
+
+    private String parseAvatar(@NonNull String avatar) {
+        // <img src="/seahub/image-view/avatars/7/9/dc411b7a64a20963ccff32563e38d6/resized/36/bamboo_5.png" width="36" height="36" class="avatar" />
+        String re1 = ".*?";   // Non-greedy match on filler
+        String re2 = "(src)"; // Variable Name 1
+        String re3 = ".*?";   // Non-greedy match on filler
+        String re4 = "((?:\\/[\\w\\.\\-]+)+)";    // Unix Path 1
+
+        Pattern p = Pattern.compile(re1 + re2 + re3 + re4, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+        Matcher m = p.matcher(avatar);
+        if (m.find()) {
+            String avatarPath = m.group(2);
+            return Utils.pathJoin(mActivity.getAccount().getServer(), avatarPath);
+        } else return avatar;
+    }
+
+    private String parseRelativeTime(@NonNull String relativeTime) {
+        String regex = "(<[^>]+>)";
+        final String[] split = relativeTime.split(regex);
+        if (split.length > 1) {
+            return split[1];
+        } else return relativeTime;
     }
 
     private class ViewHolder {
