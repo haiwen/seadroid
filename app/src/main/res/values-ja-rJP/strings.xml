@@ -172,6 +172,7 @@
   <string name="upload_duplicate_found">\"%s\" という名前のファイルはすでにこの場所に存在します。\n アップロードしたファイルで置き換えますか?</string>
   <string name="upload_replace_all">すべて置き換え</string>
   <string name="upload_keep_both">両方残す</string>
+  <string name="upload_replace">置き換え</string>
   <string name="days_ago">%d 日前</string>
   <string name="hours_ago">%d 時間前</string>
   <string name="minutes_ago">%d 分前</string>

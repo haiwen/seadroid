@@ -173,6 +173,7 @@
   <string name="upload_duplicate_found">Un ítem llamado \"%s\" ya existe en esta ubicación.\n ¿Desea reemplazarlo con el que está subiendo?</string>
   <string name="upload_replace_all">Reemplazar todo</string>
   <string name="upload_keep_both">Mantener ambos</string>
+  <string name="upload_replace">Reemplazar</string>
   <string name="days_ago">hace %d días</string>
   <string name="hours_ago">hace %d horas</string>
   <string name="minutes_ago">hace %d minutos</string>
