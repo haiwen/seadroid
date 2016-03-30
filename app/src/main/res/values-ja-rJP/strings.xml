@@ -433,4 +433,6 @@
   <!--permission-->
   <string name="permission_read_exteral_storage_rationale">ファイルを処理するには、ファイルにアクセスするストレージのアクセス許可が必要です。</string>
   <string name="permission_not_granted">アクセス許可が付与されていません</string>
+  <string name="history_change_title">更新の詳細</string>
+  <string name="no_more_activities">これ以上アクティビティはありません</string>
 </resources>

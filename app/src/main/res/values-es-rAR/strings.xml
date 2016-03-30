@@ -442,4 +442,6 @@
   <!--permission-->
   <string name="permission_read_exteral_storage_rationale">Para procesar archivos, conceda permiso de almacenamiento para accederlos.</string>
   <string name="permission_not_granted">El permiso no fue concedido</string>
+  <string name="history_change_title">Detalle de las modificaciones</string>
+  <string name="no_more_activities">No hay mas actividades</string>
 </resources>

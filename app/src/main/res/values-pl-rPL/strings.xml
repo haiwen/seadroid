@@ -451,4 +451,6 @@
   <!--permission-->
   <string name="permission_read_exteral_storage_rationale">Aby obsługiwać pliki zezwól aplikacji na dostęp do pamięci.</string>
   <string name="permission_not_granted">Nie przyznano uprawnień</string>
+  <string name="history_change_title">Szczegóły modyfikacji</string>
+  <string name="no_more_activities">Brak więcej aktywności</string>
 </resources>
