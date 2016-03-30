@@ -7,16 +7,20 @@ import java.util.Map;
 import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafCachedFile;
+import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 
 public class SeafileObserver implements FileAlterationListener {
     private static final String DEBUG_TAG = "SeafileObserver";
+
+    private static final int DELAY_UPLOAD_PERIOD = 5 * 1000;
 
     private Account account;
     private DataManager dataManager;
@@ -95,17 +99,14 @@ public class SeafileObserver implements FileAlterationListener {
 
     @Override
     public void onDirectoryChange(File directory) {
-        Log.v(DEBUG_TAG, directory.getPath() + " was modified!");
     }
 
     @Override
     public void onDirectoryCreate(File directory) {
-        Log.v(DEBUG_TAG, directory.getPath() + " was created!");
     }
 
     @Override
     public void onDirectoryDelete(File directory) {
-        Log.v(DEBUG_TAG, directory.getPath() + " was deleted!");
     }
 
     @Override
@@ -120,6 +121,15 @@ public class SeafileObserver implements FileAlterationListener {
             recentDownloadedFiles.removeRecentDownloadedFile(path);
         }
 
+        // We don't want to upload files that are still being modified.
+        // So only upload files that are at stable for least DELAY_UPLOAD_PERIOD
+        // otherwise wait a bit.
+        if (Math.abs(System.currentTimeMillis() - file.lastModified()) < DELAY_UPLOAD_PERIOD) {
+            Log.d(DEBUG_TAG, path + " delaying upload");
+            ConcurrentAsyncTask.execute(new DelayUpload(), file);
+            return;
+        }
+
         Log.d(DEBUG_TAG, path + " was modified!");
         SeafCachedFile cachedFile = watchedFiles.get(path);
         if (cachedFile != null) {
@@ -129,7 +139,6 @@ public class SeafileObserver implements FileAlterationListener {
 
     @Override
     public void onFileCreate(File file) {
-        Log.v(DEBUG_TAG, file.getPath() + " was created!");
     }
 
     @Override
@@ -150,6 +159,20 @@ public class SeafileObserver implements FileAlterationListener {
     public void onStop(FileAlterationObserver fao) {
         Log.v(DEBUG_TAG, fao.toString() + " finished checking event!");
     }
+
+    class DelayUpload extends AsyncTask<File, Void, Void> {
+
+        @Override
+        protected Void doInBackground(File... params) {
+            try {
+                Thread.sleep(DELAY_UPLOAD_PERIOD);
+            } finally {
+                SeafileObserver.this.onFileChange(params[0]);
+                return null;
+            }
+        }
+    }
+
 
     /**
      * When user downloads a file, the outdated file is replaced, so the onFileChange signal would
