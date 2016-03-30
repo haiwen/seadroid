@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/padding_normal">
+
+    <com.seafile.seadroid2.ui.widget.CircleImageView
+        android:id="@+id/iv_activities_avatar"
+        android:layout_width="@dimen/lv_act_icon_width"
+        android:layout_height="@dimen/lv_act_icon_height"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"/>
+
+    <LinearLayout
+        android:id="@+id/ll_activities_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/margin_normal"
+        android:layout_marginStart="@dimen/margin_normal"
+        android:layout_marginRight="@dimen/margin_small"
+        android:layout_marginEnd="@dimen/margin_small"
+        android:layout_toRightOf="@id/iv_activities_avatar"
+        android:layout_toEndOf="@id/iv_activities_avatar"
+        android:layout_toLeftOf="@+id/tv_activities_repo_name"
+        android:layout_toStartOf="@+id/tv_activities_repo_name"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_activities_mod_desc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_small"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_activities_nick"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/fancy_orange"/>
+
+            <TextView
+                android:id="@+id/tv_activities_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:layout_marginStart="@dimen/margin_small"
+                android:layout_marginLeft="@dimen/margin_small"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_activities_repo_name"
+        android:layout_width="@dimen/item_repo_name"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:gravity="end"
+        android:textColor="@color/fancy_orange" />
+
+</RelativeLayout>

@@ -30,6 +30,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.fileschooser.SelectableFile;
+import com.seafile.seadroid2.ui.activity.BrowserActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -807,5 +808,15 @@ public class Utils {
 
             return dName1.getDName().equals(dName2.getDName());
         }
+    }
+
+    public static int dip2px(Context context, float dip) {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (dip * scale + 0.5f);
+    }
+
+    public static int px2dip(Context context, float pxValue) {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (pxValue / scale + 0.5f);
     }
 }

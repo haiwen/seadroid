@@ -175,6 +175,7 @@
   <string name="upload_duplicate_found">Элемент с именем \"%s\" уже существует в этом месте.\n Вы хотите заменить его на загружаемый ?</string>
   <string name="upload_replace_all">Заменить все</string>
   <string name="upload_keep_both">Оставить оба</string>
+  <string name="upload_replace">Заменить</string>
   <string name="days_ago">%d дней назад</string>
   <string name="hours_ago">%d часов назад</string>
   <string name="minutes_ago">%d минут назад</string>
@@ -458,4 +459,6 @@ Email: support@seafile.com<br>
   <!--permission-->
   <string name="permission_read_exteral_storage_rationale">Для обработки файлов, позволить получить доступ к их хранилищу</string>
   <string name="permission_not_granted">Разрешение не было предоставлено</string>
+  <string name="history_change_title">Подробности изменений</string>
+  <string name="no_more_activities">Не больше действий</string>
 </resources>

@@ -5,6 +5,8 @@ import java.io.File;
 import android.app.Application;
 import android.content.Context;
 
+import com.joanzapata.iconify.Iconify;
+import com.joanzapata.iconify.fonts.MaterialCommunityModule;
 import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiscCache;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -19,6 +21,8 @@ public class SeadroidApplication extends Application {
     
     public void onCreate() {
         super.onCreate();
+        Iconify.with(new MaterialCommunityModule());
+
         SeadroidApplication.context = getApplicationContext();
         initImageLoader(getApplicationContext());
 

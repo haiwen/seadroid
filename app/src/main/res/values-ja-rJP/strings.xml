@@ -172,6 +172,7 @@
   <string name="upload_duplicate_found">\"%s\" という名前のファイルはすでにこの場所に存在します。\n アップロードしたファイルで置き換えますか?</string>
   <string name="upload_replace_all">すべて置き換え</string>
   <string name="upload_keep_both">両方残す</string>
+  <string name="upload_replace">置き換え</string>
   <string name="days_ago">%d 日前</string>
   <string name="hours_ago">%d 時間前</string>
   <string name="minutes_ago">%d 分前</string>
@@ -432,4 +433,6 @@
   <!--permission-->
   <string name="permission_read_exteral_storage_rationale">ファイルを処理するには、ファイルにアクセスするストレージのアクセス許可が必要です。</string>
   <string name="permission_not_granted">アクセス許可が付与されていません</string>
+  <string name="history_change_title">更新の詳細</string>
+  <string name="no_more_activities">これ以上アクティビティはありません</string>
 </resources>

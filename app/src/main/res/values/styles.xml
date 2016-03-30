@@ -115,4 +115,12 @@
         <item name="android:textColor">#ff000000</item>
         <item name="android:textSize">14sp</item>
     </style>
+
+    <!-- loading more -->
+    <style name="loading">
+        <item name="android:indeterminate">true</item>
+        <item name="android:indeterminateDrawable">@drawable/progressloading</item>
+        <item name="android:indeterminateDuration">1000</item>
+        <item name="android:indeterminateOnly">true</item>
+    </style>
 </resources>

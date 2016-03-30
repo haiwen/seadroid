@@ -169,6 +169,7 @@
   <string name="upload_file_exist">Bestand bestaat reeds</string>
   <string name="upload_replace_all">Alles vervangen</string>
   <string name="upload_keep_both">Beide behouden</string>
+  <string name="upload_replace">Vervangen</string>
   <string name="days_ago">%d dagen geleden</string>
   <string name="hours_ago">%d uren geleden</string>
   <string name="minutes_ago">%d minuten geleden</string>

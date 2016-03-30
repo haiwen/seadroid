@@ -471,4 +471,7 @@
     <!-- permission -->
     <string name="permission_read_exteral_storage_rationale">To process files, allow storage permission to access them.</string>
     <string name="permission_not_granted">Permission was not granted</string>
+
+    <string name="history_change_title">Modification Details</string>
+    <string name="no_more_activities">No more activities</string>
 </resources>

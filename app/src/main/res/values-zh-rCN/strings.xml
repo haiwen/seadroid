@@ -432,4 +432,6 @@
   <!--permission-->
   <string name="permission_read_exteral_storage_rationale">在处理文件之前，请允许应用获取存储权限</string>
   <string name="permission_not_granted">未获得权限</string>
+  <string name="history_change_title">修改详情</string>
+  <string name="no_more_activities">没有更多活动了</string>
 </resources>
