@@ -21,17 +21,17 @@ public class EventDetailsTree {
 
         items.clear();
 
-        processEventCategory(details.added_files, "Added files", EType.FILE_ADDED);
-        processEventCategory(details.deleted_files, "Deleted files", EType.FILE_DELETED);
-        processEventCategory(details.modified_files, "Modified files", EType.FILE_MODIFIED);
+        processEventCategory(details.addedFiles, "Added files", EType.FILE_ADDED);
+        processEventCategory(details.deletedFiles, "Deleted files", EType.FILE_DELETED);
+        processEventCategory(details.modifiedFiles, "Modified files", EType.FILE_MODIFIED);
 
-        processEventCategory(details.added_dirs, "Added folders", EType.DIR_ADDED);
-        processEventCategory(details.deleted_dirs, "Deleted folders", EType.DIR_DELETED);
+        processEventCategory(details.addedDirs, "Added folders", EType.DIR_ADDED);
+        processEventCategory(details.deletedDirs, "Deleted folders", EType.DIR_DELETED);
 
         // renamed files is a list of (before rename, after rename) pair
         List<String> renamedFiles = Lists.newArrayList();
-        for (int i = 1, n = details.renamed_files.size(); i < n; i += 2) {
-            final String rename = details.renamed_files.get(i);
+        for (int i = 1, n = details.renamedFiles.size(); i < n; i += 2) {
+            final String rename = details.renamedFiles.get(i);
             renamedFiles.add(rename);
         }
         processEventCategory(renamedFiles, "Renamed files", EType.FILE_RENAMED);

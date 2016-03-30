@@ -3,14 +3,11 @@ package com.seafile.seadroid2.data;
 import android.util.Log;
 
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.util.Utils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,8 +17,8 @@ import java.util.regex.Pattern;
 public class SeafEvent implements SeafItem {
     public static final String DEBUG_TAG = SeafItem.class.getSimpleName();
 
-    public static final String kEventTypeRepoCreate = "repo-create";
-    public static final String kEventTypeRepoDelete = "repo-delete";
+    public static final String EVENT_TYPE_REPO_CREATE = "repo-create";
+    public static final String EVENT_TYPE_REPO_DELETE = "repo-delete";
 
     // true for events like a file upload by unregistered user from a
     // uploadable link
@@ -72,9 +69,9 @@ public class SeafEvent implements SeafItem {
             event.more_files = obj.getBoolean("more_files");
 
             event.desc = obj.optString("desc");
-            if (event.etype.equals(kEventTypeRepoCreate)) {
+            if (event.etype.equals(EVENT_TYPE_REPO_CREATE)) {
                 event.desc = String.format("Created library \"%s\"", event.repo_name);
-            } else if (event.etype.equals(kEventTypeRepoDelete)) {
+            } else if (event.etype.equals(EVENT_TYPE_REPO_DELETE)) {
                 event.desc = String.format("Deleted library \"%s\"", event.repo_name);
             }
 

@@ -13,20 +13,20 @@ import java.util.List;
  * Commit details for activities history changes
  */
 public class CommitDetails {
-    public List<String> added_files;
-    public List<String> deleted_files;
-    public List<String> modified_files;
-    public List<String> renamed_files;
-    public List<String> added_dirs;
-    public List<String> deleted_dirs;
+    public List<String> addedFiles;
+    public List<String> deletedFiles;
+    public List<String> modifiedFiles;
+    public List<String> renamedFiles;
+    public List<String> addedDirs;
+    public List<String> deletedDirs;
 
     public CommitDetails() {
-        added_files = Lists.newArrayList();
-        deleted_files = Lists.newArrayList();
-        modified_files = Lists.newArrayList();
-        renamed_files = Lists.newArrayList();
-        added_dirs = Lists.newArrayList();
-        deleted_dirs = Lists.newArrayList();
+        addedFiles = Lists.newArrayList();
+        deletedFiles = Lists.newArrayList();
+        modifiedFiles = Lists.newArrayList();
+        renamedFiles = Lists.newArrayList();
+        addedDirs = Lists.newArrayList();
+        deletedDirs = Lists.newArrayList();
     }
 
     public static CommitDetails fromJson(String json) throws JSONException {
@@ -39,13 +39,12 @@ public class CommitDetails {
         final JSONArray deletedDirs = jsonObject.optJSONArray("deleted_dirs");
 
         CommitDetails details = new CommitDetails();
-        // the order matters, it affects the adapter for rending ui layout
-        processFileList(details.added_files, addedFiles);
-        processFileList(details.deleted_files, deletedFiles);
-        processFileList(details.modified_files, modifiedFiles);
-        processFileList(details.renamed_files, renamedFiles);
-        processFileList(details.added_dirs, addedDirs);
-        processFileList(details.deleted_dirs, deletedDirs);
+        processFileList(details.addedFiles, addedFiles);
+        processFileList(details.deletedFiles, deletedFiles);
+        processFileList(details.modifiedFiles, modifiedFiles);
+        processFileList(details.renamedFiles, renamedFiles);
+        processFileList(details.addedDirs, addedDirs);
+        processFileList(details.deletedDirs, deletedDirs);
 
         return details;
     }
@@ -58,52 +57,52 @@ public class CommitDetails {
         }
     }
 
-    public List<String> getDeleted_dirs() {
-        return deleted_dirs;
+    public List<String> getDeletedDirs() {
+        return deletedDirs;
     }
 
-    public void setDeleted_dirs(List<String> deleted_dirs) {
-        this.deleted_dirs = deleted_dirs;
+    public void setDeletedDirs(List<String> deletedDirs) {
+        this.deletedDirs = deletedDirs;
     }
 
-    public List<String> getRenamed_files() {
-        return renamed_files;
+    public List<String> getRenamedFiles() {
+        return renamedFiles;
     }
 
-    public void setRenamed_files(List<String> renamed_files) {
-        this.renamed_files = renamed_files;
+    public void setRenamedFiles(List<String> renamedFiles) {
+        this.renamedFiles = renamedFiles;
     }
 
-    public List<String> getModified_files() {
-        return modified_files;
+    public List<String> getModifiedFiles() {
+        return modifiedFiles;
     }
 
-    public void setModified_files(List<String> modified_files) {
-        this.modified_files = modified_files;
+    public void setModifiedFiles(List<String> modifiedFiles) {
+        this.modifiedFiles = modifiedFiles;
     }
 
-    public List<String> getAdded_files() {
-        return added_files;
+    public List<String> getAddedFiles() {
+        return addedFiles;
     }
 
-    public void setAdded_files(List<String> added_files) {
-        this.added_files = added_files;
+    public void setAddedFiles(List<String> addedFiles) {
+        this.addedFiles = addedFiles;
     }
 
-    public List<String> getDeleted_files() {
-        return deleted_files;
+    public List<String> getDeletedFiles() {
+        return deletedFiles;
     }
 
-    public void setDeleted_files(List<String> deleted_files) {
-        this.deleted_files = deleted_files;
+    public void setDeletedFiles(List<String> deletedFiles) {
+        this.deletedFiles = deletedFiles;
     }
 
-    public List<String> getAdded_dirs() {
-        return added_dirs;
+    public List<String> getAddedDirs() {
+        return addedDirs;
     }
 
-    public void setAdded_dirs(List<String> added_dirs) {
-        this.added_dirs = added_dirs;
+    public void setAddedDirs(List<String> addedDirs) {
+        this.addedDirs = addedDirs;
     }
 
 }

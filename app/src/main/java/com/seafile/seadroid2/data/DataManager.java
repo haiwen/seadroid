@@ -767,7 +767,6 @@ public class DataManager {
     }
 
     public SeafActivities getEvents(int start) throws SeafException, JSONException {
-        // First decide if use cache
         if (!Utils.isNetworkOn()) {
             throw SeafException.networkException;
         }

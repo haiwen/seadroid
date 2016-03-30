@@ -132,7 +132,7 @@ public class BrowserActivity extends BaseActivity
     private int currentPosition = 0;
     private SeafileTabsAdapter adapter;
     private View mLayout;
-    FrameLayout container;
+    private FrameLayout container;
     private boolean boolPermissionGranted = false;
     private TabLayout mTabLayout;
 
