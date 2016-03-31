@@ -388,16 +388,16 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
     }
 
     /**
-     * Store JSON cache files in a subdirectory below the media directory.
+     * Store JSON cache files in private internal cache.
      *
-     * This is currently chosen to be backwards compatible with older Seadroid releases.
-     * TODO: we might want to move this to Context.getCacheDir() for privacy reasons
-     * (so that other apps cannot read it)
+     * This cache directory will contain json files listing the repositories and directory listings.
+     * this can be pretty private (especially the repository listing). So these should not be readable
+     * by other apps. Therefore we save them in internal storage, where only Seadroid has access to.
      *
      * @return base of where to store JSON cache files
      */
     public final File getJsonCacheDir() {
-        File base = getStorageLocation().cachePath;
+        File base = getContext().getCacheDir();
         return getDirectoryCreateIfNeeded(base);
     }
 
