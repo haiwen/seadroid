@@ -474,4 +474,19 @@
 
     <string name="history_change_title">Modification Details</string>
     <string name="no_more_activities">No more activities</string>
+
+    <string name="bottom_sheet_instruction_text">Drag the sheet up, use the button below, or tap the sheet header text.</string>
+    <string name="bottom_sheet_status_text">Sheet Status:</string>
+    <string name="bottom_sheet_header_text">Bottom Action Sheet Peek</string>
+    <string name="bottom_sheet_content_text">Bottom Action Sheet Content</string>
+    <string name="bottom_sheet_content_scroll_text">Content in Nested Scroll View. Scrolling works here.</string>
+
+    <string name="status_expanded">Expanded</string>
+    <string name="status_hidden">Hidden</string>
+    <string name="status_dragging">Dragging</string>
+    <string name="status_settling">Settling</string>
+    <string name="status_collapsed">Collapsed</string>
+
+    <string name="menu_show_peek">Show peek</string>
+    <string name="menu_no_peek">Don\'t show peek</string>
 </resources>
