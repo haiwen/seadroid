@@ -4,8 +4,11 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.NestedScrollingChildHelper;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -43,6 +46,12 @@ import org.json.JSONException;
 
 import java.util.List;
 
+import static android.support.design.widget.BottomSheetBehavior.STATE_COLLAPSED;
+import static android.support.design.widget.BottomSheetBehavior.STATE_DRAGGING;
+import static android.support.design.widget.BottomSheetBehavior.STATE_EXPANDED;
+import static android.support.design.widget.BottomSheetBehavior.STATE_HIDDEN;
+import static android.support.design.widget.BottomSheetBehavior.STATE_SETTLING;
+
 public class ActivitiesFragment extends Fragment {
     private static final String DEBUG_TAG = "ActivitiesFragment";
     public static final int REFRESH_ON_NONE = 0;
@@ -58,6 +67,9 @@ public class ActivitiesFragment extends Fragment {
     private RelativeLayout ppwContainerView;
     private RelativeLayout ppw;
     private View underLine, maskView;
+    private View bottomSheet;
+    private BottomSheetBehavior bottomSheetBehavior;
+    private ListView ppwLv;
 
     private List<SeafEvent> events;
     private boolean boolShown = false;
@@ -92,6 +104,18 @@ public class ActivitiesFragment extends Fragment {
         refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
         listView = (ListView) view.findViewById(R.id.activities_listview);
         events = Lists.newArrayList();
+
+        bottomSheet = view.findViewById(R.id.bottom_sheet);
+        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+        bottomSheetBehavior.setBottomSheetCallback(new UpdateBottomSheetStatusTextCallback());
+
+        ppwLv = (ListView) view.findViewById(R.id.lv_history_changes);
+    }
+
+
+    @BottomSheetBehavior.State
+    private int getNewState() {
+        return bottomSheetBehavior.getState() == STATE_COLLAPSED ? STATE_EXPANDED : STATE_COLLAPSED;
     }
 
     @Override
@@ -380,8 +404,28 @@ public class ActivitiesFragment extends Fragment {
             final EventDetailsTree tree = new EventDetailsTree(event);
             final List<EventDetailsFileItem> items = tree.setCommitDetails(ret);
 
-            showChangesDialog(items);
+            // showChangesDialog(items);
+            showBottomSheet(items);
         }
+    }
+
+    private void showBottomSheet(final List<EventDetailsFileItem> items) {
+        bottomSheetBehavior.setState(getNewState());
+
+        final BottomSheetAdapter adapter = new BottomSheetAdapter(mActivity, items);
+        ppwLv.setAdapter(adapter);
+        ppwLv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                final EventDetailsFileItem fileItem = items.get(position);
+                onItemClicked(fileItem);
+                bottomSheetBehavior.setState(getNewState());
+            }
+        });
+
+        NestedScrollingChildHelper childHelper = new NestedScrollingChildHelper(ppwLv);
+        childHelper.setNestedScrollingEnabled(false);
+
     }
 
     private void viewRepo(final String repoID) {
@@ -450,5 +494,27 @@ public class ActivitiesFragment extends Fragment {
         intent.putExtra("account", mActivity.getAccount());
         intent.putExtra("taskID", taskID);
         mActivity.startActivityForResult(intent, BrowserActivity.DOWNLOAD_FILE_REQUEST);
+    }
+
+    class UpdateBottomSheetStatusTextCallback extends BottomSheetBehavior.BottomSheetCallback {
+        public void onStateChanged(@NonNull View bottomSheet, @BottomSheetBehavior.State int newState) {
+            switch (newState) {
+                case STATE_EXPANDED:
+                    break;
+                case STATE_COLLAPSED:
+                    break;
+                case STATE_DRAGGING:
+                    break;
+                case STATE_SETTLING:
+                    break;
+                case STATE_HIDDEN:
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public void onSlide(@NonNull View bottomSheet, float slideOffset) {}
+
     }
 }
