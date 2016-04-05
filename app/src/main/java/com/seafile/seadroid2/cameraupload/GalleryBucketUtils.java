@@ -5,7 +5,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 
-import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.StorageManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,7 +96,7 @@ public class GalleryBucketUtils {
 
             // ignore buckets created by Seadroid
             String file = cursor.getString(dataColumnIndex);
-            if (file == null || !file.startsWith(DataManager.getExternalRootDirectory()))
+            if (file == null || !file.startsWith(StorageManager.getInstance().getMediaDir().getAbsolutePath()))
                 buckets.add(b);
         }
         cursor.close();
@@ -147,7 +147,7 @@ public class GalleryBucketUtils {
 
             // ignore buckets created by Seadroid
             String file = cursor.getString(dataColumnIndex);
-            if (file == null || !file.startsWith(DataManager.getExternalRootDirectory()))
+            if (file == null || !file.startsWith(StorageManager.getInstance().getMediaDir().getAbsolutePath()))
                 buckets.add(b);
         }
         cursor.close();

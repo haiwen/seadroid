@@ -476,7 +476,7 @@ public class SeafConnection {
                 };
             }
 
-            File tmp = DataManager.getTempFile(path, oid);
+            File tmp = DataManager.createTempFile();
             // Log.d(DEBUG_TAG, "write to " + tmp.getAbsolutePath());
             if (monitor == null) {
                 req.receive(tmp);

@@ -169,7 +169,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // This database is only a cache for online data, so its upgrade policy is
         // to simply to discard the data and start over
 
-        File dir = new File(DataManager.getExternalRootDirectory());
+        File dir = StorageManager.getInstance().getJsonCacheDir();
         for (File f : dir.listFiles()) {
             if (f.isFile()) {
                 f.delete();
@@ -248,14 +248,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 new String[] { item.repoID, item.path });
     }
 
-    /**
-     * delete all cache info under one specific account from database
-     *
-     * @param account
-     */
-    public void delCachesBySignature(Account account) {
-        String signature = account.getSignature();
-        database.delete(FILECACHE_TABLE_NAME, FILECACHE_COLUMN_ACCOUNT + "=?", new String[]{signature});
+    public void delCaches() {
+        database.delete(REPODIR_TABLE_NAME, null, null);
+        database.delete(FILECACHE_TABLE_NAME, null, null);
+        database.delete(DIRENTS_CACHE_TABLE_NAME, null, null);
+        database.delete(STARRED_FILECACHE_TABLE_NAME, null, null);
     }
 
     public List<SeafCachedFile> getFileCacheItems(DataManager dataManager) {

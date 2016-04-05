@@ -350,13 +350,21 @@
         ]]>
     </string>
 
-    <string name="settings_advance_feature_title">ADVANCED FEATURES</string>    
+    <string name="settings_advance_feature_title">ADVANCED FEATURES</string>
+    <string name="settings_storage_title">CACHE STORAGE</string>
     <string name="settings_cache_title">Cache size</string>
     <string name="settings_clear_cache_title">Clear cache</string>
     <string name="settings_clear_cache_hint">Do you want to clear cache?</string>
     <string name="settings_clear_cache_success">Cache cleared successfully</string>
     <string name="settings_clear_cache_failed">Cache cleared failed</string>
     <string name="settings_cache_empty">0 KB</string>
+
+    <string name="settings_cache_location_title">Cache storage location</string>
+    <string name="dialog_switch_storage_info_text">Existing files will be moved to the new storage. This might take a while.</string>
+    <string name="storage_manager_primary_storage">Primary storage</string>
+    <string name="storage_manager_secondary_storage">Secondary storage</string>
+    <string name="storage_manager_storage_description">%1$s (%2$s/%3$s free)</string>
+    <string name="storage_manager_storage_description_not_available">%1$s (unavailable)</string>
 
     <!-- pull to refresh -->
     <string name="pull_to_refresh_pull_label">Pull to refresh&#8230;</string>

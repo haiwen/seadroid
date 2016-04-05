@@ -45,6 +45,9 @@ public final class SettingsManager {
 
     // Camera upload
     public static final String PKG = "com.seafile.seadroid2";
+
+    public static final String SHARED_PREF_STORAGE_DIR = PKG + ".storageId";
+
     public static final String SHARED_PREF_CAMERA_UPLOAD_REPO_ID = PKG + ".camera.repoid";
     public static final String SHARED_PREF_CAMERA_UPLOAD_REPO_NAME = PKG + ".camera.repoName";
     public static final String SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL = PKG + ".camera.account.email";
@@ -66,8 +69,10 @@ public final class SettingsManager {
     public static final String SETTINGS_ABOUT_AUTHOR_KEY = "settings_about_author_key";
 
     // Cache
+    public static final String SETTINGS_CACHE_CATEGORY_KEY = "settings_cache_key";
     public static final String SETTINGS_CACHE_SIZE_KEY = "settings_cache_info_key";
     public static final String SETTINGS_CLEAR_CACHE_KEY = "settings_clear_cache_key";
+    public static final String SETTINGS_CACHE_DIR_KEY = "settings_cache_location_key";
 
     // Sort files
     public static final String SORT_FILES_TYPE = "sort_files_type";
@@ -202,8 +207,12 @@ public final class SettingsManager {
         return sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_REPO_ID, null);
     }
 
-    public void delCachesByActSignature(Account account) {
-        DatabaseHelper dbHelper = DatabaseHelper.getDatabaseHelper();
-        dbHelper.delCachesBySignature(account);
+    public int getStorageDir() {
+        return sharedPref.getInt(SHARED_PREF_STORAGE_DIR, Integer.MIN_VALUE);
     }
+
+    public void setStorageDir(int dir) {
+        editor.putInt(SHARED_PREF_STORAGE_DIR, dir).commit();
+    }
+
 }
