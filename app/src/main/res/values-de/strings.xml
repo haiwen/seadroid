@@ -339,7 +339,6 @@ Zum Aktualisieren einmal antippen</string>
         <h5>Copyright ©2013-2015 Seafile Ltd.</h5>
         ]]>
     </string>
-  <string name="settings_advance_feature_title">ERWEITERTE FUNKTIONEN</string>
   <string name="settings_cache_title">Größe des Zwischenspeichers</string>
   <string name="settings_clear_cache_title">Zwischenspeicher löschen</string>
   <string name="settings_clear_cache_hint">Möchten Sie den Zwischenspeicher wirklich löschen?</string>
@@ -440,6 +439,14 @@ Zum Aktualisieren einmal antippen</string>
   <string name="overwrite_existing_file_exist">Die Datei ist schon vorhanden</string>
   <!--Action Mode-->
   <string name="action_mode_no_items_selected">Es wurden keine Elemente ausgewählt</string>
+  <string name="settings_cache_location_title">Ort für den Zwischenspeicher wählen</string>
+  <string name="settings_storage_title">ZWISCHENSPEICHER</string>
+  <string name="storage_manager_primary_storage">Primärer Speicher</string>
+  <string name="storage_manager_secondary_storage">Sekundärer Speicher</string>
+  <string name="storage_manager_storage_description">%1$s (%2$s/%3$s frei)</string>
+  <string name="storage_manager_storage_description_not_available">%1$s (nicht verfügbar)</string>
+  <string name="settings_advance_feature_title"></string>
+  <string name="dialog_switch_storage_info_text">Vorhandene Dateien werden zum neuen Ort verschoben. Dies kann etwas dauern.</string>
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
   <string name="permission_read_exteral_storage_rationale">Um Dateien zu bearbeiten bitte Speicherrechte erteilen.</string>

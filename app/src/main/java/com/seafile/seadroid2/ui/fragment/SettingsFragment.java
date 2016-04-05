@@ -23,6 +23,7 @@ import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
+import com.seafile.seadroid2.data.StorageManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.AccountManager;
@@ -37,11 +38,13 @@ import com.seafile.seadroid2.ui.activity.CreateGesturePasswordActivity;
 import com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity;
 import com.seafile.seadroid2.ui.activity.SettingsActivity;
 import com.seafile.seadroid2.ui.dialog.ClearCacheTaskDialog;
+import com.seafile.seadroid2.ui.dialog.SwitchStorageTaskDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog.TaskDialogListener;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 
-import java.io.File;
+import org.apache.commons.io.FileUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -72,6 +75,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
     private CameraUploadManager cameraManager;
     private AccountManager accountMgr;
     private DataManager dataMgr;
+    private StorageManager storageManager = StorageManager.getInstance();
 
     @Override
     public void onAttach(Activity activity) {
@@ -292,6 +296,20 @@ public class SettingsFragment extends CustomPreferenceFragment {
             }
         });
 
+        // Storage selection only works on KitKat or later
+        if (storageManager.supportsMultipleStorageLocations()) {
+            findPreference(SettingsManager.SETTINGS_CACHE_DIR_KEY).setOnPreferenceClickListener(new OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    new SwitchStorageTaskDialog().show(getFragmentManager(), "Select cache location");
+                    return true;
+                }
+            });
+        } else {
+            PreferenceCategory cCacheCategory = (PreferenceCategory)findPreference(SettingsManager.SETTINGS_CACHE_CATEGORY_KEY);
+            cCacheCategory.removePreference(findPreference(SettingsManager.SETTINGS_CACHE_DIR_KEY));
+        }
+
     }
 
     private void refreshCameraUploadView() {
@@ -342,19 +360,12 @@ public class SettingsFragment extends CustomPreferenceFragment {
     }
 
     private void clearCache() {
-        String filesDir = dataMgr.getAccountDir();
-        String cacheDir = DataManager.getExternalCacheDirectory();
-        String tempDir = DataManager.getExternalTempDirectory();
-        String thumbDir = DataManager.getThumbDirectory();
-
         ClearCacheTaskDialog dialog = new ClearCacheTaskDialog();
-        Account account = accountMgr.getCurrentAccount();
-        dialog.init(account, filesDir, cacheDir, tempDir, thumbDir);
         dialog.setTaskDialogLisenter(new TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
                 // refresh cache size
-                findPreference(SettingsManager.SETTINGS_CACHE_SIZE_KEY).setSummary(getString(R.string.settings_cache_empty));
+                calculateCacheSize();
                 Toast.makeText(mActivity, getString(R.string.settings_clear_cache_success), Toast.LENGTH_SHORT).show();
             }
 
@@ -472,35 +483,19 @@ public class SettingsFragment extends CustomPreferenceFragment {
     }
 
     private void calculateCacheSize() {
-        String filesDir = dataMgr.getAccountDir();
-        String cacheDir = DataManager.getExternalCacheDirectory();
-        String tempDir = DataManager.getExternalTempDirectory();
-        String thumbDir = DataManager.getThumbDirectory();
-
-        ConcurrentAsyncTask.execute(new CalculateCacheTask(), filesDir, cacheDir, tempDir, thumbDir);
+        ConcurrentAsyncTask.execute(new CalculateCacheTask());
     }
 
     class CalculateCacheTask extends AsyncTask<String, Void, Long> {
 
         @Override
         protected Long doInBackground(String... params) {
-            if (params ==  null) return 0l;
-            String filesDir = params[0];
-            String cacheDir = params[1];
-            String tempDir = params[2];
-            String thumbDir = params[3];
-            File files = new File(filesDir);
-            File caches = new File(cacheDir);
-            File temp = new File(tempDir);
-            File thumb = new File(thumbDir);
-
-            long cacheSize = Utils.getDirSize(files) + Utils.getDirSize(caches) + Utils.getDirSize(temp) + Utils.getDirSize(thumb);
-            return cacheSize;
+            return storageManager.getUsedSpace();
         }
 
         @Override
         protected void onPostExecute(Long aLong) {
-            String total = Utils.readableFileSize(aLong);
+            String total = FileUtils.byteCountToDisplaySize(aLong);
             findPreference(SettingsManager.SETTINGS_CACHE_SIZE_KEY).setSummary(total);
         }
 

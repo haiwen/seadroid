@@ -88,16 +88,12 @@ public class ShareToSeafileActivity extends BaseActivity {
 
             List<File> fileList = new ArrayList<File>();
             for (Uri uri: uriList) {
-                File tempDir = new File(DataManager.getExternalTempDirectory(), "shared_temp" + "/" + "shared-"+System.currentTimeMillis());
-                File tempFile = new File(tempDir, Utils.getFilenamefromUri(ShareToSeafileActivity.this, uri));
-
-                // Log.d(DEBUG_TAG, "Uploading file from uri: " + uri);
-
                 InputStream in = null;
                 OutputStream out = null;
 
                 try {
-                    tempDir.mkdirs();
+                    File tempDir = DataManager.createTempDir();
+                    File tempFile = new File(tempDir, Utils.getFilenamefromUri(ShareToSeafileActivity.this, uri));
 
                     if (!tempFile.createNewFile()) {
                         throw new RuntimeException("could not create temporary file");
@@ -107,17 +103,16 @@ public class ShareToSeafileActivity extends BaseActivity {
                     out = new FileOutputStream(tempFile);
                     IOUtils.copy(in, out);
 
+                    fileList.add(tempFile);
+
                 } catch (IOException e) {
                     Log.e(DEBUG_TAG, "Could not open requested document", e);
-                    tempFile = null;
                 } catch (RuntimeException e) {
                     Log.e(DEBUG_TAG, "Could not open requested document", e);
-                    tempFile = null;
                 } finally {
                     IOUtils.closeQuietly(in);
                     IOUtils.closeQuietly(out);
                 }
-                fileList.add(tempFile);
             }
             return fileList.toArray(new File[]{});
         }

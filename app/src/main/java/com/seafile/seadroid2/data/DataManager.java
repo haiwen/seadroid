@@ -1,6 +1,5 @@
 package com.seafile.seadroid2.data;
 
-import android.os.Environment;
 import android.util.Log;
 import android.util.Pair;
 
@@ -27,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class DataManager {
     private static final String DEBUG_TAG = "DataManager";
@@ -46,6 +46,7 @@ public class DataManager {
     private SeafConnection sc;
     private Account account;
     private DatabaseHelper dbHelper;
+    private static final StorageManager storageManager = StorageManager.getInstance();
 
     private List<SeafRepo> reposCache = null;
 
@@ -55,73 +56,32 @@ public class DataManager {
         dbHelper = DatabaseHelper.getDatabaseHelper();
     }
 
-    public static String getExternalRootDirectory() {
-        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-            File extDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Seafile/");
-            if (!extDir.exists()) {
-                extDir.mkdirs();
-            }
-            return extDir.getAbsolutePath();
+    /**
+     * Creates and returns a temporary file. It is guarantied that the file is unique and freshly
+     * created. The caller has to delete that file himself.
+     *
+     * @return a newly created file.
+     * @throws IOException if the file could not be created.
+     */
+    public static File createTempFile() throws IOException {
+        return File.createTempFile("file-", ".tmp", storageManager.getTempDir());
+    }
+
+    /**
+     * Creates and returns a temporary directory. It is guarantied that the directory is unique and
+     * empty. The caller has to delete that directory himself.
+     *
+     * @return a newly created directory.
+     * @throws IOException if the directory could not be created.
+     */
+    public static File createTempDir() throws IOException {
+        String dirName = "dir-" + UUID.randomUUID() + ".tmp";
+        File dir = new File (storageManager.getTempDir(), dirName);
+        if (dir.mkdir()) {
+            return dir;
         } else {
-            throw new RuntimeException("External Storage is currently not available");
+            throw new IOException("Could not create temp directory");
         }
-    }
-
-    public static String getExternalTempDirectory() {
-        String root = getExternalRootDirectory();
-        File tmpDir = new File(root + "/" + "temp");
-        return getDirectoryCreateIfNeeded(tmpDir);
-    }
-
-    public static String getThumbDirectory() {
-        String root = SeadroidApplication.getAppContext().getCacheDir().getAbsolutePath();
-        File tmpDir = new File(root + "/" + "thumb");
-        return getDirectoryCreateIfNeeded(tmpDir);
-    }
-
-    public static String getExternalCacheDirectory() {
-        String root = getExternalRootDirectory();
-        File tmpDir = new File(root + "/" + "cache");
-        return getDirectoryCreateIfNeeded(tmpDir);
-    }
-
-    private static String getDirectoryCreateIfNeeded(File dir) {
-        if (dir.exists()) {
-            return dir.getAbsolutePath();
-        } else {
-            dir.mkdirs();
-        }
-        return dir.getAbsolutePath();
-    }
-
-    private static String constructFileName(String path, String oid) {
-        String filename = path.substring(path.lastIndexOf("/") + 1);
-        if (filename.contains(".")) {
-            String purename = filename.substring(0, filename.lastIndexOf('.'));
-            String suffix = filename.substring(filename.lastIndexOf('.') + 1);
-            return purename + "-" + oid.substring(0, 8) + "." + suffix;
-        } else {
-            return filename + "-" + oid.substring(0, 8);
-        }
-    }
-
-    public static File getFileForFileCache(String path, String oid) {
-        String p = getExternalRootDirectory() + "/" + constructFileName(path, oid);
-        return new File(p);
-    }
-
-    public static File getTempFile(String path, String oid) {
-        String p = getExternalTempDirectory() + "/" + constructFileName(path, oid);
-        return new File(p);
-    }
-
-    // Obtain a cache file for storing a directory with oid
-    public static File getFileForDirentsCache(String oid) {
-        return new File(getExternalCacheDirectory() + "/" + oid);
-    }
-    
-    public static File getThumbnailCacheDirectory() {
-        return new File(getExternalCacheDirectory() + "/thumbnails");
     }
 
     public String getThumbnailLink(String repoName, String repoID, String filePath, int size) {
@@ -186,20 +146,18 @@ public class DataManager {
 
     private File getFileForReposCache() {
         String filename = "repos-" + (account.server + account.email).hashCode() + ".dat";
-        return new File(getExternalCacheDirectory() + "/" + filename);
+        return new File(storageManager.getJsonCacheDir(), filename);
     }
 
     private File getFileForDirentCache(String dirID) {
         String filename = "dirent-" + dirID + ".dat";
-        return new File(getExternalCacheDirectory() + "/" + filename);
+        return new File(storageManager.getJsonCacheDir() + "/" + filename);
     }
 
     /**
-     * The directory structure of Seafile on external storage is like this:
+     * The account directory structure of Seafile is like this:
      *
-     * /sdcard/Seafile
-     *            |__ cache
-     *            |__ temp
+     * StorageManager.getMediaDir()
      *            |__ foo@gmail.com (cloud.seafile.com)
      *                      |__ Photos
      *                      |__ Musics
@@ -228,7 +186,7 @@ public class DataManager {
             server = server.substring(0, server.indexOf(':'));
         String p = String.format("%s (%s)", username, server);
         p = p.replaceAll("[^\\w\\d\\.@\\(\\) ]", "_");
-        String accountDir = Utils.pathJoin(getExternalRootDirectory(), p);
+        String accountDir = Utils.pathJoin(storageManager.getMediaDir().getAbsolutePath(), p);
         return accountDir;
     }
 
@@ -565,7 +523,7 @@ public class DataManager {
 
         // file does not always reside in Seadroid directory structure (e.g. camera upload)
         if (file.exists())
-            Utils.notifyAndroidGalleryFileChange(file);
+            storageManager.notifyAndroidGalleryFileChange(file);
 
         SeafCachedFile item = new SeafCachedFile();
         item.repoName = repoName;
