@@ -29,7 +29,17 @@ public class UploadTaskManager extends TransferManager implements UploadStateLis
             return 0;
 
         // create a new one to avoid IllegalStateException
-        UploadTask task = new UploadTask(++notificationID, account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal, this);
+        UploadTask task = new UploadTask(++notificationID, account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal, false, -1, this);
+        addTaskToQue(task);
+        return task.getTaskID();
+    }
+
+    public int addTaskToQue(Account account, String repoID, String repoName, String dir, String filePath, boolean isUpdate, boolean isCopyToLocal, int version) {
+        if (repoID == null || repoName == null)
+            return 0;
+
+        // create a new one to avoid IllegalStateException
+        UploadTask task = new UploadTask(++notificationID, account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal, true, version, this);
         addTaskToQue(task);
         return task.getTaskID();
     }
