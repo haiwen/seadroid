@@ -1020,9 +1020,21 @@ public class DataManager {
 
     public void uploadByBlocks(String repoName, String repoId, String dir,
                                String filePath, ProgressMonitor monitor,
-                               boolean isCopyToLocal, int version, boolean update) throws NoSuchAlgorithmException, IOException, SeafException {
-        final String encKey = getRepoEncKey(repoId);
-        final String encIv = getRepoEncIv(repoId);
+                               boolean isCopyToLocal, int version) throws NoSuchAlgorithmException, IOException, SeafException {
+        uploadByBlocksCommon(repoName, repoId, dir, filePath, monitor, false, isCopyToLocal, version);
+    }
+
+    public void updateByBlocks(String repoName, String repoId, String dir,
+                               String filePath, ProgressMonitor monitor, boolean isCopyToLocal, int version) throws NoSuchAlgorithmException, IOException, SeafException {
+        uploadByBlocksCommon(repoName, repoId, dir, filePath, monitor, true, isCopyToLocal, version);
+    }
+
+    private void uploadByBlocksCommon(String repoName, String repoID, String dir, String filePath,
+                                      ProgressMonitor monitor, boolean isUpdate, boolean isCopyToLocal, int version) throws NoSuchAlgorithmException, IOException, SeafException {
+
+
+        final String encKey = getRepoEncKey(repoID);
+        final String encIv = getRepoEncIv(repoID);
         Log.d(DEBUG_TAG, "encKey " + encKey + " encIv " + encIv);
         if (TextUtils.isEmpty(encKey) || TextUtils.isEmpty(encIv)) {
             // TODO calculate them and continue
@@ -1034,7 +1046,33 @@ public class DataManager {
             return;
         }
 
-        final String ret = sc.uploadByBlocks(repoId, dir, filePath, chunkFile.blockids, chunkFile.blockpaths, update);
-        Log.d(DEBUG_TAG, "uploadByBlocks " + ret);
+        String newFileID = null;
+        if (isUpdate) {
+            newFileID  = sc.updateByBlocks(repoID, dir, filePath, chunkFile.blockids, chunkFile.blockpaths, monitor);
+        } else {
+            newFileID  = sc.uploadByBlocks(repoID, dir, filePath, chunkFile.blockids, chunkFile.blockpaths, monitor);
+        }
+        Log.d(DEBUG_TAG, "uploadByBlocks " + newFileID);
+
+        if (newFileID == null || newFileID.length() == 0) {
+            return;
+        }
+
+        File srcFile = new File(filePath);
+        String path = Utils.pathJoin(dir, srcFile.getName());
+        File fileInRepo = getLocalRepoFile(repoName, repoID, path);
+
+        if (isCopyToLocal) {
+            if (!isUpdate) {
+                // Copy the uploaded file to local repo cache
+                try {
+                    Utils.copyFile(srcFile, fileInRepo);
+                } catch (IOException e) {
+                    return;
+                }
+            }
+        }
+        // Update file cache entry
+        addCachedFile(repoName, repoID, path, newFileID, fileInRepo);
     }
 }

@@ -173,11 +173,30 @@ public class BrowserActivity extends BaseActivity
         }
     }
 
+    public void addUpdateBlocksTask(String repoID, String repoName, String targetDir, String localFilePath, int version) {
+        if (txService != null) {
+            txService.addTaskToUploadQue(account, repoID, repoName, targetDir, localFilePath, true, true, version);
+        } else {
+            PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, true, true, version);
+            pendingUploads.add(info);
+        }
+    }
+
     private int addUploadTask(String repoID, String repoName, String targetDir, String localFilePath) {
         if (txService != null) {
             return txService.addTaskToUploadQue(account, repoID, repoName, targetDir, localFilePath, false, true);
         } else {
             PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, false, true);
+            pendingUploads.add(info);
+            return 0;
+        }
+    }
+
+    private int addUploadBlocksTask(String repoID, String repoName, String targetDir, String localFilePath, int version) {
+        if (txService != null) {
+            return txService.addTaskToUploadQue(account, repoID, repoName, targetDir, localFilePath, false, true, version);
+        } else {
+            PendingUploadInfo info = new PendingUploadInfo(repoID, repoName, targetDir, localFilePath, false, true, version);
             pendingUploads.add(info);
             return 0;
         }
@@ -587,7 +606,7 @@ public class BrowserActivity extends BaseActivity
                 // show Activity tab
                 adapter.unHideActivityTab();
                 adapter.notifyDataSetChanged();
-                mTabLayout.setTabsFromPagerAdapter(adapter);
+                //mTabLayout.setTabsFromPagerAdapter(adapter);
             }
 
             if (serverInfo.isSearchEnabled()) {
@@ -742,13 +761,24 @@ public class BrowserActivity extends BaseActivity
             Log.d(DEBUG_TAG, "bind TransferService");
 
             for (PendingUploadInfo info : pendingUploads) {
-                txService.addTaskToUploadQue(account,
-                                            info.repoID,
-                                            info.repoName,
-                                            info.targetDir,
-                                            info.localFilePath,
-                                            info.isUpdate,
-                                            info.isCopyToLocal);
+                if (info.enckVersion != -1) {
+                    txService.addTaskToUploadQue(account,
+                            info.repoID,
+                            info.repoName,
+                            info.targetDir,
+                            info.localFilePath,
+                            info.isUpdate,
+                            info.isCopyToLocal,
+                            info.enckVersion);
+                } else {
+                    txService.addTaskToUploadQue(account,
+                            info.repoID,
+                            info.repoName,
+                            info.targetDir,
+                            info.localFilePath,
+                            info.isUpdate,
+                            info.isCopyToLocal);
+                }
             }
             pendingUploads.clear();
         }
@@ -1366,7 +1396,12 @@ public class BrowserActivity extends BaseActivity
                     }
 
                     if (!duplicate) {
-                        addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), file.getAbsolutePath());
+                        final SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
+                        if (repo != null && repo.canLocalDecrypt()) {
+                            addUploadBlocksTask(repo.id, repo.name, navContext.getDirPath(), file.getAbsolutePath(), repo.encVersion);
+                        } else {
+                            addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), file.getAbsolutePath());
+                        }
                     } else {
                         showFileExistDialog(file);
                     }
@@ -1390,6 +1425,7 @@ public class BrowserActivity extends BaseActivity
     }
 
     private void showFileExistDialog(final File file) {
+        final SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
         ContextThemeWrapper ctw = new ContextThemeWrapper(BrowserActivity.this, R.style.DialogTheme);
         final android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(ctw);
         builder.setTitle(getString(R.string.upload_file_exist));
@@ -1397,7 +1433,11 @@ public class BrowserActivity extends BaseActivity
         builder.setPositiveButton(getString(R.string.upload_replace), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                addUpdateTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), file.getAbsolutePath());
+                if (repo != null && repo.canLocalDecrypt()) {
+                    addUpdateBlocksTask(repo.id, repo.name, navContext.getDirPath(), file.getAbsolutePath(), repo.encVersion);
+                } else {
+                    addUpdateTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), file.getAbsolutePath());
+                }
             }
         });
         builder.setNeutralButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
@@ -1408,7 +1448,11 @@ public class BrowserActivity extends BaseActivity
         builder.setNegativeButton(getString(R.string.upload_keep_both), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), file.getAbsolutePath());
+                if (repo != null && repo.canLocalDecrypt()) {
+                    addUploadBlocksTask(repo.id, repo.name, navContext.getDirPath(), file.getAbsolutePath(), repo.encVersion);
+                } else {
+                    addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), file.getAbsolutePath());
+                }
             }
         });
         builder.show();

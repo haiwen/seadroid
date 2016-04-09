@@ -1,12 +1,15 @@
 package com.seafile.seadroid2.transfer;
 
 import android.util.Log;
+
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.ProgressMonitor;
 
 import java.io.File;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * Upload task
@@ -18,17 +21,21 @@ public class UploadTask extends TransferTask {
     private String dir;   // parent dir
     private boolean isUpdate;  // true if update an existing file
     private boolean isCopyToLocal; // false to turn off copy operation
+    private boolean byBlock;
+    private int version;
     private UploadStateListener uploadStateListener;
 
     private DataManager dataManager;
 
     public UploadTask(int taskID, Account account, String repoID, String repoName,
-                      String dir, String filePath, boolean isUpdate, boolean isCopyToLocal,
+                      String dir, String filePath, boolean isUpdate, boolean isCopyToLocal, boolean byBlock, int version,
                       UploadStateListener uploadStateListener) {
         super(taskID, account, repoName, repoID, filePath);
         this.dir = dir;
         this.isUpdate = isUpdate;
         this.isCopyToLocal = isCopyToLocal;
+        this.byBlock = byBlock;
+        this.version = version;
         this.uploadStateListener = uploadStateListener;
 
         this.totalSize = new File(filePath).length();
@@ -80,14 +87,27 @@ public class UploadTask extends TransferTask {
                 }
             };
             if (isUpdate) {
-                dataManager.updateFile(repoName, repoID, dir, path, monitor, isCopyToLocal);
+                if (byBlock) {
+                    dataManager.updateByBlocks(repoName, repoID, dir, path, monitor, isCopyToLocal, version);
+                } else {
+                    dataManager.updateFile(repoName, repoID, dir, path, monitor, isCopyToLocal);
+                }
             } else {
-                Log.d(DEBUG_TAG, "Upload path: " + path);
-                dataManager.uploadFile(repoName, repoID, dir, path, monitor, isCopyToLocal);
+                if (byBlock) {
+                    dataManager.uploadByBlocks(repoName, repoID, dir, path, monitor, isCopyToLocal, version);
+                } else {
+                    Log.d(DEBUG_TAG, "Upload path: " + path);
+                    dataManager.uploadFile(repoName, repoID, dir, path, monitor, isCopyToLocal);
+                }
             }
         } catch (SeafException e) {
-            Log.d(DEBUG_TAG, "Upload exception " + e.getCode() + " " + e.getMessage());
+            Log.e(DEBUG_TAG, "Upload exception " + e.getCode() + " " + e.getMessage());
+            e.printStackTrace();
             err = e;
+        } catch (NoSuchAlgorithmException | IOException e) {
+            Log.e(DEBUG_TAG, "Upload exception " + e.getMessage());
+            err = SeafException.unknownException;
+            e.printStackTrace();
         }
 
         return null;

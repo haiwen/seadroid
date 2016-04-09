@@ -1,12 +1,12 @@
 package com.seafile.seadroid2.data;
 
+import android.text.TextUtils;
+
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.util.PinyinUtils;
 import com.seafile.seadroid2.util.Utils;
 
-import org.apache.http.util.TextUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
