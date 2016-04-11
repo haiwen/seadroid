@@ -1488,7 +1488,7 @@ public class BrowserActivity extends BaseActivity
             return;
         }
 
-        startFileActivity(encrypted, repoName, repoID, filePath);
+        startFileActivity(repoName, repoID, filePath, encrypted, repo.encVersion);
     }
 
     /**
@@ -1639,8 +1639,13 @@ public class BrowserActivity extends BaseActivity
         }
     }
 
-    private void startFileActivity(String repoName, String repoID, String filePath) {
-        final int taskID = txService.addDownloadTask(account, repoName, repoID, filePath);
+    private void startFileActivity(String repoName, String repoID, String filePath, boolean byBlock, int encVersion) {
+        int taskID = 0;
+        if (byBlock) {
+            taskID = txService.addDownloadTask(account, repoName, repoID, filePath, true, encVersion);
+        } else {
+            taskID = txService.addDownloadTask(account, repoName, repoID, filePath);
+        }
         Intent intent = new Intent(this, FileActivity.class);
         intent.putExtra("repoName", repoName);
         intent.putExtra("repoID", repoID);
@@ -1648,25 +1653,6 @@ public class BrowserActivity extends BaseActivity
         intent.putExtra("account", account);
         intent.putExtra("taskID", taskID);
         startActivityForResult(intent, DOWNLOAD_FILE_REQUEST);
-    }
-
-    private void startFileActivity(boolean encrypted, final String repoName, final String repoID, final String filePath) {
-        if (encrypted) {
-            ConcurrentAsyncTask.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        dataManager.downloadByBlocks(repoID, Utils.pathJoin(repoName, filePath));
-                    } catch (SeafException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-
-            return;
-        }
-
-        startFileActivity(repoName, repoID, filePath);
     }
 
     @Override
@@ -1692,7 +1678,7 @@ public class BrowserActivity extends BaseActivity
             return;
         }
 
-        startFileActivity(repoName, repoID, filePath);
+        startFileActivity(repoName, repoID, filePath, false, -1);
     }
 
     @Override
