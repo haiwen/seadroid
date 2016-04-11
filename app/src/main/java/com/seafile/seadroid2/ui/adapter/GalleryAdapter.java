@@ -81,7 +81,7 @@ public class GalleryAdapter extends PagerAdapter {
         if (file.exists()) {
             ImageLoader.getInstance().displayImage("file://" + file.getAbsolutePath().toString(), photoView, options);
         } else {
-            ConcurrentAsyncTask.execute(new DownloadTask(++taskID, mAccount, repoName, repoID, filePath, new DownloadStateListener() {
+            ConcurrentAsyncTask.execute(new DownloadTask(++taskID, mAccount, repoName, repoID, filePath, false, -1, new DownloadStateListener() {
                 @Override
                 public void onFileDownloadProgress(int taskID) {
                     progressBar.setVisibility(View.VISIBLE);

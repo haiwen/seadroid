@@ -197,7 +197,7 @@ public class Crypto {
      * @param key
      * @return
      */
-    public static byte[] encrypt(byte[] plaintext, SecretKey key, byte[] iv) {
+    private static byte[] encrypt(byte[] plaintext, SecretKey key, byte[] iv) {
         try {
             Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
 
@@ -259,6 +259,30 @@ public class Crypto {
     }
 
     /**
+     * All file data is encrypted by the file key with AES 256/CBC.
+     *
+     * We use PBKDF2 algorithm (1000 iterations of SHA256) to derive key/iv pair from the file key.
+     * After encryption, the data is uploaded to the server.
+     *
+     * @param plaintext
+     * @param key
+     * @return
+     */
+    public static byte[] decrypt(byte[] plaintext, String key, byte[] iv, int version) {
+        PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(new SHA256Digest());
+        gen.init(PBEParametersGenerator.PKCS5PasswordToUTF8Bytes(key.toCharArray()), salt, ITERATION_COUNT);
+        byte[] keyBytes;
+
+        if (version == 2) {
+            keyBytes = ((KeyParameter) gen.generateDerivedMacParameters(KEY_LENGTH * 8)).getKey();
+        } else
+            keyBytes = ((KeyParameter) gen.generateDerivedMacParameters(KEY_LENGTH_SHORT * 8)).getKey();
+
+        SecretKey realKey = new SecretKeySpec(keyBytes, "AES");
+        return decrypt(plaintext, realKey , iv);
+    }
+
+    /**
      * All file data is decrypt by the file key with AES 256/CBC.
      *
      * @param cipherBytes
@@ -266,13 +290,12 @@ public class Crypto {
      * @param iv
      * @return
      */
-    public static String decrypt(byte[] cipherBytes, SecretKey key, byte[] iv) {
+    private static byte[] decrypt(byte[] cipherBytes, SecretKey key, byte[] iv) {
         try {
             Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
             IvParameterSpec ivParams = new IvParameterSpec(iv);
             cipher.init(Cipher.DECRYPT_MODE, key, ivParams);
-            byte[] plaintext = cipher.update(cipherBytes);
-            return toHex(plaintext);
+            return cipher.update(cipherBytes);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             Log.e(TAG, "NoSuchAlgorithmException " + e.getMessage());

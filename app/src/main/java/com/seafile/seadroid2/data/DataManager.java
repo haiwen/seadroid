@@ -15,6 +15,7 @@ import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.crypto.Crypto;
 import com.seafile.seadroid2.util.Utils;
 
+import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,6 +32,7 @@ import java.net.URLEncoder;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -407,6 +409,70 @@ public class DataManager {
             File file = ret.second;
             addCachedFile(repoName, repoID, path, fileID, file);
             return file;
+        }
+    }
+
+    private List<String> getBlockIds(String blklist) {
+        final List<String> blkIds = Arrays.asList(blklist.split("\\s*,\\s*"));
+
+        List<String> ids = Lists.newArrayList();
+        for (String block : blkIds) {
+            final String substring = block.substring(block.indexOf("\"") + 1, block.lastIndexOf("\""));
+            ids.add(substring);
+        }
+
+        return ids;
+    }
+
+    public synchronized File getFileByBlocks(String repoName, String repoID, String path, int version,
+                        ProgressMonitor monitor) throws SeafException, IOException, JSONException, NoSuchAlgorithmException {
+
+        String cachedFileID = null;
+        SeafCachedFile cf = getCachedFile(repoName, repoID, path);
+        File localFile = getLocalRepoFile(repoName, repoID, path);
+        // If local file is up to date, show it
+        if (cf != null) {
+            if (localFile.exists()) {
+                cachedFileID = cf.fileID;
+            }
+        }
+
+        final String json = sc.getBlockDownloadList(repoID, path);
+        // Log.d(DEBUG_TAG, "json " + json);
+        JSONObject obj = new JSONObject(json);
+        String blklist = obj.optString("blklist");
+        String fileID = obj.optString("file_id");
+
+        // Log.d(DEBUG_TAG, "blklist " + blklist);
+        Log.d(DEBUG_TAG, "fileID " + fileID);
+
+        if (blklist == null) throw SeafException.unknownException;
+
+
+        final String encKey = getRepoEncKey(repoID);
+        final String encIv = getRepoEncIv(repoID);
+        // Log.d(DEBUG_TAG, "encKey " + encKey + "\n encIv " + encIv);
+        if (TextUtils.isEmpty(encKey) || TextUtils.isEmpty(encIv)) {
+            throw SeafException.unknownException;
+        }
+
+        for (String blockId: getBlockIds(blklist)) {
+            File tempBlock = new File(getChunkDirectory(), blockId);
+            final Pair<String, File> block = sc.getBlock(repoID, fileID, blockId, path, tempBlock.getPath(), monitor);
+            final byte[] bytes = FileUtils.readFileToByteArray(block.second);
+            final byte[] decryptedBlock = Crypto.decrypt(bytes, encKey, Crypto.fromHex(encIv), version);
+            FileUtils.writeByteArrayToFile(localFile, decryptedBlock, true);
+            Log.d(DEBUG_TAG, "write to " + localFile);
+        }
+
+        if (fileID.equals(cachedFileID)) {
+            // cache is valid
+            Log.d(DEBUG_TAG, "cache is valid");
+            return localFile;
+        } else {
+            Log.d(DEBUG_TAG, String.format("addCachedFile repoName %s, repoId %s, path %s, fileId %s", repoName, repoID, path, fileID));
+            addCachedFile(repoName, repoID, path, fileID, localFile);
+            return localFile;
         }
     }
 
@@ -1012,10 +1078,6 @@ public class DataManager {
             e.printStackTrace();
             return null;
         }
-    }
-
-    public void downloadByBlocks(String repoID, String path) throws SeafException {
-        final Pair<String, String> blocks = sc.downloadByBlocks(repoID, path);
     }
 
     public void uploadByBlocks(String repoName, String repoId, String dir,

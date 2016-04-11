@@ -450,7 +450,7 @@ public class SeafConnection {
         }
     }
 
-    public Pair<String, String> downloadByBlocks(String repoID, String path) throws SeafException {
+    public String getBlockDownloadList(String repoID, String path) throws SeafException, IOException {
         try {
             String apiPath = String.format("api2/repos/%s/file/", repoID);
             Map<String, Object> params = Maps.newHashMap();
@@ -460,13 +460,62 @@ public class SeafConnection {
             checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
 
             String result = new String(req.bytes(), "UTF-8");
-            String fileID = req.header("file_id");
-            Log.d("SeafConnection", "result " + result + " fileID " + fileID);
-            return new Pair<String, String>(repoID, fileID);
-        } catch (UnsupportedEncodingException e) {
-            throw SeafException.encodingException;
-        } catch (IOException e) {
-            throw SeafException.networkException;
+            return result;
+        } catch (SeafException | IOException e) {
+            throw e;
+        } catch (HttpRequestException e) {
+            throw getSeafExceptionFromHttpRequestException(e);
+        }
+    }
+
+    /**
+     * get file server link for downloading a block
+     *
+     * @param repoID
+     * @param fileId
+     * @param blockId
+     * @return
+     * @throws SeafException
+     * @throws IOException
+     */
+    private String getBlockDownloadLink(String repoID, String fileId, String blockId) throws SeafException, IOException {
+        try {
+            String apiPath = String.format("api2/repos/%s/files/%s/blks/%s/download-link/", repoID, fileId, blockId);
+            HttpRequest req = prepareApiGetRequest(apiPath, null);
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+
+            return new String(req.bytes(), "UTF-8");
+        } catch (SeafException | IOException e) {
+            throw e;
+        } catch (HttpRequestException e) {
+            throw getSeafExceptionFromHttpRequestException(e);
+        }
+    }
+
+    /**
+     * Get the latest version of the file from server
+     * @param repoID
+     * @param fileID
+     * @param blockId
+     * @param path
+     * @param localPath
+     * @param monitor
+     * @return A two tuple of (fileID, file). If the local cached version is up to date, the returned file is null.
+     */
+    public Pair<String, File> getBlock(String repoID,
+                                       String fileID,
+                                       String blockId,
+                                       String path,
+                                       String localPath,
+                                       ProgressMonitor monitor) throws SeafException, IOException, JSONException {
+
+        String dlink = getBlockDownloadLink(repoID, fileID, blockId).replaceAll("\"", "");
+
+        File block = getBlockFromLink(dlink, path, localPath, blockId, monitor);
+        if (block != null) {
+            return new Pair<>(blockId, block);
+        } else {
+            throw SeafException.unknownException;
         }
     }
 
@@ -520,7 +569,7 @@ public class SeafConnection {
                 if (req.contentLength() > 0) {
                     Long size =  Long.valueOf(req.contentLength());
                     monitor.onProgressNotify(size);
-                };
+                }
             }
 
             File tmp = DataManager.createTempFile();
@@ -537,6 +586,56 @@ public class SeafConnection {
                 return null;
             }
             return file;
+
+        } catch (SeafException e) {
+            throw e;
+        } catch (UnsupportedEncodingException e) {
+            throw SeafException.encodingException;
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw SeafException.networkException;
+        } catch (HttpRequestException e) {
+            if (e.getCause() instanceof MonitorCancelledException) {
+                // Log.d(DEBUG_TAG, "download is cancelled");
+                throw SeafException.userCancelledException;
+            } else {
+                throw getSeafExceptionFromHttpRequestException(e);
+            }
+        }
+    }
+
+    private File getBlockFromLink(String dlink, String path, String localPath,
+                                 String oid, ProgressMonitor monitor)
+                                    throws SeafException {
+        if (dlink == null)
+            return null;
+
+        try {
+
+            HttpRequest req = prepareApiFileGetRequest(dlink);
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+
+            if (monitor != null) {
+                /*if (req.header(HttpRequest.HEADER_CONTENT_LENGTH) == null) {
+                    throw SeafException.illFormatException;
+                }
+                Long size = Long.parseLong(req.header(HttpRequest.HEADER_CONTENT_LENGTH));*/
+                if (req.contentLength() > 0) {
+                    Long size =  Long.valueOf(req.contentLength());
+                    monitor.onProgressNotify(size);
+                }
+            }
+
+            File block = new File(localPath);
+            Log.d(DEBUG_TAG, "write to " + block.getAbsolutePath());
+            if (monitor == null) {
+                req.receive(block);
+            } else {
+                req.bufferSize(2048);
+                req.receive(new MonitoredFileOutputStream(block, monitor));
+            }
+
+            return block;
 
         } catch (SeafException e) {
             throw e;
