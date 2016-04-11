@@ -51,6 +51,7 @@ import com.seafile.seadroid2.data.ProgressMonitor;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SeafStarredFile;
+import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 
 import org.apache.commons.io.IOUtils;
@@ -112,13 +113,6 @@ public class SeafileProvider extends DocumentsProvider {
 
     private Set<Account> reachableAccounts = new ConcurrentSkipListSet<Account>();
 
-    private static final int KEEP_ALIVE_TIME = 1;
-    private static final TimeUnit KEEP_ALIVE_TIME_UNIT = TimeUnit.SECONDS;
-    private static int NUMBER_OF_CORES =
-            Runtime.getRuntime().availableProcessors();
-    private final BlockingQueue<Runnable> mDecodeWorkQueue = new LinkedBlockingQueue<Runnable>();
-    private ThreadPoolExecutor threadPoolExecutor;
-
     private android.accounts.AccountManager androidAccountManager;
     private AccountManager accountManager;
 
@@ -140,13 +134,6 @@ public class SeafileProvider extends DocumentsProvider {
         androidAccountManager = android.accounts.AccountManager.get(getContext());
 
         androidAccountManager.addOnAccountsUpdatedListener(accountListener, null, true);
-
-        threadPoolExecutor = new ThreadPoolExecutor(
-                NUMBER_OF_CORES,       // Initial pool size
-                NUMBER_OF_CORES,       // Max pool size
-                KEEP_ALIVE_TIME,
-                KEEP_ALIVE_TIME_UNIT,
-                mDecodeWorkQueue);
 
         return true;
     }
@@ -353,7 +340,7 @@ public class SeafileProvider extends DocumentsProvider {
 
         // open the file. this might involve talking to the seafile server. this will hang until
         // it is done.
-        final Future<ParcelFileDescriptor> future = threadPoolExecutor.submit(new Callable<ParcelFileDescriptor>() {
+        final Future<ParcelFileDescriptor> future = ConcurrentAsyncTask.submit(new Callable<ParcelFileDescriptor>() {
 
             @Override
             public ParcelFileDescriptor call() throws Exception {
@@ -440,7 +427,7 @@ public class SeafileProvider extends DocumentsProvider {
             throw new FileNotFoundException();
 
         // do thumbnail download in another thread to avoid possible network access in UI thread
-        final Future future = threadPoolExecutor.submit(new Runnable() {
+        final Future future = ConcurrentAsyncTask.submit(new Runnable() {
 
             @Override
             public void run() {
@@ -575,7 +562,7 @@ public class SeafileProvider extends DocumentsProvider {
                             return;
                         }
 
-                        threadPoolExecutor.execute(new Runnable() {
+                        ConcurrentAsyncTask.submit(new Runnable() {
                             @Override
                             public void run() {
                                 try {
@@ -839,7 +826,7 @@ public class SeafileProvider extends DocumentsProvider {
         final Uri uri = DocumentsContract.buildChildDocumentsUri(Utils.AUTHORITY,docIdParser.buildId(dm.getAccount(),repoId, path));
         result.setNotificationUri(getContext().getContentResolver(), uri);
 
-        threadPoolExecutor.execute(new Runnable() {
+        ConcurrentAsyncTask.submit(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -878,7 +865,7 @@ public class SeafileProvider extends DocumentsProvider {
         final Uri uri = DocumentsContract.buildChildDocumentsUri(Utils.AUTHORITY, docIdParser.buildStarredFilesId(dm.getAccount()));
         result.setNotificationUri(getContext().getContentResolver(), uri);
 
-        threadPoolExecutor.execute(new Runnable() {
+        ConcurrentAsyncTask.submit(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -916,7 +903,7 @@ public class SeafileProvider extends DocumentsProvider {
         final Uri uri = DocumentsContract.buildChildDocumentsUri(Utils.AUTHORITY, docIdParser.buildId(dm.getAccount(), null, null));
         result.setNotificationUri(getContext().getContentResolver(), uri);
 
-        threadPoolExecutor.execute(new Runnable() {
+        ConcurrentAsyncTask.submit(new Runnable() {
             @Override
             public void run() {
                 try {

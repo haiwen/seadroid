@@ -40,7 +40,7 @@ public final class CertsManager {
         cachedCerts.put(account, cert);
 
         if (rememberChoice) {
-            ConcurrentAsyncTask.execute(new Runnable() {
+            ConcurrentAsyncTask.submit(new Runnable() {
                 @Override
                 public void run() {
                     db.saveCertificate(account.server, cert);
