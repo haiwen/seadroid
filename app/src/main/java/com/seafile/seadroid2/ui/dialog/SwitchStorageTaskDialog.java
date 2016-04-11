@@ -60,9 +60,11 @@ class SwitchStorageTask extends TaskDialog.Task {
             camera.disableCameraUpload();
         }
 
-        Log.d(DEBUG_TAG, "Cancel all TransferService tasks");
-        txService.cancelAllUploadTasks();
-        txService.cancellAllDownloadTasks();
+        if (txService != null) {
+            Log.d(DEBUG_TAG, "Cancel all TransferService tasks");
+            txService.cancelAllUploadTasks();
+            txService.cancellAllDownloadTasks();
+        }
 
         Log.i(DEBUG_TAG, "Switching storage to " + location.description);
         StorageManager.getInstance().setStorageDir(location.id);
