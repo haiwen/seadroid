@@ -35,7 +35,7 @@ public class FileMonitorService extends Service {
             monitor = new SeafileMonitor(updateMgr);
         }
 
-        ConcurrentAsyncTask.execute(new Runnable() {
+        ConcurrentAsyncTask.submit(new Runnable() {
             @Override
             public void run() {
                 monitor.monitorAllAccounts();
