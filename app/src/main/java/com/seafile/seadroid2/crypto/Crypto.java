@@ -140,9 +140,7 @@ public class Crypto {
 
         final byte[] iv = deriveIVPbkdf2(realKey.getEncoded());
 
-        final String encKey = seafileDecrypt(fromHex(randomKey), realKey, iv);
-
-        return encKey;
+        return seafileDecrypt(fromHex(randomKey), realKey, iv);
     }
 
     public static String seafileDecrypt(byte[] bytes, SecretKey key, byte[] iv) {
@@ -183,8 +181,7 @@ public class Crypto {
     public static byte[] deriveIVPbkdf2(byte[] key) throws UnsupportedEncodingException {
         PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(new SHA256Digest());
         gen.init(key, salt, 10);
-        byte[] keyBytes = ((KeyParameter) gen.generateDerivedMacParameters(KEY_LENGTH_SHORT * 8)).getKey();
-        return keyBytes;
+        return ((KeyParameter) gen.generateDerivedMacParameters(KEY_LENGTH_SHORT * 8)).getKey();
     }
 
     /**
@@ -204,9 +201,7 @@ public class Crypto {
             IvParameterSpec ivParams = new IvParameterSpec(iv);
             cipher.init(Cipher.ENCRYPT_MODE, key, ivParams);
 
-            byte[] cipherText = cipher.doFinal(plaintext);
-
-            return cipherText;
+            return cipher.doFinal(plaintext);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             Log.e(TAG, "NoSuchAlgorithmException " + e.getMessage());
@@ -326,7 +321,7 @@ public class Crypto {
 
         String hex = "0123456789abcdef";
 
-        StringBuffer result = new StringBuffer(2 * buf.length);
+        StringBuilder result = new StringBuilder(2 * buf.length);
         for (int i = 0; i < buf.length; i++) {
             result.append(hex.charAt((buf[i] >> 4) & 0x0f)).append(hex.charAt(buf[i] & 0x0f));
 

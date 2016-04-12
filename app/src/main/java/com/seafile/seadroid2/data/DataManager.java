@@ -506,9 +506,9 @@ public class DataManager {
             throw SeafException.unknownException;
         }
 
-        for (String blockId: getBlockIds(blklist)) {
-            File tempBlock = new File(getChunkDirectory(), blockId);
-            final Pair<String, File> block = sc.getBlock(repoID, fileID, blockId, path, tempBlock.getPath(), monitor);
+        for (String blockID: getBlockIds(blklist)) {
+            File tempBlock = new File(getChunkDirectory(), blockID);
+            final Pair<String, File> block = sc.getBlock(repoID, fileID, blockID, path, tempBlock.getPath(), monitor);
             final byte[] bytes = FileUtils.readFileToByteArray(block.second);
             final byte[] decryptedBlock = Crypto.decrypt(bytes, encKey, Crypto.fromHex(encIv), version);
             FileUtils.writeByteArrayToFile(localFile, decryptedBlock, true);
