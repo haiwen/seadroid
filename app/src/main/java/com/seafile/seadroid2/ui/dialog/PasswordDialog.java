@@ -2,6 +2,8 @@ package com.seafile.seadroid2.ui.dialog;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -48,21 +50,7 @@ class SetPasswordTask extends TaskDialog.Task {
             Crypto.verifyRepoPassword(repoID, password, version, magic);
         } catch (SeafException e) {
             setTaskException(e);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (InvalidKeySpecException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (InvalidAlgorithmParameterException e) {
-            e.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException | InvalidKeySpecException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | BadPaddingException | IllegalBlockSizeException e) {
             e.printStackTrace();
         }
     }
@@ -196,13 +184,13 @@ public class PasswordDialog extends TaskDialog {
     public void onTaskSuccess() {
         String password = encKeyText.getText().toString().trim();
         try {
-            final String encKey = Crypto.deriveKeyPbkdf2(password, randomKey, version);
-            final byte[] encIV = Crypto.deriveIVPbkdf2((Crypto.fromHex(encKey)));
-            DataManager.saveRepoSecretKey(repoID, encKey);
-            DataManager.setRepoEncIV(repoID, Crypto.toHex(encIV));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
+            final Pair<String, byte[]> pair = Crypto.generateKey(password, randomKey, version);
+            Log.d(TAG, "encKey " + pair.first);
+            Log.d(TAG, "encIv " + Crypto.toHex(pair.second));
+            DataManager.saveRepoSecretKey(repoID, pair.first);
+            DataManager.setRepoEncIV(repoID, Crypto.toHex(pair.second));
+        } catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
+            // TODO notify error
             e.printStackTrace();
         }
         super.onTaskSuccess();
