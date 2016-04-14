@@ -16,6 +16,8 @@ import com.google.common.collect.Lists;
 import com.seafile.seadroid2.*;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.avatar.Avatar;
+import com.seafile.seadroid2.avatar.AvatarManager;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
@@ -28,6 +30,7 @@ import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -62,6 +65,7 @@ public class CloudLibrarySelectionFragment extends Fragment {
     private LoadAccountsTask mLoadAccountsTask;
     private LoadReposTask mLoadReposTask;
     private LoadDirTask mLoadDirTask;
+    private AvatarManager avatarManager;
 
     private RelativeLayout mUpLayout;
     private TextView mCurrentFolderText;
@@ -83,6 +87,7 @@ public class CloudLibrarySelectionFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mActivity = (CameraUploadConfigActivity) getActivity();
         Intent intent = mActivity.getIntent();
+        avatarManager = new AvatarManager();
         Account account = intent.getParcelableExtra("account");
         if (account == null) {
             canChooseAccount = true;
@@ -138,6 +143,12 @@ public class CloudLibrarySelectionFragment extends Fragment {
         }
 
         return rootView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadAvatarUrls(48);
     }
 
     private void refreshList(final boolean forceRefresh) {
@@ -657,6 +668,104 @@ public class CloudLibrarySelectionFragment extends Fragment {
             }
 
             updateAdapterWithDirents(dirents);
+        }
+    }
+
+    /**
+     * asynchronously load avatars
+     *
+     * @param avatarSize set a avatar size in one of 24*24, 32*32, 48*48, 64*64, 72*72, 96*96
+     */
+    public void loadAvatarUrls(int avatarSize) {
+        List<Avatar> avatars;
+
+        if (!Utils.isNetworkOn() || !avatarManager.isNeedToLoadNewAvatars()) {
+            // Toast.makeText(AccountsActivity.this, getString(R.string.network_down), Toast.LENGTH_SHORT).show();
+
+            // use cached avatars
+            avatars = avatarManager.getAvatarList();
+
+            if (avatars == null) {
+                return;
+            }
+
+            // set avatars url to adapter
+            mAccountAdapter.setAvatars((ArrayList<Avatar>) avatars);
+
+            // notify adapter data changed
+            mAccountAdapter.notifyDataSetChanged();
+
+            return;
+        }
+
+        LoadAvatarUrlsTask task = new LoadAvatarUrlsTask(avatarSize);
+
+        ConcurrentAsyncTask.execute(task);
+
+    }
+
+    private class LoadAvatarUrlsTask extends AsyncTask<Void, Void, List<Avatar>> {
+
+        private List<Avatar> avatars;
+        private int avatarSize;
+        private SeafConnection httpConnection;
+
+        public LoadAvatarUrlsTask(int avatarSize) {
+            this.avatarSize = avatarSize;
+            this.avatars = Lists.newArrayList();
+        }
+
+        @Override
+        protected List<Avatar> doInBackground(Void... params) {
+            // reuse cached avatars
+            avatars = avatarManager.getAvatarList();
+
+            // contains accounts who don`t have avatars yet
+            List<Account> acts = avatarManager.getAccountsWithoutAvatars();
+
+            // contains new avatars in order to persist them to database
+            List<Avatar> newAvatars = new ArrayList<Avatar>(acts.size());
+
+            // load avatars from server
+            for (Account account : acts) {
+                httpConnection = new SeafConnection(account);
+
+                String avatarRawData = null;
+                try {
+                    avatarRawData = httpConnection.getAvatar(account.getEmail(), avatarSize);
+                } catch (SeafException e) {
+                    e.printStackTrace();
+                    return avatars;
+                }
+
+                Avatar avatar = avatarManager.parseAvatar(avatarRawData);
+                if (avatar == null)
+                    continue;
+
+                avatar.setSignature(account.getSignature());
+
+                avatars.add(avatar);
+
+                newAvatars.add(avatar);
+            }
+
+            // save new added avatars to database
+            avatarManager.saveAvatarList(newAvatars);
+
+            return avatars;
+        }
+
+        @Override
+        protected void onPostExecute(List<Avatar> avatars) {
+            if (avatars == null) {
+                return;
+            }
+
+            // set avatars url to adapter
+            mAccountAdapter.setAvatars((ArrayList<Avatar>) avatars);
+
+            // notify adapter data changed
+            mAccountAdapter.notifyDataSetChanged();
         }
     }
 
