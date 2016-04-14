@@ -38,8 +38,8 @@
         android:textColor="@color/fancy_gray" />
 
     <Button android:id="@+id/cuc_click_to_finish_btn"
-            android:layout_below="@+id/cuc_click_to_finish_tv"
-            android:layout_marginTop="@dimen/section_margin_top"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="@dimen/margin_normal"
             android:layout_marginLeft="@dimen/long_btn_margin_left"
             android:layout_marginRight="@dimen/long_btn_margin_right"
             android:text="@string/confirm"
