@@ -109,7 +109,7 @@ public class SeafConnection {
      */
     private HttpRequest prepareApiPostRequest(String apiPath, boolean withToken, Map<String, ?> params)
                                             throws HttpRequestException {
-        return prepareApiPostRequest(apiPath, withToken, params, true);
+        return prepareApiPostRequest(apiPath, withToken, params, false);
     }
 
     /** Prepare a post request.
@@ -134,7 +134,7 @@ public class SeafConnection {
 
     private HttpRequest prepareApiDeleteRequest(String apiPath, Map<String, ?> params)
             throws HttpRequestException {
-        HttpRequest req = HttpRequest.delete(account.server + apiPath, params, true)
+        HttpRequest req = HttpRequest.delete(account.server + apiPath, params, false)
             .followRedirects(true)
             .connectTimeout(CONNECTION_TIMEOUT);
 
@@ -1037,7 +1037,7 @@ public class SeafConnection {
                boolean isdir) throws SeafException {
         try {
             Map<String, Object> params = Maps.newHashMap();
-            params.put("p", path);
+            params.put("p", encodeUriComponent(path).replaceAll("\\+", "%20"));
             params.put("reloaddir", "true");
             String suffix = isdir ? "/dir/" : "/file/";
             HttpRequest req = prepareApiDeleteRequest("api2/repos/" + repoID + suffix, params);
@@ -1078,7 +1078,7 @@ public class SeafConnection {
                      String dstRepoId, String dstDir) throws SeafException {
         try {
             Map<String, Object> params = Maps.newHashMap();
-            params.put("p", srcDir);
+            params.put("p", encodeUriComponent(srcDir).replaceAll("\\+", "%20"));
 
             HttpRequest req = prepareApiPostRequest("api2/repos/" + srcRepoId + "/fileops/copy/", true, params);
 
@@ -1092,6 +1092,8 @@ public class SeafConnection {
             throw e;
         } catch (HttpRequestException e) {
             throw getSeafExceptionFromHttpRequestException(e);
+        } catch (UnsupportedEncodingException e) {
+            throw SeafException.encodingException;
         }
     }
 
@@ -1139,7 +1141,7 @@ public class SeafConnection {
     public Pair<String, String> move(String srcRepoId, String srcPath, String dstRepoId, String dstDir) throws SeafException {
         try {
             Map<String, Object> params = Maps.newHashMap();
-            params.put("p", srcPath);
+            params.put("p", encodeUriComponent(srcPath).replaceAll("\\+", "%20"));
             params.put("reloaddir", "true");
             String suffix = "/file/";
             HttpRequest req = prepareApiPostRequest("api2/repos/" + srcRepoId + suffix, true, params);
