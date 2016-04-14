@@ -344,13 +344,13 @@
             Twitter: Seafile<br>
             Email: support@seafile.com<br>
         </p>
-        <h5>Contribution</h5>
+        <h5>Contributions</h5>
         <p>https://github.com/haiwen/seadroid.git</P>
-        <h5>Copyright ©2013-2015 Seafile Ltd.</h5>
+        <h5>Copyright ©2013-2016 Seafile Ltd.</h5>
         ]]>
     </string>
 
-    <string name="settings_advance_feature_title">ADVANCED FEATURE</string>    
+    <string name="settings_advance_feature_title">ADVANCED FEATURES</string>    
     <string name="settings_cache_title">Cache size</string>
     <string name="settings_clear_cache_title">Clear cache</string>
     <string name="settings_clear_cache_hint">Do you want to clear cache?</string>
