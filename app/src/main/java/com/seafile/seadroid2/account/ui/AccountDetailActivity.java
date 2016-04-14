@@ -32,6 +32,7 @@ import com.seafile.seadroid2.account.Authenticator;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.ssl.CertsManager;
 import com.seafile.seadroid2.ui.CustomClearableEditText;
+import com.seafile.seadroid2.ui.EmailAutoCompleteTextView;
 import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.ui.activity.BaseActivity;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
@@ -54,8 +55,8 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
     private Button loginButton;
     private EditText serverText;
     private ProgressDialog progressDialog;
-    private CustomClearableEditText emailText;
-    private CustomClearableEditText passwdText;
+    private EmailAutoCompleteTextView emailText;
+    private EditText passwdText;
     private CheckBox httpsCheckBox;
     private TextView seahubUrlHintText;
 
@@ -74,20 +75,11 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
         loginButton = (Button) findViewById(R.id.login_button);
         httpsCheckBox = (CheckBox) findViewById(R.id.https_checkbox);
         serverText = (EditText) findViewById(R.id.server_url);
-        emailText = (CustomClearableEditText) findViewById(R.id.email_address);
-        emailText.setInputType(CustomClearableEditText.INPUT_TYPE_EMAIL);
-        passwdText = (CustomClearableEditText) findViewById(R.id.password);
-        passwdText.setInputType(CustomClearableEditText.INPUT_TYPE_PASSWORD);
+        emailText = (EmailAutoCompleteTextView) findViewById(R.id.email_address);
+        passwdText = (EditText) findViewById(R.id.password);
         seahubUrlHintText = (TextView) findViewById(R.id.seahub_url_hint);
 
         setupServerText();
-
-        // email address auto complete when login in
-        ArrayList<String> accounts = new AccountManager(this).getAccountAutoCompleteTexts();
-        if (accounts != null) {
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, accounts);
-            emailText.setEmailAddressAutoCompleteAdapter(adapter);
-        }
 
         Intent intent = getIntent();
 
