@@ -37,8 +37,6 @@ import javax.crypto.spec.SecretKeySpec;
 public class Crypto {
     private static final String TAG = Crypto.class.getSimpleName();
 
-    public static final String PKCS12_DERIVATION_ALGORITHM = "PBEWITHSHA256AND256BITAES-CBC-BC";
-    public static final String PBKDF2_DERIVATION_ALGORITHM = "PBKDF2WithHmacSHA1";
     private static final String CIPHER_ALGORITHM = "AES/CBC/NoPadding";
 
     private static int KEY_LENGTH = 32;
@@ -47,7 +45,6 @@ public class Crypto {
     private static int ITERATION_COUNT = 1000;
     // Should generate random salt for each repo
     private static byte[] salt = {(byte) 0xda, (byte) 0x90, (byte) 0x45, (byte) 0xc3, (byte) 0x06, (byte) 0xc7, (byte) 0xcc, (byte) 0x26};
-    private static final int PKCS5_SALT_LENGTH = 8;
 
     private Crypto() {
     }
@@ -146,7 +143,7 @@ public class Crypto {
     public static String seafileDecrypt(byte[] bytes, SecretKey key, byte[] iv) {
         try {
             Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
-             IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+            IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
             cipher.init(Cipher.DECRYPT_MODE, key, ivParameterSpec);
             byte[] plaintext = cipher.doFinal(bytes);
             return toHex(plaintext);
@@ -194,7 +191,7 @@ public class Crypto {
      * @param key
      * @return
      */
-    private static byte[] encrypt(byte[] plaintext, SecretKey key, byte[] iv) {
+    private static byte[] seafileEncrypt(byte[] plaintext, SecretKey key, byte[] iv) {
         try {
             Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
 
@@ -239,7 +236,7 @@ public class Crypto {
      * @param key
      * @return
      */
-    public static byte[] encrypt(byte[] plaintext, String key, byte[] iv, int version) {
+    public static byte[] encrypt(byte[] plaintext, String key, byte[] iv, int version) throws NoSuchAlgorithmException {
         PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(new SHA256Digest());
         gen.init(PBEParametersGenerator.PKCS5PasswordToUTF8Bytes(key.toCharArray()), salt, ITERATION_COUNT);
         byte[] keyBytes;
@@ -250,7 +247,7 @@ public class Crypto {
             keyBytes = ((KeyParameter) gen.generateDerivedMacParameters(KEY_LENGTH_SHORT * 8)).getKey();
 
         SecretKey realKey = new SecretKeySpec(keyBytes, "AES");
-        return encrypt(plaintext, realKey , iv);
+        return seafileEncrypt(plaintext, realKey , iv);
     }
 
     /**
@@ -263,7 +260,7 @@ public class Crypto {
      * @param key
      * @return
      */
-    public static byte[] decrypt(byte[] plaintext, String key, byte[] iv, int version) {
+    public static byte[] decrypt(byte[] plaintext, String key, byte[] iv, int version) throws NoSuchAlgorithmException {
         PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(new SHA256Digest());
         gen.init(PBEParametersGenerator.PKCS5PasswordToUTF8Bytes(key.toCharArray()), salt, ITERATION_COUNT);
         byte[] keyBytes;
@@ -274,7 +271,7 @@ public class Crypto {
             keyBytes = ((KeyParameter) gen.generateDerivedMacParameters(KEY_LENGTH_SHORT * 8)).getKey();
 
         SecretKey realKey = new SecretKeySpec(keyBytes, "AES");
-        return decrypt(plaintext, realKey , iv);
+        return fromHex(seafileDecrypt(plaintext, realKey , iv));
     }
 
     /**
