@@ -3,9 +3,10 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:background="?android:selectableItemBackground"
+              android:gravity="center_vertical"
               android:padding="@dimen/lv_item_padding" >
 
-    <ImageView
+    <com.seafile.seadroid2.ui.widget.CircleImageView
             android:id="@+id/cuc_account_list_item_account_icon"
             android:layout_width="@dimen/lv_act_icon_width"
             android:layout_height="@dimen/lv_act_icon_height"
