@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -95,6 +96,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
         Log.d(DEBUG_TAG, "onCreate");
         super.onCreate(savedInstanceState);
 
+        settingsMgr.registerSharedPreferencesListener(settingsListener);
         Account account = accountMgr.getCurrentAccount();
         if (!Utils.isNetworkOn()) {
             ToastUtils.show(mActivity, R.string.network_down);
@@ -103,6 +105,14 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
         ConcurrentAsyncTask.execute(new RequestAccountInfoTask(), account);
 
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        Log.d(DEBUG_TAG, "onDestroy()");
+        settingsMgr.unregisterSharedPreferencesListener(settingsListener);
     }
 
     @Override
@@ -298,6 +308,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
         // Storage selection only works on KitKat or later
         if (storageManager.supportsMultipleStorageLocations()) {
+            updateStorageLocationSummary();
             findPreference(SettingsManager.SETTINGS_CACHE_DIR_KEY).setOnPreferenceClickListener(new OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
@@ -310,6 +321,11 @@ public class SettingsFragment extends CustomPreferenceFragment {
             cCacheCategory.removePreference(findPreference(SettingsManager.SETTINGS_CACHE_DIR_KEY));
         }
 
+    }
+
+    private void updateStorageLocationSummary() {
+        String summary = storageManager.getStorageLocation().description;
+        findPreference(SettingsManager.SETTINGS_CACHE_DIR_KEY).setSummary(summary);
     }
 
     private void refreshCameraUploadView() {
@@ -500,5 +516,33 @@ public class SettingsFragment extends CustomPreferenceFragment {
         }
 
     }
+
+    class UpdateStorageSLocationSummaryTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void ret) {
+            updateStorageLocationSummary();
+        }
+
+    }
+
+    private SharedPreferences.OnSharedPreferenceChangeListener settingsListener =
+            new SharedPreferences.OnSharedPreferenceChangeListener() {
+
+                @Override
+                public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+
+                    switch (key) {
+                        case SettingsManager.SHARED_PREF_STORAGE_DIR:
+                            ConcurrentAsyncTask.execute(new UpdateStorageSLocationSummaryTask());
+                            break;
+                    }
+                }
+            };
 
 }
