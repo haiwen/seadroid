@@ -331,7 +331,7 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
      *
      * @return Location info
      */
-    private Location getStorageLocation() {
+    public Location getStorageLocation() {
 
         int storageDirID = SettingsManager.instance().getStorageDir();
         Location storageLocation = lookupStorageLocation(storageDirID);
