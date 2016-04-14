@@ -75,7 +75,7 @@ public class DataManager {
      * @throws IOException if the directory could not be created.
      */
     public static File createTempDir() throws IOException {
-        String dirName = "dir-" + UUID.randomUUID() + ".tmp";
+        String dirName = "dir-" + UUID.randomUUID();
         File dir = new File (storageManager.getTempDir(), dirName);
         if (dir.mkdir()) {
             return dir;
