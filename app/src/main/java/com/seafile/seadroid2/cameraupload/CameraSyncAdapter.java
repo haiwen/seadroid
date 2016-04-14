@@ -38,6 +38,7 @@ import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Sync adapter for media upload.
@@ -594,8 +595,12 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
          * It would be cool if the API2 offered a way to query the hash of a remote file.
          * Currently, comparing the file size is the best we can do.
          */
+        String filename = file.getName();
+        String prefix = filename.substring(0, filename.lastIndexOf("."));
+        String suffix = filename.substring(filename.lastIndexOf("."));
+        Pattern pattern = Pattern.compile(Pattern.quote(prefix) + "( \\(\\d+\\))?" + Pattern.quote(suffix));
         for (SeafDirent dirent : list) {
-            if (dirent.name.equals(file.getName()) && dirent.size == file.length()) {
+            if (pattern.matcher(dirent.name).matches() && dirent.size == file.length()) {
                 // Log.d(DEBUG_TAG, "File " + file.getName() + " in bucket " + bucketName + " already exists on the server. Skipping.");
                 dbHelper.markAsUploaded(file);
                 return;
