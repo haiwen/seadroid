@@ -28,12 +28,15 @@ class SwitchStorageTask extends TaskDialog.Task {
     private static final String DEBUG_TAG = "SwitchStorageTask";
 
     private TransferService txService;
-    private StorageManager.Location location;
+    private StorageManager.Location location = null;
 
-    SwitchStorageTask(StorageManager.Location loc) {
-        location = loc;
+    SwitchStorageTask() {
         Intent bIntent = new Intent(SeadroidApplication.getAppContext(), TransferService.class);
         SeadroidApplication.getAppContext().bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    public void setNewLocation(StorageManager.Location loc) {
+        location = loc;
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -51,6 +54,17 @@ class SwitchStorageTask extends TaskDialog.Task {
 
     @Override
     protected void runTask() {
+        if (location == null)
+            return;
+
+        if (txService != null) {
+            Log.d(DEBUG_TAG, "Cancel all TransferService tasks");
+            txService.cancelAllUploadTasks();
+            txService.cancellAllDownloadTasks();
+        } else {
+            return;
+        }
+
         Context context = SeadroidApplication.getAppContext();
 
         CameraUploadManager camera = new CameraUploadManager(context);
@@ -58,12 +72,6 @@ class SwitchStorageTask extends TaskDialog.Task {
         if (camera.isCameraUploadEnabled()) {
             Log.d(DEBUG_TAG, "Temporarily disable camera upload");
             camera.disableCameraUpload();
-        }
-
-        if (txService != null) {
-            Log.d(DEBUG_TAG, "Cancel all TransferService tasks");
-            txService.cancelAllUploadTasks();
-            txService.cancellAllDownloadTasks();
         }
 
         Log.i(DEBUG_TAG, "Switching storage to " + location.description);
@@ -81,9 +89,14 @@ public class SwitchStorageTaskDialog extends TaskDialog {
     List<RadioButton> buttonList = new ArrayList<>();
     int currentLocationId = -1;
 
+    SwitchStorageTask task;
 
     @Override
     protected View createDialogContentView(LayoutInflater inflater, Bundle savedInstanceState) {
+
+        // create task early to allow the service to connect
+        task = new SwitchStorageTask();
+
         View view = inflater.inflate(R.layout.dialog_switch_storage, null);
         group = (RadioGroup) view.findViewById(R.id.storage_options);
 
@@ -113,13 +126,14 @@ public class SwitchStorageTaskDialog extends TaskDialog {
 
     @Override
     protected Task prepareTask() {
-        SwitchStorageTask task = null;
+        // we can't stop the storage switch once it's started.
+        disableCancel();
 
         int selectedId = group.getCheckedRadioButtonId();
         for (RadioButton b: buttonList) {
             if (b.getId() == selectedId) {
                 StorageManager.Location location = (StorageManager.Location) b.getTag();
-                task = new SwitchStorageTask(location);
+                task.setNewLocation(location);
                 break;
             }
         }
