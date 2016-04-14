@@ -363,7 +363,7 @@
     <string name="dialog_switch_storage_info_text">Existing files will be moved to the new storage. This might take a while.</string>
     <string name="storage_manager_primary_storage">Primary storage</string>
     <string name="storage_manager_secondary_storage">Secondary storage</string>
-    <string name="storage_manager_storage_description">%1$s (%2$s/%3$s free)</string>
+    <string name="storage_manager_storage_description">%1$s (%2$s free/%3$s total)</string>
     <string name="storage_manager_storage_description_not_available">%1$s (unavailable)</string>
 
     <!-- pull to refresh -->

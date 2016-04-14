@@ -443,7 +443,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="settings_storage_title">ZWISCHENSPEICHER</string>
   <string name="storage_manager_primary_storage">Primärer Speicher</string>
   <string name="storage_manager_secondary_storage">Sekundärer Speicher</string>
-  <string name="storage_manager_storage_description">%1$s (%2$s/%3$s frei)</string>
+  <string name="storage_manager_storage_description">%1$s (%2$s von %3$s frei)</string>
   <string name="storage_manager_storage_description_not_available">%1$s (nicht verfügbar)</string>
   <string name="settings_advance_feature_title"></string>
   <string name="dialog_switch_storage_info_text">Vorhandene Dateien werden zum neuen Ort verschoben. Dies kann etwas dauern.</string>
