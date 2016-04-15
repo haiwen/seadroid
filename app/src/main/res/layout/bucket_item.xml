@@ -5,16 +5,17 @@
 
     <ImageView
         android:id="@+id/bucket_item_thumbImage"
-        android:layout_width="512px"
-        android:layout_height="384px"
+        android:layout_width="200dp"
+        android:layout_height="150dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
+        android:src="@drawable/ic_launcher"
         android:scaleType="centerCrop" />
 
     <ImageView
         android:id="@+id/bucket_item_text_background"
-        android:layout_width="512px"
-        android:layout_height="50px"
+        android:layout_width="200dp"
+        android:layout_height="25dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:alpha="0.5"
@@ -22,8 +23,8 @@
 
     <ImageView
         android:id="@+id/bucket_item_marking"
-        android:layout_width="512px"
-        android:layout_height="384px"
+        android:layout_width="200dp"
+        android:layout_height="150dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:background="@drawable/camera_bucket_selected"
@@ -31,13 +32,13 @@
 
     <TextView
         android:id="@+id/bucket_item_name"
-        android:layout_width="512px"
-        android:layout_height="50px"
+        android:layout_width="200dp"
+        android:layout_height="25dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:textColor="#ffffff"
-        android:layout_marginLeft="10px"
-        android:layout_marginTop="5px"
-        android:layout_marginRight="5px" />
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="5dp" />
 
 </FrameLayout>
