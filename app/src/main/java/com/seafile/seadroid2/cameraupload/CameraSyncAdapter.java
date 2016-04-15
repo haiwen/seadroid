@@ -21,6 +21,7 @@ import com.google.common.base.Joiner;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
+import com.seafile.seadroid2.data.StorageManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.DataManager;
@@ -514,7 +515,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             }
 
             // Ignore all media by Seafile. We don't want to upload our own cached files.
-            if (file.getAbsolutePath().startsWith(DataManager.getExternalRootDirectory())) {
+            if (file.getAbsolutePath().startsWith(StorageManager.getInstance().getMediaDir().getAbsolutePath())) {
                 // Log.d(DEBUG_TAG, "Skipping media "+file+" because it's part of the Seadroid cache");
                 continue;
             }

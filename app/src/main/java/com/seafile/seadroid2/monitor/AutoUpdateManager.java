@@ -36,6 +36,12 @@ public class AutoUpdateManager implements Runnable, CachedFileChangedListener {
         this.txService = txService;
         running = true;
         thread = new Thread(this);
+        thread.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread thread, Throwable ex) {
+                Log.e(DEBUG_TAG, "Uncaught exception", ex);
+            }
+        });
         thread.start();
     }
 
@@ -117,7 +123,7 @@ public class AutoUpdateManager implements Runnable, CachedFileChangedListener {
         }
 
         if (exist) {
-            ConcurrentAsyncTask.execute(new Runnable() {
+            ConcurrentAsyncTask.submit(new Runnable() {
                 @Override
                 public void run() {
                     db.removeAutoUpdateInfo(info);

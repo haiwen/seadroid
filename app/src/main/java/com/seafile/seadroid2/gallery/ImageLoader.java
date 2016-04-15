@@ -3,6 +3,7 @@ package com.seafile.seadroid2.gallery;
 import android.content.ContentResolver;
 import android.graphics.Bitmap;
 import android.os.Handler;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -133,6 +134,12 @@ public class ImageLoader {
         mDone = false;
         Thread t = new Thread(new WorkerThread());
         t.setName("image-loader");
+        t.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread thread, Throwable ex) {
+                Log.e(TAG, "Uncaught exception", ex);
+            }
+        });
         mDecodeThread = t;
         t.start();
     }

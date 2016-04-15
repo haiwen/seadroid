@@ -45,6 +45,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
+import com.seafile.seadroid2.data.StorageManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.MediaObserverService;
@@ -1042,27 +1043,24 @@ public class BrowserActivity extends BaseActivity
         setSupportProgressBarIndeterminateVisibility(Boolean.FALSE);
     }
 
-    private String strImgPath;
+    private File takeCameraPhotoTempFile;
 
     private void CameraTakePhoto() {
         Intent imageCaptureIntent = new Intent("android.media.action.IMAGE_CAPTURE");
 
-        String strImgDirPath = DataManager.getExternalRootDirectory() + "/myPhotos/";
-        String fileName = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + ".jpg";
-        strImgPath = strImgDirPath + fileName;
+        try {
+            File ImgDir = DataManager.createTempDir();
 
-        File ImgDir = new File(strImgDirPath);
-        if (!ImgDir.exists()) {
-            ImgDir.mkdirs();
+            String fileName = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + ".jpg";
+            takeCameraPhotoTempFile = new File(ImgDir, fileName);
+
+            Uri photo = Uri.fromFile(takeCameraPhotoTempFile);
+            imageCaptureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photo);
+            startActivityForResult(imageCaptureIntent, TAKE_PHOTO_REQUEST);
+
+        } catch (IOException e) {
+            ToastUtils.show(BrowserActivity.this, R.string.unknow_error);
         }
-        File Img = new File(strImgDirPath, fileName);
-        while (Img.exists()) {
-            fileName = fileName + "(1)";
-            strImgPath = strImgDirPath + fileName;
-        }
-        Uri photo = Uri.fromFile(Img);
-        imageCaptureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photo);
-        startActivityForResult(imageCaptureIntent, TAKE_PHOTO_REQUEST);
     }
 
     public void enableUpButton() {
@@ -1241,13 +1239,13 @@ public class BrowserActivity extends BaseActivity
                     return;
                 }
 
-                if(strImgPath == null) {
+                if(takeCameraPhotoTempFile == null) {
                     ToastUtils.show(this, getString(R.string.saf_upload_path_not_available));
                     Log.i(DEBUG_TAG, "Pick file request did not return a path");
                     return;
                 }
                 ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
-                addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), strImgPath);
+                addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), takeCameraPhotoTempFile.getAbsolutePath());
 
             }
             break;
@@ -1270,16 +1268,14 @@ public class BrowserActivity extends BaseActivity
 
             List<File> fileList = new ArrayList<File>();
             for (Uri uri: uriList) {
-                File tempDir = new File(DataManager.getExternalTempDirectory(), "saf_temp" + "/" + "upload-"+System.currentTimeMillis());
-                File tempFile = new File(tempDir, Utils.getFilenamefromUri(BrowserActivity.this, uri));
-
                 // Log.d(DEBUG_TAG, "Uploading file from uri: " + uri);
 
                 InputStream in = null;
                 OutputStream out = null;
 
                 try {
-                    tempDir.mkdirs();
+                    File tempDir = DataManager.createTempDir();
+                    File tempFile = new File(tempDir, Utils.getFilenamefromUri(BrowserActivity.this, uri));
 
                     if (!tempFile.createNewFile()) {
                         throw new RuntimeException("could not create temporary file");
@@ -1289,17 +1285,16 @@ public class BrowserActivity extends BaseActivity
                     out = new FileOutputStream(tempFile);
                     IOUtils.copy(in, out);
 
+                    fileList.add(tempFile);
+
                 } catch (IOException e) {
                     Log.d(DEBUG_TAG, "Could not open requested document", e);
-                    tempFile = null;
                 } catch (RuntimeException e) {
                     Log.d(DEBUG_TAG, "Could not open requested document", e);
-                    tempFile = null;
                 } finally {
                     IOUtils.closeQuietly(in);
                     IOUtils.closeQuietly(out);
                 }
-                fileList.add(tempFile);
             }
             return fileList.toArray(new File[]{});
         }

@@ -13,7 +13,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.seafile.seadroid2.avatar.AuthImageDownloader;
-import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.StorageManager;
 import com.seafile.seadroid2.gesturelock.AppLockManager;
 
 public class SeadroidApplication extends Application {
@@ -36,7 +36,7 @@ public class SeadroidApplication extends Application {
     
     public static void initImageLoader(Context context) {
         
-        File cacheDir = DataManager.getThumbnailCacheDirectory();
+        File cacheDir = StorageManager.getInstance().getThumbnailsDir();
         // This configuration tuning is custom. You can tune every option, you may tune some of them,
         // or you can create default configuration by
         //  ImageLoaderConfiguration.createDefault(this);

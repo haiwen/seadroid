@@ -70,8 +70,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Utils {
     public static final String MIME_APPLICATION_OCTET_STREAM = "application/octet-stream";
@@ -601,63 +599,6 @@ public class Utils {
         options.inJustDecodeBounds = false;
         // return BitmapFactory.decodeResource(res, resId, options);
         return BitmapFactory.decodeStream(stream, null, options);
-    }
-
-    /**
-     * Deletes cache directory under a specific account<br>
-     * remember to clear cache from database after called this method
-     *
-     * @param dirPath
-     * @throws IOException
-     */
-    public static void clearCache(String dirPath) throws IOException {
-        // clear all cached files inside of the directory, the directory itself included
-        File cacheDir = new File(dirPath);
-        // FileUtils.deleteDirectory(cacheDir);
-        deleteRecursive(cacheDir);
-
-    }
-
-    private  static void deleteRecursive(File fileOrDirectory) {
-
-        if (fileOrDirectory.isDirectory())
-            for (File child : fileOrDirectory.listFiles())
-                deleteRecursive(child);
-
-        final File renamedFile = new File(fileOrDirectory.getAbsolutePath() + System.currentTimeMillis());
-        fileOrDirectory.renameTo(renamedFile);
-        renamedFile.delete();
-
-        // notify Android Gallery that this file is gone
-        notifyAndroidGalleryFileChange(fileOrDirectory);
-    }
-
-    public static void notifyAndroidGalleryFileChange(File file) {
-        Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file));
-        SeadroidApplication.getAppContext().sendBroadcast(intent);
-    }
-
-    /**
-     * Returns total size of files in bytes of the directory.
-     *
-     * @param dirPath
-     * @return
-     */
-    public static long getDirSize(File dirPath) {
-        long totalSize = 0l;
-
-        if (!dirPath.isDirectory())
-            return 0l;
-
-        File[] files = dirPath.listFiles();
-        for (File file : files) {
-            if (file.isFile()) {
-                totalSize += file.length();
-            } else
-                totalSize += getDirSize(file);
-        }
-
-        return totalSize;
     }
 
     public static String assembleUserName(String email, String server) {

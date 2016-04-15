@@ -337,6 +337,10 @@ public abstract class TaskDialog extends DialogFragment {
         }
     }
 
+    protected void disableCancel() {
+        cancelButton.setEnabled(false);
+    }
+
     protected void enableInput() {
         if (hasOkButton()) {
             okButton.setEnabled(true);
