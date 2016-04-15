@@ -2,6 +2,7 @@ package com.seafile.seadroid2.ui.fragment;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -280,9 +281,6 @@ public class SettingsFragment extends CustomPreferenceFragment {
             }
         });
 
-        // Cache size
-        calculateCacheSize();
-
         // Clear cache
         findPreference(SettingsManager.SETTINGS_CLEAR_CACHE_KEY).setOnPreferenceClickListener(new OnPreferenceClickListener() {
             @Override
@@ -295,6 +293,17 @@ public class SettingsFragment extends CustomPreferenceFragment {
     }
 
     private void refreshCameraUploadView() {
+
+        // if the user has globally disabled data sync, we cannot to camera upload
+        if (!ContentResolver.getMasterSyncAutomatically()) {
+            findPreference(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY).setEnabled(false);
+            ((CheckBoxPreference)findPreference(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY)).setSummaryOff(R.string.settings_camera_upload_service_master_off);
+            cameraManager.disableCameraUpload();
+        } else {
+            findPreference(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY).setEnabled(true);
+            ((CheckBoxPreference)findPreference(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY)).setSummaryOff(R.string.settings_camera_upload_service_stopped);
+        }
+
         Account camAccount = cameraManager.getCameraAccount();
         if (camAccount != null && settingsMgr.getCameraUploadRepoName() != null) {
             cUploadRepoPref.setSummary(camAccount.getSignature()
@@ -364,6 +373,15 @@ public class SettingsFragment extends CustomPreferenceFragment {
             }
         });
         dialog.show(getFragmentManager(), "DialogFragment");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        Log.d(DEBUG_TAG, "onResume()");
+        refreshCameraUploadView();
+        calculateCacheSize();
     }
 
     @Override

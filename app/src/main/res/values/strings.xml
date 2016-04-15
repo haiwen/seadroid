@@ -279,6 +279,7 @@
     <string name="settings_camera_upload_info_title">Camera Photo Upload</string>
     <string name="settings_camera_upload_service_started">Upload service started</string>
     <string name="settings_camera_upload_service_stopped">Upload service stopped</string>
+    <string name="settings_camera_upload_service_master_off">Data auto-sync disabled globally in Android</string>
     <string name="settings_camera_upload_allow_data_plan">Allow Data Plan</string>
     <string name="settings_camera_upload_allow_videos">Allow Videos Upload</string>
     <string name="settings_camera_upload_default_wifi">Use Wi-Fi only by default</string>
