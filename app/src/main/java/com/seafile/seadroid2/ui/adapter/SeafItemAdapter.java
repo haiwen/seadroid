@@ -353,17 +353,18 @@ public class SeafItemAdapter extends BaseAdapter {
                             && downloadTaskInfo.pathInRepo.equals(filePath)) {
                         switch (downloadTaskInfo.state) {
                             case INIT:
-                            case CANCELLED:
                             case FAILED:
                                 downloadStatusIcon = R.drawable.list_item_download_waiting;
                                 viewHolder.downloadStatusIcon.setVisibility(View.VISIBLE);
                                 viewHolder.progressBar.setVisibility(View.GONE);
                                 break;
+                            case CANCELLED:
+                                viewHolder.downloadStatusIcon.setVisibility(View.GONE);
+                                viewHolder.progressBar.setVisibility(View.GONE);
+                                break;
                             case TRANSFERRING:
                                 viewHolder.downloadStatusIcon.setVisibility(View.GONE);
-
                                 viewHolder.progressBar.setVisibility(View.VISIBLE);
-
                                 break;
                             case FINISHED:
                                 downloadStatusIcon = R.drawable.list_item_download_finished;
