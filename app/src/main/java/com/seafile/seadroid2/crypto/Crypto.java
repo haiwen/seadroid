@@ -1,10 +1,12 @@
 package com.seafile.seadroid2.crypto;
 
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.data.EncryptResult;
 
 import org.spongycastle.crypto.PBEParametersGenerator;
 import org.spongycastle.crypto.digests.SHA256Digest;
@@ -109,35 +111,44 @@ public class Crypto {
         if (diff != 0) throw SeafException.invalidPassword;
     }
 
+    public static String generateKey(String password, String randomKey, int version) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+        if (TextUtils.isEmpty(password) || TextUtils.isEmpty(randomKey)) {
+            return null;
+        }
+
+        final String key = deriveKey(password, version);
+        SecretKey derivedKey = new SecretKeySpec(fromHex(key), "AES");
+        final byte[] iv = deriveIv(fromHex(key));
+        return seafileDecrypt(fromHex(randomKey), derivedKey, iv);
+    }
+
     /**
-     * derive secret key by Pbkdf2 algorithm
+     * derive secret key by PBKDF2 algorithm
      *
      * @param password
-     * @param randomKey
      * @param version
      * @return
      * @throws UnsupportedEncodingException
      * @throws NoSuchAlgorithmException
      */
-    public static String deriveKey(String password, String randomKey, int version) throws UnsupportedEncodingException, NoSuchAlgorithmException {
-        if (TextUtils.isEmpty(password) || TextUtils.isEmpty(randomKey)) {
-            return null;
-        }
-
+    private static String deriveKey(@NonNull String password, int version) throws UnsupportedEncodingException, NoSuchAlgorithmException {
         PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(new SHA256Digest());
         gen.init(PBEParametersGenerator.PKCS5PasswordToUTF8Bytes(password.toCharArray()), salt, ITERATION_COUNT);
-        byte[] keyBytes;
+        byte[] keyBytes = ((KeyParameter) gen.generateDerivedMacParameters(version == 2 ? KEY_LENGTH * 8 : KEY_LENGTH_SHORT * 8)).getKey();
+        return toHex(keyBytes);
+    }
 
-        if (version == 2) {
-            keyBytes = ((KeyParameter) gen.generateDerivedMacParameters(KEY_LENGTH * 8)).getKey();
-        } else
-            keyBytes = ((KeyParameter) gen.generateDerivedMacParameters(KEY_LENGTH_SHORT * 8)).getKey();
-
-        SecretKey realKey = new SecretKeySpec(keyBytes, "AES");
-
-        final byte[] iv = deriveIVPbkdf2(realKey.getEncoded());
-
-        return seafileDecrypt(fromHex(randomKey), realKey, iv);
+    /**
+     * derive initial vector by PBKDF2 algorithm
+     *
+     * @param key
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    public static byte[] deriveIv(byte[] key) throws UnsupportedEncodingException {
+        PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(new SHA256Digest());
+        gen.init(key, salt, 10);
+        return ((KeyParameter) gen.generateDerivedMacParameters(KEY_LENGTH_SHORT * 8)).getKey();
     }
 
     public static String seafileDecrypt(byte[] bytes, SecretKey key, byte[] iv) {
@@ -173,12 +184,6 @@ public class Crypto {
             return null;
         }
 
-    }
-
-    public static byte[] deriveIVPbkdf2(byte[] key) throws UnsupportedEncodingException {
-        PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(new SHA256Digest());
-        gen.init(key, salt, 10);
-        return ((KeyParameter) gen.generateDerivedMacParameters(KEY_LENGTH_SHORT * 8)).getKey();
     }
 
     /**

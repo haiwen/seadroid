@@ -183,7 +183,7 @@ public class PasswordDialog extends TaskDialog {
         String password = encKeyText.getText().toString().trim();
         try {
             final String encKey = Crypto.deriveKey(password, randomKey, version);
-            final byte[] encIV = Crypto.deriveIVPbkdf2((Crypto.fromHex(encKey)));
+            final byte[] encIV = Crypto.deriveIv((Crypto.fromHex(encKey)));
             DataManager.saveRepoSecretKey(repoID, encKey);
             DataManager.setRepoEncIV(repoID, Crypto.toHex(encIV));
         } catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
