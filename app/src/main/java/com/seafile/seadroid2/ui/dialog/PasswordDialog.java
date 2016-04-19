@@ -2,6 +2,8 @@ package com.seafile.seadroid2.ui.dialog;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -182,10 +184,11 @@ public class PasswordDialog extends TaskDialog {
     public void onTaskSuccess() {
         String password = encKeyText.getText().toString().trim();
         try {
-            final String encKey = Crypto.deriveKey(password, randomKey, version);
-            final byte[] encIV = Crypto.deriveIv((Crypto.fromHex(encKey)));
-            DataManager.saveRepoSecretKey(repoID, encKey);
-            DataManager.setRepoEncIV(repoID, Crypto.toHex(encIV));
+            final Pair<String, byte[]> pair = Crypto.generateKey(password, randomKey, version);
+            Log.d(TAG, "encKey " + pair.first);
+            Log.d(TAG, "encIv " + Crypto.toHex(pair.second));
+            DataManager.saveRepoSecretKey(repoID, pair.first);
+            DataManager.setRepoEncIV(repoID, Crypto.toHex(pair.second));
         } catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
             // TODO notify error
             e.printStackTrace();

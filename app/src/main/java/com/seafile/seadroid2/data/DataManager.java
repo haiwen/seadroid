@@ -493,7 +493,7 @@ public class DataManager {
         String blklist = obj.optString("blklist");
         String fileID = obj.optString("file_id");
 
-        // Log.d(DEBUG_TAG, "blklist " + blklist);
+        Log.d(DEBUG_TAG, "blklist " + blklist);
         Log.d(DEBUG_TAG, "fileID " + fileID);
 
         if (blklist == null) throw SeafException.unknownException;
@@ -1103,13 +1103,13 @@ public class DataManager {
 
             Log.d(DEBUG_TAG, "file size " + file.length());
             while (in.read(buffer, 0, bufferSize) != -1) {
-                final byte[] cipher = Crypto.encrypt(buffer, encKey, enkIv, version);
+                final byte[] cipher = Crypto.encrypt(buffer, encKey, enkIv);
                 final String blockid = Crypto.sha1(cipher);
                 seafBlock.chunks.add(cipher);
                 seafBlock.blockids.add(blockid);
+                Log.d(DEBUG_TAG, "blockid " + blockid);
                 File block = new File(getChunkDirectory(), blockid);
                 seafBlock.blockpaths.add(block.getAbsolutePath());
-                Log.d(DEBUG_TAG, "chunk " + block.getAbsolutePath());
                 out = new FileOutputStream(block);
                 out.write(cipher);
                 out.close();

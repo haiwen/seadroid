@@ -4,9 +4,9 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
+import android.util.Pair;
 
 import com.seafile.seadroid2.SeafException;
-import com.seafile.seadroid2.data.EncryptResult;
 
 import org.spongycastle.crypto.PBEParametersGenerator;
 import org.spongycastle.crypto.digests.SHA256Digest;
@@ -111,7 +111,7 @@ public class Crypto {
         if (diff != 0) throw SeafException.invalidPassword;
     }
 
-    public static String generateKey(String password, String randomKey, int version) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+    public static Pair<String, byte[]> generateKey(String password, String randomKey, int version) throws UnsupportedEncodingException, NoSuchAlgorithmException {
         if (TextUtils.isEmpty(password) || TextUtils.isEmpty(randomKey)) {
             return null;
         }
@@ -119,11 +119,14 @@ public class Crypto {
         final String key = deriveKey(password, version);
         SecretKey derivedKey = new SecretKeySpec(fromHex(key), "AES");
         final byte[] iv = deriveIv(fromHex(key));
-        return seafileDecrypt(fromHex(randomKey), derivedKey, iv);
+        // decrypt the file key from the encrypted file key
+        final String keyBytes = seafileDecrypt(fromHex(randomKey), derivedKey, iv);
+        // The client only saves the key/iv pair derived from the "file key", which is used to decrypt the data
+        return new Pair<>(deriveKey(keyBytes, version), deriveIv(fromHex(keyBytes)));
     }
 
     /**
-     * derive secret key by PBKDF2 algorithm
+     * derive secret key by PBKDF2 algorithm (1000 iterations of SHA256)
      *
      * @param password
      * @param version
@@ -139,7 +142,7 @@ public class Crypto {
     }
 
     /**
-     * derive initial vector by PBKDF2 algorithm
+     * derive initial vector by PBKDF2 algorithm (1000 iterations of SHA256)
      *
      * @param key
      * @return
@@ -238,21 +241,12 @@ public class Crypto {
      * After encryption, the data is uploaded to the server.
      *
      * @param plaintext
-     * @param key
+     * @param encKey
      * @return
      */
-    public static byte[] encrypt(byte[] plaintext, String key, byte[] iv, int version) throws NoSuchAlgorithmException {
-        PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(new SHA256Digest());
-        gen.init(PBEParametersGenerator.PKCS5PasswordToUTF8Bytes(key.toCharArray()), salt, ITERATION_COUNT);
-        byte[] keyBytes;
-
-        if (version == 2) {
-            keyBytes = ((KeyParameter) gen.generateDerivedMacParameters(KEY_LENGTH * 8)).getKey();
-        } else
-            keyBytes = ((KeyParameter) gen.generateDerivedMacParameters(KEY_LENGTH_SHORT * 8)).getKey();
-
-        SecretKey realKey = new SecretKeySpec(keyBytes, "AES");
-        return seafileEncrypt(plaintext, realKey , iv);
+    public static byte[] encrypt(byte[] plaintext, String encKey, byte[] iv) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+        SecretKey secretKey = new SecretKeySpec(fromHex(encKey), "AES");
+        return seafileEncrypt(plaintext, secretKey , iv);
     }
 
     /**
