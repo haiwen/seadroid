@@ -182,7 +182,7 @@ public class PasswordDialog extends TaskDialog {
     public void onTaskSuccess() {
         String password = encKeyText.getText().toString().trim();
         try {
-            final String encKey = Crypto.deriveKeyPbkdf2(password, randomKey, version);
+            final String encKey = Crypto.deriveKey(password, randomKey, version);
             final byte[] encIV = Crypto.deriveIVPbkdf2((Crypto.fromHex(encKey)));
             DataManager.saveRepoSecretKey(repoID, encKey);
             DataManager.setRepoEncIV(repoID, Crypto.toHex(encIV));
