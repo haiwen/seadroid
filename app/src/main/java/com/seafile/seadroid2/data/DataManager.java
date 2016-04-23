@@ -16,6 +16,7 @@ import com.seafile.seadroid2.crypto.Crypto;
 import com.seafile.seadroid2.util.Utils;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -460,9 +461,9 @@ public class DataManager {
             File tempBlock = new File(getChunkDirectory(), blockID);
             final Pair<String, File> block = sc.getBlock(repoID, fileID, blockID, path, tempBlock.getPath(), monitor);
             final byte[] bytes = FileUtils.readFileToByteArray(block.second);
-            final byte[] decryptedBlock = Crypto.decrypt(bytes, encKey, Crypto.fromHex(encIv), version);
+            // Log.d(DEBUG_TAG, "download block " + Crypto.toHex(bytes));
+            final byte[] decryptedBlock = Crypto.decrypt(bytes, encKey, encIv);
             FileUtils.writeByteArrayToFile(localFile, decryptedBlock, true);
-            Log.d(DEBUG_TAG, "write to " + localFile);
         }
 
         if (fileID.equals(cachedFileID)) {
@@ -1041,8 +1042,9 @@ public class DataManager {
         }
     }
 
-    private SeafBlock chunkFile(String encKey, byte[] enkIv, int version, String filePath) {
+    private SeafBlock chunkFile(String encKey, String enkIv, String filePath) {
         int bufferSize = 2 * 1024 * 1024;
+        int offset = 0;
         File file = new File(filePath);
         InputStream in;
         OutputStream out;
@@ -1051,18 +1053,21 @@ public class DataManager {
         try {
             in = new FileInputStream(file);
 
-            Log.d(DEBUG_TAG, "file size " + file.length());
-            while (in.read(buffer, 0, bufferSize) != -1) {
-                final byte[] cipher = Crypto.encrypt(buffer, encKey, enkIv);
+            // Log.d(DEBUG_TAG, "file size " + file.length());
+            while (offset < file.length() && (offset = in.read(buffer, offset, bufferSize)) != -1) {
+                // Log.d(DEBUG_TAG, "offset " + offset);
+                final byte[] cipher = Crypto.encrypt(buffer, offset, encKey, enkIv);
+                // Log.d(DEBUG_TAG, "cipher " + Crypto.toHex(cipher));
                 final String blockid = Crypto.sha1(cipher);
                 seafBlock.chunks.add(cipher);
                 seafBlock.blockids.add(blockid);
-                Log.d(DEBUG_TAG, "blockid " + blockid);
+                // Log.d(DEBUG_TAG, "blockid " + blockid);
                 File block = new File(getChunkDirectory(), blockid);
                 seafBlock.blockpaths.add(block.getAbsolutePath());
                 out = new FileOutputStream(block);
                 out.write(cipher);
                 out.close();
+                // Log.d(DEBUG_TAG, "blocksize " + block.length());
             }
 
             in.close();
@@ -1103,7 +1108,7 @@ public class DataManager {
             return;
         }
 
-        final SeafBlock chunkFile = chunkFile(encKey, Crypto.fromHex(encIv), version, filePath);
+        final SeafBlock chunkFile = chunkFile(encKey, encIv, filePath);
         if (chunkFile.blockids.isEmpty()) {
             return;
         }
