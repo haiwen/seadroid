@@ -2,6 +2,7 @@ package com.seafile.seadroid2.ui.dialog;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -183,12 +184,13 @@ public class PasswordDialog extends TaskDialog {
     @Override
     public void onTaskSuccess() {
         String password = encKeyText.getText().toString().trim();
+        if (TextUtils.isEmpty(password) || TextUtils.isEmpty(randomKey)) {
+            return;
+        }
         try {
-            final Pair<String, byte[]> pair = Crypto.generateKey(password, randomKey, version);
-            Log.d(TAG, "encKey " + pair.first);
-            Log.d(TAG, "encIv " + Crypto.toHex(pair.second));
+            final Pair<String, String> pair = Crypto.generateKey(password, randomKey, version);
             DataManager.saveRepoSecretKey(repoID, pair.first);
-            DataManager.setRepoEncIV(repoID, Crypto.toHex(pair.second));
+            DataManager.setRepoEncIV(repoID, pair.second);
         } catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
             // TODO notify error
             e.printStackTrace();

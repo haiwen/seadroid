@@ -29,21 +29,26 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * Password strings cannot be used as symmetric encryption keys as is,
- * so some sort of key derivation is required.
- *
  * There are a few ways to derive keys, but most of them are not particularly secure.
- * To ensure encryption keys are both sufficiently random and hard to brute force, you should use standard PBE key derivation methods.
- * Of those, the one currently regarded secure and available on Android is PBKDF2WithHmacSHA1.
+ * To ensure encryption keys are both sufficiently random and hard to brute force, we should use standard PBE key derivation methods.
+ * Other Seafile platforms, e.g, server side, using PBKDF2WithHmacSHA256 to derive a key/iv pair from the password,
+ * using AES 256/CBC to encrypt the data.
+ *
+ * Unfortunately, Android SDK doesn`t support PBKDF2WithHmacSHA256, so we use Spongy Castle, which is the stock Bouncy Castle libraries with a couple of small changes to make it work on Android.
+ * For version 1.47 or higher of SpongyCastle, we can invoke PBKDF2WithHmacSHA256 directly,
+ * but for versions below 1.47, we could not specify SHA256 digest and it defaulted to SHA1.
+ * see
+ * 1. https://rtyley.github.io/spongycastle/
+ * 2. http://stackoverflow.com/a/15303291/3962551
+ * 3. https://en.wikipedia.org/wiki/Bouncy_Castle_(cryptography)
  */
 public class Crypto {
     private static final String TAG = Crypto.class.getSimpleName();
 
-    private static final String CIPHER_ALGORITHM = "AES/CBC/NoPadding";
+    private static final String CIPHER_ALGORITHM = "AES/CBC/PKCS7Padding";
 
     private static int KEY_LENGTH = 32;
     private static int KEY_LENGTH_SHORT = 16;
-    // minimum values recommended by PKCS#5, increase as necessary
     private static int ITERATION_COUNT = 1000;
     // Should generate random salt for each repo
     private static byte[] salt = {(byte) 0xda, (byte) 0x90, (byte) 0x45, (byte) 0xc3, (byte) 0x06, (byte) 0xc7, (byte) 0xcc, (byte) 0x26};
@@ -65,25 +70,12 @@ public class Crypto {
      * @throws NoSuchAlgorithmException
      * @throws InvalidKeySpecException
      */
-    private static String generateMagic(String repoID, String password, int version) throws NoSuchAlgorithmException, InvalidKeySpecException, UnsupportedEncodingException, SeafException, NoSuchPaddingException, InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+    private static byte[] generateMagic(String repoID, String password, int version) throws NoSuchAlgorithmException, InvalidKeySpecException, UnsupportedEncodingException, SeafException, NoSuchPaddingException, InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
         if (version != 1 && version != 2) {
             throw SeafException.unsupportedEncVersion;
         }
 
-        String src = repoID + password;
-        // If you use version 1.47 or higher of SpongyCastle, you can invoke PBKDF2WithHmacSHA256 directly.
-        // In versions of BC < 1.47, you could not specify SHA256 digest and it defaulted to SHA1.
-        // see http://stackoverflow.com/questions/6898801/how-to-include-the-spongy-castle-jar-in-android
-        PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(new SHA256Digest());
-        gen.init(PBEParametersGenerator.PKCS5PasswordToUTF8Bytes(src.toCharArray()), salt, ITERATION_COUNT);
-        byte[] keyBytes;
-
-        if (version == 2) {
-            keyBytes = ((KeyParameter) gen.generateDerivedMacParameters(KEY_LENGTH * 8)).getKey();
-        } else
-            keyBytes = ((KeyParameter) gen.generateDerivedMacParameters(KEY_LENGTH_SHORT * 8)).getKey();
-
-        return toHex(keyBytes);
+        return deriveKey(repoID + password, version);
     }
 
     /**
@@ -99,10 +91,7 @@ public class Crypto {
      * @throws SeafException
      */
     public static void verifyRepoPassword(String repoId, String password, int version, String magic) throws NoSuchAlgorithmException, InvalidKeySpecException, UnsupportedEncodingException, SeafException, IllegalBlockSizeException, InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException, NoSuchPaddingException {
-        final String passwordMagic = generateMagic(repoId, password, version);
-
-        final byte[] generateMagic = passwordMagic.getBytes();
-
+        final byte[] generateMagic = generateMagic(repoId, password, version);
         int diff = generateMagic.length ^ magic.getBytes().length;
         for (int i = 0; i < generateMagic.length && i < magic.getBytes().length; i++) {
             diff |= generateMagic[i] ^ magic.getBytes()[i];
@@ -111,18 +100,27 @@ public class Crypto {
         if (diff != 0) throw SeafException.invalidPassword;
     }
 
-    public static Pair<String, byte[]> generateKey(String password, String randomKey, int version) throws UnsupportedEncodingException, NoSuchAlgorithmException {
-        if (TextUtils.isEmpty(password) || TextUtils.isEmpty(randomKey)) {
-            return null;
-        }
+    /**
+     * Generate Key
+     *
+     * @param password
+     * @param randomKey encrypted file key
+     * @param version
+     * @return
+     * @throws UnsupportedEncodingException
+     * @throws NoSuchAlgorithmException
+     */
+    public static Pair<String, String> generateKey(@NonNull String password, @NonNull String randomKey, int version) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+        // derive a key/iv pair from the password
+        final byte[] key = deriveKey(password, version);
+        SecretKey derivedKey = new SecretKeySpec(key, "AES");
+        final byte[] iv = deriveIv(key);
 
-        final String key = deriveKey(password, version);
-        SecretKey derivedKey = new SecretKeySpec(fromHex(key), "AES");
-        final byte[] iv = deriveIv(fromHex(key));
         // decrypt the file key from the encrypted file key
-        final String keyBytes = seafileDecrypt(fromHex(randomKey), derivedKey, iv);
+        final byte[] fileKey = seafileDecrypt(fromHex(randomKey), derivedKey, iv);
         // The client only saves the key/iv pair derived from the "file key", which is used to decrypt the data
-        return new Pair<>(deriveKey(keyBytes, version), deriveIv(fromHex(keyBytes)));
+        final String encKey = deriveKey(fileKey, version);
+        return new Pair<>(encKey, toHex(deriveIv(fromHex(encKey))));
     }
 
     /**
@@ -134,9 +132,24 @@ public class Crypto {
      * @throws UnsupportedEncodingException
      * @throws NoSuchAlgorithmException
      */
-    private static String deriveKey(@NonNull String password, int version) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+    private static byte[] deriveKey(@NonNull String password, int version) throws UnsupportedEncodingException, NoSuchAlgorithmException {
         PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(new SHA256Digest());
         gen.init(PBEParametersGenerator.PKCS5PasswordToUTF8Bytes(password.toCharArray()), salt, ITERATION_COUNT);
+        return ((KeyParameter) gen.generateDerivedMacParameters(version == 2 ? KEY_LENGTH * 8 : KEY_LENGTH_SHORT * 8)).getKey();
+    }
+
+    /**
+     * derive secret key by PBKDF2 algorithm (1000 iterations of SHA256)
+     *
+     * @param password
+     * @param version
+     * @return
+     * @throws UnsupportedEncodingException
+     * @throws NoSuchAlgorithmException
+     */
+    private static String deriveKey(@NonNull byte[] password, int version) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+        PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(new SHA256Digest());
+        gen.init(password, salt, ITERATION_COUNT);
         byte[] keyBytes = ((KeyParameter) gen.generateDerivedMacParameters(version == 2 ? KEY_LENGTH * 8 : KEY_LENGTH_SHORT * 8)).getKey();
         return toHex(keyBytes);
     }
@@ -148,19 +161,18 @@ public class Crypto {
      * @return
      * @throws UnsupportedEncodingException
      */
-    public static byte[] deriveIv(byte[] key) throws UnsupportedEncodingException {
+    public static byte[] deriveIv(@NonNull byte[] key) throws UnsupportedEncodingException {
         PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(new SHA256Digest());
         gen.init(key, salt, 10);
         return ((KeyParameter) gen.generateDerivedMacParameters(KEY_LENGTH_SHORT * 8)).getKey();
     }
 
-    public static String seafileDecrypt(byte[] bytes, SecretKey key, byte[] iv) {
+    public static byte[] seafileDecrypt(@NonNull byte[] bytes, @NonNull SecretKey key, @NonNull byte[] iv) {
         try {
             Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
             IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
             cipher.init(Cipher.DECRYPT_MODE, key, ivParameterSpec);
-            byte[] plaintext = cipher.doFinal(bytes);
-            return toHex(plaintext);
+            return cipher.doFinal(bytes);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             Log.e(TAG, "NoSuchAlgorithmException " + e.getMessage());
@@ -175,7 +187,7 @@ public class Crypto {
             return null;
         } catch (BadPaddingException e) {
             e.printStackTrace();
-            Log.e(TAG, "BadPaddingException " + e.getMessage());
+            Log.e(TAG, "seafileDecrypt BadPaddingException " + e.getMessage());
             return null;
         } catch (IllegalBlockSizeException e) {
             Log.e(TAG, "IllegalBlockSizeException " + e.getMessage());
@@ -199,14 +211,14 @@ public class Crypto {
      * @param key
      * @return
      */
-    private static byte[] seafileEncrypt(byte[] plaintext, SecretKey key, byte[] iv) {
+    private static byte[] seafileEncrypt(@NonNull byte[] plaintext, int offset, @NonNull SecretKey key, @NonNull byte[] iv) {
         try {
             Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
 
             IvParameterSpec ivParams = new IvParameterSpec(iv);
             cipher.init(Cipher.ENCRYPT_MODE, key, ivParams);
 
-            return cipher.doFinal(plaintext);
+            return cipher.doFinal(plaintext, 0, offset);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             Log.e(TAG, "NoSuchAlgorithmException " + e.getMessage());
@@ -229,7 +241,7 @@ public class Crypto {
             return null;
         } catch (BadPaddingException e) {
             e.printStackTrace();
-            Log.e(TAG, "BadPaddingException " + e.getMessage());
+            Log.e(TAG, "seafileEncrypt BadPaddingException " + e.getMessage());
             return null;
         }
     }
@@ -242,11 +254,12 @@ public class Crypto {
      *
      * @param plaintext
      * @param encKey
+     * @param iv
      * @return
      */
-    public static byte[] encrypt(byte[] plaintext, String encKey, byte[] iv) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+    public static byte[] encrypt(@NonNull byte[] plaintext, int offset, @NonNull String encKey, @NonNull String iv) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         SecretKey secretKey = new SecretKeySpec(fromHex(encKey), "AES");
-        return seafileEncrypt(plaintext, secretKey , iv);
+        return seafileEncrypt(plaintext, offset, secretKey , fromHex(iv));
     }
 
     /**
@@ -256,54 +269,13 @@ public class Crypto {
      * After encryption, the data is uploaded to the server.
      *
      * @param plaintext
-     * @param key
-     * @return
-     */
-    public static byte[] decrypt(byte[] plaintext, String key, byte[] iv, int version) throws NoSuchAlgorithmException {
-        PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(new SHA256Digest());
-        gen.init(PBEParametersGenerator.PKCS5PasswordToUTF8Bytes(key.toCharArray()), salt, ITERATION_COUNT);
-        byte[] keyBytes;
-
-        if (version == 2) {
-            keyBytes = ((KeyParameter) gen.generateDerivedMacParameters(KEY_LENGTH * 8)).getKey();
-        } else
-            keyBytes = ((KeyParameter) gen.generateDerivedMacParameters(KEY_LENGTH_SHORT * 8)).getKey();
-
-        SecretKey realKey = new SecretKeySpec(keyBytes, "AES");
-        return fromHex(seafileDecrypt(plaintext, realKey , iv));
-    }
-
-    /**
-     * All file data is decrypt by the file key with AES 256/CBC.
-     *
-     * @param cipherBytes
-     * @param key
+     * @param encKey
      * @param iv
      * @return
      */
-    private static byte[] decrypt(byte[] cipherBytes, SecretKey key, byte[] iv) {
-        try {
-            Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
-            IvParameterSpec ivParams = new IvParameterSpec(iv);
-            cipher.init(Cipher.DECRYPT_MODE, key, ivParams);
-            return cipher.update(cipherBytes);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            Log.e(TAG, "NoSuchAlgorithmException " + e.getMessage());
-            return null;
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-            Log.e(TAG, "InvalidKeyException " + e.getMessage());
-            return null;
-        } catch (InvalidAlgorithmParameterException e) {
-            e.printStackTrace();
-            Log.e(TAG, "InvalidAlgorithmParameterException " + e.getMessage());
-            return null;
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-            Log.e(TAG, "NoSuchPaddingException " + e.getMessage());
-            return null;
-        }
+    public static byte[] decrypt(@NonNull byte[] plaintext, @NonNull String encKey, @NonNull String iv) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+        SecretKey realKey = new SecretKeySpec(fromHex(encKey), "AES");
+        return seafileDecrypt(plaintext, realKey , fromHex(iv));
     }
 
     /**
@@ -312,7 +284,7 @@ public class Crypto {
      * @param buf
      * @return
      */
-    public static String toHex(byte[] buf) {
+    private static String toHex(@NonNull byte[] buf) {
         if (buf == null) return "";
 
         String hex = "0123456789abcdef";
@@ -332,7 +304,7 @@ public class Crypto {
      * @return
      * @throws NoSuchAlgorithmException
      */
-    public static byte[] fromHex(String hex) throws NoSuchAlgorithmException {
+    private static byte[] fromHex(@NonNull String hex) throws NoSuchAlgorithmException {
         byte[] bytes = new byte[hex.length() / 2];
         for (int i = 0; i < bytes.length; i++) {
             bytes[i] = (byte) Integer.parseInt(hex.substring(2 * i, 2 * i + 2), 16);
@@ -348,7 +320,7 @@ public class Crypto {
         return Base64.decode(base64, Base64.NO_WRAP);
     }
 
-    public static String sha1(byte[] cipher) throws NoSuchAlgorithmException {
+    public static String sha1(@NonNull byte[] cipher) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("SHA-1");
         md.update(cipher, 0, cipher.length);
         return toHex(md.digest());

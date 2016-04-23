@@ -631,7 +631,7 @@ public class SeafConnection {
             if (monitor == null) {
                 req.receive(block);
             } else {
-                req.bufferSize(MonitoredFileOutputStream.BUFFER_SIZE);
+                req.bufferSize(2 * 1024 * 1024);
                 req.receive(new MonitoredFileOutputStream(block, monitor));
             }
 
