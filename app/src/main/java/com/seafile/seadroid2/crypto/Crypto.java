@@ -111,18 +111,31 @@ public class Crypto {
         if (diff != 0) throw SeafException.invalidPassword;
     }
 
+    /**
+     * Generate Key
+     *
+     * @param password
+     * @param randomKey encrypted file key
+     * @param version
+     * @return
+     * @throws UnsupportedEncodingException
+     * @throws NoSuchAlgorithmException
+     */
     public static Pair<String, byte[]> generateKey(String password, String randomKey, int version) throws UnsupportedEncodingException, NoSuchAlgorithmException {
         if (TextUtils.isEmpty(password) || TextUtils.isEmpty(randomKey)) {
             return null;
         }
 
+        // derive a key/iv pair from the password
         final String key = deriveKey(password, version);
         SecretKey derivedKey = new SecretKeySpec(fromHex(key), "AES");
         final byte[] iv = deriveIv(fromHex(key));
+
         // decrypt the file key from the encrypted file key
         final String keyBytes = seafileDecrypt(fromHex(randomKey), derivedKey, iv);
         // The client only saves the key/iv pair derived from the "file key", which is used to decrypt the data
-        return new Pair<>(deriveKey(keyBytes, version), deriveIv(fromHex(keyBytes)));
+        final String encKey = deriveKey(keyBytes, version);
+        return new Pair<>(encKey, deriveIv(fromHex(encKey)));
     }
 
     /**
