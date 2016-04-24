@@ -22,6 +22,7 @@ import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.TaskState;
@@ -236,8 +237,9 @@ public class FileActivity extends BaseActivity implements Toolbar.OnMenuItemClic
     }
 
     private void handlePassword() {
+        SeafRepo repo = mDataManager.getCachedRepoByID(mRepoID);
         PasswordDialog passwordDialog = new PasswordDialog();
-        passwordDialog.setRepo(mRepoName, mRepoID, null, null, 0, mAccount);
+        passwordDialog.setRepo(mRepoName, mRepoID, repo.magic, repo.encKey, repo.encVersion, mAccount);
         passwordDialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {

@@ -174,7 +174,7 @@ public class CloudLibrarySelectionFragment extends Fragment {
                     SeafRepo repo = getDataManager().getCachedRepoByID(getNavContext().getRepoID());
                     if (repo.encrypted && !DataManager.getRepoEnckeySet(repo.id)) {
                         String encKey = DataManager.getRepoEncKey(repo.id);
-                        showPasswordDialog(repo.name, repo.id,
+                        showPasswordDialog(repo.name, repo.id, repo.magic, repo.encKey, repo.encVersion,
                                 new TaskDialog.TaskDialogListener() {
                                     @Override
                                     public void onTaskSuccess() {
@@ -203,7 +203,7 @@ public class CloudLibrarySelectionFragment extends Fragment {
         if (repo != null) {
             if (repo.encrypted && !DataManager.getRepoEnckeySet(repo.id)) {
                 String encKey = DataManager.getRepoEncKey(repo.id);
-                showPasswordDialog(repo.name, repo.id, new TaskDialog.TaskDialogListener() {
+                showPasswordDialog(repo.name, repo.id, repo.magic, repo.encKey, repo.encVersion, new TaskDialog.TaskDialogListener() {
                             @Override
                             public void onTaskSuccess() {
                                 onListItemClick(v, position, id);
@@ -295,9 +295,10 @@ public class CloudLibrarySelectionFragment extends Fragment {
         NavContext nav = getNavContext();
         String repoName = nav.getRepoName();
         String repoID = nav.getRepoID();
+        SeafRepo repo = mDataManager.getCachedRepoByID(repoID);
 
         PasswordDialog passwordDialog = new PasswordDialog();
-        passwordDialog.setRepo(repoName, repoID, null, null, 0, mAccount);
+        passwordDialog.setRepo(repoName, repoID, repo.magic, repo.encKey, repo.encVersion, mAccount);
         passwordDialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
@@ -307,10 +308,10 @@ public class CloudLibrarySelectionFragment extends Fragment {
         passwordDialog.show(mActivity.getSupportFragmentManager(), PASSWORD_DIALOG_FRAGMENT_TAG);
     }
 
-    public void showPasswordDialog(String repoName, String repoID,
+    public void showPasswordDialog(String repoName, String repoID, String magic, String randomKey, int version,
                                    TaskDialog.TaskDialogListener listener, String password) {
         PasswordDialog passwordDialog = new PasswordDialog();
-        passwordDialog.setRepo(repoName, repoID, null, null, 0, mAccount);
+        passwordDialog.setRepo(repoName, repoID, magic, randomKey, version, mAccount);
         if (password != null) {
             passwordDialog.setEncKey(password);
         }
