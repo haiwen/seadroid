@@ -1054,20 +1054,16 @@ public class DataManager {
             in = new FileInputStream(file);
 
             // Log.d(DEBUG_TAG, "file size " + file.length());
-            while (offset < file.length() && (offset = in.read(buffer, offset, BUFFER_SIZE)) != -1) {
-                // Log.d(DEBUG_TAG, "offset " + offset);
-                final byte[] cipher = Crypto.encrypt(buffer, offset, encKey, enkIv);
-                // Log.d(DEBUG_TAG, "cipher " + Crypto.toHex(cipher));
-                final String blockid = Crypto.sha1(cipher);
+            while (in.read(buffer, 0, BUFFER_SIZE) != -1) {
+                final byte[] cipher = Crypto.encrypt(buffer, encKey, enkIv);
+                final String blkid = Crypto.sha1(cipher);
                 seafBlock.chunks.add(cipher);
-                seafBlock.blockids.add(blockid);
-                // Log.d(DEBUG_TAG, "blockid " + blockid);
-                File block = new File(storageManager.getTempDir(), blockid);
+                seafBlock.blockids.add(blkid);
+                File block = new File(storageManager.getTempDir(), blkid);
                 seafBlock.blockpaths.add(block.getAbsolutePath());
                 out = new FileOutputStream(block);
                 out.write(cipher);
                 out.close();
-                // Log.d(DEBUG_TAG, "blocksize " + block.length());
             }
 
             in.close();
