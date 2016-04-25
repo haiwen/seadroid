@@ -534,6 +534,11 @@ public class BrowserActivity extends BaseActivity
 
         @Override
         protected void onPostExecute(ServerInfo serverInfo) {
+            // Check to see whether this activity is in the process of finishing
+            // to avoid IllegalStateException when AsyncTasks continue to run after the activity has been destroyed
+            // http://stackoverflow.com/a/35729068/3962551
+            if (isFinishing()) return;
+
             if (serverInfo == null) {
                 if (err != null)
                     ToastUtils.show(BrowserActivity.this, err.getMessage());
