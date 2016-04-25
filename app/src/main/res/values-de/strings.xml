@@ -272,7 +272,6 @@ Zum Aktualisieren einmal antippen</string>
   <string name="settings_camera_upload_info_title">Kamerafoto hochladen</string>
   <string name="settings_camera_upload_service_started">Upload-Dienst gestartet</string>
   <string name="settings_camera_upload_service_stopped">Upload-Dienst gestoppt</string>
-  <string name="settings_camera_upload_service_master_off">Datensync global in Android deaktiviert</string>
   <string name="settings_camera_upload_allow_data_plan">Mobilfunknetz erlauben</string>
   <string name="settings_camera_upload_allow_videos">Videos hochladen</string>
   <string name="settings_camera_upload_default_wifi">Standardmäßig nur WLAN-Verbindungen verwenden</string>

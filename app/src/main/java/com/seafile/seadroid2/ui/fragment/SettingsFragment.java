@@ -331,11 +331,9 @@ public class SettingsFragment extends CustomPreferenceFragment {
         // if the user has globally disabled data sync, we cannot to camera upload
         if (!ContentResolver.getMasterSyncAutomatically()) {
             findPreference(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY).setEnabled(false);
-            ((CheckBoxPreference)findPreference(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY)).setSummaryOff(R.string.settings_camera_upload_service_master_off);
             cameraManager.disableCameraUpload();
         } else {
             findPreference(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY).setEnabled(true);
-            ((CheckBoxPreference)findPreference(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY)).setSummaryOff(R.string.settings_camera_upload_service_stopped);
         }
 
         Account camAccount = cameraManager.getCameraAccount();
