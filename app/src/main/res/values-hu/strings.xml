@@ -5,8 +5,6 @@
   <string name="edit_account">Szerkeszt</string>
   <string name="delete_account">Töröl</string>
   <string name="delete">Töröl</string>
-  <string name="delete_file">Biztos, hogy törli a fájlt vagy könyvtárat?</string>
-  <string name="delete_successful">Sikeres törlés</string>
   <string name="delete_file_f">Fájl törlés</string>
   <string name="delete_dir">Könyvtár törlés</string>
   <string name="server_hint">Szerver, mint a cloud.seafile.com</string>
@@ -17,7 +15,6 @@
   <string name="download_file">Letölt</string>
   <string name="redownload_file">Újra letölt</string>
   <string name="cancel_download">Mégse</string>
-  <string name="unknown_file_type">Ismeretlen fájl típus</string>
   <string name="activity_not_found">Nem található olyan alkalmazás amivel a fájlt meg lehet nyitni</string>
   <string name="refresh">Frissít</string>
   <string name="add_account">Fiók hozzáadása</string>
@@ -187,7 +184,6 @@
   <string name="choose_file">Fájl kiválasztása</string>
   <string name="ssl_error">A biztonsági vizsgálat sikertelen</string>
   <string name="ssl_confirm">A biztonsági tanúsítvány: %s , nem megbízható. Így is folytatja?</string>
-  <string name="ssl_confirm_cert_changed">%s érvénytelen biztonsági tanúsítványt használ. A kapcsolat nem biztonságos. Így is folytatja?</string>
   <string name="ssl_confirm_title">Nem megbízható kapcsolat</string>
   <string name="issued_to">Elküldve ide:</string>
   <string name="finger_prints">Ujjlenyomat</string>
@@ -233,7 +229,6 @@
   <string name="lockscreen_access_pattern_cell_added">Pont hozzáadva</string>
   <string name="lockscreen_access_pattern_detected">Minta megtalálva</string>
   <string name="lockscreen_access_pattern_passwd_forget">Jelszó elfelejtve</string>
-  <string name="lockscreen_access_pattern_failure">5 hibás próbálkozás, várjon 30 másodpercet mielőtt újra próbálja</string>
   <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
     <item quantity="one">%1$d másodperc múlva újra megpróbálhatja</item>
     <item quantity="other">%1$d másodperc múlva újra megpróbálhatja</item>
@@ -266,7 +261,6 @@
   <string name="settings_camera_upload_service_started">Feltöltési szolgáltatás elindítva</string>
   <string name="settings_camera_upload_service_stopped">Feltöltési szolgáltatás leállítva</string>
   <string name="settings_camera_upload_allow_data_plan">Mobil internet engedélyezés</string>
-  <string name="settings_camera_upload_allow_videos">Videó feltöltés engedélyezés</string>
   <string name="settings_camera_upload_default_wifi">Alapesetben csak Wi-Fi használata</string>
   <string name="settings_camera_upload_data_plan_allowed">Mobil internet engedélyezve</string>
   <string name="settings_camera_upload_default_photos">Alapesetben csak fényképeket tölt fel</string>
@@ -284,7 +278,6 @@
   <string name="settings_camera_upload_advanced_custom_directories_off">Automatikus keresés az eszközön</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Beállítási segéd</string>
-  <string name="settings_cuc_welcome_text">Köszönjük, hogy a kamera feltöltési segédet használja.\nA kamera feltöltési szolgáltatás elindításához átvezetjük a kezdő lépéseken.</string>
   <string name="settings_cuc_network_title">Hogyan lehet feltölteni</string>
   <string name="settings_cuc_network_wifi">Csak Wi-Fi</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi vagy mobil net</string>
@@ -303,9 +296,7 @@
   <string name="settings_cuc_upload_to_parent_folder">Egy könyvtárral feljebb</string>
   <string name="settings_cuc_auto_scan">Fénykép albumok automatikus megkeresése</string>
   <string name="settings_cuc_pick_albums">Fénykép albumok kézi kiválasztása</string>
-  <string name="settings_cuc_remote_lib_hint">Válassza ki a preferált fiókot és kötetet. \nEzeket a beállításokat később bármikor megváltoztathatja.</string>
   <string name="settings_cuc_finish_title">Kész</string>
-  <string name="settings_cuc_ready">A Seafile most elkezdi feltölteni a kiválasztott könyvtárakból a fájlokat. \nBezárhatja az alkalmazást.</string>
   <string name="settings_cuc_swipe_left">Továbblépéshez húzza balra.</string>
   <string name="settings_cuc_click_btn">A konfigurációs segéd bezárásához koppintson.</string>
   <string name="settings_cuc_loading">betöltés...</string>
@@ -317,22 +308,6 @@
   <string name="camera_sync_rename_file">%s (Seafile nevezte át)</string>
   <string name="settings_about_title">Névjegy</string>
   <string name="settings_about_version_title">Alkalmazás verzió</string>
-  <string name="settings_about_author_title">Névjegy</string>
-  <string name="settings_about_author_info">
-        <![CDATA[
-        <h5>Seafile Andoird Client</h5>
-        <p>%s</p>
-        <h5>Contact Us</h5>
-        <p>
-        Twitter: Seafile<br>
-        Email: support@seafile.com<br>
-        </p>
-        <h5>Contribution</h5>
-        <p>https://github.com/haiwen/seadroid.git</P>
-        <h5>Copyright ©2013-2015 Seafile Ltd.</h5>
-        ]]>
-    </string>
-  <string name="settings_advance_feature_title">HALADÓ BEÁLLÍTÁSOK</string>
   <string name="settings_cache_title">Gyorsítótár mérete</string>
   <string name="settings_clear_cache_title">Gyorsítótár törlése</string>
   <string name="settings_clear_cache_hint">Biztos, hogy törli a gyorsítótárat?</string>
@@ -357,11 +332,9 @@
   <string name="saf_account_not_found_exception">Nem található Seafile fiók.</string>
   <string name="saf_upload_path_not_available">Nem lehet feltölteni, nem létező útvonal</string>
   <string name="saf_failed_to_create_directory">Nem lehet létrehozni a könyvtárat: %s</string>
-  <string name="saf_file_exist">A fájl már létezik</string>
   <string name="saf_bad_mime_type">Hibás fájl típus kérés</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">A szerver üres!</string>
-  <string name="shib_server_incorrect_prefix">A szerver címnek http://-rel vagy https://-rel kell kezdődnie</string>
   <string name="shib_load_page_error">Hiba:</string>
   <string name="shib_login_title">Shibboleth belépés</string>
   <string name="shib_server_hint">Szerver...</string>
@@ -378,7 +351,6 @@
   <string name="transfer_list_clear_finished_tasks">Befejezett feladatok törlése</string>
   <string name="transfer_tabs_downloads">Letöltési lista</string>
   <string name="transfer_tabs_uploads">Feltöltési lista</string>
-  <string name="transfer_download_no_task">Minden fájl letöltve</string>
   <plurals name="transfer_download_started">
     <item quantity="one">%1$d fájl letöltésének elkezdése</item>
     <item quantity="other">%1$d fájl letöltésének elkezdése</item>
@@ -409,7 +381,6 @@
   <string name="star_file_succeed">Fájl sikeresen felvéve a kedvencek közé</string>
   <string name="star_file_failed">A fájlt nem sikerült felvenni a kedvencek közé</string>
   <!--unstar a file-->
-  <string name="unstar_file_failed">A kedvencnek jelölés eltávolítása sikertelen</string>
   <string name="unstar">Nem kedvenc</string>
   <!--notification bar-->
   <string name="notification_upload_started_title">Fájlok feltöltése...</string>
@@ -429,8 +400,6 @@
   <string name="gallery_encrypted_repo_not_supported">A titkosított kötet nem támogatott</string>
   <!--Overwrite existing files-->
   <string name="overwrite_existing_file_title">Létező fájlok felülírása</string>
-  <string name="overwrite_existing_file_msg">A fájl már létezik, felülírja?</string>
-  <string name="overwrite_existing_file_exist">A fájl már létezik</string>
   <!--Action Mode-->
   <string name="action_mode_no_items_selected">Nincs kiválasztott elem</string>
   <!--Accessibility description for navigation drawer-->

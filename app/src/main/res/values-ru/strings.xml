@@ -196,7 +196,7 @@
   <string name="choose_file">Выбрать файл</string>
   <string name="ssl_error">Проверка безопасности прошла неудачно</string>
   <string name="ssl_confirm">Сертификат безопасности %s недоверенный. Вы хотите продолжить?</string>
-  <string name="ssl_confirm_cert_changed">%s использований неправильного сертификата безопасности. Соединение не безопасное. Вы хотите продолжить?</string>
+  <string name="ssl_confirm_cert_changed">%s использует недействительный сертификат безопасности. Соединение не безопасно. Все равно продолжить?</string>
   <string name="ssl_confirm_title">Недоверенное соединение</string>
   <string name="issued_to">Выдано</string>
   <string name="finger_prints">Отпечатки пальцев</string>
@@ -242,7 +242,7 @@
   <string name="lockscreen_access_pattern_cell_added">Ячейка графического ключа добавлена</string>
   <string name="lockscreen_access_pattern_detected">Графический ключ обраружен</string>
   <string name="lockscreen_access_pattern_passwd_forget">Я забыл(а) пароль</string>
-  <string name="lockscreen_access_pattern_failure">У вас не удалось ввести пароль 5 раз, пожалуйста, подождите 30 секунд, затем попробуйте еще раз</string>
+  <string name="lockscreen_access_pattern_failure">Не удалось 5 раз ввести пароль, пожалуйста, подождите 30 секунд, прежде чем попробовать снова</string>
   <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
     <item quantity="one">Вы можете повторить через %1$d секундй</item>
     <item quantity="few">Вы можете повторить через %1$d секунд</item>
@@ -278,6 +278,7 @@
   <string name="settings_camera_upload_info_title">Загрузка фото с камеры</string>
   <string name="settings_camera_upload_service_started">Сервис загрузки запущен</string>
   <string name="settings_camera_upload_service_stopped">Сервис загрузки остановлен</string>
+  <string name="settings_camera_upload_service_master_off">Автоматическая синхронизация данных отключена в Android</string>
   <string name="settings_camera_upload_allow_data_plan">Разрешить мобильные данные</string>
   <string name="settings_camera_upload_allow_videos">Разрешить загрузку видео</string>
   <string name="settings_camera_upload_default_wifi">По умолчанию использовать только Wi-Fi</string>
@@ -297,7 +298,7 @@
   <string name="settings_camera_upload_advanced_custom_directories_off">Автоматическое сканирование устройства</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Помощник по настройке</string>
-  <string name="settings_cuc_welcome_text">Спасибо за использование помощника по настройке загрузки фото. \nЧтобы освоиться с сервисом загрузки фото, вам нужно  пройти всего лишь несколько шагов.</string>
+  <string name="settings_cuc_welcome_text">Спасибо за использование помощника по настройке загрузки фото. \nЧтобы освоиться с сервисом загрузки фото, вам нужно пройти всего лишь несколько шагов.</string>
   <string name="settings_cuc_network_title">Как загружать</string>
   <string name="settings_cuc_network_wifi">Только Wi-Fi</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi или мобильные данные</string>
@@ -320,7 +321,7 @@
   <string name="settings_cuc_pick_albums">Позволить мне выбрать мои фотоальбомы</string>
   <string name="settings_cuc_remote_lib_hint">Выберите нужный аккаунт и библиотеку. \nВы можете изменить эти параметры позже в меню Настройки.</string>
   <string name="settings_cuc_finish_title">Завершить</string>
-  <string name="settings_cuc_ready">Теперь Seafile будет загружать файлы из выбранных вами папок. \nВо время этого вы можете закрыть приложение.</string>
+  <string name="settings_cuc_ready">Seafile начнет загрузку файлов из выбранных вами папок после подтверждения.\nВо время этого вы можете закрыть приложение.</string>
   <string name="settings_cuc_swipe_left">Проведите влево, чтобы продолжить.</string>
   <string name="settings_cuc_click_btn">Щелкните, чтобы закрыть помощник.</string>
   <string name="settings_cuc_loading">загрузка...</string>
@@ -334,25 +335,32 @@
   <string name="settings_about_version_title">Версия</string>
   <string name="settings_about_author_title">Об авторе</string>
   <string name="settings_about_author_info">
-<![CDATA[
-<h5>Seafile Android Client</h5>
-<p>%s</p>
-<h5>Связаться с нами</h5>
-<p>
-Twitter: Seafile<br>
-Email: support@seafile.com<br>
-</p>
-<h5>Contribution</h5>
-<p>https://github.com/haiwen/seadroid.git</P>
-<h5>Copyright ©2013-2015 Seafile Ltd.</h5>
-]]></string>
-  <string name="settings_advance_feature_title">ДОПОЛНИТЕЛЬНЫЕ ФУНКЦИИ</string>
+        <![CDATA[
+        <h5>Seafile Android Client</h5>
+        <p>%s</p>
+        <h5>Связаться с нами</h5>
+        <p>
+            Twitter: Seafile<br>
+            Email: support@seafile.com<br>
+        </p>
+        <h5>Contributions</h5>
+        <p>https://github.com/haiwen/seadroid.git</P>
+        <h5>Copyright ©2013-2016 Seafile Ltd.</h5>
+        ]]>
+    </string>
+  <string name="settings_storage_title">Кэш-хранилище</string>
   <string name="settings_cache_title">Размер кэша</string>
   <string name="settings_clear_cache_title">Очистить кэш</string>
   <string name="settings_clear_cache_hint">Вы хотите очистить кэш?</string>
   <string name="settings_clear_cache_success">Удаление кэша прошло успешно</string>
   <string name="settings_clear_cache_failed">Очистка кэша прошла неудачно</string>
   <string name="settings_cache_empty">0 КБ</string>
+  <string name="settings_cache_location_title">Место хранения кэша</string>
+  <string name="dialog_switch_storage_info_text">Существующие файлы будут перемещены в новое место хранения. Это может занять некоторое время.</string>
+  <string name="storage_manager_primary_storage">Основное место хранения</string>
+  <string name="storage_manager_secondary_storage">Вторичное место хранения</string>
+  <string name="storage_manager_storage_description">%1$s (%2$s свободно/%3$s всего)</string>
+  <string name="storage_manager_storage_description_not_available">%1$s (недоступно)</string>
   <!--pull to refresh-->
   <string name="pull_to_refresh_pull_label">Потяните, чтобы обновить...</string>
   <string name="pull_to_refresh_release_label">Отпустите, чтобы обновить...</string>
@@ -375,7 +383,7 @@ Email: support@seafile.com<br>
   <string name="saf_bad_mime_type">Неправильный тип ответа</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">Сервер пуст!</string>
-  <string name="shib_server_incorrect_prefix">Сервер должен начинаться с http:// или https://</string>
+  <string name="shib_server_incorrect_prefix">Сервер должен начинаться с https:// или http://</string>
   <string name="shib_load_page_error">Ошибка:</string>
   <string name="shib_login_title">Вход через Shibboleth</string>
   <string name="shib_server_hint">Введите сервер...</string>
@@ -392,7 +400,7 @@ Email: support@seafile.com<br>
   <string name="transfer_list_clear_finished_tasks">Удалить завершенные задания</string>
   <string name="transfer_tabs_downloads">Список загрузок</string>
   <string name="transfer_tabs_uploads">Список закачек</string>
-  <string name="transfer_download_no_task">Все файлы были скачены</string>
+  <string name="transfer_download_no_task">Все файлы были загружены</string>
   <plurals name="transfer_download_started">
     <item quantity="one">Начало скачивания %1$d файла</item>
     <item quantity="few">Начало скачивания %1$d файлов</item>
@@ -427,7 +435,7 @@ Email: support@seafile.com<br>
   <string name="star_file_succeed">Файл успешно помечен</string>
   <string name="star_file_failed">Не удалось пометить файл</string>
   <!--unstar a file-->
-  <string name="unstar_file_failed">Снять метку не удалось</string>
+  <string name="unstar_file_failed">Не удалось снять метку</string>
   <string name="unstar">Снять метку</string>
   <!--notification bar-->
   <string name="notification_upload_started_title">Загрузка файлов...</string>
@@ -452,7 +460,7 @@ Email: support@seafile.com<br>
   <!--Overwrite existing files-->
   <string name="overwrite_existing_file_title">Заменить существующий файл</string>
   <string name="overwrite_existing_file_msg">Файл уже существует, вы действительно хотите заменить его?</string>
-  <string name="overwrite_existing_file_exist">Файл уже сущетсвует</string>
+  <string name="overwrite_existing_file_exist">Файл уже существует</string>
   <!--Action Mode-->
   <string name="action_mode_no_items_selected">Нет выбранных элементов</string>
   <!--Accessibility description for navigation drawer-->

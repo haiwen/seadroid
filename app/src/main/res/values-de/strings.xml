@@ -10,7 +10,7 @@
   <string name="delete_file_f">Datei löschen</string>
   <string name="delete_dir">Ordner löschen</string>
   <string name="server_hint">Server, z.B. cloud.seafile.com</string>
-  <string name="email_hint">Benutzername oder Email-Adresse</string>
+  <string name="email_hint">Benutzername oder E-Mail-Adresse</string>
   <string name="passwd_hint">Passwort</string>
   <string name="login">Anmelden</string>
   <string name="open_file">Öffnen</string>
@@ -106,7 +106,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="error_when_load_repos">Fehler beim Laden der Bibliotheken.
 Zum Aktualisieren einmal antippen</string>
   <string name="dir_empty">Dieser Ordner ist leer</string>
-  <string name="no_repo">Sie haben noch keine Bibliotheken angelegt</string>
+  <string name="no_repo">Sie haben noch keine Bibliotheken erstellt</string>
   <string name="no_app_available">Es konnte keine Anwendung gefunden werden</string>
   <string name="add_to_seafile">Zu Seafile hinzufügen</string>
   <string name="ok">OK</string>
@@ -127,13 +127,13 @@ Zum Aktualisieren einmal antippen</string>
   </string-array>
   <string name="add_file">Hinzufügen</string>
   <string-array name="add_file_options_array">
-    <item>Datei anlegen</item>
-    <item>Ordner anlegen</item>
+    <item>Datei erstellen</item>
+    <item>Ordner erstellen</item>
     <item>Datei hochladen</item>
     <item>Foto machen</item>
   </string-array>
-  <string name="create_new_file">Eine neue Datei anlegen</string>
-  <string name="create_new_dir">Einen neuen Ordner anlegen</string>
+  <string name="create_new_file">Eine neue Datei erstellen</string>
+  <string name="create_new_dir">Einen neuen Ordner erstellen</string>
   <string name="camera">Neues Foto hier aufnehmen</string>
   <string name="download">Herunterladen</string>
   <string name="open">Öffnen</string>
@@ -272,6 +272,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="settings_camera_upload_info_title">Kamerafoto hochladen</string>
   <string name="settings_camera_upload_service_started">Upload-Dienst gestartet</string>
   <string name="settings_camera_upload_service_stopped">Upload-Dienst gestoppt</string>
+  <string name="settings_camera_upload_service_master_off">Automatisches Synchronisieren in Android global unterbunden</string>
   <string name="settings_camera_upload_allow_data_plan">Mobilfunknetz erlauben</string>
   <string name="settings_camera_upload_allow_videos">Videos hochladen</string>
   <string name="settings_camera_upload_default_wifi">Standardmäßig nur WLAN-Verbindungen verwenden</string>
@@ -325,26 +326,20 @@ Zum Aktualisieren einmal antippen</string>
   <string name="settings_about_title">ÜBER</string>
   <string name="settings_about_version_title">App-Version</string>
   <string name="settings_about_author_title">Autor/innen</string>
-  <string name="settings_about_author_info">
-        <![CDATA[
-        <h5>Seafile Android-App</h5>
-        <p>%s</p>
-        <h5>Kontakt</h5>
-        <p>
-        Twitter: Seafile<br>
-        E-Mail: support@seafile.com<br>
-        </p>
-        <h5>Beteiligte und selber Mitmachen</h5>
-        <p>https://github.com/haiwen/seadroid.git</P>
-        <h5>Copyright ©2013-2015 Seafile Ltd.</h5>
-        ]]>
-    </string>
+  <string name="settings_about_author_info"><![CDATA[ <h5>Seafile Android-App</h5> <p>%s</p> <h5>Kontakt</h5> <p> Twitter: Seafile<br> E-Mail: support@seafile.com<br> </p> <h5>Beteiligte und selber Mitmachen</h5> <p>https://github.com/haiwen/seadroid.git</P> <h5>Copyright ©2013-2015 Seafile Ltd.</h5> ]]></string>
+  <string name="settings_storage_title">ZWISCHENSPEICHER</string>
   <string name="settings_cache_title">Größe des Zwischenspeichers</string>
   <string name="settings_clear_cache_title">Zwischenspeicher löschen</string>
   <string name="settings_clear_cache_hint">Möchten Sie den Zwischenspeicher wirklich löschen?</string>
   <string name="settings_clear_cache_success">Zwischenspeicher erfolgreich gelöscht</string>
   <string name="settings_clear_cache_failed">Löschen des Zwischenspeichers fehlgeschlagen</string>
   <string name="settings_cache_empty">0 KB</string>
+  <string name="settings_cache_location_title">Ort für den Zwischenspeicher</string>
+  <string name="dialog_switch_storage_info_text">Die Dateien werden an den neuen Speicherort verschoben. Das kann einen Moment dauern.</string>
+  <string name="storage_manager_primary_storage">Primärer Speicherort</string>
+  <string name="storage_manager_secondary_storage">Sekundärer Speicherort</string>
+  <string name="storage_manager_storage_description">%1$s (%2$s frei/%3$s gesamt)</string>
+  <string name="storage_manager_storage_description_not_available">%1$s (nicht verfügbar)</string>
   <!--pull to refresh-->
   <string name="pull_to_refresh_pull_label">Zum Aktualisieren ziehen …</string>
   <string name="pull_to_refresh_release_label">Zum Aktualisieren loslassen …</string>
@@ -362,12 +357,12 @@ Zum Aktualisieren einmal antippen</string>
   <string name="saf_write_diretory_exception">Der Ordner konnte nicht zum Lesen oder Schreiben geöffnet werden.</string>
   <string name="saf_account_not_found_exception">Seafile-Konto konnte nicht gefunden werden.</string>
   <string name="saf_upload_path_not_available">Hochladen nicht möglich: Pfad nicht gefunden</string>
-  <string name="saf_failed_to_create_directory">Konnte Ordner %s nicht anlegen</string>
-  <string name="saf_file_exist">Datei ist schon vorhanden</string>
+  <string name="saf_failed_to_create_directory">Konnte Ordner %s nicht erstellen</string>
+  <string name="saf_file_exist">Die Datei ist schon vorhanden</string>
   <string name="saf_bad_mime_type">Ungültige Anforderungsart</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">Server-Feld ist leer!</string>
-  <string name="shib_server_incorrect_prefix">Server sollte mit http:// oder https:// beginnen</string>
+  <string name="shib_server_incorrect_prefix">Die Serveradresse sollte mit http:// oder https:// beginnen</string>
   <string name="shib_load_page_error">Fehler:</string>
   <string name="shib_login_title">Shibboleth-Anmeldung</string>
   <string name="shib_server_hint">Server eintragen …</string>
@@ -439,16 +434,10 @@ Zum Aktualisieren einmal antippen</string>
   <string name="overwrite_existing_file_exist">Die Datei ist schon vorhanden</string>
   <!--Action Mode-->
   <string name="action_mode_no_items_selected">Es wurden keine Elemente ausgewählt</string>
-  <string name="settings_cache_location_title">Ort für den Zwischenspeicher wählen</string>
-  <string name="settings_storage_title">ZWISCHENSPEICHER</string>
-  <string name="storage_manager_primary_storage">Primärer Speicher</string>
-  <string name="storage_manager_secondary_storage">Sekundärer Speicher</string>
-  <string name="storage_manager_storage_description">%1$s (%2$s von %3$s frei)</string>
-  <string name="storage_manager_storage_description_not_available">%1$s (nicht verfügbar)</string>
-  <string name="settings_advance_feature_title"></string>
-  <string name="dialog_switch_storage_info_text">Vorhandene Dateien werden zum neuen Ort verschoben. Dies kann etwas dauern.</string>
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
   <string name="permission_read_exteral_storage_rationale">Um Dateien zu bearbeiten bitte Speicherrechte erteilen.</string>
   <string name="permission_not_granted">Berechtigung wurde nicht erteilt</string>
+  <string name="history_change_title">Änderungsinformationen</string>
+  <string name="no_more_activities">Keine weiteren Aktivitäten</string>
 </resources>

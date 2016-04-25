@@ -5,8 +5,6 @@
   <string name="edit_account">Redigere</string>
   <string name="delete_account">Slette</string>
   <string name="delete">Slette</string>
-  <string name="delete_file">Er du sikker på at du vil slette denne filen eller mappen?</string>
-  <string name="delete_successful">Slettingen var vellykket</string>
   <string name="delete_file_f">Slett fil</string>
   <string name="delete_dir">Slett mappe</string>
   <string name="server_hint">Server, slik som cloud.seafile.com</string>
@@ -16,7 +14,6 @@
   <string name="download_file">Last ned</string>
   <string name="redownload_file">Last ned på nytt</string>
   <string name="cancel_download">Avbryt</string>
-  <string name="unknown_file_type">Ukjent filtype</string>
   <string name="activity_not_found">Kan ikke finne et program å åpne denne filen med</string>
   <string name="refresh">Oppfrisk</string>
   <string name="add_account">Legg til konto</string>
@@ -177,7 +174,6 @@
   <string name="choose_file">Velg en fil</string>
   <string name="ssl_error">Sikkerhetskontroll feilet</string>
   <string name="ssl_confirm">Sikkerhetssertifikatet til %s er ikke bekreftet. Ønsker du å fortsette?</string>
-  <string name="ssl_confirm_cert_changed">%s bruker et ugyldig sikkerhetssertifikat. Tilkoblingen er ikke sikker. Ønsker du å fortsette?</string>
   <string name="ssl_confirm_title">Usikker tilkobling</string>
   <string name="issued_to">Utstedt til</string>
   <string name="finger_prints">Fingeravtrykk</string>
@@ -220,7 +216,6 @@
   <string name="lockscreen_access_pattern_cell_added">Mønstercelle lagt til</string>
   <string name="lockscreen_access_pattern_detected">Mønster oppdaget</string>
   <string name="lockscreen_access_pattern_passwd_forget">Glemt passord</string>
-  <string name="lockscreen_access_pattern_failure">Feilet 5 ganger. Vennligst vent 30 sekunder før du prøver igjen</string>
   <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
     <item quantity="one">Du kan prøve igjen om %1$d sekund</item>
     <item quantity="other">Du kan prøve igjen om %1$d sekunder</item>
@@ -253,7 +248,6 @@
   <string name="settings_camera_upload_service_started">Opplastingstjenesten har begynt</string>
   <string name="settings_camera_upload_service_stopped">Opplastingstjenesten har stoppet</string>
   <string name="settings_camera_upload_allow_data_plan">Tillat mobildata</string>
-  <string name="settings_camera_upload_allow_videos">Tillat opplasting av videoer</string>
   <string name="settings_camera_upload_default_wifi">Bruk bare Wi-Fi som standard</string>
   <string name="settings_camera_upload_data_plan_allowed">Tillat mobildata </string>
   <string name="settings_camera_upload_default_photos">Bare opplasting av bilder som standard</string>
@@ -268,7 +262,6 @@
   <string name="settings_camera_upload_advanced_custom_directories_off">Automatisk leting på enheten</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Konfigurasjonsassistent</string>
-  <string name="settings_cuc_welcome_text">Takk for at du bruker opplastingshjelperen for kameraet. \nFor å hjelpe deg å komme igjen med kamera opplastingstjenesten, så vil du bli guidet gjennom noen få initielle steg.</string>
   <string name="settings_cuc_network_title">Hvordan laste opp</string>
   <string name="settings_cuc_network_wifi">Kun Wi-Fi</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi eller mobildata</string>
@@ -284,31 +277,13 @@
   <string name="settings_cuc_remote_lib_account">Velg en konto</string>
   <string name="settings_cuc_remote_lib_repo">%s ble valgt</string>
   <string name="settings_cuc_upload_to_parent_folder">Opp til forrige mappe</string>
-  <string name="settings_cuc_remote_lib_hint">Velg din foretrukne konto og bibliotek. \nDu kan endre disse valgene senere i \"innstillinger\".</string>
   <string name="settings_cuc_finish_title">Avslutt</string>
-  <string name="settings_cuc_ready">Seafile vil nå laste opp filer fra dine valgte mapper. \nDu kan lukke programmet mens dette pågår..</string>
   <string name="settings_cuc_swipe_left">Sveip mot venstre for å fortsette.</string>
   <string name="settings_cuc_click_btn">Trykk for å lukke konfigurasjonsassistenten.</string>
   <string name="settings_cuc_loading">laster...</string>
   <!--Camera Sync-->
   <string name="settings_about_title">OM</string>
   <string name="settings_about_version_title">Programversjon</string>
-  <string name="settings_about_author_title">Om utvikleren</string>
-  <string name="settings_about_author_info">
-        <![CDATA[
-        <h5>Seafile Android klient</h5>
-        <p>%s</p>
-        <h5>Kontakt oss</h5>
-        <p>
-            Twitter: Seafile<br>
-            Email: support@seafile.com<br>
-        </p>
-        <h5>Bidrag</h5>
-        <p>https://github.com/haiwen/seadroid.git</P>
-        <h5>Copyright ©2013-2015 Seafile Ltd.</h5>
-        ]]>
-    </string>
-  <string name="settings_advance_feature_title">AVANSERTE FUNKSJONER</string>
   <string name="settings_cache_title">Størrelse på mellomlager</string>
   <string name="settings_clear_cache_title">Tøm mellomlageret</string>
   <string name="settings_clear_cache_hint">Ønsker du å tømme mellomlageret?</string>
@@ -333,11 +308,9 @@
   <string name="saf_account_not_found_exception">Kunne ikke fille Seafile konto.</string>
   <string name="saf_upload_path_not_available">Klarte ikke å laste opp. Ingen tilgjengelig sti.</string>
   <string name="saf_failed_to_create_directory">Kunne ikke opprette mappe %s</string>
-  <string name="saf_file_exist">Filen eksiterere allerede</string>
   <string name="saf_bad_mime_type">Feil forespørselstype</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">Serveren er tom!</string>
-  <string name="shib_server_incorrect_prefix">Server må begynne med enten http:// eller https://</string>
   <string name="shib_load_page_error">Feil: </string>
   <string name="shib_login_title">Logg inn med Shibboleth</string>
   <string name="shib_server_hint">Skriv inn server...</string>
@@ -354,7 +327,6 @@
   <string name="transfer_list_clear_finished_tasks">Tøm fullførte oppgaver</string>
   <string name="transfer_tabs_downloads">Nedlastingsliste</string>
   <string name="transfer_tabs_uploads">Opplastingsliste</string>
-  <string name="transfer_download_no_task">Alle filene er lastet ned</string>
   <plurals name="transfer_download_started">
     <item quantity="one">Starter nedlastingen av %1$d fil</item>
     <item quantity="other">Starter nedlastingen av %1$d filer</item>
@@ -403,8 +375,6 @@
   <string name="gallery_encrypted_repo_not_supported">Kryptert bibliotek var ikke støttet</string>
   <!--Overwrite existing files-->
   <string name="overwrite_existing_file_title">Erstatt eksisterende fil</string>
-  <string name="overwrite_existing_file_msg">Filen eksisterer allerede. Ønsker du å erstatte den?</string>
-  <string name="overwrite_existing_file_exist">Filen eksisterer allerede</string>
   <!--Action Mode-->
   <string name="action_mode_no_items_selected">Ingen elementer ble valgt</string>
   <!--Accessibility description for navigation drawer-->

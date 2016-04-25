@@ -5,8 +5,6 @@
   <string name="edit_account">Upravit</string>
   <string name="delete_account">Odstranit</string>
   <string name="delete">Odstranit</string>
-  <string name="delete_file">Opravdu chcete odstranit tuto složku nebo soubor?</string>
-  <string name="delete_successful">Úspěšně odstraněno</string>
   <string name="delete_file_f">Odstranit soubor</string>
   <string name="delete_dir">Odstranit složku</string>
   <string name="server_hint">Server, např. cloud.seafile.com</string>
@@ -16,7 +14,6 @@
   <string name="download_file">Stáhnout</string>
   <string name="redownload_file">Stáhnout znovu</string>
   <string name="cancel_download">Zrušit</string>
-  <string name="unknown_file_type">Neznámý typ souboru</string>
   <string name="activity_not_found">Nelze najít aplikaci pro otevření tohoto souboru</string>
   <string name="refresh">Obnovit</string>
   <string name="add_account">Přidat účet</string>
@@ -148,7 +145,6 @@
   <string name="choose_file">Vyberte soubor</string>
   <string name="ssl_error">Chyba ověření bezpečnosti</string>
   <string name="ssl_confirm">Bezpečnostní certifikát %s není důvěryhodný. Chcete pokračovat?</string>
-  <string name="ssl_confirm_cert_changed">%s používá neplatný bezpečnostní certifikát. Spojení není zabezpečené. Chcete pokračovat?</string>
   <string name="ssl_confirm_title">Nedůvěryhodné připojení</string>
   <string name="issued_to">Vydaný pro</string>
   <string name="finger_prints">Otisky</string>
@@ -191,7 +187,6 @@
   <string name="lockscreen_access_pattern_cell_added">Gesto přidáno</string>
   <string name="lockscreen_access_pattern_detected">Gesto detekováno</string>
   <string name="lockscreen_access_pattern_passwd_forget">Zapomenuté gesto</string>
-  <string name="lockscreen_access_pattern_failure">5x špatné gesto, čekejte prosím 30s do dalšího pokusu</string>
   <string name="lockscreen_access_pattern_failure_not_long_enough">Propojení bodů není dostatečně dlouhé, zkuste to znovu</string>
   <string name="lockpattern_retry_button_text">Opakovat</string>
   <string name="lockpattern_continue_button_text">Další</string>
@@ -213,7 +208,6 @@
   <string name="skip_button_label">Přeskočit</string>
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Nahrání fotky z fotoaparátu</string>
-  <string name="settings_camera_upload_allow_videos">Povolit nahrávání videí</string>
   <string name="settings_camera_upload_data_plan_allowed">Mobilní data povolena</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_network_wifi">Pouze WIFI</string>
@@ -222,22 +216,6 @@
   <!--Camera Sync-->
   <string name="settings_about_title">O PROGRAMU</string>
   <string name="settings_about_version_title">Verze aplikace</string>
-  <string name="settings_about_author_title">O autorovi</string>
-  <string name="settings_about_author_info">
-        <![CDATA[
-        <h5>Seafile Android Client</h5>
-        <p>%s</p>
-        <h5>Kontaktujte nás</h5>
-        <p>
-            Twitter: Seafile<br>
-            Email: support@seafile.com<br>
-        </p>
-        <h5>Contribution</h5>
-        <p>https://github.com/haiwen/seadroid.git</P>
-        <h5>Copyright ©2013-2015 Seafile Ltd.</h5>
-        ]]>
-    </string>
-  <string name="settings_advance_feature_title">POKROČILÉ FUNKCE</string>
   <string name="settings_cache_title">Velikost mezipaměti</string>
   <string name="settings_clear_cache_title">Vyčistit mezipaměť</string>
   <string name="settings_clear_cache_hint">Opravdu chcete vyčistit mezipamět?</string>
@@ -260,10 +238,8 @@
   <string name="saf_file_not_downloaded_exception">Nelze stáhnout soubor %s ze serveru.</string>
   <string name="saf_write_diretory_exception">Nelze otevřít složku pro čtení/zápis.</string>
   <string name="saf_account_not_found_exception">Nelze nalézt Seafile účet.</string>
-  <string name="saf_file_exist">Soubor již existuje</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">Zadejte adresu serveru!</string>
-  <string name="shib_server_incorrect_prefix">Server by měl začínat buď http:// nebo https://</string>
   <string name="shib_load_page_error">Chyba:</string>
   <string name="shib_login_title">Shibboleth Login</string>
   <string name="shib_server_hint">Zadejte server...</string>
@@ -273,7 +249,6 @@
   <string name="transfer_list_network_error">Chyba připojení k síti. Prosím, zkuste to později!</string>
   <string name="transfer_tabs_downloads">Seznam stahování</string>
   <string name="transfer_tabs_uploads">Seznam nahrávání</string>
-  <string name="transfer_download_no_task">Všechny soubory byly staženy</string>
   <string name="transfer_list_select_all">Vybrat vše</string>
   <string name="transfer_list_deselect_all">Zrušit výběr </string>
   <!--Sort-->
@@ -295,7 +270,6 @@
   <!--Gallery-->
   <!--Overwrite existing files-->
   <string name="overwrite_existing_file_title">Nahradit existující soubor</string>
-  <string name="overwrite_existing_file_exist">Soubor již existuje</string>
   <!--Action Mode-->
   <!--Accessibility description for navigation drawer-->
   <!--permission-->

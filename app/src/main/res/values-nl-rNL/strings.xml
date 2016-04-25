@@ -5,8 +5,6 @@
   <string name="edit_account">Bewerken</string>
   <string name="delete_account">Verwijderen</string>
   <string name="delete">Verwijderen</string>
-  <string name="delete_file">Weet je zeker dat je dit bestand of deze map wilt verwijderen?</string>
-  <string name="delete_successful">Succesvol verwijderd</string>
   <string name="delete_file_f">Bestand verwijderen</string>
   <string name="delete_dir">Map verwijderen</string>
   <string name="server_hint">Server, zoals cloud.seafile.com</string>
@@ -17,7 +15,6 @@
   <string name="download_file">Download</string>
   <string name="redownload_file">Opnieuw downloaden</string>
   <string name="cancel_download">Annuleren</string>
-  <string name="unknown_file_type">Onbekend bestandstype</string>
   <string name="activity_not_found">Kan geen app vinden om dit bestand te openen</string>
   <string name="refresh">Vernieuwen</string>
   <string name="add_account">Account toevoegen</string>
@@ -66,6 +63,7 @@
   <string name="file_action_star">Ster</string>
   <string name="file_action_download">Downloaden</string>
   <string name="file_action_update">Uploaden</string>
+  <string name="file_action_share">Link om te delen</string>
   <string name="file_action_export">Exporteren</string>
   <string name="file_action_delete">Verwijderen</string>
   <string name="file_action_rename">Hernoemen</string>
@@ -100,6 +98,8 @@
   <string name="password_empty">Gelieve het wachtwoord in te geven</string>
   <string name="wrong_password">wachtwoord onjuist</string>
   <string name="library_read_only">Deze bibliotheek is alleen lezen</string>
+  <string name="error_when_load_dirents">Fout bij het laden van de map.</string>
+  <string name="error_when_load_repos">Fout bij het laden van bibliotheken</string>
   <string name="dir_empty">Deze map is leeg</string>
   <string name="no_repo">Je hebt nog geen bibliotheken</string>
   <string name="no_app_available">Geen app gevonden</string>
@@ -152,7 +152,7 @@
     <item>Bestand</item>
     <item>Uploads</item>
     <item>Accounts</item>
-    <item>Backup fotos</item>
+    <item>Backup foto\'s</item>
   </string-array>
   <string name="no_starred_file">Nog geen favoriete bestanden</string>
   <string name="added_to_upload_tasks">Uploaden gestart</string>
@@ -166,7 +166,7 @@
   <string name="upload_finished">Upload afgerond</string>
   <string name="upload_cancelled">Upload geannuleerd</string>
   <string name="upload_failed">Upload mislukt</string>
-  <string name="upload_file_exist">Bestand bestaat reeds</string>
+  <string name="upload_duplicate_found">Een item genaamd \"%s\" bestaat al op deze plek.\n Vervangen met het item wat je aan het uploaden bent?</string>
   <string name="upload_replace_all">Alles vervangen</string>
   <string name="upload_keep_both">Beide behouden</string>
   <string name="upload_replace">Vervangen</string>
@@ -187,8 +187,7 @@
   <string name="empty_folder">Map leegmaken</string>
   <string name="choose_file">Kies een bestand</string>
   <string name="ssl_error">Veiligheidscontrole mislukt</string>
-  <string name="ssl_confirm">Het veiligheidscertificaar van %s is niet vertrouwd. Wilt u verdergaan?</string>
-  <string name="ssl_confirm_cert_changed">%s gebruikt een ongeldig certificaat. De verbinding is niet veilig. WIlt u verdergaan?</string>
+  <string name="ssl_confirm">Het veiligheidscertificaar van %s wordt niet vertrouwd. Wilt u verdergaan?</string>
   <string name="ssl_confirm_title">Niet-beveiligde verbinding</string>
   <string name="issued_to">Toegewezen aan</string>
   <string name="finger_prints">Vingerafdrukken</string>
@@ -231,9 +230,9 @@
   <string name="lockscreen_access_pattern_hint">Teken handgebaar beveiligingspatroon</string>
   <string name="lockscreen_access_pattern_start">Begin met tekenen</string>
   <string name="lockscreen_access_pattern_cleared">Patroon leeggemaakt</string>
+  <string name="lockscreen_access_pattern_cell_added">Patroon cel toegevoegd</string>
   <string name="lockscreen_access_pattern_detected">Patroon gedetecteerd</string>
   <string name="lockscreen_access_pattern_passwd_forget">Wachtwoord vergeten</string>
-  <string name="lockscreen_access_pattern_failure">5 keer mislukt, gelieve 30 seconden te wachten</string>
   <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
     <item quantity="one">Je kunt het over %1$d seconde opnieuw proberen</item>
     <item quantity="other">Je kunt het over %1$d seconden opnieuw proberen</item>
@@ -242,9 +241,10 @@
     <item quantity="one">Onjuist patroon. Je kunt het nog %1$d keer proberen</item>
     <item quantity="other">Onjuist patroon. Je kunt het nog %1$d keer proberen</item>
   </plurals>
+  <string name="lockscreen_access_pattern_failure_not_long_enough">Link-punten niet lang genoeg, probeer het nog eens</string>
   <string name="lockpattern_retry_button_text">Opnieuw</string>
   <string name="lockpattern_continue_button_text">Volgende</string>
-  <string name="lockpattern_confirm_button_text">Ok</string>
+  <string name="lockpattern_confirm_button_text">OK</string>
   <string name="lockpattern_recording_intro_header">Teken handgebaar beveiligingspatroon</string>
   <string name="lockpattern_settings_help_how_to_record">Leer een handgebaar beveiligingspatroon te tekenen</string>
   <string name="lockpattern_recording_incorrect_too_short">Probeer het opnieuw en veeg langs minstens 4 punten!</string>
@@ -265,24 +265,28 @@
   <string name="settings_camera_upload_service_started">Uploaddienst gestart</string>
   <string name="settings_camera_upload_service_stopped">Uploaddienst gestopt</string>
   <string name="settings_camera_upload_allow_data_plan">Gegevensabonnement toestaan</string>
-  <string name="settings_camera_upload_allow_videos">Uploaden van video\'s toestaan</string>
-  <string name="settings_camera_upload_default_wifi">Standaard alleen wifi gebruiken</string>
+  <string name="settings_camera_upload_default_wifi">Standaard alleen WiFi gebruiken</string>
   <string name="settings_camera_upload_data_plan_allowed">Gegevensabonnement toegestaan</string>
-  <string name="settings_camera_upload_videos_allowed">Inclusief video\'s</string>
+  <string name="settings_camera_upload_default_photos">Standaard alleen foto\'s uploaden</string>
+  <string name="settings_camera_upload_videos_allowed">Video\'s ook uploaden</string>
+  <string name="settings_camera_upload_change_repo_title">Kies eerst een bibliotheek</string>
   <string name="settings_camera_upload_repo_hint">Kies eerst een bibliotheek</string>
   <string name="settings_camera_upload_turn_on">Camera-upload inschakelen</string>
   <string name="settings_camera_upload_choose_dir">Albums wijzigen</string>
+  <string name="settings_camera_upload_dir_auto_scan">Automatisch scannen voor foto\'s</string>
   <string name="settings_camera_upload_lib_not_found">De geselecteerde bibliotheek bestaat niet</string>
   <string name="settings_camera_upload_advanced_feature_title">Geavanceerde opties</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Aangepaste uploadopties</string>
+  <string name="settings_camera_upload_advanced_custom_directories">Zelfgekozen Upload Folders</string>
   <string name="settings_camera_upload_advanced_custom_directories_on">Fotoalbums kiezen</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">Apparaat automatisch scannen</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Configuratiehulp</string>
-  <string name="settings_cuc_network_title">Hoe uploaden</string>
-  <string name="settings_cuc_network_wifi">Alleen wifi</string>
-  <string name="settings_cuc_network_data_plan">Wifi of gegevensabonnement</string>
+  <string name="settings_cuc_network_title">Hoe uploaden?</string>
+  <string name="settings_cuc_network_wifi">Alleen WiFi</string>
+  <string name="settings_cuc_network_data_plan">WiFi of gegevensabonnement</string>
   <string name="settings_cuc_option_hint">Kies je voorkeursoptie.\nJe kunt deze opties later in de instellingen wijzigen.</string>
+  <string name="settings_cuc_type_title">Wat te uploaden?</string>
   <string name="settings_cuc_type_photo">Alleen foto\'s</string>
   <string name="settings_cuc_type_video">Foto\'s en video\'s</string>
   <string name="settings_cuc_local_dir_title">Albums selecteren</string>
@@ -294,36 +298,20 @@
   <string name="settings_cuc_remote_lib_account">Kies een account</string>
   <string name="settings_cuc_remote_lib_repo">%s is geselecteerd</string>
   <string name="settings_cuc_upload_to_parent_folder">Een map omhoog</string>
+  <string name="settings_cuc_auto_scan">Automatisch zoeken naar camera-folders</string>
   <string name="settings_cuc_pick_albums">Laat mij mijn fotoalbums kiezen</string>
-  <string name="settings_cuc_remote_lib_hint">Kies je voorkeursaccount en -bibliotheek.\nJe kunt deze opties later in de instellingen wijzigen.</string>
   <string name="settings_cuc_finish_title">Afronden</string>
-  <string name="settings_cuc_ready">Seafile zal nu bestanden vanuit je geselecteerde mappen uploaden.\nJe kunt de app afsluiten tijdens dit proces.</string>
   <string name="settings_cuc_swipe_left">Veeg naar links om verder te gaan</string>
   <string name="settings_cuc_click_btn">Klik om de configuratiehulp af te sluiten.</string>
   <string name="settings_cuc_loading">laden...</string>
   <!--Camera Sync-->
   <string name="sync_provider_camera_upload">Camera foto\'s en video\'s</string>
   <string name="camera_sync_notification_title_failed">Camera-upload mislukt</string>
+  <string name="camera_sync_notification_repo_missing_failed">Server repo mist.</string>
   <string name="camera_sync_notification_auth_error_failed">Authenticatiefout</string>
   <string name="camera_sync_rename_file">%s (hernoemd door Seafile)</string>
   <string name="settings_about_title">Over</string>
   <string name="settings_about_version_title">App-versie</string>
-  <string name="settings_about_author_title">Over maker</string>
-  <string name="settings_about_author_info">
-        <![CDATA[
-        <h5>Seafile Android Client</h5>
-        <p>%s</p>
-        <h5>Neem contact op</h5>
-        <p>
-            Twitter: Seafile<br>
-            E-mail: support@seafile.com<br>
-        </p>
-        <h5>Bijdragen</h5>
-        <p>https://github.com/haiwen/seadroid.git</P>
-        <h5>Copyright ©2013-2015 Seafile Ltd.</h5>
-        ]]>
-    </string>
-  <string name="settings_advance_feature_title">GEAVANCEERDE FUNCTIE</string>
   <string name="settings_cache_title">Cachegrootte</string>
   <string name="settings_clear_cache_title">Cache legen</string>
   <string name="settings_clear_cache_hint">Wil je de cache legen?</string>
@@ -331,6 +319,7 @@
   <string name="settings_clear_cache_failed">Cache legen mislukt</string>
   <string name="settings_cache_empty">0 kB</string>
   <!--pull to refresh-->
+  <string name="pull_to_refresh_pull_label">Trek omlaag om te verversen…</string>
   <string name="pull_to_refresh_release_label">Loslaten om te verversen...</string>
   <string name="pull_to_refresh_refreshing_label">Laden...</string>
   <string name="pull_to_refresh_last_update">Laatst bijgewerkt:</string>
@@ -340,15 +329,19 @@
   <!--storage access framework-->
   <string name="saf_open_file_exception">Kon het bestand %s niet openen.</string>
   <string name="saf_open_directory_exception">Kan map niet openen.</string>
+  <string name="saf_file_not_cached_exception">Bestand %s niet gecached.</string>
   <string name="saf_thumbnail_not_found_exception">Kon miniatuur %s niet vinden/openen.</string>
   <string name="saf_file_not_downloaded_exception">Kon bestand %s niet van de server downloaden.</string>
   <string name="saf_write_diretory_exception">Kan map niet openen voor lezen/schrijven</string>
   <string name="saf_account_not_found_exception">Kon Seafile-account niet vinden</string>
+  <string name="saf_upload_path_not_available">Geen pad aanwezig, niet in staat tot uploaden</string>
   <string name="saf_failed_to_create_directory">Kon map %s niet aanmaken</string>
-  <string name="saf_file_exist">Bestand bestaat reeds</string>
+  <string name="saf_bad_mime_type">Verkeerd type verzoek</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">Server is leeg!</string>
   <string name="shib_load_page_error">Fout:</string>
+  <string name="shib_login_title">Shibboleth Inlog</string>
+  <string name="shib_server_hint">Invoer server…</string>
   <string name="shib_actionbar_title">Aanmelden met Shibboleth</string>
   <string name="shib_loading">laden...</string>
   <!--Transfer List-->
@@ -362,7 +355,10 @@
   <string name="transfer_list_clear_finished_tasks">Alle afgeronde taken verwijderen</string>
   <string name="transfer_tabs_downloads">Lijst downloaden</string>
   <string name="transfer_tabs_uploads">Lijst uploaden</string>
-  <string name="transfer_download_no_task">Alle bestanden zijn gedownload</string>
+  <plurals name="transfer_download_started">
+    <item quantity="one">Begin met download van %1$d bestand</item>
+    <item quantity="other">Begin met downloaden van %1$d bestanden</item>
+  </plurals>
   <string name="transfer_list_select_all">Alles selecteren</string>
   <string name="transfer_list_deselect_all">Alles deselecteren</string>
   <plurals name="transfer_list_items_selected">
@@ -381,26 +377,39 @@
   <!--Search-->
   <string name="search_menu_item">Zoeken</string>
   <string name="search_bar_hint">Zoeken...</string>
+  <string name="search_txt_empty">Vul s.v.p. sleutelwoorden in</string>
   <string name="search_content_empty">Niets gevonden</string>
   <string name="search_server_not_support">Oeps. Zoeken wordt niet door deze server ondersteund!</string>
-  <string name="search_library_not_found">Kon deze bibliotheek niet vinden. Ze kan verwijderd zijn.</string>
+  <string name="search_library_not_found">Kon deze bibliotheek niet vinden. Zou verwijderd kunnen zijn.</string>
   <!--star a file-->
+  <string name="star_file_succeed">Markeren met ster gelukt</string>
+  <string name="star_file_failed">Markeren met ster mislukt</string>
   <!--unstar a file-->
+  <string name="unstar">Ster verwijderen, demarkeren</string>
   <!--notification bar-->
   <string name="notification_upload_started_title">Bestanden uploaden...</string>
   <string name="notification_download_started_title">Bestanden downloaden...</string>
   <string name="notification_upload_completed">Upload voltooid</string>
+  <plurals name="notification_upload_info">
+    <item quantity="one">%1$d bestand aan het uploaden (%2$d%%)</item>
+    <item quantity="other">%1$d bestanden aan het uploaden (%2$d%%)</item>
+  </plurals>
+  <plurals name="notification_download_info">
+    <item quantity="one">%1$d bestand aan het downloaden (%2$d%%)</item>
+    <item quantity="other">%1$d bestanden aan het downloaden (%2$d%%)</item>
+  </plurals>
   <string name="notification_download_completed">Download voltooid</string>
   <!--Gallery-->
-  <string name="gallery_load_photos_error">Fout bij laden foto\'s</string>
+  <string name="gallery_load_photos_error">Fout bij het laden van foto\'s</string>
   <string name="gallery_encrypted_repo_not_supported">Gecodeerde bibliotheek wordt niet ondersteund</string>
   <!--Overwrite existing files-->
   <string name="overwrite_existing_file_title">Huidige bestand vervangen</string>
-  <string name="overwrite_existing_file_msg">Het bestand bestaat al. Wil je deze vervangen?</string>
-  <string name="overwrite_existing_file_exist">Het bestand bestaat al</string>
   <!--Action Mode-->
   <string name="action_mode_no_items_selected">Geen items geselecteerd</string>
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
+  <string name="permission_read_exteral_storage_rationale">Om de bestanden te kunnen verwerken zijn voldoende leesrechten noodzakelijk</string>
   <string name="permission_not_granted">Toestemming is niet verleend</string>
+  <string name="history_change_title">Details over de wijzigingen</string>
+  <string name="no_more_activities">Geen acties meer over</string>
 </resources>

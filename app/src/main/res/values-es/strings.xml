@@ -270,6 +270,7 @@
   <string name="settings_camera_upload_info_title">Subir Foto de Cámara </string>
   <string name="settings_camera_upload_service_started">Servicio de subida iniciado</string>
   <string name="settings_camera_upload_service_stopped">Servicio de subida detenido</string>
+  <string name="settings_camera_upload_service_master_off">Auto-sincronización de datos deshabilitada globalmente en Android</string>
   <string name="settings_camera_upload_allow_data_plan">Permitir plan de datos</string>
   <string name="settings_camera_upload_allow_videos">Permitir subida de videos</string>
   <string name="settings_camera_upload_default_wifi">Usar sólo Wi-Fi de forma predeterminada</string>
@@ -310,7 +311,7 @@
   <string name="settings_cuc_pick_albums">Permitirme elegir los álbumes de fotos</string>
   <string name="settings_cuc_remote_lib_hint">Escoja su cuenta y biblioteca preferidas. \nLuego puede cambiar estas opciones en Configuración.</string>
   <string name="settings_cuc_finish_title">Terminar</string>
-  <string name="settings_cuc_ready">Ahora Seafile subirá los archivos de las carpetas seleccionadas. \nPuede cerrar la app durante este proceso.</string>
+  <string name="settings_cuc_ready">Seafile comenzará a subir los archivos de las carpetas seleccionadas después de su confirmación.\nPuede cerrar la app durante este proceso.</string>
   <string name="settings_cuc_swipe_left">Deslice a la izquierda para continuar.</string>
   <string name="settings_cuc_click_btn">Click para cerrar la ayuda de configuración.</string>
   <string name="settings_cuc_loading">cargando...</string>
@@ -329,21 +330,27 @@
         <p>%s</p>
         <h5>Contáctenos</h5>
         <p>
-         Twitter: Seafile<br>
-          Email: support@seafile.com<br>
+            Twitter: Seafile<br>
+            Email: support@seafile.com<br>
         </p>
         <h5>Contribuir</h5>
         <p>https://github.com/haiwen/seadroid.git</P>
-        <h5>Copyright ©2013-2015 Seafile Ltd.</h5>
+        <h5>Copyright ©2013-2016 Seafile Ltd.</h5>
         ]]>
     </string>
-  <string name="settings_advance_feature_title">FUNCIÓN AVANZADA</string>
+  <string name="settings_storage_title">ALMACENAMIENTO DE CACHÉ</string>
   <string name="settings_cache_title">Tamaño del caché</string>
   <string name="settings_clear_cache_title">Borrar caché</string>
   <string name="settings_clear_cache_hint">¿Desea borrar el caché?</string>
   <string name="settings_clear_cache_success">Caché borrado con éxito</string>
   <string name="settings_clear_cache_failed">Falló borrar el caché</string>
   <string name="settings_cache_empty">0 KB</string>
+  <string name="settings_cache_location_title">Ubicación del almacenamiento de caché</string>
+  <string name="dialog_switch_storage_info_text">Los archivos existentes serán movidos al nuevo almacenamiento. Ésto puede llevar un tiempo.</string>
+  <string name="storage_manager_primary_storage">Almacenamiento primario</string>
+  <string name="storage_manager_secondary_storage">Almacenamiento secundario</string>
+  <string name="storage_manager_storage_description">%1$s (%2$s libre/%3$s total)</string>
+  <string name="storage_manager_storage_description_not_available">%1$s (no disponible)</string>
   <!--pull to refresh-->
   <string name="pull_to_refresh_pull_label">Tire para actualizar...</string>
   <string name="pull_to_refresh_release_label">Suelte para actualizar...</string>
@@ -362,11 +369,11 @@
   <string name="saf_account_not_found_exception">No se pudo hallar la cuenta de Seafile.</string>
   <string name="saf_upload_path_not_available">No es posible subir, no hay ruta disponible</string>
   <string name="saf_failed_to_create_directory">No se pudo crear la carpeta %s</string>
-  <string name="saf_file_exist">El archivo ya existe</string>
+  <string name="saf_file_exist">Ese archivo ya existe</string>
   <string name="saf_bad_mime_type">Tipo de solicitud incorrecto</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">¡El servidor está vacío!</string>
-  <string name="shib_server_incorrect_prefix">El servidor debería comenzar con http:// o https://</string>
+  <string name="shib_server_incorrect_prefix">El servidor debería comenzar con https:// o http://</string>
   <string name="shib_load_page_error">Error:</string>
   <string name="shib_login_title">Inicio de sesión con Shibboleth</string>
   <string name="shib_server_hint">Ingrese servidor...</string>

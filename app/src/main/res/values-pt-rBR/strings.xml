@@ -5,8 +5,6 @@
   <string name="edit_account">Editar</string>
   <string name="delete_account">Deletar</string>
   <string name="delete">Deletar</string>
-  <string name="delete_file">Tem certeza que deseja deletar esse arquivo ou pasta?</string>
-  <string name="delete_successful">Deletado com sucesso</string>
   <string name="delete_file_f">Deletar arquivo</string>
   <string name="delete_dir">Deletar pasta</string>
   <string name="server_hint">Servidor, como cloud.safile.com</string>
@@ -16,7 +14,6 @@
   <string name="download_file">Descarregar</string>
   <string name="redownload_file">Descarregar denovo</string>
   <string name="cancel_download">Cancelar</string>
-  <string name="unknown_file_type">Tipo de arquivo desconhecido</string>
   <string name="activity_not_found">Aplicativo para abrir esse arquivo não encontrado</string>
   <string name="refresh">Recarregar</string>
   <string name="add_account">Adicionar Conta</string>
@@ -155,7 +152,6 @@
   <string name="choose_file">Escolha o arquivo</string>
   <string name="ssl_error">Checagem de segurança falhou</string>
   <string name="ssl_confirm">O certificado de segurança do  %s  nao é confiavel. Deseja continuar?</string>
-  <string name="ssl_confirm_cert_changed">%s usa um certificado de seguranca invalido, A conexão não é segura.Tem certeza que deseja continuar?</string>
   <string name="ssl_confirm_title">Conexão não confiavel</string>
   <string name="issued_to">Concedido a</string>
   <string name="finger_prints">impressões digitais</string>
@@ -198,7 +194,6 @@
   <string name="lockscreen_access_pattern_cell_added">Modelo de celula adicionado</string>
   <string name="lockscreen_access_pattern_detected">Modelo detectado</string>
   <string name="lockscreen_access_pattern_passwd_forget">Esqueci a Senha</string>
-  <string name="lockscreen_access_pattern_failure">Falhou 5 vezes, por favor aguarde 30 segundos antes de tentar novamente</string>
   <string name="lockscreen_access_pattern_failure_not_long_enough">Ligacao dos pontos não  foi suficientemente longa, por favor tente novamente</string>
   <string name="lockpattern_retry_button_text">tentar novamente</string>
   <string name="lockpattern_continue_button_text">Proximo</string>
@@ -223,7 +218,6 @@
   <string name="settings_camera_upload_service_started">Servico de upload iniciado</string>
   <string name="settings_camera_upload_service_stopped">Servico de upload parado</string>
   <string name="settings_camera_upload_allow_data_plan">Liberar plano de dados</string>
-  <string name="settings_camera_upload_allow_videos">Liberar upload de videos</string>
   <string name="settings_camera_upload_default_wifi">Usar Wi-Fi  somente por default</string>
   <string name="settings_camera_upload_data_plan_allowed">Plano de dados liberado</string>
   <string name="settings_camera_upload_default_photos">Carregue fotos somente por padrão</string>
@@ -238,7 +232,6 @@
   <string name="settings_camera_upload_advanced_custom_directories_off">Auto scan do dispositivo</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Ajudante de configuração</string>
-  <string name="settings_cuc_welcome_text">Obrigado por utilizar o ajudante de configuração para upload de camera. \ nPara ajudar você a começar com o serviço de upload câmera, você será guiado através de alguns passos iniciais.</string>
   <string name="settings_cuc_network_title">Como Realizar upload</string>
   <string name="settings_cuc_network_wifi">Somente Wi-Fi</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi ou plano de dados</string>
@@ -250,30 +243,13 @@
   <string name="settings_cuc_remote_lib_account">Escolha uma conta</string>
   <string name="settings_cuc_remote_lib_repo">%s foi selecionado</string>
   <string name="settings_cuc_upload_to_parent_folder">Subir pasta</string>
-  <string name="settings_cuc_remote_lib_hint">Escolha a sua conta e biblioteca preferida. \ n Você pode alterar essas opções mais tarde em Configurações.</string>
   <string name="settings_cuc_finish_title">Finalizar</string>
-  <string name="settings_cuc_ready">Seafile vai agora fazer upload de arquivos de suas pastas selecionadas. \n sinta se livre para fechar o aplicativo durante este processo.</string>
   <string name="settings_cuc_swipe_left">Deslize para a esquerda para continuar.</string>
   <string name="settings_cuc_click_btn">Clique para fechar  o ajudante de configuração</string>
   <string name="settings_cuc_loading">carregando...</string>
   <!--Camera Sync-->
   <string name="settings_about_title">Sobre</string>
   <string name="settings_about_version_title">Versão do App</string>
-  <string name="settings_about_author_title">Sobre o Autor</string>
-  <string name="settings_about_author_info">
-<![CDATA[
-<h5>Seafile cliente android</h5>
-<p>%s</p>
-<h5>Contate nos</h5>
-<p>
-Twitter: Seafile<br>
-Email: support@seafile.com<br>
-</p>
-<h5>Contribution</h5>
-<p>https://github.com/haiwen/seadroid.git</P>
-<h5>Copyright ©2013-2015 Seafile Ltd.</h5>
-]]></string>
-  <string name="settings_advance_feature_title">Recurso Avançado</string>
   <string name="settings_cache_title">Tamanho de cache</string>
   <string name="settings_clear_cache_title">Limpar cache</string>
   <string name="settings_clear_cache_hint">Você quer limpar o cache?</string>
@@ -298,11 +274,9 @@ Email: support@seafile.com<br>
   <string name="saf_account_not_found_exception">Conta Seafile  não encontrada</string>
   <string name="saf_upload_path_not_available">Não é possível carregar, nenhum caminho disponível</string>
   <string name="saf_failed_to_create_directory">Não foi possível criar o diretório %s</string>
-  <string name="saf_file_exist">Arquivo ja existe</string>
   <string name="saf_bad_mime_type">Tipo de requisição invalido</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">O Servidor esta vazio</string>
-  <string name="shib_server_incorrect_prefix">Servidor deve começar com http: // ou https: //</string>
   <string name="shib_load_page_error">Erro:</string>
   <string name="shib_login_title">Shibboleth Login</string>
   <string name="shib_server_hint">Servidor de entrada...</string>
@@ -318,7 +292,6 @@ Email: support@seafile.com<br>
   <string name="transfer_list_clear_finished_tasks">Limpar tarefas finalizadas</string>
   <string name="transfer_tabs_downloads">Lista de Downloads</string>
   <string name="transfer_tabs_uploads">Lista de Upload</string>
-  <string name="transfer_download_no_task">Todas os arquivos foram baixados</string>
   <string name="transfer_list_select_all">Selecionar tudo</string>
   <string name="transfer_list_deselect_all">Deselecionar tudo</string>
   <plurals name="transfer_list_items_selected">
@@ -355,8 +328,6 @@ Email: support@seafile.com<br>
   <string name="gallery_encrypted_repo_not_supported">Biblioteca encriptada não é suportada</string>
   <!--Overwrite existing files-->
   <string name="overwrite_existing_file_title">Substituir arquivo existente</string>
-  <string name="overwrite_existing_file_msg">O arquivo ja existe , deseja substitui-lo?</string>
-  <string name="overwrite_existing_file_exist">O arquivo já existe</string>
   <!--Action Mode-->
   <!--Accessibility description for navigation drawer-->
   <!--permission-->

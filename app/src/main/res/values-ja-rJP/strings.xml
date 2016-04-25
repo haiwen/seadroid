@@ -266,6 +266,7 @@
   <string name="settings_camera_upload_info_title">カメラの写真のアップロード</string>
   <string name="settings_camera_upload_service_started">アップロードサービスが開始しました</string>
   <string name="settings_camera_upload_service_stopped">アップロードサービスが停止しました</string>
+  <string name="settings_camera_upload_service_master_off">Android 全般でデータの自動同期は無効です</string>
   <string name="settings_camera_upload_allow_data_plan">データプランを許可する</string>
   <string name="settings_camera_upload_allow_videos">ビデオのアップロードを許可する</string>
   <string name="settings_camera_upload_default_wifi">デフォルトで Wi-Fi のみ使用する</string>
@@ -285,7 +286,7 @@
   <string name="settings_camera_upload_advanced_custom_directories_off">デバイスを自動スキャン</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">設定ヘルパー</string>
-  <string name="settings_cuc_welcome_text">カメラアップロードの設定ヘルパーをご利用いただきありがとうございます。 \nカメラアップロードサービスを始めるための、最初のステップをご案内します。</string>
+  <string name="settings_cuc_welcome_text">カメラアップロードの設定ヘルパーをご利用いただきありがとうございます。 \nカメラアップロードサービスを始めるために役立つ、簡単に最初のステップをご案内します。</string>
   <string name="settings_cuc_network_title">アップロード方法</string>
   <string name="settings_cuc_network_wifi">Wi-Fi のみ</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi またはデータプラン</string>
@@ -303,9 +304,9 @@
   <string name="settings_cuc_upload_to_parent_folder">親のフォルダーに移動</string>
   <string name="settings_cuc_auto_scan">自動的にカメラのアルバムを推測</string>
   <string name="settings_cuc_pick_albums">マイ フォトアルバムを選択しましょう</string>
-  <string name="settings_cuc_remote_lib_hint">お好みのオプションを選択してください。 \nこのオプションは後で設定から変更することができます。</string>
+  <string name="settings_cuc_remote_lib_hint">お好みのアカウントとライブラリーを選択してください。 \nこのオプションは後で設定から変更することができます。</string>
   <string name="settings_cuc_finish_title">完了</string>
-  <string name="settings_cuc_ready">Seafile は選択したフォルダーからファイルをアップロードします。 \nこのプロセス中、アプリを自由に閉じることができます。</string>
+  <string name="settings_cuc_ready">下で確認した後 Seafile は選択したフォルダーからファイルをアップロードします。 \nこの処理の間、アプリを自由に閉じることができます。</string>
   <string name="settings_cuc_swipe_left">左にスワイプすると続行します。</string>
   <string name="settings_cuc_click_btn">クリックすると設定ヘルパーを閉じます。</string>
   <string name="settings_cuc_loading">読み込み中…</string>
@@ -325,20 +326,26 @@
         <h5>連絡先</h5>
         <p>
             Twitter: Seafile<br>
-            メール: support@seafile.com<br>
+            Email: support@seafile.com<br>
         </p>
         <h5>貢献</h5>
         <p>https://github.com/haiwen/seadroid.git</P>
-        <h5>Copyright ©2013-2015 Seafile Ltd.</h5>
+        <h5>Copyright ©2013-2016 Seafile Ltd.</h5>
         ]]>
     </string>
-  <string name="settings_advance_feature_title">高度な機能</string>
+  <string name="settings_storage_title">キャッシュストレージ</string>
   <string name="settings_cache_title">キャッシュサイズ</string>
   <string name="settings_clear_cache_title">キャッシュをクリア</string>
   <string name="settings_clear_cache_hint">キャッシュをクリアしますか?</string>
   <string name="settings_clear_cache_success">キャッシュを正常にクリアしました</string>
   <string name="settings_clear_cache_failed">キャッシュのクリアに失敗しました</string>
   <string name="settings_cache_empty">0 KB</string>
+  <string name="settings_cache_location_title">キャッシュストレージの場所</string>
+  <string name="dialog_switch_storage_info_text">既存のファイルは新しいストレージに移動されます。これは、しばらく時間がかかる場合があります。</string>
+  <string name="storage_manager_primary_storage">プライマリーストレージ</string>
+  <string name="storage_manager_secondary_storage">セカンダリーストレージ</string>
+  <string name="storage_manager_storage_description">%1$s (%2$s 空き/%3$s 合計)</string>
+  <string name="storage_manager_storage_description_not_available">%1$s (利用不可)</string>
   <!--pull to refresh-->
   <string name="pull_to_refresh_pull_label">引くと更新…</string>
   <string name="pull_to_refresh_release_label">離すと更新…</string>
@@ -361,7 +368,7 @@
   <string name="saf_bad_mime_type">リクエストタイプが不正</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">サーバーは空です!</string>
-  <string name="shib_server_incorrect_prefix">サーバーは http:// または https:// で始まる必要があります</string>
+  <string name="shib_server_incorrect_prefix">サーバーは https:// または http:// で始まる必要があります</string>
   <string name="shib_load_page_error">エラー: </string>
   <string name="shib_login_title">Shibboleth ログイン</string>
   <string name="shib_server_hint">サーバーを入力...</string>
@@ -407,7 +414,7 @@
   <string name="star_file_succeed">正常にファイルにスターを付けました</string>
   <string name="star_file_failed">ファイルにスターを付けることができませんでした</string>
   <!--unstar a file-->
-  <string name="unstar_file_failed">失敗したファイルのスターを消す</string>
+  <string name="unstar_file_failed">ファイルのスターを解除するのに失敗しました</string>
   <string name="unstar">スターを消す</string>
   <!--notification bar-->
   <string name="notification_upload_started_title">ファイルをアップロードしています…</string>
@@ -426,7 +433,7 @@
   <!--Overwrite existing files-->
   <string name="overwrite_existing_file_title">存在するファイルを置き換え</string>
   <string name="overwrite_existing_file_msg">ファイルがすでに存在します。置き換えますか?</string>
-  <string name="overwrite_existing_file_exist">ファイルがすでに存在します。</string>
+  <string name="overwrite_existing_file_exist">ファイルがすでに存在します</string>
   <!--Action Mode-->
   <string name="action_mode_no_items_selected">アイテムが選択されていません</string>
   <!--Accessibility description for navigation drawer-->

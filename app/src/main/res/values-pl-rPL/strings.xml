@@ -5,8 +5,8 @@
   <string name="edit_account">Edytuj</string>
   <string name="delete_account">Usuń</string>
   <string name="delete">Usuń</string>
-  <string name="delete_file">Na pewno chcesz usunąć ten plik lub folder?</string>
-  <string name="delete_successful">Usunięto pomyślnie</string>
+  <string name="delete_file">Czy na pewno chcesz usunąć ten plik lub folder?</string>
+  <string name="delete_successful">Pomyślnie usunięto</string>
   <string name="delete_file_f">Usuń plik</string>
   <string name="delete_dir">Usuń folder</string>
   <string name="server_hint">Serwer, np. cloud.seafile.com</string>
@@ -194,7 +194,7 @@
   <string name="choose_file">Wybierz plik</string>
   <string name="ssl_error">Niepowodzenie kontroli bezpieczeństwa</string>
   <string name="ssl_confirm">Certyfikat bezpieczeństwa %s nie jest zaufany. Czy chcesz kontynuować?</string>
-  <string name="ssl_confirm_cert_changed">%s używa nieprawidłowego certyfikatu bezpieczeństwa. Połączenie nie jest bezpieczne. Czy chcesz kontynuować?</string>
+  <string name="ssl_confirm_cert_changed">%s korzysta z nieprawidłowego certyfikatu. Połączenie nie jest bezpieczne. Czy kontynuować?</string>
   <string name="ssl_confirm_title">Niezaufane połączenie</string>
   <string name="issued_to">Wystawiony dla</string>
   <string name="finger_prints">Odciski palca</string>
@@ -240,7 +240,7 @@
   <string name="lockscreen_access_pattern_cell_added">Dodano komórkę wzoru</string>
   <string name="lockscreen_access_pattern_detected">Wykryto wzór</string>
   <string name="lockscreen_access_pattern_passwd_forget">Zapomniałem hasła</string>
-  <string name="lockscreen_access_pattern_failure">Pięciokrotne niepowodzenie, proszę odczekać 30 sekund przed ponowną próbą</string>
+  <string name="lockscreen_access_pattern_failure">Niepowodzenie 5 razy, proszę odczekać 30 sekund przed ponowną próbą</string>
   <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
     <item quantity="one">Możesz ponownie spróbować za %1$d sekundę</item>
     <item quantity="few">Możesz ponownie spróbować za %1$d sekundy</item>
@@ -274,8 +274,9 @@
   <string name="settings_camera_upload_info_title">Automatyczna kopia zdjęć</string>
   <string name="settings_camera_upload_service_started">Usługa przesyłania jest uruchomiona</string>
   <string name="settings_camera_upload_service_stopped">Usługa przesyłania jest zatrzymana</string>
+  <string name="settings_camera_upload_service_master_off">Automatyczna synchronizacja danych została wyłączona globalnie w Androidzie.</string>
   <string name="settings_camera_upload_allow_data_plan">Pozwól na transmisję komórkową</string>
-  <string name="settings_camera_upload_allow_videos">Pozwól na przesyłanie wideo</string>
+  <string name="settings_camera_upload_allow_videos">Pozwól na przesyłanie wideo.</string>
   <string name="settings_camera_upload_default_wifi">Domyślnie używaj tylko Wi-Fi</string>
   <string name="settings_camera_upload_data_plan_allowed">Transmisja komórkowa włączona</string>
   <string name="settings_camera_upload_default_photos">Domyślnie przesyłaj tylko zdjęcia</string>
@@ -293,7 +294,7 @@
   <string name="settings_camera_upload_advanced_custom_directories_off">Automatycznie skanuj urządzenie</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Asystent konfiguracji</string>
-  <string name="settings_cuc_welcome_text">Dziękujemy za korzystanie z asystenta konfiguracji, który pomoże Ci rozpocząć przesyłanie zdjęć z aparatu. W tym celu zostaniesz przeprowadzony przez kilka kroków początkowych.</string>
+  <string name="settings_cuc_welcome_text">Dziękujemy za skorzystanie z asystenta konfiguracji automatycznego przesyłania zdjęć.\nAby pomóc Ci rozpocząć korzystanie z usługi przesyłania zostaniesz przeprowadzony przez kilka kroków początkowych.</string>
   <string name="settings_cuc_network_title">Jak przesyłać</string>
   <string name="settings_cuc_network_wifi">Tylko Wi-Fi</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi lub transmisja komórkowa</string>
@@ -313,9 +314,9 @@
   <string name="settings_cuc_upload_to_parent_folder">W górę do folderu nadrzędnego</string>
   <string name="settings_cuc_auto_scan">Automatycznie znajdź albumy z aparatu</string>
   <string name="settings_cuc_pick_albums">Pozwól mi wybrać albumy</string>
-  <string name="settings_cuc_remote_lib_hint">Wybierz swoje konto i bibliotekę. \nMożesz je potem zmienić w Ustawieniach.</string>
+  <string name="settings_cuc_remote_lib_hint">Wskaż preferowane konto i bibliotekę.\nTę konfigurację można później zmienić w Ustawieniach.</string>
   <string name="settings_cuc_finish_title">Zakończ</string>
-  <string name="settings_cuc_ready">Seafile prześle teraz pliki z wybranych folderów.\nMożesz w tym czasie śmiało zamknąć aplikację.</string>
+  <string name="settings_cuc_ready">Seafile zacznie przesyłać pliki z wybranych folderów po potwierdzeniu poniżej.\nMożna bezpiecznie zamknąć aplikację w tym czasie.</string>
   <string name="settings_cuc_swipe_left">Przesuń w lewo, aby kontynuować.</string>
   <string name="settings_cuc_click_btn">Kliknij, aby zamknąć asystenta konfiguracji.</string>
   <string name="settings_cuc_loading">wczytywanie...</string>
@@ -337,18 +338,24 @@
             Twitter: Seafile<br>
             Email: support@seafile.com<br>
         </p>
-        <h5>Contribution</h5>
+        <h5>Contributions</h5>
         <p>https://github.com/haiwen/seadroid.git</P>
-        <h5>Copyright ©2013-2015 Seafile Ltd.</h5>
+        <h5>Copyright ©2013-2016 Seafile Ltd.</h5>
         ]]>
     </string>
-  <string name="settings_advance_feature_title">ZAAWANSOWANE</string>
+  <string name="settings_storage_title">PAMIĘĆ PODRĘCZNA</string>
   <string name="settings_cache_title">Pamięć podręczna</string>
   <string name="settings_clear_cache_title">Opróżnij pamięć podręczną</string>
   <string name="settings_clear_cache_hint">Czy chcesz wyczyścić pamięć podręczną?</string>
   <string name="settings_clear_cache_success">Pomyślnie wyczyszczono pamięć podręczną</string>
   <string name="settings_clear_cache_failed">Nie udało się wyczyścić pamięci podręcznej</string>
   <string name="settings_cache_empty">0 KB</string>
+  <string name="settings_cache_location_title">Lokalizacja pamięci podręcznej</string>
+  <string name="dialog_switch_storage_info_text">Istniejące pliki zostaną przeniesione w nowe miejsce. Może to chwilę potrwać.</string>
+  <string name="storage_manager_primary_storage">Główna przestrzeń</string>
+  <string name="storage_manager_secondary_storage">Drugorzędna przestrzeń</string>
+  <string name="storage_manager_storage_description">%1$s (%2$s wolne/%3$s całość)</string>
+  <string name="storage_manager_storage_description_not_available">%1$s (niedostępne)</string>
   <!--pull to refresh-->
   <string name="pull_to_refresh_pull_label">Pociągnij, aby odświeżyć...</string>
   <string name="pull_to_refresh_release_label">Puść, aby odświeżyć...</string>
@@ -367,11 +374,11 @@
   <string name="saf_account_not_found_exception">Nie można odnaleźć konta Seafile.</string>
   <string name="saf_upload_path_not_available">Nie można przesłać, ścieżka niedostępna</string>
   <string name="saf_failed_to_create_directory">Nie można utworzyć folderu %s</string>
-  <string name="saf_file_exist">Plik już istnieje</string>
+  <string name="saf_file_exist">Ten plik już istnieje</string>
   <string name="saf_bad_mime_type">Zły typ żądania</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">Serwer jest pusty!</string>
-  <string name="shib_server_incorrect_prefix">Adres serwera musi się zaczynać od http:// lub https://</string>
+  <string name="shib_server_incorrect_prefix">Nazwa serwera powinna się zaczynać od https:// lub http://</string>
   <string name="shib_load_page_error">Błąd:</string>
   <string name="shib_login_title">Logowanie Shibboleth</string>
   <string name="shib_server_hint">Serwer wejściowy...</string>
@@ -421,7 +428,7 @@
   <string name="star_file_succeed">Plik został oznaczony gwiazdką</string>
   <string name="star_file_failed">Nie udało się oznaczyć pliku gwiazdką</string>
   <!--unstar a file-->
-  <string name="unstar_file_failed">Nie udało się usunąć gwizdki</string>
+  <string name="unstar_file_failed">Usuwanie gwiazdki z pliku nie powiodło się.</string>
   <string name="unstar">Usuń gwiazdkę</string>
   <!--notification bar-->
   <string name="notification_upload_started_title">Przesyłanie plików...</string>
@@ -443,7 +450,7 @@
   <string name="gallery_encrypted_repo_not_supported">Szyfrowana biblioteka nie była obsługiwana</string>
   <!--Overwrite existing files-->
   <string name="overwrite_existing_file_title">Nadpisz istniejący plik</string>
-  <string name="overwrite_existing_file_msg">Plik już istnieje, czy chcesz go nadpisać?</string>
+  <string name="overwrite_existing_file_msg">Plik już istnieje, czy chcesz go zastąpić?</string>
   <string name="overwrite_existing_file_exist">Plik już istnieje</string>
   <!--Action Mode-->
   <string name="action_mode_no_items_selected">Nie wybrano elementów</string>

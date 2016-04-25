@@ -266,6 +266,7 @@
   <string name="settings_camera_upload_info_title">上传照片</string>
   <string name="settings_camera_upload_service_started">上传服务已启动</string>
   <string name="settings_camera_upload_service_stopped">上传服务已关闭</string>
+  <string name="settings_camera_upload_service_master_off">自动备份功能在系统设置中被禁用</string>
   <string name="settings_camera_upload_allow_data_plan">允许使用移动流量套餐</string>
   <string name="settings_camera_upload_allow_videos">允许上传视频</string>
   <string name="settings_camera_upload_default_wifi">默认使用WiFi上传</string>
@@ -319,25 +320,20 @@
   <string name="settings_about_version_title">应用版本号</string>
   <string name="settings_about_author_title">关于我们</string>
   <string name="settings_about_author_info">
-<![CDATA[
-        <h5>Seafile安卓客户端</h5>
-        <p>%s</p>
-        <h5>联系我们</h5>
-        <p>
-            Twitter: Seafile<br>
-            邮箱: support@seafile.com<br>
-        </p>
-        <h5>贡献代码</h5>
-        <p>https://github.com/haiwen/seadroid.git</P>
-        <h5>版权 ©2013-2015 Seafile Ltd.</h5>
-        ]]></string>
-  <string name="settings_advance_feature_title">高级特性</string>
+<![CDATA[ <h5>;Seafile安卓客户端&lt;/h5> <p>%s</p> <h5>联系我们</h5> <p> Twitter: Seafile<br> 邮箱: support@seafile.com<br> </p> <h5>贡献代码</h5> <p>https://github.com/haiwen/seadroid.git</P> <h5>版权 ©2013-2016 Seafile Ltd.</h5> ]]></string>
+  <string name="settings_storage_title">缓存存储</string>
   <string name="settings_cache_title">缓存大小</string>
   <string name="settings_clear_cache_title">清空缓存</string>
   <string name="settings_clear_cache_hint">你想清理缓存吗？</string>
   <string name="settings_clear_cache_success">清理缓存成功</string>
   <string name="settings_clear_cache_failed">清理缓存失败</string>
   <string name="settings_cache_empty">0 KB</string>
+  <string name="settings_cache_location_title">缓存路径</string>
+  <string name="dialog_switch_storage_info_text">现有的缓存文件会被移动到新路径下，这可能需要一段时间。</string>
+  <string name="storage_manager_primary_storage">主存储</string>
+  <string name="storage_manager_secondary_storage">副存储</string>
+  <string name="storage_manager_storage_description">%1$s (%2$s可用/%3$s总共)</string>
+  <string name="storage_manager_storage_description_not_available">%1$s (不可用)</string>
   <!--pull to refresh-->
   <string name="pull_to_refresh_pull_label">下拉更新</string>
   <string name="pull_to_refresh_release_label">释放更新</string>
@@ -360,7 +356,7 @@
   <string name="saf_bad_mime_type">请求类型错误</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">地址栏为空</string>
-  <string name="shib_server_incorrect_prefix">地址应该以http://或https://开头</string>
+  <string name="shib_server_incorrect_prefix">地址应该以https://或http://开头</string>
   <string name="shib_load_page_error">错误：</string>
   <string name="shib_login_title">Shibboleth登录</string>
   <string name="shib_server_hint">请输入地址...</string>
@@ -377,7 +373,7 @@
   <string name="transfer_list_clear_finished_tasks">清除完成的任务</string>
   <string name="transfer_tabs_downloads">下载列表</string>
   <string name="transfer_tabs_uploads">上传列表</string>
-  <string name="transfer_download_no_task">所有文件已全部下载</string>
+  <string name="transfer_download_no_task">所有文件已下载完成</string>
   <plurals name="transfer_download_started">
     <item quantity="other">开始下载%1$d个文件</item>
   </plurals>
@@ -424,7 +420,7 @@
   <string name="gallery_encrypted_repo_not_supported">不支持加密资料库</string>
   <!--Overwrite existing files-->
   <string name="overwrite_existing_file_title">替换文件</string>
-  <string name="overwrite_existing_file_msg">该文件已经存在，你想替换掉它吗？</string>
+  <string name="overwrite_existing_file_msg">该文件已存在，要替换它吗？</string>
   <string name="overwrite_existing_file_exist">该文件已经存在</string>
   <!--Action Mode-->
   <string name="action_mode_no_items_selected">未选中任何文件</string>

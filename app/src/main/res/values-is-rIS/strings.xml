@@ -5,8 +5,6 @@
   <string name="edit_account">Breyta</string>
   <string name="delete_account">Eyða</string>
   <string name="delete">Eyða</string>
-  <string name="delete_file">Ertu viss um að þú viljir eyða þessu skráasafni?</string>
-  <string name="delete_successful">Eyðing tókst</string>
   <string name="delete_file_f">Eyða skrá</string>
   <string name="delete_dir">Eyða skráasafni</string>
   <string name="server_hint">Þjónn, eins og cloud.seafile.com</string>
@@ -17,7 +15,6 @@
   <string name="download_file">Hala niður</string>
   <string name="redownload_file">Hala niður aftur</string>
   <string name="cancel_download">Hætta við</string>
-  <string name="unknown_file_type">Óþekkt skráargerð</string>
   <string name="activity_not_found">Finn ekki App til að opna þessa skrá</string>
   <string name="refresh">Endurglæða</string>
   <string name="add_account">Bæta við reikningi</string>
@@ -187,7 +184,6 @@
   <string name="choose_file">Veldu skrá</string>
   <string name="ssl_error">Öryggispróf mistókst</string>
   <string name="ssl_confirm">Öryggisskírteinið fyrir %s er ótraust. Viltu halda áfram?</string>
-  <string name="ssl_confirm_cert_changed">%s notar rangt öryggisskírteini.  Tengingin er ekki örugg.  Viltu halda áfram?</string>
   <string name="ssl_confirm_title">Ótraust Tenging</string>
   <string name="issued_to">Gefið Til</string>
   <string name="finger_prints">Fingraför</string>
@@ -233,7 +229,6 @@
   <string name="lockscreen_access_pattern_cell_added">Bætt við mystursreit</string>
   <string name="lockscreen_access_pattern_detected">Mynstur er greint</string>
   <string name="lockscreen_access_pattern_passwd_forget">Gleymt lykilorð</string>
-  <string name="lockscreen_access_pattern_failure">Mistókst 5 sinnum, vinsamlegast bíddu í 30 sekúndur áður en þú reynir aftur</string>
   <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
     <item quantity="one">Þú getur reynt aftur eftir %1$d sekúndu</item>
     <item quantity="other">Þú getur reynt aftur eftir %1$d sekúndur</item>
@@ -266,7 +261,6 @@
   <string name="settings_camera_upload_service_started">Upphleðsluþjónusta hafin</string>
   <string name="settings_camera_upload_service_stopped">Upphleðsluþjónusta stöðvaðist</string>
   <string name="settings_camera_upload_allow_data_plan">Leyfa 3G/4G flutning</string>
-  <string name="settings_camera_upload_allow_videos">Leyfa Upphleðslu Kvikmynda</string>
   <string name="settings_camera_upload_default_wifi">Sjálfgefið að nota aðeins Wi-Fi</string>
   <string name="settings_camera_upload_data_plan_allowed">3G/4G flutningur leyfður</string>
   <string name="settings_camera_upload_default_photos">Sjálfgefið að hlaða aðeins upp ljósmyndum</string>
@@ -284,7 +278,6 @@
   <string name="settings_camera_upload_advanced_custom_directories_off">Sjálfvirk skimun tækis</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Stillingahjálp</string>
-  <string name="settings_cuc_welcome_text">Takk vyrir að nota myndavélaupphleðsluhjálpina. \nTil að hjálpa þér af stað með myndavélaupphleðsluþjónustuna, þá verður þér leiðbeint í upphafskrefunum.</string>
   <string name="settings_cuc_network_title">Hvernig á að hlaða upp</string>
   <string name="settings_cuc_network_wifi">Aðeins Wi-Fi</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi eða 3G/4G</string>
@@ -303,9 +296,7 @@
   <string name="settings_cuc_upload_to_parent_folder">Upp í Yfirskráasafn</string>
   <string name="settings_cuc_auto_scan">Velja myndasöfn sjálfvirkt</string>
   <string name="settings_cuc_pick_albums">Leyfðu mér að velja upphleðslumyndasöfn</string>
-  <string name="settings_cuc_remote_lib_hint">Veldu reikninginn þinn og safn. \nÞú getur breytt þessum stillingum síðar í Stillingum.</string>
   <string name="settings_cuc_finish_title">Enda</string>
-  <string name="settings_cuc_ready">Seafile mun nú hlaða upp skrám frá þeim skráasöfnum sem þú valdir. \nÞú mátt loka appinu á meðan þessu stendur.</string>
   <string name="settings_cuc_swipe_left">Strjúktu til vinstri til að halda áfram.</string>
   <string name="settings_cuc_click_btn">Smelltu til að loka stillingahjálpinni.</string>
   <string name="settings_cuc_loading">hleð...</string>
@@ -317,22 +308,6 @@
   <string name="camera_sync_rename_file">%s (endurnefnt af Seafile)</string>
   <string name="settings_about_title">UM</string>
   <string name="settings_about_version_title">App Útgáfa</string>
-  <string name="settings_about_author_title">Um Höfund</string>
-  <string name="settings_about_author_info">
-        <![CDATA[
-        <h5>Seafile Android biðlari</h5>
-        <p>%s</p>
-        <h5>Hafðu samband við okkur</h5>
-        <p>
-            Twitter: Seafile<br>
-            Netfang: support@seafile.com<br>
-        </p>
-        <h5>Taka þátt</h5>
-        <p>https://github.com/haiwen/seadroid.git</P>
-        <h5>Copyright ©2013-2015 Seafile Ltd.</h5>
-        ]]>
-    </string>
-  <string name="settings_advance_feature_title">ÍTARLEGRI SÉRKENNI</string>
   <string name="settings_cache_title">Flýtiminnisstærð</string>
   <string name="settings_clear_cache_title">Tæma flýtiminni</string>
   <string name="settings_clear_cache_hint">Viltu tæma flýtiminnið?</string>
@@ -357,11 +332,9 @@
   <string name="saf_account_not_found_exception">Finn ekki Seafile reikning.</string>
   <string name="saf_upload_path_not_available">Gat ekki hlaðið upp, engin slóð tiltæk</string>
   <string name="saf_failed_to_create_directory">Gat ekki búið til skráasafnið %s</string>
-  <string name="saf_file_exist">Skrá er þegar til</string>
   <string name="saf_bad_mime_type">Slæm beiðnagerð</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">Þjónn er tómur!</string>
-  <string name="shib_server_incorrect_prefix">Þjónn ætti að byrja á annaðhvort http:// eða https://</string>
   <string name="shib_load_page_error">Villa:</string>
   <string name="shib_login_title">Shibboleth Innskráning</string>
   <string name="shib_server_hint">Settu inn Þjón...</string>
@@ -378,7 +351,6 @@
   <string name="transfer_list_clear_finished_tasks">Hreinsa loknum verkum</string>
   <string name="transfer_tabs_downloads">Niðurhalslisti</string>
   <string name="transfer_tabs_uploads">Upphleðslulisti</string>
-  <string name="transfer_download_no_task">Öllum skrám hefur verið niðurhalað</string>
   <plurals name="transfer_download_started">
     <item quantity="one">Er að hefja niðurhal á %1$d skrá</item>
     <item quantity="other">Er að hefja niðurhal %1$d skráa</item>
@@ -409,7 +381,6 @@
   <string name="star_file_succeed">Stjörnumerkti skránna með ágætum</string>
   <string name="star_file_failed">Mistókst að stjörnumerkja skrá</string>
   <!--unstar a file-->
-  <string name="unstar_file_failed">Mistókst að taka stjörnu af skrá</string>
   <string name="unstar">Taka stjörnu af</string>
   <!--notification bar-->
   <string name="notification_upload_started_title">Hleð upp skrám...</string>
@@ -429,8 +400,6 @@
   <string name="gallery_encrypted_repo_not_supported">Dulkóðað safn var ekki stutt</string>
   <!--Overwrite existing files-->
   <string name="overwrite_existing_file_title">Skipta út skrá sem er til</string>
-  <string name="overwrite_existing_file_msg">Skráin er þegar til, viltu skipta henni út?</string>
-  <string name="overwrite_existing_file_exist">Skráin er þegar til</string>
   <!--Action Mode-->
   <string name="action_mode_no_items_selected">Engin atriði voru valin</string>
   <!--Accessibility description for navigation drawer-->

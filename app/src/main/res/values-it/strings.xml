@@ -5,8 +5,6 @@
   <string name="edit_account">Modifica</string>
   <string name="delete_account">Cancella</string>
   <string name="delete">Cancella</string>
-  <string name="delete_file">Sei sicuro di cancellare questo file o cartella?</string>
-  <string name="delete_successful">Cancellato correttamente</string>
   <string name="delete_file_f">Cancella file</string>
   <string name="delete_dir">Cancella cartella</string>
   <string name="server_hint">Server, come cloud.seafile.com</string>
@@ -16,7 +14,6 @@
   <string name="download_file">Scarica</string>
   <string name="redownload_file">Scarica nuovamente</string>
   <string name="cancel_download">Annulla</string>
-  <string name="unknown_file_type">Tipo file sconosciuto</string>
   <string name="refresh">Aggiorna</string>
   <string name="add_account">Aggiungi Account</string>
   <string name="personal">Personale</string>
@@ -113,7 +110,6 @@
   <string name="empty_folder">Cartella vuota</string>
   <string name="choose_file">Scegli un file</string>
   <string name="ssl_confirm">Il certificato di sicurezza di %s non è fidato. Vuoi continuare?</string>
-  <string name="ssl_confirm_cert_changed">%s usa un certificato di sicurezza non valido. La connessione non è sicura. Vuoi continuare?</string>
   <string name="ssl_confirm_title">Connessione Insicura</string>
   <string name="yes">Sì</string>
   <string name="no">No</string>

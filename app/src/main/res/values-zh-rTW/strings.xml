@@ -5,8 +5,6 @@
   <string name="edit_account">編輯帳戶</string>
   <string name="delete_account">刪除帳戶</string>
   <string name="delete">刪除</string>
-  <string name="delete_file">確定要刪除文件或文件夾嗎？</string>
-  <string name="delete_successful">刪除成功</string>
   <string name="delete_file_f">刪除文件</string>
   <string name="delete_dir">刪除文件夾</string>
   <string name="server_hint">服務器地址，比如cloud.seafile.com</string>
@@ -16,7 +14,6 @@
   <string name="download_file">下載</string>
   <string name="redownload_file">重新下載</string>
   <string name="cancel_download">取消下載</string>
-  <string name="unknown_file_type">未知文件類型</string>
   <string name="activity_not_found">找不到相關應用打開此文件</string>
   <string name="refresh">刷新</string>
   <string name="add_account">添加賬戶</string>

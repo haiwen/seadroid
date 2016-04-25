@@ -5,8 +5,8 @@
   <string name="edit_account">Modifier</string>
   <string name="delete_account">Effacer</string>
   <string name="delete">Effacer</string>
-  <string name="delete_file">Êtes-vous certain de vouloir effacer ce fichier ou ce dossier ?</string>
-  <string name="delete_successful">Effacé avec succès</string>
+  <string name="delete_file">Êtes-vous certain de vouloir supprimer ce dossier ?</string>
+  <string name="delete_successful">Supprimé avec succès</string>
   <string name="delete_file_f">Effacer le fichier</string>
   <string name="delete_dir">Effacer le dossier</string>
   <string name="server_hint">Serveur, par exemple cloud.seafile.com</string>
@@ -192,7 +192,7 @@
   <string name="choose_file">Choisir un fichier</string>
   <string name="ssl_error">Échec de la vérification de sécurité</string>
   <string name="ssl_confirm">La certificat de %s n\'est pas vérifié. Voulez-vous continuer ?</string>
-  <string name="ssl_confirm_cert_changed">%s utilise un certificat non valide. La connexion n\'est pas sécurisée. Voulez-vous continuer?</string>
+  <string name="ssl_confirm_cert_changed">%s utilise un certificat de sécurité non valide. La connexion n\'est pas sécurisée. Continuer malgré tout.</string>
   <string name="ssl_confirm_title">Connexion non sécurisée</string>
   <string name="issued_to">Publié à</string>
   <string name="finger_prints">Empreintes</string>
@@ -238,7 +238,7 @@
   <string name="lockscreen_access_pattern_cell_added">Point de modèle ajouté </string>
   <string name="lockscreen_access_pattern_detected">Modèle détecté</string>
   <string name="lockscreen_access_pattern_passwd_forget">Mot de passe oublié</string>
-  <string name="lockscreen_access_pattern_failure">5 échecs, réessayer dans 30 secondes</string>
+  <string name="lockscreen_access_pattern_failure">Échoué 5 fois, veuillez patienter 30 secondes avant d\'essayer à nouveau.</string>
   <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
     <item quantity="one">Réessayer dans %1$d seconde</item>
     <item quantity="other">Vous pouvez réessayer dans %1$d secondes</item>
@@ -270,6 +270,7 @@
   <string name="settings_camera_upload_info_title">Envoi des photos</string>
   <string name="settings_camera_upload_service_started">Service d\'envoi démarré</string>
   <string name="settings_camera_upload_service_stopped">Service d\'envoi arrêté</string>
+  <string name="settings_camera_upload_service_master_off">La synchronisation automatique des données est désactivée dans Android.</string>
   <string name="settings_camera_upload_allow_data_plan">Autoriser un plan de données</string>
   <string name="settings_camera_upload_allow_videos">Autoriser l\'envoi de vidéos</string>
   <string name="settings_camera_upload_default_wifi">Wi-Fi utilisé  uniquement par défaut</string>
@@ -289,7 +290,7 @@
   <string name="settings_camera_upload_advanced_custom_directories_off">Scan automatique de l\'appareil</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Aide à la configuration</string>
-  <string name="settings_cuc_welcome_text">Merci d\'utiliser l\'aide à la configuration des envois de photos/vidéos. \nPour vous aider, commencez par démarrer le service d\'envoi de photos/vidéos, vous serez guidé dans vos premiers pas.</string>
+  <string name="settings_cuc_welcome_text">Merci d\'utiliser l\'assistant de configuration d\'envoi de votre appareil photo.\nPour vous aider à commencer avec le service d\'envoi de l\'appareil photo, vous serez guidé au travers de quelques étapes.</string>
   <string name="settings_cuc_network_title">Comment envoyer</string>
   <string name="settings_cuc_network_wifi">Wi-Fi seulement</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi ou plan de données</string>
@@ -308,9 +309,9 @@
   <string name="settings_cuc_upload_to_parent_folder">Vers dossier parent</string>
   <string name="settings_cuc_auto_scan">Détecter automatiquement les albums de l\'appareil photo</string>
   <string name="settings_cuc_pick_albums">Laissez-moi choisir mon album photos</string>
-  <string name="settings_cuc_remote_lib_hint">Choisissez votre compte et votre bibliothèque préférés. Vous pourrez changer ces options plus tard dans Paramètres.</string>
+  <string name="settings_cuc_remote_lib_hint">Choisissez votre compte et bibliothèque préférée. \nVous pourrez changer ces options plus tard dans \"Paramètres\".</string>
   <string name="settings_cuc_finish_title">Terminer</string>
-  <string name="settings_cuc_ready">Seafile envoie maintenant les fichiers depuis vos dossiers sélectionnés. \n Vous pouvez fermer l\'application pendant cette opération.</string>
+  <string name="settings_cuc_ready">Seafile commencera l\'envoi des fichiers depuis le dossier sélectionné après confirmation ci-dessous.\nVous pouvez fermer l\'application durant la procédure.</string>
   <string name="settings_cuc_swipe_left">Glisser vers la gauche pour continuer</string>
   <string name="settings_cuc_click_btn">Cliquez pour fermer l\'aide à la configuration.</string>
   <string name="settings_cuc_loading">Chargement...</string>
@@ -324,26 +325,31 @@
   <string name="settings_about_version_title">Version</string>
   <string name="settings_about_author_title">À propos de l\'auteur</string>
   <string name="settings_about_author_info">
-        <![CDATA[
-        <h5>Client Seafile Android</h5>
-        <p>%s</p>
-        <h5>Contactez-nous</h5>
-        <p>
-            Twitter: Seafile<br>
-            E-mail: support@seafile.com<br>
-        </p>
-        <h5>Contribution</h5>
-        <p>https://github.com/haiwen/seadroid.git</P>
-        <h5>Copyright ©2013-2015 Seafile Ltd.</h5>
-        ]]>
-    </string>
-  <string name="settings_advance_feature_title">FONCTIONNALITÉ AVANCÉE</string>
+<![CDATA[
+<h5>Seafile client pour Android</h5>
+<p>%s</p>
+<h5>Contactez-nous</h5>
+<p>
+Twitter : Seafile<br>
+E-mail : support@seafile.com<br>
+</p>
+<h5>Contributions</h5>
+<p>https://github.com/haiwen/seadroid.git</P>
+<h5>Copyright ©2013-2016 Seafile Ltd.</h5>
+]]></string>
+  <string name="settings_storage_title">Stockage du cache</string>
   <string name="settings_cache_title">Taille du cache</string>
   <string name="settings_clear_cache_title">Effacer le cache</string>
   <string name="settings_clear_cache_hint">Voulez-vous effacer le cache ?</string>
   <string name="settings_clear_cache_success">Cache effacé avec succès</string>
   <string name="settings_clear_cache_failed">Échec de l\'effacement du cache</string>
   <string name="settings_cache_empty">0 KB</string>
+  <string name="settings_cache_location_title">Emplacement du stockage du cache</string>
+  <string name="dialog_switch_storage_info_text">Des fichiers existant vont être déplacés vers un nouveau stockage. Cela peut prendre un certain temps.</string>
+  <string name="storage_manager_primary_storage">Stockage principal</string>
+  <string name="storage_manager_secondary_storage">Stockage secondaire</string>
+  <string name="storage_manager_storage_description">%1$s (%2$s libre/%3$s total)</string>
+  <string name="storage_manager_storage_description_not_available">%1$s (indisponible)</string>
   <!--pull to refresh-->
   <string name="pull_to_refresh_pull_label">Appuyer pour rafraichir...</string>
   <string name="pull_to_refresh_release_label">Relâcher pour rafraichir...</string>
@@ -362,11 +368,11 @@
   <string name="saf_account_not_found_exception">Impossible de trouver un compte Seafile.</string>
   <string name="saf_upload_path_not_available">Envoi impossible, aucun chemin disponible</string>
   <string name="saf_failed_to_create_directory">Impossible de créer le répertoire %s</string>
-  <string name="saf_file_exist">Le fichier existe déjà</string>
+  <string name="saf_file_exist">Ce fichier existe déjà.</string>
   <string name="saf_bad_mime_type"> type erroné de requête</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">La saisie du  serveur est vide !</string>
-  <string name="shib_server_incorrect_prefix">Serveur doit commencer par http:// ou https://</string>
+  <string name="shib_server_incorrect_prefix">L\'adresse du serveur doit commencer par https:// ou http://</string>
   <string name="shib_load_page_error">Erreur :</string>
   <string name="shib_login_title">Connexion shibboleth</string>
   <string name="shib_server_hint">Entrez le serveur...</string>
@@ -383,7 +389,7 @@
   <string name="transfer_list_clear_finished_tasks">Effacer les tâches terminées</string>
   <string name="transfer_tabs_downloads">Liste des téléchargements</string>
   <string name="transfer_tabs_uploads">Liste d\'envois</string>
-  <string name="transfer_download_no_task">Tous les fichiers ont été téléchargés</string>
+  <string name="transfer_download_no_task">Tous les fichiers ont été téléchargé</string>
   <plurals name="transfer_download_started">
     <item quantity="one">Téléchargement de %1$d fichier</item>
     <item quantity="other">Téléchargement de %1$d fichiers</item>
@@ -414,7 +420,7 @@
   <string name="star_file_succeed">Fichier mis en favori avec succès</string>
   <string name="star_file_failed">Échec de la mise en favori du fichier</string>
   <!--unstar a file-->
-  <string name="unstar_file_failed">Désactiver l\'attribut favori du fichier</string>
+  <string name="unstar_file_failed">La suppression des favoris a échoué</string>
   <string name="unstar">Désactiver l\'attribut favori</string>
   <!--notification bar-->
   <string name="notification_upload_started_title">Envoi des fichiers...</string>
@@ -434,7 +440,7 @@
   <string name="gallery_encrypted_repo_not_supported">Bibliothèque cryptée non  supportée</string>
   <!--Overwrite existing files-->
   <string name="overwrite_existing_file_title">Remplacer le fichier existant</string>
-  <string name="overwrite_existing_file_msg">Ce fichier existe déjà, voulez-vous le remplacer ?</string>
+  <string name="overwrite_existing_file_msg">Le fichier existe déjà, voulez-vous le remplacer ?</string>
   <string name="overwrite_existing_file_exist">Le fichier existe déjà</string>
   <!--Action Mode-->
   <string name="action_mode_no_items_selected">Aucun élément sélectionné </string>
@@ -442,4 +448,6 @@
   <!--permission-->
   <string name="permission_read_exteral_storage_rationale">Pour traiter les fichiers, permettre l\'autorisation de stockage pour y accéder.</string>
   <string name="permission_not_granted">L\'autorisation n\'a pas été accordée</string>
+  <string name="history_change_title">Détails de modification</string>
+  <string name="no_more_activities">Aucune activité</string>
 </resources>

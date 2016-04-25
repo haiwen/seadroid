@@ -5,8 +5,6 @@
   <string name="edit_account">Επεξεργασία</string>
   <string name="delete_account">Διαγραφή</string>
   <string name="delete">Διαγραφή</string>
-  <string name="delete_file">Είστε σίγουροι πως θέλετε να διαγράψετε αυτό το αρχείο ή φάκελο;</string>
-  <string name="delete_successful">Διεγράφη με επιτυχία</string>
   <string name="delete_file_f">Διαγραφή αρχείου</string>
   <string name="delete_dir">Διαγραφή φακέλου</string>
   <string name="server_hint">Διακομιστής, όπως cloud.seafile.com</string>
@@ -16,7 +14,6 @@
   <string name="download_file">Λήψη</string>
   <string name="redownload_file">Λήψη ξανά</string>
   <string name="cancel_download">Ακύρωση</string>
-  <string name="unknown_file_type">Άγνωστος τύπος αρχείου</string>
   <string name="activity_not_found">Δεν μπορεί να βρεθεί εφαρμογή για να ανοίξει αυτό το αρχείο</string>
   <string name="refresh">Ανανέωση</string>
   <string name="add_account">Προσθήκη λογαριασμού</string>
@@ -142,7 +139,6 @@
   <string name="settings_camera_upload_info_title">Μεταφόρτωση φωτογραφιών</string>
   <string name="settings_camera_upload_service_started">Η υπηρεσία μεταφόρτωσης ξεκίνησε</string>
   <string name="settings_camera_upload_service_stopped">Η διαδικασία μεταφόρτωσης σταμάτησε</string>
-  <string name="settings_camera_upload_allow_videos">Να επιτρέπεται μεταφόρτωση βίντεο</string>
   <string name="settings_camera_upload_default_photos">Μεταφόρτωση φωτογραφιών μόνο από προεπιλογή</string>
   <string name="settings_camera_upload_change_repo_title">Αλλαγή βιβλιοθήκης μεταφόρτωσης</string>
   <string name="settings_camera_upload_repo_hint">Παρακαλώ επιλέξτε πρώτα μια βιβλιοθήκη</string>
@@ -150,11 +146,9 @@
   <string name="settings_camera_upload_lib_not_found">Η επιλεγμένη βιβλιοθήκη δεν υπάρχει</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Μη τυπικές ρυθμίσεις μεταφόρτωσης</string>
   <!--Camera Upload Configuration View-->
-  <string name="settings_cuc_welcome_text">Σας ευχαριστούμε που χρησιμοποιείτε τον βοηθό ρύθμισης της μεταφόρτωσης φωτογραφιών. \nΓια να σας βοηθήσουμε να ξεκινήσετε με την υπηρεσία μεταφόρτωσης, θα καθοδηγηθήτε κατά τα πρώτα βήματα.</string>
   <string name="settings_cuc_network_title">Πώς να μεταφορτώσετε</string>
   <string name="settings_cuc_type_title">Τί να μεταφορτώσετε</string>
   <string name="settings_cuc_remote_lib_title">Επιλέξτε απομακρυσμένη βιβλιοθήκη</string>
-  <string name="settings_cuc_ready">Το Seafile θα αρχίσει να μεταφορτώνει αρχεία από τους επιλεγμένους φακέλους. \nΜπορείτε να κλείσετε την εφαρμογή κατά την διάρκεια αυτής της διαδικασίας.</string>
   <!--Camera Sync-->
   <!--pull to refresh-->
   <!--storage access framework-->
@@ -164,7 +158,6 @@
   <!--Transfer List-->
   <string name="transfer_tabs_downloads">Λίστα λήψεων</string>
   <string name="transfer_tabs_uploads">Λίστα μεταφορτώσεων</string>
-  <string name="transfer_download_no_task">Όλα τα αρχεία έχουν ληφθεί</string>
   <!--Sort-->
   <!--Search-->
   <!--star a file-->

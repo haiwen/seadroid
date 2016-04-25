@@ -5,8 +5,6 @@
   <string name="edit_account">Düzenle</string>
   <string name="delete_account">Sil</string>
   <string name="delete">Sil</string>
-  <string name="delete_file">Bu klasörü ya da dosyayı silmek istediğinize emin misiniz?</string>
-  <string name="delete_successful">Başarıyla silindi.</string>
   <string name="delete_file_f">Dosyayı  sil</string>
   <string name="delete_dir">Dizini sil</string>
   <string name="server_hint">Sunucu, örneğin cloud.seafile.com</string>
@@ -16,7 +14,6 @@
   <string name="download_file">İndir</string>
   <string name="redownload_file">Tekrar indir</string>
   <string name="cancel_download">İptal et</string>
-  <string name="unknown_file_type">Bilinmeyen dosya tipi</string>
   <string name="refresh">Yenile</string>
   <string name="add_account">Hesap ekle</string>
   <string name="personal">Kişisel</string>
@@ -117,7 +114,6 @@
   <string name="empty_folder">Boş klasör</string>
   <string name="choose_file">Bir dosya seç</string>
   <string name="ssl_confirm">%s güvenlik sertifikası güvenilir değil. Devam etmek istiyor musunuz?</string>
-  <string name="ssl_confirm_cert_changed">%s geçersiz bir güvenlik sertifikası kullanıyor. Bağlantı güvenli değil. Devam etmek istiyor musunuz?</string>
   <string name="ssl_confirm_title">Güvenilmeyen Bağlantı</string>
   <string name="issued_to">Verilen kişi ya da kuruluş</string>
   <string name="period_of_validity">Geçerlilik Süresi</string>
@@ -174,7 +170,6 @@
   <!--Camera Sync-->
   <string name="settings_about_title">HAKKINDA</string>
   <string name="settings_about_version_title">Uygulama Versiyonu</string>
-  <string name="settings_about_author_title">Yazar Hakkında</string>
   <string name="settings_cache_title">Ön bellek boyutu</string>
   <string name="settings_clear_cache_title">Ön belleği temizle</string>
   <string name="settings_clear_cache_hint">Ön belleği temizlemek istiyor musunuz?</string>
@@ -187,14 +182,12 @@
   <string name="saf_file_not_cached_exception">%s dosyası ön belleklenmemiş</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">Sunucu boş!</string>
-  <string name="shib_server_incorrect_prefix">Sunucu adresi http:// ya da https:// ile başlamalı.</string>
   <string name="shib_login_title">Shibboleth Girişi</string>
   <string name="shib_actionbar_title">Shibboleth ile giriş yap</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">Ağ bağlantı hatası, lütfen daha sonra tekrar deneyin!</string>
   <string name="transfer_tabs_downloads">Listeyi indir</string>
   <string name="transfer_tabs_uploads">Yükleme Listesi</string>
-  <string name="transfer_download_no_task">Bütün dosyalar indirildi</string>
   <!--Sort-->
   <!--Search-->
   <!--star a file-->
