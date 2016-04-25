@@ -16,7 +16,6 @@ import com.seafile.seadroid2.crypto.Crypto;
 import com.seafile.seadroid2.util.Utils;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,12 +48,14 @@ public class DataManager {
     public static final String PULL_TO_REFRESH_LAST_TIME_FOR_STARRED_FRAGMENT = "starred fragment last update ";
     private static SimpleDateFormat ptrDataFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    private static Map<String, EncIVInfo> encIVMap = Maps.newHashMap();
-    private static Map<String, SecretKeyInfo> secretKeyMap = Maps.newHashMap();
+    private static Map<String, EncIvInfo> encIvMap = Maps.newHashMap();
+    private static Map<String, EncKeyInfo> secretKeyMap = Maps.newHashMap();
     private static Map<String, Long> direntsRefreshTimeMap = Maps.newHashMap();
     public static final long REFRESH_EXPIRATION_MSECS = 10 * 60 * 1000; // 10 mins
     public static long repoRefreshTimeStamp = 0;
-    
+
+    public static final int BUFFER_SIZE = 2 * 1024 * 1024;
+
     private SeafConnection sc;
     private Account account;
     private DatabaseHelper dbHelper;
@@ -168,7 +169,7 @@ public class DataManager {
 
     private File getFileForBlockCache(String blockId) {
         String filename = "block-" + blockId + ".dat";
-        return new File(getChunkDirectory() + "/" + filename);
+        return new File(storageManager.getTempDir() + "/" + filename);
     }
 
     /**
@@ -447,18 +448,18 @@ public class DataManager {
         Log.d(DEBUG_TAG, "blklist " + blklist);
         Log.d(DEBUG_TAG, "fileID " + fileID);
 
-        if (blklist == null) throw SeafException.unknownException;
+        if (blklist == null) throw SeafException.blockListNullPointerException;
 
 
         final String encKey = getRepoEncKey(repoID);
         final String encIv = getRepoEncIv(repoID);
         // Log.d(DEBUG_TAG, "encKey " + encKey + "\n encIv " + encIv);
         if (TextUtils.isEmpty(encKey) || TextUtils.isEmpty(encIv)) {
-            throw SeafException.unknownException;
+            throw SeafException.decryptException;
         }
 
         for (String blockID: getBlockIds(blklist)) {
-            File tempBlock = new File(getChunkDirectory(), blockID);
+            File tempBlock = new File(storageManager.getTempDir(), blockID);
             final Pair<String, File> block = sc.getBlock(repoID, fileID, blockID, path, tempBlock.getPath(), monitor);
             final byte[] bytes = FileUtils.readFileToByteArray(block.second);
             // Log.d(DEBUG_TAG, "download block " + Crypto.toHex(bytes));
@@ -855,51 +856,51 @@ public class DataManager {
         }
     }
 
-    private static class EncIVInfo {
-        String encIV;
+    private static class EncIvInfo {
+        String encIv;
 
-        public EncIVInfo(String encIV) {
-            this.encIV = encIV;
+        public EncIvInfo(String encIv) {
+            this.encIv = encIv;
         }
     }
 
-    private static class SecretKeyInfo {
+    private static class EncKeyInfo {
         String secretKey;
 
-        public SecretKeyInfo(String secretKey) {
+        public EncKeyInfo(String secretKey) {
             this.secretKey = secretKey;
         }
     }
 
-    public static boolean getRepoEncIVSet(String repoID) {
-        EncIVInfo info = encIVMap.get(repoID);
-        return info != null && !TextUtils.isEmpty(info.encIV);
+    public static boolean getRepoEncIvSet(String repoID) {
+        EncIvInfo info = encIvMap.get(repoID);
+        return info != null && !TextUtils.isEmpty(info.encIv);
     }
 
     public static boolean getRepoEnckeySet(String repoID) {
-        SecretKeyInfo info = secretKeyMap.get(repoID);
+        EncKeyInfo info = secretKeyMap.get(repoID);
         return info != null && !TextUtils.isEmpty(info.secretKey);
     }
 
     public static void setRepoEncIV(String repoID, String encIV) {
-        encIVMap.put(repoID, new EncIVInfo(encIV));
+        encIvMap.put(repoID, new EncIvInfo(encIV));
     }
 
     public static void saveRepoSecretKey(String repoID, String key) {
-        secretKeyMap.put(repoID, new SecretKeyInfo(key));
+        secretKeyMap.put(repoID, new EncKeyInfo(key));
     }
 
     public static String getRepoPassword(String repoID) {
-        EncIVInfo info = encIVMap.get(repoID);
+        EncIvInfo info = encIvMap.get(repoID);
         if (info == null) {
             return null;
         }
 
-        return info.encIV;
+        return info.encIv;
     }
 
     public static String getRepoEncKey(String repoID) {
-        SecretKeyInfo info = secretKeyMap.get(repoID);
+        EncKeyInfo info = secretKeyMap.get(repoID);
         if (info == null) {
             return null;
         }
@@ -908,12 +909,12 @@ public class DataManager {
     }
 
     public static String getRepoEncIv(String repoID) {
-        final EncIVInfo info = encIVMap.get(repoID);
+        final EncIvInfo info = encIvMap.get(repoID);
         if (info == null) {
             return null;
         }
 
-        return info.encIV;
+        return info.encIv;
     }
 
     /**
@@ -1043,18 +1044,17 @@ public class DataManager {
     }
 
     private SeafBlock chunkFile(String encKey, String enkIv, String filePath) {
-        int bufferSize = 2 * 1024 * 1024;
         int offset = 0;
         File file = new File(filePath);
         InputStream in;
         OutputStream out;
-        byte[] buffer = new byte[bufferSize];
+        byte[] buffer = new byte[BUFFER_SIZE];
         SeafBlock seafBlock = new SeafBlock();
         try {
             in = new FileInputStream(file);
 
             // Log.d(DEBUG_TAG, "file size " + file.length());
-            while (offset < file.length() && (offset = in.read(buffer, offset, bufferSize)) != -1) {
+            while (offset < file.length() && (offset = in.read(buffer, offset, BUFFER_SIZE)) != -1) {
                 // Log.d(DEBUG_TAG, "offset " + offset);
                 final byte[] cipher = Crypto.encrypt(buffer, offset, encKey, enkIv);
                 // Log.d(DEBUG_TAG, "cipher " + Crypto.toHex(cipher));
@@ -1062,7 +1062,7 @@ public class DataManager {
                 seafBlock.chunks.add(cipher);
                 seafBlock.blockids.add(blockid);
                 // Log.d(DEBUG_TAG, "blockid " + blockid);
-                File block = new File(getChunkDirectory(), blockid);
+                File block = new File(storageManager.getTempDir(), blockid);
                 seafBlock.blockpaths.add(block.getAbsolutePath());
                 out = new FileOutputStream(block);
                 out.write(cipher);
@@ -1105,12 +1105,12 @@ public class DataManager {
         Log.d(DEBUG_TAG, "encKey " + encKey + " encIv " + encIv);
         if (TextUtils.isEmpty(encKey) || TextUtils.isEmpty(encIv)) {
             // TODO calculate them and continue
-            return;
+            throw SeafException.encryptException;
         }
 
         final SeafBlock chunkFile = chunkFile(encKey, encIv, filePath);
         if (chunkFile.blockids.isEmpty()) {
-            return;
+            throw SeafException.blockListNullPointerException;
         }
 
         String newFileID = null;
