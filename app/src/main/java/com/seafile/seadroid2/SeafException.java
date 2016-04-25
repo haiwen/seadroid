@@ -14,9 +14,12 @@ public class SeafException extends Exception {
     public static final SeafException encodingException = new SeafException(3, "Encoding Error");
     public static final SeafException illFormatException = new SeafException(4, "Ill-formatted Response");
     public static final SeafException sslException = new SeafException(5, "not trusted SSL server");
-    public static final SeafException userCancelledException = new SeafException(6, "operation canclled by user");
+    public static final SeafException userCancelledException = new SeafException(6, "operation cancelled by user");
     public static final SeafException invalidPassword = new SeafException(7, "wrong password");
     public static final SeafException unsupportedEncVersion = new SeafException(8, "unsupported encryption version");
+    public static final SeafException blockListNullPointerException = new SeafException(9, "block list is null");
+    public static final SeafException encryptException = new SeafException(10, "encryption key or iv is null");
+    public static final SeafException decryptException = new SeafException(11, "decryption key or iv is null");
 
     public SeafException(int code, String msg) {
         super(msg);
