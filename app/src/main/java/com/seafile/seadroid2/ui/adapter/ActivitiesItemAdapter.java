@@ -144,7 +144,7 @@ public class ActivitiesItemAdapter extends BaseAdapter {
         TextView nick = (TextView) view.findViewById(R.id.tv_activities_nick);
         TextView date = (TextView) view.findViewById(R.id.tv_activities_date);
         TextView repoName = (TextView) view.findViewById(R.id.tv_activities_repo_name);
-        ImageView icon = (ImageView) view.findViewById(R.id.iv_activities_avatar);
+        CircleImageView icon = (CircleImageView) view.findViewById(R.id.iv_activities_avatar);
         viewHolder = new ViewHolder(title, nick, date, repoName, icon);
         view.setTag(viewHolder);
 

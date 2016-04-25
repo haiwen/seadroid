@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:padding="@dimen/padding_normal">
 
-    <ImageView
+    <com.seafile.seadroid2.ui.widget.CircleImageView
         android:id="@+id/iv_activities_avatar"
         android:layout_width="@dimen/lv_act_icon_width"
         android:layout_height="@dimen/lv_act_icon_height"
