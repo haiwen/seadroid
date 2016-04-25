@@ -172,6 +172,21 @@ public class SettingsFragment extends CustomPreferenceFragment {
             }
         });
 
+        // Client side encryption for encrypted Library
+        findPreference(SettingsManager.CLIENT_ENC_SWITCH_KEY).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                if (newValue instanceof Boolean) {
+                    boolean isChecked = (Boolean) newValue;
+                    // inverse checked status
+                    settingsMgr.setupEncrypt(!isChecked);
+                    return true;
+                }
+
+                return false;
+            }
+        });
+
         // Gesture Lock
         findPreference(SettingsManager.GESTURE_LOCK_SWITCH_KEY).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override

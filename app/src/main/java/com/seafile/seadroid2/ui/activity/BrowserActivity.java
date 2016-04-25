@@ -45,7 +45,6 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
-import com.seafile.seadroid2.data.StorageManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.MediaObserverService;
@@ -440,18 +439,13 @@ public class BrowserActivity extends BaseActivity
                 if (currentPosition == INDEX_LIBRARY_TAB) {
                     if (navContext.inRepo()) {
                         SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
-                        if (repo.encrypted && !DataManager.getRepoEnckeySet(repo.id)) {
-                            String password = DataManager.getRepoPassword(repo.id);
-                            showPasswordDialog(repo.name, repo.id,
-                                    new TaskDialog.TaskDialogListener() {
-                                        @Override
-                                        public void onTaskSuccess() {
-                                            getReposFragment().startContextualActionMode();
-                                        }
-                                    } , password);
-
-                            return true;
-                        }
+                        handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
+                            @Override
+                            public void onTaskSuccess() {
+                                getReposFragment().startContextualActionMode();
+                            }
+                        });
+                        return true;
                     }
 
                     getReposFragment().startContextualActionMode();
@@ -465,6 +459,22 @@ public class BrowserActivity extends BaseActivity
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void handleEncryptedRepo(SeafRepo repo, TaskDialog.TaskDialogListener taskDialogListener) {
+        if (!repo.encrypted) return;
+
+        if (!repo.canLocalDecrypt()) {
+            if (!DataManager.getRepoPasswordSet(repo.id)) {
+                String password = DataManager.getRepoPassword(repo.id);
+                showPasswordDialog(repo.name, repo.id, taskDialogListener, password);
+            }
+        } else {
+            if (!DataManager.getRepoEnckeySet(repo.id)) {
+                String encKey = DataManager.getRepoEncKey(repo.id);
+                showPasswordDialog(repo.name, repo.id, taskDialogListener, encKey);
+            }
+        }
     }
 
     /**
@@ -968,16 +978,12 @@ public class BrowserActivity extends BaseActivity
         if (currentPosition == INDEX_LIBRARY_TAB) {
             if (navContext.inRepo()) {
                 SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
-                if (repo.encrypted && !DataManager.getRepoEnckeySet(repo.id)) {
-                    String encKey = DataManager.getRepoEncKey(repo.id);
-                    showPasswordDialog(repo.name, repo.id,
-                            new TaskDialog.TaskDialogListener() {
-                                @Override
-                                public void onTaskSuccess() {
-                                    getReposFragment().sortFiles(type, order);
-                                }
-                            }, encKey);
-                }
+                handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
+                    @Override
+                    public void onTaskSuccess() {
+                        getReposFragment().sortFiles(type, order);
+                    }
+                });
             }
             getReposFragment().sortFiles(type, order);
         }
@@ -1451,7 +1457,9 @@ public class BrowserActivity extends BaseActivity
             return;
         }
 
-        startFileActivity(repoName, repoID, filePath, encrypted, repo.encVersion);
+        if (repo == null) return;
+
+        startFileActivity(repoName, repoID, filePath, repo.canLocalDecrypt(), repo.encVersion);
     }
 
     /**
@@ -1623,14 +1631,15 @@ public class BrowserActivity extends BaseActivity
 
         final String repoID = starredFile.getRepoID();
         final SeafRepo repo = dataManager.getCachedRepoByID(repoID);
+        if (repo == null) return;
+
         final String repoName = repo.getName();
         final String filePath = starredFile.getPath();
         final String dirPath = Utils.getParentPath(filePath);
 
         // Encrypted repo doesn\`t support gallery,
         // because pic thumbnail under encrypted repo was not supported at the server side
-        if (Utils.isViewableImage(starredFile.getTitle())
-                && repo != null && !repo.encrypted) {
+        if (Utils.isViewableImage(starredFile.getTitle()) && !repo.encrypted) {
             WidgetUtils.startGalleryActivity(this, repoName, repoID, dirPath, starredFile.getTitle(), account);
             return;
         }
@@ -1641,7 +1650,7 @@ public class BrowserActivity extends BaseActivity
             return;
         }
 
-        startFileActivity(repoName, repoID, filePath, false, -1);
+        startFileActivity(repoName, repoID, filePath, repo.canLocalDecrypt(), repo.encVersion);
     }
 
     @Override
@@ -1907,12 +1916,10 @@ public class BrowserActivity extends BaseActivity
         final String repoID = info.repoID;
         final String path = info.pathInRepo;
 
-        if (err != null
-                && err.getCode() == SeafConnection.HTTP_STATUS_REPO_PASSWORD_REQUIRED) {
+        if (err != null && err.getCode() == SeafConnection.HTTP_STATUS_REPO_PASSWORD_REQUIRED) {
             if (currentPosition == INDEX_LIBRARY_TAB
                     && repoID.equals(navContext.getRepoID())
-                    && Utils.getParentPath(path)
-                            .equals(navContext.getDirPath())) {
+                    && Utils.getParentPath(path).equals(navContext.getDirPath())) {
                 showPasswordDialog(repoName, repoID,
                         new TaskDialog.TaskDialogListener() {
                             @Override
@@ -1960,20 +1967,27 @@ public class BrowserActivity extends BaseActivity
 
     public PasswordDialog showPasswordDialog(String repoName, String repoID,
                                              TaskDialog.TaskDialogListener listener) {
-        return showPasswordDialog(repoName, repoID, null, null, 0, listener, null);
+        return showPasswordDialog(repoName, repoID, listener, null);
     }
 
     public PasswordDialog showPasswordDialog(String repoName, String repoID,
-                                             TaskDialog.TaskDialogListener listener, String encKey) {
-        return showPasswordDialog(repoName, repoID, null, null, 0, listener, encKey);
+                                             TaskDialog.TaskDialogListener listener, String password) {
+        PasswordDialog passwordDialog = new PasswordDialog();
+        passwordDialog.setRepo(repoName, repoID, account);
+        if (password != null) {
+            passwordDialog.setPassword(password);
+        }
+        passwordDialog.setTaskDialogLisenter(listener);
+        passwordDialog.show(getSupportFragmentManager(), PASSWORD_DIALOG_FRAGMENT_TAG);
+        return passwordDialog;
     }
 
-    public PasswordDialog showPasswordDialog(String repoName, String repoID, String magic, String randomKey, int version,
+    public PasswordDialog showEncDialog(String repoName, String repoID, String magic, String randomKey, int version,
                                              TaskDialog.TaskDialogListener listener, String encKey) {
         PasswordDialog passwordDialog = new PasswordDialog();
         passwordDialog.setRepo(repoName, repoID, magic, randomKey, version, account);
         if (encKey != null) {
-            passwordDialog.setEncKey(encKey);
+            passwordDialog.setPassword(encKey);
         }
         passwordDialog.setTaskDialogLisenter(listener);
         passwordDialog.show(getSupportFragmentManager(), PASSWORD_DIALOG_FRAGMENT_TAG);

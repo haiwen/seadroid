@@ -505,7 +505,7 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
         PasswordDialog passwordDialog = new PasswordDialog();
         passwordDialog.setRepo(repoName, repoID, repo.magic, repo.encKey, repo.encVersion, mAccount);
         if (password != null) {
-            passwordDialog.setEncKey(password);
+            passwordDialog.setPassword(password);
         }
         passwordDialog.setTaskDialogLisenter(listener);
         passwordDialog.show(getSupportFragmentManager(), PASSWORD_DIALOG_FRAGMENT_TAG);
