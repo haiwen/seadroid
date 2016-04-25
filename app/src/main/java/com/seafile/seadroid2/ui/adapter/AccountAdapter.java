@@ -123,7 +123,7 @@ public abstract class AccountAdapter extends BaseAdapter {
                     .cacheInMemory(true)
                     .cacheOnDisk(true)
                     .considerExifParams(true)
-                    .displayer(new RoundedBitmapDisplayer(50))
+                    .displayer(new RoundedBitmapDisplayer(1000))
                     .build();
             ImageLoader.getInstance().displayImage(getAvatarUrl(account), viewHolder.icon, options, animateFirstListener);
         }
