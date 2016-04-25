@@ -1,13 +1,7 @@
 package com.seafile.seadroid2.ui.adapter;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +12,6 @@ import android.widget.TextView;
 import com.google.common.collect.Lists;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
@@ -26,7 +19,11 @@ import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListene
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.avatar.Avatar;
-import com.seafile.seadroid2.ui.widget.CircleImageView;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Base account adapter
@@ -105,7 +102,7 @@ public abstract class AccountAdapter extends BaseAdapter {
             view = LayoutInflater.from(context).inflate(getChildLayout(), null);
             TextView title = (TextView) view.findViewById(getChildTitleId());
             TextView subtitle = (TextView) view.findViewById(getChildSubTitleId());
-            CircleImageView icon = (CircleImageView) view.findViewById(getChildIconId());
+            ImageView icon = (ImageView) view.findViewById(getChildIconId());
             viewHolder = new Viewholder(title, subtitle, icon);
             view.setTag(viewHolder);
         } else {
@@ -167,9 +164,9 @@ public abstract class AccountAdapter extends BaseAdapter {
 
     private class Viewholder {
         TextView title, subtitle;
-        CircleImageView icon;
+        ImageView icon;
 
-        public Viewholder(TextView title, TextView subtitle, CircleImageView icon) {
+        public Viewholder(TextView title, TextView subtitle, ImageView icon) {
             super();
             this.icon = icon;
             this.title = title;

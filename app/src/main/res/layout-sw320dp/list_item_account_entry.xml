@@ -7,7 +7,7 @@
               android:background="?android:selectableItemBackground"
               android:padding="0dp">
 
-    <com.seafile.seadroid2.ui.widget.CircleImageView
+    <ImageView
         android:id="@+id/list_item_account_icon"
             android:layout_width="@dimen/lv_act_icon_width"
             android:layout_height="@dimen/lv_act_icon_height"

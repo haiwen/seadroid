@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -143,7 +144,7 @@ public class ActivitiesItemAdapter extends BaseAdapter {
         TextView nick = (TextView) view.findViewById(R.id.tv_activities_nick);
         TextView date = (TextView) view.findViewById(R.id.tv_activities_date);
         TextView repoName = (TextView) view.findViewById(R.id.tv_activities_repo_name);
-        CircleImageView icon = (CircleImageView) view.findViewById(R.id.iv_activities_avatar);
+        ImageView icon = (ImageView) view.findViewById(R.id.iv_activities_avatar);
         viewHolder = new ViewHolder(title, nick, date, repoName, icon);
         view.setTag(viewHolder);
 
@@ -194,9 +195,9 @@ public class ActivitiesItemAdapter extends BaseAdapter {
 
     private class ViewHolder {
         TextView title, nick, date, repoName;
-        CircleImageView icon;
+        ImageView icon;
 
-        public ViewHolder(TextView title, TextView nick, TextView date, TextView repoName, CircleImageView icon) {
+        public ViewHolder(TextView title, TextView nick, TextView date, TextView repoName, ImageView icon) {
             super();
             this.icon = icon;
             this.title = title;
