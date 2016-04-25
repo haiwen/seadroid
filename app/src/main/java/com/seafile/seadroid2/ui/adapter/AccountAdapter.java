@@ -33,7 +33,9 @@ import com.seafile.seadroid2.ui.widget.CircleImageView;
  */
 public abstract class AccountAdapter extends BaseAdapter {
     private static final String DEBUG_TAG = "AccountAdapter";
-    
+
+    private ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
+    private DisplayImageOptions options;
     private ArrayList<Account> items;
     private ArrayList<Avatar> avatars;
     private Context context;
@@ -113,7 +115,20 @@ public abstract class AccountAdapter extends BaseAdapter {
         viewHolder.title.setText(account.getServerHost());
         viewHolder.subtitle.setText(account.getEmail());
         if (getAvatarUrl(account) != null) {
-            ImageLoader.getInstance().displayImage(getAvatarUrl(account), viewHolder.icon);
+            options = new DisplayImageOptions.Builder()
+                    .extraForDownloader(account)
+                    .showStubImage(R.drawable.default_avatar)
+                    // .delayBeforeLoading(1000)
+                    .showImageOnLoading(R.drawable.default_avatar)
+                    .showImageForEmptyUri(R.drawable.default_avatar)
+                    .showImageOnFail(R.drawable.default_avatar)
+                    .resetViewBeforeLoading()
+                    .cacheInMemory(true)
+                    .cacheOnDisk(true)
+                    .considerExifParams(true)
+                    .displayer(new RoundedBitmapDisplayer(50))
+                    .build();
+            ImageLoader.getInstance().displayImage(getAvatarUrl(account), viewHolder.icon, options, animateFirstListener);
         }
         ImageLoader.getInstance().handleSlowNetwork(true);
         
@@ -131,6 +146,23 @@ public abstract class AccountAdapter extends BaseAdapter {
         }
 
         return null;
+    }
+
+    private static class AnimateFirstDisplayListener extends SimpleImageLoadingListener {
+
+        static final List<String> displayedImages = Collections.synchronizedList(new LinkedList<String>());
+
+        @Override
+        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+            if (loadedImage != null) {
+                ImageView imageView = (ImageView) view;
+                boolean firstDisplay = !displayedImages.contains(imageUri);
+                if (firstDisplay) {
+                    FadeInBitmapDisplayer.animate(imageView, 500);
+                    displayedImages.add(imageUri);
+                }
+            }
+        }
     }
 
     private class Viewholder {
