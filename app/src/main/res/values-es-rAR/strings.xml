@@ -270,7 +270,6 @@
   <string name="settings_camera_upload_info_title">Subir Foto de Cámara </string>
   <string name="settings_camera_upload_service_started">Servicio de subida iniciado</string>
   <string name="settings_camera_upload_service_stopped">Servicio de subida detenido</string>
-  <string name="settings_camera_upload_service_master_off">Auto-sincronización de datos deshabilitada globalmente en Android</string>
   <string name="settings_camera_upload_allow_data_plan">Permitir plan de datos</string>
   <string name="settings_camera_upload_allow_videos">Permitir subida de videos</string>
   <string name="settings_camera_upload_default_wifi">Usar sólo Wi-Fi de forma predeterminada</string>

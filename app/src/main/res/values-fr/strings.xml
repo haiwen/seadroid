@@ -270,7 +270,6 @@
   <string name="settings_camera_upload_info_title">Envoi des photos</string>
   <string name="settings_camera_upload_service_started">Service d\'envoi démarré</string>
   <string name="settings_camera_upload_service_stopped">Service d\'envoi arrêté</string>
-  <string name="settings_camera_upload_service_master_off">La synchronisation automatique des données est désactivée dans Android.</string>
   <string name="settings_camera_upload_allow_data_plan">Autoriser un plan de données</string>
   <string name="settings_camera_upload_allow_videos">Autoriser l\'envoi de vidéos</string>
   <string name="settings_camera_upload_default_wifi">Wi-Fi utilisé  uniquement par défaut</string>

@@ -278,7 +278,6 @@
   <string name="settings_camera_upload_info_title">Загрузка фото с камеры</string>
   <string name="settings_camera_upload_service_started">Сервис загрузки запущен</string>
   <string name="settings_camera_upload_service_stopped">Сервис загрузки остановлен</string>
-  <string name="settings_camera_upload_service_master_off">Автоматическая синхронизация данных отключена в Android</string>
   <string name="settings_camera_upload_allow_data_plan">Разрешить мобильные данные</string>
   <string name="settings_camera_upload_allow_videos">Разрешить загрузку видео</string>
   <string name="settings_camera_upload_default_wifi">По умолчанию использовать только Wi-Fi</string>

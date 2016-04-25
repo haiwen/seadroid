@@ -274,7 +274,6 @@
   <string name="settings_camera_upload_info_title">Automatyczna kopia zdjęć</string>
   <string name="settings_camera_upload_service_started">Usługa przesyłania jest uruchomiona</string>
   <string name="settings_camera_upload_service_stopped">Usługa przesyłania jest zatrzymana</string>
-  <string name="settings_camera_upload_service_master_off">Automatyczna synchronizacja danych została wyłączona globalnie w Androidzie.</string>
   <string name="settings_camera_upload_allow_data_plan">Pozwól na transmisję komórkową</string>
   <string name="settings_camera_upload_allow_videos">Pozwól na przesyłanie wideo.</string>
   <string name="settings_camera_upload_default_wifi">Domyślnie używaj tylko Wi-Fi</string>

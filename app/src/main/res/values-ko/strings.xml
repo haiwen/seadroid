@@ -266,7 +266,6 @@
   <string name="settings_camera_upload_info_title">카메라 사진 업로드</string>
   <string name="settings_camera_upload_service_started">업로드 서비스를 시작했습니다</string>
   <string name="settings_camera_upload_service_stopped">업로드 서비스를 멈추었습니다</string>
-  <string name="settings_camera_upload_service_master_off">안드로이드에서 데이터 자동 동기화를 전체적으로 비활성화했습니다</string>
   <string name="settings_camera_upload_allow_data_plan">데이터 서비스 허용</string>
   <string name="settings_camera_upload_allow_videos">동영상 업로드 허용</string>
   <string name="settings_camera_upload_default_wifi">기본적으로 무선랜 연결만 사용</string>

@@ -272,7 +272,6 @@ Zum Aktualisieren einmal antippen</string>
   <string name="settings_camera_upload_info_title">Kamerafoto hochladen</string>
   <string name="settings_camera_upload_service_started">Upload-Dienst gestartet</string>
   <string name="settings_camera_upload_service_stopped">Upload-Dienst gestoppt</string>
-  <string name="settings_camera_upload_service_master_off">Automatisches Synchronisieren in Android global unterbunden</string>
   <string name="settings_camera_upload_allow_data_plan">Mobilfunknetz erlauben</string>
   <string name="settings_camera_upload_allow_videos">Videos hochladen</string>
   <string name="settings_camera_upload_default_wifi">Standardmäßig nur WLAN-Verbindungen verwenden</string>
@@ -326,7 +325,20 @@ Zum Aktualisieren einmal antippen</string>
   <string name="settings_about_title">ÜBER</string>
   <string name="settings_about_version_title">App-Version</string>
   <string name="settings_about_author_title">Autor/innen</string>
-  <string name="settings_about_author_info"><![CDATA[ <h5>Seafile Android-App</h5> <p>%s</p> <h5>Kontakt</h5> <p> Twitter: Seafile<br> E-Mail: support@seafile.com<br> </p> <h5>Beteiligte und selber Mitmachen</h5> <p>https://github.com/haiwen/seadroid.git</P> <h5>Copyright ©2013-2015 Seafile Ltd.</h5> ]]></string>
+  <string name="settings_about_author_info">
+        <![CDATA[
+        <h5>Seafile Android-App</h5>
+        <p>%s</p>
+        <h5>Kontakt</h5>
+        <p>
+            Twitter: Seafile<br>
+            E-Mail: support@seafile.com<br>
+        </p>
+        <h5>Beteiligte und selber Mitmachen</h5>
+        <p>https://github.com/haiwen/seadroid.git</P>
+        <h5>Copyright ©2013-2016 Seafile Ltd.</h5>
+        ]]>
+    </string>
   <string name="settings_storage_title">ZWISCHENSPEICHER</string>
   <string name="settings_cache_title">Größe des Zwischenspeichers</string>
   <string name="settings_clear_cache_title">Zwischenspeicher löschen</string>

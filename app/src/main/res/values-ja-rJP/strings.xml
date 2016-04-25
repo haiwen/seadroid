@@ -266,7 +266,6 @@
   <string name="settings_camera_upload_info_title">カメラの写真のアップロード</string>
   <string name="settings_camera_upload_service_started">アップロードサービスが開始しました</string>
   <string name="settings_camera_upload_service_stopped">アップロードサービスが停止しました</string>
-  <string name="settings_camera_upload_service_master_off">Android 全般でデータの自動同期は無効です</string>
   <string name="settings_camera_upload_allow_data_plan">データプランを許可する</string>
   <string name="settings_camera_upload_allow_videos">ビデオのアップロードを許可する</string>
   <string name="settings_camera_upload_default_wifi">デフォルトで Wi-Fi のみ使用する</string>
