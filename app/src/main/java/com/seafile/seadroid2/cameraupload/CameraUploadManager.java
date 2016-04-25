@@ -83,6 +83,7 @@ public class CameraUploadManager {
                 // enable camera upload on this account
                 ContentResolver.setIsSyncable(a.getAndroidAccount(), AUTHORITY, 1);
                 ContentResolver.setSyncAutomatically(a.getAndroidAccount(), AUTHORITY, true);
+                ContentResolver.setMasterSyncAutomatically(true); // QUICK HACK
             } else {
                 // disable on all the others
                 ContentResolver.cancelSync(a.getAndroidAccount(), AUTHORITY);
