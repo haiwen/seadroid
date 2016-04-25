@@ -68,7 +68,7 @@ public class CameraUploadConfigActivity extends BaseActivity {
         sm = SettingsManager.instance();
 
         if (isChooseLibPage || isChooseDirPage) {
-            mIndicator.setVisibility(View.INVISIBLE);
+            mIndicator.setVisibility(View.GONE);
         }
     }
 
