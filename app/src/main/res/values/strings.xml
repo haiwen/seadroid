@@ -484,4 +484,9 @@
 
     <string name="history_change_title">Modification Details</string>
     <string name="no_more_activities">No more activities</string>
+
+    <!-- client sid encryption and decryption -->
+    <string name="enc_on">Protect data by client side encryption</string>
+    <string name="enc_off">Protect data by password</string>
+    <string name="enc_title">Encrypted Library client side encryption</string>
 </resources>

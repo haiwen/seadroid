@@ -48,6 +48,7 @@ public class DataManager {
     public static final String PULL_TO_REFRESH_LAST_TIME_FOR_STARRED_FRAGMENT = "starred fragment last update ";
     private static SimpleDateFormat ptrDataFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+    private static Map<String, PasswordInfo> passwords = Maps.newHashMap();
     private static Map<String, EncIvInfo> encIvMap = Maps.newHashMap();
     private static Map<String, EncKeyInfo> secretKeyMap = Maps.newHashMap();
     private static Map<String, Long> direntsRefreshTimeMap = Maps.newHashMap();
@@ -856,6 +857,42 @@ public class DataManager {
         }
     }
 
+    private static class PasswordInfo {
+        String password;
+        long timestamp;
+
+        public PasswordInfo(String password, long timestamp) {
+            this.password = password;
+            this.timestamp = timestamp;
+        }
+    }
+
+    public static boolean getRepoPasswordSet(String repoID) {
+        PasswordInfo info = passwords.get(repoID);
+        if (info == null) {
+            return false;
+        }
+
+        if (Utils.now() - info.timestamp > SET_PASSWORD_INTERVAL) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public static void setRepoPasswordSet(String repoID, String password) {
+        passwords.put(repoID, new PasswordInfo(password, Utils.now()));
+    }
+
+    public static String getRepoPassword(String repoID) {
+        PasswordInfo info = passwords.get(repoID);
+        if (info == null) {
+            return null;
+        }
+
+        return info.password;
+    }
+
     private static class EncIvInfo {
         String encIv;
 
@@ -888,15 +925,6 @@ public class DataManager {
 
     public static void saveRepoSecretKey(String repoID, String key) {
         secretKeyMap.put(repoID, new EncKeyInfo(key));
-    }
-
-    public static String getRepoPassword(String repoID) {
-        EncIvInfo info = encIvMap.get(repoID);
-        if (info == null) {
-            return null;
-        }
-
-        return info.encIv;
     }
 
     public static String getRepoEncKey(String repoID) {

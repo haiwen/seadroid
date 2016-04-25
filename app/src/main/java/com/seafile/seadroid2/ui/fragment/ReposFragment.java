@@ -575,21 +575,37 @@ public class ReposFragment extends ListFragment {
             return;
         }
 
-        if (repo.encrypted && !DataManager.getRepoEnckeySet(repo.id)) {
-            String encKey = DataManager.getRepoEncKey(repo.id);
-            mActivity.showPasswordDialog(repo.name,
-                    repo.id,
-                    repo.magic,
-                    repo.encKey,
-                    repo.encVersion,
-                    new TaskDialog.TaskDialogListener() {
-                @Override
-                public void onTaskSuccess() {
-                    onListItemClick(l, v, position, id);
+        if (repo.encrypted) {
+            if (!repo.canLocalDecrypt()) {
+                if (!DataManager.getRepoPasswordSet(repo.id)) {
+                    String password = DataManager.getRepoPassword(repo.id);
+                    mActivity.showPasswordDialog(repo.name, repo.id,
+                            new TaskDialog.TaskDialogListener() {
+                                @Override
+                                public void onTaskSuccess() {
+                                    onListItemClick(l, v, position, id);
+                                }
+                            }, password);
+                    return;
                 }
-            }, encKey);
+            } else {
+                if (!DataManager.getRepoEnckeySet(repo.id)) {
+                    String encKey = DataManager.getRepoEncKey(repo.id);
+                    mActivity.showEncDialog(repo.name,
+                            repo.id,
+                            repo.magic,
+                            repo.encKey,
+                            repo.encVersion,
+                            new TaskDialog.TaskDialogListener() {
+                                @Override
+                                public void onTaskSuccess() {
+                                    onListItemClick(l, v, position, id);
+                                }
+                            }, encKey);
 
-            return;
+                    return;
+                }
+            }
         }
 
         mRefreshType = REFRESH_ON_CLICK;

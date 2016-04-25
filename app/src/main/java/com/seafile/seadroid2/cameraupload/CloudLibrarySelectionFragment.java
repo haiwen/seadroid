@@ -313,7 +313,7 @@ public class CloudLibrarySelectionFragment extends Fragment {
         PasswordDialog passwordDialog = new PasswordDialog();
         passwordDialog.setRepo(repoName, repoID, magic, randomKey, version, mAccount);
         if (password != null) {
-            passwordDialog.setEncKey(password);
+            passwordDialog.setPassword(password);
         }
         passwordDialog.setTaskDialogLisenter(listener);
         passwordDialog.show(mActivity.getSupportFragmentManager(), PASSWORD_DIALOG_FRAGMENT_TAG);

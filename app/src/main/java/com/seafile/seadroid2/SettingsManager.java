@@ -38,6 +38,9 @@ public final class SettingsManager {
     public static final String SETTINGS_ACCOUNT_SPACE_KEY = "account_info_space_key";
     public static final String SETTINGS_ACCOUNT_SIGN_OUT_KEY = "account_sign_out_key";
 
+    // Client side encryption
+    public static final String CLIENT_ENC_SWITCH_KEY = "client_encrypt_switch_key";
+
     // Gesture Lock
     public static final String GESTURE_LOCK_SWITCH_KEY = "gesture_lock_switch_key";
     public static final String GESTURE_LOCK_KEY = "gesture_lock_key";
@@ -97,6 +100,22 @@ public final class SettingsManager {
     public void unregisterSharedPreferencesListener(SharedPreferences.OnSharedPreferenceChangeListener listener) {
         settingsSharedPref.unregisterOnSharedPreferenceChangeListener(listener);
         sharedPref.unregisterOnSharedPreferenceChangeListener(listener);
+    }
+
+    /**
+     * Client side encryption only support for encrypted library
+     */
+    public void setupEncrypt(boolean enable) {
+        settingsSharedPref.edit().putBoolean(CLIENT_ENC_SWITCH_KEY, enable)
+                .commit();
+    }
+
+    /**
+     * Whether the user has enabled client side encryption
+     *
+     */
+    public boolean isEncryptEnabled() {
+        return settingsSharedPref.getBoolean(CLIENT_ENC_SWITCH_KEY, false);
     }
 
     public void setupGestureLock() {

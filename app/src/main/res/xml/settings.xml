@@ -25,6 +25,14 @@
         android:layout="@layout/bg_settings_section_security">
         <com.seafile.seadroid2.ui.SwitchPreferenceCompat
             android:defaultValue="false"
+            android:key="client_encrypt_switch_key"
+            android:summaryOff="@string/enc_off"
+            android:summaryOn="@string/enc_on"
+            android:title="@string/enc_title" >
+        </com.seafile.seadroid2.ui.SwitchPreferenceCompat>
+
+        <com.seafile.seadroid2.ui.SwitchPreferenceCompat
+            android:defaultValue="false"
             android:key="gesture_lock_switch_key"
             android:summaryOff="@string/gesture_lock_off"
             android:summaryOn="@string/gesture_lock_on"
