@@ -29,7 +29,7 @@ import com.seafile.seadroid2.ui.BaseAuthenticatorActivity;
 public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
 
     public static final int SEACLOUD_CC = 0;
-    public static final int CLOUD_SEAFILE_COM = 1;
+    public static final int APP_SEAFILE_DE = 1;
     public static final int SHIBBOLETH_LOGIN = 2;
     public static final int OTHER_SERVER = 3;
 
@@ -71,10 +71,10 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
                         intent.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, "https://seacloud.cc");
                         startActivityForResult(intent, SeafileAuthenticatorActivity.REQ_SIGNUP);
                         break;
-                    case CLOUD_SEAFILE_COM:
+                    case APP_SEAFILE_DE:
                         intent = new Intent(SeafileAuthenticatorActivity.this, AccountDetailActivity.class);
                         intent.putExtras(getIntent());
-                        intent.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, "https://cloud.seafile.de");
+                        intent.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, "https://app.seafile.de");
                         startActivityForResult(intent, SeafileAuthenticatorActivity.REQ_SIGNUP);
                         break;
                     case SHIBBOLETH_LOGIN:
