@@ -128,7 +128,7 @@
     <item>Créer un fichier</item>
     <item>Créer un dossier</item>
     <item>Téléverser un fichier</item>
-    <item>Prebdre une photo</item>
+    <item>Prendre une photo</item>
   </string-array>
   <string name="create_new_file">Créer un nouveau fichier</string>
   <string name="create_new_dir">Créer un nouveau dossier</string>
