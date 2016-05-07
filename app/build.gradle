@@ -5,10 +5,14 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
+        applicationId 'com.seafile.seadroid2'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 53
         versionName "2.0.6"
+        resValue "string", "authorities", applicationId + '.cameraupload.provider'
+        resValue "string", "account_type", "com.seafile.seadroid2.account.api2"
+        buildConfigField "String", "ACCOUNT_TYPE", '"com.seafile.seadroid2.account.api2"'
     }
 
     lintOptions {
@@ -17,6 +21,14 @@ android {
     }
 
     signingConfigs {
+        debug {
+            def props = new Properties()
+            props.load(new FileInputStream(project.file("debugkey.properties")))
+            storeFile project.file(props.keyStore)
+            storePassword props.keyStorePassword
+            keyAlias props.keyAlias
+            keyPassword props.keyAliasPassword
+        }
         release {
             // Signing code for manual signing
             //storeFile file(System.console().readLine("\n\$ Enter keystore path: "))
@@ -34,6 +46,26 @@ android {
     }
 
     buildTypes {
+        debug {
+            debuggable true
+            applicationIdSuffix ".debug"
+            resValue "string", "authorities", defaultConfig.applicationId + '.debug.cameraupload.provider'
+            resValue "string", "account_type", "com.seafile.seadroid2.debug.account.api2"
+            buildConfigField "String", "ACCOUNT_TYPE", '"com.seafile.seadroid2.debug.account.api2"'
+            signingConfig signingConfigs.debug
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
+            applicationVariants.all { variant ->
+                variant.outputs.each { output ->
+                    if (output.outputFile != null && output.outputFile.name.endsWith('.apk')) {
+                        def file = output.outputFile
+                        if (variant.name == "release")
+                            output.outputFile = new File(file.parent,
+                                    "seafile-" + defaultConfig.versionName + "-debug.apk")
+                    }
+                }
+            }
+        }
         release {
             signingConfig signingConfigs.release
             minifyEnabled true
