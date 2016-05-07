@@ -11,7 +11,7 @@
     <string name="delete_successful">Successfully deleted</string>
     <string name="delete_file_f">Delete file</string>
     <string name="delete_dir">Delete folder</string>
-    <string name="server_hint">Server, like cloud.seafile.com</string>
+    <string name="server_hint">Server address</string>
     <string name="email_hint">Username or email address</string>
     <string name="passwd_hint">Password</string>
     <string name="login">Login</string>
@@ -46,6 +46,8 @@
         <item>Shibboleth Login</item>
         <item>Other Seafile Server</item>
     </string-array>
+    <string name="server_url_seacloud" translatable="false">https://seacloud.cc</string>
+    <string name="server_url_app_seafile" translatable="false">https://app.seafile.de</string>
     <string name="network_down">No network connection</string>
     <string name="unknow_error">Unknown error</string>
     <string name="invalid_server_address">Invalid server address</string>

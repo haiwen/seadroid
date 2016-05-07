@@ -68,13 +68,13 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
                     case SEACLOUD_CC:
                         intent = new Intent(SeafileAuthenticatorActivity.this, AccountDetailActivity.class);
                         intent.putExtras(getIntent());
-                        intent.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, "https://seacloud.cc");
+                        intent.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, getString(R.string.server_url_seacloud));
                         startActivityForResult(intent, SeafileAuthenticatorActivity.REQ_SIGNUP);
                         break;
                     case APP_SEAFILE_DE:
                         intent = new Intent(SeafileAuthenticatorActivity.this, AccountDetailActivity.class);
                         intent.putExtras(getIntent());
-                        intent.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, "https://app.seafile.de");
+                        intent.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, getString(R.string.server_url_app_seafile));
                         startActivityForResult(intent, SeafileAuthenticatorActivity.REQ_SIGNUP);
                         break;
                     case SHIBBOLETH_LOGIN:
