@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.common.base.Objects;
+import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.util.Utils;
 
 public class Account implements Parcelable, Comparable<Account> {
@@ -14,7 +15,7 @@ public class Account implements Parcelable, Comparable<Account> {
     /**
      * Type of the account (currently there is only one type)
      */
-    public final static String ACCOUNT_TYPE = "com.seafile.seadroid2.account.api2";
+    public final static String ACCOUNT_TYPE = BuildConfig.ACCOUNT_TYPE;
 
     // The full URL of the server, like 'http://gonggeng.org/seahub/' or 'http://gonggeng.org/'
     public final String server;
