@@ -148,7 +148,7 @@
 
         <provider
             android:name="com.seafile.seadroid2.provider.SeafileProvider"
-            android:authorities="com.seafile.seadroid2"
+            android:authorities="${applicationId}"
             android:exported="true"
             android:grantUriPermissions="true"
             android:permission="android.permission.MANAGE_DOCUMENTS"
@@ -163,7 +163,7 @@
 
         <provider
             android:name=".cameraupload.StubContentProvider"
-            android:authorities="com.seafile.seadroid2.cameraupload.provider"
+            android:authorities="${applicationId}.cameraupload.provider"
             android:label="@string/sync_provider_camera_upload"
             android:exported="false"
             android:syncable="true"/>

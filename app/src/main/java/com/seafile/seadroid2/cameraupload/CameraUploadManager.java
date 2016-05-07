@@ -4,6 +4,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.os.Bundle;
 
+import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 
@@ -19,7 +20,7 @@ public class CameraUploadManager {
     /**
      * The authority of the camera sync service
      */
-    public static final String AUTHORITY = "com.seafile.seadroid2.cameraupload.provider";
+    public static final String AUTHORITY = BuildConfig.APPLICATION_ID + ".cameraupload.provider";
 
     AccountManager accountManager;
 
