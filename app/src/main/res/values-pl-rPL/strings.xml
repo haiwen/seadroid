@@ -342,6 +342,7 @@
         <h5>Copyright ©2013-2016 Seafile Ltd.</h5>
         ]]>
     </string>
+  <string name="settings_advance_feature_title">ZAAWANSOWANE</string>
   <string name="settings_storage_title">PAMIĘĆ PODRĘCZNA</string>
   <string name="settings_cache_title">Pamięć podręczna</string>
   <string name="settings_clear_cache_title">Opróżnij pamięć podręczną</string>

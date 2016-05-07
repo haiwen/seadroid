@@ -337,6 +337,7 @@
         <h5>Copyright ©2013-2016 Seafile Ltd.</h5>
         ]]>
     </string>
+  <string name="settings_advance_feature_title">FUNCIONES AVANZADAS</string>
   <string name="settings_storage_title">ALMACENAMIENTO DE CACHÉ</string>
   <string name="settings_cache_title">Tamaño del caché</string>
   <string name="settings_clear_cache_title">Borrar caché</string>

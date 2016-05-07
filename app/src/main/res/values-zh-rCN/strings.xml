@@ -9,7 +9,7 @@
   <string name="delete_successful">删除成功</string>
   <string name="delete_file_f">删除文件</string>
   <string name="delete_dir">删除文件夹</string>
-  <string name="server_hint">服务器地址, 比如cloud.seafile.com</string>
+  <string name="server_hint">服务器地址</string>
   <string name="email_hint">用户名或邮箱</string>
   <string name="passwd_hint">密码</string>
   <string name="login">登录</string>
