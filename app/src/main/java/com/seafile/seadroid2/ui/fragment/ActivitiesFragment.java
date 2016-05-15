@@ -94,6 +94,32 @@ public class ActivitiesFragment extends Fragment {
         events = Lists.newArrayList();
     }
 
+    private void handleEncryptedRepo(SeafRepo repo, TaskDialog.TaskDialogListener taskDialogListener) {
+        if (!repo.canLocalDecrypt()) {
+            if (!DataManager.getRepoPasswordSet(repo.id)) {
+                String password = DataManager.getRepoPassword(repo.id);
+                showPasswordDialog(repo.name, repo.id, taskDialogListener, password);
+            } else {
+                taskDialogListener.onTaskSuccess();
+            }
+        } else {
+            if (!DataManager.getRepoEnckeySet(repo.id)) {
+                String encKey = DataManager.getRepoEncKey(repo.id);
+                showEncDialog(repo.name, repo.id, repo.magic, repo.encKey, repo.encVersion, taskDialogListener, encKey);
+            } else {
+                taskDialogListener.onTaskSuccess();
+            }
+        }
+    }
+
+    private void showPasswordDialog(String repoName, String repoId, TaskDialog.TaskDialogListener listener, String password) {
+        mActivity.showPasswordDialog(repoName, repoId, listener, password);
+    }
+
+    private void showEncDialog(String repoName, String repoID, String magic, String randomKey, int version, TaskDialog.TaskDialogListener listener, String encKey) {
+        mActivity.showEncDialog(repoName, repoID, magic, randomKey, version, listener, encKey);
+    }
+
     @Override
     public void onActivityCreated(final Bundle savedInstanceState) {
         // Log.d(DEBUG_TAG, "onActivityCreated");
@@ -119,7 +145,7 @@ public class ActivitiesFragment extends Fragment {
                 final String repoId = seafEvent.getRepo_id();
                 final String repoName = seafEvent.getRepo_name();
 
-                if (seafEvent.isRepo_encrypted() && !DataManager.getRepoEnckeySet(repoId)) {
+                if (seafEvent.isRepo_encrypted()) {
                     final SeafRepo repo = mActivity.getDataManager().getCachedRepoByID(repoId);
 
                     if (repo == null) {
@@ -127,14 +153,14 @@ public class ActivitiesFragment extends Fragment {
                         return;
                     }
 
-                    String password = DataManager.getRepoPassword(repoId);
-                    mActivity.showPasswordDialog(repoName, repoId,
-                            new TaskDialog.TaskDialogListener() {
-                                @Override
-                                public void onTaskSuccess() {
-                                    switchTab(repoId, repoName, repo.getRootDirID());
-                                }
-                            }, password);
+                    handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
+                        @Override
+                        public void onTaskSuccess() {
+                            LoadHistoryChangesTask task = new LoadHistoryChangesTask(seafEvent);
+                            ConcurrentAsyncTask.execute(task);
+                        }
+                    });
+
                 } else {
                     LoadHistoryChangesTask task = new LoadHistoryChangesTask(seafEvent);
                     ConcurrentAsyncTask.execute(task);
@@ -392,15 +418,13 @@ public class ActivitiesFragment extends Fragment {
             return;
         }
 
-        if (repo.encrypted && !DataManager.getRepoEnckeySet(repo.id)) {
-            String encKey = DataManager.getRepoEncKey(repo.id);
-            mActivity.showPasswordDialog(repo.name, repo.id,
-                    new TaskDialog.TaskDialogListener() {
-                        @Override
-                        public void onTaskSuccess() {
-                            switchTab(repoID, repo.getName(), repo.getRootDirID());
-                        }
-                    }, encKey);
+        if (repo.encrypted) {
+            handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
+                @Override
+                public void onTaskSuccess() {
+                    switchTab(repoID, repo.getName(), repo.getRootDirID());
+                }
+            });
 
         } else {
             switchTab(repoID, repo.getName(), repo.getRootDirID());
@@ -415,15 +439,13 @@ public class ActivitiesFragment extends Fragment {
             return;
         }
 
-        if (repo.encrypted && !DataManager.getRepoEnckeySet(repo.id)) {
-            String encKey = DataManager.getRepoEncKey(repo.id);
-            mActivity.showPasswordDialog(repo.name, repo.id,
-                    new TaskDialog.TaskDialogListener() {
-                        @Override
-                        public void onTaskSuccess() {
-                            openFile(repoID, repo.getName(), path);
-                        }
-                    }, encKey);
+        if (repo.encrypted) {
+            handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
+                @Override
+                public void onTaskSuccess() {
+                    openFile(repoID, repo.getName(), path);
+                }
+            });
 
         } else {
             openFile(repoID, repo.getName(), path);

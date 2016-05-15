@@ -238,15 +238,13 @@ public class FileActivity extends BaseActivity implements Toolbar.OnMenuItemClic
 
     private void handlePassword() {
         SeafRepo repo = mDataManager.getCachedRepoByID(mRepoID);
-        PasswordDialog passwordDialog = new PasswordDialog();
-        passwordDialog.setRepo(mRepoName, mRepoID, repo.magic, repo.encKey, repo.encVersion, mAccount);
-        passwordDialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
+        handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
                 mTaskID = mTransferService.addDownloadTask(mAccount,
-                                                           mRepoName,
-                                                           mRepoID,
-                                                           mFilePath);
+                        mRepoName,
+                        mRepoID,
+                        mFilePath);
             }
 
             @Override
@@ -254,6 +252,30 @@ public class FileActivity extends BaseActivity implements Toolbar.OnMenuItemClic
                 finish();
             }
         });
+    }
+
+    private void handleEncryptedRepo(SeafRepo repo, TaskDialog.TaskDialogListener taskDialogListener) {
+        if (!repo.encrypted) return;
+
+        if (!repo.canLocalDecrypt()) {
+            if (!DataManager.getRepoPasswordSet(repo.id)) {
+                showPasswordDialog(repo.name, repo.id, taskDialogListener);
+            } else {
+                taskDialogListener.onTaskSuccess();
+            }
+        } else {
+            if (!DataManager.getRepoEnckeySet(repo.id)) {
+                showPasswordDialog(repo.name, repo.id, taskDialogListener);
+            } else {
+                taskDialogListener.onTaskSuccess();
+            }
+        }
+    }
+
+    public void showPasswordDialog(String repoName, String repoID, TaskDialog.TaskDialogListener listener) {
+        PasswordDialog passwordDialog = new PasswordDialog();
+        passwordDialog.setRepo(repoName, repoID, mAccount);
+        passwordDialog.setTaskDialogLisenter(listener);
         passwordDialog.show(getSupportFragmentManager(), "DialogFragment");
     }
 
