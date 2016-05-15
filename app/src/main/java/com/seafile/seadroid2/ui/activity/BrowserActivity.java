@@ -269,7 +269,6 @@ public class BrowserActivity extends BaseActivity
         adapter = new SeafileTabsAdapter(getSupportFragmentManager());
         pager.setAdapter(adapter);
         mTabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
-        mTabLayout.setTabsFromPagerAdapter(adapter);
         mTabLayout.setupWithViewPager(pager);
         mTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -379,7 +378,7 @@ public class BrowserActivity extends BaseActivity
             // hide Activity tab
             adapter.hideActivityTab();
             adapter.notifyDataSetChanged();
-            mTabLayout.setTabsFromPagerAdapter(adapter);
+            mTabLayout.setupWithViewPager(pager);
         }
 
         if (!checkSearchEnabled()) {
@@ -468,11 +467,15 @@ public class BrowserActivity extends BaseActivity
             if (!DataManager.getRepoPasswordSet(repo.id)) {
                 String password = DataManager.getRepoPassword(repo.id);
                 showPasswordDialog(repo.name, repo.id, taskDialogListener, password);
+            } else {
+                taskDialogListener.onTaskSuccess();
             }
         } else {
             if (!DataManager.getRepoEnckeySet(repo.id)) {
                 String encKey = DataManager.getRepoEncKey(repo.id);
                 showPasswordDialog(repo.name, repo.id, taskDialogListener, encKey);
+            } else {
+                taskDialogListener.onTaskSuccess();
             }
         }
     }
@@ -579,7 +582,7 @@ public class BrowserActivity extends BaseActivity
                 // show Activity tab
                 adapter.unHideActivityTab();
                 adapter.notifyDataSetChanged();
-                //mTabLayout.setTabsFromPagerAdapter(adapter);
+                mTabLayout.setupWithViewPager(pager);
             }
 
             if (serverInfo.isSearchEnabled()) {
@@ -1435,7 +1438,7 @@ public class BrowserActivity extends BaseActivity
     /***************  Navigation *************/
 
     @Override
-    public void onFileSelected(boolean encrypted, SeafDirent dirent) {
+    public void onFileSelected(SeafDirent dirent) {
         final String fileName= dirent.name;
         final String repoName = navContext.getRepoName();
         final String repoID = navContext.getRepoID();

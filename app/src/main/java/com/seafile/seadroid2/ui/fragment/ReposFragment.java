@@ -43,6 +43,7 @@ import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
+import com.seafile.seadroid2.ui.dialog.PasswordDialog;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
@@ -102,7 +103,7 @@ public class ReposFragment extends ListFragment {
     }
 
     public interface OnFileSelectedListener {
-        void onFileSelected(boolean encrypted, SeafDirent fileName);
+        void onFileSelected(SeafDirent fileName);
     }
 
     @Override
@@ -575,38 +576,14 @@ public class ReposFragment extends ListFragment {
             return;
         }
 
-        if (repo.encrypted) {
-            if (!repo.canLocalDecrypt()) {
-                if (!DataManager.getRepoPasswordSet(repo.id)) {
-                    String password = DataManager.getRepoPassword(repo.id);
-                    mActivity.showPasswordDialog(repo.name, repo.id,
-                            new TaskDialog.TaskDialogListener() {
-                                @Override
-                                public void onTaskSuccess() {
-                                    onListItemClick(l, v, position, id);
-                                }
-                            }, password);
-                    return;
-                }
-            } else {
-                if (!DataManager.getRepoEnckeySet(repo.id)) {
-                    String encKey = DataManager.getRepoEncKey(repo.id);
-                    mActivity.showEncDialog(repo.name,
-                            repo.id,
-                            repo.magic,
-                            repo.encKey,
-                            repo.encVersion,
-                            new TaskDialog.TaskDialogListener() {
-                                @Override
-                                public void onTaskSuccess() {
-                                    onListItemClick(l, v, position, id);
-                                }
-                            }, encKey);
-
-                    return;
-                }
+        final boolean continueProcess = handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
+            @Override
+            public void onTaskSuccess() {
+                onListItemClick(l, v, position, id);
             }
-        }
+        });
+
+        if (!continueProcess) return;
 
         mRefreshType = REFRESH_ON_CLICK;
         if (nav.inRepo()) {
@@ -620,7 +597,7 @@ public class ReposFragment extends ListFragment {
                     refreshView();
                     mActivity.setUpButtonTitle(dirent.name);
                 } else {
-                    mActivity.onFileSelected(repo.encrypted, dirent);
+                    mActivity.onFileSelected(dirent);
                 }
             } else
                 return;
@@ -629,6 +606,30 @@ public class ReposFragment extends ListFragment {
             nav.setRepoName(repo.getName());
             nav.setDir("/", repo.root);
             refreshView();
+        }
+    }
+
+    private boolean handleEncryptedRepo(SeafRepo repo, TaskDialog.TaskDialogListener taskDialogListener) {
+        if (!repo.encrypted) return true;
+
+        if (!repo.canLocalDecrypt()) {
+            if (!DataManager.getRepoPasswordSet(repo.id)) {
+                String password = DataManager.getRepoPassword(repo.id);
+                mActivity.showPasswordDialog(repo.name, repo.id, taskDialogListener, password);
+                return false;
+            } else {
+                taskDialogListener.onTaskSuccess();
+                return true;
+            }
+        } else {
+            if (!DataManager.getRepoEnckeySet(repo.id)) {
+                String encKey = DataManager.getRepoEncKey(repo.id);
+                mActivity.showEncDialog(repo.name, repo.id,repo.magic, repo.encKey, repo.encVersion, taskDialogListener, encKey);
+                return false;
+            } else {
+                taskDialogListener.onTaskSuccess();
+                return true;
+            }
         }
     }
 

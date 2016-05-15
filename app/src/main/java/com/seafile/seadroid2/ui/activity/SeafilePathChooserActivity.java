@@ -205,18 +205,14 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
         }
 
         if (repo != null) {
-            if (repo.encrypted && !DataManager.getRepoEnckeySet(repo.id)) {
-                String encKey = DataManager.getRepoEncKey(repo.id);
-                showPasswordDialog(repo.name, repo.id,
-                    new TaskDialog.TaskDialogListener() {
-                        @Override
-                        public void onTaskSuccess() {
-                            onListItemClick(v, position, id);
-                        }
-                }, encKey);
+            final boolean continueProcess = handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
+                @Override
+                public void onTaskSuccess() {
+                    onListItemClick(v, position, id);
+                }
+            });
 
-                return;
-            }
+            if (!continueProcess) return;
         }
 
         switch (mStep) {
@@ -313,15 +309,13 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
                 return;
             } else {
                 SeafRepo repo = getDataManager().getCachedRepoByID(getNavContext().getRepoID());
-                if (repo.encrypted && !DataManager.getRepoEnckeySet(repo.id)) {
-                    String encKey = DataManager.getRepoEncKey(repo.id);
-                    showPasswordDialog(repo.name, repo.id,
-                    new TaskDialog.TaskDialogListener() {
+                if (repo != null) {
+                    handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
                         @Override
                         public void onTaskSuccess() {
                             chooseRepo(forceRefresh);
                         }
-                    } , encKey);
+                    });
                 }
                 chooseDir(forceRefresh);
                 break;
@@ -486,10 +480,9 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
         NavContext nav = getNavContext();
         String repoName = nav.getRepoName();
         String repoID = nav.getRepoID();
-        SeafRepo repo = mDataManager.getCachedRepoByID(repoID);
 
         PasswordDialog passwordDialog = new PasswordDialog();
-        passwordDialog.setRepo(repoName, repoID, repo.magic, repo.encKey, repo.encVersion, mAccount);
+        passwordDialog.setRepo(repoName, repoID, mAccount);
         passwordDialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
@@ -501,14 +494,79 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
 
     public void showPasswordDialog(String repoName, String repoID,
                                    TaskDialog.TaskDialogListener listener, String password) {
-        SeafRepo repo = mDataManager.getCachedRepoByID(repoID);
         PasswordDialog passwordDialog = new PasswordDialog();
-        passwordDialog.setRepo(repoName, repoID, repo.magic, repo.encKey, repo.encVersion, mAccount);
+        passwordDialog.setRepo(repoName, repoID, mAccount);
         if (password != null) {
             passwordDialog.setPassword(password);
         }
         passwordDialog.setTaskDialogLisenter(listener);
         passwordDialog.show(getSupportFragmentManager(), PASSWORD_DIALOG_FRAGMENT_TAG);
+    }
+
+    private void showEncDialog(String magic, String randomKey, int version) {
+        NavContext nav = getNavContext();
+        String repoName = nav.getRepoName();
+        String repoID = nav.getRepoID();
+
+        PasswordDialog passwordDialog = new PasswordDialog();
+        passwordDialog.setRepo(repoName, repoID, magic, randomKey, version, mAccount);
+        passwordDialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
+            @Override
+            public void onTaskSuccess() {
+                refreshDir();
+            }
+        });
+        passwordDialog.show(getSupportFragmentManager(), PASSWORD_DIALOG_FRAGMENT_TAG);
+    }
+
+    public void showEncDialog(String repoName, String repoID, String magic, String randomKey, int version,
+                              TaskDialog.TaskDialogListener listener, String password) {
+        PasswordDialog passwordDialog = new PasswordDialog();
+        passwordDialog.setRepo(repoName, repoID, magic, randomKey, version, mAccount);
+        if (password != null) {
+            passwordDialog.setPassword(password);
+        }
+        passwordDialog.setTaskDialogLisenter(listener);
+        passwordDialog.show(getSupportFragmentManager(), PASSWORD_DIALOG_FRAGMENT_TAG);
+    }
+
+    private boolean handleEncryptedRepo(SeafRepo repo, TaskDialog.TaskDialogListener taskDialogListener) {
+        if (!repo.encrypted) return true;
+
+        if (!repo.canLocalDecrypt()) {
+            if (!DataManager.getRepoPasswordSet(repo.id)) {
+                String password = DataManager.getRepoPassword(repo.id);
+                showPasswordDialog(repo.name, repo.id, taskDialogListener, password);
+                return false;
+            } else {
+                taskDialogListener.onTaskSuccess();
+                return true;
+            }
+        } else {
+            if (!DataManager.getRepoEnckeySet(repo.id)) {
+                String encKey = DataManager.getRepoEncKey(repo.id);
+                showEncDialog(repo.name, repo.id,repo.magic, repo.encKey, repo.encVersion, taskDialogListener, encKey);
+                return false;
+            } else {
+                taskDialogListener.onTaskSuccess();
+                return true;
+            }
+        }
+    }
+
+    private void handleEncryptedRepo(String repoId) {
+        SeafRepo repo = mDataManager.getCachedRepoByID(repoId);
+        if (repo == null || !repo.encrypted) return;
+
+        if (!repo.canLocalDecrypt()) {
+            if (!DataManager.getRepoPasswordSet(repoId)) {
+                showPasswordDialog();
+            }
+        } else {
+            if (!DataManager.getRepoEnckeySet(repoId)) {
+                showEncDialog(repo.magic, repo.encKey, repo.encVersion);
+            }
+        }
     }
 
     private void showLoading(boolean loading) {
@@ -727,7 +785,7 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
             if (err != null) {
                 int retCode = err.getCode();
                 if (retCode == SeafConnection.HTTP_STATUS_REPO_PASSWORD_REQUIRED) {
-                    showPasswordDialog();
+                    handleEncryptedRepo(repoID);
                 } else if (retCode == HttpURLConnection.HTTP_NOT_FOUND) {
                     ToastUtils.show(SeafilePathChooserActivity.this, String.format("The folder \"%s\" was deleted", dirPath));
                 } else {
