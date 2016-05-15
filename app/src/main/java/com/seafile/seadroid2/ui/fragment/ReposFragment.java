@@ -31,11 +31,13 @@ import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.DatabaseHelper;
 import com.seafile.seadroid2.data.SeafCachedFile;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafGroup;
 import com.seafile.seadroid2.data.SeafItem;
 import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.data.StorageManager;
 import com.seafile.seadroid2.ssl.CertsManager;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.ui.CopyMoveContext;
@@ -761,13 +763,15 @@ public class ReposFragment extends ListFragment {
                 });
                 dialog.show(getFragmentManager(), SslConfirmDialog.FRAGMENT_TAG);
                 return;
+            } else if (err == SeafException.remoteWipedException) {
+                mActivity.completeRemoteWipe();
             }
 
             if (err != null) {
                 if (err.getCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
                     // Token expired, should login again
                     ToastUtils.show(mActivity, R.string.err_token_expired);
-                    logoutWhenTokenExpired();
+                    mActivity.logoutWhenTokenExpired();
                 } else {
                     Log.e(DEBUG_TAG, "failed to load repos: " + err.getMessage());
                     showError(R.string.error_when_load_repos);
@@ -933,6 +937,8 @@ public class ReposFragment extends ListFragment {
                 });
                 dialog.show(getFragmentManager(), SslConfirmDialog.FRAGMENT_TAG);
                 return;
+            } else if (err == SeafException.remoteWipedException) {
+                mActivity.completeRemoteWipe();
             }
 
             if (err != null) {
@@ -941,7 +947,7 @@ public class ReposFragment extends ListFragment {
                 } else if (err.getCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
                     // Token expired, should login again
                     ToastUtils.show(mActivity, R.string.err_token_expired);
-                    logoutWhenTokenExpired();
+                    mActivity.logoutWhenTokenExpired();
                 } else if (err.getCode() == HttpURLConnection.HTTP_NOT_FOUND) {
                     ToastUtils.show(mActivity, String.format("The folder \"%s\" was deleted", myPath));
                 } else {
@@ -960,24 +966,6 @@ public class ReposFragment extends ListFragment {
             getDataManager().setDirsRefreshTimeStamp(myRepoID, myPath);
             updateAdapterWithDirents(dirents);
         }
-    }
-
-    /**
-     * Token expired, clear current authorized info and redirect user to login page
-     */
-    private void logoutWhenTokenExpired() {
-        AccountManager accountMgr = new AccountManager(mActivity);
-
-        // sign out current account
-        Account account = accountMgr.getCurrentAccount();
-        accountMgr.signOutAccount(account);
-
-        // then redirect to AccountsActivity
-        Intent intent = new Intent(mActivity, AccountsActivity.class);
-        mActivity.startActivity(intent);
-
-        // finish current Activity
-        mActivity.finish();
     }
 
     private void showPasswordDialog() {
