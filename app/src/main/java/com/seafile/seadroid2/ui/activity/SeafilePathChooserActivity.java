@@ -481,15 +481,12 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
         String repoName = nav.getRepoName();
         String repoID = nav.getRepoID();
 
-        PasswordDialog passwordDialog = new PasswordDialog();
-        passwordDialog.setRepo(repoName, repoID, mAccount);
-        passwordDialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
+        showPasswordDialog(repoName, repoID, new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
                 refreshDir();
             }
-        });
-        passwordDialog.show(getSupportFragmentManager(), PASSWORD_DIALOG_FRAGMENT_TAG);
+        }, null);
     }
 
     public void showPasswordDialog(String repoName, String repoID,
@@ -508,15 +505,12 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
         String repoName = nav.getRepoName();
         String repoID = nav.getRepoID();
 
-        PasswordDialog passwordDialog = new PasswordDialog();
-        passwordDialog.setRepo(repoName, repoID, magic, randomKey, version, mAccount);
-        passwordDialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
+        showEncDialog(repoName, repoID, magic, randomKey, version, new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
                 refreshDir();
             }
-        });
-        passwordDialog.show(getSupportFragmentManager(), PASSWORD_DIALOG_FRAGMENT_TAG);
+        }, null);
     }
 
     public void showEncDialog(String repoName, String repoID, String magic, String randomKey, int version,

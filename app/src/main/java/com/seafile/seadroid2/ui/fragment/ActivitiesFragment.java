@@ -98,26 +98,18 @@ public class ActivitiesFragment extends Fragment {
         if (!repo.canLocalDecrypt()) {
             if (!DataManager.getRepoPasswordSet(repo.id)) {
                 String password = DataManager.getRepoPassword(repo.id);
-                showPasswordDialog(repo.name, repo.id, taskDialogListener, password);
+                mActivity.showPasswordDialog(repo.name, repo.id, taskDialogListener, password);
             } else {
                 taskDialogListener.onTaskSuccess();
             }
         } else {
             if (!DataManager.getRepoEnckeySet(repo.id)) {
                 String encKey = DataManager.getRepoEncKey(repo.id);
-                showEncDialog(repo.name, repo.id, repo.magic, repo.encKey, repo.encVersion, taskDialogListener, encKey);
+                mActivity.showEncDialog(repo.name, repo.id, repo.magic, repo.encKey, repo.encVersion, taskDialogListener, encKey);
             } else {
                 taskDialogListener.onTaskSuccess();
             }
         }
-    }
-
-    private void showPasswordDialog(String repoName, String repoId, TaskDialog.TaskDialogListener listener, String password) {
-        mActivity.showPasswordDialog(repoName, repoId, listener, password);
-    }
-
-    private void showEncDialog(String repoName, String repoID, String magic, String randomKey, int version, TaskDialog.TaskDialogListener listener, String encKey) {
-        mActivity.showEncDialog(repoName, repoID, magic, randomKey, version, listener, encKey);
     }
 
     @Override

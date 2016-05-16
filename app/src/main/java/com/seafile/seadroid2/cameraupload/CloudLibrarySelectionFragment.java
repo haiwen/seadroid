@@ -31,6 +31,7 @@ import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.ui.NavContext;
 import com.seafile.seadroid2.ui.ToastUtils;
+import com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity;
 import com.seafile.seadroid2.ui.adapter.DirentsAdapter;
 import com.seafile.seadroid2.ui.dialog.PasswordDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
@@ -218,6 +219,26 @@ public class CloudLibrarySelectionFragment extends Fragment {
         }
     }
 
+    /**
+     * Show related dialog base on settings
+     * <p/>
+     * 100% the same with {@link SeafilePathChooserActivity#handleEncryptedRepo}
+     */
+    private void handleEncryptedRepo(String repoId) {
+        SeafRepo repo = mDataManager.getCachedRepoByID(repoId);
+        if (repo == null || !repo.encrypted) return;
+
+        if (!repo.canLocalDecrypt()) {
+            if (!DataManager.getRepoPasswordSet(repoId)) {
+                showPasswordDialog();
+            }
+        } else {
+            if (!DataManager.getRepoEnckeySet(repoId)) {
+                showEncDialog(repo.magic, repo.encKey, repo.encVersion);
+            }
+        }
+    }
+
     public void onListItemClick(final View v, final int position, final long id) {
         NavContext nav = getNavContext();
         SeafRepo repo = null;
@@ -322,17 +343,13 @@ public class CloudLibrarySelectionFragment extends Fragment {
         NavContext nav = getNavContext();
         String repoName = nav.getRepoName();
         String repoID = nav.getRepoID();
-        SeafRepo repo = mDataManager.getCachedRepoByID(repoID);
 
-        PasswordDialog passwordDialog = new PasswordDialog();
-        passwordDialog.setRepo(repoName, repoID, repo.magic, repo.encKey, repo.encVersion, mAccount);
-        passwordDialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
+        showPasswordDialog(repoName, repoID, new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
                 refreshDir();
             }
-        });
-        passwordDialog.show(mActivity.getSupportFragmentManager(), PASSWORD_DIALOG_FRAGMENT_TAG);
+        }, null);
     }
 
     public void showPasswordDialog(String repoName, String repoID,
@@ -344,6 +361,19 @@ public class CloudLibrarySelectionFragment extends Fragment {
         }
         passwordDialog.setTaskDialogLisenter(listener);
         passwordDialog.show(mActivity.getSupportFragmentManager(), PASSWORD_DIALOG_FRAGMENT_TAG);
+    }
+
+    private void showEncDialog(String magic, String randomKey, int version) {
+        NavContext nav = getNavContext();
+        String repoName = nav.getRepoName();
+        String repoID = nav.getRepoID();
+
+        showEncDialog(repoName, repoID, magic, randomKey, version, new TaskDialog.TaskDialogListener() {
+            @Override
+            public void onTaskSuccess() {
+                refreshDir();
+            }
+        }, null);
     }
 
     public void showEncDialog(String repoName, String repoID, String magic, String randomKey, int version,
@@ -689,7 +719,7 @@ public class CloudLibrarySelectionFragment extends Fragment {
             if (err != null) {
                 int retCode = err.getCode();
                 if (retCode == SeafConnection.HTTP_STATUS_REPO_PASSWORD_REQUIRED) {
-                    showPasswordDialog();
+                    handleEncryptedRepo(repoID);
                 } else if (retCode == HttpURLConnection.HTTP_NOT_FOUND) {
                     ToastUtils.show(mActivity, String.format("The folder \"%s\" was deleted", dirPath));
                 } else {

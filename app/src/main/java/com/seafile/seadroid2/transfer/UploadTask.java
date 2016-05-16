@@ -96,7 +96,6 @@ public class UploadTask extends TransferTask {
                 if (byBlock) {
                     dataManager.uploadByBlocks(repoName, repoID, dir, path, monitor, isCopyToLocal, version);
                 } else {
-                    Log.d(DEBUG_TAG, "Upload path: " + path);
                     dataManager.uploadFile(repoName, repoID, dir, path, monitor, isCopyToLocal);
                 }
             }
