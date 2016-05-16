@@ -1003,10 +1003,6 @@ public class SeafConnection {
                 Log.d(DEBUG_TAG, updateBuilder.toString());
             }
 
-            Log.d(DEBUG_TAG, parentDirBuilder.toString());
-            Log.d(DEBUG_TAG, fileNameBuilder.toString());
-            Log.d(DEBUG_TAG, fileSizeBuilder.toString());
-
             req.send(parentDirBuilder);
             req.send(fileNameBuilder);
             req.send(fileSizeBuilder);
@@ -1043,7 +1039,6 @@ public class SeafConnection {
             }
 
             req.send(end);
-            Log.d(DEBUG_TAG, end);
 
             checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
 

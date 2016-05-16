@@ -52,7 +52,6 @@ public class DownloadTask extends TransferTask {
     protected File doInBackground(Void... params) {
         try {
             DataManager dataManager = new DataManager(account);
-            Log.d(DEBUG_TAG, "byBlock " + byBlock);
             if (byBlock) {
                 return dataManager.getFileByBlocks(repoName, repoID, path, encVersion,
                         new ProgressMonitor() {
