@@ -434,6 +434,8 @@ public class ReposFragment extends ListFragment {
 
             @Override
             public void run() {
+                if (mActivity == null) return;
+
                 TransferService ts = mActivity.getTransferService();
                 String repoID = getNavContext().getRepoID();
                 String repoName = getNavContext().getRepoName();
