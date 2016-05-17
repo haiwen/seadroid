@@ -323,6 +323,8 @@ public class BrowserActivity extends BaseActivity
             }
         });
 
+        pager.setOffscreenPageLimit(3);
+
         if (savedInstanceState != null) {
             Log.d(DEBUG_TAG, "savedInstanceState is not null");
             fetchFileDialog = (FetchFileDialog)
