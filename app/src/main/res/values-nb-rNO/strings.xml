@@ -7,7 +7,6 @@
   <string name="delete">Slette</string>
   <string name="delete_file_f">Slett fil</string>
   <string name="delete_dir">Slett mappe</string>
-  <string name="server_hint">Server, slik som cloud.seafile.com</string>
   <string name="passwd_hint">Passord</string>
   <string name="login">Logg inn</string>
   <string name="open_file">Åpne</string>
@@ -379,4 +378,5 @@
   <string name="action_mode_no_items_selected">Ingen elementer ble valgt</string>
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
+  <!--client sid encryption and decryption-->
 </resources>

@@ -7,7 +7,6 @@
   <string name="delete">Odstranit</string>
   <string name="delete_file_f">Odstranit soubor</string>
   <string name="delete_dir">Odstranit složku</string>
-  <string name="server_hint">Server, např. cloud.seafile.com</string>
   <string name="passwd_hint">Heslo</string>
   <string name="login">Přihlásit</string>
   <string name="open_file">Otevřít</string>
@@ -273,4 +272,5 @@
   <!--Action Mode-->
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
+  <!--client sid encryption and decryption-->
 </resources>

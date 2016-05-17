@@ -7,7 +7,6 @@
   <string name="delete">Töröl</string>
   <string name="delete_file_f">Fájl törlés</string>
   <string name="delete_dir">Könyvtár törlés</string>
-  <string name="server_hint">Szerver, mint a cloud.seafile.com</string>
   <string name="email_hint">Felhasználói név vagy e-mail cím</string>
   <string name="passwd_hint">Jelszó</string>
   <string name="login">Belépés</string>
@@ -404,4 +403,5 @@
   <string name="action_mode_no_items_selected">Nincs kiválasztott elem</string>
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
+  <!--client sid encryption and decryption-->
 </resources>

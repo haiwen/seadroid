@@ -9,7 +9,6 @@
   <string name="delete_successful">성공적으로 삭제했습니다</string>
   <string name="delete_file_f">파일 삭제</string>
   <string name="delete_dir">폴더 삭제</string>
-  <string name="server_hint">cloud.seafile.com처럼 서버를 적으세요</string>
   <string name="email_hint">사용자 이름 또는 전자메일 주소</string>
   <string name="passwd_hint">암호</string>
   <string name="login">로그인</string>
@@ -441,4 +440,5 @@
   <string name="permission_not_granted">권한을 부여하지 않음</string>
   <string name="history_change_title">자세한 수정 내역</string>
   <string name="no_more_activities">더 이상의 활동 없음</string>
+  <!--client sid encryption and decryption-->
 </resources>

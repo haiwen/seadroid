@@ -7,7 +7,6 @@
   <string name="delete">Eyða</string>
   <string name="delete_file_f">Eyða skrá</string>
   <string name="delete_dir">Eyða skráasafni</string>
-  <string name="server_hint">Þjónn, eins og cloud.seafile.com</string>
   <string name="email_hint">Notendanafn eða netfang</string>
   <string name="passwd_hint">Lykilorð</string>
   <string name="login">Innská</string>
@@ -404,4 +403,5 @@
   <string name="action_mode_no_items_selected">Engin atriði voru valin</string>
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
+  <!--client sid encryption and decryption-->
 </resources>

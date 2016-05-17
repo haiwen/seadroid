@@ -7,7 +7,6 @@
   <string name="delete">刪除</string>
   <string name="delete_file_f">刪除文件</string>
   <string name="delete_dir">刪除文件夾</string>
-  <string name="server_hint">服務器地址，比如cloud.seafile.com</string>
   <string name="passwd_hint">密碼</string>
   <string name="login">登錄</string>
   <string name="open_file">打開</string>
@@ -129,4 +128,5 @@
   <!--Action Mode-->
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
+  <!--client sid encryption and decryption-->
 </resources>

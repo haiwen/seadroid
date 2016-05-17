@@ -9,7 +9,7 @@
   <string name="delete_successful">Eliminado con éxito</string>
   <string name="delete_file_f">Eliminar archivo</string>
   <string name="delete_dir">Eliminar carpeta</string>
-  <string name="server_hint">Servidor, como cloud.seafile.com</string>
+  <string name="server_hint">Dirección del servidor</string>
   <string name="email_hint">Nombre de usuario o dirección de correo electrónico</string>
   <string name="passwd_hint">Contraseña</string>
   <string name="login">Ingresar</string>
@@ -451,4 +451,5 @@
   <string name="permission_not_granted">El permiso no fue concedido</string>
   <string name="history_change_title">Detalle de las modificaciones</string>
   <string name="no_more_activities">No hay mas actividades</string>
+  <!--client sid encryption and decryption-->
 </resources>

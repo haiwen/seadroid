@@ -102,6 +102,7 @@
   <string name="library_read_only">这个资料库是只读的</string>
   <string name="error_when_load_dirents">文件夹数据加载出错.\n 点击刷新</string>
   <string name="error_when_load_repos">资料库数据加载出错.\n 点击刷新</string>
+  <string name="error_when_load_activities">活动数据加载出错.\n 点击刷新</string>
   <string name="dir_empty">此文件夹是空的</string>
   <string name="no_repo">无资料库</string>
   <string name="no_app_available">没有找到应用</string>
@@ -442,4 +443,8 @@
   <string name="permission_not_granted">未获得权限</string>
   <string name="history_change_title">修改详情</string>
   <string name="no_more_activities">没有更多活动了</string>
+  <!--client sid encryption and decryption-->
+  <string name="enc_on">数据已被客户端加密保护</string>
+  <string name="enc_off">数据已被密码保护</string>
+  <string name="enc_title">加密资料库客户端加密</string>
 </resources>

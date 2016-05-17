@@ -9,7 +9,7 @@
   <string name="delete_successful">Успешно удалено</string>
   <string name="delete_file_f">Удалить файл</string>
   <string name="delete_dir">Удалить папку</string>
-  <string name="server_hint">Сервер, как cloud.seafile.com</string>
+  <string name="server_hint">Адрес сервера</string>
   <string name="email_hint">Логин или email</string>
   <string name="passwd_hint">Пароль</string>
   <string name="login">Войти</string>
@@ -469,4 +469,5 @@
   <string name="permission_not_granted">Разрешение не было предоставлено</string>
   <string name="history_change_title">Подробности изменений</string>
   <string name="no_more_activities">Не больше действий</string>
+  <!--client sid encryption and decryption-->
 </resources>

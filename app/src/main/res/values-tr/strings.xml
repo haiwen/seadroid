@@ -7,7 +7,6 @@
   <string name="delete">Sil</string>
   <string name="delete_file_f">Dosyayı  sil</string>
   <string name="delete_dir">Dizini sil</string>
-  <string name="server_hint">Sunucu, örneğin cloud.seafile.com</string>
   <string name="passwd_hint">Şifre</string>
   <string name="login">Giriş yap</string>
   <string name="open_file">Aç</string>
@@ -198,4 +197,5 @@
   <!--Action Mode-->
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
+  <!--client sid encryption and decryption-->
 </resources>

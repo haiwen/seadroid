@@ -5,6 +5,7 @@
   <string name="edit_account">Bewerken</string>
   <string name="delete_account">Verwijderen</string>
   <string name="delete">Verwijderen</string>
+  <string name="delete_file">Weet je zeker dat je dit bestand of map wilt verwijderen?</string>
   <string name="delete_file_f">Bestand verwijderen</string>
   <string name="delete_dir">Map verwijderen</string>
   <string name="server_hint">Server, zoals cloud.seafile.com</string>
@@ -15,6 +16,7 @@
   <string name="download_file">Download</string>
   <string name="redownload_file">Opnieuw downloaden</string>
   <string name="cancel_download">Annuleren</string>
+  <string name="unknown_file_type">Onbekend bestandstype</string>
   <string name="activity_not_found">Kan geen app vinden om dit bestand te openen</string>
   <string name="refresh">Vernieuwen</string>
   <string name="add_account">Account toevoegen</string>
@@ -166,6 +168,7 @@
   <string name="upload_finished">Upload afgerond</string>
   <string name="upload_cancelled">Upload geannuleerd</string>
   <string name="upload_failed">Upload mislukt</string>
+  <string name="upload_file_exist">Bestand bestaat reeds</string>
   <string name="upload_duplicate_found">Een item genaamd \"%s\" bestaat al op deze plek.\n Vervangen met het item wat je aan het uploaden bent?</string>
   <string name="upload_replace_all">Alles vervangen</string>
   <string name="upload_keep_both">Beide behouden</string>
@@ -312,12 +315,18 @@
   <string name="camera_sync_rename_file">%s (hernoemd door Seafile)</string>
   <string name="settings_about_title">Over</string>
   <string name="settings_about_version_title">App-versie</string>
+  <string name="settings_about_author_title">Over de auteur</string>
+  <string name="settings_advance_feature_title">GEAVANCEERDE FUNCTIES</string>
   <string name="settings_cache_title">Cachegrootte</string>
   <string name="settings_clear_cache_title">Cache legen</string>
   <string name="settings_clear_cache_hint">Wil je de cache legen?</string>
   <string name="settings_clear_cache_success">Cache is geleegd</string>
   <string name="settings_clear_cache_failed">Cache legen mislukt</string>
   <string name="settings_cache_empty">0 kB</string>
+  <string name="dialog_switch_storage_info_text">Bestaande bestanden zullen worden verplaatst naar de nieuwe opslaglocatie. Dit kan even duren.</string>
+  <string name="storage_manager_primary_storage">Primaire opslag</string>
+  <string name="storage_manager_storage_description">%1$s (%2$s vrij/%3$s totaal)</string>
+  <string name="storage_manager_storage_description_not_available">%1$s (niet beschikbaar)</string>
   <!--pull to refresh-->
   <string name="pull_to_refresh_pull_label">Trek omlaag om te verversen…</string>
   <string name="pull_to_refresh_release_label">Loslaten om te verversen...</string>
@@ -336,6 +345,7 @@
   <string name="saf_account_not_found_exception">Kon Seafile-account niet vinden</string>
   <string name="saf_upload_path_not_available">Geen pad aanwezig, niet in staat tot uploaden</string>
   <string name="saf_failed_to_create_directory">Kon map %s niet aanmaken</string>
+  <string name="saf_file_exist">Dat bestand bestaat reeds</string>
   <string name="saf_bad_mime_type">Verkeerd type verzoek</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">Server is leeg!</string>
@@ -355,6 +365,7 @@
   <string name="transfer_list_clear_finished_tasks">Alle afgeronde taken verwijderen</string>
   <string name="transfer_tabs_downloads">Lijst downloaden</string>
   <string name="transfer_tabs_uploads">Lijst uploaden</string>
+  <string name="transfer_download_no_task">Alle bestanden zijn gedownload</string>
   <plurals name="transfer_download_started">
     <item quantity="one">Begin met download van %1$d bestand</item>
     <item quantity="other">Begin met downloaden van %1$d bestanden</item>
@@ -404,6 +415,8 @@
   <string name="gallery_encrypted_repo_not_supported">Gecodeerde bibliotheek wordt niet ondersteund</string>
   <!--Overwrite existing files-->
   <string name="overwrite_existing_file_title">Huidige bestand vervangen</string>
+  <string name="overwrite_existing_file_msg">Het bestand bestaat reeds. Wil je het vervangen?</string>
+  <string name="overwrite_existing_file_exist">Het bestand bestaat reeds</string>
   <!--Action Mode-->
   <string name="action_mode_no_items_selected">Geen items geselecteerd</string>
   <!--Accessibility description for navigation drawer-->
@@ -412,4 +425,5 @@
   <string name="permission_not_granted">Toestemming is niet verleend</string>
   <string name="history_change_title">Details over de wijzigingen</string>
   <string name="no_more_activities">Geen acties meer over</string>
+  <!--client sid encryption and decryption-->
 </resources>

@@ -7,7 +7,6 @@
   <string name="delete">Cancella</string>
   <string name="delete_file_f">Cancella file</string>
   <string name="delete_dir">Cancella cartella</string>
-  <string name="server_hint">Server, come cloud.seafile.com</string>
   <string name="passwd_hint">Password</string>
   <string name="login">Login</string>
   <string name="open_file">Apri</string>
@@ -148,4 +147,5 @@
   <!--Action Mode-->
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
+  <!--client sid encryption and decryption-->
 </resources>

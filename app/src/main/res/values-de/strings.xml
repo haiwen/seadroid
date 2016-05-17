@@ -9,7 +9,6 @@
   <string name="delete_successful">Erfolgreich gelöscht</string>
   <string name="delete_file_f">Datei löschen</string>
   <string name="delete_dir">Ordner löschen</string>
-  <string name="server_hint">Server, z.B. cloud.seafile.com</string>
   <string name="email_hint">Benutzername oder E-Mail-Adresse</string>
   <string name="passwd_hint">Passwort</string>
   <string name="login">Anmelden</string>
@@ -453,4 +452,5 @@ Zum Aktualisieren einmal antippen</string>
   <string name="permission_not_granted">Berechtigung wurde nicht erteilt</string>
   <string name="history_change_title">Änderungsinformationen</string>
   <string name="no_more_activities">Keine weiteren Aktivitäten</string>
+  <!--client sid encryption and decryption-->
 </resources>

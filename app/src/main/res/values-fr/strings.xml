@@ -336,6 +336,7 @@ E-mail : support@seafile.com<br>
 <p>https://github.com/haiwen/seadroid.git</P>
 <h5>Copyright ©2013-2016 Seafile Ltd.</h5>
 ]]></string>
+  <string name="settings_advance_feature_title">Fonctionnalités avancées</string>
   <string name="settings_storage_title">Stockage du cache</string>
   <string name="settings_cache_title">Taille du cache</string>
   <string name="settings_clear_cache_title">Effacer le cache</string>
@@ -449,4 +450,5 @@ E-mail : support@seafile.com<br>
   <string name="permission_not_granted">L\'autorisation n\'a pas été accordée</string>
   <string name="history_change_title">Détails de modification</string>
   <string name="no_more_activities">Aucune activité</string>
+  <!--client sid encryption and decryption-->
 </resources>

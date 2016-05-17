@@ -7,7 +7,6 @@
   <string name="delete">Deletar</string>
   <string name="delete_file_f">Deletar arquivo</string>
   <string name="delete_dir">Deletar pasta</string>
-  <string name="server_hint">Servidor, como cloud.safile.com</string>
   <string name="passwd_hint">Senha</string>
   <string name="login">Usuario</string>
   <string name="open_file">Abrir</string>
@@ -331,4 +330,5 @@
   <!--Action Mode-->
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
+  <!--client sid encryption and decryption-->
 </resources>

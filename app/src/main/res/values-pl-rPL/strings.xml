@@ -9,7 +9,7 @@
   <string name="delete_successful">Pomyślnie usunięto</string>
   <string name="delete_file_f">Usuń plik</string>
   <string name="delete_dir">Usuń folder</string>
-  <string name="server_hint">Serwer, np. cloud.seafile.com</string>
+  <string name="server_hint">Adres serwera</string>
   <string name="email_hint">Nazwa użytkownika lub adres email</string>
   <string name="passwd_hint">Hasło</string>
   <string name="login">Login</string>
@@ -460,4 +460,5 @@
   <string name="permission_not_granted">Nie przyznano uprawnień</string>
   <string name="history_change_title">Szczegóły modyfikacji</string>
   <string name="no_more_activities">Brak więcej aktywności</string>
+  <!--client sid encryption and decryption-->
 </resources>
