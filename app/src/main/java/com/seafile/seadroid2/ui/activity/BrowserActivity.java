@@ -297,6 +297,32 @@ public class BrowserActivity extends BaseActivity
             }
         });
 
+        pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                currentPosition = position;
+                supportInvalidateOptionsMenu();
+                pager.setCurrentItem(position, true);
+                if (currentPosition != INDEX_LIBRARY_TAB) {
+                    disableUpButton();
+                } else if (navContext.inRepo()) {
+                    enableUpButton();
+                }
+
+                setUpButtonTitleOnSlideTabs(position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+
         if (savedInstanceState != null) {
             Log.d(DEBUG_TAG, "savedInstanceState is not null");
             fetchFileDialog = (FetchFileDialog)
@@ -708,6 +734,7 @@ public class BrowserActivity extends BaseActivity
         this.currentPosition = currentPosition;
         pager.setCurrentItem(currentPosition);
         mTabLayout.setScrollPosition(currentPosition, 0, true);
+        setUpButtonTitleOnSlideTabs(currentPosition);
     }
 
     public Fragment getFragment(int index) {
