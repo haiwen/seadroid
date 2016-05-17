@@ -33,6 +33,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.view.ContextThemeWrapper;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -471,9 +472,9 @@ public class BrowserActivity extends BaseActivity
                 taskDialogListener.onTaskSuccess();
             }
         } else {
-            if (!DataManager.getRepoEnckeySet(repo.id)) {
-                String encKey = DataManager.getRepoEncKey(repo.id);
-                showPasswordDialog(repo.name, repo.id, taskDialogListener, encKey);
+            if (!dataManager.getRepoEnckeySet(repo.id)) {
+                Pair<String, String> pair = dataManager.getRepoEncKey(repo.id);
+                showPasswordDialog(repo.name, repo.id, taskDialogListener, pair == null ? null : pair.first);
             } else {
                 taskDialogListener.onTaskSuccess();
             }

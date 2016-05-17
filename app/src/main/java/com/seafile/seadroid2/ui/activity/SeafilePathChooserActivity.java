@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -537,9 +538,9 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
                 return true;
             }
         } else {
-            if (!DataManager.getRepoEnckeySet(repo.id)) {
-                String encKey = DataManager.getRepoEncKey(repo.id);
-                showEncDialog(repo.name, repo.id,repo.magic, repo.encKey, repo.encVersion, taskDialogListener, encKey);
+            if (!getDataManager().getRepoEnckeySet(repo.id)) {
+                Pair<String, String> pair = getDataManager().getRepoEncKey(repo.id);
+                showEncDialog(repo.name, repo.id,repo.magic, repo.encKey, repo.encVersion, taskDialogListener, pair == null ? null : pair.first);
                 return false;
             } else {
                 taskDialogListener.onTaskSuccess();
@@ -557,7 +558,7 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
                 showPasswordDialog();
             }
         } else {
-            if (!DataManager.getRepoEnckeySet(repoId)) {
+            if (!getDataManager().getRepoEnckeySet(repoId)) {
                 showEncDialog(repo.magic, repo.encKey, repo.encVersion);
             }
         }

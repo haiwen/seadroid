@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -208,9 +209,9 @@ public class CloudLibrarySelectionFragment extends Fragment {
             }
 
         } else {
-            if (!DataManager.getRepoEnckeySet(repo.id)) {
-                String encKey = DataManager.getRepoEncKey(repo.id);
-                showEncDialog(repo.name, repo.id, repo.magic, repo.encKey, repo.encVersion, taskDialogListener, encKey);
+            if (!getDataManager().getRepoEnckeySet(repo.id)) {
+                Pair<String, String> pair = getDataManager().getRepoEncKey(repo.id);
+                showEncDialog(repo.name, repo.id, repo.magic, repo.encKey, repo.encVersion, taskDialogListener, pair == null ? null : pair.first);
                 return false;
             } else {
                 taskDialogListener.onTaskSuccess();
@@ -233,7 +234,7 @@ public class CloudLibrarySelectionFragment extends Fragment {
                 showPasswordDialog();
             }
         } else {
-            if (!DataManager.getRepoEnckeySet(repoId)) {
+            if (!getDataManager().getRepoEnckeySet(repoId)) {
                 showEncDialog(repo.magic, repo.encKey, repo.encVersion);
             }
         }
