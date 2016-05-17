@@ -110,6 +110,7 @@
     <string name="library_read_only">This library is read-only</string>
     <string name="error_when_load_dirents">Error when loading the folder.\n Tap to refresh</string>
     <string name="error_when_load_repos">Error when loading libraries.\n Tap to refresh</string>
+    <string name="error_when_load_activities">Error when loading activities.\n Tap to refresh</string>
     <string name="dir_empty">This folder is empty</string>
     <string name="no_repo">You have no libraries yet</string>
     <string name="no_app_available">No app can be found</string>

@@ -16,9 +16,11 @@ import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
@@ -47,7 +49,8 @@ import java.util.List;
 public class ActivitiesFragment extends Fragment {
     private static final String DEBUG_TAG = "ActivitiesFragment";
     public static final int REFRESH_ON_NONE = 0;
-    public static final int REFRESH_ON_PULL_DOWN = 1;
+    public static final int REFRESH_ON_PULL_DOWN_SWIPE = 1;
+    public static final int REFRESH_ON_PULL_DOWN_RESUME = 3;
     public static final int REFRESH_ON_PULL_UP = 2;
     private static int mRefreshType = REFRESH_ON_NONE;
 
@@ -55,6 +58,10 @@ public class ActivitiesFragment extends Fragment {
     private SwipeRefreshLayout refreshLayout;
     private ListView listView;
     private ActivitiesItemAdapter adapter;
+    private ImageView mEmptyView;
+    private View mProgressContainer;
+    private View mListContainer;
+    private TextView mErrorText;
 
     private RelativeLayout ppwContainerView;
     private RelativeLayout ppw;
@@ -92,6 +99,11 @@ public class ActivitiesFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
         listView = (ListView) view.findViewById(R.id.activities_listview);
+        mEmptyView = (ImageView) view.findViewById(R.id.empty);
+        mListContainer =  view.findViewById(R.id.fl_activities_list_container);
+        mErrorText = (TextView)view.findViewById(R.id.error_message);
+        mProgressContainer = view.findViewById(R.id.progressContainer);
+
         events = Lists.newArrayList();
     }
 
@@ -121,7 +133,7 @@ public class ActivitiesFragment extends Fragment {
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                mRefreshType = REFRESH_ON_PULL_DOWN;
+                mRefreshType = REFRESH_ON_PULL_DOWN_SWIPE;
                 offset = 0;
                 refreshView();
             }
@@ -189,7 +201,7 @@ public class ActivitiesFragment extends Fragment {
             public void onScroll(AbsListView absListView, int i, int i1, int i2) {}
         });
 
-        mRefreshType = REFRESH_ON_PULL_DOWN;
+        mRefreshType = REFRESH_ON_PULL_DOWN_RESUME;
         offset = 0;
         refreshView();
 
@@ -200,6 +212,44 @@ public class ActivitiesFragment extends Fragment {
 
     public void refreshView() {
         new LoadEventsTask().execute();
+    }
+
+    private void showError(int strID) {
+        showError(mActivity.getResources().getString(strID));
+    }
+
+    private void showError(String msg) {
+        mProgressContainer.setVisibility(View.GONE);
+        mListContainer.setVisibility(View.GONE);
+
+        adapter.clear();
+        adapter.notifyChanged();
+
+        mErrorText.setText(msg);
+        mErrorText.setVisibility(View.VISIBLE);
+        mErrorText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                refreshView();
+            }
+        });
+    }
+
+    public void showLoading(boolean show) {
+        mErrorText.setVisibility(View.GONE);
+        if (show) {
+            mProgressContainer.startAnimation(AnimationUtils.loadAnimation(mActivity, android.R.anim.fade_in));
+            mListContainer.startAnimation(AnimationUtils.loadAnimation(mActivity, android.R.anim.fade_out));
+
+            mProgressContainer.setVisibility(View.VISIBLE);
+            mListContainer.setVisibility(View.INVISIBLE);
+        } else {
+            mProgressContainer.startAnimation(AnimationUtils.loadAnimation(mActivity, android.R.anim.fade_out));
+            mListContainer.startAnimation(AnimationUtils.loadAnimation(mActivity, android.R.anim.fade_in));
+
+            mProgressContainer.setVisibility(View.GONE);
+            mListContainer.setVisibility(View.VISIBLE);
+        }
     }
 
     public void hideBottomSheet() {
@@ -304,7 +354,8 @@ public class ActivitiesFragment extends Fragment {
 
         @Override
         protected void onPreExecute() {
-            super.onPreExecute();
+            if (mRefreshType == REFRESH_ON_PULL_DOWN_RESUME)
+                showLoading(true);
         }
 
         @Override
@@ -326,17 +377,33 @@ public class ActivitiesFragment extends Fragment {
 
         @Override
         protected void onPostExecute(SeafActivities result) {
-            super.onPostExecute(result);
-            refreshLayout.setRefreshing(false);
+            if (mActivity == null)
+                // this occurs if user navigation to another activity
+                return;
+
+            if (mRefreshType == REFRESH_ON_PULL_DOWN_RESUME) {
+                showLoading(false);
+            } else if (mRefreshType == REFRESH_ON_PULL_DOWN_SWIPE) {
+                refreshLayout.setRefreshing(false);
+            }
+
             if (result == null) {
                 if (err != null) {
                     ToastUtils.show(mActivity, err.getMessage());
+                    showError(R.string.error_when_load_activities);
                 }
                 return;
             }
 
-            if (mRefreshType == REFRESH_ON_PULL_DOWN) {
+            if (mRefreshType == REFRESH_ON_PULL_DOWN_SWIPE) {
                 events = result.getEvents();
+                if (events.isEmpty()) {
+                    listView.setVisibility(View.GONE);
+                    mEmptyView.setVisibility(View.VISIBLE);
+                } else {
+                    listView.setVisibility(View.VISIBLE);
+                    mEmptyView.setVisibility(View.GONE);
+                }
             } else {
                 if (offset == result.getOffset()) {
                     // duplicate data
