@@ -264,7 +264,7 @@ public class FileActivity extends BaseActivity implements Toolbar.OnMenuItemClic
                 taskDialogListener.onTaskSuccess();
             }
         } else {
-            if (!DataManager.getRepoEnckeySet(repo.id)) {
+            if (!mDataManager.getRepoEnckeySet(repo.id)) {
                 showPasswordDialog(repo.name, repo.id, taskDialogListener);
             } else {
                 taskDialogListener.onTaskSuccess();

@@ -1,19 +1,21 @@
 package com.seafile.seadroid2.data;
 
-import java.io.File;
-import java.util.List;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
+
+import java.io.File;
+import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DEBUG_TAG = "DatabaseHelper";
@@ -59,6 +61,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DIRENTS_CACHE_COLUMN_PATH = "path";
     private static final String DIRENTS_CACHE_COLUMN_DIR_ID = "dir_id";
 
+    public static final String ENCKEY_TABLE_NAME = "EncKey";
+
+    public static final String ENCKEY_COLUMN_ID = "id";
+    public static final String ENCKEY_COLUMN_ENCKEY = "enc_key";
+    public static final String ENCKEY_COLUMN_ENCIV = "enc_iv";
+    public static final String ENCKEY_COLUMN_REPO_ID = "repo_id";
+
     private static final String SQL_CREATE_FILECACHE_TABLE =
         "CREATE TABLE " + FILECACHE_TABLE_NAME + " ("
         + FILECACHE_COLUMN_ID + " INTEGER PRIMARY KEY, "
@@ -88,6 +97,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         + DIRENTS_CACHE_COLUMN_PATH + " TEXT NOT NULL, "
         + DIRENTS_CACHE_COLUMN_DIR_ID + " TEXT NOT NULL);";
 
+    private static final String SQL_CREATE_ENCKEY_TABLE =
+            "CREATE TABLE " + ENCKEY_TABLE_NAME + " ("
+                    + ENCKEY_COLUMN_ID + " INTEGER PRIMARY KEY, "
+                    + ENCKEY_COLUMN_ENCKEY + " TEXT NOT NULL, "
+                    + ENCKEY_COLUMN_ENCIV + " TEXT NOT NULL, "
+                    + ENCKEY_COLUMN_REPO_ID + " TEXT NOT NULL);";
+
     // Use only single dbHelper to prevent multi-thread issue and db is closed exception
     // Reference http://stackoverflow.com/questions/2493331/what-are-the-best-practices-for-sqlite-on-android
     private static DatabaseHelper dbHelper = null;
@@ -111,6 +127,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         createRepoDirTable(db);
         createDirentsCacheTable(db);
         createStarredFilesCacheTable(db);
+        createEnckeyTable(db);
     }
 
     private void createFileCacheTable(SQLiteDatabase db) {
@@ -164,6 +181,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(sql);
     }
 
+    private void createEnckeyTable(SQLiteDatabase db) {
+        db.execSQL(SQL_CREATE_ENCKEY_TABLE);
+
+        String sql;
+        sql = String.format("CREATE INDEX enckey_repo_index ON %s (%s, %s)",
+                ENCKEY_TABLE_NAME,
+                ENCKEY_COLUMN_ENCKEY,
+                ENCKEY_COLUMN_REPO_ID);
+        db.execSQL(sql);
+    }
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // This database is only a cache for online data, so its upgrade policy is
@@ -180,6 +208,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + REPODIR_TABLE_NAME + ";");
         db.execSQL("DROP TABLE IF EXISTS " + DIRENTS_CACHE_TABLE_NAME + ";");
         db.execSQL("DROP TABLE IF EXISTS " + STARRED_FILECACHE_TABLE_NAME + ";");
+        db.execSQL("DROP TABLE IF EXISTS " + ENCKEY_TABLE_NAME + ";");
         onCreate(db);
     }
 
@@ -518,4 +547,56 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return count;
     }
 
+    public Pair<String, String> getEnckey(@NonNull String repoId) {
+        String[] projection = {
+                ENCKEY_COLUMN_ENCKEY,
+                ENCKEY_COLUMN_ENCIV
+        };
+
+        String selectClause = String.format("%s = ?",
+                ENCKEY_COLUMN_REPO_ID);
+
+        String [] selectArgs = { repoId };
+
+        Cursor cursor = database.query(
+                        ENCKEY_TABLE_NAME,
+                        projection,
+                        selectClause,
+                        selectArgs,
+                        null,   // don't group the rows
+                        null,   // don't filter by row groups
+                        null);  // The sort order
+
+        if (!cursor.moveToFirst()) {
+            cursor.close();
+            return null;
+        }
+
+        return new Pair<>(cursor.getString(0), cursor.getString(1));
+    }
+
+    public void saveEncKey(@NonNull String encKey, @NonNull String encIv, @NonNull String repoId) {
+        Pair<String, String> old = getEnckey(repoId);
+
+        if (old != null && !TextUtils.isEmpty(old.first)) {
+            if (old.first.equals(encKey) && old.second.equals(encIv)) {
+                return;
+            } else {
+                delEnckey(repoId);
+            }
+        }
+
+        // Create a new map of values, where column names are the keys
+        ContentValues values = new ContentValues();
+        values.put(ENCKEY_COLUMN_ENCKEY, encKey);
+        values.put(ENCKEY_COLUMN_ENCIV, encIv);
+        values.put(ENCKEY_COLUMN_REPO_ID, repoId);
+
+        database.insert(ENCKEY_TABLE_NAME, null, values);
+    }
+
+    private void delEnckey(String repoId) {
+        database.delete(ENCKEY_TABLE_NAME,  ENCKEY_COLUMN_REPO_ID + "=?",
+                new String[] { repoId });
+    }
 }

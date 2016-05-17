@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -103,9 +104,9 @@ public class ActivitiesFragment extends Fragment {
                 taskDialogListener.onTaskSuccess();
             }
         } else {
-            if (!DataManager.getRepoEnckeySet(repo.id)) {
-                String encKey = DataManager.getRepoEncKey(repo.id);
-                mActivity.showEncDialog(repo.name, repo.id, repo.magic, repo.encKey, repo.encVersion, taskDialogListener, encKey);
+            if (!mActivity.getDataManager().getRepoEnckeySet(repo.id)) {
+                Pair<String, String> pair = mActivity.getDataManager().getRepoEncKey(repo.id);
+                mActivity.showEncDialog(repo.name, repo.id, repo.magic, repo.encKey, repo.encVersion, taskDialogListener, pair == null ? null : pair.first);
             } else {
                 taskDialogListener.onTaskSuccess();
             }

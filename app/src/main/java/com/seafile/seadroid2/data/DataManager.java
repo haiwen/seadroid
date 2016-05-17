@@ -48,8 +48,6 @@ public class DataManager {
     private static SimpleDateFormat ptrDataFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private static Map<String, PasswordInfo> passwords = Maps.newHashMap();
-    private static Map<String, EncIvInfo> encIvMap = Maps.newHashMap();
-    private static Map<String, EncKeyInfo> secretKeyMap = Maps.newHashMap();
     private static Map<String, Long> direntsRefreshTimeMap = Maps.newHashMap();
     public static final long REFRESH_EXPIRATION_MSECS = 10 * 60 * 1000; // 10 mins
     public static long repoRefreshTimeStamp = 0;
@@ -432,8 +430,9 @@ public class DataManager {
         JSONObject obj = new JSONObject(json);
         FileBlocks fileBlocks = FileBlocks.fromJson(obj);
 
-        final String encKey = getRepoEncKey(repoID);
-        final String encIv = getRepoEncIv(repoID);
+        final Pair<String, String> pair = getRepoEncKey(repoID);
+        final String encKey = pair.first;
+        final String encIv = pair.second;
         // Log.d(DEBUG_TAG, "encKey " + encKey + "\n encIv " + encIv);
         if (TextUtils.isEmpty(encKey) || TextUtils.isEmpty(encIv)) {
             throw SeafException.decryptException;
@@ -876,56 +875,27 @@ public class DataManager {
         return info.password;
     }
 
-    private static class EncIvInfo {
-        String encIv;
+    public boolean getRepoEnckeySet(String repoID) {
+        Pair<String, String> info = dbHelper.getEnckey(repoID);
+        return info != null
+                && !TextUtils.isEmpty(info.first)
+                && !TextUtils.isEmpty(info.second);
+    }
 
-        public EncIvInfo(String encIv) {
-            this.encIv = encIv;
+    public void saveRepoSecretKey(String repoID, String key, String iv) {
+        if (!TextUtils.isEmpty(repoID)
+                && !TextUtils.isEmpty(key)
+                && !TextUtils.isEmpty(iv)) {
+            dbHelper.saveEncKey(key, iv, repoID);
         }
     }
 
-    private static class EncKeyInfo {
-        String secretKey;
-
-        public EncKeyInfo(String secretKey) {
-            this.secretKey = secretKey;
-        }
-    }
-
-    public static boolean getRepoEncIvSet(String repoID) {
-        EncIvInfo info = encIvMap.get(repoID);
-        return info != null && !TextUtils.isEmpty(info.encIv);
-    }
-
-    public static boolean getRepoEnckeySet(String repoID) {
-        EncKeyInfo info = secretKeyMap.get(repoID);
-        return info != null && !TextUtils.isEmpty(info.secretKey);
-    }
-
-    public static void setRepoEncIV(String repoID, String encIV) {
-        encIvMap.put(repoID, new EncIvInfo(encIV));
-    }
-
-    public static void saveRepoSecretKey(String repoID, String key) {
-        secretKeyMap.put(repoID, new EncKeyInfo(key));
-    }
-
-    public static String getRepoEncKey(String repoID) {
-        EncKeyInfo info = secretKeyMap.get(repoID);
-        if (info == null) {
+    public Pair<String, String> getRepoEncKey(String repoID) {
+        if (repoID == null) {
             return null;
         }
 
-        return info.secretKey;
-    }
-
-    public static String getRepoEncIv(String repoID) {
-        final EncIvInfo info = encIvMap.get(repoID);
-        if (info == null) {
-            return null;
-        }
-
-        return info.encIv;
+        return dbHelper.getEnckey(repoID);
     }
 
     /**
@@ -1109,8 +1079,9 @@ public class DataManager {
                                       ProgressMonitor monitor, boolean isUpdate, boolean isCopyToLocal, int version) throws NoSuchAlgorithmException, IOException, SeafException {
 
 
-        final String encKey = getRepoEncKey(repoID);
-        final String encIv = getRepoEncIv(repoID);
+        final Pair<String, String> pair = getRepoEncKey(repoID);
+        final String encKey = pair.first;
+        final String encIv = pair.second;
         // Log.d(DEBUG_TAG, "encKey " + encKey + " encIv " + encIv);
         if (TextUtils.isEmpty(encKey) || TextUtils.isEmpty(encIv)) {
             // TODO calculate them and continue

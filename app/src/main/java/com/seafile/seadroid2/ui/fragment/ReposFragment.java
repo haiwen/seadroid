@@ -10,6 +10,7 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.view.ActionMode;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -622,9 +623,9 @@ public class ReposFragment extends ListFragment {
                 return true;
             }
         } else {
-            if (!DataManager.getRepoEnckeySet(repo.id)) {
-                String encKey = DataManager.getRepoEncKey(repo.id);
-                mActivity.showEncDialog(repo.name, repo.id,repo.magic, repo.encKey, repo.encVersion, taskDialogListener, encKey);
+            if (!mActivity.getDataManager().getRepoEnckeySet(repo.id)) {
+                Pair<String, String> pair = mActivity.getDataManager().getRepoEncKey(repo.id);
+                mActivity.showEncDialog(repo.name, repo.id,repo.magic, repo.encKey, repo.encVersion, taskDialogListener, pair == null ? null : pair.first);
                 return false;
             } else {
                 taskDialogListener.onTaskSuccess();

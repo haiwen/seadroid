@@ -214,8 +214,7 @@ public class PasswordDialog extends TaskDialog {
 
             try {
                 final Pair<String, String> pair = Crypto.generateKey(password, randomKey, version);
-                DataManager.saveRepoSecretKey(repoID, pair.first);
-                DataManager.setRepoEncIV(repoID, pair.second);
+                dataManager.saveRepoSecretKey(repoID, pair.first, pair.second);
             } catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
                 // TODO notify error
                 e.printStackTrace();
