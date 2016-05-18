@@ -104,6 +104,7 @@
   <string name="library_read_only">Ta biblioteka jest tylko do odczytu</string>
   <string name="error_when_load_dirents">Błąd podczas wczytywania folderu.\n Dotknij, aby odświeżyć</string>
   <string name="error_when_load_repos">Błąd podczas wczytywania bibliotek.\n Dotknij, aby odświeżyć</string>
+  <string name="error_when_load_activities">Błąd podczas wczytywania aktywności.\n Dotknij, aby odświeżyć</string>
   <string name="dir_empty">Ten folder jest pusty</string>
   <string name="no_repo">Nie masz jeszcze żadnej biblioteki</string>
   <string name="no_app_available">Nie znaleziono aplikacji</string>
@@ -461,4 +462,7 @@
   <string name="history_change_title">Szczegóły modyfikacji</string>
   <string name="no_more_activities">Brak więcej aktywności</string>
   <!--client sid encryption and decryption-->
+  <string name="enc_on">Zaszyfruj dane po stronie klienta</string>
+  <string name="enc_off">Chroń dane hasłem</string>
+  <string name="enc_title">Biblioteka zaszyfrowana po stronie klienta</string>
 </resources>

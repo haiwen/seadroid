@@ -102,6 +102,7 @@
   <string name="library_read_only">このライブラリーは読み取り専用です</string>
   <string name="error_when_load_dirents">フォルダーの読み込み時にエラー。\n タップすると更新します</string>
   <string name="error_when_load_repos">ライブラリーの読み込み時にエラー。\n タップすると更新します</string>
+  <string name="error_when_load_activities">アクティビティの読み込み時にエラー。\n タップすると更新します</string>
   <string name="dir_empty">このフォルダーは空です</string>
   <string name="no_repo">まだライブラリーはありません</string>
   <string name="no_app_available">アプリが見つかりません</string>
@@ -443,4 +444,7 @@
   <string name="history_change_title">更新の詳細</string>
   <string name="no_more_activities">これ以上アクティビティはありません</string>
   <!--client sid encryption and decryption-->
+  <string name="enc_on">クライアントサイドの暗号化によりデータを保護します</string>
+  <string name="enc_off">パスワードでデータを保護する</string>
+  <string name="enc_title">暗号化されたライブラリー クライアントサイドの暗号化</string>
 </resources>
