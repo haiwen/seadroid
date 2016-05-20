@@ -471,7 +471,4 @@
   <string name="history_change_title">Подробности изменений</string>
   <string name="no_more_activities">Не больше действий</string>
   <!--client sid encryption and decryption-->
-  <string name="enc_on">Защитить данные с помощью шифрования на стороне клиента</string>
-  <string name="enc_off">Защитить данные с помощью пароля</string>
-  <string name="enc_title">Библиотека зашифрована с помощью шифрования на стороне клиента</string>
 </resources>

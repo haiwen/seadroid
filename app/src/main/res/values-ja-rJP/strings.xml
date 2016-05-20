@@ -444,7 +444,4 @@
   <string name="history_change_title">更新の詳細</string>
   <string name="no_more_activities">これ以上アクティビティはありません</string>
   <!--client sid encryption and decryption-->
-  <string name="enc_on">クライアントサイドの暗号化によりデータを保護します</string>
-  <string name="enc_off">パスワードでデータを保護する</string>
-  <string name="enc_title">暗号化されたライブラリー クライアントサイドの暗号化</string>
 </resources>

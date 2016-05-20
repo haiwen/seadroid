@@ -462,7 +462,4 @@
   <string name="history_change_title">Szczegóły modyfikacji</string>
   <string name="no_more_activities">Brak więcej aktywności</string>
   <!--client sid encryption and decryption-->
-  <string name="enc_on">Zaszyfruj dane po stronie klienta</string>
-  <string name="enc_off">Chroń dane hasłem</string>
-  <string name="enc_title">Biblioteka zaszyfrowana po stronie klienta</string>
 </resources>

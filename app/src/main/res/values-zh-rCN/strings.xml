@@ -228,7 +228,7 @@
   <string name="settings_account_sign_out_hint">点击退出</string>
   <string name="settings_account_sign_out_confirm">你想退出登录吗？</string>
   <string name="security">安全性</string>
-  <string name="gesture_lock">手势密码锁定</string>
+  <string name="gesture_lock">手势密码锁</string>
   <string name="gesture_lock_on">手势锁开启</string>
   <string name="gesture_lock_off">手势锁关闭</string>
   <string name="lockscreen_access_pattern_hint">请绘制手势密码</string>
@@ -444,7 +444,7 @@
   <string name="history_change_title">修改详情</string>
   <string name="no_more_activities">没有更多活动了</string>
   <!--client sid encryption and decryption-->
-  <string name="enc_on">数据已被客户端加密保护</string>
+  <string name="enc_on">数据已被加密保护</string>
   <string name="enc_off">数据已被密码保护</string>
-  <string name="enc_title">加密资料库客户端加密</string>
+  <string name="enc_title">加密资料库数据保护</string>
 </resources>

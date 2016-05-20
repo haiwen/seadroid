@@ -103,6 +103,7 @@
   <string name="library_read_only">Esta biblioteca es de sólo-lectura</string>
   <string name="error_when_load_dirents">Error al cargar la carpeta.\n Toque para actualizar</string>
   <string name="error_when_load_repos">Error al cargar bibliotecas.\n Toque para actualizar</string>
+  <string name="error_when_load_activities">Error al cargar actividades.\n Toque para actualizar</string>
   <string name="dir_empty">Esta carpeta está vacía</string>
   <string name="no_repo">Aún no tiene bibliotecas</string>
   <string name="no_app_available">No se encuentra ninguna app</string>
