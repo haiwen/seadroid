@@ -487,7 +487,7 @@
     <string name="no_more_activities">No more activities</string>
 
     <!-- client sid encryption and decryption -->
-    <string name="enc_on">Data protected by encryption</string>
-    <string name="enc_off">Data protected by password</string>
+    <string name="enc_on">Data protected by local encryption</string>
+    <string name="enc_off">Data protected by server side encryption</string>
     <string name="enc_title">Encrypted library data protection</string>
 </resources>

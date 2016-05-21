@@ -444,7 +444,7 @@
   <string name="history_change_title">修改详情</string>
   <string name="no_more_activities">没有更多活动了</string>
   <!--client sid encryption and decryption-->
-  <string name="enc_on">数据已被加密保护</string>
-  <string name="enc_off">数据已被密码保护</string>
+  <string name="enc_on">数据已被本地加密保护</string>
+  <string name="enc_off">数据已被服务器端加密保护</string>
   <string name="enc_title">加密资料库数据保护</string>
 </resources>
