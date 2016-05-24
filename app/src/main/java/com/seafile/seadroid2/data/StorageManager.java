@@ -480,6 +480,8 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
         File mediaDir = getMediaDir();
         File thumbDir = getThumbnailsDir();
 
+        if (!mediaDir.exists() || !thumbDir.exists()) return 0L;
+
         return FileUtils.sizeOfDirectory(mediaDir) + FileUtils.sizeOfDirectory(thumbDir);
     }
 
