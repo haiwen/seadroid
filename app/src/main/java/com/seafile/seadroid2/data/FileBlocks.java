@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.data;
 
+import android.support.annotation.NonNull;
+
 import com.google.common.collect.Lists;
 
 import org.json.JSONException;
@@ -14,38 +16,60 @@ import java.util.List;
  * Seafile file blocks
  */
 public class FileBlocks implements Serializable {
-    public static final String DEBUG_TAG = FileBlocks.class.getSimpleName();
+    public static final String DEBUG_TAG = "FileBlocks";
 
-    public ArrayList<byte[]> chunks;
-    public ArrayList<String> blockids;
-    public ArrayList<String> blockpaths;
+    public ArrayList<Block> blocks;
 
     public int encVersion;
     public String blklist;
     public String fileID;
 
     public FileBlocks() {
-        chunks = new ArrayList<>();
-        blockids = new ArrayList<>();
-        blockpaths = new ArrayList<>();
+        blocks = new ArrayList<>();
+    }
+
+    public long getSize() {
+        long size = 0L;
+        for (Block block : blocks) {
+            size += block.size;
+        }
+        return size;
+    }
+
+    public long getFinished() {
+        long finished = 0L;
+        for (Block block : blocks) {
+            finished += block.finished;
+        }
+        return finished;
+    }
+
+    public Block getBlock(@NonNull String blkId) {
+        for (Block block : blocks) {
+            if (blkId.equals(block.blockId)) {
+                return block;
+            }
+        }
+        return null;
     }
 
     static FileBlocks fromJson(JSONObject obj) throws JSONException {
         FileBlocks blocks = new FileBlocks();
         blocks.blklist = obj.optString("blklist");
         blocks.fileID = obj.optString("file_id");
-        blocks.blockids = getBlockIds(blocks.blklist);
+        blocks.blocks = getBlockIds(blocks.blklist);
         blocks.encVersion = obj.optInt("enc_version");
         return blocks;
     }
 
-    private static ArrayList<String> getBlockIds(String blklist) {
+    private static ArrayList<Block> getBlockIds(String blklist) {
         final List<String> blkIds = Arrays.asList(blklist.split("\\s*,\\s*"));
 
-        ArrayList<String> ids = Lists.newArrayList();
-        for (String block : blkIds) {
-            final String substring = block.substring(block.indexOf("\"") + 1, block.lastIndexOf("\""));
-            ids.add(substring);
+        ArrayList<Block> ids = Lists.newArrayList();
+        for (String blkid : blkIds) {
+            final String substring = blkid.substring(blkid.indexOf("\"") + 1, blkid.lastIndexOf("\""));
+            Block block = new Block(substring, null, 0, 0, null);
+            ids.add(block);
         }
 
         return ids;
