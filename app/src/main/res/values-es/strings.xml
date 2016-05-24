@@ -453,5 +453,7 @@
   <string name="history_change_title">Detalle de las modificaciones</string>
   <string name="no_more_activities">No hay mas actividades</string>
   <!--client sid encryption and decryption-->
+  <string name="enc_on">Datos protegidos mediante encriptación local</string>
+  <string name="enc_off">Datos protegidos mediante encriptación en el servidor</string>
   <string name="enc_title">Protección de datos en biblioteca encriptada</string>
 </resources>
