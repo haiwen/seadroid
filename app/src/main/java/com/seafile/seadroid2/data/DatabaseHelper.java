@@ -599,4 +599,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         database.delete(ENCKEY_TABLE_NAME,  ENCKEY_COLUMN_REPO_ID + "=?",
                 new String[] { repoId });
     }
+
+    public void clearEnckeys() {
+        database.delete(ENCKEY_TABLE_NAME, null, null);
+    }
 }

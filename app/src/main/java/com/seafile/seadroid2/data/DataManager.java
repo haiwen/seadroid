@@ -836,6 +836,10 @@ public class DataManager {
         }
     }
 
+    public static void clearPassword() {
+        passwords.clear();
+    }
+
     private static class PasswordInfo {
         String password;
         long timestamp;

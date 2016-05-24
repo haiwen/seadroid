@@ -490,4 +490,11 @@
     <string name="enc_on">Data protected by local encryption</string>
     <string name="enc_off">Data protected by server side encryption</string>
     <string name="enc_title">Encrypted library data protection</string>
+
+    <!-- clear password -->
+    <string name="clear_password_title">Clear password</string>
+    <string name="clear_password_hint">Click to clear password</string>
+    <string name="clear_password_successful">Clear password successful</string>
+    <string name="clear_password_failed">Clear password failed</string>
+    <string name="clear_password_warning">Do you want to clear password?</string>
 </resources>
