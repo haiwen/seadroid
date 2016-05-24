@@ -1605,11 +1605,22 @@ public class BrowserActivity extends BaseActivity
                         if (txService == null)
                             return null;
 
-                        txService.addTaskToDownloadQue(account,
-                                repoName,
-                                repoID,
-                                Utils.pathJoin(dirPaths.get(i),
-                                        seafDirent.name));
+                        final SeafRepo repo = dataManager.getCachedRepoByID(repoID);
+                        if (repo != null && repo.canLocalDecrypt()) {
+                            txService.addTaskToDownloadQue(account,
+                                    repoName,
+                                    repoID,
+                                    Utils.pathJoin(dirPaths.get(i),
+                                            seafDirent.name),
+                                    true,
+                                    repo.encVersion);
+                        } else {
+                            txService.addTaskToDownloadQue(account,
+                                    repoName,
+                                    repoID,
+                                    Utils.pathJoin(dirPaths.get(i),
+                                            seafDirent.name));
+                        }
                         fileCount++;
                     }
                 }
@@ -2179,11 +2190,22 @@ public class BrowserActivity extends BaseActivity
                         if (txService == null)
                             return null;
 
-                        txService.addTaskToDownloadQue(account,
-                                repoName,
-                                repoID,
-                                Utils.pathJoin(dirPaths.get(i),
-                                        seafDirent.name));
+                        final SeafRepo repo = dataManager.getCachedRepoByID(repoID);
+                        if (repo != null && repo.canLocalDecrypt()) {
+                            txService.addTaskToDownloadQue(account,
+                                    repoName,
+                                    repoID,
+                                    Utils.pathJoin(dirPaths.get(i),
+                                            seafDirent.name),
+                                    true,
+                                    repo.encVersion);
+                        } else {
+                            txService.addTaskToDownloadQue(account,
+                                    repoName,
+                                    repoID,
+                                    Utils.pathJoin(dirPaths.get(i),
+                                            seafDirent.name));
+                        }
                         fileCount++;
                     }
 
