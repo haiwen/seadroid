@@ -426,26 +426,23 @@ public class DataManager {
         }
 
         final String json = sc.getBlockDownloadList(repoID, path);
-        // Log.d(DEBUG_TAG, "json " + json);
         JSONObject obj = new JSONObject(json);
         FileBlocks fileBlocks = FileBlocks.fromJson(obj);
 
         final Pair<String, String> pair = getRepoEncKey(repoID);
         final String encKey = pair.first;
         final String encIv = pair.second;
-        // Log.d(DEBUG_TAG, "encKey " + encKey + "\n encIv " + encIv);
         if (TextUtils.isEmpty(encKey) || TextUtils.isEmpty(encIv)) {
             throw SeafException.decryptException;
         }
 
-        if (fileBlocks.blockids == null)
+        if (fileBlocks.blocks == null)
             throw SeafException.blockListNullPointerException;
 
-        for (String blockID : fileBlocks.blockids) {
-            File tempBlock = new File(storageManager.getTempDir(), blockID);
-            final Pair<String, File> block = sc.getBlock(repoID, fileBlocks.fileID, blockID, path, tempBlock.getPath(), monitor);
+        for (Block blk : fileBlocks.blocks) {
+            File tempBlock = new File(storageManager.getTempDir(), blk.blockId);
+            final Pair<String, File> block = sc.getBlock(repoID, fileBlocks, blk.blockId, tempBlock.getPath(), monitor);
             final byte[] bytes = FileUtils.readFileToByteArray(block.second);
-            // Log.d(DEBUG_TAG, "download block " + Crypto.toHex(bytes));
             final byte[] decryptedBlock = Crypto.decrypt(bytes, encKey, encIv);
             FileUtils.writeByteArrayToFile(localFile, decryptedBlock, true);
         }
@@ -1037,11 +1034,10 @@ public class DataManager {
             while (in.read(buffer, 0, BUFFER_SIZE) != -1) {
                 final byte[] cipher = Crypto.encrypt(buffer, encKey, enkIv);
                 final String blkid = Crypto.sha1(cipher);
-                seafBlock.chunks.add(cipher);
-                seafBlock.blockids.add(blkid);
-                File block = new File(storageManager.getTempDir(), blkid);
-                seafBlock.blockpaths.add(block.getAbsolutePath());
-                out = new FileOutputStream(block);
+                File blk = new File(storageManager.getTempDir(), blkid);
+                Block block = new Block(blkid, blk.getAbsolutePath(), blk.length(), 0L, cipher);
+                seafBlock.blocks.add(block);
+                out = new FileOutputStream(blk);
                 out.write(cipher);
                 out.close();
             }
@@ -1089,15 +1085,15 @@ public class DataManager {
         }
 
         final FileBlocks chunkFile = chunkFile(encKey, encIv, filePath);
-        if (chunkFile.blockids.isEmpty()) {
+        if (chunkFile.blocks.isEmpty()) {
             throw SeafException.blockListNullPointerException;
         }
 
         String newFileID = null;
         if (isUpdate) {
-            newFileID  = sc.updateByBlocks(repoID, dir, filePath, chunkFile.blockids, chunkFile.blockpaths, monitor);
+            newFileID  = sc.updateByBlocks(repoID, dir, filePath, chunkFile.blocks, monitor);
         } else {
-            newFileID  = sc.uploadByBlocks(repoID, dir, filePath, chunkFile.blockids, chunkFile.blockpaths, monitor);
+            newFileID  = sc.uploadByBlocks(repoID, dir, filePath, chunkFile.blocks, monitor);
         }
         // Log.d(DEBUG_TAG, "uploadByBlocks " + newFileID);
 

@@ -1,7 +1,5 @@
 package com.seafile.seadroid2.transfer;
 
-import android.util.Log;
-
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
@@ -23,6 +21,7 @@ public class DownloadTask extends TransferTask {
     private String localPath;
     private DownloadStateListener downloadStateListener;
     private boolean byBlock;
+    private boolean updateTotal;
     private int encVersion;
 
     public DownloadTask(int taskID, Account account, String repoName, String repoID, String path, boolean byBlock, int encVersion,
@@ -39,7 +38,7 @@ public class DownloadTask extends TransferTask {
      */
     @Override
     protected void onProgressUpdate(Long... values) {
-        if (totalSize == -1) {
+        if (totalSize == -1 || updateTotal) {
             totalSize = values[0];
             state = TaskState.TRANSFERRING;
             return;
@@ -57,7 +56,8 @@ public class DownloadTask extends TransferTask {
                         new ProgressMonitor() {
 
                             @Override
-                            public void onProgressNotify(long total) {
+                            public void onProgressNotify(long total, boolean updateTotal) {
+                                DownloadTask.this.updateTotal = updateTotal;
                                 publishProgress(total);
                             }
 
@@ -72,7 +72,7 @@ public class DownloadTask extends TransferTask {
                         new ProgressMonitor() {
 
                             @Override
-                            public void onProgressNotify(long total) {
+                            public void onProgressNotify(long total, boolean updateTotal) {
                                 publishProgress(total);
                             }
 

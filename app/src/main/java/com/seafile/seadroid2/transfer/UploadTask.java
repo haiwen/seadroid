@@ -77,7 +77,7 @@ public class UploadTask extends TransferTask {
         try {
             ProgressMonitor monitor = new ProgressMonitor() {
                 @Override
-                public void onProgressNotify(long uploaded) {
+                public void onProgressNotify(long uploaded, boolean updateTotal) {
                     publishProgress(uploaded);
                 }
 

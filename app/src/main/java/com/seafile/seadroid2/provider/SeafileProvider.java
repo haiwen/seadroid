@@ -603,7 +603,7 @@ public class SeafileProvider extends DocumentsProvider {
             // fetch the file from the Seafile server.
             File f = dm.getFile(repo.getName(), repo.getID(), path, new ProgressMonitor() {
                 @Override
-                public void onProgressNotify(long total) {
+                public void onProgressNotify(long total, boolean updateTotal) {
                 }
 
                 @Override
