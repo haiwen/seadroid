@@ -16,6 +16,7 @@ import android.preference.PreferenceScreen;
 import android.support.v7.view.ContextThemeWrapper;
 import android.text.Html;
 import android.text.TextUtils;
+import android.text.method.CharacterPickerDialog;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -39,6 +40,7 @@ import com.seafile.seadroid2.ui.activity.CreateGesturePasswordActivity;
 import com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity;
 import com.seafile.seadroid2.ui.activity.SettingsActivity;
 import com.seafile.seadroid2.ui.dialog.ClearCacheTaskDialog;
+import com.seafile.seadroid2.ui.dialog.ClearPasswordTaskDialog;
 import com.seafile.seadroid2.ui.dialog.SwitchStorageTaskDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog.TaskDialogListener;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
@@ -184,6 +186,16 @@ public class SettingsFragment extends CustomPreferenceFragment {
                 }
 
                 return false;
+            }
+        });
+
+        findPreference(SettingsManager.CLEAR_PASSOWR_SWITCH_KEY).setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+
+                // clear password
+                clearPassword();
+                return true;
             }
         });
 
@@ -336,6 +348,22 @@ public class SettingsFragment extends CustomPreferenceFragment {
             cCacheCategory.removePreference(findPreference(SettingsManager.SETTINGS_CACHE_DIR_KEY));
         }
 
+    }
+
+    private void clearPassword() {
+        ClearPasswordTaskDialog dialog = new ClearPasswordTaskDialog();
+        dialog.setTaskDialogLisenter(new TaskDialogListener() {
+            @Override
+            public void onTaskSuccess() {
+                ToastUtils.show(mActivity, R.string.clear_password_successful);
+            }
+
+            @Override
+            public void onTaskFailed(SeafException e) {
+                ToastUtils.show(mActivity, R.string.clear_password_failed);
+            }
+        });
+        dialog.show(getFragmentManager(), "DialogFragment");
     }
 
     private void updateStorageLocationSummary() {

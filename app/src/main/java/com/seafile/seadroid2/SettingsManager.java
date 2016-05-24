@@ -40,6 +40,7 @@ public final class SettingsManager {
 
     // Client side encryption
     public static final String CLIENT_ENC_SWITCH_KEY = "client_encrypt_switch_key";
+    public static final String CLEAR_PASSOWR_SWITCH_KEY = "clear_password_switch_key";
 
     // Gesture Lock
     public static final String GESTURE_LOCK_SWITCH_KEY = "gesture_lock_switch_key";
