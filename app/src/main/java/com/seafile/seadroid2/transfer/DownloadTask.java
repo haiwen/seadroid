@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.transfer;
 
+import android.util.Log;
+
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
@@ -16,7 +18,7 @@ import java.security.NoSuchAlgorithmException;
  *
  */
 public class DownloadTask extends TransferTask {
-    public static final String DEBUG_TAG = DownloadTask.class.getSimpleName();
+    public static final String DEBUG_TAG = "DownloadTask";
 
     private String localPath;
     private DownloadStateListener downloadStateListener;
