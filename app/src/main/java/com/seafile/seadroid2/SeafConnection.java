@@ -568,7 +568,7 @@ public class SeafConnection {
                 Long size = Long.parseLong(req.header(HttpRequest.HEADER_CONTENT_LENGTH));*/
                 if (req.contentLength() > 0) {
                     Long size =  Long.valueOf(req.contentLength());
-                    monitor.onProgressNotify(size, false);
+                    monitor.onProgressNotify(size, false, false);
                 }
             }
 
@@ -621,7 +621,8 @@ public class SeafConnection {
                 Long size = Long.parseLong(req.header(HttpRequest.HEADER_CONTENT_LENGTH));*/
                 if (req.contentLength() > 0) {
                     fileBlocks.getBlock(blkId).size = req.contentLength();
-                    monitor.onProgressNotify(fileBlocks.getSize(), true);
+                    fileBlocks.decrease();
+                    monitor.onProgressNotify(fileBlocks.getSize(), true, fileBlocks.remaining());
                 }
             }
 
@@ -1186,7 +1187,7 @@ public class SeafConnection {
             }
 
             if (System.currentTimeMillis() > nextUpdate) {
-                monitor.onProgressNotify(bytesRead, false);
+                monitor.onProgressNotify(bytesRead, false, false);
                 nextUpdate = System.currentTimeMillis() + PROGRESS_UPDATE_INTERVAL;
             }
         }
@@ -1258,9 +1259,9 @@ public class SeafConnection {
             if (System.currentTimeMillis() > nextUpdate) {
                 if (fileBlocks != null) {
                     fileBlocks.getBlock(blockId).finished = bytesWritten;
-                    monitor.onProgressNotify(fileBlocks.getFinished(), false);
+                    monitor.onProgressNotify(fileBlocks.getFinished(), false, fileBlocks.remaining());
                 } else {
-                    monitor.onProgressNotify(bytesWritten, false);
+                    monitor.onProgressNotify(bytesWritten, false, false);
                 }
                 nextUpdate = System.currentTimeMillis() + PROGRESS_UPDATE_INTERVAL;
             }

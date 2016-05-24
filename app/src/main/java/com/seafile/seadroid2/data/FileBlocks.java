@@ -23,6 +23,7 @@ public class FileBlocks implements Serializable {
     public int encVersion;
     public String blklist;
     public String fileID;
+    private int remaining;
 
     public FileBlocks() {
         blocks = new ArrayList<>();
@@ -44,6 +45,15 @@ public class FileBlocks implements Serializable {
         return finished;
     }
 
+    public void decrease() {
+        if (remaining >= 1)
+            remaining--;
+    }
+
+    public boolean remaining() {
+        return remaining > 0;
+    }
+
     public Block getBlock(@NonNull String blkId) {
         for (Block block : blocks) {
             if (blkId.equals(block.blockId)) {
@@ -58,6 +68,7 @@ public class FileBlocks implements Serializable {
         blocks.blklist = obj.optString("blklist");
         blocks.fileID = obj.optString("file_id");
         blocks.blocks = getBlockIds(blocks.blklist);
+        blocks.remaining = blocks.blocks.size();
         blocks.encVersion = obj.optInt("enc_version");
         return blocks;
     }

@@ -1,7 +1,5 @@
 package com.seafile.seadroid2.transfer;
 
-import android.util.Log;
-
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
@@ -24,6 +22,7 @@ public class DownloadTask extends TransferTask {
     private DownloadStateListener downloadStateListener;
     private boolean byBlock;
     private boolean updateTotal;
+    private boolean blockRemaining;
     private int encVersion;
 
     public DownloadTask(int taskID, Account account, String repoName, String repoID, String path, boolean byBlock, int encVersion,
@@ -58,8 +57,9 @@ public class DownloadTask extends TransferTask {
                         new ProgressMonitor() {
 
                             @Override
-                            public void onProgressNotify(long total, boolean updateTotal) {
+                            public void onProgressNotify(long total, boolean updateTotal, boolean blockRemaining) {
                                 DownloadTask.this.updateTotal = updateTotal;
+                                DownloadTask.this.blockRemaining = blockRemaining;
                                 publishProgress(total);
                             }
 
@@ -74,7 +74,7 @@ public class DownloadTask extends TransferTask {
                         new ProgressMonitor() {
 
                             @Override
-                            public void onProgressNotify(long total, boolean updateTotal) {
+                            public void onProgressNotify(long total, boolean updateTotal, boolean isLastBlock) {
                                 publishProgress(total);
                             }
 
@@ -106,9 +106,15 @@ public class DownloadTask extends TransferTask {
     protected void onPostExecute(File file) {
         if (downloadStateListener != null) {
             if (file != null) {
-                state = TaskState.FINISHED;
+                if (byBlock) {
+                    state = (blockRemaining ? TaskState.TRANSFERRING : TaskState.FINISHED);
+                    downloadStateListener.onFileDownloadProgress(taskID);
+                } else {
+                    state = TaskState.FINISHED;
+                    downloadStateListener.onFileDownloaded(taskID);
+                }
+
                 localPath = file.getPath();
-                downloadStateListener.onFileDownloaded(taskID);
             } else {
                 state = TaskState.FAILED;
                 if (err == null)
