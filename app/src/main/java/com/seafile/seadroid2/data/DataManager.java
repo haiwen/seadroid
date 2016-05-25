@@ -613,13 +613,8 @@ public class DataManager {
     }
 
     public void uploadFile(String repoName, String repoID, String dir, String filePath,
-            ProgressMonitor monitor, boolean isCopyToLocal) throws SeafException {
-        uploadFileCommon(repoName, repoID, dir, filePath, monitor, false, isCopyToLocal);
-    }
-
-    public void updateFile(String repoName, String repoID, String dir, String filePath,
-            ProgressMonitor monitor, boolean isCopyToLocal) throws SeafException {
-        uploadFileCommon(repoName, repoID, dir, filePath, monitor, true, isCopyToLocal);
+            ProgressMonitor monitor, boolean isUpdate, boolean isCopyToLocal) throws SeafException {
+        uploadFileCommon(repoName, repoID, dir, filePath, monitor, isUpdate, isCopyToLocal);
     }
 
     private void uploadFileCommon(String repoName, String repoID, String dir,
@@ -1066,13 +1061,8 @@ public class DataManager {
 
     public void uploadByBlocks(String repoName, String repoId, String dir,
                                String filePath, ProgressMonitor monitor,
-                               boolean isCopyToLocal, int version) throws NoSuchAlgorithmException, IOException, SeafException {
-        uploadByBlocksCommon(repoName, repoId, dir, filePath, monitor, false, isCopyToLocal, version);
-    }
-
-    public void updateByBlocks(String repoName, String repoId, String dir,
-                               String filePath, ProgressMonitor monitor, boolean isCopyToLocal, int version) throws NoSuchAlgorithmException, IOException, SeafException {
-        uploadByBlocksCommon(repoName, repoId, dir, filePath, monitor, true, isCopyToLocal, version);
+                               boolean isUpdate, boolean isCopyToLocal, int version) throws NoSuchAlgorithmException, IOException, SeafException {
+        uploadByBlocksCommon(repoName, repoId, dir, filePath, monitor, isUpdate, isCopyToLocal, version);
     }
 
     private void uploadByBlocksCommon(String repoName, String repoID, String dir, String filePath,
