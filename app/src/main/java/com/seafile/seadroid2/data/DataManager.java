@@ -20,6 +20,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -1018,14 +1019,16 @@ public class DataManager {
     private FileBlocks chunkFile(String encKey, String enkIv, String filePath) throws IOException {
         File file = new File(filePath);
         InputStream in = null;
+        DataInputStream dis;
         OutputStream out = null;
         byte[] buffer = new byte[BUFFER_SIZE];
         FileBlocks seafBlock = new FileBlocks();
         try {
             in = new FileInputStream(file);
+            dis = new DataInputStream(in);
 
             // Log.d(DEBUG_TAG, "file size " + file.length());
-            while (in.read(buffer, 0, BUFFER_SIZE) != -1) {
+            while (dis.read(buffer, 0, BUFFER_SIZE) != -1) {
                 final byte[] cipher = Crypto.encrypt(buffer, encKey, enkIv);
                 final String blkid = Crypto.sha1(cipher);
                 File blk = new File(storageManager.getTempDir(), blkid);
