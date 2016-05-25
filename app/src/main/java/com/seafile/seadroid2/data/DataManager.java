@@ -1029,7 +1029,7 @@ public class DataManager {
                 final byte[] cipher = Crypto.encrypt(buffer, encKey, enkIv);
                 final String blkid = Crypto.sha1(cipher);
                 File blk = new File(storageManager.getTempDir(), blkid);
-                Block block = new Block(blkid, blk.getAbsolutePath(), blk.length(), 0L, cipher);
+                Block block = new Block(blkid, blk.getAbsolutePath(), blk.length(), 0L);
                 seafBlock.blocks.add(block);
                 out = new FileOutputStream(blk);
                 out.write(cipher);
