@@ -519,29 +519,16 @@ public class SeafConnection {
         }
     }
 
-    public String uploadByBlocks(String repoID, String dir, String filePath, List<Block> blocks, ProgressMonitor monitor) throws IOException, SeafException {
+    public String uploadByBlocks(String repoID, String dir, String filePath, List<Block> blocks, boolean update, ProgressMonitor monitor) throws IOException, SeafException {
         try {
-            String url = getUploadLink(repoID, false, true);
+            String url = getUploadLink(repoID, update, true);
             Log.d(DEBUG_TAG, "UploadLink " + url);
-            return uploadBlocksCommon(url, repoID, dir, filePath, blocks, monitor, false);
+            return uploadBlocksCommon(url, repoID, dir, filePath, blocks, monitor, update);
         } catch (SeafException e) {
             // do again
-            String url = getUploadLink(repoID, false, true);
+            String url = getUploadLink(repoID, update, true);
             Log.d(DEBUG_TAG, "do again UploadLink " + url);
-            return uploadBlocksCommon(url, repoID, dir, filePath, blocks, monitor, false);
-        }
-    }
-
-    public String updateByBlocks(String repoID, String dir, String filePath, List<Block> blocks, ProgressMonitor monitor) throws IOException, SeafException {
-        try {
-            String url = getUploadLink(repoID, true, true);
-            Log.d(DEBUG_TAG, "UpdateLink " + url);
-            return uploadBlocksCommon(url, repoID, dir, filePath, blocks, monitor, true);
-        } catch (SeafException e) {
-            // do again
-            String url = getUploadLink(repoID, true, true);
-            Log.d(DEBUG_TAG, "do again UpdateLink " + url);
-            return uploadBlocksCommon(url, repoID, dir, filePath, blocks, monitor, true);
+            return uploadBlocksCommon(url, repoID, dir, filePath, blocks, monitor, update);
         }
     }
 

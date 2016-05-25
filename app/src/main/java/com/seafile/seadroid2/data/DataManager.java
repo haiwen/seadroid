@@ -1093,12 +1093,7 @@ public class DataManager {
             throw SeafException.blockListNullPointerException;
         }
 
-        String newFileID = null;
-        if (isUpdate) {
-            newFileID  = sc.updateByBlocks(repoID, dir, filePath, chunkFile.blocks, monitor);
-        } else {
-            newFileID  = sc.uploadByBlocks(repoID, dir, filePath, chunkFile.blocks, monitor);
-        }
+        String newFileID = sc.uploadByBlocks(repoID, dir, filePath, chunkFile.blocks, isUpdate, monitor);
         // Log.d(DEBUG_TAG, "uploadByBlocks " + newFileID);
 
         if (newFileID == null || newFileID.length() == 0) {
