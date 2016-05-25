@@ -566,7 +566,7 @@ public class SeafileProvider extends DocumentsProvider {
                             @Override
                             public void run() {
                                 try {
-                                    dm.updateFile(repoName, repoID, parentDir, file.getPath(), null, false);
+                                    dm.uploadFile(repoName, repoID, parentDir, file.getPath(), null, true, false);
 
                                     // update cache for parent dir
                                     dm.getDirentsFromServer(repoID, parentDir);

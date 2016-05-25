@@ -740,32 +740,25 @@ public class SeafConnection {
     }
 
     /**
-     * Upload a file to update an existing file
+     * Upload or update a file
+     *
+     * @param repoID
+     * @param dir
+     * @param filePath
+     * @param monitor
+     * @param update
+     * @return
+     * @throws SeafException
      */
-    public String updateFile(String repoID, String dir, String filePath, ProgressMonitor monitor)
-                                throws SeafException {
-        try {
-            String url = getUploadLink(repoID, true);
-            return uploadFileCommon(url, repoID, dir, filePath, monitor, true);
-        } catch (SeafException e) {
-            // do again
-            String url = getUploadLink(repoID, true);
-            return uploadFileCommon(url, repoID, dir, filePath, monitor, true);
-        }
-    }
-
-    /**
-     * Upload a new file
-     */
-    public String uploadFile(String repoID, String dir, String filePath, ProgressMonitor monitor)
+    public String uploadFile(String repoID, String dir, String filePath, ProgressMonitor monitor, boolean update)
                             throws SeafException {
         try {
-            String url = getUploadLink(repoID, false);
-            return uploadFileCommon(url, repoID, dir, filePath, monitor, false);
+            String url = getUploadLink(repoID, update);
+            return uploadFileCommon(url, repoID, dir, filePath, monitor, update);
         } catch (SeafException e) {
             // do again
-            String url = getUploadLink(repoID, false);
-            return uploadFileCommon(url, repoID, dir, filePath, monitor, false);
+            String url = getUploadLink(repoID, update);
+            return uploadFileCommon(url, repoID, dir, filePath, monitor, update);
         }
     }
 

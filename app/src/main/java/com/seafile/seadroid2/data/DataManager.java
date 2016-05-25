@@ -620,12 +620,7 @@ public class DataManager {
     private void uploadFileCommon(String repoName, String repoID, String dir,
                                   String filePath, ProgressMonitor monitor,
                                   boolean isUpdate, boolean isCopyToLocal) throws SeafException {
-        String newFileID = null;
-        if (isUpdate) {
-            newFileID  = sc.updateFile(repoID, dir, filePath, monitor);
-        } else {
-            newFileID  = sc.uploadFile(repoID, dir, filePath, monitor);
-        }
+        String newFileID = sc.uploadFile(repoID, dir, filePath, monitor,isUpdate);
 
         if (newFileID == null || newFileID.length() == 0) {
             return;
