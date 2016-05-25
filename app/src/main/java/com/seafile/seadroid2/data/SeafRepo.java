@@ -90,7 +90,7 @@ public class SeafRepo implements SeafItem {
 
     public boolean canLocalDecrypt() {
         return encrypted
-                && encVersion >= 2
+                && encVersion == 2
                 && !TextUtils.isEmpty(magic)
                 && SettingsManager.instance().isEncryptEnabled();
     }
