@@ -68,7 +68,7 @@ public class FileBlocks implements Serializable {
         ArrayList<Block> ids = Lists.newArrayList();
         for (String blkid : blkIds) {
             final String substring = blkid.substring(blkid.indexOf("\"") + 1, blkid.lastIndexOf("\""));
-            Block block = new Block(substring, null, 0, 0, null);
+            Block block = new Block(substring, null, 0, 0);
             ids.add(block);
         }
 

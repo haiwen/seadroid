@@ -12,14 +12,12 @@ public class Block implements Serializable {
     public String path;
     public long size;
     public long finished;
-    public byte[] chunk;
 
-    public Block(String blockId, String path, long size, long finished, byte[] chunk) {
+    public Block(String blockId, String path, long size, long finished) {
         this.blockId = blockId;
         this.path = path;
         this.size = size;
         this.finished = finished;
-        this.chunk = chunk;
     }
 
     public String getPath() {
@@ -55,14 +53,6 @@ public class Block implements Serializable {
         this.blockId = blockId;
     }
 
-    public byte[] getChunk() {
-        return chunk;
-    }
-
-    public void setChunk(byte[] chunk) {
-        this.chunk = chunk;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -73,8 +63,7 @@ public class Block implements Serializable {
         if (size != block.size) return false;
         if (finished != block.finished) return false;
         if (!blockId.equals(block.blockId)) return false;
-        if (path != null ? !path.equals(block.path) : block.path != null) return false;
-        return Arrays.equals(chunk, block.chunk);
+        return path != null ? path.equals(block.path) : block.path == null;
 
     }
 
@@ -84,7 +73,6 @@ public class Block implements Serializable {
         result = 31 * result + (path != null ? path.hashCode() : 0);
         result = 31 * result + (int) (size ^ (size >>> 32));
         result = 31 * result + (int) (finished ^ (finished >>> 32));
-        result = 31 * result + Arrays.hashCode(chunk);
         return result;
     }
 }
