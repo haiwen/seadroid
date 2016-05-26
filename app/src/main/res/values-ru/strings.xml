@@ -471,9 +471,9 @@
   <string name="history_change_title">Подробности изменений</string>
   <string name="no_more_activities">Не больше действий</string>
   <!--client sid encryption and decryption-->
-  <string name="enc_on">Данные защищены с помощью локального шифрования</string>
-  <string name="enc_off">Защитить данные с помощью шифрования на стороне сервера</string>
-  <string name="enc_title">Защита данных зашифрованной библиотеки</string>
+  <string name="enc_on">Расшифровать данные локально</string>
+  <string name="enc_off">Расшифровать данные на стороне сервера</string>
+  <string name="enc_title">Режим дешифрования для данных зашифрованной библиотеки</string>
   <!--clear password-->
   <string name="clear_password_title">Удалить пароль</string>
   <string name="clear_password_hint">Нажмите, чтобы удалить пароль</string>
