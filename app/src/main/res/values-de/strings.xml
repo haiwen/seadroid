@@ -453,4 +453,5 @@ Zum Aktualisieren einmal antippen</string>
   <string name="history_change_title">Änderungsinformationen</string>
   <string name="no_more_activities">Keine weiteren Aktivitäten</string>
   <!--client sid encryption and decryption-->
+  <!--clear password-->
 </resources>

@@ -465,4 +465,5 @@
   <string name="enc_on">Dane zaszyfrowane po stronie klienta</string>
   <string name="enc_off">Dane zaszyfrowane po stronie serwera</string>
   <string name="enc_title">Zaszyfrowana biblioteka</string>
+  <!--clear password-->
 </resources>

@@ -447,4 +447,10 @@
   <string name="enc_on">ローカルの暗号化によりデータを保護</string>
   <string name="enc_off">サーバーサイドの暗号化によりデータを保護</string>
   <string name="enc_title">暗号化されたライブラリーでデータの保護</string>
+  <!--clear password-->
+  <string name="clear_password_title">パスワードをクリア</string>
+  <string name="clear_password_hint">クリックするとパスワードをクリアします</string>
+  <string name="clear_password_successful">パスワードを正常にクリアしました</string>
+  <string name="clear_password_failed">パスワードのクリアに失敗しました</string>
+  <string name="clear_password_warning">パスワードをクリアしますか?</string>
 </resources>

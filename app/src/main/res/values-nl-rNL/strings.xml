@@ -426,4 +426,5 @@
   <string name="history_change_title">Details over de wijzigingen</string>
   <string name="no_more_activities">Geen acties meer over</string>
   <!--client sid encryption and decryption-->
+  <!--clear password-->
 </resources>

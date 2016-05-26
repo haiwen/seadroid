@@ -474,4 +474,10 @@
   <string name="enc_on">Данные защищены с помощью локального шифрования</string>
   <string name="enc_off">Защитить данные с помощью шифрования на стороне сервера</string>
   <string name="enc_title">Защита данных зашифрованной библиотеки</string>
+  <!--clear password-->
+  <string name="clear_password_title">Удалить пароль</string>
+  <string name="clear_password_hint">Нажмите, чтобы удалить пароль</string>
+  <string name="clear_password_successful">Удаление пароля прошло успешно</string>
+  <string name="clear_password_failed">Удаление пароля прошло неудачно</string>
+  <string name="clear_password_warning">Вы хотите удалить пароль?</string>
 </resources>

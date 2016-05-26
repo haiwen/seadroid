@@ -441,4 +441,5 @@
   <string name="history_change_title">자세한 수정 내역</string>
   <string name="no_more_activities">더 이상의 활동 없음</string>
   <!--client sid encryption and decryption-->
+  <!--clear password-->
 </resources>

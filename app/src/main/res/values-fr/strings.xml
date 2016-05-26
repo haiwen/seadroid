@@ -451,4 +451,5 @@ E-mail : support@seafile.com<br>
   <string name="history_change_title">Détails de modification</string>
   <string name="no_more_activities">Aucune activité</string>
   <!--client sid encryption and decryption-->
+  <!--clear password-->
 </resources>
