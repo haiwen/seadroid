@@ -20,6 +20,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -613,24 +614,14 @@ public class DataManager {
     }
 
     public void uploadFile(String repoName, String repoID, String dir, String filePath,
-            ProgressMonitor monitor, boolean isCopyToLocal) throws SeafException {
-        uploadFileCommon(repoName, repoID, dir, filePath, monitor, false, isCopyToLocal);
-    }
-
-    public void updateFile(String repoName, String repoID, String dir, String filePath,
-            ProgressMonitor monitor, boolean isCopyToLocal) throws SeafException {
-        uploadFileCommon(repoName, repoID, dir, filePath, monitor, true, isCopyToLocal);
+            ProgressMonitor monitor, boolean isUpdate, boolean isCopyToLocal) throws SeafException {
+        uploadFileCommon(repoName, repoID, dir, filePath, monitor, isUpdate, isCopyToLocal);
     }
 
     private void uploadFileCommon(String repoName, String repoID, String dir,
                                   String filePath, ProgressMonitor monitor,
                                   boolean isUpdate, boolean isCopyToLocal) throws SeafException {
-        String newFileID = null;
-        if (isUpdate) {
-            newFileID  = sc.updateFile(repoID, dir, filePath, monitor);
-        } else {
-            newFileID  = sc.uploadFile(repoID, dir, filePath, monitor);
-        }
+        String newFileID = sc.uploadFile(repoID, dir, filePath, monitor,isUpdate);
 
         if (newFileID == null || newFileID.length() == 0) {
             return;
@@ -1028,18 +1019,20 @@ public class DataManager {
     private FileBlocks chunkFile(String encKey, String enkIv, String filePath) throws IOException {
         File file = new File(filePath);
         InputStream in = null;
+        DataInputStream dis;
         OutputStream out = null;
         byte[] buffer = new byte[BUFFER_SIZE];
         FileBlocks seafBlock = new FileBlocks();
         try {
             in = new FileInputStream(file);
+            dis = new DataInputStream(in);
 
             // Log.d(DEBUG_TAG, "file size " + file.length());
-            while (in.read(buffer, 0, BUFFER_SIZE) != -1) {
+            while (dis.read(buffer, 0, BUFFER_SIZE) != -1) {
                 final byte[] cipher = Crypto.encrypt(buffer, encKey, enkIv);
                 final String blkid = Crypto.sha1(cipher);
                 File blk = new File(storageManager.getTempDir(), blkid);
-                Block block = new Block(blkid, blk.getAbsolutePath(), blk.length(), 0L, cipher);
+                Block block = new Block(blkid, blk.getAbsolutePath(), blk.length(), 0L);
                 seafBlock.blocks.add(block);
                 out = new FileOutputStream(blk);
                 out.write(cipher);
@@ -1066,13 +1059,8 @@ public class DataManager {
 
     public void uploadByBlocks(String repoName, String repoId, String dir,
                                String filePath, ProgressMonitor monitor,
-                               boolean isCopyToLocal, int version) throws NoSuchAlgorithmException, IOException, SeafException {
-        uploadByBlocksCommon(repoName, repoId, dir, filePath, monitor, false, isCopyToLocal, version);
-    }
-
-    public void updateByBlocks(String repoName, String repoId, String dir,
-                               String filePath, ProgressMonitor monitor, boolean isCopyToLocal, int version) throws NoSuchAlgorithmException, IOException, SeafException {
-        uploadByBlocksCommon(repoName, repoId, dir, filePath, monitor, true, isCopyToLocal, version);
+                               boolean isUpdate, boolean isCopyToLocal, int version) throws NoSuchAlgorithmException, IOException, SeafException {
+        uploadByBlocksCommon(repoName, repoId, dir, filePath, monitor, isUpdate, isCopyToLocal, version);
     }
 
     private void uploadByBlocksCommon(String repoName, String repoID, String dir, String filePath,
@@ -1093,12 +1081,7 @@ public class DataManager {
             throw SeafException.blockListNullPointerException;
         }
 
-        String newFileID = null;
-        if (isUpdate) {
-            newFileID  = sc.updateByBlocks(repoID, dir, filePath, chunkFile.blocks, monitor);
-        } else {
-            newFileID  = sc.uploadByBlocks(repoID, dir, filePath, chunkFile.blocks, monitor);
-        }
+        String newFileID = sc.uploadByBlocks(repoID, dir, filePath, chunkFile.blocks, isUpdate, monitor);
         // Log.d(DEBUG_TAG, "uploadByBlocks " + newFileID);
 
         if (newFileID == null || newFileID.length() == 0) {

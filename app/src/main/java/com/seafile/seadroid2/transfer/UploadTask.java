@@ -86,19 +86,13 @@ public class UploadTask extends TransferTask {
                     return UploadTask.this.isCancelled();
                 }
             };
-            if (isUpdate) {
-                if (byBlock) {
-                    dataManager.updateByBlocks(repoName, repoID, dir, path, monitor, isCopyToLocal, version);
-                } else {
-                    dataManager.updateFile(repoName, repoID, dir, path, monitor, isCopyToLocal);
-                }
+
+            if (byBlock) {
+                dataManager.uploadByBlocks(repoName, repoID, dir, path, monitor, isUpdate, isCopyToLocal, version);
             } else {
-                if (byBlock) {
-                    dataManager.uploadByBlocks(repoName, repoID, dir, path, monitor, isCopyToLocal, version);
-                } else {
-                    dataManager.uploadFile(repoName, repoID, dir, path, monitor, isCopyToLocal);
-                }
+                dataManager.uploadFile(repoName, repoID, dir, path, monitor, isUpdate, isCopyToLocal);
             }
+
         } catch (SeafException e) {
             Log.e(DEBUG_TAG, "Upload exception " + e.getCode() + " " + e.getMessage());
             e.printStackTrace();

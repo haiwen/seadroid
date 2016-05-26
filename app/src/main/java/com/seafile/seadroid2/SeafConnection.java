@@ -519,29 +519,16 @@ public class SeafConnection {
         }
     }
 
-    public String uploadByBlocks(String repoID, String dir, String filePath, List<Block> blocks, ProgressMonitor monitor) throws IOException, SeafException {
+    public String uploadByBlocks(String repoID, String dir, String filePath, List<Block> blocks, boolean update, ProgressMonitor monitor) throws IOException, SeafException {
         try {
-            String url = getUploadLink(repoID, false, true);
+            String url = getUploadLink(repoID, update, true);
             Log.d(DEBUG_TAG, "UploadLink " + url);
-            return uploadBlocksCommon(url, repoID, dir, filePath, blocks, monitor, false);
+            return uploadBlocksCommon(url, repoID, dir, filePath, blocks, monitor, update);
         } catch (SeafException e) {
             // do again
-            String url = getUploadLink(repoID, false, true);
+            String url = getUploadLink(repoID, update, true);
             Log.d(DEBUG_TAG, "do again UploadLink " + url);
-            return uploadBlocksCommon(url, repoID, dir, filePath, blocks, monitor, false);
-        }
-    }
-
-    public String updateByBlocks(String repoID, String dir, String filePath, List<Block> blocks, ProgressMonitor monitor) throws IOException, SeafException {
-        try {
-            String url = getUploadLink(repoID, true, true);
-            Log.d(DEBUG_TAG, "UpdateLink " + url);
-            return uploadBlocksCommon(url, repoID, dir, filePath, blocks, monitor, true);
-        } catch (SeafException e) {
-            // do again
-            String url = getUploadLink(repoID, true, true);
-            Log.d(DEBUG_TAG, "do again UpdateLink " + url);
-            return uploadBlocksCommon(url, repoID, dir, filePath, blocks, monitor, true);
+            return uploadBlocksCommon(url, repoID, dir, filePath, blocks, monitor, update);
         }
     }
 
@@ -753,32 +740,25 @@ public class SeafConnection {
     }
 
     /**
-     * Upload a file to update an existing file
+     * Upload or update a file
+     *
+     * @param repoID
+     * @param dir
+     * @param filePath
+     * @param monitor
+     * @param update
+     * @return
+     * @throws SeafException
      */
-    public String updateFile(String repoID, String dir, String filePath, ProgressMonitor monitor)
-                                throws SeafException {
-        try {
-            String url = getUploadLink(repoID, true);
-            return uploadFileCommon(url, repoID, dir, filePath, monitor, true);
-        } catch (SeafException e) {
-            // do again
-            String url = getUploadLink(repoID, true);
-            return uploadFileCommon(url, repoID, dir, filePath, monitor, true);
-        }
-    }
-
-    /**
-     * Upload a new file
-     */
-    public String uploadFile(String repoID, String dir, String filePath, ProgressMonitor monitor)
+    public String uploadFile(String repoID, String dir, String filePath, ProgressMonitor monitor, boolean update)
                             throws SeafException {
         try {
-            String url = getUploadLink(repoID, false);
-            return uploadFileCommon(url, repoID, dir, filePath, monitor, false);
+            String url = getUploadLink(repoID, update);
+            return uploadFileCommon(url, repoID, dir, filePath, monitor, update);
         } catch (SeafException e) {
             // do again
-            String url = getUploadLink(repoID, false);
-            return uploadFileCommon(url, repoID, dir, filePath, monitor, false);
+            String url = getUploadLink(repoID, update);
+            return uploadFileCommon(url, repoID, dir, filePath, monitor, update);
         }
     }
 
