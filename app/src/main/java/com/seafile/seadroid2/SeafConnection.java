@@ -1316,7 +1316,7 @@ public class SeafConnection {
                                        String newName, boolean isdir) throws SeafException {
         try {
             Map<String, Object> params = Maps.newHashMap();
-            params.put("p", path);
+            params.put("p", encodeUriComponent(path).replaceAll("\\+", "%20"));
             params.put("reloaddir", "true");
             String suffix = isdir ? "/dir/" : "/file/";
             HttpRequest req = prepareApiPostRequest("api2/repos/" + repoID + suffix, true, params);
