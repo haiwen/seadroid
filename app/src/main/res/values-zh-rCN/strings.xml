@@ -448,7 +448,7 @@
   <string name="enc_off">数据在服务器端解密</string>
   <string name="enc_title">加密资料库解密方式</string>
   <!--clear password-->
-  <string name="clear_password_title">清除密码</string>
+  <string name="clear_password_title">清除资料库密码</string>
   <string name="clear_password_hint">点击清除密码</string>
   <string name="clear_password_successful">清除密码成功</string>
   <string name="clear_password_failed">清除密码失败</string>

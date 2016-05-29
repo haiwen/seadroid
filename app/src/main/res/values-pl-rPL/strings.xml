@@ -462,5 +462,13 @@
   <string name="history_change_title">Szczegóły modyfikacji</string>
   <string name="no_more_activities">Brak więcej aktywności</string>
   <!--client sid encryption and decryption-->
+  <string name="enc_on">Odszyfruj dane lokalnie</string>
+  <string name="enc_off">Odszyfruj dane po stronie serwera</string>
+  <string name="enc_title">Metoda odszyfrowania danych z zaszyfrowanej biblioteki</string>
   <!--clear password-->
+  <string name="clear_password_title">Wyczyść hasło biblioteki</string>
+  <string name="clear_password_hint">Kliknij, aby wyczyścić hasło</string>
+  <string name="clear_password_successful">Pomyślnie wyczyszczono hasło</string>
+  <string name="clear_password_failed">Nie udało się wyczyścić hasła</string>
+  <string name="clear_password_warning">Czy chcesz wyczyścić hasło?</string>
 </resources>

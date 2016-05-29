@@ -5,10 +5,11 @@
   <string name="edit_account">편집</string>
   <string name="delete_account">삭제</string>
   <string name="delete">삭제</string>
-  <string name="delete_file">정말로 이 파일 또는 폴더를 삭제하시겠습니까?</string>
+  <string name="delete_file">정말로 이 파일 또는 폴더를 삭제할까요?</string>
   <string name="delete_successful">성공적으로 삭제했습니다</string>
   <string name="delete_file_f">파일 삭제</string>
   <string name="delete_dir">폴더 삭제</string>
+  <string name="server_hint">서버 주소</string>
   <string name="email_hint">사용자 이름 또는 전자메일 주소</string>
   <string name="passwd_hint">암호</string>
   <string name="login">로그인</string>
@@ -101,6 +102,7 @@
   <string name="library_read_only">이 라이브러리는 읽기전용입니다</string>
   <string name="error_when_load_dirents">폴더 불러오는 중 오류가 발생했습니다.\n 탭하여 새로 고치십시오</string>
   <string name="error_when_load_repos">라이브러리를 불러오는 중 오류가 발생했습니다.\n 탭하여 새로 고치십시오</string>
+  <string name="error_when_load_activities">액티비티를 불러오는 중 오류가 발생했습니다.\n 새로 고치려면 탭하십시오</string>
   <string name="dir_empty">이 폴더는 비어있습니다</string>
   <string name="no_repo">아직 라이브러리가 없습니다</string>
   <string name="no_app_available">앱을 찾을 수 없습니다</string>
@@ -168,7 +170,7 @@
   <string name="upload_cancelled">업로드를 취소했습니다</string>
   <string name="upload_failed">업로드에 실패했습니다</string>
   <string name="upload_file_exist">파일이 이미 있습니다</string>
-  <string name="upload_duplicate_found">\"%s\" 항목이 이 위치에 이미 있습니다.\n새로 업로드하는 항목으로 바꾸시겠습니까?</string>
+  <string name="upload_duplicate_found">\"%s\" 항목이 이 위치에 이미 있습니다.\n새로 업로드하는 항목으로 바꿀까요?</string>
   <string name="upload_replace_all">모두 바꾸기</string>
   <string name="upload_keep_both">둘 다 유지</string>
   <string name="upload_replace">바꾸기</string>
@@ -189,7 +191,7 @@
   <string name="choose_file">파일 선택</string>
   <string name="ssl_error">보안 검사 실패</string>
   <string name="ssl_confirm">%s 보안 인증서를 신뢰할 수 없습니다. 계속할까요?</string>
-  <string name="ssl_confirm_cert_changed">%s은(는) 잘못된 보안 인증서를 사용합니다. 연결이 안전하지 않습니다. 그래도 계속 진행하시겠습니까?</string>
+  <string name="ssl_confirm_cert_changed">%s은(는) 잘못된 보안 인증서를 사용합니다. 안전한 연결이 아닙니다. 그래도 계속 진행할까요?</string>
   <string name="ssl_confirm_title">신뢰할 수 없는 연결</string>
   <string name="issued_to">발행</string>
   <string name="finger_prints">지문</string>
@@ -331,6 +333,7 @@
         <h5>Copyright ©2013-2016 Seafile Ltd.</h5>
         ]]>
     </string>
+  <string name="settings_advance_feature_title">고급 기능</string>
   <string name="settings_storage_title">캐시 저장소</string>
   <string name="settings_cache_title">캐시 크기</string>
   <string name="settings_clear_cache_title">캐시 비우기</string>
@@ -430,7 +433,7 @@
   <string name="gallery_encrypted_repo_not_supported">암호화 라이브러리를 지원하지 않습니다</string>
   <!--Overwrite existing files-->
   <string name="overwrite_existing_file_title">기존 파일 바꾸기</string>
-  <string name="overwrite_existing_file_msg">파일이 이미 있습니다. 바꾸시겠습니까?</string>
+  <string name="overwrite_existing_file_msg">파일이 이미 있습니다. 바꿀까요?</string>
   <string name="overwrite_existing_file_exist">파일이 이미 있습니다</string>
   <!--Action Mode-->
   <string name="action_mode_no_items_selected">선택한 항목이 없습니다</string>
@@ -441,5 +444,12 @@
   <string name="history_change_title">자세한 수정 내역</string>
   <string name="no_more_activities">더 이상의 활동 없음</string>
   <!--client sid encryption and decryption-->
+  <string name="enc_on">자체 데이터 복호화</string>
+  <string name="enc_off">서버측 데이터 복호화</string>
+  <string name="enc_title">암호화 한 라이브러리 데이터 복호화 모드</string>
   <!--clear password-->
+  <string name="clear_password_hint">암호를 삭제하려면 누르십시오</string>
+  <string name="clear_password_successful">암호 삭제에 성공했습니다</string>
+  <string name="clear_password_failed">암호 삭제에 실패했습니다</string>
+  <string name="clear_password_warning">암호를 삭제할까요?</string>
 </resources>

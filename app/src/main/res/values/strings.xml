@@ -492,7 +492,7 @@
     <string name="enc_title">Encrypted library data decryption mode</string>
 
     <!-- clear password -->
-    <string name="clear_password_title">Clear password</string>
+    <string name="clear_password_title">Clear library password</string>
     <string name="clear_password_hint">Click to clear password</string>
     <string name="clear_password_successful">Clear password successful</string>
     <string name="clear_password_failed">Clear password failed</string>
