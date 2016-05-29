@@ -15,27 +15,6 @@
                 android:enabled="false"
                 android:title="@string/settings_account_space_title" >
         </Preference>
-        <Preference
-                android:key="account_sign_out_key"
-                android:title="@string/settings_account_sign_out_title"
-                android:summary="@string/settings_account_sign_out_hint">
-        </Preference>
-    </PreferenceCategory>
-    <PreferenceCategory android:title="@string/security"
-        android:layout="@layout/bg_settings_section_security">
-        <com.seafile.seadroid2.ui.SwitchPreferenceCompat
-            android:defaultValue="false"
-            android:key="client_encrypt_switch_key"
-            android:summaryOff="@string/enc_off"
-            android:summaryOn="@string/enc_on"
-            android:title="@string/enc_title" >
-        </com.seafile.seadroid2.ui.SwitchPreferenceCompat>
-
-        <Preference
-            android:key="clear_password_switch_key"
-            android:summary="@string/clear_password_hint"
-            android:title="@string/clear_password_title" >
-        </Preference>
 
         <com.seafile.seadroid2.ui.SwitchPreferenceCompat
             android:defaultValue="false"
@@ -44,6 +23,35 @@
             android:summaryOn="@string/gesture_lock_on"
             android:title="@string/gesture_lock" >
         </com.seafile.seadroid2.ui.SwitchPreferenceCompat>
+
+        <Preference
+                android:key="account_sign_out_key"
+                android:title="@string/settings_account_sign_out_title"
+                android:summary="@string/settings_account_sign_out_hint">
+        </Preference>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/security"
+        android:layout="@layout/bg_settings_section_security">
+        <Preference
+            android:key="clear_password_switch_key"
+            android:summary="@string/clear_password_hint"
+            android:title="@string/clear_password_title" >
+        </Preference>
+
+        <com.seafile.seadroid2.ui.SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="auto_clear_password_switch_key"
+            android:title="@string/clear_password_auto" >
+        </com.seafile.seadroid2.ui.SwitchPreferenceCompat>
+
+        <com.seafile.seadroid2.ui.SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="client_encrypt_switch_key"
+            android:summaryOff="@string/enc_off"
+            android:summaryOn="@string/enc_on"
+            android:title="@string/enc_title" >
+        </com.seafile.seadroid2.ui.SwitchPreferenceCompat>
+
     </PreferenceCategory>
     <PreferenceCategory
             android:layout="@layout/bg_settings_section_camera_upload"

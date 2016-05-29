@@ -497,4 +497,5 @@
     <string name="clear_password_successful">Clear password successful</string>
     <string name="clear_password_failed">Clear password failed</string>
     <string name="clear_password_warning">Do you want to clear password?</string>
+    <string name="clear_password_auto">Auto clear passwords</string>
 </resources>

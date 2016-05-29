@@ -41,6 +41,7 @@ public final class SettingsManager {
     // Client side encryption
     public static final String CLIENT_ENC_SWITCH_KEY = "client_encrypt_switch_key";
     public static final String CLEAR_PASSOWR_SWITCH_KEY = "clear_password_switch_key";
+    public static final String AUTO_CLEAR_PASSOWR_SWITCH_KEY = "auto_clear_password_switch_key";
 
     // Gesture Lock
     public static final String GESTURE_LOCK_SWITCH_KEY = "gesture_lock_switch_key";
@@ -117,6 +118,22 @@ public final class SettingsManager {
      */
     public boolean isEncryptEnabled() {
         return settingsSharedPref.getBoolean(CLIENT_ENC_SWITCH_KEY, false);
+    }
+
+    /**
+     * Auto clear password
+     */
+    public void setupPasswordAutoClear(boolean enable) {
+        settingsSharedPref.edit().putBoolean(AUTO_CLEAR_PASSOWR_SWITCH_KEY, enable)
+                .commit();
+    }
+
+    /**
+     * Whether the user has enabled password auto clear when logout account
+     *
+     */
+    public boolean isPasswordAutoClearEnabled() {
+        return settingsSharedPref.getBoolean(AUTO_CLEAR_PASSOWR_SWITCH_KEY, false);
     }
 
     public void setupGestureLock() {
