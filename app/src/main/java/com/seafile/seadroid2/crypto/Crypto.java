@@ -17,6 +17,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.Security;
 import java.security.spec.InvalidKeySpecException;
 
 import javax.crypto.BadPaddingException;
@@ -52,6 +53,11 @@ public class Crypto {
     private static int ITERATION_COUNT = 1000;
     // Should generate random salt for each repo
     private static byte[] salt = {(byte) 0xda, (byte) 0x90, (byte) 0x45, (byte) 0xc3, (byte) 0x06, (byte) 0xc7, (byte) 0xcc, (byte) 0x26};
+
+    static {
+        // http://stackoverflow.com/questions/6898801/how-to-include-the-spongy-castle-jar-in-android
+        Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
+    }
 
     private Crypto() {
     }
