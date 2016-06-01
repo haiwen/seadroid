@@ -448,6 +448,7 @@
   <string name="enc_off">서버측 데이터 복호화</string>
   <string name="enc_title">암호화 한 라이브러리 데이터 복호화 모드</string>
   <!--clear password-->
+  <string name="clear_password_title">라이브러리 암호 삭제</string>
   <string name="clear_password_hint">암호를 삭제하려면 누르십시오</string>
   <string name="clear_password_successful">암호 삭제에 성공했습니다</string>
   <string name="clear_password_failed">암호 삭제에 실패했습니다</string>

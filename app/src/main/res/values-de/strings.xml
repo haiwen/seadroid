@@ -9,6 +9,7 @@
   <string name="delete_successful">Erfolgreich gelöscht</string>
   <string name="delete_file_f">Datei löschen</string>
   <string name="delete_dir">Ordner löschen</string>
+  <string name="server_hint">Server, z.B. cloud.seafile.com</string>
   <string name="email_hint">Benutzername oder E-Mail-Adresse</string>
   <string name="passwd_hint">Passwort</string>
   <string name="login">Anmelden</string>
@@ -38,7 +39,7 @@
   <string-array name="choose_server_array">
     <item>SeaCloud.cc</item>
     <item>App.seafile.de</item>
-    <item>Shibboleth Login</item>
+    <item>Shibboleth-Login</item>
     <item>Anderer Seafile-Server</item>
   </string-array>
   <string name="network_down">Keine Netzwerkverbindung</string>
@@ -90,7 +91,7 @@
   <string name="wait">Warten</string>
   <string name="image_gallery_NoImageView_text">Kein Bild gefunden</string>
   <string name="pick_photo_video_title">Bitte Fotos/Videos zum Hochladen wählen</string>
-  <string name="select_upload_items">Elemente zum Hochladen auswählen</string>
+  <string name="select_upload_items">Objekte zum Hochladen auswählen</string>
   <plurals name="n_upload_items_selected">
     <item quantity="one">%1$d Element ausgewählt</item>
     <item quantity="other">%1$d Objekte ausgewählt</item>
@@ -104,6 +105,7 @@
 Zum Aktualisieren einmal antippen</string>
   <string name="error_when_load_repos">Fehler beim Laden der Bibliotheken.
 Zum Aktualisieren einmal antippen</string>
+  <string name="error_when_load_activities">Aktivitäten konnten nicht geladen werden.\n Zum Aktualisieren einmal antippen</string>
   <string name="dir_empty">Dieser Ordner ist leer</string>
   <string name="no_repo">Sie haben noch keine Bibliotheken erstellt</string>
   <string name="no_app_available">Es konnte keine Anwendung gefunden werden</string>
@@ -171,7 +173,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="upload_cancelled">Hochladen abgebrochen</string>
   <string name="upload_failed">Hochladen fehlgeschlagen</string>
   <string name="upload_file_exist">Die Datei ist schon vorhanden</string>
-  <string name="upload_duplicate_found">Ein Element namens \"%s\" existiert bereits an diesem Ort.\n Wollen Sie es mit dem von Ihnen hochgeladenen ersetzen?</string>
+  <string name="upload_duplicate_found">An diesem Ort gibt es bereits ein Objekt mit dem Namen „%s“.\n Wollen Sie es hiermit ersetzen?</string>
   <string name="upload_replace_all">Alle ersetzen</string>
   <string name="upload_keep_both">Beide behalten</string>
   <string name="upload_replace">Ersetzen</string>
@@ -317,8 +319,8 @@ Zum Aktualisieren einmal antippen</string>
   <string name="settings_cuc_loading">lade …</string>
   <!--Camera Sync-->
   <string name="sync_provider_camera_upload">Kamerafotos und -videos</string>
-  <string name="camera_sync_notification_title_failed">Upload von Medien fehlgeschlagen</string>
-  <string name="camera_sync_notification_repo_missing_failed">Bibliothek auf dem Server wurde nicht gefunden.</string>
+  <string name="camera_sync_notification_title_failed">Hochladen von Medien fehlgeschlagen</string>
+  <string name="camera_sync_notification_repo_missing_failed">Bibliothek wurde auf dem Server nicht gefunden.</string>
   <string name="camera_sync_notification_auth_error_failed">Authentifizierungsfehler.</string>
   <string name="camera_sync_rename_file">%s (umbenannt durch Seafile)</string>
   <string name="settings_about_title">ÜBER</string>
@@ -338,7 +340,7 @@ Zum Aktualisieren einmal antippen</string>
         <h5>Copyright ©2013-2016 Seafile Ltd.</h5>
         ]]>
     </string>
-  <string name="settings_advance_feature_title">ERWEITERTE FEATURES</string>
+  <string name="settings_advance_feature_title">ERWEITERTE FUNKTIONEN</string>
   <string name="settings_storage_title">ZWISCHENSPEICHER</string>
   <string name="settings_cache_title">Größe des Zwischenspeichers</string>
   <string name="settings_clear_cache_title">Zwischenspeicher löschen</string>
@@ -416,7 +418,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="search_bar_hint">Suchvorgang …</string>
   <string name="search_txt_empty">Bitte Suchbegriffe eingeben</string>
   <string name="search_content_empty">Keine Suchergebnisse</string>
-  <string name="search_server_not_support">Ups, die Suche wird von diesem Server nicht unterstützt!</string>
+  <string name="search_server_not_support">Entschuldigung, die Suche wird von diesem Server nicht unterstützt!</string>
   <string name="search_library_not_found">Die Bibliothek konnte nicht gefunden werden. Vielleicht wurde sie gelöscht</string>
   <!--star a file-->
   <string name="star_file_succeed">Als Favorit markiert</string>
@@ -445,7 +447,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="overwrite_existing_file_msg">Die Datei ist schon vorhanden, möchten Sie sie wirklich ersetzen?</string>
   <string name="overwrite_existing_file_exist">Die Datei ist schon vorhanden</string>
   <!--Action Mode-->
-  <string name="action_mode_no_items_selected">Es wurden keine Elemente ausgewählt</string>
+  <string name="action_mode_no_items_selected">Es wurden keine Objekte ausgewählt</string>
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
   <string name="permission_read_exteral_storage_rationale">Um Dateien zu bearbeiten bitte Speicherrechte erteilen.</string>
@@ -453,5 +455,13 @@ Zum Aktualisieren einmal antippen</string>
   <string name="history_change_title">Änderungsinformationen</string>
   <string name="no_more_activities">Keine weiteren Aktivitäten</string>
   <!--client sid encryption and decryption-->
+  <string name="enc_on">Daten lokal entschlüsseln</string>
+  <string name="enc_off">Daten auf dem Server entschlüsseln</string>
+  <string name="enc_title">Entschlüsselungsart für verschlüsselte Bibliotheken</string>
   <!--clear password-->
+  <string name="clear_password_title">Passwort der Bibliothek löschen</string>
+  <string name="clear_password_hint">Klicken Sie hier, um das Passwort zu löschen</string>
+  <string name="clear_password_successful">Das Passwort ist gelöscht</string>
+  <string name="clear_password_failed">Fehler: Das Passwort konnte nicht gelöscht werden</string>
+  <string name="clear_password_warning">Möchten Sie das Passwort löschen?</string>
 </resources>

@@ -6,6 +6,7 @@
   <string name="delete_account">Verwijderen</string>
   <string name="delete">Verwijderen</string>
   <string name="delete_file">Weet je zeker dat je dit bestand of map wilt verwijderen?</string>
+  <string name="delete_successful">Verwijderen gelukt</string>
   <string name="delete_file_f">Bestand verwijderen</string>
   <string name="delete_dir">Map verwijderen</string>
   <string name="server_hint">Server, zoals cloud.seafile.com</string>
@@ -191,6 +192,7 @@
   <string name="choose_file">Kies een bestand</string>
   <string name="ssl_error">Veiligheidscontrole mislukt</string>
   <string name="ssl_confirm">Het veiligheidscertificaar van %s wordt niet vertrouwd. Wilt u verdergaan?</string>
+  <string name="ssl_confirm_cert_changed">%s gebruikt een ongeldig beveiligingscertificaat. De verbinding is niet veilig. Toch doorgaan?</string>
   <string name="ssl_confirm_title">Niet-beveiligde verbinding</string>
   <string name="issued_to">Toegewezen aan</string>
   <string name="finger_prints">Vingerafdrukken</string>
@@ -268,6 +270,7 @@
   <string name="settings_camera_upload_service_started">Uploaddienst gestart</string>
   <string name="settings_camera_upload_service_stopped">Uploaddienst gestopt</string>
   <string name="settings_camera_upload_allow_data_plan">Gegevensabonnement toestaan</string>
+  <string name="settings_camera_upload_allow_videos">Video\'s uploaden toestaan</string>
   <string name="settings_camera_upload_default_wifi">Standaard alleen WiFi gebruiken</string>
   <string name="settings_camera_upload_data_plan_allowed">Gegevensabonnement toegestaan</string>
   <string name="settings_camera_upload_default_photos">Standaard alleen foto\'s uploaden</string>
@@ -303,6 +306,7 @@
   <string name="settings_cuc_upload_to_parent_folder">Een map omhoog</string>
   <string name="settings_cuc_auto_scan">Automatisch zoeken naar camera-folders</string>
   <string name="settings_cuc_pick_albums">Laat mij mijn fotoalbums kiezen</string>
+  <string name="settings_cuc_remote_lib_hint">Kies je voorkeursaccount en -bibliotheek.\nJe kunt deze opties later via instellingen wijzigen.</string>
   <string name="settings_cuc_finish_title">Afronden</string>
   <string name="settings_cuc_swipe_left">Veeg naar links om verder te gaan</string>
   <string name="settings_cuc_click_btn">Klik om de configuratiehulp af te sluiten.</string>
@@ -426,5 +430,12 @@
   <string name="history_change_title">Details over de wijzigingen</string>
   <string name="no_more_activities">Geen acties meer over</string>
   <!--client sid encryption and decryption-->
+  <string name="enc_on">Data lokaal ontsleutelen</string>
+  <string name="enc_off">Data op de server ontsleutelen</string>
   <!--clear password-->
+  <string name="clear_password_title">Wachtwoord bibliotheek verwijderen</string>
+  <string name="clear_password_hint">Klik om wachtwoord te verwijderen</string>
+  <string name="clear_password_successful">Wachtwoord verwijderen gelukt</string>
+  <string name="clear_password_failed">Wachtwoord verwijderen mislukt</string>
+  <string name="clear_password_warning">Wil je het wachtwoord verwijderen?</string>
 </resources>

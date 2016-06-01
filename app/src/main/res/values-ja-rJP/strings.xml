@@ -448,6 +448,7 @@
   <string name="enc_off">サーバーサイドでデータを復号化</string>
   <string name="enc_title">暗号化されたライブラリーのデータ復号化モード</string>
   <!--clear password-->
+  <string name="clear_password_title">ライブラリーのパスワードをクリア</string>
   <string name="clear_password_hint">クリックするとパスワードをクリアします</string>
   <string name="clear_password_successful">パスワードを正常にクリアしました</string>
   <string name="clear_password_failed">パスワードのクリアに失敗しました</string>

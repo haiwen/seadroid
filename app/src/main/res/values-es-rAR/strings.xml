@@ -457,6 +457,7 @@
   <string name="enc_off">Desencriptar datos en el servidor</string>
   <string name="enc_title">Modo de desencriptación de datos en bibliotecas encriptadas</string>
   <!--clear password-->
+  <string name="clear_password_title">Blanquear la contraseña de la biblioteca</string>
   <string name="clear_password_hint">Toque para blanquear la contraseña</string>
   <string name="clear_password_successful">Contraseña blanqueada con éxito</string>
   <string name="clear_password_failed">Blanquear contraseña falló</string>
