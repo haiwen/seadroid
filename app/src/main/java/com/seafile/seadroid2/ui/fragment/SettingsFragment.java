@@ -25,6 +25,7 @@ import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
+import com.seafile.seadroid2.data.DatabaseHelper;
 import com.seafile.seadroid2.data.StorageManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
@@ -137,6 +138,28 @@ public class SettingsFragment extends CustomPreferenceFragment {
             findPreference(SettingsManager.SETTINGS_ACCOUNT_SPACE_KEY).setSummary(spaceUsed);
         }
 
+        // Gesture Lock
+        findPreference(SettingsManager.GESTURE_LOCK_SWITCH_KEY).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                if (newValue instanceof Boolean) {
+                    boolean isChecked = (Boolean) newValue;
+                    if (isChecked) {
+                        // inverse checked status
+                        Intent newIntent = new Intent(getActivity(), CreateGesturePasswordActivity.class);
+                        newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivityForResult(newIntent, SettingsManager.GESTURE_LOCK_REQUEST);
+                    } else {
+                        LockPatternUtils mLockPatternUtils = new LockPatternUtils(getActivity());
+                        mLockPatternUtils.clearLock();
+                    }
+                    return true;
+                }
+
+                return false;
+            }
+        });
+
         // Sign out
         findPreference(SettingsManager.SETTINGS_ACCOUNT_SIGN_OUT_KEY).setOnPreferenceClickListener(new OnPreferenceClickListener() {
             @Override
@@ -154,6 +177,11 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
                         // sign out operations
                         accountMgr.signOutAccount(account);
+
+                        // password auto clear
+                        if (settingsMgr.isPasswordAutoClearEnabled()) {
+                            clearPasswordSilently();
+                        }
 
                         // restart BrowserActivity (will go to AccountsActivity)
                         Intent intent = new Intent(mActivity, BrowserActivity.class);
@@ -174,6 +202,31 @@ public class SettingsFragment extends CustomPreferenceFragment {
             }
         });
 
+        findPreference(SettingsManager.CLEAR_PASSOWR_SWITCH_KEY).setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                // clear password
+                clearPassword();
+                return true;
+            }
+        });
+
+        // auto clear passwords when logout
+        findPreference(SettingsManager.AUTO_CLEAR_PASSOWR_SWITCH_KEY).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                if (newValue instanceof Boolean) {
+                    boolean isChecked = (Boolean) newValue;
+                    // inverse checked status
+                    settingsMgr.setupPasswordAutoClear(!isChecked);
+                    return true;
+                }
+
+                return false;
+            }
+        });
+
+
         // Client side encryption for encrypted Library
         findPreference(SettingsManager.CLIENT_ENC_SWITCH_KEY).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
@@ -182,38 +235,6 @@ public class SettingsFragment extends CustomPreferenceFragment {
                     boolean isChecked = (Boolean) newValue;
                     // inverse checked status
                     settingsMgr.setupEncrypt(!isChecked);
-                    return true;
-                }
-
-                return false;
-            }
-        });
-
-        findPreference(SettingsManager.CLEAR_PASSOWR_SWITCH_KEY).setOnPreferenceClickListener(new OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-
-                // clear password
-                clearPassword();
-                return true;
-            }
-        });
-
-        // Gesture Lock
-        findPreference(SettingsManager.GESTURE_LOCK_SWITCH_KEY).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                if (newValue instanceof Boolean) {
-                    boolean isChecked = (Boolean) newValue;
-                    if (isChecked) {
-                        // inverse checked status
-                        Intent newIntent = new Intent(getActivity(), CreateGesturePasswordActivity.class);
-                        newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivityForResult(newIntent, SettingsManager.GESTURE_LOCK_REQUEST);
-                    } else {
-                        LockPatternUtils mLockPatternUtils = new LockPatternUtils(getActivity());
-                        mLockPatternUtils.clearLock();
-                    }
                     return true;
                 }
 
@@ -348,6 +369,19 @@ public class SettingsFragment extends CustomPreferenceFragment {
             cCacheCategory.removePreference(findPreference(SettingsManager.SETTINGS_CACHE_DIR_KEY));
         }
 
+    }
+
+    private void clearPasswordSilently() {
+        ConcurrentAsyncTask.submit(new Runnable() {
+            @Override
+            public void run() {
+                DataManager.clearPassword();
+
+                // clear cached data from database
+                DatabaseHelper dbHelper = DatabaseHelper.getDatabaseHelper();
+                dbHelper.clearEnckeys();
+            }
+        });
     }
 
     private void clearPassword() {

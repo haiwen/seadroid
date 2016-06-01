@@ -780,7 +780,7 @@ public class SeafConnection {
             }
 
 
-            HttpRequest req = HttpRequest.post(link).followRedirects(true).connectTimeout(CONNECTION_TIMEOUT);
+            HttpRequest req = HttpRequest.post(link, null, false).followRedirects(true).connectTimeout(CONNECTION_TIMEOUT);
 
             prepareHttpsCheck(req);
 
@@ -892,7 +892,7 @@ public class SeafConnection {
                 throw new SeafException(SeafException.OTHER_EXCEPTION, "File not exists");
             }
 
-            HttpRequest req = HttpRequest.post(link).followRedirects(true).connectTimeout(CONNECTION_TIMEOUT);
+            HttpRequest req = HttpRequest.post(link, null, false).followRedirects(true).connectTimeout(CONNECTION_TIMEOUT);
 
             prepareHttpsCheck(req);
 
@@ -1316,7 +1316,7 @@ public class SeafConnection {
                                        String newName, boolean isdir) throws SeafException {
         try {
             Map<String, Object> params = Maps.newHashMap();
-            params.put("p", path);
+            params.put("p", encodeUriComponent(path).replaceAll("\\+", "%20"));
             params.put("reloaddir", "true");
             String suffix = isdir ? "/dir/" : "/file/";
             HttpRequest req = prepareApiPostRequest("api2/repos/" + repoID + suffix, true, params);

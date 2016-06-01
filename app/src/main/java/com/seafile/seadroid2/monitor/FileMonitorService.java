@@ -92,7 +92,8 @@ public class FileMonitorService extends Service {
 
     public void removeAccount(Account account) {
         Log.d(DEBUG_TAG, account.email);
-        monitor.stopMonitorFilesForAccount(account);
+        if (monitor != null)
+            monitor.stopMonitorFilesForAccount(account);
     }
 
     private ServiceConnection mTransferConnection = new ServiceConnection() {

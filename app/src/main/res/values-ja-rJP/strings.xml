@@ -444,11 +444,10 @@
   <string name="history_change_title">更新の詳細</string>
   <string name="no_more_activities">これ以上アクティビティはありません</string>
   <!--client sid encryption and decryption-->
-  <string name="enc_on">ローカルの暗号化によりデータを保護</string>
-  <string name="enc_off">サーバーサイドの暗号化によりデータを保護</string>
-  <string name="enc_title">暗号化されたライブラリーでデータの保護</string>
+  <string name="enc_on">ローカルでデータを復号化</string>
+  <string name="enc_off">サーバーサイドでデータを復号化</string>
+  <string name="enc_title">暗号化されたライブラリーのデータ復号化モード</string>
   <!--clear password-->
-  <string name="clear_password_title">パスワードをクリア</string>
   <string name="clear_password_hint">クリックするとパスワードをクリアします</string>
   <string name="clear_password_successful">パスワードを正常にクリアしました</string>
   <string name="clear_password_failed">パスワードのクリアに失敗しました</string>

@@ -453,11 +453,10 @@
   <string name="history_change_title">Detalle de las modificaciones</string>
   <string name="no_more_activities">No hay mas actividades</string>
   <!--client sid encryption and decryption-->
-  <string name="enc_on">Datos protegidos mediante encriptación local</string>
-  <string name="enc_off">Datos protegidos mediante encriptación en el servidor</string>
-  <string name="enc_title">Protección de datos en biblioteca encriptada</string>
+  <string name="enc_on">Desencriptar datos localmente</string>
+  <string name="enc_off">Desencriptar datos en el servidor</string>
+  <string name="enc_title">Modo de desencriptación de datos en bibliotecas encriptadas</string>
   <!--clear password-->
-  <string name="clear_password_title">Blanquear contraseña</string>
   <string name="clear_password_hint">Toque para blanquear la contraseña</string>
   <string name="clear_password_successful">Contraseña blanqueada con éxito</string>
   <string name="clear_password_failed">Blanquear contraseña falló</string>

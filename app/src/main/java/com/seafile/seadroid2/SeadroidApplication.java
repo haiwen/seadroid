@@ -31,11 +31,6 @@ public class SeadroidApplication extends Application {
         AppLockManager.getInstance().enableDefaultAppLockIfAvailable(this);
     }
 
-    static {
-        // http://stackoverflow.com/questions/6898801/how-to-include-the-spongy-castle-jar-in-android
-        Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
-    }
-
     public static Context getAppContext() {
         return SeadroidApplication.context;
     }
