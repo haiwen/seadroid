@@ -453,4 +453,5 @@
   <string name="clear_password_successful">パスワードを正常にクリアしました</string>
   <string name="clear_password_failed">パスワードのクリアに失敗しました</string>
   <string name="clear_password_warning">パスワードをクリアしますか?</string>
+  <string name="clear_password_auto">パスワードを自動クリア</string>
 </resources>

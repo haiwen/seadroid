@@ -462,4 +462,5 @@
   <string name="clear_password_successful">Contraseña blanqueada con éxito</string>
   <string name="clear_password_failed">Blanquear contraseña falló</string>
   <string name="clear_password_warning">¿Desea blanquear la contraseña?</string>
+  <string name="clear_password_auto">Blanquear contraseñas automáticamente</string>
 </resources>

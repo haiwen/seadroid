@@ -480,4 +480,5 @@
   <string name="clear_password_successful">Удаление пароля прошло успешно</string>
   <string name="clear_password_failed">Удаление пароля прошло неудачно</string>
   <string name="clear_password_warning">Вы хотите удалить пароль?</string>
+  <string name="clear_password_auto">Автоматический сброс паролей</string>
 </resources>

@@ -453,4 +453,5 @@
   <string name="clear_password_successful">清除密码成功</string>
   <string name="clear_password_failed">清除密码失败</string>
   <string name="clear_password_warning">你想清除密码吗？</string>
+  <string name="clear_password_auto">自动清除密码</string>
 </resources>

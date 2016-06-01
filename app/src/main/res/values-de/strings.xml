@@ -283,7 +283,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="settings_camera_upload_repo_hint">Bitte zuerst eine Bibliothek auswählen</string>
   <string name="settings_camera_upload_turn_on">Kamera-Upload aktivieren</string>
   <string name="settings_camera_upload_choose_dir">Alben ändern</string>
-  <string name="settings_camera_upload_dir_auto_scan">Standardmäßig nach Bildern suchen</string>
+  <string name="settings_camera_upload_dir_auto_scan">Automatisch nach Bildern suchen</string>
   <string name="settings_camera_upload_lib_not_found">Die ausgewählte Bibliothek ist nicht vorhanden</string>
   <string name="settings_camera_upload_advanced_feature_title">Erweiterte Einstellungen</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Einstellungen zum Hochladen anpassen</string>
@@ -464,4 +464,5 @@ Zum Aktualisieren einmal antippen</string>
   <string name="clear_password_successful">Das Passwort ist gelöscht</string>
   <string name="clear_password_failed">Fehler: Das Passwort konnte nicht gelöscht werden</string>
   <string name="clear_password_warning">Möchten Sie das Passwort löschen?</string>
+  <string name="clear_password_auto">Passwörter automatisch löschen</string>
 </resources>
