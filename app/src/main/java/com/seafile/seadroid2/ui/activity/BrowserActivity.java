@@ -121,6 +121,12 @@ public class BrowserActivity extends BaseActivity
     public static final String PICK_FILE_DIALOG_FRAGMENT_TAG = "pick_file_fragment";
     public static final int REQUEST_PERMISSIONS_WRITE_EXTERNAL_STORAGE = 1;
 
+    public static final String TAG_DELETE_FILE_DIALOG_FRAGMENT = "DeleteFileDialogFragment";
+    public static final String TAG_DELETE_FILES_DIALOG_FRAGMENT = "DeleteFilesDialogFragment";
+    public static final String TAG_RENAME_FILE_DIALOG_FRAGMENT = "RenameFileDialogFragment";
+    public static final String TAG_COPY_MOVE_DIALOG_FRAGMENT = "CopyMoveDialogFragment";
+    public static final String TAG_SORT_FILES_DIALOG_FRAGMENT = "SortFilesDialogFragment";
+
     public static final int INDEX_LIBRARY_TAB = 0;
     public static final int INDEX_STARRED_TAB = 1;
     public static final int INDEX_ACTIVITIES_TAB = 2;
@@ -966,7 +972,7 @@ public class BrowserActivity extends BaseActivity
     }
 
     private void showSortFilesDialog() {
-        new SortFilesDialog().show(getSupportFragmentManager(), "sort files");
+        new SortFilesDialog().show(getSupportFragmentManager(), TAG_SORT_FILES_DIALOG_FRAGMENT);
     }
 
     public class SortFilesDialog extends DialogFragment {
@@ -1851,7 +1857,7 @@ public class BrowserActivity extends BaseActivity
                 }
             }
         });
-        dialog.show(getSupportFragmentManager(), "DialogFragment");
+        dialog.show(getSupportFragmentManager(), TAG_RENAME_FILE_DIALOG_FRAGMENT);
     }
 
     public void deleteFile(String repoID, String repoName, String path) {
@@ -1875,7 +1881,7 @@ public class BrowserActivity extends BaseActivity
                 }
             }
         });
-        dialog.show(getSupportFragmentManager(), "DialogFragment");
+        dialog.show(getSupportFragmentManager(), TAG_DELETE_FILE_DIALOG_FRAGMENT);
     }
 
     public void copyFile(String srcRepoId, String srcRepoName, String srcDir, String srcFn, boolean isdir) {
@@ -1943,7 +1949,7 @@ public class BrowserActivity extends BaseActivity
                 }
             }
         });
-        dialog.show(getSupportFragmentManager(), "DialogFragment");
+        dialog.show(getSupportFragmentManager(), TAG_COPY_MOVE_DIALOG_FRAGMENT);
     }
 
     private void onFileDownloadFailed(int taskID) {
@@ -2067,7 +2073,7 @@ public class BrowserActivity extends BaseActivity
                 }
             }
         });
-        dialog.show(getSupportFragmentManager(), "DialogFragment");
+        dialog.show(getSupportFragmentManager(), TAG_DELETE_FILES_DIALOG_FRAGMENT);
     }
 
     /**
