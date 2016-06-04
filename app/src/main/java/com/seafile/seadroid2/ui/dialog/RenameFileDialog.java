@@ -2,6 +2,7 @@ package com.seafile.seadroid2.ui.dialog;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -87,7 +88,11 @@ public class RenameFileDialog extends TaskDialog {
             account = (Account)savedInstanceState.getParcelable(STATE_ACCOUNT);
         }
 
-        fileNameText.setText(Utils.fileNameFromPath(path));
+        final String fileName = Utils.fileNameFromPath(path);
+        if (!TextUtils.isEmpty(fileName)) {
+            fileNameText.setText(fileName);
+            fileNameText.setSelection(fileName.length());
+        }
 
         return view;
     }
