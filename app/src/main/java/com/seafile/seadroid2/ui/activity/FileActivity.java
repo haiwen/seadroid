@@ -255,7 +255,10 @@ public class FileActivity extends BaseActivity implements Toolbar.OnMenuItemClic
     }
 
     private void handleEncryptedRepo(SeafRepo repo, TaskDialog.TaskDialogListener taskDialogListener) {
-        if (!repo.encrypted) return;
+        if (!repo.encrypted) {
+            taskDialogListener.onTaskSuccess();
+            return;
+        }
 
         if (!repo.canLocalDecrypt()) {
             if (!DataManager.getRepoPasswordSet(repo.id)) {
