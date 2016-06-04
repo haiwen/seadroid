@@ -1,7 +1,6 @@
 package com.seafile.seadroid2.ui.activity;
 
 import android.Manifest;
-import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -79,6 +78,7 @@ import com.seafile.seadroid2.ui.dialog.NewDirDialog;
 import com.seafile.seadroid2.ui.dialog.NewFileDialog;
 import com.seafile.seadroid2.ui.dialog.PasswordDialog;
 import com.seafile.seadroid2.ui.dialog.RenameFileDialog;
+import com.seafile.seadroid2.ui.dialog.SortFilesDialogFragment;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.ui.dialog.UploadChoiceDialog;
@@ -105,7 +105,8 @@ import java.util.List;
 
 public class BrowserActivity extends BaseActivity
         implements ReposFragment.OnFileSelectedListener, StarredFragment.OnStarredFileSelectedListener,
-        FragmentManager.OnBackStackChangedListener, Toolbar.OnMenuItemClickListener {
+        FragmentManager.OnBackStackChangedListener, Toolbar.OnMenuItemClickListener,
+        SortFilesDialogFragment.SortItemClickListener {
     private static final String DEBUG_TAG = "BrowserActivity";
     public static final String ACTIONBAR_PARENT_PATH = "/";
 
@@ -940,41 +941,27 @@ public class BrowserActivity extends BaseActivity
     }
 
     private void showSortFilesDialog() {
-        new SortFilesDialog().show(getSupportFragmentManager(), TAG_SORT_FILES_DIALOG_FRAGMENT);
+        SortFilesDialogFragment dialog = new SortFilesDialogFragment();
+        dialog.show(getSupportFragmentManager(), TAG_SORT_FILES_DIALOG_FRAGMENT);
     }
 
-    public class SortFilesDialog extends DialogFragment {
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                            .setTitle(getString(R.string.sort_files))
-                            .setSingleChoiceItems(R.array.sort_files_options_array,
-                                    calculateCheckedItem(),
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialogInterface, int i) {
-                                            switch (i) {
-                                                case 0: // sort by name, ascending
-                                                    sortFiles(SeafItemAdapter.SORT_BY_NAME, SeafItemAdapter.SORT_ORDER_ASCENDING);
-                                                    break;
-                                                case 1: // sort by name, descending
-                                                    sortFiles(SeafItemAdapter.SORT_BY_NAME, SeafItemAdapter.SORT_ORDER_DESCENDING);
-                                                    break;
-                                                case 2: // sort by last modified time, ascending
-                                                    sortFiles(SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME, SeafItemAdapter.SORT_ORDER_ASCENDING);
-                                                    break;
-                                                case 3: // sort by last modified time, descending
-                                                    sortFiles(SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME, SeafItemAdapter.SORT_ORDER_DESCENDING);
-                                                    break;
-                                                default:
-                                                    return;
-                                            }
-                                            dismiss();
-
-                                        }
-
-                                    });
-            return builder.show();
+    @Override
+    public void onSortFileItemClick(DialogFragment dialog, int position) {
+        switch (position) {
+            case 0: // sort by name, ascending
+                sortFiles(SeafItemAdapter.SORT_BY_NAME, SeafItemAdapter.SORT_ORDER_ASCENDING);
+                break;
+            case 1: // sort by name, descending
+                sortFiles(SeafItemAdapter.SORT_BY_NAME, SeafItemAdapter.SORT_ORDER_DESCENDING);
+                break;
+            case 2: // sort by last modified time, ascending
+                sortFiles(SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME, SeafItemAdapter.SORT_ORDER_ASCENDING);
+                break;
+            case 3: // sort by last modified time, descending
+                sortFiles(SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME, SeafItemAdapter.SORT_ORDER_DESCENDING);
+                break;
+            default:
+                return;
         }
     }
 
@@ -996,30 +983,6 @@ public class BrowserActivity extends BaseActivity
             }
             getReposFragment().sortFiles(type, order);
         }
-    }
-
-    private int calculateCheckedItem() {
-        switch (SettingsManager.instance().getSortFilesTypePref()) {
-            case SeafItemAdapter.SORT_BY_NAME:
-                if (SettingsManager.instance().getSortFilesOrderPref()
-                        == SeafItemAdapter.SORT_ORDER_ASCENDING)
-                    return 0;
-                else if (SettingsManager.instance().getSortFilesOrderPref()
-                        == SeafItemAdapter.SORT_ORDER_DESCENDING)
-                    return 1;
-
-                break;
-            case SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME:
-                if (SettingsManager.instance().getSortFilesOrderPref()
-                        == SeafItemAdapter.SORT_ORDER_ASCENDING)
-                    return 2;
-                else if (SettingsManager.instance().getSortFilesOrderPref()
-                        == SeafItemAdapter.SORT_ORDER_DESCENDING)
-                    return 3;
-
-                break;
-        }
-        return 0;
     }
 
     /**
