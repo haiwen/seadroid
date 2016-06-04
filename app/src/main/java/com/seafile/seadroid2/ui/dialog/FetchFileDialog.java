@@ -2,7 +2,7 @@ package com.seafile.seadroid2.ui.dialog;
 
 import java.net.HttpURLConnection;
 
-import android.app.AlertDialog;
+import android.support.v7.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
