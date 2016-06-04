@@ -106,14 +106,8 @@ import java.util.List;
 public class BrowserActivity extends BaseActivity
         implements ReposFragment.OnFileSelectedListener, StarredFragment.OnStarredFileSelectedListener,
         FragmentManager.OnBackStackChangedListener, Toolbar.OnMenuItemClickListener {
-    public static final String PKG_NAME = "com.seafile.seadroid2";
-    public static final String EXTRA_REPO_NAME = PKG_NAME + ".repoName";
-    public static final String EXTRA_REPO_ID = PKG_NAME + ".repoID";
-    public static final String EXTRA_FILE_PATH = PKG_NAME + ".filePath";
-    public static final String EXTRA_ACCOUT = PKG_NAME + ".account";
     private static final String DEBUG_TAG = "BrowserActivity";
     public static final String ACTIONBAR_PARENT_PATH = "/";
-    private static final String UPLOAD_TASKS_VIEW = "UploadTasks";
 
     public static final String OPEN_FILE_DIALOG_FRAGMENT_TAG = "openfile_fragment";
     public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "password_fragment";
@@ -135,35 +129,25 @@ public class BrowserActivity extends BaseActivity
         R.drawable.tab_library, R.drawable.tab_starred,
         R.drawable.tab_activity
     };
-    private int currentPosition = 0;
+
+    private FetchFileDialog fetchFileDialog = null;
     private SeafileTabsAdapter adapter;
     private View mLayout;
     private FrameLayout container;
-    private boolean boolPermissionGranted = false;
     private TabLayout mTabLayout;
-
     private ViewPager pager;
-
-    private Account account;
-    NavContext navContext = new NavContext();
-    DataManager dataManager = null;
-    TransferService txService = null;
-    TransferReceiver mTransferReceiver;
-    SettingsManager settingsMgr;
-    AccountManager accountManager;
-
-    FetchFileDialog fetchFileDialog = null;
-
-    AppChoiceDialog appChoiceDialog = null;
-
+    private NavContext navContext = new NavContext();
+    private CopyMoveContext copyMoveContext;
     private Menu overFlowMenu;
     private MenuItem menuSearch;
 
-    private String mCurrentRepoName, mCurrentRepoID, mCurrentDir;
-
+    private DataManager dataManager = null;
+    private TransferService txService = null;
+    private TransferReceiver mTransferReceiver;
+    private AccountManager accountManager;
+    private int currentPosition = 0;
     private Intent copyMoveIntent;
-
-    private CopyMoveContext copyMoveContext;
+    private Account account;
 
     public DataManager getDataManager() {
         return dataManager;
@@ -221,10 +205,6 @@ public class BrowserActivity extends BaseActivity
         return navContext;
     }
 
-    public void disableActionBarTitle() {
-        getActionBarToolbar().setEnabled(false);
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
@@ -263,7 +243,7 @@ public class BrowserActivity extends BaseActivity
             return;
         }
 
-        Log.d(DEBUG_TAG, "browser activity onCreate " + account.server + " " + account.email);
+        // Log.d(DEBUG_TAG, "browser activity onCreate " + account.server + " " + account.email);
         dataManager = new DataManager(account);
 
         getSupportFragmentManager().addOnBackStackChangedListener(this);
@@ -335,8 +315,8 @@ public class BrowserActivity extends BaseActivity
             fetchFileDialog = (FetchFileDialog)
                     getSupportFragmentManager().findFragmentByTag(OPEN_FILE_DIALOG_FRAGMENT_TAG);
 
-            appChoiceDialog = (AppChoiceDialog)
-                getSupportFragmentManager().findFragmentByTag(CHOOSE_APP_DIALOG_FRAGMENT_TAG);
+            AppChoiceDialog appChoiceDialog = (AppChoiceDialog)
+                    getSupportFragmentManager().findFragmentByTag(CHOOSE_APP_DIALOG_FRAGMENT_TAG);
 
             if (appChoiceDialog != null) {
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -552,8 +532,6 @@ public class BrowserActivity extends BaseActivity
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                         REQUEST_PERMISSIONS_WRITE_EXTERNAL_STORAGE);
             }
-        } else {
-            boolPermissionGranted = true;
         }
     }
 
@@ -561,29 +539,18 @@ public class BrowserActivity extends BaseActivity
      * Callback received when a permissions request has been completed.
      */
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         // Log.i(DEBUG_TAG, "Received response for permission request.");
-
         switch (requestCode) {
             case REQUEST_PERMISSIONS_WRITE_EXTERNAL_STORAGE: {
                 // Check if the only required permission has been granted
                 // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    boolPermissionGranted = true;
-                    // permission was granted, yay! Do the
-                    // related task you need to do.
-
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted
                 } else {
-
-                    boolPermissionGranted = false;
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
+                    // permission denied
                 }
-                return;
             }
-
         }
     }
 
@@ -897,6 +864,7 @@ public class BrowserActivity extends BaseActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        overFlowMenu = menu;
         Toolbar toolbar = getActionBarToolbar();
         toolbar.inflateMenu(R.menu.browser_menu);
         toolbar.setOnMenuItemClickListener(this);
