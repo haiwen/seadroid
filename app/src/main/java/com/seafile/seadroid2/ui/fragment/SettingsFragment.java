@@ -1,7 +1,7 @@
 package com.seafile.seadroid2.ui.fragment;
 
 import android.app.Activity;
-import android.app.AlertDialog;
+import android.support.v7.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,7 +13,6 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
-import android.support.v7.view.ContextThemeWrapper;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.method.CharacterPickerDialog;
@@ -166,8 +165,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
             public boolean onPreferenceClick(Preference preference) {
 
                 // popup a dialog to confirm sign out request
-                ContextThemeWrapper ctw = new ContextThemeWrapper(mActivity, R.style.DialogTheme);
-                final AlertDialog.Builder builder = new AlertDialog.Builder(ctw);
+                final AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
                 builder.setTitle(getString(R.string.settings_account_sign_out_title));
                 builder.setMessage(getString(R.string.settings_account_sign_out_confirm));
                 builder.setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
@@ -333,8 +331,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
             @Override
             public boolean onPreferenceClick(Preference preference) {
 
-                ContextThemeWrapper ctw = new ContextThemeWrapper(mActivity, R.style.DialogTheme);
-                AlertDialog.Builder builder = new AlertDialog.Builder(ctw);
+                AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
                 // builder.setIcon(R.drawable.icon);
                 builder.setMessage(Html.fromHtml(getString(R.string.settings_about_author_info, appVersion)));
                 builder.show();

@@ -30,7 +30,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.view.ContextThemeWrapper;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.Pair;
@@ -1050,8 +1049,7 @@ public class BrowserActivity extends BaseActivity
      * add new file/files
      */
     private void addFile() {
-        ContextThemeWrapper ctw = new ContextThemeWrapper(this, R.style.DialogTheme);
-        final AlertDialog.Builder builder = new AlertDialog.Builder(ctw);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.add_file));
         builder.setItems(R.array.add_file_options_array, new DialogInterface.OnClickListener() {
             @Override
@@ -1086,7 +1084,7 @@ public class BrowserActivity extends BaseActivity
                 }
             }
         });
-        dialog.show(getSupportFragmentManager(), "DialogFragment");
+        dialog.show(getSupportFragmentManager(), "NewDirDialogFragment");
     }
 
     private void showNewFileDialog() {
@@ -1107,7 +1105,7 @@ public class BrowserActivity extends BaseActivity
                 }
             }
         });
-        dialog.show(getSupportFragmentManager(), "DialogFragment");
+        dialog.show(getSupportFragmentManager(), "NewFileDialogFragment");
     }
 
     public void setRefreshing() {
@@ -1428,8 +1426,7 @@ public class BrowserActivity extends BaseActivity
 
     private void showFileExistDialog(final File file) {
         final SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
-        ContextThemeWrapper ctw = new ContextThemeWrapper(BrowserActivity.this, R.style.DialogTheme);
-        final android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(ctw);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.upload_file_exist));
         builder.setMessage(String.format(getString(R.string.upload_duplicate_found), file.getName()));
         builder.setPositiveButton(getString(R.string.upload_replace), new DialogInterface.OnClickListener() {
