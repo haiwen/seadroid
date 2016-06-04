@@ -1,20 +1,17 @@
 package com.seafile.seadroid2.ui.dialog;
 
-import android.app.AlertDialog;
+import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.util.Log;
-import android.util.TypedValue;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -195,15 +192,10 @@ public abstract class TaskDialog extends DialogFragment {
     // private View mDivider;
     /** optional custom panel image */
     private FrameLayout mCustom;
-    /**Keep Context as Member to support Apis below 11*/
-
-    private AlertDialog.Builder builder;
 
     @Override
     public Dialog onCreateDialog(final Bundle savedInstanceState) {
-
-        ContextThemeWrapper ctw = new ContextThemeWrapper(getActivity(), R.style.DialogTheme);
-        builder = new AlertDialog.Builder(ctw);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         LinearLayout view = (LinearLayout)inflater.inflate(R.layout.seafile_dialog_layout, null);
         mCustom = (FrameLayout) view.findViewById(R.id.customPanel);

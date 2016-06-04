@@ -1,6 +1,6 @@
 package com.seafile.seadroid2.ui.activity;
 
-import android.app.AlertDialog;
+import android.support.v7.app.AlertDialog;
 import android.content.*;
 import android.database.Cursor;
 import android.net.Uri;
