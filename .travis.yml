@@ -2,21 +2,15 @@
 language: android
 
 sudo: false
-jdk: oraclejdk7
+jdk: oraclejdk8
 android:
   components:
       - tools
       - platform-tools
-
       - build-tools-23.0.2
-
       - android-23
       - extra-android-support
-
       - extra-android-m2repository
-
-      - 'android-sdk-license-.+'
-
 
 script:
     - cp app/key.properties.example app/key.properties
