@@ -1,7 +1,6 @@
 package com.seafile.seadroid2.ui.activity;
 
 import android.Manifest;
-import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -79,6 +78,7 @@ import com.seafile.seadroid2.ui.dialog.NewDirDialog;
 import com.seafile.seadroid2.ui.dialog.NewFileDialog;
 import com.seafile.seadroid2.ui.dialog.PasswordDialog;
 import com.seafile.seadroid2.ui.dialog.RenameFileDialog;
+import com.seafile.seadroid2.ui.dialog.SortFilesDialogFragment;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.ui.dialog.UploadChoiceDialog;
@@ -105,21 +105,22 @@ import java.util.List;
 
 public class BrowserActivity extends BaseActivity
         implements ReposFragment.OnFileSelectedListener, StarredFragment.OnStarredFileSelectedListener,
-        FragmentManager.OnBackStackChangedListener, Toolbar.OnMenuItemClickListener {
-    public static final String PKG_NAME = "com.seafile.seadroid2";
-    public static final String EXTRA_REPO_NAME = PKG_NAME + ".repoName";
-    public static final String EXTRA_REPO_ID = PKG_NAME + ".repoID";
-    public static final String EXTRA_FILE_PATH = PKG_NAME + ".filePath";
-    public static final String EXTRA_ACCOUT = PKG_NAME + ".account";
+        FragmentManager.OnBackStackChangedListener, Toolbar.OnMenuItemClickListener,
+        SortFilesDialogFragment.SortItemClickListener {
     private static final String DEBUG_TAG = "BrowserActivity";
     public static final String ACTIONBAR_PARENT_PATH = "/";
-    private static final String UPLOAD_TASKS_VIEW = "UploadTasks";
 
     public static final String OPEN_FILE_DIALOG_FRAGMENT_TAG = "openfile_fragment";
     public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "password_fragment";
     public static final String CHOOSE_APP_DIALOG_FRAGMENT_TAG = "choose_app_fragment";
     public static final String PICK_FILE_DIALOG_FRAGMENT_TAG = "pick_file_fragment";
     public static final int REQUEST_PERMISSIONS_WRITE_EXTERNAL_STORAGE = 1;
+
+    public static final String TAG_DELETE_FILE_DIALOG_FRAGMENT = "DeleteFileDialogFragment";
+    public static final String TAG_DELETE_FILES_DIALOG_FRAGMENT = "DeleteFilesDialogFragment";
+    public static final String TAG_RENAME_FILE_DIALOG_FRAGMENT = "RenameFileDialogFragment";
+    public static final String TAG_COPY_MOVE_DIALOG_FRAGMENT = "CopyMoveDialogFragment";
+    public static final String TAG_SORT_FILES_DIALOG_FRAGMENT = "SortFilesDialogFragment";
 
     public static final int INDEX_LIBRARY_TAB = 0;
     public static final int INDEX_STARRED_TAB = 1;
@@ -129,35 +130,25 @@ public class BrowserActivity extends BaseActivity
         R.drawable.tab_library, R.drawable.tab_starred,
         R.drawable.tab_activity
     };
-    private int currentPosition = 0;
+
+    private FetchFileDialog fetchFileDialog = null;
     private SeafileTabsAdapter adapter;
     private View mLayout;
     private FrameLayout container;
-    private boolean boolPermissionGranted = false;
     private TabLayout mTabLayout;
-
     private ViewPager pager;
-
-    private Account account;
-    NavContext navContext = new NavContext();
-    DataManager dataManager = null;
-    TransferService txService = null;
-    TransferReceiver mTransferReceiver;
-    SettingsManager settingsMgr;
-    AccountManager accountManager;
-
-    FetchFileDialog fetchFileDialog = null;
-
-    AppChoiceDialog appChoiceDialog = null;
-
+    private NavContext navContext = new NavContext();
+    private CopyMoveContext copyMoveContext;
     private Menu overFlowMenu;
     private MenuItem menuSearch;
 
-    private String mCurrentRepoName, mCurrentRepoID, mCurrentDir;
-
+    private DataManager dataManager = null;
+    private TransferService txService = null;
+    private TransferReceiver mTransferReceiver;
+    private AccountManager accountManager;
+    private int currentPosition = 0;
     private Intent copyMoveIntent;
-
-    private CopyMoveContext copyMoveContext;
+    private Account account;
 
     public DataManager getDataManager() {
         return dataManager;
@@ -215,10 +206,6 @@ public class BrowserActivity extends BaseActivity
         return navContext;
     }
 
-    public void disableActionBarTitle() {
-        getActionBarToolbar().setEnabled(false);
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
@@ -257,7 +244,7 @@ public class BrowserActivity extends BaseActivity
             return;
         }
 
-        Log.d(DEBUG_TAG, "browser activity onCreate " + account.server + " " + account.email);
+        // Log.d(DEBUG_TAG, "browser activity onCreate " + account.server + " " + account.email);
         dataManager = new DataManager(account);
 
         getSupportFragmentManager().addOnBackStackChangedListener(this);
@@ -329,8 +316,8 @@ public class BrowserActivity extends BaseActivity
             fetchFileDialog = (FetchFileDialog)
                     getSupportFragmentManager().findFragmentByTag(OPEN_FILE_DIALOG_FRAGMENT_TAG);
 
-            appChoiceDialog = (AppChoiceDialog)
-                getSupportFragmentManager().findFragmentByTag(CHOOSE_APP_DIALOG_FRAGMENT_TAG);
+            AppChoiceDialog appChoiceDialog = (AppChoiceDialog)
+                    getSupportFragmentManager().findFragmentByTag(CHOOSE_APP_DIALOG_FRAGMENT_TAG);
 
             if (appChoiceDialog != null) {
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -546,8 +533,6 @@ public class BrowserActivity extends BaseActivity
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                         REQUEST_PERMISSIONS_WRITE_EXTERNAL_STORAGE);
             }
-        } else {
-            boolPermissionGranted = true;
         }
     }
 
@@ -555,29 +540,18 @@ public class BrowserActivity extends BaseActivity
      * Callback received when a permissions request has been completed.
      */
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         // Log.i(DEBUG_TAG, "Received response for permission request.");
-
         switch (requestCode) {
             case REQUEST_PERMISSIONS_WRITE_EXTERNAL_STORAGE: {
                 // Check if the only required permission has been granted
                 // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    boolPermissionGranted = true;
-                    // permission was granted, yay! Do the
-                    // related task you need to do.
-
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted
                 } else {
-
-                    boolPermissionGranted = false;
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
+                    // permission denied
                 }
-                return;
             }
-
         }
     }
 
@@ -891,6 +865,7 @@ public class BrowserActivity extends BaseActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        overFlowMenu = menu;
         Toolbar toolbar = getActionBarToolbar();
         toolbar.inflateMenu(R.menu.browser_menu);
         toolbar.setOnMenuItemClickListener(this);
@@ -966,41 +941,27 @@ public class BrowserActivity extends BaseActivity
     }
 
     private void showSortFilesDialog() {
-        new SortFilesDialog().show(getSupportFragmentManager(), "sort files");
+        SortFilesDialogFragment dialog = new SortFilesDialogFragment();
+        dialog.show(getSupportFragmentManager(), TAG_SORT_FILES_DIALOG_FRAGMENT);
     }
 
-    public class SortFilesDialog extends DialogFragment {
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
-                            .setTitle(getString(R.string.sort_files))
-                            .setSingleChoiceItems(R.array.sort_files_options_array,
-                                    calculateCheckedItem(),
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialogInterface, int i) {
-                                            switch (i) {
-                                                case 0: // sort by name, ascending
-                                                    sortFiles(SeafItemAdapter.SORT_BY_NAME, SeafItemAdapter.SORT_ORDER_ASCENDING);
-                                                    break;
-                                                case 1: // sort by name, descending
-                                                    sortFiles(SeafItemAdapter.SORT_BY_NAME, SeafItemAdapter.SORT_ORDER_DESCENDING);
-                                                    break;
-                                                case 2: // sort by last modified time, ascending
-                                                    sortFiles(SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME, SeafItemAdapter.SORT_ORDER_ASCENDING);
-                                                    break;
-                                                case 3: // sort by last modified time, descending
-                                                    sortFiles(SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME, SeafItemAdapter.SORT_ORDER_DESCENDING);
-                                                    break;
-                                                default:
-                                                    return;
-                                            }
-                                            dismiss();
-
-                                        }
-
-                                    });
-            return builder.show();
+    @Override
+    public void onSortFileItemClick(DialogFragment dialog, int position) {
+        switch (position) {
+            case 0: // sort by name, ascending
+                sortFiles(SeafItemAdapter.SORT_BY_NAME, SeafItemAdapter.SORT_ORDER_ASCENDING);
+                break;
+            case 1: // sort by name, descending
+                sortFiles(SeafItemAdapter.SORT_BY_NAME, SeafItemAdapter.SORT_ORDER_DESCENDING);
+                break;
+            case 2: // sort by last modified time, ascending
+                sortFiles(SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME, SeafItemAdapter.SORT_ORDER_ASCENDING);
+                break;
+            case 3: // sort by last modified time, descending
+                sortFiles(SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME, SeafItemAdapter.SORT_ORDER_DESCENDING);
+                break;
+            default:
+                return;
         }
     }
 
@@ -1022,30 +983,6 @@ public class BrowserActivity extends BaseActivity
             }
             getReposFragment().sortFiles(type, order);
         }
-    }
-
-    private int calculateCheckedItem() {
-        switch (SettingsManager.instance().getSortFilesTypePref()) {
-            case SeafItemAdapter.SORT_BY_NAME:
-                if (SettingsManager.instance().getSortFilesOrderPref()
-                        == SeafItemAdapter.SORT_ORDER_ASCENDING)
-                    return 0;
-                else if (SettingsManager.instance().getSortFilesOrderPref()
-                        == SeafItemAdapter.SORT_ORDER_DESCENDING)
-                    return 1;
-
-                break;
-            case SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME:
-                if (SettingsManager.instance().getSortFilesOrderPref()
-                        == SeafItemAdapter.SORT_ORDER_ASCENDING)
-                    return 2;
-                else if (SettingsManager.instance().getSortFilesOrderPref()
-                        == SeafItemAdapter.SORT_ORDER_DESCENDING)
-                    return 3;
-
-                break;
-        }
-        return 0;
     }
 
     /**
@@ -1851,7 +1788,7 @@ public class BrowserActivity extends BaseActivity
                 }
             }
         });
-        dialog.show(getSupportFragmentManager(), "DialogFragment");
+        dialog.show(getSupportFragmentManager(), TAG_RENAME_FILE_DIALOG_FRAGMENT);
     }
 
     public void deleteFile(String repoID, String repoName, String path) {
@@ -1875,7 +1812,7 @@ public class BrowserActivity extends BaseActivity
                 }
             }
         });
-        dialog.show(getSupportFragmentManager(), "DialogFragment");
+        dialog.show(getSupportFragmentManager(), TAG_DELETE_FILE_DIALOG_FRAGMENT);
     }
 
     public void copyFile(String srcRepoId, String srcRepoName, String srcDir, String srcFn, boolean isdir) {
@@ -1943,7 +1880,7 @@ public class BrowserActivity extends BaseActivity
                 }
             }
         });
-        dialog.show(getSupportFragmentManager(), "DialogFragment");
+        dialog.show(getSupportFragmentManager(), TAG_COPY_MOVE_DIALOG_FRAGMENT);
     }
 
     private void onFileDownloadFailed(int taskID) {
@@ -2067,7 +2004,7 @@ public class BrowserActivity extends BaseActivity
                 }
             }
         });
-        dialog.show(getSupportFragmentManager(), "DialogFragment");
+        dialog.show(getSupportFragmentManager(), TAG_DELETE_FILES_DIALOG_FRAGMENT);
     }
 
     /**
