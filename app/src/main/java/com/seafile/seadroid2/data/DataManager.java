@@ -1028,8 +1028,14 @@ public class DataManager {
             dis = new DataInputStream(in);
 
             // Log.d(DEBUG_TAG, "file size " + file.length());
-            while (dis.read(buffer, 0, BUFFER_SIZE) != -1) {
-                final byte[] cipher = Crypto.encrypt(buffer, encKey, enkIv);
+            int byteRead;
+            while ((byteRead = dis.read(buffer, 0, BUFFER_SIZE)) != -1) {
+                byte[] cipher;
+                if (byteRead < BUFFER_SIZE)
+                    cipher = Crypto.encrypt(buffer, byteRead, encKey, enkIv);
+                else
+                    cipher = Crypto.encrypt(buffer, encKey, enkIv);
+
                 final String blkid = Crypto.sha1(cipher);
                 File blk = new File(storageManager.getTempDir(), blkid);
                 Block block = new Block(blkid, blk.getAbsolutePath(), blk.length(), 0L);
