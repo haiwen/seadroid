@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
 
 import com.seafile.seadroid2.R;
@@ -84,7 +85,7 @@ public class NewDirDialog extends TaskDialog {
     @Override
     protected void onDialogCreated(Dialog dialog) {
         dialog.setTitle(getResources().getString(R.string.create_new_dir));
-        //dialog.setTitle(getActivity().getString(R.string.create_new_dir));
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
     }
 
     @Override

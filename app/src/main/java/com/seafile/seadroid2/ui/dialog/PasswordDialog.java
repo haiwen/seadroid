@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
 
 import com.seafile.seadroid2.R;
@@ -126,6 +127,7 @@ public class PasswordDialog extends TaskDialog {
     @Override
     protected void onDialogCreated(Dialog dialog) {
         dialog.setTitle(repoName);
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
     }
 
     @Override

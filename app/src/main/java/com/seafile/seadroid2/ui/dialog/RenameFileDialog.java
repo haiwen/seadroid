@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
 
 import com.seafile.seadroid2.R;
@@ -100,8 +101,8 @@ public class RenameFileDialog extends TaskDialog {
     @Override
     protected void onDialogCreated(Dialog dialog) {
         String str = getActivity().getString(isdir ? R.string.rename_dir : R.string.rename_file);
-        // setTitle(str + " " + Utils.fileNameFromPath(path));
         dialog.setTitle(str);
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
     }
 
     @Override
