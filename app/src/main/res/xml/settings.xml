@@ -31,6 +31,7 @@
         </Preference>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/security"
+        android:key="category_privacy_key"
         android:layout="@layout/bg_settings_section_security">
         <Preference
             android:key="clear_password_switch_key"
