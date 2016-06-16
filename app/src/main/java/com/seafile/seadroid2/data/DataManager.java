@@ -430,6 +430,12 @@ public class DataManager {
         JSONObject obj = new JSONObject(json);
         FileBlocks fileBlocks = FileBlocks.fromJson(obj);
 
+        if (fileBlocks.fileID.equals(cachedFileID)) {
+            // cache is valid
+            Log.d(DEBUG_TAG, "cache is valid");
+            return localFile;
+        }
+
         final Pair<String, String> pair = getRepoEncKey(repoID);
         final String encKey = pair.first;
         final String encIv = pair.second;
@@ -437,8 +443,15 @@ public class DataManager {
             throw SeafException.decryptException;
         }
 
-        if (fileBlocks.blocks == null)
-            throw SeafException.blockListNullPointerException;
+        if (fileBlocks.blocks == null) {
+            if (!localFile.createNewFile()) {
+                Log.w(DEBUG_TAG, "Failed to create file " + localFile.getName());
+                return null;
+            }
+            Log.d(DEBUG_TAG, String.format("addCachedFile repoName %s, repoId %s, path %s, fileId %s", repoName, repoID, path, fileBlocks.fileID));
+            addCachedFile(repoName, repoID, path, fileBlocks.fileID, localFile);
+            return localFile;
+        }
 
         for (Block blk : fileBlocks.blocks) {
             File tempBlock = new File(storageManager.getTempDir(), blk.blockId);
@@ -448,15 +461,9 @@ public class DataManager {
             FileUtils.writeByteArrayToFile(localFile, decryptedBlock, true);
         }
 
-        if (fileBlocks.fileID.equals(cachedFileID)) {
-            // cache is valid
-            Log.d(DEBUG_TAG, "cache is valid");
-            return localFile;
-        } else {
-            Log.d(DEBUG_TAG, String.format("addCachedFile repoName %s, repoId %s, path %s, fileId %s", repoName, repoID, path, fileBlocks.fileID));
-            addCachedFile(repoName, repoID, path, fileBlocks.fileID, localFile);
-            return localFile;
-        }
+        Log.d(DEBUG_TAG, String.format("addCachedFile repoName %s, repoId %s, path %s, fileId %s", repoName, repoID, path, fileBlocks.fileID));
+        addCachedFile(repoName, repoID, path, fileBlocks.fileID, localFile);
+        return localFile;
     }
 
     private List<SeafDirent> parseDirents(String json) {

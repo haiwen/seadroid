@@ -1,6 +1,7 @@
 package com.seafile.seadroid2.data;
 
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 
 import com.google.common.collect.Lists;
 
@@ -63,6 +64,9 @@ public class FileBlocks implements Serializable {
     }
 
     private static ArrayList<Block> getBlockIds(String blklist) {
+        if (TextUtils.isEmpty(blklist) || blklist.equals("[]"))
+            return null;
+
         final List<String> blkIds = Arrays.asList(blklist.split("\\s*,\\s*"));
 
         ArrayList<Block> ids = Lists.newArrayList();
