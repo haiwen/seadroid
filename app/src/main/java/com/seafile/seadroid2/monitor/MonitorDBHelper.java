@@ -22,7 +22,7 @@ public class MonitorDBHelper extends SQLiteOpenHelper {
 
     // If you change the database schema, you must increment the database
     // version.
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 2;
     public static final String DATABASE_NAME = "monitor.db";
 
     // FileCache table
@@ -34,6 +34,7 @@ public class MonitorDBHelper extends SQLiteOpenHelper {
     private static final String AUTO_UPDATE_INFO_COLUMN_REPO_NAME = "repo_name";
     private static final String AUTO_UPDATE_INFO_COLUMN_PARENT_DIR = "parent_dir";
     private static final String AUTO_UPDATE_INFO_COLUMN_LOCAL_PATH = "local_path";
+    private static final String AUTO_UPDATE_INFO_COLUMN_VERSION = "version";
 
     private static final String SQL_CREATE_AUTO_UPDATE_INFO_TABLE = "CREATE TABLE "
             + AUTO_UPDATE_INFO_TABLE_NAME
@@ -49,6 +50,8 @@ public class MonitorDBHelper extends SQLiteOpenHelper {
             + AUTO_UPDATE_INFO_COLUMN_PARENT_DIR
             + " TEXT NOT NULL, "
             + AUTO_UPDATE_INFO_COLUMN_LOCAL_PATH
+            + " TEXT NOT NULL, "
+            + AUTO_UPDATE_INFO_COLUMN_VERSION
             + " TEXT NOT NULL);";
 
     private static final String[] FULL_PROJECTION = {
@@ -56,7 +59,8 @@ public class MonitorDBHelper extends SQLiteOpenHelper {
         AUTO_UPDATE_INFO_COLUMN_REPO_ID,
         AUTO_UPDATE_INFO_COLUMN_REPO_NAME,
         AUTO_UPDATE_INFO_COLUMN_PARENT_DIR,
-        AUTO_UPDATE_INFO_COLUMN_LOCAL_PATH, };
+        AUTO_UPDATE_INFO_COLUMN_LOCAL_PATH,
+        AUTO_UPDATE_INFO_COLUMN_VERSION,};
 
     // Use only single dbHelper to prevent multi-thread issue and db is closed exception
     // Reference
@@ -105,20 +109,22 @@ public class MonitorDBHelper extends SQLiteOpenHelper {
         values.put(AUTO_UPDATE_INFO_COLUMN_REPO_NAME, info.repoName);
         values.put(AUTO_UPDATE_INFO_COLUMN_PARENT_DIR, info.parentDir);
         values.put(AUTO_UPDATE_INFO_COLUMN_LOCAL_PATH, info.localPath);
+        values.put(AUTO_UPDATE_INFO_COLUMN_VERSION, info.version);
 
         database.insert(AUTO_UPDATE_INFO_TABLE_NAME, null, values);
     }
 
     public void removeAutoUpdateInfo(AutoUpdateInfo info) {
         String whereClause = String.format(
-                "%s = ? and %s = ? and %s = ? and %s = ? and %s = ?",
+                "%s = ? and %s = ? and %s = ? and %s = ? and %s = ? and %s = ?",
                 AUTO_UPDATE_INFO_COLUMN_ACCOUNT,
                 AUTO_UPDATE_INFO_COLUMN_REPO_ID,
                 AUTO_UPDATE_INFO_COLUMN_REPO_NAME,
                 AUTO_UPDATE_INFO_COLUMN_PARENT_DIR,
-                AUTO_UPDATE_INFO_COLUMN_LOCAL_PATH);
+                AUTO_UPDATE_INFO_COLUMN_LOCAL_PATH,
+                AUTO_UPDATE_INFO_COLUMN_VERSION);
         String[] params = { info.account.getSignature(), info.repoID, info.repoName,
-                info.parentDir, info.localPath, };
+                info.parentDir, info.localPath, String.valueOf(info.version), };
         database.delete(AUTO_UPDATE_INFO_TABLE_NAME, whereClause, params);
     }
 
@@ -174,6 +180,7 @@ public class MonitorDBHelper extends SQLiteOpenHelper {
         String repoName = c.getString(2);
         String parentDir = c.getString(3);
         String localPath = c.getString(4);
+        int version = c.getInt(5);
 
         // infos whose account or file has been deleted would be removed in the
         // while loop
@@ -183,7 +190,7 @@ public class MonitorDBHelper extends SQLiteOpenHelper {
 
         Account account = accounts.get(accountSignature);
         AutoUpdateInfo info = new AutoUpdateInfo(account, repoID, repoName, parentDir,
-                localPath);
+                localPath, version);
         return info;
     }
 }

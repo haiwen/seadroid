@@ -1,7 +1,5 @@
 package com.seafile.seadroid2.transfer;
 
-import android.util.Log;
-
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
@@ -126,7 +124,7 @@ public class DownloadTask extends TransferTask {
     @Override
     public DownloadTaskInfo getTaskInfo() {
         DownloadTaskInfo info = new DownloadTaskInfo(account, taskID, state, repoID,
-                repoName, path, localPath, totalSize, finished, err);
+                repoName, path, localPath, totalSize, finished, err, encVersion);
         return info;
     }
 

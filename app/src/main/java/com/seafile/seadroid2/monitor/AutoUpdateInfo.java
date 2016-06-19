@@ -9,15 +9,17 @@ class AutoUpdateInfo {
     final String repoName;
     final String parentDir;
     final String localPath;
+    final int version;
 
     public AutoUpdateInfo(Account account, String repoID, String repoName, String parentDir,
-            String localPath) {
+                          String localPath, int version) {
 
         this.account = account;
         this.repoID = repoID;
         this.repoName = repoName;
         this.parentDir = parentDir;
         this.localPath = localPath;
+        this.version = version;
     }
 
     @Override
@@ -34,7 +36,7 @@ class AutoUpdateInfo {
 
         return that.account.equals(this.account) && that.repoID.equals(this.repoID) &&
                 that.repoName.equals(this.repoName) && that.parentDir.equals(this.parentDir) &&
-                that.localPath.equals(this.localPath);
+                that.localPath.equals(this.localPath) && that.version == this.version;
     }
 
     private volatile int hashCode = 0;
@@ -42,7 +44,7 @@ class AutoUpdateInfo {
     @Override
     public int hashCode() {
         if (hashCode == 0) {
-            hashCode = Objects.hashCode(account, repoID, repoName, parentDir, localPath);
+            hashCode = Objects.hashCode(account, repoID, repoName, parentDir, localPath, version);
         }
 
         return hashCode;

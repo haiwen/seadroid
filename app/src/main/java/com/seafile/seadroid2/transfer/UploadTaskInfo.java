@@ -10,11 +10,11 @@ public class UploadTaskInfo extends TransferTaskInfo {
     public final String parentDir;
     public final long uploadedSize, totalSize;
     public final boolean isUpdate, isCopyToLocal;
+    public int version;
 
     /**
      * Constructor of UploadTaskInfo
-     * 
-     * @param account Current login Account instance
+     *  @param account Current login Account instance
      * @param taskID TransferTask id
      * @param state TransferTask state, value is one of <strong>INIT, TRANSFERRING, FINISHED, CANCELLED, FAILED</strong> of {@link TaskState}
      * @param repoID Repository id
@@ -38,7 +38,8 @@ public class UploadTaskInfo extends TransferTaskInfo {
                           boolean isCopyToLocal,
                           long uploadedSize,
                           long totalSize,
-                          SeafException err) {
+                          SeafException err,
+                          int version) {
 
         super(account, taskID, state, repoID, repoName, localPath, err);
 
@@ -47,5 +48,6 @@ public class UploadTaskInfo extends TransferTaskInfo {
         this.totalSize = totalSize;
         this.isUpdate = isUpdate;
         this.isCopyToLocal = isCopyToLocal;
+        this.version = version;
     }
 }
