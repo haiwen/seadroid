@@ -25,6 +25,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.data.DatabaseHelper;
+import com.seafile.seadroid2.data.ServerInfo;
 import com.seafile.seadroid2.data.StorageManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
@@ -71,6 +72,9 @@ public class SettingsFragment extends CustomPreferenceFragment {
     private Preference cUploadRepoPref;
     private CheckBoxPreference cCustomDirectoriesPref;
     private Preference cLocalDirectoriesPref;
+    // privacy
+    private PreferenceCategory cPrivacyCategory;
+    private Preference clientEncPref;
 
     private SettingsActivity mActivity;
     private String appVersion;
@@ -224,9 +228,12 @@ public class SettingsFragment extends CustomPreferenceFragment {
             }
         });
 
+        final ServerInfo serverInfo = accountMgr.getServerInfo(currentAccount);
 
+        cPrivacyCategory = (PreferenceCategory) findPreference(SettingsManager.PRIVACY_CATEGORY_KEY);
         // Client side encryption for encrypted Library
-        findPreference(SettingsManager.CLIENT_ENC_SWITCH_KEY).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+        clientEncPref = findPreference(SettingsManager.CLIENT_ENC_SWITCH_KEY);
+        clientEncPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 if (newValue instanceof Boolean) {
@@ -239,6 +246,10 @@ public class SettingsFragment extends CustomPreferenceFragment {
                 return false;
             }
         });
+
+        if (serverInfo != null && !serverInfo.canLocalDecrypt()) {
+            cPrivacyCategory.removePreference(clientEncPref);
+        }
 
         // Camera Upload
         cUploadCategory = (PreferenceCategory) findPreference(SettingsManager.CAMERA_UPLOAD_CATEGORY_KEY);

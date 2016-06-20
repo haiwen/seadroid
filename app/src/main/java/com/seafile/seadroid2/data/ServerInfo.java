@@ -2,7 +2,10 @@ package com.seafile.seadroid2.data;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
+
 import com.google.common.base.Objects;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -61,6 +64,17 @@ public class ServerInfo implements Parcelable{
 
     public boolean isSearchEnabled() {
         return features != null && features.contains("file-search");
+    }
+
+    public boolean canLocalDecrypt() {
+        if (TextUtils.isEmpty(version)
+                || version.length() != 5)
+            return false;
+
+        final String realVersion = version.replaceAll("[.]", "");
+        final int versionCode = Integer.parseInt(realVersion);
+
+        return versionCode >= 510;
     }
 
     public String getUrl() {
