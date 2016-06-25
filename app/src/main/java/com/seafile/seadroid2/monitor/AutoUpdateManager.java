@@ -85,11 +85,9 @@ public class AutoUpdateManager implements Runnable, CachedFileChangedListener {
             public void run() {
                 for (AutoUpdateInfo info : infos) {
                     if (info.version == 2) {
-                        Log.d(DEBUG_TAG, "[by block] auto updated addUploadTask " + info.localPath);
                         txService.addTaskToUploadQue(info.account, info.repoID, info.repoName,
                                 info.parentDir, info.localPath, true, true, info.version);
                     } else {
-                        Log.d(DEBUG_TAG, "auto updated addUploadTask " + info.localPath);
                         txService.addUploadTask(info.account, info.repoID, info.repoName,
                                 info.parentDir, info.localPath, true, true);
                     }

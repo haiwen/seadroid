@@ -123,10 +123,14 @@ public class SeafileObserver implements FileAlterationListener {
 
         Log.d(DEBUG_TAG, path + " was modified!");
         SeafCachedFile cachedFile = watchedFiles.get(path);
-        Log.d(DEBUG_TAG, "cachedFile is null " + (cachedFile == null));
         if (cachedFile != null) {
             final SeafRepo repo = dataManager.getCachedRepoByID(cachedFile.repoID);
-            listener.onCachedFileChanged(account, cachedFile, file, repo != null ? repo.encVersion : 0);
+            if (repo != null) {
+                int validEncVersion = repo.encVersion == 0 ? -1 : repo.encVersion;
+                listener.onCachedFileChanged(account, cachedFile, file, validEncVersion);
+            } else {
+                listener.onCachedFileChanged(account, cachedFile, file, -1);
+            }
         }
     }
 
