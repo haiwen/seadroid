@@ -224,16 +224,17 @@ public class Crypto {
      * Do the encryption
      *
      * @param plaintext
+     * @param inputLen
      * @param key
      * @param iv
      * @return
      */
-    private static byte[] seafileEncrypt(@NonNull byte[] plaintext, @NonNull SecretKey key, @NonNull byte[] iv) {
+    private static byte[] seafileEncrypt(@NonNull byte[] plaintext, int inputLen, @NonNull SecretKey key, @NonNull byte[] iv) {
         try {
             Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
             IvParameterSpec ivParams = new IvParameterSpec(iv);
             cipher.init(Cipher.ENCRYPT_MODE, key, ivParams);
-            return cipher.doFinal(plaintext);
+            return cipher.doFinal(plaintext, 0, inputLen);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             Log.e(TAG, "NoSuchAlgorithmException " + e.getMessage());
@@ -272,8 +273,23 @@ public class Crypto {
      * @throws UnsupportedEncodingException
      */
     public static byte[] encrypt(@NonNull byte[] plaintext, @NonNull String encKey, @NonNull String iv) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+        return encrypt(plaintext, plaintext.length, encKey, iv);
+    }
+
+    /**
+     * All file data is encrypted by the encKey/encIv with AES 256/CBC.
+     *
+     * @param plaintext
+     * @param inputLen
+     * @param encKey
+     * @param iv
+     * @return
+     * @throws NoSuchAlgorithmException
+     * @throws UnsupportedEncodingException
+     */
+    public static byte[] encrypt(@NonNull byte[] plaintext, int inputLen, @NonNull String encKey, @NonNull String iv) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         SecretKey secretKey = new SecretKeySpec(fromHex(encKey), "AES");
-        return seafileEncrypt(plaintext, secretKey, fromHex(iv));
+        return seafileEncrypt(plaintext, inputLen, secretKey, fromHex(iv));
     }
 
     /**
