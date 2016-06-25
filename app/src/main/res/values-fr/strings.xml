@@ -103,6 +103,7 @@
   <string name="library_read_only">Cette bibliothèque est en lecture seule</string>
   <string name="error_when_load_dirents">Erreur lors du chargement du dossier.\n Appuyer pour rafraichir</string>
   <string name="error_when_load_repos">Erreur lors du chargement des bibliothèques.\n Appuyer pour rafraîchir</string>
+  <string name="error_when_load_activities">Erreur lors du chargement des activités.\n  Cliquer pour rafraichir</string>
   <string name="dir_empty">Ce dossier est vide</string>
   <string name="no_repo">Vous n\'avez pas encore de bibliothèque</string>
   <string name="no_app_available">Aucune application disponible</string>
@@ -451,5 +452,14 @@ E-mail : support@seafile.com<br>
   <string name="history_change_title">Détails de modification</string>
   <string name="no_more_activities">Aucune activité</string>
   <!--client sid encryption and decryption-->
+  <string name="enc_on">Décrypter les données localement</string>
+  <string name="enc_off">Décrypter les données sur le serveur</string>
+  <string name="enc_title">Mode de décryptage d\'une bibliothèque cryptée</string>
   <!--clear password-->
+  <string name="clear_password_title">Effacer le mot de passe de la bibliothèque</string>
+  <string name="clear_password_hint">Cliquer pour effacer le mot de passe</string>
+  <string name="clear_password_successful">Mot de passe effacé avec succès</string>
+  <string name="clear_password_failed">Echec de l\'effacement du mot de passe</string>
+  <string name="clear_password_warning">Voulez-vous effacer le mot de passe ?</string>
+  <string name="clear_password_auto">Effacement automtaique des mots de passe</string>
 </resources>

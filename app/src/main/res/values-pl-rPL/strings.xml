@@ -471,4 +471,5 @@
   <string name="clear_password_successful">Pomyślnie wyczyszczono hasło</string>
   <string name="clear_password_failed">Nie udało się wyczyścić hasła</string>
   <string name="clear_password_warning">Czy chcesz wyczyścić hasło?</string>
+  <string name="clear_password_auto">Automatycznie czyść hasła</string>
 </resources>
