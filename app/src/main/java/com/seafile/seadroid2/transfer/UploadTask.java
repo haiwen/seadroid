@@ -47,7 +47,7 @@ public class UploadTask extends TransferTask {
     public UploadTaskInfo getTaskInfo() {
         UploadTaskInfo info = new UploadTaskInfo(account, taskID, state, repoID,
                 repoName, dir, path, isUpdate, isCopyToLocal,
-                finished, totalSize, err);
+                finished, totalSize, err, version);
         return info;
     }
 

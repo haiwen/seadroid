@@ -1,21 +1,21 @@
 package com.seafile.seadroid2.monitor;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
 import android.os.Handler;
 import android.util.Log;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
-import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.SeafCachedFile;
 import com.seafile.seadroid2.transfer.TransferService;
+import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Update modified files, retry until success
@@ -53,13 +53,25 @@ public class AutoUpdateManager implements Runnable, CachedFileChangedListener {
      * This method is called by file monitor, so it would be executed in the file monitor thread
      */
     @Override
+    public void onCachedBlocksChanged(final Account account, final SeafCachedFile cachedFile, final File localFile, int version) {
+        addTask(account, cachedFile, localFile, version);
+    }
+
+    /**
+     * This method is called by file monitor, so it would be executed in the file monitor thread
+     */
+    @Override
     public void onCachedFileChanged(final Account account, final SeafCachedFile cachedFile, final File localFile) {
         addTask(account, cachedFile, localFile);
     }
 
     public void addTask(Account account, SeafCachedFile cachedFile, File localFile) {
+        addTask(account, cachedFile, localFile, -1);
+    }
+
+    public void addTask(Account account, SeafCachedFile cachedFile, File localFile, int version) {
         AutoUpdateInfo info = new AutoUpdateInfo(account, cachedFile.repoID, cachedFile.repoName,
-                Utils.getParentPath(cachedFile.path), localFile.getPath());
+                Utils.getParentPath(cachedFile.path), localFile.getPath(), version);
 
         synchronized (infos) {
             if (infos.contains(info)) {
@@ -84,8 +96,13 @@ public class AutoUpdateManager implements Runnable, CachedFileChangedListener {
             @Override
             public void run() {
                 for (AutoUpdateInfo info : infos) {
-                    txService.addUploadTask(info.account, info.repoID, info.repoName,
-                            info.parentDir, info.localPath, true, true);
+                    if (info.canLocalDecrypt()) {
+                        txService.addTaskToUploadQue(info.account, info.repoID, info.repoName,
+                                info.parentDir, info.localPath, true, true, info.version);
+                    } else {
+                        txService.addUploadTask(info.account, info.repoID, info.repoName,
+                                info.parentDir, info.localPath, true, true);
+                    }
                 }
             }
         });
@@ -95,27 +112,27 @@ public class AutoUpdateManager implements Runnable, CachedFileChangedListener {
      * This callback in called in the main thread when the transfer service broadcast is received
      */
     public void onFileUpdateSuccess(Account account, String repoID, String repoName,
-            String parentDir, String localPath) {
+                                    String parentDir, String localPath, int version) {
         // This file has already been updated on server, so we abort auto update task
-        if (removeAutoUpdateInfo(account, repoID, repoName, parentDir, localPath)) {
+        if (removeAutoUpdateInfo(account, repoID, repoName, parentDir, localPath, version)) {
             Log.d(DEBUG_TAG, "auto updated " + localPath);
         }
     }
 
     public void onFileUpdateFailure(Account account, String repoID, String repoName,
-            String parentDir, String localPath, SeafException e) {
+                                    String parentDir, String localPath, SeafException e, int version) {
         if (e.getCode() / 100 != 4) {
             return;
         }
 
         // This file has already been removed on server, so we abort the auto update task
-        if (removeAutoUpdateInfo(account, repoID, repoName, parentDir, localPath)) {
+        if (removeAutoUpdateInfo(account, repoID, repoName, parentDir, localPath, version)) {
             Log.d(DEBUG_TAG, String.format("failed to auto update %s, error %s", localPath, e));
         }
     }
 
-    private boolean removeAutoUpdateInfo(Account account, String repoID, String repoName, String parentDir, String localPath) {
-        final AutoUpdateInfo info = new AutoUpdateInfo(account, repoID, repoName, parentDir, localPath);
+    private boolean removeAutoUpdateInfo(Account account, String repoID, String repoName, String parentDir, String localPath, int version) {
+        final AutoUpdateInfo info = new AutoUpdateInfo(account, repoID, repoName, parentDir, localPath, version);
         boolean exist = false;
 
         synchronized (infos) {

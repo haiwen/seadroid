@@ -140,7 +140,7 @@ public class FileMonitorService extends Service {
 
                 if (info != null && info.isUpdate) {
                     updateMgr.onFileUpdateSuccess(info.account, info.repoID, info.repoName,
-                            info.parentDir, info.localFilePath);
+                            info.parentDir, info.localFilePath, info.version);
                 }
             } else if (type.equals(UploadTaskManager.BROADCAST_FILE_UPLOAD_FAILED)) {
                 int taskID = intent.getIntExtra("taskID", 0);
@@ -148,7 +148,7 @@ public class FileMonitorService extends Service {
 
                 if (info != null && info.isUpdate) {
                     updateMgr.onFileUpdateFailure(info.account, info.repoID, info.repoName,
-                            info.parentDir, info.localFilePath, info.err);
+                            info.parentDir, info.localFilePath, info.err, info.version);
                 }
             }
 

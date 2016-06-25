@@ -13,6 +13,7 @@ import com.google.common.collect.Maps;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafCachedFile;
+import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.util.Utils;
 
 public class SeafileObserver implements FileAlterationListener {
@@ -123,7 +124,12 @@ public class SeafileObserver implements FileAlterationListener {
         Log.d(DEBUG_TAG, path + " was modified!");
         SeafCachedFile cachedFile = watchedFiles.get(path);
         if (cachedFile != null) {
-            listener.onCachedFileChanged(account, cachedFile, file);
+            final SeafRepo repo = dataManager.getCachedRepoByID(cachedFile.repoID);
+            if (repo != null && repo.canLocalDecrypt()) {
+                listener.onCachedBlocksChanged(account, cachedFile, file, repo.encVersion);
+            } else {
+                listener.onCachedFileChanged(account, cachedFile, file);
+            }
         }
     }
 
