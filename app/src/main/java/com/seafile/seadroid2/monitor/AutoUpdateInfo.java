@@ -1,6 +1,9 @@
 package com.seafile.seadroid2.monitor;
 
+import android.text.TextUtils;
+
 import com.google.common.base.Objects;
+import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 
 class AutoUpdateInfo {
@@ -20,6 +23,11 @@ class AutoUpdateInfo {
         this.parentDir = parentDir;
         this.localPath = localPath;
         this.version = version;
+    }
+
+    public boolean canLocalDecrypt() {
+        return version == 2
+                && SettingsManager.instance().isEncryptEnabled();
     }
 
     @Override

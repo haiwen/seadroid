@@ -53,8 +53,20 @@ public class AutoUpdateManager implements Runnable, CachedFileChangedListener {
      * This method is called by file monitor, so it would be executed in the file monitor thread
      */
     @Override
-    public void onCachedFileChanged(final Account account, final SeafCachedFile cachedFile, final File localFile, int version) {
+    public void onCachedBlocksChanged(final Account account, final SeafCachedFile cachedFile, final File localFile, int version) {
         addTask(account, cachedFile, localFile, version);
+    }
+
+    /**
+     * This method is called by file monitor, so it would be executed in the file monitor thread
+     */
+    @Override
+    public void onCachedFileChanged(final Account account, final SeafCachedFile cachedFile, final File localFile) {
+        addTask(account, cachedFile, localFile);
+    }
+
+    public void addTask(Account account, SeafCachedFile cachedFile, File localFile) {
+        addTask(account, cachedFile, localFile, -1);
     }
 
     public void addTask(Account account, SeafCachedFile cachedFile, File localFile, int version) {
@@ -84,7 +96,7 @@ public class AutoUpdateManager implements Runnable, CachedFileChangedListener {
             @Override
             public void run() {
                 for (AutoUpdateInfo info : infos) {
-                    if (info.version == 2) {
+                    if (info.canLocalDecrypt()) {
                         txService.addTaskToUploadQue(info.account, info.repoID, info.repoName,
                                 info.parentDir, info.localPath, true, true, info.version);
                     } else {
