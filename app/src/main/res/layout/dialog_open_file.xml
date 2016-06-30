@@ -43,7 +43,7 @@
             android:layout_width="fill_parent"
             android:layout_height="6dp"
             android:indeterminate="true"
-            style="@android:style/Widget.ProgressBar.Horizontal" />
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal" />
 
     </LinearLayout>
 

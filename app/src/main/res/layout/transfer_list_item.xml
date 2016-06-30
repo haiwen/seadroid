@@ -50,7 +50,7 @@
         android:layout_alignLeft="@id/transfer_file_state"
         android:layout_marginTop="5dp"
         android:layout_marginRight="50dp"
-        style="@android:style/Widget.ProgressBar.Horizontal" />
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal" />
     <TextView
         android:id="@+id/transfer_file_size"
         android:layout_width="wrap_content"
