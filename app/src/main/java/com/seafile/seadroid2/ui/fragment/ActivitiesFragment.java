@@ -389,8 +389,12 @@ public class ActivitiesFragment extends Fragment {
 
             if (result == null) {
                 if (err != null) {
-                    ToastUtils.show(mActivity, err.getMessage());
-                    showError(R.string.error_when_load_activities);
+                    if (err == SeafException.remoteWipedException) {
+                        mActivity.completeRemoteWipe();
+                    } else {
+                        ToastUtils.show(mActivity, err.getMessage());
+                        showError(R.string.error_when_load_activities);
+                    }
                 }
                 return;
             }

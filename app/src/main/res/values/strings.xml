@@ -188,6 +188,7 @@
     <string name="seconds_ago">%d seconds ago</string>
     <string name="just_now">Just now</string>
     <string name="error_when_load_starred">Error when loading starred files</string>
+    <string name="error_when_load_events">Error when loading activities</string>
     <string name="open_as">Open as</string>
     <string name="select_upload_files">Select files to upload</string>
     <string name="storage_removed">Storage was removed</string>

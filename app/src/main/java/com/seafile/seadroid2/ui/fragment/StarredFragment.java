@@ -303,8 +303,12 @@ public class StarredFragment extends ListFragment {
 
 
             if (err != null) {
-                showError(getString(R.string.error_when_load_starred));
-                return;
+                if (err == SeafException.remoteWipedException) {
+                    mActivity.completeRemoteWipe();
+                } else {
+                    showError(getString(R.string.error_when_load_starred));
+                    return;
+                }
             }
 
             if (starredFiles == null) {
