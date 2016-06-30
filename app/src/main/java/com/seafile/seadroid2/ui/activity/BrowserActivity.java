@@ -48,10 +48,12 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.MediaObserverService;
 import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.DatabaseHelper;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SeafStarredFile;
 import com.seafile.seadroid2.data.ServerInfo;
+import com.seafile.seadroid2.data.StorageManager;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
@@ -406,6 +408,54 @@ public class BrowserActivity extends BaseActivity
             return;
 
         ConcurrentAsyncTask.execute(new RequestServerInfoTask());
+    }
+
+    public void completeRemoteWipe() {
+        ConcurrentAsyncTask.execute(new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... objects) {
+                // clear local caches
+                StorageManager storageManager = StorageManager.getInstance();
+                storageManager.clearCache();
+
+                // clear cached data from database
+                DatabaseHelper dbHelper = DatabaseHelper.getDatabaseHelper();
+                dbHelper.delCaches();
+
+                try {
+                    // response to server when finished cleaning caches
+                    getDataManager().completeRemoteWipe();
+                } catch (SeafException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void o) {
+                // sign out current account
+                logoutWhenTokenExpired();
+
+            }
+        });
+    }
+
+    /**
+     * Token expired, clear current authorized info and redirect user to login page
+     */
+    public void logoutWhenTokenExpired() {
+        AccountManager accountMgr = new AccountManager(this);
+
+        // sign out current account
+        Account account = accountMgr.getCurrentAccount();
+        accountMgr.signOutAccount(account);
+
+        // then redirect to AccountsActivity
+        Intent intent = new Intent(this, AccountsActivity.class);
+        startActivity(intent);
+
+        // finish current Activity
+        finish();
     }
 
     @Override
@@ -1258,7 +1308,12 @@ public class BrowserActivity extends BaseActivity
                     return;
                 }
                 ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
-                addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), takeCameraPhotoTempFile.getAbsolutePath());
+                final SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
+                if (repo != null && repo.canLocalDecrypt()) {
+                    addUploadBlocksTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), takeCameraPhotoTempFile.getAbsolutePath(), repo.encVersion);
+                } else {
+                    addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), takeCameraPhotoTempFile.getAbsolutePath());
+                }
 
             }
             break;

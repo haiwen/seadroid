@@ -278,8 +278,7 @@ public class SeafConnection {
             HttpRequest req = prepareApiGetRequest(apiPath, params);
             checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
 
-            String result = new String(req.bytes(), "UTF-8");
-            return result;
+            return new String(req.bytes(), "UTF-8");
         } catch (SeafException e) {
             throw e;
         } catch (HttpRequestException e) {
@@ -314,8 +313,7 @@ public class SeafConnection {
             HttpRequest req = prepareApiGetRequest("api2/starredfiles/");
             checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
 
-            String result = new String(req.bytes(), "UTF-8");
-            return result;
+            return new String(req.bytes(), "UTF-8");
         } catch (SeafException e) {
             throw e;
         } catch (HttpRequestException e) {
@@ -1280,6 +1278,18 @@ public class SeafConnection {
         }
     }
 
+    public void completeRemoteWipe(String token) throws SeafException {
+        try {
+            HttpRequest req = prepareApiPostRequest("api2/device-wiped/", true, null);
+            req.form("token", token);
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_CREATED);
+        } catch (SeafException e) {
+            throw e;
+        } catch (HttpRequestException e) {
+            throw getSeafExceptionFromHttpRequestException(e);
+        }
+    }
+
     public void star(String repoID, String path) throws SeafException {
         try {
             HttpRequest req = prepareApiPostRequest("api2/starredfiles/", true, null);
@@ -1491,11 +1501,15 @@ public class SeafConnection {
 
             if (req.message() == null) {
                 throw SeafException.networkException;
+            } else if (req.code() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+                String wiped = req.header("X-Seafile-Wiped");
+                if (wiped != null) {
+                    throw SeafException.remoteWipedException;
+                }
             } else {
                 throw new SeafException(req.code(), req.message());
             }
-        }
-        else {
+        } else {
             // Log.v(DEBUG_TAG, "HTTP request ok : " + req.url());
         }
     }
