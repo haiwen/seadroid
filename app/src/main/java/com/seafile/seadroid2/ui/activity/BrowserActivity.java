@@ -1258,7 +1258,12 @@ public class BrowserActivity extends BaseActivity
                     return;
                 }
                 ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
-                addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), takeCameraPhotoTempFile.getAbsolutePath());
+                final SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
+                if (repo != null && repo.canLocalDecrypt()) {
+                    addUploadBlocksTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), takeCameraPhotoTempFile.getAbsolutePath(), repo.encVersion);
+                } else {
+                    addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), takeCameraPhotoTempFile.getAbsolutePath());
+                }
 
             }
             break;
