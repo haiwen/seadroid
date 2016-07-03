@@ -30,6 +30,7 @@ import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
 import com.seafile.seadroid2.ui.dialog.PasswordDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
+import com.seafile.seadroid2.ui.widget.swipeback.SwipeBackActivity;
 import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;
@@ -38,7 +39,7 @@ import java.net.HttpURLConnection;
 /**
  * Display a file
  */
-public class FileActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
+public class FileActivity extends SwipeBackActivity implements Toolbar.OnMenuItemClickListener {
     private static final String DEBUG_TAG = "FileActivity";
 
     private TextView mFileNameText;

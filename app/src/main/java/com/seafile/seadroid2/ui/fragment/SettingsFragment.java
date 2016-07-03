@@ -44,6 +44,7 @@ import com.seafile.seadroid2.ui.dialog.ClearCacheTaskDialog;
 import com.seafile.seadroid2.ui.dialog.ClearPasswordTaskDialog;
 import com.seafile.seadroid2.ui.dialog.SwitchStorageTaskDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog.TaskDialogListener;
+import com.seafile.seadroid2.ui.widget.swipeback.IntentUtils;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 
@@ -151,7 +152,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
                         // inverse checked status
                         Intent newIntent = new Intent(getActivity(), CreateGesturePasswordActivity.class);
                         newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivityForResult(newIntent, SettingsManager.GESTURE_LOCK_REQUEST);
+                        IntentUtils.getInstance().startActivityForResult(mActivity, newIntent, SettingsManager.GESTURE_LOCK_REQUEST);
                     } else {
                         LockPatternUtils mLockPatternUtils = new LockPatternUtils(getActivity());
                         mLockPatternUtils.clearLock();

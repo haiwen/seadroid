@@ -3,17 +3,16 @@ package com.seafile.seadroid2.ui.activity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 
 import android.view.MenuItem;
 import android.view.Window;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.ui.fragment.SettingsFragment;
+import com.seafile.seadroid2.ui.widget.swipeback.SwipeBackActivity;
 
-public class SettingsActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
+public class SettingsActivity extends SwipeBackActivity implements Toolbar.OnMenuItemClickListener {
     private static final String DEBUG_TAG = "SettingsActivity";
 
     public void onCreate(Bundle savedInstanceState) {

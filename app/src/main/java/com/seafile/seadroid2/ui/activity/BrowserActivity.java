@@ -87,6 +87,7 @@ import com.seafile.seadroid2.ui.dialog.UploadChoiceDialog;
 import com.seafile.seadroid2.ui.fragment.ActivitiesFragment;
 import com.seafile.seadroid2.ui.fragment.ReposFragment;
 import com.seafile.seadroid2.ui.fragment.StarredFragment;
+import com.seafile.seadroid2.ui.widget.swipeback.IntentUtils;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 import com.seafile.seadroid2.util.UtilsJellyBean;
@@ -387,7 +388,7 @@ public class BrowserActivity extends BaseActivity
         newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         finish();
-        startActivity(newIntent);
+        IntentUtils.getInstance().startActivity(this, newIntent);
     }
 
     private void requestServerInfo() {
@@ -452,7 +453,7 @@ public class BrowserActivity extends BaseActivity
 
         // then redirect to AccountsActivity
         Intent intent = new Intent(this, AccountsActivity.class);
-        startActivity(intent);
+        IntentUtils.getInstance().startActivity(this, intent);
 
         // finish current Activity
         finish();
@@ -478,7 +479,7 @@ public class BrowserActivity extends BaseActivity
                 return true;
             case R.id.search:
                 Intent searchIntent = new Intent(this, SearchActivity.class);
-                startActivity(searchIntent);
+                IntentUtils.getInstance().startActivity(this, searchIntent);
                 return true;
             case R.id.add:
                 addFile();
@@ -486,12 +487,12 @@ public class BrowserActivity extends BaseActivity
             case R.id.transfer_tasks:
                 Intent newIntent = new Intent(this, TransferActivity.class);
                 newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(newIntent);
+                IntentUtils.getInstance().startActivity(this, newIntent);
                 return true;
             case R.id.accounts:
                 newIntent = new Intent(this, AccountsActivity.class);
                 newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(newIntent);
+                IntentUtils.getInstance().startActivity(this, newIntent);
                 return true;
             case R.id.edit:
                 // start action mode for selecting multiple files/folders
@@ -519,7 +520,7 @@ public class BrowserActivity extends BaseActivity
             case R.id.settings:
                 Intent settingsIntent = new Intent(BrowserActivity.this,SettingsActivity.class);
                 settingsIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(settingsIntent);
+                IntentUtils.getInstance().startActivity(this, settingsIntent);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -828,7 +829,7 @@ public class BrowserActivity extends BaseActivity
         if (android.os.Build.VERSION.SDK_INT < 14
                 && SettingsManager.instance().isGestureLockRequired()) {
             Intent intent = new Intent(this, UnlockGesturePasswordActivity.class);
-            startActivity(intent);
+            IntentUtils.getInstance().startActivity(this, intent);
         }
 
         if (mTransferReceiver == null) {
@@ -1659,7 +1660,7 @@ public class BrowserActivity extends BaseActivity
         intent.putExtra("filePath", filePath);
         intent.putExtra("account", account);
         intent.putExtra("taskID", taskID);
-        startActivityForResult(intent, DOWNLOAD_FILE_REQUEST);
+        IntentUtils.getInstance().startActivityForResult(this, intent, DOWNLOAD_FILE_REQUEST);
     }
 
     @Override
@@ -1892,7 +1893,7 @@ public class BrowserActivity extends BaseActivity
         if (repo.encrypted) {
             intent.putExtra(SeafilePathChooserActivity.ENCRYPTED_REPO_ID, repoID);
         }
-        startActivityForResult(intent, CHOOSE_COPY_MOVE_DEST_REQUEST);
+        IntentUtils.getInstance().startActivityForResult(this, intent, CHOOSE_COPY_MOVE_DEST_REQUEST);
         return;
     }
 
@@ -2103,7 +2104,7 @@ public class BrowserActivity extends BaseActivity
         if (repo.encrypted) {
             intent.putExtra(SeafilePathChooserActivity.ENCRYPTED_REPO_ID, repoID);
         }
-        startActivityForResult(intent, BrowserActivity.CHOOSE_COPY_MOVE_DEST_REQUEST);
+        IntentUtils.getInstance().startActivityForResult(this, intent, BrowserActivity.CHOOSE_COPY_MOVE_DEST_REQUEST);
     }
 
     /**

@@ -87,4 +87,20 @@ public class IntentUtils {
             }
         }, 100);
     }
+
+    public void startActivityForResult(final Context context, final Intent intent, final int requestCode) {
+        final View v = ((Activity) context).findViewById(android.R.id.content);
+
+        BitmapItem item = getBitmapItem(v.getWidth(), v.getHeight());
+        final Bitmap bitmap = item.getBitmap();
+        intent.putExtra("bitmap_id", item.getId());
+
+        v.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                v.draw(new Canvas(bitmap));
+                ((Activity) context).startActivityForResult(intent, requestCode);
+            }
+        }, 100);
+    }
 }

@@ -7,9 +7,6 @@ import android.content.*;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.app.DialogFragment;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -23,6 +20,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ListView;
 import com.google.common.collect.Lists;
+import com.seafile.seadroid2.ui.widget.swipeback.SwipeBackActivity;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
@@ -41,7 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener{
+public class AccountsActivity extends SwipeBackActivity implements Toolbar.OnMenuItemClickListener{
     private static final String DEBUG_TAG = "AccountsActivity";
 
     public static final int DETAIL_ACTIVITY_REQUEST = 1;

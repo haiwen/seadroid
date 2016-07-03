@@ -20,6 +20,7 @@ import com.seafile.seadroid2.ui.activity.MarkdownActivity;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
 import com.seafile.seadroid2.ui.dialog.GetShareLinkDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
+import com.seafile.seadroid2.ui.widget.swipeback.IntentUtils;
 import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;
@@ -138,7 +139,7 @@ public class WidgetUtils {
     public static void startMarkdownActivity(Context context, String path) {
         Intent intent = new Intent(context, MarkdownActivity.class);
         intent.putExtra("path", path);
-        context.startActivity(intent);
+        IntentUtils.getInstance().startActivity(context, intent);
     }
 
     /**

@@ -39,6 +39,7 @@ import com.seafile.seadroid2.ui.activity.FileActivity;
 import com.seafile.seadroid2.ui.adapter.ActivitiesItemAdapter;
 import com.seafile.seadroid2.ui.adapter.BottomSheetAdapter;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
+import com.seafile.seadroid2.ui.widget.swipeback.IntentUtils;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 
@@ -535,6 +536,6 @@ public class ActivitiesFragment extends Fragment {
         intent.putExtra("filePath", filePath);
         intent.putExtra("account", mActivity.getAccount());
         intent.putExtra("taskID", taskID);
-        mActivity.startActivityForResult(intent, BrowserActivity.DOWNLOAD_FILE_REQUEST);
+        IntentUtils.getInstance().startActivityForResult(mActivity, intent, BrowserActivity.DOWNLOAD_FILE_REQUEST);
     }
 }
