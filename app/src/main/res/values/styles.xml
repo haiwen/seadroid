@@ -41,6 +41,14 @@
         <item name="android:colorButtonNormal">@color/fancy_orange</item>
         <item name="colorButtonNormal">@color/fancy_orange</item>
         <item name="alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
+        <item name="android:windowAnimationStyle">@style/ActivityTransitions</item>
+    </style>
+
+    <style name="ActivityTransitions" parent="@android:style/Animation">
+        <item name="android:activityOpenEnterAnimation">@anim/open_enter</item>
+        <item name="android:activityOpenExitAnimation">@anim/open_exit</item>
+        <item name="android:activityCloseEnterAnimation">@anim/close_enter</item>
+        <item name="android:activityCloseExitAnimation">@anim/close_exit</item>
     </style>
 
     <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">

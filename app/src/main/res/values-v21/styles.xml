@@ -19,6 +19,7 @@
         <item name="colorButtonNormal">@color/fancy_orange</item>
         <item name="alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
         <item name="android:alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
+        <item name="android:windowAnimationStyle">@style/ActivityTransitions</item>
     </style>
 
     <style name="NegativeButton" parent="Base.Widget.AppCompat.Button">
