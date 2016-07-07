@@ -1711,7 +1711,7 @@ public class BrowserActivity extends BaseActivity
                         getActionBarToolbar().setTitle(parentPath.substring(parentPath.lastIndexOf(ACTIONBAR_PARENT_PATH) + 1));
                     }
                 }
-                getReposFragment().refreshView();
+                getReposFragment().refreshView(true);
 
             } else
                 super.onBackPressed();
