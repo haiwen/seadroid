@@ -421,9 +421,9 @@
   <string name="sort_files">Сортировка по</string>
   <string-array name="sort_files_options_array">
     <item>Имя</item>
-    <item>Имя (Описание)</item>
+    <item>Имя (В обратном порядке)</item>
     <item>Время последнего изменения</item>
-    <item>Время последнего изменения (Описание)</item>
+    <item>Время последнего изменения (Сначала новые)</item>
   </string-array>
   <!--Search-->
   <string name="search_menu_item">Поиск</string>
