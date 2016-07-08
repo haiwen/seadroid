@@ -17,6 +17,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.*;
 import android.view.MenuItem;
 import com.google.common.collect.Lists;
+import com.seafile.seadroid2.ui.widget.swipeback.IntentUtils;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
@@ -416,7 +417,7 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
         intent.putExtra("filePath", filePath);
         intent.putExtra("account", account);
         intent.putExtra("taskID", taskID);
-        startActivityForResult(intent, DOWNLOAD_FILE_REQUEST);
+        IntentUtils.getInstance().startActivityForResult(this, intent, DOWNLOAD_FILE_REQUEST);
     }
 
     ServiceConnection mConnection = new ServiceConnection() {

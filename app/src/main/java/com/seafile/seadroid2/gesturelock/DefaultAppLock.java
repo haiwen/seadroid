@@ -14,6 +14,7 @@ import com.google.common.collect.MapMaker;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.ui.activity.UnlockGesturePasswordActivity;
+import com.seafile.seadroid2.ui.widget.swipeback.IntentUtils;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -90,7 +91,7 @@ public class DefaultAppLock extends AbstractAppLock {
         if (settingsMgr.isGestureLockRequired()) {
             mCheckedActivities.put(activity, System.currentTimeMillis());
             Intent i = new Intent(activity, UnlockGesturePasswordActivity.class);
-            activity.startActivity(i);
+            IntentUtils.getInstance().startActivity(activity, i);
         }
 
     }

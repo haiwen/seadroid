@@ -35,6 +35,7 @@ import com.seafile.seadroid2.ui.adapter.SeafReposAdapter;
 import com.seafile.seadroid2.ui.dialog.PasswordDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.ui.fragment.SettingsFragment;
+import com.seafile.seadroid2.ui.widget.swipeback.IntentUtils;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 
@@ -169,7 +170,7 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
         if (android.os.Build.VERSION.SDK_INT < 14
                 && SettingsManager.instance().isGestureLockRequired()) {
             Intent newIntent = new Intent(this, UnlockGesturePasswordActivity.class);
-            startActivity(newIntent);
+            IntentUtils.getInstance().startActivity(this, newIntent);
         }
     }
 

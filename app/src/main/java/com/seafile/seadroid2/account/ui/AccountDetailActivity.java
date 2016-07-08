@@ -36,6 +36,7 @@ import com.seafile.seadroid2.ui.EmailAutoCompleteTextView;
 import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.ui.activity.BaseActivity;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
+import com.seafile.seadroid2.ui.widget.swipeback.IntentUtils;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 
@@ -168,7 +169,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
                     // navigate up to the logical parent activity.
                     // NavUtils.navigateUpTo(this, upIntent);
                     upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(upIntent);
+                    IntentUtils.getInstance().startActivity(this, upIntent);
                     finish();
                 }
 

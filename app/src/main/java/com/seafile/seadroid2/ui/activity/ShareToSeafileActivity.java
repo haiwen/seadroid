@@ -10,6 +10,7 @@ import android.os.IBinder;
 import android.provider.MediaStore.Images;
 import android.util.Log;
 import com.google.common.collect.Lists;
+import com.seafile.seadroid2.ui.widget.swipeback.IntentUtils;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
@@ -135,7 +136,7 @@ public class ShareToSeafileActivity extends BaseActivity {
 
             // Log.d(DEBUG_TAG, "share " + localPathList);
             Intent chooserIntent = new Intent(ShareToSeafileActivity.this, SeafilePathChooserActivity.class);
-            startActivityForResult(chooserIntent, CHOOSE_COPY_MOVE_DEST_REQUEST);
+            IntentUtils.getInstance().startActivityForResult(ShareToSeafileActivity.this, chooserIntent, CHOOSE_COPY_MOVE_DEST_REQUEST);
         }
     }
 
