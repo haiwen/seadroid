@@ -586,7 +586,7 @@ public class ReposFragment extends ListFragment {
             return;
         }
 
-        final boolean continueProcess = handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
+        final boolean continueProcess = mActivity.handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
                 onListItemClick(l, v, position, id);
@@ -672,30 +672,6 @@ public class ReposFragment extends ListFragment {
             }
         } else {
             mListView.setSelectionAfterHeaderView();
-        }
-    }
-
-    private boolean handleEncryptedRepo(SeafRepo repo, TaskDialog.TaskDialogListener taskDialogListener) {
-        if (!repo.encrypted) return true;
-
-        if (!repo.canLocalDecrypt()) {
-            if (!DataManager.getRepoPasswordSet(repo.id)) {
-                String password = DataManager.getRepoPassword(repo.id);
-                mActivity.showPasswordDialog(repo.name, repo.id, taskDialogListener, password);
-                return false;
-            } else {
-                taskDialogListener.onTaskSuccess();
-                return true;
-            }
-        } else {
-            if (!mActivity.getDataManager().getRepoEnckeySet(repo.id)) {
-                Pair<String, String> pair = mActivity.getDataManager().getRepoEncKey(repo.id);
-                mActivity.showEncDialog(repo.name, repo.id,repo.magic, repo.encKey, repo.encVersion, taskDialogListener, pair == null ? null : pair.first);
-                return false;
-            } else {
-                taskDialogListener.onTaskSuccess();
-                return true;
-            }
         }
     }
 
