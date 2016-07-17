@@ -503,13 +503,15 @@ public class BrowserActivity extends BaseActivity
                 if (currentPosition == INDEX_LIBRARY_TAB) {
                     if (navContext.inRepo()) {
                         SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
-                        handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
+                        final boolean continueProcess = handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
                             @Override
                             public void onTaskSuccess() {
                                 getReposFragment().startContextualActionMode();
                             }
                         });
-                        return true;
+
+                        if (!continueProcess)
+                            return true;
                     }
 
                     getReposFragment().startContextualActionMode();
@@ -525,25 +527,25 @@ public class BrowserActivity extends BaseActivity
         return super.onOptionsItemSelected(item);
     }
 
-    private void handleEncryptedRepo(SeafRepo repo, TaskDialog.TaskDialogListener taskDialogListener) {
-        if (!repo.encrypted) {
-            taskDialogListener.onTaskSuccess();
-            return;
-        }
+    public boolean handleEncryptedRepo(SeafRepo repo, TaskDialog.TaskDialogListener taskDialogListener) {
+        if (!repo.encrypted)
+            return true;
 
         if (!repo.canLocalDecrypt()) {
             if (!DataManager.getRepoPasswordSet(repo.id)) {
                 String password = DataManager.getRepoPassword(repo.id);
                 showPasswordDialog(repo.name, repo.id, taskDialogListener, password);
+                return false;
             } else {
-                taskDialogListener.onTaskSuccess();
+                return true;
             }
         } else {
-            if (!dataManager.getRepoEnckeySet(repo.id)) {
-                Pair<String, String> pair = dataManager.getRepoEncKey(repo.id);
-                showPasswordDialog(repo.name, repo.id, taskDialogListener, pair == null ? null : pair.first);
+            if (!getDataManager().getRepoEnckeySet(repo.id)) {
+                Pair<String, String> pair = getDataManager().getRepoEncKey(repo.id);
+                showEncDialog(repo.name, repo.id,repo.magic, repo.encKey, repo.encVersion, taskDialogListener, pair == null ? null : pair.first);
+                return false;
             } else {
-                taskDialogListener.onTaskSuccess();
+                return true;
             }
         }
     }
@@ -1024,12 +1026,14 @@ public class BrowserActivity extends BaseActivity
         if (currentPosition == INDEX_LIBRARY_TAB) {
             if (navContext.inRepo()) {
                 SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
-                handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
+                final boolean continueProcess = handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
                     @Override
                     public void onTaskSuccess() {
                         getReposFragment().sortFiles(type, order);
                     }
                 });
+            if (!continueProcess)
+                return;
             }
             getReposFragment().sortFiles(type, order);
         }
@@ -1663,11 +1667,21 @@ public class BrowserActivity extends BaseActivity
     }
 
     @Override
-    public void onStarredFileSelected(SeafStarredFile starredFile) {
+    public void onStarredFileSelected(final SeafStarredFile starredFile) {
 
         final String repoID = starredFile.getRepoID();
         final SeafRepo repo = dataManager.getCachedRepoByID(repoID);
         if (repo == null) return;
+
+        final boolean continueProcess = handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
+            @Override
+            public void onTaskSuccess() {
+                onStarredFileSelected(starredFile);
+            }
+        });
+
+        if (!continueProcess)
+            return;
 
         final String repoName = repo.getName();
         final String filePath = starredFile.getPath();
@@ -1960,9 +1974,9 @@ public class BrowserActivity extends BaseActivity
                         new TaskDialog.TaskDialogListener() {
                             @Override
                             public void onTaskSuccess() {
-                                txService.addDownloadTask(account, 
-                                                          repoName, 
-                                                          repoID, 
+                                txService.addDownloadTask(account,
+                                                          repoName,
+                                                          repoID,
                                                           path);
                             }
                         });
