@@ -10,6 +10,7 @@ import android.os.IBinder;
 import android.provider.MediaStore.Images;
 import android.util.Log;
 import com.google.common.collect.Lists;
+import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
@@ -198,6 +199,7 @@ public class ShareToSeafileActivity extends BaseActivity {
 
         // bind transfer service
         Intent bIntent = new Intent(this, TransferService.class);
+        final DataManager dataManager = new DataManager(account);
 
         mConnection = new ServiceConnection() {
             @Override
@@ -205,8 +207,15 @@ public class ShareToSeafileActivity extends BaseActivity {
                 TransferBinder binder = (TransferBinder) service;
                 mTxService = binder.getService();
                 for (String path : localPaths) {
-                    mTxService.addUploadTask(account, repoID, repoName, targetDir,
-                            path, update, false);
+
+                    final SeafRepo repo = dataManager.getCachedRepoByID(repoID);
+                    if (repo != null && repo.canLocalDecrypt()) {
+                        mTxService.addTaskToUploadQue(account, repoID, repoName,
+                                targetDir, path, update, false, repo.encVersion);
+                    } else {
+                        mTxService.addUploadTask(account, repoID, repoName,
+                                targetDir, path, update, false);
+                    }
                     Log.d(DEBUG_TAG, path + (update ? " updated" : " uploaded"));
                 }
                 ToastUtils.show(ShareToSeafileActivity.this, R.string.upload_started);
