@@ -572,7 +572,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             return null;
         }
 
-        return new Pair<>(cursor.getString(0), cursor.getString(1));
+        final String encKey = cursor.getString(0);
+        final String encIv = cursor.getString(1);
+        cursor.close();
+
+        return new Pair<>(encKey, encIv);
     }
 
     public void saveEncKey(@NonNull String encKey, @NonNull String encIv, @NonNull String repoId) {

@@ -2,10 +2,10 @@ package com.seafile.seadroid2.ui.fragment;
 
 import android.app.Activity;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.support.v4.app.ListFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.view.ActionMode;
@@ -24,12 +24,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.cocosw.bottomsheet.BottomSheet;
+import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafCachedFile;
 import com.seafile.seadroid2.data.SeafDirent;
@@ -41,10 +41,8 @@ import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.ui.CopyMoveContext;
 import com.seafile.seadroid2.ui.NavContext;
 import com.seafile.seadroid2.ui.ToastUtils;
-import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
-import com.seafile.seadroid2.ui.dialog.PasswordDialog;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
@@ -58,7 +56,8 @@ import java.util.Map;
 public class ReposFragment extends ListFragment {
 
     private static final String DEBUG_TAG = "ReposFragment";
-    
+    private static final String KEY_REPO_SCROLL_POSITION = "repo_scroll_position";
+
     private static final int REFRESH_ON_RESUME = 0;
     private static final int REFRESH_ON_PULL = 1;
     private static final int REFRESH_ON_CLICK = 2;
@@ -71,6 +70,7 @@ public class ReposFragment extends ListFragment {
     private BrowserActivity mActivity = null;
     private ActionMode mActionMode;
     private CopyMoveContext copyMoveContext;
+    private Map<String, ScrollState> scrollPostions;
 
     public static final int FILE_ACTION_EXPORT = 0;
     public static final int FILE_ACTION_COPY = 1;
@@ -283,6 +283,7 @@ public class ReposFragment extends ListFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         Log.d(DEBUG_TAG, "ReposFragment onActivityCreated");
+        scrollPostions = Maps.newHashMap();
         adapter = new SeafItemAdapter(mActivity);
 
         mListView.setAdapter(adapter);
@@ -324,14 +325,18 @@ public class ReposFragment extends ListFragment {
     
     public void refresh() {
         mRefreshType = REFRESH_ON_OVERFLOW_MENU;
-        refreshView(true);
+        refreshView(true, false);
     }
 
     public void refreshView() {
-        refreshView(false);
+        refreshView(false, false);
     }
 
-    public void refreshView(boolean forceRefresh) {
+    public void refreshView(boolean restorePosition) {
+        refreshView(false, restorePosition);
+    }
+
+    public void refreshView(boolean forceRefresh, boolean restorePosition) {
         if (mActivity == null)
             return;
 
@@ -343,15 +348,15 @@ public class ReposFragment extends ListFragment {
             if (mActivity.getCurrentPosition() == BrowserActivity.INDEX_LIBRARY_TAB) {
                 mActivity.enableUpButton();
             }
-            navToDirectory(forceRefresh);
+            navToDirectory(forceRefresh, restorePosition);
         } else {
             mActivity.disableUpButton();
-            navToReposView(forceRefresh);
+            navToReposView(forceRefresh, restorePosition);
         }
         mActivity.supportInvalidateOptionsMenu();
     }
 
-    public void navToReposView(boolean forceRefresh) {
+    public void navToReposView(boolean forceRefresh, boolean restorePosition) {
         //stopTimer();
 
         mPullToRefreshStopRefreshing ++;
@@ -370,7 +375,7 @@ public class ReposFragment extends ListFragment {
                     mPullToRefreshStopRefreshing = 0;
                 }
 
-                updateAdapterWithRepos(repos);
+                updateAdapterWithRepos(repos, restorePosition);
                 return;
             }
         }
@@ -378,7 +383,7 @@ public class ReposFragment extends ListFragment {
         ConcurrentAsyncTask.execute(new LoadTask(getDataManager()));
     }
 
-    public void navToDirectory(boolean forceRefresh) {
+    public void navToDirectory(boolean forceRefresh, boolean restorePosition) {
         startTimer();
 
         mPullToRefreshStopRefreshing ++;
@@ -412,7 +417,7 @@ public class ReposFragment extends ListFragment {
                     mPullToRefreshStopRefreshing = 0;
                 }
 
-                updateAdapterWithDirents(dirents);
+                updateAdapterWithDirents(dirents, restorePosition);
                 return;
             }
         }
@@ -489,7 +494,7 @@ public class ReposFragment extends ListFragment {
         SettingsManager.instance().saveSortFilesPref(type, order);
     }
 
-    private void updateAdapterWithRepos(List<SeafRepo> repos) {
+    private void updateAdapterWithRepos(List<SeafRepo> repos, boolean restoreScrollPosition) {
         adapter.clear();
         if (repos.size() > 0) {
             addReposToAdapter(repos);
@@ -497,6 +502,7 @@ public class ReposFragment extends ListFragment {
                     SettingsManager.instance().getSortFilesOrderPref());
             adapter.notifyChanged();
             mListView.setVisibility(View.VISIBLE);
+            restoreRepoScrollPosition(restoreScrollPosition);
             mEmptyView.setVisibility(View.GONE);
         } else {
             mListView.setVisibility(View.GONE);
@@ -506,7 +512,7 @@ public class ReposFragment extends ListFragment {
         //mListView.collapse();
     }
 
-    private void updateAdapterWithDirents(final List<SeafDirent> dirents) {
+    private void updateAdapterWithDirents(final List<SeafDirent> dirents, boolean restoreScrollPosition) {
         adapter.clear();
         if (dirents.size() > 0) {
             for (SeafDirent dirent : dirents) {
@@ -521,6 +527,7 @@ public class ReposFragment extends ListFragment {
                     SettingsManager.instance().getSortFilesOrderPref());
             adapter.notifyChanged();
             mListView.setVisibility(View.VISIBLE);
+            restoreDirentScrollPosition(restoreScrollPosition, repoID, dirPath);
             mEmptyView.setVisibility(View.GONE);
         } else {
             // Directory is empty
@@ -579,7 +586,7 @@ public class ReposFragment extends ListFragment {
             return;
         }
 
-        final boolean continueProcess = handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
+        final boolean continueProcess = mActivity.handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
                 onListItemClick(l, v, position, id);
@@ -597,6 +604,7 @@ public class ReposFragment extends ListFragment {
                     String newPath = currentPath.endsWith("/") ?
                             currentPath + dirent.name : currentPath + "/" + dirent.name;
                     nav.setDir(newPath, dirent.id);
+                    saveDirentScrollPosition(repo.getID(), currentPath);
                     refreshView();
                     mActivity.setUpButtonTitle(dirent.name);
                 } else {
@@ -608,31 +616,62 @@ public class ReposFragment extends ListFragment {
             nav.setRepoID(repo.id);
             nav.setRepoName(repo.getName());
             nav.setDir("/", repo.root);
+            saveRepoScrollPosition();
             refreshView();
         }
     }
 
-    private boolean handleEncryptedRepo(SeafRepo repo, TaskDialog.TaskDialogListener taskDialogListener) {
-        if (!repo.encrypted) return true;
+    private class ScrollState {
+        public int index;
+        public int top;
 
-        if (!repo.canLocalDecrypt()) {
-            if (!DataManager.getRepoPasswordSet(repo.id)) {
-                String password = DataManager.getRepoPassword(repo.id);
-                mActivity.showPasswordDialog(repo.name, repo.id, taskDialogListener, password);
-                return false;
+        public ScrollState(int index, int top) {
+            this.index = index;
+            this.top = top;
+        }
+    }
+
+    private void saveDirentScrollPosition(String repoId, String currentPath) {
+        final String pathJoin = Utils.pathJoin(repoId, currentPath);
+        final int index = mListView.getFirstVisiblePosition();
+        final View v = mListView.getChildAt(0);
+        final int top = (v == null) ? 0 : (v.getTop() - mListView.getPaddingTop());
+        final ScrollState state = new ScrollState(index, top);
+        scrollPostions.put(pathJoin, state);
+    }
+
+    private void saveRepoScrollPosition() {
+        final int index = mListView.getFirstVisiblePosition();
+        final View v = mListView.getChildAt(0);
+        final int top = (v == null) ? 0 : (v.getTop() - mListView.getPaddingTop());
+        final ScrollState state = new ScrollState(index, top);
+        scrollPostions.put(KEY_REPO_SCROLL_POSITION, state);
+    }
+
+    private void restoreDirentScrollPosition(boolean restore, String repoId, String dirPath) {
+        final String pathJoin = Utils.pathJoin(repoId, dirPath);
+        if (restore) {
+            ScrollState state = scrollPostions.get(pathJoin);
+            if(state != null) {
+                mListView.setSelectionFromTop(state.index, state.top);
             } else {
-                taskDialogListener.onTaskSuccess();
-                return true;
+                mListView.setSelectionAfterHeaderView();
             }
         } else {
-            if (!mActivity.getDataManager().getRepoEnckeySet(repo.id)) {
-                Pair<String, String> pair = mActivity.getDataManager().getRepoEncKey(repo.id);
-                mActivity.showEncDialog(repo.name, repo.id,repo.magic, repo.encKey, repo.encVersion, taskDialogListener, pair == null ? null : pair.first);
-                return false;
+            mListView.setSelectionAfterHeaderView();
+        }
+    }
+
+    private void restoreRepoScrollPosition(boolean restore) {
+        if (restore) {
+            ScrollState state = scrollPostions.get(KEY_REPO_SCROLL_POSITION);
+            if(state != null) {
+                mListView.setSelectionFromTop(state.index, state.top);
             } else {
-                taskDialogListener.onTaskSuccess();
-                return true;
+                mListView.setSelectionAfterHeaderView();
             }
+        } else {
+            mListView.setSelectionAfterHeaderView();
         }
     }
 
@@ -761,13 +800,15 @@ public class ReposFragment extends ListFragment {
                 });
                 dialog.show(getFragmentManager(), SslConfirmDialog.FRAGMENT_TAG);
                 return;
+            } else if (err == SeafException.remoteWipedException) {
+                mActivity.completeRemoteWipe();
             }
 
             if (err != null) {
                 if (err.getCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
                     // Token expired, should login again
                     ToastUtils.show(mActivity, R.string.err_token_expired);
-                    logoutWhenTokenExpired();
+                    mActivity.logoutWhenTokenExpired();
                 } else {
                     Log.e(DEBUG_TAG, "failed to load repos: " + err.getMessage());
                     showError(R.string.error_when_load_repos);
@@ -777,7 +818,7 @@ public class ReposFragment extends ListFragment {
 
             if (rs != null) {
                 getDataManager().setReposRefreshTimeStamp();
-                updateAdapterWithRepos(rs);
+                updateAdapterWithRepos(rs, false);
             } else {
                 Log.i(DEBUG_TAG, "failed to load repos");
                 showError(R.string.error_when_load_repos);
@@ -933,6 +974,8 @@ public class ReposFragment extends ListFragment {
                 });
                 dialog.show(getFragmentManager(), SslConfirmDialog.FRAGMENT_TAG);
                 return;
+            } else if (err == SeafException.remoteWipedException) {
+                mActivity.completeRemoteWipe();
             }
 
             if (err != null) {
@@ -941,7 +984,7 @@ public class ReposFragment extends ListFragment {
                 } else if (err.getCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
                     // Token expired, should login again
                     ToastUtils.show(mActivity, R.string.err_token_expired);
-                    logoutWhenTokenExpired();
+                    mActivity.logoutWhenTokenExpired();
                 } else if (err.getCode() == HttpURLConnection.HTTP_NOT_FOUND) {
                     ToastUtils.show(mActivity, String.format("The folder \"%s\" was deleted", myPath));
                 } else {
@@ -958,26 +1001,8 @@ public class ReposFragment extends ListFragment {
                 return;
             }
             getDataManager().setDirsRefreshTimeStamp(myRepoID, myPath);
-            updateAdapterWithDirents(dirents);
+            updateAdapterWithDirents(dirents, false);
         }
-    }
-
-    /**
-     * Token expired, clear current authorized info and redirect user to login page
-     */
-    private void logoutWhenTokenExpired() {
-        AccountManager accountMgr = new AccountManager(mActivity);
-
-        // sign out current account
-        Account account = accountMgr.getCurrentAccount();
-        accountMgr.signOutAccount(account);
-
-        // then redirect to AccountsActivity
-        Intent intent = new Intent(mActivity, AccountsActivity.class);
-        mActivity.startActivity(intent);
-
-        // finish current Activity
-        mActivity.finish();
     }
 
     private void showPasswordDialog() {

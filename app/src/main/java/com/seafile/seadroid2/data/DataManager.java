@@ -838,6 +838,10 @@ public class DataManager {
         passwords.clear();
     }
 
+    public void completeRemoteWipe() throws SeafException {
+        sc.completeRemoteWipe(account.token);
+    }
+
     private static class PasswordInfo {
         String password;
         long timestamp;

@@ -5,6 +5,8 @@ import java.util.List;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
+import android.util.Log;
 
 import com.seafile.seadroid2.cameraupload.CameraUploadManager;
 
@@ -125,6 +127,9 @@ public class AccountManager {
      *
      */
     public void signOutAccount(Account account) {
+        if (account == null || TextUtils.isEmpty(account.getToken())) {
+            return;
+        }
 
         CameraUploadManager cameraManager = new CameraUploadManager(ctx);
 

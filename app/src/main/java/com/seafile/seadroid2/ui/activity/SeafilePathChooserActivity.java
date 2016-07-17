@@ -534,7 +534,6 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
                 showPasswordDialog(repo.name, repo.id, taskDialogListener, password);
                 return false;
             } else {
-                taskDialogListener.onTaskSuccess();
                 return true;
             }
         } else {
@@ -543,7 +542,6 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
                 showEncDialog(repo.name, repo.id,repo.magic, repo.encKey, repo.encVersion, taskDialogListener, pair == null ? null : pair.first);
                 return false;
             } else {
-                taskDialogListener.onTaskSuccess();
                 return true;
             }
         }

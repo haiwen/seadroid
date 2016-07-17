@@ -48,10 +48,12 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.MediaObserverService;
 import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.DatabaseHelper;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SeafStarredFile;
 import com.seafile.seadroid2.data.ServerInfo;
+import com.seafile.seadroid2.data.StorageManager;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
@@ -408,6 +410,54 @@ public class BrowserActivity extends BaseActivity
         ConcurrentAsyncTask.execute(new RequestServerInfoTask());
     }
 
+    public void completeRemoteWipe() {
+        ConcurrentAsyncTask.execute(new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... objects) {
+                // clear local caches
+                StorageManager storageManager = StorageManager.getInstance();
+                storageManager.clearCache();
+
+                // clear cached data from database
+                DatabaseHelper dbHelper = DatabaseHelper.getDatabaseHelper();
+                dbHelper.delCaches();
+
+                try {
+                    // response to server when finished cleaning caches
+                    getDataManager().completeRemoteWipe();
+                } catch (SeafException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void o) {
+                // sign out current account
+                logoutWhenTokenExpired();
+
+            }
+        });
+    }
+
+    /**
+     * Token expired, clear current authorized info and redirect user to login page
+     */
+    public void logoutWhenTokenExpired() {
+        AccountManager accountMgr = new AccountManager(this);
+
+        // sign out current account
+        Account account = accountMgr.getCurrentAccount();
+        accountMgr.signOutAccount(account);
+
+        // then redirect to AccountsActivity
+        Intent intent = new Intent(this, AccountsActivity.class);
+        startActivity(intent);
+
+        // finish current Activity
+        finish();
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -453,13 +503,15 @@ public class BrowserActivity extends BaseActivity
                 if (currentPosition == INDEX_LIBRARY_TAB) {
                     if (navContext.inRepo()) {
                         SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
-                        handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
+                        final boolean continueProcess = handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
                             @Override
                             public void onTaskSuccess() {
                                 getReposFragment().startContextualActionMode();
                             }
                         });
-                        return true;
+
+                        if (!continueProcess)
+                            return true;
                     }
 
                     getReposFragment().startContextualActionMode();
@@ -475,25 +527,25 @@ public class BrowserActivity extends BaseActivity
         return super.onOptionsItemSelected(item);
     }
 
-    private void handleEncryptedRepo(SeafRepo repo, TaskDialog.TaskDialogListener taskDialogListener) {
-        if (!repo.encrypted) {
-            taskDialogListener.onTaskSuccess();
-            return;
-        }
+    public boolean handleEncryptedRepo(SeafRepo repo, TaskDialog.TaskDialogListener taskDialogListener) {
+        if (!repo.encrypted)
+            return true;
 
         if (!repo.canLocalDecrypt()) {
             if (!DataManager.getRepoPasswordSet(repo.id)) {
                 String password = DataManager.getRepoPassword(repo.id);
                 showPasswordDialog(repo.name, repo.id, taskDialogListener, password);
+                return false;
             } else {
-                taskDialogListener.onTaskSuccess();
+                return true;
             }
         } else {
-            if (!dataManager.getRepoEnckeySet(repo.id)) {
-                Pair<String, String> pair = dataManager.getRepoEncKey(repo.id);
-                showPasswordDialog(repo.name, repo.id, taskDialogListener, pair == null ? null : pair.first);
+            if (!getDataManager().getRepoEnckeySet(repo.id)) {
+                Pair<String, String> pair = getDataManager().getRepoEncKey(repo.id);
+                showEncDialog(repo.name, repo.id,repo.magic, repo.encKey, repo.encVersion, taskDialogListener, pair == null ? null : pair.first);
+                return false;
             } else {
-                taskDialogListener.onTaskSuccess();
+                return true;
             }
         }
     }
@@ -974,12 +1026,14 @@ public class BrowserActivity extends BaseActivity
         if (currentPosition == INDEX_LIBRARY_TAB) {
             if (navContext.inRepo()) {
                 SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
-                handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
+                final boolean continueProcess = handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
                     @Override
                     public void onTaskSuccess() {
                         getReposFragment().sortFiles(type, order);
                     }
                 });
+            if (!continueProcess)
+                return;
             }
             getReposFragment().sortFiles(type, order);
         }
@@ -1258,7 +1312,12 @@ public class BrowserActivity extends BaseActivity
                     return;
                 }
                 ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
-                addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), takeCameraPhotoTempFile.getAbsolutePath());
+                final SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
+                if (repo != null && repo.canLocalDecrypt()) {
+                    addUploadBlocksTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), takeCameraPhotoTempFile.getAbsolutePath(), repo.encVersion);
+                } else {
+                    addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), takeCameraPhotoTempFile.getAbsolutePath());
+                }
 
             }
             break;
@@ -1608,11 +1667,21 @@ public class BrowserActivity extends BaseActivity
     }
 
     @Override
-    public void onStarredFileSelected(SeafStarredFile starredFile) {
+    public void onStarredFileSelected(final SeafStarredFile starredFile) {
 
         final String repoID = starredFile.getRepoID();
         final SeafRepo repo = dataManager.getCachedRepoByID(repoID);
         if (repo == null) return;
+
+        final boolean continueProcess = handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
+            @Override
+            public void onTaskSuccess() {
+                onStarredFileSelected(starredFile);
+            }
+        });
+
+        if (!continueProcess)
+            return;
 
         final String repoName = repo.getName();
         final String filePath = starredFile.getPath();
@@ -1656,7 +1725,7 @@ public class BrowserActivity extends BaseActivity
                         getActionBarToolbar().setTitle(parentPath.substring(parentPath.lastIndexOf(ACTIONBAR_PARENT_PATH) + 1));
                     }
                 }
-                getReposFragment().refreshView();
+                getReposFragment().refreshView(true);
 
             } else
                 super.onBackPressed();
@@ -1905,9 +1974,9 @@ public class BrowserActivity extends BaseActivity
                         new TaskDialog.TaskDialogListener() {
                             @Override
                             public void onTaskSuccess() {
-                                txService.addDownloadTask(account, 
-                                                          repoName, 
-                                                          repoID, 
+                                txService.addDownloadTask(account,
+                                                          repoName,
+                                                          repoID,
                                                           path);
                             }
                         });

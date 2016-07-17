@@ -107,24 +107,6 @@ public class ActivitiesFragment extends Fragment {
         events = Lists.newArrayList();
     }
 
-    private void handleEncryptedRepo(SeafRepo repo, TaskDialog.TaskDialogListener taskDialogListener) {
-        if (!repo.canLocalDecrypt()) {
-            if (!DataManager.getRepoPasswordSet(repo.id)) {
-                String password = DataManager.getRepoPassword(repo.id);
-                mActivity.showPasswordDialog(repo.name, repo.id, taskDialogListener, password);
-            } else {
-                taskDialogListener.onTaskSuccess();
-            }
-        } else {
-            if (!mActivity.getDataManager().getRepoEnckeySet(repo.id)) {
-                Pair<String, String> pair = mActivity.getDataManager().getRepoEncKey(repo.id);
-                mActivity.showEncDialog(repo.name, repo.id, repo.magic, repo.encKey, repo.encVersion, taskDialogListener, pair == null ? null : pair.first);
-            } else {
-                taskDialogListener.onTaskSuccess();
-            }
-        }
-    }
-
     @Override
     public void onActivityCreated(final Bundle savedInstanceState) {
         // Log.d(DEBUG_TAG, "onActivityCreated");
@@ -158,7 +140,7 @@ public class ActivitiesFragment extends Fragment {
                         return;
                     }
 
-                    handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
+                    final boolean continueProcess = mActivity.handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
                         @Override
                         public void onTaskSuccess() {
                             LoadHistoryChangesTask task = new LoadHistoryChangesTask(seafEvent);
@@ -166,10 +148,12 @@ public class ActivitiesFragment extends Fragment {
                         }
                     });
 
-                } else {
-                    LoadHistoryChangesTask task = new LoadHistoryChangesTask(seafEvent);
-                    ConcurrentAsyncTask.execute(task);
+                    if (!continueProcess)
+                        return;
+
                 }
+                LoadHistoryChangesTask task = new LoadHistoryChangesTask(seafEvent);
+                ConcurrentAsyncTask.execute(task);
             }
         });
 
@@ -389,8 +373,12 @@ public class ActivitiesFragment extends Fragment {
 
             if (result == null) {
                 if (err != null) {
-                    ToastUtils.show(mActivity, err.getMessage());
-                    showError(R.string.error_when_load_activities);
+                    if (err == SeafException.remoteWipedException) {
+                        mActivity.completeRemoteWipe();
+                    } else {
+                        ToastUtils.show(mActivity, err.getMessage());
+                        showError(R.string.error_when_load_activities);
+                    }
                 }
                 return;
             }
@@ -479,7 +467,7 @@ public class ActivitiesFragment extends Fragment {
         }
 
         if (repo.encrypted) {
-            handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
+            mActivity.handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
                 @Override
                 public void onTaskSuccess() {
                     switchTab(repoID, repo.getName(), repo.getRootDirID());
@@ -499,17 +487,17 @@ public class ActivitiesFragment extends Fragment {
             return;
         }
 
-        if (repo.encrypted) {
-            handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
-                @Override
-                public void onTaskSuccess() {
-                    openFile(repoID, repo.getName(), path);
-                }
-            });
+        final boolean continueProcess = mActivity.handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
+            @Override
+            public void onTaskSuccess() {
+                openFile(repoID, repo.getName(), path);
+            }
+        });
 
-        } else {
-            openFile(repoID, repo.getName(), path);
-        }
+        if (!continueProcess)
+            return;
+
+        openFile(repoID, repo.getName(), path);
     }
 
     private void switchTab(String repoID, String repoName, String repoDir) {
@@ -524,7 +512,15 @@ public class ActivitiesFragment extends Fragment {
 
     private void openFile(String repoID, String repoName, String filePath) {
         // Log.d(DEBUG_TAG, "open fiel " + repoName + filePath);
-        int taskID = mActivity.getTransferService().addDownloadTask(mActivity.getAccount(), repoName, repoID, filePath);
+        final SeafRepo repo = mActivity.getDataManager().getCachedRepoByID(repoID);
+
+        int taskID;
+        if (repo != null && repo.canLocalDecrypt()) {
+            taskID = mActivity.getTransferService().addDownloadTask(mActivity.getAccount(), repoName, repoID, filePath, true, repo.encVersion);
+        } else {
+            taskID = mActivity.getTransferService().addDownloadTask(mActivity.getAccount(), repoName, repoID, filePath);
+        }
+
         Intent intent = new Intent(getActivity(), FileActivity.class);
         intent.putExtra("repoName", repoName);
         intent.putExtra("repoID", repoID);
