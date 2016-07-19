@@ -78,6 +78,7 @@ import com.seafile.seadroid2.ui.dialog.DeleteFileDialog;
 import com.seafile.seadroid2.ui.dialog.FetchFileDialog;
 import com.seafile.seadroid2.ui.dialog.NewDirDialog;
 import com.seafile.seadroid2.ui.dialog.NewFileDialog;
+import com.seafile.seadroid2.ui.dialog.NewLibDialog;
 import com.seafile.seadroid2.ui.dialog.PasswordDialog;
 import com.seafile.seadroid2.ui.dialog.RenameFileDialog;
 import com.seafile.seadroid2.ui.dialog.SortFilesDialogFragment;
@@ -479,6 +480,9 @@ public class BrowserActivity extends BaseActivity
             case R.id.search:
                 Intent searchIntent = new Intent(this, SearchActivity.class);
                 startActivity(searchIntent);
+                return true;
+            case R.id.create_lib:
+                showNewLibDialog();
                 return true;
             case R.id.add:
                 addFile();
@@ -1041,6 +1045,22 @@ public class BrowserActivity extends BaseActivity
             }
             getReposFragment().sortFiles(type, order);
         }
+    }
+
+    /**
+     * create a new lib
+     */
+    private void showNewLibDialog() {
+        final NewLibDialog dialog = new NewLibDialog();
+        dialog.init(account);
+        dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
+            @Override
+            public void onTaskSuccess(){
+                ToastUtils.show(BrowserActivity.this, "Successfully created library " + dialog.getLibName());
+                // FIXME: refreshing the list of libraries is currently broken.
+            }
+        });
+        dialog.show(getSupportFragmentManager(), "NewLibDialogFragment");
     }
 
     /**
