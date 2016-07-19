@@ -1032,6 +1032,21 @@ public class SeafConnection {
         }
     }
 
+    public void createNewLib(String libName, String description, String password) throws SeafException {
+        HttpRequest req = prepareApiPostRequest("api2/repos/", true, null);
+        req.form("name", libName);
+
+        if (description.length() > 0) {
+            req.form("desc", description);
+        }
+
+        if (password.length() > 0) {
+            req.form("passwd", password);
+        }
+
+        checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+    }
+
     public Pair<String, String> createNewDir(String repoID,
                                                  String parentDir,
                                                  String dirName) throws SeafException {
