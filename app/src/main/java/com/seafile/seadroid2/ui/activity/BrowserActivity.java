@@ -929,11 +929,13 @@ public class BrowserActivity extends BaseActivity
         menuSearch = menu.findItem(R.id.search);
         MenuItem menuSort = menu.findItem(R.id.sort);
         MenuItem menuAdd = menu.findItem(R.id.add);
+        MenuItem menuCreateLib = menu.findItem(R.id.create_lib);
         MenuItem menuEdit = menu.findItem(R.id.edit);
 
         // Libraries Tab
         if (currentPosition == 0) {
             if (navContext.inRepo()) {
+                menuCreateLib.setVisible(false);
                 menuAdd.setVisible(true);
                 menuEdit.setVisible(true);
                 if (hasRepoWritePermission()) {
@@ -945,6 +947,7 @@ public class BrowserActivity extends BaseActivity
                 }
 
             } else {
+                menuCreateLib.setVisible(true);
                 menuAdd.setVisible(false);
                 menuEdit.setVisible(false);
             }
@@ -952,6 +955,7 @@ public class BrowserActivity extends BaseActivity
             menuSort.setVisible(true);
         } else {
             menuSort.setVisible(false);
+            menuCreateLib.setVisible(false);
             menuAdd.setVisible(false);
             menuEdit.setVisible(false);
         }

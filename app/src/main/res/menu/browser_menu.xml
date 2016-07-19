@@ -22,6 +22,11 @@
         app:showAsAction="always"
         android:title="More">
       <menu>
+        <item android:id="@+id/create_lib"
+        android:visible="true"
+        android:title="@string/add_lib"
+        app:showAsAction="ifRoom"/>
+
         <item android:id="@+id/add"
         android:visible="true"
         android:title="@string/add_file"
