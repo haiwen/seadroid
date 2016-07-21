@@ -1057,7 +1057,10 @@ public class BrowserActivity extends BaseActivity
             @Override
             public void onTaskSuccess(){
                 ToastUtils.show(BrowserActivity.this, "Successfully created library " + dialog.getLibName());
-                // FIXME: refreshing the list of libraries is currently broken.
+                ReposFragment reposFragment = getReposFragment();
+                if (currentPosition == INDEX_LIBRARY_TAB && reposFragment != null) {
+                    reposFragment.refreshView(true, true);
+                }
             }
         });
         dialog.show(getSupportFragmentManager(), "NewLibDialogFragment");
