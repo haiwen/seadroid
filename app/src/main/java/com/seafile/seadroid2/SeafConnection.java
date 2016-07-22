@@ -1254,6 +1254,11 @@ public class SeafConnection {
         }
     }
 
+    public void deleteLib(String repoID) throws SeafException {
+        HttpRequest req = prepareApiDeleteRequest(String.format("api2/repos/%s/", repoID), null);
+        checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+    }
+
     public String getShareLink(String repoID, String path, boolean isdir) throws SeafException {
         try {
             String apiPath = String.format("api2/repos/%s/file/shared-link/", repoID);
