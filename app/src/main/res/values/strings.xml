@@ -7,8 +7,10 @@
     <string name="edit_account">Edit</string>
     <string name="delete_account">Delete</string>
     <string name="delete">Delete</string>
+    <string name="delete_lib">Are you sure you want to delete this library?</string>
     <string name="delete_file">Are you sure you want to delete this file or folder?</string>
     <string name="delete_successful">Successfully deleted</string>
+    <string name="delete_lib_title">Delete library</string>
     <string name="delete_file_f">Delete file</string>
     <string name="delete_dir">Delete folder</string>
     <string name="server_hint">Server address</string>
