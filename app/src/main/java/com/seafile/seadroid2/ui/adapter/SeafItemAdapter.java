@@ -190,7 +190,7 @@ public class SeafItemAdapter extends BaseAdapter {
             return 1;
     }
 
-    private View getRepoView(SeafRepo repo, View convertView, ViewGroup parent) {
+    private View getRepoView(final SeafRepo repo, View convertView, ViewGroup parent) {
         View view = convertView;
         Viewholder viewHolder;
 
@@ -208,13 +208,21 @@ public class SeafItemAdapter extends BaseAdapter {
         } else {
             viewHolder = (Viewholder) convertView.getTag();
         }
+
+        viewHolder.action.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mActivity.showLibBottomSheet(repo);
+            }
+        });
+
         viewHolder.multiSelect.setVisibility(View.GONE);
         viewHolder.downloadStatusIcon.setVisibility(View.GONE);
         viewHolder.progressBar.setVisibility(View.GONE);
         viewHolder.title.setText(repo.getTitle());
         viewHolder.subtitle.setText(repo.getSubtitle());
         ImageLoader.getInstance().displayImage("drawable://" + repo.getIcon(), viewHolder.icon, WidgetUtils.iconOptions);
-        viewHolder.action.setVisibility(View.INVISIBLE);
+        viewHolder.action.setVisibility(View.VISIBLE);
         return view;
     }
 

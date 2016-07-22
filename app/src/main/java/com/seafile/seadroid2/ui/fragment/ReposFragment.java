@@ -184,6 +184,20 @@ public class ReposFragment extends ListFragment {
 
     }
 
+    public void showLibBottomSheet(final SeafRepo repo) {
+        final BottomSheet.Builder builder = new BottomSheet.Builder(mActivity);
+        builder.title(repo.getName()).sheet(R.menu.bottom_sheet_op_lib).listener(new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case R.id.delete_lib:
+                        mActivity.deleteLib(repo.getID());
+                        break;
+                }
+            }
+        }).show();
+    }
+
     public void showFileBottomSheet(String title, final SeafDirent dirent) {
         final String repoName = getNavContext().getRepoName();
         final String repoID = getNavContext().getRepoID();

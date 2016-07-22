@@ -75,6 +75,7 @@ import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog.CustomAction;
 import com.seafile.seadroid2.ui.dialog.CopyMoveDialog;
 import com.seafile.seadroid2.ui.dialog.DeleteFileDialog;
+import com.seafile.seadroid2.ui.dialog.DeleteLibDialog;
 import com.seafile.seadroid2.ui.dialog.FetchFileDialog;
 import com.seafile.seadroid2.ui.dialog.NewDirDialog;
 import com.seafile.seadroid2.ui.dialog.NewFileDialog;
@@ -118,6 +119,7 @@ public class BrowserActivity extends BaseActivity
     public static final String PICK_FILE_DIALOG_FRAGMENT_TAG = "pick_file_fragment";
     public static final int REQUEST_PERMISSIONS_WRITE_EXTERNAL_STORAGE = 1;
 
+    public static final String TAG_DELETE_LIB_DIALOG_FRAGMENT = "DeleteLibDialogFragment";
     public static final String TAG_DELETE_FILE_DIALOG_FRAGMENT = "DeleteFileDialogFragment";
     public static final String TAG_DELETE_FILES_DIALOG_FRAGMENT = "DeleteFilesDialogFragment";
     public static final String TAG_RENAME_FILE_DIALOG_FRAGMENT = "RenameFileDialogFragment";
@@ -1822,6 +1824,22 @@ public class BrowserActivity extends BaseActivity
         fetchFileDialog.show(getSupportFragmentManager(), OPEN_FILE_DIALOG_FRAGMENT_TAG);
     }
 
+    public void deleteLib(String repoID) {
+        final DeleteLibDialog dialog = new DeleteLibDialog();
+        dialog.init(repoID, account);
+        dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
+            @Override
+            public void onTaskSuccess() {
+                ToastUtils.show(BrowserActivity.this, R.string.delete_successful);
+                ReposFragment reposFragment = getReposFragment();
+                if (currentPosition == INDEX_LIBRARY_TAB && reposFragment != null) {
+                    reposFragment.refreshView(true, true);
+                }
+            }
+        });
+        dialog.show(getSupportFragmentManager(), TAG_DELETE_LIB_DIALOG_FRAGMENT);
+    }
+
     /**
      * Share a file. Generating a file share link and send the link to someone
      * through some app.
@@ -2283,6 +2301,11 @@ public class BrowserActivity extends BaseActivity
         }
 
     } // TransferReceiver
+
+
+    public void showLibBottomSheet(SeafRepo repo) {
+        getReposFragment().showLibBottomSheet(repo);
+    }
 
     public void showFileBottomSheet(String title, final SeafDirent dirent) {
         getReposFragment().showFileBottomSheet(title, dirent);
