@@ -698,6 +698,10 @@ public class DataManager {
         }
     }
 
+    public void deleteLib(String repoID) throws SeafException {
+        sc.deleteLib(repoID);
+    }
+
     public void star(String repoID, String path) throws SeafException {
         sc.star(repoID, path);
     }
