@@ -12,9 +12,9 @@
     <string name="delete_file_f">Delete file</string>
     <string name="delete_dir">Delete folder</string>
     <string name="server_hint">Server address</string>
-    <string name="email_hint">Username or email address</string>
+    <string name="email_hint">Email or Username</string>
     <string name="passwd_hint">Password</string>
-    <string name="login">Login</string>
+    <string name="login">Log In</string>
     <string name="open_file">Open</string>
     <string name="download_file">Download</string>
     <string name="redownload_file">Download again</string>
