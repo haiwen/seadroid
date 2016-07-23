@@ -124,6 +124,22 @@
             </RelativeLayout>
         </RelativeLayout>
 
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/auth_token_hint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/auth_token"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/two_factor_auth_token"
+                android:inputType="number"
+                android:layout_marginBottom="@dimen/et_margin_bottom"
+                android:layout_marginLeft="@dimen/auto_complete_ed_margin_left"
+                android:layout_marginRight="@dimen/auto_complete_ed_margin_right" />
+        </android.support.design.widget.TextInputLayout>
     </LinearLayout>
 
 
