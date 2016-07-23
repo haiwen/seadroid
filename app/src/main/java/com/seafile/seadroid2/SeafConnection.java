@@ -1528,11 +1528,6 @@ public class SeafConnection {
 
             if (req.message() == null) {
                 throw SeafException.networkException;
-            } else if (req.code() == HttpURLConnection.HTTP_UNAUTHORIZED) {
-                String wiped = req.header("X-Seafile-Wiped");
-                if (wiped != null) {
-                    throw SeafException.remoteWipedException;
-                }
             } else if (req.header("X-Seafile-OTP") != null && req.header("X-Seafile-OTP").equals("required")) {
                 if (withAuthToken)
                     throw SeafException.twoFactorAuthTokenInvalid;
