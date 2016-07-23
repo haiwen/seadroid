@@ -107,6 +107,7 @@
         <item quantity="other">%1$d items selected</item>
     </plurals>
 
+    <string name="lib_name_empty">Please enter the name of the library</string>
     <string name="dir_name_empty">Please enter the name of the folder</string>
     <string name="file_name_empty">Please enter the name of the file</string>
     <string name="password_empty">Please enter the password</string>
@@ -160,6 +161,7 @@
     <string name="share_dir_link">Share a link to this folder</string>
     <string name="generating_link">Generating link&#8230;</string>
     <string name="link_ready_to_be_pasted">The link is ready to be pasted.</string>
+    <string name="rename_lib">Rename library</string>
     <string name="rename_file">Rename file</string>
     <string name="rename_dir">Rename folder</string>
     <string name="rename_successful">Renamed successfully.</string>
