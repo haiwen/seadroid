@@ -22,6 +22,7 @@ public class SeafException extends Exception {
     public static final SeafException decryptException = new SeafException(11, "decryption key or iv is null");
     public static final SeafException remoteWipedException = new SeafException(12, "Remote Wiped Error");
     public static final SeafException twoFactorAuthTokenMissing = new SeafException(13, "Two factor auth token is missing");
+    public static final SeafException twoFactorAuthTokenInvalid = new SeafException(14, "Two factor auth token is invalid");
 
     public SeafException(int code, String msg) {
         super(msg);

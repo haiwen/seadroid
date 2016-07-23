@@ -450,6 +450,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
         protected void onPostExecute(final String result) {
             progressDialog.dismiss();
             if (err == SeafException.sslException) {
+                authTokenLayout.setVisibility(View.GONE);
                 SslConfirmDialog dialog = new SslConfirmDialog(loginAccount,
                 new SslConfirmDialog.Listener() {
                     @Override
@@ -469,6 +470,13 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
             } else if (err == SeafException.twoFactorAuthTokenMissing) {
                 // show auth token input box
                 authTokenLayout.setVisibility(View.VISIBLE);
+                authTokenText.setError(getString(R.string.two_factor_auth_error));
+            } else if (err == SeafException.twoFactorAuthTokenInvalid) {
+                // show auth token input box
+                authTokenLayout.setVisibility(View.VISIBLE);
+                authTokenText.setError(getString(R.string.two_factor_auth_invalid));
+            } else {
+                authTokenLayout.setVisibility(View.GONE);
             }
 
             if (result != null && result.equals("Success")) {
@@ -515,6 +523,8 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
                     return getString(R.string.ssl_error);
                 } else if (e == SeafException.twoFactorAuthTokenMissing) {
                     return getString(R.string.two_factor_auth_error);
+                } else if (e == SeafException.twoFactorAuthTokenInvalid) {
+                    return getString(R.string.two_factor_auth_invalid);
                 }
                 switch (e.getCode()) {
                 case HttpURLConnection.HTTP_BAD_REQUEST:

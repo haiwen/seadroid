@@ -153,6 +153,7 @@ public class SeafConnection {
      * @throws SeafException
      */
     private boolean realLogin(String passwd, String authToken) throws SeafException {
+        boolean withAuthToken = false;
         HttpRequest req = null;
         try {
             req = prepareApiPostRequest("api2/auth-token/", false, null);
@@ -160,7 +161,8 @@ public class SeafConnection {
 
             if (!TextUtils.isEmpty(authToken)) {
                 req.header("X-Seafile-OTP", authToken);
-                Log.d(DEBUG_TAG, "authToken " + authToken);
+                withAuthToken = true;
+                // Log.d(DEBUG_TAG, "authToken " + authToken);
             }
 
             req.form("username", account.email);
@@ -185,7 +187,7 @@ public class SeafConnection {
             req.form("client_version", appVersion);
             req.form("platform_version", Build.VERSION.RELEASE);
 
-            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK, withAuthToken);
 
             String contentAsString = new String(req.bytes(), "UTF-8");
             JSONObject obj = Utils.parseJsonObject(contentAsString);
@@ -1512,8 +1514,30 @@ public class SeafConnection {
                 if (wiped != null) {
                     throw SeafException.remoteWipedException;
                 }
+            } else {
+                throw new SeafException(req.code(), req.message());
+            }
+        } else {
+            // Log.v(DEBUG_TAG, "HTTP request ok : " + req.url());
+        }
+    }
+
+    private void checkRequestResponseStatus(HttpRequest req, int expectedStatusCode, boolean withAuthToken) throws SeafException {
+        if (req.code() != expectedStatusCode) {
+            Log.d(DEBUG_TAG, "HTTP request failed : " + req.url() + ", " + req.code() + ", " + req.message());
+
+            if (req.message() == null) {
+                throw SeafException.networkException;
+            } else if (req.code() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+                String wiped = req.header("X-Seafile-Wiped");
+                if (wiped != null) {
+                    throw SeafException.remoteWipedException;
+                }
             } else if (req.header("X-Seafile-OTP") != null && req.header("X-Seafile-OTP").equals("required")) {
-                throw SeafException.twoFactorAuthTokenMissing;
+                if (withAuthToken)
+                    throw SeafException.twoFactorAuthTokenInvalid;
+                else
+                    throw SeafException.twoFactorAuthTokenMissing;
             } else {
                 throw new SeafException(req.code(), req.message());
             }
