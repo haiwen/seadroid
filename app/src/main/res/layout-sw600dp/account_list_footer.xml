@@ -15,6 +15,7 @@
             android:layout_marginLeft="@dimen/long_btn_margin_left"
             android:layout_marginRight="@dimen/long_btn_margin_right"
             android:text="@string/add_account"
+            android:textAllCaps="false"
             android:textColor="@color/white"
             android:textSize="@dimen/long_btn_txt_size"/>
 </LinearLayout>
