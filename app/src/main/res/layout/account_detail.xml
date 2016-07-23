@@ -68,6 +68,7 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/passwd_hint"
                 android:inputType="textPassword"
+                android:fontFamily="sans-serif"
                 android:layout_marginBottom="@dimen/et_margin_bottom"
                 android:layout_marginLeft="@dimen/auto_complete_ed_margin_left"
                 android:layout_marginRight="@dimen/auto_complete_ed_margin_right" />
@@ -85,6 +86,7 @@
             android:layout_marginRight="@dimen/long_btn_margin_right"
             android:onClick="login"
             android:text="@string/login"
+            android:textAllCaps="false"
             android:textColor="@color/white"
             android:textSize="@dimen/long_btn_txt_size"/>
 
