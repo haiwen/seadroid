@@ -190,6 +190,9 @@ public class ReposFragment extends ListFragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
+                    case R.id.rename_lib:
+                        mActivity.renameLib(repo.getID(), repo.getName());
+                        break;
                     case R.id.delete_lib:
                         mActivity.deleteLib(repo.getID());
                         break;

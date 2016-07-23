@@ -81,6 +81,7 @@ import com.seafile.seadroid2.ui.dialog.NewDirDialog;
 import com.seafile.seadroid2.ui.dialog.NewFileDialog;
 import com.seafile.seadroid2.ui.dialog.PasswordDialog;
 import com.seafile.seadroid2.ui.dialog.RenameFileDialog;
+import com.seafile.seadroid2.ui.dialog.RenameLibDialog;
 import com.seafile.seadroid2.ui.dialog.SortFilesDialogFragment;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
@@ -122,6 +123,7 @@ public class BrowserActivity extends BaseActivity
     public static final String TAG_DELETE_LIB_DIALOG_FRAGMENT = "DeleteLibDialogFragment";
     public static final String TAG_DELETE_FILE_DIALOG_FRAGMENT = "DeleteFileDialogFragment";
     public static final String TAG_DELETE_FILES_DIALOG_FRAGMENT = "DeleteFilesDialogFragment";
+    public static final String TAG_RENAME_LIB_DIALOG_FRAGMENT = "RenameLibDialogFragment";
     public static final String TAG_RENAME_FILE_DIALOG_FRAGMENT = "RenameFileDialogFragment";
     public static final String TAG_COPY_MOVE_DIALOG_FRAGMENT = "CopyMoveDialogFragment";
     public static final String TAG_SORT_FILES_DIALOG_FRAGMENT = "SortFilesDialogFragment";
@@ -1822,6 +1824,22 @@ public class BrowserActivity extends BaseActivity
             }
         });
         fetchFileDialog.show(getSupportFragmentManager(), OPEN_FILE_DIALOG_FRAGMENT_TAG);
+    }
+
+    public void renameLib(String repoID, String repoName) {
+        final RenameLibDialog dialog = new RenameLibDialog();
+        dialog.init(repoID, repoName, account);
+        dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
+            @Override
+            public void onTaskSuccess() {
+                ToastUtils.show(BrowserActivity.this, R.string.rename_successful);
+                ReposFragment reposFragment = getReposFragment();
+                if (currentPosition == INDEX_LIBRARY_TAB && reposFragment != null) {
+                    reposFragment.refreshView(true, true);
+                }
+            }
+        });
+        dialog.show(getSupportFragmentManager(), TAG_RENAME_LIB_DIALOG_FRAGMENT);
     }
 
     public void deleteLib(String repoID) {
