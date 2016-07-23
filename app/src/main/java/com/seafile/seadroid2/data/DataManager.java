@@ -698,6 +698,10 @@ public class DataManager {
         }
     }
 
+    public void renameLib(String repoID, String newName) throws SeafException {
+        sc.renameLib(repoID, newName);
+    }
+
     public void deleteLib(String repoID) throws SeafException {
         sc.deleteLib(repoID);
     }
