@@ -497,4 +497,9 @@
     <string name="clear_password_failed">Clear password failed</string>
     <string name="clear_password_warning">Do you want to clear password?</string>
     <string name="clear_password_auto">Auto clear passwords</string>
+
+    <!-- Two factor auth -->
+    <string name="two_factor_auth_error">Two-factor authentication token is required</string>
+    <string name="two_factor_auth_token">Authentication token</string>
+    <string name="two_factor_auth_token_empty">Authentication token can\`t be empty</string>
 </resources>

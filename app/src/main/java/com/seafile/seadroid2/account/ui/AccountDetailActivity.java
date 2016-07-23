@@ -7,6 +7,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.widget.Toolbar;
@@ -62,6 +63,8 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
     private TextView seahubUrlHintText;
     private ImageView clearEmail, clearPasswd, ivEyeClick;
     private RelativeLayout rlEye;
+    private TextInputLayout authTokenLayout;
+    private EditText authTokenText;
 
     private android.accounts.AccountManager mAccountManager;
     private boolean serverTextHasFocus;
@@ -87,6 +90,10 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
         clearPasswd = (ImageView) findViewById(R.id.iv_delete_pwd);
         rlEye = (RelativeLayout) findViewById(R.id.rl_layout_eye);
         ivEyeClick = (ImageView) findViewById(R.id.iv_eye_click);
+
+        authTokenLayout = (TextInputLayout) findViewById(R.id.auth_token_hint);
+        authTokenText = (EditText) findViewById(R.id.auth_token);
+        authTokenLayout.setVisibility(View.GONE);
 
         setupServerText();
 
@@ -375,6 +382,15 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
                 return;
             }
 
+            String authToken = null;
+            if (authTokenLayout.getVisibility() == View.VISIBLE) {
+                authToken = authTokenText.getText().toString().trim();
+                if (TextUtils.isEmpty(authToken)) {
+                    authTokenText.setError(getResources().getString(R.string.two_factor_auth_token_empty));
+                    return;
+                }
+            }
+
             try {
                 serverURL = Utils.cleanServerURL(serverURL);
             } catch (MalformedURLException e) {
@@ -394,7 +410,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
             progressDialog = new ProgressDialog(this);
             progressDialog.setMessage(getString(R.string.settings_cuc_loading));
             progressDialog.setCancelable(false);
-            ConcurrentAsyncTask.execute(new LoginTask(tmpAccount, passwd));
+            ConcurrentAsyncTask.execute(new LoginTask(tmpAccount, passwd, authToken));
         } else {
             statusView.setText(R.string.network_down);
         }
@@ -404,10 +420,12 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
         Account loginAccount;
         SeafException err = null;
         String passwd;
+        String authToken;
 
-        public LoginTask(Account loginAccount, String passwd) {
+        public LoginTask(Account loginAccount, String passwd, String authToken) {
             this.loginAccount = loginAccount;
             this.passwd = passwd;
+            this.authToken = authToken;
         }
 
         @Override
@@ -425,7 +443,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
         }
 
         private void resend() {
-            ConcurrentAsyncTask.execute(new LoginTask(loginAccount, passwd));
+            ConcurrentAsyncTask.execute(new LoginTask(loginAccount, passwd, authToken));
         }
 
         @Override
@@ -448,6 +466,9 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
                 });
                 dialog.show(getSupportFragmentManager(), SslConfirmDialog.FRAGMENT_TAG);
                 return;
+            } else if (err == SeafException.twoFactorAuthTokenMissing) {
+                // show auth token input box
+                authTokenLayout.setVisibility(View.VISIBLE);
             }
 
             if (result != null && result.equals("Success")) {
@@ -473,7 +494,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
 
             try {
                 // if successful, this will place the auth token into "loginAccount"
-                if (!sc.doLogin(passwd))
+                if (!sc.doLogin(passwd, authToken))
                     return getString(R.string.err_login_failed);
 
                 // fetch email address from the server
@@ -492,6 +513,8 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
                 err = e;
                 if (e == SeafException.sslException) {
                     return getString(R.string.ssl_error);
+                } else if (e == SeafException.twoFactorAuthTokenMissing) {
+                    return getString(R.string.two_factor_auth_error);
                 }
                 switch (e.getCode()) {
                 case HttpURLConnection.HTTP_BAD_REQUEST:

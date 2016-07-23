@@ -5,6 +5,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
 import android.provider.Settings.Secure;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 
@@ -151,11 +152,16 @@ public class SeafConnection {
      * @return true if login success, false otherwise
      * @throws SeafException
      */
-    private boolean realLogin(String passwd) throws SeafException {
+    private boolean realLogin(String passwd, String authToken) throws SeafException {
         HttpRequest req = null;
         try {
             req = prepareApiPostRequest("api2/auth-token/", false, null);
             // Log.d(DEBUG_TAG, "Login to " + account.server + "api2/auth-token/");
+
+            if (!TextUtils.isEmpty(authToken)) {
+                req.header("X-Seafile-OTP", authToken);
+                Log.d(DEBUG_TAG, "authToken " + authToken);
+            }
 
             req.form("username", account.email);
             req.form("password", passwd);
@@ -243,12 +249,12 @@ public class SeafConnection {
         return result;
     }
 
-    public boolean doLogin(String passwd) throws SeafException {
+    public boolean doLogin(String passwd, String authToken) throws SeafException {
         try {
-            return realLogin(passwd);
+            return realLogin(passwd, authToken);
         } catch (Exception e) {
             // do again
-            return realLogin(passwd);
+            return realLogin(passwd, authToken);
         }
     }
 
@@ -1506,6 +1512,8 @@ public class SeafConnection {
                 if (wiped != null) {
                     throw SeafException.remoteWipedException;
                 }
+            } else if (req.header("X-Seafile-OTP") != null && req.header("X-Seafile-OTP").equals("required")) {
+                throw SeafException.twoFactorAuthTokenMissing;
             } else {
                 throw new SeafException(req.code(), req.message());
             }
