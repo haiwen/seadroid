@@ -42,12 +42,10 @@
     <string name="choose_server">Choose a Seafile Server</string>
     <string-array name="choose_server_array">
         <item>SeaCloud.cc</item>
-        <item>App.seafile.de</item>
         <item>Shibboleth Login</item>
         <item>Other Seafile Server</item>
     </string-array>
     <string name="server_url_seacloud" translatable="false">https://seacloud.cc</string>
-    <string name="server_url_app_seafile" translatable="false">https://app.seafile.de</string>
     <string name="network_down">No network connection</string>
     <string name="unknow_error">Unknown error</string>
     <string name="invalid_server_address">Invalid server address</string>
