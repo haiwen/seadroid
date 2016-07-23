@@ -36,12 +36,6 @@
     <item>Overig</item>
   </string-array>
   <string name="choose_server">Kies een Seafile server</string>
-  <string-array name="choose_server_array">
-    <item>SeaCloud.cc</item>
-    <item>App.seafile.de</item>
-    <item>Aanmelden via Shibboleth</item>
-    <item>Andere Seafile-server</item>
-  </string-array>
   <string name="network_down">Geen netwerkverbinding</string>
   <string name="unknow_error">Onbekende fout</string>
   <string name="invalid_server_address">Ongeldig serveradres</string>

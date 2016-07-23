@@ -36,12 +36,6 @@
     <item>Другое</item>
   </string-array>
   <string name="choose_server">Выберите сервер Seafile</string>
-  <string-array name="choose_server_array">
-    <item>SeaCloud.cc</item>
-    <item>App.seafile.de</item>
-    <item>Shibboleth Login</item>
-    <item>Другой Seafile сервер</item>
-  </string-array>
   <string name="network_down">Нет соединения с сетью</string>
   <string name="unknow_error">Неизвестная ошибка</string>
   <string name="invalid_server_address">Неправильный адрес сервера</string>

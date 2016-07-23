@@ -36,12 +36,6 @@
     <item>Autres</item>
   </string-array>
   <string name="choose_server">Choisir un serveur Seafile</string>
-  <string-array name="choose_server_array">
-    <item>SeaCloud.cc</item>
-    <item>App.seafile.de</item>
-    <item>Connexion Shibboleth</item>
-    <item>Autre serveur Seafile</item>
-  </string-array>
   <string name="network_down">Absence de connexion réseau</string>
   <string name="unknow_error">Erreur inconnue</string>
   <string name="invalid_server_address">Nom de serveur invalide</string>
@@ -281,7 +275,7 @@
   <string name="settings_camera_upload_repo_hint">Choisissez d\'abord une bibliothèque</string>
   <string name="settings_camera_upload_turn_on">Activer l\'envoi de photos</string>
   <string name="settings_camera_upload_choose_dir">Changer d\'album</string>
-  <string name="settings_camera_upload_dir_auto_scan">Scan automatique des photos par défaut</string>
+  <string name="settings_camera_upload_dir_auto_scan">Scan auto des photos par défaut</string>
   <string name="settings_camera_upload_lib_not_found">La bibliothèque sélectionnée n’existe pas </string>
   <string name="settings_camera_upload_advanced_feature_title">Options avancées</string>
   <string name="settings_camera_upload_advanced_feature_subtitle">Options d\'envoi personnalisées</string>
@@ -461,5 +455,5 @@ E-mail : support@seafile.com<br>
   <string name="clear_password_successful">Mot de passe effacé avec succès</string>
   <string name="clear_password_failed">Echec de l\'effacement du mot de passe</string>
   <string name="clear_password_warning">Voulez-vous effacer le mot de passe ?</string>
-  <string name="clear_password_auto">Effacement automtaique des mots de passe</string>
+  <string name="clear_password_auto">Effacement auto des mots de passe</string>
 </resources>

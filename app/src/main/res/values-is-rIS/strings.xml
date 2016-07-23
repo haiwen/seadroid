@@ -32,12 +32,6 @@
     <item>Annað</item>
   </string-array>
   <string name="choose_server">Veldu Seafile Þjón</string>
-  <string-array name="choose_server_array">
-    <item>SeaCloud.cc</item>
-    <item>App.seafile.de</item>
-    <item>Shibboleth Login</item>
-    <item>Annar Seafile Þjónn</item>
-  </string-array>
   <string name="network_down">Engin nettenging</string>
   <string name="unknow_error">Óþekkt villa</string>
   <string name="invalid_server_address">Rangt vistfang</string>

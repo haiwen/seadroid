@@ -32,12 +32,6 @@
     <item>Más</item>
   </string-array>
   <string name="choose_server">Seafile szerver választás</string>
-  <string-array name="choose_server_array">
-    <item>SeaCloud.cc</item>
-    <item>App.seafile.de</item>
-    <item>Shibboleth Login</item>
-    <item>Egyéb Seafile Server</item>
-  </string-array>
   <string name="network_down">Nincs hálózati kapcsolat</string>
   <string name="unknow_error">Ismeretlen hiba</string>
   <string name="invalid_server_address">Hibás szerver cím</string>

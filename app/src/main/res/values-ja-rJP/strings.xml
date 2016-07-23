@@ -36,12 +36,6 @@
     <item>その他</item>
   </string-array>
   <string name="choose_server">Seafile サーバーを選択</string>
-  <string-array name="choose_server_array">
-    <item>SeaCloud.cc</item>
-    <item>App.seafile.de</item>
-    <item>Shibboleth ログイン</item>
-    <item>他の Seafile サーバー</item>
-  </string-array>
   <string name="network_down">ネットワーク接続がありません</string>
   <string name="unknow_error">不明なエラー</string>
   <string name="invalid_server_address">サーバーアドレスが正しくありません</string>
