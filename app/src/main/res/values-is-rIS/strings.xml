@@ -7,9 +7,7 @@
   <string name="delete">Eyða</string>
   <string name="delete_file_f">Eyða skrá</string>
   <string name="delete_dir">Eyða skráasafni</string>
-  <string name="email_hint">Notendanafn eða netfang</string>
   <string name="passwd_hint">Lykilorð</string>
-  <string name="login">Innská</string>
   <string name="open_file">Opna</string>
   <string name="download_file">Hala niður</string>
   <string name="redownload_file">Hala niður aftur</string>
@@ -399,4 +397,5 @@
   <!--permission-->
   <!--client sid encryption and decryption-->
   <!--clear password-->
+  <!--Two factor auth-->
 </resources>

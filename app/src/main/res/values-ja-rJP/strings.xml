@@ -10,7 +10,7 @@
   <string name="delete_file_f">ファイルを削除</string>
   <string name="delete_dir">フォルダーを削除</string>
   <string name="server_hint">サーバーアドレス</string>
-  <string name="email_hint">ユーザー名またはメールアドレス</string>
+  <string name="email_hint">メールアドレスまたはユーザー名</string>
   <string name="passwd_hint">パスワード</string>
   <string name="login">ログイン</string>
   <string name="open_file">開く</string>
@@ -36,6 +36,11 @@
     <item>その他</item>
   </string-array>
   <string name="choose_server">Seafile サーバーを選択</string>
+  <string-array name="choose_server_array">
+    <item>SeaCloud.cc</item>
+    <item>Shibboleth ログイン</item>
+    <item>他の Seafile サーバー</item>
+  </string-array>
   <string name="network_down">ネットワーク接続がありません</string>
   <string name="unknow_error">不明なエラー</string>
   <string name="invalid_server_address">サーバーアドレスが正しくありません</string>
@@ -174,6 +179,7 @@
   <string name="seconds_ago">%d 秒前</string>
   <string name="just_now">たった今</string>
   <string name="error_when_load_starred">スター付きファイルの読み込み時にエラー</string>
+  <string name="error_when_load_events">アクティビティの読み込み時にエラー</string>
   <string name="open_as">...として開く</string>
   <string name="select_upload_files">アップロードするファイルを選択してください</string>
   <string name="storage_removed">ストレージは削除されました</string>
@@ -448,4 +454,6 @@
   <string name="clear_password_failed">パスワードのクリアに失敗しました</string>
   <string name="clear_password_warning">パスワードをクリアしますか?</string>
   <string name="clear_password_auto">パスワードを自動クリア</string>
+  <!--Two factor auth-->
+  <string name="two_factor_auth_token_empty">認証トークンは空にできません</string>
 </resources>

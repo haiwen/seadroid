@@ -7,9 +7,7 @@
   <string name="delete">Töröl</string>
   <string name="delete_file_f">Fájl törlés</string>
   <string name="delete_dir">Könyvtár törlés</string>
-  <string name="email_hint">Felhasználói név vagy e-mail cím</string>
   <string name="passwd_hint">Jelszó</string>
-  <string name="login">Belépés</string>
   <string name="open_file">Megnyit</string>
   <string name="download_file">Letölt</string>
   <string name="redownload_file">Újra letölt</string>
@@ -399,4 +397,5 @@
   <!--permission-->
   <!--client sid encryption and decryption-->
   <!--clear password-->
+  <!--Two factor auth-->
 </resources>

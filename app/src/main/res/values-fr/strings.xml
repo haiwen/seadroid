@@ -10,9 +10,7 @@
   <string name="delete_file_f">Effacer le fichier</string>
   <string name="delete_dir">Effacer le dossier</string>
   <string name="server_hint">Serveur, par exemple cloud.seafile.com</string>
-  <string name="email_hint">Nom d\'utilisateur ou adresse de messagerie</string>
   <string name="passwd_hint">Mot de passe</string>
-  <string name="login">Connexion</string>
   <string name="open_file">Ouvrir</string>
   <string name="download_file">Télécharger</string>
   <string name="redownload_file">Télécharger à nouveau</string>
@@ -36,9 +34,14 @@
     <item>Autres</item>
   </string-array>
   <string name="choose_server">Choisir un serveur Seafile</string>
+  <string-array name="choose_server_array">
+    <item>SeaCloud.cc</item>
+    <item>Identifiant Shibboleth</item>
+    <item>Autre Serveur Seafile</item>
+  </string-array>
   <string name="network_down">Absence de connexion réseau</string>
   <string name="unknow_error">Erreur inconnue</string>
-  <string name="invalid_server_address">Nom de serveur invalide</string>
+  <string name="invalid_server_address">Adresse de serveur invalide</string>
   <string name="err_server_andress_empty">L\'adresse du serveur ne peut être vide</string>
   <string name="err_email_empty">E-mail ne peut être vide</string>
   <string name="err_passwd_empty">Le mot de passe ne peut être vide</string>
@@ -175,6 +178,7 @@
   <string name="seconds_ago">il y a %d secondes </string>
   <string name="just_now">À l\'instant</string>
   <string name="error_when_load_starred">Erreur de chargement des fichiers préférés</string>
+  <string name="error_when_load_events">Erreur lors du chargements des activités</string>
   <string name="open_as">Ouvrir comme</string>
   <string name="select_upload_files">Sélectionner les fichiers à envoyer</string>
   <string name="storage_removed">Le stockage a été supprimé</string>
@@ -456,4 +460,5 @@ E-mail : support@seafile.com<br>
   <string name="clear_password_failed">Echec de l\'effacement du mot de passe</string>
   <string name="clear_password_warning">Voulez-vous effacer le mot de passe ?</string>
   <string name="clear_password_auto">Effacement auto des mots de passe</string>
+  <!--Two factor auth-->
 </resources>

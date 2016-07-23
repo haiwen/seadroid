@@ -10,9 +10,7 @@
   <string name="delete_file_f">Datei löschen</string>
   <string name="delete_dir">Ordner löschen</string>
   <string name="server_hint">Server, z.B. cloud.seafile.com</string>
-  <string name="email_hint">Benutzername oder E-Mail-Adresse</string>
   <string name="passwd_hint">Passwort</string>
-  <string name="login">Anmelden</string>
   <string name="open_file">Öffnen</string>
   <string name="download_file">Herunterladen</string>
   <string name="redownload_file">Erneut herunterladen</string>
@@ -36,6 +34,11 @@
     <item>Andere</item>
   </string-array>
   <string name="choose_server">Bitte wählen Sie einen Seafile-Server aus</string>
+  <string-array name="choose_server_array">
+    <item>SeaCloud.cc</item>
+    <item>Shibboleth-Login</item>
+    <item>Anderer Seafile-Server</item>
+  </string-array>
   <string name="network_down">Keine Netzwerkverbindung</string>
   <string name="unknow_error">Unbekannter Fehler</string>
   <string name="invalid_server_address">Ungültige Serveradresse</string>
@@ -177,6 +180,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="seconds_ago">vor %d Sekunden</string>
   <string name="just_now">Gerade eben</string>
   <string name="error_when_load_starred">Informationen zu Favoriten konnten nicht geladen werden</string>
+  <string name="error_when_load_events">Fehler beim Laden der Aktivitäten</string>
   <string name="open_as">Öffnen als</string>
   <string name="select_upload_files">Dateien zum Hochladen auswählen</string>
   <string name="storage_removed">Speicher wurde entfernt</string>
@@ -459,4 +463,5 @@ Zum Aktualisieren einmal antippen</string>
   <string name="clear_password_failed">Fehler: Das Passwort konnte nicht gelöscht werden</string>
   <string name="clear_password_warning">Möchten Sie das Passwort löschen?</string>
   <string name="clear_password_auto">Passwörter automatisch löschen</string>
+  <!--Two factor auth-->
 </resources>

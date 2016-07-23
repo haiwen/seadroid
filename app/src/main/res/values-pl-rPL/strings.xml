@@ -10,9 +10,7 @@
   <string name="delete_file_f">Usuń plik</string>
   <string name="delete_dir">Usuń folder</string>
   <string name="server_hint">Adres serwera</string>
-  <string name="email_hint">Nazwa użytkownika lub adres email</string>
   <string name="passwd_hint">Hasło</string>
-  <string name="login">Login</string>
   <string name="open_file">Otwórz</string>
   <string name="download_file">Pobierz</string>
   <string name="redownload_file">Pobierz ponownie</string>
@@ -36,6 +34,11 @@
     <item>Inne</item>
   </string-array>
   <string name="choose_server">Wybierz serwer Seafile</string>
+  <string-array name="choose_server_array">
+    <item>SeaCloud.cc</item>
+    <item>Logowanie Shibboleth</item>
+    <item>Inny serwer Seafile</item>
+  </string-array>
   <string name="network_down">Brak połączenia z siecią</string>
   <string name="unknow_error">Nieznany błąd</string>
   <string name="invalid_server_address">Nieprawidłowy adres serwera</string>
@@ -176,6 +179,7 @@
   <string name="seconds_ago">%d sekundy temu</string>
   <string name="just_now">Przed chwilą</string>
   <string name="error_when_load_starred">Błąd podczas wczytywania ulubionych plików</string>
+  <string name="error_when_load_events">Błąd podczas wczytywania aktywności</string>
   <string name="open_as">Otwórz jako</string>
   <string name="select_upload_files">Wybierz pliki do przesłania</string>
   <string name="storage_removed">Magazyn został usunięty</string>
@@ -466,4 +470,5 @@
   <string name="clear_password_failed">Nie udało się wyczyścić hasła</string>
   <string name="clear_password_warning">Czy chcesz wyczyścić hasło?</string>
   <string name="clear_password_auto">Automatycznie czyść hasła</string>
+  <!--Two factor auth-->
 </resources>

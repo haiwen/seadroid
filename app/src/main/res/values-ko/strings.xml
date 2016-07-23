@@ -10,9 +10,7 @@
   <string name="delete_file_f">파일 삭제</string>
   <string name="delete_dir">폴더 삭제</string>
   <string name="server_hint">서버 주소</string>
-  <string name="email_hint">사용자 이름 또는 전자메일 주소</string>
   <string name="passwd_hint">암호</string>
-  <string name="login">로그인</string>
   <string name="open_file">열기</string>
   <string name="download_file">다운로드</string>
   <string name="redownload_file">다시 다운로드</string>
@@ -447,4 +445,5 @@
   <string name="clear_password_successful">암호 삭제에 성공했습니다</string>
   <string name="clear_password_failed">암호 삭제에 실패했습니다</string>
   <string name="clear_password_warning">암호를 삭제할까요?</string>
+  <!--Two factor auth-->
 </resources>

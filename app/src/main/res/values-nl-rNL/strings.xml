@@ -10,9 +10,7 @@
   <string name="delete_file_f">Bestand verwijderen</string>
   <string name="delete_dir">Map verwijderen</string>
   <string name="server_hint">Server, zoals cloud.seafile.com</string>
-  <string name="email_hint">Gebruikersnaam of e-mailadres</string>
   <string name="passwd_hint">Wachtwoord</string>
-  <string name="login">Aanmelden</string>
   <string name="open_file">Open</string>
   <string name="download_file">Download</string>
   <string name="redownload_file">Opnieuw downloaden</string>
@@ -432,4 +430,5 @@
   <string name="clear_password_successful">Wachtwoord verwijderen gelukt</string>
   <string name="clear_password_failed">Wachtwoord verwijderen mislukt</string>
   <string name="clear_password_warning">Wil je het wachtwoord verwijderen?</string>
+  <!--Two factor auth-->
 </resources>

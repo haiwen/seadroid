@@ -10,7 +10,7 @@
   <string name="delete_file_f">删除文件</string>
   <string name="delete_dir">删除文件夹</string>
   <string name="server_hint">服务器地址</string>
-  <string name="email_hint">用户名或邮箱</string>
+  <string name="email_hint">邮箱或用户名</string>
   <string name="passwd_hint">密码</string>
   <string name="login">登录</string>
   <string name="open_file">打开</string>
@@ -179,6 +179,7 @@
   <string name="seconds_ago">%d秒前</string>
   <string name="just_now">刚刚更新</string>
   <string name="error_when_load_starred">加载星标文件失败</string>
+  <string name="error_when_load_events">加载活动时失败</string>
   <string name="open_as">打开为</string>
   <string name="select_upload_files">请选择要上传的文件</string>
   <string name="storage_removed">存储卡已被移出</string>
@@ -453,4 +454,9 @@
   <string name="clear_password_failed">清除密码失败</string>
   <string name="clear_password_warning">你想清除密码吗？</string>
   <string name="clear_password_auto">自动清除密码</string>
+  <!--Two factor auth-->
+  <string name="two_factor_auth_error">请输入验证码</string>
+  <string name="two_factor_auth_invalid">验证码无效</string>
+  <string name="two_factor_auth_token">两步验证码</string>
+  <string name="two_factor_auth_token_empty">验证码不能为空</string>
 </resources>

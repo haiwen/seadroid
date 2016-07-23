@@ -8,7 +8,6 @@
   <string name="delete_file_f">Odstranit soubor</string>
   <string name="delete_dir">Odstranit složku</string>
   <string name="passwd_hint">Heslo</string>
-  <string name="login">Přihlásit</string>
   <string name="open_file">Otevřít</string>
   <string name="download_file">Stáhnout</string>
   <string name="redownload_file">Stáhnout znovu</string>
@@ -274,4 +273,5 @@
   <!--permission-->
   <!--client sid encryption and decryption-->
   <!--clear password-->
+  <!--Two factor auth-->
 </resources>

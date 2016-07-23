@@ -8,7 +8,6 @@
   <string name="delete_file_f">Deletar arquivo</string>
   <string name="delete_dir">Deletar pasta</string>
   <string name="passwd_hint">Senha</string>
-  <string name="login">Usuario</string>
   <string name="open_file">Abrir</string>
   <string name="download_file">Descarregar</string>
   <string name="redownload_file">Descarregar denovo</string>
@@ -332,4 +331,5 @@
   <!--permission-->
   <!--client sid encryption and decryption-->
   <!--clear password-->
+  <!--Two factor auth-->
 </resources>

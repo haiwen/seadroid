@@ -10,9 +10,7 @@
   <string name="delete_file_f">Удалить файл</string>
   <string name="delete_dir">Удалить папку</string>
   <string name="server_hint">Адрес сервера</string>
-  <string name="email_hint">Логин или email</string>
   <string name="passwd_hint">Пароль</string>
-  <string name="login">Войти</string>
   <string name="open_file">Открыть</string>
   <string name="download_file">Скачать</string>
   <string name="redownload_file">Скачать еще раз</string>
@@ -36,6 +34,11 @@
     <item>Другое</item>
   </string-array>
   <string name="choose_server">Выберите сервер Seafile</string>
+  <string-array name="choose_server_array">
+    <item>SeaCloud.cc</item>
+    <item>Shibboleth Login</item>
+    <item>Другой Seafile сервер</item>
+  </string-array>
   <string name="network_down">Нет соединения с сетью</string>
   <string name="unknow_error">Неизвестная ошибка</string>
   <string name="invalid_server_address">Неправильный адрес сервера</string>
@@ -177,6 +180,7 @@
   <string name="seconds_ago">%d секунд назад</string>
   <string name="just_now">Прямо сейчас</string>
   <string name="error_when_load_starred">Ошибка загрузки помеченных файлов</string>
+  <string name="error_when_load_events">Ошибка загрузки действий</string>
   <string name="open_as">Открыть как</string>
   <string name="select_upload_files">Выберите файлы для загрузки</string>
   <string name="storage_removed">Хранилище было удалено</string>
@@ -475,4 +479,5 @@
   <string name="clear_password_failed">Удаление пароля прошло неудачно</string>
   <string name="clear_password_warning">Вы хотите удалить пароль?</string>
   <string name="clear_password_auto">Автоматический сброс паролей</string>
+  <!--Two factor auth-->
 </resources>

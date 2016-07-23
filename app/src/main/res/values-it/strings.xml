@@ -8,7 +8,6 @@
   <string name="delete_file_f">Cancella file</string>
   <string name="delete_dir">Cancella cartella</string>
   <string name="passwd_hint">Password</string>
-  <string name="login">Login</string>
   <string name="open_file">Apri</string>
   <string name="download_file">Scarica</string>
   <string name="redownload_file">Scarica nuovamente</string>
@@ -149,4 +148,5 @@
   <!--permission-->
   <!--client sid encryption and decryption-->
   <!--clear password-->
+  <!--Two factor auth-->
 </resources>
