@@ -40,7 +40,6 @@ public class NewRepoDialog extends TaskDialog {
 
     // The input fields of the dialog
     private EditText mRepoNameText;
-    //  Use plain text field to avoid having to compare two obfuscated fields
     private EditText mPasswordText;
 
     private Account mAccount;

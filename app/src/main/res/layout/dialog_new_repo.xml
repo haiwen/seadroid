@@ -24,6 +24,6 @@
         android:layout_height="wrap_content"
         android:background="@drawable/edit_text_holo_light"
         android:textSize="@dimen/dialog_msg_txt_size"
-        android:inputType="text" />
+        android:inputType="textPassword" />
 
 </LinearLayout>
