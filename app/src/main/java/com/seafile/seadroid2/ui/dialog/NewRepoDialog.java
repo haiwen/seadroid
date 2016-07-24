@@ -43,6 +43,7 @@ public class NewRepoDialog extends TaskDialog {
     // The input fields of the dialog
     private EditText mRepoNameText;
     private SwitchCompat mEncryptSwitch;
+    //  Use plain text field to avoid having to compare two obfuscated fields
     private EditText mPasswordText;
     private EditText mPasswordConfirmationText;
 
