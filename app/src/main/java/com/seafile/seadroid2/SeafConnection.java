@@ -1032,9 +1032,9 @@ public class SeafConnection {
         }
     }
 
-    public void createNewLib(String libName, String description, String password) throws SeafException {
+    public void createNewRepo(String repoName, String description, String password) throws SeafException {
         HttpRequest req = prepareApiPostRequest("api2/repos/", true, null);
-        req.form("name", libName);
+        req.form("name", repoName);
 
         if (description.length() > 0) {
             req.form("desc", description);

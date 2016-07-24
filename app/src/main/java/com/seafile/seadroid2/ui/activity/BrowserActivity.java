@@ -78,7 +78,7 @@ import com.seafile.seadroid2.ui.dialog.DeleteFileDialog;
 import com.seafile.seadroid2.ui.dialog.FetchFileDialog;
 import com.seafile.seadroid2.ui.dialog.NewDirDialog;
 import com.seafile.seadroid2.ui.dialog.NewFileDialog;
-import com.seafile.seadroid2.ui.dialog.NewLibDialog;
+import com.seafile.seadroid2.ui.dialog.NewRepoDialog;
 import com.seafile.seadroid2.ui.dialog.PasswordDialog;
 import com.seafile.seadroid2.ui.dialog.RenameFileDialog;
 import com.seafile.seadroid2.ui.dialog.SortFilesDialogFragment;
@@ -119,6 +119,7 @@ public class BrowserActivity extends BaseActivity
     public static final String PICK_FILE_DIALOG_FRAGMENT_TAG = "pick_file_fragment";
     public static final int REQUEST_PERMISSIONS_WRITE_EXTERNAL_STORAGE = 1;
 
+    public static final String TAG_NEW_REPO_DIALOG_FRAGMENT = "NewRepoDialogFragment";
     public static final String TAG_DELETE_FILE_DIALOG_FRAGMENT = "DeleteFileDialogFragment";
     public static final String TAG_DELETE_FILES_DIALOG_FRAGMENT = "DeleteFilesDialogFragment";
     public static final String TAG_RENAME_FILE_DIALOG_FRAGMENT = "RenameFileDialogFragment";
@@ -481,8 +482,8 @@ public class BrowserActivity extends BaseActivity
                 Intent searchIntent = new Intent(this, SearchActivity.class);
                 startActivity(searchIntent);
                 return true;
-            case R.id.create_lib:
-                showNewLibDialog();
+            case R.id.create_repo:
+                showNewRepoDialog();
                 return true;
             case R.id.add:
                 addFile();
@@ -933,13 +934,13 @@ public class BrowserActivity extends BaseActivity
         menuSearch = menu.findItem(R.id.search);
         MenuItem menuSort = menu.findItem(R.id.sort);
         MenuItem menuAdd = menu.findItem(R.id.add);
-        MenuItem menuCreateLib = menu.findItem(R.id.create_lib);
+        MenuItem menuCreateRepo = menu.findItem(R.id.create_repo);
         MenuItem menuEdit = menu.findItem(R.id.edit);
 
         // Libraries Tab
         if (currentPosition == 0) {
             if (navContext.inRepo()) {
-                menuCreateLib.setVisible(false);
+                menuCreateRepo.setVisible(false);
                 menuAdd.setVisible(true);
                 menuEdit.setVisible(true);
                 if (hasRepoWritePermission()) {
@@ -951,7 +952,7 @@ public class BrowserActivity extends BaseActivity
                 }
 
             } else {
-                menuCreateLib.setVisible(true);
+                menuCreateRepo.setVisible(true);
                 menuAdd.setVisible(false);
                 menuEdit.setVisible(false);
             }
@@ -959,7 +960,7 @@ public class BrowserActivity extends BaseActivity
             menuSort.setVisible(true);
         } else {
             menuSort.setVisible(false);
-            menuCreateLib.setVisible(false);
+            menuCreateRepo.setVisible(false);
             menuAdd.setVisible(false);
             menuEdit.setVisible(false);
         }
@@ -1048,22 +1049,25 @@ public class BrowserActivity extends BaseActivity
     }
 
     /**
-     * create a new lib
+     * create a new repo
      */
-    private void showNewLibDialog() {
-        final NewLibDialog dialog = new NewLibDialog();
+    private void showNewRepoDialog() {
+        final NewRepoDialog dialog = new NewRepoDialog();
         dialog.init(account);
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess(){
-                ToastUtils.show(BrowserActivity.this, "Successfully created library " + dialog.getLibName());
+                ToastUtils.show(
+                    BrowserActivity.this,
+                    String.format(getResources().getString(R.string.create_new_repo_success), dialog.getRepoName())
+                );
                 ReposFragment reposFragment = getReposFragment();
                 if (currentPosition == INDEX_LIBRARY_TAB && reposFragment != null) {
                     reposFragment.refreshView(true, true);
                 }
             }
         });
-        dialog.show(getSupportFragmentManager(), "NewLibDialogFragment");
+        dialog.show(getSupportFragmentManager(), TAG_NEW_REPO_DIALOG_FRAGMENT);
     }
 
     /**

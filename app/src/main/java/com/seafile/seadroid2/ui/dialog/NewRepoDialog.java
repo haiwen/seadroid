@@ -12,15 +12,15 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 
-class NewLibTask extends TaskDialog.Task {
+class NewRepoTask extends TaskDialog.Task {
 
-    private String mLibName;
+    private String mRepoName;
     private String mDescription;
     private String mPassword;
     private DataManager mDataManager;
 
-    public NewLibTask(String libName, String description, String password, DataManager dataManager) {
-        mLibName = libName;
+    public NewRepoTask(String repoName, String description, String password, DataManager dataManager) {
+        mRepoName = repoName;
         mDescription = description;
         mPassword = password;
         mDataManager = dataManager;
@@ -29,19 +29,19 @@ class NewLibTask extends TaskDialog.Task {
     @Override
     protected void runTask() {
         try {
-            mDataManager.createNewLib(mLibName, mDescription, mPassword);
+            mDataManager.createNewRepo(mRepoName, mDescription, mPassword);
         } catch (SeafException e) {
             setTaskException(e);
         }
     }
 }
 
-public class NewLibDialog extends TaskDialog {
+public class NewRepoDialog extends TaskDialog {
 
-    private final static String STATE_ACCOUNT = "new_lib_dialog.account";
+    private final static String STATE_ACCOUNT = "new_repo_dialog.account";
 
     // The input fields of the dialog
-    private EditText mLibNameText;
+    private EditText mRepoNameText;
     private EditText mDescriptionText;
     //  Use plain text field to avoid having to compare two obfuscated fields
     private EditText mPasswordText;
@@ -62,16 +62,16 @@ public class NewLibDialog extends TaskDialog {
         return mDataManager;
     }
 
-    public String getLibName() { return mLibNameText.getText().toString().trim(); }
+    public String getRepoName() { return mRepoNameText.getText().toString().trim(); }
     private String getDescription() { return mDescriptionText.getText().toString().trim(); }
     private String getPassword() { return mPasswordText.getText().toString().trim(); }
 
     @Override
     protected View createDialogContentView(LayoutInflater inflater, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.dialog_new_lib, null);
-        mLibNameText = (EditText) view.findViewById(R.id.new_lib_name);
-        mDescriptionText = (EditText) view.findViewById(R.id.new_lib_description);
-        mPasswordText = (EditText) view.findViewById(R.id.new_lib_password);
+        View view = inflater.inflate(R.layout.dialog_new_repo, null);
+        mRepoNameText = (EditText) view.findViewById(R.id.new_repo_name);
+        mDescriptionText = (EditText) view.findViewById(R.id.new_repo_description);
+        mPasswordText = (EditText) view.findViewById(R.id.new_repo_password);
 
         if (savedInstanceState != null) {
             // Restore state
@@ -89,26 +89,26 @@ public class NewLibDialog extends TaskDialog {
 
     @Override
     protected void onDialogCreated(Dialog dialog) {
-        dialog.setTitle(R.string.create_new_lib);
+        dialog.setTitle(R.string.create_new_repo);
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
     }
 
     @Override
     protected void onValidateUserInput() throws Exception {
-        if (getLibName().length() == 0) {
-            throw new Exception(getResources().getString(R.string.lib_name_empty));
+        if (getRepoName().length() == 0) {
+            throw new Exception(getResources().getString(R.string.repo_name_empty));
         }
     }
 
     @Override
-    protected NewLibTask prepareTask() {
-        return new NewLibTask(getLibName(), getDescription(), getPassword(), getDataManager());
+    protected NewRepoTask prepareTask() {
+        return new NewRepoTask(getRepoName(), getDescription(), getPassword(), getDataManager());
     }
 
     @Override
     protected void disableInput() {
         super.disableInput();
-        mLibNameText.setEnabled(false);
+        mRepoNameText.setEnabled(false);
         mDescriptionText.setEnabled(false);
         mPasswordText.setEnabled(false);
     }
@@ -116,7 +116,7 @@ public class NewLibDialog extends TaskDialog {
     @Override
     protected void enableInput() {
         super.enableInput();
-        mLibNameText.setEnabled(true);
+        mRepoNameText.setEnabled(true);
         mDescriptionText.setEnabled(true);
         mPasswordText.setEnabled(true);
     }

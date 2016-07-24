@@ -9,7 +9,7 @@
     android:paddingTop="10dp" >
 
     <EditText
-        android:id="@+id/new_lib_name"
+        android:id="@+id/new_repo_name"
         android:hint="@string/name_hint"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -18,7 +18,7 @@
         android:inputType="text" />
 
     <EditText
-        android:id="@+id/new_lib_description"
+        android:id="@+id/new_repo_description"
         android:hint="@string/description_hint"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -27,7 +27,7 @@
         android:inputType="text" />
 
     <EditText
-        android:id="@+id/new_lib_password"
+        android:id="@+id/new_repo_password"
         android:hint="@string/passwd_hint"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
