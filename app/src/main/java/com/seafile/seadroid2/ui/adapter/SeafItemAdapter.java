@@ -212,7 +212,7 @@ public class SeafItemAdapter extends BaseAdapter {
         viewHolder.action.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mActivity.showLibBottomSheet(repo);
+                mActivity.showRepoBottomSheet(repo);
             }
         });
 

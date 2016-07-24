@@ -10,12 +10,12 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 
-class DeleteLibTask extends TaskDialog.Task {
+class DeleteRepoTask extends TaskDialog.Task {
 
     private String mRepoID;
     private DataManager mDataManager;
 
-    public DeleteLibTask(String repoID, DataManager dataManager) {
+    public DeleteRepoTask(String repoID, DataManager dataManager) {
         mRepoID = repoID;
         mDataManager = dataManager;
     }
@@ -23,17 +23,17 @@ class DeleteLibTask extends TaskDialog.Task {
     @Override
     protected void runTask() {
         try {
-            mDataManager.deleteLib(mRepoID);
+            mDataManager.deleteRepo(mRepoID);
         } catch (SeafException e) {
             setTaskException(e);
         }
     }
 }
 
-public class DeleteLibDialog extends TaskDialog {
+public class DeleteRepoDialog extends TaskDialog {
 
-    private final static String STATE_REPO_ID = "delete_lib_dialog.repo_id";
-    private final static String STATE_ACCOUNT = "delete_lib_dialog.account";
+    private final static String STATE_REPO_ID = "delete_repo_dialog.repo_id";
+    private final static String STATE_ACCOUNT = "delete_repo_dialog.account";
 
     private String mRepoID;
     private Account mAccount;
@@ -54,7 +54,7 @@ public class DeleteLibDialog extends TaskDialog {
 
     @Override
     protected View createDialogContentView(LayoutInflater inflater, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.dialog_delete_lib, null);
+        View view = inflater.inflate(R.layout.dialog_delete_repo, null);
 
         if (savedInstanceState != null) {
             // Restore state
@@ -75,11 +75,11 @@ public class DeleteLibDialog extends TaskDialog {
     @Override
     protected void onDialogCreated(Dialog dialog) {
         super.onDialogCreated(dialog);
-        dialog.setTitle(R.string.delete_lib_title);
+        dialog.setTitle(R.string.delete_repo_title);
     }
 
     @Override
-    protected DeleteLibTask prepareTask() {
-        return new DeleteLibTask(mRepoID, getDataManager());
+    protected DeleteRepoTask prepareTask() {
+        return new DeleteRepoTask(mRepoID, getDataManager());
     }
 }

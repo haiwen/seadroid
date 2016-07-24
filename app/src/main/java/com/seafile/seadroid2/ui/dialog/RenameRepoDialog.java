@@ -12,14 +12,14 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 
-class RenameLibTask extends TaskDialog.Task {
+class RenameRepoTask extends TaskDialog.Task {
 
     private String mRepoID;
     private String mCurrentName;
     private String mNewName;
     private DataManager mDataManager;
 
-    public RenameLibTask(String repoID, String currentName, String newName, DataManager dataManager) {
+    public RenameRepoTask(String repoID, String currentName, String newName, DataManager dataManager) {
         mRepoID = repoID;
         mCurrentName = currentName;
         mNewName = newName;
@@ -31,25 +31,25 @@ class RenameLibTask extends TaskDialog.Task {
         if (mNewName.equals(mCurrentName)) { return; }
 
         try {
-            mDataManager.renameLib(mRepoID, mNewName);
+            mDataManager.renameRepo(mRepoID, mNewName);
         } catch (SeafException e) {
             setTaskException(e);
         }
     }
 }
 
-public class RenameLibDialog extends TaskDialog {
+public class RenameRepoDialog extends TaskDialog {
 
-    private final static String STATE_REPO_ID = "rename_lib_dialog.repo_id";
-    private final static String STATE_CURRENT_NAME = "rename_lib_dialog.current_name";
-    private final static String STATE_ACCOUNT = "rename_lib_dialog.account";
+    private final static String STATE_REPO_ID = "rename_repo_dialog.repo_id";
+    private final static String STATE_CURRENT_NAME = "rename_repo_dialog.current_name";
+    private final static String STATE_ACCOUNT = "rename_repo_dialog.account";
 
     private String mRepoID;
     private String mCurrentName;
     private Account mAccount;
     private DataManager mDataManager;
 
-    private EditText mLibNameText;
+    private EditText mRepoNameText;
 
     public void init(String repoID, String currentName, Account account) {
         mRepoID = repoID;
@@ -65,12 +65,12 @@ public class RenameLibDialog extends TaskDialog {
         return mDataManager;
     }
 
-    private String getNewName() { return mLibNameText.getText().toString().trim(); }
+    private String getNewName() { return mRepoNameText.getText().toString().trim(); }
 
     @Override
     protected View createDialogContentView(LayoutInflater inflater, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_new_file, null);
-        mLibNameText = (EditText) view.findViewById(R.id.new_file_name);
+        mRepoNameText = (EditText) view.findViewById(R.id.new_file_name);
 
         if (savedInstanceState != null) {
             mRepoID = savedInstanceState.getString(STATE_REPO_ID);
@@ -78,8 +78,8 @@ public class RenameLibDialog extends TaskDialog {
             mAccount = (Account)savedInstanceState.getParcelable(STATE_ACCOUNT);
         }
 
-        mLibNameText.setText(mCurrentName);
-        mLibNameText.setSelection(mCurrentName.length());
+        mRepoNameText.setText(mCurrentName);
+        mRepoNameText.setSelection(mCurrentName.length());
 
         return view;
     }
@@ -87,7 +87,7 @@ public class RenameLibDialog extends TaskDialog {
     @Override
     protected void onDialogCreated(Dialog dialog) {
         super.onDialogCreated(dialog);
-        dialog.setTitle(R.string.rename_lib);
+        dialog.setTitle(R.string.rename_repo);
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
     }
 
@@ -104,7 +104,7 @@ public class RenameLibDialog extends TaskDialog {
         super.onValidateUserInput();
 
         if (getNewName().length() == 0) {
-            throw new Exception(getResources().getString(R.string.lib_name_empty));
+            throw new Exception(getResources().getString(R.string.repo_name_empty));
         }
 
     }
@@ -112,18 +112,18 @@ public class RenameLibDialog extends TaskDialog {
     @Override
     protected void disableInput() {
         super.disableInput();
-        mLibNameText.setEnabled(false);
+        mRepoNameText.setEnabled(false);
     }
 
     @Override
     protected void enableInput() {
         super.enableInput();
-        mLibNameText.setEnabled(true);
+        mRepoNameText.setEnabled(true);
     }
 
     @Override
     protected Task prepareTask() {
-        return new RenameLibTask(mRepoID, mCurrentName, getNewName(), getDataManager());
+        return new RenameRepoTask(mRepoID, mCurrentName, getNewName(), getDataManager());
     }
 }
 

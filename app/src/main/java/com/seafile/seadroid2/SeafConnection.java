@@ -1254,7 +1254,7 @@ public class SeafConnection {
         }
     }
 
-    public void renameLib(String repoID, String newName) throws SeafException {
+    public void renameRepo(String repoID, String newName) throws SeafException {
         Map<String, Object> params = Maps.newHashMap();
         params.put("op", "rename");
 
@@ -1264,7 +1264,7 @@ public class SeafConnection {
         checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
     }
 
-    public void deleteLib(String repoID) throws SeafException {
+    public void deleteRepo(String repoID) throws SeafException {
         HttpRequest req = prepareApiDeleteRequest(String.format("api2/repos/%s/", repoID), null);
         checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
     }
