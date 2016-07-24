@@ -18,15 +18,6 @@
         android:inputType="text" />
 
     <EditText
-        android:id="@+id/new_repo_description"
-        android:hint="@string/description_hint"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/edit_text_holo_light"
-        android:textSize="@dimen/dialog_msg_txt_size"
-        android:inputType="text" />
-
-    <EditText
         android:id="@+id/new_repo_password"
         android:hint="@string/passwd_hint"
         android:layout_width="match_parent"

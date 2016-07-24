@@ -15,13 +15,11 @@ import com.seafile.seadroid2.data.DataManager;
 class NewRepoTask extends TaskDialog.Task {
 
     private String mRepoName;
-    private String mDescription;
     private String mPassword;
     private DataManager mDataManager;
 
-    public NewRepoTask(String repoName, String description, String password, DataManager dataManager) {
+    public NewRepoTask(String repoName, String password, DataManager dataManager) {
         mRepoName = repoName;
-        mDescription = description;
         mPassword = password;
         mDataManager = dataManager;
     }
@@ -29,7 +27,7 @@ class NewRepoTask extends TaskDialog.Task {
     @Override
     protected void runTask() {
         try {
-            mDataManager.createNewRepo(mRepoName, mDescription, mPassword);
+            mDataManager.createNewRepo(mRepoName, mPassword);
         } catch (SeafException e) {
             setTaskException(e);
         }
@@ -42,7 +40,6 @@ public class NewRepoDialog extends TaskDialog {
 
     // The input fields of the dialog
     private EditText mRepoNameText;
-    private EditText mDescriptionText;
     //  Use plain text field to avoid having to compare two obfuscated fields
     private EditText mPasswordText;
 
@@ -63,14 +60,12 @@ public class NewRepoDialog extends TaskDialog {
     }
 
     public String getRepoName() { return mRepoNameText.getText().toString().trim(); }
-    private String getDescription() { return mDescriptionText.getText().toString().trim(); }
     private String getPassword() { return mPasswordText.getText().toString().trim(); }
 
     @Override
     protected View createDialogContentView(LayoutInflater inflater, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_new_repo, null);
         mRepoNameText = (EditText) view.findViewById(R.id.new_repo_name);
-        mDescriptionText = (EditText) view.findViewById(R.id.new_repo_description);
         mPasswordText = (EditText) view.findViewById(R.id.new_repo_password);
 
         if (savedInstanceState != null) {
@@ -102,14 +97,13 @@ public class NewRepoDialog extends TaskDialog {
 
     @Override
     protected NewRepoTask prepareTask() {
-        return new NewRepoTask(getRepoName(), getDescription(), getPassword(), getDataManager());
+        return new NewRepoTask(getRepoName(), getPassword(), getDataManager());
     }
 
     @Override
     protected void disableInput() {
         super.disableInput();
         mRepoNameText.setEnabled(false);
-        mDescriptionText.setEnabled(false);
         mPasswordText.setEnabled(false);
     }
 
@@ -117,7 +111,6 @@ public class NewRepoDialog extends TaskDialog {
     protected void enableInput() {
         super.enableInput();
         mRepoNameText.setEnabled(true);
-        mDescriptionText.setEnabled(true);
         mPasswordText.setEnabled(true);
     }
 }

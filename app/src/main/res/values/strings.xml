@@ -12,7 +12,6 @@
     <string name="delete_file_f">Delete file</string>
     <string name="delete_dir">Delete folder</string>
     <string name='name_hint'>Name</string>
-    <string name="description_hint">Description</string>
     <string name="server_hint">Server address</string>
     <string name="email_hint">Username or email address</string>
     <string name="passwd_hint">Password</string>
