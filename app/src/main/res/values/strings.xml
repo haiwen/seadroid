@@ -134,7 +134,7 @@
         <item>Download folder</item>
         <item>Download folder and subfolders</item>
     </string-array>
-    <string name="add_repo">Add</string>
+    <string name="add_repo">New Library</string>
     <string name="add_file">Add</string>
     <string-array name="add_file_options_array">
         <item>Create file</item>
