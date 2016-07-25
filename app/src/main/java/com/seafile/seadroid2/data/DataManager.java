@@ -652,6 +652,10 @@ public class DataManager {
         addCachedFile(repoName, repoID, path, newFileID, fileInRepo);
     }
 
+    public void createNewRepo(String repoName, String password) throws SeafException {
+        sc.createNewRepo(repoName, "", password);
+    }
+
     public void createNewDir(String repoID, String parentDir, String dirName) throws SeafException {
         Pair<String, String> ret = sc.createNewDir(repoID, parentDir, dirName);
         if (ret == null) {

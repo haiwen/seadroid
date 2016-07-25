@@ -11,6 +11,7 @@
     <string name="delete_successful">Successfully deleted</string>
     <string name="delete_file_f">Delete file</string>
     <string name="delete_dir">Delete folder</string>
+    <string name='name_hint'>Name</string>
     <string name="server_hint">Server address</string>
     <string name="email_hint">Email or Username</string>
     <string name="passwd_hint">Password</string>
@@ -101,6 +102,7 @@
         <item quantity="other">%1$d items selected</item>
     </plurals>
 
+    <string name="repo_name_empty">Please enter the name of the library</string>
     <string name="dir_name_empty">Please enter the name of the folder</string>
     <string name="file_name_empty">Please enter the name of the file</string>
     <string name="password_empty">Please enter the password</string>
@@ -129,6 +131,7 @@
         <item>Download folder</item>
         <item>Download folder and subfolders</item>
     </string-array>
+    <string name="add_repo">New Library</string>
     <string name="add_file">Add</string>
     <string-array name="add_file_options_array">
         <item>Create file</item>
@@ -136,6 +139,8 @@
         <item>Upload file</item>
         <item>Take a photo</item>
     </string-array>
+    <string name="create_new_repo">Create a new library</string>
+    <string name="create_new_repo_success">Successfully created library %s</string>
     <string name="create_new_file">Create a new file</string>
     <string name="create_new_dir">Create a new folder</string>
     <string name="camera">Take a photo here</string>
