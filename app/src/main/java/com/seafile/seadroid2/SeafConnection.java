@@ -5,6 +5,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
 import android.provider.Settings.Secure;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 
@@ -151,11 +152,18 @@ public class SeafConnection {
      * @return true if login success, false otherwise
      * @throws SeafException
      */
-    private boolean realLogin(String passwd) throws SeafException {
+    private boolean realLogin(String passwd, String authToken) throws SeafException {
+        boolean withAuthToken = false;
         HttpRequest req = null;
         try {
             req = prepareApiPostRequest("api2/auth-token/", false, null);
             // Log.d(DEBUG_TAG, "Login to " + account.server + "api2/auth-token/");
+
+            if (!TextUtils.isEmpty(authToken)) {
+                req.header("X-Seafile-OTP", authToken);
+                withAuthToken = true;
+                // Log.d(DEBUG_TAG, "authToken " + authToken);
+            }
 
             req.form("username", account.email);
             req.form("password", passwd);
@@ -179,7 +187,7 @@ public class SeafConnection {
             req.form("client_version", appVersion);
             req.form("platform_version", Build.VERSION.RELEASE);
 
-            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK, withAuthToken);
 
             String contentAsString = new String(req.bytes(), "UTF-8");
             JSONObject obj = Utils.parseJsonObject(contentAsString);
@@ -243,12 +251,12 @@ public class SeafConnection {
         return result;
     }
 
-    public boolean doLogin(String passwd) throws SeafException {
+    public boolean doLogin(String passwd, String authToken) throws SeafException {
         try {
-            return realLogin(passwd);
+            return realLogin(passwd, authToken);
         } catch (Exception e) {
             // do again
-            return realLogin(passwd);
+            return realLogin(passwd, authToken);
         }
     }
 
@@ -1032,6 +1040,21 @@ public class SeafConnection {
         }
     }
 
+    public void createNewRepo(String repoName, String description, String password) throws SeafException {
+        HttpRequest req = prepareApiPostRequest("api2/repos/", true, null);
+        req.form("name", repoName);
+
+        if (description.length() > 0) {
+            req.form("desc", description);
+        }
+
+        if (password.length() > 0) {
+            req.form("passwd", password);
+        }
+
+        checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+    }
+
     public Pair<String, String> createNewDir(String repoID,
                                                  String parentDir,
                                                  String dirName) throws SeafException {
@@ -1521,6 +1544,25 @@ public class SeafConnection {
                 if (wiped != null) {
                     throw SeafException.remoteWipedException;
                 }
+            } else {
+                throw new SeafException(req.code(), req.message());
+            }
+        } else {
+            // Log.v(DEBUG_TAG, "HTTP request ok : " + req.url());
+        }
+    }
+
+    private void checkRequestResponseStatus(HttpRequest req, int expectedStatusCode, boolean withAuthToken) throws SeafException {
+        if (req.code() != expectedStatusCode) {
+            Log.d(DEBUG_TAG, "HTTP request failed : " + req.url() + ", " + req.code() + ", " + req.message());
+
+            if (req.message() == null) {
+                throw SeafException.networkException;
+            } else if (req.header("X-Seafile-OTP") != null && req.header("X-Seafile-OTP").equals("required")) {
+                if (withAuthToken)
+                    throw SeafException.twoFactorAuthTokenInvalid;
+                else
+                    throw SeafException.twoFactorAuthTokenMissing;
             } else {
                 throw new SeafException(req.code(), req.message());
             }

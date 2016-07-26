@@ -79,6 +79,7 @@ import com.seafile.seadroid2.ui.dialog.DeleteRepoDialog;
 import com.seafile.seadroid2.ui.dialog.FetchFileDialog;
 import com.seafile.seadroid2.ui.dialog.NewDirDialog;
 import com.seafile.seadroid2.ui.dialog.NewFileDialog;
+import com.seafile.seadroid2.ui.dialog.NewRepoDialog;
 import com.seafile.seadroid2.ui.dialog.PasswordDialog;
 import com.seafile.seadroid2.ui.dialog.RenameFileDialog;
 import com.seafile.seadroid2.ui.dialog.RenameRepoDialog;
@@ -120,6 +121,7 @@ public class BrowserActivity extends BaseActivity
     public static final String PICK_FILE_DIALOG_FRAGMENT_TAG = "pick_file_fragment";
     public static final int REQUEST_PERMISSIONS_WRITE_EXTERNAL_STORAGE = 1;
 
+    public static final String TAG_NEW_REPO_DIALOG_FRAGMENT = "NewRepoDialogFragment";
     public static final String TAG_DELETE_REPO_DIALOG_FRAGMENT = "DeleteRepoDialogFragment";
     public static final String TAG_DELETE_FILE_DIALOG_FRAGMENT = "DeleteFileDialogFragment";
     public static final String TAG_DELETE_FILES_DIALOG_FRAGMENT = "DeleteFilesDialogFragment";
@@ -483,6 +485,9 @@ public class BrowserActivity extends BaseActivity
             case R.id.search:
                 Intent searchIntent = new Intent(this, SearchActivity.class);
                 startActivity(searchIntent);
+                return true;
+            case R.id.create_repo:
+                showNewRepoDialog();
                 return true;
             case R.id.add:
                 addFile();
@@ -933,11 +938,13 @@ public class BrowserActivity extends BaseActivity
         menuSearch = menu.findItem(R.id.search);
         MenuItem menuSort = menu.findItem(R.id.sort);
         MenuItem menuAdd = menu.findItem(R.id.add);
+        MenuItem menuCreateRepo = menu.findItem(R.id.create_repo);
         MenuItem menuEdit = menu.findItem(R.id.edit);
 
         // Libraries Tab
         if (currentPosition == 0) {
             if (navContext.inRepo()) {
+                menuCreateRepo.setVisible(false);
                 menuAdd.setVisible(true);
                 menuEdit.setVisible(true);
                 if (hasRepoWritePermission()) {
@@ -949,6 +956,7 @@ public class BrowserActivity extends BaseActivity
                 }
 
             } else {
+                menuCreateRepo.setVisible(true);
                 menuAdd.setVisible(false);
                 menuEdit.setVisible(false);
             }
@@ -956,6 +964,7 @@ public class BrowserActivity extends BaseActivity
             menuSort.setVisible(true);
         } else {
             menuSort.setVisible(false);
+            menuCreateRepo.setVisible(false);
             menuAdd.setVisible(false);
             menuEdit.setVisible(false);
         }
@@ -1041,6 +1050,28 @@ public class BrowserActivity extends BaseActivity
             }
             getReposFragment().sortFiles(type, order);
         }
+    }
+
+    /**
+     * create a new repo
+     */
+    private void showNewRepoDialog() {
+        final NewRepoDialog dialog = new NewRepoDialog();
+        dialog.init(account);
+        dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
+            @Override
+            public void onTaskSuccess(){
+                ToastUtils.show(
+                    BrowserActivity.this,
+                    String.format(getResources().getString(R.string.create_new_repo_success), dialog.getRepoName())
+                );
+                ReposFragment reposFragment = getReposFragment();
+                if (currentPosition == INDEX_LIBRARY_TAB && reposFragment != null) {
+                    reposFragment.refreshView(true, true);
+                }
+            }
+        });
+        dialog.show(getSupportFragmentManager(), TAG_NEW_REPO_DIALOG_FRAGMENT);
     }
 
     /**

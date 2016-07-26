@@ -22,6 +22,11 @@
         app:showAsAction="always"
         android:title="More">
       <menu>
+        <item android:id="@+id/create_repo"
+        android:visible="true"
+        android:title="@string/add_repo"
+        app:showAsAction="ifRoom"/>
+
         <item android:id="@+id/add"
         android:visible="true"
         android:title="@string/add_file"

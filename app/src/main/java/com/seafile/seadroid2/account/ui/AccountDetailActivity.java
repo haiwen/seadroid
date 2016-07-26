@@ -7,19 +7,24 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.NavUtils;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.seafile.seadroid2.R;
@@ -27,11 +32,9 @@ import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
-import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.account.Authenticator;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.ssl.CertsManager;
-import com.seafile.seadroid2.ui.CustomClearableEditText;
 import com.seafile.seadroid2.ui.EmailAutoCompleteTextView;
 import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.ui.activity.BaseActivity;
@@ -43,7 +46,6 @@ import org.json.JSONException;
 
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
 
 public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
     private static final String DEBUG_TAG = "AccountDetailActivity";
@@ -59,9 +61,14 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
     private EditText passwdText;
     private CheckBox httpsCheckBox;
     private TextView seahubUrlHintText;
+    private ImageView clearEmail, clearPasswd, ivEyeClick;
+    private RelativeLayout rlEye;
+    private TextInputLayout authTokenLayout;
+    private EditText authTokenText;
 
     private android.accounts.AccountManager mAccountManager;
     private boolean serverTextHasFocus;
+    private boolean isPasswddVisible;
 
     /** Called when the activity is first created. */
     @Override
@@ -78,6 +85,15 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
         emailText = (EmailAutoCompleteTextView) findViewById(R.id.email_address);
         passwdText = (EditText) findViewById(R.id.password);
         seahubUrlHintText = (TextView) findViewById(R.id.seahub_url_hint);
+
+        clearEmail = (ImageView) findViewById(R.id.iv_delete_email);
+        clearPasswd = (ImageView) findViewById(R.id.iv_delete_pwd);
+        rlEye = (RelativeLayout) findViewById(R.id.rl_layout_eye);
+        ivEyeClick = (ImageView) findViewById(R.id.iv_eye_click);
+
+        authTokenLayout = (TextInputLayout) findViewById(R.id.auth_token_hint);
+        authTokenText = (EditText) findViewById(R.id.auth_token);
+        authTokenLayout.setVisibility(View.GONE);
 
         setupServerText();
 
@@ -118,6 +134,105 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle(R.string.login);
+
+        initListener();
+    }
+
+    private void initListener() {
+        emailText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus && emailText.getText().toString().trim().length() > 0) {
+                    clearEmail.setVisibility(View.VISIBLE);
+                } else {
+                    clearEmail.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+
+        passwdText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus && passwdText.getText().toString().trim().length() > 0) {
+                    clearPasswd.setVisibility(View.VISIBLE);
+                } else {
+                    clearPasswd.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+
+        emailText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (emailText.getText().toString().trim().length() > 0) {
+                    clearEmail.setVisibility(View.VISIBLE);
+                } else {
+                    clearEmail.setVisibility(View.INVISIBLE);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
+
+        passwdText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (passwdText.getText().toString().trim().length() > 0) {
+                    clearPasswd.setVisibility(View.VISIBLE);
+                } else {
+                    clearPasswd.setVisibility(View.INVISIBLE);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
+        clearEmail.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                emailText.setText("");
+            }
+        });
+
+        clearPasswd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                passwdText.setText("");
+            }
+        });
+
+        rlEye.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!isPasswddVisible) {
+                    ivEyeClick.setImageResource(R.drawable.icon_eye_open);
+                    passwdText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                } else {
+                    ivEyeClick.setImageResource(R.drawable.icon_eye_close);
+                    passwdText.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                }
+                isPasswddVisible = !isPasswddVisible;
+                passwdText.postInvalidate();
+                String input = passwdText.getText().toString().trim();
+                if (!TextUtils.isEmpty(input)) {
+                    passwdText.setSelection(input.length());
+                }
+            }
+        });
+
     }
 
     @Override
@@ -267,6 +382,15 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
                 return;
             }
 
+            String authToken = null;
+            if (authTokenLayout.getVisibility() == View.VISIBLE) {
+                authToken = authTokenText.getText().toString().trim();
+                if (TextUtils.isEmpty(authToken)) {
+                    authTokenText.setError(getResources().getString(R.string.two_factor_auth_token_empty));
+                    return;
+                }
+            }
+
             try {
                 serverURL = Utils.cleanServerURL(serverURL);
             } catch (MalformedURLException e) {
@@ -286,7 +410,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
             progressDialog = new ProgressDialog(this);
             progressDialog.setMessage(getString(R.string.settings_cuc_loading));
             progressDialog.setCancelable(false);
-            ConcurrentAsyncTask.execute(new LoginTask(tmpAccount, passwd));
+            ConcurrentAsyncTask.execute(new LoginTask(tmpAccount, passwd, authToken));
         } else {
             statusView.setText(R.string.network_down);
         }
@@ -296,10 +420,12 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
         Account loginAccount;
         SeafException err = null;
         String passwd;
+        String authToken;
 
-        public LoginTask(Account loginAccount, String passwd) {
+        public LoginTask(Account loginAccount, String passwd, String authToken) {
             this.loginAccount = loginAccount;
             this.passwd = passwd;
+            this.authToken = authToken;
         }
 
         @Override
@@ -317,13 +443,14 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
         }
 
         private void resend() {
-            ConcurrentAsyncTask.execute(new LoginTask(loginAccount, passwd));
+            ConcurrentAsyncTask.execute(new LoginTask(loginAccount, passwd, authToken));
         }
 
         @Override
         protected void onPostExecute(final String result) {
             progressDialog.dismiss();
             if (err == SeafException.sslException) {
+                authTokenLayout.setVisibility(View.GONE);
                 SslConfirmDialog dialog = new SslConfirmDialog(loginAccount,
                 new SslConfirmDialog.Listener() {
                     @Override
@@ -340,6 +467,16 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
                 });
                 dialog.show(getSupportFragmentManager(), SslConfirmDialog.FRAGMENT_TAG);
                 return;
+            } else if (err == SeafException.twoFactorAuthTokenMissing) {
+                // show auth token input box
+                authTokenLayout.setVisibility(View.VISIBLE);
+                authTokenText.setError(getString(R.string.two_factor_auth_error));
+            } else if (err == SeafException.twoFactorAuthTokenInvalid) {
+                // show auth token input box
+                authTokenLayout.setVisibility(View.VISIBLE);
+                authTokenText.setError(getString(R.string.two_factor_auth_invalid));
+            } else {
+                authTokenLayout.setVisibility(View.GONE);
             }
 
             if (result != null && result.equals("Success")) {
@@ -365,7 +502,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
 
             try {
                 // if successful, this will place the auth token into "loginAccount"
-                if (!sc.doLogin(passwd))
+                if (!sc.doLogin(passwd, authToken))
                     return getString(R.string.err_login_failed);
 
                 // fetch email address from the server
@@ -384,6 +521,10 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
                 err = e;
                 if (e == SeafException.sslException) {
                     return getString(R.string.ssl_error);
+                } else if (e == SeafException.twoFactorAuthTokenMissing) {
+                    return getString(R.string.two_factor_auth_error);
+                } else if (e == SeafException.twoFactorAuthTokenInvalid) {
+                    return getString(R.string.two_factor_auth_invalid);
                 }
                 switch (e.getCode()) {
                 case HttpURLConnection.HTTP_BAD_REQUEST:

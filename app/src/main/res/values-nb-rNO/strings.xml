@@ -8,7 +8,6 @@
   <string name="delete_file_f">Slett fil</string>
   <string name="delete_dir">Slett mappe</string>
   <string name="passwd_hint">Passord</string>
-  <string name="login">Logg inn</string>
   <string name="open_file">Åpne</string>
   <string name="download_file">Last ned</string>
   <string name="redownload_file">Last ned på nytt</string>
@@ -380,4 +379,5 @@
   <!--permission-->
   <!--client sid encryption and decryption-->
   <!--clear password-->
+  <!--Two factor auth-->
 </resources>

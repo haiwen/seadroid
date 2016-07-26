@@ -13,10 +13,11 @@
     <string name="delete_repo_title">Delete library</string>
     <string name="delete_file_f">Delete file</string>
     <string name="delete_dir">Delete folder</string>
+    <string name='name_hint'>Name</string>
     <string name="server_hint">Server address</string>
-    <string name="email_hint">Username or email address</string>
+    <string name="email_hint">Email or Username</string>
     <string name="passwd_hint">Password</string>
-    <string name="login">Login</string>
+    <string name="login">Log In</string>
     <string name="open_file">Open</string>
     <string name="download_file">Download</string>
     <string name="redownload_file">Download again</string>
@@ -44,12 +45,10 @@
     <string name="choose_server">Choose a Seafile Server</string>
     <string-array name="choose_server_array">
         <item>SeaCloud.cc</item>
-        <item>App.seafile.de</item>
         <item>Shibboleth Login</item>
         <item>Other Seafile Server</item>
     </string-array>
     <string name="server_url_seacloud" translatable="false">https://seacloud.cc</string>
-    <string name="server_url_app_seafile" translatable="false">https://app.seafile.de</string>
     <string name="network_down">No network connection</string>
     <string name="unknow_error">Unknown error</string>
     <string name="invalid_server_address">Invalid server address</string>
@@ -136,6 +135,7 @@
         <item>Download folder</item>
         <item>Download folder and subfolders</item>
     </string-array>
+    <string name="add_repo">New Library</string>
     <string name="add_file">Add</string>
     <string-array name="add_file_options_array">
         <item>Create file</item>
@@ -143,6 +143,8 @@
         <item>Upload file</item>
         <item>Take a photo</item>
     </string-array>
+    <string name="create_new_repo">Create a new library</string>
+    <string name="create_new_repo_success">Successfully created library %s</string>
     <string name="create_new_file">Create a new file</string>
     <string name="create_new_dir">Create a new folder</string>
     <string name="camera">Take a photo here</string>
@@ -505,4 +507,10 @@
     <string name="clear_password_failed">Clear password failed</string>
     <string name="clear_password_warning">Do you want to clear password?</string>
     <string name="clear_password_auto">Auto clear passwords</string>
+
+    <!-- Two factor auth -->
+    <string name="two_factor_auth_error">authentication token is required</string>
+    <string name="two_factor_auth_invalid">authentication token is invalid</string>
+    <string name="two_factor_auth_token">Two-factor Authentication token</string>
+    <string name="two_factor_auth_token_empty">Authentication token can\`t be empty</string>
 </resources>

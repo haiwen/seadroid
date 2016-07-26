@@ -8,7 +8,6 @@
   <string name="delete_file_f">刪除文件</string>
   <string name="delete_dir">刪除文件夾</string>
   <string name="passwd_hint">密碼</string>
-  <string name="login">登錄</string>
   <string name="open_file">打開</string>
   <string name="download_file">下載</string>
   <string name="redownload_file">重新下載</string>
@@ -130,4 +129,5 @@
   <!--permission-->
   <!--client sid encryption and decryption-->
   <!--clear password-->
+  <!--Two factor auth-->
 </resources>

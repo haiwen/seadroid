@@ -9,7 +9,6 @@
   <string name="delete_dir">Διαγραφή φακέλου</string>
   <string name="server_hint">Διακομιστής, όπως cloud.seafile.com</string>
   <string name="passwd_hint">Κωδικός</string>
-  <string name="login">Σύνδεση</string>
   <string name="open_file">Άνοιγμα</string>
   <string name="download_file">Λήψη</string>
   <string name="redownload_file">Λήψη ξανά</string>
@@ -174,4 +173,5 @@
   <!--permission-->
   <!--client sid encryption and decryption-->
   <!--clear password-->
+  <!--Two factor auth-->
 </resources>
