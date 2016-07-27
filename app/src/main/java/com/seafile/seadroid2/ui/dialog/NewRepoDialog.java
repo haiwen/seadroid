@@ -41,6 +41,7 @@ public class NewRepoDialog extends TaskDialog {
     // The input fields of the dialog
     private EditText mRepoNameText;
     private EditText mPasswordText;
+    private EditText mPasswordConfirmationText;
 
     private Account mAccount;
     private DataManager mDataManager;
@@ -60,12 +61,14 @@ public class NewRepoDialog extends TaskDialog {
 
     public String getRepoName() { return mRepoNameText.getText().toString().trim(); }
     private String getPassword() { return mPasswordText.getText().toString().trim(); }
+    private String getPasswordConfirmation() { return mPasswordConfirmationText.getText().toString().trim(); }
 
     @Override
     protected View createDialogContentView(LayoutInflater inflater, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_new_repo, null);
         mRepoNameText = (EditText) view.findViewById(R.id.new_repo_name);
         mPasswordText = (EditText) view.findViewById(R.id.new_repo_password);
+        mPasswordConfirmationText = (EditText) view.findViewById(R.id.new_repo_password_confirmation);
 
         if (savedInstanceState != null) {
             // Restore state
@@ -104,6 +107,7 @@ public class NewRepoDialog extends TaskDialog {
         super.disableInput();
         mRepoNameText.setEnabled(false);
         mPasswordText.setEnabled(false);
+        mPasswordConfirmationText.setEnabled(false);
     }
 
     @Override
@@ -111,5 +115,6 @@ public class NewRepoDialog extends TaskDialog {
         super.enableInput();
         mRepoNameText.setEnabled(true);
         mPasswordText.setEnabled(true);
+        mPasswordConfirmationText.setEnabled(true);
     }
 }

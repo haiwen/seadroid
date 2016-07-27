@@ -17,13 +17,34 @@
         android:textSize="@dimen/dialog_msg_txt_size"
         android:inputType="text" />
 
-    <EditText
-        android:id="@+id/new_repo_password"
-        android:hint="@string/passwd_hint"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/edit_text_holo_light"
-        android:textSize="@dimen/dialog_msg_txt_size"
-        android:inputType="textPassword" />
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent" >
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/new_repo_password"
+                android:hint="@string/passwd_hint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edit_text_holo_light"
+                android:textSize="@dimen/dialog_msg_txt_size"
+                android:inputType="textPassword"
+                android:visibility="gone" />
+
+            <EditText
+                android:id="@+id/new_repo_password_confirmation"
+                android:hint="@string/passwd_confirmation_hint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edit_text_holo_light"
+                android:textSize="@dimen/dialog_msg_txt_size"
+                android:inputType="textPassword"
+                android:visibility="gone" />
+        </LinearLayout>
+    </android.support.v4.widget.NestedScrollView>
 </LinearLayout>
