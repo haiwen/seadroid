@@ -54,6 +54,7 @@
     <string name="err_server_andress_empty">Server address can\`t be empty</string>
     <string name="err_email_empty">Email can\`t be empty</string>
     <string name="err_passwd_empty">Password can\`t be empty</string>
+    <string name="err_passwd_mismatch">The passwords don\`t match</string>
     <string name="err_login_failed">Login failed</string>
     <string name="err_wrong_user_or_passwd">Email or password error</string>
     <string name="err_token_expired">Authentication expired, please login again</string>
@@ -126,6 +127,7 @@
     <string name="load_dir_fail">Failed to load contents of this folder</string>
     <string name="not_supported_share">This type of share is not supported</string>
     <string name="edit">Edit</string>
+    <string name="encrypt">Encrypt</string>
     <string name="download_folder">Download folder</string>
     <string name="download_folder_title">Choose your preferred option</string>
     <string-array name="download_folder_options_array">

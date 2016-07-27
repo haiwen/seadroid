@@ -17,6 +17,30 @@
         android:textSize="@dimen/dialog_msg_txt_size"
         android:inputType="text" />
 
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="15dp">
+
+        <Switch
+            android:id="@+id/new_repo_encrpyt_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:layout_toRightOf="@id/new_repo_encrpyt_switch"
+            android:paddingLeft="3dp"
+            android:textSize="@dimen/dialog_msg_txt_size"
+            android:text="@string/encrypt" />
+    </RelativeLayout>
+
     <android.support.v4.widget.NestedScrollView
         android:layout_width="wrap_content"
         android:layout_height="match_parent" >
