@@ -15,7 +15,7 @@ class DeleteRepoTask extends TaskDialog.Task {
     private String mRepoID;
     private DataManager mDataManager;
 
-    public DeleteRepoTask(String repoID, DataManager dataManager) {
+    DeleteRepoTask(String repoID, DataManager dataManager) {
         mRepoID = repoID;
         mDataManager = dataManager;
     }

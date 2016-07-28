@@ -19,7 +19,7 @@ class RenameRepoTask extends TaskDialog.Task {
     private String mNewName;
     private DataManager mDataManager;
 
-    public RenameRepoTask(String repoID, String currentName, String newName, DataManager dataManager) {
+    RenameRepoTask(String repoID, String currentName, String newName, DataManager dataManager) {
         mRepoID = repoID;
         mCurrentName = currentName;
         mNewName = newName;
