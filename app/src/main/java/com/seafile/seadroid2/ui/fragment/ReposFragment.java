@@ -138,7 +138,7 @@ public class ReposFragment extends ListFragment {
             @Override
             public void onRefresh() {
                 mRefreshType = REFRESH_ON_PULL;
-                refreshView(true);
+                refreshView(true, true);
             }
         });
 
