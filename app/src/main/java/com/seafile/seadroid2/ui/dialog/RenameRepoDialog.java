@@ -75,7 +75,7 @@ public class RenameRepoDialog extends TaskDialog {
         if (savedInstanceState != null) {
             mRepoID = savedInstanceState.getString(STATE_REPO_ID);
             mCurrentName = savedInstanceState.getString(STATE_CURRENT_NAME);
-            mAccount = (Account)savedInstanceState.getParcelable(STATE_ACCOUNT);
+            mAccount = savedInstanceState.getParcelable(STATE_ACCOUNT);
         }
 
         mRepoNameText.setText(mCurrentName);
