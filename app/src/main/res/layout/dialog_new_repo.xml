@@ -25,7 +25,7 @@
         android:paddingRight="10dp"
         android:paddingTop="15dp">
 
-        <Switch
+        <android.support.v7.widget.SwitchCompat
             android:id="@+id/new_repo_encrpyt_switch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -2,12 +2,12 @@ package com.seafile.seadroid2.ui.dialog;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.Switch;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
@@ -42,7 +42,7 @@ public class NewRepoDialog extends TaskDialog {
 
     // The input fields of the dialog
     private EditText mRepoNameText;
-    private Switch mEncryptSwitch;
+    private SwitchCompat mEncryptSwitch;
     private EditText mPasswordText;
     private EditText mPasswordConfirmationText;
 
@@ -70,7 +70,7 @@ public class NewRepoDialog extends TaskDialog {
     protected View createDialogContentView(LayoutInflater inflater, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_new_repo, null);
         mRepoNameText = (EditText) view.findViewById(R.id.new_repo_name);
-        mEncryptSwitch = (Switch) view.findViewById(R.id.new_repo_encrpyt_switch);
+        mEncryptSwitch = (SwitchCompat) view.findViewById(R.id.new_repo_encrpyt_switch);
         mPasswordText = (EditText) view.findViewById(R.id.new_repo_password);
         mPasswordConfirmationText = (EditText) view.findViewById(R.id.new_repo_password_confirmation);
 
