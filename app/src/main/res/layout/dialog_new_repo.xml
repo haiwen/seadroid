@@ -26,7 +26,7 @@
         android:paddingTop="15dp">
 
         <android.support.v7.widget.SwitchCompat
-            android:id="@+id/new_repo_encrpyt_switch"
+            android:id="@+id/new_repo_encrypt_switch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="false" />
@@ -35,8 +35,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="false"
-            android:layout_toRightOf="@id/new_repo_encrpyt_switch"
-            android:layout_toEndOf="@id/new_repo_encrpyt_switch"
+            android:layout_toRightOf="@id/new_repo_encrypt_switch"
+            android:layout_toEndOf="@id/new_repo_encrypt_switch"
             android:paddingLeft="3dp"
             android:paddingRight="3dp"
             android:paddingStart="3dp"

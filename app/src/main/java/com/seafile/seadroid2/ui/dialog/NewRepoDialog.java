@@ -70,7 +70,7 @@ public class NewRepoDialog extends TaskDialog {
     protected View createDialogContentView(LayoutInflater inflater, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_new_repo, null);
         mRepoNameText = (EditText) view.findViewById(R.id.new_repo_name);
-        mEncryptSwitch = (SwitchCompat) view.findViewById(R.id.new_repo_encrpyt_switch);
+        mEncryptSwitch = (SwitchCompat) view.findViewById(R.id.new_repo_encrypt_switch);
         mPasswordText = (EditText) view.findViewById(R.id.new_repo_password);
         mPasswordConfirmationText = (EditText) view.findViewById(R.id.new_repo_password_confirmation);
 
