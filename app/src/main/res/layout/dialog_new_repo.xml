@@ -36,7 +36,11 @@
             android:layout_height="wrap_content"
             android:checked="false"
             android:layout_toRightOf="@id/new_repo_encrpyt_switch"
+            android:layout_toEndOf="@id/new_repo_encrpyt_switch"
             android:paddingLeft="3dp"
+            android:paddingRight="3dp"
+            android:paddingStart="3dp"
+            android:paddingEnd="3dp"
             android:textSize="@dimen/dialog_msg_txt_size"
             android:text="@string/encrypt" />
     </RelativeLayout>
