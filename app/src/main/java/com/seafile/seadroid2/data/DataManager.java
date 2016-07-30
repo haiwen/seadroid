@@ -702,6 +702,14 @@ public class DataManager {
         }
     }
 
+    public void renameRepo(String repoID, String newName) throws SeafException {
+        sc.renameRepo(repoID, newName);
+    }
+
+    public void deleteRepo(String repoID) throws SeafException {
+        sc.deleteRepo(repoID);
+    }
+
     public void star(String repoID, String path) throws SeafException {
         sc.star(repoID, path);
     }

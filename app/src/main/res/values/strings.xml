@@ -7,8 +7,10 @@
     <string name="edit_account">Edit</string>
     <string name="delete_account">Delete</string>
     <string name="delete">Delete</string>
+    <string name="delete_repo">Are you sure you want to delete this library?</string>
     <string name="delete_file">Are you sure you want to delete this file or folder?</string>
     <string name="delete_successful">Successfully deleted</string>
+    <string name="delete_repo_title">Delete library</string>
     <string name="delete_file_f">Delete file</string>
     <string name="delete_dir">Delete folder</string>
     <string name='name_hint'>Name</string>
@@ -70,6 +72,8 @@
     <string name="task_remove">Remove</string>
     <string name="task_remove_all_cancelled">Remove all cancelled tasks</string>
     <string name="task_remove_all_finished">Remove all finished tasks </string>
+    <string name="repo_action_delete">Delete</string>
+    <string name="repo_action_rename">Rename</string>
     <string name="file_action_star">Star</string>
     <string name="file_action_download">Download</string>
     <string name="file_action_update">Upload</string>
@@ -162,6 +166,7 @@
     <string name="share_dir_link">Share a link to this folder</string>
     <string name="generating_link">Generating link&#8230;</string>
     <string name="link_ready_to_be_pasted">The link is ready to be pasted.</string>
+    <string name="rename_repo">Rename library</string>
     <string name="rename_file">Rename file</string>
     <string name="rename_dir">Rename folder</string>
     <string name="rename_successful">Renamed successfully.</string>

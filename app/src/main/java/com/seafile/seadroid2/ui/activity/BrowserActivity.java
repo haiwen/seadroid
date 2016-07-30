@@ -75,12 +75,14 @@ import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog.CustomAction;
 import com.seafile.seadroid2.ui.dialog.CopyMoveDialog;
 import com.seafile.seadroid2.ui.dialog.DeleteFileDialog;
+import com.seafile.seadroid2.ui.dialog.DeleteRepoDialog;
 import com.seafile.seadroid2.ui.dialog.FetchFileDialog;
 import com.seafile.seadroid2.ui.dialog.NewDirDialog;
 import com.seafile.seadroid2.ui.dialog.NewFileDialog;
 import com.seafile.seadroid2.ui.dialog.NewRepoDialog;
 import com.seafile.seadroid2.ui.dialog.PasswordDialog;
 import com.seafile.seadroid2.ui.dialog.RenameFileDialog;
+import com.seafile.seadroid2.ui.dialog.RenameRepoDialog;
 import com.seafile.seadroid2.ui.dialog.SortFilesDialogFragment;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
@@ -120,8 +122,10 @@ public class BrowserActivity extends BaseActivity
     public static final int REQUEST_PERMISSIONS_WRITE_EXTERNAL_STORAGE = 1;
 
     public static final String TAG_NEW_REPO_DIALOG_FRAGMENT = "NewRepoDialogFragment";
+    public static final String TAG_DELETE_REPO_DIALOG_FRAGMENT = "DeleteRepoDialogFragment";
     public static final String TAG_DELETE_FILE_DIALOG_FRAGMENT = "DeleteFileDialogFragment";
     public static final String TAG_DELETE_FILES_DIALOG_FRAGMENT = "DeleteFilesDialogFragment";
+    public static final String TAG_RENAME_REPO_DIALOG_FRAGMENT = "RenameRepoDialogFragment";
     public static final String TAG_RENAME_FILE_DIALOG_FRAGMENT = "RenameFileDialogFragment";
     public static final String TAG_COPY_MOVE_DIALOG_FRAGMENT = "CopyMoveDialogFragment";
     public static final String TAG_SORT_FILES_DIALOG_FRAGMENT = "SortFilesDialogFragment";
@@ -1853,6 +1857,38 @@ public class BrowserActivity extends BaseActivity
         fetchFileDialog.show(getSupportFragmentManager(), OPEN_FILE_DIALOG_FRAGMENT_TAG);
     }
 
+    public void renameRepo(String repoID, String repoName) {
+        final RenameRepoDialog dialog = new RenameRepoDialog();
+        dialog.init(repoID, repoName, account);
+        dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
+            @Override
+            public void onTaskSuccess() {
+                ToastUtils.show(BrowserActivity.this, R.string.rename_successful);
+                ReposFragment reposFragment = getReposFragment();
+                if (currentPosition == INDEX_LIBRARY_TAB && reposFragment != null) {
+                    reposFragment.refreshView(true, true);
+                }
+            }
+        });
+        dialog.show(getSupportFragmentManager(), TAG_RENAME_REPO_DIALOG_FRAGMENT);
+    }
+
+    public void deleteRepo(String repoID) {
+        final DeleteRepoDialog dialog = new DeleteRepoDialog();
+        dialog.init(repoID, account);
+        dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
+            @Override
+            public void onTaskSuccess() {
+                ToastUtils.show(BrowserActivity.this, R.string.delete_successful);
+                ReposFragment reposFragment = getReposFragment();
+                if (currentPosition == INDEX_LIBRARY_TAB && reposFragment != null) {
+                    reposFragment.refreshView(true, true);
+                }
+            }
+        });
+        dialog.show(getSupportFragmentManager(), TAG_DELETE_REPO_DIALOG_FRAGMENT);
+    }
+
     /**
      * Share a file. Generating a file share link and send the link to someone
      * through some app.
@@ -2314,6 +2350,11 @@ public class BrowserActivity extends BaseActivity
         }
 
     } // TransferReceiver
+
+
+    public void showRepoBottomSheet(SeafRepo repo) {
+        getReposFragment().showRepoBottomSheet(repo);
+    }
 
     public void showFileBottomSheet(String title, final SeafDirent dirent) {
         getReposFragment().showFileBottomSheet(title, dirent);

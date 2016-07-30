@@ -5,12 +5,10 @@ import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Parcelable;
 import android.support.v4.app.ListFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.view.ActionMode;
 import android.util.Log;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -182,6 +180,23 @@ public class ReposFragment extends ListFragment {
             mActionMode = mActivity.startSupportActionMode(new ActionModeCallback());
         }
 
+    }
+
+    public void showRepoBottomSheet(final SeafRepo repo) {
+        final BottomSheet.Builder builder = new BottomSheet.Builder(mActivity);
+        builder.title(repo.getName()).sheet(R.menu.bottom_sheet_op_repo).listener(new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case R.id.rename_repo:
+                        mActivity.renameRepo(repo.getID(), repo.getName());
+                        break;
+                    case R.id.delete_repo:
+                        mActivity.deleteRepo(repo.getID());
+                        break;
+                }
+            }
+        }).show();
     }
 
     public void showFileBottomSheet(String title, final SeafDirent dirent) {

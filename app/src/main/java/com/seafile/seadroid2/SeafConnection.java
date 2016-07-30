@@ -1277,6 +1277,21 @@ public class SeafConnection {
         }
     }
 
+    public void renameRepo(String repoID, String newName) throws SeafException {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("op", "rename");
+
+        HttpRequest req = prepareApiPostRequest(String.format("api2/repos/%s/", repoID), true, params);
+        req.form("repo_name", newName);
+
+        checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+    }
+
+    public void deleteRepo(String repoID) throws SeafException {
+        HttpRequest req = prepareApiDeleteRequest(String.format("api2/repos/%s/", repoID), null);
+        checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+    }
+
     public String getShareLink(String repoID, String path, boolean isdir) throws SeafException {
         try {
             String apiPath = String.format("api2/repos/%s/file/shared-link/", repoID);
