@@ -17,7 +17,7 @@
     <string name="server_hint">Server address</string>
     <string name="email_hint">Email or Username</string>
     <string name="passwd_hint">Password</string>
-    <string name="passwd_min_len_limit_hint">Password (at least 8 characters)</string>
+    <string name="passwd_min_len_limit_hint">Password (at least %d characters)</string>
     <string name="passwd_confirmation_hint">Password again</string>
     <string name="login">Log In</string>
     <string name="open_file">Open</string>

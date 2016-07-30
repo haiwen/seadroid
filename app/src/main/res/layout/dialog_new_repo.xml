@@ -56,7 +56,7 @@
 
             <EditText
                 android:id="@+id/new_repo_password"
-                android:hint="@string/passwd_min_len_limit_hint"
+                android:hint="@string/passwd_hint"
                 android:fontFamily="sans-serif"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
