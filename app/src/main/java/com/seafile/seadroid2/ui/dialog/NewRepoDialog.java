@@ -124,7 +124,7 @@ public class NewRepoDialog extends TaskDialog {
                 throw new Exception(getResources().getString(R.string.err_passwd_empty));
             }
 
-            if (getPassword().length() < 8) {
+            if (getPassword().length() < getResources().getInteger(R.integer.minimum_password_length)) {
                 throw new Exception(getResources().getString(R.string.err_passwd_too_short));
             }
 
