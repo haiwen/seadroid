@@ -17,6 +17,7 @@
     <string name="server_hint">Server address</string>
     <string name="email_hint">Email or Username</string>
     <string name="passwd_hint">Password</string>
+    <string name="passwd_min_len_limit_hint">Password(at leaset 8 characters)</string>
     <string name="passwd_confirmation_hint">Password again</string>
     <string name="login">Log In</string>
     <string name="open_file">Open</string>
@@ -56,6 +57,7 @@
     <string name="err_server_andress_empty">Server address can\`t be empty</string>
     <string name="err_email_empty">Email can\`t be empty</string>
     <string name="err_passwd_empty">Password can\`t be empty</string>
+    <string name="err_passwd_too_short">Password is too short</string>
     <string name="err_passwd_mismatch">The passwords don\`t match</string>
     <string name="err_login_failed">Login failed</string>
     <string name="err_wrong_user_or_passwd">Email or password error</string>
