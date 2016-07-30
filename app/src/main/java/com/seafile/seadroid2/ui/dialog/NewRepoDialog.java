@@ -2,9 +2,11 @@ package com.seafile.seadroid2.ui.dialog;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 
 import com.seafile.seadroid2.R;
@@ -40,7 +42,9 @@ public class NewRepoDialog extends TaskDialog {
 
     // The input fields of the dialog
     private EditText mRepoNameText;
+    private SwitchCompat mEncryptSwitch;
     private EditText mPasswordText;
+    private EditText mPasswordConfirmationText;
 
     private Account mAccount;
     private DataManager mDataManager;
@@ -60,17 +64,37 @@ public class NewRepoDialog extends TaskDialog {
 
     public String getRepoName() { return mRepoNameText.getText().toString().trim(); }
     private String getPassword() { return mPasswordText.getText().toString().trim(); }
+    private String getPasswordConfirmation() { return mPasswordConfirmationText.getText().toString().trim(); }
 
     @Override
     protected View createDialogContentView(LayoutInflater inflater, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_new_repo, null);
         mRepoNameText = (EditText) view.findViewById(R.id.new_repo_name);
+        mEncryptSwitch = (SwitchCompat) view.findViewById(R.id.new_repo_encrypt_switch);
         mPasswordText = (EditText) view.findViewById(R.id.new_repo_password);
+        mPasswordConfirmationText = (EditText) view.findViewById(R.id.new_repo_password_confirmation);
 
         if (savedInstanceState != null) {
             // Restore state
             mAccount = (Account) savedInstanceState.getParcelable(STATE_ACCOUNT);
         }
+
+        mEncryptSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    mPasswordText.setVisibility(View.VISIBLE);
+                    mPasswordConfirmationText.setVisibility(View.VISIBLE);
+                } else {
+                    mPasswordText.setVisibility(View.GONE);
+                    mPasswordConfirmationText.setVisibility(View.GONE);
+
+                    // Delete entered passwords so hiding the input fields creates an unencrypted repo
+                    mPasswordText.setText("");
+                    mPasswordConfirmationText.setText("");
+                }
+            }
+        });
 
         return view;
     }
@@ -92,6 +116,16 @@ public class NewRepoDialog extends TaskDialog {
         if (getRepoName().length() == 0) {
             throw new Exception(getResources().getString(R.string.repo_name_empty));
         }
+
+        if (mEncryptSwitch.isChecked()) {
+            if (getPassword().length() == 0) {
+                throw new Exception(getResources().getString(R.string.err_passwd_empty));
+            }
+
+            if (!getPassword().equals(getPasswordConfirmation())) {
+                throw new Exception(getResources().getString(R.string.err_passwd_mismatch));
+            }
+        }
     }
 
     @Override
@@ -103,13 +137,17 @@ public class NewRepoDialog extends TaskDialog {
     protected void disableInput() {
         super.disableInput();
         mRepoNameText.setEnabled(false);
+        mEncryptSwitch.setEnabled(false);
         mPasswordText.setEnabled(false);
+        mPasswordConfirmationText.setEnabled(false);
     }
 
     @Override
     protected void enableInput() {
         super.enableInput();
         mRepoNameText.setEnabled(true);
+        mEncryptSwitch.setEnabled(true);
         mPasswordText.setEnabled(true);
+        mPasswordConfirmationText.setEnabled(true);
     }
 }
