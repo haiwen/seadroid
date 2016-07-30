@@ -10,7 +10,9 @@
   <string name="delete_file_f">Удалить файл</string>
   <string name="delete_dir">Удалить папку</string>
   <string name="server_hint">Адрес сервера</string>
+  <string name="email_hint">Email или Логин</string>
   <string name="passwd_hint">Пароль</string>
+  <string name="login">Войти</string>
   <string name="open_file">Открыть</string>
   <string name="download_file">Скачать</string>
   <string name="redownload_file">Скачать еще раз</string>
@@ -480,4 +482,8 @@
   <string name="clear_password_warning">Вы хотите удалить пароль?</string>
   <string name="clear_password_auto">Автоматический сброс паролей</string>
   <!--Two factor auth-->
+  <string name="two_factor_auth_error">токен аутентификации обязателен</string>
+  <string name="two_factor_auth_invalid">токен аутентификации недействителен</string>
+  <string name="two_factor_auth_token">Токен двухфакторной аутентификации</string>
+  <string name="two_factor_auth_token_empty">Токен аутентификации не может быть пустым</string>
 </resources>

@@ -455,5 +455,8 @@
   <string name="clear_password_warning">パスワードをクリアしますか?</string>
   <string name="clear_password_auto">パスワードを自動クリア</string>
   <!--Two factor auth-->
+  <string name="two_factor_auth_error">認証トークンが必要です</string>
+  <string name="two_factor_auth_invalid">認証トークンが正しくありません</string>
+  <string name="two_factor_auth_token">二要素認証トークン</string>
   <string name="two_factor_auth_token_empty">認証トークンは空にできません</string>
 </resources>

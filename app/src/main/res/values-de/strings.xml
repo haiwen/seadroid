@@ -10,7 +10,9 @@
   <string name="delete_file_f">Datei löschen</string>
   <string name="delete_dir">Ordner löschen</string>
   <string name="server_hint">Server, z.B. cloud.seafile.com</string>
+  <string name="email_hint">E-Mail oder Benutzername</string>
   <string name="passwd_hint">Passwort</string>
+  <string name="login">Anmelden</string>
   <string name="open_file">Öffnen</string>
   <string name="download_file">Herunterladen</string>
   <string name="redownload_file">Erneut herunterladen</string>
@@ -41,10 +43,10 @@
   </string-array>
   <string name="network_down">Keine Netzwerkverbindung</string>
   <string name="unknow_error">Unbekannter Fehler</string>
-  <string name="invalid_server_address">Ungültige Serveradresse</string>
-  <string name="err_server_andress_empty">Serveradresse darf nicht leer sein</string>
-  <string name="err_email_empty">E-Mail-Adresse darf nicht leer sein</string>
-  <string name="err_passwd_empty">Passwort darf nicht leer sein</string>
+  <string name="invalid_server_address">Die Serveradresse ist nicht gültig</string>
+  <string name="err_server_andress_empty">Geben Sie die Serveradresse an</string>
+  <string name="err_email_empty">Geben Sie Ihre E-Mail-Adresse an</string>
+  <string name="err_passwd_empty">Geben Sie Ihr Passwort an</string>
   <string name="err_login_failed">Anmeldung fehlgeschlagen</string>
   <string name="err_wrong_user_or_passwd">Ungültige E-Mail-Adresse oder Passwort</string>
   <string name="err_token_expired">Berechtigung abgelaufen, bitte erneut anmelden</string>
@@ -373,7 +375,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="saf_file_exist">Die Datei ist schon vorhanden</string>
   <string name="saf_bad_mime_type">Ungültige Anforderungsart</string>
   <!--shibboleth SSO-->
-  <string name="shib_server_url_empty">Server-Feld ist leer!</string>
+  <string name="shib_server_url_empty">Geben Sie die Serveradresse an</string>
   <string name="shib_server_incorrect_prefix">Die Serveradresse sollte mit http:// oder https:// beginnen</string>
   <string name="shib_load_page_error">Fehler:</string>
   <string name="shib_login_title">Shibboleth-Anmeldung</string>
@@ -464,4 +466,8 @@ Zum Aktualisieren einmal antippen</string>
   <string name="clear_password_warning">Möchten Sie das Passwort löschen?</string>
   <string name="clear_password_auto">Passwörter automatisch löschen</string>
   <!--Two factor auth-->
+  <string name="two_factor_auth_error">Token für Authentifizierung erforderlich</string>
+  <string name="two_factor_auth_invalid">Token für Authentifizierung ist nicht gültig</string>
+  <string name="two_factor_auth_token">Token für 2-Faktor-Authentifizierung</string>
+  <string name="two_factor_auth_token_empty">Geben Sie das Token für die Authentifizierung an</string>
 </resources>

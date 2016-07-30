@@ -10,7 +10,9 @@
   <string name="delete_file_f">Usuń plik</string>
   <string name="delete_dir">Usuń folder</string>
   <string name="server_hint">Adres serwera</string>
+  <string name="email_hint">E-mail lub nazwa użytkownika</string>
   <string name="passwd_hint">Hasło</string>
+  <string name="login">Zaloguj</string>
   <string name="open_file">Otwórz</string>
   <string name="download_file">Pobierz</string>
   <string name="redownload_file">Pobierz ponownie</string>
@@ -471,4 +473,8 @@
   <string name="clear_password_warning">Czy chcesz wyczyścić hasło?</string>
   <string name="clear_password_auto">Automatycznie czyść hasła</string>
   <!--Two factor auth-->
+  <string name="two_factor_auth_error">token uwierzytelniający jest wymagany</string>
+  <string name="two_factor_auth_invalid">token uwierzytelniający jest nieprawidłowy</string>
+  <string name="two_factor_auth_token">Token uwierzytelniania dwuskładnikowego</string>
+  <string name="two_factor_auth_token_empty">Token uwierzytelniający nie może być pusty</string>
 </resources>
