@@ -1540,9 +1540,7 @@ public class BrowserActivity extends BaseActivity
             return;
         }
 
-        if (repo == null) return;
-
-        startFileActivity(repoName, repoID, filePath, repo.canLocalDecrypt(), repo.encVersion, fileSize);
+        startFileActivity(repoName, repoID, filePath, fileSize);
     }
 
     /**
@@ -1655,22 +1653,12 @@ public class BrowserActivity extends BaseActivity
                         if (txService == null)
                             return null;
 
-                        final SeafRepo repo = dataManager.getCachedRepoByID(repoID);
-                        if (repo != null && repo.canLocalDecrypt()) {
-                            txService.addTaskToDownloadQue(account,
-                                    repoName,
-                                    repoID,
-                                    Utils.pathJoin(dirPaths.get(i),
-                                            seafDirent.name),
-                                    true,
-                                    repo.encVersion);
-                        } else {
-                            txService.addTaskToDownloadQue(account,
-                                    repoName,
-                                    repoID,
-                                    Utils.pathJoin(dirPaths.get(i),
-                                            seafDirent.name));
-                        }
+                        txService.addTaskToDownloadQue(account,
+                                repoName,
+                                repoID,
+                                Utils.pathJoin(dirPaths.get(i),
+                                        seafDirent.name));
+
                         fileCount++;
                     }
                 }
@@ -1704,13 +1692,8 @@ public class BrowserActivity extends BaseActivity
         }
     }
 
-    private void startFileActivity(String repoName, String repoID, String filePath, boolean byBlock, int encVersion, long fileSize) {
-        int taskID = 0;
-        if (byBlock) {
-            taskID = txService.addDownloadTask(account, repoName, repoID, filePath, true, encVersion, fileSize);
-        } else {
-            taskID = txService.addDownloadTask(account, repoName, repoID, filePath);
-        }
+    private void startFileActivity(String repoName, String repoID, String filePath, long fileSize) {
+        int taskID = txService.addDownloadTask(account, repoName, repoID, filePath, fileSize);
         Intent intent = new Intent(this, FileActivity.class);
         intent.putExtra("repoName", repoName);
         intent.putExtra("repoID", repoID);
@@ -1754,7 +1737,7 @@ public class BrowserActivity extends BaseActivity
             return;
         }
 
-        startFileActivity(repoName, repoID, filePath, repo.canLocalDecrypt(), repo.encVersion, fileSize);
+        startFileActivity(repoName, repoID, filePath, fileSize);
     }
 
     @Override
@@ -2282,22 +2265,12 @@ public class BrowserActivity extends BaseActivity
                         if (txService == null)
                             return null;
 
-                        final SeafRepo repo = dataManager.getCachedRepoByID(repoID);
-                        if (repo != null && repo.canLocalDecrypt()) {
-                            txService.addTaskToDownloadQue(account,
-                                    repoName,
-                                    repoID,
-                                    Utils.pathJoin(dirPaths.get(i),
-                                            seafDirent.name),
-                                    true,
-                                    repo.encVersion);
-                        } else {
-                            txService.addTaskToDownloadQue(account,
-                                    repoName,
-                                    repoID,
-                                    Utils.pathJoin(dirPaths.get(i),
-                                            seafDirent.name));
-                        }
+                        txService.addTaskToDownloadQue(account,
+                                repoName,
+                                repoID,
+                                Utils.pathJoin(dirPaths.get(i),
+                                        seafDirent.name));
+
                         fileCount++;
                     }
 
