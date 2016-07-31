@@ -522,10 +522,9 @@ public class ActivitiesFragment extends Fragment {
 
     private void openFile(String repoID, String repoName, String filePath) {
         // Log.d(DEBUG_TAG, "open file " + repoName + filePath);
-        final SeafRepo repo = mActivity.getDataManager().getCachedRepoByID(repoID);
         final String parentPath = Utils.getParentPath(filePath);
         final List<SeafDirent> cachedDirents = mActivity.getDataManager().getCachedDirents(repoID, parentPath);
-        long fileSize = 0L;
+        long fileSize = -1L;
         if (cachedDirents != null) {
             for (SeafDirent seafDirent : cachedDirents) {
                 if (seafDirent.name.equals(filePath)) {
@@ -534,13 +533,8 @@ public class ActivitiesFragment extends Fragment {
             }
         }
 
-        int taskID;
-        if (repo != null && repo.canLocalDecrypt()) {
-            taskID = mActivity.getTransferService().addDownloadTask(mActivity.getAccount(), repoName, repoID, filePath, true, repo.encVersion, fileSize);
-        } else {
-            taskID = mActivity.getTransferService().addDownloadTask(mActivity.getAccount(), repoName, repoID, filePath);
-        }
-
+        // Log.d(DEBUG_TAG, "open file " + repoName + filePath);
+        int taskID = mActivity.getTransferService().addDownloadTask(mActivity.getAccount(), repoName, repoID, filePath, fileSize);
         Intent intent = new Intent(getActivity(), FileActivity.class);
         intent.putExtra("repoName", repoName);
         intent.putExtra("repoID", repoID);
