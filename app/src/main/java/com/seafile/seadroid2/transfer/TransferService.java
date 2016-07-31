@@ -204,11 +204,11 @@ public class TransferService extends Service {
 
     // -------------------------- download task --------------------//
     public int addDownloadTask(Account account, String repoName, String repoID, String path) {
-        return addDownloadTask(account, repoName, repoID, path, false, -1);
+        return addDownloadTask(account, repoName, repoID, path, false, -1, 0L);
     }
 
-    public int addDownloadTask(Account account, String repoName, String repoID, String path, boolean byBlock, int encVersion) {
-        return downloadTaskManager.addTask(account, repoName, repoID, path, byBlock, encVersion);
+    public int addDownloadTask(Account account, String repoName, String repoID, String path, boolean byBlock, int encVersion, long fileSize) {
+        return downloadTaskManager.addTask(account, repoName, repoID, path, byBlock, encVersion, fileSize);
     }
 
     public void addTaskToDownloadQue(Account account, String repoName, String repoID, String path) {

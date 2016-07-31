@@ -413,7 +413,7 @@ public class DataManager {
         }
     }
 
-    public synchronized File getFileByBlocks(String repoName, String repoID, String path, int version,
+    public synchronized File getFileByBlocks(String repoName, String repoID, String path, int version, long fileSize,
                         ProgressMonitor monitor) throws SeafException, IOException, JSONException, NoSuchAlgorithmException {
 
         String cachedFileID = null;
@@ -455,7 +455,7 @@ public class DataManager {
 
         for (Block blk : fileBlocks.blocks) {
             File tempBlock = new File(storageManager.getTempDir(), blk.blockId);
-            final Pair<String, File> block = sc.getBlock(repoID, fileBlocks, blk.blockId, tempBlock.getPath(), monitor);
+            final Pair<String, File> block = sc.getBlock(repoID, fileBlocks, blk.blockId, tempBlock.getPath(), fileSize, monitor);
             final byte[] bytes = FileUtils.readFileToByteArray(block.second);
             final byte[] decryptedBlock = Crypto.decrypt(bytes, encKey, encIv);
             FileUtils.writeByteArrayToFile(localFile, decryptedBlock, true);

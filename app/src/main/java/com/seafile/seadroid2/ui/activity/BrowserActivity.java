@@ -1501,6 +1501,7 @@ public class BrowserActivity extends BaseActivity
     @Override
     public void onFileSelected(SeafDirent dirent) {
         final String fileName= dirent.name;
+        final long fileSize = dirent.size;
         final String repoName = navContext.getRepoName();
         final String repoID = navContext.getRepoID();
         final String dirPath = navContext.getDirPath();
@@ -1523,7 +1524,7 @@ public class BrowserActivity extends BaseActivity
 
         if (repo == null) return;
 
-        startFileActivity(repoName, repoID, filePath, repo.canLocalDecrypt(), repo.encVersion);
+        startFileActivity(repoName, repoID, filePath, repo.canLocalDecrypt(), repo.encVersion, fileSize);
     }
 
     /**
@@ -1685,10 +1686,10 @@ public class BrowserActivity extends BaseActivity
         }
     }
 
-    private void startFileActivity(String repoName, String repoID, String filePath, boolean byBlock, int encVersion) {
+    private void startFileActivity(String repoName, String repoID, String filePath, boolean byBlock, int encVersion, long fileSize) {
         int taskID = 0;
         if (byBlock) {
-            taskID = txService.addDownloadTask(account, repoName, repoID, filePath, true, encVersion);
+            taskID = txService.addDownloadTask(account, repoName, repoID, filePath, true, encVersion, fileSize);
         } else {
             taskID = txService.addDownloadTask(account, repoName, repoID, filePath);
         }
@@ -1703,7 +1704,7 @@ public class BrowserActivity extends BaseActivity
 
     @Override
     public void onStarredFileSelected(final SeafStarredFile starredFile) {
-
+        final long fileSize = starredFile.getSize();
         final String repoID = starredFile.getRepoID();
         final SeafRepo repo = dataManager.getCachedRepoByID(repoID);
         if (repo == null) return;
@@ -1735,7 +1736,7 @@ public class BrowserActivity extends BaseActivity
             return;
         }
 
-        startFileActivity(repoName, repoID, filePath, repo.canLocalDecrypt(), repo.encVersion);
+        startFileActivity(repoName, repoID, filePath, repo.canLocalDecrypt(), repo.encVersion, fileSize);
     }
 
     @Override
