@@ -75,6 +75,10 @@ public class NewRepoDialog extends TaskDialog {
         mRepoNameText = (EditText) view.findViewById(R.id.new_repo_name);
         mEncryptSwitch = (SwitchCompat) view.findViewById(R.id.new_repo_encrypt_switch);
         mPasswordText = (EditText) view.findViewById(R.id.new_repo_password);
+        mPasswordText.setHint(String.format(
+            getResources().getString(R.string.passwd_min_len_limit_hint),
+            getResources().getInteger(R.integer.minimum_password_length)
+        ));
         mPasswordConfirmationText = (EditText) view.findViewById(R.id.new_repo_password_confirmation);
         mNestedScrollView = (NestedScrollView) view.findViewById(R.id.nsv_new_repo_container);
 
@@ -124,7 +128,7 @@ public class NewRepoDialog extends TaskDialog {
                 throw new Exception(getResources().getString(R.string.err_passwd_empty));
             }
 
-            if (getPassword().length() < 8) {
+            if (getPassword().length() < getResources().getInteger(R.integer.minimum_password_length)) {
                 throw new Exception(getResources().getString(R.string.err_passwd_too_short));
             }
 
