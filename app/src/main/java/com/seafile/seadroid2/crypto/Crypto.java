@@ -97,7 +97,7 @@ public class Crypto {
      * @throws UnsupportedEncodingException
      * @throws SeafException
      */
-    public static boolean verifyRepoPassword(String repoId, String password, int version, String magic) throws NoSuchAlgorithmException, InvalidKeySpecException, UnsupportedEncodingException, SeafException, IllegalBlockSizeException, InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException, NoSuchPaddingException {
+    public static void verifyRepoPassword(String repoId, String password, int version, String magic) throws NoSuchAlgorithmException, InvalidKeySpecException, UnsupportedEncodingException, SeafException, IllegalBlockSizeException, InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException, NoSuchPaddingException {
         final byte[] generateMagic = generateMagic(repoId, password, version);
         final byte[] genMagic = toHex(generateMagic).getBytes(CHAR_SET);
         final byte[] repoMagic = magic.getBytes(CHAR_SET);
@@ -106,7 +106,7 @@ public class Crypto {
             diff |= genMagic[i] ^ repoMagic[i];
         }
 
-        return diff != 0;
+        if (diff != 0) throw SeafException.invalidPassword;
     }
 
     /**
