@@ -25,6 +25,7 @@ import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.data.CommitDetails;
+import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.EventDetailsFileItem;
 import com.seafile.seadroid2.data.EventDetailsTree;
 import com.seafile.seadroid2.data.SeafActivities;
@@ -140,16 +141,15 @@ public class ActivitiesFragment extends Fragment {
                         return;
                     }
 
-                    final boolean continueProcess = mActivity.handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
-                        @Override
-                        public void onTaskSuccess() {
-                            LoadHistoryChangesTask task = new LoadHistoryChangesTask(seafEvent);
-                            ConcurrentAsyncTask.execute(task);
-                        }
-                    });
-
-                    if (!continueProcess)
-                        return;
+                    String password = DataManager.getRepoPassword(repoId);
+                    mActivity.showPasswordDialog(repoName, repoId,
+                            new TaskDialog.TaskDialogListener() {
+                                @Override
+                                public void onTaskSuccess() {
+                                    LoadHistoryChangesTask task = new LoadHistoryChangesTask(seafEvent);
+                                    ConcurrentAsyncTask.execute(task);
+                                }
+                            }, password);
 
                 }
                 LoadHistoryChangesTask task = new LoadHistoryChangesTask(seafEvent);
@@ -466,16 +466,15 @@ public class ActivitiesFragment extends Fragment {
             return;
         }
 
-        if (repo.encrypted) {
-            final boolean continueProcess = mActivity.handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
-                @Override
-                public void onTaskSuccess() {
-                    switchTab(repoID, repo.getName(), path, repo.getRootDirID());
-                }
-            });
-
-            if (!continueProcess)
-                return;
+        if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
+            String password = DataManager.getRepoPassword(repo.id);
+            mActivity.showPasswordDialog(repo.name, repo.id,
+                    new TaskDialog.TaskDialogListener() {
+                        @Override
+                        public void onTaskSuccess() {
+                            switchTab(repoID, repo.getName(), path, repo.getRootDirID());
+                        }
+                    }, password);
 
             switchTab(repoID, repo.getName(), path, repo.getRootDirID());
         }
@@ -489,17 +488,19 @@ public class ActivitiesFragment extends Fragment {
             return;
         }
 
-        final boolean continueProcess = mActivity.handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
-            @Override
-            public void onTaskSuccess() {
-                openFile(repoID, repo.getName(), path);
-            }
-        });
+        if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
+            String password = DataManager.getRepoPassword(repo.id);
+            mActivity.showPasswordDialog(repo.name, repo.id,
+                    new TaskDialog.TaskDialogListener() {
+                        @Override
+                        public void onTaskSuccess() {
+                            openFile(repoID, repo.getName(), path);
+                        }
+                    }, password);
 
-        if (!continueProcess)
-            return;
-
-        openFile(repoID, repo.getName(), path);
+        } else {
+            openFile(repoID, repo.getName(), path);
+        }
     }
 
     private void switchTab(String repoID, String repoName, String path, String rootDirID) {
