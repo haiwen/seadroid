@@ -5,13 +5,18 @@
   <string name="edit_account">Редактировать</string>
   <string name="delete_account">Удалить</string>
   <string name="delete">Удалить</string>
+  <string name="delete_repo">Вы действительно хотите удалить эту библиотеку?</string>
   <string name="delete_file">Вы действительно хотите удалить этот файл или папку?</string>
   <string name="delete_successful">Успешно удалено</string>
+  <string name="delete_repo_title">Удалить библиотеку</string>
   <string name="delete_file_f">Удалить файл</string>
   <string name="delete_dir">Удалить папку</string>
+  <string name="name_hint">Имя</string>
   <string name="server_hint">Адрес сервера</string>
   <string name="email_hint">Email или Логин</string>
   <string name="passwd_hint">Пароль</string>
+  <string name="passwd_min_len_limit_hint">Пароль (не менее 8 символов)</string>
+  <string name="passwd_confirmation_hint">Пароль еще раз</string>
   <string name="login">Войти</string>
   <string name="open_file">Открыть</string>
   <string name="download_file">Скачать</string>
@@ -47,6 +52,8 @@
   <string name="err_server_andress_empty">Адрес сервера не может быть пустым</string>
   <string name="err_email_empty">Поле Email не может быть пустым</string>
   <string name="err_passwd_empty">Поле Пароль не может быть пустым</string>
+  <string name="err_passwd_too_short">Пароль слишком короткий</string>
+  <string name="err_passwd_mismatch">Пароли не совпадают</string>
   <string name="err_login_failed">Вход не удался</string>
   <string name="err_wrong_user_or_passwd">Ошибка Email или пароля</string>
   <string name="err_token_expired">Истекло время сессии, войдите снова</string>
@@ -62,6 +69,8 @@
   <string name="task_remove">Удалить</string>
   <string name="task_remove_all_cancelled">Удалить все отмененные задачи</string>
   <string name="task_remove_all_finished">Удалить все завершенные задачи</string>
+  <string name="repo_action_delete">Удалить</string>
+  <string name="repo_action_rename">Переименовать</string>
   <string name="file_action_star">Пометить</string>
   <string name="file_action_download">Скачать</string>
   <string name="file_action_update">Загрузить</string>
@@ -97,6 +106,7 @@
     <item quantity="many">%1$d выбранных элементов</item>
     <item quantity="other">%1$d выбранных элементов</item>
   </plurals>
+  <string name="repo_name_empty">Пожалуйста, введите имя библиотеки</string>
   <string name="dir_name_empty">Пожалуйста, введите имя папки</string>
   <string name="file_name_empty">Пожалуйста, введите имя файла</string>
   <string name="password_empty">Пожалуйста, введите пароль</string>
@@ -119,12 +129,14 @@
   <string name="load_dir_fail">Не удалось загрузить содержимое этой папки</string>
   <string name="not_supported_share">Этот тип обмена не поддерживается</string>
   <string name="edit">Изменить</string>
+  <string name="encrypt">Зашифровать</string>
   <string name="download_folder">Скачать папку</string>
   <string name="download_folder_title">Выберите нужный вариант</string>
   <string-array name="download_folder_options_array">
     <item>Скачать папку</item>
     <item>Скачать папку и подпапки</item>
   </string-array>
+  <string name="add_repo">Новая библиотека</string>
   <string name="add_file">Добавить</string>
   <string-array name="add_file_options_array">
     <item>Создать файл</item>
@@ -132,6 +144,8 @@
     <item>Загрузить файл</item>
     <item>Сделать фото</item>
   </string-array>
+  <string name="create_new_repo">Создать новую библиотеку</string>
+  <string name="create_new_repo_success">Успешно создана библиотека %s</string>
   <string name="create_new_file">Создать новый файл</string>
   <string name="create_new_dir">Создать новую папку</string>
   <string name="camera">Сделать фотографию</string>
@@ -150,6 +164,7 @@
   <string name="share_dir_link">Поделиться ссылкой на эту папку</string>
   <string name="generating_link">Создание ссылки...</string>
   <string name="link_ready_to_be_pasted">Ссылка готова для вставки.</string>
+  <string name="rename_repo">Переименовать библиотеку</string>
   <string name="rename_file">Переименовать файл</string>
   <string name="rename_dir">Переименовать папку</string>
   <string name="rename_successful">Успешно переименовано.</string>

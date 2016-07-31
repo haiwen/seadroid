@@ -5,13 +5,18 @@
   <string name="edit_account">Bearbeiten</string>
   <string name="delete_account">Löschen</string>
   <string name="delete">Löschen</string>
+  <string name="delete_repo">Möchten Sie die Bibliothek wirklich löschen?</string>
   <string name="delete_file">Diese Datei oder diesen Ordner wirklich löschen?</string>
   <string name="delete_successful">Erfolgreich gelöscht</string>
+  <string name="delete_repo_title">Bibliothek löschen</string>
   <string name="delete_file_f">Datei löschen</string>
   <string name="delete_dir">Ordner löschen</string>
+  <string name="name_hint">Name</string>
   <string name="server_hint">Server, z.B. cloud.seafile.com</string>
   <string name="email_hint">E-Mail oder Benutzername</string>
   <string name="passwd_hint">Passwort</string>
+  <string name="passwd_min_len_limit_hint">Passwort (mindestens 8 Zeichen) </string>
+  <string name="passwd_confirmation_hint">Passwort wiederholen</string>
   <string name="login">Anmelden</string>
   <string name="open_file">Öffnen</string>
   <string name="download_file">Herunterladen</string>
@@ -47,6 +52,8 @@
   <string name="err_server_andress_empty">Geben Sie die Serveradresse an</string>
   <string name="err_email_empty">Geben Sie Ihre E-Mail-Adresse an</string>
   <string name="err_passwd_empty">Geben Sie Ihr Passwort an</string>
+  <string name="err_passwd_too_short">Passwort ist zu kurz</string>
+  <string name="err_passwd_mismatch">Passwörter sind nicht identisch</string>
   <string name="err_login_failed">Anmeldung fehlgeschlagen</string>
   <string name="err_wrong_user_or_passwd">Ungültige E-Mail-Adresse oder Passwort</string>
   <string name="err_token_expired">Berechtigung abgelaufen, bitte erneut anmelden</string>
@@ -62,6 +69,8 @@
   <string name="task_remove">Löschen</string>
   <string name="task_remove_all_cancelled">Alle abgebrochenen Vorgänge entfernen</string>
   <string name="task_remove_all_finished">Alle abgeschlossenen Vorgänge entfernen</string>
+  <string name="repo_action_delete">Löschen</string>
+  <string name="repo_action_rename">Umbenennen</string>
   <string name="file_action_star">Markieren</string>
   <string name="file_action_download">Herunterladen</string>
   <string name="file_action_update">Hochladen</string>
@@ -95,6 +104,7 @@
     <item quantity="one">%1$d Element ausgewählt</item>
     <item quantity="other">%1$d Objekte ausgewählt</item>
   </plurals>
+  <string name="repo_name_empty">Bitte den Namen der Bibliothek eingeben</string>
   <string name="dir_name_empty">Bitte den Namen des Ordners eingeben</string>
   <string name="file_name_empty">Bitte den Namen der Datei eingeben</string>
   <string name="password_empty">Bitte das Passwort eingeben</string>
@@ -119,12 +129,14 @@ Zum Aktualisieren einmal antippen</string>
   <string name="load_dir_fail">Der Inhalt des Ordners konnte nicht geladen werden</string>
   <string name="not_supported_share">Diese Art der Freigabe wird nicht unterstützt</string>
   <string name="edit">Bearbeiten</string>
+  <string name="encrypt">Verschlüsseln</string>
   <string name="download_folder">Ordner herunterladen</string>
   <string name="download_folder_title">Wählen Sie Ihre bevorzugte Option</string>
   <string-array name="download_folder_options_array">
     <item>Ordner herunterladen</item>
     <item>Ordner und Unterordner herunterladen</item>
   </string-array>
+  <string name="add_repo">Neue Bibliothek</string>
   <string name="add_file">Hinzufügen</string>
   <string-array name="add_file_options_array">
     <item>Datei erstellen</item>
@@ -132,6 +144,8 @@ Zum Aktualisieren einmal antippen</string>
     <item>Datei hochladen</item>
     <item>Foto machen</item>
   </string-array>
+  <string name="create_new_repo">Neue Bibliothek erstellen</string>
+  <string name="create_new_repo_success">Die Bibliothek %s ist erstellt.</string>
   <string name="create_new_file">Eine neue Datei erstellen</string>
   <string name="create_new_dir">Einen neuen Ordner erstellen</string>
   <string name="camera">Neues Foto hier aufnehmen</string>
@@ -150,6 +164,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="share_dir_link">Link zu diesem Ordner freigeben</string>
   <string name="generating_link">Link wird erzeugt …</string>
   <string name="link_ready_to_be_pasted">Der Link wurde in die Zwischenablage kopiert.</string>
+  <string name="rename_repo">Bibliothek umbenennen</string>
   <string name="rename_file">Datei umbenennen</string>
   <string name="rename_dir">Ordner umbenennen</string>
   <string name="rename_successful">Erfolgreich umbenannt.</string>
