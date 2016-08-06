@@ -774,6 +774,7 @@ public class BrowserActivity extends BaseActivity
         pager.setCurrentItem(currentPosition);
         mTabLayout.setScrollPosition(currentPosition, 0, true);
         setUpButtonTitleOnSlideTabs(currentPosition);
+        refreshViewOnSlideTabs(currentPosition);
     }
 
     public Fragment getFragment(int index) {
@@ -1202,6 +1203,23 @@ public class BrowserActivity extends BaseActivity
                 setUpButtonTitle(getString(R.string.tabs_library).toUpperCase());
         } else {
             setUpButtonTitle(currentPosition == 1 ? getString(R.string.tabs_starred).toUpperCase() : getString(R.string.tabs_activity).toUpperCase());
+        }
+
+    }
+
+    /**
+     * refresh view when sliding among tabs
+     *
+     * @param position
+     */
+    private void refreshViewOnSlideTabs(int position) {
+        if (navContext == null)
+            return;
+
+        if (position == INDEX_LIBRARY_TAB) {
+            if (navContext.inRepo()) {
+                getReposFragment().refreshView();
+            }
         }
 
     }

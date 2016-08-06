@@ -327,7 +327,7 @@ public class ActivitiesFragment extends Fragment {
 
     private void openLocalFile(EventDetailsFileItem fileItem) {
         if (fileItem.isDir()) {
-            viewRepo(fileItem.getEvent().getRepo_id());
+            viewRepo(fileItem.getEvent().getRepo_id(), fileItem.getPath());
         } else {
             viewFile(fileItem.getEvent().getRepo_id(), fileItem.getPath());
         }
@@ -458,7 +458,7 @@ public class ActivitiesFragment extends Fragment {
         }
     }
 
-    private void viewRepo(final String repoID) {
+    private void viewRepo(final String repoID, final String path) {
         final SeafRepo repo = mActivity.getDataManager().getCachedRepoByID(repoID);
 
         if (repo == null) {
@@ -470,14 +470,14 @@ public class ActivitiesFragment extends Fragment {
             final boolean continueProcess = mActivity.handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
                 @Override
                 public void onTaskSuccess() {
-                    switchTab(repoID, repo.getName(), repo.getRootDirID());
+                    switchTab(repoID, repo.getName(), path, repo.getRootDirID());
                 }
             });
 
             if (!continueProcess)
                 return;
 
-            switchTab(repoID, repo.getName(), repo.getRootDirID());
+            switchTab(repoID, repo.getName(), path, repo.getRootDirID());
         }
     }
 
@@ -502,11 +502,19 @@ public class ActivitiesFragment extends Fragment {
         openFile(repoID, repo.getName(), path);
     }
 
-    private void switchTab(String repoID, String repoName, String rootDirID) {
+    private void switchTab(String repoID, String repoName, String path, String rootDirID) {
         NavContext nav = mActivity.getNavContext();
         nav.setRepoID(repoID);
         nav.setRepoName(repoName);
-        nav.setDir("/", rootDirID);
+        if (!path.startsWith("/"))
+            path = "/" + path;
+
+        if (!path.endsWith("/"))
+            path = path + "/";
+
+        path = Utils.getParentPath(path);
+
+        nav.setDir(path, null);
 
         // switch to LIBRARY TAB
         mActivity.setCurrentPosition(BrowserActivity.INDEX_LIBRARY_TAB);
