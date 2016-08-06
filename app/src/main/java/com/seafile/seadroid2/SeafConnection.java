@@ -513,11 +513,12 @@ public class SeafConnection {
                                        FileBlocks fileBlocks,
                                        String blockId,
                                        String localPath,
+                                       long fileSize,
                                        ProgressMonitor monitor) throws SeafException, IOException, JSONException {
 
         String dlink = getBlockDownloadLink(repoID, fileBlocks.fileID, blockId).replaceAll("\"", "");
 
-        File block = getBlockFromLink(dlink, fileBlocks, blockId, localPath, monitor);
+        File block = getBlockFromLink(dlink, fileBlocks, blockId, localPath, fileSize, monitor);
         if (block != null) {
             return new Pair<>(blockId, block);
         } else {
@@ -597,7 +598,7 @@ public class SeafConnection {
         }
     }
 
-    private File getBlockFromLink(String dlink, FileBlocks fileBlocks, String blkId, String localPath, ProgressMonitor monitor)
+    private File getBlockFromLink(String dlink, FileBlocks fileBlocks, String blkId, String localPath, long fileSize, ProgressMonitor monitor)
                                     throws SeafException {
         if (dlink == null)
             return null;
@@ -613,8 +614,7 @@ public class SeafConnection {
                 }
                 Long size = Long.parseLong(req.header(HttpRequest.HEADER_CONTENT_LENGTH));*/
                 if (req.contentLength() > 0) {
-                    fileBlocks.getBlock(blkId).size = req.contentLength();
-                    monitor.onProgressNotify(fileBlocks.getSize(), true);
+                    monitor.onProgressNotify(fileSize, true);
                 }
             }
 

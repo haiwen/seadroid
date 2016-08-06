@@ -52,7 +52,7 @@ public class DownloadTask extends TransferTask {
         try {
             DataManager dataManager = new DataManager(account);
             if (byBlock) {
-                return dataManager.getFileByBlocks(repoName, repoID, path, encVersion,
+                return dataManager.getFileByBlocks(repoName, repoID, path, encVersion, totalSize,
                         new ProgressMonitor() {
 
                             @Override
