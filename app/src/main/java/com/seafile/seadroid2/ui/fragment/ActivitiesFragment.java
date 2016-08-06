@@ -141,7 +141,7 @@ public class ActivitiesFragment extends Fragment {
                         return;
                     }
 
-                    String password = DataManager.getRepoPassword(repoId);
+                    String password = mActivity.getDataManager().getRepoPassword(repoId);
                     mActivity.showPasswordDialog(repoName, repoId,
                             new TaskDialog.TaskDialogListener() {
                                 @Override
@@ -466,8 +466,8 @@ public class ActivitiesFragment extends Fragment {
             return;
         }
 
-        if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
-            String password = DataManager.getRepoPassword(repo.id);
+        if (repo.encrypted && !mActivity.getDataManager().getRepoPasswordSet(repo.id)) {
+            String password = mActivity.getDataManager().getRepoPassword(repo.id);
             mActivity.showPasswordDialog(repo.name, repo.id,
                     new TaskDialog.TaskDialogListener() {
                         @Override
@@ -488,8 +488,8 @@ public class ActivitiesFragment extends Fragment {
             return;
         }
 
-        if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
-            String password = DataManager.getRepoPassword(repo.id);
+        if (repo.encrypted && !mActivity.getDataManager().getRepoPasswordSet(repo.id)) {
+            String password = mActivity.getDataManager().getRepoPassword(repo.id);
             mActivity.showPasswordDialog(repo.name, repo.id,
                     new TaskDialog.TaskDialogListener() {
                         @Override

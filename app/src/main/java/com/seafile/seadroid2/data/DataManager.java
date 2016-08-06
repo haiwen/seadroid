@@ -885,7 +885,7 @@ public class DataManager {
         return true;
     }
 
-    public static void setRepoPasswordSet(String repoID, String key, String iv) {
+    public void setRepoPasswordSet(String repoID, String key, String iv) {
         if (!TextUtils.isEmpty(repoID)
                 && !TextUtils.isEmpty(key)
                 && !TextUtils.isEmpty(iv)) {

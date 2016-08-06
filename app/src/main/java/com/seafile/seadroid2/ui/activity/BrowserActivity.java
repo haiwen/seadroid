@@ -511,8 +511,8 @@ public class BrowserActivity extends BaseActivity
                 if (currentPosition == INDEX_LIBRARY_TAB) {
                     if (navContext.inRepo()) {
                         SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
-                        if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
-                            String password = DataManager.getRepoPassword(repo.id);
+                        if (repo.encrypted && !dataManager.getRepoPasswordSet(repo.id)) {
+                            String password = dataManager.getRepoPassword(repo.id);
                             showPasswordDialog(repo.name, repo.id,
                                     new TaskDialog.TaskDialogListener() {
                                         @Override
@@ -1019,8 +1019,8 @@ public class BrowserActivity extends BaseActivity
         if (currentPosition == INDEX_LIBRARY_TAB) {
             if (navContext.inRepo()) {
                 SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
-                if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
-                    String password = DataManager.getRepoPassword(repo.id);
+                if (repo.encrypted && !dataManager.getRepoPasswordSet(repo.id)) {
+                    String password = dataManager.getRepoPassword(repo.id);
                     showPasswordDialog(repo.name, repo.id,
                             new TaskDialog.TaskDialogListener() {
                                 @Override
@@ -1692,8 +1692,8 @@ public class BrowserActivity extends BaseActivity
         if (repo == null)
             return;
 
-        if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
-            String password = DataManager.getRepoPassword(repo.id);
+        if (repo.encrypted && !dataManager.getRepoPasswordSet(repo.id)) {
+            String password = dataManager.getRepoPassword(repo.id);
             showPasswordDialog(repo.name, repo.id,
                     new TaskDialog.TaskDialogListener() {
                         @Override

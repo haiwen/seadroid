@@ -206,8 +206,8 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
         }
 
         if (repo != null) {
-            if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
-                String password = DataManager.getRepoPassword(repo.id);
+            if (repo.encrypted && !mDataManager.getRepoPasswordSet(repo.id)) {
+                String password = mDataManager.getRepoPassword(repo.id);
                 showPasswordDialog(repo.name, repo.id,
                         new TaskDialog.TaskDialogListener() {
                             @Override
@@ -314,8 +314,8 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
                 return;
             } else {
                 SeafRepo repo = getDataManager().getCachedRepoByID(getNavContext().getRepoID());
-                if (repo.encrypted && !DataManager.getRepoPasswordSet(repo.id)) {
-                    String password = DataManager.getRepoPassword(repo.id);
+                if (repo.encrypted && !mDataManager.getRepoPasswordSet(repo.id)) {
+                    String password = mDataManager.getRepoPassword(repo.id);
                     showPasswordDialog(repo.name, repo.id,
                             new TaskDialog.TaskDialogListener() {
                                 @Override
