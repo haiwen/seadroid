@@ -3,6 +3,7 @@ package com.seafile.seadroid2.ui.dialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -59,6 +60,8 @@ class SetPasswordTask extends TaskDialog.Task {
 }
 
 public class PasswordDialog extends TaskDialog {
+    public static final String DEBUG_TAG = PasswordDialog.class.getCanonicalName();
+
     private static final String STATE_TASK_REPO_NAME = "set_password_task.repo_name";
     private static final String STATE_TASK_REPO_ID = "set_password_task.repo_id";
     private static final String STATE_TASK_PASSWORD = "set_password_task.password";
@@ -178,15 +181,15 @@ public class PasswordDialog extends TaskDialog {
     @Override
     public void onTaskSuccess() {
         SeafRepo repo = dataManager.getCachedRepoByID(repoID);
+        String password = passwordText.getText().toString().trim();
         if (repo == null || !repo.canLocalDecrypt()) {
-            String password = passwordText.getText().toString().trim();
             DataManager.setRepoPasswordSet(repoID, password);
         } else {
             if (TextUtils.isEmpty(repo.magic))
                 return;
 
             try {
-                final Pair<String, String> pair = Crypto.generateKey(password, repo.magic, repo.encVersion);
+                final Pair<String, String> pair = Crypto.generateKey(password, repo.encKey, repo.encVersion);
                 dataManager.saveRepoSecretKey(repoID, pair.first, pair.second);
             } catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
                 // TODO notify error
