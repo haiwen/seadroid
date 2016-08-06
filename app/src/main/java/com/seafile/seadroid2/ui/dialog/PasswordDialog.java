@@ -48,11 +48,7 @@ class SetPasswordTask extends TaskDialog.Task {
             if (repo == null || !repo.canLocalDecrypt()) {
                 dataManager.setPassword(repoID, password);
             } else {
-                final boolean verified = Crypto.verifyRepoPassword(repoID, password, repo.encVersion, repo.magic);
-                if (verified) {
-                    final Pair<String, String> pair = Crypto.generateKey(password, repo.magic, repo.encVersion);
-                    dataManager.saveRepoSecretKey(repoID, pair.first, pair.second);
-                }
+                Crypto.verifyRepoPassword(repoID, password, repo.encVersion, repo.magic);
             }
         } catch (SeafException e) {
             setTaskException(e);
@@ -185,13 +181,24 @@ public class PasswordDialog extends TaskDialog {
         if (repo == null || !repo.canLocalDecrypt()) {
             String password = passwordText.getText().toString().trim();
             DataManager.setRepoPasswordSet(repoID, password);
+        } else {
+            if (TextUtils.isEmpty(repo.magic))
+                return;
+
+            try {
+                final Pair<String, String> pair = Crypto.generateKey(password, repo.magic, repo.encVersion);
+                dataManager.saveRepoSecretKey(repoID, pair.first, pair.second);
+            } catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
+                // TODO notify error
+                e.printStackTrace();
+            }
         }
         super.onTaskSuccess();
     }
 
     @Override
     protected String getErrorFromException(SeafException e) {
-        if (e.getCode() == 400) {
+        if (e.getCode() == 400 || e.getCode() == SeafException.invalidPassword.getCode()) {
             return getString(R.string.wrong_password);
         }
         return e.getMessage();
