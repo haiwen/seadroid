@@ -467,14 +467,16 @@ public class ActivitiesFragment extends Fragment {
         }
 
         if (repo.encrypted) {
-            mActivity.handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
+            final boolean continueProcess = mActivity.handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
                 @Override
                 public void onTaskSuccess() {
                     switchTab(repoID, repo.getName(), repo.getRootDirID());
                 }
             });
 
-        } else {
+            if (!continueProcess)
+                return;
+
             switchTab(repoID, repo.getName(), repo.getRootDirID());
         }
     }
