@@ -502,11 +502,11 @@ public class ActivitiesFragment extends Fragment {
         openFile(repoID, repo.getName(), path);
     }
 
-    private void switchTab(String repoID, String repoName, String repoDir) {
+    private void switchTab(String repoID, String repoName, String rootDirID) {
         NavContext nav = mActivity.getNavContext();
         nav.setRepoID(repoID);
         nav.setRepoName(repoName);
-        nav.setDir("/", repoDir);
+        nav.setDir("/", rootDirID);
 
         // switch to LIBRARY TAB
         mActivity.setCurrentPosition(BrowserActivity.INDEX_LIBRARY_TAB);
