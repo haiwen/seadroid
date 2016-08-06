@@ -30,14 +30,6 @@ public class DownloadTaskManager extends TransferManager implements DownloadStat
      * Add a new download task.
      * call this method to execute a task immediately.
      */
-    public int addTask(Account account, String repoName, String repoID, String path) {
-        return addTask(account, repoName, repoID, path, false, -1, 0L);
-    }
-
-    /**
-     * Add a new download task.
-     * call this method to execute a task immediately.
-     */
     public int addTask(Account account, String repoName, String repoID, String path, boolean byBlock, int encVersion, long fileSize) {
         TransferTask task = new DownloadTask(++notificationID, account, repoName, repoID, path, byBlock, encVersion, this);
         task.totalSize = fileSize;
