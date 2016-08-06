@@ -905,7 +905,10 @@ public class DataManager {
         final SeafRepo seafRepo = getCachedRepoByID(repoID);
         if (seafRepo != null && seafRepo.canLocalDecrypt()) {
             final Pair<String, String> pair = dbHelper.getEnckey(repoID);
-            return pair.first;
+            if (pair == null)
+                return null;
+            else
+                return pair.first;
         }
 
         PasswordInfo info = passwords.get(repoID);
