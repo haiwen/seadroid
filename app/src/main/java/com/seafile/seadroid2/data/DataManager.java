@@ -57,7 +57,7 @@ public class DataManager {
 
     private SeafConnection sc;
     private Account account;
-    private DatabaseHelper dbHelper;
+    private static DatabaseHelper dbHelper;
     private static final StorageManager storageManager = StorageManager.getInstance();
 
     private List<SeafRepo> reposCache = null;
@@ -855,7 +855,7 @@ public class DataManager {
     }
 
     private static class PasswordInfo {
-        String password;
+        String password; // password or encKey
         long timestamp;
 
         public PasswordInfo(String password, long timestamp) {
@@ -864,24 +864,50 @@ public class DataManager {
         }
     }
 
-    public static boolean getRepoPasswordSet(String repoID) {
-        PasswordInfo info = passwords.get(repoID);
-        if (info == null) {
+    public boolean getRepoPasswordSet(String repoID) {
+        final SeafRepo seafRepo = getCachedRepoByID(repoID);
+        if (seafRepo != null && seafRepo.canLocalDecrypt()) {
+            Pair<String, String> info = dbHelper.getEnckey(repoID);
+            return info != null
+                    && !TextUtils.isEmpty(info.first)
+                    && !TextUtils.isEmpty(info.second);
+        }
+
+        PasswordInfo passwordInfo = passwords.get(repoID);
+        if (passwordInfo == null) {
             return false;
         }
 
-        if (Utils.now() - info.timestamp > SET_PASSWORD_INTERVAL) {
+        if (Utils.now() - passwordInfo.timestamp > SET_PASSWORD_INTERVAL) {
             return false;
         }
 
         return true;
     }
 
-    public static void setRepoPasswordSet(String repoID, String password) {
+    public static void setRepoPasswordSet(String repoID, String key, String iv) {
+        if (!TextUtils.isEmpty(repoID)
+                && !TextUtils.isEmpty(key)
+                && !TextUtils.isEmpty(iv)) {
+            dbHelper.saveEncKey(key, iv, repoID);
+        }
+    }
+
+    public void setRepoPasswordSet(String repoID, String password) {
         passwords.put(repoID, new PasswordInfo(password, Utils.now()));
     }
 
-    public static String getRepoPassword(String repoID) {
+    public String getRepoPassword(String repoID) {
+        if (repoID == null) {
+            return null;
+        }
+
+        final SeafRepo seafRepo = getCachedRepoByID(repoID);
+        if (seafRepo != null && seafRepo.canLocalDecrypt()) {
+            final Pair<String, String> pair = dbHelper.getEnckey(repoID);
+            return pair.first;
+        }
+
         PasswordInfo info = passwords.get(repoID);
         if (info == null) {
             return null;
@@ -890,22 +916,7 @@ public class DataManager {
         return info.password;
     }
 
-    public boolean getRepoEnckeySet(String repoID) {
-        Pair<String, String> info = dbHelper.getEnckey(repoID);
-        return info != null
-                && !TextUtils.isEmpty(info.first)
-                && !TextUtils.isEmpty(info.second);
-    }
-
-    public void saveRepoSecretKey(String repoID, String key, String iv) {
-        if (!TextUtils.isEmpty(repoID)
-                && !TextUtils.isEmpty(key)
-                && !TextUtils.isEmpty(iv)) {
-            dbHelper.saveEncKey(key, iv, repoID);
-        }
-    }
-
-    public Pair<String, String> getRepoEncKey(String repoID) {
+    private Pair<String, String> getRepoEncKey(String repoID) {
         if (repoID == null) {
             return null;
         }
