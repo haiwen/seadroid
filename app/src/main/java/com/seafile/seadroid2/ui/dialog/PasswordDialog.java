@@ -183,14 +183,14 @@ public class PasswordDialog extends TaskDialog {
         SeafRepo repo = dataManager.getCachedRepoByID(repoID);
         String password = passwordText.getText().toString().trim();
         if (repo == null || !repo.canLocalDecrypt()) {
-            DataManager.setRepoPasswordSet(repoID, password);
+            dataManager.setRepoPasswordSet(repoID, password);
         } else {
             if (TextUtils.isEmpty(repo.magic))
                 return;
 
             try {
                 final Pair<String, String> pair = Crypto.generateKey(password, repo.encKey, repo.encVersion);
-                dataManager.saveRepoSecretKey(repoID, pair.first, pair.second);
+                dataManager.setRepoPasswordSet(repoID, pair.first, pair.second);
             } catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
                 // TODO notify error
                 e.printStackTrace();
