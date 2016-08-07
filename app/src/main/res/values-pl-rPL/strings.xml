@@ -5,13 +5,18 @@
   <string name="edit_account">Edytuj</string>
   <string name="delete_account">Usuń</string>
   <string name="delete">Usuń</string>
+  <string name="delete_repo">Czy na pewno chcesz usunąć tę bibliotekę?</string>
   <string name="delete_file">Czy na pewno chcesz usunąć ten plik lub folder?</string>
   <string name="delete_successful">Pomyślnie usunięto</string>
+  <string name="delete_repo_title">Usuń bibliotekę</string>
   <string name="delete_file_f">Usuń plik</string>
   <string name="delete_dir">Usuń folder</string>
+  <string name="name_hint">Nazwa</string>
   <string name="server_hint">Adres serwera</string>
   <string name="email_hint">E-mail lub nazwa użytkownika</string>
   <string name="passwd_hint">Hasło</string>
+  <string name="passwd_min_len_limit_hint">Hasło (min. 8 znaków)</string>
+  <string name="passwd_confirmation_hint">Powtórz hasło</string>
   <string name="login">Zaloguj</string>
   <string name="open_file">Otwórz</string>
   <string name="download_file">Pobierz</string>
@@ -47,6 +52,8 @@
   <string name="err_server_andress_empty">Adres serwera nie może być pusty</string>
   <string name="err_email_empty">Adres e-mail nie może być pusty</string>
   <string name="err_passwd_empty">Hasło nie może być puste</string>
+  <string name="err_passwd_too_short">Hasło jest za krótkie</string>
+  <string name="err_passwd_mismatch">Hasła nie są identyczne</string>
   <string name="err_login_failed">Nieudane logowanie</string>
   <string name="err_wrong_user_or_passwd">Nieprawidłowy adres e-mail lub hasło</string>
   <string name="err_token_expired">Uwierzytelnienie wygasło, proszę się ponownie zalogować</string>
@@ -62,6 +69,8 @@
   <string name="task_remove">Skasuj</string>
   <string name="task_remove_all_cancelled">Usuń wszystkie anulowane zadania</string>
   <string name="task_remove_all_finished">Usuń wszystkie zakończone zadania</string>
+  <string name="repo_action_delete">Usuń</string>
+  <string name="repo_action_rename">Zmień nazwę</string>
   <string name="file_action_star">Ulubione</string>
   <string name="file_action_download">Pobierz</string>
   <string name="file_action_update">Prześlij</string>
@@ -96,6 +105,7 @@
     <item quantity="few">wybrano %1$d elementy</item>
     <item quantity="other">wybrano %1$d elementów</item>
   </plurals>
+  <string name="repo_name_empty">Podaj nazwę biblioteki</string>
   <string name="dir_name_empty">Podaj nazwę folderu</string>
   <string name="file_name_empty">Podaj nazwę pliku</string>
   <string name="password_empty">Podaj hasło</string>
@@ -118,12 +128,14 @@
   <string name="load_dir_fail">Nie udało się wczytać zawartości tego folderu</string>
   <string name="not_supported_share">Ten rodzaj udziału nie jest obsługiwany</string>
   <string name="edit">Edytuj</string>
+  <string name="encrypt">Zaszyfruj</string>
   <string name="download_folder">Folder pobierania</string>
   <string name="download_folder_title">Wybierz swoje preferencje</string>
   <string-array name="download_folder_options_array">
     <item>Pobierz folder</item>
     <item>Pobierz folder i podfoldery</item>
   </string-array>
+  <string name="add_repo">Nowa biblioteka</string>
   <string name="add_file">Dodaj</string>
   <string-array name="add_file_options_array">
     <item>Utwórz plik</item>
@@ -131,6 +143,8 @@
     <item>Prześlij plik</item>
     <item>Zrób zdjęcie</item>
   </string-array>
+  <string name="create_new_repo">Utwórz nową bibliotekę</string>
+  <string name="create_new_repo_success">Pomyślnie utworzono bilbiotekę %s</string>
   <string name="create_new_file">Utwórz nowy plik</string>
   <string name="create_new_dir">Utwórz nowy folder</string>
   <string name="camera">Zrób zdjęcie</string>
@@ -149,6 +163,7 @@
   <string name="share_dir_link">Udostępnij łącze do tego folderu</string>
   <string name="generating_link">Generowanie odsyłacza...</string>
   <string name="link_ready_to_be_pasted">Łącze jest gotowe do wklejenia.</string>
+  <string name="rename_repo">Zmień nazwę biblioteki</string>
   <string name="rename_file">Zmień nazwę pliku</string>
   <string name="rename_dir">Zmień nazwę folderu</string>
   <string name="rename_successful">Pomyślnie zmieniono nazwę.</string>

@@ -5,13 +5,18 @@
   <string name="edit_account">Editar</string>
   <string name="delete_account">Borrar</string>
   <string name="delete">Borrar</string>
+  <string name="delete_repo">¿Está seguro que desea eliminar esta biblioteca?</string>
   <string name="delete_file">¿Seguro que deseas eliminar este archivo o carpeta?</string>
   <string name="delete_successful">Eliminado con éxito</string>
+  <string name="delete_repo_title">Eliminar biblioteca</string>
   <string name="delete_file_f">Eliminar archivo</string>
   <string name="delete_dir">Eliminar carpeta</string>
+  <string name="name_hint">Nombre</string>
   <string name="server_hint">Dirección del servidor</string>
   <string name="email_hint">Email o Nombre de usuario</string>
   <string name="passwd_hint">Contraseña</string>
+  <string name="passwd_min_len_limit_hint">Contraseña (al menos 8 caracteres)</string>
+  <string name="passwd_confirmation_hint">Contraseña otra vez</string>
   <string name="login">Ingresar</string>
   <string name="open_file">Abrir</string>
   <string name="download_file">Descargar</string>
@@ -47,6 +52,8 @@
   <string name="err_server_andress_empty">La dirección del servidor no puede estar vacía</string>
   <string name="err_email_empty">Email no puede estar vacio</string>
   <string name="err_passwd_empty">Contraseña no puede estar vacía</string>
+  <string name="err_passwd_too_short">La contraseña es demasiado corta</string>
+  <string name="err_passwd_mismatch">Las contraseñas no coinciden</string>
   <string name="err_login_failed">Ingreso fallido</string>
   <string name="err_wrong_user_or_passwd">Email o contraseña incorrecto</string>
   <string name="err_token_expired">La autenticación expiró, por favor ingrese nuevamente</string>
@@ -62,6 +69,8 @@
   <string name="task_remove">Remover</string>
   <string name="task_remove_all_cancelled">Remover todas las tareas canceladas</string>
   <string name="task_remove_all_finished">Remover todas las tareas finalizadas</string>
+  <string name="repo_action_delete">Eliminar</string>
+  <string name="repo_action_rename">Renombrar</string>
   <string name="file_action_star">Favorito</string>
   <string name="file_action_download">Descargar</string>
   <string name="file_action_update">Subir</string>
@@ -95,6 +104,7 @@
     <item quantity="one">%1$d ítem seleccionado</item>
     <item quantity="other">%1$d items seleccionados</item>
   </plurals>
+  <string name="repo_name_empty">Por favor ingrese el nombre de la biblioteca</string>
   <string name="dir_name_empty">Por favor ingrese el nombre de la carpeta</string>
   <string name="file_name_empty">Por favor ingrese el nombre del archivo</string>
   <string name="password_empty">Por favor ingrese la contraseña</string>
@@ -117,12 +127,14 @@
   <string name="load_dir_fail">Falla al cargar el contenido de esta carpeta</string>
   <string name="not_supported_share">Este tipo de recurso compartido no es compatible</string>
   <string name="edit">Editar</string>
+  <string name="encrypt">Encriptar</string>
   <string name="download_folder">Descargar carpeta</string>
   <string name="download_folder_title">Escoja su opción preferida</string>
   <string-array name="download_folder_options_array">
     <item>Descargar carpeta</item>
     <item>Descargar carpeta y subcarpetas</item>
   </string-array>
+  <string name="add_repo">Nueva Biblioteca</string>
   <string name="add_file">Agregar</string>
   <string-array name="add_file_options_array">
     <item>Crear archivo</item>
@@ -130,6 +142,8 @@
     <item>Subir archivo</item>
     <item>Tomar una foto</item>
   </string-array>
+  <string name="create_new_repo">Crear una nueva biblioteca</string>
+  <string name="create_new_repo_success">Biblioteca %s creada con éxito</string>
   <string name="create_new_file">Crear un nuevo archivo</string>
   <string name="create_new_dir">Crear una nueva carpeta</string>
   <string name="camera">Tomar una foto aquí</string>
@@ -148,6 +162,7 @@
   <string name="share_dir_link">Compartir un enlace a esta carpeta</string>
   <string name="generating_link">Generando enlace...</string>
   <string name="link_ready_to_be_pasted">El enlace está listo para ser pegado</string>
+  <string name="rename_repo">Renombrar biblioteca</string>
   <string name="rename_file">Renombrar archivo</string>
   <string name="rename_dir">Renombrar carpeta</string>
   <string name="rename_successful">Renombrado con éxito.</string>

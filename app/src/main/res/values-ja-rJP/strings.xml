@@ -5,13 +5,18 @@
   <string name="edit_account">編集</string>
   <string name="delete_account">削除</string>
   <string name="delete">削除</string>
+  <string name="delete_repo">このライブラリーを削除してもよろしいですか?</string>
   <string name="delete_file">このファイルまたはフォルダーを削除してもよろしいですか?</string>
   <string name="delete_successful">正常に削除しました</string>
+  <string name="delete_repo_title">ライブラリーを選択</string>
   <string name="delete_file_f">ファイルを削除</string>
   <string name="delete_dir">フォルダーを削除</string>
+  <string name="name_hint">名前</string>
   <string name="server_hint">サーバーアドレス</string>
   <string name="email_hint">メールアドレスまたはユーザー名</string>
   <string name="passwd_hint">パスワード</string>
+  <string name="passwd_min_len_limit_hint">パスワード(8 文字以上)</string>
+  <string name="passwd_confirmation_hint">パスワード再入力</string>
   <string name="login">ログイン</string>
   <string name="open_file">開く</string>
   <string name="download_file">ダウンロード</string>
@@ -47,6 +52,8 @@
   <string name="err_server_andress_empty">サーバーアドレスは空にできません</string>
   <string name="err_email_empty">メールは空にできません</string>
   <string name="err_passwd_empty">パスワードは空にできません</string>
+  <string name="err_passwd_too_short">パスワードが短すぎます</string>
+  <string name="err_passwd_mismatch">パスワードが一致しません</string>
   <string name="err_login_failed">ログインに失敗しました</string>
   <string name="err_wrong_user_or_passwd">メールまたはパスワードエラー</string>
   <string name="err_token_expired">認証の有効期限が切れました。再度ログインしてください</string>
@@ -62,6 +69,8 @@
   <string name="task_remove">削除</string>
   <string name="task_remove_all_cancelled">キャンセル済のタスクをすべて削除</string>
   <string name="task_remove_all_finished">終了済のタスクをすべて削除</string>
+  <string name="repo_action_delete">削除</string>
+  <string name="repo_action_rename">名前を変更</string>
   <string name="file_action_star">スター</string>
   <string name="file_action_download">ダウンロード</string>
   <string name="file_action_update">アップロード</string>
@@ -94,6 +103,7 @@
   <plurals name="n_upload_items_selected">
     <item quantity="other">%1$d アイテム選択済</item>
   </plurals>
+  <string name="repo_name_empty">ライブラリーの名前を入力してください</string>
   <string name="dir_name_empty">フォルダー名を入力してください</string>
   <string name="file_name_empty">ファイル名を入力してください</string>
   <string name="password_empty">パスワードを入力してください</string>
@@ -116,12 +126,14 @@
   <string name="load_dir_fail">このフォルダーの内容の読み込みに失敗しました</string>
   <string name="not_supported_share">このタイプの共有はサポートされていません</string>
   <string name="edit">編集</string>
+  <string name="encrypt">暗号化</string>
   <string name="download_folder">ダウンロードフォルダー</string>
   <string name="download_folder_title">お好みのオプションを選択してください</string>
   <string-array name="download_folder_options_array">
     <item>ダウンロードフォルダー</item>
     <item>ダウンロードフォルダーとサブフォルダー</item>
   </string-array>
+  <string name="add_repo">新しいライブラリー</string>
   <string name="add_file">追加</string>
   <string-array name="add_file_options_array">
     <item>ファイルを作成</item>
@@ -129,6 +141,8 @@
     <item>ファイルをアップロード</item>
     <item>写真を撮影</item>
   </string-array>
+  <string name="create_new_repo">新しいライブラリーを作成</string>
+  <string name="create_new_repo_success">ライブラリー %s を正常に作成しました</string>
   <string name="create_new_file">新しいファイルを作成</string>
   <string name="create_new_dir">新しいフォルダーを作成</string>
   <string name="camera">ここに写真を撮影</string>
@@ -147,6 +161,7 @@
   <string name="share_dir_link">このフォルダーへのリンクを共有</string>
   <string name="generating_link">リンクを生成しています…</string>
   <string name="link_ready_to_be_pasted">リンクを貼り付けできます。</string>
+  <string name="rename_repo">ライブラリーの名前を変更</string>
   <string name="rename_file">ファイルの名前を変更</string>
   <string name="rename_dir">フォルダーの名前を変更</string>
   <string name="rename_successful">正常に名前を変更しました。</string>

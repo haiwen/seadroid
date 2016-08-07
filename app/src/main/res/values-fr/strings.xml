@@ -5,12 +5,19 @@
   <string name="edit_account">Modifier</string>
   <string name="delete_account">Effacer</string>
   <string name="delete">Effacer</string>
+  <string name="delete_repo">Êtes-vous certain de vouloir supprimer cette bibliothèque ?</string>
   <string name="delete_file">Êtes-vous certain de vouloir supprimer ce dossier ?</string>
   <string name="delete_successful">Supprimé avec succès</string>
+  <string name="delete_repo_title">Supprimer une bibliothèque</string>
   <string name="delete_file_f">Effacer le fichier</string>
   <string name="delete_dir">Effacer le dossier</string>
+  <string name="name_hint">Nom</string>
   <string name="server_hint">Serveur, par exemple cloud.seafile.com</string>
+  <string name="email_hint">E-mail ou nom d\'utilisateur</string>
   <string name="passwd_hint">Mot de passe</string>
+  <string name="passwd_min_len_limit_hint">Mot de passe (au moins 8 caractères)</string>
+  <string name="passwd_confirmation_hint">Retaper le mot de passe</string>
+  <string name="login">Connexion</string>
   <string name="open_file">Ouvrir</string>
   <string name="download_file">Télécharger</string>
   <string name="redownload_file">Télécharger à nouveau</string>
@@ -45,6 +52,8 @@
   <string name="err_server_andress_empty">L\'adresse du serveur ne peut être vide</string>
   <string name="err_email_empty">E-mail ne peut être vide</string>
   <string name="err_passwd_empty">Le mot de passe ne peut être vide</string>
+  <string name="err_passwd_too_short">Le mot de passe est trop court</string>
+  <string name="err_passwd_mismatch">Les mots de passe ne correspondent pas</string>
   <string name="err_login_failed">Échec de la connexion</string>
   <string name="err_wrong_user_or_passwd">Erreur d\'e-mail ou de mot de passe</string>
   <string name="err_token_expired">L\'authentification a expirée, reconnectez-vous.</string>
@@ -60,6 +69,8 @@
   <string name="task_remove">Supprimer</string>
   <string name="task_remove_all_cancelled">Effacer toutes les taches annulées</string>
   <string name="task_remove_all_finished">Effacer toutes les taches terminées</string>
+  <string name="repo_action_delete">Supprimer</string>
+  <string name="repo_action_rename">Renommer</string>
   <string name="file_action_star">Favori</string>
   <string name="file_action_download">Télécharger</string>
   <string name="file_action_update">Envoi</string>
@@ -93,6 +104,7 @@
     <item quantity="one">%1$d éléments sélectionné</item>
     <item quantity="other">%1$d éléments sélectionnés</item>
   </plurals>
+  <string name="repo_name_empty">Veuillez introduire le nom de la bibliothèque</string>
   <string name="dir_name_empty">Veuillez saisir le nom du dossier</string>
   <string name="file_name_empty">Veuillez saisir le nom du fichier</string>
   <string name="password_empty">Veuillez saisir le mot de passe</string>
@@ -115,12 +127,14 @@
   <string name="load_dir_fail">Échec du chargement du contenu de ce dossier</string>
   <string name="not_supported_share">Ce type de partage n\'est pas supporté</string>
   <string name="edit">Modifier</string>
+  <string name="encrypt">Crypter</string>
   <string name="download_folder">Télécharger le dossier</string>
   <string name="download_folder_title">Choisissez votre option préférée</string>
   <string-array name="download_folder_options_array">
     <item>Dossier de téléchargement</item>
     <item>Dossier de téléchargement et sous dossiers</item>
   </string-array>
+  <string name="add_repo">Nouvelle bibliothèque</string>
   <string name="add_file">Ajouter</string>
   <string-array name="add_file_options_array">
     <item>Créer un fichier</item>
@@ -128,6 +142,8 @@
     <item>Téléverser un fichier</item>
     <item>Prendre une photo</item>
   </string-array>
+  <string name="create_new_repo">Créer une nouvelle bibliothèque</string>
+  <string name="create_new_repo_success">La bibliothèque %s a été créée avec succès</string>
   <string name="create_new_file">Créer un nouveau fichier</string>
   <string name="create_new_dir">Créer un nouveau dossier</string>
   <string name="camera">Prendre une photo</string>
@@ -146,6 +162,7 @@
   <string name="share_dir_link">Partager un lien vers ce dossier</string>
   <string name="generating_link">Génération du lien...</string>
   <string name="link_ready_to_be_pasted">Le lien est prêt à être collé/transmis.</string>
+  <string name="rename_repo">Renommer la bibliothèque</string>
   <string name="rename_file">Renommer le fichier</string>
   <string name="rename_dir">Renommer le dossier</string>
   <string name="rename_successful">Renommé avec succès.</string>
@@ -461,4 +478,8 @@ E-mail : support@seafile.com<br>
   <string name="clear_password_warning">Voulez-vous effacer le mot de passe ?</string>
   <string name="clear_password_auto">Effacement auto des mots de passe</string>
   <!--Two factor auth-->
+  <string name="two_factor_auth_error">Un jeton d\'authentification est requis</string>
+  <string name="two_factor_auth_invalid">Le jeton d\'authentification n\'est pas correcte</string>
+  <string name="two_factor_auth_token">Jeton d\'authentification à deux facteurs</string>
+  <string name="two_factor_auth_token_empty">Jeton d\'authentification ne peut être vide</string>
 </resources>
