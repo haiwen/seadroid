@@ -8,7 +8,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,10 +25,11 @@ import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.data.CommitDetails;
-import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.EventDetailsFileItem;
 import com.seafile.seadroid2.data.EventDetailsTree;
 import com.seafile.seadroid2.data.SeafActivities;
+import com.seafile.seadroid2.data.SeafCachedFile;
+import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafEvent;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.ui.NavContext;
@@ -327,7 +327,7 @@ public class ActivitiesFragment extends Fragment {
 
     private void openLocalFile(EventDetailsFileItem fileItem) {
         if (fileItem.isDir()) {
-            viewRepo(fileItem.getEvent().getRepo_id());
+            viewRepo(fileItem.getEvent().getRepo_id(), fileItem.getPath());
         } else {
             viewFile(fileItem.getEvent().getRepo_id(), fileItem.getPath());
         }
@@ -458,7 +458,7 @@ public class ActivitiesFragment extends Fragment {
         }
     }
 
-    private void viewRepo(final String repoID) {
+    private void viewRepo(final String repoID, final String path) {
         final SeafRepo repo = mActivity.getDataManager().getCachedRepoByID(repoID);
 
         if (repo == null) {
@@ -467,15 +467,17 @@ public class ActivitiesFragment extends Fragment {
         }
 
         if (repo.encrypted) {
-            mActivity.handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
+            final boolean continueProcess = mActivity.handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
                 @Override
                 public void onTaskSuccess() {
-                    switchTab(repoID, repo.getName(), repo.getRootDirID());
+                    switchTab(repoID, repo.getName(), path, repo.getRootDirID());
                 }
             });
 
-        } else {
-            switchTab(repoID, repo.getName(), repo.getRootDirID());
+            if (!continueProcess)
+                return;
+
+            switchTab(repoID, repo.getName(), path, repo.getRootDirID());
         }
     }
 
@@ -500,23 +502,41 @@ public class ActivitiesFragment extends Fragment {
         openFile(repoID, repo.getName(), path);
     }
 
-    private void switchTab(String repoID, String repoName, String repoDir) {
+    private void switchTab(String repoID, String repoName, String path, String rootDirID) {
         NavContext nav = mActivity.getNavContext();
         nav.setRepoID(repoID);
         nav.setRepoName(repoName);
-        nav.setDir("/", repoDir);
+        if (!path.startsWith("/"))
+            path = "/" + path;
+
+        if (!path.endsWith("/"))
+            path = path + "/";
+
+        path = Utils.getParentPath(path);
+
+        nav.setDir(path, null);
 
         // switch to LIBRARY TAB
         mActivity.setCurrentPosition(BrowserActivity.INDEX_LIBRARY_TAB);
     }
 
     private void openFile(String repoID, String repoName, String filePath) {
-        // Log.d(DEBUG_TAG, "open fiel " + repoName + filePath);
+        // Log.d(DEBUG_TAG, "open file " + repoName + filePath);
         final SeafRepo repo = mActivity.getDataManager().getCachedRepoByID(repoID);
+        final String parentPath = Utils.getParentPath(filePath);
+        final List<SeafDirent> cachedDirents = mActivity.getDataManager().getCachedDirents(repoID, parentPath);
+        long fileSize = 0L;
+        if (cachedDirents != null) {
+            for (SeafDirent seafDirent : cachedDirents) {
+                if (seafDirent.name.equals(filePath)) {
+                    fileSize = seafDirent.size;
+                }
+            }
+        }
 
         int taskID;
         if (repo != null && repo.canLocalDecrypt()) {
-            taskID = mActivity.getTransferService().addDownloadTask(mActivity.getAccount(), repoName, repoID, filePath, true, repo.encVersion);
+            taskID = mActivity.getTransferService().addDownloadTask(mActivity.getAccount(), repoName, repoID, filePath, true, repo.encVersion, fileSize);
         } else {
             taskID = mActivity.getTransferService().addDownloadTask(mActivity.getAccount(), repoName, repoID, filePath);
         }

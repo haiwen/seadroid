@@ -154,6 +154,10 @@ public class Utils {
             return null;
         }
 
+        if (!path.contains("/")) {
+            return "/";
+        }
+
         String parent = path.substring(0, path.lastIndexOf("/"));
         if (parent.equals("")) {
             return "/";
