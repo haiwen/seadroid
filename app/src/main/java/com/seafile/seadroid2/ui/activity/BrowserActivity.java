@@ -2057,7 +2057,7 @@ public class BrowserActivity extends BaseActivity
         if (currentPosition == INDEX_LIBRARY_TAB
                 && repoID.equals(navContext.getRepoID())
                 && dir.equals(navContext.getDirPath())) {
-            getReposFragment().refreshView(true);
+            getReposFragment().refreshView(true, true);
             String verb = getString(info.isUpdate ? R.string.updated : R.string.uploaded);
             ToastUtils.show(this, verb + " " + Utils.fileNameFromPath(info.localFilePath));
         }
