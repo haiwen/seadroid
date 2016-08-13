@@ -103,7 +103,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
         settingsMgr.registerSharedPreferencesListener(settingsListener);
         Account account = accountMgr.getCurrentAccount();
         if (!Utils.isNetworkOn()) {
-            showShortToast(mActivity, R.string.network_down);
+            mActivity.showShortToast(mActivity, R.string.network_down);
             return;
         }
 
@@ -395,12 +395,12 @@ public class SettingsFragment extends CustomPreferenceFragment {
         dialog.setTaskDialogLisenter(new TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
-                showShortToast(mActivity, R.string.clear_password_successful);
+                mActivity.showShortToast(mActivity, R.string.clear_password_successful);
             }
 
             @Override
             public void onTaskFailed(SeafException e) {
-                showShortToast(mActivity, R.string.clear_password_failed);
+                mActivity.showShortToast(mActivity, R.string.clear_password_failed);
             }
         });
         dialog.show(getFragmentManager(), "DialogFragment");
