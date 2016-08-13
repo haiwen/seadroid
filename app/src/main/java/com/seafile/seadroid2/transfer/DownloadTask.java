@@ -21,7 +21,6 @@ public class DownloadTask extends TransferTask {
 
     private String localPath;
     private DownloadStateListener downloadStateListener;
-    private boolean updateTotal;
     private int encVersion = -1;
 
     public DownloadTask(int taskID, Account account, String repoName, String repoID, String path,
@@ -36,12 +35,11 @@ public class DownloadTask extends TransferTask {
      */
     @Override
     protected void onProgressUpdate(Long... values) {
-        if (totalSize == -1 || updateTotal) {
+        state = TaskState.TRANSFERRING;
+        if (totalSize == -1) {
             totalSize = values[0];
-            state = TaskState.TRANSFERRING;
             return;
         }
-        state = TaskState.TRANSFERRING;
         finished = values[0];
         downloadStateListener.onFileDownloadProgress(taskID);
     }
@@ -57,8 +55,7 @@ public class DownloadTask extends TransferTask {
                         new ProgressMonitor() {
 
                             @Override
-                            public void onProgressNotify(long total, boolean updateTotal) {
-                                DownloadTask.this.updateTotal = updateTotal;
+                            public void onProgressNotify(long total) {
                                 publishProgress(total);
                             }
 
@@ -73,7 +70,7 @@ public class DownloadTask extends TransferTask {
                         new ProgressMonitor() {
 
                             @Override
-                            public void onProgressNotify(long total, boolean updateTotal) {
+                            public void onProgressNotify(long total) {
                                 publishProgress(total);
                             }
 
