@@ -236,7 +236,7 @@ public class StarredFragment extends ListFragment {
 
     private void doUnStarFile(String repoID, String path) {
         if (!Utils.isNetworkOn()) {
-            showShortToast(mActivity, R.string.network_down);
+            mActivity.showShortToast(mActivity, R.string.network_down);
             return;
         }
 
@@ -247,7 +247,7 @@ public class StarredFragment extends ListFragment {
     public void doStarFile(String repoID, String path, String filename) {
 
         if (!Utils.isNetworkOn()) {
-            showShortToast(mActivity, R.string.network_down);
+            mActivity.showShortToast(mActivity, R.string.network_down);
             return;
         }
 
@@ -344,11 +344,11 @@ public class StarredFragment extends ListFragment {
         @Override
         protected void onPostExecute(Void v) {
             if (err != null) {
-                showShortToast(mActivity, R.string.star_file_failed);
+                mActivity.showShortToast(mActivity, R.string.star_file_failed);
                 return;
             }
 
-            showShortToast(mActivity, R.string.star_file_succeed);
+            mActivity.showShortToast(mActivity, R.string.star_file_succeed);
         }
     }
 
@@ -377,7 +377,7 @@ public class StarredFragment extends ListFragment {
         @Override
         protected void onPostExecute(Void v) {
             if (err != null) {
-                showShortToast(mActivity, R.string.unstar_file_failed);
+                mActivity.showShortToast(mActivity, R.string.unstar_file_failed);
                 return;
             }
 
@@ -485,7 +485,7 @@ public class StarredFragment extends ListFragment {
                     || repoID == null
                     || dirPath == null) {
                 if (item.getItemId() != R.id.action_mode_select_all) {
-                    showShortToast(mActivity, R.string.action_mode_no_items_selected);
+                    mActivity.showShortToast(mActivity, R.string.action_mode_no_items_selected);
                     return true;
                 }
             }

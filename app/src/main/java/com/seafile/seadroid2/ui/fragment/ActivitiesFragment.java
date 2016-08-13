@@ -134,7 +134,7 @@ public class ActivitiesFragment extends Fragment {
                     final SeafRepo repo = mActivity.getDataManager().getCachedRepoByID(repoId);
 
                     if (repo == null) {
-                        showShortToast(mActivity, getString(R.string.repo_not_found));
+                        mActivity.showShortToast(mActivity, getString(R.string.repo_not_found));
                         return;
                     }
 
@@ -375,7 +375,7 @@ public class ActivitiesFragment extends Fragment {
                     if (err == SeafException.remoteWipedException) {
                         mActivity.completeRemoteWipe();
                     } else {
-                        showShortToast(mActivity, err.getMessage());
+                        mActivity.showShortToast(mActivity, err.getMessage());
                         showError(R.string.error_when_load_activities);
                     }
                 }
@@ -406,7 +406,7 @@ public class ActivitiesFragment extends Fragment {
 
             offset = result.getOffset();
             if (!result.isMore()) {
-                showShortToast(mActivity, getString(R.string.no_more_activities));
+                mActivity.showShortToast(mActivity, getString(R.string.no_more_activities));
                 return;
             }
 
@@ -445,7 +445,7 @@ public class ActivitiesFragment extends Fragment {
             if (ret == null) {
                 if (err != null) {
                     Log.e(DEBUG_TAG, err.getCode() + err.getMessage());
-                    showShortToast(mActivity, err.getMessage());
+                    mActivity.showShortToast(mActivity, err.getMessage());
                 }
                 return;
             }
@@ -461,7 +461,7 @@ public class ActivitiesFragment extends Fragment {
         final SeafRepo repo = mActivity.getDataManager().getCachedRepoByID(repoID);
 
         if (repo == null) {
-            showShortToast(mActivity, getString(R.string.repo_not_found));
+            mActivity.showShortToast(mActivity, getString(R.string.repo_not_found));
             return;
         }
 
@@ -483,7 +483,7 @@ public class ActivitiesFragment extends Fragment {
         final SeafRepo repo = mActivity.getDataManager().getCachedRepoByID(repoID);
 
         if (repo == null) {
-            showShortToast(mActivity, R.string.library_not_found);
+            mActivity.showShortToast(mActivity, R.string.library_not_found);
             return;
         }
 

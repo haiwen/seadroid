@@ -277,7 +277,7 @@ public abstract class TransferTaskFragment extends ListFragment {
             final List<Integer> selectedIds = adapter.getSelectedIds();
             if (selectedIds.isEmpty()) {
                 if (item.getItemId() != R.id.action_mode_select_all) {
-                    showShortToast(mActivity, R.string.action_mode_no_items_selected);
+                    mActivity.showShortToast(mActivity, R.string.action_mode_no_items_selected);
                     return true;
                 }
             }
@@ -287,7 +287,7 @@ public abstract class TransferTaskFragment extends ListFragment {
                     List<Integer> ids = adapter.getSelectedIds();
                     if (ids != null) {
                         if (ids.size() == 0) {
-                            showShortToast(mActivity, R.string.action_mode_no_items_selected);
+                            mActivity.showShortToast(mActivity, R.string.action_mode_no_items_selected);
                             return true;
                         }
 
@@ -299,7 +299,7 @@ public abstract class TransferTaskFragment extends ListFragment {
                     List<Integer> restartIds = adapter.getSelectedIds();
                     if (restartIds != null) {
                         if (restartIds.size() == 0) {
-                            showShortToast(mActivity, R.string.action_mode_no_items_selected);
+                            mActivity.showShortToast(mActivity, R.string.action_mode_no_items_selected);
                             return true;
                         }
 
