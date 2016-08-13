@@ -9,7 +9,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.util.Utils;
 import us.feras.mdv.MarkdownView;
 
@@ -102,7 +101,7 @@ public class MarkdownActivity extends BaseActivity implements Toolbar.OnMenuItem
             try {
                 startActivity(editAsText);
             } catch (ActivityNotFoundException e) {
-                ToastUtils.show(this, getString(R.string.activity_not_found));
+                showShortToast(this, getString(R.string.activity_not_found));
             }
         }
     }

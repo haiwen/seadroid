@@ -19,7 +19,6 @@ import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
-import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.util.Utils;
 import org.apache.commons.io.IOUtils;
 
@@ -122,14 +121,14 @@ public class ShareToSeafileActivity extends BaseActivity {
         protected void onPostExecute(File... fileList) {
             for (File file: fileList) {
                 if (file == null) {
-                    ToastUtils.show(ShareToSeafileActivity.this, R.string.saf_upload_path_not_available);
+                    showShortToast(ShareToSeafileActivity.this, R.string.saf_upload_path_not_available);
                 } else {
                     localPathList.add(file.getAbsolutePath());
                 }
             }
 
             if (localPathList == null || localPathList.size() == 0) {
-                ToastUtils.show(ShareToSeafileActivity.this, R.string.not_supported_share);
+                showShortToast(ShareToSeafileActivity.this, R.string.not_supported_share);
                 finish();
                 return;
             }
@@ -218,7 +217,7 @@ public class ShareToSeafileActivity extends BaseActivity {
                     }
                     Log.d(DEBUG_TAG, path + (update ? " updated" : " uploaded"));
                 }
-                ToastUtils.show(ShareToSeafileActivity.this, R.string.upload_started);
+                showShortToast(ShareToSeafileActivity.this, R.string.upload_started);
                 finish();
             }
 
@@ -241,7 +240,7 @@ public class ShareToSeafileActivity extends BaseActivity {
 
         if (resultCode == RESULT_OK) {
             if (!Utils.isNetworkOn()) {
-                ToastUtils.show(this, R.string.network_down);
+                showShortToast(this, R.string.network_down);
                 return;
             }
             dstData = data;
@@ -345,7 +344,7 @@ public class ShareToSeafileActivity extends BaseActivity {
                 builder.show();
             } else {
                 if (!Utils.isNetworkOn()) {
-                    ToastUtils.show(this, R.string.network_down);
+                    showShortToast(this, R.string.network_down);
                     return;
                 }
 
@@ -415,7 +414,7 @@ public class ShareToSeafileActivity extends BaseActivity {
         @Override
         protected void onPostExecute(Void aVoid) {
             if (fileExistent)
-                ToastUtils.show(ShareToSeafileActivity.this, R.string.overwrite_existing_file_exist);
+                showShortToast(ShareToSeafileActivity.this, R.string.overwrite_existing_file_exist);
 
             finish();
         }

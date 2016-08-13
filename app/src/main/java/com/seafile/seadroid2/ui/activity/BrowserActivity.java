@@ -67,7 +67,6 @@ import com.seafile.seadroid2.transfer.UploadTaskInfo;
 import com.seafile.seadroid2.transfer.UploadTaskManager;
 import com.seafile.seadroid2.ui.CopyMoveContext;
 import com.seafile.seadroid2.ui.NavContext;
-import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
@@ -505,7 +504,7 @@ public class BrowserActivity extends BaseActivity
                 // start action mode for selecting multiple files/folders
 
                 if (!Utils.isNetworkOn()) {
-                    ToastUtils.show(this, R.string.network_down);
+                    showShortToast(this, R.string.network_down);
                     return true;
                 }
                 if (currentPosition == INDEX_LIBRARY_TAB) {
@@ -619,7 +618,7 @@ public class BrowserActivity extends BaseActivity
 
             if (serverInfo == null) {
                 if (err != null)
-                    ToastUtils.show(BrowserActivity.this, err.getMessage());
+                    showShortToast(BrowserActivity.this, err.getMessage());
                 return;
             }
 
@@ -1043,7 +1042,7 @@ public class BrowserActivity extends BaseActivity
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess(){
-                ToastUtils.show(
+                showShortToast(
                     BrowserActivity.this,
                     String.format(getResources().getString(R.string.create_new_repo_success), dialog.getRepoName())
                 );
@@ -1079,7 +1078,7 @@ public class BrowserActivity extends BaseActivity
 
     private void showNewDirDialog() {
         if (!hasRepoWritePermission()) {
-            ToastUtils.show(this, R.string.library_read_only);
+            showShortToast(this, R.string.library_read_only);
             return;
         }
 
@@ -1088,7 +1087,7 @@ public class BrowserActivity extends BaseActivity
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
-                ToastUtils.show(BrowserActivity.this, "Sucessfully created folder " + dialog.getNewDirName());
+                showShortToast(BrowserActivity.this, "Sucessfully created folder " + dialog.getNewDirName());
                 ReposFragment reposFragment = getReposFragment();
                 if (currentPosition == INDEX_LIBRARY_TAB && reposFragment != null) {
                     reposFragment.refreshView();
@@ -1100,7 +1099,7 @@ public class BrowserActivity extends BaseActivity
 
     private void showNewFileDialog() {
         if (!hasRepoWritePermission()) {
-            ToastUtils.show(this, R.string.library_read_only);
+            showShortToast(this, R.string.library_read_only);
             return;
         }
 
@@ -1109,7 +1108,7 @@ public class BrowserActivity extends BaseActivity
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
-                ToastUtils.show(BrowserActivity.this, "Sucessfully created file " + dialog.getNewFileName());
+                showShortToast(BrowserActivity.this, "Sucessfully created file " + dialog.getNewFileName());
                 ReposFragment reposFragment = getReposFragment();
                 if (currentPosition == INDEX_LIBRARY_TAB && reposFragment != null) {
                     reposFragment.refreshView();
@@ -1143,7 +1142,7 @@ public class BrowserActivity extends BaseActivity
             startActivityForResult(imageCaptureIntent, TAKE_PHOTO_REQUEST);
 
         } catch (IOException e) {
-            ToastUtils.show(BrowserActivity.this, R.string.unknow_error);
+            showShortToast(BrowserActivity.this, R.string.unknow_error);
         }
     }
 
@@ -1228,7 +1227,7 @@ public class BrowserActivity extends BaseActivity
 
     void pickFile() {
         if (!hasRepoWritePermission()) {
-            ToastUtils.show(this, R.string.library_read_only);
+            showShortToast(this, R.string.library_read_only);
             return;
         }
 
@@ -1251,7 +1250,7 @@ public class BrowserActivity extends BaseActivity
                 String[] paths = data.getStringArrayExtra(MultiFileChooserActivity.MULTI_FILES_PATHS);
                 if (paths == null)
                     return;
-                ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
+                showShortToast(this, getString(R.string.added_to_upload_tasks));
 
                 List<SeafDirent> list = dataManager.getCachedDirents(navContext.getRepoID(), navContext.getDirPath());
                 if (list == null) return;
@@ -1277,7 +1276,7 @@ public class BrowserActivity extends BaseActivity
                 ArrayList<String> paths = data.getStringArrayListExtra("photos");
                 if (paths == null)
                     return;
-                ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
+                showShortToast(this, getString(R.string.added_to_upload_tasks));
 
                 List<SeafDirent> list = dataManager.getCachedDirents(navContext.getRepoID(), navContext.getDirPath());
                 if (list == null) return;
@@ -1301,7 +1300,7 @@ public class BrowserActivity extends BaseActivity
         case PICK_FILE_REQUEST:
             if (resultCode == RESULT_OK) {
                 if (!Utils.isNetworkOn()) {
-                    ToastUtils.show(this, R.string.network_down);
+                    showShortToast(this, R.string.network_down);
                     return;
                 }
 
@@ -1310,14 +1309,14 @@ public class BrowserActivity extends BaseActivity
                     if (uriList.size() > 0) {
                         ConcurrentAsyncTask.execute(new SAFLoadRemoteFileTask(), uriList.toArray(new Uri[]{}));
                     } else {
-                        ToastUtils.show(BrowserActivity.this, R.string.saf_upload_path_not_available);
+                        showShortToast(BrowserActivity.this, R.string.saf_upload_path_not_available);
                     }
                 } else {
                     Uri uri = data.getData();
                     if (uri != null) {
                         ConcurrentAsyncTask.execute(new SAFLoadRemoteFileTask(), uri);
                     } else {
-                        ToastUtils.show(BrowserActivity.this, R.string.saf_upload_path_not_available);
+                        showShortToast(BrowserActivity.this, R.string.saf_upload_path_not_available);
                     }
                 }
             }
@@ -1325,7 +1324,7 @@ public class BrowserActivity extends BaseActivity
         case CHOOSE_COPY_MOVE_DEST_REQUEST:
             if (resultCode == RESULT_OK) {
                 if (!Utils.isNetworkOn()) {
-                    ToastUtils.show(this, R.string.network_down);
+                    showShortToast(this, R.string.network_down);
                     return;
                 }
 
@@ -1334,18 +1333,18 @@ public class BrowserActivity extends BaseActivity
             break;
         case TAKE_PHOTO_REQUEST:
             if (resultCode == RESULT_OK) {
-                ToastUtils.show(this, getString(R.string.take_photo_successfully));
+                showShortToast(this, getString(R.string.take_photo_successfully));
                 if (!Utils.isNetworkOn()) {
-                    ToastUtils.show(this, R.string.network_down);
+                    showShortToast(this, R.string.network_down);
                     return;
                 }
 
                 if(takeCameraPhotoTempFile == null) {
-                    ToastUtils.show(this, getString(R.string.saf_upload_path_not_available));
+                    showShortToast(this, getString(R.string.saf_upload_path_not_available));
                     Log.i(DEBUG_TAG, "Pick file request did not return a path");
                     return;
                 }
-                ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
+                showShortToast(this, getString(R.string.added_to_upload_tasks));
                 final SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
                 if (repo != null && repo.canLocalDecrypt()) {
                     addUploadBlocksTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), takeCameraPhotoTempFile.getAbsolutePath(), repo.encVersion);
@@ -1413,7 +1412,7 @@ public class BrowserActivity extends BaseActivity
 
             for (final File file: fileList) {
                 if (file == null) {
-                    ToastUtils.show(BrowserActivity.this, R.string.saf_upload_path_not_available);
+                    showShortToast(BrowserActivity.this, R.string.saf_upload_path_not_available);
                 } else {
                     if (list == null) {
                         Log.e(DEBUG_TAG, "Seadroid dirent cache is empty in uploadFile. Should not happen, aborting.");
@@ -1558,7 +1557,7 @@ public class BrowserActivity extends BaseActivity
      */
     public void downloadDir(String dirPath, String fileName, boolean recurse) {
         if (!Utils.isNetworkOn()) {
-            ToastUtils.show(this, R.string.network_down);
+            showShortToast(this, R.string.network_down);
             return;
         }
 
@@ -1652,15 +1651,15 @@ public class BrowserActivity extends BaseActivity
         protected void onPostExecute(List<SeafDirent> dirents) {
             if (dirents == null) {
                 if (err != null) {
-                    ToastUtils.show(BrowserActivity.this, R.string.transfer_list_network_error);
+                    showShortToast(BrowserActivity.this, R.string.transfer_list_network_error);
                 }
                 return;
             }
 
             if (fileCount == 0)
-                ToastUtils.show(BrowserActivity.this, R.string.transfer_download_no_task);
+                showShortToast(BrowserActivity.this, R.string.transfer_download_no_task);
             else {
-                ToastUtils.show(BrowserActivity.this, getResources().getQuantityString(R.plurals.transfer_download_started, fileCount, fileCount));
+                showShortToast(BrowserActivity.this, getResources().getQuantityString(R.plurals.transfer_download_started, fileCount, fileCount));
                 if (!txService.hasDownloadNotifProvider()) {
                     DownloadNotificationProvider provider = new DownloadNotificationProvider(txService.getDownloadTaskManager(),
                             txService);
@@ -1796,7 +1795,7 @@ public class BrowserActivity extends BaseActivity
         List<ResolveInfo> infos = Utils.getAppsByIntent(sendIntent);
 
         if (infos.isEmpty()) {
-            ToastUtils.show(this, R.string.no_app_available);
+            showShortToast(this, R.string.no_app_available);
             return;
         }
 
@@ -1850,7 +1849,7 @@ public class BrowserActivity extends BaseActivity
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
-                ToastUtils.show(BrowserActivity.this, R.string.rename_successful);
+                showShortToast(BrowserActivity.this, R.string.rename_successful);
                 ReposFragment reposFragment = getReposFragment();
                 if (currentPosition == INDEX_LIBRARY_TAB && reposFragment != null) {
                     reposFragment.refreshView(true, true);
@@ -1866,7 +1865,7 @@ public class BrowserActivity extends BaseActivity
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
-                ToastUtils.show(BrowserActivity.this, R.string.delete_successful);
+                showShortToast(BrowserActivity.this, R.string.delete_successful);
                 ReposFragment reposFragment = getReposFragment();
                 if (currentPosition == INDEX_LIBRARY_TAB && reposFragment != null) {
                     reposFragment.refreshView(true, true);
@@ -1904,7 +1903,7 @@ public class BrowserActivity extends BaseActivity
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
-                ToastUtils.show(BrowserActivity.this, R.string.rename_successful);
+                showShortToast(BrowserActivity.this, R.string.rename_successful);
                 ReposFragment reposFragment = getReposFragment();
                 if (currentPosition == INDEX_LIBRARY_TAB && reposFragment != null) {
                     reposFragment.refreshView();
@@ -1928,7 +1927,7 @@ public class BrowserActivity extends BaseActivity
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
-                ToastUtils.show(BrowserActivity.this, R.string.delete_successful);
+                showShortToast(BrowserActivity.this, R.string.delete_successful);
                 ReposFragment reposFragment = getReposFragment();
                 if (currentPosition == INDEX_LIBRARY_TAB && reposFragment != null) {
                     reposFragment.refreshView();
@@ -1966,7 +1965,7 @@ public class BrowserActivity extends BaseActivity
 
     private void doCopyMove() {
         if (!copyMoveContext.checkCopyMoveToSubfolder()) {
-            ToastUtils.show(this, copyMoveContext.isCopy()
+            showShortToast(this, copyMoveContext.isCopy()
                     ? R.string.cannot_copy_folder_to_subfolder
                     : R.string.cannot_move_folder_to_subfolder);
             return;
@@ -1977,7 +1976,7 @@ public class BrowserActivity extends BaseActivity
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
-                ToastUtils.show(BrowserActivity.this, copyMoveContext.isCopy()
+                showShortToast(BrowserActivity.this, copyMoveContext.isCopy()
                         ? R.string.copied_successfully
                         : R.string.moved_successfully);
                 if (copyMoveContext.batch) {
@@ -2038,7 +2037,7 @@ public class BrowserActivity extends BaseActivity
             }
         }
 
-        ToastUtils.show(this, getString(R.string.download_failed));
+        showShortToast(this, getString(R.string.download_failed));
     }
 
     private void onFileUploaded(int taskID) {
@@ -2059,14 +2058,14 @@ public class BrowserActivity extends BaseActivity
                 && dir.equals(navContext.getDirPath())) {
             getReposFragment().refreshView(true, true);
             String verb = getString(info.isUpdate ? R.string.updated : R.string.uploaded);
-            ToastUtils.show(this, verb + " " + Utils.fileNameFromPath(info.localFilePath));
+            showShortToast(this, verb + " " + Utils.fileNameFromPath(info.localFilePath));
         }
     }
 
     private int intShowErrorTime;
     private void onFileUploadFailed(int taskID) {
         if (++ intShowErrorTime <= 1)
-            ToastUtils.show(this, getString(R.string.upload_failed));
+            showShortToast(this, getString(R.string.upload_failed));
     }
 
     public PasswordDialog showPasswordDialog(String repoName, String repoID,
@@ -2102,7 +2101,7 @@ public class BrowserActivity extends BaseActivity
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
-                ToastUtils.show(BrowserActivity.this, R.string.delete_successful);
+                showShortToast(BrowserActivity.this, R.string.delete_successful);
                 if (getDataManager() != null) {
                     List<SeafDirent> cachedDirents = getDataManager().getCachedDirents(repoID,
                             getNavContext().getDirPath());
@@ -2173,7 +2172,7 @@ public class BrowserActivity extends BaseActivity
      */
     public void downloadFiles(String repoID, String repoName, String dirPath, List<SeafDirent> dirents) {
         if (!Utils.isNetworkOn()) {
-            ToastUtils.show(this, R.string.network_down);
+            showShortToast(this, R.string.network_down);
             return;
         }
 
@@ -2259,14 +2258,14 @@ public class BrowserActivity extends BaseActivity
             getReposFragment().showLoading(false);
 
             if (err != null) {
-                ToastUtils.show(BrowserActivity.this, R.string.transfer_list_network_error);
+                showShortToast(BrowserActivity.this, R.string.transfer_list_network_error);
                 return;
             }
 
             if (fileCount == 0)
-                ToastUtils.show(BrowserActivity.this, R.string.transfer_download_no_task);
+                showShortToast(BrowserActivity.this, R.string.transfer_download_no_task);
             else {
-                ToastUtils.show(BrowserActivity.this,
+                showShortToast(BrowserActivity.this,
                         getResources().getQuantityString(R.plurals.transfer_download_started,
                                 fileCount,
                                 fileCount));

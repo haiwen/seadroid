@@ -27,7 +27,6 @@ import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SearchedFile;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.ui.WidgetUtils;
-import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.adapter.SearchAdapter;
 import com.seafile.seadroid2.util.Utils;
 
@@ -208,7 +207,7 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
         // TODO page loading instead of only display top 100 search result
         page = 100;
         if (!Utils.isNetworkOn()) {
-            ToastUtils.show(this, R.string.network_down);
+            showShortToast(this, R.string.network_down);
             mMessageContainer.setVisibility(View.VISIBLE);
             return;
         } else
@@ -222,7 +221,7 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
 
             Utils.hideSoftKeyboard(mTextField);
         } else {
-            ToastUtils.show(this, R.string.search_txt_empty);
+            showShortToast(this, R.string.search_txt_empty);
         }
     }
 
@@ -276,7 +275,7 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
                     mErrorText.setVisibility(View.VISIBLE);
 
                     if (seafException.getCode() == 404)
-                        ToastUtils.show(SearchActivity.this, R.string.search_server_not_support);
+                        showShortToast(SearchActivity.this, R.string.search_server_not_support);
 
                     Log.d(DEBUG_TAG, seafException.getMessage() + " code " + seafException.getCode());
                 } else {
@@ -289,7 +288,7 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
 
             if (result.size() == 0) {
                 mMessageContainer.setVisibility(View.VISIBLE);
-                ToastUtils.show(SearchActivity.this, R.string.search_content_empty);
+                showShortToast(SearchActivity.this, R.string.search_content_empty);
                 return;
             }
 
@@ -384,7 +383,7 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
 
         if (searchedFile.isDir()) {
             if (repo == null) {
-                ToastUtils.show(this, R.string.search_library_not_found);
+                showShortToast(this, R.string.search_library_not_found);
                 return;
             }
             WidgetUtils.showRepo(this, repoID, repoName, filePath, null);
