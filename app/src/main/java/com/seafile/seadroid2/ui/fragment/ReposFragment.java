@@ -601,14 +601,18 @@ public class ReposFragment extends ListFragment {
             return;
         }
 
-        final boolean continueProcess = mActivity.handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
-            @Override
-            public void onTaskSuccess() {
-                onListItemClick(l, v, position, id);
-            }
-        });
+        if (repo.encrypted && !getDataManager().getRepoPasswordSet(repo.id)) {
+            String password = getDataManager().getRepoPassword(repo.id);
+            mActivity.showPasswordDialog(repo.name, repo.id,
+                    new TaskDialog.TaskDialogListener() {
+                        @Override
+                        public void onTaskSuccess() {
+                            onListItemClick(l, v, position, id);
+                        }
+                    }, password);
 
-        if (!continueProcess) return;
+            return;
+        }
 
         mRefreshType = REFRESH_ON_CLICK;
         if (nav.inRepo()) {

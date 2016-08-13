@@ -237,8 +237,9 @@ public class FileActivity extends BaseActivity implements Toolbar.OnMenuItemClic
     }
 
     private void handlePassword() {
-        SeafRepo repo = mDataManager.getCachedRepoByID(mRepoID);
-        handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
+        PasswordDialog passwordDialog = new PasswordDialog();
+        passwordDialog.setRepo(mRepoName, mRepoID, mAccount);
+        passwordDialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
                 mTaskID = mTransferService.addDownloadTask(mAccount,
@@ -252,33 +253,6 @@ public class FileActivity extends BaseActivity implements Toolbar.OnMenuItemClic
                 finish();
             }
         });
-    }
-
-    private void handleEncryptedRepo(SeafRepo repo, TaskDialog.TaskDialogListener taskDialogListener) {
-        if (!repo.encrypted) {
-            taskDialogListener.onTaskSuccess();
-            return;
-        }
-
-        if (!repo.canLocalDecrypt()) {
-            if (!DataManager.getRepoPasswordSet(repo.id)) {
-                showPasswordDialog(repo.name, repo.id, taskDialogListener);
-            } else {
-                taskDialogListener.onTaskSuccess();
-            }
-        } else {
-            if (!mDataManager.getRepoEnckeySet(repo.id)) {
-                showPasswordDialog(repo.name, repo.id, taskDialogListener);
-            } else {
-                taskDialogListener.onTaskSuccess();
-            }
-        }
-    }
-
-    public void showPasswordDialog(String repoName, String repoID, TaskDialog.TaskDialogListener listener) {
-        PasswordDialog passwordDialog = new PasswordDialog();
-        passwordDialog.setRepo(repoName, repoID, mAccount);
-        passwordDialog.setTaskDialogLisenter(listener);
         passwordDialog.show(getSupportFragmentManager(), "DialogFragment");
     }
 
