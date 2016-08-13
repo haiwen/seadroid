@@ -723,7 +723,8 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
                 if (retCode == SeafConnection.HTTP_STATUS_REPO_PASSWORD_REQUIRED) {
                     showPasswordDialog();
                 } else if (retCode == HttpURLConnection.HTTP_NOT_FOUND) {
-                    showShortToast(SeafilePathChooserActivity.this, String.format("The folder \"%s\" was deleted", dirPath));
+                    final String message = String.format(getString(R.string.op_exception_folder_deleted), dirPath);
+                    showShortToast(SeafilePathChooserActivity.this, message);
                 } else {
                     Log.d(DEBUG_TAG, "failed to load dirents: " + err.getMessage());
                     err.printStackTrace();

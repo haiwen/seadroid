@@ -1004,7 +1004,8 @@ public class ReposFragment extends ListFragment {
                     mActivity.showShortToast(mActivity, R.string.err_token_expired);
                     mActivity.logoutWhenTokenExpired();
                 } else if (err.getCode() == HttpURLConnection.HTTP_NOT_FOUND) {
-                    mActivity.showShortToast(mActivity, String.format("The folder \"%s\" was deleted", myPath));
+                    final String message = String.format(getString(R.string.op_exception_folder_deleted), myPath);
+                    mActivity.showShortToast(mActivity, message);
                 } else {
                     Log.d(DEBUG_TAG, "failed to load dirents: " + err.getMessage());
                     err.printStackTrace();
