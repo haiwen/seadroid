@@ -150,6 +150,8 @@
     </string-array>
     <string name="create_new_repo">Create a new library</string>
     <string name="create_new_repo_success">Successfully created library %s</string>
+    <string name="create_new_folder_success">Successfully created folder %s</string>
+    <string name="create_new_file_success">Successfully created file %s</string>
     <string name="create_new_file">Create a new file</string>
     <string name="create_new_dir">Create a new folder</string>
     <string name="camera">Take a photo here</string>
@@ -159,6 +161,7 @@
     <string name="file_modified">modified</string>
     <string name="file_size">file size</string>
     <string name="library_not_found">The library has been deleted.</string>
+    <string name="file_not_found">The file \"%s\" has been deleted</string>
     <string name="export_file">Export this file</string>
     <string name="no_upload_tasks">No upload tasks yet</string>
     <string name="no_download_tasks">No download tasks yet</string>
@@ -500,7 +503,7 @@
     <string name="history_change_title">Modification Details</string>
     <string name="no_more_activities">No more activities</string>
 
-    <!-- client sid encryption and decryption -->
+    <!-- client side encryption and decryption -->
     <string name="enc_on">Decrypt data locally</string>
     <string name="enc_off">Decrypt data on server side</string>
     <string name="enc_title">Encrypted library data decryption mode</string>
@@ -518,4 +521,9 @@
     <string name="two_factor_auth_invalid">authentication token is invalid</string>
     <string name="two_factor_auth_token">Two-factor Authentication token</string>
     <string name="two_factor_auth_token_empty">Authentication token can\`t be empty</string>
+
+    <!-- Operation Exceptions -->
+    <string name="op_exception_folder_deleted">The folder \"%s\" was deleted</string>
+    <string name="op_exception_suitable_app_not_found">Could not find suitable app for mime type %s</string>
+    <string name="op_exception_failed_to_download_file">Failed to download file %s</string>
 </resources>

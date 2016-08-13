@@ -656,7 +656,8 @@ public class CloudLibrarySelectionFragment extends Fragment {
                 if (retCode == SeafConnection.HTTP_STATUS_REPO_PASSWORD_REQUIRED) {
                     showPasswordDialog();
                 } else if (retCode == HttpURLConnection.HTTP_NOT_FOUND) {
-                    mActivity.showShortToast(mActivity, String.format("The folder \"%s\" was deleted", dirPath));
+                    final String message = String.format(getString(R.string.op_exception_folder_deleted), dirPath);
+                    mActivity.showShortToast(mActivity, message);
                 } else {
                     Log.d(DEBUG_TAG, "failed to load dirents: " + err.getMessage());
                     err.printStackTrace();

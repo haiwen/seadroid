@@ -151,12 +151,14 @@ public class FetchFileDialog extends DialogFragment {
         String fileName = Utils.fileNameFromPath(path);
         if (err.getCode() == HttpURLConnection.HTTP_NOT_FOUND) {
             getDialog().dismiss();
-            Toast.makeText(getBrowserActivity(), "The file \"" + fileName + "\" has been deleted", Toast.LENGTH_SHORT).show();
+            final String message = String.format(getActivity().getString(R.string.file_not_found), fileName);
+            Toast.makeText(getBrowserActivity(), message, Toast.LENGTH_SHORT).show();
         } else if (err.getCode() == SeafConnection.HTTP_STATUS_REPO_PASSWORD_REQUIRED) {
             handlePassword();
         } else {
             getDialog().dismiss();
-            Toast.makeText(getBrowserActivity(), "Failed to download file \"" + fileName, Toast.LENGTH_SHORT).show();
+            final String message = String.format(getActivity().getString(R.string.op_exception_failed_to_download_file), fileName);
+            Toast.makeText(getBrowserActivity(), message, Toast.LENGTH_SHORT).show();
             if (mListener != null) {
                 mListener.onFailure(err);
             }

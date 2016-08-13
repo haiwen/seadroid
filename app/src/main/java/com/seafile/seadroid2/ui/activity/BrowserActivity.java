@@ -1087,7 +1087,8 @@ public class BrowserActivity extends BaseActivity
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
-                showShortToast(BrowserActivity.this, "Sucessfully created folder " + dialog.getNewDirName());
+                final String message = String.format(getString(R.string.create_new_folder_success), dialog.getNewDirName());
+                showShortToast(BrowserActivity.this, message);
                 ReposFragment reposFragment = getReposFragment();
                 if (currentPosition == INDEX_LIBRARY_TAB && reposFragment != null) {
                     reposFragment.refreshView();
@@ -1108,7 +1109,8 @@ public class BrowserActivity extends BaseActivity
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
-                showShortToast(BrowserActivity.this, "Sucessfully created file " + dialog.getNewFileName());
+                final String message = String.format(getString(R.string.create_new_file_success), dialog.getNewFileName());
+                showShortToast(BrowserActivity.this, message);
                 ReposFragment reposFragment = getReposFragment();
                 if (currentPosition == INDEX_LIBRARY_TAB && reposFragment != null) {
                     reposFragment.refreshView();
