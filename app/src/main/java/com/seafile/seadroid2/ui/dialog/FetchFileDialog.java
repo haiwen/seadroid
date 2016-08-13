@@ -34,6 +34,7 @@ public class FetchFileDialog extends DialogFragment {
     private String repoName;
     private String repoID;
     private String path;
+    private long fileSize;
 
     private ImageView fileIcon;
     private TextView fileNameText, fileSizeText;
@@ -56,11 +57,11 @@ public class FetchFileDialog extends DialogFragment {
         return (BrowserActivity)getActivity();
     }
 
-    public void init(String repoName, String repoID, String path, FetchFileListener listener) {
+    public void init(String repoName, String repoID, String path, long fileSize, FetchFileListener listener) {
         this.repoName = repoName;
         this.repoID = repoID;
         this.path = path;
-
+        this.fileSize = fileSize;
         this.mListener = listener;
     }
 
@@ -69,7 +70,7 @@ public class FetchFileDialog extends DialogFragment {
         BrowserActivity mActivity = getBrowserActivity();
 
         taskID = mActivity.getTransferService().addDownloadTask(mActivity.getAccount(),
-                                                                repoName, repoID, path);
+                                                                repoName, repoID, path, fileSize);
     }
 
     @Override
