@@ -1775,15 +1775,15 @@ public class BrowserActivity extends BaseActivity
      *
      * @param fileName The name of the file to share in the current navcontext
      */
-    public void exportFile(String fileName) {
+    public void exportFile(String fileName, long fileSize) {
         String repoName = navContext.getRepoName();
         String repoID = navContext.getRepoID();
         String dirPath = navContext.getDirPath();
         String fullPath = Utils.pathJoin(dirPath, fileName);
-        chooseExportApp(repoName, repoID, fullPath);
+        chooseExportApp(repoName, repoID, fullPath, fileSize);
     }
 
-    private void chooseExportApp(final String repoName, final String repoID, final String path) {
+    private void chooseExportApp(final String repoName, final String repoID, final String path, final long fileSize) {
         final File file = dataManager.getLocalRepoFile(repoName, repoID, path);
         Uri uri = Uri.fromFile(file);
 
@@ -1815,7 +1815,7 @@ public class BrowserActivity extends BaseActivity
                     startActivity(sendIntent);
                     return;
                 }
-                fetchFileAndExport(appInfo, sendIntent, repoName, repoID, path);
+                fetchFileAndExport(appInfo, sendIntent, repoName, repoID, path, fileSize);
             }
 
         });
@@ -1823,10 +1823,10 @@ public class BrowserActivity extends BaseActivity
     }
 
     private void fetchFileAndExport(final ResolveInfo appInfo, final Intent intent,
-                                    final String repoName, final String repoID, final String path) {
+                                    final String repoName, final String repoID, final String path, final long fileSize) {
 
         fetchFileDialog = new FetchFileDialog();
-        fetchFileDialog.init(repoName, repoID, path, new FetchFileDialog.FetchFileListener() {
+        fetchFileDialog.init(repoName, repoID, path, fileSize, new FetchFileDialog.FetchFileListener() {
             @Override
             public void onSuccess() {
                 startActivity(intent);

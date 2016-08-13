@@ -41,6 +41,7 @@ public class DownloadTask extends TransferTask {
             state = TaskState.TRANSFERRING;
             return;
         }
+        state = TaskState.TRANSFERRING;
         finished = values[0];
         downloadStateListener.onFileDownloadProgress(taskID);
     }
