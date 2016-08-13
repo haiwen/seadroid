@@ -6,7 +6,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,8 +30,6 @@ import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.ui.NavContext;
-import com.seafile.seadroid2.ui.ToastUtils;
-import com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity;
 import com.seafile.seadroid2.ui.adapter.DirentsAdapter;
 import com.seafile.seadroid2.ui.dialog.PasswordDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
@@ -659,7 +656,7 @@ public class CloudLibrarySelectionFragment extends Fragment {
                 if (retCode == SeafConnection.HTTP_STATUS_REPO_PASSWORD_REQUIRED) {
                     showPasswordDialog();
                 } else if (retCode == HttpURLConnection.HTTP_NOT_FOUND) {
-                    ToastUtils.show(mActivity, String.format("The folder \"%s\" was deleted", dirPath));
+                    showShortToast(mActivity, String.format("The folder \"%s\" was deleted", dirPath));
                 } else {
                     Log.d(DEBUG_TAG, "failed to load dirents: " + err.getMessage());
                     err.printStackTrace();

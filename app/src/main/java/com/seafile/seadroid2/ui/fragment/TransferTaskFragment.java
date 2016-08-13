@@ -26,7 +26,6 @@ import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferTaskInfo;
-import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.activity.TransferActivity;
 import com.seafile.seadroid2.ui.adapter.TransferTaskAdapter;
 
@@ -278,7 +277,7 @@ public abstract class TransferTaskFragment extends ListFragment {
             final List<Integer> selectedIds = adapter.getSelectedIds();
             if (selectedIds.isEmpty()) {
                 if (item.getItemId() != R.id.action_mode_select_all) {
-                    ToastUtils.show(mActivity, R.string.action_mode_no_items_selected);
+                    showShortToast(mActivity, R.string.action_mode_no_items_selected);
                     return true;
                 }
             }
@@ -288,7 +287,7 @@ public abstract class TransferTaskFragment extends ListFragment {
                     List<Integer> ids = adapter.getSelectedIds();
                     if (ids != null) {
                         if (ids.size() == 0) {
-                            ToastUtils.show(mActivity, R.string.action_mode_no_items_selected);
+                            showShortToast(mActivity, R.string.action_mode_no_items_selected);
                             return true;
                         }
 
@@ -300,7 +299,7 @@ public abstract class TransferTaskFragment extends ListFragment {
                     List<Integer> restartIds = adapter.getSelectedIds();
                     if (restartIds != null) {
                         if (restartIds.size() == 0) {
-                            ToastUtils.show(mActivity, R.string.action_mode_no_items_selected);
+                            showShortToast(mActivity, R.string.action_mode_no_items_selected);
                             return true;
                         }
 

@@ -2,7 +2,6 @@ package com.seafile.seadroid2.ui.activity;
 
 import java.util.List;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -22,7 +21,6 @@ import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.gesturelock.LockPatternView;
 import com.seafile.seadroid2.gesturelock.LockPatternView.Cell;
-import com.seafile.seadroid2.ui.ToastUtils;
 
 
 public class UnlockGesturePasswordActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
@@ -110,14 +108,14 @@ public class UnlockGesturePasswordActivity extends BaseActivity implements Toolb
                             - mFailedPatternAttemptsSinceLastTimeout;
                     if (retry >= 0) {
                         if (retry == 0)
-                        ToastUtils.show(UnlockGesturePasswordActivity.this, getResources().getString(R.string.lockscreen_access_pattern_failure));
+                        showShortToast(UnlockGesturePasswordActivity.this, getResources().getString(R.string.lockscreen_access_pattern_failure));
                         mHeadTextView.setText(getResources().getQuantityString(R.plurals.lockscreen_access_pattern_failure_left_try_times, retry, retry));
                         mHeadTextView.setTextColor(Color.RED);
                         mHeadTextView.startAnimation(mShakeAnim);
                     }
 
                 } else {
-                    ToastUtils.show(UnlockGesturePasswordActivity.this, getResources().getString(R.string.lockscreen_access_pattern_failure_not_long_enough));
+                    showShortToast(UnlockGesturePasswordActivity.this, getResources().getString(R.string.lockscreen_access_pattern_failure_not_long_enough));
                 }
 
                 if (mFailedPatternAttemptsSinceLastTimeout >= LockPatternUtils.FAILED_ATTEMPTS_BEFORE_TIMEOUT) {

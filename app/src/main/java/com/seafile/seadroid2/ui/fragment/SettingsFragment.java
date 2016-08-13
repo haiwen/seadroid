@@ -15,7 +15,6 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 import android.text.Html;
 import android.text.TextUtils;
-import android.text.method.CharacterPickerDialog;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -35,7 +34,6 @@ import com.seafile.seadroid2.cameraupload.CameraUploadManager;
 import com.seafile.seadroid2.cameraupload.GalleryBucketUtils;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
-import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.activity.CreateGesturePasswordActivity;
 import com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity;
@@ -105,7 +103,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
         settingsMgr.registerSharedPreferencesListener(settingsListener);
         Account account = accountMgr.getCurrentAccount();
         if (!Utils.isNetworkOn()) {
-            ToastUtils.show(mActivity, R.string.network_down);
+            showShortToast(mActivity, R.string.network_down);
             return;
         }
 
@@ -397,12 +395,12 @@ public class SettingsFragment extends CustomPreferenceFragment {
         dialog.setTaskDialogLisenter(new TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
-                ToastUtils.show(mActivity, R.string.clear_password_successful);
+                showShortToast(mActivity, R.string.clear_password_successful);
             }
 
             @Override
             public void onTaskFailed(SeafException e) {
-                ToastUtils.show(mActivity, R.string.clear_password_failed);
+                showShortToast(mActivity, R.string.clear_password_failed);
             }
         });
         dialog.show(getFragmentManager(), "DialogFragment");

@@ -16,6 +16,7 @@ import android.widget.AbsListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.seafile.seadroid2.R;
 
@@ -211,5 +212,62 @@ public class BaseActivity extends AppCompatActivity {
                 NavUtils.navigateUpTo(currentActivity, intent);
             }
         }
+    }
+    /**
+     * Show the given message in a {@link Toast} for a short period of time
+     * <p>
+     * This method may be called from any thread
+     *
+     * @param activity
+     * @param message
+     */
+    public void showShortToast(final Activity activity, final String message) {
+        if (activity == null)
+            return;
+        Toast.makeText(activity, message, Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * Show the message with the given resource id in a {@link Toast} for a short period of time
+     * <p>
+     * This method may be called from any thread
+     *
+     * @param activity
+     * @param resId
+     */
+    public void showShortToast(final Activity activity, final int resId) {
+        if (activity == null)
+            return;
+
+        showShortToast(activity, activity.getString(resId));
+    }
+
+    /**
+     * Show the given message in a {@link Toast} for a long period of time
+     * <p>
+     * This method may be called from any thread
+     *
+     * @param activity
+     * @param message
+     */
+    public void showLongToast(final Activity activity, final String message) {
+        if (activity == null)
+            return;
+        Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
+    }
+
+    /**
+     * Show the message with the given resource id in a {@link Toast} for a long period of time
+     * <p>
+     * This method may be called from any thread
+     *
+     * @param activity
+     * @param resId
+     */
+    public void showLongToast(final Activity activity, final int resId) {
+        if (activity == null)
+            return;
+
+        showLongToast(activity, activity.getString(resId));
     }
 }

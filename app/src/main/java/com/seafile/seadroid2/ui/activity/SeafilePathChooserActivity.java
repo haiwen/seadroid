@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,7 +26,6 @@ import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.ui.NavContext;
-import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.adapter.AccountAdapter;
 import com.seafile.seadroid2.ui.adapter.DirentsAdapter;
 import com.seafile.seadroid2.ui.adapter.SeafAccountAdapter;
@@ -725,7 +723,7 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
                 if (retCode == SeafConnection.HTTP_STATUS_REPO_PASSWORD_REQUIRED) {
                     showPasswordDialog();
                 } else if (retCode == HttpURLConnection.HTTP_NOT_FOUND) {
-                    ToastUtils.show(SeafilePathChooserActivity.this, String.format("The folder \"%s\" was deleted", dirPath));
+                    showShortToast(SeafilePathChooserActivity.this, String.format("The folder \"%s\" was deleted", dirPath));
                 } else {
                     Log.d(DEBUG_TAG, "failed to load dirents: " + err.getMessage());
                     err.printStackTrace();
