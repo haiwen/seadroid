@@ -25,11 +25,9 @@ import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.data.CommitDetails;
-import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.EventDetailsFileItem;
 import com.seafile.seadroid2.data.EventDetailsTree;
 import com.seafile.seadroid2.data.SeafActivities;
-import com.seafile.seadroid2.data.SeafCachedFile;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafEvent;
 import com.seafile.seadroid2.data.SeafRepo;
@@ -141,16 +139,18 @@ public class ActivitiesFragment extends Fragment {
                         return;
                     }
 
-                    String password = mActivity.getDataManager().getRepoPassword(repoId);
-                    mActivity.showPasswordDialog(repoName, repoId,
-                            new TaskDialog.TaskDialogListener() {
-                                @Override
-                                public void onTaskSuccess() {
-                                    LoadHistoryChangesTask task = new LoadHistoryChangesTask(seafEvent);
-                                    ConcurrentAsyncTask.execute(task);
-                                }
-                            }, password);
-
+                    if (!mActivity.getDataManager().getRepoPasswordSet(repo.id)) {
+                        String password = mActivity.getDataManager().getRepoPassword(repoId);
+                        mActivity.showPasswordDialog(repoName, repoId,
+                                new TaskDialog.TaskDialogListener() {
+                                    @Override
+                                    public void onTaskSuccess() {
+                                        LoadHistoryChangesTask task = new LoadHistoryChangesTask(seafEvent);
+                                        ConcurrentAsyncTask.execute(task);
+                                    }
+                                }, password);
+                        return;
+                    }
                 }
                 LoadHistoryChangesTask task = new LoadHistoryChangesTask(seafEvent);
                 ConcurrentAsyncTask.execute(task);
