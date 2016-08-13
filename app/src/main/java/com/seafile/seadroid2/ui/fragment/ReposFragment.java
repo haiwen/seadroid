@@ -233,7 +233,7 @@ public class ReposFragment extends ListFragment {
                         mActivity.downloadFile(dir, dirent.name);
                         break;
                     case R.id.export:
-                        mActivity.exportFile(dirent.name);
+                        mActivity.exportFile(dirent.name, dirent.size);
                         break;
                     case R.id.star:
                         mActivity.starFile(repoID, dir, filename);
