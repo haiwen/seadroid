@@ -160,7 +160,10 @@ public final class SSLTrustManager {
         chainList.add(certChain);
         Principal certIssuer = certChain.getIssuerDN();
         Principal certSubject = certChain.getSubjectDN();
+        int numCerts = certs.size();
+        int i = 0;
         while(!certs.isEmpty()){
+            ++i;
             List<X509Certificate> tempcerts = ImmutableList.copyOf(certs);
             for (X509Certificate cert : tempcerts) {
                 if(cert.getIssuerDN().equals(certSubject)){
@@ -176,6 +179,10 @@ public final class SSLTrustManager {
                     certs.remove(cert);
                     continue;
                 }
+            }
+
+            if (i > numCerts) {
+                break;
             }
         }
 
