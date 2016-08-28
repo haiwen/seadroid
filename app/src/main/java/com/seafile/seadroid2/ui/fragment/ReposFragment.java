@@ -463,9 +463,9 @@ public class ReposFragment extends ListFragment {
                 adapter.setDownloadTaskList(ts.getDownloadTaskInfosByPath(repoID, currentDir));
 
                 // Log.d(DEBUG_TAG, "timer post refresh signal " + System.currentTimeMillis());
-                mTimer.postDelayed(this, 1 * 1000);
+                mTimer.postDelayed(this, 1 * 3500);
             }
-        }, 1 * 1000);
+        }, 1 * 3500);
     }
 
     public void stopTimer() {
