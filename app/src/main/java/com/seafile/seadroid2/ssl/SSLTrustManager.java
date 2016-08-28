@@ -1,9 +1,26 @@
 package com.seafile.seadroid2.ssl;
 
+import android.security.KeyChain;
+import android.security.KeyChainAliasCallback;
+import android.security.KeyChainException;
+import android.util.Log;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.account.Account;
+
+import org.apache.http.conn.ssl.BrowserCompatHostnameVerifier;
+import org.apache.http.conn.ssl.X509HostnameVerifier;
+
+import java.net.Socket;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
+import java.security.PrivateKey;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
@@ -13,21 +30,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509ExtendedKeyManager;
 import javax.net.ssl.X509TrustManager;
-
-import org.apache.http.conn.ssl.BrowserCompatHostnameVerifier;
-import org.apache.http.conn.ssl.X509HostnameVerifier;
-
-import android.util.Log;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.seafile.seadroid2.account.Account;
 
 public final class SSLTrustManager {
     public enum SslFailureReason {
@@ -44,6 +52,9 @@ public final class SSLTrustManager {
 
     private Map<Account, SSLSocketFactory> cachedFactories =
             Maps.newHashMap();
+
+    private final Object mAliasLock = new Object();
+    private String mAlias;
 
     private static SSLTrustManager instance;
 
@@ -100,7 +111,7 @@ public final class SSLTrustManager {
 
         try {
             TrustManager[] mgrs = getTrustManagers(account);
-            factory = new SSLSeafileSocketFactory(null, mgrs, new SecureRandom());
+            factory = new SSLSeafileSocketFactory(new KeyManager[]{new KeyChainKeyManager()}, mgrs, new SecureRandom());
             Log.d(DEBUG_TAG, "a SSLSocketFactory is created:" + factory);
         } catch (Exception e) {
             Log.e(DEBUG_TAG, "error when create SSLSocketFactory", e);
@@ -293,4 +304,105 @@ public final class SSLTrustManager {
     /*public void setCachedFactories(Map<Account, SSLSocketFactory> cachedFactories) {
         this.cachedFactories = cachedFactories;
     }*/
+
+    private class KeyChainKeyManager extends X509ExtendedKeyManager {
+        @Override
+        public String chooseClientAlias(String[] keyTypes,
+                                        Principal[] issuers,
+                                        Socket socket) {
+            Log.d(DEBUG_TAG, "KeyChainKeyManager chooseClientAlias...");
+
+            KeyChain.choosePrivateKeyAlias(SeadroidApplication.getAppContext(), new AliasResponse(),
+                    keyTypes, issuers,
+                    socket.getInetAddress().getHostName(), socket.getPort(),
+                    mAlias);
+            String alias;
+            synchronized (mAliasLock) {
+                while (mAlias == null) {
+                    try {
+                        mAliasLock.wait();
+                    } catch (InterruptedException ignored) {
+                    }
+                }
+                alias = mAlias;
+            }
+            return alias;
+        }
+
+        @Override
+        public String chooseServerAlias(String keyType,
+                                        Principal[] issuers,
+                                        Socket socket) {
+            // not a client SSLSocket callback
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public X509Certificate[] getCertificateChain(String alias) {
+            try {
+                Log.d(DEBUG_TAG, "KeyChainKeyManager getCertificateChain...");
+                X509Certificate[] certificateChain
+                        = KeyChain.getCertificateChain(SeadroidApplication.getAppContext(), alias);
+                if (certificateChain == null) {
+                    Log.d(DEBUG_TAG, "Null certificate chain!");
+                    return null;
+                }
+                for (int i = 0; i < certificateChain.length; i++) {
+                    Log.d(DEBUG_TAG, "certificate[" + i + "]=" + certificateChain[i]);
+                }
+                return certificateChain;
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return null;
+            } catch (KeyChainException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override
+        public String[] getClientAliases(String keyType, Principal[] issuers) {
+            // not a client SSLSocket callback
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String[] getServerAliases(String keyType, Principal[] issuers) {
+            // not a client SSLSocket callback
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public PrivateKey getPrivateKey(String alias) {
+            try {
+                Log.d(DEBUG_TAG, "KeyChainKeyManager getPrivateKey...");
+                PrivateKey privateKey = KeyChain.getPrivateKey(SeadroidApplication.getAppContext(),
+                        alias);
+                Log.d(DEBUG_TAG, "privateKey=" + privateKey);
+                return privateKey;
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return null;
+            } catch (KeyChainException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private class AliasResponse implements KeyChainAliasCallback {
+        @Override
+        public void alias(String alias) {
+            if (alias == null) {
+                Log.d(DEBUG_TAG, "AliasResponse empty!");
+                Log.d(DEBUG_TAG, "Do you need to install some client certs with:");
+                Log.d(DEBUG_TAG, "    adb shell am startservice -n "
+                        + "com.android.keychain.tests/.KeyChainServiceTest");
+                return;
+            }
+            Log.d(DEBUG_TAG, "Alias choosen '" + alias + "'");
+            synchronized (mAliasLock) {
+                mAlias = alias;
+                mAliasLock.notifyAll();
+            }
+        }
+    }
 }
