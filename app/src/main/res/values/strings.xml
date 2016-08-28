@@ -119,6 +119,7 @@
     <string name="error_when_load_dirents">Error when loading the folder.\n Tap to refresh</string>
     <string name="error_when_load_repos">Error when loading libraries.\n Tap to refresh</string>
     <string name="error_when_load_activities">Error when loading activities.\n Tap to refresh</string>
+    <string name="error_when_load_starred">Error when loading starred files.\n Tap to refresh</string>
     <string name="dir_empty">This folder is empty</string>
     <string name="no_repo">You have no libraries yet</string>
     <string name="no_app_available">No app can be found</string>
@@ -203,8 +204,6 @@
     <string name="minutes_ago">%d minutes ago</string>
     <string name="seconds_ago">%d seconds ago</string>
     <string name="just_now">Just now</string>
-    <string name="error_when_load_starred">Error when loading starred files</string>
-    <string name="error_when_load_events">Error when loading activities</string>
     <string name="open_as">Open as</string>
     <string name="select_upload_files">Select files to upload</string>
     <string name="storage_removed">Storage was removed</string>

@@ -174,6 +174,12 @@ public class StarredFragment extends ListFragment {
 
         mErrorText.setText(msg);
         mErrorText.setVisibility(View.VISIBLE);
+        mErrorText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                refreshView();
+            }
+        });
     }
 
     private void showLoading(boolean show) {
