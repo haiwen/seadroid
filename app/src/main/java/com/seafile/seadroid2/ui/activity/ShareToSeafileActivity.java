@@ -252,6 +252,8 @@ public class ShareToSeafileActivity extends BaseActivity {
             account = dstData.getParcelableExtra(SeafilePathChooserActivity.DATA_ACCOUNT);
             notifyFileOverwriting(account, dstRepoName, dstRepoId, dstDir);
             Log.i(DEBUG_TAG, "CHOOSE_COPY_MOVE_DEST_REQUEST returns");
+        } else {
+            finish();
         }
     }
 
