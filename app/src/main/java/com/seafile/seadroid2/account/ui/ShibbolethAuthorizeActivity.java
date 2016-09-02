@@ -24,7 +24,6 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.ssl.CertsManager;
-import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.activity.BaseActivity;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
 import com.seafile.seadroid2.util.Utils;
@@ -78,7 +77,7 @@ public class ShibbolethAuthorizeActivity extends BaseActivity implements Toolbar
         serverUrl = url;
 
         if (!Utils.isNetworkOn()) {
-            ToastUtils.show(this, getString(R.string.network_down));
+            showShortToast(this, getString(R.string.network_down));
             return;
         }
 
@@ -156,14 +155,14 @@ public class ShibbolethAuthorizeActivity extends BaseActivity implements Toolbar
 
     private void displaySSLError() {
         showPageLoading(false);
-        ToastUtils.show(this, R.string.ssl_error);
+        showShortToast(this, R.string.ssl_error);
     }
 
     class CustomWebviewClient extends WebViewClient {
         @Override
         public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
             // Display error messages
-            ToastUtils.show(ShibbolethAuthorizeActivity.this,
+            showShortToast(ShibbolethAuthorizeActivity.this,
                     String.format((R.string.shib_load_page_error) + description));
 
             showPageLoading(false);

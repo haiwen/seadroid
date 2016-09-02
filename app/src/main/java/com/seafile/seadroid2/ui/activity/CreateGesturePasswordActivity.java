@@ -3,7 +3,6 @@ package com.seafile.seadroid2.ui.activity;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -21,7 +20,6 @@ import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.gesturelock.LockPatternView;
 import com.seafile.seadroid2.gesturelock.LockPatternView.Cell;
 import com.seafile.seadroid2.gesturelock.LockPatternView.DisplayMode;
-import com.seafile.seadroid2.ui.ToastUtils;
 
 public class CreateGesturePasswordActivity extends BaseActivity implements
         OnClickListener, Toolbar.OnMenuItemClickListener {
@@ -426,7 +424,7 @@ public class CreateGesturePasswordActivity extends BaseActivity implements
         LockPatternUtils mLockPatternUtils = new LockPatternUtils(this);
         mLockPatternUtils.saveLockPattern(mChosenPattern);
         settingsMgr.setupGestureLock();
-        ToastUtils.show(this, getResources().getString(R.string.lockpattern_pattern_toast_saved));
+        showShortToast(this, getResources().getString(R.string.lockpattern_pattern_toast_saved));
         finish();
     }
 }

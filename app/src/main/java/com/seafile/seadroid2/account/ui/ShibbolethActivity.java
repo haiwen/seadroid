@@ -13,7 +13,6 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.activity.BaseActivity;
 
 /**
@@ -141,12 +140,12 @@ public class ShibbolethActivity extends BaseActivity implements Toolbar.OnMenuIt
 
     private boolean isServerUrlValid(String serverUrl) {
         if (serverUrl == null || serverUrl.isEmpty()) {
-            ToastUtils.show(this, getString(R.string.shib_server_url_empty));
+            showShortToast(this, getString(R.string.shib_server_url_empty));
             return false;
         }
 
         if (!serverUrl.startsWith(SHIBBOLETH_HTTP_PREFIX) && !serverUrl.startsWith(SHIBBOLETH_HTTPS_PREFIX)) {
-            ToastUtils.show(this, getString(R.string.shib_server_incorrect_prefix));
+            showShortToast(this, getString(R.string.shib_server_incorrect_prefix));
             return false;
         }
 

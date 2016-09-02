@@ -31,7 +31,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -68,7 +67,6 @@ import com.seafile.seadroid2.transfer.UploadTaskInfo;
 import com.seafile.seadroid2.transfer.UploadTaskManager;
 import com.seafile.seadroid2.ui.CopyMoveContext;
 import com.seafile.seadroid2.ui.NavContext;
-import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
 import com.seafile.seadroid2.ui.dialog.AppChoiceDialog;
@@ -506,21 +504,24 @@ public class BrowserActivity extends BaseActivity
                 // start action mode for selecting multiple files/folders
 
                 if (!Utils.isNetworkOn()) {
-                    ToastUtils.show(this, R.string.network_down);
+                    showShortToast(this, R.string.network_down);
                     return true;
                 }
                 if (currentPosition == INDEX_LIBRARY_TAB) {
                     if (navContext.inRepo()) {
                         SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
-                        final boolean continueProcess = handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
-                            @Override
-                            public void onTaskSuccess() {
-                                getReposFragment().startContextualActionMode();
-                            }
-                        });
+                        if (repo.encrypted && !dataManager.getRepoPasswordSet(repo.id)) {
+                            String password = dataManager.getRepoPassword(repo.id);
+                            showPasswordDialog(repo.name, repo.id,
+                                    new TaskDialog.TaskDialogListener() {
+                                        @Override
+                                        public void onTaskSuccess() {
+                                            getReposFragment().startContextualActionMode();
+                                        }
+                                    } , password);
 
-                        if (!continueProcess)
                             return true;
+                        }
                     }
 
                     getReposFragment().startContextualActionMode();
@@ -534,29 +535,6 @@ public class BrowserActivity extends BaseActivity
                 return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    public boolean handleEncryptedRepo(SeafRepo repo, TaskDialog.TaskDialogListener taskDialogListener) {
-        if (!repo.encrypted)
-            return true;
-
-        if (!repo.canLocalDecrypt()) {
-            if (!DataManager.getRepoPasswordSet(repo.id)) {
-                String password = DataManager.getRepoPassword(repo.id);
-                showPasswordDialog(repo.name, repo.id, taskDialogListener, password);
-                return false;
-            } else {
-                return true;
-            }
-        } else {
-            if (!getDataManager().getRepoEnckeySet(repo.id)) {
-                Pair<String, String> pair = getDataManager().getRepoEncKey(repo.id);
-                showEncDialog(repo.name, repo.id,repo.magic, repo.encKey, repo.encVersion, taskDialogListener, pair == null ? null : pair.first);
-                return false;
-            } else {
-                return true;
-            }
-        }
     }
 
     /**
@@ -640,7 +618,7 @@ public class BrowserActivity extends BaseActivity
 
             if (serverInfo == null) {
                 if (err != null)
-                    ToastUtils.show(BrowserActivity.this, err.getMessage());
+                    showShortToast(BrowserActivity.this, err.getMessage());
                 return;
             }
 
@@ -1040,14 +1018,16 @@ public class BrowserActivity extends BaseActivity
         if (currentPosition == INDEX_LIBRARY_TAB) {
             if (navContext.inRepo()) {
                 SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
-                final boolean continueProcess = handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
-                    @Override
-                    public void onTaskSuccess() {
-                        getReposFragment().sortFiles(type, order);
-                    }
-                });
-            if (!continueProcess)
-                return;
+                if (repo.encrypted && !dataManager.getRepoPasswordSet(repo.id)) {
+                    String password = dataManager.getRepoPassword(repo.id);
+                    showPasswordDialog(repo.name, repo.id,
+                            new TaskDialog.TaskDialogListener() {
+                                @Override
+                                public void onTaskSuccess() {
+                                    getReposFragment().sortFiles(type, order);
+                                }
+                            }, password);
+                }
             }
             getReposFragment().sortFiles(type, order);
         }
@@ -1062,7 +1042,7 @@ public class BrowserActivity extends BaseActivity
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess(){
-                ToastUtils.show(
+                showShortToast(
                     BrowserActivity.this,
                     String.format(getResources().getString(R.string.create_new_repo_success), dialog.getRepoName())
                 );
@@ -1098,7 +1078,7 @@ public class BrowserActivity extends BaseActivity
 
     private void showNewDirDialog() {
         if (!hasRepoWritePermission()) {
-            ToastUtils.show(this, R.string.library_read_only);
+            showShortToast(this, R.string.library_read_only);
             return;
         }
 
@@ -1107,7 +1087,8 @@ public class BrowserActivity extends BaseActivity
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
-                ToastUtils.show(BrowserActivity.this, "Sucessfully created folder " + dialog.getNewDirName());
+                final String message = String.format(getString(R.string.create_new_folder_success), dialog.getNewDirName());
+                showShortToast(BrowserActivity.this, message);
                 ReposFragment reposFragment = getReposFragment();
                 if (currentPosition == INDEX_LIBRARY_TAB && reposFragment != null) {
                     reposFragment.refreshView();
@@ -1119,7 +1100,7 @@ public class BrowserActivity extends BaseActivity
 
     private void showNewFileDialog() {
         if (!hasRepoWritePermission()) {
-            ToastUtils.show(this, R.string.library_read_only);
+            showShortToast(this, R.string.library_read_only);
             return;
         }
 
@@ -1128,7 +1109,8 @@ public class BrowserActivity extends BaseActivity
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
-                ToastUtils.show(BrowserActivity.this, "Sucessfully created file " + dialog.getNewFileName());
+                final String message = String.format(getString(R.string.create_new_file_success), dialog.getNewFileName());
+                showShortToast(BrowserActivity.this, message);
                 ReposFragment reposFragment = getReposFragment();
                 if (currentPosition == INDEX_LIBRARY_TAB && reposFragment != null) {
                     reposFragment.refreshView();
@@ -1162,7 +1144,7 @@ public class BrowserActivity extends BaseActivity
             startActivityForResult(imageCaptureIntent, TAKE_PHOTO_REQUEST);
 
         } catch (IOException e) {
-            ToastUtils.show(BrowserActivity.this, R.string.unknow_error);
+            showShortToast(BrowserActivity.this, R.string.unknow_error);
         }
     }
 
@@ -1247,7 +1229,7 @@ public class BrowserActivity extends BaseActivity
 
     void pickFile() {
         if (!hasRepoWritePermission()) {
-            ToastUtils.show(this, R.string.library_read_only);
+            showShortToast(this, R.string.library_read_only);
             return;
         }
 
@@ -1270,7 +1252,7 @@ public class BrowserActivity extends BaseActivity
                 String[] paths = data.getStringArrayExtra(MultiFileChooserActivity.MULTI_FILES_PATHS);
                 if (paths == null)
                     return;
-                ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
+                showShortToast(this, getString(R.string.added_to_upload_tasks));
 
                 List<SeafDirent> list = dataManager.getCachedDirents(navContext.getRepoID(), navContext.getDirPath());
                 if (list == null) return;
@@ -1296,7 +1278,7 @@ public class BrowserActivity extends BaseActivity
                 ArrayList<String> paths = data.getStringArrayListExtra("photos");
                 if (paths == null)
                     return;
-                ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
+                showShortToast(this, getString(R.string.added_to_upload_tasks));
 
                 List<SeafDirent> list = dataManager.getCachedDirents(navContext.getRepoID(), navContext.getDirPath());
                 if (list == null) return;
@@ -1320,7 +1302,7 @@ public class BrowserActivity extends BaseActivity
         case PICK_FILE_REQUEST:
             if (resultCode == RESULT_OK) {
                 if (!Utils.isNetworkOn()) {
-                    ToastUtils.show(this, R.string.network_down);
+                    showShortToast(this, R.string.network_down);
                     return;
                 }
 
@@ -1329,14 +1311,14 @@ public class BrowserActivity extends BaseActivity
                     if (uriList.size() > 0) {
                         ConcurrentAsyncTask.execute(new SAFLoadRemoteFileTask(), uriList.toArray(new Uri[]{}));
                     } else {
-                        ToastUtils.show(BrowserActivity.this, R.string.saf_upload_path_not_available);
+                        showShortToast(BrowserActivity.this, R.string.saf_upload_path_not_available);
                     }
                 } else {
                     Uri uri = data.getData();
                     if (uri != null) {
                         ConcurrentAsyncTask.execute(new SAFLoadRemoteFileTask(), uri);
                     } else {
-                        ToastUtils.show(BrowserActivity.this, R.string.saf_upload_path_not_available);
+                        showShortToast(BrowserActivity.this, R.string.saf_upload_path_not_available);
                     }
                 }
             }
@@ -1344,7 +1326,7 @@ public class BrowserActivity extends BaseActivity
         case CHOOSE_COPY_MOVE_DEST_REQUEST:
             if (resultCode == RESULT_OK) {
                 if (!Utils.isNetworkOn()) {
-                    ToastUtils.show(this, R.string.network_down);
+                    showShortToast(this, R.string.network_down);
                     return;
                 }
 
@@ -1353,18 +1335,18 @@ public class BrowserActivity extends BaseActivity
             break;
         case TAKE_PHOTO_REQUEST:
             if (resultCode == RESULT_OK) {
-                ToastUtils.show(this, getString(R.string.take_photo_successfully));
+                showShortToast(this, getString(R.string.take_photo_successfully));
                 if (!Utils.isNetworkOn()) {
-                    ToastUtils.show(this, R.string.network_down);
+                    showShortToast(this, R.string.network_down);
                     return;
                 }
 
                 if(takeCameraPhotoTempFile == null) {
-                    ToastUtils.show(this, getString(R.string.saf_upload_path_not_available));
+                    showShortToast(this, getString(R.string.saf_upload_path_not_available));
                     Log.i(DEBUG_TAG, "Pick file request did not return a path");
                     return;
                 }
-                ToastUtils.show(this, getString(R.string.added_to_upload_tasks));
+                showShortToast(this, getString(R.string.added_to_upload_tasks));
                 final SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
                 if (repo != null && repo.canLocalDecrypt()) {
                     addUploadBlocksTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), takeCameraPhotoTempFile.getAbsolutePath(), repo.encVersion);
@@ -1432,7 +1414,7 @@ public class BrowserActivity extends BaseActivity
 
             for (final File file: fileList) {
                 if (file == null) {
-                    ToastUtils.show(BrowserActivity.this, R.string.saf_upload_path_not_available);
+                    showShortToast(BrowserActivity.this, R.string.saf_upload_path_not_available);
                 } else {
                     if (list == null) {
                         Log.e(DEBUG_TAG, "Seadroid dirent cache is empty in uploadFile. Should not happen, aborting.");
@@ -1540,9 +1522,7 @@ public class BrowserActivity extends BaseActivity
             return;
         }
 
-        if (repo == null) return;
-
-        startFileActivity(repoName, repoID, filePath, repo.canLocalDecrypt(), repo.encVersion, fileSize);
+        startFileActivity(repoName, repoID, filePath, fileSize);
     }
 
     /**
@@ -1579,7 +1559,7 @@ public class BrowserActivity extends BaseActivity
      */
     public void downloadDir(String dirPath, String fileName, boolean recurse) {
         if (!Utils.isNetworkOn()) {
-            ToastUtils.show(this, R.string.network_down);
+            showShortToast(this, R.string.network_down);
             return;
         }
 
@@ -1655,22 +1635,12 @@ public class BrowserActivity extends BaseActivity
                         if (txService == null)
                             return null;
 
-                        final SeafRepo repo = dataManager.getCachedRepoByID(repoID);
-                        if (repo != null && repo.canLocalDecrypt()) {
-                            txService.addTaskToDownloadQue(account,
-                                    repoName,
-                                    repoID,
-                                    Utils.pathJoin(dirPaths.get(i),
-                                            seafDirent.name),
-                                    true,
-                                    repo.encVersion);
-                        } else {
-                            txService.addTaskToDownloadQue(account,
-                                    repoName,
-                                    repoID,
-                                    Utils.pathJoin(dirPaths.get(i),
-                                            seafDirent.name));
-                        }
+                        txService.addTaskToDownloadQue(account,
+                                repoName,
+                                repoID,
+                                Utils.pathJoin(dirPaths.get(i),
+                                        seafDirent.name));
+
                         fileCount++;
                     }
                 }
@@ -1683,15 +1653,15 @@ public class BrowserActivity extends BaseActivity
         protected void onPostExecute(List<SeafDirent> dirents) {
             if (dirents == null) {
                 if (err != null) {
-                    ToastUtils.show(BrowserActivity.this, R.string.transfer_list_network_error);
+                    showShortToast(BrowserActivity.this, R.string.transfer_list_network_error);
                 }
                 return;
             }
 
             if (fileCount == 0)
-                ToastUtils.show(BrowserActivity.this, R.string.transfer_download_no_task);
+                showShortToast(BrowserActivity.this, R.string.transfer_download_no_task);
             else {
-                ToastUtils.show(BrowserActivity.this, getResources().getQuantityString(R.plurals.transfer_download_started, fileCount, fileCount));
+                showShortToast(BrowserActivity.this, getResources().getQuantityString(R.plurals.transfer_download_started, fileCount, fileCount));
                 if (!txService.hasDownloadNotifProvider()) {
                     DownloadNotificationProvider provider = new DownloadNotificationProvider(txService.getDownloadTaskManager(),
                             txService);
@@ -1704,13 +1674,8 @@ public class BrowserActivity extends BaseActivity
         }
     }
 
-    private void startFileActivity(String repoName, String repoID, String filePath, boolean byBlock, int encVersion, long fileSize) {
-        int taskID = 0;
-        if (byBlock) {
-            taskID = txService.addDownloadTask(account, repoName, repoID, filePath, true, encVersion, fileSize);
-        } else {
-            taskID = txService.addDownloadTask(account, repoName, repoID, filePath);
-        }
+    private void startFileActivity(String repoName, String repoID, String filePath, long fileSize) {
+        int taskID = txService.addDownloadTask(account, repoName, repoID, filePath, fileSize);
         Intent intent = new Intent(this, FileActivity.class);
         intent.putExtra("repoName", repoName);
         intent.putExtra("repoID", repoID);
@@ -1725,17 +1690,21 @@ public class BrowserActivity extends BaseActivity
         final long fileSize = starredFile.getSize();
         final String repoID = starredFile.getRepoID();
         final SeafRepo repo = dataManager.getCachedRepoByID(repoID);
-        if (repo == null) return;
-
-        final boolean continueProcess = handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
-            @Override
-            public void onTaskSuccess() {
-                onStarredFileSelected(starredFile);
-            }
-        });
-
-        if (!continueProcess)
+        if (repo == null)
             return;
+
+        if (repo.encrypted && !dataManager.getRepoPasswordSet(repo.id)) {
+            String password = dataManager.getRepoPassword(repo.id);
+            showPasswordDialog(repo.name, repo.id,
+                    new TaskDialog.TaskDialogListener() {
+                        @Override
+                        public void onTaskSuccess() {
+                            onStarredFileSelected(starredFile);
+                        }
+                    }, password);
+
+            return;
+        }
 
         final String repoName = repo.getName();
         final String filePath = starredFile.getPath();
@@ -1754,7 +1723,7 @@ public class BrowserActivity extends BaseActivity
             return;
         }
 
-        startFileActivity(repoName, repoID, filePath, repo.canLocalDecrypt(), repo.encVersion, fileSize);
+        startFileActivity(repoName, repoID, filePath, fileSize);
     }
 
     @Override
@@ -1807,15 +1776,15 @@ public class BrowserActivity extends BaseActivity
      *
      * @param fileName The name of the file to share in the current navcontext
      */
-    public void exportFile(String fileName) {
+    public void exportFile(String fileName, long fileSize) {
         String repoName = navContext.getRepoName();
         String repoID = navContext.getRepoID();
         String dirPath = navContext.getDirPath();
         String fullPath = Utils.pathJoin(dirPath, fileName);
-        chooseExportApp(repoName, repoID, fullPath);
+        chooseExportApp(repoName, repoID, fullPath, fileSize);
     }
 
-    private void chooseExportApp(final String repoName, final String repoID, final String path) {
+    private void chooseExportApp(final String repoName, final String repoID, final String path, final long fileSize) {
         final File file = dataManager.getLocalRepoFile(repoName, repoID, path);
         Uri uri = Uri.fromFile(file);
 
@@ -1828,7 +1797,7 @@ public class BrowserActivity extends BaseActivity
         List<ResolveInfo> infos = Utils.getAppsByIntent(sendIntent);
 
         if (infos.isEmpty()) {
-            ToastUtils.show(this, R.string.no_app_available);
+            showShortToast(this, R.string.no_app_available);
             return;
         }
 
@@ -1847,7 +1816,7 @@ public class BrowserActivity extends BaseActivity
                     startActivity(sendIntent);
                     return;
                 }
-                fetchFileAndExport(appInfo, sendIntent, repoName, repoID, path);
+                fetchFileAndExport(appInfo, sendIntent, repoName, repoID, path, fileSize);
             }
 
         });
@@ -1855,10 +1824,10 @@ public class BrowserActivity extends BaseActivity
     }
 
     private void fetchFileAndExport(final ResolveInfo appInfo, final Intent intent,
-                                    final String repoName, final String repoID, final String path) {
+                                    final String repoName, final String repoID, final String path, final long fileSize) {
 
         fetchFileDialog = new FetchFileDialog();
-        fetchFileDialog.init(repoName, repoID, path, new FetchFileDialog.FetchFileListener() {
+        fetchFileDialog.init(repoName, repoID, path, fileSize, new FetchFileDialog.FetchFileListener() {
             @Override
             public void onSuccess() {
                 startActivity(intent);
@@ -1882,7 +1851,7 @@ public class BrowserActivity extends BaseActivity
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
-                ToastUtils.show(BrowserActivity.this, R.string.rename_successful);
+                showShortToast(BrowserActivity.this, R.string.rename_successful);
                 ReposFragment reposFragment = getReposFragment();
                 if (currentPosition == INDEX_LIBRARY_TAB && reposFragment != null) {
                     reposFragment.refreshView(true, true);
@@ -1898,7 +1867,7 @@ public class BrowserActivity extends BaseActivity
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
-                ToastUtils.show(BrowserActivity.this, R.string.delete_successful);
+                showShortToast(BrowserActivity.this, R.string.delete_successful);
                 ReposFragment reposFragment = getReposFragment();
                 if (currentPosition == INDEX_LIBRARY_TAB && reposFragment != null) {
                     reposFragment.refreshView(true, true);
@@ -1936,7 +1905,7 @@ public class BrowserActivity extends BaseActivity
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
-                ToastUtils.show(BrowserActivity.this, R.string.rename_successful);
+                showShortToast(BrowserActivity.this, R.string.rename_successful);
                 ReposFragment reposFragment = getReposFragment();
                 if (currentPosition == INDEX_LIBRARY_TAB && reposFragment != null) {
                     reposFragment.refreshView();
@@ -1960,7 +1929,7 @@ public class BrowserActivity extends BaseActivity
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
-                ToastUtils.show(BrowserActivity.this, R.string.delete_successful);
+                showShortToast(BrowserActivity.this, R.string.delete_successful);
                 ReposFragment reposFragment = getReposFragment();
                 if (currentPosition == INDEX_LIBRARY_TAB && reposFragment != null) {
                     reposFragment.refreshView();
@@ -1998,7 +1967,7 @@ public class BrowserActivity extends BaseActivity
 
     private void doCopyMove() {
         if (!copyMoveContext.checkCopyMoveToSubfolder()) {
-            ToastUtils.show(this, copyMoveContext.isCopy()
+            showShortToast(this, copyMoveContext.isCopy()
                     ? R.string.cannot_copy_folder_to_subfolder
                     : R.string.cannot_move_folder_to_subfolder);
             return;
@@ -2009,7 +1978,7 @@ public class BrowserActivity extends BaseActivity
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
-                ToastUtils.show(BrowserActivity.this, copyMoveContext.isCopy()
+                showShortToast(BrowserActivity.this, copyMoveContext.isCopy()
                         ? R.string.copied_successfully
                         : R.string.moved_successfully);
                 if (copyMoveContext.batch) {
@@ -2070,7 +2039,7 @@ public class BrowserActivity extends BaseActivity
             }
         }
 
-        ToastUtils.show(this, getString(R.string.download_failed));
+        showShortToast(this, getString(R.string.download_failed));
     }
 
     private void onFileUploaded(int taskID) {
@@ -2089,16 +2058,16 @@ public class BrowserActivity extends BaseActivity
         if (currentPosition == INDEX_LIBRARY_TAB
                 && repoID.equals(navContext.getRepoID())
                 && dir.equals(navContext.getDirPath())) {
-            getReposFragment().refreshView(true);
+            getReposFragment().refreshView(true, true);
             String verb = getString(info.isUpdate ? R.string.updated : R.string.uploaded);
-            ToastUtils.show(this, verb + " " + Utils.fileNameFromPath(info.localFilePath));
+            showShortToast(this, verb + " " + Utils.fileNameFromPath(info.localFilePath));
         }
     }
 
     private int intShowErrorTime;
     private void onFileUploadFailed(int taskID) {
         if (++ intShowErrorTime <= 1)
-            ToastUtils.show(this, getString(R.string.upload_failed));
+            showShortToast(this, getString(R.string.upload_failed));
     }
 
     public PasswordDialog showPasswordDialog(String repoName, String repoID,
@@ -2112,18 +2081,6 @@ public class BrowserActivity extends BaseActivity
         passwordDialog.setRepo(repoName, repoID, account);
         if (password != null) {
             passwordDialog.setPassword(password);
-        }
-        passwordDialog.setTaskDialogLisenter(listener);
-        passwordDialog.show(getSupportFragmentManager(), PASSWORD_DIALOG_FRAGMENT_TAG);
-        return passwordDialog;
-    }
-
-    public PasswordDialog showEncDialog(String repoName, String repoID, String magic, String randomKey, int version,
-                                             TaskDialog.TaskDialogListener listener, String encKey) {
-        PasswordDialog passwordDialog = new PasswordDialog();
-        passwordDialog.setRepo(repoName, repoID, magic, randomKey, version, account);
-        if (encKey != null) {
-            passwordDialog.setPassword(encKey);
         }
         passwordDialog.setTaskDialogLisenter(listener);
         passwordDialog.show(getSupportFragmentManager(), PASSWORD_DIALOG_FRAGMENT_TAG);
@@ -2146,7 +2103,7 @@ public class BrowserActivity extends BaseActivity
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
-                ToastUtils.show(BrowserActivity.this, R.string.delete_successful);
+                showShortToast(BrowserActivity.this, R.string.delete_successful);
                 if (getDataManager() != null) {
                     List<SeafDirent> cachedDirents = getDataManager().getCachedDirents(repoID,
                             getNavContext().getDirPath());
@@ -2217,7 +2174,7 @@ public class BrowserActivity extends BaseActivity
      */
     public void downloadFiles(String repoID, String repoName, String dirPath, List<SeafDirent> dirents) {
         if (!Utils.isNetworkOn()) {
-            ToastUtils.show(this, R.string.network_down);
+            showShortToast(this, R.string.network_down);
             return;
         }
 
@@ -2282,22 +2239,12 @@ public class BrowserActivity extends BaseActivity
                         if (txService == null)
                             return null;
 
-                        final SeafRepo repo = dataManager.getCachedRepoByID(repoID);
-                        if (repo != null && repo.canLocalDecrypt()) {
-                            txService.addTaskToDownloadQue(account,
-                                    repoName,
-                                    repoID,
-                                    Utils.pathJoin(dirPaths.get(i),
-                                            seafDirent.name),
-                                    true,
-                                    repo.encVersion);
-                        } else {
-                            txService.addTaskToDownloadQue(account,
-                                    repoName,
-                                    repoID,
-                                    Utils.pathJoin(dirPaths.get(i),
-                                            seafDirent.name));
-                        }
+                        txService.addTaskToDownloadQue(account,
+                                repoName,
+                                repoID,
+                                Utils.pathJoin(dirPaths.get(i),
+                                        seafDirent.name));
+
                         fileCount++;
                     }
 
@@ -2313,14 +2260,14 @@ public class BrowserActivity extends BaseActivity
             getReposFragment().showLoading(false);
 
             if (err != null) {
-                ToastUtils.show(BrowserActivity.this, R.string.transfer_list_network_error);
+                showShortToast(BrowserActivity.this, R.string.transfer_list_network_error);
                 return;
             }
 
             if (fileCount == 0)
-                ToastUtils.show(BrowserActivity.this, R.string.transfer_download_no_task);
+                showShortToast(BrowserActivity.this, R.string.transfer_download_no_task);
             else {
-                ToastUtils.show(BrowserActivity.this,
+                showShortToast(BrowserActivity.this,
                         getResources().getQuantityString(R.plurals.transfer_download_started,
                                 fileCount,
                                 fileCount));

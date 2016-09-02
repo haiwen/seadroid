@@ -38,7 +38,6 @@ import com.seafile.seadroid2.ssl.CertsManager;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.ui.CopyMoveContext;
 import com.seafile.seadroid2.ui.NavContext;
-import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
@@ -233,7 +232,7 @@ public class ReposFragment extends ListFragment {
                         mActivity.downloadFile(dir, dirent.name);
                         break;
                     case R.id.export:
-                        mActivity.exportFile(dirent.name);
+                        mActivity.exportFile(dirent.name, dirent.size);
                         break;
                     case R.id.star:
                         mActivity.starFile(repoID, dir, filename);
@@ -464,9 +463,9 @@ public class ReposFragment extends ListFragment {
                 adapter.setDownloadTaskList(ts.getDownloadTaskInfosByPath(repoID, currentDir));
 
                 // Log.d(DEBUG_TAG, "timer post refresh signal " + System.currentTimeMillis());
-                mTimer.postDelayed(this, 1 * 1000);
+                mTimer.postDelayed(this, 1 * 3500);
             }
-        }, 1 * 1000);
+        }, 1 * 3500);
     }
 
     public void stopTimer() {
@@ -601,14 +600,18 @@ public class ReposFragment extends ListFragment {
             return;
         }
 
-        final boolean continueProcess = mActivity.handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
-            @Override
-            public void onTaskSuccess() {
-                onListItemClick(l, v, position, id);
-            }
-        });
+        if (repo.encrypted && !getDataManager().getRepoPasswordSet(repo.id)) {
+            String password = getDataManager().getRepoPassword(repo.id);
+            mActivity.showPasswordDialog(repo.name, repo.id,
+                    new TaskDialog.TaskDialogListener() {
+                        @Override
+                        public void onTaskSuccess() {
+                            onListItemClick(l, v, position, id);
+                        }
+                    }, password);
 
-        if (!continueProcess) return;
+            return;
+        }
 
         mRefreshType = REFRESH_ON_CLICK;
         if (nav.inRepo()) {
@@ -822,7 +825,7 @@ public class ReposFragment extends ListFragment {
             if (err != null) {
                 if (err.getCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
                     // Token expired, should login again
-                    ToastUtils.show(mActivity, R.string.err_token_expired);
+                    mActivity.showShortToast(mActivity, R.string.err_token_expired);
                     mActivity.logoutWhenTokenExpired();
                 } else {
                     Log.e(DEBUG_TAG, "failed to load repos: " + err.getMessage());
@@ -998,10 +1001,11 @@ public class ReposFragment extends ListFragment {
                     showPasswordDialog();
                 } else if (err.getCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
                     // Token expired, should login again
-                    ToastUtils.show(mActivity, R.string.err_token_expired);
+                    mActivity.showShortToast(mActivity, R.string.err_token_expired);
                     mActivity.logoutWhenTokenExpired();
                 } else if (err.getCode() == HttpURLConnection.HTTP_NOT_FOUND) {
-                    ToastUtils.show(mActivity, String.format("The folder \"%s\" was deleted", myPath));
+                    final String message = String.format(getString(R.string.op_exception_folder_deleted), myPath);
+                    mActivity.showShortToast(mActivity, message);
                 } else {
                     Log.d(DEBUG_TAG, "failed to load dirents: " + err.getMessage());
                     err.printStackTrace();
@@ -1084,7 +1088,7 @@ public class ReposFragment extends ListFragment {
                     || repoID == null
                     || dirPath == null) {
                 if (item.getItemId() != R.id.action_mode_select_all) {
-                    ToastUtils.show(mActivity, R.string.action_mode_no_items_selected);
+                    mActivity.showShortToast(mActivity, R.string.action_mode_no_items_selected);
                     return true;
                 }
             }

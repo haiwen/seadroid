@@ -28,12 +28,10 @@ import com.seafile.seadroid2.data.CommitDetails;
 import com.seafile.seadroid2.data.EventDetailsFileItem;
 import com.seafile.seadroid2.data.EventDetailsTree;
 import com.seafile.seadroid2.data.SeafActivities;
-import com.seafile.seadroid2.data.SeafCachedFile;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafEvent;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.ui.NavContext;
-import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.activity.FileActivity;
 import com.seafile.seadroid2.ui.adapter.ActivitiesItemAdapter;
@@ -136,21 +134,22 @@ public class ActivitiesFragment extends Fragment {
                     final SeafRepo repo = mActivity.getDataManager().getCachedRepoByID(repoId);
 
                     if (repo == null) {
-                        ToastUtils.show(mActivity, getString(R.string.repo_not_found));
+                        mActivity.showShortToast(mActivity, getString(R.string.repo_not_found));
                         return;
                     }
 
-                    final boolean continueProcess = mActivity.handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
-                        @Override
-                        public void onTaskSuccess() {
-                            LoadHistoryChangesTask task = new LoadHistoryChangesTask(seafEvent);
-                            ConcurrentAsyncTask.execute(task);
-                        }
-                    });
-
-                    if (!continueProcess)
+                    if (!mActivity.getDataManager().getRepoPasswordSet(repo.id)) {
+                        String password = mActivity.getDataManager().getRepoPassword(repoId);
+                        mActivity.showPasswordDialog(repoName, repoId,
+                                new TaskDialog.TaskDialogListener() {
+                                    @Override
+                                    public void onTaskSuccess() {
+                                        LoadHistoryChangesTask task = new LoadHistoryChangesTask(seafEvent);
+                                        ConcurrentAsyncTask.execute(task);
+                                    }
+                                }, password);
                         return;
-
+                    }
                 }
                 LoadHistoryChangesTask task = new LoadHistoryChangesTask(seafEvent);
                 ConcurrentAsyncTask.execute(task);
@@ -376,7 +375,7 @@ public class ActivitiesFragment extends Fragment {
                     if (err == SeafException.remoteWipedException) {
                         mActivity.completeRemoteWipe();
                     } else {
-                        ToastUtils.show(mActivity, err.getMessage());
+                        mActivity.showShortToast(mActivity, err.getMessage());
                         showError(R.string.error_when_load_activities);
                     }
                 }
@@ -407,7 +406,7 @@ public class ActivitiesFragment extends Fragment {
 
             offset = result.getOffset();
             if (!result.isMore()) {
-                ToastUtils.show(mActivity, getString(R.string.no_more_activities));
+                mActivity.showShortToast(mActivity, getString(R.string.no_more_activities));
                 return;
             }
 
@@ -446,7 +445,7 @@ public class ActivitiesFragment extends Fragment {
             if (ret == null) {
                 if (err != null) {
                     Log.e(DEBUG_TAG, err.getCode() + err.getMessage());
-                    ToastUtils.show(mActivity, err.getMessage());
+                    mActivity.showShortToast(mActivity, err.getMessage());
                 }
                 return;
             }
@@ -462,20 +461,19 @@ public class ActivitiesFragment extends Fragment {
         final SeafRepo repo = mActivity.getDataManager().getCachedRepoByID(repoID);
 
         if (repo == null) {
-            ToastUtils.show(mActivity, getString(R.string.repo_not_found));
+            mActivity.showShortToast(mActivity, getString(R.string.repo_not_found));
             return;
         }
 
-        if (repo.encrypted) {
-            final boolean continueProcess = mActivity.handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
-                @Override
-                public void onTaskSuccess() {
-                    switchTab(repoID, repo.getName(), path, repo.getRootDirID());
-                }
-            });
-
-            if (!continueProcess)
-                return;
+        if (repo.encrypted && !mActivity.getDataManager().getRepoPasswordSet(repo.id)) {
+            String password = mActivity.getDataManager().getRepoPassword(repo.id);
+            mActivity.showPasswordDialog(repo.name, repo.id,
+                    new TaskDialog.TaskDialogListener() {
+                        @Override
+                        public void onTaskSuccess() {
+                            switchTab(repoID, repo.getName(), path, repo.getRootDirID());
+                        }
+                    }, password);
 
             switchTab(repoID, repo.getName(), path, repo.getRootDirID());
         }
@@ -485,21 +483,23 @@ public class ActivitiesFragment extends Fragment {
         final SeafRepo repo = mActivity.getDataManager().getCachedRepoByID(repoID);
 
         if (repo == null) {
-            ToastUtils.show(mActivity, R.string.library_not_found);
+            mActivity.showShortToast(mActivity, R.string.library_not_found);
             return;
         }
 
-        final boolean continueProcess = mActivity.handleEncryptedRepo(repo, new TaskDialog.TaskDialogListener() {
-            @Override
-            public void onTaskSuccess() {
-                openFile(repoID, repo.getName(), path);
-            }
-        });
+        if (repo.encrypted && !mActivity.getDataManager().getRepoPasswordSet(repo.id)) {
+            String password = mActivity.getDataManager().getRepoPassword(repo.id);
+            mActivity.showPasswordDialog(repo.name, repo.id,
+                    new TaskDialog.TaskDialogListener() {
+                        @Override
+                        public void onTaskSuccess() {
+                            openFile(repoID, repo.getName(), path);
+                        }
+                    }, password);
 
-        if (!continueProcess)
-            return;
-
-        openFile(repoID, repo.getName(), path);
+        } else {
+            openFile(repoID, repo.getName(), path);
+        }
     }
 
     private void switchTab(String repoID, String repoName, String path, String rootDirID) {
@@ -522,10 +522,9 @@ public class ActivitiesFragment extends Fragment {
 
     private void openFile(String repoID, String repoName, String filePath) {
         // Log.d(DEBUG_TAG, "open file " + repoName + filePath);
-        final SeafRepo repo = mActivity.getDataManager().getCachedRepoByID(repoID);
         final String parentPath = Utils.getParentPath(filePath);
         final List<SeafDirent> cachedDirents = mActivity.getDataManager().getCachedDirents(repoID, parentPath);
-        long fileSize = 0L;
+        long fileSize = -1L;
         if (cachedDirents != null) {
             for (SeafDirent seafDirent : cachedDirents) {
                 if (seafDirent.name.equals(filePath)) {
@@ -534,13 +533,8 @@ public class ActivitiesFragment extends Fragment {
             }
         }
 
-        int taskID;
-        if (repo != null && repo.canLocalDecrypt()) {
-            taskID = mActivity.getTransferService().addDownloadTask(mActivity.getAccount(), repoName, repoID, filePath, true, repo.encVersion, fileSize);
-        } else {
-            taskID = mActivity.getTransferService().addDownloadTask(mActivity.getAccount(), repoName, repoID, filePath);
-        }
-
+        // Log.d(DEBUG_TAG, "open file " + repoName + filePath);
+        int taskID = mActivity.getTransferService().addDownloadTask(mActivity.getAccount(), repoName, repoID, filePath, fileSize);
         Intent intent = new Intent(getActivity(), FileActivity.class);
         intent.putExtra("repoName", repoName);
         intent.putExtra("repoID", repoID);

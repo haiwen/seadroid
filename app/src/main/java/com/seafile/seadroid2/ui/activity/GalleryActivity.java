@@ -18,7 +18,6 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafPhoto;
-import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.ZoomOutPageTransformer;
 import com.seafile.seadroid2.ui.adapter.GalleryAdapter;
@@ -185,7 +184,7 @@ public class GalleryActivity extends BaseActivity {
             navToSelectedPage();
         } else {
             if (!Utils.isNetworkOn()) {
-                ToastUtils.show(this, R.string.network_down);
+                showShortToast(this, R.string.network_down);
                 // data is not available
                 finish();
             }
@@ -242,7 +241,7 @@ public class GalleryActivity extends BaseActivity {
             if (photos.isEmpty()
                     || fileName == null) {
                 if (err != null) {
-                    ToastUtils.show(GalleryActivity.this, R.string.gallery_load_photos_error);
+                    showShortToast(GalleryActivity.this, R.string.gallery_load_photos_error);
                     Log.e(DEBUG_TAG, "error message " + err.getMessage() + " error code " + err.getCode());
                 }
 
@@ -329,7 +328,7 @@ public class GalleryActivity extends BaseActivity {
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
-                ToastUtils.show(GalleryActivity.this, R.string.delete_successful);
+                showShortToast(GalleryActivity.this, R.string.delete_successful);
                 removePageAndRefreshView();
             }
         });
@@ -338,7 +337,7 @@ public class GalleryActivity extends BaseActivity {
 
     private void starFile(String repoId, String dir, String fileName) {
         if (!Utils.isNetworkOn()) {
-            ToastUtils.show(this, R.string.network_down);
+            showShortToast(this, R.string.network_down);
             return;
         }
 
@@ -378,11 +377,11 @@ public class GalleryActivity extends BaseActivity {
         @Override
         protected void onPostExecute(Void v) {
             if (err != null) {
-                ToastUtils.show(GalleryActivity.this, R.string.star_file_failed);
+                showShortToast(GalleryActivity.this, R.string.star_file_failed);
                 return;
             }
 
-            ToastUtils.show(GalleryActivity.this, R.string.star_file_succeed);
+            showShortToast(GalleryActivity.this, R.string.star_file_succeed);
         }
     }
 

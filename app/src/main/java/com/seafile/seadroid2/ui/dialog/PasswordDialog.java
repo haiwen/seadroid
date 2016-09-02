@@ -3,6 +3,7 @@ package com.seafile.seadroid2.ui.dialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,7 @@ import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.crypto.Crypto;
 import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.SeafRepo;
 
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
@@ -31,8 +33,6 @@ class SetPasswordTask extends TaskDialog.Task {
 
     String repoID;
     String password;
-    String magic, randomKey;
-    int version;
     DataManager dataManager;
 
     public SetPasswordTask(String repoID, String password,
@@ -42,23 +42,14 @@ class SetPasswordTask extends TaskDialog.Task {
         this.dataManager = dataManager;
     }
 
-    public SetPasswordTask(String repoID, String password, int version, String magic, String randomKey,
-                           DataManager dataManager) {
-        this.repoID = repoID;
-        this.password = password;
-        this.magic = magic;
-        this.randomKey = randomKey;
-        this.version = version;
-        this.dataManager = dataManager;
-    }
-
     @Override
     protected void runTask() {
+        SeafRepo repo = dataManager.getCachedRepoByID(repoID);
         try {
-            if (!SettingsManager.instance().isEncryptEnabled()) {
+            if (repo == null || !repo.canLocalDecrypt()) {
                 dataManager.setPassword(repoID, password);
             } else {
-                Crypto.verifyRepoPassword(repoID, password, version, magic);
+                Crypto.verifyRepoPassword(repoID, password, repo.encVersion, repo.magic);
             }
         } catch (SeafException e) {
             setTaskException(e);
@@ -69,15 +60,15 @@ class SetPasswordTask extends TaskDialog.Task {
 }
 
 public class PasswordDialog extends TaskDialog {
+    public static final String DEBUG_TAG = PasswordDialog.class.getCanonicalName();
+
     private static final String STATE_TASK_REPO_NAME = "set_password_task.repo_name";
     private static final String STATE_TASK_REPO_ID = "set_password_task.repo_id";
-    private static final String STATE_TASK_MAGIC = "set_password_task.magic";
     private static final String STATE_TASK_PASSWORD = "set_password_task.password";
     private static final String STATE_ACCOUNT = "set_password_task.account";
 
     private EditText passwordText;
-    private String repoID, repoName, magic, randomKey;
-    private int version;
+    private String repoID, repoName;
     private DataManager dataManager;
     private Account account;
     private String password;
@@ -86,15 +77,6 @@ public class PasswordDialog extends TaskDialog {
         this.repoName = repoName;
         this.repoID = repoID;
         this.account = account;
-    }
-
-    public void setRepo(String repoName, String repoID, String magic, String randomKey, int version, Account account) {
-        this.repoName = repoName;
-        this.repoID = repoID;
-        this.version = version;
-        this.account = account;
-        this.magic = magic;
-        this.randomKey = randomKey;
     }
 
     private DataManager getDataManager() {
@@ -113,7 +95,6 @@ public class PasswordDialog extends TaskDialog {
         if (savedInstanceState != null) {
             repoName = savedInstanceState.getString(STATE_TASK_REPO_NAME);
             repoID = savedInstanceState.getString(STATE_TASK_REPO_ID);
-            magic = savedInstanceState.getString(STATE_TASK_MAGIC);
             account = (Account)savedInstanceState.getParcelable(STATE_ACCOUNT);
         }
 
@@ -134,7 +115,6 @@ public class PasswordDialog extends TaskDialog {
     protected void onSaveDialogContentState(Bundle outState) {
         outState.putString(STATE_TASK_REPO_NAME, repoName);
         outState.putString(STATE_TASK_REPO_ID, repoID);
-        outState.putString(STATE_TASK_MAGIC, magic);
         outState.putParcelable(STATE_ACCOUNT, account);
     }
 
@@ -163,12 +143,7 @@ public class PasswordDialog extends TaskDialog {
     @Override
     protected SetPasswordTask prepareTask() {
         String password = passwordText.getText().toString().trim();
-        SetPasswordTask task;
-        if (!SettingsManager.instance().isEncryptEnabled()) {
-            task = new SetPasswordTask(repoID, password, getDataManager());
-        } else {
-            task = new SetPasswordTask(repoID, password, version, magic, randomKey, getDataManager());
-        }
+        SetPasswordTask task = new SetPasswordTask(repoID, password, getDataManager());
         return task;
     }
 
@@ -188,10 +163,7 @@ public class PasswordDialog extends TaskDialog {
 
         String password = outState.getString(STATE_TASK_PASSWORD);
         if (password != null) {
-            if (!SettingsManager.instance().isEncryptEnabled()) {
-                return new SetPasswordTask(repoID, password, getDataManager());
-            } else
-                return new SetPasswordTask(repoID, password, version, magic, randomKey, getDataManager());
+            return new SetPasswordTask(repoID, password, getDataManager());
         } else {
             return null;
         }
@@ -208,15 +180,17 @@ public class PasswordDialog extends TaskDialog {
 
     @Override
     public void onTaskSuccess() {
+        SeafRepo repo = dataManager.getCachedRepoByID(repoID);
         String password = passwordText.getText().toString().trim();
-        if (!SettingsManager.instance().isEncryptEnabled()) {
-            DataManager.setRepoPasswordSet(repoID, password);
+        if (repo == null || !repo.canLocalDecrypt()) {
+            dataManager.setRepoPasswordSet(repoID, password);
         } else {
-            if (TextUtils.isEmpty(randomKey)) return;
+            if (TextUtils.isEmpty(repo.magic))
+                return;
 
             try {
-                final Pair<String, String> pair = Crypto.generateKey(password, randomKey, version);
-                dataManager.saveRepoSecretKey(repoID, pair.first, pair.second);
+                final Pair<String, String> pair = Crypto.generateKey(password, repo.encKey, repo.encVersion);
+                dataManager.setRepoPasswordSet(repoID, pair.first, pair.second);
             } catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
                 // TODO notify error
                 e.printStackTrace();

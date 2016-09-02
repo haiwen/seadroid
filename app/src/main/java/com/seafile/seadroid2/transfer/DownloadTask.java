@@ -4,6 +4,7 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.ProgressMonitor;
+import com.seafile.seadroid2.data.SeafRepo;
 
 import org.json.JSONException;
 
@@ -20,15 +21,12 @@ public class DownloadTask extends TransferTask {
 
     private String localPath;
     private DownloadStateListener downloadStateListener;
-    private boolean byBlock;
     private boolean updateTotal;
-    private int encVersion;
+    private int encVersion = -1;
 
-    public DownloadTask(int taskID, Account account, String repoName, String repoID, String path, boolean byBlock, int encVersion,
+    public DownloadTask(int taskID, Account account, String repoName, String repoID, String path,
                         DownloadStateListener downloadStateListener) {
         super(taskID, account, repoName, repoID, path);
-        this.byBlock = byBlock;
-        this.encVersion = encVersion;
         this.downloadStateListener = downloadStateListener;
     }
 
@@ -38,9 +36,9 @@ public class DownloadTask extends TransferTask {
      */
     @Override
     protected void onProgressUpdate(Long... values) {
+        state = TaskState.TRANSFERRING;
         if (totalSize == -1 || updateTotal) {
             totalSize = values[0];
-            state = TaskState.TRANSFERRING;
             return;
         }
         finished = values[0];
@@ -51,7 +49,9 @@ public class DownloadTask extends TransferTask {
     protected File doInBackground(Void... params) {
         try {
             DataManager dataManager = new DataManager(account);
-            if (byBlock) {
+            final SeafRepo repo = dataManager.getCachedRepoByID(repoID);
+            if (repo != null && repo.canLocalDecrypt()) {
+                encVersion = repo.encVersion;
                 return dataManager.getFileByBlocks(repoName, repoID, path, encVersion, totalSize,
                         new ProgressMonitor() {
 

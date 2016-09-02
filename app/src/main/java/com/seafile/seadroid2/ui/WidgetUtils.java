@@ -9,6 +9,9 @@ import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.text.ClipboardManager;
 import android.webkit.MimeTypeMap;
+import android.widget.BaseAdapter;
+import android.widget.Toast;
+
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
@@ -61,7 +64,7 @@ public class WidgetUtils {
                         clipboard.setText(gdialog.getLink());
                         // ClipData clip = ClipData.newPlainText("seafile shared link", gdialog.getLink());
                         // clipboard.setPrimaryClip(clip);
-                        ToastUtils.show(activity, R.string.link_ready_to_be_pasted);
+                        Toast.makeText(activity, R.string.link_ready_to_be_pasted, Toast.LENGTH_SHORT).show();
                     }
                 });
                 gdialog.show(activity.getSupportFragmentManager(), "DialogFragment");
@@ -94,7 +97,7 @@ public class WidgetUtils {
      *
      * @param file
      */
-    public static void showFile(final FragmentActivity activity, File file) {
+    public static void showFile(final BaseActivity activity, File file) {
 
         String name = file.getName();
         String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
@@ -114,7 +117,8 @@ public class WidgetUtils {
         open.setDataAndType((Uri.fromFile(file)), mime);
 
         if (activity.getPackageManager().resolveActivity(open, 0) == null) {
-            ToastUtils.show(activity, "Could not find suitable app for mime type " + mime);
+            String message = String.format(activity.getString(R.string.op_exception_suitable_app_not_found), mime);
+            activity.showShortToast(activity, message);
             mime = "*/*";
             open.setType(mime);
         }

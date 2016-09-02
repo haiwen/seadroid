@@ -23,7 +23,6 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafStarredFile;
 import com.seafile.seadroid2.ui.NavContext;
-import com.seafile.seadroid2.ui.ToastUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.adapter.StarredItemAdapter;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
@@ -175,6 +174,12 @@ public class StarredFragment extends ListFragment {
 
         mErrorText.setText(msg);
         mErrorText.setVisibility(View.VISIBLE);
+        mErrorText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                refreshView();
+            }
+        });
     }
 
     private void showLoading(boolean show) {
@@ -237,7 +242,7 @@ public class StarredFragment extends ListFragment {
 
     private void doUnStarFile(String repoID, String path) {
         if (!Utils.isNetworkOn()) {
-            ToastUtils.show(mActivity, R.string.network_down);
+            mActivity.showShortToast(mActivity, R.string.network_down);
             return;
         }
 
@@ -248,7 +253,7 @@ public class StarredFragment extends ListFragment {
     public void doStarFile(String repoID, String path, String filename) {
 
         if (!Utils.isNetworkOn()) {
-            ToastUtils.show(mActivity, R.string.network_down);
+            mActivity.showShortToast(mActivity, R.string.network_down);
             return;
         }
 
@@ -345,11 +350,11 @@ public class StarredFragment extends ListFragment {
         @Override
         protected void onPostExecute(Void v) {
             if (err != null) {
-                ToastUtils.show(mActivity, R.string.star_file_failed);
+                mActivity.showShortToast(mActivity, R.string.star_file_failed);
                 return;
             }
 
-            ToastUtils.show(mActivity, R.string.star_file_succeed);
+            mActivity.showShortToast(mActivity, R.string.star_file_succeed);
         }
     }
 
@@ -378,7 +383,7 @@ public class StarredFragment extends ListFragment {
         @Override
         protected void onPostExecute(Void v) {
             if (err != null) {
-                ToastUtils.show(mActivity, R.string.unstar_file_failed);
+                mActivity.showShortToast(mActivity, R.string.unstar_file_failed);
                 return;
             }
 
@@ -486,7 +491,7 @@ public class StarredFragment extends ListFragment {
                     || repoID == null
                     || dirPath == null) {
                 if (item.getItemId() != R.id.action_mode_select_all) {
-                    ToastUtils.show(mActivity, R.string.action_mode_no_items_selected);
+                    mActivity.showShortToast(mActivity, R.string.action_mode_no_items_selected);
                     return true;
                 }
             }

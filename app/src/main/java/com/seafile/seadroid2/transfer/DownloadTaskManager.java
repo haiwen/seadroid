@@ -30,8 +30,8 @@ public class DownloadTaskManager extends TransferManager implements DownloadStat
      * Add a new download task.
      * call this method to execute a task immediately.
      */
-    public int addTask(Account account, String repoName, String repoID, String path, boolean byBlock, int encVersion, long fileSize) {
-        TransferTask task = new DownloadTask(++notificationID, account, repoName, repoID, path, byBlock, encVersion, this);
+    public int addTask(Account account, String repoName, String repoID, String path, long fileSize) {
+        TransferTask task = new DownloadTask(++notificationID, account, repoName, repoID, path, this);
         task.totalSize = fileSize;
         TransferTask oldTask = null;
         if (allTaskList.contains(task)) {
@@ -53,12 +53,8 @@ public class DownloadTaskManager extends TransferManager implements DownloadStat
     }
 
     public void addTaskToQue(Account account, String repoName, String repoID, String path) {
-        addTaskToQue(account, repoName, repoID, path, false, -1);
-    }
-
-    public void addTaskToQue(Account account, String repoName, String repoID, String path, boolean byBlock, int encVersion) {
         // create a new one to avoid IllegalStateException
-        DownloadTask downloadTask = new DownloadTask(++notificationID, account, repoName, repoID, path, byBlock, encVersion, this);
+        DownloadTask downloadTask = new DownloadTask(++notificationID, account, repoName, repoID, path, this);
         addTaskToQue(downloadTask);
     }
 
