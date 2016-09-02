@@ -171,7 +171,8 @@
   <!--Action Mode-->
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
-  <!--client sid encryption and decryption-->
+  <!--client side encryption and decryption-->
   <!--clear password-->
   <!--Two factor auth-->
+  <!--Operation Exceptions-->
 </resources>

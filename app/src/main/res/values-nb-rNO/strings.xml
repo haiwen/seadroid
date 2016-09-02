@@ -159,7 +159,6 @@
   <string name="minutes_ago">%d minutter siden</string>
   <string name="seconds_ago">%d sekunder siden</string>
   <string name="just_now">Akkurat nå</string>
-  <string name="error_when_load_starred">Feil ved lasting av favorittmarkerte filer</string>
   <string name="open_as">Åpne som</string>
   <string name="select_upload_files">Velg filer å laste opp</string>
   <string name="storage_removed">Lagringen ble fjernet</string>
@@ -377,7 +376,8 @@
   <string name="action_mode_no_items_selected">Ingen elementer ble valgt</string>
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
-  <!--client sid encryption and decryption-->
+  <!--client side encryption and decryption-->
   <!--clear password-->
   <!--Two factor auth-->
+  <!--Operation Exceptions-->
 </resources>

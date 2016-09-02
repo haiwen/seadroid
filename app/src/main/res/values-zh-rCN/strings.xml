@@ -15,7 +15,7 @@
   <string name="server_hint">服务器地址</string>
   <string name="email_hint">邮箱或用户名</string>
   <string name="passwd_hint">密码</string>
-  <string name="passwd_min_len_limit_hint">密码(至少8个字符)</string>
+  <string name="passwd_min_len_limit_hint">密码(至少%d个字符)</string>
   <string name="passwd_confirmation_hint">请再次输入密码</string>
   <string name="login">登录</string>
   <string name="open_file">打开</string>
@@ -112,6 +112,7 @@
   <string name="error_when_load_dirents">文件夹数据加载出错.\n 点击刷新</string>
   <string name="error_when_load_repos">资料库数据加载出错.\n 点击刷新</string>
   <string name="error_when_load_activities">活动数据加载出错.\n 点击刷新</string>
+  <string name="error_when_load_starred">星标文件加载出错.\n 点击刷新</string>
   <string name="dir_empty">此文件夹是空的</string>
   <string name="no_repo">无资料库</string>
   <string name="no_app_available">没有找到应用</string>
@@ -143,6 +144,8 @@
   </string-array>
   <string name="create_new_repo">新建资料库</string>
   <string name="create_new_repo_success">新建资料库%s成功</string>
+  <string name="create_new_folder_success">文件夹%s创建成功</string>
+  <string name="create_new_file_success">文件%s创建成功</string>
   <string name="create_new_file">创建新文件</string>
   <string name="create_new_dir">创建新文件夹</string>
   <string name="camera">拍照上传</string>
@@ -152,6 +155,7 @@
   <string name="file_modified">已更改</string>
   <string name="file_size">文件大小</string>
   <string name="library_not_found">此资料库已被删除</string>
+  <string name="file_not_found">此文件\"%s\"已被删除</string>
   <string name="export_file">导出此文件</string>
   <string name="no_upload_tasks">无上传任务</string>
   <string name="no_download_tasks">无下载任务</string>
@@ -193,8 +197,6 @@
   <string name="minutes_ago">%d分钟前</string>
   <string name="seconds_ago">%d秒前</string>
   <string name="just_now">刚刚更新</string>
-  <string name="error_when_load_starred">加载星标文件失败</string>
-  <string name="error_when_load_events">加载活动时失败</string>
   <string name="open_as">打开为</string>
   <string name="select_upload_files">请选择要上传的文件</string>
   <string name="storage_removed">存储卡已被移出</string>
@@ -458,7 +460,7 @@
   <string name="permission_not_granted">未获得权限</string>
   <string name="history_change_title">修改详情</string>
   <string name="no_more_activities">没有更多活动了</string>
-  <!--client sid encryption and decryption-->
+  <!--client side encryption and decryption-->
   <string name="enc_on">数据在本地解密</string>
   <string name="enc_off">数据在服务器端解密</string>
   <string name="enc_title">加密资料库解密方式</string>
@@ -474,4 +476,8 @@
   <string name="two_factor_auth_invalid">验证码无效</string>
   <string name="two_factor_auth_token">两步验证码</string>
   <string name="two_factor_auth_token_empty">验证码不能为空</string>
+  <!--Operation Exceptions-->
+  <string name="op_exception_folder_deleted">此文件夹\"%s\"已被删除</string>
+  <string name="op_exception_suitable_app_not_found">找不到合适的应用打开该%s类型</string>
+  <string name="op_exception_failed_to_download_file">下载文件%s失败</string>
 </resources>

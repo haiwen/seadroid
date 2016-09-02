@@ -162,7 +162,6 @@
   <string name="minutes_ago">%d mínútur síðan</string>
   <string name="seconds_ago">%d sekúndur síðan</string>
   <string name="just_now">Rétt í þessu</string>
-  <string name="error_when_load_starred">Villa við að hlaða inn stjörnumerktum skrám</string>
   <string name="open_as">Opna sem</string>
   <string name="select_upload_files">Veldu skrár til að hlaða upp</string>
   <string name="storage_removed">Geymsla var fjarlægð</string>
@@ -395,7 +394,8 @@
   <string name="action_mode_no_items_selected">Engin atriði voru valin</string>
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
-  <!--client sid encryption and decryption-->
+  <!--client side encryption and decryption-->
   <!--clear password-->
   <!--Two factor auth-->
+  <!--Operation Exceptions-->
 </resources>

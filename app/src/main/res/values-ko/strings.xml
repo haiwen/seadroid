@@ -15,7 +15,6 @@
   <string name="server_hint">서버 주소</string>
   <string name="email_hint">전자메일 주소 또는 사용자 이름</string>
   <string name="passwd_hint">암호</string>
-  <string name="passwd_min_len_limit_hint">암호(최소한 문자 8개)</string>
   <string name="passwd_confirmation_hint">암호를 다시 입력하세요</string>
   <string name="login">로그인</string>
   <string name="open_file">열기</string>
@@ -193,8 +192,6 @@
   <string name="minutes_ago">%d분 전</string>
   <string name="seconds_ago">%d초 전</string>
   <string name="just_now">지금</string>
-  <string name="error_when_load_starred">별표 표시한 파일을 불러오는 중 오류가 생겼습니다</string>
-  <string name="error_when_load_events">활동을 불러오는 중 오류가 생겼습니다</string>
   <string name="open_as">다른 앱으로 열기</string>
   <string name="select_upload_files">업로드할 파일을 선택하세요</string>
   <string name="storage_removed">저장소를 제거했습니다</string>
@@ -458,7 +455,7 @@
   <string name="permission_not_granted">권한을 부여하지 않음</string>
   <string name="history_change_title">자세한 수정 내역</string>
   <string name="no_more_activities">더 이상의 활동 없음</string>
-  <!--client sid encryption and decryption-->
+  <!--client side encryption and decryption-->
   <string name="enc_on">자체 데이터 복호화</string>
   <string name="enc_off">서버측 데이터 복호화</string>
   <string name="enc_title">암호화 한 라이브러리 데이터 복호화 모드</string>
@@ -474,4 +471,5 @@
   <string name="two_factor_auth_invalid">인증 토큰이 잘못되었습니다</string>
   <string name="two_factor_auth_token">이중 인증 토큰</string>
   <string name="two_factor_auth_token_empty">인증 토큰은 비워둘 수 없습니다</string>
+  <!--Operation Exceptions-->
 </resources>

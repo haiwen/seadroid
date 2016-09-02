@@ -15,7 +15,7 @@
   <string name="server_hint">Adres serwera</string>
   <string name="email_hint">E-mail lub nazwa użytkownika</string>
   <string name="passwd_hint">Hasło</string>
-  <string name="passwd_min_len_limit_hint">Hasło (min. 8 znaków)</string>
+  <string name="passwd_min_len_limit_hint">Hasło (min. %d znaków)</string>
   <string name="passwd_confirmation_hint">Powtórz hasło</string>
   <string name="login">Zaloguj</string>
   <string name="open_file">Otwórz</string>
@@ -114,6 +114,7 @@
   <string name="error_when_load_dirents">Błąd podczas wczytywania folderu.\n Dotknij, aby odświeżyć</string>
   <string name="error_when_load_repos">Błąd podczas wczytywania bibliotek.\n Dotknij, aby odświeżyć</string>
   <string name="error_when_load_activities">Błąd podczas wczytywania aktywności.\n Dotknij, aby odświeżyć</string>
+  <string name="error_when_load_starred">Błąd podczas wczytywania plików z gwiazdką.\n Dotknij, aby odświeżyć</string>
   <string name="dir_empty">Ten folder jest pusty</string>
   <string name="no_repo">Nie masz jeszcze żadnej biblioteki</string>
   <string name="no_app_available">Nie znaleziono aplikacji</string>
@@ -145,6 +146,8 @@
   </string-array>
   <string name="create_new_repo">Utwórz nową bibliotekę</string>
   <string name="create_new_repo_success">Pomyślnie utworzono bilbiotekę %s</string>
+  <string name="create_new_folder_success">Pomyślnie utworzono folder %s</string>
+  <string name="create_new_file_success">Pomyślnie utworzono plik %s</string>
   <string name="create_new_file">Utwórz nowy plik</string>
   <string name="create_new_dir">Utwórz nowy folder</string>
   <string name="camera">Zrób zdjęcie</string>
@@ -154,6 +157,7 @@
   <string name="file_modified">zmodyfikowany</string>
   <string name="file_size">rozmiar pliku</string>
   <string name="library_not_found">Biblioteka została usunięta.</string>
+  <string name="file_not_found">Plik \"%s\" został usunięty</string>
   <string name="export_file">Wyeksportuj ten plik</string>
   <string name="no_upload_tasks">Brak zadań przesyłania</string>
   <string name="no_download_tasks">Brak zadań pobierania</string>
@@ -195,8 +199,6 @@
   <string name="minutes_ago">%d minut temu</string>
   <string name="seconds_ago">%d sekundy temu</string>
   <string name="just_now">Przed chwilą</string>
-  <string name="error_when_load_starred">Błąd podczas wczytywania ulubionych plików</string>
-  <string name="error_when_load_events">Błąd podczas wczytywania aktywności</string>
   <string name="open_as">Otwórz jako</string>
   <string name="select_upload_files">Wybierz pliki do przesłania</string>
   <string name="storage_removed">Magazyn został usunięty</string>
@@ -476,7 +478,7 @@
   <string name="permission_not_granted">Nie przyznano uprawnień</string>
   <string name="history_change_title">Szczegóły modyfikacji</string>
   <string name="no_more_activities">Brak więcej aktywności</string>
-  <!--client sid encryption and decryption-->
+  <!--client side encryption and decryption-->
   <string name="enc_on">Odszyfruj dane lokalnie</string>
   <string name="enc_off">Odszyfruj dane po stronie serwera</string>
   <string name="enc_title">Metoda odszyfrowania danych z zaszyfrowanej biblioteki</string>
@@ -492,4 +494,8 @@
   <string name="two_factor_auth_invalid">token uwierzytelniający jest nieprawidłowy</string>
   <string name="two_factor_auth_token">Token uwierzytelniania dwuskładnikowego</string>
   <string name="two_factor_auth_token_empty">Token uwierzytelniający nie może być pusty</string>
+  <!--Operation Exceptions-->
+  <string name="op_exception_folder_deleted">Folder \"%s\" został usunięty</string>
+  <string name="op_exception_suitable_app_not_found">Nie znaleziono aplikacji obsługującej pliki typu %s</string>
+  <string name="op_exception_failed_to_download_file">Nie udało się pobrać pliku %s</string>
 </resources>

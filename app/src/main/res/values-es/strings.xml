@@ -15,7 +15,6 @@
   <string name="server_hint">Dirección del servidor</string>
   <string name="email_hint">Email o Nombre de usuario</string>
   <string name="passwd_hint">Contraseña</string>
-  <string name="passwd_min_len_limit_hint">Contraseña (al menos 8 caracteres)</string>
   <string name="passwd_confirmation_hint">Contraseña otra vez</string>
   <string name="login">Ingresar</string>
   <string name="open_file">Abrir</string>
@@ -194,8 +193,6 @@
   <string name="minutes_ago">hace %d minutos</string>
   <string name="seconds_ago">hace %d segundos</string>
   <string name="just_now">Ahora</string>
-  <string name="error_when_load_starred">Error al cargar archivos favoritos</string>
-  <string name="error_when_load_events">Error al cargar actividades</string>
   <string name="open_as">Abrir como</string>
   <string name="select_upload_files">Seleccionar archivos para subir</string>
   <string name="storage_removed">Almacenamiento fue removido</string>
@@ -467,7 +464,7 @@
   <string name="permission_not_granted">El permiso no fue concedido</string>
   <string name="history_change_title">Detalle de las modificaciones</string>
   <string name="no_more_activities">No hay mas actividades</string>
-  <!--client sid encryption and decryption-->
+  <!--client side encryption and decryption-->
   <string name="enc_on">Desencriptar datos localmente</string>
   <string name="enc_off">Desencriptar datos en el servidor</string>
   <string name="enc_title">Modo de desencriptación de datos en bibliotecas encriptadas</string>
@@ -483,4 +480,5 @@
   <string name="two_factor_auth_invalid">el identificador de autenticación es inválido</string>
   <string name="two_factor_auth_token">Identificador de Autenticación de dos factores</string>
   <string name="two_factor_auth_token_empty">Identificador de autenticación no puede estar vacío</string>
+  <!--Operation Exceptions-->
 </resources>

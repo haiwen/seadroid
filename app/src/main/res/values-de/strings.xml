@@ -15,7 +15,6 @@
   <string name="server_hint">Server, z.B. cloud.seafile.com</string>
   <string name="email_hint">E-Mail oder Benutzername</string>
   <string name="passwd_hint">Passwort</string>
-  <string name="passwd_min_len_limit_hint">Passwort (mindestens 8 Zeichen) </string>
   <string name="passwd_confirmation_hint">Passwort wiederholen</string>
   <string name="login">Anmelden</string>
   <string name="open_file">Öffnen</string>
@@ -196,8 +195,6 @@ Zum Aktualisieren einmal antippen</string>
   <string name="minutes_ago">vor %d Minuten</string>
   <string name="seconds_ago">vor %d Sekunden</string>
   <string name="just_now">Gerade eben</string>
-  <string name="error_when_load_starred">Informationen zu Favoriten konnten nicht geladen werden</string>
-  <string name="error_when_load_events">Fehler beim Laden der Aktivitäten</string>
   <string name="open_as">Öffnen als</string>
   <string name="select_upload_files">Dateien zum Hochladen auswählen</string>
   <string name="storage_removed">Speicher wurde entfernt</string>
@@ -469,7 +466,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="permission_not_granted">Berechtigung wurde nicht erteilt</string>
   <string name="history_change_title">Änderungsinformationen</string>
   <string name="no_more_activities">Keine weiteren Aktivitäten</string>
-  <!--client sid encryption and decryption-->
+  <!--client side encryption and decryption-->
   <string name="enc_on">Daten lokal entschlüsseln</string>
   <string name="enc_off">Daten auf dem Server entschlüsseln</string>
   <string name="enc_title">Entschlüsselungsart für verschlüsselte Bibliotheken</string>
@@ -485,4 +482,5 @@ Zum Aktualisieren einmal antippen</string>
   <string name="two_factor_auth_invalid">Token für Authentifizierung ist nicht gültig</string>
   <string name="two_factor_auth_token">Token für 2-Faktor-Authentifizierung</string>
   <string name="two_factor_auth_token_empty">Geben Sie das Token für die Authentifizierung an</string>
+  <!--Operation Exceptions-->
 </resources>

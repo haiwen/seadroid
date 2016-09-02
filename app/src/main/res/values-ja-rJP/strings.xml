@@ -15,7 +15,6 @@
   <string name="server_hint">サーバーアドレス</string>
   <string name="email_hint">メールアドレスまたはユーザー名</string>
   <string name="passwd_hint">パスワード</string>
-  <string name="passwd_min_len_limit_hint">パスワード(8 文字以上)</string>
   <string name="passwd_confirmation_hint">パスワード再入力</string>
   <string name="login">ログイン</string>
   <string name="open_file">開く</string>
@@ -193,8 +192,6 @@
   <string name="minutes_ago">%d 分前</string>
   <string name="seconds_ago">%d 秒前</string>
   <string name="just_now">たった今</string>
-  <string name="error_when_load_starred">スター付きファイルの読み込み時にエラー</string>
-  <string name="error_when_load_events">アクティビティの読み込み時にエラー</string>
   <string name="open_as">...として開く</string>
   <string name="select_upload_files">アップロードするファイルを選択してください</string>
   <string name="storage_removed">ストレージは削除されました</string>
@@ -458,7 +455,7 @@
   <string name="permission_not_granted">アクセス許可が付与されていません</string>
   <string name="history_change_title">更新の詳細</string>
   <string name="no_more_activities">これ以上アクティビティはありません</string>
-  <!--client sid encryption and decryption-->
+  <!--client side encryption and decryption-->
   <string name="enc_on">ローカルでデータを復号化</string>
   <string name="enc_off">サーバーサイドでデータを復号化</string>
   <string name="enc_title">暗号化されたライブラリーのデータ復号化モード</string>
@@ -474,4 +471,5 @@
   <string name="two_factor_auth_invalid">認証トークンが正しくありません</string>
   <string name="two_factor_auth_token">二要素認証トークン</string>
   <string name="two_factor_auth_token_empty">認証トークンは空にできません</string>
+  <!--Operation Exceptions-->
 </resources>

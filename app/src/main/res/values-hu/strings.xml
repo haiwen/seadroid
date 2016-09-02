@@ -15,7 +15,6 @@
   <string name="server_hint">Szerver cím</string>
   <string name="email_hint">Email vagy felhasználónév</string>
   <string name="passwd_hint">Jelszó</string>
-  <string name="passwd_min_len_limit_hint">Jelszó (legalább 8 karakter)</string>
   <string name="passwd_confirmation_hint">Jelszó újra</string>
   <string name="login">Bejelentkezés</string>
   <string name="open_file">Megnyit</string>
@@ -194,8 +193,6 @@
   <string name="minutes_ago">%d perce</string>
   <string name="seconds_ago">%d másodperce</string>
   <string name="just_now">most</string>
-  <string name="error_when_load_starred">Hiba a kedvenc fájlok betöltésénél</string>
-  <string name="error_when_load_events">Hiba a tevékenységnapló betöltésekor.</string>
   <string name="open_as">Megnyitás mint</string>
   <string name="select_upload_files">Fájlok kiválasztása feltöltéshez</string>
   <string name="storage_removed">Eltávolították a tárolót</string>
@@ -466,7 +463,7 @@ Email: support@seafile.com<br>
   <string name="permission_not_granted">Engedély nem lett megadva</string>
   <string name="history_change_title">Változtatás részletei</string>
   <string name="no_more_activities">Nincs több tevékenység</string>
-  <!--client sid encryption and decryption-->
+  <!--client side encryption and decryption-->
   <string name="enc_on">Adatok titkosításának lokális feloldása</string>
   <string name="enc_off">Adatok titkosításának szerveroldali feloldása</string>
   <string name="enc_title">Titkosított kötet feloldási módja</string>
@@ -482,4 +479,5 @@ Email: support@seafile.com<br>
   <string name="two_factor_auth_invalid">Azonosítókulcs érvénytelen</string>
   <string name="two_factor_auth_token">Kétlépcsős azonosítókulcs</string>
   <string name="two_factor_auth_token_empty">Az azonosítókulcs nem lehet üres</string>
+  <!--Operation Exceptions-->
 </resources>

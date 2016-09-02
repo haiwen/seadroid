@@ -105,7 +105,6 @@
   <string name="tabs_starred">Yıldızlı</string>
   <string name="provide_password">\"%s\" kütüphanesi için şifreyi giriniz</string>
   <string name="just_now">hemen şimdi</string>
-  <string name="error_when_load_starred">Yıldızlı dosyaları yüklerken hata</string>
   <string name="open_as">Şöyle aç</string>
   <string name="storage_removed">Bellek kaldırıldı</string>
   <string name="error_selecting_file">Dosya seçerken hata</string>
@@ -196,7 +195,8 @@
   <!--Action Mode-->
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
-  <!--client sid encryption and decryption-->
+  <!--client side encryption and decryption-->
   <!--clear password-->
   <!--Two factor auth-->
+  <!--Operation Exceptions-->
 </resources>

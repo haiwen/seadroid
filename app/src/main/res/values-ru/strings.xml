@@ -15,7 +15,6 @@
   <string name="server_hint">Адрес сервера</string>
   <string name="email_hint">Email или Логин</string>
   <string name="passwd_hint">Пароль</string>
-  <string name="passwd_min_len_limit_hint">Пароль (не менее 8 символов)</string>
   <string name="passwd_confirmation_hint">Пароль еще раз</string>
   <string name="login">Войти</string>
   <string name="open_file">Открыть</string>
@@ -196,8 +195,6 @@
   <string name="minutes_ago">%d минут назад</string>
   <string name="seconds_ago">%d секунд назад</string>
   <string name="just_now">Прямо сейчас</string>
-  <string name="error_when_load_starred">Ошибка загрузки помеченных файлов</string>
-  <string name="error_when_load_events">Ошибка загрузки действий</string>
   <string name="open_as">Открыть как</string>
   <string name="select_upload_files">Выберите файлы для загрузки</string>
   <string name="storage_removed">Хранилище было удалено</string>
@@ -485,7 +482,7 @@
   <string name="permission_not_granted">Разрешение не было предоставлено</string>
   <string name="history_change_title">Подробности изменений</string>
   <string name="no_more_activities">Не больше действий</string>
-  <!--client sid encryption and decryption-->
+  <!--client side encryption and decryption-->
   <string name="enc_on">Расшифровать данные локально</string>
   <string name="enc_off">Расшифровать данные на стороне сервера</string>
   <string name="enc_title">Режим дешифрования для данных зашифрованной библиотеки</string>
@@ -501,4 +498,5 @@
   <string name="two_factor_auth_invalid">токен аутентификации недействителен</string>
   <string name="two_factor_auth_token">Токен двухфакторной аутентификации</string>
   <string name="two_factor_auth_token_empty">Токен аутентификации не может быть пустым</string>
+  <!--Operation Exceptions-->
 </resources>

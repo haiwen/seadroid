@@ -141,7 +141,6 @@
   <string name="minutes_ago">%d minutos atrás</string>
   <string name="seconds_ago">%d segundos atrás</string>
   <string name="just_now">Agora</string>
-  <string name="error_when_load_starred">Erro ao carregar os arquivos marcados</string>
   <string name="open_as">Abrir como</string>
   <string name="select_upload_files">Selecione  os arquivos para o upload</string>
   <string name="storage_removed">Armazenamento  foi removido</string>
@@ -329,7 +328,8 @@
   <!--Action Mode-->
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
-  <!--client sid encryption and decryption-->
+  <!--client side encryption and decryption-->
   <!--clear password-->
   <!--Two factor auth-->
+  <!--Operation Exceptions-->
 </resources>

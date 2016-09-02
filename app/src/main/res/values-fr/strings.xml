@@ -15,7 +15,6 @@
   <string name="server_hint">Serveur, par exemple cloud.seafile.com</string>
   <string name="email_hint">E-mail ou nom d\'utilisateur</string>
   <string name="passwd_hint">Mot de passe</string>
-  <string name="passwd_min_len_limit_hint">Mot de passe (au moins 8 caractères)</string>
   <string name="passwd_confirmation_hint">Retaper le mot de passe</string>
   <string name="login">Connexion</string>
   <string name="open_file">Ouvrir</string>
@@ -194,8 +193,6 @@
   <string name="minutes_ago">il y a %d minutes</string>
   <string name="seconds_ago">il y a %d secondes </string>
   <string name="just_now">À l\'instant</string>
-  <string name="error_when_load_starred">Erreur de chargement des fichiers préférés</string>
-  <string name="error_when_load_events">Erreur lors du chargements des activités</string>
   <string name="open_as">Ouvrir comme</string>
   <string name="select_upload_files">Sélectionner les fichiers à envoyer</string>
   <string name="storage_removed">Le stockage a été supprimé</string>
@@ -466,7 +463,7 @@ E-mail : support@seafile.com<br>
   <string name="permission_not_granted">L\'autorisation n\'a pas été accordée</string>
   <string name="history_change_title">Détails de modification</string>
   <string name="no_more_activities">Aucune activité</string>
-  <!--client sid encryption and decryption-->
+  <!--client side encryption and decryption-->
   <string name="enc_on">Décrypter les données localement</string>
   <string name="enc_off">Décrypter les données sur le serveur</string>
   <string name="enc_title">Mode de décryptage d\'une bibliothèque cryptée</string>
@@ -482,4 +479,5 @@ E-mail : support@seafile.com<br>
   <string name="two_factor_auth_invalid">Le jeton d\'authentification n\'est pas correcte</string>
   <string name="two_factor_auth_token">Jeton d\'authentification à deux facteurs</string>
   <string name="two_factor_auth_token_empty">Jeton d\'authentification ne peut être vide</string>
+  <!--Operation Exceptions-->
 </resources>

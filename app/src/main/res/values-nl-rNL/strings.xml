@@ -15,7 +15,6 @@
   <string name="server_hint">Server, zoals cloud.seafile.com</string>
   <string name="email_hint">E-mailadres of gebruikersnaam</string>
   <string name="passwd_hint">Wachtwoord</string>
-  <string name="passwd_min_len_limit_hint">Wachtwoord (minstens 8 tekens)</string>
   <string name="passwd_confirmation_hint">Wachtwoord opnieuw</string>
   <string name="login">Aanmelden</string>
   <string name="open_file">Open</string>
@@ -192,7 +191,6 @@
   <string name="minutes_ago">%d minuten geleden</string>
   <string name="seconds_ago">%d seconden geleden</string>
   <string name="just_now">Zojuist</string>
-  <string name="error_when_load_starred">Fout bij het laden van favoriete bestanden</string>
   <string name="open_as">Openen als</string>
   <string name="select_upload_files">Selecteer de bestanden om te uploaden</string>
   <string name="storage_removed">Opslag was verwijdert</string>
@@ -442,7 +440,7 @@
   <string name="permission_not_granted">Toestemming is niet verleend</string>
   <string name="history_change_title">Details over de wijzigingen</string>
   <string name="no_more_activities">Geen acties meer over</string>
-  <!--client sid encryption and decryption-->
+  <!--client side encryption and decryption-->
   <string name="enc_on">Data lokaal ontsleutelen</string>
   <string name="enc_off">Data op de server ontsleutelen</string>
   <!--clear password-->
@@ -452,4 +450,5 @@
   <string name="clear_password_failed">Wachtwoord verwijderen mislukt</string>
   <string name="clear_password_warning">Wil je het wachtwoord verwijderen?</string>
   <!--Two factor auth-->
+  <!--Operation Exceptions-->
 </resources>
