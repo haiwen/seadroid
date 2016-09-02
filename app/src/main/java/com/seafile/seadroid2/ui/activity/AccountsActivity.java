@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui.activity;
 
+import android.Manifest;
 import android.accounts.AccountManagerCallback;
 import android.accounts.AccountManagerFuture;
 import android.accounts.OnAccountsUpdateListener;
@@ -10,6 +11,10 @@ import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.content.pm.PackageManager;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -17,6 +22,7 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
@@ -42,10 +48,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener{
+public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
     private static final String DEBUG_TAG = "AccountsActivity";
 
     public static final int DETAIL_ACTIVITY_REQUEST = 1;
+    public static final int REQUEST_PERMISSIONS_GET_ACCOUNTS = 2;
 
     private ListView accountsView;
 
@@ -123,7 +130,7 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
             }
         });
 
-        mAccountManager.addOnAccountsUpdatedListener(accountsUpdateListener, null, false);
+        requestGetAccountsPermission();
 
         registerForContextMenu(accountsView);
 
@@ -242,6 +249,61 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
 
     private void startEditAccountActivity(Account account) {
         mAccountManager.updateCredentials(account.getAndroidAccount(), Authenticator.AUTHTOKEN_TYPE, null, this, accountCallback, null);
+    }
+
+    /**
+     * If the user is running Android 6.0 (API level 23) or later, the user has to grant your app its permissions while they are running the app
+     *
+     * Requests the related permission.
+     * If the permission has been denied previously, a SnackBar will prompt the user to grant the
+     * permission, otherwise it is requested directly.
+     *
+     */
+    private void requestGetAccountsPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.GET_ACCOUNTS)) {
+
+                final ViewGroup rootView = (ViewGroup) ((ViewGroup) this
+                        .findViewById(android.R.id.content)).getChildAt(0);
+                Snackbar.make(rootView,
+                        R.string.permission_read_exteral_storage_rationale,
+                        Snackbar.LENGTH_INDEFINITE)
+                        .setAction(R.string.settings, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                ActivityCompat.requestPermissions(AccountsActivity.this,
+                                        new String[]{Manifest.permission.GET_ACCOUNTS},
+                                        REQUEST_PERMISSIONS_GET_ACCOUNTS);
+                            }
+                        })
+                        .show();
+
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.GET_ACCOUNTS},
+                        REQUEST_PERMISSIONS_GET_ACCOUNTS);
+            }
+        } else {
+            mAccountManager.addOnAccountsUpdatedListener(accountsUpdateListener, null, false);
+        }
+
+    }
+
+    /**
+     * Callback received when a permissions request has been completed.
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        // Log.i(DEBUG_TAG, "Received response for permission request.");
+        switch (requestCode) {
+            case REQUEST_PERMISSIONS_GET_ACCOUNTS: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted
+                } else {
+                    // permission denied
+                }
+            }
+        }
     }
 
     @Override
