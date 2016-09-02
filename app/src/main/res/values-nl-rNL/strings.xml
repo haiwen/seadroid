@@ -5,12 +5,19 @@
   <string name="edit_account">Bewerken</string>
   <string name="delete_account">Verwijderen</string>
   <string name="delete">Verwijderen</string>
+  <string name="delete_repo">Weet je zeker dat je deze bibliotheek wilt verwijderen?</string>
   <string name="delete_file">Weet je zeker dat je dit bestand of map wilt verwijderen?</string>
   <string name="delete_successful">Verwijderen gelukt</string>
+  <string name="delete_repo_title">Bibliotheek verwijderen</string>
   <string name="delete_file_f">Bestand verwijderen</string>
   <string name="delete_dir">Map verwijderen</string>
+  <string name="name_hint">Naam</string>
   <string name="server_hint">Server, zoals cloud.seafile.com</string>
+  <string name="email_hint">E-mailadres of gebruikersnaam</string>
   <string name="passwd_hint">Wachtwoord</string>
+  <string name="passwd_min_len_limit_hint">Wachtwoord (minstens 8 tekens)</string>
+  <string name="passwd_confirmation_hint">Wachtwoord opnieuw</string>
+  <string name="login">Aanmelden</string>
   <string name="open_file">Open</string>
   <string name="download_file">Download</string>
   <string name="redownload_file">Opnieuw downloaden</string>
@@ -34,12 +41,19 @@
     <item>Overig</item>
   </string-array>
   <string name="choose_server">Kies een Seafile server</string>
+  <string-array name="choose_server_array">
+    <item>SeaCloud.cc</item>
+    <item>Aanmelden Shibboleth</item>
+    <item>Andere Seafile-server</item>
+  </string-array>
   <string name="network_down">Geen netwerkverbinding</string>
   <string name="unknow_error">Onbekende fout</string>
   <string name="invalid_server_address">Ongeldig serveradres</string>
   <string name="err_server_andress_empty">Serveradres kan niet leeg zijn</string>
   <string name="err_email_empty">E-mailadres mag niet leeg zijn</string>
   <string name="err_passwd_empty">Wachtwoord mag niet leeg zijn</string>
+  <string name="err_passwd_too_short">Wachtwoord is te kort</string>
+  <string name="err_passwd_mismatch">De wachtwoorden komen niet overeen</string>
   <string name="err_login_failed">Aanmelden mislukt</string>
   <string name="err_wrong_user_or_passwd">E-mail- of wachtwoordfout</string>
   <string name="err_token_expired">Authenticatie verlopen, opnieuw aanmelden</string>
@@ -55,6 +69,8 @@
   <string name="task_remove">Verwijderen</string>
   <string name="task_remove_all_cancelled">Verwijder alle geannuleerde taken</string>
   <string name="task_remove_all_finished">Verwijder alle afgeronde taken</string>
+  <string name="repo_action_delete">Verwijderen</string>
+  <string name="repo_action_rename">Hernoemen</string>
   <string name="file_action_star">Ster</string>
   <string name="file_action_download">Downloaden</string>
   <string name="file_action_update">Uploaden</string>
@@ -88,6 +104,7 @@
     <item quantity="one">%1$d item geselecteerd</item>
     <item quantity="other">%1$d items geselecteerd</item>
   </plurals>
+  <string name="repo_name_empty">Geef de naam van de bibliotheek op</string>
   <string name="dir_name_empty">Geef de mapnaam op</string>
   <string name="file_name_empty">Gelieve de bestandsnaam in te geven</string>
   <string name="password_empty">Gelieve het wachtwoord in te geven</string>
@@ -109,12 +126,14 @@
   <string name="load_dir_fail">Kon de inhoud van deze map niet laden</string>
   <string name="not_supported_share">Dit type van delen is niet ondersteund</string>
   <string name="edit">Bewerken</string>
+  <string name="encrypt">Versleutelen</string>
   <string name="download_folder">Download map</string>
   <string name="download_folder_title">Kies je voorkeursoptie</string>
   <string-array name="download_folder_options_array">
     <item>Map downloaden</item>
     <item>Map inclusief onderliggende mappen downloaden</item>
   </string-array>
+  <string name="add_repo">Nieuwe bibliotheek</string>
   <string name="add_file">Toevoegen</string>
   <string-array name="add_file_options_array">
     <item>Bestand aanmaken</item>
@@ -122,6 +141,7 @@
     <item>Bestand uploaden</item>
     <item>Maak een foto</item>
   </string-array>
+  <string name="create_new_repo">Maak een nieuwe bibliotheek aan</string>
   <string name="create_new_file">Maak een nieuw bestand aan</string>
   <string name="create_new_dir">Maak een nieuwe map aan</string>
   <string name="camera">Maak hier een foto</string>
@@ -140,6 +160,7 @@
   <string name="share_dir_link">Deel een link naar deze map</string>
   <string name="generating_link">Link aan het genereren...</string>
   <string name="link_ready_to_be_pasted">De link is klaar om geplakt te worden</string>
+  <string name="rename_repo">Bibliotheek hernoemen</string>
   <string name="rename_file">Hernoem bestand</string>
   <string name="rename_dir">Hernoem map</string>
   <string name="rename_successful">Hernoemen gelukt.</string>
