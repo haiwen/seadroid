@@ -556,14 +556,16 @@ public class SeafConnection {
             checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
 
             if (monitor != null) {
-                /*if (req.header(HttpRequest.HEADER_CONTENT_LENGTH) == null) {
-                    throw SeafException.illFormatException;
-                }
-                Long size = Long.parseLong(req.header(HttpRequest.HEADER_CONTENT_LENGTH));*/
+                Long size;
                 if (req.contentLength() > 0) {
-                    Long size =  Long.valueOf(req.contentLength());
-                    monitor.onProgressNotify(size, false);
+                    size =  Long.valueOf(req.contentLength());
+                } else {
+                    /*if (req.header(HttpRequest.HEADER_CONTENT_LENGTH) == null) {
+                        throw SeafException.illFormatException;
+                    }*/
+                    size = Long.parseLong(req.header(HttpRequest.HEADER_CONTENT_LENGTH));
                 }
+                monitor.onProgressNotify(size, false);
             }
 
             File tmp = DataManager.createTempFile();
