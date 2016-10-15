@@ -51,3 +51,5 @@ debugkey.properties
 .DS_Store
 app/seed.txt
 out/
+
+*.store

@@ -5,6 +5,7 @@ public class NavContext {
     String repoName = null;     // for display
     String dirPath = null;
     String dirID = null;
+    String dirPermission = null;
 
     public NavContext() {
     }
@@ -48,5 +49,13 @@ public class NavContext {
 
     public String getDirID() {
         return dirID;
+    }
+
+    public String getDirPermission() {
+        return dirPermission;
+    }
+
+    public void setDirPermission(String dirPermission) {
+        this.dirPermission = dirPermission;
     }
 }

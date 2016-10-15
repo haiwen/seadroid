@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui.fragment;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
@@ -60,7 +61,9 @@ public class ReposFragment extends ListFragment {
     private static final int REFRESH_ON_CLICK = 2;
     private static final int REFRESH_ON_OVERFLOW_MENU = 3;
     private static int mRefreshType = -1;
-    /** flag to stop refreshing when nav to other directory  */
+    /**
+     * flag to stop refreshing when nav to other directory
+     */
     private static int mPullToRefreshStopRefreshing = 0;
 
     private SeafItemAdapter adapter;
@@ -108,18 +111,18 @@ public class ReposFragment extends ListFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         Log.d(DEBUG_TAG, "ReposFragment Attached");
-        mActivity = (BrowserActivity)activity;
+        mActivity = (BrowserActivity) activity;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.repos_fragment, container, false);
         refreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swiperefresh);
         mListView = (ListView) root.findViewById(android.R.id.list);
         mEmptyView = (ImageView) root.findViewById(R.id.empty);
-        mListContainer =  root.findViewById(R.id.listContainer);
-        mErrorText = (TextView)root.findViewById(R.id.error_message);
+        mListContainer = root.findViewById(R.id.listContainer);
+        mErrorText = (TextView) root.findViewById(R.id.error_message);
         mProgressContainer = root.findViewById(R.id.progressContainer);
 
         mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -149,14 +152,14 @@ public class ReposFragment extends ListFragment {
      * When a user enables this mode by selecting an item,
      * a contextual action bar appears at the top of the screen
      * to present actions the user can perform on the currently selected item(s).
-     *
+     * <p>
      * While this mode is enabled,
      * the user can select multiple items (if you allow it), deselect items,
      * and continue to navigate within the activity (as much as you're willing to allow).
-     *
+     * <p>
      * The action mode is disabled and the contextual action bar disappears
      * when the user deselects all items, presses the BACK button, or selects the Done action on the left side of the bar.
-     *
+     * <p>
      * see http://developer.android.com/guide/topics/ui/menus.html#CAB
      */
     public void startContextualActionMode(int position) {
@@ -239,15 +242,21 @@ public class ReposFragment extends ListFragment {
                         break;
                 }
             }
-        }).show();
-
+        });
+        if (!dirent.hasWritePermission()) {
+            Menu menu = builder.build().getMenu();
+            menu.findItem(R.id.rename).setVisible(false);
+            menu.findItem(R.id.delete).setVisible(false);
+            menu.findItem(R.id.move).setVisible(false);
+        }
+        builder.show();
         SeafRepo repo = getDataManager().getCachedRepoByID(repoID);
         if (repo != null && repo.encrypted) {
             builder.remove(R.id.share);
         }
 
         SeafCachedFile cf = getDataManager().getCachedFile(repoName, repoID, path);
-        if (cf!= null) {
+        if (cf != null) {
             builder.remove(R.id.download);
         } else {
             builder.remove(R.id.update);
@@ -286,7 +295,14 @@ public class ReposFragment extends ListFragment {
                         break;
                 }
             }
-        }).show();
+        });
+        Menu menu = builder.build().getMenu();
+        if (!dirent.hasWritePermission()) {
+            menu.findItem(R.id.rename).setVisible(false);
+            menu.findItem(R.id.delete).setVisible(false);
+            menu.findItem(R.id.move).setVisible(false);
+        }
+        builder.show();
         SeafRepo repo = getDataManager().getCachedRepoByID(repoID);
         if (repo != null && repo.encrypted) {
             builder.remove(R.id.share);
@@ -336,7 +352,7 @@ public class ReposFragment extends ListFragment {
         // Log.d(DEBUG_TAG, "ReposFragment detached");
         super.onDetach();
     }
-    
+
     public void refresh() {
         mRefreshType = REFRESH_ON_OVERFLOW_MENU;
         refreshView(true, false);
@@ -359,9 +375,9 @@ public class ReposFragment extends ListFragment {
 
         NavContext navContext = getNavContext();
         if (navContext.inRepo()) {
-            if (mActivity.getCurrentPosition() == BrowserActivity.INDEX_LIBRARY_TAB) {
-                mActivity.enableUpButton();
-            }
+//            if (mActivity.getCurrentPosition() == BrowserActivity.INDEX_LIBRARY_TAB) {
+//                mActivity.enableUpButton();
+//            }
             navToDirectory(forceRefresh, restorePosition);
         } else {
             mActivity.disableUpButton();
@@ -373,9 +389,9 @@ public class ReposFragment extends ListFragment {
     public void navToReposView(boolean forceRefresh, boolean restorePosition) {
         //stopTimer();
 
-        mPullToRefreshStopRefreshing ++;
+        mPullToRefreshStopRefreshing++;
 
-        if (mPullToRefreshStopRefreshing >1) {
+        if (mPullToRefreshStopRefreshing > 1) {
             refreshLayout.setRefreshing(false);
             mPullToRefreshStopRefreshing = 0;
         }
@@ -400,7 +416,7 @@ public class ReposFragment extends ListFragment {
     public void navToDirectory(boolean forceRefresh, boolean restorePosition) {
         startTimer();
 
-        mPullToRefreshStopRefreshing ++;
+        mPullToRefreshStopRefreshing++;
 
         if (mPullToRefreshStopRefreshing > 1) {
             refreshLayout.setRefreshing(false);
@@ -475,7 +491,7 @@ public class ReposFragment extends ListFragment {
     }
 
     /**
-     * calculate if repo refresh time is expired, the expiration is 10 mins 
+     * calculate if repo refresh time is expired, the expiration is 10 mins
      */
     private boolean isReposRefreshTimeOut() {
         if (getDataManager().isReposRefreshTimeout()) {
@@ -487,8 +503,8 @@ public class ReposFragment extends ListFragment {
     }
 
     /**
-     * calculate if dirent refresh time is expired, the expiration is 10 mins 
-     * 
+     * calculate if dirent refresh time is expired, the expiration is 10 mins
+     *
      * @param repoID
      * @param path
      * @return true if refresh time expired, false otherwise
@@ -553,7 +569,7 @@ public class ReposFragment extends ListFragment {
     }
 
     /**
-     *  update state of contextual action bar (CAB)
+     * update state of contextual action bar (CAB)
      */
     public void updateContextualActionBar() {
 
@@ -592,7 +608,7 @@ public class ReposFragment extends ListFragment {
         } else {
             SeafItem item = adapter.getItem(position);
             if (item instanceof SeafRepo) {
-                repo = (SeafRepo)item;
+                repo = (SeafRepo) item;
             }
         }
 
@@ -631,6 +647,7 @@ public class ReposFragment extends ListFragment {
             } else
                 return;
         } else {
+            nav.setDirPermission(repo.permission);
             nav.setRepoID(repo.id);
             nav.setRepoName(repo.getName());
             nav.setDir("/", repo.root);
@@ -670,7 +687,7 @@ public class ReposFragment extends ListFragment {
         final String pathJoin = Utils.pathJoin(repoId, dirPath);
         if (restore) {
             ScrollState state = scrollPostions.get(pathJoin);
-            if(state != null) {
+            if (state != null) {
                 mListView.setSelectionFromTop(state.index, state.top);
             } else {
                 mListView.setSelectionAfterHeaderView();
@@ -683,7 +700,7 @@ public class ReposFragment extends ListFragment {
     private void restoreRepoScrollPosition(boolean restore) {
         if (restore) {
             ScrollState state = scrollPostions.get(KEY_REPO_SCROLL_POSITION);
-            if(state != null) {
+            if (state != null) {
                 mListView.setSelectionFromTop(state.index, state.top);
             } else {
                 mListView.setSelectionAfterHeaderView();
@@ -726,7 +743,7 @@ public class ReposFragment extends ListFragment {
         }
     }
 
-    private class LoadTask extends AsyncTask<Void, Void, List<SeafRepo> > {
+    private class LoadTask extends AsyncTask<Void, Void, List<SeafRepo>> {
         SeafException err = null;
         DataManager dataManager;
 
@@ -744,7 +761,7 @@ public class ReposFragment extends ListFragment {
 
             }
         }
-        
+
         @Override
         protected List<SeafRepo> doInBackground(Void... params) {
             try {
@@ -803,19 +820,19 @@ public class ReposFragment extends ListFragment {
             // Prompt the user to accept the ssl certificate
             if (err == SeafException.sslException) {
                 SslConfirmDialog dialog = new SslConfirmDialog(dataManager.getAccount(),
-                new SslConfirmDialog.Listener() {
-                    @Override
-                    public void onAccepted(boolean rememberChoice) {
-                        Account account = dataManager.getAccount();
-                        CertsManager.instance().saveCertForAccount(account, rememberChoice);
-                        resend();
-                    }
+                        new SslConfirmDialog.Listener() {
+                            @Override
+                            public void onAccepted(boolean rememberChoice) {
+                                Account account = dataManager.getAccount();
+                                CertsManager.instance().saveCertForAccount(account, rememberChoice);
+                                resend();
+                            }
 
-                    @Override
-                    public void onRejected() {
-                        displaySSLError();
-                    }
-                });
+                            @Override
+                            public void onRejected() {
+                                displaySSLError();
+                            }
+                        });
                 dialog.show(getFragmentManager(), SslConfirmDialog.FRAGMENT_TAG);
                 return;
             } else if (err == SeafException.remoteWipedException) {
@@ -886,7 +903,7 @@ public class ReposFragment extends ListFragment {
         }
     }
 
-    private class LoadDirTask extends AsyncTask<String, Void, List<SeafDirent> > {
+    private class LoadDirTask extends AsyncTask<String, Void, List<SeafDirent>> {
 
         SeafException err = null;
         String myRepoName;
@@ -898,7 +915,7 @@ public class ReposFragment extends ListFragment {
         public LoadDirTask(DataManager dataManager) {
             this.dataManager = dataManager;
         }
-        
+
         @Override
         protected void onPreExecute() {
             if (mRefreshType == REFRESH_ON_CLICK
@@ -909,7 +926,7 @@ public class ReposFragment extends ListFragment {
                 // mHeadProgress.setVisibility(ProgressBar.VISIBLE);
             }
         }
-        
+
         @Override
         protected List<SeafDirent> doInBackground(String... params) {
             if (params.length != 3) {
@@ -977,19 +994,19 @@ public class ReposFragment extends ListFragment {
 
             if (err == SeafException.sslException) {
                 SslConfirmDialog dialog = new SslConfirmDialog(dataManager.getAccount(),
-                new SslConfirmDialog.Listener() {
-                    @Override
-                    public void onAccepted(boolean rememberChoice) {
-                        Account account = dataManager.getAccount();
-                        CertsManager.instance().saveCertForAccount(account, rememberChoice);
-                        resend();
-                    }
+                        new SslConfirmDialog.Listener() {
+                            @Override
+                            public void onAccepted(boolean rememberChoice) {
+                                Account account = dataManager.getAccount();
+                                CertsManager.instance().saveCertForAccount(account, rememberChoice);
+                                resend();
+                            }
 
-                    @Override
-                    public void onRejected() {
-                        displaySSLError();
-                    }
-                });
+                            @Override
+                            public void onRejected() {
+                                displaySSLError();
+                            }
+                        });
                 dialog.show(getFragmentManager(), SslConfirmDialog.FRAGMENT_TAG);
                 return;
             } else if (err == SeafException.remoteWipedException) {
@@ -1054,13 +1071,18 @@ public class ReposFragment extends ListFragment {
             MenuInflater inflater = mode.getMenuInflater();
             inflater.inflate(R.menu.repos_fragment_menu, menu);
             if (adapter == null) return true;
-
             adapter.setActionModeOn(true);
+            // to hidden  "r" permissions  files or folder
+            String permission = getNavContext().getDirPermission();
+            if (permission != null && permission.indexOf("w") == -1) {
+                menu.findItem(R.id.action_mode_delete).setVisible(false);
+                menu.findItem(R.id.action_mode_move).setVisible(false);
+            }
             adapter.notifyDataSetChanged();
-
             return true;
         }
 
+        @SuppressLint("NewApi")
         @Override
         public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
             /*

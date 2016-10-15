@@ -78,7 +78,7 @@ public class SeafItemAdapter extends BaseAdapter {
      * use this method to update data set.
      * <p>
      * This method should be called after the "Download folder" menu was clicked.
-     * 
+     *
      * @param newList
      */
     public void setDownloadTaskList(List<DownloadTaskInfo> newList) {
@@ -305,9 +305,7 @@ public class SeafItemAdapter extends BaseAdapter {
         } else {
             viewHolder.downloadStatusIcon.setVisibility(View.GONE);
             viewHolder.progressBar.setVisibility(View.GONE);
-
             viewHolder.action.setVisibility(View.VISIBLE);
-
             setFileView(dirent, viewHolder, position);
         }
 
@@ -322,7 +320,7 @@ public class SeafItemAdapter extends BaseAdapter {
      * if the dirent is a file and waiting to download, show downloading icon.</br>
      * if the dirent is a file and is downloading, show indeterminate progressbar.</br>
      * ignore directories and repos.</br>
-     * 
+     *
      * @param dirent
      * @param viewHolder
      * @param position
@@ -452,13 +450,13 @@ public class SeafItemAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         SeafItem item = items.get(position);
         if (item instanceof SeafRepo) {
-            return getRepoView((SeafRepo)item, convertView, parent);
+            return getRepoView((SeafRepo) item, convertView, parent);
         } else if (item instanceof SeafGroup) {
-            return getGroupView((SeafGroup)item);
+            return getGroupView((SeafGroup) item);
         } else if (item instanceof SeafCachedFile) {
-            return getCacheView((SeafCachedFile)item, convertView, parent);
+            return getCacheView((SeafCachedFile) item, convertView, parent);
         } else {
-            return getDirentView((SeafDirent)item, convertView, parent, position);
+            return getDirentView((SeafDirent) item, convertView, parent, position);
         }
     }
 
@@ -565,7 +563,7 @@ public class SeafItemAdapter extends BaseAdapter {
         if (type == SORT_BY_NAME) {
             // sort by name, in ascending order
             Collections.sort(folders, new SeafDirent.DirentNameComparator());
-            Collections.sort(files,   new SeafDirent.DirentNameComparator());
+            Collections.sort(files, new SeafDirent.DirentNameComparator());
             if (order == SORT_ORDER_DESCENDING) {
                 Collections.reverse(folders);
                 Collections.reverse(files);
@@ -573,7 +571,7 @@ public class SeafItemAdapter extends BaseAdapter {
         } else if (type == SORT_BY_LAST_MODIFIED_TIME) {
             // sort by last modified time, in ascending order
             Collections.sort(folders, new SeafDirent.DirentLastMTimeComparator());
-            Collections.sort(files,   new SeafDirent.DirentLastMTimeComparator());
+            Collections.sort(files, new SeafDirent.DirentLastMTimeComparator());
             if (order == SORT_ORDER_DESCENDING) {
                 Collections.reverse(folders);
                 Collections.reverse(files);
