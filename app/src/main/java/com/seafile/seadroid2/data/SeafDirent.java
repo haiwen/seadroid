@@ -1,32 +1,28 @@
 package com.seafile.seadroid2.data;
 
-import java.io.Serializable;
-import java.text.Collator;
-import java.util.Comparator;
-import java.util.Locale;
-
-import com.seafile.seadroid2.SeadroidApplication;
-import com.seafile.seadroid2.util.PinyinUtils;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.util.Log;
 
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.util.PinyinUtils;
 import com.seafile.seadroid2.util.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.Serializable;
+import java.util.Comparator;
 
 public class SeafDirent implements SeafItem, Serializable {
     public static final long serialVersionUID = 0L;
     private static final String DEBUG_TAG = "SeafDirent";
-
-    public enum DirentType { DIR, FILE };
-
+    public enum DirentType {DIR, FILE}
+    public String permission;
     public String id;
     public DirentType type;
     public String name;
     public long size;    // size of file, 0 if type is dir
     public long mtime;   // last modified timestamp
-
 
     static SeafDirent fromJson(JSONObject obj) {
         SeafDirent dirent = new SeafDirent();
@@ -34,6 +30,7 @@ public class SeafDirent implements SeafItem, Serializable {
             dirent.id = obj.getString("id");
             dirent.name = obj.getString("name");
             dirent.mtime = obj.getLong("mtime");
+            dirent.permission = obj.getString("permission");
             String type = obj.getString("type");
             if (type.equals("file")) {
                 dirent.type = DirentType.FILE;
@@ -67,9 +64,18 @@ public class SeafDirent implements SeafItem, Serializable {
 
     @Override
     public int getIcon() {
-        if (isDir())
-            return R.drawable.folder;
+        if (isDir()) {
+            if (!hasWritePermission()) {
+                return R.drawable.folder_read_only;
+            } else {
+                return R.drawable.folder;
+            }
+        }
         return Utils.getFileIcon(name);
+    }
+
+    public boolean hasWritePermission() {
+        return permission.indexOf('w') != -1;
     }
 
     /**
