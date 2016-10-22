@@ -375,9 +375,9 @@ public class ReposFragment extends ListFragment {
 
         NavContext navContext = getNavContext();
         if (navContext.inRepo()) {
-//            if (mActivity.getCurrentPosition() == BrowserActivity.INDEX_LIBRARY_TAB) {
-//                mActivity.enableUpButton();
-//            }
+            if (mActivity.getCurrentPosition() == BrowserActivity.INDEX_LIBRARY_TAB) {
+                mActivity.enableUpButton();
+            }
             navToDirectory(forceRefresh, restorePosition);
         } else {
             mActivity.disableUpButton();

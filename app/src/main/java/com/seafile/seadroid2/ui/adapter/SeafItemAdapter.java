@@ -222,7 +222,11 @@ public class SeafItemAdapter extends BaseAdapter {
         viewHolder.title.setText(repo.getTitle());
         viewHolder.subtitle.setText(repo.getSubtitle());
         ImageLoader.getInstance().displayImage("drawable://" + repo.getIcon(), viewHolder.icon, WidgetUtils.iconOptions);
-        viewHolder.action.setVisibility(View.VISIBLE);
+        if (repo.hasWritePermission()) {
+            viewHolder.action.setVisibility(View.VISIBLE);
+        }else {
+            viewHolder.action.setVisibility(View.INVISIBLE);
+        }
         return view;
     }
 
