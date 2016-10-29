@@ -388,7 +388,7 @@ public class DataManager {
     }
 
     public synchronized File getFile(String repoName, String repoID, String path,
-                        ProgressMonitor monitor) throws SeafException {
+                                     ProgressMonitor monitor) throws SeafException {
 
         String cachedFileID = null;
         SeafCachedFile cf = getCachedFile(repoName, repoID, path);
@@ -589,7 +589,7 @@ public class DataManager {
         SeafCachedFile cf = dbHelper.getFileCacheItem(repoID, path, this);
         return cf;
     }
-    
+
     public List<SeafCachedFile> getCachedFiles() {
         return dbHelper.getFileCacheItems(this);
     }
@@ -615,13 +615,13 @@ public class DataManager {
         cf.file.delete();
         dbHelper.deleteFileCacheItem(cf);
     }
-    
+
     public void setPassword(String repoID, String passwd) throws SeafException {
         sc.setPassword(repoID, passwd);
     }
 
     public void uploadFile(String repoName, String repoID, String dir, String filePath,
-            ProgressMonitor monitor, boolean isUpdate, boolean isCopyToLocal) throws SeafException {
+                           ProgressMonitor monitor, boolean isUpdate, boolean isCopyToLocal) throws SeafException {
         uploadFileCommon(repoName, repoID, dir, filePath, monitor, isUpdate, isCopyToLocal);
     }
 
@@ -766,7 +766,7 @@ public class DataManager {
     public void copy(String srcRepoId, String srcDir, String srcFn,
                      String dstRepoId, String dstDir) throws SeafException {
         sc.copy(srcRepoId, srcDir, srcFn, dstRepoId, dstDir);
-        
+
         // After copying, we need to refresh the destination list
         getDirentsFromServer(dstRepoId, dstDir);
     }
@@ -928,7 +928,7 @@ public class DataManager {
     }
 
     /**
-     * calculate if refresh time is expired, the expiration is 10 mins 
+     * calculate if refresh time is expired, the expiration is 10 mins
      */
     public boolean isReposRefreshTimeout() {
         if (Utils.now() < repoRefreshTimeStamp + REFRESH_EXPIRATION_MSECS) {
@@ -965,7 +965,7 @@ public class DataManager {
     public void setDirsRefreshTimeStamp(String repoID, String path) {
         direntsRefreshTimeMap.put(Utils.pathJoin(repoID, path), Utils.now());
     }
-    
+
     public void setReposRefreshTimeStamp() {
         repoRefreshTimeStamp = Utils.now();
     }
