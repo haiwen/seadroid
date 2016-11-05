@@ -1221,14 +1221,6 @@ public class BrowserActivity extends BaseActivity
     public static final int DOWNLOAD_FILE_REQUEST = 6;
 
     public boolean hasRepoWritePermission() {
-//        SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
-//        if (repo == null) {
-//            return false;
-//        }
-//        if (repo.permission.indexOf('w') == -1) {
-//            return false;
-//        }
-//        return true;
         if (navContext==null){
             return false;
         }
