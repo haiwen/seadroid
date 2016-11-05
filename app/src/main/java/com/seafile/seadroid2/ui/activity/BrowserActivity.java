@@ -347,10 +347,12 @@ public class BrowserActivity extends BaseActivity
             String repoName = savedInstanceState.getString("repoName");
             String path = savedInstanceState.getString("path");
             String dirID = savedInstanceState.getString("dirID");
+            String permission = savedInstanceState.getString("permission");
             if (repoID != null) {
                 navContext.setRepoID(repoID);
                 navContext.setRepoName(repoName);
                 navContext.setDir(path, dirID);
+                navContext.setDirPermission(permission);
             }
         }
 
@@ -358,10 +360,12 @@ public class BrowserActivity extends BaseActivity
         String repoName = intent.getStringExtra("repoName");
         String path = intent.getStringExtra("path");
         String dirID = intent.getStringExtra("dirID");
+        String permission = intent.getStringExtra("permission");
         if (repoID != null) {
             navContext.setRepoID(repoID);
             navContext.setRepoName(repoName);
             navContext.setDir(path, dirID);
+            navContext.setDirPermission(permission);
         }
 
         Intent txIntent = new Intent(this, TransferService.class);
@@ -900,6 +904,7 @@ public class BrowserActivity extends BaseActivity
             outState.putString("repoName", navContext.getRepoName());
             outState.putString("path", navContext.getDirPath());
             outState.putString("dirID", navContext.getDirID());
+            outState.putString("permission", navContext.getDirPermission());
         }
     }
 
@@ -1216,12 +1221,10 @@ public class BrowserActivity extends BaseActivity
     public static final int DOWNLOAD_FILE_REQUEST = 6;
 
     public boolean hasRepoWritePermission() {
-        SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
-        if (repo == null) {
+        if (navContext == null) {
             return false;
         }
-
-        if (repo.permission.indexOf('w') == -1) {
+        if (navContext.getDirPermission().indexOf('w') == -1){
             return false;
         }
         return true;
