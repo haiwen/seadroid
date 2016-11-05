@@ -638,6 +638,7 @@ public class ReposFragment extends ListFragment {
                     String newPath = currentPath.endsWith("/") ?
                             currentPath + dirent.name : currentPath + "/" + dirent.name;
                     nav.setDir(newPath, dirent.id);
+                    nav.setDirPermission(dirent.permission);
                     saveDirentScrollPosition(repo.getID(), currentPath);
                     refreshView();
                     mActivity.setUpButtonTitle(dirent.name);
