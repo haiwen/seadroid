@@ -1,7 +1,6 @@
 package com.seafile.seadroid2.ui.fragment;
 
 import android.app.Activity;
-import android.support.v7.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,6 +12,7 @@ import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
+import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
@@ -23,16 +23,17 @@ import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
-import com.seafile.seadroid2.data.DatabaseHelper;
-import com.seafile.seadroid2.data.ServerInfo;
-import com.seafile.seadroid2.data.StorageManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadConfigActivity;
 import com.seafile.seadroid2.cameraupload.CameraUploadManager;
 import com.seafile.seadroid2.cameraupload.GalleryBucketUtils;
+import com.seafile.seadroid2.data.UserData;
 import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.DatabaseHelper;
+import com.seafile.seadroid2.data.ServerInfo;
+import com.seafile.seadroid2.data.StorageManager;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.activity.CreateGesturePasswordActivity;
@@ -43,6 +44,7 @@ import com.seafile.seadroid2.ui.dialog.ClearPasswordTaskDialog;
 import com.seafile.seadroid2.ui.dialog.SwitchStorageTaskDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog.TaskDialogListener;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
+import com.seafile.seadroid2.util.ContactManager;
 import com.seafile.seadroid2.util.Utils;
 
 import org.apache.commons.io.FileUtils;
@@ -68,6 +70,8 @@ public class SettingsFragment extends CustomPreferenceFragment {
     private PreferenceScreen cUploadAdvancedScreen;
     private PreferenceCategory cUploadAdvancedCategory;
     private Preference cUploadRepoPref;
+    private Preference cUploadContacts;
+    private Preference cDownloadContacts;
     private CheckBoxPreference cCustomDirectoriesPref;
     private Preference cLocalDirectoriesPref;
     // privacy
@@ -81,6 +85,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
     private AccountManager accountMgr;
     private DataManager dataMgr;
     private StorageManager storageManager = StorageManager.getInstance();
+    private ContactManager mContactManager;
 
     @Override
     public void onAttach(Activity activity) {
@@ -290,6 +295,25 @@ public class SettingsFragment extends CustomPreferenceFragment {
             }
         });
 
+        // change upload contacts to server
+        cUploadContacts = findPreference(SettingsManager.CONTACTS_UPLOAD_REPO_KEY);
+        cUploadContacts.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                //get  contacts  from  phone
+                backupContact();
+                return false;
+            }
+        });
+        //change Download contacts from server
+        cDownloadContacts=findPreference(SettingsManager.CONTACTS_DOWNLOAD_REPO_KEY);
+        cDownloadContacts.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                recoverContact();
+                return false;
+            }
+        });
         // change local folder CheckBoxPreference
         cCustomDirectoriesPref = (CheckBoxPreference) findPreference(SettingsManager.CAMERA_UPLOAD_CUSTOM_BUCKETS_KEY);
         cCustomDirectoriesPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -375,6 +399,39 @@ public class SettingsFragment extends CustomPreferenceFragment {
             cCacheCategory.removePreference(findPreference(SettingsManager.SETTINGS_CACHE_DIR_KEY));
         }
 
+    }
+
+    private void backupContact(){
+         mContactManager = ContactManager.getInstance();
+        new Thread(new Runnable() {
+           @Override
+            public void run() {
+               try {
+                   List<UserData> contactInfo = mContactManager.getContactInfo(getActivity());
+                   Log.d(DEBUG_TAG, "contacts  size  :" + contactInfo.size());
+                   mContactManager.backupContacts(contactInfo);
+               } catch (Exception e) {
+                   e.printStackTrace();
+               }
+           }
+        }).start();
+    }
+
+    private void recoverContact(){
+        mContactManager = ContactManager.getInstance();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    List<UserData> infoList = mContactManager.restoreContacts();
+                    for (UserData userInfo : infoList) {
+                        mContactManager.addContacts(getActivity(), userInfo);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     private void clearPasswordSilently() {

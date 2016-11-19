@@ -301,6 +301,12 @@
   <string name="settings_camera_upload_advanced_custom_directories">选择上传相册</string>
   <string name="settings_camera_upload_advanced_custom_directories_on">选择备份相册</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">自动扫描设备</string>
+  <!--contacts Upload Perference-->
+  <string name="settings_contacts_upload_info_title">通讯录</string>
+  <string name="settings_contacts_upload_change_repo_title">备份通讯录</string>
+  <string name="settings_contacts_upload_repo_hint">点击上传通讯录到服务器</string>
+  <string name="settings_contacts_download_change_repo_title">恢复通讯录</string>
+  <string name="settings_contacts_download_repo_hint">点击从服务器手机通讯录</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">配置助手</string>
   <string name="settings_cuc_welcome_text">感谢使用照片上传配置助手，\n在开始使用上传服务之前，将会引导你如何进行配置。</string>
