@@ -5,11 +5,9 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
-import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
-import com.seafile.seadroid2.data.DatabaseHelper;
-import com.seafile.seadroid2.util.Utils;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
+import com.seafile.seadroid2.util.Utils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -71,7 +69,9 @@ public final class SettingsManager {
     public static final String CAMERA_UPLOAD_CATEGORY_KEY = "category_camera_upload_key";
     public static final String CAMERA_UPLOAD_CUSTOM_BUCKETS_KEY = "camera_upload_buckets_switch_key";
     public static final String SHARED_PREF_CAMERA_UPLOAD_BUCKETS = PKG + ".camera.buckets";
-
+    //contacts
+    public static final String CONTACTS_UPLOAD_REPO_KEY = "contacts_upload_repo_key";
+    public static final String CONTACTS_DOWNLOAD_REPO_KEY = "contacts_download_repo_key";
     // About tab
     public static final String SETTINGS_ABOUT_VERSION_KEY = "settings_about_version_key";
     public static final String SETTINGS_ABOUT_AUTHOR_KEY = "settings_about_author_key";

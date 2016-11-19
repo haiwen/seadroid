@@ -110,7 +110,23 @@
         </PreferenceScreen>
 
     </PreferenceCategory>
-    
+
+    <PreferenceCategory
+        android:key="category_contacts_upload_key"
+        android:layout="@layout/bg_settings_section_contacts_upload"
+        android:title="@string/settings_contacts_upload_info_title">
+
+        <Preference
+            android:key="contacts_upload_repo_key"
+            android:summary="@string/settings_contacts_upload_repo_hint"
+            android:title="@string/settings_contacts_upload_change_repo_title"/>
+        <Preference
+            android:key="contacts_download_repo_key"
+            android:summary="@string/settings_contacts_download_repo_hint"
+            android:title="@string/settings_contacts_download_change_repo_title"/>
+    </PreferenceCategory>
+
+
     <PreferenceCategory android:title="@string/settings_storage_title"
         android:key="settings_cache_key"
         android:layout="@layout/bg_settings_section_cache">
