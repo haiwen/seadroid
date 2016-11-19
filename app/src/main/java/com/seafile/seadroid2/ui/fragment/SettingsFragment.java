@@ -29,7 +29,6 @@ import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadConfigActivity;
 import com.seafile.seadroid2.cameraupload.CameraUploadManager;
 import com.seafile.seadroid2.cameraupload.GalleryBucketUtils;
-import com.seafile.seadroid2.data.UserData;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.DatabaseHelper;
 import com.seafile.seadroid2.data.ServerInfo;
@@ -44,7 +43,7 @@ import com.seafile.seadroid2.ui.dialog.ClearPasswordTaskDialog;
 import com.seafile.seadroid2.ui.dialog.SwitchStorageTaskDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog.TaskDialogListener;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
-import com.seafile.seadroid2.util.ContactManager;
+import com.seafile.seadroid2.util.ContactsDialog;
 import com.seafile.seadroid2.util.Utils;
 
 import org.apache.commons.io.FileUtils;
@@ -85,7 +84,6 @@ public class SettingsFragment extends CustomPreferenceFragment {
     private AccountManager accountMgr;
     private DataManager dataMgr;
     private StorageManager storageManager = StorageManager.getInstance();
-    private ContactManager mContactManager;
 
     @Override
     public void onAttach(Activity activity) {
@@ -401,37 +399,14 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
     }
 
-    private void backupContact(){
-         mContactManager = ContactManager.getInstance();
-        new Thread(new Runnable() {
-           @Override
-            public void run() {
-               try {
-                   List<UserData> contactInfo = mContactManager.getContactInfo(getActivity());
-                   Log.d(DEBUG_TAG, "contacts  size  :" + contactInfo.size());
-                   mContactManager.backupContacts(contactInfo);
-               } catch (Exception e) {
-                   e.printStackTrace();
-               }
-           }
-        }).start();
+    private void backupContact() {
+        final ContactsDialog contactsDialog = new ContactsDialog(getActivity(), ContactsDialog.BACKUP_CONTACTS);
+        contactsDialog.show(getFragmentManager(), "SettingsFragment");
     }
 
-    private void recoverContact(){
-        mContactManager = ContactManager.getInstance();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    List<UserData> infoList = mContactManager.restoreContacts();
-                    for (UserData userInfo : infoList) {
-                        mContactManager.addContacts(getActivity(), userInfo);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
+    private void recoverContact() {
+        ContactsDialog contactsDialog = new ContactsDialog(getActivity(), ContactsDialog.RECOVER_CONTACTS);
+        contactsDialog.show(getFragmentManager(), "SettingsFragment");
     }
 
     private void clearPasswordSilently() {
