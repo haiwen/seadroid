@@ -335,7 +335,7 @@ public class SeafConnection {
             String apiPath = String.format("api2/avatars/user/%s/resized/%d", email, size);
             HttpRequest req = prepareApiGetRequest(apiPath);
             checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
-            
+
             String result = new String(req.bytes(), "UTF-8");
             return result;
         } catch (SeafException e) {
@@ -556,16 +556,27 @@ public class SeafConnection {
             checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
 
             if (monitor != null) {
-                Long size;
+                Long size = -1L;
                 if (req.contentLength() > 0) {
-                    size =  Long.valueOf(req.contentLength());
+                    size = Long.valueOf(req.contentLength());
                 } else {
-                    /*if (req.header(HttpRequest.HEADER_CONTENT_LENGTH) == null) {
-                        throw SeafException.illFormatException;
-                    }*/
-                    size = Long.parseLong(req.header(HttpRequest.HEADER_CONTENT_LENGTH));
+                    // The req.contentLength() returns an int, which has a max value of
+                    // 2GB. So if a file size exceeds 2GB, request.contentLength() would
+                    // return -1. In such case, we parse the content length from the raw
+                    // header string directly.
+                    //
+                    // See https://github.com/kevinsawicki/http-request/blob/http-request-5.6/lib/src/main/java/com/github/kevinsawicki/http/HttpRequest.java#L2519-L2521
+                    String contentLengthheader = req.header(HttpRequest.HEADER_CONTENT_LENGTH);
+                    // The server may not send us the "Content-Length" header in the
+                    // response, e.g. when the server is using chunked transfer encoding.
+                    if (contentLengthheader != null) {
+                        size = Long.parseLong(contentLengthheader);
+                    }
                 }
-                monitor.onProgressNotify(size, false);
+
+                if (size > 0) {
+                    monitor.onProgressNotify(size, false);
+                }
             }
 
             File tmp = DataManager.createTempFile();
