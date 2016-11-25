@@ -57,6 +57,8 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
     private FileMonitorService mMonitorService;
     private Account currentDefaultAccount;
 
+    private Account account;
+
     private OnAccountsUpdateListener accountsUpdateListener = new OnAccountsUpdateListener() {
         @Override
         public void onAccountsUpdated(android.accounts.Account[] accounts) {
@@ -130,7 +132,15 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         Toolbar toolbar = getActionBarToolbar();
         toolbar.setOnMenuItemClickListener(this);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        accounts = accountManager.getAccountList();
+        // updates toolbar back button
+        if (accounts.isEmpty()) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        } else {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
         getSupportActionBar().setTitle(R.string.accounts);
     }
 
@@ -203,6 +213,11 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         Account newCurrentAccount = accountManager.getCurrentAccount();
         if (newCurrentAccount != null && !newCurrentAccount.equals(currentDefaultAccount)) {
             startFilesActivity();
+        }
+
+        // updates toolbar back button
+        if (accounts.isEmpty()) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         }
 
         loadAvatarUrls(48);
@@ -283,6 +298,9 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
             if (mMonitorService != null) {
                 mMonitorService.removeAccount(account);
             }
+
+
+
             return true;
         default:
             return super.onContextItemSelected(item);
