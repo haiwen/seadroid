@@ -30,7 +30,6 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.fileschooser.SelectableFile;
-import com.seafile.seadroid2.ui.activity.BrowserActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -250,8 +249,8 @@ public class Utils {
             } else if (mimetype.contains("presentationml")) {
                 return R.drawable.file_ms_ppt;
             }
-        // } else if (mimetype.contains("application")) {
-        //     return R.drawable.file_binary;
+            // } else if (mimetype.contains("application")) {
+            //     return R.drawable.file_binary;
         }
 
         return R.drawable.file;
@@ -306,13 +305,13 @@ public class Utils {
 
         NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         if(wifi != null && wifi.isAvailable()
-           && wifi.getDetailedState() == DetailedState.CONNECTED) {
+                && wifi.getDetailedState() == DetailedState.CONNECTED) {
             return true;
         }
 
         NetworkInfo mobile = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
         if(mobile != null && mobile.isAvailable()
-           && mobile.getDetailedState() == DetailedState.CONNECTED) {
+                && mobile.getDetailedState() == DetailedState.CONNECTED) {
             return true;
         }
 
@@ -326,7 +325,7 @@ public class Utils {
 
         NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         if(wifi != null && wifi.isAvailable()
-           && wifi.getDetailedState() == DetailedState.CONNECTED) {
+                && wifi.getDetailedState() == DetailedState.CONNECTED) {
             return true;
         }
 
@@ -404,6 +403,17 @@ public class Utils {
             return SeadroidApplication.getAppContext().getString(R.string.just_now);
         }
     }
+
+    /**
+     * Translate create time
+     */
+    public static String translateTime() {
+        long now = Calendar.getInstance().getTimeInMillis();
+        Date d = new Date(now);
+        SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
+        return fmt.format(d);
+    }
+
 
     public static long now() {
         return Calendar.getInstance().getTimeInMillis();
@@ -544,7 +554,7 @@ public class Utils {
             try {
                 cursor = context.getContentResolver().query(uri, projection, null, null, null);
                 int column_index = cursor
-                .getColumnIndexOrThrow("_data");
+                        .getColumnIndexOrThrow("_data");
                 if (cursor.moveToFirst()) {
                     return cursor.getString(column_index);
                 }
@@ -580,7 +590,7 @@ public class Utils {
             // Calculate the largest inSampleSize value that is a power of 2 and keeps both
             // height and width larger than the requested height and width.
             while ((halfHeight / inSampleSize) > reqHeight
-                   && (halfWidth / inSampleSize) > reqWidth) {
+                    && (halfWidth / inSampleSize) > reqWidth) {
                 inSampleSize *= 2;
             }
         }

@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui.dialog;
 
+import android.annotation.SuppressLint;
 import android.support.v7.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -46,11 +47,13 @@ public class SslConfirmDialog extends DialogFragment {
     public SslConfirmDialog() {
     }
 
+    @SuppressLint("ValidFragment")
     public SslConfirmDialog(Account account, Listener listener) {
         this.listener = listener;
         this.account = account;
     }
 
+    @SuppressLint("ValidFragment")
     public SslConfirmDialog(Account account, X509Certificate certificate, Listener listener) {
         this.listener = listener;
         this.account = account;
