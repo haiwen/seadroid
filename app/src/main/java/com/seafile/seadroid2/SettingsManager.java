@@ -5,11 +5,9 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
-import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
-import com.seafile.seadroid2.data.DatabaseHelper;
-import com.seafile.seadroid2.util.Utils;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
+import com.seafile.seadroid2.util.Utils;
 
 import java.util.Arrays;
 import java.util.List;

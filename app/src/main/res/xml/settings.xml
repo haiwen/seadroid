@@ -110,7 +110,7 @@
         </PreferenceScreen>
 
     </PreferenceCategory>
-    
+
     <PreferenceCategory android:title="@string/settings_storage_title"
         android:key="settings_cache_key"
         android:layout="@layout/bg_settings_section_cache">
