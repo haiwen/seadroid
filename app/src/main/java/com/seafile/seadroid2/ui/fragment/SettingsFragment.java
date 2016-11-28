@@ -400,12 +400,12 @@ public class SettingsFragment extends CustomPreferenceFragment {
     }
 
     private void backupContact() {
-        final ContactsDialog contactsDialog = new ContactsDialog(getActivity(), ContactsDialog.BACKUP_CONTACTS);
+        final ContactsDialog contactsDialog = new ContactsDialog(getActivity());
         contactsDialog.show(getFragmentManager(), "SettingsFragment");
     }
 
     private void recoverContact() {
-        ContactsDialog contactsDialog = new ContactsDialog(getActivity(), ContactsDialog.RECOVER_CONTACTS);
+        ContactsDialog contactsDialog = new ContactsDialog(getActivity());
         contactsDialog.show(getFragmentManager(), "SettingsFragment");
     }
 
