@@ -57,8 +57,6 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
     private FileMonitorService mMonitorService;
     private Account currentDefaultAccount;
 
-    private Account account;
-
     private OnAccountsUpdateListener accountsUpdateListener = new OnAccountsUpdateListener() {
         @Override
         public void onAccountsUpdated(android.accounts.Account[] accounts) {
@@ -135,7 +133,7 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
 
         accounts = accountManager.getAccountList();
         // updates toolbar back button
-        if (accounts.isEmpty()) {
+        if (currentDefaultAccount == null || !currentDefaultAccount.hasValidToken()) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         } else {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -216,7 +214,7 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         }
 
         // updates toolbar back button
-        if (accounts.isEmpty()) {
+        if (newCurrentAccount == null || !newCurrentAccount.hasValidToken()) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         }
 
