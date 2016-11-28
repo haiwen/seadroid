@@ -1,8 +1,5 @@
 package com.seafile.seadroid2.ui.activity;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -20,6 +17,9 @@ import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.gesturelock.LockPatternView;
 import com.seafile.seadroid2.gesturelock.LockPatternView.Cell;
 import com.seafile.seadroid2.gesturelock.LockPatternView.DisplayMode;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CreateGesturePasswordActivity extends BaseActivity implements
         OnClickListener, Toolbar.OnMenuItemClickListener {
@@ -42,7 +42,7 @@ public class CreateGesturePasswordActivity extends BaseActivity implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            finish();
+            setResult(RESULT_CANCELED);
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -383,6 +383,7 @@ public class CreateGesturePasswordActivity extends BaseActivity implements
                 updateStage(Stage.Introduction);
             } else if (mUiStage.leftMode == LeftButtonMode.Cancel) {
                 // They are canceling the entire wizard
+                setResult(RESULT_CANCELED);
                 finish();
             } else {
                 throw new IllegalStateException(
@@ -425,6 +426,7 @@ public class CreateGesturePasswordActivity extends BaseActivity implements
         mLockPatternUtils.saveLockPattern(mChosenPattern);
         settingsMgr.setupGestureLock();
         showShortToast(this, getResources().getString(R.string.lockpattern_pattern_toast_saved));
+        setResult(RESULT_OK);
         finish();
     }
 }
