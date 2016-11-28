@@ -37,7 +37,7 @@ public class SettingsActivity extends BaseActivity implements Toolbar.OnMenuItem
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-         switch (item.getItemId()) {
+        switch (item.getItemId()) {
             case android.R.id.home:
                 this.finish();
             default:

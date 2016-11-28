@@ -23,6 +23,7 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.UserData;
+import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 
 import java.io.BufferedReader;
@@ -99,7 +100,7 @@ public class ContactsDialog extends TaskDialog {
                 break;
         }
 
-    }
+
 
     @Override
     protected void onSaveDialogContentState(Bundle outState) {
@@ -264,6 +265,9 @@ class ContactManager extends TaskDialog.Task {
                 fileDir.mkdirs();
             }
             OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(fileDir.toString() + "/contacts.vcf"), "UTF-8");
+            String fileName = String.format(mContext.getString(R.string.contacts_file_name), Utils.translateTime());
+            mContactsPath = fileDir.toString() + "/" + fileName;
+            OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(mContactsPath), "UTF-8");
             VCardComposer composer = new VCardComposer();
             for (UserData userData : infos) {
                 ContactStruct contact = new ContactStruct();
@@ -291,6 +295,7 @@ class ContactManager extends TaskDialog.Task {
         } catch (Exception e) {
             e.printStackTrace();
             throw new SeafException(0, mContext.getString(R.string.settings_contacts_backup_fail));
+            throw new SeafException(0, mContext.getString(R.string.contacts_backup_fail));
         }
     }
 
@@ -401,6 +406,9 @@ class ContactManager extends TaskDialog.Task {
     }
 
 
+            throw new SeafException(0, mContext.getString(R.string.contacts_recover_fail));
+        }
+    }
 }
 
 
