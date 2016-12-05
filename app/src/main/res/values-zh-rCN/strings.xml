@@ -141,7 +141,6 @@
         <item>新建文件夹</item>
         <item>上传文件</item>
         <item>拍照上传</item>
-        <item>备份通讯录</item>
     </string-array>
     <string name="create_new_repo">新建资料库</string>
     <string name="create_new_repo_success">新建资料库%s成功</string>
@@ -281,6 +280,20 @@
     <string name="next_button_label">Next</string>
     <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
     <string name="skip_button_label">Skip</string>
+    <!--contacts  upload-->
+    <string name="settings_contacts_upload_info_title">备份通讯录</string>
+    <string name="settings_contacts_upload_turn_on">打开通讯录上传</string>
+    <string name="settings_contacts_upload_service_started">通讯录备份已启动</string>
+    <string name="settings_contacts_upload_service_stopped">通讯录备份已关闭</string>
+    <string name="settings_contacts_upload_repo_hint">请先选择一个资料库来备份通讯录</string>
+    <string name="settings_contacts_upload_change_repo_title">更改备份的资料库</string>
+    <string name="settings_contacts_upload_repo_time">上次备份时间</string>
+    <string name="settings_contacts_upload_repo_history">没有备份记录</string>
+    <string name="settings_contacts_upload_start_backup">备份</string>
+    <string name="settings_contacts_upload_start_backup_hint">点击立即开始备份通讯录</string>
+    <string name="settings_contacts_upload_start_recovery">还原</string>
+    <string name="settings_contacts_upload_start_recovery_hint">点击立即还原通讯录</string>
+
     <!--Camera Upload Preference-->
     <string name="settings_camera_upload_info_title">上传照片</string>
     <string name="settings_camera_upload_service_started">上传服务已启动</string>
@@ -303,11 +316,14 @@
     <string name="settings_camera_upload_advanced_custom_directories_on">选择备份相册</string>
     <string name="settings_camera_upload_advanced_custom_directories_off">自动扫描设备</string>
     <!--contacts Upload Perference-->
+    <string name="contacts_dialog_recovery">将从最近一次备份中还原通讯录</string>
     <string name="contacts_dialog_backup">通讯将备份为：contacts-%1s.vcf</string>
     <string name="contacts_file_name">contacts-%1s.vcf</string>
     <string name="contacts_count_zero">通讯录没有联系人</string>
     <string name="contacts_backup_success">备份成功</string>
+    <string name="contacts_recovery_success">还原成功</string>
     <string name="contacts_backup_title">备份通讯录</string>
+    <string name="contacts_recovery_title">还原通讯录</string>
     <string name="contacts_backup_fail">备份失败</string>
     <string name="contacts_recover_fail">还原失败</string>
     <!--Camera Upload Configuration View-->

@@ -89,7 +89,6 @@ import com.seafile.seadroid2.ui.fragment.ActivitiesFragment;
 import com.seafile.seadroid2.ui.fragment.ReposFragment;
 import com.seafile.seadroid2.ui.fragment.StarredFragment;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
-import com.seafile.seadroid2.util.ContactsDialog;
 import com.seafile.seadroid2.util.Utils;
 import com.seafile.seadroid2.util.UtilsJellyBean;
 import com.viewpagerindicator.IconPagerAdapter;
@@ -1109,26 +1108,10 @@ public class BrowserActivity extends BaseActivity
                     pickFile();
                 else if (which == 3) // take a photo
                     CameraTakePhoto();
-                else if (which == 4)
-                    showUploadContactsDialog();
             }
         }).show();
     }
 
-    private void showUploadContactsDialog() {
-        requestReadContactsPermission();
-        final ContactsDialog contactsDialog = new ContactsDialog(BrowserActivity.this);
-        contactsDialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
-            @Override
-            public void onTaskSuccess() {
-                ReposFragment reposFragment = getReposFragment();
-                if (currentPosition == INDEX_LIBRARY_TAB && reposFragment != null) {
-                    reposFragment.refreshView();
-                }
-            }
-        });
-        contactsDialog.show(BrowserActivity.this.getSupportFragmentManager(), "SettingsFragment");
-    }
 
     public void uploadContacts(String path) {
         addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), path);
