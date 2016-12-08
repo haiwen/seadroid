@@ -1077,6 +1077,8 @@ public class BrowserActivity extends BaseActivity
                     pickFile();
                 else if (which == 3) // take a photo
                     CameraTakePhoto();
+                else if (which == 4) // capture a video
+                    CameraCaptureVideo();
             }
         }).show();
     }
@@ -1153,6 +1155,26 @@ public class BrowserActivity extends BaseActivity
         }
     }
 
+    private File captureCameraVideoTempFile;
+
+    private void CameraCaptureVideo() {
+        Intent videoCaptureIntent = new Intent("android.media.action.VIDEO_CAPTURE");
+
+        try {
+            File VideoDir = DataManager.createTempDir();
+
+            String fileName = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + ".mp4";
+            captureCameraVideoTempFile = new File(VideoDir, fileName);
+
+            Uri video = Uri.fromFile(captureCameraVideoTempFile);
+            videoCaptureIntent.putExtra(MediaStore.EXTRA_OUTPUT, video);
+            startActivityForResult(videoCaptureIntent, CAPTURE_VIDEO_REQUEST);
+
+        } catch (IOException e) {
+            showShortToast(BrowserActivity.this, R.string.unknow_error);
+        }
+    }
+
     public void enableUpButton() {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setSupportActionBar(getActionBarToolbar());
@@ -1219,6 +1241,7 @@ public class BrowserActivity extends BaseActivity
     public static final int TAKE_PHOTO_REQUEST = 4;
     public static final int CHOOSE_COPY_MOVE_DEST_REQUEST = 5;
     public static final int DOWNLOAD_FILE_REQUEST = 6;
+    public static final int CAPTURE_VIDEO_REQUEST = 7;
 
     public boolean hasRepoWritePermission() {
         if (navContext == null) {
@@ -1359,6 +1382,29 @@ public class BrowserActivity extends BaseActivity
 
             }
             break;
+            case CAPTURE_VIDEO_REQUEST:
+                if (resultCode == RESULT_OK) {
+                    showShortToast(this, getString(R.string.capture_video_successfully));
+                    if (!Utils.isNetworkOn()) {
+                        showShortToast(this, R.string.network_down);
+                        return;
+                    }
+
+                    if(captureCameraVideoTempFile == null) {
+                        showShortToast(this, getString(R.string.saf_upload_path_not_available));
+                        Log.i(DEBUG_TAG, "Pick file request did not return a path");
+                        return;
+                    }
+                    showShortToast(this, getString(R.string.added_to_upload_tasks));
+                    final SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
+                    if (repo != null && repo.canLocalDecrypt()) {
+                        addUploadBlocksTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), captureCameraVideoTempFile.getAbsolutePath(), repo.encVersion);
+                    } else {
+                        addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), captureCameraVideoTempFile.getAbsolutePath());
+                    }
+
+                }
+                break;
             case DOWNLOAD_FILE_REQUEST:
                 if (resultCode == RESULT_OK) {
                     File file = new File(data.getStringExtra("path"));
