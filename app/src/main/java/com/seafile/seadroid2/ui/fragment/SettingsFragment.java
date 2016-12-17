@@ -1,11 +1,14 @@
 package com.seafile.seadroid2.ui.fragment;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
@@ -44,7 +47,6 @@ import com.seafile.seadroid2.ui.activity.SettingsActivity;
 import com.seafile.seadroid2.ui.dialog.ClearCacheTaskDialog;
 import com.seafile.seadroid2.ui.dialog.ClearPasswordTaskDialog;
 import com.seafile.seadroid2.ui.dialog.SwitchStorageTaskDialog;
-import com.seafile.seadroid2.ui.dialog.TaskDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog.TaskDialogListener;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.ContactsDialog;
@@ -347,8 +349,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
         cContactsRepoBackUp.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-
-                showUploadContactsDialog();
+                readContacts();
                 return true;
             }
         });
@@ -448,10 +449,26 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
     }
 
-    private void showUploadContactsDialog() {
-        mActivity.requestReadContactsPermission();
+
+    private void readContacts(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (mActivity.checkSelfPermission(Manifest.permission.READ_CONTACTS) !=
+                    PackageManager.PERMISSION_GRANTED) {
+                //如果没有该权限，进行请求
+                mActivity.requestReadContactsPermission();
+            } else {
+                showUploadContactsDialog();
+                //进行联系人读取
+            }
+        }else {
+            showUploadContactsDialog();
+        }
+    }
+
+    public void showUploadContactsDialog() {
+
         final ContactsDialog contactsDialog = new ContactsDialog(mActivity, ContactsDialog.CONTACTS_BACKUP);
-        contactsDialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
+        contactsDialog.setTaskDialogLisenter(new TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
                 long timeMillis = System.currentTimeMillis();
