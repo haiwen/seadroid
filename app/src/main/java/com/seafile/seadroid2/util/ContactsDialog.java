@@ -8,7 +8,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -258,10 +257,7 @@ class ContactManager extends TaskDialog.Task {
 
         try {
             mAccounts = new AccountManager(SeadroidApplication.getAppContext()).getAccountList();
-            String path = Environment.getExternalStorageDirectory() + "/Seafile/temp/";
-            if (mAccounts.size() > 0) {
-                path = new DataManager(mAccounts.get(0)).getAccountDir() + "/temp/";
-            }
+            String path = new DataManager(mAccounts.get(0)).getAccountDir() + "/temp/";
             File fileDir = new File(path);
             if (!fileDir.exists()) {
                 fileDir.mkdirs();

@@ -78,7 +78,7 @@ public class ContactsUploadManager {
      *
      * @param account An account. must not be null.
      */
-    public void setcontactsAccount(Account account) {
+    public void setContactsAccount(Account account) {
         for (Account a : accountManager.getAccountList()) {
             if (a.equals(account)) {
                 // enable contacts upload on this account
@@ -96,7 +96,7 @@ public class ContactsUploadManager {
     /**
      * Disable contacts upload.
      */
-    public void disablecontactsUpload() {
+    public void disableContactsUpload() {
         for (Account account : accountManager.getAccountList()) {
             ContentResolver.cancelSync(account.getAndroidAccount(), AUTHORITY);
             ContentResolver.setIsSyncable(account.getAndroidAccount(), AUTHORITY, 0);

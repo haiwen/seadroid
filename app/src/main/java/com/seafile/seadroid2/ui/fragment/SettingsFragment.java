@@ -322,7 +322,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
                         cContactsCategory.removePreference(cContactsRepoTime);
                         cContactsCategory.removePreference(cContactsRepoBackUp);
                         cContactsCategory.removePreference(cContactsRepoRecovery);
-                        contactsManager.disablecontactsUpload();
+                        contactsManager.disableContactsUpload();
                     }
                     return true;
                 }
@@ -678,8 +678,8 @@ public class SettingsFragment extends CustomPreferenceFragment {
                     final String repoId = data.getStringExtra(SeafilePathChooserActivity.DATA_REPO_ID);
                     final Account account = data.getParcelableExtra(SeafilePathChooserActivity.DATA_ACCOUNT);
                     if (repoName != null && repoId != null) {
-                        Log.d(DEBUG_TAG, "Activating contacts upload to " + account + "; " + repoName);
-                        contactsManager.setcontactsAccount(account);
+//                        Log.d(DEBUG_TAG, "Activating contacts upload to " + account + "; " + repoName);
+                        contactsManager.setContactsAccount(account);
                         settingsMgr.saveContactsUploadRepoInfo(repoId, repoName);
                     }
                 } else if (resultCode == Activity.RESULT_CANCELED) {
