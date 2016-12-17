@@ -109,27 +109,6 @@ public class SettingsActivity extends BaseActivity implements Toolbar.OnMenuItem
         }
     }
 
-    /**
-     * Callback received when a permissions request has been completed.
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        Log.i(DEBUG_TAG, "Received response for permission request.");
-        switch (requestCode) {
-            case REQUEST_PERMISSIONS_READ_CONTACTS: {
-                // Check if the only required permission has been granted
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted
-                    mSettingsFragment.showUploadContactsDialog();
-                    Log.d(DEBUG_TAG, "permission was granted");
-                } else {
-                    // permission denied
-                }
-            }
-        }
-    }
-
 
     ServiceConnection mConnection = new ServiceConnection() {
         @Override

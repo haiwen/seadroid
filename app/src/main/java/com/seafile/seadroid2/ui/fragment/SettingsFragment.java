@@ -349,7 +349,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
         cContactsRepoBackUp.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                readContacts();
+                backupContacts();
                 return true;
             }
         });
@@ -357,7 +357,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
         cContactsRepoRecovery.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                recoverContact();
+                recoveryContacts();
                 return false;
             }
         });
@@ -450,20 +450,41 @@ public class SettingsFragment extends CustomPreferenceFragment {
     }
 
 
-    private void readContacts(){
+    private void backupContacts() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (mActivity.checkSelfPermission(Manifest.permission.READ_CONTACTS) !=
                     PackageManager.PERMISSION_GRANTED) {
-                //如果没有该权限，进行请求
+                //if not have read contacts permission to  request
                 mActivity.requestReadContactsPermission();
             } else {
+                // have read contacts permission  to  show backup dialog
                 showUploadContactsDialog();
-                //进行联系人读取
             }
-        }else {
+        } else {
             showUploadContactsDialog();
         }
     }
+
+    private void recoveryContacts() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (mActivity.checkSelfPermission(Manifest.permission.READ_CONTACTS) !=
+                    PackageManager.PERMISSION_GRANTED) {
+                //if not have read contacts permission to  request
+                mActivity.requestReadContactsPermission();
+            } else {
+                // have read contacts permission  to  show recovery dialog
+                showRecoveryContactsDialog();
+            }
+        } else {
+            showRecoveryContactsDialog();
+        }
+    }
+
+    private void showRecoveryContactsDialog() {
+        ContactsDialog contactsDialog = new ContactsDialog(getActivity(), ContactsDialog.CONTACTS_RECOVERY);
+        contactsDialog.show(getFragmentManager(), "SettingsFragment");
+    }
+
 
     public void showUploadContactsDialog() {
 
@@ -523,11 +544,6 @@ public class SettingsFragment extends CustomPreferenceFragment {
         }
     }
 
-
-    private void recoverContact() {
-        ContactsDialog contactsDialog = new ContactsDialog(getActivity(), ContactsDialog.CONTACTS_RECOVERY);
-        contactsDialog.show(getFragmentManager(), "SettingsFragment");
-    }
 
     private void clearPasswordSilently() {
         ConcurrentAsyncTask.submit(new Runnable() {
