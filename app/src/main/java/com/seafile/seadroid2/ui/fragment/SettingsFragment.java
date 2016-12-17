@@ -538,7 +538,9 @@ public class SettingsFragment extends CustomPreferenceFragment {
                             }
                         }
                     }
-                    cContactsRepoTime.setSummary(Utils.translateCommitTime(mMtime * 1000));
+                    if (mMtime > 0) {
+                        cContactsRepoTime.setSummary(Utils.translateCommitTime(mMtime * 1000));
+                    }
                 }
             }
         }
