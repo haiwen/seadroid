@@ -73,7 +73,7 @@ public class SettingsActivity extends BaseActivity implements Toolbar.OnMenuItem
 
     public void uploadContacts(String path) {
         Account camAccount = mSettingsFragment.contactsManager.getContactsAccount();
-        if (camAccount != null && mSettingsFragment.settingsMgr.getCameraUploadRepoName() != null) {
+        if (camAccount != null && mSettingsFragment.settingsMgr.getContactsUploadRepoName() != null) {
             String repoName = mSettingsFragment.settingsMgr.getContactsUploadRepoName();
             String repoId = mSettingsFragment.settingsMgr.getContactsUploadRepoId();
             txService.addTaskToUploadQue(camAccount, repoId, repoName, "/", path, false, true);

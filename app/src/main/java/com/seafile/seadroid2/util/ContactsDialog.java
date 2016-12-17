@@ -8,7 +8,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,11 +18,13 @@ import android.widget.Toast;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.UserData;
-import com.seafile.seadroid2.ui.activity.BrowserActivity;
+import com.seafile.seadroid2.ui.activity.SettingsActivity;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 
 import java.io.BufferedReader;
@@ -44,6 +45,8 @@ import a_vcard.android.syncml.pim.vcard.VCardComposer;
 import a_vcard.android.syncml.pim.vcard.VCardException;
 import a_vcard.android.syncml.pim.vcard.VCardParser;
 
+import static com.seafile.seadroid2.R.drawable.file;
+
 
 /**
  * Function:
@@ -53,54 +56,49 @@ import a_vcard.android.syncml.pim.vcard.VCardParser;
  */
 @SuppressLint("ValidFragment")
 public class ContactsDialog extends TaskDialog {
-    private static final String DEBUG_TAG = "PasswordDialog";
-    public static final int BACKUP_CONTACTS = 1;
-    public static final int RECOVER_CONTACTS = 2;
     private static final String STATE_TASK_CONTACTS_TYPE = "state_task_contacts_type";
-
-    private Context mContext;
+    public static final int CONTACTS_BACKUP = 1;
+    public static final int CONTACTS_RECOVERY = 2;
     private int type;
 
-    public ContactsDialog() {
+    private SettingsActivity mContext;
 
+    public ContactsDialog() {
+    }
+
+    public ContactsDialog(Context context, int type) {
+        if (context instanceof SettingsActivity) {
+            this.mContext = (SettingsActivity) context;
+            this.type = type;
+        }
     }
 
     @Override
     public void onTaskFailed(SeafException e) {
-
         super.onTaskFailed(e);
     }
 
+
     @Override
     public void onTaskSuccess() {
-        switch (type) {
-            case BACKUP_CONTACTS:
-                Toast.makeText(mContext, getString(R.string.settings_contacts_backup_success), Toast.LENGTH_LONG).show();
-                break;
-            case RECOVER_CONTACTS:
-                Toast.makeText(mContext, getString(R.string.settings_contacts_recover_success), Toast.LENGTH_LONG).show();
-                break;
+        if (type == CONTACTS_BACKUP) {
+            Toast.makeText(mContext, getString(R.string.contacts_backup_success), Toast.LENGTH_LONG).show();
+        } else if (type == CONTACTS_RECOVERY) {
+            Toast.makeText(mContext, getString(R.string.contacts_recovery_success), Toast.LENGTH_LONG).show();
         }
         super.onTaskSuccess();
     }
 
-    public ContactsDialog(Context context, int type) {
-        this.mContext = context;
-        this.type = type;
-    }
 
     @Override
     protected void onDialogCreated(Dialog dialog) {
-        switch (type) {
-            case BACKUP_CONTACTS:
-                dialog.setTitle(R.string.settings_contacts_backup_title);
-                break;
-            case RECOVER_CONTACTS:
-                dialog.setTitle(R.string.settings_contacts_recover_title);
-                break;
+        if (type == CONTACTS_BACKUP) {
+            dialog.setTitle(R.string.contacts_backup_title);
+        } else if (type == CONTACTS_RECOVERY) {
+            dialog.setTitle(R.string.contacts_recovery_title);
         }
 
-
+    }
 
     @Override
     protected void onSaveDialogContentState(Bundle outState) {
@@ -111,17 +109,13 @@ public class ContactsDialog extends TaskDialog {
     protected View createDialogContentView(LayoutInflater inflater, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_contacts, null);
         TextView countText = (TextView) view.findViewById(R.id.setting_contacts_backup);
-        if (savedInstanceState != null) {
-            type = savedInstanceState.getInt(STATE_TASK_CONTACTS_TYPE);
+        String fileName = "";
+        if (type == CONTACTS_BACKUP) {
+            fileName = String.format(getString(R.string.contacts_dialog_backup), Utils.translateTime());
+        } else if (type == CONTACTS_RECOVERY) {
+            fileName = getString(R.string.contacts_dialog_recovery);
         }
-        switch (type) {
-            case BACKUP_CONTACTS:
-                countText.setText(getString(R.string.settings_contacts_dialog_backup));
-                break;
-            case RECOVER_CONTACTS:
-                countText.setText(getString(R.string.settings_contacts_dialog_recover));
-                break;
-        }
+        countText.setText(fileName);
         return view;
     }
 
@@ -136,44 +130,48 @@ public class ContactsDialog extends TaskDialog {
 
 class ContactManager extends TaskDialog.Task {
     private static final String DEBUG_TAG = "ContactManager";
-    private static Context mContext;
-    private int type;
+    private final int type;
+    private SettingsActivity mContext;
+    private List<Account> mAccounts;
+    private String mContactsPath;
+    private long mMtime = 1;
+    private SeafDirent seafDirent;
 
     public ContactManager(Context context, int type) {
-        this.mContext = context;
         this.type = type;
+        if (context instanceof SettingsActivity) {
+            mContext = (SettingsActivity) context;
+        }
     }
 
 
     @Override
     protected void runTask() {
-        switch (type) {
-            case ContactsDialog.BACKUP_CONTACTS:
-                List<UserData> contactInfo = null;
-                try {
-                    contactInfo = getContactInfo(mContext);
-                    Log.d(DEBUG_TAG, "contacts  size  :" + contactInfo.size());
-                    backupContacts(contactInfo);
-                } catch (SeafException e) {
-                    setTaskException(e);
-                    e.printStackTrace();
+        if (type == ContactsDialog.CONTACTS_BACKUP) {
+            List<UserData> contactInfo = null;
+            try {
+                contactInfo = getContactInfo(mContext);
+                Log.d(DEBUG_TAG, "contacts  size  :" + contactInfo.size());
+                backupContacts(contactInfo);
+                //send  Broadcoast  to  upload
+                mContext.uploadContacts(mContactsPath);
+            } catch (SeafException e) {
+                setTaskException(e);
+                e.printStackTrace();
+            }
+        } else if (type == ContactsDialog.CONTACTS_RECOVERY) {
+            try {
+                List<UserData> infoList = restoreContacts();
+                for (UserData userInfo : infoList) {
+                    addContacts(mContext, userInfo);
                 }
-                break;
-            case ContactsDialog.RECOVER_CONTACTS:
-                List<UserData> infoList = null;
-                try {
-                    infoList = restoreContacts();
-                    for (UserData userInfo : infoList) {
-                        addContacts(mContext, userInfo);
-                    }
-                } catch (SeafException e) {
-                    setTaskException(e);
-                    e.printStackTrace();
-                }
-                break;
+            } catch (SeafException e) {
+                setTaskException(e);
+                e.printStackTrace();
+            }
         }
-
     }
+
 
     /**
      * read  contacts
@@ -193,7 +191,6 @@ class ContactManager extends TaskDialog.Task {
                         UserData userData = new UserData();
                         String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
                         String displayName = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-                        System.out.println(displayName + "。。。。。。" + phoneCount);
                         userData.setName(displayName);
                         userData.setUserid(id);
                         //read contacts phone
@@ -244,7 +241,7 @@ class ContactManager extends TaskDialog.Task {
             }
             return infoList;
         } catch (Exception e) {
-            throw new SeafException(0, mContext.getString(R.string.settings_contacts_backup_fail));
+            throw new SeafException(0, mContext.getString(R.string.contacts_backup_fail));
         }
     }
 
@@ -254,17 +251,17 @@ class ContactManager extends TaskDialog.Task {
      */
     public void backupContacts(List<UserData> infos) throws SeafException {
 
+        if (infos == null || infos.size() == 0) {
+            throw new SeafException(0, mContext.getString(R.string.contacts_count_zero));
+        }
+
         try {
-            List<Account> accounts = new AccountManager(SeadroidApplication.getAppContext()).getAccountList();
-            String path = Environment.getExternalStorageDirectory() + "/Seafile/contacts/";
-            if (accounts.size() > 0) {
-                path = new DataManager(accounts.get(0)).getAccountDir() + "/contacts/";
-            }
+            mAccounts = new AccountManager(SeadroidApplication.getAppContext()).getAccountList();
+            String path = new DataManager(mAccounts.get(0)).getAccountDir() + "/temp/";
             File fileDir = new File(path);
             if (!fileDir.exists()) {
                 fileDir.mkdirs();
             }
-            OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(fileDir.toString() + "/contacts.vcf"), "UTF-8");
             String fileName = String.format(mContext.getString(R.string.contacts_file_name), Utils.translateTime());
             mContactsPath = fileDir.toString() + "/" + fileName;
             OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(mContactsPath), "UTF-8");
@@ -294,7 +291,6 @@ class ContactManager extends TaskDialog.Task {
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new SeafException(0, mContext.getString(R.string.settings_contacts_backup_fail));
             throw new SeafException(0, mContext.getString(R.string.contacts_backup_fail));
         }
     }
@@ -307,13 +303,41 @@ class ContactManager extends TaskDialog.Task {
      */
     public List<UserData> restoreContacts() throws SeafException {
         try {
-            List<Account> accounts = new AccountManager(SeadroidApplication.getAppContext()).getAccountList();
-            String file = Environment.getExternalStorageDirectory() + "/Seafile/contacts/";
-            if (accounts.size() > 0) {
-                file = new DataManager(accounts.get(0)).getAccountDir() + "/contacts/contacts.vcf";
-            }
-            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
 
+            List<Account> accounts = new AccountManager(SeadroidApplication.getAppContext()).getAccountList();
+            DataManager dataManager = new DataManager(accounts.get(0));
+            SettingsManager settingsManager = SettingsManager.instance();
+            String repoId = settingsManager.getContactsUploadRepoId();
+            String repoName = settingsManager.getContactsUploadRepoName();
+            List<SeafDirent> dirents = dataManager.getCachedDirents(repoId, "/");
+            if (dirents == null) {
+                dirents = dataManager.getDirentsFromServer(repoId, "/");
+            }
+            if (dirents != null) {
+                for (int i = 0; i < dirents.size(); i++) {
+                    SeafDirent seafDirent = dirents.get(i);
+                    if (!seafDirent.isDir()) {
+                        String title = seafDirent.getTitle();
+                        if (title.indexOf("contacts") != -1) {
+                            if (seafDirent.mtime > mMtime) {
+                                mMtime = seafDirent.mtime;
+                            }
+                        }
+                    }
+                }
+                for (int i = 0; i < dirents.size(); i++) {
+                    SeafDirent seaf = dirents.get(i);
+                    if (mMtime == seaf.mtime) {
+                        seafDirent = seaf;
+                    }
+                }
+            }
+            final String filePath = Utils.pathJoin("/", seafDirent.name);
+            File localFile = dataManager.getLocalCachedFile(repoName, repoId, filePath, seafDirent.id);
+            if (localFile == null) {
+                mContext.txService.addDownloadTask(accounts.get(0), repoName, repoId, filePath, seafDirent.size);
+            }
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(localFile), "UTF-8"));
             String vcardString = "";
             String line;
             while ((line = reader.readLine()) != null) {
@@ -364,10 +388,17 @@ class ContactManager extends TaskDialog.Task {
             return contactInfoList;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new SeafException(0, mContext.getString(R.string.settings_contacts_recover_fail));
+            throw new SeafException(0, mContext.getString(R.string.contacts_recover_fail));
         }
     }
 
+    /**
+     * add contacts to  phone
+     *
+     * @param context
+     * @param info
+     * @throws SeafException
+     */
     public void addContacts(Context context, UserData info) throws SeafException {
 
         try {
@@ -401,11 +432,6 @@ class ContactManager extends TaskDialog.Task {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            throw new SeafException(0, mContext.getString(R.string.settings_contacts_recover_fail));
-        }
-    }
-
-
             throw new SeafException(0, mContext.getString(R.string.contacts_recover_fail));
         }
     }
