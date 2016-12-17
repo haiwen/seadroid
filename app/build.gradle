@@ -8,8 +8,8 @@ android {
         applicationId 'com.seafile.seadroid2'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 61
-        versionName "2.1.7"
+        versionCode 62
+        versionName "2.1.8"
         resValue "string", "authorities", applicationId + '.cameraupload.provider'
         resValue "string", "account_type", "com.seafile.seadroid2.account.api2"
         buildConfigField "String", "ACCOUNT_TYPE", '"com.seafile.seadroid2.account.api2"'
@@ -105,7 +105,7 @@ android {
         compile 'com.commit451:PhotoView:1.2.4'
 //        https://github.com/JoanZapata/android-iconify
         compile 'com.joanzapata.iconify:android-iconify-material-community:2.2.1'
-//        https://github.com/robolectric/robolectric  单元测试的库
+//        https://github.com/robolectric/robolectric
         testCompile 'junit:junit:4.12'
         testCompile 'org.robolectric:robolectric:3.0'
 //        https://rtyley.github.io/spongycastle/

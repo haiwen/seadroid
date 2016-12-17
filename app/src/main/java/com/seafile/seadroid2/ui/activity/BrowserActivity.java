@@ -581,36 +581,6 @@ public class BrowserActivity extends BaseActivity
     }
 
     /**
-     * If the user is running Android 6.0 (API level 23) or later, the user has to grant your app its permissions while they are running
-     * the app
-     * <p>
-     * Requests the READ_CONTACTS permission.
-     */
-    private void requestReadContactsPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_CONTACTS)) {
-
-                Snackbar.make(mLayout, R.string.permission_read_exteral_storage_rationale, Snackbar.LENGTH_INDEFINITE)
-                        .setAction(R.string.settings, new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                ActivityCompat.requestPermissions(BrowserActivity.this, new String[]{Manifest.permission.READ_CONTACTS},
-                                        REQUEST_PERMISSIONS_READ_CONTACTS);
-                            }
-                        })
-                        .show();
-            } else {
-                // No explanation needed, we can request the permission.
-                // WRITE_EXTERNAL_STORAGE permission has not been granted yet. Request it directly.
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS},
-                        REQUEST_PERMISSIONS_READ_CONTACTS);
-            }
-        }
-    }
-
-
-    /**
      * Callback received when a permissions request has been completed.
      */
     @Override
