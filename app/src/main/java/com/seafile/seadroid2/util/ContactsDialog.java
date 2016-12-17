@@ -187,8 +187,8 @@ class ContactManager extends TaskDialog.Task {
             Cursor cur = context.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
             if (cur != null && cur.moveToFirst()) {
                 do {
-                    int phoneCount = cur.getInt(cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
-                    if (phoneCount > 0) {
+//                    int phoneCount = cur.getInt(cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
+//                    if (phoneCount > 0) {
                         UserData userData = new UserData();
                         String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
                         String displayName = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
@@ -235,7 +235,7 @@ class ContactManager extends TaskDialog.Task {
                             userData.setEmail(emailInfos);
                         }
                         infoList.add(userData);
-                    }
+//                    }
 
                 } while (cur.moveToNext());
                 cur.close();
