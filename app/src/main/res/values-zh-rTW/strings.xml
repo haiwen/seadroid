@@ -118,11 +118,11 @@
     <string name="no_app_available">沒有找到應用</string>
     <string name="add_to_seafile">添加到Seafile中</string>
     <string name="ok">確定</string>
-    <string name="no_account">首先請在Seafile上創建一個賬戶</string>
-    <string name="choose_an_account">請選擇一個賬戶</string>
+    <string name="no_account">首先請在Seafile上創建一個帳戶</string>
+    <string name="choose_an_account">請選擇一個帳戶</string>
     <string name="choose_a_library">請選擇一個資料庫</string>
     <string name="choose_a_folder">請選擇一個文件夾</string>
-    <string name="load_accounts_fail">加載Seafile賬戶失敗</string>
+    <string name="load_accounts_fail">加載Seafile帳戶失敗</string>
     <string name="load_libraries_fail">加載資料庫失敗</string>
     <string name="load_dir_fail">加載此文件夾的內容失敗</string>
     <string name="not_supported_share">不支持此類分享</string>
@@ -172,7 +172,7 @@
     <string-array name="nav_array">
         <item>文件</item>
         <item>上傳任務</item>
-        <item>賬戶</item>
+        <item>帳戶</item>
         <item>相冊備份</item>
     </string-array>
     <string name="no_starred_file">無星標文件</string>
@@ -237,8 +237,8 @@
     <string name="cancel">取消</string>
     <string name="confirm">確定</string>
     <string name="repo_not_found">找不到該資料庫，它可能是加密資料庫或已被刪除</string>
-    <string name="settings_account">賬戶</string>
-    <string name="settings_account_info_title">賬戶信息</string>
+    <string name="settings_account">帳戶</string>
+    <string name="settings_account_info_title">帳戶信息</string>
     <string name="settings_account_info_load_data">加載中...</string>
     <string name="settings_account_space_title">已使用空間</string>
     <string name="settings_account_sign_out_title">退出登錄</string>
@@ -307,7 +307,7 @@
     <string name="settings_cuc_network_title">上傳方式</string>
     <string name="settings_cuc_network_wifi">僅限於Wi-Fi</string>
     <string name="settings_cuc_network_data_plan">Wi-Fi或者移動流量套餐</string>
-    <string name="settings_cuc_option_hint">選擇你要配置的賬戶和資料庫，這些設置以後可以在設置菜單里修改。</string>
+    <string name="settings_cuc_option_hint">選擇你要配置的帳戶和資料庫，這些設置以後可以在設置菜單里修改。</string>
     <string name="settings_cuc_type_title">上傳內容</string>
     <string name="settings_cuc_type_photo">僅上傳圖片</string>
     <string name="settings_cuc_type_video">上傳圖片和視頻</string>
@@ -316,7 +316,7 @@
         <item quantity="other">%1$d個文件</item>
     </plurals>
     <string name="settings_cuc_remote_lib_title">選擇雲端資料庫</string>
-    <string name="settings_cuc_remote_lib_account">請選擇一個賬戶</string>
+    <string name="settings_cuc_remote_lib_account">請選擇一個帳戶</string>
     <string name="settings_cuc_remote_lib_repo">%s被選中</string>
     <string name="settings_cuc_upload_to_parent_folder">上一級</string>
     <string name="settings_cuc_auto_scan">自動備份默認相冊</string>
@@ -379,7 +379,7 @@
     <string name="saf_thumbnail_not_found_exception">找不到（或）打不開縮略圖%s</string>
     <string name="saf_file_not_downloaded_exception">不能從伺服器下載%s</string>
     <string name="saf_write_diretory_exception">不能進入目錄進行讀取（或）寫入</string>
-    <string name="saf_account_not_found_exception">無法找到Seafile賬戶</string>
+    <string name="saf_account_not_found_exception">無法找到Seafile帳戶</string>
     <string name="saf_upload_path_not_available">無效路徑，無法上傳</string>
     <string name="saf_failed_to_create_directory">無法創建目錄%s</string>
     <string name="saf_file_exist">該文件已存在</string>
