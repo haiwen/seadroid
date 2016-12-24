@@ -73,9 +73,9 @@ public class SeafConnection {
 
     private void setRequestCommon(HttpRequest req) {
         req.readTimeout(READ_TIMEOUT)
-            .connectTimeout(CONNECTION_TIMEOUT)
-            .followRedirects(true)
-            .header("Authorization", "Token " + account.token);
+                .connectTimeout(CONNECTION_TIMEOUT)
+                .followRedirects(true)
+                .header("Authorization", "Token " + account.token);
 
         prepareHttpsCheck(req);
     }
@@ -112,7 +112,7 @@ public class SeafConnection {
      *  @throws IOException
      */
     private HttpRequest prepareApiPostRequest(String apiPath, boolean withToken, Map<String, ?> params)
-                                            throws HttpRequestException {
+            throws HttpRequestException {
         return prepareApiPostRequest(apiPath, withToken, params, false);
     }
 
@@ -124,10 +124,10 @@ public class SeafConnection {
      *  @throws IOException
      */
     private HttpRequest prepareApiPostRequest(String apiPath, boolean withToken, Map<String, ?> params, boolean encode)
-                                            throws HttpRequestException {
+            throws HttpRequestException {
         HttpRequest req = HttpRequest.post(account.server + apiPath, params, encode)
-            .followRedirects(true)
-            .connectTimeout(CONNECTION_TIMEOUT);
+                .followRedirects(true)
+                .connectTimeout(CONNECTION_TIMEOUT);
 
         if (withToken) {
             req.header("Authorization", "Token " + account.token);
@@ -139,8 +139,8 @@ public class SeafConnection {
     private HttpRequest prepareApiDeleteRequest(String apiPath, Map<String, ?> params)
             throws HttpRequestException {
         HttpRequest req = HttpRequest.delete(account.server + apiPath, params, false)
-            .followRedirects(true)
-            .connectTimeout(CONNECTION_TIMEOUT);
+                .followRedirects(true)
+                .connectTimeout(CONNECTION_TIMEOUT);
 
         req.header("Authorization", "Token " + account.token);
 
@@ -172,14 +172,14 @@ public class SeafConnection {
             Context context = SeadroidApplication.getAppContext();
             try {
                 PackageInfo pInfo = context.getPackageManager().
-                    getPackageInfo(context.getPackageName(), 0);
+                        getPackageInfo(context.getPackageName(), 0);
                 appVersion = pInfo.versionName;
             } catch (NameNotFoundException e) {
                 // ignore
             }
 
             String deviceId = Secure.getString(context.getContentResolver(),
-                                               Secure.ANDROID_ID);
+                    Secure.ANDROID_ID);
 
             req.form("platform", "android");
             req.form("device_id", deviceId);
@@ -383,7 +383,7 @@ public class SeafConnection {
      * @throws SeafException
      */
     public Pair<String, String> getDirents(String repoID, String path, String cachedDirID)
-                                        throws SeafException {
+            throws SeafException {
         try {
             String apiPath = String.format("api2/repos/%s/dir/", repoID);
             Map<String, Object> params = Maps.newHashMap();
@@ -541,7 +541,7 @@ public class SeafConnection {
 
     private File getFileFromLink(String dlink, String path, String localPath,
                                  String oid, ProgressMonitor monitor)
-                                    throws SeafException {
+            throws SeafException {
         if (dlink == null)
             return null;
 
@@ -612,7 +612,7 @@ public class SeafConnection {
     }
 
     private File getBlockFromLink(String dlink, FileBlocks fileBlocks, String blkId, String localPath, long fileSize, ProgressMonitor monitor)
-                                    throws SeafException {
+            throws SeafException {
         if (dlink == null)
             return null;
 
@@ -669,10 +669,10 @@ public class SeafConnection {
      * @return A two tuple of (fileID, file). If the local cached version is up to date, the returned file is null.
      */
     public Pair<String, File> getFile(String repoID,
-                                          String path,
-                                          String localPath,
-                                          String cachedFileID,
-                                          ProgressMonitor monitor) throws SeafException {
+                                      String path,
+                                      String localPath,
+                                      String cachedFileID,
+                                      ProgressMonitor monitor) throws SeafException {
         Pair<String, String> ret = getDownloadLink(repoID, path);
         String dlink = ret.first;
         String fileID = ret.second;
@@ -770,7 +770,7 @@ public class SeafConnection {
      * @throws SeafException
      */
     public String uploadFile(String repoID, String dir, String filePath, ProgressMonitor monitor, boolean update)
-                            throws SeafException {
+            throws SeafException {
         try {
             String url = getUploadLink(repoID, update);
             return uploadFileCommon(url, repoID, dir, filePath, monitor, update);
@@ -789,8 +789,8 @@ public class SeafConnection {
      * Upload a file to seafile httpserver
      */
     private String uploadFileCommon(String link, String repoID, String dir,
-                                     String filePath, ProgressMonitor monitor, boolean update)
-                                        throws SeafException {
+                                    String filePath, ProgressMonitor monitor, boolean update)
+            throws SeafException {
 
         try {
             File file = new File(filePath);
@@ -857,7 +857,8 @@ public class SeafConnection {
             String end = TWO_HYPENS + BOUNDARY + TWO_HYPENS + CRLF;
             totalLen += end.length();
 
-            req.contentLength(totalLen);
+            if (totalLen >= 0)
+                req.contentLength(totalLen);
             req.header("Connection", "close");
             req.header("Cache-Control", "no-cache");
             req.header("Content-Type", "multipart/form-data;boundary=" + BOUNDARY);
@@ -903,7 +904,7 @@ public class SeafConnection {
     private String uploadBlocksCommon(String link, String repoID, String dir,
                                       String filePath, List<Block> blocks,
                                       ProgressMonitor monitor, boolean update)
-                                        throws SeafException {
+            throws SeafException {
 
         try {
             File file = new File(filePath);
@@ -1069,8 +1070,8 @@ public class SeafConnection {
     }
 
     public Pair<String, String> createNewDir(String repoID,
-                                                 String parentDir,
-                                                 String dirName) throws SeafException {
+                                             String parentDir,
+                                             String dirName) throws SeafException {
 
         HttpRequest req = null;
         try {
@@ -1108,8 +1109,8 @@ public class SeafConnection {
     }
 
     public Pair<String, String> createNewFile(String repoID,
-                                                  String parentDir,
-                                                  String fileName) throws SeafException {
+                                              String parentDir,
+                                              String fileName) throws SeafException {
 
         try {
             String fullPath = Utils.pathJoin(parentDir, fileName);
@@ -1195,7 +1196,7 @@ public class SeafConnection {
 
         private void checkMonitor() throws MonitorCancelledException {
             if (monitor.isCancelled() ||
-                Thread.currentThread().isInterrupted()) {
+                    Thread.currentThread().isInterrupted()) {
                 throw new MonitorCancelledException();
             }
 
@@ -1265,7 +1266,7 @@ public class SeafConnection {
 
         private void checkMonitor() throws MonitorCancelledException {
             if (monitor.isCancelled() ||
-                Thread.currentThread().isInterrupted()) {
+                    Thread.currentThread().isInterrupted()) {
                 throw new MonitorCancelledException();
             }
 
@@ -1408,7 +1409,7 @@ public class SeafConnection {
     }
 
     public Pair<String, String> delete(String repoID, String path,
-               boolean isdir) throws SeafException {
+                                       boolean isdir) throws SeafException {
         try {
             Map<String, Object> params = Maps.newHashMap();
             params.put("p", encodeUriComponent(path).replaceAll("\\+", "%20"));
@@ -1428,14 +1429,14 @@ public class SeafConnection {
                 return null;
             }
 
-                return new Pair<String, String>(newDirID, content);
-            } catch (SeafException e) {
-                throw e;
-            } catch (UnsupportedEncodingException e) {
-                throw SeafException.encodingException;
-            } catch (HttpRequestException e) {
-                throw getSeafExceptionFromHttpRequestException(e);
-            }
+            return new Pair<String, String>(newDirID, content);
+        } catch (SeafException e) {
+            throw e;
+        } catch (UnsupportedEncodingException e) {
+            throw SeafException.encodingException;
+        } catch (HttpRequestException e) {
+            throw getSeafExceptionFromHttpRequestException(e);
+        }
     }
 
     /**
