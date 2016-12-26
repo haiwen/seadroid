@@ -15,6 +15,7 @@
   <string name="server_hint">서버 주소</string>
   <string name="email_hint">전자메일 주소 또는 사용자 이름</string>
   <string name="passwd_hint">암호</string>
+  <string name="passwd_min_len_limit_hint">암호(문자 최소 %d개)</string>
   <string name="passwd_confirmation_hint">암호를 다시 입력하세요</string>
   <string name="login">로그인</string>
   <string name="open_file">열기</string>
@@ -111,6 +112,7 @@
   <string name="error_when_load_dirents">폴더 불러오는 중 오류가 발생했습니다.\n 탭하여 새로 고치십시오</string>
   <string name="error_when_load_repos">라이브러리를 불러오는 중 오류가 발생했습니다.\n 탭하여 새로 고치십시오</string>
   <string name="error_when_load_activities">액티비티를 불러오는 중 오류가 발생했습니다.\n 새로 고치려면 탭하십시오</string>
+  <string name="error_when_load_starred">별표 표시한 파일을 불러오는 중 오류가 발생했습니다.\n 탭하여 새로 고치십시오</string>
   <string name="dir_empty">이 폴더는 비어있습니다</string>
   <string name="no_repo">아직 라이브러리가 없습니다</string>
   <string name="no_app_available">앱을 찾을 수 없습니다</string>
@@ -142,6 +144,8 @@
   </string-array>
   <string name="create_new_repo">새 라이브러리 만들기</string>
   <string name="create_new_repo_success">%s 라이브러리 만들기에 성공했습니다</string>
+  <string name="create_new_folder_success">%s 폴더 만들기에 성공했습니다</string>
+  <string name="create_new_file_success">%s 파일 만들기에 성공했습니다</string>
   <string name="create_new_file">새 파일 만들기</string>
   <string name="create_new_dir">새 폴더 만들기</string>
   <string name="camera">여기에 사진 넣기</string>
@@ -151,6 +155,7 @@
   <string name="file_modified">수정함</string>
   <string name="file_size">파일 크기</string>
   <string name="library_not_found">라이브러리를 이미 삭제했습니다.</string>
+  <string name="file_not_found">\"%s\" 파일을 삭제했습니다</string>
   <string name="export_file">이 파일 내보내기</string>
   <string name="no_upload_tasks">업로드 작업이 없습니다</string>
   <string name="no_download_tasks">다운로드 작업이 없습니다</string>
@@ -427,8 +432,8 @@
   <string name="star_file_succeed">파일 별표 표시를 성공했습니다</string>
   <string name="star_file_failed">파일 별표 표시에 실패했습니다</string>
   <!--unstar a file-->
-  <string name="unstar_file_failed">파일 별표 표시 해제에 실패했습니다</string>
-  <string name="unstar">별표 표시 해제</string>
+  <string name="unstar_file_failed">파일 별표 지우기에 실패했습니다</string>
+  <string name="unstar">별표 지우기</string>
   <!--notification bar-->
   <string name="notification_upload_started_title">파일 업로드 중...</string>
   <string name="notification_download_started_title">파일 다운로드 중...</string>
@@ -472,4 +477,7 @@
   <string name="two_factor_auth_token">이중 인증 토큰</string>
   <string name="two_factor_auth_token_empty">인증 토큰은 비워둘 수 없습니다</string>
   <!--Operation Exceptions-->
+  <string name="op_exception_folder_deleted">\"%s\" 폴더를 삭제했습니다</string>
+  <string name="op_exception_suitable_app_not_found">%s MIME 형식에 알맞은 앱을 찾을 수 없습니다</string>
+  <string name="op_exception_failed_to_download_file">%s 파일 다운로드에 실패했습니다</string>
 </resources>

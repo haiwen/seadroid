@@ -15,6 +15,7 @@
   <string name="server_hint">Serveur, par exemple cloud.seafile.com</string>
   <string name="email_hint">E-mail ou nom d\'utilisateur</string>
   <string name="passwd_hint">Mot de passe</string>
+  <string name="passwd_min_len_limit_hint">Mot de passe (au moins %d caractères)</string>
   <string name="passwd_confirmation_hint">Retaper le mot de passe</string>
   <string name="login">Connexion</string>
   <string name="open_file">Ouvrir</string>
@@ -112,6 +113,7 @@
   <string name="error_when_load_dirents">Erreur lors du chargement du dossier.\n Appuyer pour rafraichir</string>
   <string name="error_when_load_repos">Erreur lors du chargement des bibliothèques.\n Appuyer pour rafraîchir</string>
   <string name="error_when_load_activities">Erreur lors du chargement des activités.\n  Cliquer pour rafraichir</string>
+  <string name="error_when_load_starred">Erreur lors du chargement des fichiers favoris.\n Tap pour rafraichir</string>
   <string name="dir_empty">Ce dossier est vide</string>
   <string name="no_repo">Vous n\'avez pas encore de bibliothèque</string>
   <string name="no_app_available">Aucune application disponible</string>
@@ -143,6 +145,8 @@
   </string-array>
   <string name="create_new_repo">Créer une nouvelle bibliothèque</string>
   <string name="create_new_repo_success">La bibliothèque %s a été créée avec succès</string>
+  <string name="create_new_folder_success">Le dossier %s a été créé avec succès</string>
+  <string name="create_new_file_success">Le fichier %s a été créé avec succès</string>
   <string name="create_new_file">Créer un nouveau fichier</string>
   <string name="create_new_dir">Créer un nouveau dossier</string>
   <string name="camera">Prendre une photo</string>
@@ -152,6 +156,7 @@
   <string name="file_modified">modifié</string>
   <string name="file_size">taille de fichier</string>
   <string name="library_not_found">La bibliothèque a été effacée.</string>
+  <string name="file_not_found">Le fichier \"%s\" a été supprimé</string>
   <string name="export_file">Exporter ce fichier</string>
   <string name="no_upload_tasks">Aucun envoi en cours</string>
   <string name="no_download_tasks">Aucun téléchargement en cours</string>
@@ -480,4 +485,7 @@ E-mail : support@seafile.com<br>
   <string name="two_factor_auth_token">Jeton d\'authentification à deux facteurs</string>
   <string name="two_factor_auth_token_empty">Jeton d\'authentification ne peut être vide</string>
   <!--Operation Exceptions-->
+  <string name="op_exception_folder_deleted">Le dossier \"%s\" a été supprimé</string>
+  <string name="op_exception_suitable_app_not_found">Impossible de trouver une application adaptée aux types mime %s</string>
+  <string name="op_exception_failed_to_download_file">Échec du téléchargement du fichier %s</string>
 </resources>
