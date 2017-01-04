@@ -72,9 +72,15 @@ public class ShareToSeafileActivity extends BaseActivity {
             ContentResolver contentResolver = getContentResolver();
             Cursor cursor = contentResolver.query(uri, null, null, null, null);
             if (cursor == null || !cursor.moveToFirst()) {
-                return null;
+                if (cursor != null) {
+					cursor.close();
+				}
+				return null;
             }
             String filePath = cursor.getString(cursor.getColumnIndex(Images.Media.DATA));
+			if (cursor != null) {
+				cursor.close();
+			}
             return filePath;
         }
     }
