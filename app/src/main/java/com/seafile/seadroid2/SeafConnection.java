@@ -88,7 +88,7 @@ public class SeafConnection {
             // and the accepted certificate will be stored, so he is not prompted to accept later on.
             // This is handled by SSLTrustManager and CertsManager
             req.trustAllHosts();
-            HttpsURLConnection sconn = (HttpsURLConnection)conn;
+            HttpsURLConnection sconn = (HttpsURLConnection) conn;
             sconn.setSSLSocketFactory(SSLTrustManager.instance().getSSLSocketFactory(account));
         }
 
@@ -100,16 +100,16 @@ public class SeafConnection {
     }
 
     private HttpRequest prepareApiFileGetRequest(String url) throws HttpRequestException {
-        HttpRequest req =  HttpRequest.get(url).connectTimeout(CONNECTION_TIMEOUT).followRedirects(true);
+        HttpRequest req = HttpRequest.get(url).connectTimeout(CONNECTION_TIMEOUT).followRedirects(true);
 
         return prepareHttpsCheck(req);
     }
 
     /** Prepare a post request.
-     *  @param apiPath The path of the http request
-     *  @param withToken
-     *  @param params The query param to be appended to the request url
-     *  @throws IOException
+     * @param apiPath   The path of the http request
+     * @param withToken
+     * @param params    The query param to be appended to the request url
+     * @throws IOException
      */
     private HttpRequest prepareApiPostRequest(String apiPath, boolean withToken, Map<String, ?> params)
             throws HttpRequestException {
@@ -117,11 +117,11 @@ public class SeafConnection {
     }
 
     /** Prepare a post request.
-     *  @param apiPath The path of the http request
-     *  @param withToken
-     *  @param params The query param to be appended to the request url
-     *  @param encode true to encode the full URL
-     *  @throws IOException
+     * @param apiPath   The path of the http request
+     * @param withToken
+     * @param params    The query param to be appended to the request url
+     * @param encode    true to encode the full URL
+     * @throws IOException
      */
     private HttpRequest prepareApiPostRequest(String apiPath, boolean withToken, Map<String, ?> params, boolean encode)
             throws HttpRequestException {
@@ -209,7 +209,7 @@ public class SeafConnection {
 
     /**
      * <p>
-     *     get Account info, which consists of three fields, usage, total and email.
+     * get Account info, which consists of three fields, usage, total and email.
      * </p>
      * use GET to send HTTP request.
      *
@@ -238,7 +238,7 @@ public class SeafConnection {
 
         String result;
         try {
-            HttpRequest  req = prepareApiGetRequest("api2/server-info/");
+            HttpRequest req = prepareApiGetRequest("api2/server-info/");
             checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
             result = new String(req.bytes(), "UTF-8");
         } catch (SeafException e) {
@@ -330,7 +330,7 @@ public class SeafConnection {
             throw SeafException.networkException;
         }
     }
-    public String getAvatar(String email, int size) throws SeafException  {
+    public String getAvatar(String email, int size) throws SeafException {
         try {
             String apiPath = String.format("api2/avatars/user/%s/resized/%d", email, size);
             HttpRequest req = prepareApiGetRequest(apiPath);
@@ -550,7 +550,7 @@ public class SeafConnection {
         try {
             int i = dlink.lastIndexOf('/');
             String quoted = dlink.substring(0, i) + "/" +
-                    URLEncoder.encode(dlink.substring(i+1), "UTF-8");
+                    URLEncoder.encode(dlink.substring(i + 1), "UTF-8");
 
             HttpRequest req = prepareApiFileGetRequest(quoted);
             checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
@@ -742,7 +742,7 @@ public class SeafConnection {
             // should return "\"http://gonggeng.org:8082/...\"" or "\"https://gonggeng.org:8082/...\"
             if (result.startsWith("\"http")) {
                 // remove the starting and trailing quote
-                return result.substring(1, result.length()-1);
+                return result.substring(1, result.length() - 1);
             } else
                 throw SeafException.unknownException;
         } catch (SeafException e) {
@@ -1041,7 +1041,7 @@ public class SeafConnection {
             checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
 
             //result file_id "3f0da9a0709c5fb9f23957608dabef01becc3a8c"
-            return new String(req.bytes(), "UTF-8").replaceAll("\"","");
+            return new String(req.bytes(), "UTF-8").replaceAll("\"", "");
         } catch (IOException e) {
             throw SeafException.networkException;
         } catch (HttpRequestException e) {
@@ -1311,7 +1311,7 @@ public class SeafConnection {
             String apiPath = String.format("api2/repos/%s/file/shared-link/", repoID);
             HttpRequest req = prepareApiPutRequest(apiPath, null);
             req.form("p", path);
-            req.form("type", isdir ? "d": "f");
+            req.form("type", isdir ? "d" : "f");
             checkRequestResponseStatus(req, HttpURLConnection.HTTP_CREATED);
 
             String result = req.header("Location");
@@ -1443,10 +1443,10 @@ public class SeafConnection {
      * Copy a file or multiple files, multiple file/folder names should be seperated by a ":".
      *
      * @param srcRepoId the source repo id
-     * @param srcDir the source folder in src_repo
-     * @param srcFn list of file/folder names to copy. Multiple file/folder names can be seperated by ":"
+     * @param srcDir    the source folder in src_repo
+     * @param srcFn     list of file/folder names to copy. Multiple file/folder names can be seperated by ":"
      * @param dstRepoId the destination repo id
-     * @param dstDir the destination folder in dst_repo
+     * @param dstDir    the destination folder in dst_repo
      * @throws SeafException
      */
     public void copy(String srcRepoId, String srcDir, String srcFn,
@@ -1476,10 +1476,10 @@ public class SeafConnection {
      * Move multiple files
      *
      * @param srcRepoId the source repo id
-     * @param srcDir the source folder in src_repo
-     * @param srcFn list of file/folder names to move. Multiple file/folder names can be seperated by ":"
+     * @param srcDir    the source folder in src_repo
+     * @param srcFn     list of file/folder names to move. Multiple file/folder names can be seperated by ":"
      * @param dstRepoId the destination repo id
-     * @param dstDir the destination folder in dst_repo
+     * @param dstDir    the destination folder in dst_repo
      * @throws SeafException
      */
     public void move(String srcRepoId, String srcDir, String srcFn,
@@ -1507,9 +1507,9 @@ public class SeafConnection {
      * Move a single file
      *
      * @param srcRepoId the source repo id
-     * @param srcPath the source file path
+     * @param srcPath   the source file path
      * @param dstRepoId the destination repo id
-     * @param dstDir the destination folder in dst_repo
+     * @param dstDir    the destination folder in dst_repo
      * @return
      * @throws SeafException
      */
