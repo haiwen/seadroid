@@ -130,7 +130,15 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         Toolbar toolbar = getActionBarToolbar();
         toolbar.setOnMenuItemClickListener(this);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        accounts = accountManager.getAccountList();
+        // updates toolbar back button
+        if (currentDefaultAccount == null || !currentDefaultAccount.hasValidToken()) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        } else {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
         getSupportActionBar().setTitle(R.string.accounts);
     }
 
@@ -203,6 +211,11 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         Account newCurrentAccount = accountManager.getCurrentAccount();
         if (newCurrentAccount != null && !newCurrentAccount.equals(currentDefaultAccount)) {
             startFilesActivity();
+        }
+
+        // updates toolbar back button
+        if (newCurrentAccount == null || !newCurrentAccount.hasValidToken()) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         }
 
         loadAvatarUrls(48);
@@ -283,6 +296,9 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
             if (mMonitorService != null) {
                 mMonitorService.removeAccount(account);
             }
+
+
+
             return true;
         default:
             return super.onContextItemSelected(item);
