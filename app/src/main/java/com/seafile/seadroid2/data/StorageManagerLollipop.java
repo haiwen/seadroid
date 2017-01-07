@@ -34,8 +34,13 @@ public class StorageManagerLollipop extends StorageManager {
 
     @Override
     protected long getStorageFreeSpace(File dir) {
-        StatFs stat = new StatFs(dir.getParentFile().getAbsolutePath());
-        return stat.getAvailableBytes();
+        try {
+            StatFs stat = new StatFs(dir.getParentFile().getAbsolutePath());
+            return stat.getAvailableBytes();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     @Override
