@@ -1437,6 +1437,7 @@ public class BrowserActivity extends BaseActivity
                         if (repo != null && repo.canLocalDecrypt()) {
                             addUploadBlocksTask(repo.id, repo.name, navContext.getDirPath(), file.getAbsolutePath(), repo.encVersion);
                         } else {
+                            showLongToast(BrowserActivity.this, file.getName()+" "+ getString(R.string.notification_upload_started_title));
                             addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), file.getAbsolutePath());
                         }
                     } else {
@@ -1472,6 +1473,7 @@ public class BrowserActivity extends BaseActivity
                 if (repo != null && repo.canLocalDecrypt()) {
                     addUpdateBlocksTask(repo.id, repo.name, navContext.getDirPath(), file.getAbsolutePath(), repo.encVersion);
                 } else {
+                    showLongToast(BrowserActivity.this, file.getName() + " " + getString(R.string.notification_upload_started_title));
                     addUpdateTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), file.getAbsolutePath());
                 }
             }
