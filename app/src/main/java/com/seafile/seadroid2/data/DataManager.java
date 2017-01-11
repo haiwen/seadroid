@@ -212,7 +212,7 @@ public class DataManager {
      * say "ABC", their top dir would be "ABC", "ABC (1)", "ABC (2)", etc. The
      * mapping (repoID, dir) is stored in a database table.
      */
-    private synchronized String getRepoDir(String repoName, String repoID) {
+    private synchronized String getRepoDir(String repoName, String repoID) throws RuntimeException {
         File repoDir;
 
         // Check if there is a record in database
@@ -244,7 +244,8 @@ public class DataManager {
         }
 
         if (!repoDir.mkdirs()) {
-            throw new RuntimeException("Could not create repo directory " + uniqueRepoName);
+            throw new RuntimeException("Could not create repo directory " + uniqueRepoName
+                    + "Phone storage space is insufficient or too many " + uniqueRepoName + " directory in phone");
         }
 
         // Save the new mapping in database
@@ -260,7 +261,7 @@ public class DataManager {
      * @param repoID
      * @param path
      */
-    public File getLocalRepoFile(String repoName, String repoID, String path) {
+    public File getLocalRepoFile(String repoName, String repoID, String path) throws RuntimeException {
         String localPath = Utils.pathJoin(getRepoDir(repoName, repoID), path);
         File parentDir = new File(Utils.getParentPath(localPath));
         if (!parentDir.exists()) {
@@ -636,7 +637,13 @@ public class DataManager {
 
         File srcFile = new File(filePath);
         String path = Utils.pathJoin(dir, srcFile.getName());
-        File fileInRepo = getLocalRepoFile(repoName, repoID, path);
+        File fileInRepo = null;
+        try {
+            fileInRepo = getLocalRepoFile(repoName, repoID, path);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            new SeafException(SeafException.OTHER_EXCEPTION, e.getMessage());
+        }
 
         if (isCopyToLocal) {
             if (!isUpdate) {

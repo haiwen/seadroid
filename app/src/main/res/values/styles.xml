@@ -43,6 +43,11 @@
         <item name="alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
     </style>
 
+    <style name="AppTheme.Multiple" parent="AppTheme">
+        <item name="android:windowNoTitle">false</item>
+        <item name="windowActionBar">true</item>
+    </style>
+
     <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorAccent">@color/fancy_orange</item>
         <item name="android:textColorPrimary">@color/fancy_dark_black</item>

@@ -479,6 +479,14 @@ public class SettingsFragment extends CustomPreferenceFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
+            case SettingsManager.GESTURE_LOCK_REQUEST:
+                if (resultCode == Activity.RESULT_OK) {
+
+
+                } else if (resultCode == Activity.RESULT_CANCELED) {
+                    ((CheckBoxPreference) findPreference(SettingsManager.GESTURE_LOCK_SWITCH_KEY)).setChecked(false);
+                }
+                break;
 
             case CHOOSE_CAMERA_UPLOAD_REQUEST:
                 if (resultCode == Activity.RESULT_OK) {
