@@ -18,7 +18,7 @@
         android:layout_marginStart="@dimen/margin_big"
         android:textSize="@dimen/font_size_normal"
         android:textColor="@color/grey"
-        android:text="@string/settings_contacts_dialog_backup"
+        android:text="@string/contacts_dialog_backup"
         />
 
 </LinearLayout>
