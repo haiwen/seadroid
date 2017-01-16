@@ -1269,7 +1269,13 @@ public class BrowserActivity extends BaseActivity
                         }
                     }
                     if (!duplicate) {
-                        addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), path);
+                        showShortToast(BrowserActivity.this, getString(R.string.added_to_upload_tasks));
+                        final SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
+                        if (repo != null && repo.canLocalDecrypt()) {
+                            addUploadBlocksTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), path, repo.encVersion);
+                        } else {
+                            addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), path);
+                        }
                     } else {
                         showFileExistDialog(path);
                     }
@@ -1295,7 +1301,13 @@ public class BrowserActivity extends BaseActivity
                         }
                     }
                     if (!duplicate) {
-                        addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), path);
+                        showShortToast(BrowserActivity.this, getString(R.string.added_to_upload_tasks));
+                        final SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
+                        if (repo != null && repo.canLocalDecrypt()) {
+                            addUploadBlocksTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), path,repo.encVersion);
+                        }else {
+                            addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), path);
+                        }
                     } else {
                         showFileExistDialog(path);
                     }
@@ -1434,10 +1446,10 @@ public class BrowserActivity extends BaseActivity
 
                     if (!duplicate) {
                         final SeafRepo repo = dataManager.getCachedRepoByID(navContext.getRepoID());
+                        showShortToast(BrowserActivity.this, getString(R.string.added_to_upload_tasks));
                         if (repo != null && repo.canLocalDecrypt()) {
                             addUploadBlocksTask(repo.id, repo.name, navContext.getDirPath(), file.getAbsolutePath(), repo.encVersion);
                         } else {
-                            showLongToast(BrowserActivity.this, file.getName()+" "+ getString(R.string.notification_upload_started_title));
                             addUploadTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), file.getAbsolutePath());
                         }
                     } else {
@@ -1470,10 +1482,10 @@ public class BrowserActivity extends BaseActivity
         builder.setPositiveButton(getString(R.string.upload_replace), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                showShortToast(BrowserActivity.this, getString(R.string.added_to_upload_tasks));
                 if (repo != null && repo.canLocalDecrypt()) {
                     addUpdateBlocksTask(repo.id, repo.name, navContext.getDirPath(), file.getAbsolutePath(), repo.encVersion);
                 } else {
-                    showLongToast(BrowserActivity.this, file.getName() + " " + getString(R.string.notification_upload_started_title));
                     addUpdateTask(navContext.getRepoID(), navContext.getRepoName(), navContext.getDirPath(), file.getAbsolutePath());
                 }
             }
