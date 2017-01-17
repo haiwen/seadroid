@@ -45,7 +45,6 @@ import a_vcard.android.syncml.pim.vcard.VCardComposer;
 import a_vcard.android.syncml.pim.vcard.VCardException;
 import a_vcard.android.syncml.pim.vcard.VCardParser;
 
-import static com.seafile.seadroid2.R.drawable.file;
 
 
 /**
@@ -348,7 +347,7 @@ class ContactManager extends TaskDialog.Task {
             VDataBuilder builder = new VDataBuilder();
             boolean parsed = parse.parse(vcardString, "UTF-8", builder);
             if (!parsed) {
-                throw new VCardException("Could not parse vCard file:" + file);
+                throw new VCardException("Could not parse vCard file:" + R.drawable.file);
             }
             List<VNode> pimContacts = builder.vNodeList;
             List<UserData> contactInfoList = new ArrayList<>();

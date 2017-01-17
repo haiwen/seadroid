@@ -10,6 +10,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 63
         versionName "2.1.9"
+        multiDexEnabled true
         resValue "string", "authorities", applicationId + '.cameraupload.provider'
         resValue "string", "account_type", "com.seafile.seadroid2.account.api2"
         buildConfigField "String", "ACCOUNT_TYPE", '"com.seafile.seadroid2.account.api2"'

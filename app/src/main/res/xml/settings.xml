@@ -138,7 +138,7 @@
             android:key="contacts_upload_repo_recovery_key"
             android:summary="@string/settings_contacts_upload_start_recovery_hint"
             android:title="@string/settings_contacts_upload_start_recovery"/>
-</PreferenceCategory>
+    </PreferenceCategory>
     <PreferenceCategory android:title="@string/settings_storage_title"
         android:key="settings_cache_key"
         android:layout="@layout/bg_settings_section_cache">

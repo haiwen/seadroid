@@ -24,13 +24,12 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.ui.fragment.SettingsFragment;
 
-import static com.seafile.seadroid2.ui.activity.BrowserActivity.REQUEST_PERMISSIONS_READ_CONTACTS;
-
 public class SettingsActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
     private static final String DEBUG_TAG = "SettingsActivity";
     private View mLayout;
     public TransferService txService;
     private SettingsFragment mSettingsFragment;
+    public static final int REQUEST_PERMISSIONS_READ_CONTACTS = 2;
 
     public void onCreate(Bundle savedInstanceState) {
         supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
@@ -102,7 +101,7 @@ public class SettingsActivity extends BaseActivity implements Toolbar.OnMenuItem
                         .show();
             } else {
                 // No explanation needed, we can request the permission.
-                // WRITE_EXTERNAL_STORAGE permission has not been granted yet. Request it directly.
+                // READ_CONTACTS permission has not been granted yet. Request it directly.
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS},
                         REQUEST_PERMISSIONS_READ_CONTACTS);
             }
