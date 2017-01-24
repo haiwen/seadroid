@@ -306,6 +306,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
             }
         });
 
+        // Contacts Upload
         cContactsCategory = (PreferenceCategory) findPreference(SettingsManager.CONTACTS_UPLOAD_CATEGORY_KEY);
         findPreference(SettingsManager.CONTACTS_UPLOAD_SWITCH_KEY).setOnPreferenceChangeListener(new Preference
                 .OnPreferenceChangeListener() {
@@ -331,7 +332,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
             }
         });
 
-        // Change upload library
+        // Change contacts upload library
         cContactsRepoPref = findPreference(SettingsManager.CONTACTS_UPLOAD_REPO_KEY);
         cContactsRepoPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
             @Override
@@ -449,7 +450,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
     }
 
-
+    //contacts  backup
     private void backupContacts() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (mActivity.checkSelfPermission(Manifest.permission.READ_CONTACTS) !=
@@ -518,7 +519,9 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
             Account camAccount = contactsManager.getContactsAccount();
             if (camAccount != null && settingsMgr.getContactsUploadRepoName() != null) {
-                cContactsRepoPref.setSummary(camAccount.getSignature() + "/" + settingsMgr.getContactsUploadRepoName());
+                cContactsRepoPref.setSummary(camAccount.getSignature()
+                        + "/" + settingsMgr.getContactsUploadRepoName()
+                        + "/" + SettingsActivity.BASE_DIR);
             }
 
             //show  backup  time
@@ -529,11 +532,20 @@ public class SettingsFragment extends CustomPreferenceFragment {
                 if (dirents != null) {
                     for (int i = 0; i < dirents.size(); i++) {
                         SeafDirent seafDirent = dirents.get(i);
-                        if (!seafDirent.isDir()) {
-                            String title = seafDirent.getTitle();
-                            if (title.indexOf("contacts") != -1) {
-                                if (seafDirent.mtime > mMtime) {
-                                    mMtime = seafDirent.mtime;
+                        if (seafDirent.isDir() && seafDirent.getTitle().equals(SettingsActivity.BASE_DIR)) {
+                            String path = Utils.pathJoin("/", seafDirent.name);
+                            List<SeafDirent> childDirents = dataManager.getCachedDirents(repoId, path);
+                            if (childDirents != null) {
+                                for (int j = 0; j < childDirents.size(); j++) {
+                                    SeafDirent childFile = childDirents.get(j);
+                                    if (!childFile.isDir()) {
+                                        String title = childFile.getTitle();
+                                        if (title.indexOf("contacts") != -1) {
+                                            if (seafDirent.mtime > mMtime) {
+                                                mMtime = seafDirent.mtime;
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -686,7 +698,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
                     final String repoId = data.getStringExtra(SeafilePathChooserActivity.DATA_REPO_ID);
                     final Account account = data.getParcelableExtra(SeafilePathChooserActivity.DATA_ACCOUNT);
                     if (repoName != null && repoId != null) {
-//                        Log.d(DEBUG_TAG, "Activating contacts upload to " + account + "; " + repoName);
+                        //                        Log.d(DEBUG_TAG, "Activating contacts upload to " + account + "; " + repoName);
                         contactsManager.setContactsAccount(account);
                         settingsMgr.saveContactsUploadRepoInfo(repoId, repoName);
                     }

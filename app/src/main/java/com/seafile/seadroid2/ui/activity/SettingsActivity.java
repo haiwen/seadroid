@@ -20,9 +20,15 @@ import android.view.View;
 import android.view.Window;
 
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.ui.fragment.SettingsFragment;
+import com.seafile.seadroid2.util.Utils;
+
+import java.util.List;
 
 public class SettingsActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
     private static final String DEBUG_TAG = "SettingsActivity";
@@ -30,6 +36,7 @@ public class SettingsActivity extends BaseActivity implements Toolbar.OnMenuItem
     public TransferService txService;
     private SettingsFragment mSettingsFragment;
     public static final int REQUEST_PERMISSIONS_READ_CONTACTS = 2;
+    public static String BASE_DIR = "Contacts Backup";
 
     public void onCreate(Bundle savedInstanceState) {
         supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
@@ -75,9 +82,49 @@ public class SettingsActivity extends BaseActivity implements Toolbar.OnMenuItem
         if (camAccount != null && mSettingsFragment.settingsMgr.getContactsUploadRepoName() != null) {
             String repoName = mSettingsFragment.settingsMgr.getContactsUploadRepoName();
             String repoId = mSettingsFragment.settingsMgr.getContactsUploadRepoId();
-            txService.addTaskToUploadQue(camAccount, repoId, repoName, "/", path, false, true);
+
+            DataManager dataManager = new DataManager(camAccount);
+            try {
+                forceCreateDirectory(dataManager, "/", BASE_DIR, repoId);
+                String serverPath = Utils.pathJoin(BASE_DIR, "/");
+                txService.addTaskToUploadQue(camAccount, repoId, repoName, serverPath, path, false, true);
+            } catch (SeafException e) {
+                showShortToast(this, e.getMessage());
+                showShortToast(this, getString(R.string.contacts_backup_fail));
+                e.printStackTrace();
+            }
         }
     }
+
+    /**
+     * Create a directory, rename a file away if necessary,
+     *
+     * @param dataManager
+     * @param parent      parent dir
+     * @param dir         directory to create
+     * @throws SeafException
+     */
+    private void forceCreateDirectory(DataManager dataManager, String parent, String dir
+            , String targetRepoId) throws SeafException {
+
+        List<SeafDirent> dirs = dataManager.getDirentsFromServer(targetRepoId, parent);
+        boolean found = false;
+        for (SeafDirent dirent : dirs) {
+            if (dirent.name.equals(dir) && dirent.isDir()) {
+                found = true;
+            } else if (dirent.name.equals(dir) && !dirent.isDir()) {
+                // there is already a file. move it away.
+                String newFilename = getString(R.string.camera_sync_rename_file, dirent.name);
+                dataManager.rename(targetRepoId,
+                        Utils.pathJoin(Utils.pathJoin("/", parent), dirent.name),
+                        newFilename,
+                        false);
+            }
+        }
+        if (!found)
+            dataManager.createNewDir(targetRepoId, Utils.pathJoin("/", parent), dir);
+    }
+
 
     /**
      * If the user is running Android 6.0 (API level 23) or later, the user has to grant your app its permissions while they are running

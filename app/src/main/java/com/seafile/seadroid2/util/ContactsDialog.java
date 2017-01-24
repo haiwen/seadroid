@@ -69,6 +69,7 @@ public class ContactsDialog extends TaskDialog {
         if (context instanceof SettingsActivity) {
             this.mContext = (SettingsActivity) context;
             this.type = type;
+            isProgressHorizontal = true;
         }
     }
 
@@ -135,6 +136,7 @@ class ContactManager extends TaskDialog.Task {
     private String mContactsPath;
     private long mMtime = 1;
     private SeafDirent seafDirent;
+    private String mPath;
 
     public ContactManager(Context context, int type) {
         this.type = type;
@@ -161,8 +163,9 @@ class ContactManager extends TaskDialog.Task {
         } else if (type == ContactsDialog.CONTACTS_RECOVERY) {
             try {
                 List<UserData> infoList = restoreContacts();
-                for (UserData userInfo : infoList) {
-                    addContacts(mContext, userInfo);
+                for (int i = 0; i < infoList.size(); i++) {
+                    addContacts(mContext, infoList.get(i));
+                    progress(100 * i / infoList.size());
                 }
             } catch (SeafException e) {
                 setTaskException(e);
@@ -185,56 +188,54 @@ class ContactManager extends TaskDialog.Task {
             Cursor cur = context.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
             if (cur != null && cur.moveToFirst()) {
                 do {
-//                    int phoneCount = cur.getInt(cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
-//                    if (phoneCount > 0) {
-                        UserData userData = new UserData();
-                        String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
-                        String displayName = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-                        userData.setName(displayName);
-                        userData.setUserid(id);
-                        //read contacts phone
-                        Cursor phonesCursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
-                                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=" + id, null, null);
-                        if (phonesCursor != null) {
-                            LinkedList<UserData.PhoneInfo> phoneInfos = new LinkedList<>();
-                            if (phonesCursor.moveToFirst()) {
-                                do {
-                                    UserData.PhoneInfo phoneInfo = new UserData.PhoneInfo();
-                                    String phoneNumber = phonesCursor.getString(phonesCursor.getColumnIndex(ContactsContract.CommonDataKinds
-                                            .Phone.NUMBER));
-                                    int type = phonesCursor.getInt(phonesCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone
-                                            .TYPE));
-                                    phoneInfo.setNumber(phoneNumber);
-                                    phoneInfo.setType(type);
-                                    phoneInfos.add(phoneInfo);
-                                } while (phonesCursor.moveToNext());
-                            }
-                            phonesCursor.close();
-                            userData.setPhoneList(phoneInfos);
+                    UserData userData = new UserData();
+                    String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
+                    String displayName = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                    userData.setName(displayName);
+                    userData.setUserid(id);
+                    //read contacts phone
+                    Cursor phonesCursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
+                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=" + id, null, null);
+                    if (phonesCursor != null) {
+                        LinkedList<UserData.PhoneInfo> phoneInfos = new LinkedList<>();
+                        if (phonesCursor.moveToFirst()) {
+                            do {
+                                UserData.PhoneInfo phoneInfo = new UserData.PhoneInfo();
+                                String phoneNumber = phonesCursor.getString(phonesCursor.getColumnIndex(ContactsContract.CommonDataKinds
+                                        .Phone.NUMBER));
+                                int type = phonesCursor.getInt(phonesCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone
+                                        .TYPE));
+                                phoneInfo.setNumber(phoneNumber);
+                                phoneInfo.setType(type);
+                                phoneInfos.add(phoneInfo);
+                            } while (phonesCursor.moveToNext());
                         }
+                        phonesCursor.close();
+                        userData.setPhoneList(phoneInfos);
+                    }
 
-                        //read  contacts  email
-                        Cursor emailCur = context.getContentResolver().query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,
-                                ContactsContract.CommonDataKinds.Email.CONTACT_ID + "=" + id, null, null);
-                        if (emailCur != null) {
-                            LinkedList<UserData.EmailInfo> emailInfos = new LinkedList<>();
-                            if (emailCur.moveToFirst()) {
-                                do {
-                                    UserData.EmailInfo emailInfo = new UserData.EmailInfo();
-                                    String email = emailCur.getString(emailCur.getColumnIndex(ContactsContract.CommonDataKinds.Email
-                                            .DATA1));
-                                    int type = emailCur.getInt(emailCur.getColumnIndex(ContactsContract.CommonDataKinds.Email.TYPE));
-                                    emailInfo.setEmail(email);
-                                    emailInfo.setType(type);
-                                    emailInfos.add(emailInfo);
-                                } while (emailCur.moveToNext());
-                            }
-                            emailCur.close();
-                            userData.setEmail(emailInfos);
+                    //read  contacts  email
+                    Cursor emailCur = context.getContentResolver().query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,
+                            ContactsContract.CommonDataKinds.Email.CONTACT_ID + "=" + id, null, null);
+                    if (emailCur != null) {
+                        LinkedList<UserData.EmailInfo> emailInfos = new LinkedList<>();
+                        if (emailCur.moveToFirst()) {
+                            do {
+                                UserData.EmailInfo emailInfo = new UserData.EmailInfo();
+                                String email = emailCur.getString(emailCur.getColumnIndex(ContactsContract.CommonDataKinds.Email
+                                        .DATA1));
+                                int type = emailCur.getInt(emailCur.getColumnIndex(ContactsContract.CommonDataKinds.Email.TYPE));
+                                emailInfo.setEmail(email);
+                                emailInfo.setType(type);
+                                emailInfos.add(emailInfo);
+                            } while (emailCur.moveToNext());
                         }
-                        infoList.add(userData);
-//                    }
-
+                        emailCur.close();
+                        userData.setEmail(emailInfos);
+                    }
+                    infoList.add(userData);
+                    int progress = cur.getPosition() * 100 / cur.getCount();
+                    progress(progress);
                 } while (cur.moveToNext());
                 cur.close();
             }
@@ -315,26 +316,31 @@ class ContactManager extends TaskDialog.Task {
             if (dirents != null) {
                 for (int i = 0; i < dirents.size(); i++) {
                     SeafDirent seafDirent = dirents.get(i);
-                    if (!seafDirent.isDir()) {
-                        String title = seafDirent.getTitle();
-                        if (title.indexOf("contacts") != -1) {
-                            if (seafDirent.mtime > mMtime) {
-                                mMtime = seafDirent.mtime;
+                    if (seafDirent.isDir() && SettingsActivity.BASE_DIR.equals(seafDirent.getTitle())) {
+                        mPath = Utils.pathJoin("/", seafDirent.getTitle());
+                        List<SeafDirent> childDirents = dataManager.getCachedDirents(repoId, mPath);
+                        if (childDirents != null) {
+                            for (int j = 0; j < childDirents.size(); j++) {
+                                SeafDirent childDirent = childDirents.get(j);
+                                if (!childDirent.isDir()) {
+                                    String title = childDirent.getTitle();
+                                    if (title.indexOf("contacts") != -1) {
+                                        if (childDirent.mtime > mMtime) {
+                                            mMtime = childDirent.mtime;
+                                            this.seafDirent = childDirent;
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
-                for (int i = 0; i < dirents.size(); i++) {
-                    SeafDirent seaf = dirents.get(i);
-                    if (mMtime == seaf.mtime) {
-                        seafDirent = seaf;
-                    }
-                }
             }
-            final String filePath = Utils.pathJoin("/", seafDirent.name);
+            final String filePath = Utils.pathJoin(mPath, seafDirent.name);
             File localFile = dataManager.getLocalCachedFile(repoName, repoId, filePath, seafDirent.id);
             if (localFile == null) {
                 mContext.txService.addDownloadTask(accounts.get(0), repoName, repoId, filePath, seafDirent.size);
+                localFile = dataManager.getLocalCachedFile(repoName, repoId, filePath, seafDirent.id);
             }
             BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(localFile), "UTF-8"));
             String vcardString = "";
