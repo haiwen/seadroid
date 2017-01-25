@@ -58,8 +58,10 @@ https://github.com/android/platform_frameworks_base/blob/master/core/res/res/lay
     </FrameLayout>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
         android:orientation="vertical">
 
         <FrameLayout
@@ -77,9 +79,11 @@ https://github.com/android/platform_frameworks_base/blob/master/core/res/res/lay
                 android:id="@+id/error_message"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text"
+                android:inputType="textMultiLine"
                 android:textColor="@color/red"
                 android:textSize="@dimen/dialog_error_txt_size"
+                android:maxLines="20"
+                android:scrollHorizontally="false"
                 android:visibility="gone" />
 
         </FrameLayout>
