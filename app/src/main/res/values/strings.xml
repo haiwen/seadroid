@@ -315,8 +315,8 @@
     <string name="contacts_count_zero">The contacts is empty</string>
     <string name="contacts_backup_success">Backup success</string>
     <string name="contacts_recovery_success">Restore success</string>
-    <string name="contacts_backup_title">Backup contracts</string>
-    <string name="contacts_recovery_title">Restore contracts</string>
+    <string name="contacts_backup_title">Backup contacts</string>
+    <string name="contacts_recovery_title">Restore contacts</string>
     <string name="contacts_backup_fail">Backup failed</string>
     <string name="contacts_recover_fail">Restore failed</string>
 
