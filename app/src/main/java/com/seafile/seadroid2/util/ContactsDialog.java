@@ -23,7 +23,7 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
-import com.seafile.seadroid2.data.UserData;
+import com.seafile.seadroid2.data.ContactsData;
 import com.seafile.seadroid2.ui.activity.SettingsActivity;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
 
@@ -149,7 +149,7 @@ class ContactManager extends TaskDialog.Task {
     @Override
     protected void runTask() {
         if (type == ContactsDialog.CONTACTS_BACKUP) {
-            List<UserData> contactInfo = null;
+            List<ContactsData> contactInfo = null;
             try {
                 contactInfo = getContactInfo(mContext);
                 Log.d(DEBUG_TAG, "contacts  size  :" + contactInfo.size());
@@ -162,7 +162,7 @@ class ContactManager extends TaskDialog.Task {
             }
         } else if (type == ContactsDialog.CONTACTS_RECOVERY) {
             try {
-                List<UserData> infoList = restoreContacts();
+                List<ContactsData> infoList = restoreContacts();
                 for (int i = 0; i < infoList.size(); i++) {
                     addContacts(mContext, infoList.get(i));
                     progress(100 * i / infoList.size());
@@ -181,26 +181,26 @@ class ContactManager extends TaskDialog.Task {
      * @param context
      * @return
      */
-    public List<UserData> getContactInfo(Context context) throws SeafException {
+    public List<ContactsData> getContactInfo(Context context) throws SeafException {
 
         try {
-            List<UserData> infoList = new LinkedList<>();
+            List<ContactsData> infoList = new LinkedList<>();
             Cursor cur = context.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
             if (cur != null && cur.moveToFirst()) {
                 do {
-                    UserData userData = new UserData();
+                    ContactsData contactsData = new ContactsData();
                     String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
                     String displayName = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-                    userData.setName(displayName);
-                    userData.setUserid(id);
+                    contactsData.setName(displayName);
+                    contactsData.setUserid(id);
                     //read contacts phone
                     Cursor phonesCursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
                             ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=" + id, null, null);
                     if (phonesCursor != null) {
-                        LinkedList<UserData.PhoneInfo> phoneInfos = new LinkedList<>();
+                        LinkedList<ContactsData.PhoneInfo> phoneInfos = new LinkedList<>();
                         if (phonesCursor.moveToFirst()) {
                             do {
-                                UserData.PhoneInfo phoneInfo = new UserData.PhoneInfo();
+                                ContactsData.PhoneInfo phoneInfo = new ContactsData.PhoneInfo();
                                 String phoneNumber = phonesCursor.getString(phonesCursor.getColumnIndex(ContactsContract.CommonDataKinds
                                         .Phone.NUMBER));
                                 int type = phonesCursor.getInt(phonesCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone
@@ -211,17 +211,17 @@ class ContactManager extends TaskDialog.Task {
                             } while (phonesCursor.moveToNext());
                         }
                         phonesCursor.close();
-                        userData.setPhoneList(phoneInfos);
+                        contactsData.setPhoneList(phoneInfos);
                     }
 
                     //read  contacts  email
                     Cursor emailCur = context.getContentResolver().query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,
                             ContactsContract.CommonDataKinds.Email.CONTACT_ID + "=" + id, null, null);
                     if (emailCur != null) {
-                        LinkedList<UserData.EmailInfo> emailInfos = new LinkedList<>();
+                        LinkedList<ContactsData.EmailInfo> emailInfos = new LinkedList<>();
                         if (emailCur.moveToFirst()) {
                             do {
-                                UserData.EmailInfo emailInfo = new UserData.EmailInfo();
+                                ContactsData.EmailInfo emailInfo = new ContactsData.EmailInfo();
                                 String email = emailCur.getString(emailCur.getColumnIndex(ContactsContract.CommonDataKinds.Email
                                         .DATA1));
                                 int type = emailCur.getInt(emailCur.getColumnIndex(ContactsContract.CommonDataKinds.Email.TYPE));
@@ -231,9 +231,9 @@ class ContactManager extends TaskDialog.Task {
                             } while (emailCur.moveToNext());
                         }
                         emailCur.close();
-                        userData.setEmail(emailInfos);
+                        contactsData.setEmail(emailInfos);
                     }
-                    infoList.add(userData);
+                    infoList.add(contactsData);
                     int progress = cur.getPosition() * 100 / cur.getCount();
                     progress(progress);
                 } while (cur.moveToNext());
@@ -249,7 +249,7 @@ class ContactManager extends TaskDialog.Task {
     /**
      * write  contacts to  SD card
      */
-    public void backupContacts(List<UserData> infos) throws SeafException {
+    public void backupContacts(List<ContactsData> infos) throws SeafException {
 
         if (infos == null || infos.size() == 0) {
             throw new SeafException(0, mContext.getString(R.string.contacts_count_zero));
@@ -266,19 +266,19 @@ class ContactManager extends TaskDialog.Task {
             mContactsPath = fileDir.toString() + "/" + fileName;
             OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(mContactsPath), "UTF-8");
             VCardComposer composer = new VCardComposer();
-            for (UserData userData : infos) {
+            for (ContactsData contactsData : infos) {
                 ContactStruct contact = new ContactStruct();
-                contact.name = userData.getName();
-                List<UserData.PhoneInfo> phoneList = userData.getPhoneList();
+                contact.name = contactsData.getName();
+                List<ContactsData.PhoneInfo> phoneList = contactsData.getPhoneList();
                 if (phoneList != null && phoneList.size() > 0) {
-                    for (UserData.PhoneInfo phoneInfo : phoneList) {
+                    for (ContactsData.PhoneInfo phoneInfo : phoneList) {
                         contact.addPhone(phoneInfo.getType(), phoneInfo.getNumber(), "", true);
                     }
                 }
 
-                List<UserData.EmailInfo> emailList = userData.getEmail();
+                List<ContactsData.EmailInfo> emailList = contactsData.getEmail();
                 if (emailList != null && emailList.size() > 0) {
-                    for (UserData.EmailInfo emailInfo : emailList) {
+                    for (ContactsData.EmailInfo emailInfo : emailList) {
                         contact.addContactmethod(Contacts.KIND_EMAIL, emailInfo.getType(), emailInfo.getEmail(), null, true);
                     }
                 }
@@ -301,7 +301,7 @@ class ContactManager extends TaskDialog.Task {
      *
      * @return
      */
-    public List<UserData> restoreContacts() throws SeafException {
+    public List<ContactsData> restoreContacts() throws SeafException {
         try {
 
             List<Account> accounts = new AccountManager(SeadroidApplication.getAppContext()).getAccountList();
@@ -356,39 +356,39 @@ class ContactManager extends TaskDialog.Task {
                 throw new VCardException("Could not parse vCard file:" + R.drawable.file);
             }
             List<VNode> pimContacts = builder.vNodeList;
-            List<UserData> contactInfoList = new ArrayList<>();
+            List<ContactsData> contactInfoList = new ArrayList<>();
             for (VNode contact : pimContacts) {
                 ContactStruct contactStruct = ContactStruct.constructContactFromVNode(contact, 1);
-                UserData userData = new UserData();
-                userData.setName(contactStruct.name);
+                ContactsData contactsData = new ContactsData();
+                contactsData.setName(contactStruct.name);
 
                 // get phone numb
                 List<ContactStruct.PhoneData> phoneDataList = contactStruct.phoneList;
                 if (phoneDataList != null && phoneDataList.size() > 0) {
-                    LinkedList<UserData.PhoneInfo> phoneInfos = new LinkedList<>();
+                    LinkedList<ContactsData.PhoneInfo> phoneInfos = new LinkedList<>();
                     for (ContactStruct.PhoneData phoneDate : phoneDataList) {
-                        UserData.PhoneInfo phoneInfo = new UserData.PhoneInfo();
+                        ContactsData.PhoneInfo phoneInfo = new ContactsData.PhoneInfo();
                         phoneInfo.setType(phoneDate.type);
                         phoneInfo.setNumber(phoneDate.data);
                         phoneInfos.add(phoneInfo);
                     }
-                    userData.setPhoneList(phoneInfos);
+                    contactsData.setPhoneList(phoneInfos);
                 }
                 //get email
                 List<ContactStruct.ContactMethod> emailList = contactStruct.contactmethodList;
                 if (emailList != null && emailList.size() > 0) {
-                    LinkedList<UserData.EmailInfo> emailInfos = new LinkedList<>();
+                    LinkedList<ContactsData.EmailInfo> emailInfos = new LinkedList<>();
                     for (ContactStruct.ContactMethod contactMethod : emailList) {
                         if (Contacts.KIND_EMAIL == contactMethod.kind) {
-                            UserData.EmailInfo emailInfo = new UserData.EmailInfo();
+                            ContactsData.EmailInfo emailInfo = new ContactsData.EmailInfo();
                             emailInfo.setType(contactMethod.type);
                             emailInfo.setEmail(contactMethod.data);
                             emailInfos.add(emailInfo);
                         }
                     }
-                    userData.setEmail(emailInfos);
+                    contactsData.setEmail(emailInfos);
                 }
-                contactInfoList.add(userData);
+                contactInfoList.add(contactsData);
             }
             return contactInfoList;
         } catch (Exception e) {
@@ -404,7 +404,7 @@ class ContactManager extends TaskDialog.Task {
      * @param info
      * @throws SeafException
      */
-    public void addContacts(Context context, UserData info) throws SeafException {
+    public void addContacts(Context context, ContactsData info) throws SeafException {
 
         try {
             ContentValues values = new ContentValues();
@@ -416,8 +416,8 @@ class ContactManager extends TaskDialog.Task {
             values.put(ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME, info.getName());
             context.getContentResolver().insert(ContactsContract.Data.CONTENT_URI, values);
 
-            List<UserData.PhoneInfo> phoneList = info.getPhoneList();
-            for (UserData.PhoneInfo phoneInfo : phoneList) {
+            List<ContactsData.PhoneInfo> phoneList = info.getPhoneList();
+            for (ContactsData.PhoneInfo phoneInfo : phoneList) {
                 values.clear();
                 values.put(ContactsContract.Contacts.Data.RAW_CONTACT_ID, rawContactId);
                 values.put(ContactsContract.RawContacts.Data.MIMETYPE, ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE);
@@ -426,8 +426,8 @@ class ContactManager extends TaskDialog.Task {
                 context.getContentResolver().insert(ContactsContract.Data.CONTENT_URI, values);
             }
 
-            List<UserData.EmailInfo> emailList = info.getEmail();
-            for (UserData.EmailInfo email : emailList) {
+            List<ContactsData.EmailInfo> emailList = info.getEmail();
+            for (ContactsData.EmailInfo email : emailList) {
                 values.clear();
                 values.put(ContactsContract.Contacts.Data.RAW_CONTACT_ID, rawContactId);
                 values.put(ContactsContract.RawContacts.Data.MIMETYPE, ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE);

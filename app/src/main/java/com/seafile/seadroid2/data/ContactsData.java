@@ -9,10 +9,10 @@ import java.util.List;
  * Create:      2016/11/12
  * Modtime:     2016/11/12
  */
-public class UserData {
+public class ContactsData {
     private String userid;
     private String name;
-    private List<PhoneInfo> phoneList = new ArrayList<PhoneInfo>(); // 联系号码
+    private List<PhoneInfo> phoneList = new ArrayList<PhoneInfo>(); // PhoneNumber
     private List<EmailInfo> email = new ArrayList<EmailInfo>(); // Email
 
 

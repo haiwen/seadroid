@@ -104,8 +104,7 @@ public class SettingsActivity extends BaseActivity implements Toolbar.OnMenuItem
      * @param dir         directory to create
      * @throws SeafException
      */
-    private void forceCreateDirectory(DataManager dataManager, String parent, String dir
-            , String targetRepoId) throws SeafException {
+    private void forceCreateDirectory(DataManager dataManager, String parent, String dir, String targetRepoId) throws SeafException {
 
         List<SeafDirent> dirs = dataManager.getDirentsFromServer(targetRepoId, parent);
         boolean found = false;

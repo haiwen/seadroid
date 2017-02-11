@@ -552,4 +552,6 @@
     <string name="op_exception_folder_deleted">The folder \"%s\" was deleted</string>
     <string name="op_exception_suitable_app_not_found">Could not find suitable app for mime type %s</string>
     <string name="op_exception_failed_to_download_file">Failed to download file %s</string>
+    <!-- Home list title -->
+    <string name="shared_with_all">Shared with all</string>
 </resources>
