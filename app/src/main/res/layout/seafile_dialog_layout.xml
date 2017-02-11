@@ -20,12 +20,12 @@ https://github.com/android/platform_frameworks_base/blob/master/core/res/res/lay
 -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/parentPanel"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginEnd="8dip"
-    android:layout_marginStart="8dip"
-    android:orientation="vertical">
+              android:id="@+id/parentPanel"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginEnd="8dip"
+              android:layout_marginStart="8dip"
+              android:orientation="vertical">
 
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/contentPanel"
@@ -46,7 +46,7 @@ https://github.com/android/platform_frameworks_base/blob/master/core/res/res/lay
             android:paddingStart="16dip"
             android:paddingTop="8dip"
             android:textSize="@dimen/dialog_msg_txt_size"
-            android:visibility="gone" />
+            android:visibility="gone"/>
     </android.support.v4.widget.NestedScrollView>
 
     <FrameLayout
@@ -58,29 +58,41 @@ https://github.com/android/platform_frameworks_base/blob/master/core/res/res/lay
     </FrameLayout>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
         <FrameLayout
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:paddingLeft="16dp">
 
             <ProgressBar
                 android:id="@+id/loading"
-                android:layout_width="fill_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="@dimen/dialog_msg_progressbar_height"
                 android:gravity="center_horizontal"
-                android:visibility="gone" />
+                android:visibility="gone"/>
+
+            <ProgressBar
+                android:id="@+id/loading_horizontal"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="30dp"
+                android:max="100"
+                android:visibility="invisible"/>
 
             <TextView
                 android:id="@+id/error_message"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
                 android:inputType="text"
                 android:textColor="@color/red"
                 android:textSize="@dimen/dialog_error_txt_size"
-                android:visibility="gone" />
+                android:visibility="gone"/>
 
         </FrameLayout>
 
@@ -104,5 +116,5 @@ https://github.com/android/platform_frameworks_base/blob/master/core/res/res/lay
         android:id="@+id/listView"
         style="@style/SeafileListStyle"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"/>
 </LinearLayout>
