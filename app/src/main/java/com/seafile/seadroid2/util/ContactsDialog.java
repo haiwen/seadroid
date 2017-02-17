@@ -245,6 +245,7 @@ class ContactManager extends TaskDialog.Task {
         }
     }
 
+    private static final CONTACTS_FILE_NAME = "contacts-%1s.vcf";
 
     /**
      * write  contacts to  SD card
@@ -262,7 +263,7 @@ class ContactManager extends TaskDialog.Task {
             if (!fileDir.exists()) {
                 fileDir.mkdirs();
             }
-            String fileName = String.format(mContext.getString(R.string.contacts_file_name), Utils.translateTime());
+            String fileName = String.format(CONTACTS_FILE_NAME, Utils.translateTime());
             mContactsPath = fileDir.toString() + "/" + fileName;
             OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(mContactsPath), "UTF-8");
             VCardComposer composer = new VCardComposer();
