@@ -111,7 +111,7 @@ public class ContactsDialog extends TaskDialog {
         TextView countText = (TextView) view.findViewById(R.id.setting_contacts_backup);
         String fileName = "";
         if (type == CONTACTS_BACKUP) {
-            fileName = String.format(getString(R.string.contacts_dialog_backup), Utils.translateTime());
+            fileName = getString(R.string.contacts_dialog_recovery) + " " + getContactsBackupFileName();
         } else if (type == CONTACTS_RECOVERY) {
             fileName = getString(R.string.contacts_dialog_recovery);
         }
@@ -245,7 +245,11 @@ class ContactManager extends TaskDialog.Task {
         }
     }
 
-    private static final CONTACTS_FILE_NAME = "contacts-%1s.vcf";
+    private static final String CONTACTS_FILE_NAME = "contacts-%1s.vcf";
+
+    private static String getContactsBackupFileName() {
+        return String.format(CONTACTS_FILE_NAME, Utils.translateTime());
+    }
 
     /**
      * write  contacts to  SD card
@@ -263,8 +267,7 @@ class ContactManager extends TaskDialog.Task {
             if (!fileDir.exists()) {
                 fileDir.mkdirs();
             }
-            String fileName = String.format(CONTACTS_FILE_NAME, Utils.translateTime());
-            mContactsPath = fileDir.toString() + "/" + fileName;
+            mContactsPath = fileDir.toString() + "/" + getContactsBackupFileName();
             OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(mContactsPath), "UTF-8");
             VCardComposer composer = new VCardComposer();
             for (ContactsData contactsData : infos) {
@@ -442,5 +445,3 @@ class ContactManager extends TaskDialog.Task {
         }
     }
 }
-
-
