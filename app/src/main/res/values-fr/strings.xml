@@ -284,6 +284,29 @@
   <string name="next_button_label">Suivant</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">Ignorer</string>
+  <!--contacts  upload-->
+  <string name="settings_contacts_upload_info_title">Sauvegarde des contacts</string>
+  <string name="settings_contacts_upload_turn_on">Activer la sauvegarde des contacts</string>
+  <string name="settings_contacts_upload_service_started">Sauvegarde des contacts activée</string>
+  <string name="settings_contacts_upload_service_stopped">Sauvegarde des contacts désactivée</string>
+  <string name="settings_contacts_upload_repo_hint">Veuillez sélectionner une bibliothèque pour la sauvegarde des contacts</string>
+  <string name="settings_contacts_upload_change_repo_title">Changer de bibliothèque pour la sauvegarde des contacts</string>
+  <string name="settings_contacts_upload_repo_time">Dernière sauvegarde</string>
+  <string name="settings_contacts_upload_repo_history">Aucune sauvegarde enregistrée</string>
+  <string name="settings_contacts_upload_start_backup">Sauvegarde</string>
+  <string name="settings_contacts_upload_start_backup_hint">Cliquez pour commencer la sauvegarde des contacts</string>
+  <string name="settings_contacts_upload_start_recovery">Restaurer</string>
+  <string name="settings_contacts_upload_start_recovery_hint">Cliquez pour restaurer les contacts</string>
+  <!--contacts Upload Perference-->
+  <string name="contacts_dialog_recovery">Restaurer les contacts depuis la dernière sauvegarde</string>
+  <string name="contacts_dialog_backup">Les contacts seront sauvegardés dans le fichier :</string>
+  <string name="contacts_count_zero">Les contacts sont vides</string>
+  <string name="contacts_backup_success">Sauvegardé avec succès</string>
+  <string name="contacts_recovery_success">Restauré avec succès</string>
+  <string name="contacts_backup_title">Sauvegarder les contacts</string>
+  <string name="contacts_recovery_title">Restaurer les contacts</string>
+  <string name="contacts_backup_fail">Échec de la sauvegarde</string>
+  <string name="contacts_recover_fail">Échec de la restauration</string>
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Envoi des photos</string>
   <string name="settings_camera_upload_service_started">Service d\'envoi démarré</string>
@@ -465,6 +488,7 @@ E-mail : support@seafile.com<br>
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
   <string name="permission_read_exteral_storage_rationale">Pour traiter les fichiers, permettre l\'autorisation de stockage pour y accéder.</string>
+  <string name="permission_read_contacts_storage_rationale">Pour traiter les contacts, autorisez les accès aux contacts afin d\'y accéder.</string>
   <string name="permission_not_granted">L\'autorisation n\'a pas été accordée</string>
   <string name="history_change_title">Détails de modification</string>
   <string name="no_more_activities">Aucune activité</string>
@@ -488,4 +512,6 @@ E-mail : support@seafile.com<br>
   <string name="op_exception_folder_deleted">Le dossier \"%s\" a été supprimé</string>
   <string name="op_exception_suitable_app_not_found">Impossible de trouver une application adaptée aux types mime %s</string>
   <string name="op_exception_failed_to_download_file">Échec du téléchargement du fichier %s</string>
+  <!--Home list title-->
+  <string name="shared_with_all">Partagées avec tout le monde</string>
 </resources>

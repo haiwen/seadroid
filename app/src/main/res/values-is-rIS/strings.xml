@@ -246,6 +246,8 @@
   <string name="next_button_label">Næst</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">Sleppa</string>
+  <!--contacts  upload-->
+  <!--contacts Upload Perference-->
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Hlaða Upp Myndum Myndavélar</string>
   <string name="settings_camera_upload_service_started">Upphleðsluþjónusta hafin</string>
@@ -398,4 +400,5 @@
   <!--clear password-->
   <!--Two factor auth-->
   <!--Operation Exceptions-->
+  <!--Home list title-->
 </resources>

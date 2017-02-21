@@ -310,8 +310,7 @@
 
     <!--contacts Upload Perference-->
     <string name="contacts_dialog_recovery">Restore contacts from the latest backup</string>
-    <string name="contacts_dialog_backup">Contacts will be backup as：contacts-%1s.vcf</string>
-    <string name="contacts_file_name">contacts-%1s.vcf</string>
+    <string name="contacts_dialog_backup">Contacts will be backup to file:</string>
     <string name="contacts_count_zero">The contacts is empty</string>
     <string name="contacts_backup_success">Backup success</string>
     <string name="contacts_recovery_success">Restore success</string>

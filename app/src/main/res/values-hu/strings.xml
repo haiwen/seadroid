@@ -15,6 +15,7 @@
   <string name="server_hint">Szerver cím</string>
   <string name="email_hint">Email vagy felhasználónév</string>
   <string name="passwd_hint">Jelszó</string>
+  <string name="passwd_min_len_limit_hint">Jelszó (legalább %d karakter)</string>
   <string name="passwd_confirmation_hint">Jelszó újra</string>
   <string name="login">Bejelentkezés</string>
   <string name="open_file">Megnyit</string>
@@ -112,6 +113,7 @@
   <string name="error_when_load_dirents">Hiba a könyvtár betöltésénél.\nKoppintson a frissítéshez</string>
   <string name="error_when_load_repos">Hiba a kötet betöltésénél.\n Koppintson a frissítéshez</string>
   <string name="error_when_load_activities">Hiba a tevékenységnapló betöltésekor. \n Kattintson a frissítéshez.</string>
+  <string name="error_when_load_starred">Hiba a csillagozott fájlok betöltésénél.\n Frissítés koppintással</string>
   <string name="dir_empty">A könyvtár üres</string>
   <string name="no_repo">Nincsenek kötetei</string>
   <string name="no_app_available">Nem található alkalmazás</string>
@@ -143,6 +145,8 @@
   </string-array>
   <string name="create_new_repo">Új kötet létrehozása</string>
   <string name="create_new_repo_success">%s kötet sikeresen létrehozva</string>
+  <string name="create_new_folder_success">%s könyvtár sikeresen létrehozva</string>
+  <string name="create_new_file_success">%s fájl sikeresen létrehozva</string>
   <string name="create_new_file">Új fájl létrehozása</string>
   <string name="create_new_dir">Új könyvtár létrehozása</string>
   <string name="camera">Fénykép ide</string>
@@ -152,6 +156,7 @@
   <string name="file_modified">módosítva</string>
   <string name="file_size">fájl mérete</string>
   <string name="library_not_found">Ez a kötet törölve lett.</string>
+  <string name="file_not_found">\"%s\" fájl törölve</string>
   <string name="export_file">Fájl exportálása</string>
   <string name="no_upload_tasks">Nincs feltöltési feladat</string>
   <string name="no_download_tasks">Nincs letöltési feladat</string>
@@ -279,6 +284,29 @@
   <string name="next_button_label">Következő</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">Kihagy</string>
+  <!--contacts  upload-->
+  <string name="settings_contacts_upload_info_title">Névjegyek mentése</string>
+  <string name="settings_contacts_upload_turn_on">Névjegyek mentésének engedélyezése</string>
+  <string name="settings_contacts_upload_service_started">Névjegyek mentése engedélyezve</string>
+  <string name="settings_contacts_upload_service_stopped">Névjegyek mentése tiltva</string>
+  <string name="settings_contacts_upload_repo_hint">Válassz kötetet a névjegyek mentéséhez </string>
+  <string name="settings_contacts_upload_change_repo_title">Kötet megváltoztatása névjegyek mentéséhez</string>
+  <string name="settings_contacts_upload_repo_time">Utolsó mentés ideje</string>
+  <string name="settings_contacts_upload_repo_history">Nincs mentés bejegyzés</string>
+  <string name="settings_contacts_upload_start_backup">Mentés</string>
+  <string name="settings_contacts_upload_start_backup_hint">Koppints a névjegyek mentésének elkezdéséhez</string>
+  <string name="settings_contacts_upload_start_recovery">Visszaállítás</string>
+  <string name="settings_contacts_upload_start_recovery_hint">Koppints a névjegyek visszaállításához</string>
+  <!--contacts Upload Perference-->
+  <string name="contacts_dialog_recovery">Névjegyek visszaállítása az utolsó mentésből</string>
+  <string name="contacts_dialog_backup">A névjegyek ebbe a fájlba kerülnek mentésre:</string>
+  <string name="contacts_count_zero">A névjegyzék üres</string>
+  <string name="contacts_backup_success">Sikeres mentés</string>
+  <string name="contacts_recovery_success">Sikeres visszaállítás</string>
+  <string name="contacts_backup_title">Névjegyek mentése</string>
+  <string name="contacts_recovery_title">Névjegyek visszaállítása</string>
+  <string name="contacts_backup_fail">Sikertelen mentés</string>
+  <string name="contacts_recover_fail">Sikertelen visszaállítás</string>
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Fénykép feltöltés</string>
   <string name="settings_camera_upload_service_started">Feltöltési szolgáltatás elindítva</string>
@@ -460,6 +488,7 @@ Email: support@seafile.com<br>
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
   <string name="permission_read_exteral_storage_rationale">A fájlok kezeléséhez engedélyezze a tárhely elérését.</string>
+  <string name="permission_read_contacts_storage_rationale">A névjegyek kezeléséhez engedélyezd a névjegyekhez való hozzáférést.</string>
   <string name="permission_not_granted">Engedély nem lett megadva</string>
   <string name="history_change_title">Változtatás részletei</string>
   <string name="no_more_activities">Nincs több tevékenység</string>
@@ -480,4 +509,9 @@ Email: support@seafile.com<br>
   <string name="two_factor_auth_token">Kétlépcsős azonosítókulcs</string>
   <string name="two_factor_auth_token_empty">Az azonosítókulcs nem lehet üres</string>
   <!--Operation Exceptions-->
+  <string name="op_exception_folder_deleted">\"%s\" könyvtár törölve</string>
+  <string name="op_exception_suitable_app_not_found">%s mime típushoz nem található alkalmazás</string>
+  <string name="op_exception_failed_to_download_file">%s fájl letöltése sikertelen</string>
+  <!--Home list title-->
+  <string name="shared_with_all">Mindenkivel megosztva</string>
 </resources>

@@ -2,6 +2,8 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <!--Strings for possible PreferenceActivity Back/Next buttons-->
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
+  <!--contacts  upload-->
+  <!--contacts Upload Perference-->
   <!--Camera Upload Preference-->
   <!--Camera Upload Configuration View-->
   <!--Camera Sync-->
@@ -23,4 +25,5 @@
   <!--clear password-->
   <!--Two factor auth-->
   <!--Operation Exceptions-->
+  <!--Home list title-->
 </resources>

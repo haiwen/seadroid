@@ -15,6 +15,7 @@
   <string name="server_hint">サーバーアドレス</string>
   <string name="email_hint">メールアドレスまたはユーザー名</string>
   <string name="passwd_hint">パスワード</string>
+  <string name="passwd_min_len_limit_hint">パスワード(%d 文字以上)</string>
   <string name="passwd_confirmation_hint">パスワード再入力</string>
   <string name="login">ログイン</string>
   <string name="open_file">開く</string>
@@ -111,6 +112,7 @@
   <string name="error_when_load_dirents">フォルダーの読み込み時にエラー。\n タップすると更新します</string>
   <string name="error_when_load_repos">ライブラリーの読み込み時にエラー。\n タップすると更新します</string>
   <string name="error_when_load_activities">アクティビティの読み込み時にエラー。\n タップすると更新します</string>
+  <string name="error_when_load_starred">スター付きファイルの読み込み時にエラー。\n タップすると更新します</string>
   <string name="dir_empty">このフォルダーは空です</string>
   <string name="no_repo">まだライブラリーはありません</string>
   <string name="no_app_available">アプリが見つかりません</string>
@@ -142,6 +144,8 @@
   </string-array>
   <string name="create_new_repo">新しいライブラリーを作成</string>
   <string name="create_new_repo_success">ライブラリー %s を正常に作成しました</string>
+  <string name="create_new_folder_success">フォルダー %s を正常に作成しました</string>
+  <string name="create_new_file_success">ファイル %s を正常に作成しました</string>
   <string name="create_new_file">新しいファイルを作成</string>
   <string name="create_new_dir">新しいフォルダーを作成</string>
   <string name="camera">ここに写真を撮影</string>
@@ -151,6 +155,7 @@
   <string name="file_modified">更新</string>
   <string name="file_size">ファイルサイズ</string>
   <string name="library_not_found">ライブラリーは削除されました。</string>
+  <string name="file_not_found">ファイル \"%s\" を削除しました</string>
   <string name="export_file">このファイルをエクスポート</string>
   <string name="no_upload_tasks">アップロードタスクはありません</string>
   <string name="no_download_tasks">ダウンロードタスクはありません</string>
@@ -275,6 +280,29 @@
   <string name="next_button_label">次へ</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">スキップ</string>
+  <!--contacts  upload-->
+  <string name="settings_contacts_upload_info_title">連絡先のバックアップ</string>
+  <string name="settings_contacts_upload_turn_on">連絡先のバックアップを有効にする</string>
+  <string name="settings_contacts_upload_service_started">連絡先のバックアップは有効です</string>
+  <string name="settings_contacts_upload_service_stopped">連絡先のバックアップは無効です</string>
+  <string name="settings_contacts_upload_repo_hint">連絡先のバックアップのライブラリーを選択してください</string>
+  <string name="settings_contacts_upload_change_repo_title">連絡先のバックアップのライブラリーを変更</string>
+  <string name="settings_contacts_upload_repo_time">最終バックアップ時刻</string>
+  <string name="settings_contacts_upload_repo_history">バックアップは記録されていません</string>
+  <string name="settings_contacts_upload_start_backup">バックアップ</string>
+  <string name="settings_contacts_upload_start_backup_hint">クリックすると連絡先のバックアップを開始します</string>
+  <string name="settings_contacts_upload_start_recovery">復元</string>
+  <string name="settings_contacts_upload_start_recovery_hint">クリックすると連絡先を復元します</string>
+  <!--contacts Upload Perference-->
+  <string name="contacts_dialog_recovery">最後のバックアップから連絡先を復元</string>
+  <string name="contacts_dialog_backup">連絡先はファイルにバックアップされます:</string>
+  <string name="contacts_count_zero">連絡先は空です</string>
+  <string name="contacts_backup_success">バックアップに成功しました</string>
+  <string name="contacts_recovery_success">復元に成功しました</string>
+  <string name="contacts_backup_title">連絡先をバックアップ</string>
+  <string name="contacts_recovery_title">連絡先を復元</string>
+  <string name="contacts_backup_fail">バックアップに失敗しました</string>
+  <string name="contacts_recover_fail">復元に失敗しました</string>
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">カメラの写真のアップロード</string>
   <string name="settings_camera_upload_service_started">アップロードサービスが開始しました</string>
@@ -452,6 +480,7 @@
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
   <string name="permission_read_exteral_storage_rationale">ファイルを処理するには、ファイルにアクセスするストレージのアクセス許可が必要です。</string>
+  <string name="permission_read_contacts_storage_rationale">連絡先を処理するには、連絡先へのアクセス許可が必要です。</string>
   <string name="permission_not_granted">アクセス許可が付与されていません</string>
   <string name="history_change_title">更新の詳細</string>
   <string name="no_more_activities">これ以上アクティビティはありません</string>
@@ -472,4 +501,9 @@
   <string name="two_factor_auth_token">二要素認証トークン</string>
   <string name="two_factor_auth_token_empty">認証トークンは空にできません</string>
   <!--Operation Exceptions-->
+  <string name="op_exception_folder_deleted">フォルダー \"%s\" は削除されました</string>
+  <string name="op_exception_suitable_app_not_found">MIME タイプ %s に適したアプリを見つけることができませんでした</string>
+  <string name="op_exception_failed_to_download_file">ファイル %s のダウンロードに失敗しました</string>
+  <!--Home list title-->
+  <string name="shared_with_all">すべてと共有しました</string>
 </resources>

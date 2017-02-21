@@ -15,6 +15,7 @@
   <string name="server_hint">Адрес сервера</string>
   <string name="email_hint">Email или Логин</string>
   <string name="passwd_hint">Пароль</string>
+  <string name="passwd_min_len_limit_hint">Пароль (не менее %d символов)</string>
   <string name="passwd_confirmation_hint">Пароль еще раз</string>
   <string name="login">Войти</string>
   <string name="open_file">Открыть</string>
@@ -114,6 +115,7 @@
   <string name="error_when_load_dirents">Ошибка загрузки папки.\n Нажмите, чтобы обновить</string>
   <string name="error_when_load_repos">Ошибка загрузки библиотек.\n Нажмите, чтобы обновить</string>
   <string name="error_when_load_activities">Ошибка загрузки действий.\n Нажмите, чтобы обновить</string>
+  <string name="error_when_load_starred">Ошибка загрузки отмеченных файлов.\n Нажмите, чтобы обновить</string>
   <string name="dir_empty">Эта папка пуста</string>
   <string name="no_repo">У вас еще нет библиотек</string>
   <string name="no_app_available">Не найдено ни одно приложение</string>
@@ -145,6 +147,8 @@
   </string-array>
   <string name="create_new_repo">Создать новую библиотеку</string>
   <string name="create_new_repo_success">Успешно создана библиотека %s</string>
+  <string name="create_new_folder_success">Успешно создана папка %s</string>
+  <string name="create_new_file_success">Успешно создан файл %s</string>
   <string name="create_new_file">Создать новый файл</string>
   <string name="create_new_dir">Создать новую папку</string>
   <string name="camera">Сделать фотографию</string>
@@ -154,6 +158,7 @@
   <string name="file_modified">изменено</string>
   <string name="file_size">размер файла</string>
   <string name="library_not_found">Библиотека была удалена.</string>
+  <string name="file_not_found">Файл \"%s\" был удален</string>
   <string name="export_file">Экспортировать этот файл</string>
   <string name="no_upload_tasks">Пока нет задач на загрузку</string>
   <string name="no_download_tasks">Пока нет задач на скачивание</string>
@@ -287,6 +292,29 @@
   <string name="next_button_label">Далее</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">Пропустить</string>
+  <!--contacts  upload-->
+  <string name="settings_contacts_upload_info_title">Резервное копирование контактов</string>
+  <string name="settings_contacts_upload_turn_on">Включить резервное копирование контактов</string>
+  <string name="settings_contacts_upload_service_started">Резервное копирование контактов включено</string>
+  <string name="settings_contacts_upload_service_stopped">Резервное копирование контактов отключено</string>
+  <string name="settings_contacts_upload_repo_hint">Пожалуйста, выберите библиотеку для сохранения резервных копий контактов</string>
+  <string name="settings_contacts_upload_change_repo_title">Изменить библиотеку для сохранения резервных копий контактов</string>
+  <string name="settings_contacts_upload_repo_time">Последнее время резервного копирования</string>
+  <string name="settings_contacts_upload_repo_history">Нет резервных копий</string>
+  <string name="settings_contacts_upload_start_backup">Резервная копия</string>
+  <string name="settings_contacts_upload_start_backup_hint">Нажмите, чтобы начать резервное копирование контактов</string>
+  <string name="settings_contacts_upload_start_recovery">Восстановить</string>
+  <string name="settings_contacts_upload_start_recovery_hint">Нажмите, чтобы восстановить резервную копию контактов</string>
+  <!--contacts Upload Perference-->
+  <string name="contacts_dialog_recovery">Восстановление контактов из последней резервной копии</string>
+  <string name="contacts_dialog_backup">Резервная копия контактов будет сохранена в файл:</string>
+  <string name="contacts_count_zero">Нет контактов</string>
+  <string name="contacts_backup_success">Успешно создана резервная копия</string>
+  <string name="contacts_recovery_success">Успешно восстановлено</string>
+  <string name="contacts_backup_title">Резервное копирование контактов</string>
+  <string name="contacts_recovery_title">Восстановление контактов</string>
+  <string name="contacts_backup_fail">Не удалось создать резервную копию</string>
+  <string name="contacts_recover_fail">Не удалось восстановить</string>
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Загрузка фото с камеры</string>
   <string name="settings_camera_upload_service_started">Сервис загрузки запущен</string>
@@ -479,6 +507,7 @@
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
   <string name="permission_read_exteral_storage_rationale">Для обработки файлов, позволить получить доступ к их хранилищу</string>
+  <string name="permission_read_contacts_storage_rationale">Для обработки контактов, разрешить к ним доступ.</string>
   <string name="permission_not_granted">Разрешение не было предоставлено</string>
   <string name="history_change_title">Подробности изменений</string>
   <string name="no_more_activities">Не больше действий</string>
@@ -499,4 +528,9 @@
   <string name="two_factor_auth_token">Токен двухфакторной аутентификации</string>
   <string name="two_factor_auth_token_empty">Токен аутентификации не может быть пустым</string>
   <!--Operation Exceptions-->
+  <string name="op_exception_folder_deleted">Папка \"%s\" была удалена</string>
+  <string name="op_exception_suitable_app_not_found">Не удается найти подходящее приложение для MIME-типа %s</string>
+  <string name="op_exception_failed_to_download_file">Не удалось скачать файл %s</string>
+  <!--Home list title-->
+  <string name="shared_with_all">Общие со всеми</string>
 </resources>
