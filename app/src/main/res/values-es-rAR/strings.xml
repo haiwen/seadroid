@@ -15,6 +15,7 @@
   <string name="server_hint">Dirección del servidor</string>
   <string name="email_hint">Email o Nombre de usuario</string>
   <string name="passwd_hint">Contraseña</string>
+  <string name="passwd_min_len_limit_hint">Contraseña (al menos %d caracteres)</string>
   <string name="passwd_confirmation_hint">Contraseña otra vez</string>
   <string name="login">Ingresar</string>
   <string name="open_file">Abrir</string>
@@ -112,6 +113,7 @@
   <string name="error_when_load_dirents">Error al cargar la carpeta.\n Toque para actualizar</string>
   <string name="error_when_load_repos">Error al cargar bibliotecas.\n Toque para actualizar</string>
   <string name="error_when_load_activities">Error al cargar actividades.\n Toque para actualizar</string>
+  <string name="error_when_load_starred">Error al cargar archivos favoritos.\n Toque para actualizar</string>
   <string name="dir_empty">Esta carpeta está vacía</string>
   <string name="no_repo">Aún no tiene bibliotecas</string>
   <string name="no_app_available">No se encuentra ninguna app</string>
@@ -143,6 +145,8 @@
   </string-array>
   <string name="create_new_repo">Crear una nueva biblioteca</string>
   <string name="create_new_repo_success">Biblioteca %s creada con éxito</string>
+  <string name="create_new_folder_success">Carpeta %s creada con éxito</string>
+  <string name="create_new_file_success">Archivo %s creado con éxito</string>
   <string name="create_new_file">Crear un nuevo archivo</string>
   <string name="create_new_dir">Crear una nueva carpeta</string>
   <string name="camera">Tomar una foto aquí</string>
@@ -152,6 +156,7 @@
   <string name="file_modified">modificado</string>
   <string name="file_size">tamaño de archivo</string>
   <string name="library_not_found">La biblioteca ha sido eliminada.</string>
+  <string name="file_not_found">El archivo \"%s\" ha sido eliminado</string>
   <string name="export_file">Exportar este archivo</string>
   <string name="no_upload_tasks">Aún no hay tareas de subida</string>
   <string name="no_download_tasks">No hay tareas de descarga</string>
@@ -279,6 +284,29 @@
   <string name="next_button_label">Siguiente</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">Saltear</string>
+  <!--contacts  upload-->
+  <string name="settings_contacts_upload_info_title">Backup de contactos</string>
+  <string name="settings_contacts_upload_turn_on">Habilitar backup de contactos</string>
+  <string name="settings_contacts_upload_service_started">Backup de contactos habilitado</string>
+  <string name="settings_contacts_upload_service_stopped">Backup de contactos deshabilitado</string>
+  <string name="settings_contacts_upload_repo_hint">Por favor seleccione una biblioteca para backup de contactos</string>
+  <string name="settings_contacts_upload_change_repo_title">Cambiar la biblioteca para backup de contactos</string>
+  <string name="settings_contacts_upload_repo_time">Fecha del último backup</string>
+  <string name="settings_contacts_upload_repo_history">No hay registro de backup</string>
+  <string name="settings_contacts_upload_start_backup">Backup</string>
+  <string name="settings_contacts_upload_start_backup_hint">Click para iniciar backup de contactos</string>
+  <string name="settings_contacts_upload_start_recovery">Restaurar</string>
+  <string name="settings_contacts_upload_start_recovery_hint">Click para restaurar contactos</string>
+  <!--contacts Upload Perference-->
+  <string name="contacts_dialog_recovery">Restaurar contactos desde el último backup</string>
+  <string name="contacts_dialog_backup">Los contactos serán resguardados en el archivo:</string>
+  <string name="contacts_count_zero">El contacto está vacío</string>
+  <string name="contacts_backup_success">Backup exitoso</string>
+  <string name="contacts_recovery_success">Restauración exitosa</string>
+  <string name="contacts_backup_title">Resguardar contactos</string>
+  <string name="contacts_recovery_title">Restaurar contactos</string>
+  <string name="contacts_backup_fail">Backup falló</string>
+  <string name="contacts_recover_fail">Restauración falló</string>
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Subir Foto de Cámara </string>
   <string name="settings_camera_upload_service_started">Servicio de subida iniciado</string>
@@ -461,6 +489,7 @@
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
   <string name="permission_read_exteral_storage_rationale">Para procesar archivos, conceda permiso de almacenamiento para accederlos.</string>
+  <string name="permission_read_contacts_storage_rationale">Para procesar los contactos, permita el acceso a ellos.</string>
   <string name="permission_not_granted">El permiso no fue concedido</string>
   <string name="history_change_title">Detalle de las modificaciones</string>
   <string name="no_more_activities">No hay mas actividades</string>
@@ -481,4 +510,9 @@
   <string name="two_factor_auth_token">Identificador de Autenticación de dos factores</string>
   <string name="two_factor_auth_token_empty">Identificador de autenticación no puede estar vacío</string>
   <!--Operation Exceptions-->
+  <string name="op_exception_folder_deleted">La carpeta \"%s\" fue eliminada</string>
+  <string name="op_exception_suitable_app_not_found">No se encontró una app apropiada para el tipo mime %s</string>
+  <string name="op_exception_failed_to_download_file">Fallo al descargar el archivo %s</string>
+  <!--Home list title-->
+  <string name="shared_with_all">Compartido con todos</string>
 </resources>

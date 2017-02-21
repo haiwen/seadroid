@@ -103,6 +103,7 @@
   <plurals name="n_upload_items_selected">
     <item quantity="one">wybrano %1$d element</item>
     <item quantity="few">wybrano %1$d elementy</item>
+    <item quantity="many">wybrano %1$d elementów</item>
     <item quantity="other">wybrano %1$d elementów</item>
   </plurals>
   <string name="repo_name_empty">Podaj nazwę biblioteki</string>
@@ -206,6 +207,7 @@
   <plurals name="n_upload_files_selected">
     <item quantity="one">wybrano %1$d plik</item>
     <item quantity="few">wybrano %1$d pliki</item>
+    <item quantity="many">wybrano %1$d plików</item>
     <item quantity="other">wybrano %1$d plików</item>
   </plurals>
   <string name="empty_folder">Pusty folder</string>
@@ -262,11 +264,13 @@
   <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
     <item quantity="one">Możesz ponownie spróbować za %1$d sekundę</item>
     <item quantity="few">Możesz ponownie spróbować za %1$d sekundy</item>
+    <item quantity="many">Możesz ponownie spróbować za %1$d sekund</item>
     <item quantity="other">Możesz ponownie spróbować za %1$d sekund</item>
   </plurals>
   <plurals name="lockscreen_access_pattern_failure_left_try_times">
     <item quantity="one">Nieprawidłowy wzór, możesz wypróbować inny %1$d raz</item>
     <item quantity="few">Nieprawidłowy wzór, możesz wypróbować inny %1$d razy</item>
+    <item quantity="many">Nieprawidłowy wzór, możesz wypróbować inny %1$d razy</item>
     <item quantity="other">Nieprawidłowy wzór, możesz wypróbować inny %1$d razy</item>
   </plurals>
   <string name="lockscreen_access_pattern_failure_not_long_enough">Połączenie punktów jest zbyt krótkie, spróbuj ponownie</string>
@@ -288,6 +292,29 @@
   <string name="next_button_label">Dalej</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">Pomiń</string>
+  <!--contacts  upload-->
+  <string name="settings_contacts_upload_info_title">Kopia zapasowa kontaktów</string>
+  <string name="settings_contacts_upload_turn_on">Włącz kopię zapasową kontaktów</string>
+  <string name="settings_contacts_upload_service_started">Kopia zapasowa kontaktów włączona</string>
+  <string name="settings_contacts_upload_service_stopped">Kopia zapasowa kontaktów wyłączona</string>
+  <string name="settings_contacts_upload_repo_hint">Proszę wybrać bibliotekę dla kopii zapasowej kontaktów</string>
+  <string name="settings_contacts_upload_change_repo_title">Zmień bibliotekę dla kopii zapasowej kontaktów</string>
+  <string name="settings_contacts_upload_repo_time">Czas ostatniej kopii</string>
+  <string name="settings_contacts_upload_repo_history">Brak kopii zapasowych</string>
+  <string name="settings_contacts_upload_start_backup">Wykonaj kopię</string>
+  <string name="settings_contacts_upload_start_backup_hint">Dotknij, aby wykonać kopię zapasową kontaktów</string>
+  <string name="settings_contacts_upload_start_recovery">Przywróć</string>
+  <string name="settings_contacts_upload_start_recovery_hint">Dotknij, aby przywrócić kontakty</string>
+  <!--contacts Upload Perference-->
+  <string name="contacts_dialog_recovery">Przywróć kontakty z ostatniej kopii zapasowej</string>
+  <string name="contacts_dialog_backup">Kontakty zostaną zapisane do pliku:</string>
+  <string name="contacts_count_zero">Kontakty są puste</string>
+  <string name="contacts_backup_success">Pomyślnie wykonano kopię zapasową</string>
+  <string name="contacts_recovery_success">Pomyślnie przywrócono z kopii zapasowej</string>
+  <string name="contacts_backup_title">Wykonaj kopię kontaktów</string>
+  <string name="contacts_recovery_title">Przywróć kontakty</string>
+  <string name="contacts_backup_fail">Nie udało się wykonać kopii zapasowej</string>
+  <string name="contacts_recover_fail">Nie udało się przywrócić z kopii zapasowej</string>
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Automatyczna kopia zdjęć</string>
   <string name="settings_camera_upload_service_started">Usługa przesyłania jest uruchomiona</string>
@@ -323,6 +350,7 @@
   <plurals name="settings_cuc_local_dir_items">
     <item quantity="one">%1$d element</item>
     <item quantity="few">%1$d elementy</item>
+    <item quantity="many">%1$d elementów</item>
     <item quantity="other">%1$d elementów</item>
   </plurals>
   <string name="settings_cuc_remote_lib_title">Wybierz zdalną bibliotekę</string>
@@ -417,6 +445,7 @@
   <plurals name="transfer_download_started">
     <item quantity="one">Rozpoczynanie pobierania %1$d pliku</item>
     <item quantity="few">Rozpoczynanie pobierania %1$d plików</item>
+    <item quantity="many">Rozpoczynanie pobierania %1$d plików</item>
     <item quantity="other">Rozpoczynanie pobierania %1$d plików</item>
   </plurals>
   <string name="transfer_list_select_all">Zaznacz wszystko</string>
@@ -424,6 +453,7 @@
   <plurals name="transfer_list_items_selected">
     <item quantity="one">Zaznaczono %d element</item>
     <item quantity="few">Zaznaczono %d elementy</item>
+    <item quantity="many">Zaznaczono %d elementów</item>
     <item quantity="other">Zaznaczono %d elementów</item>
   </plurals>
   <!--Sort-->
@@ -455,11 +485,13 @@
   <plurals name="notification_upload_info">
     <item quantity="one">Przesyłanie %1$d pliku (%2$d%%)</item>
     <item quantity="few">Przesyłanie %1$d plików (%2$d%%)</item>
+    <item quantity="many">Przesyłanie %1$d plików (%2$d%%)</item>
     <item quantity="other">Przesyłanie %1$d plików (%2$d%%)</item>
   </plurals>
   <plurals name="notification_download_info">
     <item quantity="one">Pobieranie %1$d pliku (%2$d%%)</item>
     <item quantity="few">Pobieranie %1$d plików (%2$d%%)</item>
+    <item quantity="many">Pobieranie %1$d plików (%2$d%%)</item>
     <item quantity="other">Pobieranie %1$d plików (%2$d%%)</item>
   </plurals>
   <string name="notification_download_completed">Pobieranie zakończone</string>
@@ -475,6 +507,7 @@
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
   <string name="permission_read_exteral_storage_rationale">Aby obsługiwać pliki zezwól aplikacji na dostęp do pamięci.</string>
+  <string name="permission_read_contacts_storage_rationale">Aby obsługiwać kontakty, zezwól aplikacji na dostęp do nich.</string>
   <string name="permission_not_granted">Nie przyznano uprawnień</string>
   <string name="history_change_title">Szczegóły modyfikacji</string>
   <string name="no_more_activities">Brak więcej aktywności</string>
@@ -498,4 +531,6 @@
   <string name="op_exception_folder_deleted">Folder \"%s\" został usunięty</string>
   <string name="op_exception_suitable_app_not_found">Nie znaleziono aplikacji obsługującej pliki typu %s</string>
   <string name="op_exception_failed_to_download_file">Nie udało się pobrać pliku %s</string>
+  <!--Home list title-->
+  <string name="shared_with_all">Współdzielone ze wszystkimi</string>
 </resources>

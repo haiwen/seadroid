@@ -15,6 +15,7 @@
   <string name="server_hint">Server, z.B. cloud.seafile.com</string>
   <string name="email_hint">E-Mail oder Benutzername</string>
   <string name="passwd_hint">Passwort</string>
+  <string name="passwd_min_len_limit_hint">Passwort (mindestens %d Zeichen)</string>
   <string name="passwd_confirmation_hint">Passwort wiederholen</string>
   <string name="login">Anmelden</string>
   <string name="open_file">Öffnen</string>
@@ -113,7 +114,8 @@
 Zum Aktualisieren einmal antippen</string>
   <string name="error_when_load_repos">Fehler beim Laden der Bibliotheken.
 Zum Aktualisieren einmal antippen</string>
-  <string name="error_when_load_activities">Aktivitäten konnten nicht geladen werden.\n Zum Aktualisieren einmal antippen</string>
+  <string name="error_when_load_activities">Fehler beim Laden der Aktivitäten.\n Zum Aktualisieren einmal antippen</string>
+  <string name="error_when_load_starred">Fehler beim Laden der Favoriten.\n Zum Aktualisieren einmal antippen</string>
   <string name="dir_empty">Dieser Ordner ist leer</string>
   <string name="no_repo">Sie haben noch keine Bibliotheken erstellt</string>
   <string name="no_app_available">Es konnte keine Anwendung gefunden werden</string>
@@ -123,9 +125,9 @@ Zum Aktualisieren einmal antippen</string>
   <string name="choose_an_account">Ein Konto auswählen</string>
   <string name="choose_a_library">Eine Bibliothek auswählen</string>
   <string name="choose_a_folder">Einen Ordner auswählen</string>
-  <string name="load_accounts_fail">Die Seafile-Konten konnten nicht geladen werden</string>
+  <string name="load_accounts_fail">Seafile-Konten konnten nicht geladen werden</string>
   <string name="load_libraries_fail">Bibliotheken konnten nicht geladen werden</string>
-  <string name="load_dir_fail">Der Inhalt des Ordners konnte nicht geladen werden</string>
+  <string name="load_dir_fail">Inhalt des Ordners konnte nicht geladen werden</string>
   <string name="not_supported_share">Diese Art der Freigabe wird nicht unterstützt</string>
   <string name="edit">Bearbeiten</string>
   <string name="encrypt">Verschlüsseln</string>
@@ -144,7 +146,9 @@ Zum Aktualisieren einmal antippen</string>
     <item>Foto machen</item>
   </string-array>
   <string name="create_new_repo">Neue Bibliothek erstellen</string>
-  <string name="create_new_repo_success">Die Bibliothek %s ist erstellt.</string>
+  <string name="create_new_repo_success">Bibliothek %s ist erstellt</string>
+  <string name="create_new_folder_success">Ordner %s ist erstellt</string>
+  <string name="create_new_file_success">Datei %s ist erstellt</string>
   <string name="create_new_file">Eine neue Datei erstellen</string>
   <string name="create_new_dir">Einen neuen Ordner erstellen</string>
   <string name="camera">Neues Foto hier aufnehmen</string>
@@ -153,7 +157,8 @@ Zum Aktualisieren einmal antippen</string>
   <string name="last_modified">zuletzt geändert</string>
   <string name="file_modified">geändert</string>
   <string name="file_size">Dateigröße</string>
-  <string name="library_not_found">Die Bibliothek wurde gelöscht</string>
+  <string name="library_not_found">Bibliothek ist gelöscht</string>
+  <string name="file_not_found">Datei „%s“ ist gelöscht </string>
   <string name="export_file">Datei exportieren</string>
   <string name="no_upload_tasks">Es stehen keine Uploads an</string>
   <string name="no_download_tasks">Es stehen keine Downloads an</string>
@@ -166,7 +171,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="rename_repo">Bibliothek umbenennen</string>
   <string name="rename_file">Datei umbenennen</string>
   <string name="rename_dir">Ordner umbenennen</string>
-  <string name="rename_successful">Erfolgreich umbenannt.</string>
+  <string name="rename_successful">Erfolgreich umbenannt</string>
   <string-array name="nav_array">
     <item>Dateien</item>
     <item>Übertragungen</item>
@@ -197,7 +202,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="just_now">Gerade eben</string>
   <string name="open_as">Öffnen als</string>
   <string name="select_upload_files">Dateien zum Hochladen auswählen</string>
-  <string name="storage_removed">Speicher wurde entfernt</string>
+  <string name="storage_removed">Speicherplatz ist entfernt</string>
   <string name="error_selecting_file">Fehler beim Auswählen der Datei</string>
   <plurals name="n_upload_files_selected">
     <item quantity="one">%1$d Datei ausgewählt</item>
@@ -273,14 +278,37 @@ Zum Aktualisieren einmal antippen</string>
   <string name="lockpattern_need_to_draw">Bitte ein Entsperrmuster zeichnen</string>
   <string name="lockpattern_need_to_confirm">Bitte bestätigen Sie Ihr Muster</string>
   <string name="lockpattern_need_to_unlock_wrong">Das Muster stimmt nicht überein. Versuchen Sie es erneut!</string>
-  <string name="lockpattern_pattern_confirmed_header">OK drücken, um das Muster zu speichern</string>
+  <string name="lockpattern_pattern_confirmed_header">OK antippen, um das Muster zu speichern</string>
   <string name="lockpattern_recording_inprogress">Finger hochheben, wenn das Muster fertig ist</string>
-  <string name="lockpattern_pattern_toast_saved">Entsperrungsmuster erfolgreich gespeichert</string>
+  <string name="lockpattern_pattern_toast_saved">Entsperrungsmuster ist gespeichert</string>
   <!--Strings for possible PreferenceActivity Back/Next buttons-->
   <string name="back_button_label">Zurück</string>
   <string name="next_button_label">Weiter</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">Überspringen</string>
+  <!--contacts  upload-->
+  <string name="settings_contacts_upload_info_title">Kontakte sichern</string>
+  <string name="settings_contacts_upload_turn_on">Kontakte sichern aktivieren</string>
+  <string name="settings_contacts_upload_service_started">Kontakte sichern aktiviert</string>
+  <string name="settings_contacts_upload_service_stopped">Kontakte sichern deaktiviert</string>
+  <string name="settings_contacts_upload_repo_hint">Wählen Sie eine Bibliothek zum Sichern der Kontakte</string>
+  <string name="settings_contacts_upload_change_repo_title">Wechseln Sie die Bibliothek zum Sichern der Kontakte</string>
+  <string name="settings_contacts_upload_repo_time">Letzte Sicherung</string>
+  <string name="settings_contacts_upload_repo_history">Keine Sicherung vorhanden</string>
+  <string name="settings_contacts_upload_start_backup">Sicherung</string>
+  <string name="settings_contacts_upload_start_backup_hint">Zum Sichern der Kontakte klicken</string>
+  <string name="settings_contacts_upload_start_recovery">Wiederherstellen</string>
+  <string name="settings_contacts_upload_start_recovery_hint">Zum wiederherstellen klicken</string>
+  <!--contacts Upload Perference-->
+  <string name="contacts_dialog_recovery">Kontakte aus der letzten Sicherung wiederherstellen</string>
+  <string name="contacts_dialog_backup">Kontakte werden gesichert als: </string>
+  <string name="contacts_count_zero">Keine Kontakte vorhanden</string>
+  <string name="contacts_backup_success">Sicherung erfolgreich</string>
+  <string name="contacts_recovery_success">Wiederherstellung erfolgreich</string>
+  <string name="contacts_backup_title">Kontakte sichern</string>
+  <string name="contacts_recovery_title">Kontakte wiederherstellen</string>
+  <string name="contacts_backup_fail">Sicherung fehlgeschlagen</string>
+  <string name="contacts_recover_fail">Wiederherstellung fehlgeschlagen</string>
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Kamerafoto hochladen</string>
   <string name="settings_camera_upload_service_started">Upload-Dienst gestartet</string>
@@ -357,7 +385,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="settings_cache_title">Größe des Zwischenspeichers</string>
   <string name="settings_clear_cache_title">Zwischenspeicher löschen</string>
   <string name="settings_clear_cache_hint">Möchten Sie den Zwischenspeicher wirklich löschen?</string>
-  <string name="settings_clear_cache_success">Zwischenspeicher erfolgreich gelöscht</string>
+  <string name="settings_clear_cache_success">Zwischenspeicher ist gelöscht</string>
   <string name="settings_clear_cache_failed">Löschen des Zwischenspeichers fehlgeschlagen</string>
   <string name="settings_cache_empty">0 KB</string>
   <string name="settings_cache_location_title">Ort für den Zwischenspeicher</string>
@@ -463,6 +491,7 @@ Zum Aktualisieren einmal antippen</string>
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
   <string name="permission_read_exteral_storage_rationale">Um Dateien zu bearbeiten bitte Speicherrechte erteilen.</string>
+  <string name="permission_read_contacts_storage_rationale">Um Kontakte zu bearbeiten bitte Rechte erteilen.</string>
   <string name="permission_not_granted">Berechtigung wurde nicht erteilt</string>
   <string name="history_change_title">Änderungsinformationen</string>
   <string name="no_more_activities">Keine weiteren Aktivitäten</string>
@@ -474,7 +503,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="clear_password_title">Passwort der Bibliothek löschen</string>
   <string name="clear_password_hint">Klicken Sie hier, um das Passwort zu löschen</string>
   <string name="clear_password_successful">Das Passwort ist gelöscht</string>
-  <string name="clear_password_failed">Fehler: Das Passwort konnte nicht gelöscht werden</string>
+  <string name="clear_password_failed">Passwort konnte nicht gelöscht werden</string>
   <string name="clear_password_warning">Möchten Sie das Passwort löschen?</string>
   <string name="clear_password_auto">Passwörter automatisch löschen</string>
   <!--Two factor auth-->
@@ -483,4 +512,9 @@ Zum Aktualisieren einmal antippen</string>
   <string name="two_factor_auth_token">Token für 2-Faktor-Authentifizierung</string>
   <string name="two_factor_auth_token_empty">Geben Sie das Token für die Authentifizierung an</string>
   <!--Operation Exceptions-->
+  <string name="op_exception_folder_deleted">Ordner „%s“ ist gelöscht </string>
+  <string name="op_exception_suitable_app_not_found">Keine App für den Mime-Type %s gefunden</string>
+  <string name="op_exception_failed_to_download_file">Datei %s konnte nicht geladen werden</string>
+  <!--Home list title-->
+  <string name="shared_with_all">Für alle freigegeben</string>
 </resources>
