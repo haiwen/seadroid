@@ -111,7 +111,7 @@ public class ContactsDialog extends TaskDialog {
         TextView countText = (TextView) view.findViewById(R.id.setting_contacts_backup);
         String fileName = "";
         if (type == CONTACTS_BACKUP) {
-          fileName = getString(R.string.contacts_dialog_recovery) + " " +
+          fileName = getString(R.string.contacts_dialog_backup) + " " +
                      ContactManager.getContactsBackupFileName();
         } else if (type == CONTACTS_RECOVERY) {
           fileName = getString(R.string.contacts_dialog_recovery);
