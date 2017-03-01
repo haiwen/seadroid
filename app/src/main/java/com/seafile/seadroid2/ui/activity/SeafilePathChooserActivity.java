@@ -445,7 +445,19 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
     }
 
     private void updateAdapterWithDirents(List<SeafDirent> dirents) {
-        getDirentsAdapter().setDirents(dirents);
+        //getDirentsAdapter().setDirents(dirents);
+        DirentsAdapter adapter=getDirentsAdapter();
+        if (dirents.size() > 0) {
+            adapter.clearDirents();
+            for (SeafDirent dirent : dirents) {
+                adapter.add(dirent);
+            }
+            int sort_type = SettingsManager.instance().getSortFilesTypePref();
+            int sort_order = SettingsManager.instance().getSortFilesOrderPref();
+            adapter.sortFiles(sort_type, sort_order);
+            adapter.notifyChanged();
+        }
+
         showListOrEmptyText(dirents.size());
     }
 
