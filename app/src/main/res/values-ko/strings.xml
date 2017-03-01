@@ -280,6 +280,8 @@
   <string name="next_button_label">다음</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">건너뛰기</string>
+  <!--contacts  upload-->
+  <!--contacts Upload Perference-->
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">카메라 사진 업로드</string>
   <string name="settings_camera_upload_service_started">업로드 서비스를 시작했습니다</string>
@@ -480,4 +482,5 @@
   <string name="op_exception_folder_deleted">\"%s\" 폴더를 삭제했습니다</string>
   <string name="op_exception_suitable_app_not_found">%s MIME 형식에 알맞은 앱을 찾을 수 없습니다</string>
   <string name="op_exception_failed_to_download_file">%s 파일 다운로드에 실패했습니다</string>
+  <!--Home list title-->
 </resources>

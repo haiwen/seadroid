@@ -233,7 +233,11 @@ public class SeafItemAdapter extends BaseAdapter {
     private View getGroupView(SeafGroup group) {
         View view = LayoutInflater.from(mActivity).inflate(R.layout.group_item, null);
         TextView tv = (TextView) view.findViewById(R.id.textview_groupname);
-        tv.setText(group.getTitle());
+        String groupTitle = group.getTitle();
+        if ("Organization".equals(groupTitle)) {
+            groupTitle = mActivity.getString(R.string.shared_with_all);
+        }
+        tv.setText(groupTitle);
         return view;
     }
 

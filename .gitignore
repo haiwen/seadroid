@@ -2,7 +2,6 @@
 classes
 *#
 .settings
-libs
 tmp
 proguard/
 target/

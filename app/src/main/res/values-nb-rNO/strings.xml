@@ -240,6 +240,8 @@
   <string name="next_button_label">Neste</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">Hopp over</string>
+  <!--contacts  upload-->
+  <!--contacts Upload Perference-->
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Opplasting av kamerabilder</string>
   <string name="settings_camera_upload_service_started">Opplastingstjenesten har begynt</string>
@@ -380,4 +382,5 @@
   <!--clear password-->
   <!--Two factor auth-->
   <!--Operation Exceptions-->
+  <!--Home list title-->
 </resources>
