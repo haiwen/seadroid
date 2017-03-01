@@ -47,6 +47,7 @@ public abstract class TaskDialog extends DialogFragment {
 
     // The spinning wheel to show loading
     private ProgressBar loading;
+    private ProgressBar loadingProgress;
 
     //
     private Button okButton;
@@ -57,6 +58,8 @@ public abstract class TaskDialog extends DialogFragment {
 
     private TaskDialogListener mListener;
 
+    protected boolean isProgressHorizontal = false;
+
     /**
      * Create the content area of the dialog
      * @param inflater
@@ -64,7 +67,7 @@ public abstract class TaskDialog extends DialogFragment {
      * @return The created view
      */
     protected abstract View createDialogContentView(LayoutInflater inflater,
-                                                      Bundle savedInstanceState);
+                                                    Bundle savedInstanceState);
     /**
      * Create the AsyncTask
      */
@@ -158,6 +161,7 @@ public abstract class TaskDialog extends DialogFragment {
 
     public void onTaskFailed(SeafException e) {
         hideLoading();
+        hideLoadingPro();
         showError(getErrorFromException(e));
         enableInput();
         if (mListener != null) {
@@ -205,8 +209,9 @@ public abstract class TaskDialog extends DialogFragment {
             mCustom.addView(contentView, 0);
         }
 
-        errorText = (TextView)view.findViewById(R.id.error_message);
-        loading = (ProgressBar)view.findViewById(R.id.loading);
+        errorText = (TextView) view.findViewById(R.id.error_message);
+        loading = (ProgressBar) view.findViewById(R.id.loading);
+        loadingProgress = (ProgressBar) view.findViewById(R.id.loading_horizontal);
 
         if (savedInstanceState != null) {
             String error = savedInstanceState.getString(STATE_ERROR_TEXT);
@@ -296,26 +301,43 @@ public abstract class TaskDialog extends DialogFragment {
 
     protected void showLoading() {
         loading.startAnimation(AnimationUtils.loadAnimation(
-                                   getActivity(), android.R.anim.fade_in));
+                getActivity(), android.R.anim.fade_in));
         loading.setVisibility(View.VISIBLE);
+    }
+
+    protected void showLoadingPro() {
+        loadingProgress.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in));
+        loadingProgress.setVisibility(View.VISIBLE);
+    }
+
+
+    protected void setProgress(int progress) {
+        if (loadingProgress != null) {
+            loadingProgress.setProgress(progress);
+        }
     }
 
     protected void hideLoading() {
         loading.startAnimation(AnimationUtils.loadAnimation(
-                                   getActivity(), android.R.anim.fade_out));
+                getActivity(), android.R.anim.fade_out));
         loading.setVisibility(View.INVISIBLE);
+    }
+
+    protected void hideLoadingPro() {
+        loadingProgress.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
+        loadingProgress.setVisibility(View.INVISIBLE);
     }
 
     protected void showError(String error) {
         errorText.setText(error);
         errorText.startAnimation(AnimationUtils.loadAnimation(
-                                   getActivity(), android.R.anim.fade_in));
+                getActivity(), android.R.anim.fade_in));
         errorText.setVisibility(View.VISIBLE);
     }
 
     protected void hideError() {
         errorText.startAnimation(AnimationUtils.loadAnimation(
-                                   getActivity(), android.R.anim.fade_out));
+                getActivity(), android.R.anim.fade_out));
         errorText.setVisibility(View.GONE);
     }
 
@@ -342,7 +364,11 @@ public abstract class TaskDialog extends DialogFragment {
     private void executeTask() {
         disableInput();
         hideError();
-        showLoading();
+        if (isProgressHorizontal) {
+            showLoadingPro();
+        } else {
+            showLoading();
+        }
         task.setTaskDialog(this);
         ConcurrentAsyncTask.execute(task);
     }
@@ -355,6 +381,10 @@ public abstract class TaskDialog extends DialogFragment {
          * Carries out the background task.
          */
         protected abstract void runTask();
+
+        public void progress(int progress) {
+            this.dlg.setProgress(progress);
+        }
 
         public void setTaskDialog(TaskDialog dlg) {
             this.dlg = dlg;

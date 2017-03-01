@@ -133,8 +133,8 @@ public class BrowserActivity extends BaseActivity
     public static final int INDEX_ACTIVITIES_TAB = 2;
 
     private static final int[] ICONS = new int[] {
-        R.drawable.tab_library, R.drawable.tab_starred,
-        R.drawable.tab_activity
+            R.drawable.tab_library, R.drawable.tab_starred,
+            R.drawable.tab_activity
     };
 
     private FetchFileDialog fetchFileDialog = null;
@@ -332,7 +332,7 @@ public class BrowserActivity extends BaseActivity
             }
 
             SslConfirmDialog sslConfirmDlg = (SslConfirmDialog)
-                getSupportFragmentManager().findFragmentByTag(SslConfirmDialog.FRAGMENT_TAG);
+                    getSupportFragmentManager().findFragmentByTag(SslConfirmDialog.FRAGMENT_TAG);
 
             if (sslConfirmDlg != null) {
                 Log.d(DEBUG_TAG, "sslConfirmDlg is not null");
@@ -696,26 +696,26 @@ public class BrowserActivity extends BaseActivity
 
         @Override
         public Fragment getItem(int position) {
-                switch (position) {
-                    case 0:
+            switch (position) {
+                case 0:
 
-                        if (reposFragment == null) {
-                            reposFragment = new ReposFragment();
-                        }
-                        return reposFragment;
-                    case 1:
-                        if (starredFragment == null) {
-                            starredFragment = new StarredFragment();
-                        }
-                        return starredFragment;
-                    case 2:
-                        if (activitieFragment == null) {
-                            activitieFragment = new ActivitiesFragment();
-                        }
-                        return activitieFragment;
-                    default:
-                        return new Fragment();
-                }
+                    if (reposFragment == null) {
+                        reposFragment = new ReposFragment();
+                    }
+                    return reposFragment;
+                case 1:
+                    if (starredFragment == null) {
+                        starredFragment = new StarredFragment();
+                    }
+                    return starredFragment;
+                case 2:
+                    if (activitieFragment == null) {
+                        activitieFragment = new ActivitiesFragment();
+                    }
+                    return activitieFragment;
+                default:
+                    return new Fragment();
+            }
         }
 
         @Override
@@ -1048,8 +1048,8 @@ public class BrowserActivity extends BaseActivity
             @Override
             public void onTaskSuccess(){
                 showShortToast(
-                    BrowserActivity.this,
-                    String.format(getResources().getString(R.string.create_new_repo_success), dialog.getRepoName())
+                        BrowserActivity.this,
+                        String.format(getResources().getString(R.string.create_new_repo_success), dialog.getRepoName())
                 );
                 ReposFragment reposFragment = getReposFragment();
                 if (currentPosition == INDEX_LIBRARY_TAB && reposFragment != null) {

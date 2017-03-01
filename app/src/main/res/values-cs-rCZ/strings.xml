@@ -203,6 +203,8 @@
   <string name="next_button_label">Další</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">Přeskočit</string>
+  <!--contacts  upload-->
+  <!--contacts Upload Perference-->
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Nahrání fotky z fotoaparátu</string>
   <string name="settings_camera_upload_data_plan_allowed">Mobilní data povolena</string>
@@ -274,4 +276,5 @@
   <!--clear password-->
   <!--Two factor auth-->
   <!--Operation Exceptions-->
+  <!--Home list title-->
 </resources>

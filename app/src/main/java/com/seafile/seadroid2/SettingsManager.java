@@ -5,11 +5,9 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
-import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
-import com.seafile.seadroid2.data.DatabaseHelper;
-import com.seafile.seadroid2.util.Utils;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
+import com.seafile.seadroid2.util.Utils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -54,6 +52,9 @@ public final class SettingsManager {
     // Camera upload
     public static final String PKG = "com.seafile.seadroid2";
 
+    public static final String SHARED_PREF_CONTACTS_UPLOAD_REPO_ID = PKG + ".contacts.repoid";
+    public static final String SHARED_PREF_CONTACTS_UPLOAD_REPO_NAME = PKG + ".contacts.repoName";
+
     public static final String SHARED_PREF_STORAGE_DIR = PKG + ".storageId";
 
     public static final String SHARED_PREF_CAMERA_UPLOAD_REPO_ID = PKG + ".camera.repoid";
@@ -71,10 +72,15 @@ public final class SettingsManager {
     public static final String CAMERA_UPLOAD_CATEGORY_KEY = "category_camera_upload_key";
     public static final String CAMERA_UPLOAD_CUSTOM_BUCKETS_KEY = "camera_upload_buckets_switch_key";
     public static final String SHARED_PREF_CAMERA_UPLOAD_BUCKETS = PKG + ".camera.buckets";
-
-    // About tab
+    //contacts
+    public static final String CONTACTS_UPLOAD_CATEGORY_KEY = "category_contacts_upload_key";
+    public static final String CONTACTS_UPLOAD_SWITCH_KEY = "contacts_upload_switch_key";
     public static final String SETTINGS_ABOUT_VERSION_KEY = "settings_about_version_key";
     public static final String SETTINGS_ABOUT_AUTHOR_KEY = "settings_about_author_key";
+    public static final String CONTACTS_UPLOAD_REPO_KEY = "contacts_upload_repo_key";
+    public static final String CONTACTS_UPLOAD_REPO_TIME_KEY = "contacts_upload_repo_time_key";
+    public static final String CONTACTS_UPLOAD_REPO_BACKUP_KEY = "contacts_upload_repo_backup_key";
+    public static final String CONTACTS_UPLOAD_REPO_RECOVERY_KEY = "contacts_upload_repo_recovery_key";
 
     // Cache
     public static final String SETTINGS_CACHE_CATEGORY_KEY = "settings_cache_key";
@@ -182,6 +188,10 @@ public final class SettingsManager {
         return sharedPref.getString(SHARED_PREF_CAMERA_UPLOAD_REPO_NAME, null);
     }
 
+    public String getContactsUploadRepoName() {
+        return sharedPref.getString(SHARED_PREF_CONTACTS_UPLOAD_REPO_NAME, null);
+    }
+
     public void saveCameraUploadRepoInfo(String repoId, String repoName) {
         editor.putString(SHARED_PREF_CAMERA_UPLOAD_REPO_ID, repoId);
         editor.putString(SHARED_PREF_CAMERA_UPLOAD_REPO_NAME, repoName);
@@ -247,6 +257,10 @@ public final class SettingsManager {
         return sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_REPO_ID, null);
     }
 
+    public String getContactsUploadRepoId() {
+        return sharedPref.getString(SettingsManager.SHARED_PREF_CONTACTS_UPLOAD_REPO_ID, null);
+    }
+
     public int getStorageDir() {
         return sharedPref.getInt(SHARED_PREF_STORAGE_DIR, Integer.MIN_VALUE);
     }
@@ -255,4 +269,9 @@ public final class SettingsManager {
         editor.putInt(SHARED_PREF_STORAGE_DIR, dir).commit();
     }
 
+    public void saveContactsUploadRepoInfo(String repoId, String repoName) {
+        editor.putString(SHARED_PREF_CONTACTS_UPLOAD_REPO_ID, repoId);
+        editor.putString(SHARED_PREF_CONTACTS_UPLOAD_REPO_NAME, repoName);
+        editor.commit();
+    }
 }

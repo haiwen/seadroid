@@ -1,341 +1,343 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="welcome_to_seafile">歡迎使用Seafile</string>
-    <string name="select_account">請選擇一個帳戶開始使用</string>
-    <string name="edit_account">編輯帳戶</string>
-    <string name="delete_account">刪除帳戶</string>
-    <string name="delete">刪除</string>
-    <string name="delete_repo">是否要刪除這一個資料庫?</string>
-    <string name="delete_file">是否要刪除這一個檔案或文件夾?</string>
-    <string name="delete_successful">已刪除</string>
-    <string name="delete_repo_title">刪除資料庫</string>
-    <string name="delete_file_f">刪除文件</string>
-    <string name="delete_dir">刪除文件夾</string>
-    <string name='name_hint'>名稱</string>
-    <string name="server_hint">Seafile伺服器位址</string>
-    <string name="email_hint">郵箱或帳號</string>
-    <string name="passwd_hint">密碼</string>
-    <string name="passwd_min_len_limit_hint">密碼 (最少 %d 字元)</string>
-    <string name="passwd_confirmation_hint">再輸入一次密碼</string>
-    <string name="login">登入</string>
-    <string name="open_file">打開</string>
-    <string name="download_file">下載</string>
-    <string name="redownload_file">重新下載</string>
-    <string name="cancel_download">取消下載</string>
-    <string name="unknown_file_type">未知的檔案型別</string>
-    <string name="activity_not_found">找不到相關應用打開此文件</string>
-    <string name="refresh">刷新</string>
-    <string name="add_account">添加帳戶</string>
-    <string name="personal">個人</string>
-    <string name="shared">分享</string>
-    <string name="libraries">資料庫</string>
-    <string name="cached">已緩存</string>
-    <string name="activities">事件</string>
-    <string name="pick_upload_type">上傳</string>
-    <string name="transfer_tasks">傳輸列表</string>
-    <string name="accounts">帳號</string>
-    <string name="settings">設置</string>
-    <string-array name="pick_upload_array">
-        <item>文件</item>
-        <item>圖片/視頻</item>
-        <item>其他</item>
-    </string-array>
-    <string name="choose_server">請選擇一個Seafile伺服器</string>
-    <string-array name="choose_server_array">
-        <item>SeaCloud.cc</item>
-        <item>Shibboleth登錄</item>
-        <item>其他Seafile伺服器</item>
-    </string-array>
-    <string name="network_down">無網絡連接</string>
-    <string name="unknow_error">未知錯誤</string>
-    <string name="invalid_server_address">無效的伺服器地址</string>
-    <string name="err_server_andress_empty">伺服器地址不能為空</string>
-    <string name="err_email_empty">郵箱不能為空</string>
-    <string name="err_passwd_empty">密碼不能為空</string>
-    <string name="err_passwd_too_short">密碼太短</string>
-    <string name="err_passwd_mismatch">兩次輸入的密碼不一致</string>
-    <string name="err_login_failed">登錄失敗</string>
-    <string name="err_wrong_user_or_passwd">郵箱或密碼錯誤</string>
-    <string name="err_token_expired">認證已過期，請重新登錄</string>
-    <string name="upload">上傳</string>
-    <string name="uploaded">已上傳</string>
-    <string name="updated">已更新</string>
-    <string name="download_failed">下載失敗</string>
-    <string name="download_waiting">等待下載</string>
-    <string name="download_finished">下載完成</string>
-    <string name="download_cancelled">下載取消</string>
-    <string name="task_cancel">取消</string>
-    <string name="task_retry">重新上傳</string>
-    <string name="task_remove">移除</string>
-    <string name="task_remove_all_cancelled">移除所有取消任務</string>
-    <string name="task_remove_all_finished">移除所有已完成任務</string>
-    <string name="repo_action_delete">刪除</string>
-    <string name="repo_action_rename">重命名</string>
-    <string name="file_action_star">星標</string>
-    <string name="file_action_download">下載</string>
-    <string name="file_action_update">上傳</string>
-    <string name="file_action_share">分享連結</string>
-    <string name="file_action_export">匯出</string>
-    <string name="file_action_delete">刪除</string>
-    <string name="file_action_rename">重命名</string>
-    <string name="file_action_copy">複製</string>
-    <string name="file_action_move">移動</string>
-    <string name="file_action_open_as">打開為</string>
-    <string name="file_action_more">更多</string>
-    <string name="file_action_more_title">選擇你喜歡的選項</string>
-    <string-array name="file_action_more_array">
-        <item>匯出</item>
-        <item>複製</item>
-        <item>移動</item>
-        <item>星標</item>
-    </string-array>
-    <string-array name="file_type_array">
-        <item>文本</item>
-        <item>音頻</item>
-        <item>視頻</item>
-        <item>圖像</item>
-        <item>其他</item>
-    </string-array>
-    <string name="wait">等待</string>
-    <string name="image_gallery_NoImageView_text">沒有找到圖片</string>
-    <string name="pick_photo_video_title">請選擇要上傳的圖片/視頻</string>
-    <string name="select_upload_items">請選擇要上傳的文件</string>
-    <plurals name="n_upload_items_selected">
-        <item quantity="other">選擇了%1$d個文件</item>
-    </plurals>
-    <string name="repo_name_empty">請輸入資料庫名稱</string>
-    <string name="dir_name_empty">請輸入文件夾名</string>
-    <string name="file_name_empty">請輸入文件名</string>
-    <string name="password_empty">請輸入您的密碼</string>
-    <string name="wrong_password">密碼錯誤</string>
-    <string name="library_read_only">這個資料庫是只讀的</string>
-    <string name="error_when_load_dirents">文件夾數據加載出錯.\n 點擊刷新</string>
-    <string name="error_when_load_repos">資料庫數據加載出錯.\n 點擊刷新</string>
-    <string name="error_when_load_activities">活動數據加載出錯.\n 點擊刷新</string>
-    <string name="error_when_load_starred">星標文件加載出錯.\n 點擊刷新</string>
-    <string name="dir_empty">此文件夾是空的</string>
-    <string name="no_repo">無資料庫</string>
-    <string name="no_app_available">沒有找到應用</string>
-    <string name="add_to_seafile">添加到Seafile中</string>
-    <string name="ok">確定</string>
-    <string name="no_account">首先請在Seafile上創建一個帳戶</string>
-    <string name="choose_an_account">請選擇一個帳戶</string>
-    <string name="choose_a_library">請選擇一個資料庫</string>
-    <string name="choose_a_folder">請選擇一個文件夾</string>
-    <string name="load_accounts_fail">加載Seafile帳戶失敗</string>
-    <string name="load_libraries_fail">加載資料庫失敗</string>
-    <string name="load_dir_fail">加載此文件夾的內容失敗</string>
-    <string name="not_supported_share">不支持此類分享</string>
-    <string name="edit">編輯</string>
-    <string name="encrypt">加密</string>
-    <string name="download_folder">下載該文件夾</string>
-    <string name="download_folder_title">選擇你喜歡的選項</string>
-    <string-array name="download_folder_options_array">
-        <item>下載文件夾</item>
-        <item>下載文件夾及其子文件夾</item>
-    </string-array>
-    <string name="add_repo">新建資料庫</string>
-    <string name="add_file">添加</string>
-    <string-array name="add_file_options_array">
-        <item>新建文件</item>
-        <item>新建文件夾</item>
-        <item>上傳文件</item>
-        <item>拍照上傳</item>
-    </string-array>
-    <string name="create_new_repo">新建資料庫</string>
-    <string name="create_new_repo_success">新建資料庫%s成功</string>
-    <string name="create_new_folder_success">文件夾%s創建成功</string>
-    <string name="create_new_file_success">文件%s創建成功</string>
-    <string name="create_new_file">創建新文件</string>
-    <string name="create_new_dir">創建新文件夾</string>
-    <string name="camera">拍照上傳</string>
-    <string name="download">下載</string>
-    <string name="open">打開</string>
-    <string name="last_modified">最後更改</string>
-    <string name="file_modified">已更改</string>
-    <string name="file_size">文件大小</string>
-    <string name="library_not_found">此資料庫已被刪除</string>
-    <string name="file_not_found">此文件\"%s\"已被刪除</string>
-    <string name="export_file">匯出此文件</string>
-    <string name="no_upload_tasks">無上傳任務</string>
-    <string name="no_download_tasks">無下載任務</string>
-    <string name="seahub_url_hint">注意：伺服器地址應該包含端口號。比如www.example.com:8000</string>
-    <string name="copy_link">複製鏈接</string>
-    <string name="share_file_link">分享此文件的鏈接</string>
-    <string name="share_dir_link">分享此文件夾的鏈接</string>
-    <string name="generating_link">生成鏈接中. . .</string>
-    <string name="link_ready_to_be_pasted">此鏈接已被複製到剪貼板。</string>
-    <string name="rename_repo">重命名資料庫</string>
-    <string name="rename_file">重命名文件</string>
-    <string name="rename_dir">重命名文件夾</string>
-    <string name="rename_successful">重命名成功。</string>
-    <string-array name="nav_array">
-        <item>文件</item>
-        <item>上傳任務</item>
-        <item>帳戶</item>
-        <item>相冊備份</item>
-    </string-array>
-    <string name="no_starred_file">無星標文件</string>
-    <string name="added_to_upload_tasks">開始上傳</string>
-    <string name="added_photo_to_upload_tasks">圖片開始上傳</string>
-    <string name="take_photo_successfully">拍照成功</string>
-    <string name="tabs_library">資料庫</string>
-    <string name="tabs_activity">最近修改</string>
-    <string name="tabs_starred">星標文件</string>
-    <string name="provide_password">請提供資料庫\"%s\"的密碼</string>
-    <string name="upload_waiting">等待上傳</string>
-    <string name="upload_finished">上傳完成</string>
-    <string name="upload_cancelled">上傳取消</string>
-    <string name="upload_failed">上傳失敗</string>
-    <string name="upload_file_exist">文件已存在</string>
-    <string name="upload_duplicate_found">名字為\"%s\"的文件在此位置已存在.\n 你想用上傳的文件替換它嗎?</string>
-    <string name="upload_replace_all">全部替換</string>
-    <string name="upload_keep_both">保留兩者</string>
-    <string name="upload_replace">替換</string>
-    <string name="days_ago">%d天前</string>
-    <string name="hours_ago">%d小時前</string>
-    <string name="minutes_ago">%d分鐘前</string>
-    <string name="seconds_ago">%d秒前</string>
-    <string name="just_now">剛剛更新</string>
-    <string name="open_as">打開為</string>
-    <string name="select_upload_files">請選擇要上傳的文件</string>
-    <string name="storage_removed">存儲卡已被移出</string>
-    <string name="error_selecting_file">選擇文件時出錯</string>
-    <plurals name="n_upload_files_selected">
-        <item quantity="other">已經選擇%1$d個文件</item>
-    </plurals>
-    <string name="empty_folder">此文件夾是空的</string>
-    <string name="choose_file">請選擇一個文件</string>
-    <string name="ssl_error">安全驗證失敗</string>
-    <string name="ssl_confirm">%s的安全證書不受信任,是否繼續？</string>
-    <string name="ssl_confirm_cert_changed">%s使用了非法的安全證書，這意味著該連接不安全，是否繼續?</string>
-    <string name="ssl_confirm_title">連接不受信任</string>
-    <string name="issued_to">簽發給</string>
-    <string name="finger_prints">指紋</string>
-    <string name="period_of_validity">有效期</string>
-    <string name="sha1">SHA-1算法  %s</string>
-    <string name="md5">MD5算法  %s</string>
-    <string name="not_available">不可用</string>
-    <string name="serial_number">序列號%s</string>
-    <string name="not_before">生效日期%s</string>
-    <string name="not_after">過期日期%s</string>
-    <string name="yes">是</string>
-    <string name="no">否</string>
-    <string name="remember_my_choice">記住我的選擇</string>
-    <string name="copied_successfully">複製成功</string>
-    <string name="moved_successfully">移動成功</string>
-    <string name="internal_server_error">伺服器出錯了</string>
-    <string name="copy_file_ing">正在複製文件</string>
-    <string name="move_file_ing">正在移動文件</string>
-    <string name="copy_file_from">正在從 %1$s \n 複製到 %2$s</string>
-    <string name="move_file_from">正在從 %1$s \n 移動到 %2$s</string>
-    <string name="copy_folder_ing">正在複製文件夾</string>
-    <string name="move_folder_ing">正在移動文件夾</string>
-    <string name="upload_started">開始上傳</string>
-    <string name="cannot_copy_folder_to_subfolder">不能把一個文件夾複製到它的子文件夾裡面去</string>
-    <string name="cannot_move_folder_to_subfolder">不能把一個文件夾移動到它的子文件夾裡面去</string>
-    <string name="cancel">取消</string>
-    <string name="confirm">確定</string>
-    <string name="repo_not_found">找不到該資料庫，它可能是加密資料庫或已被刪除</string>
-    <string name="settings_account">帳戶</string>
-    <string name="settings_account_info_title">帳戶信息</string>
-    <string name="settings_account_info_load_data">加載中...</string>
-    <string name="settings_account_space_title">已使用空間</string>
-    <string name="settings_account_sign_out_title">退出登錄</string>
-    <string name="settings_account_sign_out_hint">點擊退出</string>
-    <string name="settings_account_sign_out_confirm">你想退出登錄嗎？</string>
-    <string name="security">安全性</string>
-    <string name="gesture_lock">手勢密碼鎖</string>
-    <string name="gesture_lock_on">手勢鎖開啓</string>
-    <string name="gesture_lock_off">手勢鎖關閉</string>
-    <string name="lockscreen_access_pattern_hint">請繪制手勢密碼</string>
-    <string name="lockscreen_access_pattern_start">開始繪製圖案</string>
-    <string name="lockscreen_access_pattern_cleared">圖案已清除</string>
-    <string name="lockscreen_access_pattern_cell_added">已添加單元格</string>
-    <string name="lockscreen_access_pattern_detected">圖案繪制完成</string>
-    <string name="lockscreen_access_pattern_passwd_forget">忘記密碼</string>
-    <string name="lockscreen_access_pattern_failure">您已5次輸錯密碼，請30秒後再試</string>
-    <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
-        <item quantity="other">%1$d秒後重試</item>
-    </plurals>
-    <plurals name="lockscreen_access_pattern_failure_left_try_times">
-        <item quantity="other">密碼錯誤，還可以再輸入%1$d次</item>
-    </plurals>
-    <string name="lockscreen_access_pattern_failure_not_long_enough">輸入長度不夠，請重試</string>
-    <string name="lockpattern_retry_button_text">重繪</string>
-    <string name="lockpattern_continue_button_text">繼續</string>
-    <string name="lockpattern_confirm_button_text">保存</string>
-    <string name="lockpattern_recording_intro_header">繪制解鎖圖案</string>
-    <string name="lockpattern_settings_help_how_to_record">如何繪制解鎖圖案</string>
-    <string name="lockpattern_recording_incorrect_too_short">至少連接4個點，請重試</string>
-    <string name="lockpattern_pattern_entered_header">圖案已記錄</string>
-    <string name="lockpattern_need_to_draw">請繪制解鎖圖案</string>
-    <string name="lockpattern_need_to_confirm">請再次繪制解鎖圖案</string>
-    <string name="lockpattern_need_to_unlock_wrong">與上次輸入不一致，請重試</string>
-    <string name="lockpattern_pattern_confirmed_header">點擊保存解鎖圖案</string>
-    <string name="lockpattern_recording_inprogress">完成後松開手指</string>
-    <string name="lockpattern_pattern_toast_saved">密碼設置成功</string>
-    <!--Strings for possible PreferenceActivity Back/Next buttons-->
-    <string name="back_button_label">Back</string>
-    <string name="next_button_label">Next</string>
-    <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
-    <string name="skip_button_label">Skip</string>
-    <!--Camera Upload Preference-->
-    <string name="settings_camera_upload_info_title">上傳照片</string>
-    <string name="settings_camera_upload_service_started">上傳服務已啓動</string>
-    <string name="settings_camera_upload_service_stopped">上傳服務已關閉</string>
-    <string name="settings_camera_upload_allow_data_plan">允許使用移動流量套餐</string>
-    <string name="settings_camera_upload_allow_videos">允許上傳視頻</string>
-    <string name="settings_camera_upload_default_wifi">默認使用WiFi上傳</string>
-    <string name="settings_camera_upload_data_plan_allowed">支持移動流量套餐上傳</string>
-    <string name="settings_camera_upload_default_photos">默認只上傳圖片</string>
-    <string name="settings_camera_upload_videos_allowed">支持視頻上傳</string>
-    <string name="settings_camera_upload_change_repo_title">更改上傳資料庫</string>
-    <string name="settings_camera_upload_repo_hint">請先選擇一個資料庫來上傳照片</string>
-    <string name="settings_camera_upload_turn_on">打開照片上傳</string>
-    <string name="settings_camera_upload_choose_dir">更改相冊</string>
-    <string name="settings_camera_upload_dir_auto_scan">默認自動掃描照片</string>
-    <string name="settings_camera_upload_lib_not_found">資料庫不存在</string>
-    <string name="settings_camera_upload_advanced_feature_title">高級選項</string>
-    <string name="settings_camera_upload_advanced_feature_subtitle">更改上傳設置</string>
-    <string name="settings_camera_upload_advanced_custom_directories">選擇上傳相冊</string>
-    <string name="settings_camera_upload_advanced_custom_directories_on">選擇備份相冊</string>
-    <string name="settings_camera_upload_advanced_custom_directories_off">自動掃描設備</string>
-    <!--Camera Upload Configuration View-->
-    <string name="settings_cuc_title">配置助手</string>
-    <string name="settings_cuc_welcome_text">感謝使用照片上傳配置助手，\n在開始使用上傳服務之前，將會引導你如何進行配置。</string>
-    <string name="settings_cuc_network_title">上傳方式</string>
-    <string name="settings_cuc_network_wifi">僅限於Wi-Fi</string>
-    <string name="settings_cuc_network_data_plan">Wi-Fi或者移動流量套餐</string>
-    <string name="settings_cuc_option_hint">選擇你要配置的帳戶和資料庫，這些設置以後可以在設置菜單里修改。</string>
-    <string name="settings_cuc_type_title">上傳內容</string>
-    <string name="settings_cuc_type_photo">僅上傳圖片</string>
-    <string name="settings_cuc_type_video">上傳圖片和視頻</string>
-    <string name="settings_cuc_local_dir_title">選擇相冊</string>
-    <plurals name="settings_cuc_local_dir_items">
-        <item quantity="other">%1$d個文件</item>
-    </plurals>
-    <string name="settings_cuc_remote_lib_title">選擇雲端資料庫</string>
-    <string name="settings_cuc_remote_lib_account">請選擇一個帳戶</string>
-    <string name="settings_cuc_remote_lib_repo">%s被選中</string>
-    <string name="settings_cuc_upload_to_parent_folder">上一級</string>
-    <string name="settings_cuc_auto_scan">自動備份默認相冊</string>
-    <string name="settings_cuc_pick_albums">選擇備份相冊</string>
-    <string name="settings_cuc_remote_lib_hint">選擇你要配置的選項，這些設置以後可以在設置菜單里修改。</string>
-    <string name="settings_cuc_finish_title">完成</string>
-    <string name="settings_cuc_ready">Seafile將會從你指定的文件夾上傳文件，在這個過程中你可以隨時關閉該應用</string>
-    <string name="settings_cuc_swipe_left">向左滑進入下一步</string>
-    <string name="settings_cuc_click_btn">點擊按鈕關閉配置助手</string>
-    <string name="settings_cuc_loading">加載中...</string>
-    <!--Camera Sync-->
-    <string name="sync_provider_camera_upload">照片和視頻</string>
-    <string name="camera_sync_notification_title_failed">照片上傳失敗</string>
-    <string name="camera_sync_notification_repo_missing_failed">伺服器上不存在該資料庫</string>
-    <string name="camera_sync_notification_auth_error_failed">授權失敗</string>
-    <string name="camera_sync_rename_file"> (由Seafile重命名為)%s</string>
-    <string name="settings_about_title">關於</string>
-    <string name="settings_about_version_title">應用版本號</string>
-    <string name="settings_about_author_title">關於我們</string>
+  <string name="welcome_to_seafile">歡迎使用Seafile</string>
+  <string name="select_account">請選擇一個帳戶開始使用</string>
+  <string name="edit_account">編輯帳戶</string>
+  <string name="delete_account">刪除帳戶</string>
+  <string name="delete">刪除</string>
+  <string name="delete_repo">是否要刪除這一個資料庫?</string>
+  <string name="delete_file">是否要刪除這一個檔案或文件夾?</string>
+  <string name="delete_successful">已刪除</string>
+  <string name="delete_repo_title">刪除資料庫</string>
+  <string name="delete_file_f">刪除文件</string>
+  <string name="delete_dir">刪除文件夾</string>
+  <string name="name_hint">名稱</string>
+  <string name="server_hint">Seafile伺服器位址</string>
+  <string name="email_hint">郵箱或帳號</string>
+  <string name="passwd_hint">密碼</string>
+  <string name="passwd_min_len_limit_hint">密碼 (最少 %d 字元)</string>
+  <string name="passwd_confirmation_hint">再輸入一次密碼</string>
+  <string name="login">登入</string>
+  <string name="open_file">打開</string>
+  <string name="download_file">下載</string>
+  <string name="redownload_file">重新下載</string>
+  <string name="cancel_download">取消下載</string>
+  <string name="unknown_file_type">未知的檔案型別</string>
+  <string name="activity_not_found">找不到相關應用打開此文件</string>
+  <string name="refresh">刷新</string>
+  <string name="add_account">添加帳戶</string>
+  <string name="personal">個人</string>
+  <string name="shared">分享</string>
+  <string name="libraries">資料庫</string>
+  <string name="cached">已緩存</string>
+  <string name="activities">事件</string>
+  <string name="pick_upload_type">上傳</string>
+  <string name="transfer_tasks">傳輸列表</string>
+  <string name="accounts">帳號</string>
+  <string name="settings">設置</string>
+  <string-array name="pick_upload_array">
+    <item>文件</item>
+    <item>圖片/視頻</item>
+    <item>其他</item>
+  </string-array>
+  <string name="choose_server">請選擇一個Seafile伺服器</string>
+  <string-array name="choose_server_array">
+    <item>SeaCloud.cc</item>
+    <item>Shibboleth登錄</item>
+    <item>其他Seafile伺服器</item>
+  </string-array>
+  <string name="network_down">無網絡連接</string>
+  <string name="unknow_error">未知錯誤</string>
+  <string name="invalid_server_address">無效的伺服器地址</string>
+  <string name="err_server_andress_empty">伺服器地址不能為空</string>
+  <string name="err_email_empty">郵箱不能為空</string>
+  <string name="err_passwd_empty">密碼不能為空</string>
+  <string name="err_passwd_too_short">密碼太短</string>
+  <string name="err_passwd_mismatch">兩次輸入的密碼不一致</string>
+  <string name="err_login_failed">登錄失敗</string>
+  <string name="err_wrong_user_or_passwd">郵箱或密碼錯誤</string>
+  <string name="err_token_expired">認證已過期，請重新登錄</string>
+  <string name="upload">上傳</string>
+  <string name="uploaded">已上傳</string>
+  <string name="updated">已更新</string>
+  <string name="download_failed">下載失敗</string>
+  <string name="download_waiting">等待下載</string>
+  <string name="download_finished">下載完成</string>
+  <string name="download_cancelled">下載取消</string>
+  <string name="task_cancel">取消</string>
+  <string name="task_retry">重新上傳</string>
+  <string name="task_remove">移除</string>
+  <string name="task_remove_all_cancelled">移除所有取消任務</string>
+  <string name="task_remove_all_finished">移除所有已完成任務</string>
+  <string name="repo_action_delete">刪除</string>
+  <string name="repo_action_rename">重命名</string>
+  <string name="file_action_star">星標</string>
+  <string name="file_action_download">下載</string>
+  <string name="file_action_update">上傳</string>
+  <string name="file_action_share">分享連結</string>
+  <string name="file_action_export">匯出</string>
+  <string name="file_action_delete">刪除</string>
+  <string name="file_action_rename">重命名</string>
+  <string name="file_action_copy">複製</string>
+  <string name="file_action_move">移動</string>
+  <string name="file_action_open_as">打開為</string>
+  <string name="file_action_more">更多</string>
+  <string name="file_action_more_title">選擇你喜歡的選項</string>
+  <string-array name="file_action_more_array">
+    <item>匯出</item>
+    <item>複製</item>
+    <item>移動</item>
+    <item>星標</item>
+  </string-array>
+  <string-array name="file_type_array">
+    <item>文本</item>
+    <item>音頻</item>
+    <item>視頻</item>
+    <item>圖像</item>
+    <item>其他</item>
+  </string-array>
+  <string name="wait">等待</string>
+  <string name="image_gallery_NoImageView_text">沒有找到圖片</string>
+  <string name="pick_photo_video_title">請選擇要上傳的圖片/視頻</string>
+  <string name="select_upload_items">請選擇要上傳的文件</string>
+  <plurals name="n_upload_items_selected">
+    <item quantity="other">選擇了%1$d個文件</item>
+  </plurals>
+  <string name="repo_name_empty">請輸入資料庫名稱</string>
+  <string name="dir_name_empty">請輸入文件夾名</string>
+  <string name="file_name_empty">請輸入文件名</string>
+  <string name="password_empty">請輸入您的密碼</string>
+  <string name="wrong_password">密碼錯誤</string>
+  <string name="library_read_only">這個資料庫是只讀的</string>
+  <string name="error_when_load_dirents">文件夾數據加載出錯.\n 點擊刷新</string>
+  <string name="error_when_load_repos">資料庫數據加載出錯.\n 點擊刷新</string>
+  <string name="error_when_load_activities">活動數據加載出錯.\n 點擊刷新</string>
+  <string name="error_when_load_starred">星標文件加載出錯.\n 點擊刷新</string>
+  <string name="dir_empty">此文件夾是空的</string>
+  <string name="no_repo">無資料庫</string>
+  <string name="no_app_available">沒有找到應用</string>
+  <string name="add_to_seafile">添加到Seafile中</string>
+  <string name="ok">確定</string>
+  <string name="no_account">首先請在Seafile上創建一個帳戶</string>
+  <string name="choose_an_account">請選擇一個帳戶</string>
+  <string name="choose_a_library">請選擇一個資料庫</string>
+  <string name="choose_a_folder">請選擇一個文件夾</string>
+  <string name="load_accounts_fail">加載Seafile帳戶失敗</string>
+  <string name="load_libraries_fail">加載資料庫失敗</string>
+  <string name="load_dir_fail">加載此文件夾的內容失敗</string>
+  <string name="not_supported_share">不支持此類分享</string>
+  <string name="edit">編輯</string>
+  <string name="encrypt">加密</string>
+  <string name="download_folder">下載該文件夾</string>
+  <string name="download_folder_title">選擇你喜歡的選項</string>
+  <string-array name="download_folder_options_array">
+    <item>下載文件夾</item>
+    <item>下載文件夾及其子文件夾</item>
+  </string-array>
+  <string name="add_repo">新建資料庫</string>
+  <string name="add_file">添加</string>
+  <string-array name="add_file_options_array">
+    <item>新建文件</item>
+    <item>新建文件夾</item>
+    <item>上傳文件</item>
+    <item>拍照上傳</item>
+  </string-array>
+  <string name="create_new_repo">新建資料庫</string>
+  <string name="create_new_repo_success">新建資料庫%s成功</string>
+  <string name="create_new_folder_success">文件夾%s創建成功</string>
+  <string name="create_new_file_success">文件%s創建成功</string>
+  <string name="create_new_file">創建新文件</string>
+  <string name="create_new_dir">創建新文件夾</string>
+  <string name="camera">拍照上傳</string>
+  <string name="download">下載</string>
+  <string name="open">打開</string>
+  <string name="last_modified">最後更改</string>
+  <string name="file_modified">已更改</string>
+  <string name="file_size">文件大小</string>
+  <string name="library_not_found">此資料庫已被刪除</string>
+  <string name="file_not_found">此文件\"%s\"已被刪除</string>
+  <string name="export_file">匯出此文件</string>
+  <string name="no_upload_tasks">無上傳任務</string>
+  <string name="no_download_tasks">無下載任務</string>
+  <string name="seahub_url_hint">注意：伺服器地址應該包含端口號。比如www.example.com:8000</string>
+  <string name="copy_link">複製鏈接</string>
+  <string name="share_file_link">分享此文件的鏈接</string>
+  <string name="share_dir_link">分享此文件夾的鏈接</string>
+  <string name="generating_link">生成鏈接中. . .</string>
+  <string name="link_ready_to_be_pasted">此鏈接已被複製到剪貼板。</string>
+  <string name="rename_repo">重命名資料庫</string>
+  <string name="rename_file">重命名文件</string>
+  <string name="rename_dir">重命名文件夾</string>
+  <string name="rename_successful">重命名成功。</string>
+  <string-array name="nav_array">
+    <item>文件</item>
+    <item>上傳任務</item>
+    <item>帳戶</item>
+    <item>相冊備份</item>
+  </string-array>
+  <string name="no_starred_file">無星標文件</string>
+  <string name="added_to_upload_tasks">開始上傳</string>
+  <string name="added_photo_to_upload_tasks">圖片開始上傳</string>
+  <string name="take_photo_successfully">拍照成功</string>
+  <string name="tabs_library">資料庫</string>
+  <string name="tabs_activity">最近修改</string>
+  <string name="tabs_starred">星標文件</string>
+  <string name="provide_password">請提供資料庫\"%s\"的密碼</string>
+  <string name="upload_waiting">等待上傳</string>
+  <string name="upload_finished">上傳完成</string>
+  <string name="upload_cancelled">上傳取消</string>
+  <string name="upload_failed">上傳失敗</string>
+  <string name="upload_file_exist">文件已存在</string>
+  <string name="upload_duplicate_found">名字為\"%s\"的文件在此位置已存在.\n 你想用上傳的文件替換它嗎?</string>
+  <string name="upload_replace_all">全部替換</string>
+  <string name="upload_keep_both">保留兩者</string>
+  <string name="upload_replace">替換</string>
+  <string name="days_ago">%d天前</string>
+  <string name="hours_ago">%d小時前</string>
+  <string name="minutes_ago">%d分鐘前</string>
+  <string name="seconds_ago">%d秒前</string>
+  <string name="just_now">剛剛更新</string>
+  <string name="open_as">打開為</string>
+  <string name="select_upload_files">請選擇要上傳的文件</string>
+  <string name="storage_removed">存儲卡已被移出</string>
+  <string name="error_selecting_file">選擇文件時出錯</string>
+  <plurals name="n_upload_files_selected">
+    <item quantity="other">已經選擇%1$d個文件</item>
+  </plurals>
+  <string name="empty_folder">此文件夾是空的</string>
+  <string name="choose_file">請選擇一個文件</string>
+  <string name="ssl_error">安全驗證失敗</string>
+  <string name="ssl_confirm">%s的安全證書不受信任,是否繼續？</string>
+  <string name="ssl_confirm_cert_changed">%s使用了非法的安全證書，這意味著該連接不安全，是否繼續?</string>
+  <string name="ssl_confirm_title">連接不受信任</string>
+  <string name="issued_to">簽發給</string>
+  <string name="finger_prints">指紋</string>
+  <string name="period_of_validity">有效期</string>
+  <string name="sha1">SHA-1算法  %s</string>
+  <string name="md5">MD5算法  %s</string>
+  <string name="not_available">不可用</string>
+  <string name="serial_number">序列號%s</string>
+  <string name="not_before">生效日期%s</string>
+  <string name="not_after">過期日期%s</string>
+  <string name="yes">是</string>
+  <string name="no">否</string>
+  <string name="remember_my_choice">記住我的選擇</string>
+  <string name="copied_successfully">複製成功</string>
+  <string name="moved_successfully">移動成功</string>
+  <string name="internal_server_error">伺服器出錯了</string>
+  <string name="copy_file_ing">正在複製文件</string>
+  <string name="move_file_ing">正在移動文件</string>
+  <string name="copy_file_from">正在從 %1$s \n 複製到 %2$s</string>
+  <string name="move_file_from">正在從 %1$s \n 移動到 %2$s</string>
+  <string name="copy_folder_ing">正在複製文件夾</string>
+  <string name="move_folder_ing">正在移動文件夾</string>
+  <string name="upload_started">開始上傳</string>
+  <string name="cannot_copy_folder_to_subfolder">不能把一個文件夾複製到它的子文件夾裡面去</string>
+  <string name="cannot_move_folder_to_subfolder">不能把一個文件夾移動到它的子文件夾裡面去</string>
+  <string name="cancel">取消</string>
+  <string name="confirm">確定</string>
+  <string name="repo_not_found">找不到該資料庫，它可能是加密資料庫或已被刪除</string>
+  <string name="settings_account">帳戶</string>
+  <string name="settings_account_info_title">帳戶信息</string>
+  <string name="settings_account_info_load_data">加載中...</string>
+  <string name="settings_account_space_title">已使用空間</string>
+  <string name="settings_account_sign_out_title">退出登錄</string>
+  <string name="settings_account_sign_out_hint">點擊退出</string>
+  <string name="settings_account_sign_out_confirm">你想退出登錄嗎？</string>
+  <string name="security">安全性</string>
+  <string name="gesture_lock">手勢密碼鎖</string>
+  <string name="gesture_lock_on">手勢鎖開啓</string>
+  <string name="gesture_lock_off">手勢鎖關閉</string>
+  <string name="lockscreen_access_pattern_hint">請繪制手勢密碼</string>
+  <string name="lockscreen_access_pattern_start">開始繪製圖案</string>
+  <string name="lockscreen_access_pattern_cleared">圖案已清除</string>
+  <string name="lockscreen_access_pattern_cell_added">已添加單元格</string>
+  <string name="lockscreen_access_pattern_detected">圖案繪制完成</string>
+  <string name="lockscreen_access_pattern_passwd_forget">忘記密碼</string>
+  <string name="lockscreen_access_pattern_failure">您已5次輸錯密碼，請30秒後再試</string>
+  <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
+    <item quantity="other">%1$d秒後重試</item>
+  </plurals>
+  <plurals name="lockscreen_access_pattern_failure_left_try_times">
+    <item quantity="other">密碼錯誤，還可以再輸入%1$d次</item>
+  </plurals>
+  <string name="lockscreen_access_pattern_failure_not_long_enough">輸入長度不夠，請重試</string>
+  <string name="lockpattern_retry_button_text">重繪</string>
+  <string name="lockpattern_continue_button_text">繼續</string>
+  <string name="lockpattern_confirm_button_text">保存</string>
+  <string name="lockpattern_recording_intro_header">繪制解鎖圖案</string>
+  <string name="lockpattern_settings_help_how_to_record">如何繪制解鎖圖案</string>
+  <string name="lockpattern_recording_incorrect_too_short">至少連接4個點，請重試</string>
+  <string name="lockpattern_pattern_entered_header">圖案已記錄</string>
+  <string name="lockpattern_need_to_draw">請繪制解鎖圖案</string>
+  <string name="lockpattern_need_to_confirm">請再次繪制解鎖圖案</string>
+  <string name="lockpattern_need_to_unlock_wrong">與上次輸入不一致，請重試</string>
+  <string name="lockpattern_pattern_confirmed_header">點擊保存解鎖圖案</string>
+  <string name="lockpattern_recording_inprogress">完成後松開手指</string>
+  <string name="lockpattern_pattern_toast_saved">密碼設置成功</string>
+  <!--Strings for possible PreferenceActivity Back/Next buttons-->
+  <string name="back_button_label">Back</string>
+  <string name="next_button_label">Next</string>
+  <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
+  <string name="skip_button_label">Skip</string>
+  <!--contacts  upload-->
+  <!--contacts Upload Perference-->
+  <!--Camera Upload Preference-->
+  <string name="settings_camera_upload_info_title">上傳照片</string>
+  <string name="settings_camera_upload_service_started">上傳服務已啓動</string>
+  <string name="settings_camera_upload_service_stopped">上傳服務已關閉</string>
+  <string name="settings_camera_upload_allow_data_plan">允許使用移動流量套餐</string>
+  <string name="settings_camera_upload_allow_videos">允許上傳視頻</string>
+  <string name="settings_camera_upload_default_wifi">默認使用WiFi上傳</string>
+  <string name="settings_camera_upload_data_plan_allowed">支持移動流量套餐上傳</string>
+  <string name="settings_camera_upload_default_photos">默認只上傳圖片</string>
+  <string name="settings_camera_upload_videos_allowed">支持視頻上傳</string>
+  <string name="settings_camera_upload_change_repo_title">更改上傳資料庫</string>
+  <string name="settings_camera_upload_repo_hint">請先選擇一個資料庫來上傳照片</string>
+  <string name="settings_camera_upload_turn_on">打開照片上傳</string>
+  <string name="settings_camera_upload_choose_dir">更改相冊</string>
+  <string name="settings_camera_upload_dir_auto_scan">默認自動掃描照片</string>
+  <string name="settings_camera_upload_lib_not_found">資料庫不存在</string>
+  <string name="settings_camera_upload_advanced_feature_title">高級選項</string>
+  <string name="settings_camera_upload_advanced_feature_subtitle">更改上傳設置</string>
+  <string name="settings_camera_upload_advanced_custom_directories">選擇上傳相冊</string>
+  <string name="settings_camera_upload_advanced_custom_directories_on">選擇備份相冊</string>
+  <string name="settings_camera_upload_advanced_custom_directories_off">自動掃描設備</string>
+  <!--Camera Upload Configuration View-->
+  <string name="settings_cuc_title">配置助手</string>
+  <string name="settings_cuc_welcome_text">感謝使用照片上傳配置助手，\n在開始使用上傳服務之前，將會引導你如何進行配置。</string>
+  <string name="settings_cuc_network_title">上傳方式</string>
+  <string name="settings_cuc_network_wifi">僅限於Wi-Fi</string>
+  <string name="settings_cuc_network_data_plan">Wi-Fi或者移動流量套餐</string>
+  <string name="settings_cuc_option_hint">選擇你要配置的帳戶和資料庫，這些設置以後可以在設置菜單里修改。</string>
+  <string name="settings_cuc_type_title">上傳內容</string>
+  <string name="settings_cuc_type_photo">僅上傳圖片</string>
+  <string name="settings_cuc_type_video">上傳圖片和視頻</string>
+  <string name="settings_cuc_local_dir_title">選擇相冊</string>
+  <plurals name="settings_cuc_local_dir_items">
+    <item quantity="other">%1$d個文件</item>
+  </plurals>
+  <string name="settings_cuc_remote_lib_title">選擇雲端資料庫</string>
+  <string name="settings_cuc_remote_lib_account">請選擇一個帳戶</string>
+  <string name="settings_cuc_remote_lib_repo">%s被選中</string>
+  <string name="settings_cuc_upload_to_parent_folder">上一級</string>
+  <string name="settings_cuc_auto_scan">自動備份默認相冊</string>
+  <string name="settings_cuc_pick_albums">選擇備份相冊</string>
+  <string name="settings_cuc_remote_lib_hint">選擇你要配置的選項，這些設置以後可以在設置菜單里修改。</string>
+  <string name="settings_cuc_finish_title">完成</string>
+  <string name="settings_cuc_ready">Seafile將會從你指定的文件夾上傳文件，在這個過程中你可以隨時關閉該應用</string>
+  <string name="settings_cuc_swipe_left">向左滑進入下一步</string>
+  <string name="settings_cuc_click_btn">點擊按鈕關閉配置助手</string>
+  <string name="settings_cuc_loading">加載中...</string>
+  <!--Camera Sync-->
+  <string name="sync_provider_camera_upload">照片和視頻</string>
+  <string name="camera_sync_notification_title_failed">照片上傳失敗</string>
+  <string name="camera_sync_notification_repo_missing_failed">伺服器上不存在該資料庫</string>
+  <string name="camera_sync_notification_auth_error_failed">授權失敗</string>
+  <string name="camera_sync_rename_file"> (由Seafile重命名為)%s</string>
+  <string name="settings_about_title">關於</string>
+  <string name="settings_about_version_title">應用版本號</string>
+  <string name="settings_about_author_title">關於我們</string>
   <string name="settings_about_author_info">
         <![CDATA[
         <h5>Seafile安卓客戶端</h5>
@@ -350,134 +352,135 @@
         <h5>版權 ©2013-2016 Seafile Ltd.</h5>
         ]]>
     </string>
-    <string name="settings_advance_feature_title">高級特性</string>
-    <string name="settings_storage_title">緩存存儲</string>
-    <string name="settings_cache_title">緩存大小</string>
-    <string name="settings_clear_cache_title">清空緩存</string>
-    <string name="settings_clear_cache_hint">你想清理緩存嗎？</string>
-    <string name="settings_clear_cache_success">清理緩存成功</string>
-    <string name="settings_clear_cache_failed">清理緩存失敗</string>
-    <string name="settings_cache_empty">0 KB</string>
-    <string name="settings_cache_location_title">緩存路徑</string>
-    <string name="dialog_switch_storage_info_text">現有的緩存文件會被移動到新路徑下，這可能需要一段時間。</string>
-    <string name="storage_manager_primary_storage">主存儲</string>
-    <string name="storage_manager_secondary_storage">副存儲</string>
-    <string name="storage_manager_storage_description">%1$s (%2$s可用/%3$s總共)</string>
-    <string name="storage_manager_storage_description_not_available">%1$s (不可用)</string>
-    <!--pull to refresh-->
-    <string name="pull_to_refresh_pull_label">下拉更新</string>
-    <string name="pull_to_refresh_release_label">釋放更新</string>
-    <string name="pull_to_refresh_refreshing_label">加載中...</string>
-    <string name="pull_to_refresh_last_update">上次刷新：</string>
-    <string name="pull_to_refresh_last_update_seconds_ago">%d秒前</string>
-    <string name="pull_to_refresh_last_update_minutes_ago">%d分鐘前</string>
-    <string name="pull_to_refresh_last_update_hours_ago">%d小時前</string>
-    <!--storage access framework-->
-    <string name="saf_open_file_exception">無法打開文件%s</string>
-    <string name="saf_open_directory_exception"> 無法打開目錄</string>
-    <string name="saf_file_not_cached_exception">文件%s沒有被緩存</string>
-    <string name="saf_thumbnail_not_found_exception">找不到（或）打不開縮略圖%s</string>
-    <string name="saf_file_not_downloaded_exception">不能從伺服器下載%s</string>
-    <string name="saf_write_diretory_exception">不能進入目錄進行讀取（或）寫入</string>
-    <string name="saf_account_not_found_exception">無法找到Seafile帳戶</string>
-    <string name="saf_upload_path_not_available">無效路徑，無法上傳</string>
-    <string name="saf_failed_to_create_directory">無法創建目錄%s</string>
-    <string name="saf_file_exist">該文件已存在</string>
-    <string name="saf_bad_mime_type">請求類型錯誤</string>
-    <!--shibboleth SSO-->
-    <string name="shib_server_url_empty">地址欄為空</string>
-    <string name="shib_server_incorrect_prefix">地址應該以https://或http://開頭</string>
-    <string name="shib_load_page_error">錯誤：</string>
-    <string name="shib_login_title">Shibboleth登錄</string>
-    <string name="shib_server_hint">請輸入地址...</string>
-    <string name="shib_actionbar_title">Shibboleth登錄</string>
-    <string name="shib_loading">加載中...</string>
-    <!--Transfer List-->
-    <string name="transfer_list_network_error">網絡連接錯誤，請稍後重試！</string>
-    <string name="transfer_list_cancel_all">取消所有任務</string>
-    <string name="transfer_list_restart_all">重新開始</string>
-    <string name="transfer_list_retry_failed_tasks">重試失敗的任務</string>
-    <string name="transfer_list_restart_cancelled_tasks">重試取消的任務</string>
-    <string name="transfer_list_clear_failed_tasks">清除失敗的任務</string>
-    <string name="transfer_list_clear_all_tasks">清除所有任務</string>
-    <string name="transfer_list_clear_finished_tasks">清除完成的任務</string>
-    <string name="transfer_tabs_downloads">下載列表</string>
-    <string name="transfer_tabs_uploads">上傳列表</string>
-    <string name="transfer_download_no_task">所有文件已下載完成</string>
-    <plurals name="transfer_download_started">
-        <item quantity="other">開始下載%1$d個文件</item>
-    </plurals>
-    <string name="transfer_list_select_all">全選</string>
-    <string name="transfer_list_deselect_all">取消全選</string>
-    <plurals name="transfer_list_items_selected">
-        <item quantity="other">選中%d個</item>
-    </plurals>
-    <!--Sort-->
-    <string name="sort_menu_item">排序</string>
-    <string name="sort_files">排序規則</string>
-    <string-array name="sort_files_options_array">
-        <item>名字</item>
-        <item>名字（降序）</item>
-        <item>最後修改時間</item>
-        <item>最後修改時間（降序）</item>
-    </string-array>
-    <!--Search-->
-    <string name="search_menu_item">搜索</string>
-    <string name="search_bar_hint">搜索...</string>
-    <string name="search_txt_empty">請輸入您的關鍵詞</string>
-    <string name="search_content_empty">沒找到</string>
-    <string name="search_server_not_support">此伺服器不支持搜索</string>
-    <string name="search_library_not_found">沒找到資料庫，它可能已被刪除</string>
-    <!--star a file-->
-    <string name="star_file_succeed">星標添加成功</string>
-    <string name="star_file_failed">星標添加失敗</string>
-    <!--unstar a file-->
-    <string name="unstar_file_failed">取消星標失敗</string>
-    <string name="unstar">取消星標</string>
-    <!--notification bar-->
-    <string name="notification_upload_started_title">文件上傳中...</string>
-    <string name="notification_download_started_title">文件下載中...</string>
-    <string name="notification_upload_completed">上傳完成</string>
-    <plurals name="notification_upload_info">
-        <item quantity="other">正在上傳%1$d個文件(%2$d%%)</item>
-    </plurals>
-    <plurals name="notification_download_info">
-        <item quantity="other">正在下載%1$d個文件(%2$d%%)</item>
-    </plurals>
-    <string name="notification_download_completed">下載完成</string>
-    <!--Gallery-->
-    <string name="gallery_load_photos_error">加載圖片錯誤</string>
-    <string name="gallery_encrypted_repo_not_supported">不支持加密資料庫</string>
-    <!--Overwrite existing files-->
-    <string name="overwrite_existing_file_title">替換文件</string>
-    <string name="overwrite_existing_file_msg">該文件已存在，要替換它嗎？</string>
-    <string name="overwrite_existing_file_exist">該文件已經存在</string>
-    <!--Action Mode-->
-    <string name="action_mode_no_items_selected">未選中任何文件</string>
-    <!--Accessibility description for navigation drawer-->
-    <!--permission-->
-    <string name="permission_read_exteral_storage_rationale">在處理文件之前，請允許應用獲取存儲權限</string>
-    <string name="permission_not_granted">未獲得權限</string>
-    <string name="history_change_title">修改詳情</string>
-    <string name="no_more_activities">沒有更多活動了</string>
-    <!--client side encryption and decryption-->
-    <string name="enc_on">數據在本地解密</string>
-    <string name="enc_off">數據在伺服器端解密</string>
-    <string name="enc_title">加密資料庫解密方式</string>
-    <!--clear password-->
-    <string name="clear_password_title">清除資料庫密碼</string>
-    <string name="clear_password_hint">點擊清除密碼</string>
-    <string name="clear_password_successful">清除密碼成功</string>
-    <string name="clear_password_failed">清除密碼失敗</string>
-    <string name="clear_password_warning">你想清除密碼嗎？</string>
-    <string name="clear_password_auto">自動清除密碼</string>
-    <!--Two factor auth-->
-    <string name="two_factor_auth_error">請輸入驗證碼</string>
-    <string name="two_factor_auth_invalid">驗證碼無效</string>
-    <string name="two_factor_auth_token">兩步驗證碼</string>
-    <string name="two_factor_auth_token_empty">驗證碼不能為空</string>
-    <!--Operation Exceptions-->
-    <string name="op_exception_folder_deleted">此文件夾\"%s\"已被刪除</string>
-    <string name="op_exception_suitable_app_not_found">找不到合適的應用打開該%s類型</string>
-    <string name="op_exception_failed_to_download_file">下載文件%s失敗</string>
+  <string name="settings_advance_feature_title">高級特性</string>
+  <string name="settings_storage_title">緩存存儲</string>
+  <string name="settings_cache_title">緩存大小</string>
+  <string name="settings_clear_cache_title">清空緩存</string>
+  <string name="settings_clear_cache_hint">你想清理緩存嗎？</string>
+  <string name="settings_clear_cache_success">清理緩存成功</string>
+  <string name="settings_clear_cache_failed">清理緩存失敗</string>
+  <string name="settings_cache_empty">0 KB</string>
+  <string name="settings_cache_location_title">緩存路徑</string>
+  <string name="dialog_switch_storage_info_text">現有的緩存文件會被移動到新路徑下，這可能需要一段時間。</string>
+  <string name="storage_manager_primary_storage">主存儲</string>
+  <string name="storage_manager_secondary_storage">副存儲</string>
+  <string name="storage_manager_storage_description">%1$s (%2$s可用/%3$s總共)</string>
+  <string name="storage_manager_storage_description_not_available">%1$s (不可用)</string>
+  <!--pull to refresh-->
+  <string name="pull_to_refresh_pull_label">下拉更新</string>
+  <string name="pull_to_refresh_release_label">釋放更新</string>
+  <string name="pull_to_refresh_refreshing_label">加載中...</string>
+  <string name="pull_to_refresh_last_update">上次刷新：</string>
+  <string name="pull_to_refresh_last_update_seconds_ago">%d秒前</string>
+  <string name="pull_to_refresh_last_update_minutes_ago">%d分鐘前</string>
+  <string name="pull_to_refresh_last_update_hours_ago">%d小時前</string>
+  <!--storage access framework-->
+  <string name="saf_open_file_exception">無法打開文件%s</string>
+  <string name="saf_open_directory_exception"> 無法打開目錄</string>
+  <string name="saf_file_not_cached_exception">文件%s沒有被緩存</string>
+  <string name="saf_thumbnail_not_found_exception">找不到（或）打不開縮略圖%s</string>
+  <string name="saf_file_not_downloaded_exception">不能從伺服器下載%s</string>
+  <string name="saf_write_diretory_exception">不能進入目錄進行讀取（或）寫入</string>
+  <string name="saf_account_not_found_exception">無法找到Seafile帳戶</string>
+  <string name="saf_upload_path_not_available">無效路徑，無法上傳</string>
+  <string name="saf_failed_to_create_directory">無法創建目錄%s</string>
+  <string name="saf_file_exist">該文件已存在</string>
+  <string name="saf_bad_mime_type">請求類型錯誤</string>
+  <!--shibboleth SSO-->
+  <string name="shib_server_url_empty">地址欄為空</string>
+  <string name="shib_server_incorrect_prefix">地址應該以https://或http://開頭</string>
+  <string name="shib_load_page_error">錯誤：</string>
+  <string name="shib_login_title">Shibboleth登錄</string>
+  <string name="shib_server_hint">請輸入地址...</string>
+  <string name="shib_actionbar_title">Shibboleth登錄</string>
+  <string name="shib_loading">加載中...</string>
+  <!--Transfer List-->
+  <string name="transfer_list_network_error">網絡連接錯誤，請稍後重試！</string>
+  <string name="transfer_list_cancel_all">取消所有任務</string>
+  <string name="transfer_list_restart_all">重新開始</string>
+  <string name="transfer_list_retry_failed_tasks">重試失敗的任務</string>
+  <string name="transfer_list_restart_cancelled_tasks">重試取消的任務</string>
+  <string name="transfer_list_clear_failed_tasks">清除失敗的任務</string>
+  <string name="transfer_list_clear_all_tasks">清除所有任務</string>
+  <string name="transfer_list_clear_finished_tasks">清除完成的任務</string>
+  <string name="transfer_tabs_downloads">下載列表</string>
+  <string name="transfer_tabs_uploads">上傳列表</string>
+  <string name="transfer_download_no_task">所有文件已下載完成</string>
+  <plurals name="transfer_download_started">
+    <item quantity="other">開始下載%1$d個文件</item>
+  </plurals>
+  <string name="transfer_list_select_all">全選</string>
+  <string name="transfer_list_deselect_all">取消全選</string>
+  <plurals name="transfer_list_items_selected">
+    <item quantity="other">選中%d個</item>
+  </plurals>
+  <!--Sort-->
+  <string name="sort_menu_item">排序</string>
+  <string name="sort_files">排序規則</string>
+  <string-array name="sort_files_options_array">
+    <item>名字</item>
+    <item>名字（降序）</item>
+    <item>最後修改時間</item>
+    <item>最後修改時間（降序）</item>
+  </string-array>
+  <!--Search-->
+  <string name="search_menu_item">搜索</string>
+  <string name="search_bar_hint">搜索...</string>
+  <string name="search_txt_empty">請輸入您的關鍵詞</string>
+  <string name="search_content_empty">沒找到</string>
+  <string name="search_server_not_support">此伺服器不支持搜索</string>
+  <string name="search_library_not_found">沒找到資料庫，它可能已被刪除</string>
+  <!--star a file-->
+  <string name="star_file_succeed">星標添加成功</string>
+  <string name="star_file_failed">星標添加失敗</string>
+  <!--unstar a file-->
+  <string name="unstar_file_failed">取消星標失敗</string>
+  <string name="unstar">取消星標</string>
+  <!--notification bar-->
+  <string name="notification_upload_started_title">文件上傳中...</string>
+  <string name="notification_download_started_title">文件下載中...</string>
+  <string name="notification_upload_completed">上傳完成</string>
+  <plurals name="notification_upload_info">
+    <item quantity="other">正在上傳%1$d個文件(%2$d%%)</item>
+  </plurals>
+  <plurals name="notification_download_info">
+    <item quantity="other">正在下載%1$d個文件(%2$d%%)</item>
+  </plurals>
+  <string name="notification_download_completed">下載完成</string>
+  <!--Gallery-->
+  <string name="gallery_load_photos_error">加載圖片錯誤</string>
+  <string name="gallery_encrypted_repo_not_supported">不支持加密資料庫</string>
+  <!--Overwrite existing files-->
+  <string name="overwrite_existing_file_title">替換文件</string>
+  <string name="overwrite_existing_file_msg">該文件已存在，要替換它嗎？</string>
+  <string name="overwrite_existing_file_exist">該文件已經存在</string>
+  <!--Action Mode-->
+  <string name="action_mode_no_items_selected">未選中任何文件</string>
+  <!--Accessibility description for navigation drawer-->
+  <!--permission-->
+  <string name="permission_read_exteral_storage_rationale">在處理文件之前，請允許應用獲取存儲權限</string>
+  <string name="permission_not_granted">未獲得權限</string>
+  <string name="history_change_title">修改詳情</string>
+  <string name="no_more_activities">沒有更多活動了</string>
+  <!--client side encryption and decryption-->
+  <string name="enc_on">數據在本地解密</string>
+  <string name="enc_off">數據在伺服器端解密</string>
+  <string name="enc_title">加密資料庫解密方式</string>
+  <!--clear password-->
+  <string name="clear_password_title">清除資料庫密碼</string>
+  <string name="clear_password_hint">點擊清除密碼</string>
+  <string name="clear_password_successful">清除密碼成功</string>
+  <string name="clear_password_failed">清除密碼失敗</string>
+  <string name="clear_password_warning">你想清除密碼嗎？</string>
+  <string name="clear_password_auto">自動清除密碼</string>
+  <!--Two factor auth-->
+  <string name="two_factor_auth_error">請輸入驗證碼</string>
+  <string name="two_factor_auth_invalid">驗證碼無效</string>
+  <string name="two_factor_auth_token">兩步驗證碼</string>
+  <string name="two_factor_auth_token_empty">驗證碼不能為空</string>
+  <!--Operation Exceptions-->
+  <string name="op_exception_folder_deleted">此文件夾\"%s\"已被刪除</string>
+  <string name="op_exception_suitable_app_not_found">找不到合適的應用打開該%s類型</string>
+  <string name="op_exception_failed_to_download_file">下載文件%s失敗</string>
+  <!--Home list title-->
 </resources>

@@ -1,18 +1,21 @@
 package com.seafile.seadroid2.ui.fragment;
 
+import android.Manifest;
 import android.app.Activity;
-import android.support.v7.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
+import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
@@ -23,16 +26,19 @@ import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
-import com.seafile.seadroid2.data.DatabaseHelper;
-import com.seafile.seadroid2.data.ServerInfo;
-import com.seafile.seadroid2.data.StorageManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadConfigActivity;
 import com.seafile.seadroid2.cameraupload.CameraUploadManager;
+import com.seafile.seadroid2.cameraupload.ContactsUploadConfigActivity;
+import com.seafile.seadroid2.cameraupload.ContactsUploadManager;
 import com.seafile.seadroid2.cameraupload.GalleryBucketUtils;
 import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.DatabaseHelper;
+import com.seafile.seadroid2.data.SeafDirent;
+import com.seafile.seadroid2.data.ServerInfo;
+import com.seafile.seadroid2.data.StorageManager;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.activity.CreateGesturePasswordActivity;
@@ -43,6 +49,7 @@ import com.seafile.seadroid2.ui.dialog.ClearPasswordTaskDialog;
 import com.seafile.seadroid2.ui.dialog.SwitchStorageTaskDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog.TaskDialogListener;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
+import com.seafile.seadroid2.util.ContactsDialog;
 import com.seafile.seadroid2.util.Utils;
 
 import org.apache.commons.io.FileUtils;
@@ -57,8 +64,9 @@ public class SettingsFragment extends CustomPreferenceFragment {
     public static final String CAMERA_UPLOAD_BOTH_PAGES = "com.seafile.seadroid2.camera.upload";
     public static final String CAMERA_UPLOAD_REMOTE_LIBRARY = "com.seafile.seadroid2.camera.upload.library";
     public static final String CAMERA_UPLOAD_LOCAL_DIRECTORIES = "com.seafile.seadroid2.camera.upload.directories";
-
+    public static final String CONTACTS_UPLOAD_REMOTE_LIBRARY = "com.seafile.seadroid2.contacts.upload.library";
     public static final int CHOOSE_CAMERA_UPLOAD_REQUEST = 2;
+    public static final int CHOOSE_CONTACTS_UPLOAD_REQUEST = 3;
 
     // Account Info
     private static Map<String, AccountInfo> accountInfoMap = Maps.newHashMap();
@@ -76,11 +84,18 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
     private SettingsActivity mActivity;
     private String appVersion;
-    private SettingsManager settingsMgr;
+    public SettingsManager settingsMgr;
     private CameraUploadManager cameraManager;
+    public ContactsUploadManager contactsManager;
     private AccountManager accountMgr;
     private DataManager dataMgr;
     private StorageManager storageManager = StorageManager.getInstance();
+    private PreferenceCategory cContactsCategory;
+    private Preference cContactsRepoPref;
+    private Preference cContactsRepoTime;
+    private Preference cContactsRepoBackUp;
+    private Preference cContactsRepoRecovery;
+    private long mMtime;
 
     @Override
     public void onAttach(Activity activity) {
@@ -92,6 +107,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
         settingsMgr = SettingsManager.instance();
         accountMgr = new AccountManager(mActivity);
         cameraManager = new CameraUploadManager(mActivity.getApplicationContext());
+        contactsManager = new ContactsUploadManager(mActivity.getApplicationContext());
         Account act = accountMgr.getCurrentAccount();
         dataMgr = new DataManager(act);
     }
@@ -290,6 +306,62 @@ public class SettingsFragment extends CustomPreferenceFragment {
             }
         });
 
+        // Contacts Upload
+        cContactsCategory = (PreferenceCategory) findPreference(SettingsManager.CONTACTS_UPLOAD_CATEGORY_KEY);
+        findPreference(SettingsManager.CONTACTS_UPLOAD_SWITCH_KEY).setOnPreferenceChangeListener(new Preference
+                .OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                if (newValue instanceof Boolean) {
+                    boolean isChecked = (Boolean) newValue;
+                    if (isChecked) {
+                        Intent intent = new Intent(mActivity, ContactsUploadConfigActivity.class);
+                        intent.putExtra(CONTACTS_UPLOAD_REMOTE_LIBRARY, true);
+                        startActivityForResult(intent, CHOOSE_CONTACTS_UPLOAD_REQUEST);
+                    } else {
+                        cContactsCategory.removePreference(cContactsRepoPref);
+                        cContactsCategory.removePreference(cContactsRepoTime);
+                        cContactsCategory.removePreference(cContactsRepoBackUp);
+                        cContactsCategory.removePreference(cContactsRepoRecovery);
+                        contactsManager.disableContactsUpload();
+                    }
+                    return true;
+                }
+
+                return false;
+            }
+        });
+
+        // Change contacts upload library
+        cContactsRepoPref = findPreference(SettingsManager.CONTACTS_UPLOAD_REPO_KEY);
+        cContactsRepoPref.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Intent intent = new Intent(mActivity, ContactsUploadConfigActivity.class);
+                intent.putExtra(CONTACTS_UPLOAD_REMOTE_LIBRARY, true);
+                startActivityForResult(intent, CHOOSE_CONTACTS_UPLOAD_REQUEST);
+                return true;
+            }
+        });
+
+        cContactsRepoTime = findPreference(SettingsManager.CONTACTS_UPLOAD_REPO_TIME_KEY);
+
+        cContactsRepoBackUp = findPreference(SettingsManager.CONTACTS_UPLOAD_REPO_BACKUP_KEY);
+        cContactsRepoBackUp.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                backupContacts();
+                return true;
+            }
+        });
+        cContactsRepoRecovery = findPreference(SettingsManager.CONTACTS_UPLOAD_REPO_RECOVERY_KEY);
+        cContactsRepoRecovery.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                recoveryContacts();
+                return false;
+            }
+        });
         // change local folder CheckBoxPreference
         cCustomDirectoriesPref = (CheckBoxPreference) findPreference(SettingsManager.CAMERA_UPLOAD_CUSTOM_BUCKETS_KEY);
         cCustomDirectoriesPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -325,6 +397,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
         });
 
         refreshCameraUploadView();
+        refreshContactsView();
 
         // App Version
         try {
@@ -376,6 +449,115 @@ public class SettingsFragment extends CustomPreferenceFragment {
         }
 
     }
+
+    //contacts  backup
+    private void backupContacts() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (mActivity.checkSelfPermission(Manifest.permission.READ_CONTACTS) !=
+                    PackageManager.PERMISSION_GRANTED) {
+                //if not have read contacts permission to  request
+                mActivity.requestReadContactsPermission();
+            } else {
+                // have read contacts permission  to  show backup dialog
+                showUploadContactsDialog();
+            }
+        } else {
+            showUploadContactsDialog();
+        }
+    }
+
+    private void recoveryContacts() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (mActivity.checkSelfPermission(Manifest.permission.READ_CONTACTS) !=
+                    PackageManager.PERMISSION_GRANTED) {
+                //if not have read contacts permission to  request
+                mActivity.requestReadContactsPermission();
+            } else {
+                // have read contacts permission  to  show recovery dialog
+                showRecoveryContactsDialog();
+            }
+        } else {
+            showRecoveryContactsDialog();
+        }
+    }
+
+    private void showRecoveryContactsDialog() {
+        ContactsDialog contactsDialog = new ContactsDialog(getActivity(), ContactsDialog.CONTACTS_RECOVERY);
+        contactsDialog.show(getFragmentManager(), "SettingsFragment");
+    }
+
+
+    public void showUploadContactsDialog() {
+
+        final ContactsDialog contactsDialog = new ContactsDialog(mActivity, ContactsDialog.CONTACTS_BACKUP);
+        contactsDialog.setTaskDialogLisenter(new TaskDialogListener() {
+            @Override
+            public void onTaskSuccess() {
+                long timeMillis = System.currentTimeMillis();
+                String s = Utils.translateCommitTime(timeMillis * 1000);
+                cContactsRepoTime.setSummary(s);
+            }
+        });
+        contactsDialog.show(mActivity.getSupportFragmentManager(), "SettingsFragment");
+    }
+
+
+    private void refreshContactsView() {
+        ((CheckBoxPreference) findPreference(SettingsManager.CONTACTS_UPLOAD_SWITCH_KEY))
+                .setChecked(contactsManager.isContactsUploadEnabled());
+
+        if (!contactsManager.isContactsUploadEnabled()) {
+            cContactsCategory.removePreference(cContactsRepoPref);
+            cContactsCategory.removePreference(cContactsRepoTime);
+            cContactsCategory.removePreference(cContactsRepoBackUp);
+            cContactsCategory.removePreference(cContactsRepoRecovery);
+        } else {
+            cContactsCategory.addPreference(cContactsRepoPref);
+            cContactsCategory.addPreference(cContactsRepoTime);
+            cContactsCategory.addPreference(cContactsRepoBackUp);
+            cContactsCategory.addPreference(cContactsRepoRecovery);
+
+            Account camAccount = contactsManager.getContactsAccount();
+            if (camAccount != null && settingsMgr.getContactsUploadRepoName() != null) {
+                cContactsRepoPref.setSummary(camAccount.getSignature()
+                        + "/" + settingsMgr.getContactsUploadRepoName()
+                        + "/" + SettingsActivity.BASE_DIR);
+            }
+
+            //show  backup  time
+            DataManager dataManager = new DataManager(camAccount);
+            String repoId = settingsMgr.getContactsUploadRepoId();
+            if (repoId != null) {
+                List<SeafDirent> dirents = dataManager.getCachedDirents(repoId, "/");
+                if (dirents != null) {
+                    for (int i = 0; i < dirents.size(); i++) {
+                        SeafDirent seafDirent = dirents.get(i);
+                        if (seafDirent.isDir() && seafDirent.getTitle().equals(SettingsActivity.BASE_DIR)) {
+                            String path = Utils.pathJoin("/", seafDirent.name);
+                            List<SeafDirent> childDirents = dataManager.getCachedDirents(repoId, path);
+                            if (childDirents != null) {
+                                for (int j = 0; j < childDirents.size(); j++) {
+                                    SeafDirent childFile = childDirents.get(j);
+                                    if (!childFile.isDir()) {
+                                        String title = childFile.getTitle();
+                                        if (title.indexOf("contacts") != -1) {
+                                            if (seafDirent.mtime > mMtime) {
+                                                mMtime = seafDirent.mtime;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (mMtime > 0) {
+                        cContactsRepoTime.setSummary(Utils.translateCommitTime(mMtime * 1000));
+                    }
+                }
+            }
+        }
+    }
+
 
     private void clearPasswordSilently() {
         ConcurrentAsyncTask.submit(new Runnable() {
@@ -506,6 +688,23 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
                 }
                 refreshCameraUploadView();
+                break;
+            case CHOOSE_CONTACTS_UPLOAD_REQUEST:
+                if (resultCode == Activity.RESULT_OK) {
+                    if (data == null) {
+                        return;
+                    }
+                    final String repoName = data.getStringExtra(SeafilePathChooserActivity.DATA_REPO_NAME);
+                    final String repoId = data.getStringExtra(SeafilePathChooserActivity.DATA_REPO_ID);
+                    final Account account = data.getParcelableExtra(SeafilePathChooserActivity.DATA_ACCOUNT);
+                    if (repoName != null && repoId != null) {
+                        //                        Log.d(DEBUG_TAG, "Activating contacts upload to " + account + "; " + repoName);
+                        contactsManager.setContactsAccount(account);
+                        settingsMgr.saveContactsUploadRepoInfo(repoId, repoName);
+                    }
+                } else if (resultCode == Activity.RESULT_CANCELED) {
+                }
+                refreshContactsView();
                 break;
 
             default:

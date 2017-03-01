@@ -15,6 +15,7 @@
   <string name="server_hint">Server, zoals cloud.seafile.com</string>
   <string name="email_hint">E-mailadres of gebruikersnaam</string>
   <string name="passwd_hint">Wachtwoord</string>
+  <string name="passwd_min_len_limit_hint">Wachtwoord (tenminste %d tekens)</string>
   <string name="passwd_confirmation_hint">Wachtwoord opnieuw</string>
   <string name="login">Aanmelden</string>
   <string name="open_file">Open</string>
@@ -150,6 +151,7 @@
   <string name="file_modified">bewerkt</string>
   <string name="file_size">Bestandsgrootte</string>
   <string name="library_not_found">Deze bibliotheek is verwijdert</string>
+  <string name="file_not_found">Het bestand \"%s\" is verwijderd</string>
   <string name="export_file">Exporteer dit bestand</string>
   <string name="no_upload_tasks">Nog geen upload taken</string>
   <string name="no_download_tasks">Nog geen download taken</string>
@@ -276,6 +278,8 @@
   <string name="next_button_label">Volgende</string>
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">Overslaan</string>
+  <!--contacts  upload-->
+  <!--contacts Upload Perference-->
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Fotocamera upload</string>
   <string name="settings_camera_upload_service_started">Uploaddienst gestart</string>
@@ -451,4 +455,7 @@
   <string name="clear_password_warning">Wil je het wachtwoord verwijderen?</string>
   <!--Two factor auth-->
   <!--Operation Exceptions-->
+  <string name="op_exception_folder_deleted">De map \"%s\" is verwijderd</string>
+  <string name="op_exception_failed_to_download_file">Kon bestand %s niet downloaden</string>
+  <!--Home list title-->
 </resources>

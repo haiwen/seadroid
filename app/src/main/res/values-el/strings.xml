@@ -134,6 +134,8 @@
   <string name="upload_started">Η μεταφόρτωση άρχισε</string>
   <!--Strings for possible PreferenceActivity Back/Next buttons-->
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
+  <!--contacts  upload-->
+  <!--contacts Upload Perference-->
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Μεταφόρτωση φωτογραφιών</string>
   <string name="settings_camera_upload_service_started">Η υπηρεσία μεταφόρτωσης ξεκίνησε</string>
@@ -175,4 +177,5 @@
   <!--clear password-->
   <!--Two factor auth-->
   <!--Operation Exceptions-->
+  <!--Home list title-->
 </resources>

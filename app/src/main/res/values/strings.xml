@@ -38,7 +38,7 @@
     <string name="transfer_tasks">Transfer List</string>
     <string name="accounts">Accounts</string>
     <string name="settings">Settings</string>
-    
+
     <string-array name="pick_upload_array">
         <item>File</item>
         <item>Photos/Videos</item>
@@ -287,12 +287,37 @@
     <string name="lockpattern_pattern_confirmed_header">Tap OK to save your pattern</string>
     <string name="lockpattern_recording_inprogress">Release finger when finished drawing</string>
     <string name="lockpattern_pattern_toast_saved">Gesture Lock Pattern successfully saved</string>
-    
-     <!--  Strings for possible PreferenceActivity Back/Next buttons -->
+
+    <!--  Strings for possible PreferenceActivity Back/Next buttons -->
     <string name="back_button_label">Back</string>
     <string name="next_button_label">Next</string>
     <!-- Optional button to Skip a PreferenceActivity [CHAR LIMIT=20] -->
     <string name="skip_button_label">Skip</string>
+
+    <!--contacts  upload-->
+    <string name="settings_contacts_upload_info_title">Contacts backup</string>
+    <string name="settings_contacts_upload_turn_on">Enable contacts backup</string>
+    <string name="settings_contacts_upload_service_started">Contacts backup enabled</string>
+    <string name="settings_contacts_upload_service_stopped">Contacts backup disabled</string>
+    <string name="settings_contacts_upload_repo_hint">Please select a library for contacts backup</string>
+    <string name="settings_contacts_upload_change_repo_title">Change the library for contacts backup</string>
+    <string name="settings_contacts_upload_repo_time">Last backup time</string>
+    <string name="settings_contacts_upload_repo_history">No backup record</string>
+    <string name="settings_contacts_upload_start_backup">Backup</string>
+    <string name="settings_contacts_upload_start_backup_hint">Click to start contacts backup</string>
+    <string name="settings_contacts_upload_start_recovery">Restore</string>
+    <string name="settings_contacts_upload_start_recovery_hint">Click to restore contacts</string>
+
+    <!--contacts Upload Perference-->
+    <string name="contacts_dialog_recovery">Restore contacts from the latest backup</string>
+    <string name="contacts_dialog_backup">Contacts will be backup to file:</string>
+    <string name="contacts_count_zero">The contacts is empty</string>
+    <string name="contacts_backup_success">Backup success</string>
+    <string name="contacts_recovery_success">Restore success</string>
+    <string name="contacts_backup_title">Backup contacts</string>
+    <string name="contacts_recovery_title">Restore contacts</string>
+    <string name="contacts_backup_fail">Backup failed</string>
+    <string name="contacts_recover_fail">Restore failed</string>
 
     <!-- Camera Upload Preference -->
     <string name="settings_camera_upload_info_title">Camera Photo Upload</string>
@@ -497,6 +522,7 @@
 
     <!-- permission -->
     <string name="permission_read_exteral_storage_rationale">To process files, allow storage permission to access them.</string>
+    <string name="permission_read_contacts_storage_rationale">To process contacts, allow contacts permission to access them.</string>
     <string name="permission_not_granted">Permission was not granted</string>
 
     <string name="history_change_title">Modification Details</string>
@@ -525,4 +551,6 @@
     <string name="op_exception_folder_deleted">The folder \"%s\" was deleted</string>
     <string name="op_exception_suitable_app_not_found">Could not find suitable app for mime type %s</string>
     <string name="op_exception_failed_to_download_file">Failed to download file %s</string>
+    <!-- Home list title -->
+    <string name="shared_with_all">Shared with all</string>
 </resources>
