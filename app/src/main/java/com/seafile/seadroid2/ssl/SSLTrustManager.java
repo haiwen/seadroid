@@ -160,7 +160,10 @@ public final class SSLTrustManager {
         chainList.add(certChain);
         Principal certIssuer = certChain.getIssuerDN();
         Principal certSubject = certChain.getSubjectDN();
-        while(!certs.isEmpty()){
+        // in the worst case one run per certificate
+        // make sure, we don't get an infinite loop here
+        int checksLeft = certs.size();
+        while(!certs.isEmpty() && checksLeft > 0){
             List<X509Certificate> tempcerts = ImmutableList.copyOf(certs);
             for (X509Certificate cert : tempcerts) {
                 if(cert.getIssuerDN().equals(certSubject)){
@@ -177,6 +180,8 @@ public final class SSLTrustManager {
                     continue;
                 }
             }
+
+            checksLeft--;
         }
 
         return chainList;
