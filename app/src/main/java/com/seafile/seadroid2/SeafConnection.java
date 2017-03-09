@@ -1557,6 +1557,8 @@ public class SeafConnection {
                 String wiped = req.header("X-Seafile-Wiped");
                 if (wiped != null) {
                     throw SeafException.remoteWipedException;
+                } else {
+                    throw new SeafException(req.code(), req.message());
                 }
             } else {
                 throw new SeafException(req.code(), req.message());
