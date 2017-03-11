@@ -1306,12 +1306,15 @@ public class SeafConnection {
         checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
     }
 
-    public String getShareLink(String repoID, String path, boolean isdir) throws SeafException {
+    public String getShareLink(String repoID, String path, String password, boolean isdir) throws SeafException {
         try {
             String apiPath = String.format("api2/repos/%s/file/shared-link/", repoID);
             HttpRequest req = prepareApiPutRequest(apiPath, null);
             req.form("p", path);
             req.form("type", isdir ? "d" : "f");
+            if (!TextUtils.isEmpty(password)) {
+                req.form("password", password);
+            }
             checkRequestResponseStatus(req, HttpURLConnection.HTTP_CREATED);
 
             String result = req.header("Location");

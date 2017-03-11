@@ -69,7 +69,7 @@ public class GalleryActivity extends BaseActivity {
                     starFile(repoID, dirPath, fileName);
                     break;
                 case R.id.gallery_share_photo:
-                    shareFile(repoID, Utils.pathJoin(dirPath, fileName));
+                    shareFile(repoID, false, Utils.pathJoin(dirPath, fileName));
                     break;
             }
         }
@@ -345,8 +345,8 @@ public class GalleryActivity extends BaseActivity {
         ConcurrentAsyncTask.execute(new StarFileTask(repoId, p));
     }
 
-    private void shareFile(String repoID, String path) {
-        WidgetUtils.chooseShareApp(this, repoID, path, false, mAccount);
+    private void shareFile(String repoID, boolean isEncrypt, String path) {
+        WidgetUtils.chooseShareApp(this, repoID, path, isEncrypt, false, mAccount);
     }
 
     class StarFileTask extends AsyncTask<Void, Void, Void> {

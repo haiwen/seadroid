@@ -1900,12 +1900,12 @@ public class BrowserActivity extends BaseActivity
      * @param repoID
      * @param path
      */
-    public void shareFile(String repoID, String path) {
-        WidgetUtils.chooseShareApp(this, repoID, path, false, account);
+    public void shareFile(final String repoID, final String path, boolean isEncrypt) {
+        WidgetUtils.chooseShareApp(BrowserActivity.this, repoID, path, isEncrypt, false, account);
     }
 
-    public void shareDir(String repoID, String path) {
-        WidgetUtils.chooseShareApp(this, repoID, path, true, account);
+    public void shareDir(String repoID, String path, boolean isEncrypt) {
+        WidgetUtils.chooseShareApp(this, repoID, path, isEncrypt, true, account);
     }
 
     public void renameFile(String repoID, String repoName, String path) {

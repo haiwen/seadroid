@@ -80,6 +80,7 @@
     <string name="file_action_download">Download</string>
     <string name="file_action_update">Upload</string>
     <string name="file_action_share">Share link</string>
+    <string name="file_action_share_encrypt">Share link with password</string>
     <string name="file_action_export">Export</string>
     <string name="file_action_delete">Delete</string>
     <string name="file_action_rename">Rename</string>
@@ -553,4 +554,5 @@
     <string name="op_exception_failed_to_download_file">Failed to download file %s</string>
     <!-- Home list title -->
     <string name="shared_with_all">Shared with all</string>
+    <string name="add_password_protection">Add password protection</string>
 </resources>

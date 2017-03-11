@@ -6,10 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
-import android.support.v4.app.FragmentActivity;
 import android.text.ClipboardManager;
 import android.webkit.MimeTypeMap;
-import android.widget.BaseAdapter;
 import android.widget.Toast;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -36,6 +34,7 @@ public class WidgetUtils {
     public static void chooseShareApp(final BaseActivity activity,
                                       final String repoID,
                                       final String path,
+                                      final boolean isEncrypt,
                                       final boolean isdir,
                                       final Account account) {
         final Intent shareIntent = new Intent();
@@ -54,7 +53,7 @@ public class WidgetUtils {
             @Override
             public void onCustomActionSelected(AppChoiceDialog.CustomAction action) {
                 final GetShareLinkDialog gdialog = new GetShareLinkDialog();
-                gdialog.init(repoID, path, isdir, account);
+                gdialog.init(repoID, path, isEncrypt, isdir, account);
                 gdialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
                     @Override
                     @SuppressWarnings("deprecation")
@@ -77,7 +76,7 @@ public class WidgetUtils {
                 shareIntent.setClassName(packageName, className);
 
                 final GetShareLinkDialog gdialog = new GetShareLinkDialog();
-                gdialog.init(repoID, path, isdir, account);
+                gdialog.init(repoID, path, isEncrypt, isdir, account);
                 gdialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
                     @Override
                     public void onTaskSuccess() {

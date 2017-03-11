@@ -6,6 +6,11 @@
         android:title="@string/file_action_share" />
 
     <item
+        android:id="@+id/share_encrypt"
+        android:icon="@drawable/action_share_password"
+        android:title="@string/file_action_share_encrypt" />
+
+    <item
         android:id="@+id/rename"
         android:icon="@drawable/action_rename"
         android:title="@string/file_action_rename" />
