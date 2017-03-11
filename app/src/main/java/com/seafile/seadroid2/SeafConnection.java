@@ -1306,30 +1306,33 @@ public class SeafConnection {
         checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
     }
 
-    public String getShareLink(String repoID, String path, String password, boolean isdir) throws SeafException {
+    public String getShareLink(String repoID, String path, String password) throws SeafException {
         try {
-            String apiPath = String.format("api2/repos/%s/file/shared-link/", repoID);
-            HttpRequest req = prepareApiPutRequest(apiPath, null);
-            req.form("p", path);
-            req.form("type", isdir ? "d" : "f");
+            Map<String, Object> params = Maps.newHashMap();
+            HttpRequest req = prepareApiPostRequest("api/v2.1/share-links/", true, params, false);
+            req.form("repo_id", repoID);
+            req.form("path", path);
             if (!TextUtils.isEmpty(password)) {
                 req.form("password", password);
             }
-            checkRequestResponseStatus(req, HttpURLConnection.HTTP_CREATED);
-
-            String result = req.header("Location");
-            if (result == null) {
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+            String result = new String(req.bytes(), "UTF-8");
+            if (result != null && Utils.parseJsonObject(result) != null) {
+                JSONObject obj = Utils.parseJsonObject(result);
+                return obj.getString("link");
+            } else {
                 throw SeafException.illFormatException;
             }
-            return result;
-        } catch (UnsupportedEncodingException e) {
-            throw SeafException.encodingException;
-        } catch (IOException e) {
-            throw SeafException.networkException;
+
         } catch (SeafException e) {
             throw e;
         } catch (HttpRequestException e) {
             throw getSeafExceptionFromHttpRequestException(e);
+        } catch (UnsupportedEncodingException e) {
+            throw SeafException.illFormatException;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            throw SeafException.illFormatException;
         }
     }
 

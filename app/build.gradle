@@ -31,7 +31,7 @@ android {
 //            keyPassword props.keyAliasPassword
         }
         release {
-//             Signing code for manual signing
+//            Signing code for manual signing
 //            storeFile file(System.console().readLine("\n\$ Enter keystore path: "))
 //            storePassword System.console().readPassword("\n\$ Enter keystore password: ").toString()
 //            keyAlias System.console().readLine("\n\$ Enter key alias: ")

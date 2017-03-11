@@ -16,22 +16,20 @@ class GetShareLinkTask extends TaskDialog.Task {
     String repoID;
     String path;
     String password;
-    boolean isdir;
     SeafConnection conn;
     String link;
 
-    public GetShareLinkTask(String repoID, String path, String password, boolean isdir, SeafConnection conn) {
+    public GetShareLinkTask(String repoID, String path, String password, SeafConnection conn) {
         this.repoID = repoID;
         this.path = path;
         this.password = password;
-        this.isdir = isdir;
         this.conn = conn;
     }
 
     @Override
     protected void runTask() {
         try {
-            link = conn.getShareLink(repoID, path, password, isdir);
+            link = conn.getShareLink(repoID, path, password);
         } catch (SeafException e) {
             setTaskException(e);
         }
@@ -48,16 +46,14 @@ public class GetShareLinkDialog extends TaskDialog {
     private String repoID;
     private String path;
     private boolean isEncrypt = false;
-    private boolean isdir;
     private SeafConnection conn;
     private EditText passwordText;
     private String repoName;
 
-    public void init(String repoID, String path, boolean isEncrypt, boolean isdir, Account account) {
+    public void init(String repoID, String path, boolean isEncrypt, Account account) {
         this.repoID = repoID;
         this.path = path;
         this.isEncrypt = isEncrypt;
-        this.isdir = isdir;
         this.conn = new SeafConnection(account);
     }
 
@@ -135,7 +131,7 @@ public class GetShareLinkDialog extends TaskDialog {
         if (isEncrypt) {
             password = passwordText.getText().toString().trim();
         }
-        GetShareLinkTask task = new GetShareLinkTask(repoID, path, password, isdir, conn);
+        GetShareLinkTask task = new GetShareLinkTask(repoID, path, password, conn);
         return task;
     }
 

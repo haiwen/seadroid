@@ -53,7 +53,7 @@ public class WidgetUtils {
             @Override
             public void onCustomActionSelected(AppChoiceDialog.CustomAction action) {
                 final GetShareLinkDialog gdialog = new GetShareLinkDialog();
-                gdialog.init(repoID, path, isEncrypt, isdir, account);
+                gdialog.init(repoID, path, isEncrypt, account);
                 gdialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
                     @Override
                     @SuppressWarnings("deprecation")
@@ -76,7 +76,7 @@ public class WidgetUtils {
                 shareIntent.setClassName(packageName, className);
 
                 final GetShareLinkDialog gdialog = new GetShareLinkDialog();
-                gdialog.init(repoID, path, isEncrypt, isdir, account);
+                gdialog.init(repoID, path, isEncrypt, account);
                 gdialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
                     @Override
                     public void onTaskSuccess() {
