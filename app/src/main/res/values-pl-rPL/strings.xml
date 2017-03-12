@@ -75,6 +75,7 @@
   <string name="file_action_download">Pobierz</string>
   <string name="file_action_update">Prześlij</string>
   <string name="file_action_share">Łącze udostępniania</string>
+  <string name="file_action_share_encrypt">Udostępnij łącze z hasłem</string>
   <string name="file_action_export">Wyeksportuj</string>
   <string name="file_action_delete">Usuń</string>
   <string name="file_action_rename">Zmień nazwę</string>
@@ -307,7 +308,7 @@
   <string name="settings_contacts_upload_start_recovery_hint">Dotknij, aby przywrócić kontakty</string>
   <!--contacts Upload Perference-->
   <string name="contacts_dialog_recovery">Przywróć kontakty z ostatniej kopii zapasowej</string>
-  <string name="contacts_dialog_backup">Kontakty zostaną zapisane do pliku:</string>
+  <string name="contacts_dialog_backup">Kontakty zostaną zapisane w pliku:</string>
   <string name="contacts_count_zero">Kontakty są puste</string>
   <string name="contacts_backup_success">Pomyślnie wykonano kopię zapasową</string>
   <string name="contacts_recovery_success">Pomyślnie przywrócono z kopii zapasowej</string>
@@ -533,4 +534,5 @@
   <string name="op_exception_failed_to_download_file">Nie udało się pobrać pliku %s</string>
   <!--Home list title-->
   <string name="shared_with_all">Współdzielone ze wszystkimi</string>
+  <string name="add_password_protection">Dodaj ochronę hasłem</string>
 </resources>

@@ -171,6 +171,7 @@
     <string name="copy_link">Copy link</string>
     <string name="share_file_link">Share a link to this file</string>
     <string name="share_dir_link">Share a link to this folder</string>
+    <string name="share_input_password">input share password</string>
     <string name="generating_link">Generating link&#8230;</string>
     <string name="link_ready_to_be_pasted">The link is ready to be pasted.</string>
     <string name="rename_repo">Rename library</string>
