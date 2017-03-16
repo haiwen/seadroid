@@ -167,6 +167,7 @@
   <string name="copy_link">Копировать ссылку</string>
   <string name="share_file_link">Поделиться ссылкой на этот файл</string>
   <string name="share_dir_link">Поделиться ссылкой на эту папку</string>
+  <string name="share_input_password">пароль</string>
   <string name="generating_link">Создание ссылки...</string>
   <string name="link_ready_to_be_pasted">Ссылка готова для вставки.</string>
   <string name="rename_repo">Переименовать библиотеку</string>

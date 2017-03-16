@@ -167,6 +167,7 @@
   <string name="copy_link">Kopiuj odsyłacz</string>
   <string name="share_file_link">Udostępnij łącze do tego pliku</string>
   <string name="share_dir_link">Udostępnij łącze do tego folderu</string>
+  <string name="share_input_password">wpisz hasło udostępniania</string>
   <string name="generating_link">Generowanie odsyłacza...</string>
   <string name="link_ready_to_be_pasted">Łącze jest gotowe do wklejenia.</string>
   <string name="rename_repo">Zmień nazwę biblioteki</string>

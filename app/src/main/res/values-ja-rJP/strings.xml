@@ -75,6 +75,7 @@
   <string name="file_action_download">ダウンロード</string>
   <string name="file_action_update">アップロード</string>
   <string name="file_action_share">リンクを共有</string>
+  <string name="file_action_share_encrypt">リンクをパスワードで共有</string>
   <string name="file_action_export">エクスポート</string>
   <string name="file_action_delete">削除</string>
   <string name="file_action_rename">名前を変更</string>
@@ -163,6 +164,7 @@
   <string name="copy_link">リンクをコピー</string>
   <string name="share_file_link">このファイルへのリンクを共有</string>
   <string name="share_dir_link">このフォルダーへのリンクを共有</string>
+  <string name="share_input_password">共有パスワードを入力</string>
   <string name="generating_link">リンクを生成しています…</string>
   <string name="link_ready_to_be_pasted">リンクを貼り付けできます。</string>
   <string name="rename_repo">ライブラリーの名前を変更</string>
@@ -295,7 +297,7 @@
   <string name="settings_contacts_upload_start_recovery_hint">クリックすると連絡先を復元します</string>
   <!--contacts Upload Perference-->
   <string name="contacts_dialog_recovery">最後のバックアップから連絡先を復元</string>
-  <string name="contacts_dialog_backup">連絡先はファイルにバックアップされます:</string>
+  <string name="contacts_dialog_backup">連絡先をファイルにバックアップします:</string>
   <string name="contacts_count_zero">連絡先は空です</string>
   <string name="contacts_backup_success">バックアップに成功しました</string>
   <string name="contacts_recovery_success">復元に成功しました</string>
@@ -506,4 +508,5 @@
   <string name="op_exception_failed_to_download_file">ファイル %s のダウンロードに失敗しました</string>
   <!--Home list title-->
   <string name="shared_with_all">すべてと共有しました</string>
+  <string name="add_password_protection">パスワード保護を追加</string>
 </resources>
