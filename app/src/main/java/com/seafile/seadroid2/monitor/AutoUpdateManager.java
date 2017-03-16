@@ -3,6 +3,7 @@ package com.seafile.seadroid2.monitor;
 import android.os.Handler;
 import android.util.Log;
 
+import com.google.common.collect.ConcurrentHashMultiset;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import com.seafile.seadroid2.SeafException;
@@ -119,15 +120,50 @@ public class AutoUpdateManager implements Runnable, CachedFileChangedListener {
         }
     }
 
-    public void onFileUpdateFailure(Account account, String repoID, String repoName,
-                                    String parentDir, String localPath, SeafException e, int version) {
-        if (e.getCode() / 100 != 4) {
+    private static int MAX_UPLOAD_FAILURES = 3;
+    private ConcurrentHashMultiset<AutoUpdateInfo> uploadFailuresByFile = ConcurrentHashMultiset.create();
+
+    private boolean maxFailureReached(Account account, String repoID, String repoName,
+                                      String parentDir, String localPath, int version) {
+        AutoUpdateInfo info = new AutoUpdateInfo(account, repoID, repoName, parentDir, localPath, version);
+        int failures = uploadFailuresByFile.count(info) + 1;
+        if (failures >= MAX_UPLOAD_FAILURES) {
+            uploadFailuresByFile.remove(info);
+            return true;
+        }
+        uploadFailuresByFile.setCount(info, failures);
+        return false;
+    }
+
+    public void onFileUpdateFailure(Account account,
+                                    String repoID,
+                                    String repoName,
+                                    String parentDir,
+                                    String localPath,
+                                    SeafException e,
+                                    int version) {
+        boolean shouldAbortUpload = false;
+        if (e.getCode() / 100 == 4) {
+            // This file has already been removed on server, so we abort the auto update task
+            shouldAbortUpload = true;
+        }
+
+        if (!shouldAbortUpload
+            && maxFailureReached(account, repoID, repoName, parentDir, localPath, version)) {
+            Log.d(DEBUG_TAG,
+                String.format("abort auto updating %s because failed for more than %s times",
+                    localPath, MAX_UPLOAD_FAILURES));
+            shouldAbortUpload = true;
+        }
+
+        if (!shouldAbortUpload) {
             return;
         }
 
-        // This file has already been removed on server, so we abort the auto update task
         if (removeAutoUpdateInfo(account, repoID, repoName, parentDir, localPath, version)) {
             Log.d(DEBUG_TAG, String.format("failed to auto update %s, error %s", localPath, e));
+        } else {
+            Log.d(DEBUG_TAG, String.format("failed to remove auto update task for %s", localPath));
         }
     }
 
