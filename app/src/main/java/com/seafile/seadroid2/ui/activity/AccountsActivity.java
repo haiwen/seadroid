@@ -115,6 +115,7 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
                 if (!account.hasValidToken()) {
                     // user already signed out, input password first
                     startEditAccountActivity(account);
+
                 } else {
                     // update current Account info from SharedPreference
                     accountManager.saveCurrentAccount(account.getSignature());

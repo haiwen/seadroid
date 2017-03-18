@@ -52,6 +52,11 @@ public class Authenticator extends AbstractAccountAuthenticator {
      */
     public final static String KEY_SERVER_FEATURES = "features";
 
+    /**
+     * Key of shib_setting in userData
+     */
+    public final static String KEY_SHIB = "shib";
+
     public Authenticator(Context context) {
         super(context);
         Log.d(DEBUG_TAG, "SeafileAuthenticator created.");
@@ -189,6 +194,9 @@ public class Authenticator extends AbstractAccountAuthenticator {
         intent.putExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_NAME, account.name); // will be overridden
         intent.putExtra(SeafileAuthenticatorActivity.ARG_EDIT_OLD_ACCOUNT_NAME, account.name);
         intent.putExtra(SeafileAuthenticatorActivity.ARG_IS_EDITING, true);
+        if (manager.getSeafileAccount(account).isShib()) {
+            intent.putExtra(SeafileAuthenticatorActivity.ARG_SHIB, true);
+        }
         final Bundle bundle = new Bundle();
         bundle.putParcelable(android.accounts.AccountManager.KEY_INTENT, intent);
         return bundle;

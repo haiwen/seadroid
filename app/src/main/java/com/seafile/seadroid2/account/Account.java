@@ -21,12 +21,16 @@ public class Account implements Parcelable, Comparable<Account> {
     public final String server;
 
     public final String email;
+
+    public final Boolean is_shib;
+
     public String token;
 
-    public Account(String server, String email, String token) {
+    public Account(String server, String email, String token, Boolean isShib) {
         this.server = server;
         this.email = email;
         this.token = token;
+        this.is_shib = isShib;
     }
 
     public String getServerHost() {
@@ -63,6 +67,10 @@ public class Account implements Parcelable, Comparable<Account> {
 
     public boolean isHttps() {
         return server.startsWith("https");
+    }
+
+    public boolean isShib() {
+        return is_shib;
     }
 
     @Override
@@ -111,6 +119,7 @@ public class Account implements Parcelable, Comparable<Account> {
         out.writeString(server);
         out.writeString(email);
         out.writeString(token);
+        out.writeByte((byte) (is_shib ? 1 : 0));
     }
 
     public static final Parcelable.Creator<Account> CREATOR
@@ -128,6 +137,7 @@ public class Account implements Parcelable, Comparable<Account> {
         server = in.readString();
         email = in.readString();
         token = in.readString();
+        is_shib = in.readByte() != 0;
 
         Log.d(DEBUG_TAG, String.format("%s %s %s", server, email, token));
     }

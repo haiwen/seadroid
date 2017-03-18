@@ -171,7 +171,7 @@ public class ShibbolethAuthorizeActivity extends BaseActivity implements Toolbar
         @Override
         public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
             Log.d(DEBUG_TAG, "onReceivedSslError " + error.getCertificate().toString());
-            final Account account = new Account(serverUrl, null, null);
+            final Account account = new Account(serverUrl, null, null, false);
 
             SslCertificate sslCert = error.getCertificate();
             X509Certificate savedCert = CertsManager.instance().getCertificate(account);
@@ -233,6 +233,7 @@ public class ShibbolethAuthorizeActivity extends BaseActivity implements Toolbar
         retData.putExtra(android.accounts.AccountManager.KEY_AUTHTOKEN, account.getToken());
         retData.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_TYPE, getIntent().getStringExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_TYPE));
         retData.putExtra(SeafileAuthenticatorActivity.ARG_EMAIL, account.getEmail());
+        retData.putExtra(SeafileAuthenticatorActivity.ARG_SHIB, true);
         retData.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, account.getServer());
 
         // pass auth result back to the ShibbolethActivity
@@ -261,7 +262,7 @@ public class ShibbolethAuthorizeActivity extends BaseActivity implements Toolbar
         Log.d(DEBUG_TAG, "email: " + email);
         Log.d(DEBUG_TAG, "token: " + token);
 
-        return new Account(url, email, token);
+        return new Account(url, email, token, true);
     }
 
     public String getCookie(String url, String key) {
