@@ -1,7 +1,5 @@
 package com.seafile.seadroid2.ui.adapter;
 
-import java.util.List;
-
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +13,9 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.data.SeafDirent;
 
+import java.util.Collections;
+import java.util.List;
+
 public class DirentsAdapter extends BaseAdapter {
 
     private List<SeafDirent> dirents;
@@ -22,6 +23,15 @@ public class DirentsAdapter extends BaseAdapter {
     public DirentsAdapter() {
         dirents = Lists.newArrayList();
     }
+
+    /** sort files type */
+    public static final int SORT_BY_NAME = 9;
+    /** sort files type */
+    public static final int SORT_BY_LAST_MODIFIED_TIME = 10;
+    /** sort files order */
+    public static final int SORT_ORDER_ASCENDING = 11;
+    /** sort files order */
+    public static final int SORT_ORDER_DESCENDING = 12;
 
     @Override
     public int getCount() {
@@ -35,6 +45,10 @@ public class DirentsAdapter extends BaseAdapter {
 
     public void add(SeafDirent entry) {
         dirents.add(entry);
+    }
+
+    public void notifyChanged() {
+        notifyDataSetChanged();
     }
 
     @Override
@@ -57,6 +71,42 @@ public class DirentsAdapter extends BaseAdapter {
             this.dirents.add(dirent);
         }
         notifyDataSetChanged();
+    }
+
+    public void sortFiles(int type, int order) {
+        List<SeafDirent> folders = Lists.newArrayList();
+        List<SeafDirent> files = Lists.newArrayList();
+
+        for (SeafDirent item : dirents) {
+            if (((SeafDirent) item).isDir())
+                folders.add(((SeafDirent) item));
+            else
+                files.add(((SeafDirent) item));
+        }
+
+        dirents.clear();
+
+        // sort SeafDirents
+        if (type == SORT_BY_NAME) {
+            // sort by name, in ascending order
+            Collections.sort(folders, new SeafDirent.DirentNameComparator());
+            Collections.sort(files, new SeafDirent.DirentNameComparator());
+            if (order == SORT_ORDER_DESCENDING) {
+                Collections.reverse(folders);
+                Collections.reverse(files);
+            }
+        } else if (type == SORT_BY_LAST_MODIFIED_TIME) {
+            // sort by last modified time, in ascending order
+            Collections.sort(folders, new SeafDirent.DirentLastMTimeComparator());
+            Collections.sort(files, new SeafDirent.DirentLastMTimeComparator());
+            if (order == SORT_ORDER_DESCENDING) {
+                Collections.reverse(folders);
+                Collections.reverse(files);
+            }
+        }
+        // Adds the objects in the specified collection to this ArrayList
+        dirents.addAll(folders);
+        dirents.addAll(files);
     }
 
     @Override
