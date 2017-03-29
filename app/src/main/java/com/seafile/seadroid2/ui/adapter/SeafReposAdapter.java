@@ -1,11 +1,12 @@
 package com.seafile.seadroid2.ui.adapter;
 
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
+
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.data.SeafRepo;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -16,6 +17,16 @@ public class SeafReposAdapter extends ReposAdapter {
     public SeafReposAdapter(boolean onlyShowWritableRepos, String encryptedRepoId) {
         super(onlyShowWritableRepos, encryptedRepoId);
     }
+
+    /** sort files type */
+    public static final int SORT_BY_NAME = 9;
+    /** sort files type */
+    public static final int SORT_BY_LAST_MODIFIED_TIME = 10;
+    /** sort files order */
+    public static final int SORT_ORDER_ASCENDING = 11;
+    /** sort files order */
+    public static final int SORT_ORDER_DESCENDING = 12;
+
 
     @Override
     public int getCount() {
@@ -31,9 +42,47 @@ public class SeafReposAdapter extends ReposAdapter {
         repos.add(repo);
     }
 
+    public void notifyChanged() {
+        notifyDataSetChanged();
+    }
+
     @Override
     public SeafRepo getItem(int position) {
         return repos.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    public void clearRepos() {
+        repos.clear();
+    }
+
+    public void sortFiles(int type, int order) {
+        List<SeafRepo> folders = Lists.newArrayList();
+
+        for (SeafRepo item : repos) {
+            folders.add(((SeafRepo) item));
+        }
+        repos.clear();
+
+        if (type == SORT_BY_NAME) {
+            // sort by name, in ascending order
+            Collections.sort(folders, new SeafRepo.RepoNameComparator());
+            if (order == SORT_ORDER_DESCENDING) {
+                Collections.reverse(folders);
+            }
+        } else if (type == SORT_BY_LAST_MODIFIED_TIME) {
+            // sort by last modified time, in ascending order
+            Collections.sort(folders, new SeafRepo.RepoLastMTimeComparator());
+            if (order == SORT_ORDER_DESCENDING) {
+                Collections.reverse(folders);
+            }
+        }
+        // Adds the objects in the specified collection to this ArrayList
+        repos.addAll(folders);
     }
 
     @Override
