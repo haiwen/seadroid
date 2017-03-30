@@ -390,7 +390,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 },
                 selection,
                 selectionArgs,
-                MediaStore.Images.ImageColumns.DATE_ADDED + " ASC"
+                MediaStore.Images.ImageColumns.DATE_ADDED + " DESC"
         );
 
         try {
@@ -448,7 +448,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 },
                 selection,
                 selectionArgs,
-                MediaStore.Video.VideoColumns.DATE_ADDED + " ASC"
+                MediaStore.Video.VideoColumns.DATE_ADDED + " DESC"
         );
 
         try {
