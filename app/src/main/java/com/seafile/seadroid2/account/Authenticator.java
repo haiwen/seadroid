@@ -52,6 +52,11 @@ public class Authenticator extends AbstractAccountAuthenticator {
      */
     public final static String KEY_SERVER_FEATURES = "features";
 
+    /**
+     * Key of shib_setting in userData
+     */
+    public final static String KEY_SHIB = "shib";
+
     public Authenticator(Context context) {
         super(context);
         Log.d(DEBUG_TAG, "SeafileAuthenticator created.");
@@ -172,8 +177,8 @@ public class Authenticator extends AbstractAccountAuthenticator {
 
     @Override
     public Bundle updateCredentials(AccountAuthenticatorResponse response,
-            android.accounts.Account account,
-            String authTokenType, Bundle options) throws NetworkErrorException {
+                                    android.accounts.Account account,
+                                    String authTokenType, Bundle options) throws NetworkErrorException {
         Log.d(DEBUG_TAG, "updateCredentials");
 
         if (authTokenType != null && !authTokenType.equals(Authenticator.AUTHTOKEN_TYPE)) {
@@ -189,6 +194,9 @@ public class Authenticator extends AbstractAccountAuthenticator {
         intent.putExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_NAME, account.name); // will be overridden
         intent.putExtra(SeafileAuthenticatorActivity.ARG_EDIT_OLD_ACCOUNT_NAME, account.name);
         intent.putExtra(SeafileAuthenticatorActivity.ARG_IS_EDITING, true);
+        boolean is_shib = manager.getSeafileAccount(account).isShib();
+        intent.putExtra(SeafileAuthenticatorActivity.ARG_SHIB, is_shib);
+
         final Bundle bundle = new Bundle();
         bundle.putParcelable(android.accounts.AccountManager.KEY_INTENT, intent);
         return bundle;
@@ -196,7 +204,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 
     @Override
     public Bundle hasFeatures(AccountAuthenticatorResponse r,
-            android.accounts.Account account, String[] strings) throws NetworkErrorException {
+                              android.accounts.Account account, String[] strings) throws NetworkErrorException {
         Log.d(DEBUG_TAG, "hasFeatures");
 
         final Bundle result = new Bundle();
