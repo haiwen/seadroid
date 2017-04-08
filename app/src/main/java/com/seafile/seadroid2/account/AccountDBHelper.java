@@ -193,13 +193,13 @@ public class AccountDBHelper extends SQLiteOpenHelper {
         };
 
         Cursor c = database.query(
-                AccountDBHelper.ACCOUNT_TABLE_NAME,
-                projection,
-                null,
-                null,
-                null,   // don't group the rows
-                null,   // don't filter by row groups
-                null    // The sort order
+             AccountDBHelper.ACCOUNT_TABLE_NAME,
+             projection,
+             null,
+             null,
+             null,   // don't group the rows
+             null,   // don't filter by row groups
+             null    // The sort order
         );
 
         c.moveToFirst();

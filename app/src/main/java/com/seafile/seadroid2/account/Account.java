@@ -3,7 +3,6 @@ package com.seafile.seadroid2.account;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.google.common.base.Objects;
 import com.seafile.seadroid2.BuildConfig;
@@ -109,41 +108,17 @@ public class Account implements Parcelable, Comparable<Account> {
         return !TextUtils.isEmpty(token);
     }
 
-
-
-
-    @Override
-    public String toString() {
-        return Objects.toStringHelper(this)
-                .add("server", server)
-                .add("user", email)
-                .toString();
-    }
-
-    @Override
-    public int compareTo(Account other) {
-        return this.toString().compareTo(other.toString());
-    }
-
     @Override
     public int describeContents() {
         return 0;
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.server);
-        dest.writeString(this.email);
-        dest.writeValue(this.is_shib);
-        dest.writeString(this.token);
-    }
-
-    protected Account(Parcel in) {
-        this.server = in.readString();
-        this.email = in.readString();
-        this.is_shib = (Boolean) in.readValue(Boolean.class.getClassLoader());
-        this.token = in.readString();
-        Log.d(DEBUG_TAG, String.format("%s %s %s %b", server, email, token ,is_shib));
+    public void writeToParcel(Parcel out, int flags) {
+        out.writeString(this.server);
+        out.writeString(this.email);
+        out.writeString(this.token);
+        out.writeValue(this.is_shib);
     }
 
     public static final Parcelable.Creator<Account> CREATOR = new Parcelable.Creator<Account>() {
@@ -157,4 +132,26 @@ public class Account implements Parcelable, Comparable<Account> {
             return new Account[size];
         }
     };
+
+    protected Account(Parcel in) {
+        this.server = in.readString();
+        this.email = in.readString();
+        this.is_shib = (Boolean) in.readValue(Boolean.class.getClassLoader());
+        this.token = in.readString();
+
+       // Log.d(DEBUG_TAG, String.format("%s %s %s %b", server, email, token ,is_shib));
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+            .add("server", server)
+            .add("user", email)
+            .toString();
+    }
+
+    @Override
+    public int compareTo(Account other) {
+        return this.toString().compareTo(other.toString());
+    }
 }

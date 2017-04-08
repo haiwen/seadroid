@@ -177,8 +177,8 @@ public class Authenticator extends AbstractAccountAuthenticator {
 
     @Override
     public Bundle updateCredentials(AccountAuthenticatorResponse response,
-                                    android.accounts.Account account,
-                                    String authTokenType, Bundle options) throws NetworkErrorException {
+            android.accounts.Account account,
+            String authTokenType, Bundle options) throws NetworkErrorException {
         Log.d(DEBUG_TAG, "updateCredentials");
 
         if (authTokenType != null && !authTokenType.equals(Authenticator.AUTHTOKEN_TYPE)) {
@@ -204,7 +204,7 @@ public class Authenticator extends AbstractAccountAuthenticator {
 
     @Override
     public Bundle hasFeatures(AccountAuthenticatorResponse r,
-                              android.accounts.Account account, String[] strings) throws NetworkErrorException {
+            android.accounts.Account account, String[] strings) throws NetworkErrorException {
         Log.d(DEBUG_TAG, "hasFeatures");
 
         final Bundle result = new Bundle();
