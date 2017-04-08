@@ -42,10 +42,6 @@ public class SeafReposAdapter extends ReposAdapter {
         repos.add(repo);
     }
 
-    public void notifyChanged() {
-        notifyDataSetChanged();
-    }
-
     @Override
     public SeafRepo getItem(int position) {
         return repos.get(position);
@@ -64,7 +60,7 @@ public class SeafReposAdapter extends ReposAdapter {
         List<SeafRepo> folders = Lists.newArrayList();
 
         for (SeafRepo item : repos) {
-            folders.add(((SeafRepo) item));
+            folders.add(item);
         }
         repos.clear();
 

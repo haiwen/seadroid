@@ -47,9 +47,6 @@ public class DirentsAdapter extends BaseAdapter {
         dirents.add(entry);
     }
 
-    public void notifyChanged() {
-        notifyDataSetChanged();
-    }
 
     @Override
     public SeafDirent getItem(int position) {
@@ -78,10 +75,11 @@ public class DirentsAdapter extends BaseAdapter {
         List<SeafDirent> files = Lists.newArrayList();
 
         for (SeafDirent item : dirents) {
-            if (((SeafDirent) item).isDir())
-                folders.add(((SeafDirent) item));
-            else
-                files.add(((SeafDirent) item));
+            if (item.isDir()) {
+                folders.add(item);
+            } else {
+                files.add(item);
+            }
         }
 
         dirents.clear();
