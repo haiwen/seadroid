@@ -3,7 +3,6 @@ package com.seafile.seadroid2.account;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.google.common.base.Objects;
 import com.seafile.seadroid2.BuildConfig;
@@ -21,12 +20,16 @@ public class Account implements Parcelable, Comparable<Account> {
     public final String server;
 
     public final String email;
+
+    public final Boolean is_shib;
+
     public String token;
 
-    public Account(String server, String email, String token) {
+    public Account(String server, String email, String token, Boolean is_shib) {
         this.server = server;
         this.email = email;
         this.token = token;
+        this.is_shib = is_shib;
     }
 
     public String getServerHost() {
@@ -63,6 +66,10 @@ public class Account implements Parcelable, Comparable<Account> {
 
     public boolean isHttps() {
         return server.startsWith("https");
+    }
+
+    public boolean isShib() {
+        return is_shib;
     }
 
     @Override
@@ -108,28 +115,31 @@ public class Account implements Parcelable, Comparable<Account> {
 
     @Override
     public void writeToParcel(Parcel out, int flags) {
-        out.writeString(server);
-        out.writeString(email);
-        out.writeString(token);
+        out.writeString(this.server);
+        out.writeString(this.email);
+        out.writeString(this.token);
+        out.writeValue(this.is_shib);
     }
 
-    public static final Parcelable.Creator<Account> CREATOR
-    = new Parcelable.Creator<Account>() {
-        public Account createFromParcel(Parcel in) {
-            return new Account(in);
+    public static final Parcelable.Creator<Account> CREATOR = new Parcelable.Creator<Account>() {
+        @Override
+        public Account createFromParcel(Parcel source) {
+            return new Account(source);
         }
 
+        @Override
         public Account[] newArray(int size) {
             return new Account[size];
         }
     };
 
-    private Account(Parcel in) {
-        server = in.readString();
-        email = in.readString();
-        token = in.readString();
+    protected Account(Parcel in) {
+        this.server = in.readString();
+        this.email = in.readString();
+        this.is_shib = (Boolean) in.readValue(Boolean.class.getClassLoader());
+        this.token = in.readString();
 
-        Log.d(DEBUG_TAG, String.format("%s %s %s", server, email, token));
+       // Log.d(DEBUG_TAG, String.format("%s %s %s %b", server, email, token ,is_shib));
     }
 
     @Override
