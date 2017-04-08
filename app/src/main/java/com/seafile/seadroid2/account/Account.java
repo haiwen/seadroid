@@ -21,12 +21,16 @@ public class Account implements Parcelable, Comparable<Account> {
     public final String server;
 
     public final String email;
+
+    public final Boolean is_shib;
+
     public String token;
 
-    public Account(String server, String email, String token) {
+    public Account(String server, String email, String token, Boolean is_shib) {
         this.server = server;
         this.email = email;
         this.token = token;
+        this.is_shib = is_shib;
     }
 
     public String getServerHost() {
@@ -65,6 +69,10 @@ public class Account implements Parcelable, Comparable<Account> {
         return server.startsWith("https");
     }
 
+    public boolean isShib() {
+        return is_shib;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hashCode(server, email);
@@ -101,47 +109,52 @@ public class Account implements Parcelable, Comparable<Account> {
         return !TextUtils.isEmpty(token);
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
 
-    @Override
-    public void writeToParcel(Parcel out, int flags) {
-        out.writeString(server);
-        out.writeString(email);
-        out.writeString(token);
-    }
 
-    public static final Parcelable.Creator<Account> CREATOR
-    = new Parcelable.Creator<Account>() {
-        public Account createFromParcel(Parcel in) {
-            return new Account(in);
-        }
-
-        public Account[] newArray(int size) {
-            return new Account[size];
-        }
-    };
-
-    private Account(Parcel in) {
-        server = in.readString();
-        email = in.readString();
-        token = in.readString();
-
-        Log.d(DEBUG_TAG, String.format("%s %s %s", server, email, token));
-    }
 
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-            .add("server", server)
-            .add("user", email)
-            .toString();
+                .add("server", server)
+                .add("user", email)
+                .toString();
     }
 
     @Override
     public int compareTo(Account other) {
         return this.toString().compareTo(other.toString());
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.server);
+        dest.writeString(this.email);
+        dest.writeValue(this.is_shib);
+        dest.writeString(this.token);
+    }
+
+    protected Account(Parcel in) {
+        this.server = in.readString();
+        this.email = in.readString();
+        this.is_shib = (Boolean) in.readValue(Boolean.class.getClassLoader());
+        this.token = in.readString();
+        Log.d(DEBUG_TAG, String.format("%s %s %s %b", server, email, token ,is_shib));
+    }
+
+    public static final Parcelable.Creator<Account> CREATOR = new Parcelable.Creator<Account>() {
+        @Override
+        public Account createFromParcel(Parcel source) {
+            return new Account(source);
+        }
+
+        @Override
+        public Account[] newArray(int size) {
+            return new Account[size];
+        }
+    };
 }

@@ -75,6 +75,7 @@
   <string name="file_action_download">下载</string>
   <string name="file_action_update">上传</string>
   <string name="file_action_share">分享链接</string>
+  <string name="file_action_share_encrypt">分享加密链接</string>
   <string name="file_action_export">导出</string>
   <string name="file_action_delete">删除</string>
   <string name="file_action_rename">重命名</string>
@@ -163,6 +164,7 @@
   <string name="copy_link">复制链接</string>
   <string name="share_file_link">分享此文件的链接</string>
   <string name="share_dir_link">分享此文件夹的链接</string>
+  <string name="share_input_password">请输入分享密码</string>
   <string name="generating_link">生成链接中. . .</string>
   <string name="link_ready_to_be_pasted">此链接已被复制到剪贴板。</string>
   <string name="rename_repo">重命名资料库</string>
@@ -295,7 +297,7 @@
   <string name="settings_contacts_upload_start_recovery_hint">点击开始恢复通讯录</string>
   <!--contacts Upload Perference-->
   <string name="contacts_dialog_recovery">从上一次备份中恢复通讯录</string>
-  <string name="contacts_dialog_backup">通讯录将备份到文件：</string>
+  <string name="contacts_dialog_backup">通讯录将备份为文件：</string>
   <string name="contacts_count_zero">通讯录是空的</string>
   <string name="contacts_backup_success">备份成功</string>
   <string name="contacts_recovery_success">恢复成功</string>
@@ -506,4 +508,5 @@
   <string name="op_exception_failed_to_download_file">下载文件%s失败</string>
   <!--Home list title-->
   <string name="shared_with_all">公共</string>
+  <string name="add_password_protection">添加保护密码</string>
 </resources>

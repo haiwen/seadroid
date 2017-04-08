@@ -1,20 +1,20 @@
 package com.seafile.seadroid2.account;
 
-import java.util.List;
-
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.preference.PreferenceManager;
 import android.util.Log;
+
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadManager;
 import com.seafile.seadroid2.data.ServerInfo;
 
-import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
+import java.util.List;
 
 /**
  * Legacy code. Only for migrating old account settings to the new android account store.
@@ -148,7 +148,7 @@ public class AccountDBHelper extends SQLiteOpenHelper {
                 && cameraServer != null && cameraToken != null) {
 
             // on this account camera upload was done previously
-            cameraAccount = new Account(cameraServer, cameraEmail, cameraToken);
+            cameraAccount = new Account(cameraServer, cameraEmail, cameraToken, false);
         }
 
         for (Account account: getAccountList(db)) {
@@ -193,13 +193,13 @@ public class AccountDBHelper extends SQLiteOpenHelper {
         };
 
         Cursor c = database.query(
-             AccountDBHelper.ACCOUNT_TABLE_NAME,
-             projection,
-             null,
-             null,
-             null,   // don't group the rows
-             null,   // don't filter by row groups
-             null    // The sort order
+                AccountDBHelper.ACCOUNT_TABLE_NAME,
+                projection,
+                null,
+                null,
+                null,   // don't group the rows
+                null,   // don't filter by row groups
+                null    // The sort order
         );
 
         c.moveToFirst();
@@ -214,7 +214,7 @@ public class AccountDBHelper extends SQLiteOpenHelper {
     }
 
     private Account cursorToAccount(Cursor cursor) {
-        return new Account(cursor.getString(0), cursor.getString(1), cursor.getString(2));
+        return new Account(cursor.getString(0), cursor.getString(1), cursor.getString(2), false);
     }
 
     private ServerInfo getServerInfo(SQLiteDatabase database, String url) {

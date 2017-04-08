@@ -5,6 +5,11 @@
         android:icon="@drawable/action_share"
         android:title="@string/file_action_share" />
     <item
+        android:id="@+id/share_encrypt"
+        android:icon="@drawable/action_share_password"
+        android:title="@string/file_action_share_encrypt"/>
+
+    <item
         android:id="@+id/export"
         android:icon="@drawable/action_export"
         android:title="@string/file_action_export" />

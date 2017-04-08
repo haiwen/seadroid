@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.account.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -71,6 +72,7 @@ public class ShibbolethAuthorizeActivity extends BaseActivity implements Toolbar
         openAuthorizePage(url);
     }
 
+    @SuppressLint("LongLogTag")
     private void openAuthorizePage(String url) {
         Log.d(DEBUG_TAG, "server url is " + url);
 
@@ -168,11 +170,11 @@ public class ShibbolethAuthorizeActivity extends BaseActivity implements Toolbar
             showPageLoading(false);
         }
 
+        @SuppressLint("LongLogTag")
         @Override
         public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
             Log.d(DEBUG_TAG, "onReceivedSslError " + error.getCertificate().toString());
-            final Account account = new Account(serverUrl, null, null);
-
+            final Account account = new Account(serverUrl, null, null, false);
             SslCertificate sslCert = error.getCertificate();
             X509Certificate savedCert = CertsManager.instance().getCertificate(account);
 
@@ -203,6 +205,7 @@ public class ShibbolethAuthorizeActivity extends BaseActivity implements Toolbar
 
         }
 
+        @SuppressLint("LongLogTag")
         @Override
         public void onPageFinished(WebView webView, String url) {
             Log.d(DEBUG_TAG, "onPageFinished " + serverUrl);
@@ -233,6 +236,7 @@ public class ShibbolethAuthorizeActivity extends BaseActivity implements Toolbar
         retData.putExtra(android.accounts.AccountManager.KEY_AUTHTOKEN, account.getToken());
         retData.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_TYPE, getIntent().getStringExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_TYPE));
         retData.putExtra(SeafileAuthenticatorActivity.ARG_EMAIL, account.getEmail());
+        retData.putExtra(SeafileAuthenticatorActivity.ARG_SHIB, account.isShib());
         retData.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, account.getServer());
 
         // pass auth result back to the ShibbolethActivity
@@ -244,6 +248,7 @@ public class ShibbolethAuthorizeActivity extends BaseActivity implements Toolbar
      * The cookie value is like seahub_shib="foo@test.com@bd8cc1138", where
      * foo@test.com is username and bd8cc1138 is api token"
      */
+    @SuppressLint("LongLogTag")
     private Account parseAccount(String url, String cookie) {
         if (url == null || cookie.isEmpty())
             return null;
@@ -261,9 +266,10 @@ public class ShibbolethAuthorizeActivity extends BaseActivity implements Toolbar
         Log.d(DEBUG_TAG, "email: " + email);
         Log.d(DEBUG_TAG, "token: " + token);
 
-        return new Account(url, email, token);
+        return new Account(url, email, token, true);
     }
 
+    @SuppressLint("LongLogTag")
     public String getCookie(String url, String key) {
         String CookieValue = "";
 

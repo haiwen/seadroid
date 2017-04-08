@@ -1,14 +1,12 @@
 package com.seafile.seadroid2.account.ui;
 
 import android.accounts.Account;
-import android.accounts.AccountAuthenticatorActivity;
 import android.accounts.AccountManager;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -37,6 +35,7 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
     public final static String ARG_SERVER_URI = "SERVER_URI";
     public final static String ARG_EDIT_OLD_ACCOUNT_NAME = "EDIT_OLD_ACCOUNT";
     public final static String ARG_EMAIL = "EMAIL";
+    public final static String ARG_SHIB = "SHIB";
     public final static String ARG_IS_EDITING = "isEdited";
 
     private static final int REQ_SIGNUP = 1;
@@ -88,7 +87,13 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
 
         mAccountManager = AccountManager.get(getBaseContext());
 
-        if (getIntent().getBooleanExtra(ARG_IS_EDITING, false)) {
+        if (getIntent().getBooleanExtra(ARG_SHIB, false)) {
+            Intent intent = new Intent(this, ShibbolethAuthorizeActivity.class);
+            android.accounts.Account account = new android.accounts.Account(getIntent().getStringExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_NAME), com.seafile.seadroid2.account.Account.ACCOUNT_TYPE);
+            intent.putExtra(ShibbolethActivity.SHIBBOLETH_SERVER_URL, mAccountManager.getUserData(account, Authenticator.KEY_SERVER_URI));
+            intent.putExtras(getIntent().getExtras());
+            startActivityForResult(intent, SeafileAuthenticatorActivity.REQ_SIGNUP);
+        } else if (getIntent().getBooleanExtra(ARG_IS_EDITING, false)) {
             Intent intent = new Intent(this, AccountDetailActivity.class);
             intent.putExtras(getIntent().getExtras());
             startActivityForResult(intent, SeafileAuthenticatorActivity.REQ_SIGNUP);
@@ -127,6 +132,7 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
         String authtoken = intent.getStringExtra(AccountManager.KEY_AUTHTOKEN);
         String serveruri = intent.getStringExtra(ARG_SERVER_URI);
         String email = intent.getStringExtra(ARG_EMAIL);
+        boolean shib = intent.getBooleanExtra(ARG_SHIB, false);
 
         int cameraIsSyncable = 0;
         boolean cameraSyncAutomatically = true;
@@ -164,6 +170,9 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
         mAccountManager.setAuthToken(newAccount, Authenticator.AUTHTOKEN_TYPE, authtoken);
         mAccountManager.setUserData(newAccount, Authenticator.KEY_SERVER_URI, serveruri);
         mAccountManager.setUserData(newAccount, Authenticator.KEY_EMAIL, email);
+        if (shib) {
+            mAccountManager.setUserData(newAccount, Authenticator.KEY_SHIB, "shib");
+        }
 
         // set sync settings
 

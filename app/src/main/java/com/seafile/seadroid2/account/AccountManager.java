@@ -1,22 +1,20 @@
 package com.seafile.seadroid2.account;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
-import android.util.Log;
 
+import com.google.common.collect.Lists;
 import com.seafile.seadroid2.cameraupload.CameraUploadManager;
+import com.seafile.seadroid2.data.ServerInfo;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Account Manager.<br>
  * note the differences between {@link Account} and {@link AccountInfo}<br>
- *
  */
-import com.google.common.collect.Lists;
-import com.seafile.seadroid2.data.ServerInfo;
 
 public class AccountManager {
     @SuppressWarnings("unused")
@@ -84,9 +82,10 @@ public class AccountManager {
 
         String server = accountManager.getUserData(androidAccount, Authenticator.KEY_SERVER_URI);
         String email = accountManager.getUserData(androidAccount, Authenticator.KEY_EMAIL);
+        boolean is_shib = accountManager.getUserData(androidAccount, Authenticator.KEY_SHIB) != null;
         String token = accountManager.peekAuthToken(androidAccount, Authenticator.AUTHTOKEN_TYPE);
 
-        return new Account(server, email, token);
+        return new Account(server, email, token, is_shib);
     }
 
     public void setServerInfo(Account account, ServerInfo serverInfo) {
