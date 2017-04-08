@@ -124,7 +124,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
                 httpsCheckBox.setChecked(true);
             serverText.setText(defaultServerUri);
             emailText.requestFocus();
-       } else {
+        } else {
             serverText.setText(HTTP_PREFIX);
             int prefixLen = HTTP_PREFIX.length();
             serverText.setSelection(prefixLen, prefixLen);
@@ -363,7 +363,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
         String passwd = passwdText.getText().toString();
 
         ConnectivityManager connMgr = (ConnectivityManager)
-            getSystemService(Context.CONNECTIVITY_SERVICE);
+                getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
         if (networkInfo != null && networkInfo.isConnected()) {
@@ -406,7 +406,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
             }
 
             loginButton.setEnabled(false);
-            Account tmpAccount = new Account(serverURL, email, null);
+            Account tmpAccount = new Account(serverURL, email, null, false);
             progressDialog = new ProgressDialog(this);
             progressDialog.setMessage(getString(R.string.settings_cuc_loading));
             progressDialog.setCancelable(false);
@@ -452,19 +452,19 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
             if (err == SeafException.sslException) {
                 authTokenLayout.setVisibility(View.GONE);
                 SslConfirmDialog dialog = new SslConfirmDialog(loginAccount,
-                new SslConfirmDialog.Listener() {
-                    @Override
-                    public void onAccepted(boolean rememberChoice) {
-                        CertsManager.instance().saveCertForAccount(loginAccount, rememberChoice);
-                        resend();
-                    }
+                        new SslConfirmDialog.Listener() {
+                            @Override
+                            public void onAccepted(boolean rememberChoice) {
+                                CertsManager.instance().saveCertForAccount(loginAccount, rememberChoice);
+                                resend();
+                            }
 
-                    @Override
-                    public void onRejected() {
-                        statusView.setText(result);
-                        loginButton.setEnabled(true);
-                    }
-                });
+                            @Override
+                            public void onRejected() {
+                                statusView.setText(result);
+                                loginButton.setEnabled(true);
+                            }
+                        });
                 dialog.show(getSupportFragmentManager(), SslConfirmDialog.FRAGMENT_TAG);
                 return;
             } else if (err == SeafException.twoFactorAuthTokenMissing) {
@@ -513,7 +513,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
                     return "Unknown error";
 
                 // replace email address/username given by the user with the address known by the server.
-                loginAccount = new Account(loginAccount.server, accountInfo.getEmail(), loginAccount.token);
+                loginAccount = new Account(loginAccount.server, accountInfo.getEmail(), loginAccount.token, false);
 
                 return "Success";
 
@@ -527,12 +527,12 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
                     return getString(R.string.two_factor_auth_invalid);
                 }
                 switch (e.getCode()) {
-                case HttpURLConnection.HTTP_BAD_REQUEST:
-                    return getString(R.string.err_wrong_user_or_passwd);
-                case HttpURLConnection.HTTP_NOT_FOUND:
-                    return getString(R.string.invalid_server_address);
-                default:
-                    return e.getMessage();
+                    case HttpURLConnection.HTTP_BAD_REQUEST:
+                        return getString(R.string.err_wrong_user_or_passwd);
+                    case HttpURLConnection.HTTP_NOT_FOUND:
+                        return getString(R.string.invalid_server_address);
+                    default:
+                        return e.getMessage();
                 }
             } catch (JSONException e) {
                 return e.getMessage();
