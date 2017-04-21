@@ -1396,18 +1396,24 @@ public class BrowserActivity extends BaseActivity
                 OutputStream out = null;
 
                 try {
-                    File tempDir = DataManager.createTempDir();
-                    File tempFile = new File(tempDir, Utils.getFilenamefromUri(BrowserActivity.this, uri));
-
-                    if (!tempFile.createNewFile()) {
-                        throw new RuntimeException("could not create temporary file");
+                    File tempFileIn = new File(uri.getPath());
+                    if(tempFileIn.isFile() && tempFileIn.canRead()) {
+                        fileList.add(tempFileIn);
                     }
+                    else
+                    {
+                        File tempDir = DataManager.createTempDir();
+                        File tempFile = new File(tempDir, Utils.getFilenamefromUri(BrowserActivity.this, uri));
 
-                    in = getContentResolver().openInputStream(uri);
-                    out = new FileOutputStream(tempFile);
-                    IOUtils.copy(in, out);
+                        if (!tempFile.createNewFile()) {
+                            throw new RuntimeException("could not create temporary file");
+                        }
 
-                    fileList.add(tempFile);
+                        in = getContentResolver().openInputStream(uri);
+                        out = new FileOutputStream(tempFile);
+                        IOUtils.copy(in, out);
+                        fileList.add(tempFile);
+                    }
 
                 } catch (IOException e) {
                     Log.d(DEBUG_TAG, "Could not open requested document", e);
