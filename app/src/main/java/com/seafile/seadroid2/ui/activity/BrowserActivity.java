@@ -1225,7 +1225,7 @@ public class BrowserActivity extends BaseActivity
         if (navContext == null) {
             return false;
         }
-        if (navContext.getDirPermission().indexOf('w') == -1){
+        if (navContext.getDirPermission() == null || navContext.getDirPermission().indexOf('w') == -1) {
             return false;
         }
         return true;
