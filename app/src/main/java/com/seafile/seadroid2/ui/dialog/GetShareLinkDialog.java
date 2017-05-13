@@ -9,7 +9,10 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
-import com.seafile.seadroid2.ui.dialog.TaskDialog.Task;
+import com.seafile.seadroid2.data.DataManager;
+import com.seafile.seadroid2.data.SeafLink;
+
+import java.util.ArrayList;
 
 class GetShareLinkTask extends TaskDialog.Task {
     String repoID;
@@ -17,18 +20,33 @@ class GetShareLinkTask extends TaskDialog.Task {
     boolean isdir;
     SeafConnection conn;
     String link;
+    Account account;
+    String password;
+    String days;
 
-    public GetShareLinkTask(String repoID, String path, boolean isdir, SeafConnection conn) {
+    public GetShareLinkTask(String repoID, String path, boolean isdir, SeafConnection conn, Account account, String password, String days) {
         this.repoID = repoID;
         this.path = path;
         this.isdir = isdir;
         this.conn = conn;
+        this.account = account;
+        this.password = password;
+        this.days = days;
     }
 
     @Override
     protected void runTask() {
+
+        // If you has  Shared links to delete Shared links
+        DataManager dataManager = new DataManager(account);
+        ArrayList<SeafLink> shareLinks = dataManager.getShareLink(repoID, path);
+        for (SeafLink shareLink : shareLinks) {
+            //delete link
+            dataManager.deleteShareLink(shareLink.getToken());
+        }
+        //create new link
         try {
-            link = conn.getShareLink(repoID, path, isdir);
+            link = conn.getShareLink(repoID, path, password, days);
         } catch (SeafException e) {
             setTaskException(e);
         }
@@ -44,12 +62,18 @@ public class GetShareLinkDialog extends TaskDialog {
     private String path;
     private boolean isdir;
     private SeafConnection conn;
+    Account account;
+    private String password;
+    private String days;
 
-    public void init(String repoID, String path, boolean isdir, Account account) {
+    public void init(String repoID, String path, boolean isdir, Account account, String password, String days) {
         this.repoID = repoID;
         this.path = path;
         this.isdir = isdir;
         this.conn = new SeafConnection(account);
+        this.account = account;
+        this.password = password;
+        this.days = days;
     }
 
     @Override
@@ -70,7 +94,7 @@ public class GetShareLinkDialog extends TaskDialog {
 
     @Override
     protected GetShareLinkTask prepareTask() {
-        GetShareLinkTask task = new GetShareLinkTask(repoID, path, isdir, conn);
+        GetShareLinkTask task = new GetShareLinkTask(repoID, path, isdir, conn, account, password, days);
         return task;
     }
 

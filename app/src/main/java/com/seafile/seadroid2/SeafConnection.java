@@ -1306,27 +1306,75 @@ public class SeafConnection {
         checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
     }
 
-    public String getShareLink(String repoID, String path, boolean isdir) throws SeafException {
-        try {
-            String apiPath = String.format("api2/repos/%s/file/shared-link/", repoID);
-            HttpRequest req = prepareApiPutRequest(apiPath, null);
-            req.form("p", path);
-            req.form("type", isdir ? "d" : "f");
-            checkRequestResponseStatus(req, HttpURLConnection.HTTP_CREATED);
 
-            String result = req.header("Location");
-            if (result == null) {
+    public boolean deleteShareLink(String token) throws SeafException {
+        try {
+            HttpRequest req = prepareApiDeleteRequest(String.format("api/v2.1/share-links/%s/", token), null);
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+            String result = new String(req.bytes(), "UTF-8");
+            if (result != null && Utils.parseJsonObject(result) != null) {
+                JSONObject obj = Utils.parseJsonObject(result);
+                return obj.getBoolean("success");
+            } else {
                 throw SeafException.illFormatException;
             }
-            return result;
         } catch (UnsupportedEncodingException e) {
-            throw SeafException.encodingException;
-        } catch (IOException e) {
-            throw SeafException.networkException;
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+
+    public String getShareLink(String repoID, String path) throws SeafException {
+        try {
+            Map<String, Object> params = Maps.newHashMap();
+            params.put("repo_id", repoID);
+            params.put("path", path);
+            HttpRequest req = prepareApiGetRequest("api/v2.1/share-links", params);
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+            String result = new String(req.bytes(), "UTF-8");
+            return result;
         } catch (SeafException e) {
             throw e;
         } catch (HttpRequestException e) {
             throw getSeafExceptionFromHttpRequestException(e);
+        } catch (IOException e) {
+            throw SeafException.networkException;
+        }
+    }
+
+    public String getShareLink(String repoID, String path, String password, String days) throws SeafException {
+        try {
+            Map<String, Object> params = Maps.newHashMap();
+            HttpRequest req = prepareApiPostRequest("api/v2.1/share-links/", true, params, false);
+            req.form("repo_id", repoID);
+            req.form("path", path);
+            if (!TextUtils.isEmpty(password)) {
+                req.form("password", password);
+            }
+            if (!TextUtils.isEmpty(days)) {
+                req.form("expire_days", days);
+            }
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+            String result = new String(req.bytes(), "UTF-8");
+            if (result != null && Utils.parseJsonObject(result) != null) {
+                JSONObject obj = Utils.parseJsonObject(result);
+                return obj.getString("link");
+            } else {
+                throw SeafException.illFormatException;
+            }
+
+        } catch (SeafException e) {
+            throw e;
+        } catch (HttpRequestException e) {
+            throw getSeafExceptionFromHttpRequestException(e);
+        } catch (UnsupportedEncodingException e) {
+            throw SeafException.illFormatException;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            throw SeafException.illFormatException;
         }
     }
 

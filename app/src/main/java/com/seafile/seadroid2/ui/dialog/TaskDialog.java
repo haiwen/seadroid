@@ -341,6 +341,10 @@ public abstract class TaskDialog extends DialogFragment {
         errorText.setVisibility(View.GONE);
     }
 
+    protected boolean errorIsVisible() {
+       return errorText.getVisibility() == View.VISIBLE;
+    }
+
     private boolean hasOkButton() {
         return !executeTaskImmediately();
     }
@@ -363,7 +367,9 @@ public abstract class TaskDialog extends DialogFragment {
 
     private void executeTask() {
         disableInput();
-        hideError();
+        if (errorIsVisible()){
+            hideError();
+        }
         if (isProgressHorizontal) {
             showLoadingPro();
         } else {

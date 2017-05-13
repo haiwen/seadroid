@@ -75,6 +75,7 @@
   <string name="file_action_download">Herunterladen</string>
   <string name="file_action_update">Hochladen</string>
   <string name="file_action_share">Link freigeben</string>
+  <string name="file_action_share_encrypt">Freigabe-Link mit Passwort</string>
   <string name="file_action_export">Exportieren</string>
   <string name="file_action_delete">Löschen</string>
   <string name="file_action_rename">Umbenennen</string>
@@ -166,6 +167,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="copy_link">Link kopieren</string>
   <string name="share_file_link">Link zu dieser Datei freigeben</string>
   <string name="share_dir_link">Link zu diesem Ordner freigeben</string>
+  <string name="share_input_password">Freigabe-Passwort eingeben</string>
   <string name="generating_link">Link wird erzeugt …</string>
   <string name="link_ready_to_be_pasted">Der Link wurde in die Zwischenablage kopiert.</string>
   <string name="rename_repo">Bibliothek umbenennen</string>
@@ -301,7 +303,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="settings_contacts_upload_start_recovery_hint">Zum wiederherstellen klicken</string>
   <!--contacts Upload Perference-->
   <string name="contacts_dialog_recovery">Kontakte aus der letzten Sicherung wiederherstellen</string>
-  <string name="contacts_dialog_backup">Kontakte werden gesichert als: </string>
+  <string name="contacts_dialog_backup">Kontakte werden in dieser Datei gesichert:</string>
   <string name="contacts_count_zero">Keine Kontakte vorhanden</string>
   <string name="contacts_backup_success">Sicherung erfolgreich</string>
   <string name="contacts_recovery_success">Wiederherstellung erfolgreich</string>
@@ -517,4 +519,5 @@ Zum Aktualisieren einmal antippen</string>
   <string name="op_exception_failed_to_download_file">Datei %s konnte nicht geladen werden</string>
   <!--Home list title-->
   <string name="shared_with_all">Für alle freigegeben</string>
+  <string name="add_password_protection">Passwortschutz hinzufügen</string>
 </resources>

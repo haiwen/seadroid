@@ -75,6 +75,7 @@
   <string name="file_action_download">Descargar</string>
   <string name="file_action_update">Subir</string>
   <string name="file_action_share">Compartir enlace</string>
+  <string name="file_action_share_encrypt">Compartir enlace utilizando contraseña</string>
   <string name="file_action_export">Exportar</string>
   <string name="file_action_delete">Eliminar</string>
   <string name="file_action_rename">Renombrar</string>
@@ -164,6 +165,7 @@
   <string name="copy_link">Copiar enlace</string>
   <string name="share_file_link">Compartir un enlace a este archivo</string>
   <string name="share_dir_link">Compartir un enlace a esta carpeta</string>
+  <string name="share_input_password">ingresar contraseña para compartir</string>
   <string name="generating_link">Generando enlace...</string>
   <string name="link_ready_to_be_pasted">El enlace está listo para ser pegado</string>
   <string name="rename_repo">Renombrar biblioteca</string>
@@ -515,4 +517,5 @@
   <string name="op_exception_failed_to_download_file">Fallo al descargar el archivo %s</string>
   <!--Home list title-->
   <string name="shared_with_all">Compartido con todos</string>
+  <string name="add_password_protection">Agregar protección por contraseña</string>
 </resources>

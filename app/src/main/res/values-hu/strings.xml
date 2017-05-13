@@ -75,6 +75,7 @@
   <string name="file_action_download">Letöltés</string>
   <string name="file_action_update">Feltölt</string>
   <string name="file_action_share">Megosztási link</string>
+  <string name="file_action_share_encrypt">Megosztás link jelszóval</string>
   <string name="file_action_export">Exportálás</string>
   <string name="file_action_delete">Törlés</string>
   <string name="file_action_rename">Átnevez</string>
@@ -164,6 +165,7 @@
   <string name="copy_link">Link másolása</string>
   <string name="share_file_link">Link megosztása ehhez a fájlhoz</string>
   <string name="share_dir_link">Link megosztása ehhez a könyvtárhoz</string>
+  <string name="share_input_password">megosztás jelszó bevitele</string>
   <string name="generating_link">Link elkészítése...</string>
   <string name="link_ready_to_be_pasted">A link beilleszthető.</string>
   <string name="rename_repo">Kötet átnevezése</string>
@@ -514,4 +516,5 @@ Email: support@seafile.com<br>
   <string name="op_exception_failed_to_download_file">%s fájl letöltése sikertelen</string>
   <!--Home list title-->
   <string name="shared_with_all">Mindenkivel megosztva</string>
+  <string name="add_password_protection">Jelszó védelem hozzáadása</string>
 </resources>

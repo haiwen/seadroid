@@ -747,6 +747,38 @@ public class DataManager {
          */
     }
 
+    public boolean deleteShareLink(String token) {
+        try {
+            return sc.deleteShareLink(token);
+        } catch (SeafException e) {
+            e.printStackTrace();
+            return  false;
+        }
+    }
+
+
+    public ArrayList<SeafLink> getShareLink(String repoID, String path) {
+        ArrayList<SeafLink> list = Lists.newArrayListWithCapacity(0);
+        try {
+            String json = sc.getShareLink(repoID, path);
+            if (json != null) {
+                JSONArray jsonArray = Utils.parseJsonArray(json);
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject object = null;
+                    object = (JSONObject) jsonArray.get(i);
+                    SeafLink seafLink = SeafLink.fromJson(object);
+                    list.add(seafLink);
+                }
+            }
+        } catch (SeafException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+
     public void delete(String repoID, String path, boolean isdir) throws SeafException{
         Pair<String, String> ret = sc.delete(repoID, path, isdir);
         if (ret == null){

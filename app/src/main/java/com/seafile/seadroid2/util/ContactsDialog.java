@@ -192,6 +192,10 @@ class ContactManager extends TaskDialog.Task {
                     ContactsData contactsData = new ContactsData();
                     String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
                     String displayName = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                    if (displayName == null || "".equals(displayName)) {
+                        //   vcard  libs  nonsupport  no name , so wo  used  '*'  replace   name
+                        displayName = "*";
+                    }
                     contactsData.setName(displayName);
                     contactsData.setUserid(id);
                     //read contacts phone
