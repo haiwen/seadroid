@@ -30,6 +30,14 @@ public class ImageManager {
 
     private static final Uri STORAGE_URI = Images.Media.EXTERNAL_CONTENT_URI;
     private static final Uri VIDEO_STORAGE_URI = Uri.parse("content://media/external/video/media");
+    private static String[] SDPaths;
+
+    public static File[] getSDPaths() {
+        return new File[] {
+                Environment.getExternalStorageDirectory(),
+                new File("/storage/sdcard1")
+        };
+    }
 
     // ImageListParam specifies all the parameters we need to create an image
     // list (we also need a ContentResolver).
@@ -129,15 +137,17 @@ public class ImageManager {
 
         List<String> pathList = Lists.newArrayList();
         for (String path : paths) {
-            String fullPath = Utils.pathJoin(Environment.getExternalStorageDirectory().getAbsolutePath(), path);
-            pathList.add(fullPath);
+            for (File sdpath : getSDPaths()) {
+                String fullPath = Utils.pathJoin(sdpath.getAbsolutePath(), path);
+                pathList.add(fullPath);
+            }
         }
         return pathList;
     }
     
     public static List<String> getAllBucketIds() {
         if (allBucketIds == null) {
-            String[] paths = {
+            String[] paths =   {
                 "/DCIM",
                 "/DCIM/Camera",
                 "/DCIM/100MEDIA",
@@ -149,8 +159,10 @@ public class ImageManager {
 
             List<String> ids = Lists.newArrayList();
             for (String path : paths) {
-                String fullPath = Environment.getExternalStorageDirectory().toString() + path;
-                ids.add(getBucketId(fullPath));
+                for (File sdpath : getSDPaths()) {
+                    String fullPath = sdpath.toString() + path;
+                    ids.add(getBucketId(fullPath));
+                }
             }
 
             allBucketIds = ImmutableList.copyOf(ids);
