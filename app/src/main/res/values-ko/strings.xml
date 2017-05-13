@@ -75,6 +75,7 @@
   <string name="file_action_download">다운로드</string>
   <string name="file_action_update">업로드</string>
   <string name="file_action_share">공유 링크</string>
+  <string name="file_action_share_encrypt">암호로 보호한 링크 공유</string>
   <string name="file_action_export">내보내기</string>
   <string name="file_action_delete">삭제</string>
   <string name="file_action_rename">이름 바꾸기</string>
@@ -163,6 +164,7 @@
   <string name="copy_link">링크 복사</string>
   <string name="share_file_link">이 파일 링크 공유</string>
   <string name="share_dir_link">이 폴더 링크 공유</string>
+  <string name="share_input_password">공유 암호를 입력하세요</string>
   <string name="generating_link">링크 만드는 중...</string>
   <string name="link_ready_to_be_pasted">붙여넣을 링크를 준비했습니다.</string>
   <string name="rename_repo">라이브러리 이름 바꾸기</string>
@@ -281,7 +283,28 @@
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">건너뛰기</string>
   <!--contacts  upload-->
+  <string name="settings_contacts_upload_info_title">연락처 백업</string>
+  <string name="settings_contacts_upload_turn_on">연락처 백업 활성화</string>
+  <string name="settings_contacts_upload_service_started">연락처 백업을 활성화했습니다</string>
+  <string name="settings_contacts_upload_service_stopped">연락처 백업을 비활성화했습니다</string>
+  <string name="settings_contacts_upload_repo_hint">연락처 백업에 활용할 라이브러리를 선택하세요</string>
+  <string name="settings_contacts_upload_change_repo_title">연락처 백업 라이브러리 변경</string>
+  <string name="settings_contacts_upload_repo_time">최근 백업 시각</string>
+  <string name="settings_contacts_upload_repo_history">백업 기록이 없습니다</string>
+  <string name="settings_contacts_upload_start_backup">백업</string>
+  <string name="settings_contacts_upload_start_backup_hint">연락처 백업을 시작하려면 누르세요</string>
+  <string name="settings_contacts_upload_start_recovery">복원</string>
+  <string name="settings_contacts_upload_start_recovery_hint">연락처를 복원하려면 누르세요</string>
   <!--contacts Upload Perference-->
+  <string name="contacts_dialog_recovery">최근 백업 연락처 복원</string>
+  <string name="contacts_dialog_backup">연락처를 다음 파일로 백업합니다:</string>
+  <string name="contacts_count_zero">연락처가 비어있습니다</string>
+  <string name="contacts_backup_success">백업 성공</string>
+  <string name="contacts_recovery_success">복원 성공</string>
+  <string name="contacts_backup_title">연락처 백업</string>
+  <string name="contacts_recovery_title">연락처 복원</string>
+  <string name="contacts_backup_fail">백업 실패</string>
+  <string name="contacts_recover_fail">복원 실패</string>
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">카메라 사진 업로드</string>
   <string name="settings_camera_upload_service_started">업로드 서비스를 시작했습니다</string>
@@ -459,6 +482,7 @@
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
   <string name="permission_read_exteral_storage_rationale">파일을 처리하려면, 파일에 접근할 저장소 권한이 필요합니다.</string>
+  <string name="permission_read_contacts_storage_rationale">연락처를 처리하려면, 연락처에 접근할 권한이 필요합니다.</string>
   <string name="permission_not_granted">권한을 부여하지 않음</string>
   <string name="history_change_title">자세한 수정 내역</string>
   <string name="no_more_activities">더 이상의 활동 없음</string>
@@ -483,4 +507,6 @@
   <string name="op_exception_suitable_app_not_found">%s MIME 형식에 알맞은 앱을 찾을 수 없습니다</string>
   <string name="op_exception_failed_to_download_file">%s 파일 다운로드에 실패했습니다</string>
   <!--Home list title-->
+  <string name="shared_with_all">모두에게 공유함</string>
+  <string name="add_password_protection">암호 보호 추가</string>
 </resources>

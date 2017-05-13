@@ -75,6 +75,7 @@
   <string name="file_action_download">Скачать</string>
   <string name="file_action_update">Загрузить</string>
   <string name="file_action_share">Общедоступная ссылка</string>
+  <string name="file_action_share_encrypt">Общедоступная ссылка с паролем</string>
   <string name="file_action_export">Экспорт</string>
   <string name="file_action_delete">Удалить</string>
   <string name="file_action_rename">Переименовать</string>
@@ -166,6 +167,7 @@
   <string name="copy_link">Копировать ссылку</string>
   <string name="share_file_link">Поделиться ссылкой на этот файл</string>
   <string name="share_dir_link">Поделиться ссылкой на эту папку</string>
+  <string name="share_input_password">пароль</string>
   <string name="generating_link">Создание ссылки...</string>
   <string name="link_ready_to_be_pasted">Ссылка готова для вставки.</string>
   <string name="rename_repo">Переименовать библиотеку</string>
@@ -307,7 +309,7 @@
   <string name="settings_contacts_upload_start_recovery_hint">Нажмите, чтобы восстановить резервную копию контактов</string>
   <!--contacts Upload Perference-->
   <string name="contacts_dialog_recovery">Восстановление контактов из последней резервной копии</string>
-  <string name="contacts_dialog_backup">Резервная копия контактов будет сохранена в файл:</string>
+  <string name="contacts_dialog_backup">Контакты будут сохранены в файл:</string>
   <string name="contacts_count_zero">Нет контактов</string>
   <string name="contacts_backup_success">Успешно создана резервная копия</string>
   <string name="contacts_recovery_success">Успешно восстановлено</string>
@@ -533,4 +535,5 @@
   <string name="op_exception_failed_to_download_file">Не удалось скачать файл %s</string>
   <!--Home list title-->
   <string name="shared_with_all">Общие со всеми</string>
+  <string name="add_password_protection">Добавить защиту паролем</string>
 </resources>

@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.seafile.seadroid2"
-    android:versionCode="65"
-    android:versionName="2.1.11">
+    android:versionCode="66"
+    android:versionName="2.1.12">
 
     <uses-sdk
         tools:overrideLibrary="us.feras.mdv" />

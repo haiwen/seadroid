@@ -136,8 +136,8 @@ public class Account implements Parcelable, Comparable<Account> {
     protected Account(Parcel in) {
         this.server = in.readString();
         this.email = in.readString();
-        this.is_shib = (Boolean) in.readValue(Boolean.class.getClassLoader());
         this.token = in.readString();
+        this.is_shib = (Boolean) in.readValue(Boolean.class.getClassLoader());
 
        // Log.d(DEBUG_TAG, String.format("%s %s %s %b", server, email, token ,is_shib));
     }

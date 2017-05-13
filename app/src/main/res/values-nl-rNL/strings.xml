@@ -279,7 +279,17 @@
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">Overslaan</string>
   <!--contacts  upload-->
+  <string name="settings_contacts_upload_start_backup">Backup</string>
+  <string name="settings_contacts_upload_start_recovery">Herstellen</string>
   <!--contacts Upload Perference-->
+  <string name="contacts_dialog_recovery">Herstel contacten uit de laatste backup</string>
+  <string name="contacts_count_zero">De contactenlijst is leeg</string>
+  <string name="contacts_backup_success">Backup gelukt</string>
+  <string name="contacts_recovery_success">Herstel gelukt</string>
+  <string name="contacts_backup_title">Contacten backuppen</string>
+  <string name="contacts_recovery_title">Contacten herstellen</string>
+  <string name="contacts_backup_fail">Backup mislukt</string>
+  <string name="contacts_recover_fail">Herstel mislukt</string>
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Fotocamera upload</string>
   <string name="settings_camera_upload_service_started">Uploaddienst gestart</string>
@@ -458,4 +468,5 @@
   <string name="op_exception_folder_deleted">De map \"%s\" is verwijderd</string>
   <string name="op_exception_failed_to_download_file">Kon bestand %s niet downloaden</string>
   <!--Home list title-->
+  <string name="shared_with_all">Gedeeld met iedereen</string>
 </resources>

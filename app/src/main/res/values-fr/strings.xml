@@ -75,6 +75,7 @@
   <string name="file_action_download">Télécharger</string>
   <string name="file_action_update">Envoi</string>
   <string name="file_action_share">Partager le lien</string>
+  <string name="file_action_share_encrypt">Lien partagé avec mot de passe</string>
   <string name="file_action_export">Exporter</string>
   <string name="file_action_delete">Effacer</string>
   <string name="file_action_rename">Renommer</string>
@@ -164,6 +165,7 @@
   <string name="copy_link">Copier le lien</string>
   <string name="share_file_link">Partager un lien vers ce fichier</string>
   <string name="share_dir_link">Partager un lien vers ce dossier</string>
+  <string name="share_input_password">Saisir le mot de passe partagé</string>
   <string name="generating_link">Génération du lien...</string>
   <string name="link_ready_to_be_pasted">Le lien est prêt à être collé/transmis.</string>
   <string name="rename_repo">Renommer la bibliothèque</string>
@@ -514,4 +516,5 @@ E-mail : support@seafile.com<br>
   <string name="op_exception_failed_to_download_file">Échec du téléchargement du fichier %s</string>
   <!--Home list title-->
   <string name="shared_with_all">Partagées avec tout le monde</string>
+  <string name="add_password_protection">Ajouter une protection par mot de passe</string>
 </resources>
