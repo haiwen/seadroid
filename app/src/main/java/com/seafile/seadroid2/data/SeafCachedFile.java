@@ -1,8 +1,8 @@
 package com.seafile.seadroid2.data;
 
-import java.io.File;
-
 import com.seafile.seadroid2.util.Utils;
+
+import java.io.File;
 
 public class SeafCachedFile implements SeafItem {
     public int id;
@@ -11,7 +11,8 @@ public class SeafCachedFile implements SeafItem {
     public String repoID;
     public String path;
     public String accountSignature;
-    File file;
+    public long fileOriginalSize;
+    protected File file;
 
     public SeafCachedFile() {
         id = -1;
@@ -46,5 +47,13 @@ public class SeafCachedFile implements SeafItem {
 
     public String getAccountSignature() {
         return accountSignature;
+    }
+
+    public long getFileOriginalSize() {
+        return fileOriginalSize;
+    }
+
+    public void setFileOriginalSize(long fileOriginalSize) {
+        this.fileOriginalSize = fileOriginalSize;
     }
 }

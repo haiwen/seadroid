@@ -1,12 +1,5 @@
 package com.seafile.seadroid2.monitor;
 
-import java.io.File;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.io.monitor.FileAlterationListener;
-import org.apache.commons.io.monitor.FileAlterationObserver;
-
 import android.util.Log;
 
 import com.google.common.collect.Maps;
@@ -15,6 +8,13 @@ import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafCachedFile;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.util.Utils;
+
+import org.apache.commons.io.monitor.FileAlterationListener;
+import org.apache.commons.io.monitor.FileAlterationObserver;
+
+import java.io.File;
+import java.util.List;
+import java.util.Map;
 
 public class SeafileObserver implements FileAlterationListener {
     private static final String DEBUG_TAG = "SeafileObserver";
@@ -49,6 +49,8 @@ public class SeafileObserver implements FileAlterationListener {
         List<SeafCachedFile> cachedfiles = dataManager.getCachedFiles();
         for (SeafCachedFile cached : cachedfiles) {
             File file = dataManager.getLocalRepoFile(cached.repoName, cached.repoID, cached.path);
+            //save file size , when file change , use it comparing with new size
+            cached.fileOriginalSize = file.length();
             if (file.exists()) {
                 watchedFiles.put(file.getPath(), cached);
             }
@@ -116,14 +118,21 @@ public class SeafileObserver implements FileAlterationListener {
         if (recentDownloadedFiles.isRecentDownloadedFiles(path)) {
             Log.d(DEBUG_TAG, "ignore change signal for recent downloaded file " + path);
             return;
-        }
-        else {
+        } else {
             recentDownloadedFiles.removeRecentDownloadedFile(path);
         }
 
         Log.d(DEBUG_TAG, path + " was modified!");
         SeafCachedFile cachedFile = watchedFiles.get(path);
         if (cachedFile != null) {
+            //  file  size  is change
+            if (file.length() == cachedFile.fileOriginalSize) {
+                Log.d(DEBUG_TAG, "ignore file size not change " + path);
+                return;
+            } else {
+                cachedFile.fileOriginalSize = file.length();
+            }
+
             final SeafRepo repo = dataManager.getCachedRepoByID(cachedFile.repoID);
             if (repo != null && repo.canLocalDecrypt()) {
                 listener.onCachedBlocksChanged(account, cachedFile, file, repo.encVersion);
