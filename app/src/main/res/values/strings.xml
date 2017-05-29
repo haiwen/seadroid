@@ -223,6 +223,7 @@
     <string name="issued_to">Issued To</string>
     <string name="finger_prints">Fingerprints</string>
     <string name="period_of_validity">Period of Validity</string>
+    <string name="sha256">SHA-256 %s</string>
     <string name="sha1">SHA-1 %s</string>
     <string name="md5">MD5 %s</string>
     <string name="not_available">not available</string>
