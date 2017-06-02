@@ -1,44 +1,43 @@
-<?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+<?xml version='1.0' encoding='utf-8'?>
+  <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent">
 
-    <ImageView
-        android:id="@+id/bucket_item_thumbImage"
-        android:layout_width="200dp"
-        android:layout_height="150dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:src="@drawable/ic_launcher"
-        android:scaleType="centerCrop" />
+  <ImageView android:id="@+id/bucket_item_thumbImage"
+    android:layout_width="200dp"
+    android:layout_height="150dp"
+    android:src="@drawable/ic_launcher"
+    android:scaleType="centerCrop">
+    <!--Removed ObsoleteLayoutParam: layout_alignParentLeft-->
+    <!--Removed ObsoleteLayoutParam: layout_alignParentTop-->
+  </ImageView>
 
-    <ImageView
-        android:id="@+id/bucket_item_text_background"
-        android:layout_width="200dp"
-        android:layout_height="25dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:alpha="0.5"
-        android:background="#000000" />
+  <ImageView android:id="@+id/bucket_item_text_background"
+    android:layout_width="200dp"
+    android:layout_height="25dp"
+    android:alpha="0.5"
+    android:background="#000000">
+    <!--Removed ObsoleteLayoutParam: layout_alignParentBottom-->
+    <!--Removed ObsoleteLayoutParam: layout_alignParentLeft-->
+  </ImageView>
 
-    <ImageView
-        android:id="@+id/bucket_item_marking"
-        android:layout_width="200dp"
-        android:layout_height="150dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:background="@drawable/camera_bucket_selected"
-        android:alpha="0.7" />
+  <ImageView android:id="@+id/bucket_item_marking"
+    android:layout_width="200dp"
+    android:layout_height="150dp"
+    android:background="@drawable/camera_bucket_selected"
+    android:alpha="0.7">
+    <!--Removed ObsoleteLayoutParam: layout_alignParentLeft-->
+    <!--Removed ObsoleteLayoutParam: layout_alignParentTop-->
+  </ImageView>
 
-    <TextView
-        android:id="@+id/bucket_item_name"
-        android:layout_width="200dp"
-        android:layout_height="25dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:textColor="#ffffff"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginRight="5dp" />
-
+  <TextView android:id="@+id/bucket_item_name"
+    android:layout_width="200dp"
+    android:layout_height="25dp"
+    android:textColor="#ffffff"
+    android:layout_marginLeft="10dp"
+    android:layout_marginTop="5dp"
+    android:layout_marginRight="5dp">
+    <!--Removed ObsoleteLayoutParam: layout_alignParentBottom-->
+    <!--Removed ObsoleteLayoutParam: layout_alignParentLeft-->
+  </TextView>
 </FrameLayout>
