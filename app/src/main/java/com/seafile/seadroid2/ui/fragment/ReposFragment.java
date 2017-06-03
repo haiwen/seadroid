@@ -343,7 +343,7 @@ public class ReposFragment extends ListFragment {
         super.onResume();
         // Log.d(DEBUG_TAG, "ReposFragment onResume");
         // refresh the view (loading data)
-        refreshView();
+        refreshView(true);
         mRefreshType = REFRESH_ON_RESUME;
     }
 
@@ -649,6 +649,8 @@ public class ReposFragment extends ListFragment {
                     refreshView();
                     mActivity.setUpButtonTitle(dirent.name);
                 } else {
+                    String currentPath = nav.getDirPath();
+                    saveDirentScrollPosition(repo.getID(), currentPath);
                     mActivity.onFileSelected(dirent);
                 }
             } else
