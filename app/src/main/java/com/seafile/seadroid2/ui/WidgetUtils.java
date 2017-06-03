@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.support.v4.content.FileProvider;
 import android.text.ClipboardManager;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
@@ -134,7 +135,11 @@ public class WidgetUtils {
             mime = "*/*"; // forces app chooser dialog on unknown type
         Intent open = new Intent(Intent.ACTION_VIEW);
         open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        open.setDataAndType((Uri.fromFile(file)), mime);
+
+        Uri photoURI = FileProvider.getUriForFile(activity, activity.getApplicationContext().getPackageName() + ".provider",file);
+        open.setDataAndType(photoURI, mime);
+        open.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        //        open.setDataAndType((Uri.fromFile(file)), mime);
 
         if (activity.getPackageManager().resolveActivity(open, 0) == null) {
             String message = String.format(activity.getString(R.string.op_exception_suitable_app_not_found), mime);
