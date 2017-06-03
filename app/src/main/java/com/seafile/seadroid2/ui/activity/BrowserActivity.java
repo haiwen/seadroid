@@ -26,6 +26,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
@@ -1145,8 +1146,10 @@ public class BrowserActivity extends BaseActivity
             String fileName = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + ".jpg";
             takeCameraPhotoTempFile = new File(ImgDir, fileName);
 
-            Uri photo = Uri.fromFile(takeCameraPhotoTempFile);
-            imageCaptureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photo);
+//            Uri photo = Uri.fromFile(takeCameraPhotoTempFile);
+//            imageCaptureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photo);
+            Uri photoURI = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider",takeCameraPhotoTempFile);
+            imageCaptureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
             startActivityForResult(imageCaptureIntent, TAKE_PHOTO_REQUEST);
 
         } catch (IOException e) {
@@ -1804,8 +1807,8 @@ public class BrowserActivity extends BaseActivity
 
     private void chooseExportApp(final String repoName, final String repoID, final String path, final long fileSize) {
         final File file = dataManager.getLocalRepoFile(repoName, repoID, path);
-        Uri uri = Uri.fromFile(file);
-
+        //        Uri uri = Uri.fromFile(file);
+        Uri uri = FileProvider.getUriForFile(this, getApplicationContext().getPackageName() + ".provider",file);
         final Intent sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);
         sendIntent.setType(Utils.getFileMimeType(file));
