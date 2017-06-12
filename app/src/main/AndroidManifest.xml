@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.seafile.seadroid2"
-    android:versionCode="66"
-    android:versionName="2.1.12">
+    android:versionCode="67"
+    android:versionName="2.1.13">
 
     <uses-sdk
         tools:overrideLibrary="us.feras.mdv" />
@@ -173,6 +173,16 @@
             android:label="@string/sync_provider_camera_upload"
             android:exported="false"
             android:syncable="true"/>
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"/>
+        </provider>
 
         <service android:name=".account.AuthenticatorService" >
             <intent-filter>
