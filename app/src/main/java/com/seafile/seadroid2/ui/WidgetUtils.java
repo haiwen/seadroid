@@ -136,10 +136,13 @@ public class WidgetUtils {
         Intent open = new Intent(Intent.ACTION_VIEW);
         open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        Uri photoURI = FileProvider.getUriForFile(activity, activity.getApplicationContext().getPackageName() + ".provider",file);
-        open.setDataAndType(photoURI, mime);
-        open.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-        //        open.setDataAndType((Uri.fromFile(file)), mime);
+        if (android.os.Build.VERSION.SDK_INT > 23) {
+            Uri photoURI = FileProvider.getUriForFile(activity, activity.getApplicationContext().getPackageName() + ".provider", file);
+            open.setDataAndType(photoURI, mime);
+            open.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        } else {
+            open.setDataAndType((Uri.fromFile(file)), mime);
+        }
 
         if (activity.getPackageManager().resolveActivity(open, 0) == null) {
             String message = String.format(activity.getString(R.string.op_exception_suitable_app_not_found), mime);
