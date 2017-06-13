@@ -38,6 +38,7 @@ public class SslConfirmDialog extends DialogFragment {
     private TextView messageText;
     private TextView commonNameText;
     // private TextView altSubjNamesText;
+    private TextView sha256Text;
     private TextView sha1Text;
     private TextView md5Text;
     private TextView serialNumberText;
@@ -70,6 +71,7 @@ public class SslConfirmDialog extends DialogFragment {
         messageText = (TextView)view.findViewById(R.id.message);
         commonNameText = (TextView) view.findViewById(R.id.common_name);
         // altSubjNamesText = (TextView) view.findViewById(R.id.alt_subj_name);
+        sha256Text = (TextView) view.findViewById(R.id.sha256);
         sha1Text = (TextView) view.findViewById(R.id.sha1);
         md5Text = (TextView) view.findViewById(R.id.md5);
         serialNumberText = (TextView) view.findViewById(R.id.serial_number);
@@ -104,6 +106,7 @@ public class SslConfirmDialog extends DialogFragment {
             commonNameText.setText(certInfo.getSubjectName());
             // String[] subjAltNames = certInfo.getSubjectAltNames();
             // altSubjNamesText.setText((subjAltNames.length > 0) ? StringUtils.join(subjAltNames, ", ") : "—");
+            sha256Text.setText(getActivity().getString(R.string.sha256, certInfo.getSignature("SHA-256")));
             sha1Text.setText(getActivity().getString(R.string.sha1, certInfo.getSignature("SHA-1")));
             md5Text.setText(getActivity().getString(R.string.md5, certInfo.getSignature("MD5")));
             serialNumberText.setText(getActivity().getString(R.string.serial_number, certInfo.getSerialNumber()));
@@ -112,6 +115,7 @@ public class SslConfirmDialog extends DialogFragment {
         } else if (certificate != null) {
             CertificateInfo certInfo = new CertificateInfo(certificate);
             commonNameText.setText(certInfo.getSubjectName());
+            sha256Text.setText(getActivity().getString(R.string.sha256, certInfo.getSignature("SHA-256")));
             sha1Text.setText(getActivity().getString(R.string.sha1, certInfo.getSignature("SHA-1")));
             md5Text.setText(getActivity().getString(R.string.md5, certInfo.getSignature("MD5")));
             serialNumberText.setText(getActivity().getString(R.string.serial_number, certInfo.getSerialNumber()));
@@ -120,6 +124,7 @@ public class SslConfirmDialog extends DialogFragment {
         } else {
             String not_available = getActivity().getString(R.string.not_available);
             commonNameText.setText(not_available);
+            sha256Text.setText(not_available);
             sha1Text.setText(not_available);
             md5Text.setText(not_available);
             serialNumberText.setText(not_available);
