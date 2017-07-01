@@ -5,14 +5,18 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.content.FileProvider;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.util.FileMimeUtils;
 import com.seafile.seadroid2.util.Utils;
-import us.feras.mdv.MarkdownView;
 
 import java.io.File;
+
+import us.feras.mdv.MarkdownView;
 
 /**
  * For showing markdown files
@@ -84,9 +88,15 @@ public class MarkdownActivity extends BaseActivity implements Toolbar.OnMenuItem
 
         // First try to find an activity who can handle markdown edit
         Intent editAsMarkDown = new Intent(Intent.ACTION_EDIT);
+        Uri uri;
+        if (android.os.Build.VERSION.SDK_INT > 23) {
+            uri = FileProvider.getUriForFile(this, getPackageName() + ".provider", new File(path));
+            editAsMarkDown.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        } else {
+            uri = Uri.parse(path);
+        }
 
-        Uri uri = Uri.parse(path);
-        String mime = "text/markdown";
+        String mime = FileMimeUtils.getFileMime(new File(path));
         editAsMarkDown.setDataAndType(uri, mime);
 
         if (pm.queryIntentActivities(editAsMarkDown, 0).size() > 0) {
