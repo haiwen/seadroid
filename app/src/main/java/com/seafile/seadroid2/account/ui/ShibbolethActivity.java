@@ -3,13 +3,10 @@ package com.seafile.seadroid2.account.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 
 import com.seafile.seadroid2.R;
@@ -23,11 +20,9 @@ public class ShibbolethActivity extends BaseActivity implements Toolbar.OnMenuIt
     public static final String DEBUG_TAG = "ShibbolethActivity";
 
     public static final String SHIBBOLETH_SERVER_URL = "shibboleth server url";
-    public static final String SHIBBOLETH_HTTP_PREFIX = "http://";
     public static final String SHIBBOLETH_HTTPS_PREFIX = "https://";
 
     private Button mNextBtn;
-    private CheckBox mHttpPrefixCb;
     private EditText mServerUrlEt;
 
     private static final int SHIBBOLETH_AUTH = 1;
@@ -39,12 +34,10 @@ public class ShibbolethActivity extends BaseActivity implements Toolbar.OnMenuIt
         setContentView(R.layout.shibboleth_welcome_layout);
         mNextBtn = (Button) findViewById(R.id.shibboleth_next_btn);
         mServerUrlEt = (EditText) findViewById(R.id.shibboleth_server_url_et);
-        mHttpPrefixCb = (CheckBox) findViewById(R.id.shibboleth_http_cb);
 
-        mServerUrlEt.setText(SHIBBOLETH_HTTP_PREFIX);
-        int prefixLen = SHIBBOLETH_HTTP_PREFIX.length();
+        mServerUrlEt.setText(SHIBBOLETH_HTTPS_PREFIX);
+        int prefixLen = SHIBBOLETH_HTTPS_PREFIX.length();
         mServerUrlEt.setSelection(prefixLen, prefixLen);
-        setupServerText();
 
         mNextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,68 +55,7 @@ public class ShibbolethActivity extends BaseActivity implements Toolbar.OnMenuIt
         getSupportActionBar().setTitle(R.string.shib_actionbar_title);
     }
 
-    public void onHttpsCheckboxClicked(View view) {
-
-        boolean isHttps = mHttpPrefixCb.isChecked();
-        String url = mServerUrlEt.getText().toString();
-        String prefix = isHttps ? SHIBBOLETH_HTTPS_PREFIX : SHIBBOLETH_HTTP_PREFIX;
-
-        String urlWithoutScheme = url.replace(SHIBBOLETH_HTTPS_PREFIX, "").replace(SHIBBOLETH_HTTP_PREFIX, "");
-
-        int oldOffset = mServerUrlEt.getSelectionStart();
-
-        // Change the text
-        mServerUrlEt.setText(prefix + urlWithoutScheme);
-
-        if (mServerUrlEt.hasFocus()) {
-            // Change the cursor position since we changed the text
-            if (isHttps) {
-                int offset = oldOffset + 1;
-                mServerUrlEt.setSelection(offset, offset);
-            } else {
-                int offset = Math.max(0, oldOffset - 1);
-                mServerUrlEt.setSelection(offset, offset);
-            }
-        }
-    }
-
-    private void setupServerText() {
-        mServerUrlEt.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                Log.d(DEBUG_TAG, "serverText has focus: " + (hasFocus ? "yes" : "no"));
-            }
-        });
-
-        mServerUrlEt.addTextChangedListener(new TextWatcher() {
-            private String old;
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count,
-                                          int after) {
-                old = mServerUrlEt.getText().toString();
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                // Don't allow the user to edit the "https://" or "http://" part of the serverText
-                String url = mServerUrlEt.getText().toString();
-                boolean isHttps = mHttpPrefixCb.isChecked();
-                String prefix = isHttps ? SHIBBOLETH_HTTPS_PREFIX : SHIBBOLETH_HTTP_PREFIX;
-                if (!url.startsWith(prefix)) {
-                    int oldOffset = Math.max(prefix.length(), mServerUrlEt.getSelectionStart());
-                    mServerUrlEt.setText(old);
-                    mServerUrlEt.setSelection(oldOffset, oldOffset);
-                }
-            }
-        });
-    }
-
-    @Override
+        @Override
     public boolean onMenuItemClick(MenuItem item) {
         return super.onOptionsItemSelected(item);
     }
@@ -144,7 +76,7 @@ public class ShibbolethActivity extends BaseActivity implements Toolbar.OnMenuIt
             return false;
         }
 
-        if (!serverUrl.startsWith(SHIBBOLETH_HTTP_PREFIX) && !serverUrl.startsWith(SHIBBOLETH_HTTPS_PREFIX)) {
+        if (!serverUrl.startsWith(SHIBBOLETH_HTTPS_PREFIX)) {
             showShortToast(this, getString(R.string.shib_server_incorrect_prefix));
             return false;
         }
