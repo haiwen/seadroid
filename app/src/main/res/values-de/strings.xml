@@ -418,7 +418,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="saf_bad_mime_type">Ungültige Anforderungsart</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">Geben Sie die Serveradresse an</string>
-  <string name="shib_server_incorrect_prefix">Die Serveradresse sollte mit http:// oder https:// beginnen</string>
+  <string name="shib_server_incorrect_prefix">Die Serveradresse muss mit https:// beginnen</string>
   <string name="shib_load_page_error">Fehler:</string>
   <string name="shib_login_title">Shibboleth-Anmeldung</string>
   <string name="shib_server_hint">Server eintragen …</string>
