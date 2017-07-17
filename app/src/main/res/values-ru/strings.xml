@@ -426,7 +426,7 @@
   <string name="saf_bad_mime_type">Неправильный тип ответа</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">Сервер пуст!</string>
-  <string name="shib_server_incorrect_prefix">Сервер должен начинаться с https:// или http://</string>
+  <string name="shib_server_incorrect_prefix">Сервер должен начинаться с https://</string>
   <string name="shib_load_page_error">Ошибка:</string>
   <string name="shib_login_title">Вход через Shibboleth</string>
   <string name="shib_server_hint">Введите сервер...</string>

@@ -426,7 +426,7 @@
   <string name="saf_bad_mime_type">Zły typ żądania</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">Serwer jest pusty!</string>
-  <string name="shib_server_incorrect_prefix">Nazwa serwera powinna się zaczynać od https:// lub http://</string>
+  <string name="shib_server_incorrect_prefix">Nazwa serwera powinna się zaczynać od https://</string>
   <string name="shib_load_page_error">Błąd:</string>
   <string name="shib_login_title">Logowanie Shibboleth</string>
   <string name="shib_server_hint">Serwer wejściowy...</string>
