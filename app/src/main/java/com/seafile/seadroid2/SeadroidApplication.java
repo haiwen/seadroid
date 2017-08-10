@@ -15,7 +15,6 @@ import com.seafile.seadroid2.data.StorageManager;
 import com.seafile.seadroid2.gesturelock.AppLockManager;
 
 import java.io.File;
-import java.security.Security;
 
 public class SeadroidApplication extends Application {
     private static Context context;
@@ -24,17 +23,22 @@ public class SeadroidApplication extends Application {
         super.onCreate();
         Iconify.with(new MaterialCommunityModule());
 
-        SeadroidApplication.context = getApplicationContext();
         initImageLoader(getApplicationContext());
 
         // set gesture lock if available
         AppLockManager.getInstance().enableDefaultAppLockIfAvailable(this);
     }
 
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        SeadroidApplication.context = this;
+    }
+
     public static Context getAppContext() {
         return SeadroidApplication.context;
     }
-    
+
     public static void initImageLoader(Context context) {
         
         File cacheDir = StorageManager.getInstance().getThumbnailsDir();

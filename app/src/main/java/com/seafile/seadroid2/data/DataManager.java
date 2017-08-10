@@ -770,9 +770,7 @@ public class DataManager {
                     list.add(seafLink);
                 }
             }
-        } catch (SeafException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return list;

@@ -22,7 +22,7 @@ public class MediaObserverService extends Service {
     private static final String DEBUG_TAG = "MediaObserverService";
 
     private MediaObserver mediaObserver = null;
-    private SettingsManager settingsManager = SettingsManager.instance();
+    private SettingsManager settingsManager;
     private CameraUploadManager cameraManager;
 
     /**
@@ -70,7 +70,7 @@ public class MediaObserverService extends Service {
     @Override
     public void onCreate() {
         // Log.d(DEBUG_TAG, "onCreate");
-
+        settingsManager = SettingsManager.instance();
         settingsManager.registerSharedPreferencesListener(settingsListener);
         cameraManager = new CameraUploadManager(getApplicationContext());
         registerContentObservers();
