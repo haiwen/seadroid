@@ -70,8 +70,13 @@ public class AccountDBHelper extends SQLiteOpenHelper {
     private Context context;
 
     public static void migrateAccounts(Context context) {
-        AccountDBHelper db = new AccountDBHelper(context);
-        db.getWritableDatabase().close();  // this forces an onUpgrade()
+        AccountDBHelper db = null;
+        try {
+            db = new AccountDBHelper(context);
+            db.getWritableDatabase().close();  // this forces an onUpgrade()
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private AccountDBHelper(Context context) {

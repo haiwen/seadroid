@@ -399,7 +399,9 @@ public class ActivitiesFragment extends Fragment {
                 }
 
                 // Log.d(DEBUG_TAG, "return offset " + offset);
-                events.addAll(result.getEvents());
+                if (result.getEvents() != null) {
+                    events.addAll(result.getEvents());
+                }
             }
 
             mRefreshType = REFRESH_ON_NONE;
