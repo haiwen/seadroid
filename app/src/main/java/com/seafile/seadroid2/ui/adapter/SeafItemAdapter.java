@@ -25,7 +25,6 @@ import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.ui.AnimateFirstDisplayListener;
 import com.seafile.seadroid2.ui.NavContext;
-import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.util.Utils;
 
@@ -221,7 +220,7 @@ public class SeafItemAdapter extends BaseAdapter {
         viewHolder.progressBar.setVisibility(View.GONE);
         viewHolder.title.setText(repo.getTitle());
         viewHolder.subtitle.setText(repo.getSubtitle());
-        ImageLoader.getInstance().displayImage("drawable://" + repo.getIcon(), viewHolder.icon, WidgetUtils.iconOptions);
+        viewHolder.icon.setImageResource(repo.getIcon());
         if (repo.hasWritePermission()) {
             viewHolder.action.setVisibility(View.VISIBLE);
         }else {
@@ -417,11 +416,11 @@ public class SeafItemAdapter extends BaseAdapter {
             ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
             String url = dataManager.getThumbnailLink(repoName, repoID, filePath, getThumbnailWidth());
             if (url == null) {
-                ImageLoader.getInstance().displayImage("drawable://" + dirent.getIcon(), viewHolder.icon, WidgetUtils.iconOptions);
+                viewHolder.icon.setImageResource(dirent.getIcon());
             } else
                 ImageLoader.getInstance().displayImage(url, viewHolder.icon, options, animateFirstListener);
         } else {
-            ImageLoader.getInstance().displayImage("drawable://" + dirent.getIcon(), viewHolder.icon, WidgetUtils.iconOptions);
+            viewHolder.icon.setImageResource( dirent.getIcon());
         }
 
     }
@@ -450,7 +449,7 @@ public class SeafItemAdapter extends BaseAdapter {
         viewHolder.progressBar.setVisibility(View.GONE);
         viewHolder.title.setText(item.getTitle());
         viewHolder.subtitle.setText(item.getSubtitle());
-        ImageLoader.getInstance().displayImage("drawable://" + item.getIcon(), viewHolder.icon, WidgetUtils.iconOptions);
+        viewHolder.icon.setImageResource(item.getIcon());
         viewHolder.action.setVisibility(View.INVISIBLE);
         return view;
     }

@@ -7,12 +7,12 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import com.google.common.collect.Lists;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.seafile.seadroid2.R;
-import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafItem;
 import com.seafile.seadroid2.data.SeafStarredFile;
 import com.seafile.seadroid2.ui.AnimateFirstDisplayListener;
@@ -160,11 +160,11 @@ public class StarredItemAdapter extends BaseAdapter {
             ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
             String url = mActivity.getDataManager().getThumbnailLink(((SeafStarredFile) item).getRepoID(), ((SeafStarredFile) item).getPath(), WidgetUtils.getThumbnailWidth());
             if (url == null) {
-                ImageLoader.getInstance().displayImage("drawable://" + item.getIcon(), viewHolder.icon, WidgetUtils.iconOptions);
+                viewHolder.icon.setImageResource(item.getIcon());
             } else
                 ImageLoader.getInstance().displayImage(url, viewHolder.icon, options, animateFirstListener);
         } else {
-            ImageLoader.getInstance().displayImage("drawable://" + item.getIcon(), viewHolder.icon, WidgetUtils.iconOptions);
+            viewHolder.icon.setImageResource(item.getIcon());
         }
 
         if (actionModeOn) {
