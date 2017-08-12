@@ -520,4 +520,7 @@ Zum Aktualisieren einmal antippen</string>
   <!--Home list title-->
   <string name="shared_with_all">Für alle freigegeben</string>
   <string name="add_password_protection">Passwortschutz hinzufügen</string>
+  <string name="expiration_dates">Ablaufdatum</string>
+  <string name="add_auto_expiration">Ablaufdatum hinzufügen</string>
+  <string name="input_auto_expiration">Bitte das Ablaufdatum eingeben</string>
 </resources>

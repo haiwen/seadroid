@@ -149,6 +149,13 @@
         <activity android:name=".ui.activity.GalleryActivity"
                   android:label="@string/app_name">
         </activity>
+        <activity
+            android:name=".play.PlayActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="sensor"
+            android:theme="@style/Theme.Fullscreen"
+            android:label="@string/app_name">
+        </activity>
 
         <provider
             android:name="com.seafile.seadroid2.provider.SeafileProvider"

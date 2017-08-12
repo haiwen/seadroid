@@ -536,4 +536,7 @@
   <!--Home list title-->
   <string name="shared_with_all">Общие со всеми</string>
   <string name="add_password_protection">Добавить защиту паролем</string>
+  <string name="expiration_dates">даты истечения срока действия</string>
+  <string name="add_auto_expiration">Добавить авто истечение срока действия</string>
+  <string name="input_auto_expiration">Введите даты истечения срока действия</string>
 </resources>

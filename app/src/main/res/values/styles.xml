@@ -48,6 +48,12 @@
         <item name="windowActionBar">true</item>
     </style>
 
+    <style name="Theme.Fullscreen" parent="AppTheme">
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
     <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorAccent">@color/fancy_orange</item>
         <item name="android:textColorPrimary">@color/fancy_dark_black</item>

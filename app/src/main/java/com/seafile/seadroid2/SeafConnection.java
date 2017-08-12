@@ -428,12 +428,15 @@ public class SeafConnection {
         }
     }
 
-    private Pair<String, String> getDownloadLink(String repoID, String path) throws SeafException {
+    public Pair<String, String> getDownloadLink(String repoID, String path ,boolean isReUsed) throws SeafException {
         try {
             String apiPath = String.format("api2/repos/%s/file/", repoID);
             Map<String, Object> params = Maps.newHashMap();
             params.put("p", encodeUriComponent(path));
             params.put("op", "download");
+            if (isReUsed) {
+                params.put("reuse", 1);
+            }
             HttpRequest req = prepareApiGetRequest(apiPath, params);
             checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
 
@@ -659,6 +662,12 @@ public class SeafConnection {
         }
     }
 
+    public String getReUsedFileLink(String repoID, String path) throws SeafException {
+        //Setting up links can be reused
+        Pair<String, String> ret = getDownloadLink(repoID, path, true);
+        return ret.first;
+    }
+
     /**
      * Get the latest version of the file from server
      * @param repoID
@@ -673,7 +682,7 @@ public class SeafConnection {
                                       String localPath,
                                       String cachedFileID,
                                       ProgressMonitor monitor) throws SeafException {
-        Pair<String, String> ret = getDownloadLink(repoID, path);
+        Pair<String, String> ret = getDownloadLink(repoID, path, false);
         String dlink = ret.first;
         String fileID = ret.second;
 

@@ -58,6 +58,7 @@ import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.notification.UploadNotificationProvider;
+import com.seafile.seadroid2.play.PlayActivity;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.DownloadTaskManager;
 import com.seafile.seadroid2.transfer.PendingUploadInfo;
@@ -1541,7 +1542,20 @@ public class BrowserActivity extends BaseActivity
             WidgetUtils.showFile(this, localFile);
             return;
         }
-
+        boolean videoFile = Utils.isVideoFile(fileName);
+        if (videoFile) { // is video file
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setItems(R.array.video_download_array, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    if (which == 0) // create file
+                        startPlayActivity(fileName, repoID, filePath);
+                    else if (which == 1) // create folder
+                        startFileActivity(repoName, repoID, filePath, fileSize);
+                }
+            }).show();
+            return;
+        }
         startFileActivity(repoName, repoID, filePath, fileSize);
     }
 
@@ -1703,6 +1717,16 @@ public class BrowserActivity extends BaseActivity
         intent.putExtra("account", account);
         intent.putExtra("taskID", taskID);
         startActivityForResult(intent, DOWNLOAD_FILE_REQUEST);
+    }
+
+    private void startPlayActivity(String fileName, String repoID, String filePath) {
+        Intent intent = new Intent(this, PlayActivity.class);
+        intent.putExtra("fileName", fileName);
+        intent.putExtra("repoID", repoID);
+        intent.putExtra("filePath", filePath);
+        intent.putExtra("account", account);
+//        DOWNLOAD_PLAY_REQUEST
+        startActivity(intent );
     }
 
     @Override

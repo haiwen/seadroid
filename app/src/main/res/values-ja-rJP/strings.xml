@@ -509,4 +509,7 @@
   <!--Home list title-->
   <string name="shared_with_all">すべてと共有しました</string>
   <string name="add_password_protection">パスワード保護を追加</string>
+  <string name="expiration_dates">有効期限</string>
+  <string name="add_auto_expiration">自動有効期限を追加</string>
+  <string name="input_auto_expiration">有効期限を入力してください</string>
 </resources>
