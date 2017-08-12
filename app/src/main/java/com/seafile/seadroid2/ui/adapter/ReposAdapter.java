@@ -35,6 +35,10 @@ public abstract class ReposAdapter extends BaseAdapter {
         return false;
     }
 
+    public  List<SeafRepo> getData() {
+        return repos;
+    }
+
     public void setRepos(List<SeafRepo> seafRepos) {
         repos.clear();
         for (SeafRepo repo: seafRepos) {
