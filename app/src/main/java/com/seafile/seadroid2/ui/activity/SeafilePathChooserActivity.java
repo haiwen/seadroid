@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -462,11 +463,20 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
     }
 
     private void updateAdapterWithRepos(List<SeafRepo> repos) {
-        SeafReposAdapter adapter=getReposAdapter();
+        SeafReposAdapter adapter = getReposAdapter();
         if (repos.size() > 0) {
             adapter.clearRepos();
-            for (SeafRepo item: repos) {
-                adapter.add(item);
+            for (SeafRepo item : repos) {
+                boolean isContains = false;
+                for (SeafRepo data : adapter.getData()) {
+                    if (TextUtils.equals(data.getID(), item.getID())) {
+                        isContains = true;
+                        break;
+                    }
+                }
+                if (!isContains) {
+                    adapter.add(item);
+                }
             }
             int sort_type = SettingsManager.instance().getSortFilesTypePref();
             int sort_order = SettingsManager.instance().getSortFilesOrderPref();
