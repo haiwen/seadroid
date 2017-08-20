@@ -95,10 +95,7 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
     private Location buildClassicLocation() {
         Location classic = new Location();
         classic.id = -1; // Android IDs start at 0. so "-1" is safe for us
-        //Check if the external storage is mounted
-        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
-            classic.mediaPath = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Seafile/");
-        }
+        classic.mediaPath = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/Seafile/");
         classic.cachePath = new File(classic.mediaPath, "cache");
         fillLocationInfo(classic);
         return classic;

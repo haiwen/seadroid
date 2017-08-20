@@ -97,7 +97,13 @@ public class DataManager {
     }
 
     public String getThumbnailLink(String repoName, String repoID, String filePath, int size) {
-        File file = getLocalRepoFile(repoName, repoID, filePath);
+        File file = null;
+        try {
+            file = getLocalRepoFile(repoName, repoID, filePath);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            return null;
+        }
 
         SeafRepo seafRepo = getCachedRepoByID(repoID);
         // encrypted repo doesn\`t support thumbnails
