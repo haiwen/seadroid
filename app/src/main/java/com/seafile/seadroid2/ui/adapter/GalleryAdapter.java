@@ -6,12 +6,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingProgressListener;
-import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
@@ -19,12 +19,14 @@ import com.seafile.seadroid2.data.SeafPhoto;
 import com.seafile.seadroid2.transfer.DownloadStateListener;
 import com.seafile.seadroid2.transfer.DownloadTask;
 import com.seafile.seadroid2.ui.activity.GalleryActivity;
+import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
-import uk.co.senab.photoview.PhotoView;
-import uk.co.senab.photoview.PhotoViewAttacher;
 
 import java.io.File;
 import java.util.List;
+
+import uk.co.senab.photoview.PhotoView;
+import uk.co.senab.photoview.PhotoViewAttacher;
 
 /**
  * Gallery Adapter
@@ -134,7 +136,7 @@ public class GalleryAdapter extends PagerAdapter {
                 public void onFileDownloadFailed(int taskID) {
                     //Log.d(DEBUG_TAG, "DownloadTask >> onFileDownloadFailed");
                     progressBar.setVisibility(View.INVISIBLE);
-                    ImageLoader.getInstance().displayImage("drawable://" + R.drawable.gallery_loading_failed, photoView, options);
+                    photoView.setImageResource(R.drawable.gallery_loading_failed);
                 }
             }));
         }
