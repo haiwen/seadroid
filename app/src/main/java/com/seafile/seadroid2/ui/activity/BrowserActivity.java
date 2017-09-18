@@ -762,11 +762,7 @@ public class BrowserActivity extends BaseActivity
     }
 
     public Fragment getFragment(int index) {
-        return getSupportFragmentManager().findFragmentByTag(makeFragmentName(index));
-    }
-
-    private String makeFragmentName(int index) {
-        return "android:switcher:" + R.id.pager + ":" + index;
+       return (Fragment)adapter.instantiateItem(pager,index);
     }
 
     public ReposFragment getReposFragment() {
