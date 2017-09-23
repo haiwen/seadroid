@@ -8,8 +8,8 @@ android {
         applicationId 'com.seafile.seadroid2'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 70
-        versionName "2.1.16"
+        versionCode 71
+        versionName "2.1.17"
         multiDexEnabled true
         resValue "string", "authorities", applicationId + '.cameraupload.provider'
         resValue "string", "account_type", "com.seafile.seadroid2.account.api2"
@@ -91,7 +91,7 @@ android {
 //        https://github.com/InkApplications/Android-ViewPagerIndicator
         compile 'com.inkapplications.viewpageindicator:library:2.4.3'
 //        https://github.com/kevinsawicki/http-request
-        compile 'com.github.kevinsawicki:http-request:5.6'
+        compile 'com.github.kevinsawicki:http-request:6.0'
 //        https://github.com/apache/commons-io
         compile 'commons-io:commons-io:2.4'
 //        https://github.com/google/guava

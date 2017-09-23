@@ -18,12 +18,10 @@ import java.util.List;
 public final class SettingsManager {
     private static final String DEBUG_TAG = "SettingsManager";
 
-    // Global variables
-    private SharedPreferences sharedPref = SeadroidApplication.getAppContext()
-            .getSharedPreferences(AccountManager.SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
-    private SharedPreferences.Editor editor = sharedPref.edit();
     private static SettingsManager instance;
+    private static SharedPreferences.Editor editor;
+    private static SharedPreferences sharedPref;
 
     private SettingsManager() {
     }
@@ -95,13 +93,20 @@ public final class SettingsManager {
     public static long lock_timestamp = 0;
     public static final long LOCK_EXPIRATION_MSECS = 5 * 60 * 1000;
 
-    public static synchronized SettingsManager instance() {
+    public static SettingsManager instance() {
         if (instance == null) {
-            instance = new SettingsManager();
+            synchronized (SettingsManager.class) {
+                if (instance == null) {
+                    instance = new SettingsManager();
+                    sharedPref = SeadroidApplication.getAppContext().getSharedPreferences(AccountManager.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+                    editor = sharedPref.edit();
+                }
+            }
         }
 
         return instance;
     }
+
 
     public void registerSharedPreferencesListener(SharedPreferences.OnSharedPreferenceChangeListener listener) {
         settingsSharedPref.registerOnSharedPreferenceChangeListener(listener);
@@ -123,7 +128,6 @@ public final class SettingsManager {
 
     /**
      * Whether the user has enabled client side encryption
-     *
      */
     public boolean isEncryptEnabled() {
         return settingsSharedPref.getBoolean(CLIENT_ENC_SWITCH_KEY, false);
@@ -139,7 +143,6 @@ public final class SettingsManager {
 
     /**
      * Whether the user has enabled password auto clear when logout account
-     *
      */
     public boolean isPasswordAutoClearEnabled() {
         return settingsSharedPref.getBoolean(AUTO_CLEAR_PASSOWR_SWITCH_KEY, false);
@@ -153,7 +156,6 @@ public final class SettingsManager {
 
     /**
      * Whether the user has setup a gesture lock or not
-     *
      */
     public boolean isGestureLockEnabled() {
         return settingsSharedPref.getBoolean(GESTURE_LOCK_SWITCH_KEY, false);
@@ -162,7 +164,6 @@ public final class SettingsManager {
     /**
      * For convenience, if the user has given the correct gesture lock, he
      * would not be asked for gesture lock for a short period of time.
-     *
      */
     public boolean isGestureLockRequired() {
         if (!isGestureLockEnabled()) {
@@ -237,7 +238,6 @@ public final class SettingsManager {
     }
 
     /**
-     *
      * @return list of bucket IDs that have been selected for upload. Empty list means "all buckets"
      */
     public List<String> getCameraUploadBucketList() {

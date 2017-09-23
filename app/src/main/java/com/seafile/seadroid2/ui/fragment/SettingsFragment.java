@@ -148,11 +148,13 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
         // Space used
         Account currentAccount = accountMgr.getCurrentAccount();
-        String signature = currentAccount.getSignature();
-        AccountInfo info = getAccountInfoBySignature(signature);
-        if (info != null) {
-            String spaceUsed = info.getSpaceUsed();
-            findPreference(SettingsManager.SETTINGS_ACCOUNT_SPACE_KEY).setSummary(spaceUsed);
+        if (currentAccount != null) {
+            String signature = currentAccount.getSignature();
+            AccountInfo info = getAccountInfoBySignature(signature);
+            if (info != null) {
+                String spaceUsed = info.getSpaceUsed();
+                findPreference(SettingsManager.SETTINGS_ACCOUNT_SPACE_KEY).setSummary(spaceUsed);
+            }
         }
 
         // Gesture Lock
@@ -241,30 +243,30 @@ public class SettingsFragment extends CustomPreferenceFragment {
                 return false;
             }
         });
+        if (currentAccount != null) {
+            final ServerInfo serverInfo = accountMgr.getServerInfo(currentAccount);
 
-        final ServerInfo serverInfo = accountMgr.getServerInfo(currentAccount);
+            cPrivacyCategory = (PreferenceCategory) findPreference(SettingsManager.PRIVACY_CATEGORY_KEY);
+            // Client side encryption for encrypted Library
+            clientEncPref = findPreference(SettingsManager.CLIENT_ENC_SWITCH_KEY);
+            clientEncPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    if (newValue instanceof Boolean) {
+                        boolean isChecked = (Boolean) newValue;
+                        // inverse checked status
+                        settingsMgr.setupEncrypt(!isChecked);
+                        return true;
+                    }
 
-        cPrivacyCategory = (PreferenceCategory) findPreference(SettingsManager.PRIVACY_CATEGORY_KEY);
-        // Client side encryption for encrypted Library
-        clientEncPref = findPreference(SettingsManager.CLIENT_ENC_SWITCH_KEY);
-        clientEncPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                if (newValue instanceof Boolean) {
-                    boolean isChecked = (Boolean) newValue;
-                    // inverse checked status
-                    settingsMgr.setupEncrypt(!isChecked);
-                    return true;
+                    return false;
                 }
+            });
 
-                return false;
+            if (serverInfo != null && !serverInfo.canLocalDecrypt()) {
+                cPrivacyCategory.removePreference(clientEncPref);
             }
-        });
-
-        if (serverInfo != null && !serverInfo.canLocalDecrypt()) {
-            cPrivacyCategory.removePreference(clientEncPref);
         }
-
         // Camera Upload
         cUploadCategory = (PreferenceCategory) findPreference(SettingsManager.CAMERA_UPLOAD_CATEGORY_KEY);
         cUploadAdvancedScreen = (PreferenceScreen) findPreference(SettingsManager.CAMERA_UPLOAD_ADVANCED_SCREEN_KEY);
