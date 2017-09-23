@@ -19,6 +19,9 @@
         <item name="colorButtonNormal">@color/fancy_orange</item>
         <item name="alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
         <item name="android:alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
+        <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb</item>
+        <item name="android:fastScrollTrackDrawable">@color/transparent</item>
+
     </style>
 
     <style name="NegativeButton" parent="Base.Widget.AppCompat.Button">
