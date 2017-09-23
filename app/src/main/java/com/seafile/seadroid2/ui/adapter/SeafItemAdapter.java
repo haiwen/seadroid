@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui.adapter;
 
+import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,8 +34,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class SeafItemAdapter extends BaseAdapter {
-
+public class SeafItemAdapter extends RecyclerView.Adapter {
+    public interface OnItemClickListener {
+        void onItemClicked(int position);
+        void onItemLongClicked(int position);
+    }
+    private OnItemClickListener onItemClickListener;
     private ArrayList<SeafItem> items;
     private BrowserActivity mActivity;
     private boolean repoIsEncrypted;
@@ -63,13 +68,8 @@ public class SeafItemAdapter extends BaseAdapter {
     public static final int SORT_ORDER_DESCENDING = 12;
 
     @Override
-    public int getCount() {
+    public int getItemCount() {
         return items.size();
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return items.isEmpty();
     }
 
     /**
@@ -114,6 +114,10 @@ public class SeafItemAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        this.onItemClickListener = onItemClickListener;
+    }
+
     public void add(SeafItem entry) {
         items.add(entry);
     }
@@ -122,7 +126,7 @@ public class SeafItemAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-    @Override
+
     public SeafItem getItem(int position) {
         return items.get(position);
     }
@@ -181,6 +185,43 @@ public class SeafItemAdapter extends BaseAdapter {
         return 2;
     }
 
+
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        switch (viewType) {
+            case 0:
+                View view = LayoutInflater.from(mActivity).inflate(R.layout.group_item, null);
+                return new GroupViewHolder(view);
+            default:
+                view = LayoutInflater.from(mActivity).inflate(R.layout.list_item_entry, null);
+                TextView title = (TextView) view.findViewById(R.id.list_item_title);
+                TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
+                ImageView multiSelect = (ImageView) view.findViewById(R.id.list_item_multi_select_btn);
+                ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
+                RelativeLayout action = (RelativeLayout) view.findViewById(R.id.expandable_toggle_button);
+                ImageView downloadStatusIcon = (ImageView) view.findViewById(R.id.list_item_download_status_icon);
+                ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.list_item_download_status_progressbar);
+                Viewholder viewHolder = new Viewholder(view,title, subtitle, multiSelect, icon, action, downloadStatusIcon, progressBar);
+                view.setTag(viewHolder);
+                return viewHolder;
+        }
+    }
+
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        SeafItem item = items.get(position);
+        if (item instanceof SeafRepo) {
+            getRepoView((SeafRepo) item, (Viewholder) holder);
+        } else if (item instanceof SeafGroup) {
+            getGroupView((SeafGroup) item, (GroupViewHolder) holder);
+        } else if (item instanceof SeafCachedFile) {
+            getCacheView((SeafCachedFile) item, (Viewholder) holder);
+        } else {
+            getDirentView((SeafDirent) item, (Viewholder) holder, position);
+        }
+    }
+
+    @Override
     public int getItemViewType(int position) {
         SeafItem item = items.get(position);
         if (item instanceof SeafGroup)
@@ -189,24 +230,7 @@ public class SeafItemAdapter extends BaseAdapter {
             return 1;
     }
 
-    private View getRepoView(final SeafRepo repo, View convertView, ViewGroup parent) {
-        View view = convertView;
-        Viewholder viewHolder;
-
-        if (convertView == null) {
-            view = LayoutInflater.from(mActivity).inflate(R.layout.list_item_entry, null);
-            TextView title = (TextView) view.findViewById(R.id.list_item_title);
-            TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
-            ImageView multiSelect = (ImageView) view.findViewById(R.id.list_item_multi_select_btn);
-            ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
-            RelativeLayout action = (RelativeLayout) view.findViewById(R.id.expandable_toggle_button);
-            ImageView downloadStatusIcon = (ImageView) view.findViewById(R.id.list_item_download_status_icon);
-            ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.list_item_download_status_progressbar);
-            viewHolder = new Viewholder(title, subtitle, multiSelect, icon, action, downloadStatusIcon, progressBar);
-            view.setTag(viewHolder);
-        } else {
-            viewHolder = (Viewholder) convertView.getTag();
-        }
+    private void getRepoView(final SeafRepo repo, Viewholder viewHolder) {
 
         viewHolder.action.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -226,38 +250,17 @@ public class SeafItemAdapter extends BaseAdapter {
         }else {
             viewHolder.action.setVisibility(View.INVISIBLE);
         }
-        return view;
     }
 
-    private View getGroupView(SeafGroup group) {
-        View view = LayoutInflater.from(mActivity).inflate(R.layout.group_item, null);
-        TextView tv = (TextView) view.findViewById(R.id.textview_groupname);
+    private void getGroupView(SeafGroup group, GroupViewHolder viewHolder) {
         String groupTitle = group.getTitle();
         if ("Organization".equals(groupTitle)) {
             groupTitle = mActivity.getString(R.string.shared_with_all);
         }
-        tv.setText(groupTitle);
-        return view;
+        viewHolder.tv.setText(groupTitle);
     }
 
-    private View getDirentView(final SeafDirent dirent, View convertView, ViewGroup parent, final int position) {
-        View view = convertView;
-        final Viewholder viewHolder;
-
-        if (convertView == null) {
-            view = LayoutInflater.from(mActivity).inflate(R.layout.list_item_entry, null);
-            TextView title = (TextView) view.findViewById(R.id.list_item_title);
-            TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
-            ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
-            ImageView multiSelect = (ImageView) view.findViewById(R.id.list_item_multi_select_btn);
-            RelativeLayout action = (RelativeLayout) view.findViewById(R.id.expandable_toggle_button);
-            ImageView downloadStatusIcon = (ImageView) view.findViewById(R.id.list_item_download_status_icon);
-            ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.list_item_download_status_progressbar);
-            viewHolder = new Viewholder(title, subtitle, multiSelect, icon, action, downloadStatusIcon, progressBar);
-            view.setTag(viewHolder);
-        } else {
-            viewHolder = (Viewholder) convertView.getTag();
-        }
+    private void getDirentView(final SeafDirent dirent, final Viewholder viewHolder, final int position) {
 
         viewHolder.action.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -317,7 +320,6 @@ public class SeafItemAdapter extends BaseAdapter {
             setFileView(dirent, viewHolder, position);
         }
 
-        return view;
     }
 
     /**
@@ -425,24 +427,7 @@ public class SeafItemAdapter extends BaseAdapter {
 
     }
 
-    private View getCacheView(SeafCachedFile item, View convertView, ViewGroup parent) {
-        View view = convertView;
-        Viewholder viewHolder;
-
-        if (convertView == null) {
-            view = LayoutInflater.from(mActivity).inflate(R.layout.list_item_entry, null);
-            TextView title = (TextView) view.findViewById(R.id.list_item_title);
-            TextView subtitle = (TextView) view.findViewById(R.id.list_item_subtitle);
-            ImageView multiSelect = (ImageView) view.findViewById(R.id.list_item_multi_select_btn);
-            ImageView icon = (ImageView) view.findViewById(R.id.list_item_icon);
-            RelativeLayout action = (RelativeLayout) view.findViewById(R.id.expandable_toggle_button);
-            ImageView downloadStatusIcon = (ImageView) view.findViewById(R.id.list_item_download_status_icon);
-            ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.list_item_download_status_progressbar);
-            viewHolder = new Viewholder(title, subtitle, multiSelect, icon, action, downloadStatusIcon, progressBar);
-            view.setTag(viewHolder);
-        } else {
-            viewHolder = (Viewholder) convertView.getTag();
-        }
+    private void getCacheView(SeafCachedFile item, Viewholder viewHolder) {
 
         viewHolder.downloadStatusIcon.setVisibility(View.VISIBLE);
         viewHolder.downloadStatusIcon.setImageResource(R.drawable.list_item_download_finished);
@@ -451,22 +436,11 @@ public class SeafItemAdapter extends BaseAdapter {
         viewHolder.subtitle.setText(item.getSubtitle());
         viewHolder.icon.setImageResource(item.getIcon());
         viewHolder.action.setVisibility(View.INVISIBLE);
-        return view;
     }
 
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        SeafItem item = items.get(position);
-        if (item instanceof SeafRepo) {
-            return getRepoView((SeafRepo) item, convertView, parent);
-        } else if (item instanceof SeafGroup) {
-            return getGroupView((SeafGroup) item);
-        } else if (item instanceof SeafCachedFile) {
-            return getCacheView((SeafCachedFile) item, convertView, parent);
-        } else {
-            return getDirentView((SeafDirent) item, convertView, parent, position);
-        }
-    }
+
+
+
 
     public void setActionModeOn(boolean actionModeOn) {
         this.actionModeOn = actionModeOn;
@@ -496,13 +470,23 @@ public class SeafItemAdapter extends BaseAdapter {
         return mSelectedItemsValues;
     }
 
-    private class Viewholder {
+    private class GroupViewHolder extends RecyclerView.ViewHolder {
+        TextView tv;
+
+
+        public GroupViewHolder(View itemView) {
+            super(itemView);
+            tv = (TextView) itemView.findViewById(R.id.textview_groupname);
+        }
+    }
+
+    private class Viewholder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener{
         TextView title, subtitle;
         ImageView icon, multiSelect, downloadStatusIcon; // downloadStatusIcon used to show file downloading status, it is invisible by default
         ProgressBar progressBar;
         RelativeLayout action;
 
-        public Viewholder(TextView title,
+        public Viewholder(View view, TextView title,
                           TextView subtitle,
                           ImageView multiSelect,
                           ImageView icon,
@@ -510,7 +494,9 @@ public class SeafItemAdapter extends BaseAdapter {
                           ImageView downloadStatusIcon,
                           ProgressBar progressBar
                           ) {
-            super();
+            super(view);
+            view.setOnClickListener(this);
+            view.setOnLongClickListener(this);
             this.icon = icon;
             this.multiSelect = multiSelect;
             this.action = action;
@@ -519,7 +505,19 @@ public class SeafItemAdapter extends BaseAdapter {
             this.downloadStatusIcon = downloadStatusIcon;
             this.progressBar = progressBar;
         }
+
+        @Override
+        public void onClick(View v) {
+            SeafItemAdapter.this.onItemClickListener.onItemClicked(getLayoutPosition());
+        }
+
+        @Override
+        public boolean onLongClick(View v) {
+            SeafItemAdapter.this.onItemClickListener.onItemLongClicked(getLayoutPosition());
+            return true;
+        }
     }
+
 
     private int getThumbnailWidth() {
         return (int) SeadroidApplication.getAppContext().getResources().getDimension(R.dimen.lv_icon_width);
