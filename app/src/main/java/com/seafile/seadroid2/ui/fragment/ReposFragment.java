@@ -11,6 +11,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.view.ActionMode;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -87,8 +88,16 @@ public class ReposFragment extends Fragment implements SeafItemAdapter.OnItemCli
     private View mProgressContainer;
     private View mListContainer;
     private TextView mErrorText;
+    private DividerItemDecoration mDividerItemDecoration;
+
+    public enum ViewMode {GRID, LIST}
+
+    private ViewMode mode;
 
     private boolean isTimerStarted;
+
+    private int gridColumns;
+
     private final Handler mTimer = new Handler();
 
     private DataManager getDataManager() {
@@ -107,6 +116,44 @@ public class ReposFragment extends Fragment implements SeafItemAdapter.OnItemCli
         return mEmptyView;
     }
 
+    public void changeLayout(ViewMode mode) {
+        this.mode = mode;
+        final GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), isGridView() ? gridColumns : 1);
+        mListView.setLayoutManager(gridLayoutManager);
+        gridLayoutManager.setInitialPrefetchItemCount(40);
+        gridLayoutManager.setItemPrefetchEnabled(true);
+        if(!isGridView()){
+            mDividerItemDecoration = new DividerItemDecoration(
+                    mListView.getContext(),
+                    gridLayoutManager.getOrientation()
+            );
+            mListView.addItemDecoration(mDividerItemDecoration);
+        } else
+            mListView.removeItemDecoration(mDividerItemDecoration);
+
+        gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                switch (getAdapter().getItemViewType(position)) {
+                    case 0:
+                        return gridLayoutManager.getSpanCount();
+                    default:
+                        return 1;
+                }
+            }
+        });
+        getAdapter().setShowGrids(isGridView());
+        getAdapter().notifyDataSetChanged();
+    }
+
+    private boolean isGridView() {
+        return mode != ViewMode.LIST;
+    }
+
+    public ViewMode getLayout() {
+        return mode;
+    }
+
 
     public interface OnFileSelectedListener {
         void onFileSelected(SeafDirent fileName);
@@ -119,19 +166,6 @@ public class ReposFragment extends Fragment implements SeafItemAdapter.OnItemCli
         mActivity = (BrowserActivity) activity;
     }
 
-    public class LayoutManager extends GridLayoutManager {
-
-        public LayoutManager(Context context, final int spanCount) {
-            super(context, spanCount);
-            this.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
-                @Override
-                public int getSpanSize(int position) {
-                    return position == 0 ? spanCount : 1;
-                }
-            });
-        }
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -140,10 +174,13 @@ public class ReposFragment extends Fragment implements SeafItemAdapter.OnItemCli
         mListView = (RecyclerView) root.findViewById(android.R.id.list);
         mEmptyView = (ImageView) root.findViewById(R.id.empty);
         mListContainer = root.findViewById(R.id.listContainer);
-        mListView.setLayoutManager(new LayoutManager(getContext(), 2));
 
         mErrorText = (TextView) root.findViewById(R.id.error_message);
         mProgressContainer = root.findViewById(R.id.progressContainer);
+
+
+        gridColumns = getResources().getInteger(R.integer.gv_number_of_columns);
+        mListView.setLayoutManager(new GridLayoutManager(getContext(), 1));
 
         refreshLayout.setColorSchemeResources(R.color.fancy_orange);
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -153,7 +190,10 @@ public class ReposFragment extends Fragment implements SeafItemAdapter.OnItemCli
                 refreshView(true, true);
             }
         });
-
+        mListView.setHasFixedSize(true);
+        mListView.setItemViewCacheSize(100);
+        mListView.setDrawingCacheEnabled(true);
+        mListView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_AUTO);
         return root;
     }
 
@@ -333,8 +373,11 @@ public class ReposFragment extends Fragment implements SeafItemAdapter.OnItemCli
         Log.d(DEBUG_TAG, "ReposFragment onActivityCreated");
         scrollPostions = Maps.newHashMap();
         adapter = new SeafItemAdapter(mActivity);
+        changeLayout(ViewMode.valueOf(SettingsManager.instance().getRepoViewPref()));
         getAdapter().setOnItemClickListener(this);
         mListView.setAdapter(adapter);
+        mode = ViewMode.valueOf(SettingsManager.instance().getRepoViewPref());
+
     }
 
     @Override
@@ -405,6 +448,7 @@ public class ReposFragment extends Fragment implements SeafItemAdapter.OnItemCli
     }
 
     public void navToReposView(boolean forceRefresh, boolean restorePosition) {
+
         //stopTimer();
 
         mPullToRefreshStopRefreshing++;
@@ -606,7 +650,16 @@ public class ReposFragment extends Fragment implements SeafItemAdapter.OnItemCli
 
     @Override
     public void onItemLongClicked(int position) {
+        SeafItem item = adapter.getItem(position);
+        if(item instanceof SeafDirent) {
+            SeafDirent dirent = (SeafDirent) item;
+            if (dirent.isDir())
+                mActivity.showDirBottomSheet(dirent.getTitle(), (SeafDirent) item);
+            else
+                mActivity.showFileBottomSheet(dirent.getTitle(), (SeafDirent) item);
 
+        } else if(item instanceof SeafRepo)
+            mActivity.showRepoBottomSheet((SeafRepo) item);
     }
 
     @Override
@@ -663,12 +716,12 @@ public class ReposFragment extends Fragment implements SeafItemAdapter.OnItemCli
                             currentPath + dirent.name : currentPath + "/" + dirent.name;
                     nav.setDir(newPath, dirent.id);
                     nav.setDirPermission(dirent.permission);
-                    saveDirentScrollPosition(repo.getID(), currentPath);
+                    saveDirentScrollPosition(repo.getID(), currentPath,position);
                     refreshView();
                     mActivity.setUpButtonTitle(dirent.name);
                 } else {
                     String currentPath = nav.getDirPath();
-                    saveDirentScrollPosition(repo.getID(), currentPath);
+                    saveDirentScrollPosition(repo.getID(), currentPath,position);
                     mActivity.onFileSelected(dirent);
                 }
             } else
@@ -678,7 +731,7 @@ public class ReposFragment extends Fragment implements SeafItemAdapter.OnItemCli
             nav.setRepoID(repo.id);
             nav.setRepoName(repo.getName());
             nav.setDir("/", repo.root);
-            saveRepoScrollPosition();
+            saveRepoScrollPosition(position);
             refreshView();
         }
     }
@@ -693,20 +746,16 @@ public class ReposFragment extends Fragment implements SeafItemAdapter.OnItemCli
         }
     }
 
-    private void saveDirentScrollPosition(String repoId, String currentPath) {
+    private void saveDirentScrollPosition(String repoId, String currentPath, int position) {
         final String pathJoin = Utils.pathJoin(repoId, currentPath);
         final int index = mListView.getTop();
-        final View v = mListView.getChildAt(0);
-        final int top = (v == null) ? 0 : (v.getTop() - mListView.getPaddingTop());
-        final ScrollState state = new ScrollState(index, top);
+        final ScrollState state = new ScrollState(index, position);
         scrollPostions.put(pathJoin, state);
     }
 
-    private void saveRepoScrollPosition() {
+    private void saveRepoScrollPosition(int position) {
         final int index = mListView.getTop();
-        final View v = mListView.getChildAt(0);
-        final int top = (v == null) ? 0 : (v.getTop() - mListView.getPaddingTop());
-        final ScrollState state = new ScrollState(index, top);
+        final ScrollState state = new ScrollState(index, position);
         scrollPostions.put(KEY_REPO_SCROLL_POSITION, state);
     }
 

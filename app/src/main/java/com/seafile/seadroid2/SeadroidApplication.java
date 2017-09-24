@@ -50,6 +50,7 @@ public class SeadroidApplication extends Application {
                 .diskCache(new UnlimitedDiscCache(cacheDir))
                 .threadPriority(Thread.NORM_PRIORITY - 2)
                 .denyCacheImageMultipleSizesInMemory()
+                .threadPoolSize(6)
                 .diskCacheFileNameGenerator(new Md5FileNameGenerator())
                 .diskCacheSize(50 * 1024 * 1024) // 50 Mb
                 .tasksProcessingOrder(QueueProcessingType.LIFO)

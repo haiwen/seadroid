@@ -48,6 +48,8 @@ public class DataManager {
     public static final String PULL_TO_REFRESH_LAST_TIME_FOR_STARRED_FRAGMENT = "starred fragment last update ";
     private static SimpleDateFormat ptrDataFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+    public static final String THUMBNAIL_LINK = "api2/repos/%s/thumbnail/?p=%s&size=%s";
+
     private static Map<String, PasswordInfo> passwords = Maps.newHashMap();
     private static Map<String, Long> direntsRefreshTimeMap = Maps.newHashMap();
     public static final long REFRESH_EXPIRATION_MSECS = 10 * 60 * 1000; // 10 mins
@@ -116,7 +118,7 @@ public class DataManager {
         } else {
             try {
                 String pathEnc = URLEncoder.encode(filePath, "UTF-8");
-                return account.getServer() + String.format("api2/repos/%s/thumbnail/?p=%s&size=%s", repoID, pathEnc, size);
+                return account.getServer() + String.format(THUMBNAIL_LINK, repoID, pathEnc, size);
             } catch (UnsupportedEncodingException e) {
                 return null;
             }

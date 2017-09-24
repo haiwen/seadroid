@@ -480,9 +480,40 @@ public class BrowserActivity extends BaseActivity
         return super.onOptionsItemSelected(item);
     }
 
+    private ReposFragment.ViewMode determineNextViewMode(){
+        ReposFragment.ViewMode currentMode = ReposFragment.ViewMode.valueOf(
+                SettingsManager.instance().getRepoViewPref());
+        switch (currentMode){
+            case GRID:
+                return ReposFragment.ViewMode.LIST;
+            case LIST:
+                return ReposFragment.ViewMode.GRID;
+            default:
+                return ReposFragment.ViewMode.LIST;
+        }
+    }
+
+    private void setViewModeIcon(MenuItem item,ReposFragment.ViewMode currentMode){
+
+        switch (currentMode){
+            case GRID:
+                item.setIcon(ContextCompat.getDrawable(this, R.drawable.list_view));
+                break;
+            case LIST:
+                item.setIcon(ContextCompat.getDrawable(this, R.drawable.grid_view));
+                break;
+        }
+    }
+
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.switch_view:
+                ReposFragment.ViewMode nextMode = determineNextViewMode();
+                SettingsManager.instance().setRepoViewPref(nextMode.toString());
+                setViewModeIcon(item,nextMode);
+                getReposFragment().changeLayout(nextMode);
+                return true;
             case R.id.sort:
                 showSortFilesDialog();
                 return true;
@@ -912,6 +943,12 @@ public class BrowserActivity extends BaseActivity
         Toolbar toolbar = getActionBarToolbar();
         toolbar.inflateMenu(R.menu.browser_menu);
         toolbar.setOnMenuItemClickListener(this);
+        MenuItem item = toolbar.getMenu().findItem(R.id.switch_view);
+        if(item!=null){
+            ReposFragment.ViewMode currentMode = ReposFragment.ViewMode.valueOf(
+                    SettingsManager.instance().getRepoViewPref());
+            setViewModeIcon(item, currentMode);
+        }
         return true;
     }
 

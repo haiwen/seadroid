@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="gv_number_of_columns">4</integer>
+    <dimen name="gv_title_txt_size">10sp</dimen>
+
+</resources>
