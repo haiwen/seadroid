@@ -7,10 +7,13 @@ import android.text.TextUtils;
 
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
+import com.seafile.seadroid2.ui.fragment.ReposFragment;
 import com.seafile.seadroid2.util.Utils;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static com.seafile.seadroid2.ui.fragment.ReposFragment.ViewMode.LIST;
 
 /**
  * Access the app settings
@@ -89,6 +92,10 @@ public final class SettingsManager {
     // Sort files
     public static final String SORT_FILES_TYPE = "sort_files_type";
     public static final String SORT_FILES_ORDER = "sort_files_order";
+
+    // Repo view
+    public static final String REPO_VIEW_GRID_LIST = "repo_view_grid_list";
+
 
     public static long lock_timestamp = 0;
     public static final long LOCK_EXPIRATION_MSECS = 5 * 60 * 1000;
@@ -230,6 +237,14 @@ public final class SettingsManager {
     public void saveSortFilesPref(int type, int order) {
         editor.putInt(SORT_FILES_TYPE, type).commit();
         editor.putInt(SORT_FILES_ORDER, order).commit();
+    }
+
+    public void setRepoViewPref(String type){
+        editor.putString(REPO_VIEW_GRID_LIST,type).commit();
+    }
+
+    public String getRepoViewPref(){
+        return sharedPref.getString(REPO_VIEW_GRID_LIST, ReposFragment.ViewMode.LIST.toString());
     }
 
     public void setCameraUploadBucketList(List<String> list) {

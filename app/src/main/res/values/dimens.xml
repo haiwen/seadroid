@@ -65,6 +65,7 @@
     <dimen name="lv_title_padding_top">4dp</dimen>
     <dimen name="lv_title_padding_left">8dp</dimen>
     <dimen name="lv_title_txt_size">16sp</dimen>
+    <dimen name="gv_title_txt_size">13sp</dimen>
     <dimen name="lv_subtitle_padding_left">8dp</dimen>
     <dimen name="lv_subtitle_txt_size">14sp</dimen>
     <dimen name="lv_download_icon_width">14dp</dimen>
@@ -75,6 +76,7 @@
     <dimen name="lv_download_state_txt_size">12sp</dimen>
 
     <!-- slide expandable listview -->
+    <integer name="gv_number_of_columns">3</integer>
     <dimen name="lv_expandable_item_height">60dp</dimen>
     <dimen name="lv_expandable_item_padding">5dp</dimen>
     <dimen name="lv_expandable_item_divider_height">40dp</dimen>
@@ -193,4 +195,5 @@
     <dimen name="font_size_bigger">18sp</dimen>
     <dimen name="font_size_biggest">20sp</dimen>
     <dimen name="font_size_large">22sp</dimen>
+    <dimen name="repo_img_margins">20dp</dimen>
 </resources>

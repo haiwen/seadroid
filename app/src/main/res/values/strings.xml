@@ -560,4 +560,5 @@
     <string name="expiration_dates">expiration dates</string>
     <string name="add_auto_expiration">Add auto expiration</string>
     <string name="input_auto_expiration">Please enter the expiration dates</string>
+    <string name="switch_view">Switch View</string>
 </resources>

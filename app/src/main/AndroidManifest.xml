@@ -154,7 +154,7 @@
 
         <provider
             android:name="com.seafile.seadroid2.provider.SeafileProvider"
-            android:authorities="${applicationId}"
+            android:authorities="com.seafile.seadroid2"
             android:exported="true"
             android:grantUriPermissions="true"
             android:permission="android.permission.MANAGE_DOCUMENTS"

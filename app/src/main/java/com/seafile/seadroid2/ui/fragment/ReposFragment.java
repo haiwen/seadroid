@@ -2,13 +2,18 @@ package com.seafile.seadroid2.ui.fragment;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.view.ActionMode;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -51,7 +56,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class ReposFragment extends ListFragment {
+public class ReposFragment extends Fragment implements SeafItemAdapter.OnItemClickListener {
 
     private static final String DEBUG_TAG = "ReposFragment";
     private static final String KEY_REPO_SCROLL_POSITION = "repo_scroll_position";
@@ -78,13 +83,21 @@ public class ReposFragment extends ListFragment {
     public static final int FILE_ACTION_STAR = 3;
 
     private SwipeRefreshLayout refreshLayout;
-    private ListView mListView;
+    private RecyclerView mListView;
     private ImageView mEmptyView;
     private View mProgressContainer;
     private View mListContainer;
     private TextView mErrorText;
+    private DividerItemDecoration mDividerItemDecoration;
+
+    public enum ViewMode {GRID, LIST}
+
+    private ViewMode mode;
 
     private boolean isTimerStarted;
+
+    private int gridColumns;
+
     private final Handler mTimer = new Handler();
 
     private DataManager getDataManager() {
@@ -103,6 +116,45 @@ public class ReposFragment extends ListFragment {
         return mEmptyView;
     }
 
+    public void changeLayout(ViewMode mode) {
+        this.mode = mode;
+        final GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), isGridView() ? gridColumns : 1);
+        mListView.setLayoutManager(gridLayoutManager);
+        gridLayoutManager.setInitialPrefetchItemCount(40);
+        gridLayoutManager.setItemPrefetchEnabled(true);
+        if(!isGridView()){
+            mDividerItemDecoration = new DividerItemDecoration(
+                    mListView.getContext(),
+                    gridLayoutManager.getOrientation()
+            );
+            mListView.addItemDecoration(mDividerItemDecoration);
+        } else
+            mListView.removeItemDecoration(mDividerItemDecoration);
+
+        gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                switch (getAdapter().getItemViewType(position)) {
+                    case 0:
+                        return gridLayoutManager.getSpanCount();
+                    default:
+                        return 1;
+                }
+            }
+        });
+        getAdapter().setShowGrids(isGridView());
+        getAdapter().notifyDataSetChanged();
+    }
+
+    private boolean isGridView() {
+        return mode != ViewMode.LIST;
+    }
+
+    public ViewMode getLayout() {
+        return mode;
+    }
+
+
     public interface OnFileSelectedListener {
         void onFileSelected(SeafDirent fileName);
     }
@@ -119,19 +171,16 @@ public class ReposFragment extends ListFragment {
                              Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.repos_fragment, container, false);
         refreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swiperefresh);
-        mListView = (ListView) root.findViewById(android.R.id.list);
+        mListView = (RecyclerView) root.findViewById(android.R.id.list);
         mEmptyView = (ImageView) root.findViewById(R.id.empty);
         mListContainer = root.findViewById(R.id.listContainer);
+
         mErrorText = (TextView) root.findViewById(R.id.error_message);
         mProgressContainer = root.findViewById(R.id.progressContainer);
 
-        mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                startContextualActionMode(position);
-                return true;
-            }
-        });
+
+        gridColumns = getResources().getInteger(R.integer.gv_number_of_columns);
+        mListView.setLayoutManager(new GridLayoutManager(getContext(), 1));
 
         refreshLayout.setColorSchemeResources(R.color.fancy_orange);
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -141,7 +190,10 @@ public class ReposFragment extends ListFragment {
                 refreshView(true, true);
             }
         });
-
+        mListView.setHasFixedSize(true);
+        mListView.setItemViewCacheSize(100);
+        mListView.setDrawingCacheEnabled(true);
+        mListView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_AUTO);
         return root;
     }
 
@@ -321,8 +373,11 @@ public class ReposFragment extends ListFragment {
         Log.d(DEBUG_TAG, "ReposFragment onActivityCreated");
         scrollPostions = Maps.newHashMap();
         adapter = new SeafItemAdapter(mActivity);
-
+        changeLayout(ViewMode.valueOf(SettingsManager.instance().getRepoViewPref()));
+        getAdapter().setOnItemClickListener(this);
         mListView.setAdapter(adapter);
+        mode = ViewMode.valueOf(SettingsManager.instance().getRepoViewPref());
+
     }
 
     @Override
@@ -393,6 +448,7 @@ public class ReposFragment extends ListFragment {
     }
 
     public void navToReposView(boolean forceRefresh, boolean restorePosition) {
+
         //stopTimer();
 
         mPullToRefreshStopRefreshing++;
@@ -593,7 +649,22 @@ public class ReposFragment extends ListFragment {
     }
 
     @Override
-    public void onListItemClick(final ListView l, final View v, final int position, final long id) {
+    public void onItemLongClicked(int position) {
+        SeafItem item = adapter.getItem(position);
+        if(item instanceof SeafDirent) {
+            SeafDirent dirent = (SeafDirent) item;
+            if (dirent.isDir())
+                mActivity.showDirBottomSheet(dirent.getTitle(), (SeafDirent) item);
+            else
+                mActivity.showFileBottomSheet(dirent.getTitle(), (SeafDirent) item);
+
+        } else if(item instanceof SeafRepo)
+            mActivity.showRepoBottomSheet((SeafRepo) item);
+    }
+
+    @Override
+    public void onItemClicked(final int position) {
+
         if (Utils.isFastTapping()) return;
 
         // handle action mode selections
@@ -628,7 +699,7 @@ public class ReposFragment extends ListFragment {
                     new TaskDialog.TaskDialogListener() {
                         @Override
                         public void onTaskSuccess() {
-                            onListItemClick(l, v, position, id);
+                            onItemClicked(position);
                         }
                     }, password);
 
@@ -645,12 +716,12 @@ public class ReposFragment extends ListFragment {
                             currentPath + dirent.name : currentPath + "/" + dirent.name;
                     nav.setDir(newPath, dirent.id);
                     nav.setDirPermission(dirent.permission);
-                    saveDirentScrollPosition(repo.getID(), currentPath);
+                    saveDirentScrollPosition(repo.getID(), currentPath,position);
                     refreshView();
                     mActivity.setUpButtonTitle(dirent.name);
                 } else {
                     String currentPath = nav.getDirPath();
-                    saveDirentScrollPosition(repo.getID(), currentPath);
+                    saveDirentScrollPosition(repo.getID(), currentPath,position);
                     mActivity.onFileSelected(dirent);
                 }
             } else
@@ -660,7 +731,7 @@ public class ReposFragment extends ListFragment {
             nav.setRepoID(repo.id);
             nav.setRepoName(repo.getName());
             nav.setDir("/", repo.root);
-            saveRepoScrollPosition();
+            saveRepoScrollPosition(position);
             refreshView();
         }
     }
@@ -675,20 +746,16 @@ public class ReposFragment extends ListFragment {
         }
     }
 
-    private void saveDirentScrollPosition(String repoId, String currentPath) {
+    private void saveDirentScrollPosition(String repoId, String currentPath, int position) {
         final String pathJoin = Utils.pathJoin(repoId, currentPath);
-        final int index = mListView.getFirstVisiblePosition();
-        final View v = mListView.getChildAt(0);
-        final int top = (v == null) ? 0 : (v.getTop() - mListView.getPaddingTop());
-        final ScrollState state = new ScrollState(index, top);
+        final int index = mListView.getTop();
+        final ScrollState state = new ScrollState(index, position);
         scrollPostions.put(pathJoin, state);
     }
 
-    private void saveRepoScrollPosition() {
-        final int index = mListView.getFirstVisiblePosition();
-        final View v = mListView.getChildAt(0);
-        final int top = (v == null) ? 0 : (v.getTop() - mListView.getPaddingTop());
-        final ScrollState state = new ScrollState(index, top);
+    private void saveRepoScrollPosition(int position) {
+        final int index = mListView.getTop();
+        final ScrollState state = new ScrollState(index, position);
         scrollPostions.put(KEY_REPO_SCROLL_POSITION, state);
     }
 
@@ -697,12 +764,12 @@ public class ReposFragment extends ListFragment {
         if (restore) {
             ScrollState state = scrollPostions.get(pathJoin);
             if (state != null) {
-                mListView.setSelectionFromTop(state.index, state.top);
+                mListView.getLayoutManager().scrollToPosition(state.top);
             } else {
-                mListView.setSelectionAfterHeaderView();
+                mListView.getLayoutManager().scrollToPosition(0);
             }
         } else {
-            mListView.setSelectionAfterHeaderView();
+            mListView.getLayoutManager().scrollToPosition(0);
         }
     }
 
@@ -710,12 +777,12 @@ public class ReposFragment extends ListFragment {
         if (restore) {
             ScrollState state = scrollPostions.get(KEY_REPO_SCROLL_POSITION);
             if (state != null) {
-                mListView.setSelectionFromTop(state.index, state.top);
+                mListView.getLayoutManager().scrollToPosition(state.top);
             } else {
-                mListView.setSelectionAfterHeaderView();
+                mListView.getLayoutManager().scrollToPosition(0);
             }
         } else {
-            mListView.setSelectionAfterHeaderView();
+            mListView.getLayoutManager().scrollToPosition(0);
         }
     }
 

@@ -88,6 +88,7 @@ android {
         compile fileTree(include: ['*.jar'], dir: 'libs')
         compile "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
         compile "com.android.support:design:${rootProject.ext.supportLibVersion}"
+        compile "com.android.support:cardview-v7:${rootProject.ext.supportLibVersion}"
 //        https://github.com/InkApplications/Android-ViewPagerIndicator
         compile 'com.inkapplications.viewpageindicator:library:2.4.3'
 //        https://github.com/kevinsawicki/http-request
