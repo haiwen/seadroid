@@ -1955,17 +1955,17 @@ public class BrowserActivity extends BaseActivity
         doDelete(repoID, repoName, path, true);
     }
 
-    private void doDelete(String repoID, String repoName, String path, boolean isdir) {
+    private void doDelete(final String repoID, String repoName, String path, boolean isdir) {
         final DeleteFileDialog dialog = new DeleteFileDialog();
         dialog.init(repoID, path, isdir, account);
         dialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
             @Override
             public void onTaskSuccess() {
                 showShortToast(BrowserActivity.this, R.string.delete_successful);
-                ReposFragment reposFragment = getReposFragment();
-                if (currentPosition == INDEX_LIBRARY_TAB && reposFragment != null) {
-                    reposFragment.refreshView();
-                }
+                List<SeafDirent> cachedDirents = getDataManager()
+                        .getCachedDirents(repoID, getNavContext().getDirPath());
+                getReposFragment().getAdapter().setItems(cachedDirents);
+                getReposFragment().getAdapter().notifyDataSetChanged();
             }
         });
         dialog.show(getSupportFragmentManager(), TAG_DELETE_FILE_DIALOG_FRAGMENT);
