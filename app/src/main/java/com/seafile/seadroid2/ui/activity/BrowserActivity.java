@@ -1869,11 +1869,11 @@ public class BrowserActivity extends BaseActivity
         fetchFileDialog.show(getSupportFragmentManager(), OPEN_FILE_DIALOG_FRAGMENT_TAG);
     }
 
-    public void shareRepo(final String repoID, final String path, boolean isEncrypt) {
+    public void shareRepo(final String repoID, boolean isEncrypt) {
         if (isEncrypt) {
-            WidgetUtils.inputSharePassword(this, repoID, path, false, account);
+            WidgetUtils.inputSharePassword(this, repoID, "/", false, account);
         } else {
-            WidgetUtils.chooseShareApp(this, repoID, path, false, account, null, null);
+            WidgetUtils.chooseShareApp(this, repoID, "/", false, account, null, null);
         }
     }
 
