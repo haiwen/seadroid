@@ -415,7 +415,7 @@ E-mail : support@seafile.com<br>
   <string name="saf_bad_mime_type"> type erroné de requête</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">La saisie du  serveur est vide !</string>
-  <string name="shib_server_incorrect_prefix">L\'adresse du serveur doit commencer par https:// ou http://</string>
+  <string name="shib_server_incorrect_prefix">L\'adresse du serveur doit commencer par https://</string>
   <string name="shib_load_page_error">Erreur :</string>
   <string name="shib_login_title">Connexion shibboleth</string>
   <string name="shib_server_hint">Entrez le serveur...</string>

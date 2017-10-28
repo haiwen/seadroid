@@ -8,8 +8,8 @@ android {
         applicationId 'com.seafile.seadroid2'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 71
-        versionName "2.1.17"
+        versionCode 72
+        versionName "2.1.18"
         multiDexEnabled true
         resValue "string", "authorities", applicationId + '.cameraupload.provider'
         resValue "string", "account_type", "com.seafile.seadroid2.account.api2"
@@ -19,6 +19,12 @@ android {
     lintOptions {
         abortOnError false
         disable 'MissingTranslation'
+    }
+
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     signingConfigs {
@@ -57,12 +63,10 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
             applicationVariants.all { variant ->
-                variant.outputs.each { output ->
+                variant.outputs.all { output ->
                     if (output.outputFile != null && output.outputFile.name.endsWith('.apk')) {
-                        def file = output.outputFile
-                        if (variant.name == "release")
-                            output.outputFile = new File(file.parent,
-                                    "seafile-" + defaultConfig.versionName + "-debug.apk")
+                        if (variant.name == "debug")
+                            outputFileName = "seafile-debug-" + defaultConfig.versionName + ".apk"
                     }
                 }
             }
@@ -72,12 +76,11 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
             applicationVariants.all { variant ->
-                variant.outputs.each { output ->
+                variant.outputs.all { output ->
                     if (output.outputFile != null && output.outputFile.name.endsWith('.apk')) {
-                        def file = output.outputFile
-                        if (variant.name == "release")
-                            output.outputFile = new File(file.parent,
-                                    "seafile-" + defaultConfig.versionName + ".apk")
+                        if (variant.name == "release") {
+                            outputFileName = "seafile-" + defaultConfig.versionName + ".apk"
+                        }
                     }
                 }
             }
@@ -114,4 +117,7 @@ android {
         compile 'com.madgag.spongycastle:prov:1.54.0.0'
     }
 
+}
+
+dependencies {
 }
