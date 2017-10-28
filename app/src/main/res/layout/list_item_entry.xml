@@ -24,6 +24,7 @@
             android:layout_width="@dimen/lv_icon_width"
             android:layout_height="@dimen/lv_icon_height"
             android:layout_centerVertical="true"
+            android:src="@drawable/repo_encrypted"
             android:layout_toRightOf="@id/list_item_multi_select_btn"
             android:paddingLeft="@dimen/lv_item_padding_left" />
 
@@ -85,6 +86,7 @@
                     android:id="@+id/list_item_subtitle"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
                     android:layout_toRightOf="@id/list_item_download_status_progressbar"
                     android:textColor="@color/fancy_black"
                     android:textSize="@dimen/lv_subtitle_txt_size" />

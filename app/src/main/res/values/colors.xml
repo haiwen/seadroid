@@ -16,7 +16,7 @@
     <!-- Theme V2 -->
     <color name="fancy_white">#f4f5f6</color> <!-- theme color -->
     <color name="fancy_light_white">#fcfcfc</color>
-    <color name="fancy_black">#464646</color>
+    <color name="fancy_black">#888888</color>
     <color name="fancy_light_black">#a9a9a9</color> <!-- color for slide expandable list item background -->
     <color name="fancy_dark_black">#282828</color>
     <color name="fancy_deep_black">#989898</color> <!-- color for dividers inside of slide expandable list item -->
