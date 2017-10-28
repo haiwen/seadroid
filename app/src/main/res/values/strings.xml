@@ -437,7 +437,7 @@
 
     <!-- shibboleth SSO -->
     <string name="shib_server_url_empty">Server is empty!</string>
-    <string name="shib_server_incorrect_prefix">Server should start with either https:// or http://</string>
+    <string name="shib_server_incorrect_prefix">Server needs to start with https://</string>
     <string name="shib_load_page_error">Error:&#160;</string>
     <string name="shib_login_title">Shibboleth Login</string>
     <string name="shib_server_hint">Input server&#8230;</string>
