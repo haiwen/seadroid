@@ -107,8 +107,8 @@ android {
         testCompile 'org.robolectric:robolectric:3.0'
         compile 'com.madgag.spongycastle:core:1.54.0.0'
         compile 'com.madgag.spongycastle:prov:1.54.0.0'
-        compile 'com.shuyu:gsyVideoPlayer-java:2.0.2'
-        compile 'com.shuyu:gsyVideoPlayer-ex_so:2.0.2'
+        compile 'com.shuyu:gsyVideoPlayer-java:2.1.0'
+        compile 'com.shuyu:gsyVideoPlayer-ex_so:2.1.0'
     }
 
 }
