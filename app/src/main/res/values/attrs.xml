@@ -54,8 +54,8 @@
    </declare-styleable>
 
   <style name="dialog_light" parent="@android:style/Theme.Dialog">
-    <item name="@android:windowBackground">@color/whitegrey</item>
-    <item name="@android:textColor">@color/black</item>        
+    <item name="android:windowBackground">@color/whitegrey</item>
+    <item name="android:textColor">@color/black</item>
   </style>
 
   <declare-styleable name="BaseTheme">
