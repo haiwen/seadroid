@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui.activity;
 
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -8,7 +9,9 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import com.google.common.collect.Lists;
+import com.seafile.seadroid2.data.SeafStarredFile;
 import com.seafile.seadroid2.ui.HackyViewPager;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
@@ -53,10 +56,13 @@ public class GalleryActivity extends BaseActivity {
     private String fileName;
     private String STATE_FILE_NAME;
     private int mPageIndex;
+    private boolean starred;
     private GalleryAdapter mGalleryAdapter;
     private List<SeafPhoto> mPhotos = Lists.newArrayList();
 
-    /** flag to mark if the tool bar was shown */
+    /**
+     * flag to mark if the tool bar was shown
+     */
     private boolean showToolBar = true;
     private View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
@@ -66,7 +72,11 @@ public class GalleryActivity extends BaseActivity {
                     deleteFile(repoID, Utils.pathJoin(dirPath, fileName));
                     break;
                 case R.id.gallery_star_photo:
-                    starFile(repoID, dirPath, fileName);
+                    Log.e("Starred", "" + starred);
+                    if (!starred)
+                        starFile(repoID, dirPath, fileName);
+                    else
+                        unStarFile(repoID, dirPath, fileName);
                     break;
                 case R.id.gallery_share_photo:
                     shareFile(repoID, false, Utils.pathJoin(dirPath, fileName));
@@ -87,6 +97,7 @@ public class GalleryActivity extends BaseActivity {
         mToolbar = (LinearLayout) findViewById(R.id.gallery_tool_bar);
         mDeleteBtn.setOnClickListener(onClickListener);
         mStarBtn.setOnClickListener(onClickListener);
+        mStarBtn.setImageResource(R.drawable.star_normal);
         mShareBtn.setOnClickListener(onClickListener);
         mViewPager = (HackyViewPager) findViewById(R.id.gallery_pager);
         mViewPager.setPageTransformer(true, new ZoomOutPageTransformer());
@@ -105,10 +116,12 @@ public class GalleryActivity extends BaseActivity {
             }
 
             @Override
-            public void onPageSelected(int position) {}
+            public void onPageSelected(int position) {
+            }
 
             @Override
-            public void onPageScrollStateChanged(int state) {}
+            public void onPageScrollStateChanged(int state) {
+            }
         });
 
         mPageIndexContainer = (LinearLayout) findViewById(R.id.page_index_container);
@@ -122,6 +135,17 @@ public class GalleryActivity extends BaseActivity {
         mAccount = getIntent().getParcelableExtra("account");
         fileName = getIntent().getStringExtra("fileName");
         dataMgr = new DataManager(mAccount);
+
+        for (SeafStarredFile seafStarredFile : dataMgr.getCachedStarredFiles()) {
+            Log.e("RepoID", "Chached: " + seafStarredFile.getRepoID() + " | File: " + repoID);
+            Log.e("Path", "Chached: " + seafStarredFile.getPath() + " | File: " + (dirPath + "/" + fileName));
+            if (seafStarredFile.getRepoID().equals(repoID) && seafStarredFile.getPath().equals(dirPath + "/" + fileName)) {
+                Log.e("Found", "found");
+                starred = true;
+                mStarBtn.setImageResource(R.drawable.star_selected);
+                break;
+            }
+        }
 
         displayPhotosInGallery(repoName, repoID, dirPath);
     }
@@ -152,11 +176,12 @@ public class GalleryActivity extends BaseActivity {
      * Load thumbnail urls in order to display them in the gallery.
      * Prior to use caches to calculate those urls.
      * If caches are not available, load them asynchronously.
-     *
+     * <p>
      * NOTE: When user browsing files in "LIBRARY" tab, he has to navigate into a repo in order to open gallery.
      * Method which get called is {@link com.seafile.seadroid2.ui.fragment.ReposFragment#navToReposView(boolean)} or {@link com.seafile.seadroid2.ui.fragment.ReposFragment#navToDirectory(boolean)},
      * so seafDirents were already cached and it will always use them to calculate thumbnail urls for displaying photos in gallery.
      * But for browsing "STARRED" tab, caches of starred files may or may not cached, that is where the asynchronous loading code segment comes into use.
+     *
      * @param repoID
      * @param dirPath
      */
@@ -276,7 +301,7 @@ public class GalleryActivity extends BaseActivity {
             }
         } else if (type == SeafItemAdapter.SORT_BY_LAST_MODIFIED_TIME) {
             // sort by last modified time, in ascending order
-            Collections.sort(dirents,   new SeafDirent.DirentLastMTimeComparator());
+            Collections.sort(dirents, new SeafDirent.DirentLastMTimeComparator());
             if (order == SeafItemAdapter.SORT_ORDER_DESCENDING) {
                 Collections.reverse(dirents);
             }
@@ -287,7 +312,6 @@ public class GalleryActivity extends BaseActivity {
     /**
      * Dynamically navigate to the starting page index selected by user
      * by default the starting page index is 0
-     *
      */
     private void navToSelectedPage() {
         int size = mPhotos.size();
@@ -345,6 +369,16 @@ public class GalleryActivity extends BaseActivity {
         ConcurrentAsyncTask.execute(new StarFileTask(repoId, p));
     }
 
+    private void unStarFile(String repoId, String dir, String fileName) {
+        if (!Utils.isNetworkOn()) {
+            showShortToast(this, R.string.network_down);
+            return;
+        }
+
+        String p = Utils.pathJoin(dir, fileName);
+        ConcurrentAsyncTask.execute(new UnStarFileTask(repoId, p));
+    }
+
     private void shareFile(String repoID, boolean isEncrypt, String path) {
         if (isEncrypt) {
             WidgetUtils.inputSharePassword(this, repoID, path, false, mAccount);
@@ -386,6 +420,46 @@ public class GalleryActivity extends BaseActivity {
             }
 
             showShortToast(GalleryActivity.this, R.string.star_file_succeed);
+            starred = true;
+            mStarBtn.setImageResource(R.drawable.star_selected);
+        }
+    }
+
+    class UnStarFileTask extends AsyncTask<Void, Void, Void> {
+        private String repoId;
+        private String path;
+        private SeafException err;
+
+        public UnStarFileTask(String repoId, String path) {
+            this.repoId = repoId;
+            this.path = path;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            if (dataMgr == null)
+                return null;
+
+            try {
+                dataMgr.unstar(repoId, path);
+            } catch (SeafException e) {
+                err = e;
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void v) {
+            if (err != null) {
+                showShortToast(GalleryActivity.this, R.string.unstar_file_failed);
+                return;
+            }
+
+            showShortToast(GalleryActivity.this, R.string.unstar_file_succeed);
+            starred = false;
+            mStarBtn.setImageResource(R.drawable.star_normal);
         }
     }
 
@@ -406,7 +480,7 @@ public class GalleryActivity extends BaseActivity {
             return;
         }
 
-        mPageIndex = mPageIndex > size - 1 ? size -1 : mPageIndex;
+        mPageIndex = mPageIndex > size - 1 ? size - 1 : mPageIndex;
         // page index starting from 1 instead of 0 in user interface, so plus one here
         mPageIndexTextView.setText(String.valueOf(mPageIndex + 1));
 

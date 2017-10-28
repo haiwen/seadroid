@@ -490,6 +490,7 @@
     <string name="star_file_failed">File starred failed</string>
 
     <!-- unstar a file -->
+    <string name="unstar_file_succeed">Unstarring the file successfully</string>
     <string name="unstar_file_failed">Unstarring the file failed</string>
     <string name="unstar">Unstar</string>
 
