@@ -74,7 +74,7 @@
   <string name="file_action_star">Favori</string>
   <string name="file_action_download">Télécharger</string>
   <string name="file_action_update">Envoi</string>
-  <string name="file_action_share">Partager le lien</string>
+  <string name="file_action_share_link">Partager le lien</string>
   <string name="file_action_share_encrypt">Lien partagé avec mot de passe</string>
   <string name="file_action_export">Exporter</string>
   <string name="file_action_delete">Effacer</string>

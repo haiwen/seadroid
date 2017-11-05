@@ -74,7 +74,9 @@
   <string name="file_action_star">星标</string>
   <string name="file_action_download">下载</string>
   <string name="file_action_update">上传</string>
-  <string name="file_action_share">分享链接</string>
+  <string name="file_share">分享</string>
+  <string name="file_action_share_wechat">分享到微信</string>
+  <string name="file_action_share_link">分享链接</string>
   <string name="file_action_share_encrypt">分享高级链接</string>
   <string name="file_action_export">导出</string>
   <string name="file_action_delete">删除</string>

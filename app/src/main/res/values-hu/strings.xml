@@ -74,7 +74,7 @@
   <string name="file_action_star">Kedvenc</string>
   <string name="file_action_download">Letöltés</string>
   <string name="file_action_update">Feltölt</string>
-  <string name="file_action_share">Megosztási link</string>
+  <string name="file_action_share_link">Megosztási link</string>
   <string name="file_action_share_encrypt">Megosztás link jelszóval</string>
   <string name="file_action_export">Exportálás</string>
   <string name="file_action_delete">Törlés</string>

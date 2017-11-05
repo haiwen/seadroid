@@ -112,7 +112,79 @@ public class WidgetUtils {
 
     }
 
+    /**
+     * if dir will share dir link .
+     * if local file ,will share file to wachat app.
+     * if server file , it will download file and share file.
+     *
+     * @param activity
+     * @param account
+     * @param repoID
+     * @param path
+     * @param fileName
+     * @param fileSize
+     * @param isdir
+     */
+    public static void ShareWeChat(final BaseActivity activity, Account account, String repoID, String path,
+                                   String fileName,
+                                   long fileSize,
+                                   boolean isdir) {
 
+        if (isdir) {//share  link
+            final Intent shareIntent = new Intent();
+            shareIntent.setAction(Intent.ACTION_SEND);
+            shareIntent.setType("text/plain");
+            ResolveInfo weChatInfo = Utils.getWeChatIntent(shareIntent);
+            if (weChatInfo == null) {
+                activity.showShortToast(activity, R.string.no_app_available);
+                return;
+            }
+            String className = weChatInfo.activityInfo.name;
+            String packageName = weChatInfo.activityInfo.packageName;
+            shareIntent.setClassName(packageName, className);
+            final GetShareLinkDialog gdialog = new GetShareLinkDialog();
+            gdialog.init(repoID, path, isdir, account, null, null);
+            gdialog.setTaskDialogLisenter(new TaskDialog.TaskDialogListener() {
+                @Override
+                public void onTaskSuccess() {
+                    shareIntent.putExtra(Intent.EXTRA_TEXT, gdialog.getLink());
+                    activity.startActivity(shareIntent);
+                }
+            });
+            gdialog.show(activity.getSupportFragmentManager(), "DialogFragment");
+        } else {//share  files
+            BrowserActivity browserActivity = ((BrowserActivity) activity);
+            String repoName = ((BrowserActivity) activity).getNavContext().getRepoName();
+            String dirPath = ((BrowserActivity) activity).getNavContext().getDirPath();
+
+            String fullPath = Utils.pathJoin(dirPath, fileName);
+            final File file = browserActivity.getDataManager().getLocalRepoFile(repoName, repoID, fullPath);
+            Uri uri = null;
+            if (android.os.Build.VERSION.SDK_INT > 23) {
+                uri = FileProvider.getUriForFile(activity, activity.getApplicationContext().getPackageName() + ".provider", file);
+            } else {
+                uri = Uri.fromFile(file);
+            }
+            final Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.setType(Utils.getFileMimeType(file));
+            sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
+            ResolveInfo weChatInfo = Utils.getWeChatIntent(sendIntent);
+            if (weChatInfo == null) {
+                activity.showShortToast(activity, R.string.no_app_available);
+                return;
+            }
+            String className = weChatInfo.activityInfo.name;
+            String packageName = weChatInfo.activityInfo.packageName;
+            sendIntent.setClassName(packageName, className);
+            if (!Utils.isNetworkOn() && file.exists()) {
+                activity.startActivity(sendIntent);
+                return;
+            }
+            browserActivity.fetchFileAndExport(weChatInfo, sendIntent, repoName, repoID, path, fileSize);
+
+        }
+    }
     /**
      * display the file according to its file type
      *

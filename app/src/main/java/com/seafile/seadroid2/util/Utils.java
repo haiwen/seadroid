@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.net.http.SslCertificate;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.LocaleList;
 import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -68,6 +69,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.TreeMap;
 
 public class Utils {
@@ -651,6 +653,35 @@ public class Utils {
         return serverURL;
     }
 
+    public static ResolveInfo getWeChatIntent(Intent intent) {
+        PackageManager pm = SeadroidApplication.getAppContext().getPackageManager();
+        List<ResolveInfo> infos = pm.queryIntentActivities(intent, 0);
+
+        ResolveInfo info = null;
+        Iterator<ResolveInfo> iter = infos.iterator();
+        while (iter.hasNext()) {
+            info = iter.next();
+            if (info.activityInfo.packageName.equals("com.tencent.mm")) {
+                break;
+            }
+        }
+        return info;
+    }
+
+
+    /**
+     * use compare user system  is chinese
+     */
+    public static boolean isInChina() {
+        Locale locale;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            locale = LocaleList.getDefault().get(0);
+        } else {
+            locale = Locale.getDefault();
+        }
+        String language = locale.getCountry();
+        return TextUtils.equals("CN",language)||TextUtils.equals("TW",language);
+    }
     public static List<ResolveInfo> getAppsByIntent(Intent intent) {
         PackageManager pm = SeadroidApplication.getAppContext().getPackageManager();
         List<ResolveInfo> infos = pm.queryIntentActivities(intent, 0);

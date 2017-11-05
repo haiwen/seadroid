@@ -79,7 +79,9 @@
     <string name="file_action_star">Star</string>
     <string name="file_action_download">Download</string>
     <string name="file_action_update">Upload</string>
-    <string name="file_action_share">Share link</string>
+    <string name="file_share">Share</string>
+    <string name="file_action_share_wechat">Share to WeChat</string>
+    <string name="file_action_share_link">Share link</string>
     <string name="file_action_share_encrypt">Share link with password</string>
     <string name="file_action_export">Export</string>
     <string name="file_action_delete">Delete</string>
@@ -102,6 +104,17 @@
         <item>Image</item>
         <item>Other</item>
     </string-array>
+
+    <string-array name="file_action_share_array_zh">
+        <item>@string/file_action_share_wechat</item>
+        <item>@string/file_action_share_link</item>
+        <item>@string/file_action_share_encrypt</item>
+    </string-array>
+    <string-array name="file_action_share_array">
+        <item>@string/file_action_share_link</item>
+        <item>@string/file_action_share_encrypt</item>
+    </string-array>
+
     <string name="wait">Wait</string>
     <string name="image_gallery_NoImageView_text">No image found</string>
     <string name="pick_photo_video_title">Choose photos/videos to upload</string>

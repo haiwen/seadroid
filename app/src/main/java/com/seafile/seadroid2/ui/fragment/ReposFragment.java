@@ -214,10 +214,7 @@ public class ReposFragment extends ListFragment {
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
                     case R.id.share:
-                        mActivity.shareFile(repoID, path, false);
-                        break;
-                    case R.id.share_encrypt:
-                        mActivity.shareFile(repoID, path, true);
+                        mActivity.showShareDialog(repoID, path, false, dirent.size,dirent.name);
                         break;
                     case R.id.delete:
                         mActivity.deleteFile(repoID, repoName, path);
@@ -279,10 +276,7 @@ public class ReposFragment extends ListFragment {
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
                     case R.id.share:
-                        mActivity.shareDir(repoID, path, false);
-                        break;
-                    case R.id.share_encrypt:
-                        mActivity.shareDir(repoID, path, true);
+                        mActivity.showShareDialog(repoID, path, true, dirent.size, dirent.name);
                         break;
                     case R.id.delete:
                         mActivity.deleteDir(repoID, repoName, path);

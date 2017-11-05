@@ -74,7 +74,7 @@
   <string name="file_action_star">星標</string>
   <string name="file_action_download">下載</string>
   <string name="file_action_update">上傳</string>
-  <string name="file_action_share">分享連結</string>
+  <string name="file_action_share_link">分享連結</string>
   <string name="file_action_export">匯出</string>
   <string name="file_action_delete">刪除</string>
   <string name="file_action_rename">重命名</string>
