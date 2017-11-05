@@ -74,7 +74,7 @@
   <string name="file_action_star">별 표시</string>
   <string name="file_action_download">다운로드</string>
   <string name="file_action_update">업로드</string>
-  <string name="file_action_share">공유 링크</string>
+  <string name="file_action_share_link">공유 링크</string>
   <string name="file_action_share_encrypt">암호로 보호한 링크 공유</string>
   <string name="file_action_export">내보내기</string>
   <string name="file_action_delete">삭제</string>

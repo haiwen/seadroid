@@ -74,7 +74,7 @@
   <string name="file_action_star">Ulubione</string>
   <string name="file_action_download">Pobierz</string>
   <string name="file_action_update">Prześlij</string>
-  <string name="file_action_share">Łącze udostępniania</string>
+  <string name="file_action_share_link">Łącze udostępniania</string>
   <string name="file_action_share_encrypt">Udostępnij łącze z hasłem</string>
   <string name="file_action_export">Wyeksportuj</string>
   <string name="file_action_delete">Usuń</string>

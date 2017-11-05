@@ -68,7 +68,7 @@
                         android:layout_gravity="center_horizontal"
                         android:textColor="@color/white"
                         android:textSize="@dimen/lv_expandable_txt_size"
-                        android:text="@string/file_action_share"/>
+                        android:text="@string/file_action_share_link"/>
             </LinearLayout>
 
             <LinearLayout android:layout_width="wrap_content"

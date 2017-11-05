@@ -74,7 +74,7 @@
   <string name="file_action_star">スター</string>
   <string name="file_action_download">ダウンロード</string>
   <string name="file_action_update">アップロード</string>
-  <string name="file_action_share">リンクを共有</string>
+  <string name="file_action_share_link">リンクを共有</string>
   <string name="file_action_share_encrypt">リンクをパスワードで共有</string>
   <string name="file_action_export">エクスポート</string>
   <string name="file_action_delete">削除</string>

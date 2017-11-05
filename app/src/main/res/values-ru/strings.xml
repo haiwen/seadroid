@@ -74,7 +74,7 @@
   <string name="file_action_star">Пометить</string>
   <string name="file_action_download">Скачать</string>
   <string name="file_action_update">Загрузить</string>
-  <string name="file_action_share">Общедоступная ссылка</string>
+  <string name="file_action_share_link">Общедоступная ссылка</string>
   <string name="file_action_share_encrypt">Общедоступная ссылка с паролем</string>
   <string name="file_action_export">Экспорт</string>
   <string name="file_action_delete">Удалить</string>

@@ -1847,7 +1847,7 @@ public class BrowserActivity extends BaseActivity
         dialog.show(getSupportFragmentManager(), CHOOSE_APP_DIALOG_FRAGMENT_TAG);
     }
 
-    private void fetchFileAndExport(final ResolveInfo appInfo, final Intent intent,
+    public void fetchFileAndExport(final ResolveInfo appInfo, final Intent intent,
                                     final String repoName, final String repoID, final String path, final long fileSize) {
 
         fetchFileDialog = new FetchFileDialog();
@@ -1902,25 +1902,41 @@ public class BrowserActivity extends BaseActivity
     }
 
     /**
-     * Share a file. Generating a file share link and send the link to someone
+     * Share a file. Generating a file share link and send the link or file to someone
      * through some app.
      * @param repoID
      * @param path
      */
-    public void shareFile(final String repoID, final String path, boolean isEncrypt) {
-        if (isEncrypt) {
-            WidgetUtils.inputSharePassword(this, repoID, path, false, account);
+    public void showShareDialog(String repoID, String path, boolean isDir, long fileSize, String fileName) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        boolean inChina = Utils.isInChina();
+        String[] strings;
+        //if user  in China ，system  add  WeChat  share
+        if (inChina) {
+            strings = getResources().getStringArray(R.array.file_action_share_array_zh);
         } else {
-            WidgetUtils.chooseShareApp(this, repoID, path, false, account, null, null);
+            strings = getResources().getStringArray(R.array.file_action_share_array);
         }
-    }
-
-    public void shareDir(String repoID, String path, boolean isEncrypt) {
-        if (isEncrypt) {
-            WidgetUtils.inputSharePassword(this, repoID, path, true, account);
-        } else {
-            WidgetUtils.chooseShareApp(this, repoID, path, true, account, null, null);
-        }
+        builder.setItems(strings, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (!inChina) {
+                    which++;
+                }
+                switch (which) {
+                    case 0:
+                        WidgetUtils.ShareWeChat(BrowserActivity.this, account, repoID, path, fileName, fileSize, isDir);
+                        break;
+                    case 1:
+                        // need input password
+                        WidgetUtils.chooseShareApp(BrowserActivity.this, repoID, path, isDir, account, null, null);
+                        break;
+                    case 2:
+                        WidgetUtils.inputSharePassword(BrowserActivity.this, repoID, path, isDir, account);
+                        break;
+                }
+            }
+        }).show();
     }
 
     public void renameFile(String repoID, String repoName, String path) {
