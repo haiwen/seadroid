@@ -54,7 +54,6 @@
   <string name="file_action_star">Estrela</string>
   <string name="file_action_download">Download</string>
   <string name="file_action_update">Upload</string>
-  <string name="file_action_share_link">link compartilhado</string>
   <string name="file_action_export">Exportar</string>
   <string name="file_action_delete">Deletar</string>
   <string name="file_action_rename">Renomear</string>

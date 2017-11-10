@@ -105,12 +105,12 @@
         <item>Other</item>
     </string-array>
 
-    <string-array name="file_action_share_array_zh">
+    <string-array name="file_action_share_array_zh" translatable="false">
         <item>@string/file_action_share_wechat</item>
         <item>@string/file_action_share_link</item>
         <item>@string/file_action_share_encrypt</item>
     </string-array>
-    <string-array name="file_action_share_array">
+    <string-array name="file_action_share_array" translatable="false">
         <item>@string/file_action_share_link</item>
         <item>@string/file_action_share_encrypt</item>
     </string-array>
@@ -240,7 +240,7 @@
     <string name="issued_to">Issued To</string>
     <string name="finger_prints">Fingerprints</string>
     <string name="period_of_validity">Period of Validity</string>
-    <string name="sha256">SHA-256 %s</string>
+    <string name="sha256" translatable="false">SHA-256 %s</string>
     <string name="sha1">SHA-1 %s</string>
     <string name="md5">MD5 %s</string>
     <string name="not_available">not available</string>

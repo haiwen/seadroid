@@ -74,7 +74,6 @@
   <string name="file_action_star">Kedvenc</string>
   <string name="file_action_download">Letöltés</string>
   <string name="file_action_update">Feltölt</string>
-  <string name="file_action_share_link">Megosztási link</string>
   <string name="file_action_share_encrypt">Megosztás link jelszóval</string>
   <string name="file_action_export">Exportálás</string>
   <string name="file_action_delete">Törlés</string>
@@ -415,7 +414,6 @@ Email: support@seafile.com<br>
   <string name="saf_bad_mime_type">Hibás fájl típus kérés</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">A szerver üres!</string>
-  <string name="shib_server_incorrect_prefix">A szerver címnek http://-vel vagy https://-sel kell kezdődnie</string>
   <string name="shib_load_page_error">Hiba:</string>
   <string name="shib_login_title">Shibboleth belépés</string>
   <string name="shib_server_hint">Szerver...</string>
@@ -517,4 +515,7 @@ Email: support@seafile.com<br>
   <!--Home list title-->
   <string name="shared_with_all">Mindenkivel megosztva</string>
   <string name="add_password_protection">Jelszó védelem hozzáadása</string>
+  <string name="expiration_dates">lejárati idők</string>
+  <string name="add_auto_expiration">Automatikus lejárat hozzáadása</string>
+  <string name="input_auto_expiration">Adja meg a lejárati időt</string>
 </resources>

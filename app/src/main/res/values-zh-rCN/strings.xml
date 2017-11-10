@@ -417,7 +417,7 @@
   <string name="saf_bad_mime_type">请求类型错误</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">地址栏为空</string>
-  <string name="shib_server_incorrect_prefix">地址应该以https://或http://开头</string>
+  <string name="shib_server_incorrect_prefix">服务器地址需要以 https:// 开头</string>
   <string name="shib_load_page_error">错误：</string>
   <string name="shib_login_title">Shibboleth登录</string>
   <string name="shib_server_hint">请输入地址...</string>
