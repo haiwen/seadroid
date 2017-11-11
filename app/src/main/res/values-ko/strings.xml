@@ -509,4 +509,7 @@
   <!--Home list title-->
   <string name="shared_with_all">모두에게 공유함</string>
   <string name="add_password_protection">암호 보호 추가</string>
+  <string name="expiration_dates">만료일자</string>
+  <string name="add_auto_expiration">자동 만료일 추가</string>
+  <string name="input_auto_expiration">만료일자를 입력하세요</string>
 </resources>

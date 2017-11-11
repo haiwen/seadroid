@@ -44,7 +44,9 @@ public class SeafItemAdapter extends BaseAdapter {
     private List<Integer> mSelectedItemsPositions = Lists.newArrayList();
     private List<SeafDirent> mSelectedItemsValues = Lists.newArrayList();
 
-    /** DownloadTask instance container **/
+    /**
+     * DownloadTask instance container
+     **/
     private List<DownloadTaskInfo> mDownloadTaskInfos;
 
     public SeafItemAdapter(BrowserActivity activity) {
@@ -53,13 +55,21 @@ public class SeafItemAdapter extends BaseAdapter {
         mSelectedItemsIds = new SparseBooleanArray();
     }
 
-    /** sort files type */
+    /**
+     * sort files type
+     */
     public static final int SORT_BY_NAME = 9;
-    /** sort files type */
+    /**
+     * sort files type
+     */
     public static final int SORT_BY_LAST_MODIFIED_TIME = 10;
-    /** sort files order */
+    /**
+     * sort files order
+     */
     public static final int SORT_ORDER_ASCENDING = 11;
-    /** sort files order */
+    /**
+     * sort files order
+     */
     public static final int SORT_ORDER_DESCENDING = 12;
 
     @Override
@@ -94,7 +104,7 @@ public class SeafItemAdapter extends BaseAdapter {
      * @param newList
      * @param oldList
      * @return true if the two lists are equal,
-     *         false, otherwise.
+     * false, otherwise.
      */
     private boolean equalLists(List<DownloadTaskInfo> newList, List<DownloadTaskInfo> oldList) {
         if (newList == null && oldList == null)
@@ -223,7 +233,7 @@ public class SeafItemAdapter extends BaseAdapter {
         viewHolder.icon.setImageResource(repo.getIcon());
         if (repo.hasWritePermission()) {
             viewHolder.action.setVisibility(View.VISIBLE);
-        }else {
+        } else {
             viewHolder.action.setVisibility(View.INVISIBLE);
         }
         return view;
@@ -417,10 +427,11 @@ public class SeafItemAdapter extends BaseAdapter {
             String url = dataManager.getThumbnailLink(repoName, repoID, filePath, getThumbnailWidth());
             if (url == null) {
                 viewHolder.icon.setImageResource(dirent.getIcon());
-            } else
+            } else {
                 ImageLoader.getInstance().displayImage(url, viewHolder.icon, options, animateFirstListener);
+            }
         } else {
-            viewHolder.icon.setImageResource( dirent.getIcon());
+            viewHolder.icon.setImageResource(dirent.getIcon());
         }
 
     }
@@ -498,7 +509,8 @@ public class SeafItemAdapter extends BaseAdapter {
 
     private class Viewholder {
         TextView title, subtitle;
-        ImageView icon, multiSelect, downloadStatusIcon; // downloadStatusIcon used to show file downloading status, it is invisible by default
+        ImageView icon, multiSelect, downloadStatusIcon; // downloadStatusIcon used to show file downloading status, it is invisible by
+        // default
         ProgressBar progressBar;
         RelativeLayout action;
 
@@ -509,7 +521,7 @@ public class SeafItemAdapter extends BaseAdapter {
                           RelativeLayout action,
                           ImageView downloadStatusIcon,
                           ProgressBar progressBar
-                          ) {
+        ) {
             super();
             this.icon = icon;
             this.multiSelect = multiSelect;

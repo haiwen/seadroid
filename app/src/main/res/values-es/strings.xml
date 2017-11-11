@@ -518,4 +518,7 @@
   <!--Home list title-->
   <string name="shared_with_all">Compartido con todos</string>
   <string name="add_password_protection">Agregar protección por contraseña</string>
+  <string name="expiration_dates">fecha de vencimiento</string>
+  <string name="add_auto_expiration">Agregar vencimiento automático</string>
+  <string name="input_auto_expiration">Por favor ingrese la fecha de vencimiento</string>
 </resources>

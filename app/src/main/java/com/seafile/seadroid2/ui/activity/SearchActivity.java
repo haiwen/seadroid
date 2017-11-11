@@ -1,9 +1,14 @@
 package com.seafile.seadroid2.ui.activity;
 
-import android.content.*;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -11,13 +16,19 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
-import android.widget.*;
-import android.view.MenuItem;
+import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
+
 import com.google.common.collect.Lists;
-import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
@@ -25,9 +36,11 @@ import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SearchedFile;
+import com.seafile.seadroid2.play.PlayActivity;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.adapter.SearchAdapter;
+import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;
@@ -377,6 +390,7 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
 
     public void onSearchedFileSelected(SearchedFile searchedFile) {
         final String repoID = searchedFile.getRepoID();
+        final String fileName = searchedFile.getTitle();
         final SeafRepo repo = dataManager.getCachedRepoByID(repoID);
         final String repoName = repo.getName();
         final String filePath = searchedFile.getPath();
@@ -403,6 +417,20 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
             WidgetUtils.showFile(this, localFile);
             return;
         }
+        boolean videoFile = Utils.isVideoFile(fileName);
+        if (videoFile) { // is video file
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setItems(R.array.video_download_array, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    if (which == 0) // create file
+                        startPlayActivity(fileName, repoID, filePath);
+                    else if (which == 1) // create folder
+                        startFileActivity(repoName, repoID, filePath);
+                }
+            }).show();
+            return;
+        }
 
         startFileActivity(repoName, repoID, filePath);
     }
@@ -416,6 +444,16 @@ public class SearchActivity extends BaseActivity implements View.OnClickListener
         intent.putExtra("account", account);
         intent.putExtra("taskID", taskID);
         startActivityForResult(intent, DOWNLOAD_FILE_REQUEST);
+    }
+
+    private void startPlayActivity(String fileName, String repoID, String filePath) {
+        Intent intent = new Intent(this, PlayActivity.class);
+        intent.putExtra("fileName", fileName);
+        intent.putExtra("repoID", repoID);
+        intent.putExtra("filePath", filePath);
+        intent.putExtra("account", account);
+//        DOWNLOAD_PLAY_REQUEST
+        startActivity(intent );
     }
 
     ServiceConnection mConnection = new ServiceConnection() {

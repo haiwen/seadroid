@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.util;
 
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -298,6 +299,18 @@ public class Utils {
         if (mime == null)
             return false;
         return mime.contains("image/");
+    }
+
+    public static boolean isVideoFile(String name) {
+        if (name == null)
+            return false;
+        String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
+        if (suffix == null || suffix.length() == 0)
+            return false;
+        String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
+        if (mime == null)
+            return false;
+        return mime.contains("video/");
     }
 
     public static boolean isNetworkOn() {
@@ -804,5 +817,20 @@ public class Utils {
     public static int px2dip(Context context, float pxValue) {
         final float scale = context.getResources().getDisplayMetrics().density;
         return (int) (pxValue / scale + 0.5f);
+    }
+
+    public static void hideSystemNavigationBar(Activity activity) {
+        if (activity == null) {
+            return;
+        }
+        if (Build.VERSION.SDK_INT < 19) {
+            View view = activity.getWindow().getDecorView();
+            view.setSystemUiVisibility(View.GONE);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            View decorView = activity.getWindow().getDecorView();
+            int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN;
+            decorView.setSystemUiVisibility(uiOptions);
+        }
     }
 }

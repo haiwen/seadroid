@@ -536,4 +536,7 @@
   <!--Home list title-->
   <string name="shared_with_all">Współdzielone ze wszystkimi</string>
   <string name="add_password_protection">Dodaj ochronę hasłem</string>
+  <string name="expiration_dates">daty ważności</string>
+  <string name="add_auto_expiration">Dodaj automatyczne wygasanie</string>
+  <string name="input_auto_expiration">Proszę podać daty ważności</string>
 </resources>

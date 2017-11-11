@@ -516,8 +516,8 @@ E-mail : support@seafile.com<br>
   <string name="op_exception_failed_to_download_file">Échec du téléchargement du fichier %s</string>
   <!--Home list title-->
   <string name="shared_with_all">Partagées avec tout le monde</string>
+  <string name="add_password_protection">Ajouter une protection par mot de passe</string>
   <string name="expiration_dates">Dates d\'expiration</string>
   <string name="add_auto_expiration">Ajouter une expiration automatique</string>
   <string name="input_auto_expiration">SVP entrez les dates d\'expiration</string>
-  <string name="add_password_protection">Ajouter une protection par mot de passe</string>
 </resources>

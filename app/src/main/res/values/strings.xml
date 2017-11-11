@@ -163,6 +163,10 @@
         <item>Upload file</item>
         <item>Take a photo</item>
     </string-array>
+    <string-array name="video_download_array">
+        <item>play</item>
+        <item>download</item>
+    </string-array>
     <string name="create_new_repo">Create a new library</string>
     <string name="create_new_repo_success">Successfully created library %s</string>
     <string name="create_new_folder_success">Successfully created folder %s</string>
