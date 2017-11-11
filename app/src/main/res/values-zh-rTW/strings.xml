@@ -74,7 +74,6 @@
   <string name="file_action_star">星標</string>
   <string name="file_action_download">下載</string>
   <string name="file_action_update">上傳</string>
-  <string name="file_action_share_link">分享連結</string>
   <string name="file_action_export">匯出</string>
   <string name="file_action_delete">刪除</string>
   <string name="file_action_rename">重命名</string>
@@ -388,7 +387,6 @@
   <string name="saf_bad_mime_type">請求類型錯誤</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">地址欄為空</string>
-  <string name="shib_server_incorrect_prefix">地址應該以https://或http://開頭</string>
   <string name="shib_load_page_error">錯誤：</string>
   <string name="shib_login_title">Shibboleth登錄</string>
   <string name="shib_server_hint">請輸入地址...</string>

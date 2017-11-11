@@ -74,7 +74,9 @@
   <string name="file_action_star">Ulubione</string>
   <string name="file_action_download">Pobierz</string>
   <string name="file_action_update">Prześlij</string>
-  <string name="file_action_share_link">Łącze udostępniania</string>
+  <string name="file_share">Udostępnij</string>
+  <string name="file_action_share_wechat">Udostępnij do WeChat</string>
+  <string name="file_action_share_link">Udostępnij link</string>
   <string name="file_action_share_encrypt">Udostępnij łącze z hasłem</string>
   <string name="file_action_export">Wyeksportuj</string>
   <string name="file_action_delete">Usuń</string>
@@ -426,7 +428,7 @@
   <string name="saf_bad_mime_type">Zły typ żądania</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">Serwer jest pusty!</string>
-  <string name="shib_server_incorrect_prefix">Nazwa serwera powinna się zaczynać od https://</string>
+  <string name="shib_server_incorrect_prefix">Nazwa serwera musi się zaczynać od https://</string>
   <string name="shib_load_page_error">Błąd:</string>
   <string name="shib_login_title">Logowanie Shibboleth</string>
   <string name="shib_server_hint">Serwer wejściowy...</string>

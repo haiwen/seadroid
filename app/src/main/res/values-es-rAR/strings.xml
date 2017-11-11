@@ -74,6 +74,8 @@
   <string name="file_action_star">Favorito</string>
   <string name="file_action_download">Descargar</string>
   <string name="file_action_update">Subir</string>
+  <string name="file_share">Compartir</string>
+  <string name="file_action_share_wechat">Compartir con WeChat</string>
   <string name="file_action_share_link">Compartir enlace</string>
   <string name="file_action_share_encrypt">Compartir enlace utilizando contraseña</string>
   <string name="file_action_export">Exportar</string>
@@ -416,7 +418,7 @@
   <string name="saf_bad_mime_type">Tipo de solicitud incorrecto</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">¡El servidor está vacío!</string>
-  <string name="shib_server_incorrect_prefix">El servidor debería comenzar con https://</string>
+  <string name="shib_server_incorrect_prefix">El servidor debe comenzar con https://</string>
   <string name="shib_load_page_error">Error:</string>
   <string name="shib_login_title">Inicio de sesión con Shibboleth</string>
   <string name="shib_server_hint">Ingrese servidor...</string>

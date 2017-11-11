@@ -74,7 +74,6 @@
   <string name="file_action_star">별 표시</string>
   <string name="file_action_download">다운로드</string>
   <string name="file_action_update">업로드</string>
-  <string name="file_action_share_link">공유 링크</string>
   <string name="file_action_share_encrypt">암호로 보호한 링크 공유</string>
   <string name="file_action_export">내보내기</string>
   <string name="file_action_delete">삭제</string>
@@ -411,7 +410,6 @@
   <string name="saf_bad_mime_type">잘못된 요청 형식입니다</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">서버가 비어있습니다!</string>
-  <string name="shib_server_incorrect_prefix">서버 주소는 https:// 또는 http://로 시작해야합니다</string>
   <string name="shib_load_page_error">오류:</string>
   <string name="shib_login_title">Shibboleth 로그인</string>
   <string name="shib_server_hint">입력 서버...</string>

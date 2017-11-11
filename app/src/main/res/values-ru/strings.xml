@@ -74,6 +74,8 @@
   <string name="file_action_star">Пометить</string>
   <string name="file_action_download">Скачать</string>
   <string name="file_action_update">Загрузить</string>
+  <string name="file_share">Поделиться</string>
+  <string name="file_action_share_wechat">Поделиться в WeChat</string>
   <string name="file_action_share_link">Общедоступная ссылка</string>
   <string name="file_action_share_encrypt">Общедоступная ссылка с паролем</string>
   <string name="file_action_export">Экспорт</string>
@@ -426,7 +428,7 @@
   <string name="saf_bad_mime_type">Неправильный тип ответа</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">Сервер пуст!</string>
-  <string name="shib_server_incorrect_prefix">Сервер должен начинаться с https://</string>
+  <string name="shib_server_incorrect_prefix">Адрес сервера должен начинаться с https://</string>
   <string name="shib_load_page_error">Ошибка:</string>
   <string name="shib_login_title">Вход через Shibboleth</string>
   <string name="shib_server_hint">Введите сервер...</string>

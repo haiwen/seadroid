@@ -74,6 +74,8 @@
   <string name="file_action_star">スター</string>
   <string name="file_action_download">ダウンロード</string>
   <string name="file_action_update">アップロード</string>
+  <string name="file_share">共有</string>
+  <string name="file_action_share_wechat">WeChat に共有</string>
   <string name="file_action_share_link">リンクを共有</string>
   <string name="file_action_share_encrypt">リンクをパスワードで共有</string>
   <string name="file_action_export">エクスポート</string>
@@ -411,7 +413,7 @@
   <string name="saf_bad_mime_type">リクエストタイプが不正</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">サーバーは空です!</string>
-  <string name="shib_server_incorrect_prefix">サーバーは https:// または http:// で始まる必要があります</string>
+  <string name="shib_server_incorrect_prefix">サーバーは https:// で始まる必要があります</string>
   <string name="shib_load_page_error">エラー: </string>
   <string name="shib_login_title">Shibboleth ログイン</string>
   <string name="shib_server_hint">サーバーを入力...</string>

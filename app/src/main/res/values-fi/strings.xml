@@ -50,13 +50,13 @@
   <string name="unknow_error">Tuntematon virhe</string>
   <string name="invalid_server_address">Virheellinen palvelimen osoite</string>
   <string name="err_server_andress_empty">Palvelimen osoite ei voi olla tyhjä</string>
-  <string name="err_email_empty">Sähköposti ei olla tyhjä</string>
+  <string name="err_email_empty">Sähköposti ei voi olla tyhjä</string>
   <string name="err_passwd_empty">Salasana ei voi olla tyhjä</string>
-  <string name="err_passwd_too_short">Salasana liian lyhyt</string>
+  <string name="err_passwd_too_short">Salasana on liian lyhyt</string>
   <string name="err_passwd_mismatch">Salasanat eivät vastaa</string>
   <string name="err_login_failed">Kirjautuminen epäonnistui</string>
   <string name="err_wrong_user_or_passwd">Sähköposti tai salasana virheellinen</string>
-  <string name="err_token_expired">Todentaminen epäonnistui, kirjaudu uudestaan</string>
+  <string name="err_token_expired">Todentaminen epäonnistui, ole hyvä ja kirjaudu uudestaan</string>
   <string name="upload">Lähetä</string>
   <string name="uploaded">Lähetetty</string>
   <string name="updated">Päivitetty</string>
@@ -67,20 +67,20 @@
   <string name="task_cancel">Peruuta</string>
   <string name="task_retry">Yritä uudelleen</string>
   <string name="task_remove">Poista</string>
-  <string name="task_remove_all_cancelled">Poista kaikki perutetut tehtävät</string>
+  <string name="task_remove_all_cancelled">Poista kaikki peruutetut tehtävät</string>
   <string name="task_remove_all_finished">Poista kaikki valmiit tehtävät</string>
   <string name="repo_action_delete">Poista</string>
   <string name="repo_action_rename">Nimeä uudelleen</string>
   <string name="file_action_star">Tähti</string>
   <string name="file_action_download">Lataa</string>
   <string name="file_action_update">Lähetä</string>
-  <string name="file_action_share">Jaa linkki</string>
-  <string name="file_action_share_encrypt">Jakolinkki salasanan kanssa</string>
+  <string name="file_action_share_encrypt">Jaa linkki salasanan kanssa</string>
   <string name="file_action_export">Vie</string>
   <string name="file_action_delete">Poista</string>
   <string name="file_action_rename">Nimeä uudelleen</string>
   <string name="file_action_copy">Kopioi</string>
   <string name="file_action_move">Siirrä</string>
+  <string name="file_action_open_as">avaa tiedostotyyppinä</string>
   <string name="file_action_more">Lisää</string>
   <string name="file_action_more_title">Valitse haluamasi vaihtoehto</string>
   <string-array name="file_action_more_array">
@@ -98,6 +98,8 @@
   </string-array>
   <string name="wait">Odota</string>
   <string name="image_gallery_NoImageView_text">Kuvaa ei löytynyt</string>
+  <string name="pick_photo_video_title">Valitse lähetettävät kuvat/videot</string>
+  <string name="select_upload_items">Valitse lähetettävät kohteet</string>
   <plurals name="n_upload_items_selected">
     <item quantity="one">%1$d kohde valittuna</item>
     <item quantity="other"> %1$d kohdetta valittuna </item>
@@ -107,14 +109,21 @@
   <string name="file_name_empty">Ole hyvä ja syötä tiedoston nimi</string>
   <string name="password_empty">Ole hyvä ja syötä salasana</string>
   <string name="wrong_password">väärä salasana</string>
+  <string name="library_read_only">Tämä kirjasto on vain luku muodossa</string>
+  <string name="error_when_load_dirents">Virhe kansiota ladatessa.\n napauta päivittääksesi</string>
+  <string name="error_when_load_repos">Virhe kirjastoja ladatessa.\n napauta päivittääksesi</string>
+  <string name="error_when_load_activities">Virhe toimintoja ladatessa.\n napauta päivittääksesi</string>
+  <string name="error_when_load_starred">Virhe suosikeiksi merkittyjen tiedostojen latauksessa.\n napauta päivittääksesi</string>
   <string name="dir_empty">Tämä kansio on tyhjä</string>
   <string name="no_repo">Sinulla ei ole vielä kirjastoja</string>
   <string name="no_app_available">Sovellusta ei löydy</string>
+  <string name="add_to_seafile">Lisää Seafileen</string>
   <string name="ok">OK</string>
+  <string name="no_account">Ole hyvä ja luo ensin tili Seafileen</string>
   <string name="choose_an_account">Valitse tili</string>
   <string name="choose_a_library">Valitse kirjasto</string>
   <string name="choose_a_folder">Valitse kansio</string>
-  <string name="load_accounts_fail">Epäonnistui ladata Seafile tunnuksia</string>
+  <string name="load_accounts_fail">Seafile tilien lataus epäonnistui</string>
   <string name="load_libraries_fail">Kirjastojen lataus epäonnistui</string>
   <string name="load_dir_fail">Tämän kansio sisällön lataus epäonnistui</string>
   <string name="not_supported_share">Tämän tyyppistä jakoa ei tueta</string>
@@ -126,7 +135,7 @@
     <item>Lataa kansio</item>
     <item>Lataa kansio ja alikansiot</item>
   </string-array>
-  <string name="add_repo">Poista kirjasto</string>
+  <string name="add_repo">Uusi Kirjasto</string>
   <string name="add_file">Lisää</string>
   <string-array name="add_file_options_array">
     <item>Luo tiedosto</item>
@@ -146,16 +155,18 @@
   <string name="last_modified">muokattu viimeksi</string>
   <string name="file_modified">muokattu</string>
   <string name="file_size">tiedoston koko</string>
-  <string name="library_not_found">Kirjasto on poistettu</string>
+  <string name="library_not_found">Kirjasto on poistettu.</string>
   <string name="file_not_found">Tiedosto \"%s\" on poistettu</string>
   <string name="export_file">Vie tämä tiedosto</string>
+  <string name="no_upload_tasks">Ei lähetystehtäviä vielä</string>
   <string name="no_download_tasks">Ei lataustehtäviä vielä</string>
-  <string name="seahub_url_hint">Huom: Palvelimen osoite pitäisi sisältää myös käytettävä portti. Esimerkiksi. www.example.com:8000</string>
+  <string name="seahub_url_hint">Huom: Palvelimen osoitteen pitäisi sisältää myös käytettävä portti. Esimerkiksi. www.example.com:8000</string>
   <string name="copy_link">Kopioi linkki</string>
   <string name="share_file_link">Jaa linkki tähän tiedostoon</string>
   <string name="share_dir_link">Jaa linkki tähän kansioon</string>
   <string name="share_input_password">Syötä jaon salasana</string>
   <string name="generating_link">Luodaan linkkiä...</string>
+  <string name="link_ready_to_be_pasted">Linkki on valmis liitettäväksi.</string>
   <string name="rename_repo">Uudelleennimeä kirjasto</string>
   <string name="rename_file">Uudelleennimeä tiedosto</string>
   <string name="rename_dir">Uudelleennimeä kansio</string>
@@ -164,11 +175,11 @@
     <item>Tiedostot</item>
     <item>Lähetetyt</item>
     <item>Tilit</item>
-    <item>Varmuuskopioitu Valokuvat</item>
+    <item>Varmuuskopioi Valokuvat</item>
   </string-array>
   <string name="no_starred_file">Ei suosikkeihin lisättyjä tiedostoja vielä</string>
   <string name="added_to_upload_tasks">Lähetys alkanut</string>
-  <string name="added_photo_to_upload_tasks">Valokuva lähetys alkanut</string>
+  <string name="added_photo_to_upload_tasks">Valokuvan lähetys alkanut</string>
   <string name="take_photo_successfully">Ota valokuva onnistuneesti</string>
   <string name="tabs_library">Kirjastot</string>
   <string name="tabs_activity">Aktiviteetit</string>
@@ -179,6 +190,7 @@
   <string name="upload_cancelled">Lähetys peruutettu</string>
   <string name="upload_failed">Lähetys epäonnistui</string>
   <string name="upload_file_exist">Tiedosto on jo olemassa</string>
+  <string name="upload_duplicate_found">kohde nimeltä \"%s\" on jo olemassa tässä  sijainnissa.\n Haluatko korvata sen tällä lähettävällä?</string>
   <string name="upload_replace_all">Korvaa Kaikki</string>
   <string name="upload_keep_both">Pidä Molemmat</string>
   <string name="upload_replace">Korvaa</string>
@@ -187,6 +199,9 @@
   <string name="minutes_ago">%d minuuttia sitten</string>
   <string name="seconds_ago">%d sekuntia sitten</string>
   <string name="just_now">Juuri nyt</string>
+  <string name="open_as">Avaa tiedostotyyppissä</string>
+  <string name="select_upload_files">Valitse lähetettävät tiedostot</string>
+  <string name="storage_removed">Tallenuspaikka poistettiin</string>
   <string name="error_selecting_file">Virhe valittaessa tiedostoa</string>
   <plurals name="n_upload_files_selected">
     <item quantity="one">%1$d tiedosto valittu</item>
@@ -195,10 +210,12 @@
   <string name="empty_folder">Tyhjä kansio</string>
   <string name="choose_file">Valitse tiedosto</string>
   <string name="ssl_error">Turvatarkastus epäonnistui</string>
+  <string name="ssl_confirm">%s:n turvallisuusvarmenne ei ole luotettava. Haluatko jatkaa?</string>
+  <string name="ssl_confirm_cert_changed">%s käyttää pätemätöntä turvallisuusvarmennetta. Yhteys ei ole turvallinen. Jatketaanko kumminkin?</string>
   <string name="ssl_confirm_title">Epäluotettava Yhteys</string>
+  <string name="issued_to">Jaettu</string>
   <string name="finger_prints">Sormenjäljet</string>
   <string name="period_of_validity">Voimassaoloaika</string>
-  <string name="sha256">SHA-256 %s</string>
   <string name="sha1">SHA-1 %s</string>
   <string name="md5">MD5 %s</string>
   <string name="not_available">ei saatavilla</string>
@@ -213,6 +230,8 @@
   <string name="internal_server_error">Sisäinen palvelinvirhe</string>
   <string name="copy_file_ing">Kopioidaan tiedostoa</string>
   <string name="move_file_ing">Siirretään tiedostoa</string>
+  <string name="copy_file_from">Kkopioidaan kansiosta %1$s \n kansioon %2$s</string>
+  <string name="move_file_from">Siirretään kansiosta %1$s \n kansioon %2$s</string>
   <string name="copy_folder_ing">Kopioidaan kansiota</string>
   <string name="move_folder_ing">Siirretään kansiota</string>
   <string name="upload_started">Lähetys on alkanut</string>
@@ -229,25 +248,38 @@
   <string name="settings_account_sign_out_hint">Klikkaa kirjautuaksesi ulos</string>
   <string name="settings_account_sign_out_confirm">Haluatko kirjautua ulos?</string>
   <string name="security">Turvallisuus</string>
+  <string name="gesture_lock">Elelukitus</string>
+  <string name="gesture_lock_on">Elelukitus päällä</string>
+  <string name="gesture_lock_off">Elelukitus pois päältä</string>
+  <string name="lockscreen_access_pattern_hint">Ole Hyvä ja Piirrä Elelukitus Kuvio</string>
   <string name="lockscreen_access_pattern_start">Aloita piirtäminen</string>
   <string name="lockscreen_access_pattern_cleared">Kuvio tyhjennetty</string>
+  <string name="lockscreen_access_pattern_cell_added">Kuviosolu lisätty</string>
   <string name="lockscreen_access_pattern_detected">Kuvio havaittu</string>
   <string name="lockscreen_access_pattern_passwd_forget">Unohda salasana</string>
-  <string name="lockscreen_access_pattern_failure">Epäonnistui 5 kertaan, ole hyvä ja odota 30 sekuntia ennen uudelleen yritystä</string>
+  <string name="lockscreen_access_pattern_failure">Epäonnistui 5 kertaa, ole hyvä ja odota 30 sekuntia ennen uudelleen yritystä</string>
   <plurals name="lockscreen_access_pattern_failure_left_try_seconds">
     <item quantity="one">Voit yrittää uudestaan %1$d sekunnin päästä</item>
-    <item quantity="other">Voit yrittää uudestaan %1$d sekuntia myöhemmin</item>
+    <item quantity="other">Voit yrittää uudestaan %1$d sekunnin kuluttua</item>
   </plurals>
   <plurals name="lockscreen_access_pattern_failure_left_try_times">
     <item quantity="one">Väärä kuvio, voit vielä yrittää toista kuviota %1$d kertaa</item>
     <item quantity="other">Väärä kuvio, voit vielä yrittää toista kuviota %1$d kertaa</item>
   </plurals>
+  <string name="lockscreen_access_pattern_failure_not_long_enough">Linkitys pisteet eivät tarpeeksi pitkiä, ole hyvä ja yritä uudestaan.</string>
   <string name="lockpattern_retry_button_text">Yritä uudelleen</string>
   <string name="lockpattern_continue_button_text">Seuraava</string>
   <string name="lockpattern_confirm_button_text">OK</string>
+  <string name="lockpattern_recording_intro_header">Ole Hyvä ja Piirrä Elelukitus Kuvio</string>
+  <string name="lockpattern_settings_help_how_to_record">Opi kuinka piirtää Elelukitus Kuvio</string>
+  <string name="lockpattern_recording_incorrect_too_short">Pyyhkäise ainakin 4 pisteen kautta, yritä uudestaan!</string>
   <string name="lockpattern_pattern_entered_header">Kuvio tallennettu</string>
+  <string name="lockpattern_need_to_draw">Ole hyvä ja piirrä Elelukitus kuvio</string>
   <string name="lockpattern_need_to_confirm">Ole hyvä ja varmista kuviosi</string>
+  <string name="lockpattern_need_to_unlock_wrong">Kuvio ei täsmää. Yritä uudestaan.</string>
   <string name="lockpattern_pattern_confirmed_header">Napauta OK tallentaaksesi kuvion</string>
+  <string name="lockpattern_recording_inprogress">Nosta sormi näytöltä kun olet piirtänyt loppuun</string>
+  <string name="lockpattern_pattern_toast_saved">Elelukitus Kuvio tallennettu onnistuneesti</string>
   <!--Strings for possible PreferenceActivity Back/Next buttons-->
   <string name="back_button_label">Takaisin</string>
   <string name="next_button_label">Seuraava</string>
@@ -258,6 +290,7 @@
   <string name="settings_contacts_upload_turn_on">Ota käyttöön kontaktien varmuuskopiointi</string>
   <string name="settings_contacts_upload_service_started"> Kontaktien varmuuskopiointi otettu käyttöön</string>
   <string name="settings_contacts_upload_service_stopped">Kontaktien varmuuskopiointi poistettu käytöstä</string>
+  <string name="settings_contacts_upload_repo_hint">Ole hyvä ja valitse kirjasto kontaktien varmuuskopioita varten</string>
   <string name="settings_contacts_upload_change_repo_title">Vaihda kontaktien varmuuskopiointiin käytettyä kirjastoa</string>
   <string name="settings_contacts_upload_repo_time">Viime varmuuskopiointi aika</string>
   <string name="settings_contacts_upload_repo_history">Ei varmuuskopiointi merkintää</string>
@@ -268,7 +301,7 @@
   <!--contacts Upload Perference-->
   <string name="contacts_dialog_recovery">Palauta kontakteja viime varmuuskopiosta</string>
   <string name="contacts_dialog_backup">Kontaktit varmuuskopioidaan tiedostoon:</string>
-  <string name="contacts_count_zero">Kontaktit on tyhjä</string>
+  <string name="contacts_count_zero">Kontaktit-kansio on tyhjä</string>
   <string name="contacts_backup_success">Varmuuskopiointi onnistui</string>
   <string name="contacts_recovery_success">Palautus onnistui</string>
   <string name="contacts_backup_title">Varmuuskopioi kontaktit</string>
@@ -276,19 +309,35 @@
   <string name="contacts_backup_fail">Varmuuskopiointi epäonnistui</string>
   <string name="contacts_recover_fail">Palautus epäonnistui</string>
   <!--Camera Upload Preference-->
+  <string name="settings_camera_upload_info_title">Kameran kuvan lähetys</string>
+  <string name="settings_camera_upload_service_started">Lähetyspalvelu käynnistetty</string>
+  <string name="settings_camera_upload_service_stopped">Lähetyspalvelu pysäytetty</string>
   <string name="settings_camera_upload_allow_data_plan">Salli Mobiiliverkko</string>
-  <string name="settings_camera_upload_default_wifi">Käytä vain Wi-Fi oletuksena</string>
+  <string name="settings_camera_upload_allow_videos">Salli videoiden lähetys</string>
+  <string name="settings_camera_upload_default_wifi">Käytä vain Wi-Fiä oletuksena</string>
   <string name="settings_camera_upload_data_plan_allowed">Mobiiliverkko sallittu</string>
+  <string name="settings_camera_upload_default_photos">Oletusasetuksena lähetä vain kuvat</string>
   <string name="settings_camera_upload_videos_allowed">Videot sisältyvät</string>
+  <string name="settings_camera_upload_change_repo_title">Vaihda lähetyskirjasto</string>
   <string name="settings_camera_upload_repo_hint">Ole hyvä ja valitse ensin kirjasto </string>
+  <string name="settings_camera_upload_turn_on">Käynnistä Kameran lähetys</string>
   <string name="settings_camera_upload_choose_dir">Vaihda albumeja</string>
+  <string name="settings_camera_upload_dir_auto_scan">Skannaa automaattisesti kuvat oletuksena</string>
   <string name="settings_camera_upload_lib_not_found">Valittua kirjastoa ei ole olemassa</string>
   <string name="settings_camera_upload_advanced_feature_title">Edistyneet asetukset</string>
+  <string name="settings_camera_upload_advanced_feature_subtitle">Mukautetut lähetys vaihtoehdot</string>
+  <string name="settings_camera_upload_advanced_custom_directories">Mukautetut lähetys albumit</string>
   <string name="settings_camera_upload_advanced_custom_directories_on">Valitse valokuva albumeja </string>
+  <string name="settings_camera_upload_advanced_custom_directories_off">Automaattinen skannaus laite</string>
   <!--Camera Upload Configuration View-->
+  <string name="settings_cuc_title">Asetusten avustaja</string>
+  <string name="settings_cuc_welcome_text">Kiitos, että käytätte kameran lähetysasetusten avustajaa.\n Aloittaaksesi käyttämään kameran lähetyspalvelua ohjaamme sinut muutaman alkuaskeleen läpi.</string>
+  <string name="settings_cuc_network_title">Kuinka lähettää</string>
   <string name="settings_cuc_network_wifi">Vain Wi-Fi</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi tai mobiiliverkko</string>
-  <string name="settings_cuc_type_photo">Valokuvat ainoastaan</string>
+  <string name="settings_cuc_option_hint">Valitse esisijainen vaihtoehto. \n voit muutttaa näitä valintoja Asetuksista myöhemmin.</string>
+  <string name="settings_cuc_type_title">Mitä lähettää</string>
+  <string name="settings_cuc_type_photo">Vain valokuvat </string>
   <string name="settings_cuc_type_video">Valokuvat ja videot</string>
   <string name="settings_cuc_local_dir_title">Valitse albumit</string>
   <plurals name="settings_cuc_local_dir_items">
@@ -298,14 +347,21 @@
   <string name="settings_cuc_remote_lib_title">Valitse etäkirjasto</string>
   <string name="settings_cuc_remote_lib_account">Valitse tili</string>
   <string name="settings_cuc_remote_lib_repo">%s valittiin</string>
+  <string name="settings_cuc_upload_to_parent_folder">Ylähakemistoon</string>
+  <string name="settings_cuc_auto_scan">Automaattisesti arvaa kameran albumit</string>
   <string name="settings_cuc_pick_albums">Anna minun valita omat valokuva albumit</string>
+  <string name="settings_cuc_remote_lib_hint">Valitse ensisijainen tili ja kirjasto. \n Voit muuttaa näitä valintoja myöhemmin Asetuksista.</string>
   <string name="settings_cuc_finish_title">Loppu</string>
+  <string name="settings_cuc_ready">Seafile aloittaa tiedostojen lähettyksen valitsemistasi kansioista kunhan olet hyväksynyt tämän alla. \n Voit sulkea sovelluksen prosessin aikana.</string>
   <string name="settings_cuc_swipe_left">Pyyhkäise vasemmalle jatkaaksesi.</string>
+  <string name="settings_cuc_click_btn">Napauta sulkeaksesi  asetusten avustajan.</string>
   <string name="settings_cuc_loading">Ladataan...</string>
   <!--Camera Sync-->
   <string name="sync_provider_camera_upload">Kameran valokuvat ja videot</string>
+  <string name="camera_sync_notification_title_failed">Kamerasta lähetys epäonnistui</string>
   <string name="camera_sync_notification_repo_missing_failed">Palvelimen säilö puuttuu.</string>
   <string name="camera_sync_notification_auth_error_failed">Todennusvirhe.</string>
+  <string name="camera_sync_rename_file">%s (Seafilen uudelleennimeämä)</string>
   <string name="settings_about_title">TIETOA</string>
   <string name="settings_about_version_title">Sovellusversio</string>
   <string name="settings_about_author_title">Tietoa tekijästä</string>
@@ -323,15 +379,22 @@ Sähköposti: support@seafile.com<br>
 <h5>Copyright ©2013-2016 Seafile Ltd</h5>
 ]]></string>
   <string name="settings_advance_feature_title">EDISTYNEET OMINAISUUDET</string>
+  <string name="settings_storage_title">VÄLIMUISTIN TALLENNUSTILA</string>
   <string name="settings_cache_title">Välimuistin koko</string>
   <string name="settings_clear_cache_title">Tyhjennä välimuisti</string>
   <string name="settings_clear_cache_hint">Haluatko tyhjentää välimuistin?</string>
   <string name="settings_clear_cache_success">Välimuisti tyhjennetty onnistuneesti</string>
   <string name="settings_clear_cache_failed">Välimuisti tyhjennys epäonnistui</string>
   <string name="settings_cache_empty">0 KB</string>
+  <string name="settings_cache_location_title">Valimuistin tallenustilan osoite</string>
+  <string name="dialog_switch_storage_info_text">Olemassaolevat tiedostot siirretään uuteen tallennustilaan. Tämä voi viedä hetken.</string>
+  <string name="storage_manager_primary_storage">Ensisijainen tallennustila</string>
+  <string name="storage_manager_secondary_storage">Toissijainen tallennustila</string>
   <string name="storage_manager_storage_description">%1$s (%2$s vapaa/%3$s yhteensä)</string>
   <string name="storage_manager_storage_description_not_available">%1$s (ei saatavilla)</string>
   <!--pull to refresh-->
+  <string name="pull_to_refresh_pull_label">Vedä päivittääksesi...</string>
+  <string name="pull_to_refresh_release_label">päästä irti päivittääksesi</string>
   <string name="pull_to_refresh_refreshing_label">Ladataan...</string>
   <string name="pull_to_refresh_last_update">Viime päivitys:</string>
   <string name="pull_to_refresh_last_update_seconds_ago">%d sekuntia sitten</string>
@@ -341,16 +404,20 @@ Sähköposti: support@seafile.com<br>
   <string name="saf_open_file_exception">Ei voinut avata tiedostoa %s.</string>
   <string name="saf_open_directory_exception">Ei voinut avata hakemistoa.</string>
   <string name="saf_file_not_cached_exception">Tiedosto %s ei ole välimuistissa.</string>
+  <string name="saf_thumbnail_not_found_exception">Ei voitu avata/löytää kirjanmerikkiä %s.</string>
   <string name="saf_file_not_downloaded_exception">Ei voinut ladata tiedostoa %s palvelimelta.</string>
+  <string name="saf_write_diretory_exception">Hakemistoa ei voi avata lukemista/kirjoittamista varten.</string>
   <string name="saf_account_not_found_exception">Ei löytynyt Seafile tiliä.</string>
+  <string name="saf_upload_path_not_available">Ei voida lähettää, polkua ei saatavissa</string>
   <string name="saf_failed_to_create_directory">Ei voinut luoda hakemistoa %s</string>
   <string name="saf_file_exist">Tiedosto on jo olemassa</string>
   <string name="saf_bad_mime_type">Huono pyyntö tyyppi</string>
   <!--shibboleth SSO-->
   <string name="shib_server_url_empty">Palvelin on tyhjä!</string>
-  <string name="shib_server_incorrect_prefix">Palvelin pitäisi alkaa joko https:// tai http://</string>
   <string name="shib_load_page_error">Virhe:</string>
   <string name="shib_login_title">Shibboleth Kirjautuminen</string>
+  <string name="shib_server_hint">Syöttö serveri...</string>
+  <string name="shib_actionbar_title">Kirjaudu Shibbolethilla</string>
   <string name="shib_loading">Ladataan...</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">Verkkoyhteys virhe, ole hyvä ja yritä myöhemmin uudelleen!</string>
@@ -361,7 +428,8 @@ Sähköposti: support@seafile.com<br>
   <string name="transfer_list_clear_failed_tasks">Tyhjennä epäonnistuneet tehtävät</string>
   <string name="transfer_list_clear_all_tasks">Tyhjennä kaikki tehtävät</string>
   <string name="transfer_list_clear_finished_tasks">Tyhjennä valmistuneet tehtävät</string>
-  <string name="transfer_tabs_downloads">Lataa lista</string>
+  <string name="transfer_tabs_downloads">Lataa luettelo</string>
+  <string name="transfer_tabs_uploads">Lähetysluettelo</string>
   <string name="transfer_download_no_task">Kaikki tiedostot on ladattu</string>
   <plurals name="transfer_download_started">
     <item quantity="one">Aloitettiin %1$d tiedoston lataus</item>
@@ -419,11 +487,15 @@ Sähköposti: support@seafile.com<br>
   <string name="action_mode_no_items_selected">Ei kohteita valittuna</string>
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
+  <string name="permission_read_exteral_storage_rationale">Prosessoidaksesi tiedostoja sinun pitää antaa tallennustilalle lupa avata ne.</string>
+  <string name="permission_read_contacts_storage_rationale">Prosessoidaksesi kontakteja sinun pitää antaa kontakteille lupa avata ne.</string>
   <string name="permission_not_granted">Oikeuksia ei myönnetty</string>
   <string name="history_change_title">Muokkauksen Yksityiskohdat</string>
-  <string name="no_more_activities">Ei enään aktiviteettejä</string>
+  <string name="no_more_activities">Ei enempää aktiviteettejä</string>
   <!--client side encryption and decryption-->
   <string name="enc_on">Pura salaus paikallisesti</string>
+  <string name="enc_off">Pura data serveri puolella</string>
+  <string name="enc_title">Salatun kirjaston datan purku moodi</string>
   <!--clear password-->
   <string name="clear_password_title">Tyhjennä kirjaston salasana</string>
   <string name="clear_password_hint">Klikkaa tyhjentääksesi salasanan</string>
@@ -432,10 +504,14 @@ Sähköposti: support@seafile.com<br>
   <string name="clear_password_warning">Haluatko tyhjentää salasanan?</string>
   <string name="clear_password_auto">Salasanan automaattinen tyhjennys</string>
   <!--Two factor auth-->
+  <string name="two_factor_auth_error">Todennusavain tarvitaan</string>
+  <string name="two_factor_auth_invalid">Todennusavain on virheellinen</string>
+  <string name="two_factor_auth_token">Kaksi-osainen Todennusavain</string>
+  <string name="two_factor_auth_token_empty">Todennusavain ei voi olla tyhjä</string>
   <!--Operation Exceptions-->
   <string name="op_exception_folder_deleted">Kansio \"%s\" poistettiin</string>
   <string name="op_exception_suitable_app_not_found">Ei löytynyt sopivaa sovellusta mime-tyypille %s </string>
-  <string name="op_exception_failed_to_download_file">Epäonnistui ladata tiedostoa %s</string>
+  <string name="op_exception_failed_to_download_file">Tiedoston %s lataus epäonnistui</string>
   <!--Home list title-->
   <string name="shared_with_all">Jaettu kaikille</string>
   <string name="add_password_protection">Lisää salasana suojaus</string>
