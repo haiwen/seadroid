@@ -96,7 +96,7 @@ public class MarkdownActivity extends BaseActivity implements Toolbar.OnMenuItem
             uri = Uri.parse(path);
         }
 
-        String mime = FileMimeUtils.getFileMime(new File(path));
+        String mime = FileMimeUtils.getMimeType(new File(path));
         editAsMarkDown.setDataAndType(uri, mime);
 
         if (pm.queryIntentActivities(editAsMarkDown, 0).size() > 0) {

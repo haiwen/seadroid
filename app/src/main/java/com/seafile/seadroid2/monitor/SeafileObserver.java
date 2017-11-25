@@ -7,7 +7,6 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafCachedFile;
 import com.seafile.seadroid2.data.SeafRepo;
-import com.seafile.seadroid2.util.FileMimeUtils;
 import com.seafile.seadroid2.util.Utils;
 
 import org.apache.commons.io.monitor.FileAlterationListener;
@@ -19,6 +18,7 @@ import java.util.Map;
 
 public class SeafileObserver implements FileAlterationListener {
     private static final String DEBUG_TAG = "SeafileObserver";
+    private static final long FILE_SIZE = 20 * 1020 * 1024;//10M
 
     private Account account;
     private DataManager dataManager;
@@ -127,11 +127,10 @@ public class SeafileObserver implements FileAlterationListener {
         SeafCachedFile cachedFile = watchedFiles.get(path);
         if (cachedFile != null) {
             //  office or txt file need to update file
-            String fileMime = FileMimeUtils.getFileMime(file);
-            boolean needUpdateFile = FileMimeUtils.isOfficeOrTextFile(fileMime);
-            //  file  size  is change  ,
-            if (file.length() == cachedFile.fileOriginalSize && !needUpdateFile) {
-                Log.d(DEBUG_TAG, "ignore file size not change " + path);
+            boolean isTextFile = Utils.isTextFile(file);
+            //  if file size > 10M, and file size changed ,and file is text file ,we will upload this file
+            if (file.length() > FILE_SIZE && file.length() == cachedFile.fileOriginalSize && !isTextFile) {
+                Log.d(DEBUG_TAG, "max file ignore file size not change " + path);
                 return;
             } else {
                 cachedFile.fileOriginalSize = file.length();
