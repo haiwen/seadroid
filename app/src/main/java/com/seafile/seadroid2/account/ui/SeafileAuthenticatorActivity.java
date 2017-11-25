@@ -27,7 +27,7 @@ import com.seafile.seadroid2.ui.BaseAuthenticatorActivity;
 public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
 
     public static final int SEACLOUD_CC = 0;
-    public static final int SHIBBOLETH_LOGIN = 1;
+    public static final int SINGLE_SIGN_ON_LOGIN = 1;
     public static final int OTHER_SERVER = 2;
 
     public final static String ARG_ACCOUNT_TYPE = "ACCOUNT_TYPE";
@@ -69,8 +69,8 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
                         intent.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, getString(R.string.server_url_seacloud));
                         startActivityForResult(intent, SeafileAuthenticatorActivity.REQ_SIGNUP);
                         break;
-                    case SHIBBOLETH_LOGIN:
-                        intent = new Intent(SeafileAuthenticatorActivity.this, ShibbolethActivity.class);
+                    case SINGLE_SIGN_ON_LOGIN:
+                        intent = new Intent(SeafileAuthenticatorActivity.this, SingleSignOnActivity.class);
                         intent.putExtras(getIntent());
                         startActivityForResult(intent, SeafileAuthenticatorActivity.REQ_SIGNUP);
                         break;
@@ -88,9 +88,9 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
         mAccountManager = AccountManager.get(getBaseContext());
 
         if (getIntent().getBooleanExtra(ARG_SHIB, false)) {
-            Intent intent = new Intent(this, ShibbolethAuthorizeActivity.class);
+            Intent intent = new Intent(this, SingleSignOnAuthorizeActivity.class);
             android.accounts.Account account = new android.accounts.Account(getIntent().getStringExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_NAME), com.seafile.seadroid2.account.Account.ACCOUNT_TYPE);
-            intent.putExtra(ShibbolethActivity.SHIBBOLETH_SERVER_URL, mAccountManager.getUserData(account, Authenticator.KEY_SERVER_URI));
+            intent.putExtra(SingleSignOnActivity.SINGLE_SIGN_ON_SERVER_URL, mAccountManager.getUserData(account, Authenticator.KEY_SERVER_URI));
             intent.putExtras(getIntent().getExtras());
             startActivityForResult(intent, SeafileAuthenticatorActivity.REQ_SIGNUP);
         } else if (getIntent().getBooleanExtra(ARG_IS_EDITING, false)) {

@@ -273,12 +273,9 @@
   <string name="saf_upload_path_not_available">Não é possível carregar, nenhum caminho disponível</string>
   <string name="saf_failed_to_create_directory">Não foi possível criar o diretório %s</string>
   <string name="saf_bad_mime_type">Tipo de requisição invalido</string>
-  <!--shibboleth SSO-->
+  <!--Single Sign-On SSO-->
   <string name="shib_server_url_empty">O Servidor esta vazio</string>
   <string name="shib_load_page_error">Erro:</string>
-  <string name="shib_login_title">Shibboleth Login</string>
-  <string name="shib_server_hint">Servidor de entrada...</string>
-  <string name="shib_actionbar_title">Login com Shibboleth</string>
   <string name="shib_loading">carregando...</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">Erro de conexão com internet, por favor tente novamente mais tarde</string>

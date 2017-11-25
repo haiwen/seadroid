@@ -307,12 +307,9 @@
   <string name="saf_upload_path_not_available">Klarte ikke å laste opp. Ingen tilgjengelig sti.</string>
   <string name="saf_failed_to_create_directory">Kunne ikke opprette mappe %s</string>
   <string name="saf_bad_mime_type">Feil forespørselstype</string>
-  <!--shibboleth SSO-->
+  <!--Single sign on SSO-->
   <string name="shib_server_url_empty">Serveren er tom!</string>
   <string name="shib_load_page_error">Feil: </string>
-  <string name="shib_login_title">Logg inn med Shibboleth</string>
-  <string name="shib_server_hint">Skriv inn server...</string>
-  <string name="shib_actionbar_title">Logg inn med Shibboleth</string>
   <string name="shib_loading">laster...</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">Nettverkstilkoblingsfeil. Prøv igjen senere!</string>

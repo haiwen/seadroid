@@ -41,11 +41,6 @@
     <item>Otro</item>
   </string-array>
   <string name="choose_server">Elija un Servidor Seafile</string>
-  <string-array name="choose_server_array">
-    <item>SeaCloud.cc</item>
-    <item>Inicio con Shibboleth</item>
-    <item>Otro Servidor Seafile</item>
-  </string-array>
   <string name="network_down">Sin conexión de red</string>
   <string name="unknow_error">Error desconocido</string>
   <string name="invalid_server_address">Dirección de servidor inválida</string>
@@ -416,13 +411,10 @@
   <string name="saf_failed_to_create_directory">No se pudo crear la carpeta %s</string>
   <string name="saf_file_exist">Ese archivo ya existe</string>
   <string name="saf_bad_mime_type">Tipo de solicitud incorrecto</string>
-  <!--shibboleth SSO-->
+  <!--Single Sign-On  SSO-->
   <string name="shib_server_url_empty">¡El servidor está vacío!</string>
   <string name="shib_server_incorrect_prefix">El servidor debe comenzar con https://</string>
   <string name="shib_load_page_error">Error:</string>
-  <string name="shib_login_title">Inicio de sesión con Shibboleth</string>
-  <string name="shib_server_hint">Ingrese servidor...</string>
-  <string name="shib_actionbar_title">Iniciar sesión con Shibboleth</string>
   <string name="shib_loading">cargando...</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">Error de conexión de red, por favor intente más tarde.</string>

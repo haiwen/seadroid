@@ -41,11 +41,6 @@
     <item>Más</item>
   </string-array>
   <string name="choose_server">Seafile szerver választás</string>
-  <string-array name="choose_server_array">
-    <item>SeaCloud.cc</item>
-    <item>Shibboleth bejelentkezés</item>
-    <item>Egyéb Seafile szerver</item>
-  </string-array>
   <string name="network_down">Nincs hálózati kapcsolat</string>
   <string name="unknow_error">Ismeretlen hiba</string>
   <string name="invalid_server_address">Hibás szerver cím</string>
@@ -412,12 +407,9 @@ Email: support@seafile.com<br>
   <string name="saf_failed_to_create_directory">Nem lehet létrehozni a könyvtárat: %s</string>
   <string name="saf_file_exist">A fájl már létezik</string>
   <string name="saf_bad_mime_type">Hibás fájl típus kérés</string>
-  <!--shibboleth SSO-->
+  <!--Single Sign-On SSO-->
   <string name="shib_server_url_empty">A szerver üres!</string>
   <string name="shib_load_page_error">Hiba:</string>
-  <string name="shib_login_title">Shibboleth belépés</string>
-  <string name="shib_server_hint">Szerver...</string>
-  <string name="shib_actionbar_title">Belépés Shibboleth-tel</string>
   <string name="shib_loading">betöltés...</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">Hálózati hiba, próbálja meg később!</string>

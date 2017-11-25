@@ -35,12 +35,12 @@ import java.net.URLEncoder;
 import java.security.cert.X509Certificate;
 
 /**
- * Shibboleth Authorize page
+ * Single sign on Authorize page
  * use cookie to get authorized data
  * <p/>
  */
-public class ShibbolethAuthorizeActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
-    public static final String DEBUG_TAG = "ShibbolethAuthorizeActivity";
+public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
+    public static final String DEBUG_TAG = "SingleSignOnAuthorizeActivity";
 
     public static final String SEAHUB_SHIB_COOKIE_NAME = "seahub_auth";
     private WebView mWebview;
@@ -50,9 +50,9 @@ public class ShibbolethAuthorizeActivity extends BaseActivity implements Toolbar
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.shibboleth_authorize_layout);
-        mWebview = (WebView) findViewById(R.id.shibboleth_authorize_wv);
-        mloadingAnimation = (LinearLayout) findViewById(R.id.shibboleth_loading_ll);
+        setContentView(R.layout.single_sign_on_authorize_layout);
+        mWebview = (WebView) findViewById(R.id.single_sign_on_authorize_wv);
+        mloadingAnimation = (LinearLayout) findViewById(R.id.single_sign_on_loading_ll);
 
         mWebview.getSettings().setLoadsImagesAutomatically(true);
         mWebview.getSettings().setJavaScriptEnabled(true);
@@ -65,9 +65,9 @@ public class ShibbolethAuthorizeActivity extends BaseActivity implements Toolbar
         setSupportActionBar(toolbar);
         toolbar.setOnMenuItemClickListener(this);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(R.string.shib_actionbar_title);
+        getSupportActionBar().setTitle(R.string.shib_login_title);
 
-        String url = getIntent().getStringExtra(ShibbolethActivity.SHIBBOLETH_SERVER_URL);
+        String url = getIntent().getStringExtra(SingleSignOnActivity.SINGLE_SIGN_ON_SERVER_URL);
         CookieManager.getInstance().removeAllCookie();
         openAuthorizePage(url);
     }
@@ -164,7 +164,7 @@ public class ShibbolethAuthorizeActivity extends BaseActivity implements Toolbar
         @Override
         public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
             // Display error messages
-            showShortToast(ShibbolethAuthorizeActivity.this,
+            showShortToast(SingleSignOnAuthorizeActivity.this,
                     String.format((R.string.shib_load_page_error) + description));
 
             showPageLoading(false);
@@ -239,7 +239,7 @@ public class ShibbolethAuthorizeActivity extends BaseActivity implements Toolbar
         retData.putExtra(SeafileAuthenticatorActivity.ARG_SHIB, account.isShib());
         retData.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, account.getServer());
 
-        // pass auth result back to the ShibbolethActivity
+        // pass auth result back to the SingleSignOnActivity
         setResult(RESULT_OK, retData);
         finish();
     }
