@@ -5,12 +5,7 @@ import android.accounts.AccountManager;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Authenticator;
@@ -53,62 +48,62 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.account_create_type_select);
 
-        String[] array = getResources().getStringArray(R.array.choose_server_array);
-        ArrayAdapter<String> listAdapter = new ArrayAdapter<>(this, R.layout.list_item_authenticator, array);
-
-        ListView listView = (ListView)findViewById(R.id.account_create_list);
-        listView.setAdapter(listAdapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent;
-                switch ((int) id) {
-                    case SEACLOUD_CC:
-                        intent = new Intent(SeafileAuthenticatorActivity.this, AccountDetailActivity.class);
+//        String[] array = getResources().getStringArray(R.array.choose_server_array);
+//        ArrayAdapter<String> listAdapter = new ArrayAdapter<>(this, R.layout.list_item_authenticator, array);
+//
+//        ListView listView = (ListView)findViewById(R.id.account_create_list);
+//        listView.setAdapter(listAdapter);
+//        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                Intent intent;
+//                switch ((int) id) {
+//                    case SEACLOUD_CC:
+//                        intent = new Intent(SeafileAuthenticatorActivity.this, AccountDetailActivity.class);
+//                        intent.putExtras(getIntent());
+//                        intent.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, getString(R.string.server_url_seacloud));
+//                        startActivityForResult(intent, SeafileAuthenticatorActivity.REQ_SIGNUP);
+//                        break;
+//                    case SHIBBOLETH_LOGIN:
+//                        intent = new Intent(SeafileAuthenticatorActivity.this, ShibbolethActivity.class);
+//                        intent.putExtras(getIntent());
+//                        startActivityForResult(intent, SeafileAuthenticatorActivity.REQ_SIGNUP);
+//                        break;
+//                    case OTHER_SERVER:
+                        Intent intent = new Intent(SeafileAuthenticatorActivity.this, AccountDetailActivity.class);
                         intent.putExtras(getIntent());
-                        intent.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, getString(R.string.server_url_seacloud));
                         startActivityForResult(intent, SeafileAuthenticatorActivity.REQ_SIGNUP);
-                        break;
-                    case SHIBBOLETH_LOGIN:
-                        intent = new Intent(SeafileAuthenticatorActivity.this, ShibbolethActivity.class);
-                        intent.putExtras(getIntent());
-                        startActivityForResult(intent, SeafileAuthenticatorActivity.REQ_SIGNUP);
-                        break;
-                    case OTHER_SERVER:
-                        intent = new Intent(SeafileAuthenticatorActivity.this, AccountDetailActivity.class);
-                        intent.putExtras(getIntent());
-                        startActivityForResult(intent, SeafileAuthenticatorActivity.REQ_SIGNUP);
-                        break;
-                    default:
-                        return;
-                }
-            }
-        });
+//                        break;
+//                    default:
+//                        return;
+//                }
+//            }
+//        });
 
         mAccountManager = AccountManager.get(getBaseContext());
 
-        if (getIntent().getBooleanExtra(ARG_SHIB, false)) {
-            Intent intent = new Intent(this, ShibbolethAuthorizeActivity.class);
-            android.accounts.Account account = new android.accounts.Account(getIntent().getStringExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_NAME), com.seafile.seadroid2.account.Account.ACCOUNT_TYPE);
-            intent.putExtra(ShibbolethActivity.SHIBBOLETH_SERVER_URL, mAccountManager.getUserData(account, Authenticator.KEY_SERVER_URI));
-            intent.putExtras(getIntent().getExtras());
-            startActivityForResult(intent, SeafileAuthenticatorActivity.REQ_SIGNUP);
-        } else if (getIntent().getBooleanExtra(ARG_IS_EDITING, false)) {
-            Intent intent = new Intent(this, AccountDetailActivity.class);
-            intent.putExtras(getIntent().getExtras());
-            startActivityForResult(intent, SeafileAuthenticatorActivity.REQ_SIGNUP);
-        }
+//        if (getIntent().getBooleanExtra(ARG_SHIB, false)) {
+//            Intent intent = new Intent(this, ShibbolethAuthorizeActivity.class);
+//            android.accounts.Account account = new android.accounts.Account(getIntent().getStringExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_NAME), com.seafile.seadroid2.account.Account.ACCOUNT_TYPE);
+//            intent.putExtra(ShibbolethActivity.SHIBBOLETH_SERVER_URL, mAccountManager.getUserData(account, Authenticator.KEY_SERVER_URI));
+//            intent.putExtras(getIntent().getExtras());
+//            startActivityForResult(intent, SeafileAuthenticatorActivity.REQ_SIGNUP);
+//        } else if (getIntent().getBooleanExtra(ARG_IS_EDITING, false)) {
+//            Intent intent = new Intent(this, AccountDetailActivity.class);
+//            intent.putExtras(getIntent().getExtras());
+//            startActivityForResult(intent, SeafileAuthenticatorActivity.REQ_SIGNUP);
+//        }
 
-        Toolbar toolbar = getActionBarToolbar();
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(R.string.choose_server);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                navigateUpOrBack(SeafileAuthenticatorActivity.this, null);
-            }
-        });
+//        Toolbar toolbar = getActionBarToolbar();
+//        setSupportActionBar(toolbar);
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//        getSupportActionBar().setTitle(R.string.choose_server);
+//        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                navigateUpOrBack(SeafileAuthenticatorActivity.this, null);
+//            }
+//        });
     }
 
     @Override

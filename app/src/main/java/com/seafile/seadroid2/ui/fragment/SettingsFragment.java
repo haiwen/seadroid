@@ -16,7 +16,6 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 import android.support.v7.app.AlertDialog;
-import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -411,17 +410,17 @@ public class SettingsFragment extends CustomPreferenceFragment {
         findPreference(SettingsManager.SETTINGS_ABOUT_VERSION_KEY).setSummary(appVersion);
 
         // About author
-        findPreference(SettingsManager.SETTINGS_ABOUT_AUTHOR_KEY).setOnPreferenceClickListener(new OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
+        //        findPreference(SettingsManager.SETTINGS_ABOUT_AUTHOR_KEY).setOnPreferenceClickListener(new OnPreferenceClickListener() {
+        //            @Override
+        //            public boolean onPreferenceClick(Preference preference) {
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-                // builder.setIcon(R.drawable.icon);
-                builder.setMessage(Html.fromHtml(getString(R.string.settings_about_author_info, appVersion)));
-                builder.show();
-                return true;
-            }
-        });
+        //                AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+        //                // builder.setIcon(R.drawable.icon);
+        //                builder.setMessage(Html.fromHtml(getString(R.string.settings_about_author_info, appVersion)));
+        //                builder.show();
+        //                return true;
+        //            }
+        //        });
 
         // Cache size
         calculateCacheSize();

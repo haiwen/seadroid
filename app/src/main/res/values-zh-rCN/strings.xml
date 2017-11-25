@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <string name="welcome_to_seafile">欢迎使用Seafile</string>
+  <string name="welcome_to_seafile">欢迎使用AmeFile</string>
   <string name="select_account">请选择一个账户开始使用</string>
   <string name="edit_account">编辑帐户</string>
   <string name="delete_account">删除帐户</string>
@@ -40,11 +40,11 @@
     <item>图片/视频</item>
     <item>其他</item>
   </string-array>
-  <string name="choose_server">请选择一个Seafile服务器</string>
+  <string name="choose_server">请选择一个AmeFile服务器</string>
   <string-array name="choose_server_array">
     <item>SeaCloud.cc</item>
     <item>Shibboleth登录</item>
-    <item>其他Seafile服务器</item>
+    <item>其他AmeFile服务器</item>
   </string-array>
   <string name="network_down">无网络连接</string>
   <string name="unknow_error">未知错误</string>
@@ -119,13 +119,13 @@
   <string name="dir_empty">此文件夹是空的</string>
   <string name="no_repo">无资料库</string>
   <string name="no_app_available">没有找到应用</string>
-  <string name="add_to_seafile">添加到Seafile中</string>
+  <string name="add_to_seafile">添加到AmeFile中</string>
   <string name="ok">确定</string>
-  <string name="no_account">首先请在Seafile上创建一个账户</string>
+  <string name="no_account">首先请在AmeFile上创建一个账户</string>
   <string name="choose_an_account">请选择一个账户</string>
   <string name="choose_a_library">请选择一个资料库</string>
   <string name="choose_a_folder">请选择一个文件夹</string>
-  <string name="load_accounts_fail">加载Seafile账户失败</string>
+  <string name="load_accounts_fail">加载AmeFile账户失败</string>
   <string name="load_libraries_fail">加载资料库失败</string>
   <string name="load_dir_fail">加载此文件夹的内容失败</string>
   <string name="not_supported_share">不支持此类分享</string>
@@ -354,7 +354,7 @@
   <string name="settings_cuc_pick_albums">选择备份相册</string>
   <string name="settings_cuc_remote_lib_hint">选择你要配置的选项，这些设置以后可以在设置菜单里修改。</string>
   <string name="settings_cuc_finish_title">完成</string>
-  <string name="settings_cuc_ready">Seafile将会从你指定的文件夹上传文件，在这个过程中你可以随时关闭该应用</string>
+  <string name="settings_cuc_ready">AmeFile将会从你指定的文件夹上传文件，在这个过程中你可以随时关闭该应用</string>
   <string name="settings_cuc_swipe_left">向左滑进入下一步</string>
   <string name="settings_cuc_click_btn">点击按钮关闭配置助手</string>
   <string name="settings_cuc_loading">加载中...</string>
@@ -363,7 +363,7 @@
   <string name="camera_sync_notification_title_failed">照片上传失败</string>
   <string name="camera_sync_notification_repo_missing_failed">服务器上不存在该资料库</string>
   <string name="camera_sync_notification_auth_error_failed">授权失败</string>
-  <string name="camera_sync_rename_file"> (由Seafile重命名为)%s</string>
+  <string name="camera_sync_rename_file"> (由AmeFile重命名为)%s</string>
   <string name="settings_about_title">关于</string>
   <string name="settings_about_version_title">应用版本号</string>
   <string name="settings_about_author_title">关于我们</string>
@@ -410,7 +410,7 @@
   <string name="saf_thumbnail_not_found_exception">找不到（或）打不开缩略图%s</string>
   <string name="saf_file_not_downloaded_exception">不能从服务器下载%s</string>
   <string name="saf_write_diretory_exception">不能进入目录进行读取（或）写入</string>
-  <string name="saf_account_not_found_exception">无法找到Seafile账户</string>
+  <string name="saf_account_not_found_exception">无法找到AmeFile账户</string>
   <string name="saf_upload_path_not_available">无效路径，无法上传</string>
   <string name="saf_failed_to_create_directory">无法创建目录%s</string>
   <string name="saf_file_exist">该文件已存在</string>

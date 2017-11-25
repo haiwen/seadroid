@@ -13,6 +13,7 @@ lint.xml
 
 # Files for the Dalvik VM
 *.dex
+*.jks
 
 # Java class files
 *.class
