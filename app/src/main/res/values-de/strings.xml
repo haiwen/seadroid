@@ -6,7 +6,7 @@
   <string name="delete_account">Löschen</string>
   <string name="delete">Löschen</string>
   <string name="delete_repo">Möchten Sie die Bibliothek wirklich löschen?</string>
-  <string name="delete_file">Diese Datei oder diesen Ordner wirklich löschen?</string>
+  <string name="delete_file">Möchten Sie die Datei oder den Ordner wirklich löschen?</string>
   <string name="delete_successful">Erfolgreich gelöscht</string>
   <string name="delete_repo_title">Bibliothek löschen</string>
   <string name="delete_file_f">Datei löschen</string>
@@ -41,11 +41,6 @@
     <item>Andere</item>
   </string-array>
   <string name="choose_server">Bitte wählen Sie einen Seafile-Server aus</string>
-  <string-array name="choose_server_array">
-    <item>SeaCloud.cc</item>
-    <item>Shibboleth-Login</item>
-    <item>Anderer Seafile-Server</item>
-  </string-array>
   <string name="network_down">Keine Netzwerkverbindung</string>
   <string name="unknow_error">Unbekannter Fehler</string>
   <string name="invalid_server_address">Die Serveradresse ist nicht gültig</string>
@@ -418,13 +413,10 @@ Zum Aktualisieren einmal antippen</string>
   <string name="saf_failed_to_create_directory">Konnte Ordner %s nicht erstellen</string>
   <string name="saf_file_exist">Die Datei ist schon vorhanden</string>
   <string name="saf_bad_mime_type">Ungültige Anforderungsart</string>
-  <!--shibboleth SSO-->
+  <!--Single sign on SSO-->
   <string name="shib_server_url_empty">Geben Sie die Serveradresse an</string>
   <string name="shib_server_incorrect_prefix">Die Serveradresse sollte mit https:// beginnen</string>
   <string name="shib_load_page_error">Fehler:</string>
-  <string name="shib_login_title">Shibboleth-Anmeldung</string>
-  <string name="shib_server_hint">Server eintragen …</string>
-  <string name="shib_actionbar_title">Mit Shibboleth anmelden</string>
   <string name="shib_loading">Lade…</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">Problem bei der Netzwerkverbindung. Bitte versuchen Sie es später nochmal!</string>

@@ -12,7 +12,7 @@
   <string name="delete_file_f">删除文件</string>
   <string name="delete_dir">删除文件夹</string>
   <string name="name_hint">名称</string>
-  <string name="server_hint">服务器地址</string>
+  <string name="server_hint">云盘网址</string>
   <string name="email_hint">邮箱或用户名</string>
   <string name="passwd_hint">密码</string>
   <string name="passwd_min_len_limit_hint">密码(至少%d个字符)</string>
@@ -43,7 +43,7 @@
   <string name="choose_server">请选择一个Seafile服务器</string>
   <string-array name="choose_server_array">
     <item>SeaCloud.cc</item>
-    <item>Shibboleth登录</item>
+    <item>统一登录</item>
     <item>其他Seafile服务器</item>
   </string-array>
   <string name="network_down">无网络连接</string>
@@ -415,13 +415,11 @@
   <string name="saf_failed_to_create_directory">无法创建目录%s</string>
   <string name="saf_file_exist">该文件已存在</string>
   <string name="saf_bad_mime_type">请求类型错误</string>
-  <!--shibboleth SSO-->
+  <!--Single Sign-On SSO-->
   <string name="shib_server_url_empty">地址栏为空</string>
   <string name="shib_server_incorrect_prefix">服务器地址需要以 https:// 开头</string>
   <string name="shib_load_page_error">错误：</string>
-  <string name="shib_login_title">Shibboleth登录</string>
-  <string name="shib_server_hint">请输入地址...</string>
-  <string name="shib_actionbar_title">Shibboleth登录</string>
+  <string name="shib_login_title">统一登录</string>
   <string name="shib_loading">加载中...</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">网络连接错误，请稍后重试！</string>

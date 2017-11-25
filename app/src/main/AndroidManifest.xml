@@ -45,11 +45,11 @@
                   android:label="@string/app_name">
         </activity>
 
-        <activity android:name=".account.ui.ShibbolethActivity"
+        <activity android:name=".account.ui.SingleSignOnActivity"
                   android:label="@string/app_name">
         </activity>
 
-        <activity android:name=".account.ui.ShibbolethAuthorizeActivity"
+        <activity android:name=".account.ui.SingleSignOnAuthorizeActivity"
                   android:label="@string/app_name">
         </activity>
 

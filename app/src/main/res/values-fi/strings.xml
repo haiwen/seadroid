@@ -41,11 +41,6 @@
     <item>Muut</item>
   </string-array>
   <string name="choose_server">Valitse Seafile Palvelin</string>
-  <string-array name="choose_server_array">
-    <item>SeaCloud.cc</item>
-    <item>Shibboleth Kirjautuminen</item>
-    <item>Muu Seafile Palvelin</item>
-  </string-array>
   <string name="network_down">Ei verkkoyhteyttä</string>
   <string name="unknow_error">Tuntematon virhe</string>
   <string name="invalid_server_address">Virheellinen palvelimen osoite</string>
@@ -412,12 +407,9 @@ Sähköposti: support@seafile.com<br>
   <string name="saf_failed_to_create_directory">Ei voinut luoda hakemistoa %s</string>
   <string name="saf_file_exist">Tiedosto on jo olemassa</string>
   <string name="saf_bad_mime_type">Huono pyyntö tyyppi</string>
-  <!--shibboleth SSO-->
+  <!--Single Sign-On SSO-->
   <string name="shib_server_url_empty">Palvelin on tyhjä!</string>
   <string name="shib_load_page_error">Virhe:</string>
-  <string name="shib_login_title">Shibboleth Kirjautuminen</string>
-  <string name="shib_server_hint">Syöttö serveri...</string>
-  <string name="shib_actionbar_title">Kirjaudu Shibbolethilla</string>
   <string name="shib_loading">Ladataan...</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">Verkkoyhteys virhe, ole hyvä ja yritä myöhemmin uudelleen!</string>

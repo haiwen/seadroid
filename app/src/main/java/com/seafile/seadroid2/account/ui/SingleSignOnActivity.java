@@ -13,30 +13,30 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.ui.activity.BaseActivity;
 
 /**
- * Shibboleth welcome page
+ * Single Sign-On welcome page
  * <p/>
  */
-public class ShibbolethActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
-    public static final String DEBUG_TAG = "ShibbolethActivity";
+public class SingleSignOnActivity extends BaseActivity implements Toolbar.OnMenuItemClickListener {
+    public static final String DEBUG_TAG = "SingleSignOnActivity";
 
-    public static final String SHIBBOLETH_SERVER_URL = "shibboleth server url";
-    public static final String SHIBBOLETH_HTTPS_PREFIX = "https://";
+    public static final String SINGLE_SIGN_ON_SERVER_URL = "single sign on server url";
+    public static final String SINGLE_SIGN_ON_HTTPS_PREFIX = "https://";
 
     private Button mNextBtn;
     private EditText mServerUrlEt;
 
-    private static final int SHIBBOLETH_AUTH = 1;
+    private static final int SINGLE_SIGN_ON_AUTH = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.shibboleth_welcome_layout);
-        mNextBtn = (Button) findViewById(R.id.shibboleth_next_btn);
-        mServerUrlEt = (EditText) findViewById(R.id.shibboleth_server_url_et);
+        setContentView(R.layout.single_sign_on_welcome_layout);
+        mNextBtn = (Button) findViewById(R.id.single_sign_on_next_btn);
+        mServerUrlEt = (EditText) findViewById(R.id.single_sign_on_server_url_et);
 
-        mServerUrlEt.setText(SHIBBOLETH_HTTPS_PREFIX);
-        int prefixLen = SHIBBOLETH_HTTPS_PREFIX.length();
+        mServerUrlEt.setText(SINGLE_SIGN_ON_HTTPS_PREFIX);
+        int prefixLen = SINGLE_SIGN_ON_HTTPS_PREFIX.length();
         mServerUrlEt.setSelection(prefixLen, prefixLen);
 
         mNextBtn.setOnClickListener(new View.OnClickListener() {
@@ -52,7 +52,7 @@ public class ShibbolethActivity extends BaseActivity implements Toolbar.OnMenuIt
         toolbar.setOnMenuItemClickListener(this);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle(R.string.shib_actionbar_title);
+        getSupportActionBar().setTitle(R.string.shib_login_title);
     }
 
         @Override
@@ -76,7 +76,7 @@ public class ShibbolethActivity extends BaseActivity implements Toolbar.OnMenuIt
             return false;
         }
 
-        if (!serverUrl.startsWith(SHIBBOLETH_HTTPS_PREFIX)) {
+        if (!serverUrl.startsWith(SINGLE_SIGN_ON_HTTPS_PREFIX)) {
             showShortToast(this, getString(R.string.shib_server_incorrect_prefix));
             return false;
         }
@@ -90,10 +90,10 @@ public class ShibbolethActivity extends BaseActivity implements Toolbar.OnMenuIt
     }
 
     private void openAuthorizePage(String serverUrl) {
-        Intent intent = new Intent(ShibbolethActivity.this, ShibbolethAuthorizeActivity.class);
-        intent.putExtra(SHIBBOLETH_SERVER_URL, serverUrl);
+        Intent intent = new Intent(SingleSignOnActivity.this, SingleSignOnAuthorizeActivity.class);
+        intent.putExtra(SINGLE_SIGN_ON_SERVER_URL, serverUrl);
         intent.putExtras(getIntent());
-        startActivityForResult(intent, SHIBBOLETH_AUTH);
+        startActivityForResult(intent, SINGLE_SIGN_ON_AUTH);
     }
 
     @Override
@@ -101,7 +101,7 @@ public class ShibbolethActivity extends BaseActivity implements Toolbar.OnMenuIt
         Log.d(DEBUG_TAG, "onActivityResult");
 
         // pass auth result back to the SeafileAuthenticatorActivity
-        if (requestCode == SHIBBOLETH_AUTH) {
+        if (requestCode == SINGLE_SIGN_ON_AUTH) {
             setResult(resultCode, data);
             finish();
         }

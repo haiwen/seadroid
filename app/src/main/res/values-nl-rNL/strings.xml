@@ -41,11 +41,6 @@
     <item>Overig</item>
   </string-array>
   <string name="choose_server">Kies een Seafile server</string>
-  <string-array name="choose_server_array">
-    <item>SeaCloud.cc</item>
-    <item>Aanmelden Shibboleth</item>
-    <item>Andere Seafile-server</item>
-  </string-array>
   <string name="network_down">Geen netwerkverbinding</string>
   <string name="unknow_error">Onbekende fout</string>
   <string name="invalid_server_address">Ongeldig serveradres</string>
@@ -375,12 +370,9 @@
   <string name="saf_failed_to_create_directory">Kon map %s niet aanmaken</string>
   <string name="saf_file_exist">Dat bestand bestaat reeds</string>
   <string name="saf_bad_mime_type">Verkeerd type verzoek</string>
-  <!--shibboleth SSO-->
+  <!--Single Sign-On SSO-->
   <string name="shib_server_url_empty">Server is leeg!</string>
   <string name="shib_load_page_error">Fout:</string>
-  <string name="shib_login_title">Shibboleth Inlog</string>
-  <string name="shib_server_hint">Invoer server…</string>
-  <string name="shib_actionbar_title">Aanmelden met Shibboleth</string>
   <string name="shib_loading">laden...</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">Fout bij netwerkverbinding. Probeer het later opnieuw!</string>

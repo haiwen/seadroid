@@ -41,11 +41,6 @@
     <item>その他</item>
   </string-array>
   <string name="choose_server">Seafile サーバーを選択</string>
-  <string-array name="choose_server_array">
-    <item>SeaCloud.cc</item>
-    <item>Shibboleth ログイン</item>
-    <item>他の Seafile サーバー</item>
-  </string-array>
   <string name="network_down">ネットワーク接続がありません</string>
   <string name="unknow_error">不明なエラー</string>
   <string name="invalid_server_address">サーバーアドレスが正しくありません</string>
@@ -411,13 +406,10 @@
   <string name="saf_failed_to_create_directory">ディレクトリー %s を作成できません</string>
   <string name="saf_file_exist">ファイルはすでに存在します</string>
   <string name="saf_bad_mime_type">リクエストタイプが不正</string>
-  <!--shibboleth SSO-->
+  <!--Single Sign-On SSO-->
   <string name="shib_server_url_empty">サーバーは空です!</string>
   <string name="shib_server_incorrect_prefix">サーバーは https:// で始まる必要があります</string>
   <string name="shib_load_page_error">エラー: </string>
-  <string name="shib_login_title">Shibboleth ログイン</string>
-  <string name="shib_server_hint">サーバーを入力...</string>
-  <string name="shib_actionbar_title">Shibboleth でログイン</string>
   <string name="shib_loading">読み込み中…</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">ネットワーク接続エラー。後で再度実行してください!</string>

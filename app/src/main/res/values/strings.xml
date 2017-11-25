@@ -47,7 +47,7 @@
     <string name="choose_server">Choose a Seafile Server</string>
     <string-array name="choose_server_array">
         <item>SeaCloud.cc</item>
-        <item>Shibboleth Login</item>
+        <item>Single Sign-On</item>
         <item>Other Seafile Server</item>
     </string-array>
     <string name="server_url_seacloud" translatable="false">https://seacloud.cc</string>
@@ -452,13 +452,11 @@
     <string name="saf_file_exist">That file already exists</string>
     <string name="saf_bad_mime_type">Bad request type</string>
 
-    <!-- shibboleth SSO -->
+    <!-- Single Sign-On  SSO -->
     <string name="shib_server_url_empty">Server is empty!</string>
     <string name="shib_server_incorrect_prefix">Server needs to start with https://</string>
     <string name="shib_load_page_error">Error:&#160;</string>
-    <string name="shib_login_title">Shibboleth Login</string>
-    <string name="shib_server_hint">Input server&#8230;</string>
-    <string name="shib_actionbar_title">Login with Shibboleth</string>
+    <string name="shib_login_title">Single Sign-On</string>
     <string name="shib_loading">loading&#8230;</string>
 
     <!-- Transfer List -->

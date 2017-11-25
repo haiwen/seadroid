@@ -5,7 +5,7 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
     <include layout="@layout/toolbar_actionbar" /> <!-- placeholder, empty except on L -->
-    <LinearLayout android:id="@+id/shibboleth_loading_ll"
+    <LinearLayout android:id="@+id/single_sign_on_loading_ll"
                   android:orientation="vertical"
                   android:layout_width="match_parent"
                   android:layout_height="match_parent"
@@ -24,7 +24,7 @@
 
     </LinearLayout>
 
-    <WebView android:id="@+id/shibboleth_authorize_wv"
+    <WebView android:id="@+id/single_sign_on_authorize_wv"
              android:layout_width="match_parent"
              android:layout_height="match_parent"
              android:layout_margin="10dp">

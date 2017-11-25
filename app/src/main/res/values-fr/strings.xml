@@ -41,11 +41,6 @@
     <item>Autres</item>
   </string-array>
   <string name="choose_server">Choisir un serveur Seafile</string>
-  <string-array name="choose_server_array">
-    <item>SeaCloud.cc</item>
-    <item>Identifiant Shibboleth</item>
-    <item>Autre Serveur Seafile</item>
-  </string-array>
   <string name="network_down">Absence de connexion réseau</string>
   <string name="unknow_error">Erreur inconnue</string>
   <string name="invalid_server_address">Adresse de serveur invalide</string>
@@ -412,12 +407,9 @@ E-mail : support@seafile.com<br>
   <string name="saf_failed_to_create_directory">Impossible de créer le répertoire %s</string>
   <string name="saf_file_exist">Ce fichier existe déjà.</string>
   <string name="saf_bad_mime_type"> type erroné de requête</string>
-  <!--shibboleth SSO-->
+  <!--Single Sign-On SSO-->
   <string name="shib_server_url_empty">La saisie du  serveur est vide !</string>
   <string name="shib_load_page_error">Erreur :</string>
-  <string name="shib_login_title">Connexion shibboleth</string>
-  <string name="shib_server_hint">Entrez le serveur...</string>
-  <string name="shib_actionbar_title">Connexion avec shibboleth</string>
   <string name="shib_loading">Chargement...</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">Erreur de connexion réseau, réessayer plus tard !</string>
