@@ -124,7 +124,6 @@ public class UploadTask extends TransferTask {
         if (uploadStateListener != null) {
             uploadStateListener.onFileUploadCancelled(taskID);
         }
-        uploadStateListener.onFileUploadCancelled(taskID);
     }
 
     public String getDir() {

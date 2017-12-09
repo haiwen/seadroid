@@ -30,7 +30,7 @@ You will get `app/build/outputs/apk/seafile-${versionName}.apk` after the build 
 ### Prerequisites
 
 * Android Studio
-* OpenJDK 7 / OracleJDK 7
+* OpenJDK 8 / OracleJDK 8
 
 ### Import project
 

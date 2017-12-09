@@ -475,9 +475,9 @@ public class ReposFragment extends ListFragment {
                 String repoID = getNavContext().getRepoID();
                 String repoName = getNavContext().getRepoName();
                 String currentDir = getNavContext().getDirPath();
-
-                adapter.setDownloadTaskList(ts.getDownloadTaskInfosByPath(repoID, currentDir));
-
+                if (ts != null) {
+                    adapter.setDownloadTaskList(ts.getDownloadTaskInfosByPath(repoID, currentDir));
+                }
                 // Log.d(DEBUG_TAG, "timer post refresh signal " + System.currentTimeMillis());
                 mTimer.postDelayed(this, 1 * 3500);
             }
