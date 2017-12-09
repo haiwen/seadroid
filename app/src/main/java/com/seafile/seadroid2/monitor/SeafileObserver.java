@@ -7,7 +7,6 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafCachedFile;
 import com.seafile.seadroid2.data.SeafRepo;
-import com.seafile.seadroid2.util.FileMimeUtils;
 import com.seafile.seadroid2.util.Utils;
 
 import org.apache.commons.io.monitor.FileAlterationListener;
@@ -127,16 +126,13 @@ public class SeafileObserver implements FileAlterationListener {
         SeafCachedFile cachedFile = watchedFiles.get(path);
         if (cachedFile != null) {
             //  office or txt file need to update file
-            String fileMime = FileMimeUtils.getFileMime(file);
-            boolean needUpdateFile = FileMimeUtils.isOfficeOrTextFile(fileMime);
-            //  file  size  is change  ,
-            if (file.length() == cachedFile.fileOriginalSize && !needUpdateFile) {
-                Log.d(DEBUG_TAG, "ignore file size not change " + path);
+            boolean isTextFile = Utils.isTextFile(file);
+            //if file is not TextFile and file size not changed, do not update
+            if (file.length() == cachedFile.fileOriginalSize && !isTextFile) {
                 return;
-            } else {
-                cachedFile.fileOriginalSize = file.length();
             }
 
+            cachedFile.fileOriginalSize = file.length();
             final SeafRepo repo = dataManager.getCachedRepoByID(cachedFile.repoID);
             if (repo != null && repo.canLocalDecrypt()) {
                 listener.onCachedBlocksChanged(account, cachedFile, file, repo.encVersion);

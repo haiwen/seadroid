@@ -226,6 +226,7 @@
     <string name="open_as">Open as</string>
     <string name="select_upload_files">Select files to upload</string>
     <string name="storage_removed">Storage was removed</string>
+    <string name="storage_space_insufficient">Insufficient storage space</string>
     <string name="error_selecting_file">Error when selecting file</string>
     <plurals name="n_upload_files_selected">
         <item quantity="one">%1$d file selected</item>

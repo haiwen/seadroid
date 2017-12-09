@@ -1,5 +1,7 @@
 package com.seafile.seadroid2.util;
 
+import android.media.MediaMetadataRetriever;
+
 import java.io.File;
 import java.util.HashMap;
 
@@ -40,115 +42,7 @@ public class FileMimeUtils {
         needUpdateFileMime.put(".ppam", "application/vnd.ms-powerpoint.addin.macroEnabled.12");
         needUpdateFileMime.put(".pptm", "application/vnd.ms-powerpoint.presentation.macroEnabled.12");
         needUpdateFileMime.put(".ppsm", "application/vnd.ms-powerpoint.slideshow.macroEnabled.12");
-        needUpdateFileMime.put(".c", "text/plain");
-        needUpdateFileMime.put(".conf", "text/plain");
-        needUpdateFileMime.put(".cpp", "text/plain");
-        needUpdateFileMime.put(".h", "text/plain");
-        needUpdateFileMime.put(".java", "text/plain");
-        needUpdateFileMime.put(".log", "text/plain");
-        needUpdateFileMime.put(".htm", "text/html");
-        needUpdateFileMime.put(".html", "text/html");
-        needUpdateFileMime.put(".prop", "text/plain");
-        needUpdateFileMime.put(".rc", "text/plain");
-        needUpdateFileMime.put(".sh", "text/plain");
-        needUpdateFileMime.put(".txt", "text/plain");
-        needUpdateFileMime.put(".md", "text/markdown");
-        needUpdateFileMime.put(".markdown", "text/x-markdown");
-        needUpdateFileMime.put(".md1", "text/vnd.daringfireball.markdown");
-        needUpdateFileMime.put(".md2", " text/x-web-markdown");
         needUpdateFileMime.put(".wps", "application/vnd.ms-works");
-    }
-
-
-    private static String[][] MIME_MapTable = {
-            //{last name，    MIME type}
-            {".3gp", "video/3gpp"},
-            {".apk", "application/vnd.android.package-archive"},
-            {".asf", "video/x-ms-asf"},
-            {".avi", "video/x-msvideo"},
-            {".bin", "application/octet-stream"},
-            {".bmp", "image/bmp"},
-            {".c", "text/plain"},
-            {".class", "application/octet-stream"},
-            {".conf", "text/plain"},
-            {".cpp", "text/plain"},
-            {".doc", "application/msword"},
-            {".exe", "application/octet-stream"},
-            {".gif", "image/gif"},
-            {".gtar", "application/x-gtar"},
-            {".gz", "application/x-gzip"},
-            {".h", "text/plain"},
-            {".htm", "text/html"},
-            {".html", "text/html"},
-            {".jar", "application/java-archive"},
-            {".java", "text/plain"},
-            {".jpeg", "image/jpeg"},
-            {".jpg", "image/jpeg"},
-            {".js", "application/x-javascript"},
-            {".log", "text/plain"},
-            {".m3u", "audio/x-mpegurl"},
-            {".m4a", "audio/mp4a-latm"},
-            {".m4b", "audio/mp4a-latm"},
-            {".m4p", "audio/mp4a-latm"},
-            {".m4u", "video/vnd.mpegurl"},
-            {".m4v", "video/x-m4v"},
-            {".mov", "video/quicktime"},
-            {".mp2", "audio/x-mpeg"},
-            {".mp3", "audio/x-mpeg"},
-            {".mp4", "video/mp4"},
-            {".mpc", "application/vnd.mpohun.certificate"},
-            {".mpe", "video/mpeg"},
-            {".mpeg", "video/mpeg"},
-            {".mpg", "video/mpeg"},
-            {".mpg4", "video/mp4"},
-            {".mpga", "audio/mpeg"},
-            {".msg", "application/vnd.ms-outlook"},
-            {".ogg", "audio/ogg"},
-            {".pdf", "application/pdf"},
-            {".png", "image/png"},
-            {".pps", "application/vnd.ms-powerpoint"},
-            {".ppt", "application/vnd.ms-powerpoint"},
-            {".prop", "text/plain"},
-            {".rar", "application/x-rar-compressed"},
-            {".rc", "text/plain"},
-            {".rmvb", "audio/x-pn-realaudio"},
-            {".rtf", "application/rtf"},
-            {".sh", "text/plain"},
-            {".tar", "application/x-tar"},
-            {".tgz", "application/x-compressed"},
-            {".txt", "text/plain"},
-            {".wav", "audio/x-wav"},
-            {".wma", "audio/x-ms-wma"},
-            {".wmv", "audio/x-ms-wmv"},
-            {".wps", "application/vnd.ms-works"},
-//            {".xml", "text/xml"},
-            {".xml", "text/plain"},
-            {".z", "application/x-compress"},
-            {".zip", "application/zip"},
-            {".md", "text/markdown"},
-            {".markdown", "text/x-markdown"},
-            {"", "*/*"}
-    };
-
-    public static String getFileMime(File file) {
-        String type = "*/*";
-        String fName = file.getName();
-        //get  "."  index in file name
-        int dotIndex = fName.lastIndexOf(".");
-        if (dotIndex < 0) {
-            return type;
-        }
-         /* get last name */
-        String end = fName.substring(dotIndex, fName.length()).toLowerCase();
-        if (end == "")
-            return type;
-        // find MIME file type 。
-        for (int i = 0; i < MIME_MapTable.length; i++) {
-            if (end.equals(MIME_MapTable[i][0]))
-                type = MIME_MapTable[i][1];
-        }
-        return type;
-
     }
 
 
@@ -156,5 +50,22 @@ public class FileMimeUtils {
         return needUpdateFileMime.containsValue(mime);
     }
 
-
+    public static String getMimeType(File file) {
+        String mime = "text/plain";
+        String filePath = file.getAbsolutePath();
+        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+        if (filePath != null) {
+            try {
+                mmr.setDataSource(filePath);
+                mime = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE);
+            } catch (IllegalStateException e) {
+                return mime;
+            } catch (IllegalArgumentException e) {
+                return mime;
+            } catch (RuntimeException e) {
+                return mime;
+            }
+        }
+        return mime;
+    }
 }

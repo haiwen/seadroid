@@ -18,7 +18,6 @@ import com.seafile.seadroid2.account.AccountManager;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -247,7 +246,7 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
                 }
                 notifyAndroidGalleryDirectoryChange(FileUtils.listFiles(newMediaDir, null, true));
 
-            } catch (IOException e) {
+            } catch (Exception e) {
                 Log.e(DEBUG_TAG, "Could not move cache to new location", e);
                 return;
             }

@@ -305,12 +305,28 @@ public class Utils {
         if (name == null)
             return false;
         String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
-        if (suffix == null || suffix.length() == 0)
+        if (TextUtils.isEmpty(suffix))
             return false;
         String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
         if (mime == null)
             return false;
         return mime.contains("video/");
+    }
+
+    public static boolean isTextFile(File file) {
+        if (file != null) {
+            String fileName = file.getName();
+            if (!TextUtils.isEmpty(fileName)) {
+                String suffix = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
+                if (!TextUtils.isEmpty(suffix)) {
+                    String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);
+                    if (!TextUtils.isEmpty(mime)) {
+                        return mime.contains("text/") || FileMimeUtils.isOfficeOrTextFile(mime);
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     public static boolean isNetworkOn() {

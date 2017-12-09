@@ -352,7 +352,14 @@ public class SeafItemAdapter extends BaseAdapter {
         if (repoName == null || repoID == null)
             return;
 
-        File file = dataManager.getLocalRepoFile(repoName, repoID, filePath);
+        File file = null;
+        try {
+            file = dataManager.getLocalRepoFile(repoName, repoID, filePath);
+        } catch (RuntimeException e) {
+            mActivity.showShortToast(mActivity, mActivity.getResources().getString(R.string.storage_space_insufficient));
+            e.printStackTrace();
+            return;
+        }
         boolean cacheExists = false;
 
         if (file.exists()) {

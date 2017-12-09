@@ -18,16 +18,17 @@ import java.util.List;
 public final class SettingsManager {
     private static final String DEBUG_TAG = "SettingsManager";
 
-
     private static SettingsManager instance;
-    private static SharedPreferences.Editor editor;
+    private SharedPreferences settingsSharedPref;
     private static SharedPreferences sharedPref;
+    private static SharedPreferences.Editor editor;
 
     private SettingsManager() {
+        settingsSharedPref = PreferenceManager.getDefaultSharedPreferences(SeadroidApplication.getAppContext());
+        sharedPref = SeadroidApplication.getAppContext().getSharedPreferences(AccountManager.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        editor = sharedPref.edit();
     }
 
-    private SharedPreferences settingsSharedPref = PreferenceManager
-            .getDefaultSharedPreferences(SeadroidApplication.getAppContext());
 
     // Account
     public static final String SETTINGS_ACCOUNT_INFO_KEY = "account_info_user_key";
@@ -98,12 +99,9 @@ public final class SettingsManager {
             synchronized (SettingsManager.class) {
                 if (instance == null) {
                     instance = new SettingsManager();
-                    sharedPref = SeadroidApplication.getAppContext().getSharedPreferences(AccountManager.SHARED_PREF_NAME, Context.MODE_PRIVATE);
-                    editor = sharedPref.edit();
                 }
             }
         }
-
         return instance;
     }
 
