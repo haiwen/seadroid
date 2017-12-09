@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <style name="AppTheme" parent="AppTheme.Base"/>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme.Base" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/color_primary</item>
+        <item name="colorPrimaryDark">@color/color_primary</item>
+        <item name="colorAccent">@color/color_primary</item>
+        <item name="colorControlActivated">@color/fancy_orange</item>
+        <item name="colorControlHighlight">@color/fancy_light_black</item>
+        <item name="android:windowBackground">@color/fancy_light_white</item>
+        <item name="android:listViewStyle">@style/SeafileListStyle</item>
+        <item name="android:actionModeStyle">@style/LightTheme.ActionMode</item>
+        <item name="actionModeStyle">@style/LightTheme.ActionMode</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="android:colorButtonNormal">@color/fancy_orange</item>
+        <item name="colorButtonNormal">@color/fancy_orange</item>
+        <item name="alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
+        <item name="android:alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <style name="NegativeButton" parent="Base.Widget.AppCompat.Button">
+        <item name="android:colorButtonNormal">@color/fancy_dark_gray</item>
+        <item name="android:textColor">@color/light_black</item>
+    </style>
+
+    <style name="ActionBarPopupThemeOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="ActionBarThemeOverlay" parent="ThemeOverlay.AppCompat.ActionBar">
+        <item name="android:textColorPrimary">@color/fancy_gray</item>
+        <item name="android:textColorSecondary">@color/fancy_black</item>
+    </style>
+
+    <style name="LightTheme.ActionMode" parent="Widget.AppCompat.ActionMode">
+        <item name="android:background">@color/fancy_white</item>
+        <item name="background">@color/fancy_white</item>
+    </style>
+
+</resources>
