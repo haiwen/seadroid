@@ -460,6 +460,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="star_file_succeed">Als Favorit markiert</string>
   <string name="star_file_failed">Markieren als Favorit nicht möglich</string>
   <!--unstar a file-->
+  <string name="unstar_file_succeed">Markierung entfernt</string>
   <string name="unstar_file_failed">Entfernen der Markierung fehlgeschlagen</string>
   <string name="unstar">Markierung entfernen</string>
   <!--notification bar-->
