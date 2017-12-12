@@ -162,6 +162,7 @@
         <item>Create folder</item>
         <item>Upload file</item>
         <item>Take a photo</item>
+        <item>Capture a video</item>
     </string-array>
     <string-array name="video_download_array">
         <item>play</item>
@@ -205,6 +206,7 @@
     <string name="added_to_upload_tasks">Uploading started</string>
     <string name="added_photo_to_upload_tasks">Photo uploading started</string>
     <string name="take_photo_successfully">Take photo successfully</string>
+    <string name="capture_video_successfully">Capture video successfully</string>
     <string name="tabs_library">Libraries</string>
     <string name="tabs_activity">Activities</string>
     <string name="tabs_starred">Starred</string>
