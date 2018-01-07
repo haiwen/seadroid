@@ -565,6 +565,7 @@
     <string name="two_factor_auth_invalid">authentication token is invalid</string>
     <string name="two_factor_auth_token">Two-factor Authentication token</string>
     <string name="two_factor_auth_token_empty">Authentication token can\`t be empty</string>
+    <string name="two_factor_auth_remember_phone">Remember that device</string>
 
     <!-- Operation Exceptions -->
     <string name="op_exception_folder_deleted">The folder \"%s\" was deleted</string>

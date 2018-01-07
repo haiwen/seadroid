@@ -143,6 +143,16 @@
     </LinearLayout>
 
 
+    <CheckBox
+        android:id="@+id/remember_device"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginLeft="@dimen/auto_complete_ed_margin_left"
+        android:layout_marginRight="@dimen/auto_complete_ed_margin_left"
+        android:text="@string/two_factor_auth_remember_phone"/>
+
+
     <Button
             android:id="@+id/login_button"
             android:layout_width="match_parent"
@@ -152,6 +162,7 @@
             android:layout_marginLeft="@dimen/long_btn_margin_left"
             android:layout_marginRight="@dimen/long_btn_margin_right"
             android:onClick="login"
+            android:layout_marginTop="10dp"
             android:text="@string/login"
             android:textAllCaps="false"
             android:textColor="@color/white"
