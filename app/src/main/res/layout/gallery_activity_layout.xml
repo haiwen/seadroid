@@ -92,15 +92,18 @@
                        android:layout_width="@dimen/gallery_icon_width"
                        android:layout_height="@dimen/gallery_icon_height"
                        android:layout_marginRight="@dimen/gallery_icon_margin_right"
+                       android:scaleType="centerInside"
                        android:src="@drawable/action_delete"/>
             <ImageView android:id="@+id/gallery_star_photo"
                        android:layout_width="@dimen/gallery_icon_width"
                        android:layout_height="@dimen/gallery_icon_height"
                        android:layout_marginRight="@dimen/gallery_icon_margin_right"
+                       android:scaleType="centerInside"
                        android:src="@drawable/action_star"/>
             <ImageView android:id="@+id/gallery_share_photo"
                        android:layout_width="@dimen/gallery_icon_width"
                        android:layout_height="@dimen/gallery_icon_height"
+                       android:scaleType="centerInside"
                        android:src="@drawable/action_share"/>
 
         </LinearLayout>

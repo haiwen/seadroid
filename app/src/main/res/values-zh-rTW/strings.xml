@@ -380,7 +380,7 @@
   <string name="saf_failed_to_create_directory">無法創建目錄%s</string>
   <string name="saf_file_exist">該文件已存在</string>
   <string name="saf_bad_mime_type">請求類型錯誤</string>
-  <!--Single Sign-On SSO-->
+  <!--Single Sign-On  SSO-->
   <string name="shib_server_url_empty">地址欄為空</string>
   <string name="shib_load_page_error">錯誤：</string>
   <string name="shib_loading">加載中...</string>

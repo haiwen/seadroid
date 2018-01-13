@@ -52,6 +52,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
 
     private static final String HTTP_PREFIX = "http://";
     private static final String HTTPS_PREFIX = "https://";
+    public static final String TWO_FACTOR_AUTH = "two_factor_auth";
 
     private TextView statusView;
     private Button loginButton;
@@ -69,6 +70,8 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
     private android.accounts.AccountManager mAccountManager;
     private boolean serverTextHasFocus;
     private boolean isPasswddVisible;
+    private CheckBox cbRemDevice;
+    private String mSessionKey;
 
     /** Called when the activity is first created. */
     @Override
@@ -95,6 +98,8 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
         authTokenText = (EditText) findViewById(R.id.auth_token);
         authTokenLayout.setVisibility(View.GONE);
 
+        cbRemDevice = findViewById(R.id.remember_device);
+        cbRemDevice.setVisibility(View.GONE);
         setupServerText();
 
         Intent intent = getIntent();
@@ -108,6 +113,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
 
             String server = mAccountManager.getUserData(account, Authenticator.KEY_SERVER_URI);
             String email = mAccountManager.getUserData(account, Authenticator.KEY_EMAIL);
+            mSessionKey = mAccountManager.getUserData(account, Authenticator.SESSION_KEY);
             // isFromEdit = mAccountManager.getUserData(account, Authenticator.KEY_EMAIL);
 
             if (server.startsWith(HTTPS_PREFIX))
@@ -246,7 +252,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putString("email", emailText.getText().toString());
         savedInstanceState.putString("password", passwdText.getText().toString());
-
+        savedInstanceState.putBoolean("rememberDevice", cbRemDevice.isChecked());
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -256,6 +262,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
 
         emailText.setText((String) savedInstanceState.get("email"));
         passwdText.setText((String) savedInstanceState.get("password"));
+        cbRemDevice.setChecked((boolean) savedInstanceState.get("rememberDevice"));
     }
 
     @Override
@@ -391,6 +398,10 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
                 }
             }
 
+            boolean rememberDevice = false;
+            if (cbRemDevice.getVisibility() == View.VISIBLE) {
+                rememberDevice = cbRemDevice.isChecked();
+            }
             try {
                 serverURL = Utils.cleanServerURL(serverURL);
             } catch (MalformedURLException e) {
@@ -406,11 +417,12 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
             }
 
             loginButton.setEnabled(false);
-            Account tmpAccount = new Account(serverURL, email, null, false);
+            Account tmpAccount = new Account(serverURL, email, null, false, mSessionKey);
             progressDialog = new ProgressDialog(this);
             progressDialog.setMessage(getString(R.string.settings_cuc_loading));
             progressDialog.setCancelable(false);
-            ConcurrentAsyncTask.execute(new LoginTask(tmpAccount, passwd, authToken));
+            ConcurrentAsyncTask.execute(new LoginTask(tmpAccount, passwd, authToken,rememberDevice));
+
         } else {
             statusView.setText(R.string.network_down);
         }
@@ -421,11 +433,13 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
         SeafException err = null;
         String passwd;
         String authToken;
+        boolean rememberDevice;
 
-        public LoginTask(Account loginAccount, String passwd, String authToken) {
+        public LoginTask(Account loginAccount, String passwd, String authToken, boolean rememberDevice) {
             this.loginAccount = loginAccount;
             this.passwd = passwd;
             this.authToken = authToken;
+            this.rememberDevice = rememberDevice;
         }
 
         @Override
@@ -443,7 +457,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
         }
 
         private void resend() {
-            ConcurrentAsyncTask.execute(new LoginTask(loginAccount, passwd, authToken));
+            ConcurrentAsyncTask.execute(new LoginTask(loginAccount, passwd, authToken, rememberDevice));
         }
 
         @Override
@@ -451,6 +465,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
             progressDialog.dismiss();
             if (err == SeafException.sslException) {
                 authTokenLayout.setVisibility(View.GONE);
+                cbRemDevice.setVisibility(View.GONE);
                 SslConfirmDialog dialog = new SslConfirmDialog(loginAccount,
                         new SslConfirmDialog.Listener() {
                             @Override
@@ -470,13 +485,18 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
             } else if (err == SeafException.twoFactorAuthTokenMissing) {
                 // show auth token input box
                 authTokenLayout.setVisibility(View.VISIBLE);
+                cbRemDevice.setVisibility(View.VISIBLE);
+                cbRemDevice.setChecked(false);
                 authTokenText.setError(getString(R.string.two_factor_auth_error));
             } else if (err == SeafException.twoFactorAuthTokenInvalid) {
                 // show auth token input box
                 authTokenLayout.setVisibility(View.VISIBLE);
+                cbRemDevice.setVisibility(View.VISIBLE);
+                cbRemDevice.setChecked(false);
                 authTokenText.setError(getString(R.string.two_factor_auth_invalid));
             } else {
                 authTokenLayout.setVisibility(View.GONE);
+                cbRemDevice.setVisibility(View.GONE);
             }
 
             if (result != null && result.equals("Success")) {
@@ -487,8 +507,9 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
                 retData.putExtra(android.accounts.AccountManager.KEY_AUTHTOKEN, loginAccount.getToken());
                 retData.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_TYPE, getIntent().getStringExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_TYPE));
                 retData.putExtra(SeafileAuthenticatorActivity.ARG_EMAIL, loginAccount.getEmail());
+                retData.putExtra(SeafileAuthenticatorActivity.ARG_AUTH_SESSION_KEY, loginAccount.getSessionKey());
                 retData.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, loginAccount.getServer());
-
+                retData.putExtra(TWO_FACTOR_AUTH, cbRemDevice.isChecked());
                 setResult(RESULT_OK, retData);
                 finish();
             } else {
@@ -502,7 +523,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
 
             try {
                 // if successful, this will place the auth token into "loginAccount"
-                if (!sc.doLogin(passwd, authToken))
+                if (!sc.doLogin(passwd, authToken, rememberDevice))
                     return getString(R.string.err_login_failed);
 
                 // fetch email address from the server
@@ -513,7 +534,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
                     return "Unknown error";
 
                 // replace email address/username given by the user with the address known by the server.
-                loginAccount = new Account(loginAccount.server, accountInfo.getEmail(), loginAccount.token, false);
+                loginAccount = new Account(loginAccount.server, accountInfo.getEmail(), loginAccount.token, false, loginAccount.sessionKey);
 
                 return "Success";
 

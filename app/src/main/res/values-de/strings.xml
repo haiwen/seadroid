@@ -41,6 +41,11 @@
     <item>Andere</item>
   </string-array>
   <string name="choose_server">Bitte wählen Sie einen Seafile-Server aus</string>
+  <string-array name="choose_server_array">
+    <item>SeaCloud.cc</item>
+    <item>Single-Sign-On</item>
+    <item>Anderer Seafile-Server</item>
+  </string-array>
   <string name="network_down">Keine Netzwerkverbindung</string>
   <string name="unknow_error">Unbekannter Fehler</string>
   <string name="invalid_server_address">Die Serveradresse ist nicht gültig</string>
@@ -143,6 +148,10 @@ Zum Aktualisieren einmal antippen</string>
     <item>Datei hochladen</item>
     <item>Foto machen</item>
   </string-array>
+  <string-array name="video_download_array">
+    <item>Abspielen</item>
+    <item>Herunterladen</item>
+  </string-array>
   <string name="create_new_repo">Neue Bibliothek erstellen</string>
   <string name="create_new_repo_success">Bibliothek %s ist erstellt</string>
   <string name="create_new_folder_success">Ordner %s ist erstellt</string>
@@ -202,6 +211,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="open_as">Öffnen als</string>
   <string name="select_upload_files">Dateien zum Hochladen auswählen</string>
   <string name="storage_removed">Speicherplatz ist entfernt</string>
+  <string name="storage_space_insufficient">Speicherplatz reicht nicht aus</string>
   <string name="error_selecting_file">Fehler beim Auswählen der Datei</string>
   <plurals name="n_upload_files_selected">
     <item quantity="one">%1$d Datei ausgewählt</item>
@@ -413,10 +423,11 @@ Zum Aktualisieren einmal antippen</string>
   <string name="saf_failed_to_create_directory">Konnte Ordner %s nicht erstellen</string>
   <string name="saf_file_exist">Die Datei ist schon vorhanden</string>
   <string name="saf_bad_mime_type">Ungültige Anforderungsart</string>
-  <!--Single sign on SSO-->
+  <!--Single Sign-On  SSO-->
   <string name="shib_server_url_empty">Geben Sie die Serveradresse an</string>
   <string name="shib_server_incorrect_prefix">Die Serveradresse sollte mit https:// beginnen</string>
   <string name="shib_load_page_error">Fehler:</string>
+  <string name="shib_login_title">Single Sign-On</string>
   <string name="shib_loading">Lade…</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">Problem bei der Netzwerkverbindung. Bitte versuchen Sie es später nochmal!</string>
@@ -507,6 +518,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="two_factor_auth_invalid">Token für Authentifizierung ist nicht gültig</string>
   <string name="two_factor_auth_token">Token für 2-Faktor-Authentifizierung</string>
   <string name="two_factor_auth_token_empty">Geben Sie das Token für die Authentifizierung an</string>
+  <string name="two_factor_auth_remember_phone">Dieses Gerät merken</string>
   <!--Operation Exceptions-->
   <string name="op_exception_folder_deleted">Ordner „%s“ ist gelöscht </string>
   <string name="op_exception_suitable_app_not_found">Keine App für den Mime-Type %s gefunden</string>

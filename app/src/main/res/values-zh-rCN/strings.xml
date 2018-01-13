@@ -208,6 +208,7 @@
   <string name="open_as">打开为</string>
   <string name="select_upload_files">请选择要上传的文件</string>
   <string name="storage_removed">存储卡已被移出</string>
+  <string name="storage_space_insufficient">存储空间不足</string>
   <string name="error_selecting_file">选择文件时出错</string>
   <plurals name="n_upload_files_selected">
     <item quantity="other">已经选择%1$d个文件</item>
@@ -415,7 +416,7 @@
   <string name="saf_failed_to_create_directory">无法创建目录%s</string>
   <string name="saf_file_exist">该文件已存在</string>
   <string name="saf_bad_mime_type">请求类型错误</string>
-  <!--Single Sign-On SSO-->
+  <!--Single Sign-On  SSO-->
   <string name="shib_server_url_empty">地址栏为空</string>
   <string name="shib_server_incorrect_prefix">服务器地址需要以 https:// 开头</string>
   <string name="shib_load_page_error">错误：</string>
@@ -506,6 +507,7 @@
   <string name="two_factor_auth_invalid">验证码无效</string>
   <string name="two_factor_auth_token">两步验证码</string>
   <string name="two_factor_auth_token_empty">验证码不能为空</string>
+  <string name="two_factor_auth_remember_phone">记住该设备</string>
   <!--Operation Exceptions-->
   <string name="op_exception_folder_deleted">此文件夹\"%s\"已被删除</string>
   <string name="op_exception_suitable_app_not_found">找不到合适的应用打开该%s类型</string>

@@ -56,6 +56,10 @@ public class Authenticator extends AbstractAccountAuthenticator {
      * Key of shib_setting in userData
      */
     public final static String KEY_SHIB = "shib";
+    /**
+     * Two Factor Auth in  userData
+     */
+    public final static String SESSION_KEY = "sessionKey";
 
     public Authenticator(Context context) {
         super(context);

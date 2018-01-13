@@ -152,7 +152,7 @@ public class SeafConnection {
      * @return true if login success, false otherwise
      * @throws SeafException
      */
-    private boolean realLogin(String passwd, String authToken) throws SeafException {
+    private boolean realLogin(String passwd, String authToken, boolean rememberDevice) throws SeafException {
         boolean withAuthToken = false;
         HttpRequest req = null;
         try {
@@ -164,7 +164,12 @@ public class SeafConnection {
                 withAuthToken = true;
                 // Log.d(DEBUG_TAG, "authToken " + authToken);
             }
-
+            if (!TextUtils.isEmpty(account.sessionKey)) {
+                req.header("X-SEAFILE-S2FA", account.sessionKey);
+            }
+            if (rememberDevice) {
+                req.header("X-SEAFILE-2FA-TRUST-DEVICE", 1);
+            }
             req.form("username", account.email);
             req.form("password", passwd);
 
@@ -188,7 +193,10 @@ public class SeafConnection {
             req.form("platform_version", Build.VERSION.RELEASE);
 
             checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK, withAuthToken);
-
+            String sessionKey = req.header("x-seafile-s2fa");
+            if (!TextUtils.isEmpty(sessionKey)) {
+                account.sessionKey = sessionKey;
+            }
             String contentAsString = new String(req.bytes(), "UTF-8");
             JSONObject obj = Utils.parseJsonObject(contentAsString);
             if (obj == null)
@@ -251,12 +259,12 @@ public class SeafConnection {
         return result;
     }
 
-    public boolean doLogin(String passwd, String authToken) throws SeafException {
+    public boolean doLogin(String passwd, String authToken, boolean rememberDevice) throws SeafException {
         try {
-            return realLogin(passwd, authToken);
+            return realLogin(passwd, authToken, rememberDevice);
         } catch (Exception e) {
             // do again
-            return realLogin(passwd, authToken);
+            return realLogin(passwd, authToken, rememberDevice);
         }
     }
 

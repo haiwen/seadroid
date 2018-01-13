@@ -24,11 +24,19 @@ public class Account implements Parcelable, Comparable<Account> {
     public final Boolean is_shib;
 
     public String token;
+    public String sessionKey;
 
     public Account(String server, String email, String token, Boolean is_shib) {
         this.server = server;
         this.email = email;
         this.token = token;
+        this.is_shib = is_shib;
+    }
+    public Account(String server, String email, String token, Boolean is_shib, String sessionKey) {
+        this.server = server;
+        this.email = email;
+        this.token = token;
+        this.sessionKey = sessionKey;
         this.is_shib = is_shib;
     }
 
@@ -72,6 +80,14 @@ public class Account implements Parcelable, Comparable<Account> {
         return is_shib;
     }
 
+    public String getSessionKey() {
+        return sessionKey;
+    }
+
+    public void setSessionKey(String sessionKey) {
+        this.sessionKey = sessionKey;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hashCode(server, email);
@@ -84,7 +100,7 @@ public class Account implements Parcelable, Comparable<Account> {
         if (obj == null || (obj.getClass() != this.getClass()))
             return false;
 
-        Account a = (Account)obj;
+        Account a = (Account) obj;
         if (a.server == null || a.email == null || a.token == null)
             return false;
 
@@ -118,6 +134,7 @@ public class Account implements Parcelable, Comparable<Account> {
         out.writeString(this.server);
         out.writeString(this.email);
         out.writeString(this.token);
+        out.writeString(this.sessionKey);
         out.writeValue(this.is_shib);
     }
 
@@ -137,6 +154,7 @@ public class Account implements Parcelable, Comparable<Account> {
         this.server = in.readString();
         this.email = in.readString();
         this.token = in.readString();
+        this.sessionKey = in.readString();
         this.is_shib = (Boolean) in.readValue(Boolean.class.getClassLoader());
 
        // Log.d(DEBUG_TAG, String.format("%s %s %s %b", server, email, token ,is_shib));
@@ -145,9 +163,10 @@ public class Account implements Parcelable, Comparable<Account> {
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-            .add("server", server)
-            .add("user", email)
-            .toString();
+                .add("server", server)
+                .add("user", email)
+                .add("sessionKey", sessionKey)
+                .toString();
     }
 
     @Override

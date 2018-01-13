@@ -41,6 +41,11 @@
     <item>Otro</item>
   </string-array>
   <string name="choose_server">Elija un Servidor Seafile</string>
+  <string-array name="choose_server_array">
+    <item>SeaCloud.cc</item>
+    <item>Inicio de Sesión único</item>
+    <item>Otro Servidor Seafile</item>
+  </string-array>
   <string name="network_down">Sin conexión de red</string>
   <string name="unknow_error">Error desconocido</string>
   <string name="invalid_server_address">Dirección de servidor inválida</string>
@@ -141,6 +146,10 @@
     <item>Subir archivo</item>
     <item>Tomar una foto</item>
   </string-array>
+  <string-array name="video_download_array">
+    <item>reproducir</item>
+    <item>descargar</item>
+  </string-array>
   <string name="create_new_repo">Crear una nueva biblioteca</string>
   <string name="create_new_repo_success">Biblioteca %s creada con éxito</string>
   <string name="create_new_folder_success">Carpeta %s creada con éxito</string>
@@ -200,6 +209,7 @@
   <string name="open_as">Abrir como</string>
   <string name="select_upload_files">Seleccionar archivos para subir</string>
   <string name="storage_removed">Almacenamiento fue removido</string>
+  <string name="storage_space_insufficient">No hay suficiente espacio de almacenamiento</string>
   <string name="error_selecting_file">Error al seleccionar archivo</string>
   <plurals name="n_upload_files_selected">
     <item quantity="one">%1$d archivo seleccionado</item>
@@ -415,6 +425,7 @@
   <string name="shib_server_url_empty">¡El servidor está vacío!</string>
   <string name="shib_server_incorrect_prefix">El servidor debe comenzar con https://</string>
   <string name="shib_load_page_error">Error:</string>
+  <string name="shib_login_title">Inicio de Sesión único</string>
   <string name="shib_loading">cargando...</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">Error de conexión de red, por favor intente más tarde.</string>
@@ -505,6 +516,7 @@
   <string name="two_factor_auth_invalid">el identificador de autenticación es inválido</string>
   <string name="two_factor_auth_token">Identificador de Autenticación de dos factores</string>
   <string name="two_factor_auth_token_empty">Identificador de autenticación no puede estar vacío</string>
+  <string name="two_factor_auth_remember_phone">Recordar ese dispositivo</string>
   <!--Operation Exceptions-->
   <string name="op_exception_folder_deleted">La carpeta \"%s\" fue eliminada</string>
   <string name="op_exception_suitable_app_not_found">No se encontró una app apropiada para el tipo mime %s</string>
