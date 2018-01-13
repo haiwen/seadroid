@@ -236,7 +236,7 @@
   <string name="saf_file_not_downloaded_exception">Nelze stáhnout soubor %s ze serveru.</string>
   <string name="saf_write_diretory_exception">Nelze otevřít složku pro čtení/zápis.</string>
   <string name="saf_account_not_found_exception">Nelze nalézt Seafile účet.</string>
-  <!--Single sign on SSO-->
+  <!--Single Sign-On  SSO-->
   <string name="shib_server_url_empty">Zadejte adresu serveru!</string>
   <string name="shib_load_page_error">Chyba:</string>
   <string name="shib_loading">načítání...</string>

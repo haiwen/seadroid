@@ -324,7 +324,7 @@
   <string name="saf_upload_path_not_available">Gat ekki hlaðið upp, engin slóð tiltæk</string>
   <string name="saf_failed_to_create_directory">Gat ekki búið til skráasafnið %s</string>
   <string name="saf_bad_mime_type">Slæm beiðnagerð</string>
-  <!--Single Sign-On SSO-->
+  <!--Single Sign-On  SSO-->
   <string name="shib_server_url_empty">Þjónn er tómur!</string>
   <string name="shib_load_page_error">Villa:</string>
   <string name="shib_loading">er að vinna...</string>

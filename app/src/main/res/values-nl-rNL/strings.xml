@@ -370,7 +370,7 @@
   <string name="saf_failed_to_create_directory">Kon map %s niet aanmaken</string>
   <string name="saf_file_exist">Dat bestand bestaat reeds</string>
   <string name="saf_bad_mime_type">Verkeerd type verzoek</string>
-  <!--Single Sign-On SSO-->
+  <!--Single Sign-On  SSO-->
   <string name="shib_server_url_empty">Server is leeg!</string>
   <string name="shib_load_page_error">Fout:</string>
   <string name="shib_loading">laden...</string>

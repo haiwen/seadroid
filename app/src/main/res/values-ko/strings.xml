@@ -403,7 +403,7 @@
   <string name="saf_failed_to_create_directory">%s 디렉터리를 만들 수 없습니다</string>
   <string name="saf_file_exist">파일이 이미 있습니다</string>
   <string name="saf_bad_mime_type">잘못된 요청 형식입니다</string>
-  <!--Single Sign-On SSO-->
+  <!--Single Sign-On  SSO-->
   <string name="shib_server_url_empty">서버가 비어있습니다!</string>
   <string name="shib_load_page_error">오류:</string>
   <string name="shib_loading">불러오는 중...</string>

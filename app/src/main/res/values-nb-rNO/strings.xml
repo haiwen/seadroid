@@ -307,7 +307,7 @@
   <string name="saf_upload_path_not_available">Klarte ikke å laste opp. Ingen tilgjengelig sti.</string>
   <string name="saf_failed_to_create_directory">Kunne ikke opprette mappe %s</string>
   <string name="saf_bad_mime_type">Feil forespørselstype</string>
-  <!--Single sign on SSO-->
+  <!--Single Sign-On  SSO-->
   <string name="shib_server_url_empty">Serveren er tom!</string>
   <string name="shib_load_page_error">Feil: </string>
   <string name="shib_loading">laster...</string>

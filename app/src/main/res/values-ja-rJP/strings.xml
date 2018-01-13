@@ -41,6 +41,11 @@
     <item>その他</item>
   </string-array>
   <string name="choose_server">Seafile サーバーを選択</string>
+  <string-array name="choose_server_array">
+    <item>SeaCloud.cc</item>
+    <item>シングルサインオン</item>
+    <item>他の Seafile サーバー</item>
+  </string-array>
   <string name="network_down">ネットワーク接続がありません</string>
   <string name="unknow_error">不明なエラー</string>
   <string name="invalid_server_address">サーバーアドレスが正しくありません</string>
@@ -140,6 +145,10 @@
     <item>ファイルをアップロード</item>
     <item>写真を撮影</item>
   </string-array>
+  <string-array name="video_download_array">
+    <item>再生</item>
+    <item>ダウンロード</item>
+  </string-array>
   <string name="create_new_repo">新しいライブラリーを作成</string>
   <string name="create_new_repo_success">ライブラリー %s を正常に作成しました</string>
   <string name="create_new_folder_success">フォルダー %s を正常に作成しました</string>
@@ -199,6 +208,7 @@
   <string name="open_as">...として開く</string>
   <string name="select_upload_files">アップロードするファイルを選択してください</string>
   <string name="storage_removed">ストレージは削除されました</string>
+  <string name="storage_space_insufficient">ストレージの空き容量が不足しています</string>
   <string name="error_selecting_file">ファイルの選択時にエラー</string>
   <plurals name="n_upload_files_selected">
     <item quantity="other">%1$d ファイル選択済</item>
@@ -406,10 +416,11 @@
   <string name="saf_failed_to_create_directory">ディレクトリー %s を作成できません</string>
   <string name="saf_file_exist">ファイルはすでに存在します</string>
   <string name="saf_bad_mime_type">リクエストタイプが不正</string>
-  <!--Single Sign-On SSO-->
+  <!--Single Sign-On  SSO-->
   <string name="shib_server_url_empty">サーバーは空です!</string>
   <string name="shib_server_incorrect_prefix">サーバーは https:// で始まる必要があります</string>
   <string name="shib_load_page_error">エラー: </string>
+  <string name="shib_login_title">シングルサインオン</string>
   <string name="shib_loading">読み込み中…</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">ネットワーク接続エラー。後で再度実行してください!</string>
@@ -496,6 +507,7 @@
   <string name="two_factor_auth_invalid">認証トークンが正しくありません</string>
   <string name="two_factor_auth_token">二要素認証トークン</string>
   <string name="two_factor_auth_token_empty">認証トークンは空にできません</string>
+  <string name="two_factor_auth_remember_phone">そのデバイスを記憶する</string>
   <!--Operation Exceptions-->
   <string name="op_exception_folder_deleted">フォルダー \"%s\" は削除されました</string>
   <string name="op_exception_suitable_app_not_found">MIME タイプ %s に適したアプリを見つけることができませんでした</string>

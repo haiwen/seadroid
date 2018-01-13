@@ -41,6 +41,11 @@
     <item>Другое</item>
   </string-array>
   <string name="choose_server">Выберите сервер Seafile</string>
+  <string-array name="choose_server_array">
+    <item>SeaCloud.cc</item>
+    <item>Единая точка входа</item>
+    <item>Другой Seafile сервер</item>
+  </string-array>
   <string name="network_down">Нет соединения с сетью</string>
   <string name="unknow_error">Неизвестная ошибка</string>
   <string name="invalid_server_address">Неправильный адрес сервера</string>
@@ -143,6 +148,10 @@
     <item>Загрузить файл</item>
     <item>Сделать фото</item>
   </string-array>
+  <string-array name="video_download_array">
+    <item>воспроизвести</item>
+    <item>скачать</item>
+  </string-array>
   <string name="create_new_repo">Создать новую библиотеку</string>
   <string name="create_new_repo_success">Успешно создана библиотека %s</string>
   <string name="create_new_folder_success">Успешно создана папка %s</string>
@@ -202,6 +211,7 @@
   <string name="open_as">Открыть как</string>
   <string name="select_upload_files">Выберите файлы для загрузки</string>
   <string name="storage_removed">Хранилище было удалено</string>
+  <string name="storage_space_insufficient">Недостаточно места для хранения</string>
   <string name="error_selecting_file">Ошибка при выборе файла</string>
   <plurals name="n_upload_files_selected">
     <item quantity="one">%1$d файл выбран</item>
@@ -421,10 +431,11 @@
   <string name="saf_failed_to_create_directory">Не возможно создать папку %s</string>
   <string name="saf_file_exist">Файл уже существует</string>
   <string name="saf_bad_mime_type">Неправильный тип ответа</string>
-  <!--Single Sign-On SSO-->
+  <!--Single Sign-On  SSO-->
   <string name="shib_server_url_empty">Сервер пуст!</string>
   <string name="shib_server_incorrect_prefix">Адрес сервера должен начинаться с https://</string>
   <string name="shib_load_page_error">Ошибка:</string>
+  <string name="shib_login_title">Единая точка входа</string>
   <string name="shib_loading">загрузка...</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">Ошибка подключения к сети, пожалуйста, повторите позже!</string>
@@ -523,6 +534,7 @@
   <string name="two_factor_auth_invalid">токен аутентификации недействителен</string>
   <string name="two_factor_auth_token">Токен двухфакторной аутентификации</string>
   <string name="two_factor_auth_token_empty">Токен аутентификации не может быть пустым</string>
+  <string name="two_factor_auth_remember_phone">Запомнить это устройство</string>
   <!--Operation Exceptions-->
   <string name="op_exception_folder_deleted">Папка \"%s\" была удалена</string>
   <string name="op_exception_suitable_app_not_found">Не удается найти подходящее приложение для MIME-типа %s</string>

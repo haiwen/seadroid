@@ -179,7 +179,7 @@
   <string name="pull_to_refresh_refreshing_label">Yükleniyor...</string>
   <!--storage access framework-->
   <string name="saf_file_not_cached_exception">%s dosyası ön belleklenmemiş</string>
-  <!--Single Sign-On SSO-->
+  <!--Single Sign-On  SSO-->
   <string name="shib_server_url_empty">Sunucu boş!</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">Ağ bağlantı hatası, lütfen daha sonra tekrar deneyin!</string>

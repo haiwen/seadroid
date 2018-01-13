@@ -407,7 +407,7 @@ Email: support@seafile.com<br>
   <string name="saf_failed_to_create_directory">Nem lehet létrehozni a könyvtárat: %s</string>
   <string name="saf_file_exist">A fájl már létezik</string>
   <string name="saf_bad_mime_type">Hibás fájl típus kérés</string>
-  <!--Single Sign-On SSO-->
+  <!--Single Sign-On  SSO-->
   <string name="shib_server_url_empty">A szerver üres!</string>
   <string name="shib_load_page_error">Hiba:</string>
   <string name="shib_loading">betöltés...</string>

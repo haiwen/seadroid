@@ -155,7 +155,7 @@
   <!--storage access framework-->
   <string name="saf_file_not_downloaded_exception">Δεν ήταν δυνατή η λήψη του αρχείου %s από το διακομιστή.</string>
   <string name="saf_upload_path_not_available">Αποτυχία μεταφόρτωσης, δεν υπάρχει η διαδρομή</string>
-  <!--Single Sign-On SSO-->
+  <!--Single Sign-On  SSO-->
   <!--Transfer List-->
   <string name="transfer_tabs_downloads">Λίστα λήψεων</string>
   <string name="transfer_tabs_uploads">Λίστα μεταφορτώσεων</string>

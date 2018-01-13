@@ -41,6 +41,11 @@
     <item>Inne</item>
   </string-array>
   <string name="choose_server">Wybierz serwer Seafile</string>
+  <string-array name="choose_server_array">
+    <item>SeaCloud.cc</item>
+    <item>Single Sign-On</item>
+    <item>Inny serwer Seafile</item>
+  </string-array>
   <string name="network_down">Brak połączenia z siecią</string>
   <string name="unknow_error">Nieznany błąd</string>
   <string name="invalid_server_address">Nieprawidłowy adres serwera</string>
@@ -143,6 +148,10 @@
     <item>Prześlij plik</item>
     <item>Zrób zdjęcie</item>
   </string-array>
+  <string-array name="video_download_array">
+    <item>odtwórz</item>
+    <item>pobierz</item>
+  </string-array>
   <string name="create_new_repo">Utwórz nową bibliotekę</string>
   <string name="create_new_repo_success">Pomyślnie utworzono bilbiotekę %s</string>
   <string name="create_new_folder_success">Pomyślnie utworzono folder %s</string>
@@ -202,6 +211,7 @@
   <string name="open_as">Otwórz jako</string>
   <string name="select_upload_files">Wybierz pliki do przesłania</string>
   <string name="storage_removed">Magazyn został usunięty</string>
+  <string name="storage_space_insufficient">Niewystarczająca ilość miejsca</string>
   <string name="error_selecting_file">Błąd podczas wybierania pliku</string>
   <plurals name="n_upload_files_selected">
     <item quantity="one">wybrano %1$d plik</item>
@@ -421,7 +431,7 @@
   <string name="saf_failed_to_create_directory">Nie można utworzyć folderu %s</string>
   <string name="saf_file_exist">Ten plik już istnieje</string>
   <string name="saf_bad_mime_type">Zły typ żądania</string>
-  <!--Single Sign-On SSO-->
+  <!--Single Sign-On  SSO-->
   <string name="shib_server_url_empty">Serwer jest pusty!</string>
   <string name="shib_server_incorrect_prefix">Nazwa serwera musi się zaczynać od https://</string>
   <string name="shib_load_page_error">Błąd:</string>
@@ -523,6 +533,7 @@
   <string name="two_factor_auth_invalid">token uwierzytelniający jest nieprawidłowy</string>
   <string name="two_factor_auth_token">Token uwierzytelniania dwuskładnikowego</string>
   <string name="two_factor_auth_token_empty">Token uwierzytelniający nie może być pusty</string>
+  <string name="two_factor_auth_remember_phone">Zapamiętaj to urządzenie</string>
   <!--Operation Exceptions-->
   <string name="op_exception_folder_deleted">Folder \"%s\" został usunięty</string>
   <string name="op_exception_suitable_app_not_found">Nie znaleziono aplikacji obsługującej pliki typu %s</string>

@@ -41,6 +41,11 @@
     <item>Autres</item>
   </string-array>
   <string name="choose_server">Choisir un serveur Seafile</string>
+  <string-array name="choose_server_array">
+    <item>SeaCloud.cc</item>
+    <item>Authentification unique</item>
+    <item>Autre serveur Seafile</item>
+  </string-array>
   <string name="network_down">Absence de connexion réseau</string>
   <string name="unknow_error">Erreur inconnue</string>
   <string name="invalid_server_address">Adresse de serveur invalide</string>
@@ -69,6 +74,9 @@
   <string name="file_action_star">Favori</string>
   <string name="file_action_download">Télécharger</string>
   <string name="file_action_update">Envoi</string>
+  <string name="file_share">Partager</string>
+  <string name="file_action_share_wechat">Partager sur WeChat</string>
+  <string name="file_action_share_link">Partager le lien</string>
   <string name="file_action_share_encrypt">Lien partagé avec mot de passe</string>
   <string name="file_action_export">Exporter</string>
   <string name="file_action_delete">Effacer</string>
@@ -137,6 +145,10 @@
     <item>Créer un dossier</item>
     <item>Téléverser un fichier</item>
     <item>Prendre une photo</item>
+  </string-array>
+  <string-array name="video_download_array">
+    <item>lire</item>
+    <item>télécharger</item>
   </string-array>
   <string name="create_new_repo">Créer une nouvelle bibliothèque</string>
   <string name="create_new_repo_success">La bibliothèque %s a été créée avec succès</string>
@@ -407,9 +419,11 @@ E-mail : support@seafile.com<br>
   <string name="saf_failed_to_create_directory">Impossible de créer le répertoire %s</string>
   <string name="saf_file_exist">Ce fichier existe déjà.</string>
   <string name="saf_bad_mime_type"> type erroné de requête</string>
-  <!--Single Sign-On SSO-->
+  <!--Single Sign-On  SSO-->
   <string name="shib_server_url_empty">La saisie du  serveur est vide !</string>
+  <string name="shib_server_incorrect_prefix">L\'adresse du serveur doit commencer par https://</string>
   <string name="shib_load_page_error">Erreur :</string>
+  <string name="shib_login_title">Authentification unique</string>
   <string name="shib_loading">Chargement...</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">Erreur de connexion réseau, réessayer plus tard !</string>

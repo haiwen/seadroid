@@ -273,7 +273,7 @@
   <string name="saf_upload_path_not_available">Não é possível carregar, nenhum caminho disponível</string>
   <string name="saf_failed_to_create_directory">Não foi possível criar o diretório %s</string>
   <string name="saf_bad_mime_type">Tipo de requisição invalido</string>
-  <!--Single Sign-On SSO-->
+  <!--Single Sign-On  SSO-->
   <string name="shib_server_url_empty">O Servidor esta vazio</string>
   <string name="shib_load_page_error">Erro:</string>
   <string name="shib_loading">carregando...</string>
