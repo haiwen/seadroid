@@ -109,6 +109,7 @@ android {
         compile 'com.madgag.spongycastle:prov:1.54.0.0'
         compile 'com.shuyu:gsyVideoPlayer-java:2.1.0'
         compile 'com.shuyu:gsyVideoPlayer-ex_so:2.1.0'
+        compile 'com.squareup.okhttp3:okhttp:3.9.1'
     }
 
 }

@@ -628,15 +628,14 @@ public class DataManager {
     }
 
     public void uploadFile(String repoName, String repoID, String dir, String filePath,
-                           ProgressMonitor monitor, boolean isUpdate, boolean isCopyToLocal) throws SeafException {
+                           ProgressMonitor monitor, boolean isUpdate, boolean isCopyToLocal) throws SeafException, IOException {
         uploadFileCommon(repoName, repoID, dir, filePath, monitor, isUpdate, isCopyToLocal);
     }
 
     private void uploadFileCommon(String repoName, String repoID, String dir,
                                   String filePath, ProgressMonitor monitor,
-                                  boolean isUpdate, boolean isCopyToLocal) throws SeafException {
-        String newFileID = sc.uploadFile(repoID, dir, filePath, monitor,isUpdate);
-
+                                  boolean isUpdate, boolean isCopyToLocal) throws SeafException, IOException {
+        String newFileID  = sc.uploadFile(repoID, dir, filePath, monitor,isUpdate);
         if (newFileID == null || newFileID.length() == 0) {
             return;
         }

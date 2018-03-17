@@ -63,15 +63,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * DocumentProvider for the Storage Access Framework.
@@ -572,6 +568,8 @@ public class SeafileProvider extends DocumentsProvider {
                                     dm.getDirentsFromServer(repoID, parentDir);
                                 } catch (SeafException e1) {
                                     Log.d(DEBUG_TAG, "could not upload file: ", e1);
+                                } catch (IOException e1) {
+                                    e1.printStackTrace();
                                 }
                             }
                         });
