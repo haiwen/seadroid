@@ -40,6 +40,7 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLHandshakeException;
 
 import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
@@ -711,21 +712,43 @@ public class SeafConnection {
         }
     }
 
+    // get encrypted repo info
+    public String  getEncryptRepo(String repoID) throws SeafException {
+        Response response = null;
+        try {
+            String url = account.server + "api2/repos/" + repoID;
+            Request request = new Request.Builder()
+                    .url(url)
+                    .header("Authorization", "Token " + account.token)
+                    .build();
+            response = new OkHttpClient().newCall(request).execute();
+            if (response.code() == HttpURLConnection.HTTP_OK) {
+                return response.body().string();
+            } else {
+                throw new SeafException(response.code(), response.message());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
     // set password for an encrypted repo
-    public void setPassword(String repoID, String passwd) throws SeafException {
+    public boolean setPassword(String repoID, String passwd) throws SeafException {
         try {
             HttpRequest req = prepareApiPostRequest("api2/repos/" + repoID + "/", true, null);
 
             req.form("password", passwd);
             checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+            return true;
         } catch (SeafException e) {
             Log.d(DEBUG_TAG, "Set Password err: " + e.getCode());
             throw e;
         } catch (Exception e) {
             Log.d(DEBUG_TAG, "Exception in setPassword ");
             e.printStackTrace();
-            return;
         }
+        return false;
     }
 
     private String getUploadLink(String repoID, boolean update) throws SeafException {

@@ -162,6 +162,11 @@ public class DataManager {
         return account;
     }
 
+    private File getFile4RepoCache(String repoID) {
+        String filename = "repo-" + (account.server + account.email + repoID).hashCode() + ".dat";
+        return new File(storageManager.getJsonCacheDir(), filename);
+    }
+
     private File getFileForReposCache() {
         String filename = "repos-" + (account.server + account.email).hashCode() + ".dat";
         return new File(storageManager.getJsonCacheDir(), filename);
@@ -303,6 +308,20 @@ public class DataManager {
         }
     }
 
+    private SeafRepoEncrypt parseRepoEncrypt(String json) {
+        try {
+            JSONObject object = Utils.parseJsonObject(json);
+            return SeafRepoEncrypt.fromJson(object);
+        } catch (JSONException e) {
+            Log.e(DEBUG_TAG, "parse json error");
+            return null;
+        } catch (Exception e) {
+            // other exception, for example ClassCastException
+            Log.e(DEBUG_TAG, "parseRepos exception");
+            return null;
+        }
+    }
+
 
     public String getBlockPathById(String blkId) {
         final File block = getFileForBlockCache(blkId);
@@ -323,6 +342,18 @@ public class DataManager {
 
         return null;
     }
+
+    public SeafRepoEncrypt getCachedRepoEncryptByID(String id) {
+        File cache = getFile4RepoCache(id);
+        if (cache.exists()) {
+            String json = Utils.readFile(cache);
+            if (!TextUtils.isEmpty(json)) {
+                return parseRepoEncrypt(json);
+            }
+        }
+        return null;
+    }
+
 
     public List<SeafRepo> getReposFromCache() {
         if (reposCache != null)
@@ -361,6 +392,19 @@ public class DataManager {
         }
 
         return reposCache;
+    }
+
+    private void getEncryptRepo(String repoID) throws SeafException {
+        String json = sc.getEncryptRepo(repoID);
+        //Save to Cache
+        if (!TextUtils.isEmpty(json)) {
+            try {
+                File cache = getFile4RepoCache(repoID);
+                Utils.writeFile(cache, json);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void saveDirentContent(String repoID, String parentDir, String dirID, String content) {
@@ -624,7 +668,11 @@ public class DataManager {
     }
 
     public void setPassword(String repoID, String passwd) throws SeafException {
-        sc.setPassword(repoID, passwd);
+        boolean success = sc.setPassword(repoID, passwd);
+        //if password is true, to get encrypt repo info
+        if (success) {
+            getEncryptRepo(repoID);
+        }
     }
 
     public void uploadFile(String repoName, String repoID, String dir, String filePath,
@@ -907,7 +955,7 @@ public class DataManager {
     }
 
     public boolean getRepoPasswordSet(String repoID) {
-        final SeafRepo seafRepo = getCachedRepoByID(repoID);
+        final SeafRepoEncrypt seafRepo = getCachedRepoEncryptByID(repoID);
         if (seafRepo != null && seafRepo.canLocalDecrypt()) {
             Pair<String, String> info = dbHelper.getEnckey(repoID);
             return info != null

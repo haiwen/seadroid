@@ -3,7 +3,6 @@ package com.seafile.seadroid2.ui.dialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,11 +11,10 @@ import android.widget.EditText;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
-import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.crypto.Crypto;
 import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.data.SeafRepoEncrypt;
 
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
@@ -44,7 +42,7 @@ class SetPasswordTask extends TaskDialog.Task {
 
     @Override
     protected void runTask() {
-        SeafRepo repo = dataManager.getCachedRepoByID(repoID);
+        SeafRepoEncrypt repo = dataManager.getCachedRepoEncryptByID(repoID);
         try {
             if (repo == null || !repo.canLocalDecrypt()) {
                 dataManager.setPassword(repoID, password);
@@ -180,7 +178,7 @@ public class PasswordDialog extends TaskDialog {
 
     @Override
     public void onTaskSuccess() {
-        SeafRepo repo = dataManager.getCachedRepoByID(repoID);
+        SeafRepoEncrypt repo = dataManager.getCachedRepoEncryptByID(repoID);
         String password = passwordText.getText().toString().trim();
         if (repo == null || !repo.canLocalDecrypt()) {
             dataManager.setRepoPasswordSet(repoID, password);
