@@ -1,7 +1,5 @@
 package com.seafile.seadroid2.data;
 
-import android.text.TextUtils;
-
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SettingsManager;
@@ -89,10 +87,7 @@ public class SeafRepo implements SeafItem {
     }
 
     public boolean canLocalDecrypt() {
-        return encrypted
-                && encVersion == 2
-                && !TextUtils.isEmpty(magic)
-                && SettingsManager.instance().isEncryptEnabled();
+        return encrypted && SettingsManager.instance().isEncryptEnabled();
     }
 
     public boolean hasWritePermission() {

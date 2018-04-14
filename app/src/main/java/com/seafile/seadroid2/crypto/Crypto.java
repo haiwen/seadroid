@@ -159,10 +159,15 @@ public class Crypto {
      * @throws NoSuchAlgorithmException
      */
     private static String deriveKey(@NonNull byte[] fileKey, int version) throws UnsupportedEncodingException, NoSuchAlgorithmException {
-        PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(new SHA256Digest());
-        gen.init(fileKey, salt, ITERATION_COUNT);
-        byte[] keyBytes = ((KeyParameter) gen.generateDerivedMacParameters(version == 2 ? KEY_LENGTH * 8 : KEY_LENGTH_SHORT * 8)).getKey();
-        return toHex(keyBytes);
+        try {
+            PKCS5S2ParametersGenerator gen = new PKCS5S2ParametersGenerator(new SHA256Digest());
+            gen.init(fileKey, salt, ITERATION_COUNT);
+            byte[] keyBytes = ((KeyParameter) gen.generateDerivedMacParameters(version == 2 ? KEY_LENGTH * 8 : KEY_LENGTH_SHORT * 8)).getKey();
+            return toHex(keyBytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new IllegalArgumentException(" Attempt to get length of null array");
+        }
     }
 
     /**
