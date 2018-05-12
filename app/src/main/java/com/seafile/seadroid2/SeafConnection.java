@@ -828,13 +828,9 @@ public class SeafConnection {
         MultipartBody.Builder builder = new MultipartBody.Builder();
         //set type
         builder.setType(MultipartBody.FORM);
-        // "target_file" "parent_dir"  must be "/" end off
-        if (!TextUtils.equals("/", dir)) {
-            dir = dir + "/";
-        }
-
         if (update) {
-            builder.addFormDataPart("target_file", dir);
+            String targetFilePath = Utils.pathJoin(dir, file.getName());
+            builder.addFormDataPart("target_file", targetFilePath);
         } else {
             builder.addFormDataPart("parent_dir", dir);
         }
