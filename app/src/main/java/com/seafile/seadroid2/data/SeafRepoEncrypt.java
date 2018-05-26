@@ -23,10 +23,6 @@ public class SeafRepoEncrypt {
     public int encVersion;
     public long size;
     public String root; // the id of root directory
-    private String modifierContactEmail;
-    private String modifierName;
-    private String modifierEmail;
-    private int fileCount;
 
     static SeafRepoEncrypt fromJson(JSONObject obj) throws JSONException {
         SeafRepoEncrypt repo = new SeafRepoEncrypt();
@@ -36,14 +32,10 @@ public class SeafRepoEncrypt {
         repo.encVersion = obj.optInt("enc_version");
         repo.mtime = obj.getLong("mtime");
         repo.owner = obj.getString("owner");
-        repo.modifierContactEmail = obj.getString("modifier_contact_email");
         repo.id = obj.getString("id");
-        repo.modifierName = obj.getString("modifier_name");
         repo.size = obj.getLong("size");
-        repo.modifierEmail = obj.getString("modifier_email");
         repo.name = obj.getString("name");
         repo.root = obj.getString("root");
-        repo.fileCount = obj.optInt("file_count");
         repo.encKey = obj.optString("random_key");
         repo.isGroupRepo = obj.getString("type").equals("grepo");
         repo.isPersonalRepo = obj.getString("type").equals("repo");
