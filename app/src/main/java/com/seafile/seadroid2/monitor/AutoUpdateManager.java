@@ -54,8 +54,8 @@ public class AutoUpdateManager implements Runnable, CachedFileChangedListener {
      * This method is called by file monitor, so it would be executed in the file monitor thread
      */
     @Override
-    public void onCachedBlocksChanged(final Account account, final SeafCachedFile cachedFile, final File localFile, int version) {
-        addTask(account, cachedFile, localFile, version);
+    public void onCachedBlocksChanged(final Account account, final SeafCachedFile cachedFile, final File localFile) {
+        addTask(account, cachedFile, localFile);
     }
 
     /**
@@ -67,12 +67,8 @@ public class AutoUpdateManager implements Runnable, CachedFileChangedListener {
     }
 
     public void addTask(Account account, SeafCachedFile cachedFile, File localFile) {
-        addTask(account, cachedFile, localFile, -1);
-    }
-
-    public void addTask(Account account, SeafCachedFile cachedFile, File localFile, int version) {
         AutoUpdateInfo info = new AutoUpdateInfo(account, cachedFile.repoID, cachedFile.repoName,
-                Utils.getParentPath(cachedFile.path), localFile.getPath(), version);
+                Utils.getParentPath(cachedFile.path), localFile.getPath());
 
         synchronized (infos) {
             if (infos.contains(info)) {
@@ -99,7 +95,7 @@ public class AutoUpdateManager implements Runnable, CachedFileChangedListener {
                 for (AutoUpdateInfo info : infos) {
                     if (info.canLocalDecrypt()) {
                         txService.addTaskToUploadQue(info.account, info.repoID, info.repoName,
-                                info.parentDir, info.localPath, true, true, info.version);
+                                info.parentDir, info.localPath, true, true);
                     } else {
                         txService.addUploadTask(info.account, info.repoID, info.repoName,
                                 info.parentDir, info.localPath, true, true);
@@ -115,17 +111,17 @@ public class AutoUpdateManager implements Runnable, CachedFileChangedListener {
     public void onFileUpdateSuccess(Account account, String repoID, String repoName,
                                     String parentDir, String localPath, int version) {
         // This file has already been updated on server, so we abort auto update task
-        if (removeAutoUpdateInfo(account, repoID, repoName, parentDir, localPath, version)) {
+        if (removeAutoUpdateInfo(account, repoID, repoName, parentDir, localPath)) {
             Log.d(DEBUG_TAG, "auto updated " + localPath);
         }
     }
 
-    private static int MAX_UPLOAD_FAILURES = 3;
+    private static int MAX_UPLOAD_FAILURES = 2;
     private ConcurrentHashMultiset<AutoUpdateInfo> uploadFailuresByFile = ConcurrentHashMultiset.create();
 
     private boolean maxFailureReached(Account account, String repoID, String repoName,
                                       String parentDir, String localPath, int version) {
-        AutoUpdateInfo info = new AutoUpdateInfo(account, repoID, repoName, parentDir, localPath, version);
+        AutoUpdateInfo info = new AutoUpdateInfo(account, repoID, repoName, parentDir, localPath);
         int failures = uploadFailuresByFile.count(info) + 1;
         if (failures >= MAX_UPLOAD_FAILURES) {
             uploadFailuresByFile.remove(info);
@@ -160,15 +156,15 @@ public class AutoUpdateManager implements Runnable, CachedFileChangedListener {
             return;
         }
 
-        if (removeAutoUpdateInfo(account, repoID, repoName, parentDir, localPath, version)) {
+        if (removeAutoUpdateInfo(account, repoID, repoName, parentDir, localPath)) {
             Log.d(DEBUG_TAG, String.format("failed to auto update %s, error %s", localPath, e));
         } else {
             Log.d(DEBUG_TAG, String.format("failed to remove auto update task for %s", localPath));
         }
     }
 
-    private boolean removeAutoUpdateInfo(Account account, String repoID, String repoName, String parentDir, String localPath, int version) {
-        final AutoUpdateInfo info = new AutoUpdateInfo(account, repoID, repoName, parentDir, localPath, version);
+    private boolean removeAutoUpdateInfo(Account account, String repoID, String repoName, String parentDir, String localPath) {
+        final AutoUpdateInfo info = new AutoUpdateInfo(account, repoID, repoName, parentDir, localPath);
         boolean exist = false;
 
         synchronized (infos) {

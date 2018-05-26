@@ -2,7 +2,7 @@ package com.seafile.seadroid2.transfer;
 
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
+
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
@@ -24,22 +24,13 @@ public class UploadTaskManager extends TransferManager implements UploadStateLis
 
     private static UploadNotificationProvider mNotifyProvider;
 
-    public int addTaskToQue(Account account, String repoID, String repoName, String dir, String filePath, boolean isUpdate, boolean isCopyToLocal) {
+
+    public int addTaskToQue(Account account, String repoID, String repoName, String dir, String filePath, boolean isUpdate, boolean isCopyToLocal, boolean byBlock) {
         if (repoID == null || repoName == null)
             return 0;
 
         // create a new one to avoid IllegalStateException
-        UploadTask task = new UploadTask(++notificationID, account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal, false, -1, this);
-        addTaskToQue(task);
-        return task.getTaskID();
-    }
-
-    public int addTaskToQue(Account account, String repoID, String repoName, String dir, String filePath, boolean isUpdate, boolean isCopyToLocal, int version) {
-        if (repoID == null || repoName == null)
-            return 0;
-
-        // create a new one to avoid IllegalStateException
-        UploadTask task = new UploadTask(++notificationID, account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal, true, version, this);
+        UploadTask task = new UploadTask(++notificationID, account, repoID, repoName, dir, filePath, isUpdate, isCopyToLocal, byBlock, this);
         addTaskToQue(task);
         return task.getTaskID();
     }
@@ -63,7 +54,7 @@ public class UploadTaskManager extends TransferManager implements UploadStateLis
         UploadTask task = (UploadTask) getTask(taskID);
         if (task == null || !task.canRetry())
             return;
-        addTaskToQue(task.getAccount(), task.getRepoID(), task.getRepoName(), task.getDir(), task.getPath(), task.isUpdate(), task.isCopyToLocal());
+        addTaskToQue(task.getAccount(), task.getRepoID(), task.getRepoName(), task.getDir(), task.getPath(), task.isUpdate(), task.isCopyToLocal(),false);
     }
 
     private void notifyProgress(int taskID) {

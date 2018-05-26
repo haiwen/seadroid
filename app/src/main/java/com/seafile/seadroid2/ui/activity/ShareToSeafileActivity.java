@@ -1,28 +1,39 @@
 package com.seafile.seadroid2.ui.activity;
 
-import android.support.v7.app.AlertDialog;
-import android.content.*;
+import android.content.ComponentName;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.MediaStore.Images;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
+
 import com.google.common.collect.Lists;
-import com.seafile.seadroid2.data.SeafRepo;
-import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
+import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.TransferService.TransferBinder;
+import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
+
 import org.apache.commons.io.IOUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -209,8 +220,7 @@ public class ShareToSeafileActivity extends BaseActivity {
 
                     final SeafRepo repo = dataManager.getCachedRepoByID(repoID);
                     if (repo != null && repo.canLocalDecrypt()) {
-                        mTxService.addTaskToUploadQue(account, repoID, repoName,
-                                targetDir, path, update, false, repo.encVersion);
+                        mTxService.addTaskToUploadQueBlock(account, repoID, repoName, targetDir, path, update, false);
                     } else {
                         mTxService.addUploadTask(account, repoID, repoName,
                                 targetDir, path, update, false);

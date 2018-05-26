@@ -9,7 +9,6 @@ public class DownloadTaskInfo extends TransferTaskInfo {
 
     public final String pathInRepo;
     public final long fileSize, finished;
-    public int version;
 
     /**
      * Constructor of DownloadTaskInfo
@@ -26,13 +25,12 @@ public class DownloadTaskInfo extends TransferTaskInfo {
      */
     public DownloadTaskInfo(Account account, int taskID, TaskState state,
                             String repoID, String repoName, String pathInRepo,
-                            String localPath, long fileSize, long finished, SeafException err, int version) {
+                            String localPath, long fileSize, long finished, SeafException err) {
         super(account, taskID, state, repoID, repoName, localPath, err);
 
         this.pathInRepo = pathInRepo;
         this.fileSize = fileSize;
         this.finished = finished;
-        this.version = version;
     }
 
     @Override

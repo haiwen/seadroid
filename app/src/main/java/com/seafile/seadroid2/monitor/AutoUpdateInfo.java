@@ -1,7 +1,5 @@
 package com.seafile.seadroid2.monitor;
 
-import android.text.TextUtils;
-
 import com.google.common.base.Objects;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
@@ -12,22 +10,19 @@ class AutoUpdateInfo {
     final String repoName;
     final String parentDir;
     final String localPath;
-    final int version;
 
     public AutoUpdateInfo(Account account, String repoID, String repoName, String parentDir,
-                          String localPath, int version) {
+                          String localPath) {
 
         this.account = account;
         this.repoID = repoID;
         this.repoName = repoName;
         this.parentDir = parentDir;
         this.localPath = localPath;
-        this.version = version;
     }
 
     public boolean canLocalDecrypt() {
-        return version == 2
-                && SettingsManager.instance().isEncryptEnabled();
+        return SettingsManager.instance().isEncryptEnabled();
     }
 
     @Override
@@ -44,7 +39,7 @@ class AutoUpdateInfo {
 
         return that.account.equals(this.account) && that.repoID.equals(this.repoID) &&
                 that.repoName.equals(this.repoName) && that.parentDir.equals(this.parentDir) &&
-                that.localPath.equals(this.localPath) && that.version == this.version;
+                that.localPath.equals(this.localPath);
     }
 
     private volatile int hashCode = 0;
@@ -52,7 +47,7 @@ class AutoUpdateInfo {
     @Override
     public int hashCode() {
         if (hashCode == 0) {
-            hashCode = Objects.hashCode(account, repoID, repoName, parentDir, localPath, version);
+            hashCode = Objects.hashCode(account, repoID, repoName, parentDir, localPath);
         }
 
         return hashCode;

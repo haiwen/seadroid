@@ -554,7 +554,7 @@ public class SeafConnection {
             for (Block block : blocks) {
                 blkListId.addLast(block.getBlockId());
             }
-            String json = getBlockUploadLink(repoID, update, blkListId);
+            String json = getBlockUploadLink(repoID, blkListId);
             BlockInfoBean infoBean = BlockInfoBean.fromJson(json);
             if (infoBean.blkIds.size() > 0) {
                 uploadBlocksCommon(infoBean.rawblksurl, infoBean.blkIds, dir, filePath, blocks, monitor, update);
@@ -800,14 +800,10 @@ public class SeafConnection {
     }
 
 
-    private String getBlockUploadLink(String repoID, boolean update, List<String> blocksId) throws SeafException {
+    private String getBlockUploadLink(String repoID, List<String> blocksId) throws SeafException {
         try {
             String apiPath;
-            if (update) {
-                apiPath = "api2/repos/" + repoID + "/update-blks-link/";
-            } else {
-                apiPath = "api2/repos/" + repoID + "/upload-blks-link/";
-            }
+            apiPath = "api2/repos/" + repoID + "/upload-blks-link/";
             HttpRequest req = prepareApiPostRequest(apiPath, true, null);
             String ids = blocksId.toString().replace("[", "").replace("]", "").replace(" ", "");
             req.form("blklist", ids);

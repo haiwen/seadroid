@@ -38,8 +38,7 @@ public class UploadTaskInfo extends TransferTaskInfo {
                           boolean isCopyToLocal,
                           long uploadedSize,
                           long totalSize,
-                          SeafException err,
-                          int version) {
+                          SeafException err) {
 
         super(account, taskID, state, repoID, repoName, localPath, err);
 
@@ -48,6 +47,5 @@ public class UploadTaskInfo extends TransferTaskInfo {
         this.totalSize = totalSize;
         this.isUpdate = isUpdate;
         this.isCopyToLocal = isCopyToLocal;
-        this.version = version;
     }
 }
