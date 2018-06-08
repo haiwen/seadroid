@@ -2,7 +2,6 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
         applicationId 'com.seafile.seadroid2'
@@ -112,5 +111,6 @@ android {
         compile 'com.squareup.okhttp3:okhttp:3.9.1'
     }
 
+    buildToolsVersion '27.0.3'
 }
 
