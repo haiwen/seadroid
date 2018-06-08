@@ -21,9 +21,9 @@ allprojects {
 }
 
 ext {
-    compileSdkVersion = 26
+    compileSdkVersion = 27
     supportLibVersion = '27.1.1'  // variable that can be referenced to keep support libs consistent
     minSdkVersion = 16
-    targetSdkVersion = 25
-    buildToolsVersion = '26.0.2'
+    targetSdkVersion = 27
+    buildToolsVersion = '27.0.3'
 }
