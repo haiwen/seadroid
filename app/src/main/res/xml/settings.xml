@@ -110,35 +110,35 @@
         </PreferenceScreen>
 
     </PreferenceCategory>
-    <PreferenceCategory
-        android:key="category_contacts_upload_key"
-        android:layout="@layout/bg_settings_section_contacts_upload"
-        android:title="@string/settings_contacts_upload_info_title">
-        <com.seafile.seadroid2.ui.SwitchPreferenceCompat
-            android:defaultValue="false"
-            android:key="contacts_upload_switch_key"
-            android:summaryOff="@string/settings_contacts_upload_service_stopped"
-            android:summaryOn="@string/settings_contacts_upload_service_started"
-            android:title="@string/settings_contacts_upload_turn_on">
-        </com.seafile.seadroid2.ui.SwitchPreferenceCompat>
-        <Preference
-            android:id="@+id/preference"
-            android:key="contacts_upload_repo_key"
-            android:summary="@string/settings_contacts_upload_repo_hint"
-            android:title="@string/settings_contacts_upload_change_repo_title"/>
-        <Preference
-            android:key="contacts_upload_repo_time_key"
-            android:summary="@string/settings_contacts_upload_repo_history"
-            android:title="@string/settings_contacts_upload_repo_time"/>
-        <Preference
-            android:key="contacts_upload_repo_backup_key"
-            android:summary="@string/settings_contacts_upload_start_backup_hint"
-            android:title="@string/settings_contacts_upload_start_backup"/>
-        <Preference
-            android:key="contacts_upload_repo_recovery_key"
-            android:summary="@string/settings_contacts_upload_start_recovery_hint"
-            android:title="@string/settings_contacts_upload_start_recovery"/>
-    </PreferenceCategory>
+    <!--<PreferenceCategory-->
+        <!--android:key="category_contacts_upload_key"-->
+        <!--android:layout="@layout/bg_settings_section_contacts_upload"-->
+        <!--android:title="@string/settings_contacts_upload_info_title">-->
+        <!--<com.seafile.seadroid2.ui.SwitchPreferenceCompat-->
+            <!--android:defaultValue="false"-->
+            <!--android:key="contacts_upload_switch_key"-->
+            <!--android:summaryOff="@string/settings_contacts_upload_service_stopped"-->
+            <!--android:summaryOn="@string/settings_contacts_upload_service_started"-->
+            <!--android:title="@string/settings_contacts_upload_turn_on">-->
+        <!--</com.seafile.seadroid2.ui.SwitchPreferenceCompat>-->
+        <!--<Preference-->
+            <!--android:id="@+id/preference"-->
+            <!--android:key="contacts_upload_repo_key"-->
+            <!--android:summary="@string/settings_contacts_upload_repo_hint"-->
+            <!--android:title="@string/settings_contacts_upload_change_repo_title"/>-->
+        <!--<Preference-->
+            <!--android:key="contacts_upload_repo_time_key"-->
+            <!--android:summary="@string/settings_contacts_upload_repo_history"-->
+            <!--android:title="@string/settings_contacts_upload_repo_time"/>-->
+        <!--<Preference-->
+            <!--android:key="contacts_upload_repo_backup_key"-->
+            <!--android:summary="@string/settings_contacts_upload_start_backup_hint"-->
+            <!--android:title="@string/settings_contacts_upload_start_backup"/>-->
+        <!--<Preference-->
+            <!--android:key="contacts_upload_repo_recovery_key"-->
+            <!--android:summary="@string/settings_contacts_upload_start_recovery_hint"-->
+            <!--android:title="@string/settings_contacts_upload_start_recovery"/>-->
+    <!--</PreferenceCategory>-->
     <PreferenceCategory android:title="@string/settings_storage_title"
         android:key="settings_cache_key"
         android:layout="@layout/bg_settings_section_cache">
