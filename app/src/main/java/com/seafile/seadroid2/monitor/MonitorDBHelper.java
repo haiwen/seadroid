@@ -1,9 +1,5 @@
 package com.seafile.seadroid2.monitor;
 
-import java.io.File;
-import java.util.List;
-import java.util.Map;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -16,6 +12,10 @@ import com.google.common.collect.Maps;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
+
+import java.io.File;
+import java.util.List;
+import java.util.Map;
 
 public class MonitorDBHelper extends SQLiteOpenHelper {
     private static final String DEBUG_TAG = "MonitorDBHelper";
@@ -109,7 +109,6 @@ public class MonitorDBHelper extends SQLiteOpenHelper {
         values.put(AUTO_UPDATE_INFO_COLUMN_REPO_NAME, info.repoName);
         values.put(AUTO_UPDATE_INFO_COLUMN_PARENT_DIR, info.parentDir);
         values.put(AUTO_UPDATE_INFO_COLUMN_LOCAL_PATH, info.localPath);
-        values.put(AUTO_UPDATE_INFO_COLUMN_VERSION, info.version);
 
         database.insert(AUTO_UPDATE_INFO_TABLE_NAME, null, values);
     }
@@ -124,7 +123,7 @@ public class MonitorDBHelper extends SQLiteOpenHelper {
                 AUTO_UPDATE_INFO_COLUMN_LOCAL_PATH,
                 AUTO_UPDATE_INFO_COLUMN_VERSION);
         String[] params = { info.account.getSignature(), info.repoID, info.repoName,
-                info.parentDir, info.localPath, String.valueOf(info.version), };
+                info.parentDir, info.localPath, };
         database.delete(AUTO_UPDATE_INFO_TABLE_NAME, whereClause, params);
     }
 
@@ -180,7 +179,6 @@ public class MonitorDBHelper extends SQLiteOpenHelper {
         String repoName = c.getString(2);
         String parentDir = c.getString(3);
         String localPath = c.getString(4);
-        int version = c.getInt(5);
 
         // infos whose account or file has been deleted would be removed in the
         // while loop
@@ -189,8 +187,7 @@ public class MonitorDBHelper extends SQLiteOpenHelper {
         }
 
         Account account = accounts.get(accountSignature);
-        AutoUpdateInfo info = new AutoUpdateInfo(account, repoID, repoName, parentDir,
-                localPath, version);
+        AutoUpdateInfo info = new AutoUpdateInfo(account, repoID, repoName, parentDir, localPath);
         return info;
     }
 }

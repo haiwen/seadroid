@@ -8,18 +8,6 @@ public class PendingUploadInfo {
     public String localFilePath;
     public boolean isUpdate;
     public boolean isCopyToLocal;
-    public int enckVersion;
-
-    public PendingUploadInfo(String repoID, String repoName, String targetDir,
-            String localFilePath, boolean isUpdate, boolean isCopyToLocal, int enckVersion) {
-        this.repoID = repoID;
-        this.repoName = repoName;
-        this.targetDir = targetDir;
-        this.localFilePath = localFilePath;
-        this.isUpdate = isUpdate;
-        this.isCopyToLocal = isCopyToLocal;
-        this.enckVersion = enckVersion;
-    }
 
     public PendingUploadInfo(String repoID, String repoName, String targetDir,
             String localFilePath, boolean isUpdate, boolean isCopyToLocal) {
@@ -29,7 +17,6 @@ public class PendingUploadInfo {
         this.localFilePath = localFilePath;
         this.isUpdate = isUpdate;
         this.isCopyToLocal = isCopyToLocal;
-        this.enckVersion = -1;
     }
 
 }

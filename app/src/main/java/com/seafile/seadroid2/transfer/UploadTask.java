@@ -22,32 +22,28 @@ public class UploadTask extends TransferTask {
     private boolean isUpdate;  // true if update an existing file
     private boolean isCopyToLocal; // false to turn off copy operation
     private boolean byBlock;
-    private int version;
     private UploadStateListener uploadStateListener;
 
     private DataManager dataManager;
 
     public UploadTask(int taskID, Account account, String repoID, String repoName,
-                      String dir, String filePath, boolean isUpdate, boolean isCopyToLocal, boolean byBlock, int version,
+                      String dir, String filePath, boolean isUpdate, boolean isCopyToLocal, boolean byBlock,
                       UploadStateListener uploadStateListener) {
         super(taskID, account, repoName, repoID, filePath);
         this.dir = dir;
         this.isUpdate = isUpdate;
         this.isCopyToLocal = isCopyToLocal;
         this.byBlock = byBlock;
-        this.version = version;
         this.uploadStateListener = uploadStateListener;
-
         this.totalSize = new File(filePath).length();
         this.finished = 0;
-
         this.dataManager = new DataManager(account);
     }
 
     public UploadTaskInfo getTaskInfo() {
         UploadTaskInfo info = new UploadTaskInfo(account, taskID, state, repoID,
                 repoName, dir, path, isUpdate, isCopyToLocal,
-                finished, totalSize, err, version);
+                finished, totalSize, err);
         return info;
     }
 
@@ -88,7 +84,7 @@ public class UploadTask extends TransferTask {
             };
 
             if (byBlock) {
-                dataManager.uploadByBlocks(repoName, repoID, dir, path, monitor, isUpdate, isCopyToLocal, version);
+                dataManager.uploadByBlocks(repoName, repoID, dir, path, monitor, isUpdate, isCopyToLocal);
             } else {
                 dataManager.uploadFile(repoName, repoID, dir, path, monitor, isUpdate, isCopyToLocal);
             }

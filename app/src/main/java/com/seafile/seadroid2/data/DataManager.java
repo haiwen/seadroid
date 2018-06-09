@@ -464,7 +464,7 @@ public class DataManager {
         }
     }
 
-    public synchronized File getFileByBlocks(String repoName, String repoID, String path, int version, long fileSize,
+    public synchronized File getFileByBlocks(String repoName, String repoID, String path, long fileSize,
                         ProgressMonitor monitor) throws SeafException, IOException, JSONException, NoSuchAlgorithmException {
 
         String cachedFileID = null;
@@ -992,7 +992,7 @@ public class DataManager {
             return null;
         }
 
-        final SeafRepo seafRepo = getCachedRepoByID(repoID);
+        final SeafRepoEncrypt seafRepo = getCachedRepoEncryptByID(repoID);
         if (seafRepo != null && seafRepo.canLocalDecrypt()) {
             final Pair<String, String> pair = dbHelper.getEnckey(repoID);
             if (pair == null)
@@ -1192,12 +1192,12 @@ public class DataManager {
 
     public void uploadByBlocks(String repoName, String repoId, String dir,
                                String filePath, ProgressMonitor monitor,
-                               boolean isUpdate, boolean isCopyToLocal, int version) throws NoSuchAlgorithmException, IOException, SeafException {
-        uploadByBlocksCommon(repoName, repoId, dir, filePath, monitor, isUpdate, isCopyToLocal, version);
+                               boolean isUpdate, boolean isCopyToLocal) throws NoSuchAlgorithmException, IOException, SeafException {
+        uploadByBlocksCommon(repoName, repoId, dir, filePath, monitor, isUpdate, isCopyToLocal);
     }
 
     private void uploadByBlocksCommon(String repoName, String repoID, String dir, String filePath,
-                                      ProgressMonitor monitor, boolean isUpdate, boolean isCopyToLocal, int version) throws NoSuchAlgorithmException, IOException, SeafException {
+                                      ProgressMonitor monitor, boolean isUpdate, boolean isCopyToLocal) throws NoSuchAlgorithmException, IOException, SeafException {
 
 
         final Pair<String, String> pair = getRepoEncKey(repoID);

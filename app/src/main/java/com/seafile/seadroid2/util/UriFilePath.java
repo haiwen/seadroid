@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 
 /**
  * @Description: [ get file path wiht Uri ]
@@ -35,8 +36,18 @@ public class UriFilePath {
                 }
             } else if (isDownloadsDocument(fileUri)) {
                 String id = DocumentsContract.getDocumentId(fileUri);
-                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
-                return getDataColumn(context, contentUri, null, null);
+                if (!TextUtils.isEmpty(id)) {
+                    if (id.startsWith("raw:")) {
+                        return id.replaceFirst("raw:", "");
+                    }
+                    try {
+                        Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+                        return getDataColumn(context, contentUri, null, null);
+                    } catch (NumberFormatException e) {
+                        return null;
+                    }
+                }
+                return null;
             } else if (isMediaDocument(fileUri)) {
                 String docId = DocumentsContract.getDocumentId(fileUri);
                 String[] split = docId.split(":");

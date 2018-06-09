@@ -28,7 +28,6 @@ public class SeafRepo implements SeafItem {
     public String permission;
     public String magic;
     public String encKey;
-    public int encVersion;
     public long    size;
     public String  root; // the id of root directory
 
@@ -47,7 +46,6 @@ public class SeafRepo implements SeafItem {
         repo.isSharedRepo = obj.getString("type").equals("srepo");
         repo.magic = obj.optString("magic");
         repo.encKey = obj.optString("random_key");
-        repo.encVersion = obj.optInt("enc_version");
         return repo;
     }
 
