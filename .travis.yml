@@ -1,4 +1,4 @@
-#http://docs.travis-ci.com/user/languages/android/
+# http://docs.travis-ci.com/user/languages/android/
 language: android
 
 sudo: false
@@ -7,16 +7,22 @@ android:
   components:
       - tools
       - platform-tools
-      - build-tools-23.0.2
-      - android-23
+      - build-tools-27.0.3
+      - android-27
       - extra-android-support
       - extra-android-m2repository
-
+# https://docs.travis-ci.com/user/languages/android/#Caching
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+    - $HOME/.android/build-cache
 script:
     - cp app/key.properties.example app/key.properties
     - cp app/key.properties.example app/debugkey.properties
     - keytool -genkey -v -keystore app/debug.keystore -alias AndroidDebugKey -keyalg RSA -keysize 2048 -validity 1 -storepass android -keypass android -dname "cn=TEST, ou=TEST, o=TEST, c=TE"
-    - ./gradlew clean assemble
-
-
-# reference https://docs.travis-ci.com/user/languages/android
+    - ./gradlew assemble
+    - ./gradlew test
