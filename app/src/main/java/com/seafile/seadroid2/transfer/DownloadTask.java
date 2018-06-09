@@ -22,7 +22,6 @@ public class DownloadTask extends TransferTask {
     private String localPath;
     private DownloadStateListener downloadStateListener;
     private boolean updateTotal;
-    private int encVersion = -1;
 
     public DownloadTask(int taskID, Account account, String repoName, String repoID, String path,
                         DownloadStateListener downloadStateListener) {
@@ -51,8 +50,7 @@ public class DownloadTask extends TransferTask {
             DataManager dataManager = new DataManager(account);
             final SeafRepo repo = dataManager.getCachedRepoByID(repoID);
             if (repo != null && repo.canLocalDecrypt()) {
-                encVersion = repo.encVersion;
-                return dataManager.getFileByBlocks(repoName, repoID, path, encVersion, totalSize,
+                return dataManager.getFileByBlocks(repoName, repoID, path, totalSize,
                         new ProgressMonitor() {
 
                             @Override
@@ -124,7 +122,7 @@ public class DownloadTask extends TransferTask {
     @Override
     public DownloadTaskInfo getTaskInfo() {
         DownloadTaskInfo info = new DownloadTaskInfo(account, taskID, state, repoID,
-                repoName, path, localPath, totalSize, finished, err, encVersion);
+                repoName, path, localPath, totalSize, finished, err);
         return info;
     }
 
