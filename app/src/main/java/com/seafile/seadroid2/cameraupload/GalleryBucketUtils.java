@@ -88,8 +88,8 @@ public class GalleryBucketUtils {
             b.name = cursor.getString(bucketColumnIndex);
 
             b.isCameraBucket = false;
-            for (String name: CAMERA_BUCKET_NAMES) {
-                if (b.name.equalsIgnoreCase(name)) {
+            for (String name : CAMERA_BUCKET_NAMES) {
+                if (b.name != null && b.name.equalsIgnoreCase(name)) {
                     b.isCameraBucket = true;
                 }
             }
@@ -139,8 +139,8 @@ public class GalleryBucketUtils {
             b.image_id = cursor.getInt(idColumnIndex);
 
             b.isCameraBucket = false;
-            for (String name: CAMERA_BUCKET_NAMES) {
-                if (b.name.equalsIgnoreCase(name)) {
+            for (String name : CAMERA_BUCKET_NAMES) {
+                if (b.name != null && b.name.equalsIgnoreCase(name)) {
                     b.isCameraBucket = true;
                 }
             }
