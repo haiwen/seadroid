@@ -1,27 +1,20 @@
 package com.seafile.seadroid2.ui.activity;
 
 import android.Manifest;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
-import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.transfer.TransferService;
@@ -57,8 +50,8 @@ public class SettingsActivity extends BaseActivity implements Toolbar.OnMenuItem
         getSupportActionBar().setTitle(R.string.settings);
         mLayout = findViewById(R.id.settings_fragment_container);
 
-        Intent bIntent = new Intent(this, TransferService.class);
-        bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
+//        Intent bIntent = new Intent(this, TransferService.class);
+//        bindService(bIntent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
@@ -77,24 +70,24 @@ public class SettingsActivity extends BaseActivity implements Toolbar.OnMenuItem
     }
 
 
-    public void uploadContacts(String path) {
-        Account camAccount = mSettingsFragment.contactsManager.getContactsAccount();
-        if (camAccount != null && mSettingsFragment.settingsMgr.getContactsUploadRepoName() != null) {
-            String repoName = mSettingsFragment.settingsMgr.getContactsUploadRepoName();
-            String repoId = mSettingsFragment.settingsMgr.getContactsUploadRepoId();
-
-            DataManager dataManager = new DataManager(camAccount);
-            try {
-                forceCreateDirectory(dataManager, "/", BASE_DIR, repoId);
-                String serverPath = Utils.pathJoin(BASE_DIR, "/");
-                txService.addTaskToUploadQue(camAccount, repoId, repoName, serverPath, path, false, true);
-            } catch (SeafException e) {
-                showShortToast(this, e.getMessage());
-                showShortToast(this, getString(R.string.contacts_backup_fail));
-                e.printStackTrace();
-            }
-        }
-    }
+//    public void uploadContacts(String path) {
+//        Account camAccount = mSettingsFragment.contactsManager.getContactsAccount();
+//        if (camAccount != null && mSettingsFragment.settingsMgr.getContactsUploadRepoName() != null) {
+//            String repoName = mSettingsFragment.settingsMgr.getContactsUploadRepoName();
+//            String repoId = mSettingsFragment.settingsMgr.getContactsUploadRepoId();
+//
+//            DataManager dataManager = new DataManager(camAccount);
+//            try {
+//                forceCreateDirectory(dataManager, "/", BASE_DIR, repoId);
+//                String serverPath = Utils.pathJoin(BASE_DIR, "/");
+//                txService.addTaskToUploadQue(camAccount, repoId, repoName, serverPath, path, false, true);
+//            } catch (SeafException e) {
+//                showShortToast(this, e.getMessage());
+//                showShortToast(this, getString(R.string.contacts_backup_fail));
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 
     /**
      * Create a directory, rename a file away if necessary,
@@ -155,30 +148,30 @@ public class SettingsActivity extends BaseActivity implements Toolbar.OnMenuItem
     }
 
 
-    ServiceConnection mConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            TransferService.TransferBinder binder = (TransferService.TransferBinder) service;
-            txService = binder.getService();
-            Log.d(DEBUG_TAG, "bind TransferService");
-
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            txService = null;
-        }
-    };
-
-    @Override
-    protected void onDestroy() {
-        Log.d(DEBUG_TAG, "onDestroy is called");
-        if (txService != null) {
-            unbindService(mConnection);
-            txService = null;
-        }
-        super.onDestroy();
-    }
+//    ServiceConnection mConnection = new ServiceConnection() {
+//        @Override
+//        public void onServiceConnected(ComponentName className, IBinder service) {
+//            TransferService.TransferBinder binder = (TransferService.TransferBinder) service;
+//            txService = binder.getService();
+//            Log.d(DEBUG_TAG, "bind TransferService");
+//
+//        }
+//
+//        @Override
+//        public void onServiceDisconnected(ComponentName arg0) {
+//            txService = null;
+//        }
+//    };
+//
+//    @Override
+//    protected void onDestroy() {
+//        Log.d(DEBUG_TAG, "onDestroy is called");
+//        if (txService != null) {
+//            unbindService(mConnection);
+//            txService = null;
+//        }
+//        super.onDestroy();
+//    }
 
 
 }
