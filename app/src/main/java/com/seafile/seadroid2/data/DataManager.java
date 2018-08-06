@@ -488,6 +488,9 @@ public class DataManager {
         }
 
         final Pair<String, String> pair = getRepoEncKey(repoID);
+        if (pair == null) {
+            throw SeafException.decryptException;
+        }
         final String encKey = pair.first;
         final String encIv = pair.second;
         if (TextUtils.isEmpty(encKey) || TextUtils.isEmpty(encIv)) {
@@ -646,6 +649,9 @@ public class DataManager {
     }
 
     public void addCachedFile(String repoName, String repoID, String path, String fileID, File file) {
+        if (file == null) {
+            return;
+        }
         // notify Android Gallery that a new file has appeared
 
         // file does not always reside in Seadroid directory structure (e.g. camera upload)

@@ -1557,6 +1557,10 @@ public class BrowserActivity extends BaseActivity
      * @param fileName
      */
     public void downloadFile(String dir, String fileName) {
+        // txService maybe null if layout orientation has changed
+        if (txService == null) {
+            return;
+        }
         String filePath = Utils.pathJoin(dir, fileName);
         txService.addDownloadTask(account,
                 navContext.getRepoName(),
@@ -1700,6 +1704,10 @@ public class BrowserActivity extends BaseActivity
     }
 
     private void startFileActivity(String repoName, String repoID, String filePath, long fileSize) {
+        // txService maybe null if layout orientation has changed
+        if (txService == null) {
+            return;
+        }
         int taskID = txService.addDownloadTask(account, repoName, repoID, filePath, fileSize);
         Intent intent = new Intent(this, FileActivity.class);
         intent.putExtra("repoName", repoName);
