@@ -1,5 +1,16 @@
 package com.seafile.seadroid2.ssl;
 
+import android.util.Log;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.seafile.seadroid2.account.Account;
+
+import org.apache.http.conn.ssl.BrowserCompatHostnameVerifier;
+import org.apache.http.conn.ssl.X509HostnameVerifier;
+
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -16,18 +27,8 @@ import java.util.Set;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
-
-import org.apache.http.conn.ssl.BrowserCompatHostnameVerifier;
-import org.apache.http.conn.ssl.X509HostnameVerifier;
-
-import android.util.Log;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.seafile.seadroid2.account.Account;
 
 public final class SSLTrustManager {
     public enum SslFailureReason {
@@ -88,7 +89,7 @@ public final class SSLTrustManager {
             managers.put(account, mgr);
         }
 
-        return new TrustManager[] {mgr};
+        return new TrustManager[]{mgr};
     }
 
     public synchronized SSLSocketFactory getSSLSocketFactory(Account account) {
@@ -121,7 +122,7 @@ public final class SSLTrustManager {
 
         return mgr.getServerCertsChain();
     }
-    
+
     public X509Certificate getCertificateInfo(Account account) throws CertificateParsingException {
         List<X509Certificate> certs = getCertsChainForAccount(account);
         if (certs == null || certs.size() == 0) {
@@ -143,6 +144,7 @@ public final class SSLTrustManager {
 
     /**
      * Reorder the certificates chain, since it may not be in the right order when passed to us
+     *
      * @see http://stackoverflow.com/questions/7822381/need-help-understanding-certificate-chains
      */
     public List<X509Certificate> orderCerts(X509Certificate[] certificates) {
@@ -156,24 +158,24 @@ public final class SSLTrustManager {
         // certs.addAll(Arrays.asList(certificates));
         X509Certificate certChain = certs.get(0);
         certs.remove(certChain);
-        LinkedList<X509Certificate> chainList= Lists.newLinkedList();
+        LinkedList<X509Certificate> chainList = Lists.newLinkedList();
         chainList.add(certChain);
         Principal certIssuer = certChain.getIssuerDN();
         Principal certSubject = certChain.getSubjectDN();
         // in the worst case one run per certificate
         // make sure, we don't get an infinite loop here
         int checksLeft = certs.size();
-        while(!certs.isEmpty() && checksLeft > 0){
+        while (!certs.isEmpty() && checksLeft > 0) {
             List<X509Certificate> tempcerts = ImmutableList.copyOf(certs);
             for (X509Certificate cert : tempcerts) {
-                if(cert.getIssuerDN().equals(certSubject)){
+                if (cert.getIssuerDN().equals(certSubject)) {
                     chainList.addFirst(cert);
                     certSubject = cert.getSubjectDN();
                     certs.remove(cert);
                     continue;
                 }
 
-                if(cert.getSubjectDN().equals(certIssuer)){
+                if (cert.getSubjectDN().equals(certIssuer)) {
                     chainList.addLast(cert);
                     certIssuer = cert.getIssuerDN();
                     certs.remove(cert);
@@ -255,7 +257,7 @@ public final class SSLTrustManager {
         }
 
         private void customCheck(List<X509Certificate> chain, String authType)
-            throws CertificateException {
+                throws CertificateException {
 
             certsChain = ImmutableList.copyOf(chain);
 
@@ -290,7 +292,7 @@ public final class SSLTrustManager {
             Log.d(DEBUG_TAG, "a SecureX509TrustManager is finalized:" + hashCode());
         }
     }
-    
+
     public Map<Account, SSLSocketFactory> getCachedFactories() {
         return cachedFactories;
     }
@@ -298,4 +300,9 @@ public final class SSLTrustManager {
     /*public void setCachedFactories(Map<Account, SSLSocketFactory> cachedFactories) {
         this.cachedFactories = cachedFactories;
     }*/
+
+
+    public X509TrustManager getDefaultTrustManager() {
+        return defaultTrustManager;
+    }
 }

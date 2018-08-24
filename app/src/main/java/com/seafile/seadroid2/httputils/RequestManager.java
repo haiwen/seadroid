@@ -2,13 +2,16 @@ package com.seafile.seadroid2.httputils;
 
 import android.util.Log;
 
+import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.ProgressMonitor;
+import com.seafile.seadroid2.ssl.SSLTrustManager;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.X509TrustManager;
 
 import okhttp3.Interceptor;
 import okhttp3.MediaType;
@@ -25,13 +28,13 @@ public class RequestManager {
 
     private OkHttpClient client;
     private static final long TIMEOUT_COUNT = 5;
+    private static RequestManager mRequestManager;
 
-    static {
-        HttpsURLConnection.setDefaultSSLSocketFactory(new NoSSLv3Factory());
-    }
-
-    private RequestManager() {
+    private RequestManager(Account account) {
+        SSLSocketFactory sslSocketFactory = SSLTrustManager.instance().getSSLSocketFactory(account);
+        X509TrustManager defaultTrustManager = SSLTrustManager.instance().getDefaultTrustManager();
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        builder.sslSocketFactory(sslSocketFactory, defaultTrustManager);
         builder.addInterceptor(new LoggingInterceptor()); //add okhttp log
         client = builder.hostnameVerifier((hostname, session) -> true)
                 .retryOnConnectionFailure(true)
@@ -46,12 +49,15 @@ public class RequestManager {
     }
 
 
-    private static class SingletonFactory {
-        private static RequestManager mRequestManager = new RequestManager();
-    }
-
-    public static RequestManager getInstance() {
-        return SingletonFactory.mRequestManager;
+    public static RequestManager getInstance(Account account) {
+        if (mRequestManager == null) {
+            synchronized (RequestManager.class) {
+                if (mRequestManager == null) {
+                    mRequestManager = new RequestManager(account);
+                }
+            }
+        }
+        return mRequestManager;
     }
 
 
@@ -75,9 +81,8 @@ public class RequestManager {
     /**
      * Create progress RequestBody
      *
-     * @param contentType MediaType
-     * @param file        update file
-     * @param callBack
+     * @param monitor
+     * @param file
      * @param <T>
      * @return
      */

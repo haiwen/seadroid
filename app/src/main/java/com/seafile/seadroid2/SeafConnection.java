@@ -849,7 +849,7 @@ public class SeafConnection {
         builder.addFormDataPart("blockids", jsonArray.toString());
         RequestBody body = builder.build();
         Request request = new Request.Builder().url(link).post(body).build();
-        Response response = RequestManager.getInstance().getClient().newCall(request).execute();
+        Response response = RequestManager.getInstance(account).getClient().newCall(request).execute();
         if (response.isSuccessful()) {
             return response.body().string();
         }
@@ -896,12 +896,12 @@ public class SeafConnection {
             builder.addFormDataPart("parent_dir", dir);
         }
 
-        builder.addFormDataPart("file", file.getName(), RequestManager.getInstance().createProgressRequestBody(monitor, file));
+        builder.addFormDataPart("file", file.getName(), RequestManager.getInstance(account).createProgressRequestBody(monitor, file));
         //create RequestBody
         RequestBody body = builder.build();
         //create Request
         final Request request = new Request.Builder().url(link).post(body).header("Authorization", "Token " + account.token).build();
-        Response response = RequestManager.getInstance().getClient().newCall(request).execute();
+        Response response = RequestManager.getInstance(account).getClient().newCall(request).execute();
         if (response.isSuccessful()) {
             String str = response.body().string();
             if (!TextUtils.isEmpty(str)) {
@@ -932,7 +932,7 @@ public class SeafConnection {
             for (String s : needUploadId) {
                 if (s.equals(block.getBlockId())) {
                     File blk = new File(block.path);
-                    builder.addFormDataPart("file", blk.getName(), RequestManager.getInstance().createProgressRequestBody(monitor, blk));
+                    builder.addFormDataPart("file", blk.getName(), RequestManager.getInstance(account).createProgressRequestBody(monitor, blk));
                     break;
                 }
             }
@@ -940,7 +940,7 @@ public class SeafConnection {
 
         RequestBody body = builder.build();
         final Request request = new Request.Builder().url(link).post(body).header("Authorization", "Token " + account.token).build();
-        Response response = RequestManager.getInstance().getClient().newCall(request).execute();
+        Response response = RequestManager.getInstance(account).getClient().newCall(request).execute();
         if (response.isSuccessful()) {
             return response.body().string();
         }
