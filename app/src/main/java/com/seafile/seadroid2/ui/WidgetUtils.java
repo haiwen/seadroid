@@ -195,8 +195,8 @@ public class WidgetUtils {
         String name = file.getName();
         String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
 
-        // Open markdown files in MarkdownActivity
-        if (suffix.equals("md") || suffix.equals("markdown")) {
+        // Open markdown and txt files in MarkdownActivity
+        if ("md".equals(suffix) || "markdown".equals(suffix) || "txt".equals(suffix)) {
             startMarkdownActivity(activity, file.getPath());
             activity.overridePendingTransition(0, 0);
             return;

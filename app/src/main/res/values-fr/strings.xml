@@ -209,6 +209,7 @@
   <string name="open_as">Ouvrir comme</string>
   <string name="select_upload_files">Sélectionner les fichiers à envoyer</string>
   <string name="storage_removed">Le stockage a été supprimé</string>
+  <string name="storage_space_insufficient">Espace de stockage insuffisant</string>
   <string name="error_selecting_file">Erreur lors de la sélection du fichier</string>
   <plurals name="n_upload_files_selected">
     <item quantity="one">%1$d fichier séléctionné</item>
@@ -514,6 +515,7 @@ E-mail : support@seafile.com<br>
   <string name="two_factor_auth_invalid">Le jeton d\'authentification n\'est pas correcte</string>
   <string name="two_factor_auth_token">Jeton d\'authentification à deux facteurs</string>
   <string name="two_factor_auth_token_empty">Jeton d\'authentification ne peut être vide</string>
+  <string name="two_factor_auth_remember_phone">Se souvenir de cet appareil</string>
   <!--Operation Exceptions-->
   <string name="op_exception_folder_deleted">Le dossier \"%s\" a été supprimé</string>
   <string name="op_exception_suitable_app_not_found">Impossible de trouver une application adaptée aux types mime %s</string>
@@ -524,4 +526,5 @@ E-mail : support@seafile.com<br>
   <string name="expiration_dates">Dates d\'expiration</string>
   <string name="add_auto_expiration">Ajouter une expiration automatique</string>
   <string name="input_auto_expiration">SVP entrez les dates d\'expiration</string>
+  <!--editor-->
 </resources>

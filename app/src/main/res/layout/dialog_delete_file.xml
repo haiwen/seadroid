@@ -8,7 +8,7 @@
     android:paddingLeft="10dp"
     android:paddingRight="10dp"
     android:paddingTop="10dp">
-	
+
 	<TextView
     	android:id="@+id/delete_file_name"
     	android:layout_width="fill_parent"

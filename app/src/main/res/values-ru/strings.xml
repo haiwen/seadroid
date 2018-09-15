@@ -387,12 +387,12 @@
         <![CDATA[
         <h5>Seafile Android Client</h5>
         <p>%s</p>
-        <h5>Связаться с нами</h5>
+        <h5>Связь с нами</h5>
         <p>
             Twitter: Seafile<br>
             Email: support@seafile.com<br>
         </p>
-        <h5>Contributions</h5>
+        <h5>Внести свой вклад</h5>
         <p>https://github.com/haiwen/seadroid.git</P>
         <h5>Copyright ©2013-2018 Seafile Ltd.</h5>
         ]]>
@@ -545,4 +545,14 @@
   <string name="expiration_dates">даты истечения срока действия</string>
   <string name="add_auto_expiration">Добавить авто истечение срока действия</string>
   <string name="input_auto_expiration">Введите даты истечения срока действия</string>
+  <!--editor-->
+  <string name="editor_lines_error">Невозможно работать с несколькими строками</string>
+  <string name="editor_file_save">Вы хотите сохранить и выйти?</string>
+  <string name="editor_file_save_success">Файл успешно сохранен</string>
+  <string name="editor_file_save_failed">Не удалось очистить кэш</string>
+  <string name="editor_file_save_title">Сохранение файла</string>
+  <string name="description">Описание</string>
+  <string name="link">Ссылка</string>
+  <string name="undo">отмена</string>
+  <string name="redo">повтор</string>
 </resources>

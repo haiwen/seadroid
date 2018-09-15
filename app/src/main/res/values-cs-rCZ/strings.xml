@@ -3,7 +3,6 @@
   <string name="welcome_to_seafile">Vítejte v Seafile</string>
   <string name="select_account">Nejprve vyberte svůj účet</string>
   <string name="edit_account">Upravit</string>
-  <string name="delete_account">Odstranit</string>
   <string name="delete">Odstranit</string>
   <string name="delete_file_f">Odstranit soubor</string>
   <string name="delete_dir">Odstranit složku</string>
@@ -273,4 +272,5 @@
   <!--Two factor auth-->
   <!--Operation Exceptions-->
   <!--Home list title-->
+  <!--editor-->
 </resources>

@@ -376,19 +376,18 @@ Zum Aktualisieren einmal antippen</string>
   <string name="settings_about_version_title">App-Version</string>
   <string name="settings_about_author_title">Autor/innen</string>
   <string name="settings_about_author_info">
-        <![CDATA[
-        <h5>Seafile Android-App</h5>
-        <p>%s</p>
-        <h5>Kontakt</h5>
-        <p>
-            Twitter: Seafile<br>
-            E-Mail: support@seafile.com<br>
-        </p>
-        <h5>Beteiligte und selber Mitmachen</h5>
-        <p>https://github.com/haiwen/seadroid.git</P>
-        <h5>Copyright ©2013-2018 Seafile Ltd.</h5>
-        ]]>
-    </string>
+<![CDATA[
+<h5>Seafile Android-App</h5> 
+<p>%s</p>
+<h5>Kontakt</h5>
+<p>
+Twitter: Seafile<br> 
+E-Mail: support@seafile.com<br>
+</p>
+<h5>Beteiligte und selber Mitmachen</h5>
+<p>https://github.com/haiwen/seadroid.git</P>
+<h5>Copyright ©2013-2018 Seafile Ltd.</h5>
+]]></string>
   <string name="settings_advance_feature_title">ERWEITERTE FUNKTIONEN</string>
   <string name="settings_storage_title">ZWISCHENSPEICHER</string>
   <string name="settings_cache_title">Größe des Zwischenspeichers</string>
@@ -529,4 +528,14 @@ Zum Aktualisieren einmal antippen</string>
   <string name="expiration_dates">Ablaufdatum</string>
   <string name="add_auto_expiration">Ablaufdatum hinzufügen</string>
   <string name="input_auto_expiration">Bitte das Ablaufdatum eingeben</string>
+  <!--editor-->
+  <string name="editor_lines_error">Mehrere Zeilen können nicht verarbeitet werden</string>
+  <string name="editor_file_save">Möchten Sie speichern und verlassen?</string>
+  <string name="editor_file_save_success">Datei ist gespeichert</string>
+  <string name="editor_file_save_failed">Zwischenspeicher konnte nicht gelöscht werden</string>
+  <string name="editor_file_save_title">Datei speichern</string>
+  <string name="description">Beschreibung</string>
+  <string name="link">Link</string>
+  <string name="undo">Rückgängig</string>
+  <string name="redo">Wiederholen</string>
 </resources>

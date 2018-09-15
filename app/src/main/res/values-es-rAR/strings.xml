@@ -527,4 +527,14 @@
   <string name="expiration_dates">fecha de vencimiento</string>
   <string name="add_auto_expiration">Agregar vencimiento automático</string>
   <string name="input_auto_expiration">Por favor ingrese la fecha de vencimiento</string>
+  <!--editor-->
+  <string name="editor_lines_error">No es posible operar sobre múltiples líneas</string>
+  <string name="editor_file_save">¿Desea guardar y salir?</string>
+  <string name="editor_file_save_success">Archivo guardado con éxito</string>
+  <string name="editor_file_save_failed">Falló borrar el caché</string>
+  <string name="editor_file_save_title">Guardar archivo</string>
+  <string name="description">Descripción</string>
+  <string name="link">Enlace</string>
+  <string name="undo">deshacer</string>
+  <string name="redo">rehacer</string>
 </resources>

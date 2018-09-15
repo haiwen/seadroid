@@ -69,6 +69,9 @@
   <string name="file_action_star">星標</string>
   <string name="file_action_download">下載</string>
   <string name="file_action_update">上傳</string>
+  <string name="file_share">分享</string>
+  <string name="file_action_share_wechat">分享到微信</string>
+  <string name="file_action_share_link">分享鏈接</string>
   <string name="file_action_export">匯出</string>
   <string name="file_action_delete">刪除</string>
   <string name="file_action_rename">重命名</string>
@@ -449,6 +452,7 @@
   <!--Accessibility description for navigation drawer-->
   <!--permission-->
   <string name="permission_read_exteral_storage_rationale">在處理文件之前，請允許應用獲取存儲權限</string>
+  <string name="permission_read_contacts_storage_rationale">在處理文件之前，請允許應用獲取存儲權限</string>
   <string name="permission_not_granted">未獲得權限</string>
   <string name="history_change_title">修改詳情</string>
   <string name="no_more_activities">沒有更多活動了</string>
@@ -468,9 +472,25 @@
   <string name="two_factor_auth_invalid">驗證碼無效</string>
   <string name="two_factor_auth_token">兩步驗證碼</string>
   <string name="two_factor_auth_token_empty">驗證碼不能為空</string>
+  <string name="two_factor_auth_remember_phone">記住我的選擇</string>
   <!--Operation Exceptions-->
   <string name="op_exception_folder_deleted">此文件夾\"%s\"已被刪除</string>
   <string name="op_exception_suitable_app_not_found">找不到合適的應用打開該%s類型</string>
   <string name="op_exception_failed_to_download_file">下載文件%s失敗</string>
   <!--Home list title-->
+  <string name="shared_with_all">分享全部</string>
+  <string name="add_password_protection">添加密碼保護</string>
+  <string name="expiration_dates">到期日期</string>
+  <string name="add_auto_expiration">添加自動過期</string>
+  <string name="input_auto_expiration">請輸入有效期</string>
+  <!--editor-->
+  <string name="editor_lines_error">不支持多行操作</string>
+  <string name="editor_file_save">确定退出并保存嗎？</string>
+  <string name="editor_file_save_success">文件保存成功</string>
+  <string name="editor_file_save_failed">清理緩存失敗</string>
+  <string name="editor_file_save_title">保存文件</string>
+  <string name="description">描述</string>
+  <string name="link">鏈接</string>
+  <string name="undo">撤銷</string>
+  <string name="redo">還原</string>
 </resources>
