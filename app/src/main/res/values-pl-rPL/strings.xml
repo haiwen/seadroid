@@ -435,6 +435,7 @@
   <string name="shib_server_url_empty">Serwer jest pusty!</string>
   <string name="shib_server_incorrect_prefix">Nazwa serwera musi się zaczynać od https://</string>
   <string name="shib_load_page_error">Błąd:</string>
+  <string name="shib_login_title">Pojedyncze logowanie</string>
   <string name="shib_loading">wczytywanie...</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">Błąd połączenia sieciowego, proszę spróbować później!</string>
@@ -544,4 +545,5 @@
   <string name="expiration_dates">daty ważności</string>
   <string name="add_auto_expiration">Dodaj automatyczne wygasanie</string>
   <string name="input_auto_expiration">Proszę podać daty ważności</string>
+  <!--editor-->
 </resources>

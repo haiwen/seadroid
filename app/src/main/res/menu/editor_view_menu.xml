@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/edit_undo"
+        android:icon="@drawable/ic_action_undo"
+        android:title="@string/undo"
+        android:visible="true"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/edit_redo"
+        android:icon="@drawable/ic_action_redo"
+        android:title="@string/redo"
+        android:visible="true"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/edit_save"
+        android:icon="@drawable/ic_action_save"
+        android:title="@string/lockpattern_confirm_button_text"
+        android:visible="true"
+        app:showAsAction="always"/>
+
+</menu>

@@ -518,4 +518,14 @@
   <string name="expiration_dates">输入过期天数</string>
   <string name="add_auto_expiration">增加自动过期</string>
   <string name="input_auto_expiration">请输入自动过期天数</string>
+  <!--editor-->
+  <string name="editor_lines_error">不支持多行操作</string>
+  <string name="editor_file_save">确定保存并退出吗？</string>
+  <string name="editor_file_save_success">保存成功</string>
+  <string name="editor_file_save_failed">缓存清理失败</string>
+  <string name="editor_file_save_title">保存文件</string>
+  <string name="description">描述</string>
+  <string name="link">链接</string>
+  <string name="undo">撤销</string>
+  <string name="redo">还原</string>
 </resources>

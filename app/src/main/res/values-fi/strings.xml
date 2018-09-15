@@ -526,4 +526,5 @@ Sähköposti: support@seafile.com<br>
   <string name="expiration_dates">Vanhentumispäivämäärä</string>
   <string name="add_auto_expiration">Lisää automaattinen päättymisaika</string>
   <string name="input_auto_expiration">Ole hyvä ja syötä vanhentumispäivämäärä</string>
+  <!--editor-->
 </resources>

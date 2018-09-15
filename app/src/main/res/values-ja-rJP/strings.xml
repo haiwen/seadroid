@@ -375,7 +375,7 @@
         <h5>連絡先</h5>
         <p>
             Twitter: Seafile<br>
-            Email: support@seafile.com<br>
+            メール: support@seafile.com<br>
         </p>
         <h5>貢献</h5>
         <p>https://github.com/haiwen/seadroid.git</P>
@@ -518,4 +518,14 @@
   <string name="expiration_dates">有効期限</string>
   <string name="add_auto_expiration">自動有効期限を追加</string>
   <string name="input_auto_expiration">有効期限を入力してください</string>
+  <!--editor-->
+  <string name="editor_lines_error">複数行は操作できません</string>
+  <string name="editor_file_save">保存して終了しますか?</string>
+  <string name="editor_file_save_success">正常にファイルを保存しました</string>
+  <string name="editor_file_save_failed">キャッシュのクリアに失敗しました</string>
+  <string name="editor_file_save_title">ファイルの保存</string>
+  <string name="description">説明</string>
+  <string name="link">リンク</string>
+  <string name="undo">元に戻す</string>
+  <string name="redo">繰り返し</string>
 </resources>

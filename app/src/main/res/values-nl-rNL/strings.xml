@@ -460,4 +460,5 @@
   <string name="op_exception_failed_to_download_file">Kon bestand %s niet downloaden</string>
   <!--Home list title-->
   <string name="shared_with_all">Gedeeld met iedereen</string>
+  <!--editor-->
 </resources>

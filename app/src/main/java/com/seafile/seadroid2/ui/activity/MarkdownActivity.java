@@ -11,12 +11,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.seafile.seadroid2.R;
+import com.seafile.seadroid2.editor.EditorActivity;
 import com.seafile.seadroid2.util.FileMimeUtils;
-import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;
 
-import us.feras.mdv.MarkdownView;
+import br.tiagohm.markdownview.MarkdownView;
+import br.tiagohm.markdownview.css.InternalStyleSheet;
+import br.tiagohm.markdownview.css.styles.Github;
 
 /**
  * For showing markdown files
@@ -40,13 +42,13 @@ public class MarkdownActivity extends BaseActivity implements Toolbar.OnMenuItem
 
         if (path == null) return;
 
-        markdownView = (MarkdownView) findViewById(R.id.markdownView);
+        markdownView = findViewById(R.id.markdownView);
         Toolbar toolbar = getActionBarToolbar();
         toolbar.setOnMenuItemClickListener(this);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
-    
+
     @Override
     public void onResume() {
         super.onResume();
@@ -54,8 +56,12 @@ public class MarkdownActivity extends BaseActivity implements Toolbar.OnMenuItem
         if (!file.exists())
             return;
 
-        String content = Utils.readFile(file);
-        markdownView.loadMarkdown(content);
+        InternalStyleSheet css = new Github();
+        css.addRule("body", new String[]{"line-height: 1.6", "padding: 0px"});
+        css.addRule("a", "color: orange");
+        markdownView.addStyleSheet(css);
+        markdownView.loadMarkdownFromFile(file);
+
         getSupportActionBar().setTitle(file.getName());
     }
 
@@ -99,7 +105,11 @@ public class MarkdownActivity extends BaseActivity implements Toolbar.OnMenuItem
         String mime = FileMimeUtils.getMimeType(new File(path));
         editAsMarkDown.setDataAndType(uri, mime);
 
-        if (pm.queryIntentActivities(editAsMarkDown, 0).size() > 0) {
+        if ("text/plain".equals(mime)) {
+            Intent intent = new Intent(this, EditorActivity.class);
+            intent.putExtra("path", path);
+            startActivity(intent);
+        } else if (pm.queryIntentActivities(editAsMarkDown, 0).size() > 0) {
             // Some activity can edit markdown
             startActivity(editAsMarkDown);
         } else {

@@ -48,6 +48,28 @@
         <item name="windowActionBar">true</item>
     </style>
 
+    <style name="AppTheme.Editor" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/blue_500</item>
+        <item name="colorPrimaryDark">@color/blue_700</item>
+        <item name="colorAccent">@color/blue_500</item>
+        <item name="colorControlActivated">@color/blue_500</item>
+        <item name="android:textColorHighlight">@color/blue_500</item>
+        <item name="colorControlHighlight">@color/blue_200</item>
+        <item name="titleTextColor">@color/white</item>
+        <item name="actionMenuTextColor">@android:color/white</item>
+        <!--<item name="android:textColorPrimary">@android:color/white</item>-->
+        <item name="android:colorControlNormal">@android:color/white</item>
+        <item name="android:homeAsUpIndicator">@drawable/ic_white_back</item>
+        <item name="homeAsUpIndicator">@drawable/ic_white_back</item>
+        <item name="android:alertDialogTheme">@style/MainActivityTheme.AlertDialogTheme</item>
+    </style>
+
+    <style name="MainActivityTheme.AlertDialogTheme" parent="Theme.AppCompat.Dialog">
+        <item name="colorPrimary">@color/blue_500</item>
+        <item name="colorPrimaryDark">@color/blue_700</item>
+        <item name="colorAccent">@color/blue_500</item>
+    </style>
+
     <style name="Theme.Fullscreen" parent="AppTheme">
         <item name="android:windowTranslucentNavigation">true</item>
         <item name="android:windowFullscreen">true</item>
