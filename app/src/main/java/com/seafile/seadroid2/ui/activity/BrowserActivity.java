@@ -91,15 +91,18 @@ import com.seafile.seadroid2.ui.fragment.ActivitiesFragment;
 import com.seafile.seadroid2.ui.fragment.ReposFragment;
 import com.seafile.seadroid2.ui.fragment.StarredFragment;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
-import com.seafile.seadroid2.util.UriFilePath;
 import com.seafile.seadroid2.util.Utils;
 import com.seafile.seadroid2.util.UtilsJellyBean;
 import com.viewpagerindicator.IconPagerAdapter;
 
+import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -1381,37 +1384,31 @@ public class BrowserActivity extends BaseActivity
             List<File> fileList = new ArrayList<File>();
             for (Uri uri: uriList) {
                 // Log.d(DEBUG_TAG, "Uploading file from uri: " + uri);
-//  ============ copy file to seafile dir  ===================
-//                InputStream in = null;
-//                OutputStream out = null;
-//
-//                try {
-//                    File tempDir = DataManager.createTempDir();
-//                    File tempFile = new File(tempDir, Utils.getFilenamefromUri(BrowserActivity.this, uri));
-//
-//                    if (!tempFile.createNewFile()) {
-//                        throw new RuntimeException("could not create temporary file");
-//                    }
-//
-//                    in = getContentResolver().openInputStream(uri);
-//                    out = new FileOutputStream(tempFile);
-//                    IOUtils.copy(in, out);
-//
-//                    fileList.add(tempFile);
-//
-//                } catch (IOException e) {
-//                    Log.d(DEBUG_TAG, "Could not open requested document", e);
-//                } catch (RuntimeException e) {
-//                    Log.d(DEBUG_TAG, "Could not open requested document", e);
-//                } finally {
-//                    IOUtils.closeQuietly(in);
-//                    IOUtils.closeQuietly(out);
-//                }
-//  =============== new idea,file upload no copy seafile dir ================
-                String path = UriFilePath.getFileAbsolutePath(BrowserActivity.this, uri);
-                File tempFile = new File(path);
-                fileList.add(tempFile);
-//  =============== new idea,file upload no copy seafile dir ================
+                InputStream in = null;
+                OutputStream out = null;
+
+                try {
+                    File tempDir = DataManager.createTempDir();
+                    File tempFile = new File(tempDir, Utils.getFilenamefromUri(BrowserActivity.this, uri));
+
+                    if (!tempFile.createNewFile()) {
+                        throw new RuntimeException("could not create temporary file");
+                    }
+
+                    in = getContentResolver().openInputStream(uri);
+                    out = new FileOutputStream(tempFile);
+                    IOUtils.copy(in, out);
+
+                    fileList.add(tempFile);
+
+                } catch (IOException e) {
+                    Log.d(DEBUG_TAG, "Could not open requested document", e);
+                } catch (RuntimeException e) {
+                    Log.d(DEBUG_TAG, "Could not open requested document", e);
+                } finally {
+                    IOUtils.closeQuietly(in);
+                    IOUtils.closeQuietly(out);
+                }
             }
             return fileList.toArray(new File[]{});
         }
