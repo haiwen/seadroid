@@ -534,7 +534,7 @@
   <string name="editor_file_save_failed">Falló borrar el caché</string>
   <string name="editor_file_save_title">Guardar archivo</string>
   <string name="description">Descripción</string>
-  <string name="link">Enlace</string>
   <string name="undo">deshacer</string>
   <string name="redo">rehacer</string>
+  <string name="link">Enlace</string>
 </resources>

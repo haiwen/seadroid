@@ -527,4 +527,12 @@ Sähköposti: support@seafile.com<br>
   <string name="add_auto_expiration">Lisää automaattinen päättymisaika</string>
   <string name="input_auto_expiration">Ole hyvä ja syötä vanhentumispäivämäärä</string>
   <!--editor-->
+  <string name="editor_file_save">Haluatko tallentaa ja lopettaa?</string>
+  <string name="editor_file_save_success">Tiedoston tallennus onnistui</string>
+  <string name="editor_file_save_failed">Välimuistin tyhjennys epäonnistui</string>
+  <string name="editor_file_save_title">Tallenna tiedosto</string>
+  <string name="description">Kuvaus</string>
+  <string name="undo">kumoa</string>
+  <string name="redo">tee uudelleen</string>
+  <string name="link">Linkki</string>
 </resources>

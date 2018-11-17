@@ -535,7 +535,7 @@ E-Mail: support@seafile.com<br>
   <string name="editor_file_save_failed">Zwischenspeicher konnte nicht gelöscht werden</string>
   <string name="editor_file_save_title">Datei speichern</string>
   <string name="description">Beschreibung</string>
-  <string name="link">Link</string>
   <string name="undo">Rückgängig</string>
   <string name="redo">Wiederholen</string>
+  <string name="link">Link</string>
 </resources>

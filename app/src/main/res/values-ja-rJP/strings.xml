@@ -525,7 +525,7 @@
   <string name="editor_file_save_failed">キャッシュのクリアに失敗しました</string>
   <string name="editor_file_save_title">ファイルの保存</string>
   <string name="description">説明</string>
-  <string name="link">リンク</string>
   <string name="undo">元に戻す</string>
   <string name="redo">繰り返し</string>
+  <string name="link">リンク</string>
 </resources>
