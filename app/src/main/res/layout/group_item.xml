@@ -288,7 +288,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_horizontal"
-                        android:src="@drawable/action_move"/>
+                        android:src="@drawable/action_open"/>
                 <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

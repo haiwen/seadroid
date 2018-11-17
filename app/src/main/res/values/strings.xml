@@ -83,6 +83,7 @@
   <string name="file_action_share_link">Share link</string>
   <string name="file_action_share_encrypt">Share link with password</string>
   <string name="file_action_export">Export</string>
+  <string name="file_action_open">Open with</string>
   <string name="file_action_delete">Delete</string>
   <string name="file_action_rename">Rename</string>
   <string name="file_action_copy">Copy</string>

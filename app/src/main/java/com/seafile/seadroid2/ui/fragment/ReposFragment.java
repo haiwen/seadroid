@@ -214,7 +214,10 @@ public class ReposFragment extends ListFragment {
             public void onClick(DialogInterface dialog, int which) {
                 switch (which) {
                     case R.id.share:
-                        mActivity.showShareDialog(repoID, path, false, dirent.size,dirent.name);
+                        mActivity.showShareDialog(repoID, path, false, dirent.size, dirent.name);
+                        break;
+                    case R.id.open:
+                        mActivity.onFileSelected(dirent, true);
                         break;
                     case R.id.delete:
                         mActivity.deleteFile(repoID, repoName, path);

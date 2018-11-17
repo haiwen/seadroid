@@ -17,6 +17,7 @@ import com.seafile.seadroid2.util.FileMimeUtils;
 import java.io.File;
 
 import br.tiagohm.markdownview.MarkdownView;
+import br.tiagohm.markdownview.Utils;
 import br.tiagohm.markdownview.css.InternalStyleSheet;
 import br.tiagohm.markdownview.css.styles.Github;
 
@@ -60,7 +61,12 @@ public class MarkdownActivity extends BaseActivity implements Toolbar.OnMenuItem
         css.addRule("body", new String[]{"line-height: 1.6", "padding: 0px"});
         css.addRule("a", "color: orange");
         markdownView.addStyleSheet(css);
-        markdownView.loadMarkdownFromFile(file);
+        try {
+            markdownView.loadMarkdownFromFile(file);
+        } catch (Exception e) {
+            markdownView.loadData(Utils.getStringFromFile(file), "text/plain", "UTF-8");
+            e.printStackTrace();
+        }
 
         getSupportActionBar().setTitle(file.getName());
     }
