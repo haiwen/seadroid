@@ -83,6 +83,7 @@
   <string name="file_action_share_link">Share link</string>
   <string name="file_action_share_encrypt">Share link with password</string>
   <string name="file_action_export">Export</string>
+  <string name="file_action_open">Open with</string>
   <string name="file_action_delete">Delete</string>
   <string name="file_action_rename">Rename</string>
   <string name="file_action_copy">Copy</string>
@@ -543,14 +544,14 @@
   <string name="expiration_dates">expiration dates</string>
   <string name="add_auto_expiration">Add auto expiration</string>
   <string name="input_auto_expiration">Please enter the expiration dates</string>
-    <!--editor-->
-    <string name="editor_lines_error">Unable to operate multiple lines</string>
-    <string name="editor_file_save">Do you want to save and quit?</string>
-    <string name="editor_file_save_success">File save successfully</string>
-    <string name="editor_file_save_failed">Cache cleared failed</string>
-    <string name="editor_file_save_title">File save</string>
-    <string name="description">Description</string>
-    <string name="undo">undo</string>
-    <string name="redo">redo</string>
-    <string name="link">Link</string>
+  <!--editor-->
+  <string name="editor_lines_error">Unable to operate multiple lines</string>
+  <string name="editor_file_save">Do you want to save and quit?</string>
+  <string name="editor_file_save_success">File save successfully</string>
+  <string name="editor_file_save_failed">Cache cleared failed</string>
+  <string name="editor_file_save_title">File save</string>
+  <string name="description">Description</string>
+  <string name="undo">undo</string>
+  <string name="redo">redo</string>
+  <string name="link">Link</string>
 </resources>

@@ -552,7 +552,7 @@
   <string name="editor_file_save_failed">Не удалось очистить кэш</string>
   <string name="editor_file_save_title">Сохранение файла</string>
   <string name="description">Описание</string>
-  <string name="link">Ссылка</string>
   <string name="undo">отмена</string>
   <string name="redo">повтор</string>
+  <string name="link">Ссылка</string>
 </resources>

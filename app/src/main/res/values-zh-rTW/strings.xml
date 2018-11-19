@@ -490,7 +490,7 @@
   <string name="editor_file_save_failed">清理緩存失敗</string>
   <string name="editor_file_save_title">保存文件</string>
   <string name="description">描述</string>
-  <string name="link">鏈接</string>
   <string name="undo">撤銷</string>
   <string name="redo">還原</string>
+  <string name="link">鏈接</string>
 </resources>

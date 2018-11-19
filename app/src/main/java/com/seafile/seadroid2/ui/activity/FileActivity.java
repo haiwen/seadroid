@@ -22,7 +22,6 @@ import com.seafile.seadroid2.SeafConnection;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
-import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
 import com.seafile.seadroid2.transfer.TaskState;
@@ -71,6 +70,7 @@ public class FileActivity extends BaseActivity implements Toolbar.OnMenuItemClic
     };
 
     private final Handler mTimer = new Handler();
+    private boolean isOpenWith;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,7 +81,7 @@ public class FileActivity extends BaseActivity implements Toolbar.OnMenuItemClic
         mRepoID = intent.getStringExtra("repoID");
         mFilePath = intent.getStringExtra("filePath");
         mTaskID = intent.getIntExtra("taskID", 0);
-
+        isOpenWith = intent.getBooleanExtra("is_open_with", false);
         mDataManager = new DataManager(mAccount);
 
         setContentView(R.layout.file_activity);
@@ -209,6 +209,7 @@ public class FileActivity extends BaseActivity implements Toolbar.OnMenuItemClic
         if (file != null && timerStarted) {
             Intent result = new Intent();
             result.putExtra("path", file.getAbsolutePath());
+            result.putExtra("is_open_with", isOpenWith);
             setResult(RESULT_OK, result);
         }
         else {

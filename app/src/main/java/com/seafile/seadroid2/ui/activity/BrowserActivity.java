@@ -1367,7 +1367,8 @@ public class BrowserActivity extends BaseActivity
             case DOWNLOAD_FILE_REQUEST:
                 if (resultCode == RESULT_OK) {
                     File file = new File(data.getStringExtra("path"));
-                    WidgetUtils.showFile(BrowserActivity.this, file);
+                    boolean isOpenWith = data.getBooleanExtra("is_open_with", false);
+                    WidgetUtils.showFile(BrowserActivity.this, file, isOpenWith);
                 }
         default:
              break;
@@ -1507,8 +1508,7 @@ public class BrowserActivity extends BaseActivity
 
     /***************  Navigation *************/
 
-    @Override
-    public void onFileSelected(SeafDirent dirent) {
+    public void onFileSelected(SeafDirent dirent,boolean isOpenWith) {
         final String fileName= dirent.name;
         final long fileSize = dirent.size;
         final String repoName = navContext.getRepoName();
@@ -1527,7 +1527,7 @@ public class BrowserActivity extends BaseActivity
 
         final File localFile = dataManager.getLocalCachedFile(repoName, repoID, filePath, dirent.id);
         if (localFile != null) {
-            WidgetUtils.showFile(this, localFile);
+            WidgetUtils.showFile(this, localFile, isOpenWith);
             return;
         }
         boolean videoFile = Utils.isVideoFile(fileName);
@@ -1539,12 +1539,17 @@ public class BrowserActivity extends BaseActivity
                     if (which == 0) // create file
                         startPlayActivity(fileName, repoID, filePath);
                     else if (which == 1) // create folder
-                        startFileActivity(repoName, repoID, filePath, fileSize);
+                        startFileActivity(repoName, repoID, filePath, fileSize, isOpenWith);
                 }
             }).show();
             return;
         }
-        startFileActivity(repoName, repoID, filePath, fileSize);
+        startFileActivity(repoName, repoID, filePath, fileSize, isOpenWith);
+    }
+
+    @Override
+    public void onFileSelected(SeafDirent dirent) {
+        onFileSelected(dirent, false);
     }
 
     /**
@@ -1701,6 +1706,10 @@ public class BrowserActivity extends BaseActivity
     }
 
     private void startFileActivity(String repoName, String repoID, String filePath, long fileSize) {
+        startFileActivity(repoName, repoID, filePath, fileSize);
+    }
+
+    private void startFileActivity(String repoName, String repoID, String filePath, long fileSize, boolean isOpenWith) {
         // txService maybe null if layout orientation has changed
         if (txService == null) {
             return;
@@ -1712,6 +1721,7 @@ public class BrowserActivity extends BaseActivity
         intent.putExtra("filePath", filePath);
         intent.putExtra("account", account);
         intent.putExtra("taskID", taskID);
+        intent.putExtra("is_open_with", isOpenWith);
         startActivityForResult(intent, DOWNLOAD_FILE_REQUEST);
     }
 
@@ -1721,12 +1731,12 @@ public class BrowserActivity extends BaseActivity
         intent.putExtra("repoID", repoID);
         intent.putExtra("filePath", filePath);
         intent.putExtra("account", account);
-//        DOWNLOAD_PLAY_REQUEST
+        //DOWNLOAD_PLAY_REQUEST
         startActivity(intent );
     }
 
-    @Override
-    public void onStarredFileSelected(final SeafStarredFile starredFile) {
+
+    public void onStarredFileSelected(final SeafStarredFile starredFile, boolean isOpenWith) {
         final long fileSize = starredFile.getSize();
         final String repoID = starredFile.getRepoID();
         final SeafRepo repo = dataManager.getCachedRepoByID(repoID);
@@ -1763,7 +1773,12 @@ public class BrowserActivity extends BaseActivity
             return;
         }
 
-        startFileActivity(repoName, repoID, filePath, fileSize);
+        startFileActivity(repoName, repoID, filePath, fileSize, isOpenWith);
+    }
+
+    @Override
+    public void onStarredFileSelected(SeafStarredFile starredFile) {
+        onStarredFileSelected(starredFile, false);
     }
 
     @Override

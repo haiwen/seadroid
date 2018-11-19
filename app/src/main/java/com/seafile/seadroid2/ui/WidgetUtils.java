@@ -185,21 +185,27 @@ public class WidgetUtils {
 
         }
     }
+
+    public static void showFile(final BaseActivity activity, File file) {
+        showFile(activity, file, false);
+    }
+
     /**
      * display the file according to its file type
      *
      * @param file
      */
-    public static void showFile(final BaseActivity activity, File file) {
+    public static void showFile(final BaseActivity activity, File file, boolean isOpenWith) {
 
         String name = file.getName();
         String suffix = name.substring(name.lastIndexOf('.') + 1).toLowerCase();
-
-        // Open markdown and txt files in MarkdownActivity
-        if ("md".equals(suffix) || "markdown".equals(suffix) || "txt".equals(suffix)) {
-            startMarkdownActivity(activity, file.getPath());
-            activity.overridePendingTransition(0, 0);
-            return;
+        if (!isOpenWith) {
+            //Open markdown and txt files in MarkdownActivity
+            if ("md".equals(suffix) || "markdown".equals(suffix) || "txt".equals(suffix)) {
+                startMarkdownActivity(activity, file.getPath());
+                activity.overridePendingTransition(0, 0);
+                return;
+            }
         }
 
         String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(suffix);

@@ -19,7 +19,7 @@
         android:title="@string/file_action_copy" />
     <item
         android:id="@+id/move"
-        android:icon="@drawable/action_move"
+        android:icon="@drawable/action_open"
         android:title="@string/file_action_move" />
     <group android:id="@+id/group_update">
         <item
