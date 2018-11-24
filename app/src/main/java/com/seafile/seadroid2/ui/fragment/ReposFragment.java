@@ -252,6 +252,10 @@ public class ReposFragment extends ListFragment {
             menu.findItem(R.id.delete).setVisible(false);
             menu.findItem(R.id.move).setVisible(false);
         }
+        if (!Utils.isTextMimeType(filename)) {
+            Menu menu = builder.build().getMenu();
+            menu.findItem(R.id.open).setVisible(false);
+        }
         builder.show();
         SeafRepo repo = getDataManager().getCachedRepoByID(repoID);
         if (repo != null && repo.encrypted) {

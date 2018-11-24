@@ -733,6 +733,15 @@ public class Utils {
         return !TextUtils.isEmpty(target) && android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
     }
 
+    public static boolean isTextMimeType(String fileName) {
+        String suffix = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
+        //file is markdown or  txt
+        if ("md".equals(suffix) || "markdown".equals(suffix) || "txt".equals(suffix)) {
+            return true;
+        }
+        return false;
+    }
+
     private static long lastClickTime;
 
     /**
@@ -849,4 +858,6 @@ public class Utils {
             decorView.setSystemUiVisibility(uiOptions);
         }
     }
+
+
 }
