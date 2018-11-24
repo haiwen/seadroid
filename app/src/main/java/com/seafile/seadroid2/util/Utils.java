@@ -333,19 +333,19 @@ public class Utils {
         ConnectivityManager connMgr = (ConnectivityManager)
                 SeadroidApplication.getAppContext().getSystemService(
                         Context.CONNECTIVITY_SERVICE);
-
-        NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        if(wifi != null && wifi.isAvailable()
-                && wifi.getDetailedState() == DetailedState.CONNECTED) {
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        if (networkInfo == null) {
+            return false;
+        }
+        if (networkInfo.getType() == ConnectivityManager.TYPE_MOBILE) {
+            String extraInfo = networkInfo.getExtraInfo();
+            if (!TextUtils.isEmpty(extraInfo)) {
+                return true;
+            }
+        }
+        if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
             return true;
         }
-
-        NetworkInfo mobile = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-        if(mobile != null && mobile.isAvailable()
-                && mobile.getDetailedState() == DetailedState.CONNECTED) {
-            return true;
-        }
-
         return false;
     }
 
