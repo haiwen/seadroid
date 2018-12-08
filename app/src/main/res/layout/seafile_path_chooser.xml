@@ -21,6 +21,7 @@
 
     <LinearLayout
         android:id="@+id/content"
+        android:layout_above="@+id/buttonsContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal">   
@@ -75,15 +76,10 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_horizontal"
-        android:layout_alignParentBottom="true"
-        android:background="@color/light_grey"
-        android:paddingLeft="@dimen/footer_margin_left"
-        android:paddingRight="@dimen/footer_margin_right"
-        android:paddingTop="@dimen/footer_margin_top"
-        android:paddingBottom="@dimen/footer_margin_bottom">
+        android:layout_alignParentBottom="true">
        <Button
             android:id="@+id/cancel"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="@dimen/btn_height"
             android:layout_weight="0.4"
             android:text="@string/cancel"
@@ -93,15 +89,9 @@
             android:theme="@style/NegativeButton"
            />
 
-		<View
-		    android:id="@+id/transparent_space"
-		    android:layout_width="0dp"
-		    android:layout_height="60dp"
-		    android:layout_weight="0.2" />
-
         <Button
             android:id="@+id/ok"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="@dimen/btn_height"
             android:layout_weight="0.4"
             android:text="@string/ok"

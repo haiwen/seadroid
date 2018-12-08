@@ -72,7 +72,6 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
 
     private View mProgressContainer, mListContainer, mContentArea;
     private Button mOkButton, mCancelButton;
-    private View mTransparentSpace;
     private TextView mEmptyText, mErrorText;
     private ListView mListView;
 
@@ -106,7 +105,6 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
 
         mOkButton = (Button) findViewById(R.id.ok);
         mCancelButton = (Button) findViewById(R.id.cancel);
-        mTransparentSpace = findViewById(R.id.transparent_space);
         mListView = (ListView) findViewById(android.R.id.list);
         mEmptyText = (TextView) findViewById(android.R.id.empty);
         mErrorText = (TextView) findViewById(R.id.error_message);
@@ -116,7 +114,6 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
         isOnlyChooseRepo = intent.getBooleanExtra(SettingsFragment.CAMERA_UPLOAD_BOTH_PAGES, false);
         if (isOnlyChooseRepo) {
             mOkButton.setVisibility(View.GONE);
-            mTransparentSpace.setVisibility(View.GONE);
         }
         mListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         mListView.setOnItemClickListener(new ListView.OnItemClickListener() {
@@ -377,7 +374,6 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
         ConcurrentAsyncTask.execute(mLoadAccountsTask);
         setListAdapter(getAccountAdapter());
         mOkButton.setVisibility(View.GONE);
-        mTransparentSpace.setVisibility(View.GONE);
 
         // update action bar
         ActionBar bar = getSupportActionBar();
@@ -402,7 +398,6 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
 
         setListAdapter(getReposAdapter());
         mOkButton.setVisibility(View.GONE);
-        mTransparentSpace.setVisibility(View.GONE);
 
         getNavContext().setRepoID(null);
 
@@ -439,7 +434,6 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
         // update action bar
         setListAdapter(getDirentsAdapter());
         mOkButton.setVisibility(View.VISIBLE);
-        mTransparentSpace.setVisibility(View.VISIBLE);
         refreshDir(forceRefresh);
     }
 
