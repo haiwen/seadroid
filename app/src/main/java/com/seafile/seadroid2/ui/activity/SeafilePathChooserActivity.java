@@ -89,6 +89,7 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
     public static final String ONLY_SHOW_WRITABLE_REPOS = "onlyShowWritableRepos";
     public static final String SHOW_ENCRYPTED_REPOS = "showEncryptedRepos";
     public static final String ENCRYPTED_REPO_ID = "encryptedRepoId";
+    private boolean showEncryptedRepos;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,6 +102,7 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
             mAccount = account;
         }
         onlyShowWritableRepos = intent.getBooleanExtra(ONLY_SHOW_WRITABLE_REPOS, true);
+        showEncryptedRepos = intent.getBooleanExtra(SHOW_ENCRYPTED_REPOS, true);
         encryptedRepoId = intent.getStringExtra(ENCRYPTED_REPO_ID);
 
         mOkButton = (Button) findViewById(R.id.ok);
@@ -467,6 +469,25 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
                         isContains = true;
                         break;
                     }
+                }
+                if (onlyShowWritableRepos && !item.hasWritePermission()) {
+                    // Read only dir need not  show in list
+                    continue;
+                }
+
+                if (item.encrypted && !showEncryptedRepos) {
+                    // encrypted dir need not show in list
+                    continue;
+                }
+
+                if (item.encrypted && TextUtils.equals(item.id, encryptedRepoId)) {
+                    NavContext nav = getNavContext();
+                    nav.setRepoName(item.name);
+                    nav.setRepoID(item.id);
+                    nav.setDir("/", item.root);
+                    chooseDir();
+                    mStep = STEP_CHOOSE_REPO;
+                    break;
                 }
                 if (!isContains) {
                     adapter.add(item);
