@@ -2042,9 +2042,12 @@ public class BrowserActivity extends BaseActivity
         Intent intent = new Intent(this, SeafilePathChooserActivity.class);
         intent.putExtra(SeafilePathChooserActivity.DATA_ACCOUNT, account);
         SeafRepo repo = dataManager.getCachedRepoByID(repoID);
+        boolean isShowEncryptDir = false;
         if (repo.encrypted) {
+            isShowEncryptDir = true;
             intent.putExtra(SeafilePathChooserActivity.ENCRYPTED_REPO_ID, repoID);
         }
+        intent.putExtra(SeafilePathChooserActivity.SHOW_ENCRYPTED_REPOS, isShowEncryptDir);
         startActivityForResult(intent, CHOOSE_COPY_MOVE_DEST_REQUEST);
         return;
     }
@@ -2241,9 +2244,11 @@ public class BrowserActivity extends BaseActivity
         Intent intent = new Intent(this, SeafilePathChooserActivity.class);
         intent.putExtra(SeafilePathChooserActivity.DATA_ACCOUNT, account);
         SeafRepo repo = getDataManager().getCachedRepoByID(repoID);
+        boolean isShowEncryptDir = false;
         if (repo.encrypted) {
             intent.putExtra(SeafilePathChooserActivity.ENCRYPTED_REPO_ID, repoID);
         }
+        intent.putExtra(SeafilePathChooserActivity.SHOW_ENCRYPTED_REPOS, isShowEncryptDir);
         startActivityForResult(intent, BrowserActivity.CHOOSE_COPY_MOVE_DEST_REQUEST);
     }
 
