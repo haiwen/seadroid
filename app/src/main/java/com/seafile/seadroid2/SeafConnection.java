@@ -459,12 +459,18 @@ public class SeafConnection {
             checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
 
             String result = new String(req.bytes(), "UTF-8");
-            String fileID = req.header("oid");
+            result = result.replace("\"", ""); // remove quotation marks
 
-            // should return "\"http://gonggeng.org:8082/...\"" or "\"https://gonggeng.org:8082/...\"
-            if (result.startsWith("\"http") && fileID != null) {
-                String url = result.substring(1, result.length() - 1);
-                return new Pair<String, String>(url, fileID);
+            // Fix missing URL
+            if (!result.startsWith("http")) {
+                result = account.server + result;
+                result = result.replaceAll("(?<!(http:|https:))[//]+", "/"); // remove double slashes
+            }
+
+            String fileID = req.header("oid");
+            // should return "http://gonggeng.org:8082/..." or "https://gonggeng.org:8082/..."
+            if (fileID != null) {
+                return new Pair<String, String>(result, fileID);
             } else {
                 throw SeafException.illFormatException;
             }
@@ -780,12 +786,16 @@ public class SeafConnection {
             checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
 
             String result = new String(req.bytes(), "UTF-8");
-            // should return "\"http://gonggeng.org:8082/...\"" or "\"https://gonggeng.org:8082/...\"
-            if (result.startsWith("\"http")) {
-                // remove the starting and trailing quote
-                return result.substring(1, result.length() - 1);
-            } else
-                throw SeafException.unknownException;
+            result = result.replace("\"", ""); // remove quotation marks
+
+            // Fix missing URL
+            if (!result.startsWith("http")) {
+                result = account.server + result;
+                result = result.replaceAll("(?<!(http:|https:))[//]+", "/"); // remove double slashes
+            }
+
+            // should return "http://gonggeng.org:8082/..." or "https://gonggeng.org:8082/..."
+            return result;
         } catch (SeafException e) {
             Log.d(DEBUG_TAG, e.getCode() + e.getMessage());
             throw e;
