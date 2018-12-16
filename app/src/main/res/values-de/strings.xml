@@ -79,6 +79,7 @@
   <string name="file_action_share_link">Link freigeben</string>
   <string name="file_action_share_encrypt">Freigabe-Link mit Passwort</string>
   <string name="file_action_export">Exportieren</string>
+  <string name="file_action_open">Öffnen mit</string>
   <string name="file_action_delete">Löschen</string>
   <string name="file_action_rename">Umbenennen</string>
   <string name="file_action_copy">Kopieren</string>

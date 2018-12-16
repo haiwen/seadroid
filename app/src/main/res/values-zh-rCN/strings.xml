@@ -529,4 +529,7 @@
   <string name="undo">撤销</string>
   <string name="redo">还原</string>
   <string name="link">链接</string>
+  <string name="channel_name_error">错误信息</string>
+  <string name="channel_name_upload">文件上传</string>
+  <string name="channel_name_download">文件下载</string>
 </resources>
