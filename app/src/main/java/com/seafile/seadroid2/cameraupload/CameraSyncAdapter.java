@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SyncResult;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.MediaStore;
@@ -21,15 +22,16 @@ import com.google.common.base.Joiner;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
-import com.seafile.seadroid2.data.StorageManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.data.StorageManager;
 import com.seafile.seadroid2.transfer.TaskState;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.UploadTaskInfo;
+import com.seafile.seadroid2.ui.CustomNotificationBuilder;
 import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.ui.activity.SettingsActivity;
 import com.seafile.seadroid2.util.Utils;
@@ -619,11 +621,17 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
      * This is something the user has to fix.
      */
     private void showNotificationAuthError() {
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(getContext())
-                        .setSmallIcon(R.drawable.icon)
-                        .setContentTitle(getContext().getString(R.string.camera_sync_notification_title_failed))
-                        .setContentText(getContext().getString(R.string.camera_sync_notification_auth_error_failed));
+        NotificationCompat.Builder mBuilder;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            mBuilder = new NotificationCompat.Builder(getContext(), CustomNotificationBuilder.CHANNEL_ID_ERROR);
+        } else {
+            mBuilder = new NotificationCompat.Builder(getContext());
+        }
+
+        mBuilder.setSmallIcon(R.drawable.icon)
+                .setOnlyAlertOnce(true)
+                .setContentTitle(getContext().getString(R.string.camera_sync_notification_title_failed))
+                .setContentText(getContext().getString(R.string.camera_sync_notification_auth_error_failed));
 
         // Creates an explicit intent for an Activity in your app
         Intent resultIntent = new Intent(getContext(), AccountsActivity.class);

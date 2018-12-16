@@ -1,7 +1,9 @@
 package com.seafile.seadroid2.notification;
 
+import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Intent;
+
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.transfer.DownloadTaskInfo;
@@ -104,8 +106,11 @@ public class DownloadNotificationProvider extends BaseNotificationProvider {
                 (int) System.currentTimeMillis(),
                 dIntent,
                 0);
-        mNotifBuilder = CustomNotificationBuilder.getNotificationBuilder(SeadroidApplication.getAppContext())
+        mNotifBuilder = CustomNotificationBuilder.getNotificationBuilder(SeadroidApplication.getAppContext(),
+                CustomNotificationBuilder.CHANNEL_ID_DOWNLOAD)
                 .setSmallIcon(R.drawable.icon)
+                .setOnlyAlertOnce(true)
+                .setDefaults(Notification.DEFAULT_VIBRATE)
                 .setContentTitle(SeadroidApplication.getAppContext().getString(R.string.notification_download_started_title))
                 .setOngoing(true)
                 .setContentText(SeadroidApplication.getAppContext().getString(R.string.notification_download_started_title))

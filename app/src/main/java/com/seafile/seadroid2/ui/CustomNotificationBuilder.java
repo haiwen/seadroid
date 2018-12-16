@@ -16,6 +16,10 @@ import com.seafile.seadroid2.R;
  */
 public class CustomNotificationBuilder extends NotificationCompat.Builder {
 
+    public static final String CHANNEL_ID_ERROR = "error";
+    public static final String CHANNEL_ID_UPLOAD = "upload";
+    public static final String CHANNEL_ID_DOWNLOAD = "download";
+
     /**
      * Custom view to replace the original layout of the notifications
      */
@@ -30,9 +34,11 @@ public class CustomNotificationBuilder extends NotificationCompat.Builder {
      * @return              An instance of this class, or of the regular
      *                      {@link NotificationCompat.Builder}, when it is good enough.
      */
-    public static NotificationCompat.Builder getNotificationBuilder(Context context) {
+    public static NotificationCompat.Builder getNotificationBuilder(Context context, String channelId) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             return new CustomNotificationBuilder(context);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            return new NotificationCompat.Builder(context, channelId);
         } else {
             return new NotificationCompat.Builder(context);
         }
