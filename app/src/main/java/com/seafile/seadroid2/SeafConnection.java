@@ -1195,8 +1195,12 @@ public class SeafConnection {
     }
 
     public void deleteRepo(String repoID) throws SeafException {
-        HttpRequest req = prepareApiDeleteRequest(String.format("api2/repos/%s/", repoID), null);
-        checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+        try {
+            HttpRequest req = prepareApiDeleteRequest(String.format("api2/repos/%s/", repoID), null);
+            checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
+        } catch (HttpRequestException e) {
+            throw getSeafExceptionFromHttpRequestException(e);
+        }
     }
 
 
