@@ -1,12 +1,16 @@
 package com.seafile.seadroid2.transfer;
 
 import android.util.Log;
+
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Manages file downloading and uploading.
@@ -27,7 +31,7 @@ public abstract class TransferManager {
     /**
      * contains all transfer tasks, including failed, cancelled, finished, transferring, waiting tasks.
      */
-    protected List<TransferTask> allTaskList = Lists.newArrayList();
+    protected Map<Integer, TransferTask> allTaskList = new HashMap<>();
     /**
      * contains currently transferring tasks
      */
@@ -38,12 +42,7 @@ public abstract class TransferManager {
     protected List<TransferTask> waitingList = Lists.newArrayList();
 
     protected synchronized TransferTask getTask(int taskID) {
-        for (TransferTask task : allTaskList) {
-            if (task.getTaskID() == taskID) {
-                return task;
-            }
-        }
-        return null;
+       return allTaskList.get(taskID);
     }
 
     public TransferTaskInfo getTaskInfo(int taskID) {
@@ -75,7 +74,7 @@ public abstract class TransferManager {
                 allTaskList.remove(task);
 
                 // add new created task
-                allTaskList.add(task);
+                allTaskList.put(task.getTaskID(),task);
 
                 // Log.d(DEBUG_TAG, "add Que  " + taskID + " " + repoName + path);
                 waitingList.add(task);
@@ -121,22 +120,16 @@ public abstract class TransferManager {
         }
     }
 
-    public void removeInAllTaskList(int taskID) {
-        TransferTask task = getTask(taskID);
-        if (task != null) {
-            synchronized (this) {
-                allTaskList.remove(task);
-            }
-        }
+    public synchronized void removeInAllTaskList(int taskID) {
+        allTaskList.remove(taskID);
     }
 
     public synchronized List<TransferTask> getTasksByState(TaskState taskState) {
         List<TransferTask> taskList = Lists.newArrayList();
-        Iterator<TransferTask> iter = allTaskList.iterator();
-        while (iter.hasNext()) {
-            TransferTask task = iter.next();
-            if (task.state.equals(taskState)) {
-                taskList.add(task);
+        Collection<TransferTask> values = allTaskList.values();
+        for (TransferTask value : values) {
+            if (value.state.equals(taskState)) {
+                taskList.add(value);
             }
         }
         return taskList;
@@ -150,11 +143,12 @@ public abstract class TransferManager {
      *          taskState
      */
     public synchronized void removeByState(TaskState taskState) {
-        Iterator<TransferTask> iter = allTaskList.iterator();
-        while (iter.hasNext()) {
-            TransferTask task = iter.next();
-            if (task.getState().equals(taskState)) {
-                iter.remove();
+        Iterator<Map.Entry<Integer, TransferTask>> iterator = allTaskList.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<Integer, TransferTask> next = iterator.next();
+            TransferTask value = next.getValue();
+            if (value.getState().equals(taskState)) {
+                iterator.remove();
             }
         }
     }
@@ -167,8 +161,7 @@ public abstract class TransferManager {
      */
     public synchronized void removeByIds(List<Integer> ids) {
         for (int taskID : ids) {
-            TransferTask transferTask = getTask(taskID);
-            allTaskList.remove(transferTask);
+            allTaskList.remove(taskID);
         }
     }
 
@@ -202,8 +195,9 @@ public abstract class TransferManager {
 
     public synchronized List<? extends TransferTaskInfo> getAllTaskInfoList() {
         ArrayList<TransferTaskInfo> infos = Lists.newArrayList();
-        for (TransferTask task : allTaskList) {
-            infos.add(task.getTaskInfo());
+        Collection<TransferTask> values = allTaskList.values();
+        for (TransferTask value : values) {
+            infos.add(value.getTaskInfo());
         }
 
         return infos;

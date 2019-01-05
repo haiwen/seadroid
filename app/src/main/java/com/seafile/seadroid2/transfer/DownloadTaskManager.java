@@ -4,14 +4,16 @@ import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.google.common.collect.Lists;
-import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
+import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Download task manager
@@ -34,8 +36,8 @@ public class DownloadTaskManager extends TransferManager implements DownloadStat
         TransferTask task = new DownloadTask(++notificationID, account, repoName, repoID, path, this);
         task.totalSize = fileSize;
         TransferTask oldTask = null;
-        if (allTaskList.contains(task)) {
-            oldTask = allTaskList.get(allTaskList.indexOf(task));
+        if (allTaskList.containsValue(task)) {
+            oldTask = allTaskList.get(task.taskID);
         }
         if (oldTask != null) {
             if (oldTask.getState().equals(TaskState.CANCELLED)
@@ -47,7 +49,7 @@ public class DownloadTaskManager extends TransferManager implements DownloadStat
                 return oldTask.getTaskID();
             }
         }
-        allTaskList.add(task);
+        allTaskList.put(task.getTaskID(),task);
         ConcurrentAsyncTask.execute(task);
         return task.getTaskID();
     }
@@ -78,13 +80,17 @@ public class DownloadTaskManager extends TransferManager implements DownloadStat
      */
     public List<DownloadTaskInfo> getTaskInfoListByPath(String repoID, String dir) {
         ArrayList<DownloadTaskInfo> infos = Lists.newArrayList();
-        for (TransferTask task : allTaskList) {
-            if (!task.getRepoID().equals(repoID))
-                continue;
+        Iterator<Map.Entry<Integer, TransferTask>> iterator = allTaskList.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<Integer, TransferTask> next = iterator.next();
+            TransferTask value = next.getValue();
+            if (!value.getRepoID().equals(repoID)) {
 
-            String parentDir = Utils.getParentPath(task.getPath());
-            if (parentDir.equals(dir))
-                infos.add(((DownloadTask) task).getTaskInfo());
+                String parentDir = Utils.getParentPath(value.getPath());
+                if (parentDir.equals(dir)) {
+                    infos.add(((DownloadTask) value).getTaskInfo());
+                }
+            }
         }
 
         return infos;
@@ -98,11 +104,13 @@ public class DownloadTaskManager extends TransferManager implements DownloadStat
      */
     public List<DownloadTaskInfo> getTaskInfoListByRepo(String repoID) {
         ArrayList<DownloadTaskInfo> infos = Lists.newArrayList();
-        for (TransferTask task : allTaskList) {
-            if (!task.getRepoID().equals(repoID))
-                continue;
-
-            infos.add(((DownloadTask) task).getTaskInfo());
+        Iterator<Map.Entry<Integer, TransferTask>> iterator = allTaskList.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<Integer, TransferTask> next = iterator.next();
+            TransferTask value = next.getValue();
+            if (value.getRepoID().equals(repoID)) {
+                infos.add(((DownloadTask) value).getTaskInfo());
+            }
         }
 
         return infos;
