@@ -31,7 +31,7 @@ public class AutoUpdateManager implements Runnable, CachedFileChangedListener {
     private final Handler mHandler = new Handler();
 
     private Set<AutoUpdateInfo> infos = Sets.newHashSet();
-    private MonitorDBHelper db = MonitorDBHelper.getMonitorDBHelper();
+    private MonitorDBHelper db = MonitorDBHelper.getInstance();
 
     public void onTransferServiceConnected(TransferService txService) {
         this.txService = txService;

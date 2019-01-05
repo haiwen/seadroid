@@ -65,19 +65,20 @@ public class MonitorDBHelper extends SQLiteOpenHelper {
     // Use only single dbHelper to prevent multi-thread issue and db is closed exception
     // Reference
     // http://stackoverflow.com/questions/2493331/what-are-the-best-practices-for-sqlite-on-android
-    private static MonitorDBHelper dbHelper = null;
     private SQLiteDatabase database = null;
 
-    public static synchronized MonitorDBHelper getMonitorDBHelper() {
-        if (dbHelper != null)
-            return dbHelper;
-        dbHelper = new MonitorDBHelper(SeadroidApplication.getAppContext());
-        dbHelper.database = dbHelper.getWritableDatabase();
-        return dbHelper;
+
+    public static MonitorDBHelper getInstance() {
+        return SingletonHolder.SINGLETON;
+    }
+
+    private static class SingletonHolder {
+        private static MonitorDBHelper SINGLETON = new MonitorDBHelper(SeadroidApplication.getAppContext());
     }
 
     private MonitorDBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        database = getWritableDatabase();
     }
 
     @Override
@@ -122,8 +123,8 @@ public class MonitorDBHelper extends SQLiteOpenHelper {
                 AUTO_UPDATE_INFO_COLUMN_PARENT_DIR,
                 AUTO_UPDATE_INFO_COLUMN_LOCAL_PATH,
                 AUTO_UPDATE_INFO_COLUMN_VERSION);
-        String[] params = { info.account.getSignature(), info.repoID, info.repoName,
-                info.parentDir, info.localPath, };
+        String[] params = {info.account.getSignature(), info.repoID, info.repoName,
+                info.parentDir, info.localPath,};
         database.delete(AUTO_UPDATE_INFO_TABLE_NAME, whereClause, params);
     }
 
@@ -135,7 +136,7 @@ public class MonitorDBHelper extends SQLiteOpenHelper {
                 null, // don't group the rows
                 null, // don't filter by row groups
                 null // The sort order
-                );
+        );
 
         c.moveToFirst();
 

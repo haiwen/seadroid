@@ -32,6 +32,7 @@ public abstract class BaseNotificationProvider {
 
     public static final int NOTIFICATION_ID_DOWNLOAD = 1;
     public static final int NOTIFICATION_ID_UPLOAD = 2;
+    public static final int NOTIFICATION_ID_MEDIA = 3;
 
     protected TransferManager txMgr;
     protected TransferService txService;
