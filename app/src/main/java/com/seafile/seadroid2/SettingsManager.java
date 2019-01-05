@@ -19,14 +19,16 @@ public final class SettingsManager {
     private static final String DEBUG_TAG = "SettingsManager";
 
     private static SettingsManager instance;
-    private SharedPreferences settingsSharedPref;
+    private static SharedPreferences settingsSharedPref;
     private static SharedPreferences sharedPref;
     private static SharedPreferences.Editor editor;
 
     private SettingsManager() {
-        settingsSharedPref = PreferenceManager.getDefaultSharedPreferences(SeadroidApplication.getAppContext());
-        sharedPref = SeadroidApplication.getAppContext().getSharedPreferences(AccountManager.SHARED_PREF_NAME, Context.MODE_PRIVATE);
-        editor = sharedPref.edit();
+        if (SeadroidApplication.getAppContext() != null) {
+            settingsSharedPref = PreferenceManager.getDefaultSharedPreferences(SeadroidApplication.getAppContext());
+            sharedPref = SeadroidApplication.getAppContext().getSharedPreferences(AccountManager.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+            editor = sharedPref.edit();
+        }
     }
 
 
@@ -101,6 +103,14 @@ public final class SettingsManager {
                     instance = new SettingsManager();
                 }
             }
+        }
+
+        if (settingsSharedPref == null) {
+            settingsSharedPref = PreferenceManager.getDefaultSharedPreferences(SeadroidApplication.getAppContext());
+        }
+        if (sharedPref == null) {
+            sharedPref = SeadroidApplication.getAppContext().getSharedPreferences(AccountManager.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+            editor = sharedPref.edit();
         }
         return instance;
     }
