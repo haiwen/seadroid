@@ -9,16 +9,17 @@
         android:id="@+id/server_hint"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:hint="@string/server_hint"
         android:layout_marginTop="30dp">
 
         <EditText
             android:id="@+id/single_sign_on_server_url_et"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:importantForAutofill="auto"
             android:layout_marginLeft="@dimen/et_margin_left"
             android:layout_marginRight="@dimen/et_margin_right"
             android:background="@drawable/edit_text_holo_light"
-            android:hint="@string/server_hint"
             android:inputType="textUri"/>
 
     </android.support.design.widget.TextInputLayout>
