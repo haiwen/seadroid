@@ -72,7 +72,6 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
 
     private View mProgressContainer, mListContainer, mContentArea;
     private Button mOkButton, mCancelButton;
-    private View mTransparentSpace;
     private TextView mEmptyText, mErrorText;
     private ListView mListView;
 
@@ -90,6 +89,7 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
     public static final String ONLY_SHOW_WRITABLE_REPOS = "onlyShowWritableRepos";
     public static final String SHOW_ENCRYPTED_REPOS = "showEncryptedRepos";
     public static final String ENCRYPTED_REPO_ID = "encryptedRepoId";
+    private boolean showEncryptedRepos;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,11 +102,11 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
             mAccount = account;
         }
         onlyShowWritableRepos = intent.getBooleanExtra(ONLY_SHOW_WRITABLE_REPOS, true);
+        showEncryptedRepos = intent.getBooleanExtra(SHOW_ENCRYPTED_REPOS, true);
         encryptedRepoId = intent.getStringExtra(ENCRYPTED_REPO_ID);
 
         mOkButton = (Button) findViewById(R.id.ok);
         mCancelButton = (Button) findViewById(R.id.cancel);
-        mTransparentSpace = findViewById(R.id.transparent_space);
         mListView = (ListView) findViewById(android.R.id.list);
         mEmptyText = (TextView) findViewById(android.R.id.empty);
         mErrorText = (TextView) findViewById(R.id.error_message);
@@ -116,7 +116,6 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
         isOnlyChooseRepo = intent.getBooleanExtra(SettingsFragment.CAMERA_UPLOAD_BOTH_PAGES, false);
         if (isOnlyChooseRepo) {
             mOkButton.setVisibility(View.GONE);
-            mTransparentSpace.setVisibility(View.GONE);
         }
         mListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         mListView.setOnItemClickListener(new ListView.OnItemClickListener() {
@@ -377,7 +376,6 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
         ConcurrentAsyncTask.execute(mLoadAccountsTask);
         setListAdapter(getAccountAdapter());
         mOkButton.setVisibility(View.GONE);
-        mTransparentSpace.setVisibility(View.GONE);
 
         // update action bar
         ActionBar bar = getSupportActionBar();
@@ -402,7 +400,6 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
 
         setListAdapter(getReposAdapter());
         mOkButton.setVisibility(View.GONE);
-        mTransparentSpace.setVisibility(View.GONE);
 
         getNavContext().setRepoID(null);
 
@@ -439,7 +436,6 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
         // update action bar
         setListAdapter(getDirentsAdapter());
         mOkButton.setVisibility(View.VISIBLE);
-        mTransparentSpace.setVisibility(View.VISIBLE);
         refreshDir(forceRefresh);
     }
 
@@ -473,6 +469,25 @@ public class SeafilePathChooserActivity extends BaseActivity implements Toolbar.
                         isContains = true;
                         break;
                     }
+                }
+                if (onlyShowWritableRepos && !item.hasWritePermission()) {
+                    // Read only dir need not  show in list
+                    continue;
+                }
+
+                if (item.encrypted && !showEncryptedRepos) {
+                    // encrypted dir need not show in list
+                    continue;
+                }
+
+                if (item.encrypted && TextUtils.equals(item.id, encryptedRepoId)) {
+                    NavContext nav = getNavContext();
+                    nav.setRepoName(item.name);
+                    nav.setRepoID(item.id);
+                    nav.setDir("/", item.root);
+                    chooseDir();
+                    mStep = STEP_CHOOSE_REPO;
+                    break;
                 }
                 if (!isContains) {
                     adapter.add(item);
