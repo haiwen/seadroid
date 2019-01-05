@@ -79,6 +79,7 @@
   <string name="file_action_share_link">Compartir enlace</string>
   <string name="file_action_share_encrypt">Compartir enlace utilizando contraseña</string>
   <string name="file_action_export">Exportar</string>
+  <string name="file_action_open">Abrit con</string>
   <string name="file_action_delete">Eliminar</string>
   <string name="file_action_rename">Renombrar</string>
   <string name="file_action_copy">Copiar</string>

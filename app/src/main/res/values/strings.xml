@@ -554,4 +554,7 @@
   <string name="undo">undo</string>
   <string name="redo">redo</string>
   <string name="link">Link</string>
+  <string name="channel_name_error">Error Alerts</string>
+  <string name="channel_name_upload">File Uploading Info</string>
+  <string name="channel_name_download">File Downloading Info</string>
 </resources>

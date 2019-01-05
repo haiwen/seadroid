@@ -79,6 +79,7 @@
   <string name="file_action_share_link">Udostępnij link</string>
   <string name="file_action_share_encrypt">Udostępnij łącze z hasłem</string>
   <string name="file_action_export">Wyeksportuj</string>
+  <string name="file_action_open">Otwórz za pomocą</string>
   <string name="file_action_delete">Usuń</string>
   <string name="file_action_rename">Zmień nazwę</string>
   <string name="file_action_copy">Kopiuj</string>
@@ -546,4 +547,13 @@
   <string name="add_auto_expiration">Dodaj automatyczne wygasanie</string>
   <string name="input_auto_expiration">Proszę podać daty ważności</string>
   <!--editor-->
+  <string name="editor_lines_error">Nie można obsługiwać wielu linii</string>
+  <string name="editor_file_save">Czy chcesz zapisać i wyjść?</string>
+  <string name="editor_file_save_success">Plik zapisany pomyślnie</string>
+  <string name="editor_file_save_failed">Nie udało się wyczyścić pamięci podręcznej</string>
+  <string name="editor_file_save_title">Zapis pliku</string>
+  <string name="description">Opis</string>
+  <string name="undo">cofnij</string>
+  <string name="redo">powtórz</string>
+  <string name="link">Link</string>
 </resources>

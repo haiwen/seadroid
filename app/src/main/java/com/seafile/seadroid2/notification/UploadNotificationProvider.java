@@ -67,8 +67,10 @@ public class UploadNotificationProvider extends BaseNotificationProvider {
                 (int) System.currentTimeMillis(),
                 dIntent,
                 0);
-        mNotifBuilder = CustomNotificationBuilder.getNotificationBuilder(SeadroidApplication.getAppContext())
+        mNotifBuilder = CustomNotificationBuilder.getNotificationBuilder(SeadroidApplication.getAppContext(),
+                CustomNotificationBuilder.CHANNEL_ID_UPLOAD)
                 .setSmallIcon(R.drawable.icon)
+                .setOnlyAlertOnce(true)
                 .setContentTitle(SeadroidApplication.getAppContext().getString(R.string.notification_upload_started_title))
                 .setOngoing(true)
                 .setContentText(SeadroidApplication.getAppContext().getString(R.string.notification_upload_started_title))

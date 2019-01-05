@@ -79,6 +79,7 @@
   <string name="file_action_share_link">Общедоступная ссылка</string>
   <string name="file_action_share_encrypt">Общедоступная ссылка с паролем</string>
   <string name="file_action_export">Экспорт</string>
+  <string name="file_action_open">Открыть с помощью</string>
   <string name="file_action_delete">Удалить</string>
   <string name="file_action_rename">Переименовать</string>
   <string name="file_action_copy">Копировать</string>

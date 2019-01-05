@@ -79,6 +79,7 @@
   <string name="file_action_share_link">リンクを共有</string>
   <string name="file_action_share_encrypt">リンクをパスワードで共有</string>
   <string name="file_action_export">エクスポート</string>
+  <string name="file_action_open">開く...</string>
   <string name="file_action_delete">削除</string>
   <string name="file_action_rename">名前を変更</string>
   <string name="file_action_copy">コピー</string>

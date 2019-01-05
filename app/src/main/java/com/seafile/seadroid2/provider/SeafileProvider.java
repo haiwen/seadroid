@@ -41,6 +41,7 @@ import android.util.Log;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.seafile.seadroid2.BuildConfig;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.SeafException;
@@ -112,7 +113,7 @@ public class SeafileProvider extends DocumentsProvider {
     private android.accounts.AccountManager androidAccountManager;
     private AccountManager accountManager;
 
-    public static final Uri NOTIFICATION_URI = DocumentsContract.buildRootsUri(Utils.AUTHORITY);
+    public static final Uri NOTIFICATION_URI = DocumentsContract.buildRootsUri(BuildConfig.APPLICATION_ID);
 
     private OnAccountsUpdateListener accountListener = new OnAccountsUpdateListener() {
         @Override
