@@ -58,7 +58,6 @@ public class SeafConnection {
     private static final String DEBUG_TAG = "SeafConnection";
     private static final int CONNECTION_TIMEOUT = 15000;
     private static final int READ_TIMEOUT = 30000;
-
     private Account account;
 
     public SeafConnection(Account act) {
@@ -460,14 +459,17 @@ public class SeafConnection {
 
             String result = new String(req.bytes(), "UTF-8");
             String fileID = req.header("oid");
-
             // should return "\"http://gonggeng.org:8082/...\"" or "\"https://gonggeng.org:8082/...\"
-            if (result.startsWith("\"http") && fileID != null) {
-                String url = result.substring(1, result.length() - 1);
-                return new Pair<String, String>(url, fileID);
+            if (result.startsWith("\"/") && fileID != null) {
+                result = account.server+result.substring(2,result.length() - 1);
+            } 
+            else if (result.startsWith("\"http") && fileID != null) {
+                result = result.substring(1, result.length() - 1);
             } else {
                 throw SeafException.illFormatException;
             }
+            String url = result;
+            return new Pair<String, String>(url, fileID);
         } catch (SeafException e) {
             throw e;
         } catch (UnsupportedEncodingException e) {
@@ -781,11 +783,15 @@ public class SeafConnection {
 
             String result = new String(req.bytes(), "UTF-8");
             // should return "\"http://gonggeng.org:8082/...\"" or "\"https://gonggeng.org:8082/...\"
-            if (result.startsWith("\"http")) {
+            if (result.startsWith("\"/")) {
+                return account.server+result.substring(2,result.length() - 1);
+            } 
+            else if (result.startsWith("\"http")) {
                 // remove the starting and trailing quote
                 return result.substring(1, result.length() - 1);
-            } else
+            } else {
                 throw SeafException.unknownException;
+            }
         } catch (SeafException e) {
             Log.d(DEBUG_TAG, e.getCode() + e.getMessage());
             throw e;
