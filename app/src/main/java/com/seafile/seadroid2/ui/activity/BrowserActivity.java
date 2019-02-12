@@ -46,6 +46,7 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.cameraupload.CameraUploadManager;
 import com.seafile.seadroid2.cameraupload.MediaObserverService;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.DatabaseHelper;
@@ -387,6 +388,7 @@ public class BrowserActivity extends BaseActivity
 
         requestReadExternalStoragePermission();
 
+        syncCamera();
     }
 
     public FrameLayout getContainer() {
@@ -2419,4 +2421,11 @@ public class BrowserActivity extends BaseActivity
         getReposFragment().showDirBottomSheet(title, dirent);
     }
 
+    private void syncCamera() {
+        SettingsManager settingsManager = SettingsManager.instance();
+        CameraUploadManager cameraManager = new CameraUploadManager(getApplicationContext());
+        if (cameraManager.isCameraUploadEnabled() && settingsManager.isVideosUploadAllowed()) {
+            cameraManager.performFullSync();
+        }
+    }
 }

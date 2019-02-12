@@ -233,9 +233,9 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         Log.d(DEBUG_TAG, "is data plan allowed: "+settingsMgr.isDataPlanAllowed());
 
         Log.d(DEBUG_TAG, "Media buckets available on this system: ");*/
-        for (GalleryBucketUtils.Bucket bucket: GalleryBucketUtils.getMediaBuckets(getContext())) {
+//        for (GalleryBucketUtils.Bucket bucket: GalleryBucketUtils.getMediaBuckets(getContext())) {
             // Log.d(DEBUG_TAG, "Bucket id="+bucket.id+" name="+bucket.name);
-        }
+//        }
 
         // resync all media
         if (extras.getBoolean(ContentResolver.SYNC_EXTRAS_INITIALIZE)) {

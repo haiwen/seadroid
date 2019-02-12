@@ -1,6 +1,5 @@
 package com.seafile.seadroid2.cameraupload;
 
-import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,7 +9,6 @@ import android.os.IBinder;
 import android.provider.MediaStore;
 
 import com.seafile.seadroid2.SettingsManager;
-import com.seafile.seadroid2.notification.BaseNotificationProvider;
 
 /**
  * This service monitors the media provider content provider for new images/videos.
@@ -88,14 +86,10 @@ public class MediaObserverService extends Service {
         // Log.d(DEBUG_TAG, "onDestroy");
         settingsManager.unregisterSharedPreferencesListener(settingsListener);
         unregisterContentObservers();
-        stopForeground(true);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
-        Notification notification = new Notification.Builder(this.getApplicationContext()).build();
-        startForeground(BaseNotificationProvider.NOTIFICATION_ID_MEDIA, notification);
         return START_STICKY;
     }
 
@@ -110,8 +104,8 @@ public class MediaObserverService extends Service {
         getApplicationContext().getContentResolver().registerContentObserver(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI, false, mediaObserver);
 
-        getApplicationContext().getContentResolver().registerContentObserver
-                (MediaStore.Video.Media.EXTERNAL_CONTENT_URI, false, mediaObserver);
+//        getApplicationContext().getContentResolver().registerContentObserver
+//                (MediaStore.Video.Media.EXTERNAL_CONTENT_URI, false, mediaObserver);
 
         // Log.i(DEBUG_TAG, "Started watchting for new media content.");
     }

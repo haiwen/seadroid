@@ -216,6 +216,10 @@
                        android:resource="@xml/cameraadapter" />
         </service>
 
+        <service
+            android:name=".cameraupload.MediaSchedulerService"
+            android:permission="android.permission.BIND_JOB_SERVICE"/>
+
         <receiver android:name="com.seafile.seadroid2.BootAutostart">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
