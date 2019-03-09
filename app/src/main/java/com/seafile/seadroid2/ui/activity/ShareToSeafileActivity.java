@@ -224,7 +224,7 @@ public class ShareToSeafileActivity extends BaseActivity {
                         mTxService.addTaskToUploadQueBlock(account, repoID, repoName, targetDir, path, update, false);
                     } else {
                         mTxService.addUploadTask(account, repoID, repoName,
-                                targetDir, path, update, false);
+                                targetDir, path, update, true);
                     }
                     Log.d(DEBUG_TAG, path + (update ? " updated" : " uploaded"));
                 }
