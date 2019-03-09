@@ -41,9 +41,9 @@ public class UploadTaskManager extends TransferManager implements UploadStateLis
         for (UploadTaskInfo uploadTaskInfo : uploadTaskInfos) {
             // use isCopyToLocal as a flag to mark a camera photo upload task if false
             // mark a file upload task if true
-            if (!uploadTaskInfo.isCopyToLocal) {
-                continue;
-            }
+//            if (!uploadTaskInfo.isCopyToLocal) {
+//                continue;
+//            }
             noneCameraUploadTaskInfos.add(uploadTaskInfo);
         }
 
@@ -64,8 +64,8 @@ public class UploadTaskManager extends TransferManager implements UploadStateLis
 
         // use isCopyToLocal as a flag to mark a camera photo upload task if false
         // mark a file upload task if true
-        if (!info.isCopyToLocal)
-            return;
+//        if (!info.isCopyToLocal)
+//            return;
 
         //Log.d(DEBUG_TAG, "notify key " + info.repoID);
         if (mNotifyProvider != null) {
