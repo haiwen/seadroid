@@ -46,6 +46,7 @@ public class UnlockGesturePasswordActivity extends BaseActivity implements Toolb
                 .findViewById(R.id.gesturepwd_unlock_lockview);
         mLockPatternView.setOnPatternListener(mChooseNewLockPatternListener);
         mLockPatternView.setTactileFeedbackEnabled(true);
+        mLockPatternView.setInStealthMode(SettingsManager.instance().isGestureLockPatternInStealthMode());
         mHeadTextView = (TextView) findViewById(R.id.gesturepwd_unlock_text);
         mShakeAnim = AnimationUtils.loadAnimation(this, R.anim.shake_x);
         final Toolbar toolbar = getActionBarToolbar();

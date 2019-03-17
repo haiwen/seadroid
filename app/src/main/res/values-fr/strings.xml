@@ -259,6 +259,7 @@
   <string name="gesture_lock">Geste de verrouillage</string>
   <string name="gesture_lock_on">Geste de verrouillage activé</string>
   <string name="gesture_lock_off">Geste de verrouillage désactivé</string>
+  <string name="gesture_lock_visible_pattern">Faire apparaître le geste de verrouillage</string>
   <string name="lockscreen_access_pattern_hint">Dessinez le modèle de geste de verrouillage</string>
   <string name="lockscreen_access_pattern_start">Commencez à dessiner</string>
   <string name="lockscreen_access_pattern_cleared">Modèle effacé</string>

@@ -48,6 +48,7 @@ public final class SettingsManager {
     // Gesture Lock
     public static final String GESTURE_LOCK_SWITCH_KEY = "gesture_lock_switch_key";
     public static final String GESTURE_LOCK_KEY = "gesture_lock_key";
+    public static final String GESTURE_LOCK_PATTERN_VISIBLE = "gesture_lock_visible_pattern";
     public static final int GESTURE_LOCK_REQUEST = 1;
 
     // Camera upload
@@ -187,6 +188,10 @@ public final class SettingsManager {
         }
 
         return true;
+    }
+
+    public boolean isGestureLockPatternInStealthMode() {
+        return ! settingsSharedPref.getBoolean(GESTURE_LOCK_PATTERN_VISIBLE, true);
     }
 
     public void saveGestureLockTimeStamp() {

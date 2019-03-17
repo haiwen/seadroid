@@ -274,6 +274,7 @@
   <string name="gesture_lock">Gesture Lock</string>
   <string name="gesture_lock_on">Gesture lock on</string>
   <string name="gesture_lock_off">Gesture lock off</string>
+  <string name="gesture_lock_visible_pattern">Make Gesture Lock pattern visible</string>
   <string name="lockscreen_access_pattern_hint">Please draw Gesture Lock Pattern</string>
   <string name="lockscreen_access_pattern_start">Start to draw</string>
   <string name="lockscreen_access_pattern_cleared">Pattern cleared</string>
