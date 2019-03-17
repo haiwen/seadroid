@@ -11,6 +11,8 @@ android:
       - android-27
       - extra-android-support
       - extra-android-m2repository
+  licenses:
+      - 'android-sdk-license-.+'
 # https://docs.travis-ci.com/user/languages/android/#Caching
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
