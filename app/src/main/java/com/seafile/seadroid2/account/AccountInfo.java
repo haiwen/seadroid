@@ -16,6 +16,7 @@ public class AccountInfo {
     private long total;
     private String email;
     private String server;
+    private String name;
 
     private AccountInfo() {}
 
@@ -25,6 +26,7 @@ public class AccountInfo {
         info.usage = accountInfo.getLong("usage");
         info.total = accountInfo.getLong("total");
         info.email = accountInfo.getString("email");
+        info.name = accountInfo.optString("name");
 
         return info;
     }
@@ -43,6 +45,10 @@ public class AccountInfo {
 
     public String getServer() {
         return server;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public String getSpaceUsed() {
