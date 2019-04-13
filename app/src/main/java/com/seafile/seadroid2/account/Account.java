@@ -27,7 +27,7 @@ public class Account implements Parcelable, Comparable<Account> {
     public String token;
     public String sessionKey;
 
-    public Account(String name,String server, String email, String token, Boolean is_shib) {
+    public Account(String name, String server, String email, String token, Boolean is_shib) {
         this.name = name;
         this.server = server;
         this.email = email;
@@ -35,7 +35,7 @@ public class Account implements Parcelable, Comparable<Account> {
         this.is_shib = is_shib;
     }
 
-    public Account(String name,String server, String email, String token, Boolean is_shib, String sessionKey) {
+    public Account(String name, String server, String email, String token, Boolean is_shib, String sessionKey) {
         this.server = server;
         this.name = name;
         this.email = email;
@@ -97,7 +97,7 @@ public class Account implements Parcelable, Comparable<Account> {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(server, email,name);
+        return Objects.hashCode(server, email, name);
     }
 
     @Override
@@ -120,7 +120,7 @@ public class Account implements Parcelable, Comparable<Account> {
 
     public String getDisplayName() {
         String server = Utils.stripSlashes(getServerHost());
-        return Utils.assembleUserName(name,email, server);
+        return Utils.assembleUserName(name, email, server);
     }
 
     public android.accounts.Account getAndroidAccount() {

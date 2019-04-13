@@ -154,7 +154,7 @@ public class AccountDBHelper extends SQLiteOpenHelper {
                 && cameraServer != null && cameraToken != null && cameraName != null) {
 
             // on this account camera upload was done previously
-            cameraAccount = new Account(cameraName,cameraServer, cameraEmail, cameraToken, false);
+            cameraAccount = new Account(cameraName, cameraServer, cameraEmail, cameraToken, false);
         }
 
         for (Account account: getAccountList(db)) {
@@ -221,7 +221,7 @@ public class AccountDBHelper extends SQLiteOpenHelper {
     }
 
     private Account cursorToAccount(Cursor cursor) {
-        return new Account(cursor.getString(0), cursor.getString(1), cursor.getString(2),cursor.getString(3), false);
+        return new Account(cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), false);
     }
 
     private ServerInfo getServerInfo(SQLiteDatabase database, String url) {

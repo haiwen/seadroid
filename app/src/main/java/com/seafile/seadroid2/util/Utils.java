@@ -646,7 +646,7 @@ public class Utils {
         return BitmapFactory.decodeStream(stream, null, options);
     }
 
-    public static String assembleUserName(String name,String email, String server) {
+    public static String assembleUserName(String name, String email, String server) {
         if (name == null || email == null || server == null)
             return null;
 
