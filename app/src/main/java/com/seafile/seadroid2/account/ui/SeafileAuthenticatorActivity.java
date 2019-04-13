@@ -35,6 +35,7 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
     public final static String ARG_SERVER_URI = "SERVER_URI";
     public final static String ARG_EDIT_OLD_ACCOUNT_NAME = "EDIT_OLD_ACCOUNT";
     public final static String ARG_EMAIL = "EMAIL";
+    public final static String ARG_NAME = "NAME";
     public final static String ARG_SHIB = "SHIB";
     public final static String ARG_AUTH_SESSION_KEY = "TWO_FACTOR_AUTH";
     public final static String ARG_IS_EDITING = "isEdited";
@@ -133,6 +134,7 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
         String authtoken = intent.getStringExtra(AccountManager.KEY_AUTHTOKEN);
         String serveruri = intent.getStringExtra(ARG_SERVER_URI);
         String email = intent.getStringExtra(ARG_EMAIL);
+        String name = intent.getStringExtra(ARG_NAME);
         String sessionKey = intent.getStringExtra(ARG_AUTH_SESSION_KEY);
         boolean shib = intent.getBooleanExtra(ARG_SHIB, false);
 
@@ -173,6 +175,7 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
         mAccountManager.setAuthToken(newAccount, Authenticator.AUTHTOKEN_TYPE, authtoken);
         mAccountManager.setUserData(newAccount, Authenticator.KEY_SERVER_URI, serveruri);
         mAccountManager.setUserData(newAccount, Authenticator.KEY_EMAIL, email);
+        mAccountManager.setUserData(newAccount, Authenticator.KEY_NAME, name);
         mAccountManager.setUserData(newAccount, Authenticator.SESSION_KEY, sessionKey);
         if (shib) {
             mAccountManager.setUserData(newAccount, Authenticator.KEY_SHIB, "shib");
