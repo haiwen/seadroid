@@ -82,10 +82,11 @@ public class AccountManager {
 
         String server = accountManager.getUserData(androidAccount, Authenticator.KEY_SERVER_URI);
         String email = accountManager.getUserData(androidAccount, Authenticator.KEY_EMAIL);
+        String name = accountManager.getUserData(androidAccount, Authenticator.KEY_NAME);
         boolean is_shib = accountManager.getUserData(androidAccount, Authenticator.KEY_SHIB) != null;
         String token = accountManager.peekAuthToken(androidAccount, Authenticator.AUTHTOKEN_TYPE);
         String session_key = accountManager.getUserData(androidAccount, Authenticator.SESSION_KEY);
-        return new Account(server, email, token, is_shib, session_key);
+        return new Account(name, server, email, token, is_shib, session_key);
     }
 
     public void setServerInfo(Account account, ServerInfo serverInfo) {

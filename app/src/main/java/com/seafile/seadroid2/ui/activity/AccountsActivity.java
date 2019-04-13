@@ -218,7 +218,7 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         }
 
-        loadAvatarUrls(48);
+        loadAvatarUrls(160);
 
         adapter.notifyChanged();
     }
@@ -227,8 +227,8 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         Intent intent = new Intent(this, BrowserActivity.class);
 
         // first finish this activity, so the BrowserActivity is again "on top"
-        finish();
         startActivity(intent);
+        finish();
     }
 
     AccountManagerCallback<Bundle> accountCallback = new AccountManagerCallback<Bundle>() {

@@ -113,6 +113,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
 
             String server = mAccountManager.getUserData(account, Authenticator.KEY_SERVER_URI);
             String email = mAccountManager.getUserData(account, Authenticator.KEY_EMAIL);
+            String name = mAccountManager.getUserData(account, Authenticator.KEY_NAME);
             mSessionKey = mAccountManager.getUserData(account, Authenticator.SESSION_KEY);
             // isFromEdit = mAccountManager.getUserData(account, Authenticator.KEY_EMAIL);
 
@@ -417,7 +418,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
             }
 
             loginButton.setEnabled(false);
-            Account tmpAccount = new Account(serverURL, email, null, false, mSessionKey);
+            Account tmpAccount = new Account(null, serverURL, email, null, false, mSessionKey);
             progressDialog = new ProgressDialog(this);
             progressDialog.setMessage(getString(R.string.settings_cuc_loading));
             progressDialog.setCancelable(false);
@@ -507,6 +508,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
                 retData.putExtra(android.accounts.AccountManager.KEY_AUTHTOKEN, loginAccount.getToken());
                 retData.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_TYPE, getIntent().getStringExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_TYPE));
                 retData.putExtra(SeafileAuthenticatorActivity.ARG_EMAIL, loginAccount.getEmail());
+                retData.putExtra(SeafileAuthenticatorActivity.ARG_NAME, loginAccount.getName());
                 retData.putExtra(SeafileAuthenticatorActivity.ARG_AUTH_SESSION_KEY, loginAccount.getSessionKey());
                 retData.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, loginAccount.getServer());
                 retData.putExtra(TWO_FACTOR_AUTH, cbRemDevice.isChecked());
@@ -534,7 +536,8 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
                     return "Unknown error";
 
                 // replace email address/username given by the user with the address known by the server.
-                loginAccount = new Account(loginAccount.server, accountInfo.getEmail(), loginAccount.token, false, loginAccount.sessionKey);
+//                loginAccount = new Account(loginAccount.server, accountInfo.getEmail(), loginAccount.token, false, loginAccount.sessionKey);
+                loginAccount = new Account(accountInfo.getName(),loginAccount.server, accountInfo.getEmail(), loginAccount.token, false, loginAccount.sessionKey);
 
                 return "Success";
 

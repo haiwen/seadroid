@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.google.common.collect.Lists;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
@@ -110,7 +111,8 @@ public abstract class AccountAdapter extends BaseAdapter {
         }
         Account account = items.get(position);
         viewHolder.title.setText(account.getServerHost());
-        viewHolder.subtitle.setText(account.getEmail());
+//        viewHolder.subtitle.setText(account.getEmail());
+        viewHolder.subtitle.setText(account.getName());
         if (getAvatarUrl(account) != null) {
             options = new DisplayImageOptions.Builder()
                     .extraForDownloader(account)
@@ -123,6 +125,8 @@ public abstract class AccountAdapter extends BaseAdapter {
                     .cacheInMemory(true)
                     .cacheOnDisk(true)
                     .considerExifParams(true)
+                    .imageScaleType(ImageScaleType.NONE)
+                    .bitmapConfig(Bitmap.Config.RGB_565)
                     .displayer(new RoundedBitmapDisplayer(1000))
                     .build();
             ImageLoader.getInstance().displayImage(getAvatarUrl(account), viewHolder.icon, options, animateFirstListener);

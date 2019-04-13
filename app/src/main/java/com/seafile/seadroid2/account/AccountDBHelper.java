@@ -146,14 +146,15 @@ public class AccountDBHelper extends SQLiteOpenHelper {
         SharedPreferences settingsSharedPref = PreferenceManager.getDefaultSharedPreferences(context);
 
         Account cameraAccount = null;
+        String cameraName = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_NAME, null);
         String cameraServer = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_SERVER, null);
         String cameraEmail = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL, null);
         String cameraToken = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN, null);
         if (settingsSharedPref.getBoolean(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY, false) && cameraEmail != null
-                && cameraServer != null && cameraToken != null) {
+                && cameraServer != null && cameraToken != null && cameraName != null) {
 
             // on this account camera upload was done previously
-            cameraAccount = new Account(cameraServer, cameraEmail, cameraToken, false);
+            cameraAccount = new Account(cameraName, cameraServer, cameraEmail, cameraToken, false);
         }
 
         for (Account account: getAccountList(db)) {
@@ -162,6 +163,7 @@ public class AccountDBHelper extends SQLiteOpenHelper {
             // MIGRATE account
             Log.d(DEBUG_TAG, "adding account: " + account);
             mAccountManager.addAccountExplicitly(account.getAndroidAccount(), null, null);
+            mAccountManager.setUserData(account.getAndroidAccount(), Authenticator.KEY_NAME, account.getName());
             mAccountManager.setAuthToken(account.getAndroidAccount(), Authenticator.AUTHTOKEN_TYPE, account.getToken());
             mAccountManager.setUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_URI, account.getServer());
             mAccountManager.setUserData(account.getAndroidAccount(), Authenticator.KEY_EMAIL, account.getEmail());
@@ -219,7 +221,7 @@ public class AccountDBHelper extends SQLiteOpenHelper {
     }
 
     private Account cursorToAccount(Cursor cursor) {
-        return new Account(cursor.getString(0), cursor.getString(1), cursor.getString(2), false);
+        return new Account(cursor.getString(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), false);
     }
 
     private ServerInfo getServerInfo(SQLiteDatabase database, String url) {

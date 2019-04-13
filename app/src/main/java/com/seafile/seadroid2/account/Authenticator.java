@@ -41,6 +41,10 @@ public class Authenticator extends AbstractAccountAuthenticator {
      * Key of email in userData
      */
     public final static String KEY_EMAIL = "email";
+    /**
+     * Key of name in userData
+     */
+    public final static String KEY_NAME = "name";
 
     /**
      * Key of Server version in userData

@@ -18,6 +18,7 @@ public class Account implements Parcelable, Comparable<Account> {
 
     // The full URL of the server, like 'http://gonggeng.org/seahub/' or 'http://gonggeng.org/'
     public final String server;
+    public final String name;
 
     public final String email;
 
@@ -26,19 +27,23 @@ public class Account implements Parcelable, Comparable<Account> {
     public String token;
     public String sessionKey;
 
-    public Account(String server, String email, String token, Boolean is_shib) {
+    public Account(String name, String server, String email, String token, Boolean is_shib) {
+        this.name = name;
         this.server = server;
         this.email = email;
         this.token = token;
         this.is_shib = is_shib;
     }
-    public Account(String server, String email, String token, Boolean is_shib, String sessionKey) {
+
+    public Account(String name, String server, String email, String token, Boolean is_shib, String sessionKey) {
         this.server = server;
+        this.name = name;
         this.email = email;
         this.token = token;
         this.sessionKey = sessionKey;
         this.is_shib = is_shib;
     }
+
 
     public String getServerHost() {
         String s = server.substring(server.indexOf("://") + 3);
@@ -57,6 +62,9 @@ public class Account implements Parcelable, Comparable<Account> {
         return email;
     }
 
+    public String getName(){
+        return name;
+    }
     public String getServer() {
         return server;
     }
@@ -90,7 +98,7 @@ public class Account implements Parcelable, Comparable<Account> {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(server, email);
+        return Objects.hashCode(server, email, name);
     }
 
     @Override
@@ -101,10 +109,10 @@ public class Account implements Parcelable, Comparable<Account> {
             return false;
 
         Account a = (Account) obj;
-        if (a.server == null || a.email == null || a.token == null)
+        if (a.server == null || a.email == null || a.token == null || a.name==null)
             return false;
 
-        return a.server.equals(this.server) && a.email.equals(this.email);
+        return a.server.equals(this.server) && a.email.equals(this.email) && a.name.equals(this.name);
     }
 
     public String getSignature() {
@@ -113,7 +121,7 @@ public class Account implements Parcelable, Comparable<Account> {
 
     public String getDisplayName() {
         String server = Utils.stripSlashes(getServerHost());
-        return Utils.assembleUserName(email, server);
+        return Utils.assembleUserName(name, email, server);
     }
 
     public android.accounts.Account getAndroidAccount() {
@@ -132,6 +140,7 @@ public class Account implements Parcelable, Comparable<Account> {
     @Override
     public void writeToParcel(Parcel out, int flags) {
         out.writeString(this.server);
+        out.writeString(this.name);
         out.writeString(this.email);
         out.writeString(this.token);
         out.writeString(this.sessionKey);
@@ -152,6 +161,7 @@ public class Account implements Parcelable, Comparable<Account> {
 
     protected Account(Parcel in) {
         this.server = in.readString();
+        this.name = in.readString();
         this.email = in.readString();
         this.token = in.readString();
         this.sessionKey = in.readString();
@@ -165,6 +175,7 @@ public class Account implements Parcelable, Comparable<Account> {
         return Objects.toStringHelper(this)
                 .add("server", server)
                 .add("user", email)
+                .add("name", name)
                 .add("sessionKey", sessionKey)
                 .toString();
     }

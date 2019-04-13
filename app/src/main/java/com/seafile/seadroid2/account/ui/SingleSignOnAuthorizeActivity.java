@@ -174,7 +174,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
         @Override
         public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
             Log.d(DEBUG_TAG, "onReceivedSslError " + error.getCertificate().toString());
-            final Account account = new Account(serverUrl, null, null, false);
+            final Account account = new Account(null, serverUrl, null, null, false);
             SslCertificate sslCert = error.getCertificate();
             X509Certificate savedCert = CertsManager.instance().getCertificate(account);
 
@@ -236,6 +236,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
         retData.putExtra(android.accounts.AccountManager.KEY_AUTHTOKEN, account.getToken());
         retData.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_TYPE, getIntent().getStringExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_TYPE));
         retData.putExtra(SeafileAuthenticatorActivity.ARG_EMAIL, account.getEmail());
+        retData.putExtra(SeafileAuthenticatorActivity.ARG_NAME, account.getName());
         retData.putExtra(SeafileAuthenticatorActivity.ARG_SHIB, account.isShib());
         retData.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, account.getServer());
 
@@ -266,7 +267,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
         Log.d(DEBUG_TAG, "email: " + email);
         Log.d(DEBUG_TAG, "token: " + token);
 
-        return new Account(url, email, token, true);
+        return new Account(null, url, email, token, true);
     }
 
     @SuppressLint("LongLogTag")
