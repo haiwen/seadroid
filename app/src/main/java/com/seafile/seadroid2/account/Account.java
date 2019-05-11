@@ -27,7 +27,7 @@ public class Account implements Parcelable, Comparable<Account> {
     public String token;
     public String sessionKey;
 
-    public Account(String name, String server, String email, String token, Boolean is_shib) {
+    public Account(String server, String email, String name, String token, Boolean is_shib) {
         this.name = name;
         this.server = server;
         this.email = email;
@@ -98,7 +98,7 @@ public class Account implements Parcelable, Comparable<Account> {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(server, email, name);
+        return Objects.hashCode(server, email);
     }
 
     @Override
@@ -109,10 +109,10 @@ public class Account implements Parcelable, Comparable<Account> {
             return false;
 
         Account a = (Account) obj;
-        if (a.server == null || a.email == null || a.token == null || a.name==null)
+        if (a.server == null || a.email == null || a.token == null )
             return false;
 
-        return a.server.equals(this.server) && a.email.equals(this.email) && a.name.equals(this.name);
+        return a.server.equals(this.server) && a.email.equals(this.email);
     }
 
     public String getSignature() {
