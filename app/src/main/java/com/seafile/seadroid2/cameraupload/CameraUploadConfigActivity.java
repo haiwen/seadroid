@@ -15,6 +15,7 @@ import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.ui.activity.BaseActivity;
 import com.seafile.seadroid2.ui.activity.SeafilePathChooserActivity;
 import com.seafile.seadroid2.ui.fragment.SettingsFragment;
+import com.seafile.seadroid2.util.SystemSwitchUtils;
 import com.viewpagerindicator.LinePageIndicator;
 
 import java.util.List;
@@ -95,7 +96,7 @@ public class CameraUploadConfigActivity extends BaseActivity {
     }
 
     public void saveSettings() {
-
+        SystemSwitchUtils.getInstance(this).syncSwitchUtils();
         if (isChooseBothPages || isChooseDirPage) {
 
             SettingsManager settingsManager = SettingsManager.instance();
@@ -117,7 +118,9 @@ public class CameraUploadConfigActivity extends BaseActivity {
         }
 
         setResult(RESULT_OK, intent);
+
     }
+
 
     @Override
     public void onBackPressed() {

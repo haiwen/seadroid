@@ -165,10 +165,10 @@ public class AccountDBHelper extends SQLiteOpenHelper {
             // MIGRATE account
             Log.d(DEBUG_TAG, "adding account: " + account);
             mAccountManager.addAccountExplicitly(account.getAndroidAccount(), null, null);
-            mAccountManager.setUserData(account.getAndroidAccount(), Authenticator.KEY_NAME, account.getName());
             mAccountManager.setAuthToken(account.getAndroidAccount(), Authenticator.AUTHTOKEN_TYPE, account.getToken());
             mAccountManager.setUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_URI, account.getServer());
             mAccountManager.setUserData(account.getAndroidAccount(), Authenticator.KEY_EMAIL, account.getEmail());
+            mAccountManager.setUserData(account.getAndroidAccount(), Authenticator.KEY_NAME, account.getName());
 
             // MIGRATE ServerInfo
             ServerInfo info = getServerInfo(db, account.getServer());

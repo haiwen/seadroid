@@ -151,6 +151,7 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
 
                 mAccountManager.setAuthToken(newAccount, Authenticator.AUTHTOKEN_TYPE, authtoken);
                 mAccountManager.setUserData(newAccount, Authenticator.SESSION_KEY, sessionKey);
+                mAccountManager.setUserData(newAccount, Authenticator.KEY_NAME, name);
 
                 Bundle result = new Bundle();
                 result.putBoolean(AccountManager.KEY_BOOLEAN_RESULT, true);
