@@ -227,6 +227,7 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         Intent intent = new Intent(this, BrowserActivity.class);
 
         // first finish this activity, so the BrowserActivity is again "on top"
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
     }

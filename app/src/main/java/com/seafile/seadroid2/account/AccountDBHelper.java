@@ -47,6 +47,7 @@ public class AccountDBHelper extends SQLiteOpenHelper {
     // Account
     private static final String ACCOUNT_COLUMN_SERVER = "server";
     private static final String ACCOUNT_COLUMN_EMAIL = "email";
+    private static final String ACCOUNT_COLUMN_NAME = "name";
     private static final String ACCOUNT_COLUMN_TOKEN = "token";
 
     // Server info
@@ -64,6 +65,7 @@ public class AccountDBHelper extends SQLiteOpenHelper {
             "CREATE TABLE " + ACCOUNT_TABLE_NAME + " ("
                     + ACCOUNT_COLUMN_SERVER + " TEXT NOT NULL, "
                     + ACCOUNT_COLUMN_EMAIL + " TEXT NOT NULL, "
+                    + ACCOUNT_COLUMN_NAME + " TEXT NOT NULL, "
                     + ACCOUNT_COLUMN_TOKEN + " TEXT NOT NULL);";
 
     private android.accounts.AccountManager mAccountManager;
@@ -151,7 +153,7 @@ public class AccountDBHelper extends SQLiteOpenHelper {
         String cameraEmail = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_EMAIL, null);
         String cameraToken = sharedPref.getString(SettingsManager.SHARED_PREF_CAMERA_UPLOAD_ACCOUNT_TOKEN, null);
         if (settingsSharedPref.getBoolean(SettingsManager.CAMERA_UPLOAD_SWITCH_KEY, false) && cameraEmail != null
-                && cameraServer != null && cameraToken != null && cameraName != null) {
+                && cameraServer != null && cameraToken != null ) {
 
             // on this account camera upload was done previously
             cameraAccount = new Account(cameraName, cameraServer, cameraEmail, cameraToken, false);
@@ -163,10 +165,10 @@ public class AccountDBHelper extends SQLiteOpenHelper {
             // MIGRATE account
             Log.d(DEBUG_TAG, "adding account: " + account);
             mAccountManager.addAccountExplicitly(account.getAndroidAccount(), null, null);
-            mAccountManager.setUserData(account.getAndroidAccount(), Authenticator.KEY_NAME, account.getName());
             mAccountManager.setAuthToken(account.getAndroidAccount(), Authenticator.AUTHTOKEN_TYPE, account.getToken());
             mAccountManager.setUserData(account.getAndroidAccount(), Authenticator.KEY_SERVER_URI, account.getServer());
             mAccountManager.setUserData(account.getAndroidAccount(), Authenticator.KEY_EMAIL, account.getEmail());
+            mAccountManager.setUserData(account.getAndroidAccount(), Authenticator.KEY_NAME, account.getName());
 
             // MIGRATE ServerInfo
             ServerInfo info = getServerInfo(db, account.getServer());
@@ -196,6 +198,7 @@ public class AccountDBHelper extends SQLiteOpenHelper {
         String[] projection = {
                 AccountDBHelper.ACCOUNT_COLUMN_SERVER,
                 AccountDBHelper.ACCOUNT_COLUMN_EMAIL,
+                AccountDBHelper.ACCOUNT_COLUMN_NAME,
                 AccountDBHelper.ACCOUNT_COLUMN_TOKEN
         };
 
