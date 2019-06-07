@@ -1,29 +1,32 @@
-# Seafile Android Client [![Build Status](https://secure.travis-ci.org/haiwen/seadroid.png?branch=master)](http://travis-ci.org/haiwen/seadroid)
+# Seafile Android App [![Build Status](https://img.shields.io/travis/haiwen/seadroid/master.svg)](http://travis-ci.org/haiwen/seadroid) ![F-Droid](https://img.shields.io/f-droid/v/com.seafile.seadroid2.svg)
 
-The application has been published onto the market for easy access:
+This app has been published on Google Play and F-Droid.
 
-[![Get it on Google Play](http://www.android.com/images/brand/get_it_on_play_logo_small.png)](https://play.google.com/store/apps/details?id=com.seafile.seadroid2)
-[![Get it on F-Droid](https://cloud.githubusercontent.com/assets/12447257/8024903/ce8dca32-0d44-11e5-95b0-e97d1d027351.png)](https://f-droid.org/repository/browse/?fdid=com.seafile.seadroid2)
+<a href="https://play.google.com/store/apps/details?id=com.seafile.seadroid2">
+    <img src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png"
+         alt="Get it on Google Play" height="80">
+</a>
+
+<a href="https://f-droid.org/app/com.seafile.seadroid2">
+    <img src="https://f-droid.org/badge/get-it-on.png"
+         alt="Get it on F-Droid" height="80">
+</a>
 
 ## Contributors
 
 See [Contributors Graph](https://github.com/haiwen/seadroid/graphs/contributors)
 
-## Build the APK
+## Build the project
 
-* Make sure you have installed the [Android SDK](http://developer.android.com/sdk/index.html) then:
-
-* cd into seadroid directory
-* Create `key.properties` file or simply rename `key.properties.example` and change configurations to match yours.
-
-* Create keystore file if you don't have one
-
+1. First, make sure you have installed the [Android SDK](http://developer.android.com/sdk/index.html) (Hint: In case you're familiar with docker it might be worth looking at Docker Hub and build the app within an container to not have to install the SDK locally. There is e.g. `runmymind/docker-android-sdk:ubuntu-standalone`).
+2. Go into the seadroid directory.
+3. Create `app/key.properties` or simply rename `app/key.properties.example`. Adjust the configuration if you want to use a specific keystore.
+4. Create keystore file if you don't already have one
+```bash
+keytool -genkey -v -keystore app/debug.keystore -alias AndroidDebugKey -keyalg RSA -keysize 2048 -validity 1 -storepass android -keypass android -dname "cn=TEST, ou=TEST, o=TEST, c=TE"
  ```
- keytool -genkey -v -keystore app/debug.keystore -alias AndroidDebugKey -keyalg RSA -keysize 2048 -validity 1 -storepass android -keypass android -dname "cn=TEST, ou=TEST, o=TEST, c=TE"
- ```
-* Build with `./gradlew assembleRelease`
-
-You will get `app/build/outputs/apk/seafile-${versionName}.apk` after the build finishes.
+5. Build with `./gradlew assembleRelease`
+6. The apk will be located at `app/build/outputs/apk/release/seafile-${versionName}.apk` after the build finishes.
 
 ## Develop in Android Studio
 
@@ -40,9 +43,6 @@ You will get `app/build/outputs/apk/seafile-${versionName}.apk` after the build 
 * Choose import from gradle
 * Click next until import is completed
 
-## Develop in IntelliJ/Eclipse
-For those who are using maven build structures, checkout the project from [maven](https://github.com/haiwen/seadroid/tree/maven) branch.
-
 ## Internationalization
 
 ### Contribute your translation
@@ -53,4 +53,4 @@ Steps:
 
 1. Create a free account on Transifex (https://www.transifex.com/).
 2. Send a request to join the language translation.
-3. After accepted by the project maintainer, then you can upload your file or translate online.
+3. After accepted by the project maintainer, you can upload translations or translate online.
