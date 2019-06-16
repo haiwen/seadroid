@@ -278,7 +278,6 @@
   <!--Optional button to Skip a PreferenceActivity [CHAR LIMIT=20]-->
   <string name="skip_button_label">Skip</string>
   <!--contacts  upload-->
-  <!--contacts Upload Perference-->
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">上傳照片</string>
   <string name="settings_camera_upload_service_started">上傳服務已啓動</string>

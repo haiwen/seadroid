@@ -79,6 +79,7 @@
   <string name="file_action_share_link">Partager le lien</string>
   <string name="file_action_share_encrypt">Lien partagé avec mot de passe</string>
   <string name="file_action_export">Exporter</string>
+  <string name="file_action_open">Ouvrir avec</string>
   <string name="file_action_delete">Effacer</string>
   <string name="file_action_rename">Renommer</string>
   <string name="file_action_copy">Copier</string>
@@ -304,18 +305,6 @@
   <string name="settings_contacts_upload_repo_history">Aucune sauvegarde enregistrée</string>
   <string name="settings_contacts_upload_start_backup">Sauvegarde</string>
   <string name="settings_contacts_upload_start_backup_hint">Cliquez pour commencer la sauvegarde des contacts</string>
-  <string name="settings_contacts_upload_start_recovery">Restaurer</string>
-  <string name="settings_contacts_upload_start_recovery_hint">Cliquez pour restaurer les contacts</string>
-  <!--contacts Upload Perference-->
-  <string name="contacts_dialog_recovery">Restaurer les contacts depuis la dernière sauvegarde</string>
-  <string name="contacts_dialog_backup">Les contacts seront sauvegardés dans le fichier :</string>
-  <string name="contacts_count_zero">Les contacts sont vides</string>
-  <string name="contacts_backup_success">Sauvegardé avec succès</string>
-  <string name="contacts_recovery_success">Restauré avec succès</string>
-  <string name="contacts_backup_title">Sauvegarder les contacts</string>
-  <string name="contacts_recovery_title">Restaurer les contacts</string>
-  <string name="contacts_backup_fail">Échec de la sauvegarde</string>
-  <string name="contacts_recover_fail">Échec de la restauration</string>
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Envoi des photos</string>
   <string name="settings_camera_upload_service_started">Service d\'envoi démarré</string>
@@ -527,4 +516,16 @@ E-mail : support@seafile.com<br>
   <string name="add_auto_expiration">Ajouter une expiration automatique</string>
   <string name="input_auto_expiration">SVP entrez les dates d\'expiration</string>
   <!--editor-->
+  <string name="editor_lines_error">Activer afin d\'opérer sur plusieurs lignes</string>
+  <string name="editor_file_save">Voulez-vous sauvegarder et quitter ?</string>
+  <string name="editor_file_save_success">Fichier sauvegardé avec succès</string>
+  <string name="editor_file_save_failed">Échec de l\'effacement du cache</string>
+  <string name="editor_file_save_title">Sauvegarde de fichier</string>
+  <string name="description">Description</string>
+  <string name="undo">annuler</string>
+  <string name="redo">rétablir</string>
+  <string name="link">Lien</string>
+  <string name="channel_name_error">Alertes d\'erreur</string>
+  <string name="channel_name_upload">Information d\'envoi de fichier</string>
+  <string name="channel_name_download">Information téléchargement de fichier</string>
 </resources>

@@ -313,18 +313,6 @@
   <string name="settings_contacts_upload_repo_history">Нет резервных копий</string>
   <string name="settings_contacts_upload_start_backup">Резервная копия</string>
   <string name="settings_contacts_upload_start_backup_hint">Нажмите, чтобы начать резервное копирование контактов</string>
-  <string name="settings_contacts_upload_start_recovery">Восстановить</string>
-  <string name="settings_contacts_upload_start_recovery_hint">Нажмите, чтобы восстановить резервную копию контактов</string>
-  <!--contacts Upload Perference-->
-  <string name="contacts_dialog_recovery">Восстановление контактов из последней резервной копии</string>
-  <string name="contacts_dialog_backup">Контакты будут сохранены в файл:</string>
-  <string name="contacts_count_zero">Нет контактов</string>
-  <string name="contacts_backup_success">Успешно создана резервная копия</string>
-  <string name="contacts_recovery_success">Успешно восстановлено</string>
-  <string name="contacts_backup_title">Резервное копирование контактов</string>
-  <string name="contacts_recovery_title">Восстановление контактов</string>
-  <string name="contacts_backup_fail">Не удалось создать резервную копию</string>
-  <string name="contacts_recover_fail">Не удалось восстановить</string>
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Загрузка фото с камеры</string>
   <string name="settings_camera_upload_service_started">Сервис загрузки запущен</string>
@@ -556,4 +544,7 @@
   <string name="undo">отмена</string>
   <string name="redo">повтор</string>
   <string name="link">Ссылка</string>
+  <string name="channel_name_error">Предупреждения об ошибках</string>
+  <string name="channel_name_upload">Информация о загрузке файла</string>
+  <string name="channel_name_download">Информация о скачивании файла</string>
 </resources>

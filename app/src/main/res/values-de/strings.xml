@@ -307,18 +307,6 @@ Zum Aktualisieren einmal antippen</string>
   <string name="settings_contacts_upload_repo_history">Keine Sicherung vorhanden</string>
   <string name="settings_contacts_upload_start_backup">Sicherung</string>
   <string name="settings_contacts_upload_start_backup_hint">Zum Sichern der Kontakte klicken</string>
-  <string name="settings_contacts_upload_start_recovery">Wiederherstellen</string>
-  <string name="settings_contacts_upload_start_recovery_hint">Zum wiederherstellen klicken</string>
-  <!--contacts Upload Perference-->
-  <string name="contacts_dialog_recovery">Kontakte aus der letzten Sicherung wiederherstellen</string>
-  <string name="contacts_dialog_backup">Kontakte werden in dieser Datei gesichert:</string>
-  <string name="contacts_count_zero">Keine Kontakte vorhanden</string>
-  <string name="contacts_backup_success">Sicherung erfolgreich</string>
-  <string name="contacts_recovery_success">Wiederherstellung erfolgreich</string>
-  <string name="contacts_backup_title">Kontakte sichern</string>
-  <string name="contacts_recovery_title">Kontakte wiederherstellen</string>
-  <string name="contacts_backup_fail">Sicherung fehlgeschlagen</string>
-  <string name="contacts_recover_fail">Wiederherstellung fehlgeschlagen</string>
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Kamerafoto hochladen</string>
   <string name="settings_camera_upload_service_started">Upload-Dienst gestartet</string>
@@ -539,4 +527,7 @@ E-Mail: support@seafile.com<br>
   <string name="undo">Rückgängig</string>
   <string name="redo">Wiederholen</string>
   <string name="link">Link</string>
+  <string name="channel_name_error">Fehlermeldungen</string>
+  <string name="channel_name_upload">Upload-Information</string>
+  <string name="channel_name_download">Download-Information</string>
 </resources>

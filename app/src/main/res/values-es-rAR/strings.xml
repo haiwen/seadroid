@@ -305,18 +305,6 @@
   <string name="settings_contacts_upload_repo_history">No hay registro de backup</string>
   <string name="settings_contacts_upload_start_backup">Backup</string>
   <string name="settings_contacts_upload_start_backup_hint">Click para iniciar backup de contactos</string>
-  <string name="settings_contacts_upload_start_recovery">Restaurar</string>
-  <string name="settings_contacts_upload_start_recovery_hint">Click para restaurar contactos</string>
-  <!--contacts Upload Perference-->
-  <string name="contacts_dialog_recovery">Restaurar contactos desde el último backup</string>
-  <string name="contacts_dialog_backup">Los contactos serán resguardados en el archivo:</string>
-  <string name="contacts_count_zero">El contacto está vacío</string>
-  <string name="contacts_backup_success">Backup exitoso</string>
-  <string name="contacts_recovery_success">Restauración exitosa</string>
-  <string name="contacts_backup_title">Resguardar contactos</string>
-  <string name="contacts_recovery_title">Restaurar contactos</string>
-  <string name="contacts_backup_fail">Backup falló</string>
-  <string name="contacts_recover_fail">Restauración falló</string>
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Subir Foto de Cámara </string>
   <string name="settings_camera_upload_service_started">Servicio de subida iniciado</string>
@@ -538,4 +526,7 @@
   <string name="undo">deshacer</string>
   <string name="redo">rehacer</string>
   <string name="link">Enlace</string>
+  <string name="channel_name_error">Alertas de error</string>
+  <string name="channel_name_upload">Información de subida de archivos</string>
+  <string name="channel_name_download">Información de descarga de archivos</string>
 </resources>
