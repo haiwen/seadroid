@@ -7,6 +7,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.http.SslCertificate;
 import android.net.http.SslError;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -24,9 +25,12 @@ import android.widget.LinearLayout;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
 import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.AccountInfo;
+import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.ssl.CertsManager;
 import com.seafile.seadroid2.ui.activity.BaseActivity;
 import com.seafile.seadroid2.ui.dialog.SslConfirmDialog;
+import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 
 import java.io.UnsupportedEncodingException;
@@ -218,18 +222,17 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
             Account account = null;
             try {
                 account = parseAccount(Utils.cleanServerURL(serverUrl), cookie);
+                if (account == null) {
+                    return;
+                }
+                ConcurrentAsyncTask.execute(new SingleSignOnAuthorizeActivity.AccountInfoTask(account, account.getToken()));
             } catch (MalformedURLException e) {
                 Log.e(DEBUG_TAG, e.getMessage());
             }
-            returnAccount(account);
         }
     }
 
     private void returnAccount(Account account) {
-        if (account == null) {
-            return;
-        }
-
         Intent retData = new Intent();
         retData.putExtras(getIntent());
         retData.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_NAME, account.getSignature());
@@ -266,8 +269,59 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
 
         Log.d(DEBUG_TAG, "email: " + email);
         Log.d(DEBUG_TAG, "token: " + token);
+        return new Account(url, email, "", token, true);
+    }
+    private class AccountInfoTask extends AsyncTask<Void, Void, String> {
+        Account loginAccount;
+        String authToken;
 
-        return new Account(null, url, email, token, true);
+        public AccountInfoTask(Account loginAccount, String authToken) {
+            this.loginAccount = loginAccount;
+            this.authToken = authToken;
+        }
+        @Override
+        protected void onPreExecute() {
+            //super.onPreExecute();
+        }
+        @Override
+        protected String doInBackground(Void... params) {
+            if (params.length != 0)
+                return "Error number of parameter";
+
+            return getinfo();
+        }
+        @Override
+        protected void onPostExecute(final String result) {
+
+
+            if (result != null && result.equals("Success")) {
+                Intent retData = new Intent();
+                retData.putExtras(getIntent());
+                retData.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_NAME, loginAccount.getSignature());
+                retData.putExtra(android.accounts.AccountManager.KEY_AUTHTOKEN, loginAccount.getToken());
+                retData.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_TYPE, getIntent().getStringExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_TYPE));
+                retData.putExtra(SeafileAuthenticatorActivity.ARG_EMAIL, loginAccount.getEmail());
+                retData.putExtra(SeafileAuthenticatorActivity.ARG_NAME, loginAccount.getName());
+                retData.putExtra(SeafileAuthenticatorActivity.ARG_AUTH_SESSION_KEY, loginAccount.getSessionKey());
+                retData.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, loginAccount.getServer());
+                setResult(RESULT_OK, retData);
+                finish();
+            }
+        }
+
+        private String getinfo() {
+            try {
+                DataManager manager = new DataManager(loginAccount);
+                AccountInfo accountInfo = manager.getAccountInfo();
+                if (accountInfo == null)
+                    return "Unknown error";
+                loginAccount = new Account(accountInfo.getName(),loginAccount.server, accountInfo.getEmail(), loginAccount.token, false, loginAccount.sessionKey);
+                return "Success";
+
+            }  catch (Exception e) {
+                return e.getMessage();
+            }
+        }
     }
 
     @SuppressLint("LongLogTag")

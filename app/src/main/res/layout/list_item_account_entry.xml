@@ -14,7 +14,7 @@
             android:layout_marginTop="@dimen/lv_act_icon_margin_top"
             android:layout_marginRight="@dimen/lv_act_icon_margin_right"
             android:layout_marginEnd="@dimen/lv_act_icon_margin_right"
-            android:src="@drawable/default_avatar"/>
+            android:src="@drawable/default_account"/>
 
     <LinearLayout
             android:layout_width="@dimen/lv_act_title_group_width"

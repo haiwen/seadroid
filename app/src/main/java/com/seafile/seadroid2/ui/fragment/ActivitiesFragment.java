@@ -396,7 +396,7 @@ private boolean ser_version=false;
                     if (err == SeafException.remoteWipedException) {
                         mActivity.completeRemoteWipe();
                     } else {
-                        mActivity.showShortToast(mActivity, err.getMessage());
+//                        mActivity.showShortToast(mActivity, err.getMessage());
                         showError(R.string.error_when_load_activities);
                     }
                 }
