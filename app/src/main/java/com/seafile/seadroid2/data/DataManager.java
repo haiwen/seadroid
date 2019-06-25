@@ -54,7 +54,7 @@ public class DataManager {
     public static long repoRefreshTimeStamp = 0;
 
     public static final int BUFFER_SIZE = 2 * 1024 * 1024;
-    public static final int PAGE_SIZE =25;
+    public static final int PAGE_SIZE = 25;
 
     private SeafConnection sc;
     private Account account;
@@ -897,14 +897,14 @@ public class DataManager {
 
     }
 
-    public SeafActivities getEvents( int start,boolean ser_version) throws SeafException, JSONException {
+    public SeafActivities getEvents( int start, boolean ser_version) throws SeafException, JSONException {
         int moreOffset=0;
         boolean more;
         if (!Utils.isNetworkOn()) {
             throw SeafException.networkException;
         }
 
-        final String json = sc.getEvents(start,ser_version);
+        final String json = sc.getEvents(start, ser_version);
 
         if (json == null) return null;
 

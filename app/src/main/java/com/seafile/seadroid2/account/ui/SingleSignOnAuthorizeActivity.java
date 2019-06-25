@@ -269,6 +269,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
         Log.d(DEBUG_TAG, "token: " + token);
         return new Account(url, email, "", token, true);
     }
+
     private class AccountInfoTask extends AsyncTask<Void, Void, String> {
         Account loginAccount;
         String authToken;
@@ -277,14 +278,17 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
             this.loginAccount = loginAccount;
             this.authToken = authToken;
         }
+
         @Override
         protected void onPreExecute() {
             //super.onPreExecute();
         }
+
         @Override
         protected String doInBackground(Void... params) {
             return getinfo();
         }
+
         @Override
         protected void onPostExecute(final String result) {
             if (result != null && result.equals("Success")) {
