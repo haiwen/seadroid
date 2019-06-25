@@ -231,21 +231,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
             }
         }
     }
-    private void returnAccount(Account account) {
-        Intent retData = new Intent();
-        retData.putExtras(getIntent());
-        retData.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_NAME, account.getSignature());
-        retData.putExtra(android.accounts.AccountManager.KEY_AUTHTOKEN, account.getToken());
-        retData.putExtra(android.accounts.AccountManager.KEY_ACCOUNT_TYPE, getIntent().getStringExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_TYPE));
-        retData.putExtra(SeafileAuthenticatorActivity.ARG_EMAIL, account.getEmail());
-        retData.putExtra(SeafileAuthenticatorActivity.ARG_NAME, account.getName());
-        retData.putExtra(SeafileAuthenticatorActivity.ARG_SHIB, account.isShib());
-        retData.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, account.getServer());
 
-        // pass auth result back to the SingleSignOnActivity
-        setResult(RESULT_OK, retData);
-        finish();
-    }
     /**
      * The cookie value is like seahub_shib="foo@test.com@bd8cc1138", where
      * foo@test.com is username and bd8cc1138 is api token"
