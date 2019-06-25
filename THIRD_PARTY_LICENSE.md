@@ -29,7 +29,7 @@ The third party software included and used by this project is:
    Copyright (c) 2014 Dariush Forouher.  
    Licensed under the GNU Affero General Public License, Version 3.0.  
    Placed at package com.seafile.seadroid2.provider.  
-   See https://github.com/forouher/seadroid/tree/feature/documentprovider
+   See https://github.com/haiwen/seadroid/tree/master/app/src/main/java/com/seafile/seadroid2/provider
 
  * Jams Music Player, master branch  
    Copyright (C) 2014 Saravan Pantha.  

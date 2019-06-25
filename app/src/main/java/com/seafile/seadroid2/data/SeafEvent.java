@@ -298,31 +298,31 @@ public class SeafEvent implements SeafItem {
         this.date = date;
     }
     public void setPath(String path){
-        this.path=path;
+        this.path = path;
     }
     public String getPath(){
         return path;
     }
     public void setV_time(String v_time){
-        this.v_time=v_time;
+        this.v_time = v_time;
     }
     public String getV_time(){
         return v_time;
     }
     public void setAuthor_name(String author_name){
-        this.author_name=author_name;
+        this.author_name = author_name;
     }
     public String getAuthor_name(){
         return author_name;
     }
     public void setOp_type(String op_type){
-        this.op_type=op_type;
+        this.op_type = op_type;
     }
     public String getOp_type(){
         return op_type;
     }
     public void setObj_type(String obj_type){
-        this.obj_type=obj_type;
+        this.obj_type = obj_type;
     }
     public String getObj_type(){
         return obj_type;
@@ -360,7 +360,7 @@ public class SeafEvent implements SeafItem {
     }
 
     public void setAvatar_url(String avatar_url) {
-        this.avatar_url=avatar_url;
+        this.avatar_url = avatar_url;
     }
 
     public void setAvatar(String avatar) {

@@ -231,7 +231,6 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
             }
         }
     }
-
     private void returnAccount(Account account) {
         Intent retData = new Intent();
         retData.putExtras(getIntent());
@@ -247,7 +246,6 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
         setResult(RESULT_OK, retData);
         finish();
     }
-
     /**
      * The cookie value is like seahub_shib="foo@test.com@bd8cc1138", where
      * foo@test.com is username and bd8cc1138 is api token"
@@ -285,15 +283,10 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
         }
         @Override
         protected String doInBackground(Void... params) {
-            if (params.length != 0)
-                return "Error number of parameter";
-
             return getinfo();
         }
         @Override
         protected void onPostExecute(final String result) {
-
-
             if (result != null && result.equals("Success")) {
                 Intent retData = new Intent();
                 retData.putExtras(getIntent());
