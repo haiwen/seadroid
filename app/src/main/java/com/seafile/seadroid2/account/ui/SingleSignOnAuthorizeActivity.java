@@ -324,7 +324,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
                 loginAccount = new Account(accountInfo.getName(),loginAccount.server, accountInfo.getEmail(), loginAccount.token, loginAccount.is_shib, loginAccount.sessionKey);
                 return "Success";
 
-            }  catch (SeafException e) {
+            } catch (SeafException e) {
                 err = e;
                 if (e == SeafException.sslException) {
                     return getString(R.string.ssl_error);
@@ -332,7 +332,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
                     showShortToast(SingleSignOnAuthorizeActivity.this, e.getMessage());
                     return e.getMessage();
                 }
-            }catch (JSONException e) {
+            } catch (JSONException e) {
                 showShortToast(SingleSignOnAuthorizeActivity.this, e.getMessage());
                 return e.getMessage();
             }
