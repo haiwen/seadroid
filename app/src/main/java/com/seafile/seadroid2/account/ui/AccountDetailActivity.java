@@ -61,7 +61,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
     private EmailAutoCompleteTextView emailText;
     private EditText passwdText;
     private CheckBox httpsCheckBox;
-    private TextView seahubUrlHintText;
+//    private TextView seahubUrlHintText;
     private ImageView clearEmail, clearPasswd, ivEyeClick;
     private RelativeLayout rlEye;
     private TextInputLayout authTokenLayout;
@@ -87,7 +87,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
         serverText = (EditText) findViewById(R.id.server_url);
         emailText = (EmailAutoCompleteTextView) findViewById(R.id.email_address);
         passwdText = (EditText) findViewById(R.id.password);
-        seahubUrlHintText = (TextView) findViewById(R.id.seahub_url_hint);
+//        seahubUrlHintText = (TextView) findViewById(R.id.seahub_url_hint);
 
         clearEmail = (ImageView) findViewById(R.id.iv_delete_email);
         clearPasswd = (ImageView) findViewById(R.id.iv_delete_pwd);
@@ -123,7 +123,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
             serverText.setText(server);
             emailText.setText(email);
             emailText.requestFocus();
-            seahubUrlHintText.setVisibility(View.GONE);
+//            seahubUrlHintText.setVisibility(View.GONE);
 
 
         } else if (defaultServerUri != null) {

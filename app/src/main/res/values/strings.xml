@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-  <string name="app_name" translatable="false">Seafile</string>
+  <string name="app_name" translatable="false">luckycloud</string>
   <string name="app_url" translatable="false">http://seafile.com</string>
-  <string name="welcome_to_seafile">Welcome to Seafile</string>
+  <string name="welcome_to_seafile">Welcome to luckycloud</string>
   <string name="select_account">Choose an account to start</string>
   <string name="edit_account">Edit</string>
   <string name="delete_account">Delete</string>
@@ -45,11 +45,9 @@
   </string-array>
   <string name="choose_server">Choose a Seafile Server</string>
   <string-array name="choose_server_array">
-    <item>SeaCloud.cc</item>
-    <item>Single Sign-On</item>
-    <item>Other Seafile Server</item>
+    <item>luckycloud.de</item>
   </string-array>
-  <string name="server_url_seacloud" translatable="false">https://seacloud.cc</string>
+  <string name="server_url_seacloud" translatable="false">https://storage.luckycloud.de</string>
   <string name="network_down">No network connection</string>
   <string name="unknow_error">Unknown error</string>
   <string name="invalid_server_address">Invalid server address</string>

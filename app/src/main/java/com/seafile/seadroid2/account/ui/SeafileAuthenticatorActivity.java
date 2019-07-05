@@ -26,7 +26,7 @@ import com.seafile.seadroid2.ui.BaseAuthenticatorActivity;
  */
 public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
 
-    public static final int SEACLOUD_CC = 0;
+    public static final int LUCKYCLOUD = 0;
     public static final int SINGLE_SIGN_ON_LOGIN = 1;
     public static final int OTHER_SERVER = 2;
 
@@ -65,7 +65,7 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent;
                 switch ((int) id) {
-                    case SEACLOUD_CC:
+                    case LUCKYCLOUD:
                         intent = new Intent(SeafileAuthenticatorActivity.this, AccountDetailActivity.class);
                         intent.putExtras(getIntent());
                         intent.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, getString(R.string.server_url_seacloud));

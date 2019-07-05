@@ -180,13 +180,13 @@
             android:layout_marginRight="@dimen/tv_margin_right"
             android:text=""/>
 
-    <TextView
-            android:id="@+id/seahub_url_hint"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/tv_margin_left"
-            android:layout_marginRight="@dimen/tv_margin_right"
-            android:textSize="@dimen/tv_txt_size"
-            android:text="@string/seahub_url_hint"/>
+    <!--<TextView-->
+            <!--android:id="@+id/seahub_url_hint"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginLeft="@dimen/tv_margin_left"-->
+            <!--android:layout_marginRight="@dimen/tv_margin_right"-->
+            <!--android:textSize="@dimen/tv_txt_size"-->
+            <!--android:text="@string/seahub_url_hint"/>-->
 
 </LinearLayout>
