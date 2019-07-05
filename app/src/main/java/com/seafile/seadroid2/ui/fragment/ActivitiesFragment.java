@@ -109,7 +109,7 @@ public class ActivitiesFragment extends Fragment {
     public void onActivityCreated(final Bundle savedInstanceState) {
         // Log.d(DEBUG_TAG, "onActivityCreated");
 
-        refreshLayout.setColorSchemeResources(R.color.fancy_orange);
+        refreshLayout.setColorSchemeResources(R.color.luckycloud_green);
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {

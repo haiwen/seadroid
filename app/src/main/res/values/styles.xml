@@ -21,7 +21,7 @@
         <item name="colorPrimary">@color/color_primary</item>
         <item name="colorPrimaryDark">@color/color_primary_dark</item>
         <item name="colorAccent">@color/fancy_light_black</item>
-        <item name="colorControlActivated">@color/fancy_orange</item>
+        <item name="colorControlActivated">@color/luckycloud_green</item>
         <item name="colorControlHighlight">@color/fancy_light_black</item>
         <item name="actionBarInsetStart">@dimen/keyline_2</item>
         <item name="windowActionModeOverlay">true</item>
@@ -38,8 +38,8 @@
         <item name="android:textSelectHandleLeft">@drawable/fancy_orange_text_select_handle_left</item>
         <item name="android:textSelectHandleRight">@drawable/fancy_orange_text_select_handle_right</item>
         <item name="android:textSelectHandle">@drawable/fancy_orange_text_select_handle_middle</item>
-        <item name="android:colorButtonNormal">@color/fancy_orange</item>
-        <item name="colorButtonNormal">@color/fancy_orange</item>
+        <item name="android:colorButtonNormal">@color/luckycloud_green</item>
+        <item name="colorButtonNormal">@color/luckycloud_green</item>
         <item name="alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
     </style>
 
@@ -77,13 +77,13 @@
     </style>
 
     <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <item name="colorAccent">@color/fancy_orange</item>
+        <item name="colorAccent">@color/luckycloud_green</item>
         <item name="android:textColorPrimary">@color/fancy_dark_black</item>
         <item name="android:background">@color/color_primary</item>
     </style>
 
     <style name="TabLayoutStyle" parent="Widget.Design.TabLayout">
-        <item name="tabIndicatorColor">@color/fancy_orange</item>
+        <item name="tabIndicatorColor">@color/luckycloud_green</item>
         <item name="android:background">@color/color_primary</item>
         <item name="android:contentInsetStart">?actionBarInsetStart</item>
     </style>

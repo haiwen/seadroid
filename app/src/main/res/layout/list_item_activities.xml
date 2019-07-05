@@ -40,7 +40,7 @@
                 android:id="@+id/tv_activities_nick"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/fancy_orange"/>
+                android:textColor="@color/luckycloud_green"/>
 
             <TextView
                 android:id="@+id/tv_activities_date"
@@ -60,6 +60,6 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:gravity="end"
-        android:textColor="@color/fancy_orange" />
+        android:textColor="@color/luckycloud_green" />
 
 </RelativeLayout>

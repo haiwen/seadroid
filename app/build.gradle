@@ -68,7 +68,7 @@ android {
                 variant.outputs.all { output ->
                     if (output.outputFile != null && output.outputFile.name.endsWith('.apk')) {
                         if (variant.name == "debug")
-                            outputFileName = "seafile-debug-" + defaultConfig.versionName + ".apk"
+                            outputFileName = "luckycloud-debug-" + defaultConfig.versionName + ".apk"
                     }
                 }
             }
@@ -81,7 +81,7 @@ android {
                 variant.outputs.all { output ->
                     if (output.outputFile != null && output.outputFile.name.endsWith('.apk')) {
                         if (variant.name == "release") {
-                            outputFileName = "seafile-" + defaultConfig.versionName + ".apk"
+                            outputFileName = "luckycloud-" + defaultConfig.versionName + ".apk"
                         }
                     }
                 }

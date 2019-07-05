@@ -10,7 +10,7 @@
         android:layout_alignParentTop="true"
         android:layout_marginLeft="@dimen/tv_title_margin_left"
         android:layout_marginTop="@dimen/tv_title_margin_top"
-        android:textColor="@color/fancy_orange"
+        android:textColor="@color/luckycloud_green"
         android:text="@string/settings_cuc_title"
         android:textSize="@dimen/tv_title_txt_size" />
 

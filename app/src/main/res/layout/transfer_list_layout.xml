@@ -20,7 +20,7 @@
             app:layout_scrollFlags="scroll|enterAlways"
             app:tabGravity="center"
             app:tabMode="scrollable"
-            app:tabSelectedTextColor="@color/fancy_orange"
+            app:tabSelectedTextColor="@color/luckycloud_green"
             app:tabTextAppearance="@style/TabTextAppearancce" />
     </android.support.design.widget.AppBarLayout>
 

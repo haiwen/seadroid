@@ -8,15 +8,15 @@
         <item name="colorPrimary">@color/color_primary</item>
         <item name="colorPrimaryDark">@color/color_primary_dark</item>
         <item name="colorAccent">@color/fancy_light_black</item>
-        <item name="colorControlActivated">@color/fancy_orange</item>
+        <item name="colorControlActivated">@color/luckycloud_green</item>
         <item name="colorControlHighlight">@color/fancy_light_black</item>
         <item name="android:windowBackground">@color/fancy_light_white</item>
         <item name="android:listViewStyle">@style/SeafileListStyle</item>
         <item name="android:actionModeStyle">@style/LightTheme.ActionMode</item>
         <item name="actionModeStyle">@style/LightTheme.ActionMode</item>
         <item name="windowActionModeOverlay">true</item>
-        <item name="android:colorButtonNormal">@color/fancy_orange</item>
-        <item name="colorButtonNormal">@color/fancy_orange</item>
+        <item name="android:colorButtonNormal">@color/luckycloud_green</item>
+        <item name="colorButtonNormal">@color/luckycloud_green</item>
         <item name="alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
         <item name="android:alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
     </style>

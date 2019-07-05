@@ -12,7 +12,7 @@
         android:layout_marginTop="@dimen/tv_title_margin_top"
         android:text="@string/settings_cuc_finish_title"
         android:textSize="@dimen/tv_title_txt_size"
-        android:textColor="@color/fancy_orange" />
+        android:textColor="@color/luckycloud_green" />
 
     <TextView
         android:id="@+id/cuc_ready_info_tv"

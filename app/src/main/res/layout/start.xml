@@ -11,7 +11,7 @@
             android:layout_marginTop="@dimen/tv_title_margin_top"
             android:gravity="center_horizontal"
             android:textSize="@dimen/tv_title_txt_size"
-            android:textColor="@color/fancy_orange"
+            android:textColor="@color/luckycloud_green"
             android:text="@string/welcome_to_seafile"/>
 
     <TextView
