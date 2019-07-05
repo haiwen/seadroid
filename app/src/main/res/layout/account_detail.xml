@@ -13,6 +13,7 @@
             android:layout_marginTop="@dimen/cb_padding_top"
             android:onClick="onHttpsCheckboxClicked"
             android:textSize="@dimen/cb_btn_txt_size"
+            android:visibility="invisible"
             android:text="@string/accounts_https_hint"/>
 
     <LinearLayout
@@ -27,6 +28,7 @@
             android:id="@+id/server_hint"
             android:layout_width="match_parent"
             android:hint="@string/server_hint"
+            android:visibility="invisible"
             android:layout_height="wrap_content">
 
             <EditText
@@ -38,6 +40,7 @@
                 android:layout_marginRight="@dimen/et_margin_right"
                 android:importantForAutofill="auto"
                 android:inputType="textUri"
+                android:visibility="invisible"
                 android:textSize="@dimen/et_txt_size" />
         </android.support.design.widget.TextInputLayout>
 
