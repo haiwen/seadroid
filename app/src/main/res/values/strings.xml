@@ -27,7 +27,7 @@
   <string name="unknown_file_type">Unknown file-type</string>
   <string name="activity_not_found">Can\`t find App to open this file</string>
   <string name="refresh">Refresh</string>
-  <string name="add_account">Add Account</string>
+  <string name="add_account">Login</string>
   <string name="personal">Personal</string>
   <string name="shared">Shared</string>
   <string name="libraries">Libraries</string>
@@ -46,6 +46,8 @@
   <string name="choose_server">Choose a Seafile Server</string>
   <string-array name="choose_server_array">
     <item>luckycloud.de</item>
+    <item>Single-Sign-On</item>
+    <item>Anderer Seafile-Server</item>
   </string-array>
   <string name="server_url_seacloud" translatable="false">https://storage.luckycloud.de</string>
   <string name="network_down">No network connection</string>

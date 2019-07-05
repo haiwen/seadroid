@@ -25,7 +25,7 @@
   <string name="unknown_file_type">Unbekannter Dateityp</string>
   <string name="activity_not_found">Keine App gefunden, um diese Datei zu öffnen</string>
   <string name="refresh">Aktualisieren</string>
-  <string name="add_account">Konto hinzufügen</string>
+  <string name="add_account">Login</string>
   <string name="personal">Meine Bibliotheken</string>
   <string name="shared">Freigegeben</string>
   <string name="libraries">Bibliotheken</string>
@@ -43,8 +43,8 @@
   <string name="choose_server">Bitte wählen Sie einen Seafile-Server aus</string>
   <string-array name="choose_server_array">
     <item>SeaCloud.cc</item>
-    <!--<item>Single-Sign-On</item>-->
-    <!--<item>Anderer Seafile-Server</item>-->
+    <item>Single-Sign-On</item>
+    <item>Anderer Seafile-Server</item>
   </string-array>
   <string name="network_down">Keine Netzwerkverbindung</string>
   <string name="unknow_error">Unbekannter Fehler</string>
