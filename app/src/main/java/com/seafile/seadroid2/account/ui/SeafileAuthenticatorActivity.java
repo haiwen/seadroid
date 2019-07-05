@@ -111,6 +111,13 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
                 navigateUpOrBack(SeafileAuthenticatorActivity.this, null);
             }
         });
+
+
+        //skip server list
+        Intent intent = new Intent(SeafileAuthenticatorActivity.this, AccountDetailActivity.class);
+        intent.putExtras(getIntent());
+        intent.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, getString(R.string.server_url_seacloud));
+        startActivityForResult(intent, SeafileAuthenticatorActivity.REQ_SIGNUP);
     }
 
     @Override
