@@ -1,5 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+  <string name="support">Support</string>
+
+
+
+
   <string name="app_name" translatable="false">luckycloud</string>
   <string name="app_url" translatable="false">http://seafile.com</string>
   <string name="welcome_to_seafile">Welcome to luckycloud</string>

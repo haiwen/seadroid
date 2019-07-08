@@ -52,6 +52,12 @@
               android:visible="true"
               android:title="@string/settings"
               app:showAsAction="never"/>
+
+          <item android:id="@+id/support"
+              android:visible="true"
+              android:title="@string/support"
+              app:showAsAction="never" />
+
       </menu>
     </item>
 </menu>
