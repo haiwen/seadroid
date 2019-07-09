@@ -31,6 +31,8 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.account.Authenticator;
+import com.seafile.seadroid2.account.ui.AccountDetailActivity;
+import com.seafile.seadroid2.account.ui.SeafileAuthenticatorActivity;
 import com.seafile.seadroid2.avatar.Avatar;
 import com.seafile.seadroid2.avatar.AvatarManager;
 import com.seafile.seadroid2.monitor.FileMonitorService;
@@ -99,13 +101,23 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
                 R.layout.account_list_footer, null, false);
         Button addAccount = (Button) footerView.findViewById(R.id.account_footer_btn);
         Button newluckyAccount = (Button) footerView.findViewById(R.id.new_lucky_account_button);
-        Button new_lucky_Demo_account = (Button) footerView.findViewById(R.id.new_lucky_account_button);
+        Button new_lucky_Demo_account = (Button) footerView.findViewById(R.id.new_lucky_Demo_account);
 
         new_lucky_Demo_account.setOnClickListener(new View.OnClickListener() {
             public void onClick(View btn) {
-                Uri urilucky = Uri.parse("https://luckycloud.de/de/");
-                Intent intent = new Intent(Intent.ACTION_VIEW, urilucky);
-                startActivity(intent);
+
+                Intent intent = new Intent(AccountsActivity.this, SeafileAuthenticatorActivity.class);
+                intent.putExtras(getIntent());
+                intent.putExtra("demo_account", true);
+//                startActivity(intent);
+
+                mAccountManager.addAccount(Account.ACCOUNT_TYPE,
+                        Authenticator.AUTHTOKEN_TYPE, null, null,
+                        AccountsActivity.this, accountCallback, null);
+
+//                Uri urilucky = Uri.parse("https://luckycloud.de/de/");
+//                Intent intent = new Intent(Intent.ACTION_VIEW, urilucky);
+//                startActivity(intent);
             }
         });
         newluckyAccount.setOnClickListener(new View.OnClickListener() {

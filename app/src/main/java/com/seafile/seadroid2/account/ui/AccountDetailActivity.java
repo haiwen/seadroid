@@ -110,6 +110,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
         Intent intent = getIntent();
 
         String defaultServerUri = intent.getStringExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI);
+        boolean demoAccount = intent.getExtras().getBoolean("demo_account", false);
 
         if (intent.getBooleanExtra("isEdited", false)) {
             String account_name = intent.getStringExtra(SeafileAuthenticatorActivity.ARG_ACCOUNT_NAME);
@@ -129,14 +130,22 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
             emailText.setText(email);
             emailText.requestFocus();
 //            seahubUrlHintText.setVisibility(View.GONE);
+        }
 
-
-        } else if (defaultServerUri != null) {
+        else if (defaultServerUri != null) {
             if (defaultServerUri.startsWith(HTTPS_PREFIX))
                 httpsCheckBox.setChecked(true);
             serverText.setText(defaultServerUri);
-            emailText.requestFocus();
-        } else {
+            if(demoAccount) {
+                emailText.setText(intent.getStringExtra(SeafileAuthenticatorActivity.ARG_DEMO_ACCOUNT_NAME));
+                passwdText.setText(intent.getStringExtra(SeafileAuthenticatorActivity.ARG_DEMO_ACCOUNT_PASSWORD));
+            }
+            else {
+                emailText.requestFocus();
+            }
+        }
+
+        else {
             serverText.setText(HTTP_PREFIX);
             int prefixLen = HTTP_PREFIX.length();
             serverText.setSelection(prefixLen, prefixLen);
@@ -149,10 +158,6 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
 
         initListener();
     }
-
-
-
-
 
     private void initListener() {
         emailText.setOnFocusChangeListener(new View.OnFocusChangeListener() {

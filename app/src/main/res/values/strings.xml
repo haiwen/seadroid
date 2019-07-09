@@ -56,6 +56,8 @@
     <item>Anderer Seafile-Server</item>
   </string-array>
   <string name="server_url_seacloud" translatable="false">https://storage.luckycloud.de</string>
+  <string name="demo_luckycloud_username" translatable="false">demo@luckycloud.de</string>
+  <string name="demo_luckycloud_password" translatable="false">q1w2e3R4</string>
   <string name="network_down">No network connection</string>
   <string name="unknow_error">Unknown error</string>
   <string name="invalid_server_address">Invalid server address</string>
