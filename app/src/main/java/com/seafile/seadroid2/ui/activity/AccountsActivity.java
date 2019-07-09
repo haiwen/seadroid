@@ -22,6 +22,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ListView;
+import android.net.Uri;
 
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
@@ -49,6 +50,7 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
 
     private ListView accountsView;
 
+    private Button newAccountBtn;
     private android.accounts.AccountManager mAccountManager;
     private AccountManager accountManager;
     private AvatarManager avatarManager;
@@ -85,6 +87,7 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start);
 
+        newAccountBtn = (Button) findViewById(R.id.new_lucky_account_button);
         mAccountManager = android.accounts.AccountManager.get(this);
         accountsView = (ListView) findViewById(R.id.account_list_view);
         accountManager = new AccountManager(this);
@@ -95,6 +98,24 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
                 R.layout.account_list_footer, null, false);
         Button addAccount = (Button) footerView.findViewById(R.id.account_footer_btn);
+        Button newluckyAccount = (Button) footerView.findViewById(R.id.new_lucky_account_button);
+        Button new_lucky_Demo_account = (Button) footerView.findViewById(R.id.new_lucky_account_button);
+
+        new_lucky_Demo_account.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View btn) {
+                Uri urilucky = Uri.parse("https://luckycloud.de/de/");
+                Intent intent = new Intent(Intent.ACTION_VIEW, urilucky);
+                startActivity(intent);
+            }
+        });
+        newluckyAccount.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View btn) {
+                Uri urilucky = Uri.parse("https://luckycloud.de/de/");
+                Intent intent = new Intent(Intent.ACTION_VIEW, urilucky);
+                startActivity(intent);
+            }
+        });
+
         addAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View btn) {
@@ -140,6 +161,8 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         }
 
         getSupportActionBar().setTitle(R.string.accounts);
+
+
     }
 
     @Override
@@ -416,5 +439,6 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
             adapter.notifyDataSetChanged();
         }
     }
+
 
 }

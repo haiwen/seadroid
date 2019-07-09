@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
@@ -73,6 +75,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
     private CheckBox cbRemDevice;
     private String mSessionKey;
 
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -83,6 +86,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
 
         statusView = (TextView) findViewById(R.id.status_view);
         loginButton = (Button) findViewById(R.id.login_button);
+
         httpsCheckBox = (CheckBox) findViewById(R.id.https_checkbox);
         serverText = (EditText) findViewById(R.id.server_url);
         emailText = (EmailAutoCompleteTextView) findViewById(R.id.email_address);
@@ -101,6 +105,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
         cbRemDevice = findViewById(R.id.remember_device);
         cbRemDevice.setVisibility(View.GONE);
         setupServerText();
+
 
         Intent intent = getIntent();
 
@@ -144,6 +149,10 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
 
         initListener();
     }
+
+
+
+
 
     private void initListener() {
         emailText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -220,6 +229,8 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
                 passwdText.setText("");
             }
         });
+
+
 
         rlEye.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -563,4 +574,5 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
             }
         }
     }
+
 }

@@ -2,8 +2,8 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
   <string name="support">Support</string>
-
-
+  <string name ="new_luckycloud_account"> new luckycloud Account</string>
+    <string name="demo_account"> Demo Account</string>
 
 
   <string name="app_name" translatable="false">luckycloud</string>

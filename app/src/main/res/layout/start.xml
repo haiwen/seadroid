@@ -15,13 +15,13 @@
             android:text="@string/welcome_to_seafile"/>
 
     <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/tv_subtitle_margin_top"
-            android:gravity="center_horizontal"
-            android:textSize="@dimen/tv_subtitle_txt_size"
-            android:textColor="@color/fancy_gray"
-            android:text="@string/select_account"/>
+        android:layout_width="fill_parent"
+        android:layout_height="100dp"
+        android:layout_marginTop="@dimen/tv_subtitle_margin_top"
+        android:gravity="center_horizontal"
+        android:text="@string/select_account"
+        android:textColor="@color/fancy_gray"
+        android:textSize="@dimen/tv_subtitle_txt_size" />
 
     <ListView
             android:id="@+id/account_list_view"
@@ -30,4 +30,5 @@
             android:layout_marginTop="@dimen/lv_margin_top"
             android:divider="@null"
             />
+
 </LinearLayout>
