@@ -1187,11 +1187,13 @@ public class BrowserActivity extends BaseActivity
                     setUpButtonTitle(navContext.getDirPath().substring(
                             navContext.getDirPath().lastIndexOf(BrowserActivity.ACTIONBAR_PARENT_PATH) + 1));
                 }
-            } else
-                setUpButtonTitle(getString(R.string.tabs_library).toUpperCase());
-        } else {
-            setUpButtonTitle(currentPosition == 1 ? getString(R.string.tabs_starred).toUpperCase() : getString(R.string.tabs_activity).toUpperCase());
-        }
+            }
+//            else
+//                setUpButtonTitle(getString(R.string.tabs_library).toUpperCase());
+            }
+//        else {
+//            setUpButtonTitle(currentPosition == 1 ? getString(R.string.tabs_starred).toUpperCase() : getString(R.string.tabs_activity).toUpperCase());
+//        }
 
     }
 
@@ -1800,7 +1802,7 @@ public class BrowserActivity extends BaseActivity
             if (navContext.inRepo()) {
                 if (navContext.isRepoRoot()) {
                     navContext.setRepoID(null);
-                    getActionBarToolbar().setTitle(R.string.app_name);
+//                    getActionBarToolbar().setTitle(R.string.app_name);
                 } else {
                     String parentPath = Utils.getParentPath(navContext
                             .getDirPath());
