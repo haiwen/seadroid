@@ -8,24 +8,38 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:layout_marginLeft="@dimen/tv_title_margin_left"
-        android:layout_marginTop="@dimen/tv_title_margin_top"
-        android:textColor="@color/luckycloud_green"
+        android:layout_marginLeft="79dp"
+        android:layout_marginTop="25dp"
         android:text="@string/settings_cuc_title"
-        android:textSize="@dimen/tv_title_txt_size" />
+        android:textColor="@color/red"
+        android:textSize="50sp" />
+
+    <TextView
+        android:id="@+id/cuc_wel_txt_tv12"
+        android:layout_width="243dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/cuc_wel_title_tv"
+        android:layout_alignLeft="@+id/cuc_wel_title_tv"
+        android:layout_marginLeft="79dp"
+        android:layout_marginTop="25dp"
+        android:layout_alignParentLeft="true"
+        android:layout_marginRight="30dp"
+        android:text="@string/settings_cuc_welcome_text_attention"
+        android:textColor="@color/fancy_gray"
+        android:textSize="20sp" />
 
     <TextView
         android:id="@+id/cuc_wel_txt_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/cuc_wel_title_tv"
         android:layout_below="@+id/cuc_wel_title_tv"
-        android:layout_marginTop="@dimen/section_margin_top"
+        android:layout_alignLeft="@+id/cuc_wel_title_tv"
+        android:layout_marginLeft="-58dp"
+        android:layout_marginTop="200dp"
+        android:layout_marginRight="30dp"
         android:text="@string/settings_cuc_welcome_text"
         android:textColor="@color/fancy_gray"
-        android:layout_marginRight="30dp"
         android:textSize="@dimen/tv_subtitle_txt_size" />
-
     <TextView
             android:id="@+id/cuc_swipe_left_txt_tv"
             android:layout_width="wrap_content"

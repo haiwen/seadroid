@@ -41,6 +41,8 @@
         <item name="android:colorButtonNormal">@color/luckycloud_green</item>
         <item name="colorButtonNormal">@color/luckycloud_green</item>
         <item name="alertDialogTheme">@style/AppCompatAlertDialogStyle</item>
+        <item name="android:fontFamily">@font/quicksand_regular</item>
+        <item name="fontFamily">@font/quicksand_regular</item>
     </style>
 
     <style name="AppTheme.Multiple" parent="AppTheme">
@@ -158,4 +160,5 @@
         <item name="android:indeterminateDuration">1000</item>
         <item name="android:indeterminateOnly">true</item>
     </style>
+
 </resources>

@@ -2,8 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="center"
-    android:orientation="horizontal"
+
+    android:orientation="vertical"
     android:paddingBottom="7dp"
     android:paddingTop="7dp" >
 
@@ -15,6 +15,30 @@
         android:layout_marginLeft="@dimen/long_btn_margin_left"
         android:layout_marginRight="@dimen/long_btn_margin_right"
         android:text="@string/add_account"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="@dimen/long_btn_txt_size"/>
+
+    <Button
+        android:id="@+id/new_lucky_Demo_account"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/long_btn_height"
+        android:layout_marginTop="@dimen/long_btn_padding_top"
+        android:layout_marginLeft="@dimen/long_btn_margin_left"
+        android:layout_marginRight="@dimen/long_btn_margin_right"
+        android:text="@string/demo_account"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="@dimen/long_btn_txt_size"/>
+
+    <Button
+        android:id="@+id/new_lucky_account_button"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/long_btn_height"
+        android:layout_marginTop="@dimen/long_btn_padding_top"
+        android:layout_marginLeft="@dimen/long_btn_margin_left"
+        android:layout_marginRight="@dimen/long_btn_margin_right"
+        android:text="@string/new_luckycloud_account"
         android:textAllCaps="false"
         android:textColor="@color/white"
         android:textSize="@dimen/long_btn_txt_size"/>

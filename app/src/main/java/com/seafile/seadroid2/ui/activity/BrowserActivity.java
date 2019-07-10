@@ -499,6 +499,11 @@ public class BrowserActivity extends BaseActivity
             case R.id.add:
                 addFile();
                 return true;
+            case R.id.support:
+                Uri uri = Uri.parse("https://docs.luckycloud.de/de/");
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                startActivity(intent);
+                return true;
             case R.id.transfer_tasks:
                 Intent newIntent = new Intent(this, TransferActivity.class);
                 newIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -542,6 +547,7 @@ public class BrowserActivity extends BaseActivity
                 settingsIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(settingsIntent);
                 return true;
+
         }
         return super.onOptionsItemSelected(item);
     }

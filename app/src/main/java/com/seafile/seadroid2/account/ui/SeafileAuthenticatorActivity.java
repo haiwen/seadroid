@@ -16,6 +16,7 @@ import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Authenticator;
 import com.seafile.seadroid2.cameraupload.CameraUploadManager;
 import com.seafile.seadroid2.ui.BaseAuthenticatorActivity;
+import com.seafile.seadroid2.ui.activity.AccountsActivity;
 
 /**
  * The Authenticator activity.
@@ -39,6 +40,10 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
     public final static String ARG_SHIB = "SHIB";
     public final static String ARG_AUTH_SESSION_KEY = "TWO_FACTOR_AUTH";
     public final static String ARG_IS_EDITING = "isEdited";
+
+
+    public final static String ARG_DEMO_ACCOUNT_NAME = "DEMO_ACCOUNT_NAME";
+    public final static String ARG_DEMO_ACCOUNT_PASSWORD = "DEMO_ACCOUNT_PASSWORD";
 
     private static final int REQ_SIGNUP = 1;
 
@@ -95,7 +100,8 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
             intent.putExtra(SingleSignOnActivity.SINGLE_SIGN_ON_SERVER_URL, mAccountManager.getUserData(account, Authenticator.KEY_SERVER_URI));
             intent.putExtras(getIntent().getExtras());
             startActivityForResult(intent, SeafileAuthenticatorActivity.REQ_SIGNUP);
-        } else if (getIntent().getBooleanExtra(ARG_IS_EDITING, false)) {
+        }
+        else if (getIntent().getBooleanExtra(ARG_IS_EDITING, false)) {
             Intent intent = new Intent(this, AccountDetailActivity.class);
             intent.putExtras(getIntent().getExtras());
             startActivityForResult(intent, SeafileAuthenticatorActivity.REQ_SIGNUP);
@@ -117,6 +123,11 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
         Intent intent = new Intent(SeafileAuthenticatorActivity.this, AccountDetailActivity.class);
         intent.putExtras(getIntent());
         intent.putExtra(SeafileAuthenticatorActivity.ARG_SERVER_URI, getString(R.string.server_url_seacloud));
+        if (AccountsActivity.getIsDemoAccount()) {
+            intent.putExtra(SeafileAuthenticatorActivity.ARG_DEMO_ACCOUNT_NAME, getString(R.string.demo_luckycloud_username));
+            intent.putExtra(SeafileAuthenticatorActivity.ARG_DEMO_ACCOUNT_PASSWORD, getString(R.string.demo_luckycloud_password));
+            intent.putExtra("demo_account", true);
+        }
         startActivityForResult(intent, SeafileAuthenticatorActivity.REQ_SIGNUP);
     }
 
