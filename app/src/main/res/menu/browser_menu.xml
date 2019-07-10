@@ -2,6 +2,11 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/lucky_icon"
+        android:visible="true"
+        android:icon="@drawable/favicon_194x194"
+        android:title="@string/sort_menu_item"
+        app:showAsAction="always"/>
 
     <item android:id="@+id/sort"
           android:visible="true"

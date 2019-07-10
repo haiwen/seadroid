@@ -499,6 +499,11 @@ public class BrowserActivity extends BaseActivity
             case R.id.add:
                 addFile();
                 return true;
+            case R.id.lucky_icon:
+                Uri uri1 = Uri.parse("https://luckycloud.de/de");
+                Intent intent1 = new Intent(Intent.ACTION_VIEW, uri1);
+                startActivity(intent1);
+                return true;
             case R.id.support:
                 Uri uri = Uri.parse("https://docs.luckycloud.de/de/");
                 Intent intent = new Intent(Intent.ACTION_VIEW, uri);
@@ -1802,7 +1807,7 @@ public class BrowserActivity extends BaseActivity
             if (navContext.inRepo()) {
                 if (navContext.isRepoRoot()) {
                     navContext.setRepoID(null);
-//                    getActionBarToolbar().setTitle(R.string.app_name);
+                  //  getActionBarToolbar().setTitle(R.string.app_name);
                 } else {
                     String parentPath = Utils.getParentPath(navContext
                             .getDirPath());
