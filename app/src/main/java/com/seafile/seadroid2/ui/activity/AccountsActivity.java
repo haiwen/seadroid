@@ -61,6 +61,8 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
     private FileMonitorService mMonitorService;
     private Account currentDefaultAccount;
 
+    private static boolean isDemoAccount = false;
+
     private OnAccountsUpdateListener accountsUpdateListener = new OnAccountsUpdateListener() {
         @Override
         public void onAccountsUpdated(android.accounts.Account[] accounts) {
@@ -82,6 +84,10 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         }
 
     };
+
+    public static boolean getIsDemoAccount() {
+        return isDemoAccount;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -105,19 +111,11 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
 
         new_lucky_Demo_account.setOnClickListener(new View.OnClickListener() {
             public void onClick(View btn) {
-
-                Intent intent = new Intent(AccountsActivity.this, SeafileAuthenticatorActivity.class);
-                intent.putExtras(getIntent());
-                intent.putExtra("demo_account", true);
-//                startActivity(intent);
+                isDemoAccount = true;
 
                 mAccountManager.addAccount(Account.ACCOUNT_TYPE,
                         Authenticator.AUTHTOKEN_TYPE, null, null,
                         AccountsActivity.this, accountCallback, null);
-
-//                Uri urilucky = Uri.parse("https://luckycloud.de/de/");
-//                Intent intent = new Intent(Intent.ACTION_VIEW, urilucky);
-//                startActivity(intent);
             }
         });
         newluckyAccount.setOnClickListener(new View.OnClickListener() {
@@ -131,9 +129,10 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         addAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View btn) {
-                 mAccountManager.addAccount(Account.ACCOUNT_TYPE,
-                         Authenticator.AUTHTOKEN_TYPE, null, null,
-                         AccountsActivity.this, accountCallback, null);
+                isDemoAccount = false;
+                mAccountManager.addAccount(Account.ACCOUNT_TYPE,
+                     Authenticator.AUTHTOKEN_TYPE, null, null,
+                     AccountsActivity.this, accountCallback, null);
             }
         });
         accountsView.addFooterView(footerView, null, true);
