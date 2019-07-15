@@ -256,6 +256,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
 
         Log.d(DEBUG_TAG, "email: " + email);
         Log.d(DEBUG_TAG, "token: " + token);
+
         return new Account(url, email, "", token, true);
     }
 
