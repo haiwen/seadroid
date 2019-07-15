@@ -43,7 +43,7 @@ public class ActivitiesItemAdapter extends BaseAdapter {
     private BrowserActivity mActivity;
     private ImageLoader loader;
     private DisplayImageOptions options;
-    private boolean ser_version;
+    private boolean useNewActivity;
 
     public ActivitiesItemAdapter(BrowserActivity activity) {
         this.mActivity = activity;
@@ -89,8 +89,8 @@ public class ActivitiesItemAdapter extends BaseAdapter {
         return position;
     }
 
-    public void setItems(List<SeafEvent> events,boolean ser_version) {
-        this.ser_version=ser_version;
+    public void setItems(List<SeafEvent> events, boolean useNewActivity) {
+        this.useNewActivity = useNewActivity;
         items.clear();
         items.addAll(events);
     }
@@ -159,9 +159,9 @@ public class ActivitiesItemAdapter extends BaseAdapter {
         TextView tv_desc = (TextView) view.findViewById(R.id.tv_activities_desc);
         TextView tv_time = (TextView) view.findViewById(R.id.tv_activities_time);
         TextView tv_mod = (TextView) view.findViewById(R.id.tv_activities_mod);
-        viewHolder = new ViewHolder(title, nick, date, repoName, icon,tv_name,tv_state,tv_desc,tv_time,tv_mod,icon_url,rl_old,rl_new);
+        viewHolder = new ViewHolder(title, nick, date, repoName, icon, tv_name, tv_state, tv_desc, tv_time, tv_mod, icon_url, rl_old, rl_new);
         view.setTag(viewHolder);
-        if(ser_version){
+        if (useNewActivity) {
             rl_old.setVisibility(View.GONE);
             rl_new.setVisibility(View.VISIBLE);
             item.setAvatar(item.getAvatar_url());
@@ -227,7 +227,7 @@ public class ActivitiesItemAdapter extends BaseAdapter {
         TextView tv_name, tv_state, tv_desc, tv_mod, tv_time;
         RelativeLayout rl_old, rl_new;
         public ViewHolder(TextView title, TextView nick, TextView date, TextView repoName, ImageView icon, TextView tv_name,
-                          TextView tv_state,TextView tv_desc,TextView tv_time,TextView tv_mod,ImageView icon_url,RelativeLayout rl_old,RelativeLayout rl_new) {
+                          TextView tv_state, TextView tv_desc, TextView tv_time, TextView tv_mod, ImageView icon_url, RelativeLayout rl_old, RelativeLayout rl_new) {
             super();
             this.icon = icon;
             this.title = title;

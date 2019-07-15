@@ -897,27 +897,27 @@ public class DataManager {
 
     }
 
-    public SeafActivities getEvents(int start, boolean ser_version) throws SeafException, JSONException {
-        int moreOffset=0;
+    public SeafActivities getEvents(int start, boolean useNewActivity) throws SeafException {
+        int moreOffset = 0;
         boolean more;
         if (!Utils.isNetworkOn()) {
             throw SeafException.networkException;
         }
 
-        final String json = sc.getEvents(start, ser_version);
+        final String json = sc.getEvents(start, useNewActivity);
 
         if (json == null) return null;
 
         final List<SeafEvent> events = parseEvents(json);
         final JSONObject object = Utils.parseJsonObject(json);
-        if(ser_version){
-            if(events.size() < PAGE_SIZE){
-                more=false;
-            }else {
-                moreOffset=start+1;
-                more=true;
+        if (useNewActivity) {
+            if (events.size() < PAGE_SIZE) {
+                more = false;
+            } else {
+                moreOffset = start + 1;
+                more = true;
             }
-        }else {
+        } else {
             moreOffset = object.optInt("more_offset");
             more = object.optBoolean("more");
         }

@@ -56,6 +56,7 @@ public class ActivitiesFragment extends Fragment {
     public static final int REFRESH_ON_PULL_UP = 2;
     public static final int VERSIONS_NUMBER = 6;
     private static int mRefreshType = REFRESH_ON_NONE;
+    private boolean useNewActivity = false;
 
     private BrowserActivity mActivity;
     private SwipeRefreshLayout refreshLayout;
@@ -201,7 +202,7 @@ public class ActivitiesFragment extends Fragment {
 
         super.onActivityCreated(savedInstanceState);
     }
-private boolean ser_version=false;
+
     public void refreshView() {
         account = accountManager.getCurrentAccount();
         ServerInfo serverInfo = accountManager.getServerInfo(account);
@@ -209,10 +210,9 @@ private boolean ser_version=false;
         if (!TextUtils.isEmpty(server_version)) {
             String[] arr1 = server_version.split("\\.");
             if (arr1 != null && Integer.parseInt(arr1[0]) > VERSIONS_NUMBER) {
-                ser_version = true;
+                useNewActivity = true;
             } else {
-
-                ser_version = false;
+                useNewActivity = false;
             }
         }
         new LoadEventsTask().execute();
@@ -368,12 +368,9 @@ private boolean ser_version=false;
 
             try {
                 // Log.d(DEBUG_TAG, "offset " + offset);
-                return mActivity.getDataManager().getEvents(offset, ser_version);
+                return mActivity.getDataManager().getEvents(offset, useNewActivity);
             } catch (SeafException e) {
                 err = e;
-                e.printStackTrace();
-                return null;
-            } catch (JSONException e) {
                 e.printStackTrace();
                 return null;
             }
@@ -434,7 +431,7 @@ private boolean ser_version=false;
             }
 
             adapter.setState(mRefreshType);
-            adapter.setItems(events, ser_version);
+            adapter.setItems(events, useNewActivity);
             adapter.notifyDataSetChanged();
         }
     }
