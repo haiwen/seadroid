@@ -15,8 +15,8 @@ public class SystemSwitchUtils {
     private static SystemSwitchUtils util;
 
     public static SystemSwitchUtils getInstance(Context context){
-        if (util==null) {
-            util=new SystemSwitchUtils(context);
+        if (util == null) {
+            util = new SystemSwitchUtils(context);
         }
         return util;
 
@@ -44,11 +44,11 @@ public class SystemSwitchUtils {
     }
 
     /**
-     *  synchro switch
+     * synchro switch
      */
     public void syncSwitchUtils() {
 
-        if(!isSyncSwitchOn()){
+        if (!isSyncSwitchOn()) {
             ContentResolver.setMasterSyncAutomatically(!isSyncSwitchOn());
         }
 
@@ -69,8 +69,6 @@ public class SystemSwitchUtils {
         if (dateString.contains("T")) dateString = dateString.replace('T', ' ');
         String[] arr1 = dateString.split("\\+");
         return Utils.translateCommitTime(Long.parseLong(date2TimeStamp(arr1[0], "yyyy-MM-dd HH:mm:ss")) * 1000);
-
-
     }
 
     public static String obj_type(Context ct, String obj_type, String op_type) {
