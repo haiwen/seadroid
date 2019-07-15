@@ -41,6 +41,11 @@
     <item>기타</item>
   </string-array>
   <string name="choose_server">Seafile 서버를 선택하세요</string>
+  <string-array name="choose_server_array">
+    <item>SeaCloud.cc</item>
+    <item>단일 로그인(SSO)</item>
+    <item>다른 Seafile 서버</item>
+  </string-array>
   <string name="network_down">네트워크 연결 상태가 아닙니다</string>
   <string name="unknow_error">알 수 없는 오류</string>
   <string name="invalid_server_address">잘못된 서버 주소입니다</string>
@@ -69,8 +74,12 @@
   <string name="file_action_star">별 표시</string>
   <string name="file_action_download">다운로드</string>
   <string name="file_action_update">업로드</string>
+  <string name="file_share">공유</string>
+  <string name="file_action_share_wechat">위챗에 공유</string>
+  <string name="file_action_share_link">링크 공유</string>
   <string name="file_action_share_encrypt">암호로 보호한 링크 공유</string>
   <string name="file_action_export">내보내기</string>
+  <string name="file_action_open">다른 앱에서 열기</string>
   <string name="file_action_delete">삭제</string>
   <string name="file_action_rename">이름 바꾸기</string>
   <string name="file_action_copy">복사</string>
@@ -137,6 +146,10 @@
     <item>파일 업로드</item>
     <item>사진 촬영</item>
   </string-array>
+  <string-array name="video_download_array">
+    <item>재생</item>
+    <item>다운로드</item>
+  </string-array>
   <string name="create_new_repo">새 라이브러리 만들기</string>
   <string name="create_new_repo_success">%s 라이브러리 만들기에 성공했습니다</string>
   <string name="create_new_folder_success">%s 폴더 만들기에 성공했습니다</string>
@@ -196,6 +209,7 @@
   <string name="open_as">다른 앱으로 열기</string>
   <string name="select_upload_files">업로드할 파일을 선택하세요</string>
   <string name="storage_removed">저장소를 제거했습니다</string>
+  <string name="storage_space_insufficient">저장소 공간이 부족합니다</string>
   <string name="error_selecting_file">파일을 선택하는 중 오류가 생겼습니다</string>
   <plurals name="n_upload_files_selected">
     <item quantity="other">파일 %1$d개 선택함</item>
@@ -287,18 +301,6 @@
   <string name="settings_contacts_upload_repo_history">백업 기록이 없습니다</string>
   <string name="settings_contacts_upload_start_backup">백업</string>
   <string name="settings_contacts_upload_start_backup_hint">연락처 백업을 시작하려면 누르세요</string>
-  <string name="settings_contacts_upload_start_recovery">복원</string>
-  <string name="settings_contacts_upload_start_recovery_hint">연락처를 복원하려면 누르세요</string>
-  <!--contacts Upload Perference-->
-  <string name="contacts_dialog_recovery">최근 백업 연락처 복원</string>
-  <string name="contacts_dialog_backup">연락처를 다음 파일로 백업합니다:</string>
-  <string name="contacts_count_zero">연락처가 비어있습니다</string>
-  <string name="contacts_backup_success">백업 성공</string>
-  <string name="contacts_recovery_success">복원 성공</string>
-  <string name="contacts_backup_title">연락처 백업</string>
-  <string name="contacts_recovery_title">연락처 복원</string>
-  <string name="contacts_backup_fail">백업 실패</string>
-  <string name="contacts_recover_fail">복원 실패</string>
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">카메라 사진 업로드</string>
   <string name="settings_camera_upload_service_started">업로드 서비스를 시작했습니다</string>
@@ -405,7 +407,9 @@
   <string name="saf_bad_mime_type">잘못된 요청 형식입니다</string>
   <!--Single Sign-On  SSO-->
   <string name="shib_server_url_empty">서버가 비어있습니다!</string>
+  <string name="shib_server_incorrect_prefix">https://로 시작해야 합니다</string>
   <string name="shib_load_page_error">오류:</string>
+  <string name="shib_login_title">단일 로그인(SSO)</string>
   <string name="shib_loading">불러오는 중...</string>
   <!--Transfer List-->
   <string name="transfer_list_network_error">네트워크 연결에 문제가 있으니, 나중에 다시 해보세요!</string>
@@ -492,6 +496,7 @@
   <string name="two_factor_auth_invalid">인증 토큰이 잘못되었습니다</string>
   <string name="two_factor_auth_token">이중 인증 토큰</string>
   <string name="two_factor_auth_token_empty">인증 토큰은 비워둘 수 없습니다</string>
+  <string name="two_factor_auth_remember_phone">이 장치 기억</string>
   <!--Operation Exceptions-->
   <string name="op_exception_folder_deleted">\"%s\" 폴더를 삭제했습니다</string>
   <string name="op_exception_suitable_app_not_found">%s MIME 형식에 알맞은 앱을 찾을 수 없습니다</string>
@@ -503,4 +508,16 @@
   <string name="add_auto_expiration">자동 만료일 추가</string>
   <string name="input_auto_expiration">만료일자를 입력하세요</string>
   <!--editor-->
+  <string name="editor_lines_error">다중 행을 처리할 수 없습니다</string>
+  <string name="editor_file_save">저장하고 끝낼까요?</string>
+  <string name="editor_file_save_success">파일을 성공적으로 저장했습니다</string>
+  <string name="editor_file_save_failed">캐시 비우기에 실패했습니다</string>
+  <string name="editor_file_save_title">파일 저장</string>
+  <string name="description">설명</string>
+  <string name="undo">작업 취소</string>
+  <string name="redo">다시 실행</string>
+  <string name="link">연결</string>
+  <string name="channel_name_error">오류 경고</string>
+  <string name="channel_name_upload">파일 업로드 정보</string>
+  <string name="channel_name_download">파일 다운로드 정보</string>
 </resources>

@@ -301,18 +301,6 @@
   <string name="settings_contacts_upload_repo_history">バックアップは記録されていません</string>
   <string name="settings_contacts_upload_start_backup">バックアップ</string>
   <string name="settings_contacts_upload_start_backup_hint">クリックすると連絡先のバックアップを開始します</string>
-  <string name="settings_contacts_upload_start_recovery">復元</string>
-  <string name="settings_contacts_upload_start_recovery_hint">クリックすると連絡先を復元します</string>
-  <!--contacts Upload Perference-->
-  <string name="contacts_dialog_recovery">最後のバックアップから連絡先を復元</string>
-  <string name="contacts_dialog_backup">連絡先をファイルにバックアップします:</string>
-  <string name="contacts_count_zero">連絡先は空です</string>
-  <string name="contacts_backup_success">バックアップに成功しました</string>
-  <string name="contacts_recovery_success">復元に成功しました</string>
-  <string name="contacts_backup_title">連絡先をバックアップ</string>
-  <string name="contacts_recovery_title">連絡先を復元</string>
-  <string name="contacts_backup_fail">バックアップに失敗しました</string>
-  <string name="contacts_recover_fail">復元に失敗しました</string>
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">カメラの写真のアップロード</string>
   <string name="settings_camera_upload_service_started">アップロードサービスが開始しました</string>
@@ -529,4 +517,7 @@
   <string name="undo">元に戻す</string>
   <string name="redo">繰り返し</string>
   <string name="link">リンク</string>
+  <string name="channel_name_error">エラーアラート</string>
+  <string name="channel_name_upload">ファイルアップロード情報</string>
+  <string name="channel_name_download">ファイルダウンロード情報</string>
 </resources>

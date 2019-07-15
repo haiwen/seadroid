@@ -12,6 +12,12 @@
   <string name="delete_successful">Successfully deleted</string>
   <string name="delete_repo_title">Delete library</string>
   <string name="delete_file_f">Delete file</string>
+  <string name="recover_library">Recover library</string>
+  <string name="recover_file">Recover file</string>
+  <string name="move_file">Move file</string>
+  <string name="update_file">Update file</string>
+  <string name="recover_folder">Recover folder</string>
+  <string name="move_folder">Move folder</string>
   <string name="delete_dir">Delete folder</string>
   <string name="name_hint">Name</string>
   <string name="server_hint">Server address</string>
@@ -145,6 +151,11 @@
   <string name="load_dir_fail">Failed to load contents of this folder</string>
   <string name="not_supported_share">This type of share is not supported</string>
   <string name="edit">Edit</string>
+  <string name="create_draft">Create draft</string>
+  <string name="rename_draft">Rename draft</string>
+  <string name="del_draft">Delete draft</string>
+  <string name="update_draft">Update draft</string>
+  <string name="release_draft">Release draft</string>
   <string name="encrypt">Encrypt</string>
   <string name="download_folder">Download folder</string>
   <string name="download_folder_title">Choose your preferred option</string>
@@ -169,6 +180,7 @@
   <string name="create_new_folder_success">Successfully created folder %s</string>
   <string name="create_new_file_success">Successfully created file %s</string>
   <string name="create_new_file">Create a new file</string>
+  <string name="create_files">Create files</string>
   <string name="create_new_dir">Create a new folder</string>
   <string name="camera">Take a photo here</string>
   <string name="download">Download</string>
@@ -319,18 +331,6 @@
   <string name="settings_contacts_upload_repo_history">No backup record</string>
   <string name="settings_contacts_upload_start_backup">Backup</string>
   <string name="settings_contacts_upload_start_backup_hint">Click to start contacts backup</string>
-  <string name="settings_contacts_upload_start_recovery">Restore</string>
-  <string name="settings_contacts_upload_start_recovery_hint">Click to restore contacts</string>
-  <!--contacts Upload Perference-->
-  <string name="contacts_dialog_recovery">Restore contacts from the latest backup</string>
-  <string name="contacts_dialog_backup">Contacts will be backup to file:</string>
-  <string name="contacts_count_zero">The contacts is empty</string>
-  <string name="contacts_backup_success">Backup success</string>
-  <string name="contacts_recovery_success">Restore success</string>
-  <string name="contacts_backup_title">Backup contacts</string>
-  <string name="contacts_recovery_title">Restore contacts</string>
-  <string name="contacts_backup_fail">Backup failed</string>
-  <string name="contacts_recover_fail">Restore failed</string>
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Camera Photo Upload</string>
   <string name="settings_camera_upload_service_started">Upload service started</string>

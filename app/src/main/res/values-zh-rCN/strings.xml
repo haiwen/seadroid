@@ -10,6 +10,12 @@
   <string name="delete_successful">删除成功</string>
   <string name="delete_repo_title">删除资料库</string>
   <string name="delete_file_f">删除文件</string>
+  <string name="recover_library">恢复资料库</string>
+  <string name="recover_file">恢复文件</string>
+  <string name="move_file">移动文件</string>
+  <string name="update_file">更新文件</string>
+  <string name="recover_folder">恢复文件夹</string>
+  <string name="move_folder">移动文件夹</string>
   <string name="delete_dir">删除文件夹</string>
   <string name="name_hint">名称</string>
   <string name="server_hint">云盘网址</string>
@@ -131,6 +137,11 @@
   <string name="load_dir_fail">加载此文件夹的内容失败</string>
   <string name="not_supported_share">不支持此类分享</string>
   <string name="edit">编辑</string>
+  <string name="create_draft">创建草稿</string>
+  <string name="rename_draft">重命名草稿</string>
+  <string name="del_draft">删除草稿</string>
+  <string name="update_draft">更新草稿</string>
+  <string name="release_draft">发布草稿</string>
   <string name="encrypt">加密</string>
   <string name="download_folder">下载该文件夹</string>
   <string name="download_folder_title">选择你喜欢的选项</string>
@@ -155,6 +166,7 @@
   <string name="create_new_folder_success">文件夹%s创建成功</string>
   <string name="create_new_file_success">文件%s创建成功</string>
   <string name="create_new_file">创建新文件</string>
+  <string name="create_files">创建多个文件</string>
   <string name="create_new_dir">创建新文件夹</string>
   <string name="camera">拍照上传</string>
   <string name="download">下载</string>
@@ -301,18 +313,6 @@
   <string name="settings_contacts_upload_repo_history">没有备份记录</string>
   <string name="settings_contacts_upload_start_backup">备份</string>
   <string name="settings_contacts_upload_start_backup_hint">点击开始备份通讯录</string>
-  <string name="settings_contacts_upload_start_recovery">恢复</string>
-  <string name="settings_contacts_upload_start_recovery_hint">点击开始恢复通讯录</string>
-  <!--contacts Upload Perference-->
-  <string name="contacts_dialog_recovery">从上一次备份中恢复通讯录</string>
-  <string name="contacts_dialog_backup">通讯录将备份为文件：</string>
-  <string name="contacts_count_zero">通讯录是空的</string>
-  <string name="contacts_backup_success">备份成功</string>
-  <string name="contacts_recovery_success">恢复成功</string>
-  <string name="contacts_backup_title">备份通讯录</string>
-  <string name="contacts_recovery_title">恢复通讯录</string>
-  <string name="contacts_backup_fail">备份时出错</string>
-  <string name="contacts_recover_fail">恢复时出错</string>
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">上传照片</string>
   <string name="settings_camera_upload_service_started">上传服务已启动</string>
