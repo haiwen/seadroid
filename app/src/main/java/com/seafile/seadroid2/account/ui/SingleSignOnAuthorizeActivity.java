@@ -297,6 +297,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
                         });
                 dialog.show(getSupportFragmentManager(), SslConfirmDialog.FRAGMENT_TAG);
             }
+
             if (result != null && result.equals("Success")) {
                 returnAccount(loginAccount);
             }
