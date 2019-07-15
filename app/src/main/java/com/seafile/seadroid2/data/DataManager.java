@@ -897,7 +897,7 @@ public class DataManager {
 
     }
 
-    public SeafActivities getEvents( int start, boolean ser_version) throws SeafException, JSONException {
+    public SeafActivities getEvents(int start, boolean ser_version) throws SeafException, JSONException {
         int moreOffset=0;
         boolean more;
         if (!Utils.isNetworkOn()) {
