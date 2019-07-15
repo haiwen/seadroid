@@ -122,7 +122,7 @@ public class SeafEvent implements SeafItem {
             return value.replace("Changed library name or description", "Changed library name or description");
         } else if (value.startsWith("Merged") || value.startsWith("Auto merge")) {
             return "Auto merge by seafile system";
-        } else if (value.startsWith("Deleted")){
+        } else if (value.startsWith("Deleted")) {
             return value;
         }
 
