@@ -295,11 +295,11 @@ public class SeafConnection {
         }
     }
 
-    public String getEvents(int start, boolean ser_version) throws SeafException {
+    public String getEvents(int start, boolean useNewActivity) throws SeafException {
         String apiPath;
         try {
             Map<String, Object> params = Maps.newHashMap();
-            if (ser_version) {
+            if (useNewActivity) {
                 apiPath = String.format("api/v2.1/activities/");
                 if (start == 0) {
                     start = 1;

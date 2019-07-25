@@ -7,9 +7,9 @@
         android:topRightRadius="1dp"/>
     <gradient
         android:angle="270"
-        android:endColor="@color/fancy_orange"
-        android:startColor="@color/fancy_orange"/>
+        android:endColor="@color/pale_yellow"
+        android:startColor="@color/pale_yellow"/>
     <stroke
         android:width="1dp"
-        android:color="@color/fancy_orange"/>
+        android:color="@color/pale_yellow"/>
 </shape>
