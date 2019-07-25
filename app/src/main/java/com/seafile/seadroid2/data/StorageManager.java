@@ -382,7 +382,7 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
      */
     public final File getTempDir() {
         File base = getMediaDir();
-        File tmpDir = new File(base, "temp");
+        File tmpDir = new File(base, ".temp");
         return getDirectoryCreateIfNeeded(tmpDir);
     }
 
