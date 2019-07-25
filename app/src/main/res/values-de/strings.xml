@@ -10,6 +10,12 @@
   <string name="delete_successful">Erfolgreich gelöscht</string>
   <string name="delete_repo_title">Bibliothek löschen</string>
   <string name="delete_file_f">Datei löschen</string>
+  <string name="recover_library">Bibliothek wiederherstellen</string>
+  <string name="recover_file">Datei wiederherstellen</string>
+  <string name="move_file">Datei verschieben</string>
+  <string name="update_file">Datei aktualisieren</string>
+  <string name="recover_folder">Ordner wiederherstellen</string>
+  <string name="move_folder">Ordner verschieben</string>
   <string name="delete_dir">Ordner löschen</string>
   <string name="name_hint">Name</string>
   <string name="server_hint">Server, z.B. cloud.seafile.com</string>
@@ -42,7 +48,7 @@
   </string-array>
   <string name="choose_server">Bitte wählen Sie einen Seafile-Server aus</string>
   <string-array name="choose_server_array">
-    <item>SeaCloud.cc</item>
+    <item>cloud.seafile.com</item>
     <item>Single-Sign-On</item>
     <item>Anderer Seafile-Server</item>
   </string-array>
@@ -134,6 +140,11 @@ Zum Aktualisieren einmal antippen</string>
   <string name="load_dir_fail">Inhalt des Ordners konnte nicht geladen werden</string>
   <string name="not_supported_share">Diese Art der Freigabe wird nicht unterstützt</string>
   <string name="edit">Bearbeiten</string>
+  <string name="create_draft">Entwurf erstellen</string>
+  <string name="rename_draft">Entwurf umbenennen</string>
+  <string name="del_draft">Entwurf löschen</string>
+  <string name="update_draft">Entwurf aktualisieren</string>
+  <string name="release_draft">Entwurf freigeben</string>
   <string name="encrypt">Verschlüsseln</string>
   <string name="download_folder">Ordner herunterladen</string>
   <string name="download_folder_title">Wählen Sie Ihre bevorzugte Option</string>
@@ -158,6 +169,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="create_new_folder_success">Ordner %s ist erstellt</string>
   <string name="create_new_file_success">Datei %s ist erstellt</string>
   <string name="create_new_file">Eine neue Datei erstellen</string>
+  <string name="create_files">Dateien erstellen</string>
   <string name="create_new_dir">Einen neuen Ordner erstellen</string>
   <string name="camera">Neues Foto hier aufnehmen</string>
   <string name="download">Herunterladen</string>
