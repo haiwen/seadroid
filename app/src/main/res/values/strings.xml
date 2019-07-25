@@ -54,7 +54,7 @@
     <item>Single Sign-On</item>
     <item>Other Seafile Server</item>
   </string-array>
-  <string name="server_name_top">cloud.seafile.com</string>
+  <string name="server_name_top" translatable="false">cloud.seafile.com</string>
   <string name="server_url_seacloud" translatable="false">https://cloud.seafile.com</string>
   <string name="network_down">No network connection</string>
   <string name="unknow_error">Unknown error</string>
