@@ -48,7 +48,6 @@
   </string-array>
   <string name="choose_server">Выберите сервер Seafile</string>
   <string-array name="choose_server_array">
-    <item>cloud.seafile.com</item>
     <item>Единая точка входа</item>
     <item>Другой Seafile сервер</item>
   </string-array>

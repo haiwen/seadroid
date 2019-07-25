@@ -42,7 +42,6 @@
   </string-array>
   <string name="choose_server">Seafile 서버를 선택하세요</string>
   <string-array name="choose_server_array">
-    <item>cloud.seafile.com</item>
     <item>단일 로그인(SSO)</item>
     <item>다른 Seafile 서버</item>
   </string-array>

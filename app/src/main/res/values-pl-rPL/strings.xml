@@ -42,7 +42,6 @@
   </string-array>
   <string name="choose_server">Wybierz serwer Seafile</string>
   <string-array name="choose_server_array">
-    <item>cloud.seafile.com</item>
     <item>Single Sign-On</item>
     <item>Inny serwer Seafile</item>
   </string-array>
