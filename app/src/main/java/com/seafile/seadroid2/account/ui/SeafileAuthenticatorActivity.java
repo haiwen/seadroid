@@ -55,10 +55,10 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.account_create_type_select);
         String[] array = getResources().getStringArray(R.array.choose_server_array);
-        String[] strArray=new String[1+array.length];
-        strArray[0]=getString(R.string.server_name_top);
-        for (int i=0;i<array.length;i++){
-            strArray[i+1]=array[i];
+        String[] strArray = new String[1 + array.length];
+        strArray[0] = getString(R.string.server_name_top);
+        for (int i = 0; i < array.length; i++) {
+            strArray[i + 1] = array[i];
         }
         ArrayAdapter<String> listAdapter = new ArrayAdapter<>(this, R.layout.list_item_authenticator, strArray);
         ListView listView = (ListView)findViewById(R.id.account_create_list);
