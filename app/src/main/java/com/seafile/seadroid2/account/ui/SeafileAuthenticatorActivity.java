@@ -54,6 +54,7 @@ public class SeafileAuthenticatorActivity extends BaseAuthenticatorActivity {
         Log.d(DEBUG_TAG, "onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.account_create_type_select);
+
         String[] array = getResources().getStringArray(R.array.choose_server_array);
         String[] strArray = new String[1 + array.length];
         strArray[0] = getString(R.string.server_name_top);
