@@ -42,7 +42,6 @@
   </string-array>
   <string name="choose_server">Valitse Seafile Palvelin</string>
   <string-array name="choose_server_array">
-    <item>SeaCloud.cc</item>
     <item>Kertakirjautuminen</item>
     <item>Muu Seafile palvelin</item>
   </string-array>

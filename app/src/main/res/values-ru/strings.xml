@@ -10,6 +10,12 @@
   <string name="delete_successful">Успешно удалено</string>
   <string name="delete_repo_title">Удалить библиотеку</string>
   <string name="delete_file_f">Удалить файл</string>
+  <string name="recover_library">Восстановить библиотеку</string>
+  <string name="recover_file">Восстановить файл</string>
+  <string name="move_file">Переместить файл</string>
+  <string name="update_file">Обновить файл</string>
+  <string name="recover_folder">Восстановить папку</string>
+  <string name="move_folder">Переместить папку</string>
   <string name="delete_dir">Удалить папку</string>
   <string name="name_hint">Имя</string>
   <string name="server_hint">Адрес сервера</string>
@@ -42,7 +48,6 @@
   </string-array>
   <string name="choose_server">Выберите сервер Seafile</string>
   <string-array name="choose_server_array">
-    <item>SeaCloud.cc</item>
     <item>Единая точка входа</item>
     <item>Другой Seafile сервер</item>
   </string-array>
@@ -134,6 +139,11 @@
   <string name="load_dir_fail">Не удалось загрузить содержимое этой папки</string>
   <string name="not_supported_share">Этот тип обмена не поддерживается</string>
   <string name="edit">Изменить</string>
+  <string name="create_draft">Создать черновик</string>
+  <string name="rename_draft">Переименовать черновик</string>
+  <string name="del_draft">Удалить черновик</string>
+  <string name="update_draft">Обновить черновик</string>
+  <string name="release_draft">Выпустить черновик</string>
   <string name="encrypt">Зашифровать</string>
   <string name="download_folder">Скачать папку</string>
   <string name="download_folder_title">Выберите нужный вариант</string>
@@ -158,6 +168,7 @@
   <string name="create_new_folder_success">Успешно создана папка %s</string>
   <string name="create_new_file_success">Успешно создан файл %s</string>
   <string name="create_new_file">Создать новый файл</string>
+  <string name="create_files">Создать файлы</string>
   <string name="create_new_dir">Создать новую папку</string>
   <string name="camera">Сделать фотографию</string>
   <string name="download">Скачать</string>
