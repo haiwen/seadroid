@@ -8,6 +8,10 @@ import java.io.Serializable;
 public class SeafPhoto implements Serializable {
     public static final long serialVersionUID = 0L;
 
+    /** download shows tatus */
+    private boolean downloadshowstatus;
+    /** display download status */
+    private boolean status;
     /** display name */
     private String name;
     /** repo name */
@@ -25,6 +29,22 @@ public class SeafPhoto implements Serializable {
         this.dirPath = dirPath;
         this.dirent = dirent;
         this.name = dirent.name;
+    }
+
+    public boolean getDownloadshowstatus() {
+        return downloadshowstatus;
+    }
+
+    public void setDownloadshowstatus(boolean downloadshowstatus) {
+        this.downloadshowstatus = downloadshowstatus;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
+    }
+
+    public boolean getStatus() {
+        return status;
     }
 
     public String getName() {

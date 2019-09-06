@@ -193,4 +193,6 @@
     <dimen name="font_size_bigger">18sp</dimen>
     <dimen name="font_size_biggest">20sp</dimen>
     <dimen name="font_size_large">22sp</dimen>
+
+    <dimen name="gallery_icon_show">292.6dp</dimen>
 </resources>

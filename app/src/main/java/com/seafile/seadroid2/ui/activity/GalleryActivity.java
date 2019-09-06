@@ -41,6 +41,7 @@ public class GalleryActivity extends BaseActivity {
     private TextView mPageIndexTextView;
     private TextView mPageCountTextView;
     private TextView mPageNameTextView;
+    private ImageView mDownloadBtn;
     private ImageView mDeleteBtn;
     private ImageView mStarBtn;
     private ImageView mShareBtn;
@@ -51,6 +52,7 @@ public class GalleryActivity extends BaseActivity {
     private String repoID;
     private String dirPath;
     private String fileName;
+    private boolean downloadshowstatus;
     private String STATE_FILE_NAME;
     private int mPageIndex;
     private GalleryAdapter mGalleryAdapter;
@@ -62,6 +64,9 @@ public class GalleryActivity extends BaseActivity {
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
+                case R.id.gallery_download_photo:
+                    downloadFile(repoID, dirPath, fileName);
+                    break;
                 case R.id.gallery_delete_photo:
                     deleteFile(repoID, Utils.pathJoin(dirPath, fileName));
                     break;
@@ -81,10 +86,12 @@ public class GalleryActivity extends BaseActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.gallery_activity_layout);
 
+        mDownloadBtn = (ImageView) findViewById(R.id.gallery_download_photo);
         mDeleteBtn = (ImageView) findViewById(R.id.gallery_delete_photo);
         mStarBtn = (ImageView) findViewById(R.id.gallery_star_photo);
         mShareBtn = (ImageView) findViewById(R.id.gallery_share_photo);
         mToolbar = (LinearLayout) findViewById(R.id.gallery_tool_bar);
+        mDownloadBtn.setOnClickListener(onClickListener);
         mDeleteBtn.setOnClickListener(onClickListener);
         mStarBtn.setOnClickListener(onClickListener);
         mShareBtn.setOnClickListener(onClickListener);
@@ -101,6 +108,12 @@ public class GalleryActivity extends BaseActivity {
                 // fixed IndexOutOfBoundsException when accessing list
                 if (mPageIndex == mPhotos.size()) return;
                 fileName = mPhotos.get(mPageIndex).getName();
+                downloadshowstatus = mPhotos.get(mPageIndex).getDownloadshowstatus();
+                if (downloadshowstatus) {
+                    mDownloadBtn.setVisibility(View.GONE);
+                } else {
+                    mDownloadBtn.setVisibility(View.VISIBLE);
+                }
                 mPageNameTextView.setText(fileName);
             }
 
@@ -320,6 +333,14 @@ public class GalleryActivity extends BaseActivity {
         }
         showToolBar = !showToolBar;
 
+    }
+
+    public void hideOrShowToolBarDownload() {
+        mDownloadBtn.setVisibility(View.GONE);
+    }
+
+    private void downloadFile(String repoID, String dirPath, String fileName) {
+        mGalleryAdapter.downloadPhoto(repoID, dirPath, fileName, mPageIndex);
     }
 
     private void deleteFile(String repoID, String path) {
