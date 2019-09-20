@@ -34,6 +34,7 @@ import uk.co.senab.photoview.PhotoViewAttacher;
  */
 public class GalleryAdapter extends PagerAdapter {
     public static final String DEBUG_TAG = "GalleryAdapter";
+
     /** unique task id */
     public static int taskID;
 
