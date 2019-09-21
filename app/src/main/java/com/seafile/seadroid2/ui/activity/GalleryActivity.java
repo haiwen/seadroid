@@ -8,9 +8,8 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import com.google.common.collect.Lists;
-import com.seafile.seadroid2.ui.HackyViewPager;
-import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
@@ -18,12 +17,16 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafPhoto;
+import com.seafile.seadroid2.transfer.DownloadStateListener;
+import com.seafile.seadroid2.transfer.DownloadTask;
+import com.seafile.seadroid2.ui.HackyViewPager;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.ZoomOutPageTransformer;
 import com.seafile.seadroid2.ui.adapter.GalleryAdapter;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
 import com.seafile.seadroid2.ui.dialog.DeleteFileDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
+import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 
 import java.util.Collections;
@@ -57,6 +60,9 @@ public class GalleryActivity extends BaseActivity {
     private int mPageIndex;
     private GalleryAdapter mGalleryAdapter;
     private List<SeafPhoto> mPhotos = Lists.newArrayList();
+    public static int taskID;
+    private int count;
+    private  static int TALLY=3;
 
     /** flag to mark if the tool bar was shown */
     private boolean showToolBar = true;
@@ -108,7 +114,7 @@ public class GalleryActivity extends BaseActivity {
                 // fixed IndexOutOfBoundsException when accessing list
                 if (mPageIndex == mPhotos.size()) return;
                 fileName = mPhotos.get(mPageIndex).getName();
-                downloadshowstatus = mPhotos.get(mPageIndex).getDownloadshowstatus();
+                downloadshowstatus = mPhotos.get(mPageIndex).getShowStatus();
                 if (downloadshowstatus) {
                     mDownloadBtn.setVisibility(View.GONE);
                 } else {
@@ -340,7 +346,9 @@ public class GalleryActivity extends BaseActivity {
     }
 
     private void downloadFile(String repoID, String dirPath, String fileName) {
-        mGalleryAdapter.downloadPhoto(repoID, dirPath, fileName, mPageIndex);
+        final String filePath = Utils.pathJoin(dirPath, fileName);
+        GallerySeeOriginals(repoName, repoID, filePath);
+
     }
 
     private void deleteFile(String repoID, String path) {
@@ -434,6 +442,33 @@ public class GalleryActivity extends BaseActivity {
         // update file name in gallery view
         mPageNameTextView.setText(mPhotos.get(mPageIndex).getName());
 
+    }
+
+    private void GallerySeeOriginals(String repoName, String repoID, String filePath) {
+        ConcurrentAsyncTask.execute(new DownloadTask(++taskID, mAccount, repoName, repoID, filePath, new DownloadStateListener() {
+            @Override
+            public void onFileDownloadProgress(int taskID) {
+
+            }
+
+            @Override
+            public void onFileDownloaded(int taskID) {
+
+                if (mGalleryAdapter != null) {
+                    mGalleryAdapter.downloadPhoto();
+                }
+
+            }
+
+            @Override
+            public void onFileDownloadFailed(int taskID) {
+                count++;
+                if (count < TALLY) {
+                    downloadFile(repoID, dirPath, fileName);
+                }
+
+            }
+        }));
     }
 
 }
