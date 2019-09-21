@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui.activity;
 
+import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -63,6 +64,7 @@ public class GalleryActivity extends BaseActivity {
     public static int taskID;
     private int count;
     private  static int TALLY=3;
+    private ProgressDialog progressDialog;
 
     /** flag to mark if the tool bar was shown */
     private boolean showToolBar = true;
@@ -346,6 +348,7 @@ public class GalleryActivity extends BaseActivity {
     }
 
     private void downloadFile(String repoID, String dirPath, String fileName) {
+        progressDialog = ProgressDialog.show(this,"", getString(R.string.notification_download_started_title));
         final String filePath = Utils.pathJoin(dirPath, fileName);
         GallerySeeOriginals(repoName, repoID, filePath);
 
@@ -453,9 +456,11 @@ public class GalleryActivity extends BaseActivity {
 
             @Override
             public void onFileDownloaded(int taskID) {
-
                 if (mGalleryAdapter != null) {
                     mGalleryAdapter.downloadPhoto();
+                }
+                if(progressDialog!=null){
+                    progressDialog.dismiss();
                 }
 
             }
@@ -465,6 +470,10 @@ public class GalleryActivity extends BaseActivity {
                 count++;
                 if (count < TALLY) {
                     downloadFile(repoID, dirPath, fileName);
+                }else {
+                    if(progressDialog!=null){
+                        progressDialog.dismiss();
+                    }
                 }
 
             }
