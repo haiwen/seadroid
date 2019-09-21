@@ -82,7 +82,7 @@ public class GalleryAdapter extends PagerAdapter {
         final File file = dm.getLocalRepoFile(repoName, repoID, filePath);
         if (file.exists()) {
             ImageLoader.getInstance().displayImage("file://" + file.getAbsolutePath().toString(), photoView, options);
-            seafPhoto.setShowStatus(true);
+            seafPhoto.setDownloaded(true);
         } else {
             ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
             String urlicon = dm.getThumbnailLink(repoName, repoID, filePath, Utils.getThumbnailWidth());

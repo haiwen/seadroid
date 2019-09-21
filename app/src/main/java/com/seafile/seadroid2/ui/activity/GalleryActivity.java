@@ -116,7 +116,7 @@ public class GalleryActivity extends BaseActivity {
                 // fixed IndexOutOfBoundsException when accessing list
                 if (mPageIndex == mPhotos.size()) return;
                 fileName = mPhotos.get(mPageIndex).getName();
-                downloadshowstatus = mPhotos.get(mPageIndex).getShowStatus();
+                downloadshowstatus = mPhotos.get(mPageIndex).getDownloaded();
                 if (downloadshowstatus) {
                     mDownloadBtn.setVisibility(View.GONE);
                 } else {
@@ -348,10 +348,9 @@ public class GalleryActivity extends BaseActivity {
     }
 
     private void downloadFile(String repoID, String dirPath, String fileName) {
-        progressDialog = ProgressDialog.show(this,"", getString(R.string.notification_download_started_title));
+        progressDialog = ProgressDialog.show(this, "", getString(R.string.notification_download_started_title));
         final String filePath = Utils.pathJoin(dirPath, fileName);
         GallerySeeOriginals(repoName, repoID, filePath);
-
     }
 
     private void deleteFile(String repoID, String path) {
@@ -459,10 +458,9 @@ public class GalleryActivity extends BaseActivity {
                 if (mGalleryAdapter != null) {
                     mGalleryAdapter.downloadPhoto();
                 }
-                if(progressDialog!=null){
+                if (progressDialog != null) {
                     progressDialog.dismiss();
                 }
-
             }
 
             @Override
@@ -470,8 +468,8 @@ public class GalleryActivity extends BaseActivity {
                 count++;
                 if (count < TALLY) {
                     downloadFile(repoID, dirPath, fileName);
-                }else {
-                    if(progressDialog!=null){
+                } else {
+                    if (progressDialog != null) {
                         progressDialog.dismiss();
                     }
                 }

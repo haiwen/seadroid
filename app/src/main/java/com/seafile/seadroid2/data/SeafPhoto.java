@@ -9,7 +9,7 @@ public class SeafPhoto implements Serializable {
     public static final long serialVersionUID = 0L;
 
     /** download shows tatus */
-    private boolean showStatus;
+    private boolean downloaded;
     /** display name */
     private String name;
     /** repo name */
@@ -29,12 +29,12 @@ public class SeafPhoto implements Serializable {
         this.name = dirent.name;
     }
 
-    public boolean getShowStatus() {
-        return showStatus;
+    public boolean getDownloaded() {
+        return downloaded;
     }
 
-    public void setShowStatus(boolean showStatus) {
-        this.showStatus = showStatus;
+    public void setDownloaded(boolean downloaded) {
+        this.downloaded = downloaded;
     }
 
     public String getName() {
