@@ -88,6 +88,12 @@
                       android:gravity="top|right"
                       android:visibility="gone"
                       android:background="@color/transparent">
+            <ImageView android:id="@+id/gallery_download_photo"
+                       android:layout_width="@dimen/gallery_icon_width"
+                       android:layout_height="@dimen/gallery_icon_height"
+                       android:layout_marginRight="@dimen/gallery_icon_margin_right"
+                       android:scaleType="centerInside"
+                       android:src="@drawable/action_download"/>
             <ImageView android:id="@+id/gallery_delete_photo"
                        android:layout_width="@dimen/gallery_icon_width"
                        android:layout_height="@dimen/gallery_icon_height"

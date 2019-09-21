@@ -12,6 +12,15 @@
             android:layout_gravity="center"
             android:adjustViewBounds="false"
             />
+    <ImageView
+        android:id="@+id/iv_see_originals"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/margin_largest"
+        android:layout_gravity="bottom|right"
+        android:visibility="gone"
+        android:src="@drawable/action_download"
+        />
 
     <LinearLayout
             android:orientation="vertical"
