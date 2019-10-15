@@ -42,7 +42,6 @@
   </string-array>
   <string name="choose_server">Wybierz serwer Seafile</string>
   <string-array name="choose_server_array">
-    <item>SeaCloud.cc</item>
     <item>Single Sign-On</item>
     <item>Inny serwer Seafile</item>
   </string-array>
@@ -313,18 +312,6 @@
   <string name="settings_contacts_upload_repo_history">Brak kopii zapasowych</string>
   <string name="settings_contacts_upload_start_backup">Wykonaj kopię</string>
   <string name="settings_contacts_upload_start_backup_hint">Dotknij, aby wykonać kopię zapasową kontaktów</string>
-  <string name="settings_contacts_upload_start_recovery">Przywróć</string>
-  <string name="settings_contacts_upload_start_recovery_hint">Dotknij, aby przywrócić kontakty</string>
-  <!--contacts Upload Perference-->
-  <string name="contacts_dialog_recovery">Przywróć kontakty z ostatniej kopii zapasowej</string>
-  <string name="contacts_dialog_backup">Kontakty zostaną zapisane w pliku:</string>
-  <string name="contacts_count_zero">Kontakty są puste</string>
-  <string name="contacts_backup_success">Pomyślnie wykonano kopię zapasową</string>
-  <string name="contacts_recovery_success">Pomyślnie przywrócono z kopii zapasowej</string>
-  <string name="contacts_backup_title">Wykonaj kopię kontaktów</string>
-  <string name="contacts_recovery_title">Przywróć kontakty</string>
-  <string name="contacts_backup_fail">Nie udało się wykonać kopii zapasowej</string>
-  <string name="contacts_recover_fail">Nie udało się przywrócić z kopii zapasowej</string>
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Automatyczna kopia zdjęć</string>
   <string name="settings_camera_upload_service_started">Usługa przesyłania jest uruchomiona</string>

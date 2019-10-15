@@ -1,5 +1,6 @@
 package com.seafile.seadroid2.ui.activity;
 
+import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -8,9 +9,8 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import com.google.common.collect.Lists;
-import com.seafile.seadroid2.ui.HackyViewPager;
-import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
@@ -18,12 +18,16 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafPhoto;
+import com.seafile.seadroid2.transfer.DownloadStateListener;
+import com.seafile.seadroid2.transfer.DownloadTask;
+import com.seafile.seadroid2.ui.HackyViewPager;
 import com.seafile.seadroid2.ui.WidgetUtils;
 import com.seafile.seadroid2.ui.ZoomOutPageTransformer;
 import com.seafile.seadroid2.ui.adapter.GalleryAdapter;
 import com.seafile.seadroid2.ui.adapter.SeafItemAdapter;
 import com.seafile.seadroid2.ui.dialog.DeleteFileDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog;
+import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 
 import java.util.Collections;
@@ -41,6 +45,7 @@ public class GalleryActivity extends BaseActivity {
     private TextView mPageIndexTextView;
     private TextView mPageCountTextView;
     private TextView mPageNameTextView;
+    private ImageView mDownloadBtn;
     private ImageView mDeleteBtn;
     private ImageView mStarBtn;
     private ImageView mShareBtn;
@@ -51,10 +56,15 @@ public class GalleryActivity extends BaseActivity {
     private String repoID;
     private String dirPath;
     private String fileName;
+    private boolean downloadshowstatus;
     private String STATE_FILE_NAME;
     private int mPageIndex;
     private GalleryAdapter mGalleryAdapter;
     private List<SeafPhoto> mPhotos = Lists.newArrayList();
+    public static int taskID;
+    private int count;
+    private  static int TALLY=3;
+    private ProgressDialog progressDialog;
 
     /** flag to mark if the tool bar was shown */
     private boolean showToolBar = true;
@@ -62,6 +72,9 @@ public class GalleryActivity extends BaseActivity {
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
+                case R.id.gallery_download_photo:
+                    downloadFile(repoID, dirPath, fileName);
+                    break;
                 case R.id.gallery_delete_photo:
                     deleteFile(repoID, Utils.pathJoin(dirPath, fileName));
                     break;
@@ -81,10 +94,12 @@ public class GalleryActivity extends BaseActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.gallery_activity_layout);
 
+        mDownloadBtn = (ImageView) findViewById(R.id.gallery_download_photo);
         mDeleteBtn = (ImageView) findViewById(R.id.gallery_delete_photo);
         mStarBtn = (ImageView) findViewById(R.id.gallery_star_photo);
         mShareBtn = (ImageView) findViewById(R.id.gallery_share_photo);
         mToolbar = (LinearLayout) findViewById(R.id.gallery_tool_bar);
+        mDownloadBtn.setOnClickListener(onClickListener);
         mDeleteBtn.setOnClickListener(onClickListener);
         mStarBtn.setOnClickListener(onClickListener);
         mShareBtn.setOnClickListener(onClickListener);
@@ -101,6 +116,12 @@ public class GalleryActivity extends BaseActivity {
                 // fixed IndexOutOfBoundsException when accessing list
                 if (mPageIndex == mPhotos.size()) return;
                 fileName = mPhotos.get(mPageIndex).getName();
+                downloadshowstatus = mPhotos.get(mPageIndex).getDownloaded();
+                if (downloadshowstatus) {
+                    mDownloadBtn.setVisibility(View.GONE);
+                } else {
+                    mDownloadBtn.setVisibility(View.VISIBLE);
+                }
                 mPageNameTextView.setText(fileName);
             }
 
@@ -322,6 +343,16 @@ public class GalleryActivity extends BaseActivity {
 
     }
 
+    public void hideOrShowToolBarDownload() {
+        mDownloadBtn.setVisibility(View.GONE);
+    }
+
+    private void downloadFile(String repoID, String dirPath, String fileName) {
+        progressDialog = ProgressDialog.show(this, "", getString(R.string.notification_download_started_title));
+        final String filePath = Utils.pathJoin(dirPath, fileName);
+        GallerySeeOriginals(repoName, repoID, filePath);
+    }
+
     private void deleteFile(String repoID, String path) {
         final DeleteFileDialog dialog = new DeleteFileDialog();
         dialog.init(repoID, path, false, mAccount);
@@ -413,6 +444,38 @@ public class GalleryActivity extends BaseActivity {
         // update file name in gallery view
         mPageNameTextView.setText(mPhotos.get(mPageIndex).getName());
 
+    }
+
+    private void GallerySeeOriginals(String repoName, String repoID, String filePath) {
+        ConcurrentAsyncTask.execute(new DownloadTask(++taskID, mAccount, repoName, repoID, filePath, new DownloadStateListener() {
+            @Override
+            public void onFileDownloadProgress(int taskID) {
+
+            }
+
+            @Override
+            public void onFileDownloaded(int taskID) {
+                if (mGalleryAdapter != null) {
+                    mGalleryAdapter.downloadPhoto();
+                }
+                if (progressDialog != null) {
+                    progressDialog.dismiss();
+                }
+            }
+
+            @Override
+            public void onFileDownloadFailed(int taskID) {
+                count++;
+                if (count < TALLY) {
+                    downloadFile(repoID, dirPath, fileName);
+                } else {
+                    if (progressDialog != null) {
+                        progressDialog.dismiss();
+                    }
+                }
+
+            }
+        }));
     }
 
 }

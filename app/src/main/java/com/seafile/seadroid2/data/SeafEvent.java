@@ -4,7 +4,6 @@ import android.util.Log;
 
 import com.seafile.seadroid2.R;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -27,6 +26,7 @@ public class SeafEvent implements SeafItem {
     private String author;
     private String nick;
     private long time;
+    private String v_time;
     private String etype;
     private String repo_name;
     private String desc;
@@ -36,8 +36,13 @@ public class SeafEvent implements SeafItem {
     private String time_relative;
     private String converted_cmmt_desc;
     private String avatar;
+    private String avatar_url;
     private boolean repo_encrypted;
     private boolean more_files;
+    private String path;
+    private String op_type;
+    private String obj_type;
+    private String author_name;
 
     public static SeafEvent fromJson(JSONObject obj) {
         SeafEvent event = new SeafEvent();
@@ -56,17 +61,23 @@ public class SeafEvent implements SeafItem {
                 event.nick = "anonymous";
             }
 
+            event.author_name = obj.optString("author_name");
+            event.path = obj.optString("path");
+            event.op_type = obj.optString("op_type");
+            event.obj_type = obj.optString("obj_type");
             event.etype = obj.optString("etype");
             event.repo_name = obj.optString("repo_name");
-            event.time = obj.getLong("time");
+            event.v_time = obj.optString("time");
+            event.time = obj.optLong("time");
             event.avatar = obj.optString("avatar");
+            event.avatar_url = obj.optString("avatar_url");
             event.commit_id = obj.optString("commit_id");
             event.date = obj.optString("date");
             event.name = obj.optString("name");
             event.time_relative = obj.optString("time_relative");
             event.converted_cmmt_desc = obj.optString("converted_cmmt_desc");
-            event.repo_encrypted = obj.getBoolean("repo_encrypted");
-            event.more_files = obj.getBoolean("more_files");
+            event.repo_encrypted = obj.optBoolean("repo_encrypted");
+            event.more_files = obj.optBoolean("more_files");
 
             event.desc = obj.optString("desc");
             if (event.etype.equals(EVENT_TYPE_REPO_CREATE)) {
@@ -77,7 +88,7 @@ public class SeafEvent implements SeafItem {
 
             event.desc = translateCommitDesc(event.desc);
             return event;
-        } catch (JSONException e) {
+        } catch (Exception e) {
             Log.d(DEBUG_TAG, e.getMessage());
             return null;
         }
@@ -111,6 +122,8 @@ public class SeafEvent implements SeafItem {
             return value.replace("Changed library name or description", "Changed library name or description");
         } else if (value.startsWith("Merged") || value.startsWith("Auto merge")) {
             return "Auto merge by seafile system";
+        } else if (value.startsWith("Deleted")) {
+            return value;
         }
 
         final String[] lines = value.split("\n");
@@ -284,6 +297,36 @@ public class SeafEvent implements SeafItem {
     public void setDate(String date) {
         this.date = date;
     }
+    public void setPath(String path){
+        this.path = path;
+    }
+    public String getPath(){
+        return path;
+    }
+    public void setV_time(String v_time){
+        this.v_time = v_time;
+    }
+    public String getV_time(){
+        return v_time;
+    }
+    public void setAuthor_name(String author_name){
+        this.author_name = author_name;
+    }
+    public String getAuthor_name(){
+        return author_name;
+    }
+    public void setOp_type(String op_type){
+        this.op_type = op_type;
+    }
+    public String getOp_type(){
+        return op_type;
+    }
+    public void setObj_type(String obj_type){
+        this.obj_type = obj_type;
+    }
+    public String getObj_type(){
+        return obj_type;
+    }
 
     public String getName() {
         return name;
@@ -311,6 +354,13 @@ public class SeafEvent implements SeafItem {
 
     public String getAvatar() {
         return avatar;
+    }
+    public String getAvatar_url() {
+        return avatar_url;
+    }
+
+    public void setAvatar_url(String avatar_url) {
+        this.avatar_url = avatar_url;
     }
 
     public void setAvatar(String avatar) {

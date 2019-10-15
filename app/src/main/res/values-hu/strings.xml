@@ -291,18 +291,6 @@
   <string name="settings_contacts_upload_repo_history">Nincs mentés bejegyzés</string>
   <string name="settings_contacts_upload_start_backup">Mentés</string>
   <string name="settings_contacts_upload_start_backup_hint">Koppints a névjegyek mentésének elkezdéséhez</string>
-  <string name="settings_contacts_upload_start_recovery">Visszaállítás</string>
-  <string name="settings_contacts_upload_start_recovery_hint">Koppints a névjegyek visszaállításához</string>
-  <!--contacts Upload Perference-->
-  <string name="contacts_dialog_recovery">Névjegyek visszaállítása az utolsó mentésből</string>
-  <string name="contacts_dialog_backup">A névjegyek ebbe a fájlba kerülnek mentésre:</string>
-  <string name="contacts_count_zero">A névjegyzék üres</string>
-  <string name="contacts_backup_success">Sikeres mentés</string>
-  <string name="contacts_recovery_success">Sikeres visszaállítás</string>
-  <string name="contacts_backup_title">Névjegyek mentése</string>
-  <string name="contacts_recovery_title">Névjegyek visszaállítása</string>
-  <string name="contacts_backup_fail">Sikertelen mentés</string>
-  <string name="contacts_recover_fail">Sikertelen visszaállítás</string>
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Fénykép feltöltés</string>
   <string name="settings_camera_upload_service_started">Feltöltési szolgáltatás elindítva</string>
