@@ -20,6 +20,18 @@ public class SystemSwitchUtils {
     private ConnectivityManager connManager;
     private static SystemSwitchUtils util;
 
+    public final static int HUAWEI_PHONEMODEL = 1;
+
+    public final static int XIAOMI_PHONEMODEL = 2;
+
+    public final static int VIVO_PHONEMODEL = 3;
+
+    public final static int OPPO_PHONEMODEL = 4;
+
+    public final static int SAMSUNG_PHONEMODEL = 5;
+
+    public final static int DEFAULT_PHONEMODEL = 0;
+
     public static SystemSwitchUtils getInstance(Context context){
         if (util == null) {
             util = new SystemSwitchUtils(context);
@@ -153,22 +165,12 @@ public class SystemSwitchUtils {
             return "";
         }
     }
-    public final static int HUAWEI_PHONEMODEL = 1;
 
-    public final static int XIAOMI_PHONEMODEL = 2;
-
-    public final static int VIVO_PHONEMODEL = 3;
-
-    public final static int OPPO_PHONEMODEL = 4;
-
-    public final static int SAMSUNG_PHONEMODEL = 5;
-
-    public final static int DEFAULT_PHONEMODEL = 0;
     public static String getDeviceBrand() {
         return android.os.Build.BRAND;
     }
 
-    public static int getDeviceType(){
+    public static int getDeviceType() {
 
         int phoneModel;
 
@@ -222,7 +224,7 @@ public class SystemSwitchUtils {
 
         ComponentName comp = null;
 
-        switch (phoneModel){
+        switch (phoneModel) {
 
             case HUAWEI_PHONEMODEL:
 
@@ -236,17 +238,17 @@ public class SystemSwitchUtils {
 
                 //5.0 Boot up self-turn-on com.huawei.systemmanager/.optimize.bootstart.BootStartActivity
 
-                if (Build.VERSION.SDK_INT >= 28){
+                if (Build.VERSION.SDK_INT >= 28) {
 
-                    comp = new ComponentName("com.huawei.systemmanager","com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity");
+                    comp = new ComponentName("com.huawei.systemmanager", "com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity");
 
-                } else if (Build.VERSION.SDK_INT >= 26){
+                } else if (Build.VERSION.SDK_INT >= 26) {
 
-                    comp =  new ComponentName("com.huawei.systemmanager",
+                    comp = new ComponentName("com.huawei.systemmanager",
 
                             "com.huawei.systemmanager.appcontrol.activity.StartupAppControlActivity");
 
-                } else if (Build.VERSION.SDK_INT >= 23){
+                } else if (Build.VERSION.SDK_INT >= 23) {
 
                     comp = new ComponentName("com.huawei.systemmanager",
 
@@ -312,7 +314,7 @@ public class SystemSwitchUtils {
 
                 //Associated start management interface 8.0 7.0 无6.0 com.coloros.safecenter/.startupapp.AssociateStartActivity
 
-                if (Build.VERSION.SDK_INT >= 23){
+                if (Build.VERSION.SDK_INT >= 23) {
 
                     comp = new ComponentName("com.coloros.safecenter",
 
@@ -345,9 +347,9 @@ public class SystemSwitchUtils {
                 break;
 
         }
-        try{
+        try {
 
-            if (comp == null){
+            if (comp == null) {
 
                 intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
 
@@ -365,7 +367,7 @@ public class SystemSwitchUtils {
 
             }
 
-        }catch (Exception e){
+        } catch (Exception e) {
 
 
             Intent intentSetting = new Intent();
