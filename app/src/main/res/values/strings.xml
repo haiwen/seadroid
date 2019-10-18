@@ -63,6 +63,9 @@
   <string name="server_url_seacloud" translatable="false">https://storage.luckycloud.de</string>
   <string name="demo_luckycloud_username" translatable="false">demo@luckycloud.de</string>
   <string name="demo_luckycloud_password" translatable="false">q1w2e3R4</string>
+  <string
+      name="demo_account_warning" translatable="true">This account is for testing and evaluation purposes only.\n\nNo personal documents or sensitive data may be uploaded. The data of this demo account will be removed regularly.
+  </string>
   <string name="server_name_top" translatable="false">storage.luckycloud.de</string>
   <string name="network_down">No network connection</string>
   <string name="unknow_error">Unknown error</string>

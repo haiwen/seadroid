@@ -548,4 +548,5 @@ E-Mail: support@seafile.com<br>
   <string name="channel_name_error">Fehlermeldungen</string>
   <string name="channel_name_upload">Upload-Information</string>
   <string name="channel_name_download">Download-Information</string>
+    <string name="demo_account_warning">Dieser Account ist nur für Test- und Evaluierungszwecke gedacht.\\n\\nEs dürfen keine personenbezogenen Dokumente oder sensible Daten hochgeladen werden. Die Daten dieses Demo-Accounts werden regelmäßig entfernt.</string>
 </resources>
