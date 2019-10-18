@@ -96,7 +96,7 @@ public class CameraUploadConfigActivity extends BaseActivity {
     }
 
     public void saveSettings() {
-        SystemSwitchUtils.getInstance(this).syncSwitchUtils();
+        SystemSwitchUtils.getInstance(this).syncSwitchUtils(CameraUploadConfigActivity.this);
         if (isChooseBothPages || isChooseDirPage) {
 
             SettingsManager settingsManager = SettingsManager.instance();

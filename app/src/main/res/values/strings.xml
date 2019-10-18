@@ -557,4 +557,5 @@
   <string name="channel_name_error">Error Alerts</string>
   <string name="channel_name_upload">File Uploading Info</string>
   <string name="channel_name_download">File Downloading Info</string>
+  <string name="above_quota">Above Quota</string>
 </resources>

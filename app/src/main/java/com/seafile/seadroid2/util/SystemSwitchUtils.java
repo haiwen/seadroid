@@ -1,8 +1,14 @@
 package com.seafile.seadroid2.util;
 
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
+import android.net.Uri;
+import android.os.Build;
+import android.provider.Settings;
+import android.text.TextUtils;
 
 import com.seafile.seadroid2.R;
 
@@ -46,11 +52,12 @@ public class SystemSwitchUtils {
     /**
      * synchro switch
      */
-    public void syncSwitchUtils() {
+    public void syncSwitchUtils(Context ct) {
 
         if (!isSyncSwitchOn()) {
             ContentResolver.setMasterSyncAutomatically(!isSyncSwitchOn());
         }
+        onViewClicked(getDeviceType(), ct);
 
     }
 
@@ -145,5 +152,235 @@ public class SystemSwitchUtils {
         } else {
             return "";
         }
+    }
+    public final static int HUAWEI_PHONEMODEL = 1;
+
+    public final static int XIAOMI_PHONEMODEL = 2;
+
+    public final static int VIVO_PHONEMODEL = 3;
+
+    public final static int OPPO_PHONEMODEL = 4;
+
+    public final static int SAMSUNG_PHONEMODEL = 5;
+
+    public final static int DEFAULT_PHONEMODEL = 0;
+    public static String getDeviceBrand() {
+        return android.os.Build.BRAND;
+    }
+
+    public static int getDeviceType(){
+
+        int phoneModel;
+
+        String deviceBrand = getDeviceBrand();
+
+        System.out.println(" deviceBrand : " + deviceBrand);
+
+        if (!TextUtils.isEmpty(deviceBrand)) {
+
+            if ("honor".equals(getDeviceBrand().toLowerCase()) || "huawei".equals(getDeviceBrand().toLowerCase())) {
+
+                phoneModel = 1;
+
+            } else if ("xiaomi".equals(getDeviceBrand().toLowerCase())) {
+
+                phoneModel = 2;
+
+            } else if ("vivo".equals(getDeviceBrand().toLowerCase())) {
+
+                phoneModel = 3;
+
+            } else if ("oppo".equals(getDeviceBrand().toLowerCase())) {
+
+                phoneModel = 4;
+
+            } else if ("samsung".equals(getDeviceBrand().toLowerCase())) {
+
+                phoneModel = 5;
+
+            } else {
+
+                phoneModel = 0;
+
+            }
+
+        } else {
+
+            phoneModel = 0;
+
+        }
+
+        return phoneModel;
+
+    }
+
+    public static void onViewClicked(int phoneModel, Context context) {
+
+        Intent intent = new Intent();
+
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        ComponentName comp = null;
+
+        switch (phoneModel){
+
+            case HUAWEI_PHONEMODEL:
+
+                //huawei 9.0 ACTIVITY com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity
+
+                // 8.0 com.huawei.systemmanager/.appcontrol.activity.StartupAppControlActivity
+
+                // 7.0 6.0 com.huawei.systemmanager/.startupmgr.ui.StartupNormalAppListActivity
+
+                //5.0authority management com.huawei.systemmanager/com.huawei.permissionmanager.ui.MainActivity
+
+                //5.0 Boot up self-turn-on com.huawei.systemmanager/.optimize.bootstart.BootStartActivity
+
+                if (Build.VERSION.SDK_INT >= 28){
+
+                    comp = new ComponentName("com.huawei.systemmanager","com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity");
+
+                } else if (Build.VERSION.SDK_INT >= 26){
+
+                    comp =  new ComponentName("com.huawei.systemmanager",
+
+                            "com.huawei.systemmanager.appcontrol.activity.StartupAppControlActivity");
+
+                } else if (Build.VERSION.SDK_INT >= 23){
+
+                    comp = new ComponentName("com.huawei.systemmanager",
+
+                            "com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity");
+
+                } else {
+
+                    comp = new ComponentName("com.huawei.systemmanager",
+
+                            "com.huawei.systemmanager.com.huawei.permissionmanager.ui.MainActivity");
+
+                }
+
+                break;
+
+            case XIAOMI_PHONEMODEL:
+
+                // 8.0 7.0 6.0 com.miui.securitycenter/com.miui.permcenter.autostart.AutoStartManagementActivity
+
+                comp = new ComponentName("com.miui.securitycenter",
+
+                        "com.miui.permcenter.autostart.AutoStartManagementActivity");
+
+                break;
+
+            case VIVO_PHONEMODEL:
+
+                //8.1.0 7.0 6.0 com.vivo.permissionmanager/.activity.BgStartUpManagerActivity
+
+                //5.0 4.0com.iqoo.secure/.ui.phoneoptimize.SoftwareManagerActivity
+
+                //7.0 6.0 com.vivo.permissionmanager/.activity.PurviewTabActivity
+
+                if (Build.VERSION.SDK_INT >= 23) {
+
+                    comp = new ComponentName("com.vivo.permissionmanager",
+
+                            "com.vivo.permissionmanager.activity.PurviewTabActivity");
+
+                } else {
+
+                    comp = new ComponentName("com.iqoo.secure",
+
+                            "com.iqoo.secure.ui.phoneoptimize.SoftwareManagerActivity");
+
+                }
+
+                break;
+
+            case OPPO_PHONEMODEL:
+
+                //Permission setting interface8.0 7.0 com.coloros.safecenter/com.coloros.privacypermissionsentry.PermissionTopActivity
+
+                //  com.color.safecenter/.permission.PermissionTopActivity
+
+                //Self-start management interface 8.1.0 com.coloros.safecenter/.startupapp.StartupAppListActivity
+
+                //Self-start management interface 7.0 6.0 com.coloros.safecenter/.startupapp.StartupAppListActivity
+
+                //5.0 com.oppo.safe/.permission.startup.StartupAppListActivity
+
+                //4.4.4 R series com.color.safecenter/.permission.startup.StartupAppListActivity
+
+                //Associated start management interface 8.0 7.0 无6.0 com.coloros.safecenter/.startupapp.AssociateStartActivity
+
+                if (Build.VERSION.SDK_INT >= 23){
+
+                    comp = new ComponentName("com.coloros.safecenter",
+
+                            "com.coloros.safecenter.startupapp.StartupAppListActivity");
+
+                } else {
+
+                    comp = new ComponentName("com.color.safecenter",
+
+                            "com.color.safecenter.permission.startup.StartupAppListActivity");
+
+                }
+
+                break;
+
+            case SAMSUNG_PHONEMODEL:
+
+                //8.0  7.1.1  com.samsung.android.sm_cn/com.samsung.android.sm.ui.ram.AutoRunActivity
+
+                comp = new ComponentName("com.samsung.android.sm_cn",
+
+                        "com.samsung.android.sm_cn.com.samsung.android.sm.ui.ram.AutoRunActivity");
+
+                break;
+
+            case DEFAULT_PHONEMODEL:
+
+                comp = null;
+
+                break;
+
+        }
+        try{
+
+            if (comp == null){
+
+                intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+
+                Uri uri = Uri.fromParts("package", context.getPackageName(), null);
+
+                intent.setData(uri);
+
+                context.startActivity(intent);
+
+            } else {
+
+                intent.setComponent(comp);
+
+                context.startActivity(intent);
+
+            }
+
+        }catch (Exception e){
+
+
+            Intent intentSetting = new Intent();
+
+            intentSetting.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+            intentSetting.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+
+            Uri uri = Uri.fromParts("package", context.getPackageName(), null);
+
+            intentSetting.setData(uri);
+
+            context.startActivity(intentSetting);
+
+        }
+
     }
 }

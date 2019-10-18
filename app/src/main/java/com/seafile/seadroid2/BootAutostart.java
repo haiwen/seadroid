@@ -34,8 +34,8 @@ public class BootAutostart extends BroadcastReceiver {
             JobScheduler mJobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
             JobInfo.Builder builder = new JobInfo.Builder(JOB_ID, new ComponentName(context.getPackageName(),
                     MediaSchedulerService.class.getName()));
-            builder.setMinimumLatency(15 * 60 * 1000);// Set to execute after at least 15 minutes delay
-            builder.setOverrideDeadline(20 * 60 * 1000);// The setting is delayed by 20 minutes,
+            builder.setMinimumLatency(1 * 60 * 1000);// Set to execute after at least 15 minutes delay
+            builder.setOverrideDeadline(2 * 60 * 1000);// The setting is delayed by 20 minutes,
             builder.setPersisted(true);
             mJobScheduler.schedule(builder.build());
         }
