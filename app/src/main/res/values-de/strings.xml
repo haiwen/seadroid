@@ -16,6 +16,12 @@
   <string name="delete_successful">Erfolgreich gelöscht</string>
   <string name="delete_repo_title">Bibliothek löschen</string>
   <string name="delete_file_f">Datei löschen</string>
+  <string name="recover_library">Bibliothek wiederherstellen</string>
+  <string name="recover_file">Datei wiederherstellen</string>
+  <string name="move_file">Datei verschieben</string>
+  <string name="update_file">Datei aktualisieren</string>
+  <string name="recover_folder">Ordner wiederherstellen</string>
+  <string name="move_folder">Ordner verschieben</string>
   <string name="delete_dir">Ordner löschen</string>
   <string name="name_hint">Name</string>
   <string name="server_hint">Server, z.B. cloud.seafile.com</string>
@@ -48,7 +54,6 @@
   </string-array>
   <string name="choose_server">Bitte wählen Sie einen Seafile-Server aus</string>
   <string-array name="choose_server_array">
-    <item>SeaCloud.cc</item>
     <item>Single-Sign-On</item>
     <item>Anderer Seafile-Server</item>
   </string-array>
@@ -140,6 +145,11 @@ Zum Aktualisieren einmal antippen</string>
   <string name="load_dir_fail">Inhalt des Ordners konnte nicht geladen werden</string>
   <string name="not_supported_share">Diese Art der Freigabe wird nicht unterstützt</string>
   <string name="edit">Bearbeiten</string>
+  <string name="create_draft">Entwurf erstellen</string>
+  <string name="rename_draft">Entwurf umbenennen</string>
+  <string name="del_draft">Entwurf löschen</string>
+  <string name="update_draft">Entwurf aktualisieren</string>
+  <string name="release_draft">Entwurf freigeben</string>
   <string name="encrypt">Verschlüsseln</string>
   <string name="download_folder">Ordner herunterladen</string>
   <string name="download_folder_title">Wählen Sie Ihre bevorzugte Option</string>
@@ -164,6 +174,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="create_new_folder_success">Ordner %s ist erstellt</string>
   <string name="create_new_file_success">Datei %s ist erstellt</string>
   <string name="create_new_file">Eine neue Datei erstellen</string>
+  <string name="create_files">Dateien erstellen</string>
   <string name="create_new_dir">Einen neuen Ordner erstellen</string>
   <string name="camera">Neues Foto hier aufnehmen</string>
   <string name="download">Herunterladen</string>
@@ -313,18 +324,6 @@ Zum Aktualisieren einmal antippen</string>
   <string name="settings_contacts_upload_repo_history">Keine Sicherung vorhanden</string>
   <string name="settings_contacts_upload_start_backup">Sicherung</string>
   <string name="settings_contacts_upload_start_backup_hint">Zum Sichern der Kontakte klicken</string>
-  <string name="settings_contacts_upload_start_recovery">Wiederherstellen</string>
-  <string name="settings_contacts_upload_start_recovery_hint">Zum wiederherstellen klicken</string>
-  <!--contacts Upload Perference-->
-  <string name="contacts_dialog_recovery">Kontakte aus der letzten Sicherung wiederherstellen</string>
-  <string name="contacts_dialog_backup">Kontakte werden in dieser Datei gesichert:</string>
-  <string name="contacts_count_zero">Keine Kontakte vorhanden</string>
-  <string name="contacts_backup_success">Sicherung erfolgreich</string>
-  <string name="contacts_recovery_success">Wiederherstellung erfolgreich</string>
-  <string name="contacts_backup_title">Kontakte sichern</string>
-  <string name="contacts_recovery_title">Kontakte wiederherstellen</string>
-  <string name="contacts_backup_fail">Sicherung fehlgeschlagen</string>
-  <string name="contacts_recover_fail">Wiederherstellung fehlgeschlagen</string>
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Kamerafoto hochladen</string>
   <string name="settings_camera_upload_service_started">Upload-Dienst gestartet</string>
@@ -546,4 +545,8 @@ E-Mail: support@seafile.com<br>
   <string name="undo">Rückgängig</string>
   <string name="redo">Wiederholen</string>
   <string name="link">Link</string>
+  <string name="channel_name_error">Fehlermeldungen</string>
+  <string name="channel_name_upload">Upload-Information</string>
+  <string name="channel_name_download">Download-Information</string>
+    <string name="demo_account_warning">Dieser Account ist nur für Test- und Evaluierungszwecke gedacht.\\n\\nEs dürfen keine personenbezogenen Dokumente oder sensible Daten hochgeladen werden. Die Daten dieses Demo-Accounts werden regelmäßig entfernt.</string>
 </resources>

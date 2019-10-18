@@ -256,6 +256,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
 
         Log.d(DEBUG_TAG, "email: " + email);
         Log.d(DEBUG_TAG, "token: " + token);
+
         return new Account(url, email, "", token, true);
     }
 
@@ -296,6 +297,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
                         });
                 dialog.show(getSupportFragmentManager(), SslConfirmDialog.FRAGMENT_TAG);
             }
+
             if (result != null && result.equals("Success")) {
                 returnAccount(loginAccount);
             }
@@ -321,7 +323,7 @@ public class SingleSignOnAuthorizeActivity extends BaseActivity implements Toolb
                 AccountInfo accountInfo = manager.getAccountInfo();
                 if (accountInfo == null)
                     return "Unknown error";
-                loginAccount = new Account(accountInfo.getName(),loginAccount.server, accountInfo.getEmail(), loginAccount.token, loginAccount.is_shib, loginAccount.sessionKey);
+                loginAccount = new Account(accountInfo.getName(), loginAccount.server, accountInfo.getEmail(), loginAccount.token, loginAccount.is_shib, loginAccount.sessionKey);
                 return "Success";
 
             } catch (SeafException e) {

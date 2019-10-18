@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" 
+    android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
     <include layout="@layout/toolbar_actionbar" /> <!-- placeholder, empty except on L -->
@@ -13,7 +13,14 @@
         android:gravity="center_horizontal"
         android:textSize="@dimen/tv_title_txt_size"
         android:textColor="@color/luckycloud_green"
-        android:text="@string/welcome_to_seafile" />
+        android:text="@string/welcome_to_seafile"/>
+
+<!--    <ImageView-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="10dp"-->
+<!--        android:src="@drawable/login_button"-->
+<!--        android:contentDescription="my_image_description" />-->
 
     <TextView
         android:layout_width="fill_parent"
@@ -31,4 +38,5 @@
         android:layout_marginTop="@dimen/lv_margin_top"
         android:divider="@null"
         />
+
 </LinearLayout>

@@ -54,6 +54,7 @@ public class DataManager {
     public static long repoRefreshTimeStamp = 0;
 
     public static final int BUFFER_SIZE = 2 * 1024 * 1024;
+    public static final int PAGE_SIZE = 25;
 
     private SeafConnection sc;
     private Account account;
@@ -896,19 +897,31 @@ public class DataManager {
 
     }
 
-    public SeafActivities getEvents(int start) throws SeafException, JSONException {
+    public SeafActivities getEvents(int start, boolean useNewActivity) throws SeafException {
+        int moreOffset = 0;
+        boolean more;
         if (!Utils.isNetworkOn()) {
             throw SeafException.networkException;
         }
 
-        final String json = sc.getEvents(start);
+        final String json = sc.getEvents(start, useNewActivity);
 
         if (json == null) return null;
 
-        final JSONObject object = Utils.parseJsonObject(json);
-        final int moreOffset = object.getInt("more_offset");
-        final boolean more = object.getBoolean("more");
         final List<SeafEvent> events = parseEvents(json);
+        final JSONObject object = Utils.parseJsonObject(json);
+        if (useNewActivity) {
+            if (events.size() < PAGE_SIZE) {
+                more = false;
+            } else {
+                moreOffset = start + 1;
+                more = true;
+            }
+        } else {
+            moreOffset = object.optInt("more_offset");
+            more = object.optBoolean("more");
+        }
+
         return new SeafActivities(events, moreOffset, more);
 
     }

@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +25,8 @@ import android.widget.TextView;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeafException;
+import com.seafile.seadroid2.account.Account;
+import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.data.CommitDetails;
 import com.seafile.seadroid2.data.EventDetailsFileItem;
 import com.seafile.seadroid2.data.EventDetailsTree;
@@ -31,6 +34,7 @@ import com.seafile.seadroid2.data.SeafActivities;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafEvent;
 import com.seafile.seadroid2.data.SeafRepo;
+import com.seafile.seadroid2.data.ServerInfo;
 import com.seafile.seadroid2.ui.NavContext;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.activity.FileActivity;
@@ -50,7 +54,9 @@ public class ActivitiesFragment extends Fragment {
     public static final int REFRESH_ON_PULL_DOWN_SWIPE = 1;
     public static final int REFRESH_ON_PULL_DOWN_RESUME = 3;
     public static final int REFRESH_ON_PULL_UP = 2;
+    public static final int VERSIONS_NUMBER = 6;
     private static int mRefreshType = REFRESH_ON_NONE;
+    private boolean useNewActivity = false;
 
     private BrowserActivity mActivity;
     private SwipeRefreshLayout refreshLayout;
@@ -68,6 +74,9 @@ public class ActivitiesFragment extends Fragment {
     private List<SeafEvent> events;
     private boolean boolShown = false;
     private int offset;
+
+    private Account account;
+    private AccountManager accountManager;
 
     public boolean isBottomSheetShown() {
         return boolShown;
@@ -186,6 +195,7 @@ public class ActivitiesFragment extends Fragment {
 
         mRefreshType = REFRESH_ON_PULL_DOWN_RESUME;
         offset = 0;
+        accountManager = new AccountManager(getActivity());
         refreshView();
 
         mActivity.supportInvalidateOptionsMenu();
@@ -194,6 +204,17 @@ public class ActivitiesFragment extends Fragment {
     }
 
     public void refreshView() {
+        account = accountManager.getCurrentAccount();
+        ServerInfo serverInfo = accountManager.getServerInfo(account);
+        String server_version = serverInfo.getVersion();
+        if (!TextUtils.isEmpty(server_version)) {
+            String[] arr1 = server_version.split("\\.");
+            if (arr1 != null && Integer.parseInt(arr1[0]) > VERSIONS_NUMBER) {
+                useNewActivity = true;
+            } else {
+                useNewActivity = false;
+            }
+        }
         new LoadEventsTask().execute();
     }
 
@@ -347,12 +368,9 @@ public class ActivitiesFragment extends Fragment {
 
             try {
                 // Log.d(DEBUG_TAG, "offset " + offset);
-                return mActivity.getDataManager().getEvents(offset);
+                return mActivity.getDataManager().getEvents(offset, useNewActivity);
             } catch (SeafException e) {
                 err = e;
-                e.printStackTrace();
-                return null;
-            } catch (JSONException e) {
                 e.printStackTrace();
                 return null;
             }
@@ -413,7 +431,7 @@ public class ActivitiesFragment extends Fragment {
             }
 
             adapter.setState(mRefreshType);
-            adapter.setItems(events);
+            adapter.setItems(events, useNewActivity);
             adapter.notifyDataSetChanged();
         }
     }

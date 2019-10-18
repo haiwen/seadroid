@@ -295,12 +295,21 @@ public class SeafConnection {
         }
     }
 
-    public String getEvents(int start) throws SeafException {
+    public String getEvents(int start, boolean useNewActivity) throws SeafException {
+        String apiPath;
         try {
-            String apiPath = String.format("api2/events/");
-
             Map<String, Object> params = Maps.newHashMap();
-            params.put("start", start);
+            if (useNewActivity) {
+                apiPath = String.format("api/v2.1/activities/");
+                if (start == 0) {
+                    start = 1;
+                }
+                params.put("page", start);
+            } else {
+                apiPath = String.format("api2/events/");
+                params.put("start", start);
+            }
+
             HttpRequest req = prepareApiGetRequest(apiPath, params);
             checkRequestResponseStatus(req, HttpURLConnection.HTTP_OK);
 

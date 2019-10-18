@@ -42,7 +42,6 @@
   </string-array>
   <string name="choose_server">Valitse Seafile Palvelin</string>
   <string-array name="choose_server_array">
-    <item>SeaCloud.cc</item>
     <item>Kertakirjautuminen</item>
     <item>Muu Seafile palvelin</item>
   </string-array>
@@ -304,18 +303,6 @@
   <string name="settings_contacts_upload_repo_history">Ei varmuuskopiointi merkintää</string>
   <string name="settings_contacts_upload_start_backup">Varmuuskopio</string>
   <string name="settings_contacts_upload_start_backup_hint">Klikkaa aloittaaksesi kontaktien varmuuskopiointi </string>
-  <string name="settings_contacts_upload_start_recovery">Palauta</string>
-  <string name="settings_contacts_upload_start_recovery_hint">Klikkaa palauttaaksesi kontakteja</string>
-  <!--contacts Upload Perference-->
-  <string name="contacts_dialog_recovery">Palauta kontakteja viime varmuuskopiosta</string>
-  <string name="contacts_dialog_backup">Kontaktit varmuuskopioidaan tiedostoon:</string>
-  <string name="contacts_count_zero">Kontaktit-kansio on tyhjä</string>
-  <string name="contacts_backup_success">Varmuuskopiointi onnistui</string>
-  <string name="contacts_recovery_success">Palautus onnistui</string>
-  <string name="contacts_backup_title">Varmuuskopioi kontaktit</string>
-  <string name="contacts_recovery_title">Palauta kontaktit</string>
-  <string name="contacts_backup_fail">Varmuuskopiointi epäonnistui</string>
-  <string name="contacts_recover_fail">Palautus epäonnistui</string>
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">Kameran kuvan lähetys</string>
   <string name="settings_camera_upload_service_started">Lähetyspalvelu käynnistetty</string>

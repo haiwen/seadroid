@@ -57,18 +57,19 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
     public static final String TWO_FACTOR_AUTH = "two_factor_auth";
 
     private TextView statusView;
-    private Button loginButton;
+    private TextView demoWarningText;
     private EditText serverText;
+    private EditText passwdText;
+    private EditText authTokenText;
+
+    private Button loginButton;
     private ProgressDialog progressDialog;
     private EmailAutoCompleteTextView emailText;
-    private EditText passwdText;
     private CheckBox httpsCheckBox;
 //    private TextView seahubUrlHintText;
     private ImageView clearEmail, clearPasswd, ivEyeClick;
     private RelativeLayout rlEye;
     private TextInputLayout authTokenLayout;
-    private EditText authTokenText;
-
     private android.accounts.AccountManager mAccountManager;
     private boolean serverTextHasFocus;
     private boolean isPasswddVisible;
@@ -91,6 +92,7 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
         serverText = (EditText) findViewById(R.id.server_url);
         emailText = (EmailAutoCompleteTextView) findViewById(R.id.email_address);
         passwdText = (EditText) findViewById(R.id.password);
+        demoWarningText = findViewById(R.id.demo_warning);
 //        seahubUrlHintText = (TextView) findViewById(R.id.seahub_url_hint);
 
         clearEmail = (ImageView) findViewById(R.id.iv_delete_email);
@@ -105,7 +107,6 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
         cbRemDevice = findViewById(R.id.remember_device);
         cbRemDevice.setVisibility(View.GONE);
         setupServerText();
-
 
         Intent intent = getIntent();
 
@@ -139,9 +140,11 @@ public class AccountDetailActivity extends BaseActivity implements Toolbar.OnMen
             if(demoAccount) {
                 emailText.setText(intent.getStringExtra(SeafileAuthenticatorActivity.ARG_DEMO_ACCOUNT_NAME));
                 passwdText.setText(intent.getStringExtra(SeafileAuthenticatorActivity.ARG_DEMO_ACCOUNT_PASSWORD));
+                demoWarningText.setVisibility(View.VISIBLE);
             }
             else {
                 emailText.requestFocus();
+                demoWarningText.setVisibility(View.GONE);
             }
         }
 

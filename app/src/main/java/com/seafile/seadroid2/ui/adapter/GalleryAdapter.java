@@ -1,6 +1,5 @@
 package com.seafile.seadroid2.ui.adapter;
 
-import android.graphics.Bitmap;
 import android.support.v4.view.PagerAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,17 +8,13 @@ import android.widget.ProgressBar;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingProgressListener;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafPhoto;
-import com.seafile.seadroid2.transfer.DownloadStateListener;
-import com.seafile.seadroid2.transfer.DownloadTask;
+import com.seafile.seadroid2.ui.AnimateFirstDisplayListener;
 import com.seafile.seadroid2.ui.activity.GalleryActivity;
-import com.seafile.seadroid2.util.ConcurrentAsyncTask;
 import com.seafile.seadroid2.util.Utils;
 
 import java.io.File;
@@ -70,6 +65,10 @@ public class GalleryAdapter extends PagerAdapter {
         seafPhotos = photos;
     }
 
+    public void downloadPhoto() {
+        notifyDataSetChanged();
+    }
+
     @Override
     public View instantiateItem(ViewGroup container, final int position) {
         View contentView = inflater.inflate(R.layout.gallery_view_item, container, false);
@@ -77,68 +76,18 @@ public class GalleryAdapter extends PagerAdapter {
         final ProgressBar progressBar = (ProgressBar) contentView.findViewById(R.id.gallery_progress_bar);
         final String repoName = seafPhotos.get(position).getRepoName();
         final String repoID = seafPhotos.get(position).getRepoID();
-        final String filePath = Utils.pathJoin(seafPhotos.get(position).getDirPath(),
-                seafPhotos.get(position).getName());
+        SeafPhoto seafPhoto = seafPhotos.get(position);
+        final String filePath = Utils.pathJoin(seafPhoto.getDirPath(),
+                seafPhoto.getName());
         final File file = dm.getLocalRepoFile(repoName, repoID, filePath);
         if (file.exists()) {
             ImageLoader.getInstance().displayImage("file://" + file.getAbsolutePath().toString(), photoView, options);
+            seafPhoto.setDownloaded(true);
         } else {
-            ConcurrentAsyncTask.execute(new DownloadTask(++taskID, mAccount, repoName, repoID, filePath, new DownloadStateListener() {
-                @Override
-                public void onFileDownloadProgress(int taskID) {
-                    progressBar.setVisibility(View.VISIBLE);
-                }
+            ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
+            String urlicon = dm.getThumbnailLink(repoName, repoID, filePath, Utils.getThumbnailWidth());
+            ImageLoader.getInstance().displayImage(urlicon, photoView, options, animateFirstListener);
 
-                @Override
-                public void onFileDownloaded(int taskID) {
-                    //Log.d(DEBUG_TAG, "DownloadTask >> onFileDownloaded");
-                    ImageLoader.getInstance().displayImage("file://"
-                                    + dm.getLocalRepoFile(repoName, repoID, filePath).getAbsolutePath().toString(),
-                            photoView,
-                            options,
-                            new ImageLoadingListener() {
-                                @Override
-                                public void onLoadingStarted(String s, View view) {
-                                    //Log.d(DEBUG_TAG, "ImageLoadingListener >> onLoadingStarted");
-                                    progressBar.setVisibility(View.VISIBLE);
-                                }
-
-                                @Override
-                                public void onLoadingFailed(String s, View view, FailReason failReason) {
-                                    //Log.d(DEBUG_TAG, "ImageLoadingListener >> onLoadingFailed");
-                                    progressBar.setVisibility(View.INVISIBLE);
-                                }
-
-                                @Override
-                                public void onLoadingComplete(String s, View view, Bitmap bitmap) {
-                                    //Log.d(DEBUG_TAG, "ImageLoadingListener >> onLoadingComplete");
-                                    progressBar.setVisibility(View.INVISIBLE);
-                                }
-
-                                @Override
-                                public void onLoadingCancelled(String s, View view) {
-                                    //Log.d(DEBUG_TAG, "ImageLoadingListener >> onLoadingCancelled");
-                                    progressBar.setVisibility(View.INVISIBLE);
-
-                                }
-                            }, new ImageLoadingProgressListener() {
-                                @Override
-                                public void onProgressUpdate(String s, View view, int i, int i1) {
-                                    // There isn`t any way to get the actual loading bytes and total bytes with which
-                                    // could show the progress bar with precise percent
-                                    // see https://github.com/nostra13/Android-Universal-Image-Loader/issues/402 for details
-                                    progressBar.setVisibility(View.VISIBLE);
-                                }
-                            });
-                }
-
-                @Override
-                public void onFileDownloadFailed(int taskID) {
-                    //Log.d(DEBUG_TAG, "DownloadTask >> onFileDownloadFailed");
-                    progressBar.setVisibility(View.INVISIBLE);
-                    photoView.setImageResource(R.drawable.gallery_loading_failed);
-                }
-            }));
         }
 
         photoView.setOnPhotoTapListener(new PhotoViewAttacher.OnPhotoTapListener() {

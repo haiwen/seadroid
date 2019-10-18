@@ -10,6 +10,12 @@
   <string name="delete_successful">正常に削除しました</string>
   <string name="delete_repo_title">ライブラリーを選択</string>
   <string name="delete_file_f">ファイルを削除</string>
+  <string name="recover_library">ライブラリーを回復</string>
+  <string name="recover_file">ファイルを回復</string>
+  <string name="move_file">ファイルを移動</string>
+  <string name="update_file">ファイルを更新</string>
+  <string name="recover_folder">フォルダーを回復</string>
+  <string name="move_folder">フォルダーを移動</string>
   <string name="delete_dir">フォルダーを削除</string>
   <string name="name_hint">名前</string>
   <string name="server_hint">サーバーアドレス</string>
@@ -42,7 +48,6 @@
   </string-array>
   <string name="choose_server">Seafile サーバーを選択</string>
   <string-array name="choose_server_array">
-    <item>SeaCloud.cc</item>
     <item>シングルサインオン</item>
     <item>他の Seafile サーバー</item>
   </string-array>
@@ -131,6 +136,11 @@
   <string name="load_dir_fail">このフォルダーの内容の読み込みに失敗しました</string>
   <string name="not_supported_share">このタイプの共有はサポートされていません</string>
   <string name="edit">編集</string>
+  <string name="create_draft">下書きを作成</string>
+  <string name="rename_draft">下書きの名前を変更</string>
+  <string name="del_draft">下書きを削除</string>
+  <string name="update_draft">下書きを更新</string>
+  <string name="release_draft">下書きをリリース</string>
   <string name="encrypt">暗号化</string>
   <string name="download_folder">ダウンロードフォルダー</string>
   <string name="download_folder_title">お好みのオプションを選択してください</string>
@@ -155,6 +165,7 @@
   <string name="create_new_folder_success">フォルダー %s を正常に作成しました</string>
   <string name="create_new_file_success">ファイル %s を正常に作成しました</string>
   <string name="create_new_file">新しいファイルを作成</string>
+  <string name="create_files">ファイルを作成</string>
   <string name="create_new_dir">新しいフォルダーを作成</string>
   <string name="camera">ここに写真を撮影</string>
   <string name="download">ダウンロード</string>
@@ -301,18 +312,6 @@
   <string name="settings_contacts_upload_repo_history">バックアップは記録されていません</string>
   <string name="settings_contacts_upload_start_backup">バックアップ</string>
   <string name="settings_contacts_upload_start_backup_hint">クリックすると連絡先のバックアップを開始します</string>
-  <string name="settings_contacts_upload_start_recovery">復元</string>
-  <string name="settings_contacts_upload_start_recovery_hint">クリックすると連絡先を復元します</string>
-  <!--contacts Upload Perference-->
-  <string name="contacts_dialog_recovery">最後のバックアップから連絡先を復元</string>
-  <string name="contacts_dialog_backup">連絡先をファイルにバックアップします:</string>
-  <string name="contacts_count_zero">連絡先は空です</string>
-  <string name="contacts_backup_success">バックアップに成功しました</string>
-  <string name="contacts_recovery_success">復元に成功しました</string>
-  <string name="contacts_backup_title">連絡先をバックアップ</string>
-  <string name="contacts_recovery_title">連絡先を復元</string>
-  <string name="contacts_backup_fail">バックアップに失敗しました</string>
-  <string name="contacts_recover_fail">復元に失敗しました</string>
   <!--Camera Upload Preference-->
   <string name="settings_camera_upload_info_title">カメラの写真のアップロード</string>
   <string name="settings_camera_upload_service_started">アップロードサービスが開始しました</string>
@@ -529,4 +528,7 @@
   <string name="undo">元に戻す</string>
   <string name="redo">繰り返し</string>
   <string name="link">リンク</string>
+  <string name="channel_name_error">エラーアラート</string>
+  <string name="channel_name_upload">ファイルアップロード情報</string>
+  <string name="channel_name_download">ファイルダウンロード情報</string>
 </resources>
