@@ -26,7 +26,7 @@ public class MediaSchedulerService extends JobService {
         if (mCameraManager.isCameraUploadEnabled() && mSettingsManager.isVideosUploadAllowed()) {
             mCameraManager.performFullSync();
         }
-        jobFinished(jobParameters, true);
+//        jobFinished(jobParameters, true);
         return true;
     }
 
