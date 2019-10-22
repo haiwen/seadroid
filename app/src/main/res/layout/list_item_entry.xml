@@ -95,7 +95,7 @@
 
         <RelativeLayout
             android:id="@+id/expandable_toggle_button"
-            android:layout_width="@dimen/lv_iv_action_width"
+            android:layout_width="@dimen/lv_iv_action_width_custom"
             android:layout_height="fill_parent"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
@@ -103,12 +103,12 @@
             android:visibility="gone">
 
             <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentRight="true"
                 android:layout_marginBottom="@dimen/lv_item_padding"
-                android:src="@drawable/spinner_disabled_holo_light" />
+                android:src="@drawable/ic_action_overflow" />
         </RelativeLayout>
     </RelativeLayout>
 </LinearLayout>
