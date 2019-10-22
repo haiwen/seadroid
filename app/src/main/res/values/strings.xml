@@ -366,7 +366,7 @@
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Beta Feature!</string>
   <string name="settings_cuc_welcome_text">  \nIf you still want to use the camera upload service, you\'ll be guided through a few initial steps.</string>
-  <string name="settings_cuc_welcome_text_attention">This feature is still in the beta phase and don't work on all devices correctly!</string>
+  <string name="settings_cuc_welcome_text_attention">This feature is still in the beta phase and don\'t work on all devices correctly!</string>
   <string name="settings_cuc_network_title">How to upload</string>
   <string name="settings_cuc_network_wifi">Wi-Fi only</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi or data plan</string>
