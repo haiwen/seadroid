@@ -9,7 +9,7 @@
         android:layout_height="150dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:src="@drawable/ic_launcher"
+        android:src="@mipmap/lc_launcher"
         android:scaleType="centerCrop" />
 
     <ImageView

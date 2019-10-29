@@ -1185,6 +1185,9 @@ public class BrowserActivity extends BaseActivity
             return;
 
         if (position == INDEX_LIBRARY_TAB) {
+            if (account.email.equals("demo@luckycloud.de"))
+                setUpButtonTitle("Demo Account");
+
             if (navContext.inRepo()) {
                 if (navContext.getDirPath().equals(BrowserActivity.ACTIONBAR_PARENT_PATH)) {
                     setUpButtonTitle(navContext.getRepoName());
