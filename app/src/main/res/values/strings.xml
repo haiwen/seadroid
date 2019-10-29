@@ -414,6 +414,20 @@
         <h5>Copyright ©2013-2018 Seafile Ltd.</h5>
         ]]>
     </string>
+
+  <string name="luckycloud_settings_about_author_info">
+    <![CDATA[
+    <h5>luckycloud Android Client</h5>
+    <p>%s</p>
+    <br>
+    Based on seadroid
+    https://github.com/haiwen/seadroid
+    <br>
+    <h5>Licenses</h5>
+    https://github.com/haiwen/seadroid/blob/master/LICENSE.md
+    https://github.com/haiwen/seadroid/blob/master/THIRD_PARTY_LICENSE.md
+    ]]>
+  </string>
   <string name="settings_advance_feature_title">ADVANCED FEATURES</string>
   <string name="settings_storage_title">CACHE STORAGE</string>
   <string name="settings_cache_title">Cache size</string>

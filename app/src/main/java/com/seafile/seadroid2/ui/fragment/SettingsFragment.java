@@ -411,7 +411,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
                 // builder.setIcon(R.drawable.icon);
-                builder.setMessage(Html.fromHtml(getString(R.string.settings_about_author_info, appVersion)));
+                builder.setMessage(Html.fromHtml(getString(R.string.luckycloud_settings_about_author_info, appVersion)));
                 builder.show();
                 return true;
             }

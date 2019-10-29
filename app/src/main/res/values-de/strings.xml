@@ -383,18 +383,32 @@ Zum Aktualisieren einmal antippen</string>
   <string name="settings_about_version_title">App-Version</string>
   <string name="settings_about_author_title">Autor/innen</string>
   <string name="settings_about_author_info">
-<![CDATA[
-<h5>Seafile Android-App</h5> 
-<p>%s</p>
-<h5>Kontakt</h5>
-<p>
-Twitter: Seafile<br> 
-E-Mail: support@seafile.com<br>
-</p>
-<h5>Beteiligte und selber Mitmachen</h5>
-<p>https://github.com/haiwen/seadroid.git</P>
-<h5>Copyright ©2013-2018 Seafile Ltd.</h5>
-]]></string>
+    <![CDATA[
+    <h5>Seafile Android-App</h5>
+    <p>%s</p>
+    <h5>Kontakt</h5>
+    <p>
+    Twitter: Seafile<br>
+    E-Mail: support@seafile.com<br>
+    </p>
+    <h5>Beteiligte und selber Mitmachen</h5>
+    <p>https://github.com/haiwen/seadroid.git</P>
+    <h5>Copyright ©2013-2018 Seafile Ltd.</h5>
+    ]]>
+  </string>
+  <string name="luckycloud_settings_about_author_info">
+  <![CDATA[
+    <h5>luckycloud Android App</h5>
+    <p>%s</p>
+    <br>
+    Basiert auf seadroid
+    https://github.com/haiwen/seadroid
+    <br>
+    <h5>Lizenzen</h5>
+    https://github.com/haiwen/seadroid/blob/master/LICENSE.md
+    https://github.com/haiwen/seadroid/blob/master/THIRD_PARTY_LICENSE.md
+    ]]>
+  </string>
   <string name="settings_advance_feature_title">ERWEITERTE FUNKTIONEN</string>
   <string name="settings_storage_title">ZWISCHENSPEICHER</string>
   <string name="settings_cache_title">Größe des Zwischenspeichers</string>
