@@ -163,10 +163,9 @@
 
         <TextView
             android:id="@+id/demo_warning"
-            android:layout_width="370sp"
+            android:layout_width="330sp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/tv_margin_left"
-            android:gravity="center_horizontal"
+            android:layout_marginLeft="25dp"
             android:textColor="@color/luckycloud_green"
             android:textSize="20sp"
             android:text="@string/demo_account_warning" />

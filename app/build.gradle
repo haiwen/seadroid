@@ -4,15 +4,15 @@ android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     defaultConfig {
-        applicationId 'com.seafile.seadroid2'
+        applicationId 'de.luckycloud.luckycloud'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 94
         versionName "2.2.19"
         multiDexEnabled true
         resValue "string", "authorities", applicationId + '.cameraupload.provider'
-        resValue "string", "account_type", "com.seafile.seadroid2.account.api2"
-        buildConfigField "String", "ACCOUNT_TYPE", '"com.seafile.seadroid2.account.api2"'
+        resValue "string", "account_type", "de.luckycloud.luckycloud.account.api2"
+        buildConfigField "String", "ACCOUNT_TYPE", '"de.luckycloud.luckycloud.account.api2"'
         ndk {
             abiFilters 'armeabi', 'armeabi-v7a', 'x86'
         }
@@ -59,8 +59,8 @@ android {
             debuggable true
             applicationIdSuffix ".debug"
             resValue "string", "authorities", defaultConfig.applicationId + '.debug.cameraupload.provider'
-            resValue "string", "account_type", "com.seafile.seadroid2.debug.account.api2"
-            buildConfigField "String", "ACCOUNT_TYPE", '"com.seafile.seadroid2.debug.account.api2"'
+            resValue "string", "account_type", "de.luckycloud.luckycloud.debug.account.api2"
+            buildConfigField "String", "ACCOUNT_TYPE", '"de.luckycloud.luckycloud.debug.account.api2"'
             signingConfig signingConfigs.debug
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
