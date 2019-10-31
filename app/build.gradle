@@ -6,15 +6,16 @@ android {
     defaultConfig {
         applicationId 'de.luckycloud.luckycloud'
         minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        targetSdkVersion 28
         versionCode 94
         versionName "2.2.19"
         multiDexEnabled true
+        setProperty("archivesBaseName",  "luckycloud-v" + versionName)
         resValue "string", "authorities", applicationId + '.cameraupload.provider'
         resValue "string", "account_type", "de.luckycloud.luckycloud.account.api2"
         buildConfigField "String", "ACCOUNT_TYPE", '"de.luckycloud.luckycloud.account.api2"'
         ndk {
-            abiFilters 'armeabi', 'armeabi-v7a', 'x86'
+            abiFilters 'armeabi', 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
         }
     }
 
