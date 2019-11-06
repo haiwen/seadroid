@@ -3,7 +3,7 @@
 
   <string name="support">Support</string>
   <string name ="new_luckycloud_account"> new luckycloud Account</string>
-    <string name="demo_account"> Demo Account</string>
+  <string name="demo_account"> Demo Account</string>
 
 
   <string name="app_name" translatable="false">luckycloud</string>
@@ -365,8 +365,8 @@
   <string name="settings_camera_upload_advanced_custom_directories_off">Auto scan device</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Beta Feature!</string>
-  <string name="settings_cuc_welcome_text">  \nIf you still want to use the camera upload service, you\'ll be guided through a few initial steps.</string>
-  <string name="settings_cuc_welcome_text_attention">This feature is still in the beta phase and don\'t work on all devices correctly!</string>
+  <string name="settings_cuc_welcome_text">If you want to use the camera upload service, please swipe left to continue.</string>
+  <string name="settings_cuc_welcome_text_attention">This feature is still in the beta phase and it might not work on all devices correctly.</string>
   <string name="settings_cuc_network_title">How to upload</string>
   <string name="settings_cuc_network_wifi">Wi-Fi only</string>
   <string name="settings_cuc_network_data_plan">Wi-Fi or data plan</string>

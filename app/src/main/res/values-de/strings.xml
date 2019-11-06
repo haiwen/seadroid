@@ -347,8 +347,8 @@ Zum Aktualisieren einmal antippen</string>
   <string name="settings_camera_upload_advanced_custom_directories_off">Gerät automatisch durchsuchen</string>
   <!--Camera Upload Configuration View-->
   <string name="settings_cuc_title">Beta Feature!</string>
-  <string name="settings_cuc_welcome_text">" Wenn sie den Kamera Upload Service trotzdem nutzen wollen, werden sie durch ein paar erste Schritte geleitet"</string>
-  <string name="settings_cuc_welcome_text_attention">Dieses Feature wird noch entwickelt und funktioniert noch auf einzelnen Geräten nicht korrekt</string>
+  <string name="settings_cuc_welcome_text">"Wenn Sie den Kamerupload nutzen möchten, wischen Sie bitte nach links um mit der Einrichtung zu beginnen."</string>
+  <string name="settings_cuc_welcome_text_attention">Dieses Feature befindet sich noch in der Entwicklung und könnte auf manchen Geräten nicht stabil funktionieren.</string>
   <string name="settings_cuc_network_title">Anleitung zum Hochladen</string>
   <string name="settings_cuc_network_wifi">Nur über WLAN</string>
   <string name="settings_cuc_network_data_plan">WLAN oder Mobilfunknetz</string>
@@ -562,5 +562,5 @@ Zum Aktualisieren einmal antippen</string>
   <string name="channel_name_error">Fehlermeldungen</string>
   <string name="channel_name_upload">Upload-Information</string>
   <string name="channel_name_download">Download-Information</string>
-    <string name="demo_account_warning">Dieser Account ist nur für Test- und Evaluierungszwecke gedacht.\n\nEs dürfen keine personenbezogenen Dokumente oder sensible Daten hochgeladen werden. Die Daten dieses Demo-Accounts werden regelmäßig entfernt.</string>
+  <string name="demo_account_warning">Dieser Account ist nur für Test- und Evaluierungszwecke gedacht.\n\nEs dürfen keine personenbezogenen Dokumente oder sensible Daten hochgeladen werden. Die Daten dieses Demo-Accounts werden regelmäßig entfernt.</string>
 </resources>

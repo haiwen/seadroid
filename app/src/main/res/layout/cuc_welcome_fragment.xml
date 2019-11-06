@@ -17,8 +17,8 @@
         android:layout_width="350sp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/cuc_wel_title_tv"
-        android:layout_marginTop="50dp"
-        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="40sp"
+        android:layout_marginTop="20dp"
         android:text="@string/settings_cuc_welcome_text_attention"
         android:textColor="@color/fancy_gray"
         android:textSize="24sp" />
@@ -28,20 +28,21 @@
         android:layout_width="350sp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/cuc_wel_txt_warning"
+        android:layout_marginLeft="40sp"
         android:layout_marginTop="20dp"
-        android:layout_centerHorizontal="true"
         android:text="@string/settings_cuc_welcome_text"
         android:textColor="@color/fancy_gray"
-        android:textSize="20sp" />
-    <TextView
-        android:id="@+id/cuc_swipe_left_txt_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/cuc_wel_txt_tv"
-        android:layout_marginTop="50sp"
-        android:layout_centerHorizontal="true"
-        android:text="@string/settings_cuc_swipe_left"
-        android:textColor="@color/fancy_gray"
-        android:textSize="20sp" />
+        android:textSize="24sp" />
+
+    <!--    <TextView-->
+    <!--        android:id="@+id/cuc_swipe_left_txt_tv"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_below="@+id/cuc_wel_txt_tv"-->
+    <!--        android:layout_marginTop="50sp"-->
+    <!--        android:layout_centerHorizontal="true"-->
+    <!--        android:text="@string/settings_cuc_swipe_left"-->
+    <!--        android:textColor="@color/fancy_gray"-->
+    <!--        android:textSize="20sp" />-->
 
 </RelativeLayout>
