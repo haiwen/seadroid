@@ -1,8 +1,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_height="fill_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <TextView
+    <android.support.v7.widget.AppCompatTextView
         android:id="@+id/cuc_wel_title_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -12,24 +13,26 @@
         android:textColor="@color/luckycloud_green"
         android:textSize="50sp" />
 
-    <TextView
+    <android.support.v7.widget.AppCompatTextView
         android:id="@+id/cuc_wel_txt_warning"
+        app:autoSizeTextType="uniform"
         android:layout_width="350sp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/cuc_wel_title_tv"
-        android:layout_marginLeft="40sp"
         android:layout_marginTop="20dp"
+        android:gravity="center"
         android:text="@string/settings_cuc_welcome_text_attention"
         android:textColor="@color/fancy_gray"
         android:textSize="24sp" />
 
-    <TextView
+    <android.support.v7.widget.AppCompatTextView
         android:id="@+id/cuc_wel_txt_tv"
+        app:autoSizeTextType="uniform"
         android:layout_width="350sp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/cuc_wel_txt_warning"
-        android:layout_marginLeft="40sp"
         android:layout_marginTop="20dp"
+        android:gravity="center"
         android:text="@string/settings_cuc_welcome_text"
         android:textColor="@color/fancy_gray"
         android:textSize="24sp" />

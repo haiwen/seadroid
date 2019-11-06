@@ -141,6 +141,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="choose_a_library">Eine Bibliothek auswählen</string>
   <string name="choose_a_folder">Einen Ordner auswählen</string>
   <string name="load_accounts_fail">Seafile-Konten konnten nicht geladen werden</string>
+  <string name="luckycloud_load_accounts_fail">luckycloud-Konten konnten nicht geladen werden</string>
   <string name="load_libraries_fail">Bibliotheken konnten nicht geladen werden</string>
   <string name="load_dir_fail">Inhalt des Ordners konnte nicht geladen werden</string>
   <string name="not_supported_share">Diese Art der Freigabe wird nicht unterstützt</string>
@@ -370,7 +371,8 @@ Zum Aktualisieren einmal antippen</string>
   <string name="settings_cuc_remote_lib_hint">Wählen Sie aus, welches Benutzerkonto und welche Bibliothek Sie bevorzugen.\nSie können beides in den Einstellungen jederzeit anpassen.</string>
   <string name="settings_cuc_finish_title">Beenden</string>
   <string name="settings_cuc_ready">Seafile wird nun die Dateien aus den ausgewählten Ordnern hochladen. \nSie können die App währenddessen schließen.</string>
-  <string name="settings_cuc_swipe_left">Nach links Wischen um fortzufahren.</string>
+  <string name="luckycloud_settings_cuc_ready">luckycloud will begin uploading files from your selected folders after you confirm below.\nFeel free to close the app during this process.</string>
+    <string name="settings_cuc_swipe_left">Nach links Wischen um fortzufahren.</string>
   <string name="settings_cuc_click_btn">Fertig – Sie können den Einrichtungsassistenten jetzt beenden.</string>
   <string name="settings_cuc_loading">lade …</string>
   <!--Camera Sync-->
@@ -379,6 +381,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="camera_sync_notification_repo_missing_failed">Bibliothek wurde auf dem Server nicht gefunden.</string>
   <string name="camera_sync_notification_auth_error_failed">Authentifizierungsfehler.</string>
   <string name="camera_sync_rename_file">%s (umbenannt durch Seafile)</string>
+  <string name="luckycloud_camera_sync_rename_file">%s (umbenannt durch luckycloud)</string>
   <string name="settings_about_title">ÜBER</string>
   <string name="settings_about_version_title">App-Version</string>
   <string name="settings_about_author_title">Autor/innen</string>
@@ -547,7 +550,9 @@ Zum Aktualisieren einmal antippen</string>
   <string name="shared_with_all">Für alle freigegeben</string>
   <string name="add_password_protection">Passwortschutz hinzufügen</string>
   <string name="expiration_dates">Ablaufdatum</string>
+  <string name="luckycloud_expiration_dates">in Tagen</string>
   <string name="add_auto_expiration">Ablaufdatum hinzufügen</string>
+  <string name="luckycloud_add_auto_expiration">Befristung hinzufügen</string>
   <string name="input_auto_expiration">Bitte das Ablaufdatum eingeben</string>
   <!--editor-->
   <string name="editor_lines_error">Mehrere Zeilen können nicht verarbeitet werden</string>

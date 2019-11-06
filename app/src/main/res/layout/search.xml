@@ -55,7 +55,7 @@
                 android:layout_width="50dp"
                 android:layout_height="35dp"
                 android:layout_marginLeft="8dp"
-                android:background="@drawable/btn_search_selector"
+                android:background="@color/luckycloud_green"
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
                 android:visibility="gone"

@@ -158,6 +158,7 @@
   <string name="choose_a_library">Choose a library</string>
   <string name="choose_a_folder">Choose a folder</string>
   <string name="load_accounts_fail">Failed to load Seafile accounts</string>
+  <string name="luckycloud_load_accounts_fail">Failed to load luckycloud accounts</string>
   <string name="load_libraries_fail">Failed to load libraries</string>
   <string name="load_dir_fail">Failed to load contents of this folder</string>
   <string name="not_supported_share">This type of share is not supported</string>
@@ -388,6 +389,7 @@
   <string name="settings_cuc_remote_lib_hint">Choose your preferred account and library. \nYou can change these options later in the Settings.</string>
   <string name="settings_cuc_finish_title">Finish</string>
   <string name="settings_cuc_ready">Seafile will begin uploading files from your selected folders after you confirm below.\nFeel free to close the app during this process.</string>
+  <string name="luckycloud_settings_cuc_ready">luckycloud will begin uploading files from your selected folders after you confirm below.\nFeel free to close the app during this process.</string>
   <string name="settings_cuc_swipe_left">Swipe left to continue.</string>
   <string name="settings_cuc_click_btn">Click to close the configuration helper.</string>
   <string name="settings_cuc_loading">loading…</string>
@@ -397,6 +399,7 @@
   <string name="camera_sync_notification_repo_missing_failed">Server repository is missing.</string>
   <string name="camera_sync_notification_auth_error_failed">Authentication error.</string>
   <string name="camera_sync_rename_file">%s (renamed by Seafile)</string>
+  <string name="luckycloud_camera_sync_rename_file">%s (renamed by luckycloud)</string>
   <string name="settings_about_title">ABOUT</string>
   <string name="settings_about_version_title">App Version</string>
   <string name="settings_about_author_title">About the author</string>
@@ -568,7 +571,9 @@
   <string name="shared_with_all">Shared with all</string>
   <string name="add_password_protection">Add password protection</string>
   <string name="expiration_dates">expiration dates</string>
-  <string name="add_auto_expiration">Add auto expiration</string>
+  <string name="luckycloud_expiration_dates">expiration dates</string>
+  <string name="add_auto_expiration">Add time limitation</string>
+  <string name="luckycloud_add_auto_expiration">Add time limitation</string>
   <string name="input_auto_expiration">Please enter the expiration dates</string>
   <!--editor-->
   <string name="editor_lines_error">Unable to operate multiple lines</string>

@@ -44,7 +44,7 @@ import java.util.List;
  * Choose account and library for camera upload
  */
 public class CloudLibrarySelectionFragment extends Fragment {
-    public static final String DEBUG_TAG = "CloudLibrarySelectionFragment";
+    public static final String DEBUG_TAG = "CloudLibSelectionFrag";
 
     public static final String PASSWORD_DIALOG_FRAGMENT_TAG = "passwordDialogFragmentTag";
     public static final String ONLY_SHOW_WRITABLE_REPOS = "onlyShowWritableRepos";
@@ -549,7 +549,7 @@ public class CloudLibrarySelectionFragment extends Fragment {
         protected void onPostExecute(Void v) {
             showLoading(false);
             if (err != null || accounts == null) {
-                setErrorMessage(R.string.load_accounts_fail);
+                setErrorMessage(R.string.luckycloud_load_accounts_fail);
                 if (err != null) {
                     Log.d(DEBUG_TAG, "failed to load accounts: " + err.getMessage());
                 }

@@ -205,7 +205,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 found = true;
             } else if (dirent.name.equals(dir) && !dirent.isDir()) {
                 // there is already a file. move it away.
-                String newFilename = getContext().getString(R.string.camera_sync_rename_file, dirent.name);
+                String newFilename = getContext().getString(R.string.luckycloud_camera_sync_rename_file, dirent.name);
                 dataManager.rename(targetRepoId,
                         Utils.pathJoin(Utils.pathJoin("/", parent), dirent.name),
                         newFilename,

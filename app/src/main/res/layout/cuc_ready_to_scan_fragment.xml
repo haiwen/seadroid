@@ -21,7 +21,7 @@
         android:layout_alignLeft="@+id/cuc_ready_title_tv"
         android:layout_below="@+id/cuc_ready_title_tv"
         android:layout_marginTop="@dimen/section_margin_top"
-        android:text="@string/settings_cuc_ready"
+        android:text="@string/luckycloud_settings_cuc_ready"
         android:textColor="@color/fancy_gray"
         android:layout_marginRight="30dp"
         android:textSize="@dimen/tv_subtitle_txt_size" />
