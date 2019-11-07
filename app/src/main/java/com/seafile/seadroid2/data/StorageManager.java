@@ -94,7 +94,7 @@ public abstract class StorageManager implements MediaScannerConnection.OnScanCom
     private Location buildClassicLocation() {
         Location classic = new Location();
         classic.id = -1; // Android IDs start at 0. so "-1" is safe for us
-        classic.mediaPath = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/luckycloud/");
+        classic.mediaPath = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + getContext().getString(R.string.app_name) + "/");
         classic.cachePath = new File(classic.mediaPath, "cache");
         fillLocationInfo(classic);
         return classic;
