@@ -14,7 +14,7 @@ android {
         resValue "string", "account_type", "com.seafile.seadroid2.account.api2"
         buildConfigField "String", "ACCOUNT_TYPE", '"com.seafile.seadroid2.account.api2"'
         ndk {
-            abiFilters 'armeabi', 'armeabi-v7a', 'arm64-v8a', 'x86_64', 'x86'
+            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86_64', 'x86'
         }
     }
 
