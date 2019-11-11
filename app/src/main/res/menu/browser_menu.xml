@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/lucky_icon"
         android:visible="true"
-        android:icon="@drawable/favicon_194x194"
+        android:icon="@drawable/favicon"
         android:title="@string/sort_menu_item"
         app:showAsAction="always"/>
 

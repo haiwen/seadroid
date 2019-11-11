@@ -2,13 +2,14 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
   <string name="support">Support</string>
-  <string name ="new_luckycloud_account"> new luckycloud Account</string>
+  <string name ="new_luckycloud_account"> new Account</string>
   <string name="demo_account"> Demo Account</string>
 
 
   <string name="app_name" translatable="false">luckycloud</string>
   <string name="app_url" translatable="false">http://seafile.com</string>
   <string name="welcome_to_seafile">Welcome to luckycloud</string>
+  <string name="welcome_to_luckycloud">Welcome to</string>
   <string name="select_account">Choose an account to start</string>
   <string name="edit_account">Edit</string>
   <string name="delete_account">Delete</string>

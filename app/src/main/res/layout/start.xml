@@ -4,19 +4,40 @@
               android:layout_width="fill_parent"
               android:layout_height="fill_parent">
     <include layout="@layout/toolbar_actionbar" /> <!-- placeholder, empty except on L -->
+
+<!--    <ImageView-->
+<!--        android:id="@+id/icon"-->
+<!--        android:layout_width="128dp"-->
+<!--        android:layout_height="128dp"-->
+<!--        android:layout_marginTop="@dimen/tv_title_margin_top"-->
+<!--        android:scaleType="fitStart"-->
+<!--        android:src="@drawable/luckycloud_wortbildmarke_skaliert"-->
+<!--        android:layout_gravity="center"/>-->
+
     <TextView
-            android:id="@+id/welcome_view"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/tv_title_margin_top"
-            android:gravity="center_horizontal"
-            android:textSize="@dimen/tv_title_txt_size"
-            android:textColor="@color/luckycloud_green"
-            android:text="@string/welcome_to_seafile"/>
+        android:id="@+id/welcome_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/tv_subtitle_margin_top"
+        android:layout_gravity="center"
+        android:textSize="@dimen/tv_title_txt_size"
+        android:textColor="@color/fancy_gray"
+        android:text="@string/welcome_to_luckycloud"/>
+
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="fill_parent"
+        android:layout_height="40dp"
+        android:layout_gravity="center"
+        android:scaleX="1.05"
+        android:scaleY="1.05"
+        android:layout_marginTop="@dimen/tv_title_margin_top"
+        android:layout_marginBottom="@dimen/tv_title_margin_top"
+        android:src="@drawable/luckycloud_wortbildmarke_rgb" />
 
     <TextView
         android:layout_width="fill_parent"
-        android:layout_height="100dp"
+        android:layout_height="30dp"
         android:layout_marginTop="@dimen/tv_subtitle_margin_top"
         android:gravity="center_horizontal"
         android:text="@string/select_account"
@@ -24,11 +45,9 @@
         android:textSize="@dimen/tv_subtitle_txt_size" />
 
     <ListView
-            android:id="@+id/account_list_view"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_marginTop="@dimen/lv_margin_top"
-            android:divider="@null"
-            />
+        android:id="@+id/account_list_view"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:divider="@null" />
 
 </LinearLayout>

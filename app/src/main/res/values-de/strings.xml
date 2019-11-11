@@ -2,11 +2,12 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
   <string name="support">Support</string>
-  <string name ="new_luckycloud_account"> neuer luckycloud Account</string>
+  <string name ="new_luckycloud_account"> neuer Account</string>
   <string name="demo_account"> Demo Account</string>
 
 
   <string name="welcome_to_seafile">Willkommen bei luckycloud</string>
+  <string name="welcome_to_luckycloud">Willkommen bei</string>
   <string name="select_account">Bitte wählen Sie ein Konto aus</string>
   <string name="edit_account">Bearbeiten</string>
   <string name="delete_account">Löschen</string>
@@ -371,7 +372,7 @@ Zum Aktualisieren einmal antippen</string>
   <string name="settings_cuc_remote_lib_hint">Wählen Sie aus, welches Benutzerkonto und welche Bibliothek Sie bevorzugen.\nSie können beides in den Einstellungen jederzeit anpassen.</string>
   <string name="settings_cuc_finish_title">Beenden</string>
   <string name="settings_cuc_ready">Seafile wird nun die Dateien aus den ausgewählten Ordnern hochladen. \nSie können die App währenddessen schließen.</string>
-  <string name="luckycloud_settings_cuc_ready">luckycloud will begin uploading files from your selected folders after you confirm below.\nFeel free to close the app during this process.</string>
+  <string name="luckycloud_settings_cuc_ready">luckycloud wird nun die Dateien aus den ausgewählten Ordnern hochladen. \nSie können die App währenddessen schließen.</string>
     <string name="settings_cuc_swipe_left">Nach links Wischen um fortzufahren.</string>
   <string name="settings_cuc_click_btn">Fertig – Sie können den Einrichtungsassistenten jetzt beenden.</string>
   <string name="settings_cuc_loading">lade …</string>

@@ -127,6 +127,7 @@
 
     <dimen name="long_btn_height">60dp</dimen> <!-- Button -->
     <dimen name="long_btn_padding_top">0dp</dimen>
+    <dimen name="long_sub_btn_padding_top">30dp</dimen>
     <dimen name="long_btn_padding_bottom">7dp</dimen>
     <dimen name="long_btn_margin_left">20dp</dimen>
     <dimen name="long_btn_margin_right">20dp</dimen>
