@@ -33,6 +33,7 @@ import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.DatabaseHelper;
 import com.seafile.seadroid2.data.ServerInfo;
 import com.seafile.seadroid2.data.StorageManager;
+import com.seafile.seadroid2.data.UploadEvent;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.activity.CreateGesturePasswordActivity;
@@ -43,9 +44,13 @@ import com.seafile.seadroid2.ui.dialog.ClearPasswordTaskDialog;
 import com.seafile.seadroid2.ui.dialog.SwitchStorageTaskDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog.TaskDialogListener;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
+import com.seafile.seadroid2.util.SharedSystemSetXml;
 import com.seafile.seadroid2.util.Utils;
 
 import org.apache.commons.io.FileUtils;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -89,6 +94,9 @@ public class SettingsFragment extends CustomPreferenceFragment {
 //    private Preference cContactsRepoBackUp;
 //    private Preference cContactsRepoRecovery;
     private long mMtime;
+    private Preference cUploadRepoState;
+    private SharedSystemSetXml mSetXml;
+    private int check_start;
 
     @Override
     public void onAttach(Activity activity) {
@@ -108,7 +116,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
     public void onCreate(Bundle savedInstanceState) {
         Log.d(DEBUG_TAG, "onCreate");
         super.onCreate(savedInstanceState);
-
+        EventBus.getDefault().register(this);
         settingsMgr.registerSharedPreferencesListener(settingsListener);
         Account account = accountMgr.getCurrentAccount();
         if (!Utils.isNetworkOn()) {
@@ -117,13 +125,14 @@ public class SettingsFragment extends CustomPreferenceFragment {
         }
 
         ConcurrentAsyncTask.execute(new RequestAccountInfoTask(), account);
-
+        mSetXml=new SharedSystemSetXml();
+        check_start = (Integer) mSetXml.getData(getContext(), SharedSystemSetXml.Type.PIC_CHECK_START);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-
+        EventBus.getDefault().unregister(this);
         Log.d(DEBUG_TAG, "onDestroy()");
         settingsMgr.unregisterSharedPreferencesListener(settingsListener);
     }
@@ -300,7 +309,10 @@ public class SettingsFragment extends CustomPreferenceFragment {
                 return true;
             }
         });
-
+        cUploadRepoState = findPreference(SettingsManager.CAMERA_UPLOAD_STATE);
+        if(check_start==100){
+            cUploadRepoState.setSummary(R.string.is_scanning);
+        }
         // Contacts Upload
 //        cContactsCategory = (PreferenceCategory) findPreference(SettingsManager.CONTACTS_UPLOAD_CATEGORY_KEY);
 //        findPreference(SettingsManager.CONTACTS_UPLOAD_SWITCH_KEY).setOnPreferenceChangeListener(new Preference
@@ -831,4 +843,26 @@ public class SettingsFragment extends CustomPreferenceFragment {
                 }
             };
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(UploadEvent result) {
+
+        if (result.getTagcode() == 3) {
+            mSetXml.putData(mActivity, SharedSystemSetXml.Type.SEAFILE_UPLOAD_NUMBER.getKey(), result.getTotalnum());
+        } else if (result.getTagcode() == 2) {
+            cUploadRepoState.setSummary(R.string.is_scanning);
+        } else if (result.getTagcode() == 4) {
+            int statute = (Integer) mSetXml.getData(mActivity, SharedSystemSetXml.Type.SEAFILE_UPLOAD_NUMBER);
+
+            if (statute != 0) {
+                cUploadRepoState.setSummary(R.string.is_uploading);
+            } else {
+                cUploadRepoState.setSummary(R.string.Upload_completed);
+            }
+        }
+
+        Log.d(DEBUG_TAG, result.getTagcode() + "==========" + result.getWaitingNum() + "-----" + result.getLoginfo());
+
+    }
+
+    ;
 }

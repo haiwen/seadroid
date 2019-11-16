@@ -89,6 +89,7 @@ public final class SettingsManager {
     public static final String SETTINGS_CACHE_SIZE_KEY = "settings_cache_info_key";
     public static final String SETTINGS_CLEAR_CACHE_KEY = "settings_clear_cache_key";
     public static final String SETTINGS_CACHE_DIR_KEY = "settings_cache_location_key";
+    public static final String CAMERA_UPLOAD_STATE = "camera_upload_state";
 
     // Sort files
     public static final String SORT_FILES_TYPE = "sort_files_type";

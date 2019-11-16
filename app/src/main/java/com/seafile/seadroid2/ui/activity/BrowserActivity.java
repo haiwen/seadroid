@@ -55,6 +55,7 @@ import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SeafStarredFile;
 import com.seafile.seadroid2.data.ServerInfo;
 import com.seafile.seadroid2.data.StorageManager;
+import com.seafile.seadroid2.data.UploadEvent;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
@@ -97,6 +98,9 @@ import com.seafile.seadroid2.util.UtilsJellyBean;
 import com.viewpagerindicator.IconPagerAdapter;
 
 import org.apache.commons.io.IOUtils;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONException;
 
 import java.io.File;
@@ -160,6 +164,8 @@ public class BrowserActivity extends BaseActivity
     private Intent copyMoveIntent;
     private Account account;
 
+    private Intent mediaObserver;
+
     public DataManager getDataManager() {
         return dataManager;
     }
@@ -222,7 +228,7 @@ public class BrowserActivity extends BaseActivity
         super.onCreate(savedInstanceState);
 
         accountManager = new AccountManager(this);
-
+        EventBus.getDefault().register(this);
         // restart service should it have been stopped for some reason
         Intent mediaObserver = new Intent(this, MediaObserverService.class);
         startService(mediaObserver);
@@ -877,6 +883,7 @@ public class BrowserActivity extends BaseActivity
     @Override
     protected void onDestroy() {
         Log.d(DEBUG_TAG, "onDestroy is called");
+        EventBus.getDefault().unregister(this);
         if (txService != null) {
             unbindService(mConnection);
             txService = null;
@@ -2426,6 +2433,18 @@ public class BrowserActivity extends BaseActivity
         CameraUploadManager cameraManager = new CameraUploadManager(getApplicationContext());
         if (cameraManager.isCameraUploadEnabled() && settingsManager.isVideosUploadAllowed()) {
             cameraManager.performFullSync();
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(UploadEvent result) {
+        if (!Utils.isServiceRunning(BrowserActivity.this, "com.seafile.seadroid2.cameraupload.MediaObserverService") && result.getTagcode() == 1) {
+            mediaObserver = new Intent(this, MediaObserverService.class);
+            startService(mediaObserver);
+            syncCamera();
+//            Log.d(DEBUG_TAG, "onEvent============false ");
+        } else {
+//            Log.d(DEBUG_TAG, "onEvent============true ");
         }
     }
 }

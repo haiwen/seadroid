@@ -108,7 +108,11 @@
                 </Preference>
             </PreferenceCategory>
         </PreferenceScreen>
-
+        <Preference
+            android:key="camera_upload_state"
+            android:title="@string/camera_upload_state"
+            android:summary="@string/waiting_state"
+            />
     </PreferenceCategory>
     <!--<PreferenceCategory-->
         <!--android:key="category_contacts_upload_key"-->

@@ -28,13 +28,17 @@ import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.StorageManager;
+import com.seafile.seadroid2.data.UploadEvent;
 import com.seafile.seadroid2.transfer.TaskState;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.UploadTaskInfo;
 import com.seafile.seadroid2.ui.CustomNotificationBuilder;
 import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.ui.activity.SettingsActivity;
+import com.seafile.seadroid2.util.SharedSystemSetXml;
 import com.seafile.seadroid2.util.Utils;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.net.HttpURLConnection;
@@ -75,6 +79,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
     private List<Integer> tasksInProgress = new ArrayList<>();
 
     TransferService txService = null;
+    private SharedSystemSetXml mSetXml;
 
     ServiceConnection mConnection = new ServiceConnection() {
         @Override
@@ -115,6 +120,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         contentResolver = context.getContentResolver();
         manager = new AccountManager(context);
         dbHelper = CameraUploadDBHelper.getInstance();
+        mSetXml=new SharedSystemSetXml();
     }
 
     private synchronized void startTransferService() {
@@ -225,7 +231,8 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         synchronized (this) {
             cancelled = false;
         }
-
+        mSetXml.putData(getContext(), SharedSystemSetXml.Type.PIC_CHECK_START.getKey(), 2);
+        EventBus.getDefault().post(new UploadEvent(2, "onPerformSync_start"));
         /*Log.i(DEBUG_TAG, "Syncing images and video to " + account);
 
         Log.d(DEBUG_TAG, "Selected buckets for camera upload: "+settingsMgr.getCameraUploadBucketList());
@@ -357,6 +364,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 txService = null;
             }
         }
+        EventBus.getDefault().post(new UploadEvent(4, "onPerformSync_end"));
     }
 
     private void uploadImages(SyncResult syncResult, DataManager dataManager) throws SeafException, InterruptedException {
