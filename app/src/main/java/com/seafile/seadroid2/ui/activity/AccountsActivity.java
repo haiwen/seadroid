@@ -7,6 +7,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -21,6 +22,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.net.Uri;
 
@@ -31,8 +33,6 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.account.Authenticator;
-import com.seafile.seadroid2.account.ui.AccountDetailActivity;
-import com.seafile.seadroid2.account.ui.SeafileAuthenticatorActivity;
 import com.seafile.seadroid2.avatar.Avatar;
 import com.seafile.seadroid2.avatar.AvatarManager;
 import com.seafile.seadroid2.monitor.FileMonitorService;
@@ -52,7 +52,11 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
 
     private ListView accountsView;
 
-    private Button newAccountBtn;
+    Button addAccount;
+    Button newluckyAccount;
+    Button new_lucky_Demo_account;
+
+    private ImageView logo;
     private android.accounts.AccountManager mAccountManager;
     private AccountManager accountManager;
     private AvatarManager avatarManager;
@@ -95,19 +99,26 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
         super.onCreate(savedInstanceState);
         setContentView(R.layout.start);
 
-        newAccountBtn = (Button) findViewById(R.id.new_lucky_account_button);
+        logo = findViewById(R.id.icon);
+
         mAccountManager = android.accounts.AccountManager.get(this);
         accountsView = (ListView) findViewById(R.id.account_list_view);
         accountManager = new AccountManager(this);
         avatarManager = new AvatarManager();
         currentDefaultAccount = accountManager.getCurrentAccount();
 
+        String DeviceLang = Resources.getSystem().getConfiguration().locale.getLanguage();
+        if (DeviceLang.equals("de")) {
+            logo.setScaleX(1.05f);
+            logo.setScaleY(1.05f);
+        }
+
         View footerView = ((LayoutInflater) this
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(
                 R.layout.account_list_footer, null, false);
-        Button addAccount = (Button) footerView.findViewById(R.id.account_footer_btn);
-        Button newluckyAccount = (Button) footerView.findViewById(R.id.new_lucky_account_button);
-        Button new_lucky_Demo_account = (Button) footerView.findViewById(R.id.new_lucky_Demo_account);
+        addAccount = footerView.findViewById(R.id.account_footer_btn);
+        newluckyAccount = footerView.findViewById(R.id.new_lucky_account_button);
+        new_lucky_Demo_account = footerView.findViewById(R.id.new_lucky_Demo_account);
 
         new_lucky_Demo_account.setOnClickListener(new View.OnClickListener() {
             public void onClick(View btn) {
@@ -135,6 +146,7 @@ public class AccountsActivity extends BaseActivity implements Toolbar.OnMenuItem
                      AccountsActivity.this, accountCallback, null);
             }
         });
+
         accountsView.addFooterView(footerView, null, true);
         accountsView.setFooterDividersEnabled(false);
         adapter = new SeafAccountAdapter(this);

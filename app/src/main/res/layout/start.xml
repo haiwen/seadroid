@@ -29,11 +29,11 @@
         android:layout_width="fill_parent"
         android:layout_height="40dp"
         android:layout_gravity="center"
-        android:scaleX="1.05"
-        android:scaleY="1.05"
+        android:scaleX="0.8"
+        android:scaleY="0.8"
         android:layout_marginTop="@dimen/tv_title_margin_top"
         android:layout_marginBottom="@dimen/tv_title_margin_top"
-        android:src="@drawable/luckycloud_wortbildmarke_rgb" />
+        android:src="@drawable/luckycloud_wortbildmarke" />
 
     <TextView
         android:layout_width="fill_parent"
