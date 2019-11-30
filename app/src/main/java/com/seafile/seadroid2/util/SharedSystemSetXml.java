@@ -28,8 +28,10 @@ public class SharedSystemSetXml extends SharedPreferencesUtil {
     }
 
     public enum Type {
-        SEAFILE_UPLOAD_NUMBER("seafile_upload_number", 0),
+        WAITING_UPLOAD_NUMBER("waiting_upload_number", 0),
+        TOTAL_UPLOAD_NUMBER("total_upload_number", 0),
         PIC_CHECK_START("pic_check_start", 0),
+        UPLOAD_COMPLETED_TIME("upload_completed_time", ""),
         ;
 
         Type(String key, Object defult) {

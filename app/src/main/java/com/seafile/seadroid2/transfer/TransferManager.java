@@ -83,7 +83,7 @@ public abstract class TransferManager {
                 // Log.d(DEBUG_TAG, "add Que  " + taskID + " " + repoName + path);
                 waitingList.add(task);
 
-                EventBus.getDefault().post(new UploadEvent(Constant.ADDTASKTOQUE, waitingList.size(), "addTaskToQue"));
+
             }
             doNext();
         }
@@ -96,7 +96,7 @@ public abstract class TransferManager {
 
             TransferTask task = waitingList.remove(0);
             transferringList.add(task);
-
+            EventBus.getDefault().post(new UploadEvent(Constant.ADDTASKTOQUE, waitingList.size(),allTaskList.size(), "addTaskToQue"));
             ConcurrentAsyncTask.execute(task);
         }
     }

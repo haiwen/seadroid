@@ -375,6 +375,8 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         }
         EventBus.getDefault().post(new UploadEvent(Constant.ONPERFORMSYNC_END, "onPerformSync_end"));
         mSetXml.putData(getContext(), SharedSystemSetXml.Type.PIC_CHECK_START.getKey(), 0);
+        mSetXml.putData(getContext(), SharedSystemSetXml.Type.WAITING_UPLOAD_NUMBER.getKey(), 0);
+        mSetXml.putData(getContext(), SharedSystemSetXml.Type.TOTAL_UPLOAD_NUMBER.getKey(), 0);
     }
 
     private void uploadImages(SyncResult syncResult, DataManager dataManager) throws SeafException, InterruptedException {

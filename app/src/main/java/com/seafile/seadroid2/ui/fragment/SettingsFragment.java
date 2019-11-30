@@ -53,7 +53,9 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -66,7 +68,8 @@ public class SettingsFragment extends CustomPreferenceFragment {
     public static final String CONTACTS_UPLOAD_REMOTE_LIBRARY = "com.seafile.seadroid2.contacts.upload.library";
     public static final int CHOOSE_CAMERA_UPLOAD_REQUEST = 2;
 //    public static final int CHOOSE_CONTACTS_UPLOAD_REQUEST = 3;
-
+    private Date date;
+    private SimpleDateFormat formatter;
     // Account Info
     private static Map<String, AccountInfo> accountInfoMap = Maps.newHashMap();
 
@@ -315,7 +318,8 @@ public class SettingsFragment extends CustomPreferenceFragment {
         if (check_start == Constant.ONPERFORMSYNC_START) {
             cUploadRepoState.setSummary(R.string.is_scanning);
         }else {
-            cUploadRepoState.setSummary(R.string.waiting_state);
+            String end_time = (String) mSetXml.getData(mActivity, SharedSystemSetXml.Type.UPLOAD_COMPLETED_TIME);
+            cUploadRepoState.setSummary(end_time);
         }
 
         // Contacts Upload
@@ -848,23 +852,38 @@ public class SettingsFragment extends CustomPreferenceFragment {
                 }
             };
 
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(UploadEvent result) {
+
         if (result.getTagcode() == Constant.ONPERFORMSYNC_START) {
             cUploadRepoState.setSummary(R.string.is_scanning);
+
         } else if (result.getTagcode() == Constant.NETWORKAVAILABLE) {
-            cUploadRepoState.setSummary(R.string.waiting_state);
+            cUploadRepoState.setSummary(R.string.network_unavailable);
+
         } else if (result.getTagcode() == Constant.ADDTASKTOQUE) {
-            mSetXml.putData(mActivity, SharedSystemSetXml.Type.SEAFILE_UPLOAD_NUMBER.getKey(), result.getTotalnum());
+            mSetXml.putData(mActivity, SharedSystemSetXml.Type.WAITING_UPLOAD_NUMBER.getKey(), result.getWaitingNum());
+            mSetXml.putData(mActivity, SharedSystemSetXml.Type.TOTAL_UPLOAD_NUMBER.getKey(), result.getTotal_number());
+            cUploadRepoState.setSummary(getString(R.string.is_uploading) + (result.getTotal_number() - result.getWaitingNum()) + " / " + result.getTotal_number());
+
         } else if (result.getTagcode() == Constant.ONPERFORMSYNC_END) {
-            int statute = (Integer) mSetXml.getData(mActivity, SharedSystemSetXml.Type.SEAFILE_UPLOAD_NUMBER);
+            int statute = (Integer) mSetXml.getData(mActivity, SharedSystemSetXml.Type.WAITING_UPLOAD_NUMBER);
+            int end = (Integer) mSetXml.getData(mActivity, SharedSystemSetXml.Type.TOTAL_UPLOAD_NUMBER);
+
             if (statute != 0) {
-                cUploadRepoState.setSummary(R.string.is_uploading);
+                cUploadRepoState.setSummary(getString(R.string.is_uploading) + (end - statute) + " / " + end);
+
             } else {
-                cUploadRepoState.setSummary(R.string.Upload_completed);
+                formatter = new SimpleDateFormat("MM-dd HH:mm");
+                date = new Date(System.currentTimeMillis());
+                String str = formatter.format(date);
+                mSetXml.putData(mActivity, SharedSystemSetXml.Type.UPLOAD_COMPLETED_TIME.getKey(), getString(R.string.Upload_completed) + str);
+                cUploadRepoState.setSummary(getString(R.string.Upload_completed) + str);
+
             }
         }
 
-        Log.d(DEBUG_TAG, result.getTagcode() + "==========" + result.getWaitingNum() + "-----" + result.getLoginfo());
+        Log.d(DEBUG_TAG, result.getWaitingNum() + "==========" + result.getTotal_number() + "-----" + result.getLoginfo());
     }
 }
