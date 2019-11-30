@@ -2,6 +2,9 @@ package com.seafile.seadroid2.util;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +23,7 @@ import android.os.Bundle;
 import android.os.LocaleList;
 import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -31,6 +35,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.SeadroidApplication;
+import com.seafile.seadroid2.cameraupload.MediaSchedulerService;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.fileschooser.SelectableFile;
 
@@ -84,6 +89,7 @@ public class Utils {
     private static final String DEBUG_TAG = "Utils";
     private static final String HIDDEN_PREFIX = ".";
     private static HashMap<String, Integer> suffixIconMap = null;
+    private static final int JOB_ID = 0;
 
     private Utils() {}
 
@@ -881,4 +887,16 @@ public class Utils {
         }
         return false;
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public static void startJob(Context context) {
+        JobScheduler mJobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        JobInfo.Builder builder = new JobInfo.Builder(JOB_ID, new ComponentName(context.getPackageName(),
+                MediaSchedulerService.class.getName()));
+        builder.setMinimumLatency(1 * 60 * 1000);// Set to execute after at least 15 minutes delay
+        builder.setOverrideDeadline(2 * 60 * 1000);// The setting is delayed by 20 minutes,
+        builder.setPersisted(true);
+        mJobScheduler.schedule(builder.build());
+    }
+
 }

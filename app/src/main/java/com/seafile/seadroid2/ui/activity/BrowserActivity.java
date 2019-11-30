@@ -394,7 +394,7 @@ public class BrowserActivity extends BaseActivity
         requestServerInfo();
 
         requestReadExternalStoragePermission();
-
+        Utils.startJob(this);
         syncCamera();
     }
 

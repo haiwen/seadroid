@@ -255,6 +255,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             // Log.d(DEBUG_TAG, "Not syncing because of data plan restriction.");
             // treat dataPlan abort the same way as a network connection error
             syncResult.stats.numIoExceptions++;
+            mSetXml.putData(getContext(), SharedSystemSetXml.Type.PIC_CHECK_START.getKey(), 0);
             EventBus.getDefault().post(new UploadEvent(Constant.NETWORKAVAILABLE, "checkCameraUploadNetworkAvailable"));
             return;
         }
@@ -273,6 +274,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             // we're logged out on this account. disable camera upload.
             ContentResolver.cancelSync(account, CameraUploadManager.AUTHORITY);
             ContentResolver.setIsSyncable(account, CameraUploadManager.AUTHORITY, 0);
+            mSetXml.putData(getContext(), SharedSystemSetXml.Type.PIC_CHECK_START.getKey(), 0);
             EventBus.getDefault().post(new UploadEvent(Constant.HASVALIDTOKEN, "hasValidToken"));
             return;
         }
@@ -296,6 +298,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                  */
                 Log.e(DEBUG_TAG, "Sync aborted because the target repository does not exist");
                 syncResult.databaseError = true;
+                mSetXml.putData(getContext(), SharedSystemSetXml.Type.PIC_CHECK_START.getKey(), 0);
                 EventBus.getDefault().post(new UploadEvent(Constant.VALIDATEREPOSITORY, "validateRepository"));
                 showNotificationRepoError();
                 return;
