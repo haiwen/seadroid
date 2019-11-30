@@ -232,8 +232,8 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         synchronized (this) {
             cancelled = false;
         }
-        mSetXml.putData(getContext(), SharedSystemSetXml.Type.PIC_CHECK_START.getKey(), Constant.ONPERFORMSYNC_START);
-        EventBus.getDefault().post(new UploadEvent(Constant.ONPERFORMSYNC_START, "onPerformSync_start"));
+        mSetXml.putData(getContext(), SharedSystemSetXml.Type.PIC_CHECK_START.getKey(), Constant.SCAN_START);
+        EventBus.getDefault().post(new UploadEvent(Constant.SCAN_START, "onPerformSync_start"));
         /*Log.i(DEBUG_TAG, "Syncing images and video to " + account);
 
         Log.d(DEBUG_TAG, "Selected buckets for camera upload: "+settingsMgr.getCameraUploadBucketList());
@@ -256,7 +256,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             // treat dataPlan abort the same way as a network connection error
             syncResult.stats.numIoExceptions++;
             mSetXml.putData(getContext(), SharedSystemSetXml.Type.PIC_CHECK_START.getKey(), 0);
-            EventBus.getDefault().post(new UploadEvent(Constant.NETWORKAVAILABLE, "checkCameraUploadNetworkAvailable"));
+            EventBus.getDefault().post(new UploadEvent(Constant.NET_WORK_AVAILABLE, "checkCameraUploadNetworkAvailable"));
             return;
         }
 
@@ -275,7 +275,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             ContentResolver.cancelSync(account, CameraUploadManager.AUTHORITY);
             ContentResolver.setIsSyncable(account, CameraUploadManager.AUTHORITY, 0);
             mSetXml.putData(getContext(), SharedSystemSetXml.Type.PIC_CHECK_START.getKey(), 0);
-            EventBus.getDefault().post(new UploadEvent(Constant.HASVALIDTOKEN, "hasValidToken"));
             return;
         }
 
@@ -299,7 +298,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 Log.e(DEBUG_TAG, "Sync aborted because the target repository does not exist");
                 syncResult.databaseError = true;
                 mSetXml.putData(getContext(), SharedSystemSetXml.Type.PIC_CHECK_START.getKey(), 0);
-                EventBus.getDefault().post(new UploadEvent(Constant.VALIDATEREPOSITORY, "validateRepository"));
                 showNotificationRepoError();
                 return;
             }
@@ -319,7 +317,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             if (txService == null) {
                 Log.e(DEBUG_TAG, "TransferService did not come up in time, aborting sync");
                 syncResult.delayUntil = 60;
-                EventBus.getDefault().post(new UploadEvent(Constant.TXSERVICE, "txService"));
                 return;
             }
 
@@ -337,7 +334,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             // Log.d(DEBUG_TAG, "syncResult: " + syncResult);
 
         } catch (SeafException e) {
-            EventBus.getDefault().post(new UploadEvent(Constant.SEAFEXCEPTION, "SeafException"));
             switch (e.getCode()) {
                 /*
                  * here we have basically two scenarios
@@ -360,7 +356,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             }
         } catch (Exception e) {
             Log.e(DEBUG_TAG, "sync aborted because an unknown error", e);
-            EventBus.getDefault().post(new UploadEvent(Constant.SEAFEXCEPTION, "SeafException"));
             syncResult.stats.numParseExceptions++;
         } finally {
             if (txService != null) {
@@ -373,7 +368,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 txService = null;
             }
         }
-        EventBus.getDefault().post(new UploadEvent(Constant.ONPERFORMSYNC_END, "onPerformSync_end"));
+        EventBus.getDefault().post(new UploadEvent(Constant.SCAN_END, "onPerformSync_end"));
         mSetXml.putData(getContext(), SharedSystemSetXml.Type.PIC_CHECK_START.getKey(), 0);
         mSetXml.putData(getContext(), SharedSystemSetXml.Type.WAITING_UPLOAD_NUMBER.getKey(), 0);
         mSetXml.putData(getContext(), SharedSystemSetXml.Type.TOTAL_UPLOAD_NUMBER.getKey(), 0);
@@ -383,10 +378,8 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
         // Log.d(DEBUG_TAG, "Starting to upload images...");
 
-        if (isCancelled()){
-            EventBus.getDefault().post(new UploadEvent(Constant.ISCANCELLED, "isCancelled"));
+        if (isCancelled())
             return;
-        }
 
         List<String> selectedBuckets = new ArrayList<>();
         if (bucketList.size() > 0) {
@@ -420,7 +413,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         try {
             if (cursor == null) {
                 Log.e(DEBUG_TAG, "ContentResolver query failed!");
-                EventBus.getDefault().post(new UploadEvent(Constant.CURSOR_NULL, "ContentResolver query failed!"));
                 return;
             }
             // Log.d(DEBUG_TAG, "i see " + cursor.getCount() + " new images.");
@@ -430,10 +422,8 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
                 iterateCursor(syncResult, dataManager, cursor);
 
-                if (isCancelled()){
-                    EventBus.getDefault().post(new UploadEvent(Constant.ISCANCELLED, "isCancelled"));
+                if (isCancelled())
                     return;
-                }
 
             }
         } finally {
@@ -561,7 +551,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
 
     private void waitForUploads() throws InterruptedException {
         // Log.d(DEBUG_TAG, "wait for transfer service to finish our tasks");
-        EventBus.getDefault().post(new UploadEvent(Constant.WAITFORUPLOADS, "waitForUploads"));
         WAITLOOP: while (!isCancelled()) {
             Thread.sleep(100); // wait
 
@@ -615,7 +604,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             Log.e(DEBUG_TAG, "Seadroid dirent cache is empty in uploadFile. Should not happen, aborting.");
             // the dirents were supposed to be refreshed in createDirectories()
             // something changed, abort.
-            EventBus.getDefault().post(new UploadEvent(Constant.SEAFEXCEPTION, "unknownException"));
             throw SeafException.unknownException;
         }
 
@@ -633,7 +621,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             if (pattern.matcher(dirent.name).matches() && dirent.size == file.length()) {
                 // Log.d(DEBUG_TAG, "File " + file.getName() + " in bucket " + bucketName + " already exists on the server. Skipping.");
                 dbHelper.markAsUploaded(file);
-                EventBus.getDefault().post(new UploadEvent(Constant.MARKASUPLOADED, "markAsUploaded"));
                 return;
             }
         }

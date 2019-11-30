@@ -315,7 +315,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
         });
 
         cUploadRepoState = findPreference(SettingsManager.CAMERA_UPLOAD_STATE);
-        if (check_start == Constant.ONPERFORMSYNC_START) {
+        if (check_start == Constant.SCAN_START) {
             cUploadRepoState.setSummary(R.string.is_scanning);
         }else {
             String end_time = (String) mSetXml.getData(mActivity, SharedSystemSetXml.Type.UPLOAD_COMPLETED_TIME);
@@ -856,23 +856,23 @@ public class SettingsFragment extends CustomPreferenceFragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(UploadEvent result) {
 
-        if (result.getTagcode() == Constant.ONPERFORMSYNC_START) {
+        if (result.getTagcode() == Constant.SCAN_START) {
             cUploadRepoState.setSummary(R.string.is_scanning);
 
-        } else if (result.getTagcode() == Constant.NETWORKAVAILABLE) {
+        } else if (result.getTagcode() == Constant.NET_WORK_AVAILABLE) {
             cUploadRepoState.setSummary(R.string.network_unavailable);
 
-        } else if (result.getTagcode() == Constant.ADDTASKTOQUE) {
+        } else if (result.getTagcode() == Constant.ADD_TASK_QUE) {
             mSetXml.putData(mActivity, SharedSystemSetXml.Type.WAITING_UPLOAD_NUMBER.getKey(), result.getWaitingNum());
             mSetXml.putData(mActivity, SharedSystemSetXml.Type.TOTAL_UPLOAD_NUMBER.getKey(), result.getTotal_number());
             cUploadRepoState.setSummary(getString(R.string.is_uploading) + (result.getTotal_number() - result.getWaitingNum()) + " / " + result.getTotal_number());
 
-        } else if (result.getTagcode() == Constant.ONPERFORMSYNC_END) {
-            int statute = (Integer) mSetXml.getData(mActivity, SharedSystemSetXml.Type.WAITING_UPLOAD_NUMBER);
-            int end = (Integer) mSetXml.getData(mActivity, SharedSystemSetXml.Type.TOTAL_UPLOAD_NUMBER);
+        } else if (result.getTagcode() == Constant.SCAN_END) {
 
-            if (statute != 0) {
-                cUploadRepoState.setSummary(getString(R.string.is_uploading) + (end - statute) + " / " + end);
+            int wait = (Integer) mSetXml.getData(mActivity, SharedSystemSetXml.Type.WAITING_UPLOAD_NUMBER);
+            int end = (Integer) mSetXml.getData(mActivity, SharedSystemSetXml.Type.TOTAL_UPLOAD_NUMBER);
+            if (wait != 0) {
+                cUploadRepoState.setSummary(getString(R.string.is_uploading) + (end - wait) + " / " + end);
 
             } else {
                 formatter = new SimpleDateFormat("MM-dd HH:mm");
@@ -884,6 +884,6 @@ public class SettingsFragment extends CustomPreferenceFragment {
             }
         }
 
-        Log.d(DEBUG_TAG, result.getWaitingNum() + "==========" + result.getTotal_number() + "-----" + result.getLoginfo());
+//        Log.d(DEBUG_TAG, result.getWaitingNum() + "==========" + result.getTotal_number() + "-----" + result.getLoginfo());
     }
 }

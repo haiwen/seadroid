@@ -2439,7 +2439,7 @@ public class BrowserActivity extends BaseActivity
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(UploadEvent result) {
-        if (!Utils.isServiceRunning(BrowserActivity.this, "com.seafile.seadroid2.cameraupload.MediaObserverService") && result.getTagcode() == Constant.BASEACTIVITY__ONRESUME) {
+        if (!Utils.isServiceRunning(BrowserActivity.this, "com.seafile.seadroid2.cameraupload.MediaObserverService") && result.getTagcode() == Constant.IS_SERVICE) {
             mediaObserver = new Intent(this, MediaObserverService.class);
             startService(mediaObserver);
             syncCamera();

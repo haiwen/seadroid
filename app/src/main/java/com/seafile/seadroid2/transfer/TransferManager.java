@@ -96,7 +96,7 @@ public abstract class TransferManager {
 
             TransferTask task = waitingList.remove(0);
             transferringList.add(task);
-            EventBus.getDefault().post(new UploadEvent(Constant.ADDTASKTOQUE, waitingList.size(),allTaskList.size(), "addTaskToQue"));
+            EventBus.getDefault().post(new UploadEvent(Constant.ADD_TASK_QUE, waitingList.size(),allTaskList.size(), "addTaskToQue"));
             ConcurrentAsyncTask.execute(task);
         }
     }

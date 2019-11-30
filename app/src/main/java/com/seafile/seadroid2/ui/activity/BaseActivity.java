@@ -274,6 +274,6 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        EventBus.getDefault().post(new UploadEvent(Constant.BASEACTIVITY__ONRESUME, "BaseActivity__onResume"));
+        EventBus.getDefault().post(new UploadEvent(Constant.IS_SERVICE, "BaseActivity__onResume"));
     }
 }
