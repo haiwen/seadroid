@@ -5,6 +5,7 @@ public class UploadEvent {
     private String loginfo;
     private int waitingNum;
     private String totalnum;
+
     public UploadEvent(int tagcode, String loginfo) {
         this.tagcode = tagcode;
         this.loginfo = loginfo;
@@ -15,6 +16,7 @@ public class UploadEvent {
         this.waitingNum = number;
         this.loginfo = loginfo;
     }
+
     public void setTotalnum(String totalnum) {
         this.totalnum = totalnum;
     }

@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.seafile.seadroid2.R;
 import com.seafile.seadroid2.data.UploadEvent;
+import com.seafile.seadroid2.util.Constant;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -273,6 +274,6 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        EventBus.getDefault().post(new UploadEvent(1, "BaseActivity__onResume"));
+        EventBus.getDefault().post(new UploadEvent(Constant.BASEACTIVITY__ONRESUME, "BaseActivity__onResume"));
     }
 }

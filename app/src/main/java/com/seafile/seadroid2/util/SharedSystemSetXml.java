@@ -9,7 +9,6 @@ public class SharedSystemSetXml extends SharedPreferencesUtil {
     }
 
     /**
-     *
      * @param context
      * @param type
      * @return
@@ -27,9 +26,11 @@ public class SharedSystemSetXml extends SharedPreferencesUtil {
     public Object getData(Context context, Type type) {
         return getData(context, type.getKey(), type.getDefult());
     }
+
     public enum Type {
         SEAFILE_UPLOAD_NUMBER("seafile_upload_number", 0),
-        PIC_CHECK_START("pic_check_start", 0),;
+        PIC_CHECK_START("pic_check_start", 0),
+        ;
 
         Type(String key, Object defult) {
             this.key = key;

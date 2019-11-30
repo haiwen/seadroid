@@ -5,6 +5,7 @@ import android.util.Log;
 import com.google.common.collect.Lists;
 import com.seafile.seadroid2.data.UploadEvent;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
+import com.seafile.seadroid2.util.Constant;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -82,7 +83,7 @@ public abstract class TransferManager {
                 // Log.d(DEBUG_TAG, "add Que  " + taskID + " " + repoName + path);
                 waitingList.add(task);
 
-                EventBus.getDefault().post(new UploadEvent(3, waitingList.size(), "addTaskToQue"));
+                EventBus.getDefault().post(new UploadEvent(Constant.ADDTASKTOQUE, waitingList.size(), "addTaskToQue"));
             }
             doNext();
         }

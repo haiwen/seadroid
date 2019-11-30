@@ -93,6 +93,7 @@ import com.seafile.seadroid2.ui.fragment.ActivitiesFragment;
 import com.seafile.seadroid2.ui.fragment.ReposFragment;
 import com.seafile.seadroid2.ui.fragment.StarredFragment;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
+import com.seafile.seadroid2.util.Constant;
 import com.seafile.seadroid2.util.Utils;
 import com.seafile.seadroid2.util.UtilsJellyBean;
 import com.viewpagerindicator.IconPagerAdapter;
@@ -2438,13 +2439,13 @@ public class BrowserActivity extends BaseActivity
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(UploadEvent result) {
-        if (!Utils.isServiceRunning(BrowserActivity.this, "com.seafile.seadroid2.cameraupload.MediaObserverService") && result.getTagcode() == 1) {
+        if (!Utils.isServiceRunning(BrowserActivity.this, "com.seafile.seadroid2.cameraupload.MediaObserverService") && result.getTagcode() == Constant.BASEACTIVITY__ONRESUME) {
             mediaObserver = new Intent(this, MediaObserverService.class);
             startService(mediaObserver);
             syncCamera();
-//            Log.d(DEBUG_TAG, "onEvent============false ");
+            Log.d(DEBUG_TAG, "onEvent============false ");
         } else {
-//            Log.d(DEBUG_TAG, "onEvent============true ");
+            Log.d(DEBUG_TAG, "onEvent============true ");
         }
     }
 }

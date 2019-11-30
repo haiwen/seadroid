@@ -44,6 +44,7 @@ import com.seafile.seadroid2.ui.dialog.ClearPasswordTaskDialog;
 import com.seafile.seadroid2.ui.dialog.SwitchStorageTaskDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog.TaskDialogListener;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
+import com.seafile.seadroid2.util.Constant;
 import com.seafile.seadroid2.util.SharedSystemSetXml;
 import com.seafile.seadroid2.util.Utils;
 
@@ -125,7 +126,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
         }
 
         ConcurrentAsyncTask.execute(new RequestAccountInfoTask(), account);
-        mSetXml=new SharedSystemSetXml();
+        mSetXml = new SharedSystemSetXml();
         check_start = (Integer) mSetXml.getData(getContext(), SharedSystemSetXml.Type.PIC_CHECK_START);
     }
 
@@ -309,10 +310,14 @@ public class SettingsFragment extends CustomPreferenceFragment {
                 return true;
             }
         });
+
         cUploadRepoState = findPreference(SettingsManager.CAMERA_UPLOAD_STATE);
-        if(check_start==100){
+        if (check_start == Constant.ONPERFORMSYNC_START) {
             cUploadRepoState.setSummary(R.string.is_scanning);
+        }else {
+            cUploadRepoState.setSummary(R.string.waiting_state);
         }
+
         // Contacts Upload
 //        cContactsCategory = (PreferenceCategory) findPreference(SettingsManager.CONTACTS_UPLOAD_CATEGORY_KEY);
 //        findPreference(SettingsManager.CONTACTS_UPLOAD_SWITCH_KEY).setOnPreferenceChangeListener(new Preference
@@ -845,14 +850,14 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(UploadEvent result) {
-
-        if (result.getTagcode() == 3) {
-            mSetXml.putData(mActivity, SharedSystemSetXml.Type.SEAFILE_UPLOAD_NUMBER.getKey(), result.getTotalnum());
-        } else if (result.getTagcode() == 2) {
+        if (result.getTagcode() == Constant.ONPERFORMSYNC_START) {
             cUploadRepoState.setSummary(R.string.is_scanning);
-        } else if (result.getTagcode() == 4) {
+        } else if (result.getTagcode() == Constant.NETWORKAVAILABLE) {
+            cUploadRepoState.setSummary(R.string.waiting_state);
+        } else if (result.getTagcode() == Constant.ADDTASKTOQUE) {
+            mSetXml.putData(mActivity, SharedSystemSetXml.Type.SEAFILE_UPLOAD_NUMBER.getKey(), result.getTotalnum());
+        } else if (result.getTagcode() == Constant.ONPERFORMSYNC_END) {
             int statute = (Integer) mSetXml.getData(mActivity, SharedSystemSetXml.Type.SEAFILE_UPLOAD_NUMBER);
-
             if (statute != 0) {
                 cUploadRepoState.setSummary(R.string.is_uploading);
             } else {
@@ -861,8 +866,5 @@ public class SettingsFragment extends CustomPreferenceFragment {
         }
 
         Log.d(DEBUG_TAG, result.getTagcode() + "==========" + result.getWaitingNum() + "-----" + result.getLoginfo());
-
     }
-
-    ;
 }

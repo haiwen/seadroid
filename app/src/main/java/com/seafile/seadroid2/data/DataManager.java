@@ -13,9 +13,11 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountInfo;
 import com.seafile.seadroid2.crypto.Crypto;
+import com.seafile.seadroid2.util.Constant;
 import com.seafile.seadroid2.util.Utils;
 
 import org.apache.commons.io.FileUtils;
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -416,6 +418,7 @@ public class DataManager {
             File cache = getFileForDirentCache(dirID);
             Utils.writeFile(cache, content);
         } catch (IOException e) {
+            EventBus.getDefault().post(new UploadEvent(Constant.SEAFEXCEPTION, "saveDirentContent_IOException"));
             Log.e(DEBUG_TAG, "Could not write dirent cache to disk.", e);
         }
     }
@@ -537,6 +540,7 @@ public class DataManager {
             return dirents;
         } catch (JSONException e) {
             Log.e(DEBUG_TAG, "Could not parse cached dirent", e);
+            EventBus.getDefault().post(new UploadEvent(Constant.SEAFEXCEPTION, "JSONException"));
             return null;
         }
     }
