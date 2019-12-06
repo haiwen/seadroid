@@ -233,7 +233,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             cancelled = false;
         }
         mSetXml.putData(getContext(), SharedSystemSetXml.Type.PIC_CHECK_START.getKey(), Constant.SCAN_START);
-        EventBus.getDefault().post(new UploadEvent(Constant.SCAN_START, "onPerformSync_start"));
+        EventBus.getDefault().post(new UploadEvent(Constant.SCAN_START, "Start_scanning"));
         /*Log.i(DEBUG_TAG, "Syncing images and video to " + account);
 
         Log.d(DEBUG_TAG, "Selected buckets for camera upload: "+settingsMgr.getCameraUploadBucketList());
@@ -256,7 +256,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             // treat dataPlan abort the same way as a network connection error
             syncResult.stats.numIoExceptions++;
             mSetXml.putData(getContext(), SharedSystemSetXml.Type.PIC_CHECK_START.getKey(), 0);
-            EventBus.getDefault().post(new UploadEvent(Constant.NET_WORK_AVAILABLE, "checkCameraUploadNetworkAvailable"));
+            EventBus.getDefault().post(new UploadEvent(Constant.NET_WORK_AVAILABLE, "checkNetworkAvailable"));
             return;
         }
 
@@ -368,7 +368,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 txService = null;
             }
         }
-        EventBus.getDefault().post(new UploadEvent(Constant.SCAN_END, "onPerformSync_end"));
+        EventBus.getDefault().post(new UploadEvent(Constant.SCAN_END, "end_scan"));
         mSetXml.putData(getContext(), SharedSystemSetXml.Type.PIC_CHECK_START.getKey(), 0);
         mSetXml.putData(getContext(), SharedSystemSetXml.Type.WAITING_UPLOAD_NUMBER.getKey(), 0);
         mSetXml.putData(getContext(), SharedSystemSetXml.Type.TOTAL_UPLOAD_NUMBER.getKey(), 0);

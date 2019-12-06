@@ -36,7 +36,7 @@ public abstract class SharedPreferencesUtil {
 	 *
 	 * @param context
 	 * @param keys
-	 * @param defValue 默认值
+	 * @param defValue
 	 * @return
 	 */
 	public Object getData(Context context, String keys, Object defValue) {

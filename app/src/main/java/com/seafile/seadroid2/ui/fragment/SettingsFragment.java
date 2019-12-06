@@ -130,7 +130,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
         ConcurrentAsyncTask.execute(new RequestAccountInfoTask(), account);
         mSetXml = new SharedSystemSetXml();
-        check_start = (Integer) mSetXml.getData(getContext(), SharedSystemSetXml.Type.PIC_CHECK_START);
+        check_start = (Integer) mSetXml.getData(mActivity, SharedSystemSetXml.Type.PIC_CHECK_START);
     }
 
     @Override
@@ -317,7 +317,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
         cUploadRepoState = findPreference(SettingsManager.CAMERA_UPLOAD_STATE);
         if (check_start == Constant.SCAN_START) {
             cUploadRepoState.setSummary(R.string.is_scanning);
-        }else {
+        } else {
             String end_time = (String) mSetXml.getData(mActivity, SharedSystemSetXml.Type.UPLOAD_COMPLETED_TIME);
             cUploadRepoState.setSummary(end_time);
         }

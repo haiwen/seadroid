@@ -11,12 +11,6 @@ public class UploadEvent {
         this.loginfo = loginfo;
     }
 
-    public UploadEvent(int tagcode, int number, String loginfo) {
-        this.tagcode = tagcode;
-        this.waitingNum = number;
-        this.loginfo = loginfo;
-    }
-
     public UploadEvent(int tagcode, int waitingNum, int total_number, String loginfo) {
         this.tagcode = tagcode;
         this.waitingNum = waitingNum;
