@@ -29,11 +29,11 @@ import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadConfigActivity;
 import com.seafile.seadroid2.cameraupload.CameraUploadManager;
 import com.seafile.seadroid2.cameraupload.GalleryBucketUtils;
+import com.seafile.seadroid2.data.CameraSyncEvent;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.DatabaseHelper;
 import com.seafile.seadroid2.data.ServerInfo;
 import com.seafile.seadroid2.data.StorageManager;
-import com.seafile.seadroid2.data.UploadEvent;
 import com.seafile.seadroid2.gesturelock.LockPatternUtils;
 import com.seafile.seadroid2.ui.activity.BrowserActivity;
 import com.seafile.seadroid2.ui.activity.CreateGesturePasswordActivity;
@@ -43,9 +43,8 @@ import com.seafile.seadroid2.ui.dialog.ClearCacheTaskDialog;
 import com.seafile.seadroid2.ui.dialog.ClearPasswordTaskDialog;
 import com.seafile.seadroid2.ui.dialog.SwitchStorageTaskDialog;
 import com.seafile.seadroid2.ui.dialog.TaskDialog.TaskDialogListener;
+import com.seafile.seadroid2.util.CameraSyncStatus;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
-import com.seafile.seadroid2.util.Constant;
-import com.seafile.seadroid2.util.SharedSystemSetXml;
 import com.seafile.seadroid2.util.Utils;
 
 import org.apache.commons.io.FileUtils;
@@ -99,8 +98,7 @@ public class SettingsFragment extends CustomPreferenceFragment {
 //    private Preference cContactsRepoRecovery;
     private long mMtime;
     private Preference cUploadRepoState;
-    private SharedSystemSetXml mSetXml;
-    private int check_start;
+    private int cameraSyncStart;
 
     @Override
     public void onAttach(Activity activity) {
@@ -129,8 +127,8 @@ public class SettingsFragment extends CustomPreferenceFragment {
         }
 
         ConcurrentAsyncTask.execute(new RequestAccountInfoTask(), account);
-        mSetXml = new SharedSystemSetXml();
-        check_start = (Integer) mSetXml.getData(mActivity, SharedSystemSetXml.Type.PIC_CHECK_START);
+        cameraSyncStart = SettingsManager.instance().getCheckScanStart();
+
     }
 
     @Override
@@ -315,10 +313,10 @@ public class SettingsFragment extends CustomPreferenceFragment {
         });
 
         cUploadRepoState = findPreference(SettingsManager.CAMERA_UPLOAD_STATE);
-        if (check_start == Constant.SCAN_START) {
+        if (cameraSyncStart == CameraSyncStatus.SCAN_START) {
             cUploadRepoState.setSummary(R.string.is_scanning);
         } else {
-            String end_time = (String) mSetXml.getData(mActivity, SharedSystemSetXml.Type.UPLOAD_COMPLETED_TIME);
+            String end_time = SettingsManager.instance().getUploadCompletedTime();
             cUploadRepoState.setSummary(end_time);
         }
 
@@ -854,32 +852,31 @@ public class SettingsFragment extends CustomPreferenceFragment {
 
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEvent(UploadEvent result) {
+    public void onEvent(CameraSyncEvent result) {
 
-        if (result.getTagcode() == Constant.SCAN_START) {
+        if (result.getTagCode() == CameraSyncStatus.SCAN_START) {
             cUploadRepoState.setSummary(R.string.is_scanning);
 
-        } else if (result.getTagcode() == Constant.NET_WORK_AVAILABLE) {
+        } else if (result.getTagCode() == CameraSyncStatus.NETWORK_AVAILABLE) {
             cUploadRepoState.setSummary(R.string.network_unavailable);
 
-        } else if (result.getTagcode() == Constant.ADD_TASK_QUE) {
-            mSetXml.putData(mActivity, SharedSystemSetXml.Type.WAITING_UPLOAD_NUMBER.getKey(), result.getWaitingNum());
-            mSetXml.putData(mActivity, SharedSystemSetXml.Type.TOTAL_UPLOAD_NUMBER.getKey(), result.getTotal_number());
-            cUploadRepoState.setSummary(getString(R.string.is_uploading) + (result.getTotal_number() - result.getWaitingNum()) + " / " + result.getTotal_number());
+        } else if (result.getTagCode() == CameraSyncStatus.ADD_TASK_QUE) {
+            SettingsManager.instance().saveCameraUploadNumber(result.getWaitingNumber(), result.getTotalNumber());
+            cUploadRepoState.setSummary(getString(R.string.is_uploading) + (result.getTotalNumber() - result.getWaitingNumber()) + " / " + result.getTotalNumber());
 
-        } else if (result.getTagcode() == Constant.SCAN_END) {
+        } else if (result.getTagCode() == CameraSyncStatus.SCAN_END) {
 
-            int wait = (Integer) mSetXml.getData(mActivity, SharedSystemSetXml.Type.WAITING_UPLOAD_NUMBER);
-            int end = (Integer) mSetXml.getData(mActivity, SharedSystemSetXml.Type.TOTAL_UPLOAD_NUMBER);
+            int wait = SettingsManager.instance().getWaitingUploadNumber();
+            int end = SettingsManager.instance().getTotalUploadNumber();
             if (wait != 0) {
                 cUploadRepoState.setSummary(getString(R.string.is_uploading) + (end - wait) + " / " + end);
 
             } else {
                 formatter = new SimpleDateFormat("MM-dd HH:mm");
                 date = new Date(System.currentTimeMillis());
-                String str = formatter.format(date);
-                mSetXml.putData(mActivity, SharedSystemSetXml.Type.UPLOAD_COMPLETED_TIME.getKey(), getString(R.string.Upload_completed) + str);
-                cUploadRepoState.setSummary(getString(R.string.Upload_completed) + str);
+                String completedTime = formatter.format(date);
+                SettingsManager.instance().saveUploadCompletedTime(completedTime);
+                cUploadRepoState.setSummary(getString(R.string.Upload_completed) + completedTime);
 
             }
         }

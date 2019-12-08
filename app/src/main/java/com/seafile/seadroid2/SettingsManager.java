@@ -95,6 +95,12 @@ public final class SettingsManager {
     public static final String SORT_FILES_TYPE = "sort_files_type";
     public static final String SORT_FILES_ORDER = "sort_files_order";
 
+    //CameraSyncStatus
+    public static final String WAITING_UPLOAD_NUMBER = "waiting_upload_number";
+    public static final String TOTAL_UPLOAD_NUMBER = "total_upload_number";
+    public static final String PIC_CHECK_START = "pic_check_start";
+    public static final String UPLOAD_COMPLETED_TIME = "upload_completed_time";
+
     public static long lock_timestamp = 0;
     public static final long LOCK_EXPIRATION_MSECS = 5 * 60 * 1000;
 
@@ -284,4 +290,35 @@ public final class SettingsManager {
         editor.putString(SHARED_PREF_CONTACTS_UPLOAD_REPO_NAME, repoName);
         editor.commit();
     }
+
+    public void saveCameraUploadNumber(int waiting, int total) {
+        editor.putInt(WAITING_UPLOAD_NUMBER, waiting).commit();
+        editor.putInt(TOTAL_UPLOAD_NUMBER, total).commit();
+    }
+
+    public int getWaitingUploadNumber() {
+        return sharedPref.getInt(WAITING_UPLOAD_NUMBER, 0);
+    }
+
+    public int getTotalUploadNumber() {
+        return sharedPref.getInt(TOTAL_UPLOAD_NUMBER, 0);
+    }
+
+    public void saveUploadCompletedTime(String completedTime) {
+        editor.putString(UPLOAD_COMPLETED_TIME, completedTime);
+        editor.commit();
+    }
+
+    public String getUploadCompletedTime() {
+        return sharedPref.getString(SettingsManager.UPLOAD_COMPLETED_TIME, null);
+    }
+
+    public void saveCheckScanStart(int startState) {
+        editor.putInt(PIC_CHECK_START, startState).commit();
+    }
+
+    public int getCheckScanStart() {
+        return sharedPref.getInt(PIC_CHECK_START, 0);
+    }
+
 }

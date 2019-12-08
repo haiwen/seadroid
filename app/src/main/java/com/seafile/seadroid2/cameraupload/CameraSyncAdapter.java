@@ -24,19 +24,18 @@ import com.seafile.seadroid2.SeafException;
 import com.seafile.seadroid2.SettingsManager;
 import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
+import com.seafile.seadroid2.data.CameraSyncEvent;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.SeafDirent;
 import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.StorageManager;
-import com.seafile.seadroid2.data.UploadEvent;
 import com.seafile.seadroid2.transfer.TaskState;
 import com.seafile.seadroid2.transfer.TransferService;
 import com.seafile.seadroid2.transfer.UploadTaskInfo;
 import com.seafile.seadroid2.ui.CustomNotificationBuilder;
 import com.seafile.seadroid2.ui.activity.AccountsActivity;
 import com.seafile.seadroid2.ui.activity.SettingsActivity;
-import com.seafile.seadroid2.util.Constant;
-import com.seafile.seadroid2.util.SharedSystemSetXml;
+import com.seafile.seadroid2.util.CameraSyncStatus;
 import com.seafile.seadroid2.util.Utils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -80,7 +79,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
     private List<Integer> tasksInProgress = new ArrayList<>();
 
     TransferService txService = null;
-    private SharedSystemSetXml mSetXml;
 
     ServiceConnection mConnection = new ServiceConnection() {
         @Override
@@ -121,7 +119,6 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         contentResolver = context.getContentResolver();
         manager = new AccountManager(context);
         dbHelper = CameraUploadDBHelper.getInstance();
-        mSetXml = new SharedSystemSetXml();
     }
 
     private synchronized void startTransferService() {
@@ -232,8 +229,8 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
         synchronized (this) {
             cancelled = false;
         }
-        mSetXml.putData(getContext(), SharedSystemSetXml.Type.PIC_CHECK_START.getKey(), Constant.SCAN_START);
-        EventBus.getDefault().post(new UploadEvent(Constant.SCAN_START, "Start_scanning"));
+        SettingsManager.instance().saveCheckScanStart(CameraSyncStatus.SCAN_START);
+        EventBus.getDefault().post(new CameraSyncEvent(CameraSyncStatus.SCAN_START, "Start_scanning"));
         /*Log.i(DEBUG_TAG, "Syncing images and video to " + account);
 
         Log.d(DEBUG_TAG, "Selected buckets for camera upload: "+settingsMgr.getCameraUploadBucketList());
@@ -255,8 +252,8 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             // Log.d(DEBUG_TAG, "Not syncing because of data plan restriction.");
             // treat dataPlan abort the same way as a network connection error
             syncResult.stats.numIoExceptions++;
-            mSetXml.putData(getContext(), SharedSystemSetXml.Type.PIC_CHECK_START.getKey(), 0);
-            EventBus.getDefault().post(new UploadEvent(Constant.NET_WORK_AVAILABLE, "checkNetworkAvailable"));
+            SettingsManager.instance().saveCheckScanStart(CameraSyncStatus.STATUS_DEFAULT);
+            EventBus.getDefault().post(new CameraSyncEvent(CameraSyncStatus.NETWORK_AVAILABLE, "checkNetworkAvailable"));
             return;
         }
 
@@ -274,7 +271,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
             // we're logged out on this account. disable camera upload.
             ContentResolver.cancelSync(account, CameraUploadManager.AUTHORITY);
             ContentResolver.setIsSyncable(account, CameraUploadManager.AUTHORITY, 0);
-            mSetXml.putData(getContext(), SharedSystemSetXml.Type.PIC_CHECK_START.getKey(), 0);
+            SettingsManager.instance().saveCheckScanStart(CameraSyncStatus.STATUS_DEFAULT);
             return;
         }
 
@@ -297,7 +294,7 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                  */
                 Log.e(DEBUG_TAG, "Sync aborted because the target repository does not exist");
                 syncResult.databaseError = true;
-                mSetXml.putData(getContext(), SharedSystemSetXml.Type.PIC_CHECK_START.getKey(), 0);
+                SettingsManager.instance().saveCheckScanStart(CameraSyncStatus.STATUS_DEFAULT);
                 showNotificationRepoError();
                 return;
             }
@@ -368,10 +365,9 @@ public class CameraSyncAdapter extends AbstractThreadedSyncAdapter {
                 txService = null;
             }
         }
-        EventBus.getDefault().post(new UploadEvent(Constant.SCAN_END, "end_scan"));
-        mSetXml.putData(getContext(), SharedSystemSetXml.Type.PIC_CHECK_START.getKey(), 0);
-        mSetXml.putData(getContext(), SharedSystemSetXml.Type.WAITING_UPLOAD_NUMBER.getKey(), 0);
-        mSetXml.putData(getContext(), SharedSystemSetXml.Type.TOTAL_UPLOAD_NUMBER.getKey(), 0);
+        EventBus.getDefault().post(new CameraSyncEvent(CameraSyncStatus.SCAN_END, "end_scan"));
+        SettingsManager.instance().saveCheckScanStart(CameraSyncStatus.STATUS_DEFAULT);
+        SettingsManager.instance().saveCameraUploadNumber(CameraSyncStatus.STATUS_DEFAULT,CameraSyncStatus.STATUS_DEFAULT);
     }
 
     private void uploadImages(SyncResult syncResult, DataManager dataManager) throws SeafException, InterruptedException {

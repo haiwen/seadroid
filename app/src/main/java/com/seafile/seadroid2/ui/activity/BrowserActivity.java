@@ -48,6 +48,7 @@ import com.seafile.seadroid2.account.Account;
 import com.seafile.seadroid2.account.AccountManager;
 import com.seafile.seadroid2.cameraupload.CameraUploadManager;
 import com.seafile.seadroid2.cameraupload.MediaObserverService;
+import com.seafile.seadroid2.data.CameraSyncEvent;
 import com.seafile.seadroid2.data.DataManager;
 import com.seafile.seadroid2.data.DatabaseHelper;
 import com.seafile.seadroid2.data.SeafDirent;
@@ -55,7 +56,6 @@ import com.seafile.seadroid2.data.SeafRepo;
 import com.seafile.seadroid2.data.SeafStarredFile;
 import com.seafile.seadroid2.data.ServerInfo;
 import com.seafile.seadroid2.data.StorageManager;
-import com.seafile.seadroid2.data.UploadEvent;
 import com.seafile.seadroid2.fileschooser.MultiFileChooserActivity;
 import com.seafile.seadroid2.monitor.FileMonitorService;
 import com.seafile.seadroid2.notification.DownloadNotificationProvider;
@@ -92,8 +92,8 @@ import com.seafile.seadroid2.ui.dialog.UploadChoiceDialog;
 import com.seafile.seadroid2.ui.fragment.ActivitiesFragment;
 import com.seafile.seadroid2.ui.fragment.ReposFragment;
 import com.seafile.seadroid2.ui.fragment.StarredFragment;
+import com.seafile.seadroid2.util.CameraSyncStatus;
 import com.seafile.seadroid2.util.ConcurrentAsyncTask;
-import com.seafile.seadroid2.util.Constant;
 import com.seafile.seadroid2.util.Utils;
 import com.seafile.seadroid2.util.UtilsJellyBean;
 import com.viewpagerindicator.IconPagerAdapter;
@@ -394,7 +394,7 @@ public class BrowserActivity extends BaseActivity
         requestServerInfo();
 
         requestReadExternalStoragePermission();
-        Utils.startJob(this);
+        Utils.startCameraSyncJob(this);
         syncCamera();
     }
 
@@ -2438,8 +2438,8 @@ public class BrowserActivity extends BaseActivity
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEvent(UploadEvent result) {
-        if (!Utils.isServiceRunning(BrowserActivity.this, "com.seafile.seadroid2.cameraupload.MediaObserverService") && result.getTagcode() == Constant.IS_SERVICE) {
+    public void onEvent(CameraSyncEvent result) {
+        if (!Utils.isServiceRunning(BrowserActivity.this, "com.seafile.seadroid2.cameraupload.MediaObserverService") && result.getTagCode() == CameraSyncStatus.IS_SERVICE) {
             mediaObserver = new Intent(this, MediaObserverService.class);
             startService(mediaObserver);
             syncCamera();

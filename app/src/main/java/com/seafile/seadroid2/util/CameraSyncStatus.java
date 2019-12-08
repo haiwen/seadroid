@@ -1,6 +1,6 @@
 package com.seafile.seadroid2.util;
 
-public class Constant {
+public class CameraSyncStatus {
 
     /**
      * judge scan  service is alive
@@ -21,6 +21,8 @@ public class Constant {
     /**
      * network available
      */
-    public static int NET_WORK_AVAILABLE = 5;
+    public static int NETWORK_AVAILABLE = 5;
+
+    public static int STATUS_DEFAULT = 0;
 
 }

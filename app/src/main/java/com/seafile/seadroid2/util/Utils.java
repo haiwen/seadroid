@@ -889,7 +889,7 @@ public class Utils {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public static void startJob(Context context) {
+    public static void startCameraSyncJob(Context context) {
         JobScheduler mJobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
         JobInfo.Builder builder = new JobInfo.Builder(JOB_ID, new ComponentName(context.getPackageName(),
                 MediaSchedulerService.class.getName()));
